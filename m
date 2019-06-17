@@ -2,86 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D743C48192
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 14:11:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D83A348277
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 14:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726005AbfFQML3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 08:11:29 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:42387 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725906AbfFQML2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 08:11:28 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 9CF00214DB;
-        Mon, 17 Jun 2019 08:11:27 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 17 Jun 2019 08:11:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=aXGkzSCZkb4oPoMyz+3wo1NF4tM
-        qm2Uq4GOcYFwyqcw=; b=oiPwqllXZ/bEytOXqIGpL9CnIallBCTxUY1uGnnlFwa
-        ogMmJefRJtI2WmDOptmSQap3lSev/XdAJLEEpy/SdWntG561GhS9W09aHcDBJzE5
-        oHju90poC+kwAJTiBX+c/LfNUs5q9WiIlnUc7O/JDkwx9JCV0a6Z/1+xV6LBMvaE
-        M/XFsxgzzXAP4P37niZI4nuDEcMriiT/H6l1ADLO+rC6QqoBxGqcW2OxCGMrsJSW
-        vS4jeIzi2HVjSuu8LX8vQt9zovf/OcJMvCRpuoj4ptW61L0gWidJbzo6zyENcUgy
-        f+uIYHZZRmyPAyTANHPeQXQGu/aV8plT6HH6JaznQJQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aXGkzS
-        CZkb4oPoMyz+3wo1NF4tMqm2Uq4GOcYFwyqcw=; b=q/RaJxqiBPHWmHika/G/qM
-        PcJsqLeUfgp73SmBy+dh4lYz7wzqRwlacCCfQMwqRshk7IeSE8pe5IU+MIKLFZs7
-        MyXMSk6EXp7MsBMzvboNK1AF64dpCpa2FH26OX6x6AaEiOWs6J9MvY0R0qwjD9xA
-        WnjV4w/+26KbdHovZIQOPdIrd3fA4uYfag3Nqs0VUSKQ3SxVKmK93NMJtNF/zA9p
-        hdwWY37mT0it45mY029ez+KnGwRvweCIz+CEvpjeK5PxIOjIufoRG+zNSKouYRgz
-        atQeEW/OjOIXC1Y+8RdxhfZ+HgZRmKa9NNRF5huwgKhkXTtUgMMEW9XOGbjuxAOw
-        ==
-X-ME-Sender: <xms:boMHXSF6dNXFncDB20mkVOGsrVGvswliS-9aCIXac9QKfvBz67vyCw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeijedghedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:boMHXU3ChH4NhnaWLpUcVKSw_Rws24Fs32mKrqbLGvCm-XW7PXKsfg>
-    <xmx:boMHXUx3LL9cZUPJ0r-A8f7JyRO9Z5JQnk4o_y0SSXCeyofFM3-EmA>
-    <xmx:boMHXeElhoABSxsn0K-bFTjSF8d-CeziOIwdpWewrNCsYqr4OHPn1w>
-    <xmx:b4MHXdv3YeklGKjUpTss-XWJGRXN9fTTzIguTSt0-og9issI5nXzpg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EF35738008B;
-        Mon, 17 Jun 2019 08:11:25 -0400 (EDT)
-Date:   Mon, 17 Jun 2019 14:11:24 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Baruch Siach <baruch@tkos.co.il>
-Cc:     stable@vger.kernel.org,
-        Erik =?utf-8?Q?=C4=8Cuk?= <erik.cuk@domel.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: rtc: pcf8523: don't return invalid date when battery is low
-Message-ID: <20190617121124.GB1456@kroah.com>
-References: <877e9qt8d1.fsf@tarshish>
+        id S1726336AbfFQMbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 08:31:44 -0400
+Received: from mout.kundenserver.de ([212.227.126.130]:53495 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726121AbfFQMbo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 08:31:44 -0400
+Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
+ (mreue011 [212.227.15.129]) with ESMTPA (Nemesis) id
+ 1MhlbM-1iGKPA0jWS-00djt7; Mon, 17 Jun 2019 14:31:20 +0200
+From:   Arnd Bergmann <arnd@arndb.de>
+To:     Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        akpm@linux-foundation.org
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org
+Subject: [PATCH] ubsan: mark ubsan_type_mismatch_common inline
+Date:   Mon, 17 Jun 2019 14:31:09 +0200
+Message-Id: <20190617123109.667090-1-arnd@arndb.de>
+X-Mailer: git-send-email 2.20.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <877e9qt8d1.fsf@tarshish>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:RdrPG7YYozPOO4moFcrupalm1fFjUIeD1Q8rHF6IwUGNo79JcXH
+ miKAhPNzei6GuU9U1bsgDZ8kG1jVk32osA4MHetoIE5ZsIYqMyTgCvnG+vMgAlYviqXB8aN
+ a9wfzrI6f8gpze1TZWcSRXEgaozaMk4T3JwjusG3CMr7ZP2P8xxhrSDPn+Hjdzc0nXiljhb
+ gAQj1zphITg1lfCVb1zlw==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:OtOLG0VadSQ=:XsrhptSTyA02Et1uaEtCuI
+ BLtI2n1fQrB7hHBYUluxjNkET7dy8P1RWzr6u8ltKIroe8fL3tMp5BOhzyD6oWF5sC62a1IKp
+ NVnjSaTn/KQN1TCXTF04NJBMGUzH2E1KS9tapWvGMgEsL+Xn5kSFBI6uQrkp9Em2V4Kt5Mczd
+ 8121xcgyrMya6GNS+xexw6fU2mfymI6X47yQefgyFsH64DN2ugUfEs2gyu/nYBYWt2C56Kp2o
+ rhhsZo5VIwK2Bug5WrzOWLr8ZNLkn27J55n0Hycluj6h5UNogfQv3rQDPd8aE5oMn6Lry/Nqs
+ SIDyZUuv3doxaFGfEY+xwB3ekAFtU/ZXk1biWw6OgvwZhj+CIbrZ09+1/9R1YoJLexrOM6ihz
+ ZauPN9BevksogYmUc5whKUqg4hLSolBCEZereObQRocrz6deopDGt7xJtcetvv91eYIRAXXLS
+ oUmmPVdFOgH2tuE7kjqOTO8gqrK34qrv7+40BwbH74izvdaKiM01Xs+p5t8KEQZFyvFgoscJY
+ E3KLyEzZkKU65G25+4A0G46Hx6m+zr1afShcfYNo5jsNIv1Oom057fImFi8zbm8z+hLAUj7nA
+ bV1uI8nRN4yZf9/KQuusEdi7XHXmLXnbcp1i8COCDZkIeNRLl9EKbADF6MFtcLqeC08RG85Hs
+ ekBZKOpRFi5YTyTKqTX7PCFsIyYHX1AdIfPQ8qpCz0cUxDNdsu1ni5GzxKHrXXzvIpa0q9WKj
+ Bhp8Ec+4/uFOookVQleHJ4RTlsMu3Nz/ieF8RQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 13, 2019 at 07:30:34AM +0300, Baruch Siach wrote:
-> Hi stable kernel team,
-> 
-> Please consider upstream commit ecb4a353d3afd45 ("rtc: pcf8523: don't
-> return invalid date when battery is low") for stable backport. As the
-> commit log explains, this fixes bogus system date when RTC backup
-> battery is low.  With this fix date is set to the well known 01-01-1970
-> value instead.
-> 
-> This commit should be applicable to v4.9+.
+objtool points out a condition that it does not like:
 
-Now queued up, thanks.
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x4a: call to stackleak_track_stack() with UACCESS enabled
 
-greg k-h
+I guess this is related to the call ubsan_type_mismatch_common()
+not being inline before it calls user_access_restore(), though
+I don't fully understand why that is a problem.
+
+Marking the function inline shuts up the warning and might be
+the right thing to do. The patch that caused this is marked
+for stable backports, so this one should probably be backported
+as well.
+
+Fixes: 42440c1f9911 ("lib/ubsan: add type mismatch handler for new GCC/Clang")
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ lib/ubsan.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/ubsan.c b/lib/ubsan.c
+index ecc179338094..3d8836f0fc5c 100644
+--- a/lib/ubsan.c
++++ b/lib/ubsan.c
+@@ -309,7 +309,7 @@ static void handle_object_size_mismatch(struct type_mismatch_data_common *data,
+ 	ubsan_epilogue(&flags);
+ }
+ 
+-static void ubsan_type_mismatch_common(struct type_mismatch_data_common *data,
++static __always_inline void ubsan_type_mismatch_common(struct type_mismatch_data_common *data,
+ 				unsigned long ptr)
+ {
+ 	unsigned long flags = user_access_save();
+-- 
+2.20.0
+
