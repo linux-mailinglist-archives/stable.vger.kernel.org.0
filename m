@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1A48493F6
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78FE149284
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:21:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729862AbfFQVYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:24:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49634 "EHLO mail.kernel.org"
+        id S1729277AbfFQVVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:21:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729215AbfFQVYK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:24:10 -0400
+        id S1728750AbfFQVVF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:21:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB8C820657;
-        Mon, 17 Jun 2019 21:24:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AF5520652;
+        Mon, 17 Jun 2019 21:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806649;
-        bh=CRUyWK9NyptmT2V8ZmUnha77qJW0NiUSmcI4NGUdFCY=;
+        s=default; t=1560806465;
+        bh=hEgJyZc9Hwr8ie7GW20x125kBieP37qILr4Cyx2FG3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f8Hq3N/X0Bl3XVFsgJJKvdtwv4LlvWBxADjIh/JUE1IwEBBrwL7t3PTjtSXl1M+fa
-         5165vjX2TpViKreE80HUaqG+y3OHQOjYW/OC8bF3kR9vy0eGqtV6+vHWK/FXjOb+Ot
-         JR24QoNpJoO1rJmFLj1oVgeXlsPoQgAEThQcG7ek=
+        b=CLyWcV0zypDGvbDYVT3unBQ81JMR+hMV/Y5Po5DjJjPaZsicPrrYxgUNc0hv9oFFp
+         VRCUySgk0wjg0y5gyPTYSs5HfDedHXK9l3ynRqgC2WiEtwxK5cKrcVOuOFOgl99r/o
+         P+Bq+hEiQvSg4fkatUVpAQmply5EILQOgZ/Vpbmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 10/75] ALSA: oxfw: allow PCM capture for Stanton SCS.1m
+        stable@vger.kernel.org, Arika Chen <eaglesora@gmail.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 061/115] bpf, tcp: correctly handle DONT_WAIT flags and timeo == 0
 Date:   Mon, 17 Jun 2019 23:09:21 +0200
-Message-Id: <20190617210753.265413601@linuxfoundation.org>
+Message-Id: <20190617210803.364287540@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+References: <20190617210759.929316339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+[ Upstream commit 5fa2ca7c4a3fc176f31b495e1a704862d8188b53 ]
 
-commit d8fa87c368f5b4096c4746894fdcc195da285df1 upstream.
+The tcp_bpf_wait_data() routine needs to check timeo != 0 before
+calling sk_wait_event() otherwise we may see unexpected stalls
+on receiver.
 
-Stanton SCS.1m can transfer isochronous packet with Multi Bit Linear
-Audio data channels, therefore it allows software to capture PCM
-substream. However, ALSA oxfw driver doesn't.
+Arika did all the leg work here I just formatted, posted and ran
+a few tests.
 
-This commit changes the driver to add one PCM substream for capture
-direction.
-
-Fixes: de5126cc3c0b ("ALSA: oxfw: add stream format quirk for SCS.1 models")
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 604326b41a6fb ("bpf, sockmap: convert to generic sk_msg interface")
+Reported-by: Arika Chen <eaglesora@gmail.com>
+Suggested-by: Arika Chen <eaglesora@gmail.com>
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/oxfw/oxfw.c |    3 ---
- 1 file changed, 3 deletions(-)
+ net/ipv4/tcp_bpf.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/sound/firewire/oxfw/oxfw.c
-+++ b/sound/firewire/oxfw/oxfw.c
-@@ -170,9 +170,6 @@ static int detect_quirks(struct snd_oxfw
- 		oxfw->midi_input_ports = 0;
- 		oxfw->midi_output_ports = 0;
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index 4a619c85daed..3d1e15401384 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -27,7 +27,10 @@ static int tcp_bpf_wait_data(struct sock *sk, struct sk_psock *psock,
+ 			     int flags, long timeo, int *err)
+ {
+ 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+-	int ret;
++	int ret = 0;
++
++	if (!timeo)
++		return ret;
  
--		/* Output stream exists but no data channels are useful. */
--		oxfw->has_output = false;
--
- 		return snd_oxfw_scs1x_add(oxfw);
- 	}
- 
+ 	add_wait_queue(sk_sleep(sk), &wait);
+ 	sk_set_bit(SOCKWQ_ASYNC_WAITDATA, sk);
+-- 
+2.20.1
+
 
 
