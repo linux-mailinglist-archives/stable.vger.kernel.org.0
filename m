@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FCB049468
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B46FF49246
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:18:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725839AbfFQVSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:18:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42200 "EHLO mail.kernel.org"
+        id S1727903AbfFQVSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:18:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727633AbfFQVSk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:18:40 -0400
+        id S1727633AbfFQVSn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:18:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C65E2208E4;
-        Mon, 17 Jun 2019 21:18:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59D50208E4;
+        Mon, 17 Jun 2019 21:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806320;
-        bh=Git62G+Dc/gHVtT35dLHYmibJOb6VJd1X3v/wcuiWBI=;
+        s=default; t=1560806322;
+        bh=7Ll39KdyiwTAYU6Ajqd6LW4QlD2dvlfr5XbV49P6Hr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G0I91ywLGQwFEmPeZf62gU01YEyT4Rwr6trYmRb/z/4Onij32FROSr8aNJuK3B9CJ
-         QiRIae+kq3QuORWLqGsSJYYKmgtaL3eTr01HbbrWIOteGyiPHo9+RGcFPXUtS0ITmU
-         JEofo3OmdbvDuMZ7aGhlYdHbKvk/pXnCS8x3kAkM=
+        b=A5eBJSNXmxJspPCGkW1v7z4np+ttwzFAiOPk7zQtxTzTbodI56zEsdFR7y7LO0hVJ
+         BmRLLapG6Tnh9g0XzuCRVi/VwEBjAkttoosma+sEP+eHuiRkBefXLzX98sqXpPOk4E
+         4BMH5BU1I3+ea1p2DIREGKhSR62NQdib7yEfyWV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.1 012/115] Revert "ALSA: hda/realtek - Improve the headset mic for Acer Aspire laptops"
-Date:   Mon, 17 Jun 2019 23:08:32 +0200
-Message-Id: <20190617210800.542566101@linuxfoundation.org>
+Subject: [PATCH 5.1 013/115] ALSA: oxfw: allow PCM capture for Stanton SCS.1m
+Date:   Mon, 17 Jun 2019 23:08:33 +0200
+Message-Id: <20190617210800.591342977@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -43,59 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 17d304604a88cf20c8dfd2c95d3decb9c4f8bca4 upstream.
+commit d8fa87c368f5b4096c4746894fdcc195da285df1 upstream.
 
-This reverts commit 9cb40eb184c4220d244a532bd940c6345ad9dbd9.
+Stanton SCS.1m can transfer isochronous packet with Multi Bit Linear
+Audio data channels, therefore it allows software to capture PCM
+substream. However, ALSA oxfw driver doesn't.
 
-This patch introduces noise and headphone playback issue after
-rebooting or suspending/resuming. Let us revert it.
+This commit changes the driver to add one PCM substream for capture
+direction.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=203831
-Fixes: 9cb40eb184c4 ("ALSA: hda/realtek - Improve the headset mic for Acer Aspire laptops")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Fixes: de5126cc3c0b ("ALSA: oxfw: add stream format quirk for SCS.1 models")
+Cc: <stable@vger.kernel.org> # v4.5+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |   16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ sound/firewire/oxfw/oxfw.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6166,15 +6166,13 @@ static const struct hda_fixup alc269_fix
- 		.chain_id = ALC269_FIXUP_THINKPAD_ACPI,
- 	},
- 	[ALC255_FIXUP_ACER_MIC_NO_PRESENCE] = {
--		.type = HDA_FIXUP_VERBS,
--		.v.verbs = (const struct hda_verb[]) {
--			/* Enable the Mic */
--			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x45 },
--			{ 0x20, AC_VERB_SET_PROC_COEF, 0x5089 },
--			{}
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
-+			{ }
- 		},
- 		.chained = true,
--		.chain_id = ALC269_FIXUP_LIFEBOOK_EXTMIC
-+		.chain_id = ALC255_FIXUP_HEADSET_MODE
- 	},
- 	[ALC255_FIXUP_ASUS_MIC_NO_PRESENCE] = {
- 		.type = HDA_FIXUP_PINS,
-@@ -7220,10 +7218,6 @@ static const struct snd_hda_pin_quirk al
- 		{0x19, 0x0181303F},
- 		{0x21, 0x0221102f}),
- 	SND_HDA_PIN_QUIRK(0x10ec0255, 0x1025, "Acer", ALC255_FIXUP_ACER_MIC_NO_PRESENCE,
--		{0x12, 0x90a60140},
--		{0x14, 0x90170120},
--		{0x21, 0x02211030}),
--	SND_HDA_PIN_QUIRK(0x10ec0255, 0x1025, "Acer", ALC255_FIXUP_ACER_MIC_NO_PRESENCE,
- 		{0x12, 0x90a601c0},
- 		{0x14, 0x90171120},
- 		{0x21, 0x02211030}),
+--- a/sound/firewire/oxfw/oxfw.c
++++ b/sound/firewire/oxfw/oxfw.c
+@@ -148,9 +148,6 @@ static int detect_quirks(struct snd_oxfw
+ 		oxfw->midi_input_ports = 0;
+ 		oxfw->midi_output_ports = 0;
+ 
+-		/* Output stream exists but no data channels are useful. */
+-		oxfw->has_output = false;
+-
+ 		return snd_oxfw_scs1x_add(oxfw);
+ 	}
+ 
 
 
