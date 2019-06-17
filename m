@@ -2,173 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAFBD48B10
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 19:59:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E26848AE2
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 19:58:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728761AbfFQR7U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 13:59:20 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:41704 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728749AbfFQR7U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 13:59:20 -0400
-Received: by mail-pf1-f193.google.com with SMTP id m30so6085327pff.8
-        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 10:59:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=FlnZzdiFf1S0YMLoCTFEyV12ust5Dpo7bSpHKMU0s0k=;
-        b=VIWj2CuRQEFDLQTpFrEiwh7JmnmIdikL7iboXsKITUDu17jDFvklPt+TErOhzcT4hL
-         M45V1hxQGm9U+GrK+lQYDYIj2Ak6M6/DRUgQHo+Eh2Be+W6dF0MnnCpH29uTjmn+fKMv
-         tP1d85wAvCnpc6uw+HsZKe4wc8XeCeeqZFD8c=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=FlnZzdiFf1S0YMLoCTFEyV12ust5Dpo7bSpHKMU0s0k=;
-        b=mZJKk44K2jDYd/r3Y/OgB9E37L0+aLezXR9RH5dOwkStSjohqOuNC2aN1j2GvVBCDy
-         T1lA6CauVSHGQLa8tepQQ7RxW+qa+lcuqz6S09imzCHrkwhoi+KXlNZJYXkEowdJgqZL
-         rVsZKHMY07s11dLl5nzvIVa3VuP7Z6UJzbHpyxlAn7NClC/h0X4pzdkjLiTALaeKJ+t7
-         ggUy9/Nrb8bLh3bCKaSnuODX5mcnlKiF+njbZME6Jbr6bi4C7RvsBCWiyZ427uTC1hd1
-         6BhkcQ8Nm4sxub6ob7+lPLZLP2VtAr/Krjb7+xI74n9ZjU5dROgSPw6AnOEtGcMNMHDl
-         9b9Q==
-X-Gm-Message-State: APjAAAUkr9BtxoYFwDyGpdxSdsmK9ypXm2X+U5ZE3srYxb8l58VhUrd4
-        QrEYt+fLnZYzODwvf9eHntocDg==
-X-Google-Smtp-Source: APXvYqyaVs3fvyMpOLZjM3c8dSSZ0GNGbc2/XbFy4Qlb/yNERuegnQR6T/3bb+Lh0yT+fdVq5jr3Gw==
-X-Received: by 2002:a62:b40f:: with SMTP id h15mr107121375pfn.57.1560794358391;
-        Mon, 17 Jun 2019 10:59:18 -0700 (PDT)
-Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:24fa:e766:52c9:e3b2])
-        by smtp.gmail.com with ESMTPSA id q1sm15145809pfn.178.2019.06.17.10.59.14
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 17 Jun 2019 10:59:16 -0700 (PDT)
-From:   Douglas Anderson <dianders@chromium.org>
-To:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>
-Cc:     brcm80211-dev-list.pdl@broadcom.com,
-        linux-rockchip@lists.infradead.org,
-        Double Lo <double.lo@cypress.com>, briannorris@chromium.org,
-        linux-wireless@vger.kernel.org,
-        Naveen Gupta <naveen.gupta@cypress.com>,
-        Madhan Mohan R <madhanmohan.r@cypress.com>, mka@chromium.org,
-        Wright Feng <wright.feng@cypress.com>,
-        Chi-Hsien Lin <chi-hsien.lin@cypress.com>,
-        netdev@vger.kernel.org, brcm80211-dev-list@cypress.com,
-        Douglas Anderson <dianders@chromium.org>,
-        stable@vger.kernel.org, Franky Lin <franky.lin@broadcom.com>,
-        linux-kernel@vger.kernel.org,
-        Hante Meuleman <hante.meuleman@broadcom.com>,
-        Ondrej Jirman <megous@megous.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH v5 5/5] brcmfmac: sdio: Don't tune while the card is off
-Date:   Mon, 17 Jun 2019 10:56:53 -0700
-Message-Id: <20190617175653.21756-6-dianders@chromium.org>
-X-Mailer: git-send-email 2.22.0.410.gd8fdbe21b5-goog
-In-Reply-To: <20190617175653.21756-1-dianders@chromium.org>
-References: <20190617175653.21756-1-dianders@chromium.org>
+        id S1726529AbfFQR6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 13:58:11 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:52652 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726427AbfFQR6L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 13:58:11 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0D3A330018FC
+        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 17:58:11 +0000 (UTC)
+Received: from [172.54.67.194] (cpt-large-cpu-02.paas.prod.upshift.rdu2.redhat.com [10.0.18.84])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 867A27FA2C;
+        Mon, 17 Jun 2019 17:58:08 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2O?= FAIL: Stable queue: queue-4.19
+Message-ID: <cki.638D8E5353.03RZJNNKUW@redhat.com>
+X-Gitlab-Pipeline-ID: 12528
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Mon, 17 Jun 2019 17:58:11 +0000 (UTC)
+Date:   Mon, 17 Jun 2019 13:58:11 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When Broadcom SDIO cards are idled they go to sleep and a whole
-separate subsystem takes over their SDIO communication.  This is the
-Always-On-Subsystem (AOS) and it can't handle tuning requests.
+Hello,
 
-Specifically, as tested on rk3288-veyron-minnie (which reports having
-BCM4354/1 in dmesg), if I force a retune in brcmf_sdio_kso_control()
-when "on = 1" (aka we're transition from sleep to wake) by whacking:
-  bus->sdiodev->func1->card->host->need_retune = 1
-...then I can often see tuning fail.  In this case dw_mmc reports "All
-phases bad!").  Note that I don't get 100% failure, presumably because
-sometimes the card itself has already transitioned away from the AOS
-itself by the time we try to wake it up.  If I force retuning when "on
-= 0" (AKA force retuning right before sending the command to go to
-sleep) then retuning is always OK.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-NOTE: we need _both_ this patch and the patch to avoid triggering
-tuning due to CRC errors in the sleep/wake transition, AKA ("brcmfmac:
-sdio: Disable auto-tuning around commands expected to fail").  Though
-both patches handle issues with Broadcom's AOS, the problems are
-distinct:
-1. We want to defer (but not ignore) asynchronous (like
-   timer-requested) tuning requests till the card is awake.  However,
-   we want to ignore CRC errors during the transition, we don't want
-   to queue deferred tuning request.
-2. You could imagine that the AOS could implement retuning but we
-   could still get errors while transitioning in and out of the AOS.
-   Similarly you could imagine a seamless transition into and out of
-   the AOS (with no CRC errors) even if the AOS couldn't handle
-   tuning.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 6500aa436df4 - Linux 4.19.52
 
-ALSO NOTE: presumably there is never a desperate need to retune in
-order to wake up the card, since doing so is impossible.  Luckily the
-only way the card can get into sleep state is if we had a good enough
-tuning to send it the command to put it into sleep, so presumably that
-"good enough" tuning is enough to wake us up, at least with a few
-retries.
+The results of these automated tests are provided below.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
----
-Patches #2 - #5 will go through Ulf's tree.
+    Overall result: FAILED (see details below)
+             Merge: FAILED
 
-This patch is still lacking Kalle Valo's Ack, which should probably be
-received before landing in Ulf's tree.
 
-I've CCed stable@ here without a version tag.  As per Adrian Hunter
-this patch applies cleanly to 4.18+ so that would be an easy first
-target.  However, if someone were so inclined they could provide
-further backports.  As per Adrian [1] the root problem has existed for
-~4 years.
 
-[1] https://lkml.kernel.org/r/4f39e152-04ba-a64e-985a-df93e6d15ff8@intel.com
 
-Changes in v5:
-- Rewording of "sleep command" in commit message (Arend).
+When we attempted to merge the patchset, we received an error:
 
-Changes in v4:
-- Adjust to API rename (Adrian).
+  Patch is empty.
 
-Changes in v3:
-- ("brcmfmac: sdio: Don't tune while the card is off") new for v3.
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
 
-Changes in v2: None
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-index ee76593259a7..629140b6d7e2 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-@@ -669,6 +669,10 @@ brcmf_sdio_kso_control(struct brcmf_sdio *bus, bool on)
- 
- 	sdio_retune_crc_disable(bus->sdiodev->func1);
- 
-+	/* Cannot re-tune if device is asleep; defer till we're awake */
-+	if (on)
-+		sdio_retune_hold_now(bus->sdiodev->func1);
-+
- 	wr_val = (on << SBSDIO_FUNC1_SLEEPCSR_KSO_SHIFT);
- 	/* 1st KSO write goes to AOS wake up core if device is asleep  */
- 	brcmf_sdiod_writeb(bus->sdiodev, SBSDIO_FUNC1_SLEEPCSR, wr_val, &err);
-@@ -729,6 +733,9 @@ brcmf_sdio_kso_control(struct brcmf_sdio *bus, bool on)
- 	if (try_cnt > MAX_KSO_ATTEMPTS)
- 		brcmf_err("max tries: rd_val=0x%x err=%d\n", rd_val, err);
- 
-+	if (on)
-+		sdio_retune_release(bus->sdiodev->func1);
-+
- 	sdio_retune_crc_enable(bus->sdiodev->func1);
- 
- 	return err;
--- 
-2.22.0.410.gd8fdbe21b5-goog
+Merge testing
+-------------
 
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 6500aa436df4 - Linux 4.19.52
+
+
+We then merged the patchset with `git am`:
+
+  drm-nouveau-add-kconfig-option-to-turn-off-nouveau-legacy-contexts.-v3.patch
