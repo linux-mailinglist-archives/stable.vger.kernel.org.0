@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 898F94923F
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1962449462
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726301AbfFQVSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:18:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42002 "EHLO mail.kernel.org"
+        id S1728518AbfFQVTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:19:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725839AbfFQVSd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:18:33 -0400
+        id S1728602AbfFQVTE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:19:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F8C820861;
-        Mon, 17 Jun 2019 21:18:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E607F2166E;
+        Mon, 17 Jun 2019 21:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806312;
-        bh=lJfIZCFFMQ+3+weqOMdFEChPc+m93c73yWsmP5nWl4w=;
+        s=default; t=1560806343;
+        bh=oywjT/WGxmlXWiGqewKHuaN1H1kBYOm+AcDn/SJIaZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nf4c9962HLLRLWNsPzZ/PYBq5MYQMfW3b92Q94n28UN+t8n1zG9D4Cpi1tk34Ju5b
-         ApIE9SsHe/Hcf34jxjWP+K4utd1EVA5PLfBGihPZbY5+Sy7mOUzOwvT1NUIy3dacDg
-         lCuOwQpE6zx8EjyHxaArArwO7WtK2xgV9+gb65qk=
+        b=s/8LrDpx1/Mg/uJV0RYvyY00XRJQCqAzQOoHrMaa5CvogWA/eS5N2rExqThrykAWC
+         G7rmvbm0fstb/u4uX7q2RumuRZy0Qli4EC97oTCi/+OMZIBpJ+V8MtJVTIG/43Glws
+         vaLYgRZA+2MOiGDNjepgF1dMpkmLF5/NvlnelnWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dave Airlie <airlied@redhat.com>
-Subject: [PATCH 5.1 001/115] drm/nouveau: add kconfig option to turn off nouveau legacy contexts. (v3)
-Date:   Mon, 17 Jun 2019 23:08:21 +0200
-Message-Id: <20190617210800.005254704@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Backlund <tmb@mageia.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sven Joachim <svenjoac@gmx.de>
+Subject: [PATCH 5.1 002/115] nouveau: Fix build with CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT disabled
+Date:   Mon, 17 Jun 2019 23:08:22 +0200
+Message-Id: <20190617210800.045460997@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,112 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Airlie <airlied@redhat.com>
+From: Thomas Backlund <tmb@mageia.org>
 
-commit b30a43ac7132cdda833ac4b13dd1ebd35ace14b7 upstream.
+Not-entirely-upstream-sha1-but-equivalent: bed2dd8421
+("drm/ttm: Quick-test mmap offset in ttm_bo_mmap()")
 
-There was a nouveau DDX that relied on legacy context ioctls to work,
-but we fixed it years ago, give distros that have a modern DDX the
-option to break the uAPI and close the mess of holes that legacy
-context support is.
+Setting CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT=n (added by commit: b30a43ac7132)
+causes the build to fail with:
 
-Full context of the story:
+ERROR: "drm_legacy_mmap" [drivers/gpu/drm/nouveau/nouveau.ko] undefined!
 
-commit 0e975980d435d58df2d430d688b8c18778b42218
-Author: Peter Antoine <peter.antoine@intel.com>
-Date:   Tue Jun 23 08:18:49 2015 +0100
+This does not happend upstream as the offending code got removed in:
+bed2dd8421 ("drm/ttm: Quick-test mmap offset in ttm_bo_mmap()")
 
-    drm: Turn off Legacy Context Functions
+Fix that by adding check for CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT around
+the drm_legacy_mmap() call.
 
-    The context functions are not used by the i915 driver and should not
-    be used by modeset drivers. These driver functions contain several bugs
-    and security holes. This change makes these functions optional can be
-    turned on by a setting, they are turned off by default for modeset
-    driver with the exception of the nouvea driver that may require them with
-    an old version of libdrm.
+Also, as Sven Joachim pointed out, we need to make the check in
+CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT=n case return -EINVAL as its done
+for basically all other gpu drivers, especially in upstream kernels
+drivers/gpu/drm/ttm/ttm_bo_vm.c as of the upstream commit bed2dd8421.
 
-    The previous attempt was
+NOTE. This is a minimal stable-only fix for trees where b30a43ac7132 is
+backported as the build error affects nouveau only.
 
-    commit 7c510133d93dd6f15ca040733ba7b2891ed61fd1
-    Author: Daniel Vetter <daniel.vetter@ffwll.ch>
-    Date:   Thu Aug 8 15:41:21 2013 +0200
-
-        drm: mark context support as a legacy subsystem
-
-    but this had to be reverted
-
-    commit c21eb21cb50d58e7cbdcb8b9e7ff68b85cfa5095
-    Author: Dave Airlie <airlied@redhat.com>
-    Date:   Fri Sep 20 08:32:59 2013 +1000
-
-        Revert "drm: mark context support as a legacy subsystem"
-
-    v2: remove returns from void function, and formatting (Daniel Vetter)
-
-    v3:
-    - s/Nova/nouveau/ in the commit message, and add references to the
-      previous attempts
-    - drop the part touching the drm hw lock, that should be a separate
-      patch.
-
-    Signed-off-by: Peter Antoine <peter.antoine@intel.com> (v2)
-    Cc: Peter Antoine <peter.antoine@intel.com> (v2)
-    Reviewed-by: Peter Antoine <peter.antoine@intel.com>
-    Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-v2: move DRM_VM dependency into legacy config.
-v3: fix missing dep (kbuild robot)
-
+Fixes: b30a43ac7132 ("drm/nouveau: add kconfig option to turn off nouveau
+       legacy contexts. (v3)")
+Signed-off-by: Thomas Backlund <tmb@mageia.org>
 Cc: stable@vger.kernel.org
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sven Joachim <svenjoac@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/nouveau/Kconfig       |   13 ++++++++++++-
- drivers/gpu/drm/nouveau/nouveau_drm.c |    7 +++++--
- 2 files changed, 17 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_ttm.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/nouveau/Kconfig
-+++ b/drivers/gpu/drm/nouveau/Kconfig
-@@ -17,10 +17,21 @@ config DRM_NOUVEAU
- 	select INPUT if ACPI && X86
- 	select THERMAL if ACPI && X86
- 	select ACPI_VIDEO if ACPI && X86
--	select DRM_VM
- 	help
- 	  Choose this option for open-source NVIDIA support.
+--- a/drivers/gpu/drm/nouveau/nouveau_ttm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_ttm.c
+@@ -169,7 +169,11 @@ nouveau_ttm_mmap(struct file *filp, stru
+ 	struct nouveau_drm *drm = nouveau_drm(file_priv->minor->dev);
  
-+config NOUVEAU_LEGACY_CTX_SUPPORT
-+	bool "Nouveau legacy context support"
-+	depends on DRM_NOUVEAU
-+	select DRM_VM
-+	default y
-+	help
-+	  There was a version of the nouveau DDX that relied on legacy
-+	  ctx ioctls not erroring out. But that was back in time a long
-+	  ways, so offer a way to disable it now. For uapi compat with
-+	  old nouveau ddx this should be on by default, but modern distros
-+	  should consider turning it off.
-+
- config NOUVEAU_PLATFORM_DRIVER
- 	bool "Nouveau (NVIDIA) SoC GPUs"
- 	depends on DRM_NOUVEAU && ARCH_TEGRA
---- a/drivers/gpu/drm/nouveau/nouveau_drm.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
-@@ -1094,8 +1094,11 @@ nouveau_driver_fops = {
- static struct drm_driver
- driver_stub = {
- 	.driver_features =
--		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER |
--		DRIVER_KMS_LEGACY_CONTEXT,
-+		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER
+ 	if (unlikely(vma->vm_pgoff < DRM_FILE_PAGE_OFFSET))
 +#if defined(CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT)
-+		| DRIVER_KMS_LEGACY_CONTEXT
+ 		return drm_legacy_mmap(filp, vma);
++#else
++		return -EINVAL;
 +#endif
-+		,
  
- 	.open = nouveau_drm_open,
- 	.postclose = nouveau_drm_postclose,
+ 	return ttm_bo_mmap(filp, vma, &drm->ttm.bdev);
+ }
 
 
