@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9CD949386
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:31:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B719493D5
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730083AbfFQV2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:28:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55834 "EHLO mail.kernel.org"
+        id S1728115AbfFQVdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:33:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730583AbfFQV2o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:28:44 -0400
+        id S1730096AbfFQVZi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:25:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BF55204FD;
-        Mon, 17 Jun 2019 21:28:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFB572063F;
+        Mon, 17 Jun 2019 21:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806923;
-        bh=4EQFF575OSksr+Czwy7Daf1KcxUt6KdPuAr8LL/g0+I=;
+        s=default; t=1560806738;
+        bh=a3X1sWeBNNWqC0iyiNfe2F/JLFAy6jJtPeF7w4kKum4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pvk2SXmSG1nFIwWL8oGotrs9MgoWFLsNqoetPh9T7KVW9wDAir9ICa2Y6I1GtsQig
-         cwfWGJuG8hPGLJCRAycJNU5x5IxruzUyCi31PcfPcWCIL0pncpnbKfeurg7ABmVLq7
-         bE3rfy3DXt2bbucFaULfDIRFLwoJxwNHhLXyQkBU=
+        b=e3E4tVA2HTzjIanv12LSlr7+P9C3BxqRVy8sepG81+jxNh4WdPEI7g5INtrEw975I
+         3nM2v4yicN8FkawAC+wcaTLddoS3pvqq2OlRAWfCZYN6dFMBeqFZr9b8NDe+lrKi98
+         Go89C8ONkVnPMwP1jV+wi3johaEyOIpUFLKj1F0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f90a420dfe2b1b03cb2c@syzkaller.appspotmail.com,
-        Shakeel Butt <shakeelb@google.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 09/53] mm/list_lru.c: fix memory leak in __memcg_init_list_lru_node
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <keith.busch@intel.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 41/75] nvme: merge nvme_ns_ioctl into nvme_ioctl
 Date:   Mon, 17 Jun 2019 23:09:52 +0200
-Message-Id: <20190617210746.973024958@linuxfoundation.org>
+Message-Id: <20190617210754.352716067@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-References: <20190617210745.104187490@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,71 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
+[ Upstream commit 90ec611adcf20b96d0c2b7166497d53e4301a57f ]
 
-commit 3510955b327176fd4cbab5baa75b449f077722a2 upstream.
+Merge the two functions to make future changes a little easier.
 
-Syzbot reported following memory leak:
-
-ffffffffda RBX: 0000000000000003 RCX: 0000000000441f79
-BUG: memory leak
-unreferenced object 0xffff888114f26040 (size 32):
-  comm "syz-executor626", pid 7056, jiffies 4294948701 (age 39.410s)
-  hex dump (first 32 bytes):
-    40 60 f2 14 81 88 ff ff 40 60 f2 14 81 88 ff ff  @`......@`......
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-     slab_post_alloc_hook mm/slab.h:439 [inline]
-     slab_alloc mm/slab.c:3326 [inline]
-     kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-     kmalloc include/linux/slab.h:547 [inline]
-     __memcg_init_list_lru_node+0x58/0xf0 mm/list_lru.c:352
-     memcg_init_list_lru_node mm/list_lru.c:375 [inline]
-     memcg_init_list_lru mm/list_lru.c:459 [inline]
-     __list_lru_init+0x193/0x2a0 mm/list_lru.c:626
-     alloc_super+0x2e0/0x310 fs/super.c:269
-     sget_userns+0x94/0x2a0 fs/super.c:609
-     sget+0x8d/0xb0 fs/super.c:660
-     mount_nodev+0x31/0xb0 fs/super.c:1387
-     fuse_mount+0x2d/0x40 fs/fuse/inode.c:1236
-     legacy_get_tree+0x27/0x80 fs/fs_context.c:661
-     vfs_get_tree+0x2e/0x120 fs/super.c:1476
-     do_new_mount fs/namespace.c:2790 [inline]
-     do_mount+0x932/0xc50 fs/namespace.c:3110
-     ksys_mount+0xab/0x120 fs/namespace.c:3319
-     __do_sys_mount fs/namespace.c:3333 [inline]
-     __se_sys_mount fs/namespace.c:3330 [inline]
-     __x64_sys_mount+0x26/0x30 fs/namespace.c:3330
-     do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
-     entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-This is a simple off by one bug on the error path.
-
-Link: http://lkml.kernel.org/r/20190528043202.99980-1-shakeelb@google.com
-Fixes: 60d3fd32a7a9 ("list_lru: introduce per-memcg lists")
-Reported-by: syzbot+f90a420dfe2b1b03cb2c@syzkaller.appspotmail.com
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Cc: <stable@vger.kernel.org>	[4.0+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/list_lru.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 47 ++++++++++++++++++++--------------------
+ 1 file changed, 24 insertions(+), 23 deletions(-)
 
---- a/mm/list_lru.c
-+++ b/mm/list_lru.c
-@@ -313,7 +313,7 @@ static int __memcg_init_list_lru_node(st
- 	}
- 	return 0;
- fail:
--	__memcg_destroy_list_lru_node(memcg_lrus, begin, i - 1);
-+	__memcg_destroy_list_lru_node(memcg_lrus, begin, i);
- 	return -ENOMEM;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 1cdfea3c094a..82f5f1d030d4 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1298,32 +1298,11 @@ static void nvme_put_ns_from_disk(struct nvme_ns_head *head, int idx)
+ 		srcu_read_unlock(&head->srcu, idx);
  }
  
+-static int nvme_ns_ioctl(struct nvme_ns *ns, unsigned cmd, unsigned long arg)
+-{
+-	switch (cmd) {
+-	case NVME_IOCTL_ID:
+-		force_successful_syscall_return();
+-		return ns->head->ns_id;
+-	case NVME_IOCTL_ADMIN_CMD:
+-		return nvme_user_cmd(ns->ctrl, NULL, (void __user *)arg);
+-	case NVME_IOCTL_IO_CMD:
+-		return nvme_user_cmd(ns->ctrl, ns, (void __user *)arg);
+-	case NVME_IOCTL_SUBMIT_IO:
+-		return nvme_submit_io(ns, (void __user *)arg);
+-	default:
+-		if (ns->ndev)
+-			return nvme_nvm_ioctl(ns, cmd, arg);
+-		if (is_sed_ioctl(cmd))
+-			return sed_ioctl(ns->ctrl->opal_dev, cmd,
+-					 (void __user *) arg);
+-		return -ENOTTY;
+-	}
+-}
+-
+ static int nvme_ioctl(struct block_device *bdev, fmode_t mode,
+ 		unsigned int cmd, unsigned long arg)
+ {
+ 	struct nvme_ns_head *head = NULL;
++	void __user *argp = (void __user *)arg;
+ 	struct nvme_ns *ns;
+ 	int srcu_idx, ret;
+ 
+@@ -1331,7 +1310,29 @@ static int nvme_ioctl(struct block_device *bdev, fmode_t mode,
+ 	if (unlikely(!ns))
+ 		return -EWOULDBLOCK;
+ 
+-	ret = nvme_ns_ioctl(ns, cmd, arg);
++	switch (cmd) {
++	case NVME_IOCTL_ID:
++		force_successful_syscall_return();
++		ret = ns->head->ns_id;
++		break;
++	case NVME_IOCTL_ADMIN_CMD:
++		ret = nvme_user_cmd(ns->ctrl, NULL, argp);
++		break;
++	case NVME_IOCTL_IO_CMD:
++		ret = nvme_user_cmd(ns->ctrl, ns, argp);
++		break;
++	case NVME_IOCTL_SUBMIT_IO:
++		ret = nvme_submit_io(ns, argp);
++		break;
++	default:
++		if (ns->ndev)
++			ret = nvme_nvm_ioctl(ns, cmd, arg);
++		else if (is_sed_ioctl(cmd))
++			ret = sed_ioctl(ns->ctrl->opal_dev, cmd, argp);
++		else
++			ret = -ENOTTY;
++	}
++
+ 	nvme_put_ns_from_disk(head, srcu_idx);
+ 	return ret;
+ }
+-- 
+2.20.1
+
 
 
