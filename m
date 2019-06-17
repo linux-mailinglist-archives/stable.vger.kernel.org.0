@@ -2,98 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D0C248BDF
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 20:24:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4D2348BF7
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 20:35:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726098AbfFQSYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 14:24:07 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:36824 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725764AbfFQSYH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 14:24:07 -0400
-Received: by mail-io1-f67.google.com with SMTP id h6so23460950ioh.3;
-        Mon, 17 Jun 2019 11:24:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=LNDj/9Uge4rb5LG4sl2oFwkMWYo5QYyd6vgWjHPxMYU=;
-        b=qQYXAZfu49iyzDbgqn6cbHpgYcLoIDlv7zGX98wyqWvuIYcHIxug+f4sJAV0e8O4xS
-         s2aspucn8QC8QewHtixUcfZtc37sAjg4Air9VWD8cmQdivRugh0avoZmTyk4tvKkEMM+
-         uCi9QqhFp1GzZUUoej5+j58BBKCszJrqE9LSTLHE3OQBav6nWg3gvpNEdf7ol3uwnMri
-         Ha2g/qaKSkhHN+sklpgoeU6VM0qsdYBK1J0JAG/c0O5TAzucfcxvUH8rWNbS3nvxTQmi
-         W45Q9UxajNij0sKKOqw9/RMl+1F/XFB7aUFZk/25qTaw1H1SumUXrt6TCVFXSbtgxEHf
-         7PyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=LNDj/9Uge4rb5LG4sl2oFwkMWYo5QYyd6vgWjHPxMYU=;
-        b=MOomKdaZ4tlHnx2hA8hPuFwByQVapFn7Ii6TIOoSiZimsGehhTK+cHcsUQcm8t5FQV
-         hQQuVqxQRVq08wEXY2MpJr2HrdBR9A61y5myHl00mIEIDlnXC2MAt8BjE0hHKdKCt3cM
-         uosNvXFWKqu8ZHFnbgR5SSun3d07lidsv+f7451rI17a20Ur8lZ3tmBMbMYlxqwwuucb
-         paTnHNCzgr8TvQaWU6wZgcsHCQd7Tuicb1+1c6qnAQZl1+hEeNMRP0enY2FwqQV2gZJA
-         hkiAVJFPxYe6cD9TH2HnvWYL0wT3G68Ke661Z4KcMLfa4ANdURaeo/B0YKE/10JYBtiF
-         Ohrw==
-X-Gm-Message-State: APjAAAX6967Y+DKCtqLGHZwchjy/t01KjCKM6Pw73E25GvNLAqx0IxZ/
-        BBVJonACh2IoEQGXV/DnUxA=
-X-Google-Smtp-Source: APXvYqzyjNQeJEGdeV6RSpDBxUhnrQBrAbJd9GIEz2zpA9IlQT9KOaNLnUdyRAooNwA/EyrALQpQGw==
-X-Received: by 2002:a5d:8e08:: with SMTP id e8mr42656031iod.139.1560795845930;
-        Mon, 17 Jun 2019 11:24:05 -0700 (PDT)
-Received: from svens-asus.arcx.com ([184.94.50.30])
-        by smtp.gmail.com with ESMTPSA id r5sm13961804iom.42.2019.06.17.11.24.04
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 17 Jun 2019 11:24:05 -0700 (PDT)
-From:   Sven Van Asbroeck <thesven73@gmail.com>
-X-Google-Original-From: Sven Van Asbroeck <TheSven73@gmail.com>
-To:     Luis Chamberlain <mcgrof@kernel.org>
+        id S1725764AbfFQSeW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 14:34:22 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56206 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726088AbfFQSeV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 14:34:21 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5HIW4Te089999
+        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 14:34:21 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2t6d0yghns-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 14:34:20 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
+        Mon, 17 Jun 2019 19:34:18 +0100
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (9.149.109.197)
+        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 17 Jun 2019 19:34:16 +0100
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x5HIYFYW59572340
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 17 Jun 2019 18:34:15 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EE26BAE057;
+        Mon, 17 Jun 2019 18:34:14 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3586BAE04D;
+        Mon, 17 Jun 2019 18:34:13 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.80.81.90])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 17 Jun 2019 18:34:13 +0000 (GMT)
+Subject: Re: [PATCH] firmware: improve LSM/IMA security behaviour
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Sven Van Asbroeck <thesven73@gmail.com>,
+        Luis Chamberlain <mcgrof@kernel.org>
 Cc:     Stable <stable@vger.kernel.org>,
         Mimi Zohar <zohar@linux.vnet.ibm.com>,
         Kees Cook <keescook@chromium.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Rafael J. Wysocki" <rafael@kernel.org>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH] firmware: improve LSM/IMA security behaviour
-Date:   Mon, 17 Jun 2019 14:23:54 -0400
-Message-Id: <20190617182354.10846-1-TheSven73@gmail.com>
-X-Mailer: git-send-email 2.17.1
+Date:   Mon, 17 Jun 2019 14:34:02 -0400
+In-Reply-To: <20190617182354.10846-1-TheSven73@gmail.com>
+References: <20190617182354.10846-1-TheSven73@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+x-cbid: 19061718-0016-0000-0000-00000289E1A1
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19061718-0017-0000-0000-000032E72CDD
+Message-Id: <1560796442.4072.170.camel@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-17_07:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=897 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1906170164
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The firmware loader queries if LSM/IMA permits it to load firmware
-via the sysfs fallback. Unfortunately, the code does the opposite:
-it expressly permits sysfs fw loading if security_kernel_load_data(
-LOADING_FIRMWARE) returns -EACCES. This happens because a
-zero-on-success return value is cast to a bool that's true on success.
+On Mon, 2019-06-17 at 14:23 -0400, Sven Van Asbroeck wrote:
+> The firmware loader queries if LSM/IMA permits it to load firmware
+> via the sysfs fallback. Unfortunately, the code does the opposite:
+> it expressly permits sysfs fw loading if security_kernel_load_data(
+> LOADING_FIRMWARE) returns -EACCES. This happens because a
+> zero-on-success return value is cast to a bool that's true on success.
+> 
+> Fix the return value handling so we get the correct behaviour.
 
-Fix the return value handling so we get the correct behaviour.
-
-Fixes: 6e852651f28e ("firmware: add call to LSM hook before firmware sysfs fallback")
-Cc: Stable <stable@vger.kernel.org>
-Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
-Cc: Kees Cook <keescook@chromium.org>
-To: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
----
- drivers/base/firmware_loader/fallback.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/base/firmware_loader/fallback.c b/drivers/base/firmware_loader/fallback.c
-index f962488546b6..103b5d37fa86 100644
---- a/drivers/base/firmware_loader/fallback.c
-+++ b/drivers/base/firmware_loader/fallback.c
-@@ -659,7 +659,7 @@ static bool fw_run_sysfs_fallback(enum fw_opt opt_flags)
- 	/* Also permit LSMs and IMA to fail firmware sysfs fallback */
- 	ret = security_kernel_load_data(LOADING_FIRMWARE);
- 	if (ret < 0)
--		return ret;
-+		return false;
- 
- 	return fw_force_sysfs_fallback(opt_flags);
- }
--- 
-2.17.1
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 
