@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 833EE493FD
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21E03492F5
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:25:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729141AbfFQVXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:23:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49056 "EHLO mail.kernel.org"
+        id S1730119AbfFQVZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:25:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729791AbfFQVXr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:23:47 -0400
+        id S1729348AbfFQVZo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:25:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EABF920673;
-        Mon, 17 Jun 2019 21:23:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C805820657;
+        Mon, 17 Jun 2019 21:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806626;
-        bh=y9xU1Vxcitkg//oxiKqJJWU15rcVRW0JaDrrJoaUWSg=;
+        s=default; t=1560806744;
+        bh=JvB79mR2s+I88HNbw4piHuEnw9TVf9QkjAeU8oSnRNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PyXJTyBEW82lLMfiGIQ+U9zkBXsHASvSb0Xp8txy5XHHDPzvMUXwoI+4m1Kq1kcE8
-         GIqlFdsnreTR6TketzJajsw+0GFmOkVQ2Tw+Qshojl4nd5smsjBacVOZ9Idnbor1yJ
-         h0NCRrmWo6BmNZbgHTm0K7BaDyg90PA2cQn54aI4=
+        b=ouw92B/JXEM3pCc0Pa9ytZjdhLp7NVq/50p0xYzRCJOF9cBwjWswbEj6BiN6yJktc
+         xfuQx/xJMU4xeMFYfeS8iLp01wfmOSQKsbVunOMQ0Ew6gHkhF5jf6GEN4zWqZU8eJc
+         RMWGpuD8LVGW87ShmN6OKAPyple1NW9+fTLyOv5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
-        Andrew Jones <drjones@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 093/115] kvm: selftests: aarch64: fix default vm mode
-Date:   Mon, 17 Jun 2019 23:09:53 +0200
-Message-Id: <20190617210804.672328154@linuxfoundation.org>
+        stable@vger.kernel.org, Keith Busch <keith.busch@intel.com>,
+        David Milburn <dmilburn@redhat.com>,
+        Yufen Yu <yuyufen@huawei.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 43/75] nvme: fix memory leak for power latency tolerance
+Date:   Mon, 17 Jun 2019 23:09:54 +0200
+Message-Id: <20190617210754.423281311@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 55eda003f02f075bab0223a188e548dbf3ac8dfe ]
+[ Upstream commit 510a405d945bc985abc513fafe45890cac34fafa ]
 
-VM_MODE_P52V48_4K is not a valid mode for AArch64. Replace its
-use in vm_create_default() with a mode that works and represents
-a good AArch64 default. (We didn't ever see a problem with this
-because we don't have any unit tests using vm_create_default(),
-but it's good to get it fixed in advance.)
+Unconditionally hide device pm latency tolerance when uninitializing
+the controller to ensure all qos resources are released so that we're
+not leaking this memory. This is safe to call if none were allocated in
+the first place, or were previously freed.
 
-Reported-by: Thomas Huth <thuth@redhat.com>
-Signed-off-by: Andrew Jones <drjones@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: c5552fde102fc("nvme: Enable autonomous power state transitions")
+Suggested-by: Keith Busch <keith.busch@intel.com>
+Tested-by: David Milburn <dmilburn@redhat.com>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+[changelog]
+Signed-off-by: Keith Busch <keith.busch@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/lib/aarch64/processor.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/kvm/lib/aarch64/processor.c b/tools/testing/selftests/kvm/lib/aarch64/processor.c
-index e8c42506a09d..fa6cd340137c 100644
---- a/tools/testing/selftests/kvm/lib/aarch64/processor.c
-+++ b/tools/testing/selftests/kvm/lib/aarch64/processor.c
-@@ -226,7 +226,7 @@ struct kvm_vm *vm_create_default(uint32_t vcpuid, uint64_t extra_mem_pages,
- 	uint64_t extra_pg_pages = (extra_mem_pages / ptrs_per_4k_pte) * 2;
- 	struct kvm_vm *vm;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 818788275406..a867a139bb35 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3525,6 +3525,7 @@ EXPORT_SYMBOL_GPL(nvme_start_ctrl);
  
--	vm = vm_create(VM_MODE_P52V48_4K, DEFAULT_GUEST_PHY_PAGES + extra_pg_pages, O_RDWR);
-+	vm = vm_create(VM_MODE_P40V48_4K, DEFAULT_GUEST_PHY_PAGES + extra_pg_pages, O_RDWR);
- 
- 	kvm_vm_elf_load(vm, program_invocation_name, 0, 0);
- 	vm_vcpu_add_default(vm, vcpuid, guest_code);
+ void nvme_uninit_ctrl(struct nvme_ctrl *ctrl)
+ {
++	dev_pm_qos_hide_latency_tolerance(ctrl->device);
+ 	cdev_device_del(&ctrl->cdev, ctrl->device);
+ }
+ EXPORT_SYMBOL_GPL(nvme_uninit_ctrl);
 -- 
 2.20.1
 
