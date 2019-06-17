@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C55C49446
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:37:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7C73493EB
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728633AbfFQVUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:20:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45034 "EHLO mail.kernel.org"
+        id S1729668AbfFQVeW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:34:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728572AbfFQVUm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:20:42 -0400
+        id S1729376AbfFQVYx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:24:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4878D2166E;
-        Mon, 17 Jun 2019 21:20:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01EAD20673;
+        Mon, 17 Jun 2019 21:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806441;
-        bh=K9YiwPPDxB8mOZ09FRBTU6I4dFJtBg+bcPCXOeZ3GEo=;
+        s=default; t=1560806692;
+        bh=YlHabfqMULhS0Hr9yCPfXQqFD9lmiBr8Yt0SzuQQQ0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KX78MgMRAf/an1RQ6Tna14bjsU4p6kt6XnmtRowajylKLUmVsECBbsmaYlduHqWeu
-         AR645l7oRjaqTcErG627Oy5NRo/u9gmuCKsdjxuEoVF98Hz4Mk5LpQZiwHV0vDUAmk
-         GaORpOBAXKJaTUKK/jA3ejy4E2FFHcTbtgFOCjRo=
+        b=bll6/F+K10SuNxyuFJH9els+vBHMBbWzIZDm8DtHeh3DkAs8AHZEP/hQlGcsknjaU
+         GNpcgH7jyHaufuUuga9g0C21LhmQY5pyqxUgtRX2AME02tHQxeiH7s3B7MAVBL3EqE
+         YX9Zr/6SbYiV5apbVgjQZ6Zok1qkGeb8ogMqLClU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 054/115] scsi: qedi: remove set but not used variables cdev and udev
+        stable@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Breno Leitao <leitao@debian.org>
+Subject: [PATCH 4.19 03/75] HID: multitouch: handle faulty Elo touch device
 Date:   Mon, 17 Jun 2019 23:09:14 +0200
-Message-Id: <20190617210803.161309467@linuxfoundation.org>
+Message-Id: <20190617210752.945246748@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d0adee5d12752256ff0c87ad7f002f21fe49d618 ]
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+commit 81bcbad53bab4bf9f200eda303d7a05cdb9bd73b upstream.
 
-drivers/scsi/qedi/qedi_iscsi.c: In function 'qedi_ep_connect':
-drivers/scsi/qedi/qedi_iscsi.c:813:23: warning: variable 'udev' set but not used [-Wunused-but-set-variable]
-drivers/scsi/qedi/qedi_iscsi.c:812:18: warning: variable 'cdev' set but not used [-Wunused-but-set-variable]
+Since kernel v5.0, one single win8 touchscreen device failed.
+And it turns out this is because it reports 2 InRange usage per touch.
 
-These have never been used since introduction.
+It's a first, and I *really* wonder how this was allowed by Microsoft in
+the first place. But IIRC, Breno told me this happened *after* a firmware
+upgrade...
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/scsi/qedi/qedi_iscsi.c | 4 ----
- 1 file changed, 4 deletions(-)
+Anyway, better be safe for those crappy devices, and make sure we have
+a full slot before jumping to the next.
+This won't prevent all crappy devices to fail here, but at least we will
+have a safeguard as long as the contact ID and the X and Y coordinates
+are placed in the report after the grabage.
 
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index bf371e7b957d..c3d0d246df14 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -809,8 +809,6 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
- 	struct qedi_endpoint *qedi_ep;
- 	struct sockaddr_in *addr;
- 	struct sockaddr_in6 *addr6;
--	struct qed_dev *cdev  =  NULL;
--	struct qedi_uio_dev *udev = NULL;
- 	struct iscsi_path path_req;
- 	u32 msg_type = ISCSI_KEVENT_IF_DOWN;
- 	u32 iscsi_cid = QEDI_CID_RESERVED;
-@@ -830,8 +828,6 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
- 	}
- 
- 	qedi = iscsi_host_priv(shost);
--	cdev = qedi->cdev;
--	udev = qedi->udev;
- 
- 	if (test_bit(QEDI_IN_OFFLINE, &qedi->flags) ||
- 	    test_bit(QEDI_IN_RECOVERY, &qedi->flags)) {
--- 
-2.20.1
+Fixes: 01eaac7e5713 ("HID: multitouch: remove one copy of values")
+CC: stable@vger.kernel.org # v5.0+
+Reported-and-tested-by: Breno Leitao <leitao@debian.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index c02d4cad1893..1565a307170a 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -641,6 +641,13 @@ static void mt_store_field(struct hid_device *hdev,
+ 	if (*target != DEFAULT_TRUE &&
+ 	    *target != DEFAULT_FALSE &&
+ 	    *target != DEFAULT_ZERO) {
++		if (usage->contactid == DEFAULT_ZERO ||
++		    usage->x == DEFAULT_ZERO ||
++		    usage->y == DEFAULT_ZERO) {
++			hid_dbg(hdev,
++				"ignoring duplicate usage on incomplete");
++			return;
++		}
+ 		usage = mt_allocate_usage(hdev, application);
+ 		if (!usage)
+ 			return;
 
 
