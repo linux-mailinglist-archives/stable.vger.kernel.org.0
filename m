@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC9304938C
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:32:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D6FC4938D
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728997AbfFQV2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:28:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55212 "EHLO mail.kernel.org"
+        id S1730495AbfFQV2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:28:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729369AbfFQV2G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:28:06 -0400
+        id S1730003AbfFQV2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:28:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BEF32187F;
-        Mon, 17 Jun 2019 21:28:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39E5D2070B;
+        Mon, 17 Jun 2019 21:28:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806886;
-        bh=5+pIcsxL3+kMfNjKRKyMxU8gJGrwjrepimwCwm6k9zk=;
+        s=default; t=1560806888;
+        bh=8UODO9q99exuxiG8KbuXciBBLwNe1N522U8G0sX0cE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRknwLO4Mhhjw6Ws8p7oApWN6Y0PzDGGpJD2a0L89yzjndsH6uxwUE4ayr5G3g8Ys
-         /ElYGgcwiX5z22bzqR5dpRlqxoRYDRenKoz68tp2opqhbCVeFg9ETezfaiIpGnAJg1
-         9XveFwvF4FUxclBdv2xNl/0AGXat3s/8oelhIFDU=
+        b=ujsMTCuFGPyKkRBHSkWXCYtmn7yhnlKEAXaOx8GcKG9q1lNVqCEkgGhGbbWTDnJ6I
+         YHIGe+i30p22amrXtmkv8EQBDEJcYNVGmUk3LP4JmB4Ud8IcqeP0c67t7AbRCWK4GQ
+         eZDuuE38D0+zY6MsBbZZP834qvQ+eYn33EWtLmJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
-Subject: [PATCH 4.14 16/53] i2c: acorn: fix i2c warning
-Date:   Mon, 17 Jun 2019 23:09:59 +0200
-Message-Id: <20190617210748.336849640@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Rolf Fokkens <rolf@rolffokkens.nl>,
+        Pierre JUHEN <pierre.juhen@orange.fr>,
+        Shenghui Wang <shhuiw@foxmail.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        Nix <nix@esperi.org.uk>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 17/53] bcache: fix stack corruption by PRECEDING_KEY()
+Date:   Mon, 17 Jun 2019 23:10:00 +0200
+Message-Id: <20190617210748.615772029@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
 References: <20190617210745.104187490@linuxfoundation.org>
@@ -43,33 +47,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Coly Li <colyli@suse.de>
 
-commit ca21f851cc9643af049226d57fabc3c883ea648e upstream.
+commit 31b90956b124240aa8c63250243ae1a53585c5e2 upstream.
 
-The Acorn i2c driver (for RiscPC) triggers the "i2c adapter has no name"
-warning in the I2C core driver, resulting in the RTC being inaccessible.
-Fix this.
+Recently people report bcache code compiled with gcc9 is broken, one of
+the buggy behavior I observe is that two adjacent 4KB I/Os should merge
+into one but they don't. Finally it turns out to be a stack corruption
+caused by macro PRECEDING_KEY().
 
-Fixes: 2236baa75f70 ("i2c: Sanity checks on adapter registration")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org
+See how PRECEDING_KEY() is defined in bset.h,
+437 #define PRECEDING_KEY(_k)                                       \
+438 ({                                                              \
+439         struct bkey *_ret = NULL;                               \
+440                                                                 \
+441         if (KEY_INODE(_k) || KEY_OFFSET(_k)) {                  \
+442                 _ret = &KEY(KEY_INODE(_k), KEY_OFFSET(_k), 0);  \
+443                                                                 \
+444                 if (!_ret->low)                                 \
+445                         _ret->high--;                           \
+446                 _ret->low--;                                    \
+447         }                                                       \
+448                                                                 \
+449         _ret;                                                   \
+450 })
+
+At line 442, _ret points to address of a on-stack variable combined by
+KEY(), the life range of this on-stack variable is in line 442-446,
+once _ret is returned to bch_btree_insert_key(), the returned address
+points to an invalid stack address and this address is overwritten in
+the following called bch_btree_iter_init(). Then argument 'search' of
+bch_btree_iter_init() points to some address inside stackframe of
+bch_btree_iter_init(), exact address depends on how the compiler
+allocates stack space. Now the stack is corrupted.
+
+Fixes: 0eacac22034c ("bcache: PRECEDING_KEY()")
+Signed-off-by: Coly Li <colyli@suse.de>
+Reviewed-by: Rolf Fokkens <rolf@rolffokkens.nl>
+Reviewed-by: Pierre JUHEN <pierre.juhen@orange.fr>
+Tested-by: Shenghui Wang <shhuiw@foxmail.com>
+Tested-by: Pierre JUHEN <pierre.juhen@orange.fr>
+Cc: Kent Overstreet <kent.overstreet@gmail.com>
+Cc: Nix <nix@esperi.org.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-acorn.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/bcache/bset.c |   16 +++++++++++++---
+ drivers/md/bcache/bset.h |   34 ++++++++++++++++++++--------------
+ 2 files changed, 33 insertions(+), 17 deletions(-)
 
---- a/drivers/i2c/busses/i2c-acorn.c
-+++ b/drivers/i2c/busses/i2c-acorn.c
-@@ -83,6 +83,7 @@ static struct i2c_algo_bit_data ioc_data
+--- a/drivers/md/bcache/bset.c
++++ b/drivers/md/bcache/bset.c
+@@ -825,12 +825,22 @@ unsigned bch_btree_insert_key(struct btr
+ 	struct bset *i = bset_tree_last(b)->data;
+ 	struct bkey *m, *prev = NULL;
+ 	struct btree_iter iter;
++	struct bkey preceding_key_on_stack = ZERO_KEY;
++	struct bkey *preceding_key_p = &preceding_key_on_stack;
  
- static struct i2c_adapter ioc_ops = {
- 	.nr			= 0,
-+	.name			= "ioc",
- 	.algo_data		= &ioc_data,
- };
+ 	BUG_ON(b->ops->is_extents && !KEY_SIZE(k));
  
+-	m = bch_btree_iter_init(b, &iter, b->ops->is_extents
+-				? PRECEDING_KEY(&START_KEY(k))
+-				: PRECEDING_KEY(k));
++	/*
++	 * If k has preceding key, preceding_key_p will be set to address
++	 *  of k's preceding key; otherwise preceding_key_p will be set
++	 * to NULL inside preceding_key().
++	 */
++	if (b->ops->is_extents)
++		preceding_key(&START_KEY(k), &preceding_key_p);
++	else
++		preceding_key(k, &preceding_key_p);
++
++	m = bch_btree_iter_init(b, &iter, preceding_key_p);
+ 
+ 	if (b->ops->insert_fixup(b, k, &iter, replace_key))
+ 		return status;
+--- a/drivers/md/bcache/bset.h
++++ b/drivers/md/bcache/bset.h
+@@ -418,20 +418,26 @@ static inline bool bch_cut_back(const st
+ 	return __bch_cut_back(where, k);
+ }
+ 
+-#define PRECEDING_KEY(_k)					\
+-({								\
+-	struct bkey *_ret = NULL;				\
+-								\
+-	if (KEY_INODE(_k) || KEY_OFFSET(_k)) {			\
+-		_ret = &KEY(KEY_INODE(_k), KEY_OFFSET(_k), 0);	\
+-								\
+-		if (!_ret->low)					\
+-			_ret->high--;				\
+-		_ret->low--;					\
+-	}							\
+-								\
+-	_ret;							\
+-})
++/*
++ * Pointer '*preceding_key_p' points to a memory object to store preceding
++ * key of k. If the preceding key does not exist, set '*preceding_key_p' to
++ * NULL. So the caller of preceding_key() needs to take care of memory
++ * which '*preceding_key_p' pointed to before calling preceding_key().
++ * Currently the only caller of preceding_key() is bch_btree_insert_key(),
++ * and it points to an on-stack variable, so the memory release is handled
++ * by stackframe itself.
++ */
++static inline void preceding_key(struct bkey *k, struct bkey **preceding_key_p)
++{
++	if (KEY_INODE(k) || KEY_OFFSET(k)) {
++		(**preceding_key_p) = KEY(KEY_INODE(k), KEY_OFFSET(k), 0);
++		if (!(*preceding_key_p)->low)
++			(*preceding_key_p)->high--;
++		(*preceding_key_p)->low--;
++	} else {
++		(*preceding_key_p) = NULL;
++	}
++}
+ 
+ static inline bool bch_ptr_invalid(struct btree_keys *b, const struct bkey *k)
+ {
 
 
