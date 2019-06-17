@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B81F54925D
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:19:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B28749454
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728823AbfFQVT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:19:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43224 "EHLO mail.kernel.org"
+        id S1728842AbfFQVTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:19:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728808AbfFQVT0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:19:26 -0400
+        id S1728822AbfFQVTa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:19:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 377442089E;
-        Mon, 17 Jun 2019 21:19:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D86FE2089E;
+        Mon, 17 Jun 2019 21:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806365;
-        bh=x7eZg+XnraK1zyNh45kBrIrXiTjSPE5QLBHqmdyQ2Wo=;
+        s=default; t=1560806369;
+        bh=9qg000cZktj7f64G7dnF44Co9Ks2f+vmDRdo1ieGQJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kUnf5BTJleJV7u8OusPmRnOWa9hHBWM32sAP0B6AMo9b8vJ1TTRgC/5Lr57Hw3Jql
-         ZEBjN7IxVQyT6mPLuSK47tME4YRdspOAgHVx3klIbY1R3Ipvq5uOet/qC3WlMWvayy
-         rfAkttW/iI6i1C17CXW/ubBn/U94xWY0W04OEGn8=
+        b=iwiaNeXOUGqrRccs+m4BEKkAxjflq9s9BTpZAJQ00XOlelHRRSEw2KWbB36MEsfpc
+         VrdBV9cfLJqXZPjJuzRzCpQXb0B+a60PaVcvbLgPVc/hz4r0nXxBP+OkvqcYWGPELk
+         rRb0F+Xeg+c2UYGDzHkUcAubhcoanI1zeO7sLMGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.1 027/115] media: dvb: warning about dvb frequency limits produces too much noise
-Date:   Mon, 17 Jun 2019 23:08:47 +0200
-Message-Id: <20190617210801.333369369@linuxfoundation.org>
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno <kholk11@gmail.com>,
+        Marc Gonzalez <marc.w.gonzalez@free.fr>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.1 028/115] iommu/arm-smmu: Avoid constant zero in TLBI writes
+Date:   Mon, 17 Jun 2019 23:08:48 +0200
+Message-Id: <20190617210801.373860898@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -43,36 +47,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit eb96e57b913ff668b8b804178cdc509f9b3d4472 upstream.
+commit 4e4abae311e4b44aaf61f18a826fd7136037f199 upstream.
 
-This can be a debug message. Favour dev_dbg() over dprintk() as this is
-already used much more than dprintk().
+Apparently, some Qualcomm arm64 platforms which appear to expose their
+SMMU global register space are still, in fact, using a hypervisor to
+mediate it by trapping and emulating register accesses. Sadly, some
+deployed versions of said trapping code have bugs wherein they go
+horribly wrong for stores using r31 (i.e. XZR/WZR) as the source
+register.
 
-dvb_frontend: dvb_frontend_get_frequency_limits: frequency interval: tuner: 45000000...860000000, frontend: 44250000...867250000
+While this can be mitigated for GCC today by tweaking the constraints
+for the implementation of writel_relaxed(), to avoid any potential
+arms race with future compilers more aggressively optimising register
+allocation, the simple way is to just remove all the problematic
+constant zeros. For the write-only TLB operations, the actual value is
+irrelevant anyway and any old nearby variable will provide a suitable
+GPR to encode. The one point at which we really do need a zero to clear
+a context bank happens before any of the TLB maintenance where crashes
+have been reported, so is apparently not a problem... :/
 
-Fixes: 00ecd6bc7128 ("media: dvb_frontend: add debug message for frequency intervals")
-
-Cc: <stable@vger.kernel.org> # 5.0
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Reported-by: AngeloGioacchino Del Regno <kholk11@gmail.com>
+Tested-by: Marc Gonzalez <marc.w.gonzalez@free.fr>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Marc Gonzalez <marc.w.gonzalez@free.fr>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/dvb-core/dvb_frontend.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/arm-smmu.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/media/dvb-core/dvb_frontend.c
-+++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -917,7 +917,7 @@ static void dvb_frontend_get_frequency_l
- 			 "DVB: adapter %i frontend %u frequency limits undefined - fix the driver\n",
- 			 fe->dvb->num, fe->id);
+--- a/drivers/iommu/arm-smmu.c
++++ b/drivers/iommu/arm-smmu.c
+@@ -59,6 +59,15 @@
  
--	dprintk("frequency interval: tuner: %u...%u, frontend: %u...%u",
-+	dev_dbg(fe->dvb->device, "frequency interval: tuner: %u...%u, frontend: %u...%u",
- 		tuner_min, tuner_max, frontend_min, frontend_max);
+ #include "arm-smmu-regs.h"
  
- 	/* If the standard is for satellite, convert frequencies to kHz */
++/*
++ * Apparently, some Qualcomm arm64 platforms which appear to expose their SMMU
++ * global register space are still, in fact, using a hypervisor to mediate it
++ * by trapping and emulating register accesses. Sadly, some deployed versions
++ * of said trapping code have bugs wherein they go horribly wrong for stores
++ * using r31 (i.e. XZR/WZR) as the source register.
++ */
++#define QCOM_DUMMY_VAL -1
++
+ #define ARM_MMU500_ACTLR_CPRE		(1 << 1)
+ 
+ #define ARM_MMU500_ACR_CACHE_LOCK	(1 << 26)
+@@ -422,7 +431,7 @@ static void __arm_smmu_tlb_sync(struct a
+ {
+ 	unsigned int spin_cnt, delay;
+ 
+-	writel_relaxed(0, sync);
++	writel_relaxed(QCOM_DUMMY_VAL, sync);
+ 	for (delay = 1; delay < TLB_LOOP_TIMEOUT; delay *= 2) {
+ 		for (spin_cnt = TLB_SPIN_COUNT; spin_cnt > 0; spin_cnt--) {
+ 			if (!(readl_relaxed(status) & sTLBGSTATUS_GSACTIVE))
+@@ -1760,8 +1769,8 @@ static void arm_smmu_device_reset(struct
+ 	}
+ 
+ 	/* Invalidate the TLB, just in case */
+-	writel_relaxed(0, gr0_base + ARM_SMMU_GR0_TLBIALLH);
+-	writel_relaxed(0, gr0_base + ARM_SMMU_GR0_TLBIALLNSNH);
++	writel_relaxed(QCOM_DUMMY_VAL, gr0_base + ARM_SMMU_GR0_TLBIALLH);
++	writel_relaxed(QCOM_DUMMY_VAL, gr0_base + ARM_SMMU_GR0_TLBIALLNSNH);
+ 
+ 	reg = readl_relaxed(ARM_SMMU_GR0_NS(smmu) + ARM_SMMU_GR0_sCR0);
+ 
 
 
