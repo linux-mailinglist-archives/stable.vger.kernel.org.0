@@ -2,226 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E2B5491C5
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 22:57:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB1F8491D8
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:00:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725839AbfFQU53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 16:57:29 -0400
-Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:44184 "EHLO
-        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725497AbfFQU53 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 16:57:29 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R301e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01f04391;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0TURrDrJ_1560805038;
-Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0TURrDrJ_1560805038)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 18 Jun 2019 04:57:25 +0800
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-To:     gregkh@linuxfoundation.org, akpm@linux-foundation.org,
-        aneesh.kumar@linux.ibm.com, jstancek@redhat.com, mgorman@suse.de,
-        minchan@kernel.org, namit@vmware.com, npiggin@gmail.com,
-        peterz@infradead.org, will.deacon@arm.com
-Cc:     yang.shi@linux.alibaba.com, stable@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [RESEND 5.1-stable PATCH] mm: mmu_gather: remove __tlb_reset_range() for force flush
-Date:   Tue, 18 Jun 2019 04:57:17 +0800
-Message-Id: <1560805037-35324-1-git-send-email-yang.shi@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1726248AbfFQVAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:00:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725497AbfFQVAP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:00:15 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE71D2080A;
+        Mon, 17 Jun 2019 21:00:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560805214;
+        bh=3K1wq8SumDUjOos8o3r6Jn8Nne8mBnHJ7iCT3yQAKzE=;
+        h=Subject:To:From:Date:From;
+        b=duIM1sRRlw7q8+L/3flE7jyQynL+ZmJdpawa0WGbA4i9H+SJiBRNZR3fhXivbqlfd
+         u+sWu/WxLJuJTO5JrYbqT3qwqhsNoK604xGXrtNSZYw2ctpfsdi+EDl8cZrSExGkV6
+         sw6hVRt+cEkDJ4SooxeTc5qdC1gcxoDJ9Z2OF34c=
+Subject: patch "staging: erofs: add requirements field in superblock" added to staging-linus
+To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, yuchao0@huawei.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 17 Jun 2019 23:00:11 +0200
+Message-ID: <156080521116227@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 7a30df49f63ad92318ddf1f7498d1129a77dd4bd upstream
 
-A few new fields were added to mmu_gather to make TLB flush smarter for
-huge page by telling what level of page table is changed.
+This is a note to let you know that I've just added the patch titled
 
-__tlb_reset_range() is used to reset all these page table state to
-unchanged, which is called by TLB flush for parallel mapping changes for
-the same range under non-exclusive lock (i.e.  read mmap_sem).
+    staging: erofs: add requirements field in superblock
 
-Before commit dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in
-munmap"), the syscalls (e.g.  MADV_DONTNEED, MADV_FREE) which may update
-PTEs in parallel don't remove page tables.  But, the forementioned
-commit may do munmap() under read mmap_sem and free page tables.  This
-may result in program hang on aarch64 reported by Jan Stancek.  The
-problem could be reproduced by his test program with slightly modified
-below.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
 
----8<---
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-static int map_size = 4096;
-static int num_iter = 500;
-static long threads_total;
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-static void *distant_area;
+If you have any questions about this process, please let me know.
 
-void *map_write_unmap(void *ptr)
-{
-	int *fd = ptr;
-	unsigned char *map_address;
-	int i, j = 0;
 
-	for (i = 0; i < num_iter; i++) {
-		map_address = mmap(distant_area, (size_t) map_size, PROT_WRITE | PROT_READ,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-		if (map_address == MAP_FAILED) {
-			perror("mmap");
-			exit(1);
-		}
+From 5efe5137f05bbb4688890620934538c005e7d1d6 Mon Sep 17 00:00:00 2001
+From: Gao Xiang <gaoxiang25@huawei.com>
+Date: Thu, 13 Jun 2019 16:35:41 +0800
+Subject: staging: erofs: add requirements field in superblock
 
-		for (j = 0; j < map_size; j++)
-			map_address[j] = 'b';
+There are some backward incompatible features pending
+for months, mainly due to on-disk format expensions.
 
-		if (munmap(map_address, map_size) == -1) {
-			perror("munmap");
-			exit(1);
-		}
-	}
+However, we should ensure that it cannot be mounted with
+old kernels. Otherwise, it will causes unexpected behaviors.
 
-	return NULL;
-}
-
-void *dummy(void *ptr)
-{
-	return NULL;
-}
-
-int main(void)
-{
-	pthread_t thid[2];
-
-	/* hint for mmap in map_write_unmap() */
-	distant_area = mmap(0, DISTANT_MMAP_SIZE, PROT_WRITE | PROT_READ,
-			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	munmap(distant_area, (size_t)DISTANT_MMAP_SIZE);
-	distant_area += DISTANT_MMAP_SIZE / 2;
-
-	while (1) {
-		pthread_create(&thid[0], NULL, map_write_unmap, NULL);
-		pthread_create(&thid[1], NULL, dummy, NULL);
-
-		pthread_join(thid[0], NULL);
-		pthread_join(thid[1], NULL);
-	}
-}
----8<---
-
-The program may bring in parallel execution like below:
-
-        t1                                        t2
-munmap(map_address)
-  downgrade_write(&mm->mmap_sem);
-  unmap_region()
-  tlb_gather_mmu()
-    inc_tlb_flush_pending(tlb->mm);
-  free_pgtables()
-    tlb->freed_tables = 1
-    tlb->cleared_pmds = 1
-
-                                        pthread_exit()
-                                        madvise(thread_stack, 8M, MADV_DONTNEED)
-                                          zap_page_range()
-                                            tlb_gather_mmu()
-                                              inc_tlb_flush_pending(tlb->mm);
-
-  tlb_finish_mmu()
-    if (mm_tlb_flush_nested(tlb->mm))
-      __tlb_reset_range()
-
-__tlb_reset_range() would reset freed_tables and cleared_* bits, but this
-may cause inconsistency for munmap() which do free page tables.  Then it
-may result in some architectures, e.g.  aarch64, may not flush TLB
-completely as expected to have stale TLB entries remained.
-
-Use fullmm flush since it yields much better performance on aarch64 and
-non-fullmm doesn't yields significant difference on x86.
-
-The original proposed fix came from Jan Stancek who mainly debugged this
-issue, I just wrapped up everything together.
-
-Jan's testing results:
-
-v5.2-rc2-24-gbec7550cca10
---------------------------
-         mean     stddev
-real    37.382   2.780
-user     1.420   0.078
-sys     54.658   1.855
-
-v5.2-rc2-24-gbec7550cca10 + "mm: mmu_gather: remove __tlb_reset_range() for force flush"
----------------------------------------------------------------------------------------_
-         mean     stddev
-real    37.119   2.105
-user     1.548   0.087
-sys     55.698   1.357
-
-[akpm@linux-foundation.org: coding-style fixes]
-Link: http://lkml.kernel.org/r/1558322252-113575-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Signed-off-by: Jan Stancek <jstancek@redhat.com>
-Reported-by: Jan Stancek <jstancek@redhat.com>
-Tested-by: Jan Stancek <jstancek@redhat.com>
-Suggested-by: Will Deacon <will.deacon@arm.com>
-Tested-by: Will Deacon <will.deacon@arm.com>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Nick Piggin <npiggin@gmail.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Nadav Amit <namit@vmware.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: <stable@vger.kernel.org>	[4.20+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: ba2b77a82022 ("staging: erofs: add super block operations")
+Cc: <stable@vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mmu_gather.c | 24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ drivers/staging/erofs/erofs_fs.h | 13 ++++++++++---
+ drivers/staging/erofs/internal.h |  2 ++
+ drivers/staging/erofs/super.c    | 19 +++++++++++++++++++
+ 3 files changed, 31 insertions(+), 3 deletions(-)
 
-diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-index f2f03c6..a58bd0d 100644
---- a/mm/mmu_gather.c
-+++ b/mm/mmu_gather.c
-@@ -93,8 +93,17 @@ void arch_tlb_finish_mmu(struct mmu_gather *tlb,
- 	struct mmu_gather_batch *batch, *next;
+diff --git a/drivers/staging/erofs/erofs_fs.h b/drivers/staging/erofs/erofs_fs.h
+index fa52898df006..8ddb2b3e7d39 100644
+--- a/drivers/staging/erofs/erofs_fs.h
++++ b/drivers/staging/erofs/erofs_fs.h
+@@ -17,10 +17,16 @@
+ #define EROFS_SUPER_MAGIC_V1    0xE0F5E1E2
+ #define EROFS_SUPER_OFFSET      1024
  
- 	if (force) {
-+		/*
-+		 * The aarch64 yields better performance with fullmm by
-+		 * avoiding multiple CPUs spamming TLBI messages at the
-+		 * same time.
-+		 *
-+		 * On x86 non-fullmm doesn't yield significant difference
-+		 * against fullmm.
-+		 */
-+		tlb->fullmm = 1;
- 		__tlb_reset_range(tlb);
--		__tlb_adjust_range(tlb, start, end - start);
-+		tlb->freed_tables = 1;
++/*
++ * Any bits that aren't in EROFS_ALL_REQUIREMENTS should be
++ * incompatible with this kernel version.
++ */
++#define EROFS_ALL_REQUIREMENTS  0
++
+ struct erofs_super_block {
+ /*  0 */__le32 magic;           /* in the little endian */
+ /*  4 */__le32 checksum;        /* crc32c(super_block) */
+-/*  8 */__le32 features;
++/*  8 */__le32 features;        /* (aka. feature_compat) */
+ /* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
+ /* 13 */__u8 reserved;
+ 
+@@ -34,9 +40,10 @@ struct erofs_super_block {
+ /* 44 */__le32 xattr_blkaddr;
+ /* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
+ /* 64 */__u8 volume_name[16];   /* volume name */
++/* 80 */__le32 requirements;    /* (aka. feature_incompat) */
+ 
+-/* 80 */__u8 reserved2[48];     /* 128 bytes */
+-} __packed;
++/* 84 */__u8 reserved2[44];
++} __packed;                     /* 128 bytes */
+ 
+ /*
+  * erofs inode data mapping:
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index c47778b3fabd..382258fc124d 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -115,6 +115,8 @@ struct erofs_sb_info {
+ 
+ 	u8 uuid[16];                    /* 128-bit uuid for volume */
+ 	u8 volume_name[16];             /* volume name */
++	u32 requirements;
++
+ 	char *dev_name;
+ 
+ 	unsigned int mount_opt;
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index f580d4ef77a1..cadbcc11702a 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -71,6 +71,22 @@ static void free_inode(struct inode *inode)
+ 	kmem_cache_free(erofs_inode_cachep, vi);
+ }
+ 
++static bool check_layout_compatibility(struct super_block *sb,
++				       struct erofs_super_block *layout)
++{
++	const unsigned int requirements = le32_to_cpu(layout->requirements);
++
++	EROFS_SB(sb)->requirements = requirements;
++
++	/* check if current kernel meets all mandatory requirements */
++	if (requirements & (~EROFS_ALL_REQUIREMENTS)) {
++		errln("unidentified requirements %x, please upgrade kernel version",
++		      requirements & ~EROFS_ALL_REQUIREMENTS);
++		return false;
++	}
++	return true;
++}
++
+ static int superblock_read(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi;
+@@ -104,6 +120,9 @@ static int superblock_read(struct super_block *sb)
+ 		goto out;
  	}
  
- 	tlb_flush_mmu(tlb);
-@@ -249,10 +258,15 @@ void tlb_finish_mmu(struct mmu_gather *tlb,
- {
- 	/*
- 	 * If there are parallel threads are doing PTE changes on same range
--	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer TLB
--	 * flush by batching, a thread has stable TLB entry can fail to flush
--	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
--	 * forcefully if we detect parallel PTE batching threads.
-+	 * under non-exclusive lock (e.g., mmap_sem read-side) but defer TLB
-+	 * flush by batching, one thread may end up seeing inconsistent PTEs
-+	 * and result in having stale TLB entries.  So flush TLB forcefully
-+	 * if we detect parallel PTE batching threads.
-+	 *
-+	 * However, some syscalls, e.g. munmap(), may free page tables, this
-+	 * needs force flush everything in the given range. Otherwise this
-+	 * may result in having stale TLB entries for some architectures,
-+	 * e.g. aarch64, that could specify flush what level TLB.
- 	 */
- 	bool force = mm_tlb_flush_nested(tlb->mm);
- 
++	if (!check_layout_compatibility(sb, layout))
++		goto out;
++
+ 	sbi->blocks = le32_to_cpu(layout->blocks);
+ 	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
+ #ifdef CONFIG_EROFS_FS_XATTR
 -- 
-1.8.3.1
+2.22.0
+
 
