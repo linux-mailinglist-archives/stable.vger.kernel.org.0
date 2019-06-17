@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E0DD49427
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 194A049428
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726427AbfFQVVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:21:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46020 "EHLO mail.kernel.org"
+        id S1729365AbfFQVVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:21:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729359AbfFQVV2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:21:28 -0400
+        id S1728900AbfFQVVb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:21:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C95720861;
-        Mon, 17 Jun 2019 21:21:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EBA620861;
+        Mon, 17 Jun 2019 21:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806488;
-        bh=G0ie8JgOWnbogLAjSH6t1iue8b20WpSQYvHMNaJVmt0=;
+        s=default; t=1560806490;
+        bh=kl4VkFn/kIn6Kaes2768yCdGWHalmqI56eqE0eTfxfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uWaM4c6TIIv//mazKDqNmp7UYzEMuZW7YJ+1Vt/1dkMF9oAqirUmjKgm5sRifhDSD
-         39OfnablGD5ucwhcqETMym8ZmDha1mnxeTf+SFHa5iD6k+AVcuo+sjN0eBxuBV47qP
-         t82zhVwYQR0BEhQpe5QG10emSP3HAiDivEhe4rIw=
+        b=1sxc+4GFIG1smomkpezkSTbgGL6vlLW7JRHivTiNTacBhdTTciS+tqJw1KsnL/hx5
+         TxR51ZxhbCU5OFkuydZYryIcPJLTNocH1VpnsD1bCG3KHLME1emlCTIwI//qPU07gi
+         fkJCeTUUDFNQvSs9Fg9WS4WOymliFOTe+AXUnnyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kenneth Heitke <kenneth.heitke@intel.com>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Keith Busch <keith.busch@intel.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 069/115] nvme: release namespace SRCU protection before performing controller ioctls
-Date:   Mon, 17 Jun 2019 23:09:29 +0200
-Message-Id: <20190617210803.623092805@linuxfoundation.org>
+        stable@vger.kernel.org, Keith Busch <keith.busch@intel.com>,
+        David Milburn <dmilburn@redhat.com>,
+        Yufen Yu <yuyufen@huawei.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 070/115] nvme: fix memory leak for power latency tolerance
+Date:   Mon, 17 Jun 2019 23:09:30 +0200
+Message-Id: <20190617210803.656145049@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -45,70 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5fb4aac756acacf260b9ebd88747251effa3a2f2 ]
+[ Upstream commit 510a405d945bc985abc513fafe45890cac34fafa ]
 
-Holding the SRCU critical section protecting the namespace list can
-cause deadlocks when using the per-namespace admin passthrough ioctl to
-delete as namespace.  Release it earlier when performing per-controller
-ioctls to avoid that.
+Unconditionally hide device pm latency tolerance when uninitializing
+the controller to ensure all qos resources are released so that we're
+not leaking this memory. This is safe to call if none were allocated in
+the first place, or were previously freed.
 
-Reported-by: Kenneth Heitke <kenneth.heitke@intel.com>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Keith Busch <keith.busch@intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: c5552fde102fc("nvme: Enable autonomous power state transitions")
+Suggested-by: Keith Busch <keith.busch@intel.com>
+Tested-by: David Milburn <dmilburn@redhat.com>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+[changelog]
+Signed-off-by: Keith Busch <keith.busch@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ drivers/nvme/host/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 8b77e6a05f4b..23c90382a515 100644
+index 23c90382a515..35d2202ee2fd 100644
 --- a/drivers/nvme/host/core.c
 +++ b/drivers/nvme/host/core.c
-@@ -1395,14 +1395,31 @@ static int nvme_ioctl(struct block_device *bdev, fmode_t mode,
- 	if (unlikely(!ns))
- 		return -EWOULDBLOCK;
+@@ -3699,6 +3699,7 @@ EXPORT_SYMBOL_GPL(nvme_start_ctrl);
  
-+	/*
-+	 * Handle ioctls that apply to the controller instead of the namespace
-+	 * seperately and drop the ns SRCU reference early.  This avoids a
-+	 * deadlock when deleting namespaces using the passthrough interface.
-+	 */
-+	if (cmd == NVME_IOCTL_ADMIN_CMD || is_sed_ioctl(cmd)) {
-+		struct nvme_ctrl *ctrl = ns->ctrl;
-+
-+		nvme_get_ctrl(ns->ctrl);
-+		nvme_put_ns_from_disk(head, srcu_idx);
-+
-+		if (cmd == NVME_IOCTL_ADMIN_CMD)
-+			ret = nvme_user_cmd(ctrl, NULL, argp);
-+		else
-+			ret = sed_ioctl(ctrl->opal_dev, cmd, argp);
-+
-+		nvme_put_ctrl(ctrl);
-+		return ret;
-+	}
-+
- 	switch (cmd) {
- 	case NVME_IOCTL_ID:
- 		force_successful_syscall_return();
- 		ret = ns->head->ns_id;
- 		break;
--	case NVME_IOCTL_ADMIN_CMD:
--		ret = nvme_user_cmd(ns->ctrl, NULL, argp);
--		break;
- 	case NVME_IOCTL_IO_CMD:
- 		ret = nvme_user_cmd(ns->ctrl, ns, argp);
- 		break;
-@@ -1412,8 +1429,6 @@ static int nvme_ioctl(struct block_device *bdev, fmode_t mode,
- 	default:
- 		if (ns->ndev)
- 			ret = nvme_nvm_ioctl(ns, cmd, arg);
--		else if (is_sed_ioctl(cmd))
--			ret = sed_ioctl(ns->ctrl->opal_dev, cmd, argp);
- 		else
- 			ret = -ENOTTY;
- 	}
+ void nvme_uninit_ctrl(struct nvme_ctrl *ctrl)
+ {
++	dev_pm_qos_hide_latency_tolerance(ctrl->device);
+ 	cdev_device_del(&ctrl->cdev, ctrl->device);
+ }
+ EXPORT_SYMBOL_GPL(nvme_uninit_ctrl);
 -- 
 2.20.1
 
