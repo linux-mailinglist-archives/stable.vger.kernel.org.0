@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BA73492C0
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:23:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7587C49385
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:31:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729697AbfFQVXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:23:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48416 "EHLO mail.kernel.org"
+        id S1730579AbfFQV2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:28:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729308AbfFQVXU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:23:20 -0400
+        id S1730285AbfFQV2l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:28:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98627208E4;
-        Mon, 17 Jun 2019 21:23:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCEEF2082C;
+        Mon, 17 Jun 2019 21:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806600;
-        bh=m9Q9Vlgl+kNwOg3Xk7nW9kRT4PszanSRflTUJekU/bQ=;
+        s=default; t=1560806920;
+        bh=pqqMoh4kSdEk2DEIsnrNK7jouv7DEcJKU0l6FIR54m4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4hBs+D0sBP9PhaSQjFD/11tabiOfHHx1XRIdHxk+3PhwxShadyCriuY1b/hAydRf
-         py82SMYVb7BahHbX67Hgduz5VjXJuiZiCC9BjRfq6k5ljTBVU0qwOJogq9LQajOnH8
-         G/Qb7yY6LtoB5Sr9wZg1+zyCw6rTgtLM1+dhnaJo=
+        b=mxQqmdWNt29DQ4f8grj0JqLuY67fR6HK5lsEw9T3xutJYwxpL/JCG8XdlmbEcCCym
+         n+0muL1MdSBW7/CtCPYMRnS9HSOD/bETigS8wURxfAfKzZdphaZEwZipBMej27uRs4
+         yO1+BUkes/lPk40AMTJ72PbFK73bpV4LEazGAmkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 091/115] KVM: s390: fix memory slot handling for KVM_SET_USER_MEMORY_REGION
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 08/53] libata: Extend quirks for the ST1000LM024 drives with NOLPM quirk
 Date:   Mon, 17 Jun 2019 23:09:51 +0200
-Message-Id: <20190617210804.577765445@linuxfoundation.org>
+Message-Id: <20190617210746.926705221@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
+References: <20190617210745.104187490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 19ec166c3f39fe1d3789888a74cc95544ac266d4 ]
+From: Hans de Goede <hdegoede@redhat.com>
 
-kselftests exposed a problem in the s390 handling for memory slots.
-Right now we only do proper memory slot handling for creation of new
-memory slots. Neither MOVE, nor DELETION are handled properly. Let us
-implement those.
+commit 31f6264e225fb92cf6f4b63031424f20797c297d upstream.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We've received a bugreport that using LPM with ST1000LM024 drives leads
+to system lockups. So it seems that these models are buggy in more then
+1 way. Add NOLPM quirk to the existing quirks entry for BROKEN_FPDMA_AA.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1571330
+Cc: stable@vger.kernel.org
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/s390/kvm/kvm-s390.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+ drivers/ata/libata-core.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index c4180ecfbb2a..ee35f1112db9 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4413,21 +4413,28 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
- 				const struct kvm_memory_slot *new,
- 				enum kvm_mr_change change)
- {
--	int rc;
--
--	/* If the basics of the memslot do not change, we do not want
--	 * to update the gmap. Every update causes several unnecessary
--	 * segment translation exceptions. This is usually handled just
--	 * fine by the normal fault handler + gmap, but it will also
--	 * cause faults on the prefix page of running guest CPUs.
--	 */
--	if (old->userspace_addr == mem->userspace_addr &&
--	    old->base_gfn * PAGE_SIZE == mem->guest_phys_addr &&
--	    old->npages * PAGE_SIZE == mem->memory_size)
--		return;
-+	int rc = 0;
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4472,9 +4472,12 @@ static const struct ata_blacklist_entry
+ 	{ "ST3320[68]13AS",	"SD1[5-9]",	ATA_HORKAGE_NONCQ |
+ 						ATA_HORKAGE_FIRMWARE_WARN },
  
--	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
--		mem->guest_phys_addr, mem->memory_size);
-+	switch (change) {
-+	case KVM_MR_DELETE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		break;
-+	case KVM_MR_MOVE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		if (rc)
-+			break;
-+		/* FALLTHROUGH */
-+	case KVM_MR_CREATE:
-+		rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
-+				      mem->guest_phys_addr, mem->memory_size);
-+		break;
-+	case KVM_MR_FLAGS_ONLY:
-+		break;
-+	default:
-+		WARN(1, "Unknown KVM MR CHANGE: %d\n", change);
-+	}
- 	if (rc)
- 		pr_warn("failed to commit memory region\n");
- 	return;
--- 
-2.20.1
-
+-	/* drives which fail FPDMA_AA activation (some may freeze afterwards) */
+-	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
+-	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
++	/* drives which fail FPDMA_AA activation (some may freeze afterwards)
++	   the ST disks also have LPM issues */
++	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
++						ATA_HORKAGE_NOLPM, },
++	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
++						ATA_HORKAGE_NOLPM, },
+ 	{ "VB0250EAVER",	"HPG7",		ATA_HORKAGE_BROKEN_FPDMA_AA },
+ 
+ 	/* Blacklist entries taken from Silicon Image 3124/3132
 
 
