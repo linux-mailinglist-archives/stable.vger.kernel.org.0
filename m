@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24883492A8
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE8149332
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729541AbfFQVW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47078 "EHLO mail.kernel.org"
+        id S1730286AbfFQV2g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:28:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729537AbfFQVW0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:22:26 -0400
+        id S1728930AbfFQV2c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:28:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01B7A2063F;
-        Mon, 17 Jun 2019 21:22:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5F782070B;
+        Mon, 17 Jun 2019 21:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806545;
-        bh=BznVoR+FiBUgaFlz9uhoR8AQG6axRGqhTctpnfjZEQE=;
+        s=default; t=1560806911;
+        bh=8XSvJ2TFsgwWkkcGwIZ6kDllatsH/sIS52RzuLD3X50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXx4CEurr+Y/eFZhB5kL4QtbuRwUgNX5WqPNgHt9Wcu/7bfhVplsotAgstRDvpJ4u
-         o7+XZltJREfOEfVQYwaAcW6Ex0vTYb/lXOXL7BM0qXtfbhzZnaxdvTI9FG43CNtuG+
-         JNu+50AQnBdxgMWjz1AafyTFEGCZKWpvJvV93XEg=
+        b=gBMlIVmJkuaKk/K4X1BiRb+lYbWQF3vBrThwfk9cO7FZjvHYAUdlN2KFlu67AkMfv
+         S8zKde/A+T103RPWncwFMYwBBzlPYS1ej7J41Qb3qrlEKkLdeKH+2cxJHpUuOwhBT5
+         FaN5ZK+gybwP6cltKLUMcWTIXFAf2RJsrYXuwj1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Liran Alon <liran.alon@oracle.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 087/115] KVM: LAPIC: Fix lapic_timer_advance_ns parameter overflow
-Date:   Mon, 17 Jun 2019 23:09:47 +0200
-Message-Id: <20190617210804.414958400@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 05/53] ALSA: oxfw: allow PCM capture for Stanton SCS.1m
+Date:   Mon, 17 Jun 2019 23:09:48 +0200
+Message-Id: <20190617210746.182179497@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
+References: <20190617210745.104187490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,49 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0e6edceb8f18a4e31526d83e6099fef1f29c3af5 ]
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-After commit c3941d9e0 (KVM: lapic: Allow user to disable adaptive tuning of
-timer advancement), '-1' enables adaptive tuning starting from default
-advancment of 1000ns. However, we should expose an int instead of an overflow
-uint module parameter.
+commit d8fa87c368f5b4096c4746894fdcc195da285df1 upstream.
 
-Before patch:
+Stanton SCS.1m can transfer isochronous packet with Multi Bit Linear
+Audio data channels, therefore it allows software to capture PCM
+substream. However, ALSA oxfw driver doesn't.
 
-/sys/module/kvm/parameters/lapic_timer_advance_ns:4294967295
+This commit changes the driver to add one PCM substream for capture
+direction.
 
-After patch:
+Fixes: de5126cc3c0b ("ALSA: oxfw: add stream format quirk for SCS.1 models")
+Cc: <stable@vger.kernel.org> # v4.5+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-/sys/module/kvm/parameters/lapic_timer_advance_ns:-1
-
-Fixes: c3941d9e0 (KVM: lapic: Allow user to disable adaptive tuning of timer advancement)
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Cc: Sean Christopherson <sean.j.christopherson@intel.com>
-Cc: Liran Alon <liran.alon@oracle.com>
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/firewire/oxfw/oxfw.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index efc8adf7ca0e..b07868eb1656 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -143,7 +143,7 @@ module_param(tsc_tolerance_ppm, uint, S_IRUGO | S_IWUSR);
-  * tuning, i.e. allows priveleged userspace to set an exact advancement time.
-  */
- static int __read_mostly lapic_timer_advance_ns = -1;
--module_param(lapic_timer_advance_ns, uint, S_IRUGO | S_IWUSR);
-+module_param(lapic_timer_advance_ns, int, S_IRUGO | S_IWUSR);
+--- a/sound/firewire/oxfw/oxfw.c
++++ b/sound/firewire/oxfw/oxfw.c
+@@ -176,9 +176,6 @@ static int detect_quirks(struct snd_oxfw
+ 		oxfw->midi_input_ports = 0;
+ 		oxfw->midi_output_ports = 0;
  
- static bool __read_mostly vector_hashing = true;
- module_param(vector_hashing, bool, S_IRUGO);
--- 
-2.20.1
-
+-		/* Output stream exists but no data channels are useful. */
+-		oxfw->has_output = false;
+-
+ 		return snd_oxfw_scs1x_add(oxfw);
+ 	}
+ 
 
 
