@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0D0649452
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B713549255
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:19:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728625AbfFQVTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:19:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42890 "EHLO mail.kernel.org"
+        id S1727523AbfFQVTP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:19:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727523AbfFQVTN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:19:13 -0400
+        id S1728745AbfFQVTP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:19:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BA1B2147A;
-        Mon, 17 Jun 2019 21:19:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39631208CB;
+        Mon, 17 Jun 2019 21:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806351;
-        bh=ZaxbKxuDo9b9NHacMWb7xXuPgMvT1zufacV2xQ1U+U4=;
+        s=default; t=1560806354;
+        bh=z5SKF9DOlqPNls6ia41cYM6baailNmIznIbwfYklA1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EXfNarOsbxhwMz2ffWEu4/rx9B2qSzRERdpYvqAN4hDSJtBkHlChmjM2LRqeZ+YmK
-         4oTe5u1H5XUstkcAqYo3VKu0wEBbD2/JAmUOEOZwD9YBUaW88woJkVNIptnl1AnQnq
-         jkh3aZgqM1ZPNtJ6lCh8L5MzaJ8E6cdRTUT32guU=
+        b=eW9Vs8x2mnrCtAU/SJC/NY8hjWfyMBig1lcJVxAviN+aO/pFhbjeHWKbUvUML4AuG
+         Ws+IRrB6OpvIFDFAWO5FTa54jgours7hyEwoVMiPxxdUT1hdHRsr49cKqbFz0lwaDy
+         pkTOFVfRVpWAGGxuvmXudJ9rppnj42zPTtYzz1CM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f90a420dfe2b1b03cb2c@syzkaller.appspotmail.com,
-        Shakeel Butt <shakeelb@google.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        stable@vger.kernel.org, Wengang Wang <wen.gang.wang@oracle.com>,
+        Daniel Sobe <daniel.sobe@nxp.com>,
+        Changwei Ge <gechangwei@live.cn>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.1 022/115] mm/list_lru.c: fix memory leak in __memcg_init_list_lru_node
-Date:   Mon, 17 Jun 2019 23:08:42 +0200
-Message-Id: <20190617210801.073033379@linuxfoundation.org>
+Subject: [PATCH 5.1 023/115] fs/ocfs2: fix race in ocfs2_dentry_attach_lock()
+Date:   Mon, 17 Jun 2019 23:08:43 +0200
+Message-Id: <20190617210801.120459727@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -48,71 +51,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
+From: Wengang Wang <wen.gang.wang@oracle.com>
 
-commit 3510955b327176fd4cbab5baa75b449f077722a2 upstream.
+commit be99ca2716972a712cde46092c54dee5e6192bf8 upstream.
 
-Syzbot reported following memory leak:
+ocfs2_dentry_attach_lock() can be executed in parallel threads against the
+same dentry.  Make that race safe.  The race is like this:
 
-ffffffffda RBX: 0000000000000003 RCX: 0000000000441f79
-BUG: memory leak
-unreferenced object 0xffff888114f26040 (size 32):
-  comm "syz-executor626", pid 7056, jiffies 4294948701 (age 39.410s)
-  hex dump (first 32 bytes):
-    40 60 f2 14 81 88 ff ff 40 60 f2 14 81 88 ff ff  @`......@`......
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-     slab_post_alloc_hook mm/slab.h:439 [inline]
-     slab_alloc mm/slab.c:3326 [inline]
-     kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-     kmalloc include/linux/slab.h:547 [inline]
-     __memcg_init_list_lru_node+0x58/0xf0 mm/list_lru.c:352
-     memcg_init_list_lru_node mm/list_lru.c:375 [inline]
-     memcg_init_list_lru mm/list_lru.c:459 [inline]
-     __list_lru_init+0x193/0x2a0 mm/list_lru.c:626
-     alloc_super+0x2e0/0x310 fs/super.c:269
-     sget_userns+0x94/0x2a0 fs/super.c:609
-     sget+0x8d/0xb0 fs/super.c:660
-     mount_nodev+0x31/0xb0 fs/super.c:1387
-     fuse_mount+0x2d/0x40 fs/fuse/inode.c:1236
-     legacy_get_tree+0x27/0x80 fs/fs_context.c:661
-     vfs_get_tree+0x2e/0x120 fs/super.c:1476
-     do_new_mount fs/namespace.c:2790 [inline]
-     do_mount+0x932/0xc50 fs/namespace.c:3110
-     ksys_mount+0xab/0x120 fs/namespace.c:3319
-     __do_sys_mount fs/namespace.c:3333 [inline]
-     __se_sys_mount fs/namespace.c:3330 [inline]
-     __x64_sys_mount+0x26/0x30 fs/namespace.c:3330
-     do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
-     entry_SYSCALL_64_after_hwframe+0x44/0xa9
+            thread A                               thread B
 
-This is a simple off by one bug on the error path.
+(A1) enter ocfs2_dentry_attach_lock,
+seeing dentry->d_fsdata is NULL,
+and no alias found by
+ocfs2_find_local_alias, so kmalloc
+a new ocfs2_dentry_lock structure
+to local variable "dl", dl1
 
-Link: http://lkml.kernel.org/r/20190528043202.99980-1-shakeelb@google.com
-Fixes: 60d3fd32a7a9 ("list_lru: introduce per-memcg lists")
-Reported-by: syzbot+f90a420dfe2b1b03cb2c@syzkaller.appspotmail.com
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Cc: <stable@vger.kernel.org>	[4.0+]
+               .....
+
+                                    (B1) enter ocfs2_dentry_attach_lock,
+                                    seeing dentry->d_fsdata is NULL,
+                                    and no alias found by
+                                    ocfs2_find_local_alias so kmalloc
+                                    a new ocfs2_dentry_lock structure
+                                    to local variable "dl", dl2.
+
+                                                   ......
+
+(A2) set dentry->d_fsdata with dl1,
+call ocfs2_dentry_lock() and increase
+dl1->dl_lockres.l_ro_holders to 1 on
+success.
+              ......
+
+                                    (B2) set dentry->d_fsdata with dl2
+                                    call ocfs2_dentry_lock() and increase
+				    dl2->dl_lockres.l_ro_holders to 1 on
+				    success.
+
+                                                  ......
+
+(A3) call ocfs2_dentry_unlock()
+and decrease
+dl2->dl_lockres.l_ro_holders to 0
+on success.
+             ....
+
+                                    (B3) call ocfs2_dentry_unlock(),
+                                    decreasing
+				    dl2->dl_lockres.l_ro_holders, but
+				    see it's zero now, panic
+
+Link: http://lkml.kernel.org/r/20190529174636.22364-1-wen.gang.wang@oracle.com
+Signed-off-by: Wengang Wang <wen.gang.wang@oracle.com>
+Reported-by: Daniel Sobe <daniel.sobe@nxp.com>
+Tested-by: Daniel Sobe <daniel.sobe@nxp.com>
+Reviewed-by: Changwei Ge <gechangwei@live.cn>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/list_lru.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/dcache.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/mm/list_lru.c
-+++ b/mm/list_lru.c
-@@ -353,7 +353,7 @@ static int __memcg_init_list_lru_node(st
- 	}
- 	return 0;
- fail:
--	__memcg_destroy_list_lru_node(memcg_lrus, begin, i - 1);
-+	__memcg_destroy_list_lru_node(memcg_lrus, begin, i);
- 	return -ENOMEM;
- }
+--- a/fs/ocfs2/dcache.c
++++ b/fs/ocfs2/dcache.c
+@@ -310,6 +310,18 @@ int ocfs2_dentry_attach_lock(struct dent
  
+ out_attach:
+ 	spin_lock(&dentry_attach_lock);
++	if (unlikely(dentry->d_fsdata && !alias)) {
++		/* d_fsdata is set by a racing thread which is doing
++		 * the same thing as this thread is doing. Leave the racing
++		 * thread going ahead and we return here.
++		 */
++		spin_unlock(&dentry_attach_lock);
++		iput(dl->dl_inode);
++		ocfs2_lock_res_free(&dl->dl_lockres);
++		kfree(dl);
++		return 0;
++	}
++
+ 	dentry->d_fsdata = dl;
+ 	dl->dl_count++;
+ 	spin_unlock(&dentry_attach_lock);
 
 
