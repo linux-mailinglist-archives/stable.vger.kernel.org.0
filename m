@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7577449308
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:26:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3B4A4935A
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:30:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729319AbfFQV0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:26:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53430 "EHLO mail.kernel.org"
+        id S1730808AbfFQVaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:30:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729795AbfFQV0p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:26:45 -0400
+        id S1730333AbfFQVaP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:30:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D58C20657;
-        Mon, 17 Jun 2019 21:26:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98352204FD;
+        Mon, 17 Jun 2019 21:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806804;
-        bh=rZKAnoo3eg1sRLT+j7pJdQrLVJvUCioqGRuh8nKIJBw=;
+        s=default; t=1560807015;
+        bh=ZJEh321ZjSB2kRnIHaSQrvNPnNFl8ZTzTjIEDmcabaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBngMDZyuEtKs3vU3e6z+reJM0y2nEWeDyRaCVwbu9HJeAeJfQR6413JNb8c00kD8
-         q9ajt2del8yoA3loewshf974mYKtm4yzYSX+wx52D9YA0q+jllpdd6qauWkvXKRmuu
-         oFnA5SubbtKPdDO2jTFH8SaXsF2BOm2SQC0lStog=
+        b=HL7HDJJoa0X5//PZtaY881fU4Em8vJd6WIhO5WZPlsiUPy1jnoqJ3anCp7cf8n5oz
+         GMvLJ5+WgK03k4rtfkifcJ7LUoGCSgAn3+kOcuMJEvNjUbn2sfNhZvxYZOuvSIBdI8
+         rbE5nmYndPXBWzJ+D47m1OJ6jGWna1yY24DWX4C8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH 4.19 62/75] USB: usb-storage: Add new ID to ums-realtek
-Date:   Mon, 17 Jun 2019 23:10:13 +0200
-Message-Id: <20190617210755.398121447@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 31/53] arm64/mm: Inhibit huge-vmap with ptdump
+Date:   Mon, 17 Jun 2019 23:10:14 +0200
+Message-Id: <20190617210750.941334533@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
+References: <20190617210745.104187490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +47,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+[ Upstream commit 7ba36eccb3f83983a651efd570b4f933ecad1b5c ]
 
-commit 1a6dd3fea131276a4fc44ae77b0f471b0b473577 upstream.
+The arm64 ptdump code can race with concurrent modification of the
+kernel page tables. At the time this was added, this was sound as:
 
-There is one more Realtek card reader requires ums-realtek to work
-correctly.
+* Modifications to leaf entries could result in stale information being
+  logged, but would not result in a functional problem.
 
-Add the device ID to support it.
+* Boot time modifications to non-leaf entries (e.g. freeing of initmem)
+  were performed when the ptdump code cannot be invoked.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+* At runtime, modifications to non-leaf entries only occurred in the
+  vmalloc region, and these were strictly additive, as intermediate
+  entries were never freed.
 
+However, since commit:
+
+  commit 324420bf91f6 ("arm64: add support for ioremap() block mappings")
+
+... it has been possible to create huge mappings in the vmalloc area at
+runtime, and as part of this existing intermediate levels of table my be
+removed and freed.
+
+It's possible for the ptdump code to race with this, and continue to
+walk tables which have been freed (and potentially poisoned or
+reallocated). As a result of this, the ptdump code may dereference bogus
+addresses, which could be fatal.
+
+Since huge-vmap is a TLB and memory optimization, we can disable it when
+the runtime ptdump code is in use to avoid this problem.
+
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: 324420bf91f60582 ("arm64: add support for ioremap() block mappings")
+Acked-by: Ard Biesheuvel <ard.biesheuvel@arm.com>
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_realtek.h |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm64/mm/mmu.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/storage/unusual_realtek.h
-+++ b/drivers/usb/storage/unusual_realtek.h
-@@ -17,6 +17,11 @@ UNUSUAL_DEV(0x0bda, 0x0138, 0x0000, 0x99
- 		"USB Card Reader",
- 		USB_SC_DEVICE, USB_PR_DEVICE, init_realtek_cr, 0),
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 6ac0d32d60a5..abb9d2ecc675 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -899,13 +899,18 @@ void *__init fixmap_remap_fdt(phys_addr_t dt_phys)
  
-+UNUSUAL_DEV(0x0bda, 0x0153, 0x0000, 0x9999,
-+		"Realtek",
-+		"USB Card Reader",
-+		USB_SC_DEVICE, USB_PR_DEVICE, init_realtek_cr, 0),
-+
- UNUSUAL_DEV(0x0bda, 0x0158, 0x0000, 0x9999,
- 		"Realtek",
- 		"USB Card Reader",
+ int __init arch_ioremap_pud_supported(void)
+ {
+-	/* only 4k granule supports level 1 block mappings */
+-	return IS_ENABLED(CONFIG_ARM64_4K_PAGES);
++	/*
++	 * Only 4k granule supports level 1 block mappings.
++	 * SW table walks can't handle removal of intermediate entries.
++	 */
++	return IS_ENABLED(CONFIG_ARM64_4K_PAGES) &&
++	       !IS_ENABLED(CONFIG_ARM64_PTDUMP_DEBUGFS);
+ }
+ 
+ int __init arch_ioremap_pmd_supported(void)
+ {
+-	return 1;
++	/* See arch_ioremap_pud_supported() */
++	return !IS_ENABLED(CONFIG_ARM64_PTDUMP_DEBUGFS);
+ }
+ 
+ int pud_set_huge(pud_t *pud, phys_addr_t phys, pgprot_t prot)
+-- 
+2.20.1
+
 
 
