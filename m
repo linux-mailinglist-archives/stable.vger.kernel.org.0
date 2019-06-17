@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C760D49408
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:35:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F40649303
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:26:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726797AbfFQVXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:23:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48328 "EHLO mail.kernel.org"
+        id S1729943AbfFQV0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:26:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729697AbfFQVXS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:23:18 -0400
+        id S1729266AbfFQV0b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:26:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0000420B1F;
-        Mon, 17 Jun 2019 21:23:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5671D20657;
+        Mon, 17 Jun 2019 21:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806597;
-        bh=AsC9uVI1BfZ0FNcxfLRwf9ePKz/nbVlobG9IK3mJHXM=;
+        s=default; t=1560806790;
+        bh=5FKgHiwaps52oURHQqc1RE4Wu7mEfpAXnwncpeXbwZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VenRDgw2ym2haB/H5fKGh/uxzjF/sRTm/0j7830SzhcoMfB+ZPOS4tKyfBTwaQ8bf
-         ZmJ5ol48En09+LB0i75a3N/vdASEvVJLFH967/rVmROGEKCKMOGyr8oTTv2Su1TQZH
-         ZhiVyb/48x1C7T7mZyTtD7CQJMkFOplywnQwGkUI=
+        b=vHPbjfVM43XASP3zaaInNWR4/Rc/mZylqtAaNk0FIT8DgCZqN3dWLlAYUgxJm0KHI
+         YXAysyIxhyMn9H6S9anJr6JX6WpC9sr8a+LnmIB2ey7i5mT0V8QYGlAN67JXe87hHC
+         1Q8hWb7lSonrmdebvvPNRQTYSBYs5KPtMZb+5bBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adric Blake <promarbler14@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>, x86@kernel.org
-Subject: [PATCH 5.1 108/115] x86/microcode, cpuhotplug: Add a microcode loader CPU hotplug callback
+        stable@vger.kernel.org,
+        Murray McAllister <murray.mcallister@gmail.com>,
+        Thomas Hellstrom <thellstrom@vmware.com>
+Subject: [PATCH 4.19 57/75] drm/vmwgfx: integer underflow in vmw_cmd_dx_set_shader() leading to an invalid read
 Date:   Mon, 17 Jun 2019 23:10:08 +0200
-Message-Id: <20190617210805.460259072@linuxfoundation.org>
+Message-Id: <20190617210755.036336191@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Murray McAllister <murray.mcallister@gmail.com>
 
-commit 78f4e932f7760d965fb1569025d1576ab77557c5 upstream.
+commit 5ed7f4b5eca11c3c69e7c8b53e4321812bc1ee1e upstream.
 
-Adric Blake reported the following warning during suspend-resume:
+If SVGA_3D_CMD_DX_SET_SHADER is called with a shader ID
+of SVGA3D_INVALID_ID, and a shader type of
+SVGA3D_SHADERTYPE_INVALID, the calculated binding.shader_slot
+will be 4294967295, leading to an out-of-bounds read in vmw_binding_loc()
+when the offset is calculated.
 
-  Enabling non-boot CPUs ...
-  x86: Booting SMP configuration:
-  smpboot: Booting Node 0 Processor 1 APIC 0x2
-  unchecked MSR access error: WRMSR to 0x10f (tried to write 0x0000000000000000) \
-   at rIP: 0xffffffff8d267924 (native_write_msr+0x4/0x20)
-  Call Trace:
-   intel_set_tfa
-   intel_pmu_cpu_starting
-   ? x86_pmu_dead_cpu
-   x86_pmu_starting_cpu
-   cpuhp_invoke_callback
-   ? _raw_spin_lock_irqsave
-   notify_cpu_starting
-   start_secondary
-   secondary_startup_64
-  microcode: sig=0x806ea, pf=0x80, revision=0x96
-  microcode: updated to revision 0xb4, date = 2019-04-01
-  CPU1 is up
-
-The MSR in question is MSR_TFA_RTM_FORCE_ABORT and that MSR is emulated
-by microcode. The log above shows that the microcode loader callback
-happens after the PMU restoration, leading to the conjecture that
-because the microcode hasn't been updated yet, that MSR is not present
-yet, leading to the #GP.
-
-Add a microcode loader-specific hotplug vector which comes before
-the PERF vectors and thus executes earlier and makes sure the MSR is
-present.
-
-Fixes: 400816f60c54 ("perf/x86/intel: Implement support for TSX Force Abort")
-Reported-by: Adric Blake <promarbler14@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: <stable@vger.kernel.org>
-Cc: x86@kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=203637
+Fixes: d80efd5cb3de ("drm/vmwgfx: Initial DX support")
+Signed-off-by: Murray McAllister <murray.mcallister@gmail.com>
+Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- arch/x86/kernel/cpu/microcode/core.c |    2 +-
- include/linux/cpuhotplug.h           |    1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/microcode/core.c
-+++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -876,7 +876,7 @@ int __init microcode_init(void)
- 		goto out_ucode_group;
+---
+ drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+@@ -2493,7 +2493,8 @@ static int vmw_cmd_dx_set_shader(struct
  
- 	register_syscore_ops(&mc_syscore_ops);
--	cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN, "x86/microcode:online",
-+	cpuhp_setup_state_nocalls(CPUHP_AP_MICROCODE_LOADER, "x86/microcode:online",
- 				  mc_cpu_online, mc_cpu_down_prep);
+ 	cmd = container_of(header, typeof(*cmd), header);
  
- 	pr_info("Microcode Update Driver: v%s.", DRIVER_VERSION);
---- a/include/linux/cpuhotplug.h
-+++ b/include/linux/cpuhotplug.h
-@@ -101,6 +101,7 @@ enum cpuhp_state {
- 	CPUHP_AP_IRQ_BCM2836_STARTING,
- 	CPUHP_AP_IRQ_MIPS_GIC_STARTING,
- 	CPUHP_AP_ARM_MVEBU_COHERENCY,
-+	CPUHP_AP_MICROCODE_LOADER,
- 	CPUHP_AP_PERF_X86_AMD_UNCORE_STARTING,
- 	CPUHP_AP_PERF_X86_STARTING,
- 	CPUHP_AP_PERF_X86_AMD_IBS_STARTING,
+-	if (cmd->body.type >= SVGA3D_SHADERTYPE_DX10_MAX) {
++	if (cmd->body.type >= SVGA3D_SHADERTYPE_DX10_MAX ||
++	    cmd->body.type < SVGA3D_SHADERTYPE_MIN) {
+ 		DRM_ERROR("Illegal shader type %u.\n",
+ 			  (unsigned) cmd->body.type);
+ 		return -EINVAL;
 
 
