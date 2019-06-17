@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEADA4939B
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 335844939C
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:32:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729738AbfFQV1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:27:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54650 "EHLO mail.kernel.org"
+        id S1730419AbfFQV1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:27:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730419AbfFQV1j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:27:39 -0400
+        id S1730428AbfFQV1l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:27:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDE552070B;
-        Mon, 17 Jun 2019 21:27:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9798C20861;
+        Mon, 17 Jun 2019 21:27:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806857;
-        bh=saiZy8z1Sk7dEyBsaCG/Gcy8sC/pf67bUjMRPIYC7iQ=;
+        s=default; t=1560806860;
+        bh=Kg5kTKUY3h2hQMAlBQ1cN/Yt4INR2q4uE9EYTntycI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmmtQykIRnyq+vXSZR+GzQH8hogxxNTkI21+OtZ48TvUVzzf7NWAQfgXyB3O3O7Ho
-         bDPYkUPO5pGF4D7L14JDIl2+oGxy0dVkBvH6PldXyOhiITrrgis3eR+EAC1ufumbP3
-         87MJDSiAMtE1Ev5VGSlVtebJeifrp5ceKuwHw3zI=
+        b=v9W0U/7VzeVYD+xwohb6ahpu8qdKwubKXq7CEblJfRrVlFC0v8pYq1htAuxlhiU5v
+         AEagFRXeTNXn78oRBS+mxF/4Q1lgHP12TWM967qXzC5hoAVzyS33agwLHvq4U6ALS6
+         qL7uKqKs/LVCZPcw6gyzPoF1E/gDEtrLJtohx4ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Wise <pabs3@bonedaddy.net>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@cs.helsinki.fi>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Harish Chegondi <harish.chegondi@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 4.19 74/75] drm: add fallback override/firmware EDID modes workaround
-Date:   Mon, 17 Jun 2019 23:10:25 +0200
-Message-Id: <20190617210756.179341513@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Erik=20=C4=8Cuk?= <erik.cuk@domel.com>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 4.19 75/75] rtc: pcf8523: dont return invalid date when battery is low
+Date:   Mon, 17 Jun 2019 23:10:26 +0200
+Message-Id: <20190617210756.242262218@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
 References: <20190617210752.799453599@linuxfoundation.org>
@@ -48,139 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Baruch Siach <baruch@tkos.co.il>
 
-commit 48eaeb7664c76139438724d520a1ea4a84a3ed92 upstream.
+commit ecb4a353d3afd45b9bb30c85d03ee113a0589079 upstream.
 
-We've moved the override and firmware EDID (simply "override EDID" from
-now on) handling to the low level drm_do_get_edid() function in order to
-transparently use the override throughout the stack. The idea is that
-you get the override EDID via the ->get_modes() hook.
+The RTC_VL_READ ioctl reports the low battery condition. Still,
+pcf8523_rtc_read_time() happily returns invalid dates in this case.
+Check the battery health on pcf8523_rtc_read_time() to avoid that.
 
-Unfortunately, there are scenarios where the DDC probe in drm_get_edid()
-called via ->get_modes() fails, although the preceding ->detect()
-succeeds.
-
-In the case reported by Paul Wise, the ->detect() hook,
-intel_crt_detect(), relies on hotplug detect, bypassing the DDC. In the
-case reported by Ilpo Järvinen, there is no ->detect() hook, which is
-interpreted as connected. The subsequent DDC probe reached via
-->get_modes() fails, and we don't even look at the override EDID,
-resulting in no modes being added.
-
-Because drm_get_edid() is used via ->detect() all over the place, we
-can't trivially remove the DDC probe, as it leads to override EDID
-effectively meaning connector forcing. The goal is that connector
-forcing and override EDID remain orthogonal.
-
-Generally, the underlying problem here is the conflation of ->detect()
-and ->get_modes() via drm_get_edid(). The former should just detect, and
-the latter should just get the modes, typically via reading the EDID. As
-long as drm_get_edid() is used in ->detect(), it needs to retain the DDC
-probe. Or such users need to have a separate DDC probe step first.
-
-The EDID caching between ->detect() and ->get_modes() done by some
-drivers is a further complication that prevents us from making
-drm_do_get_edid() adapt to the two cases.
-
-Work around the regression by falling back to a separate attempt at
-getting the override EDID at drm_helper_probe_single_connector_modes()
-level. With a working DDC and override EDID, it'll never be called; the
-override EDID will come via ->get_modes(). There will still be a failing
-DDC probe attempt in the cases that require the fallback.
-
-v2:
-- Call drm_connector_update_edid_property (Paul)
-- Update commit message about EDID caching (Daniel)
-
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=107583
-Reported-by: Paul Wise <pabs3@bonedaddy.net>
-Cc: Paul Wise <pabs3@bonedaddy.net>
-Reported-by: Ilpo Järvinen <ilpo.jarvinen@cs.helsinki.fi>
-Cc: Ilpo Järvinen <ilpo.jarvinen@cs.helsinki.fi>
-Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Fixes: 53fd40a90f3c ("drm: handle override and firmware EDID at drm_do_get_edid() level")
-Cc: <stable@vger.kernel.org> # v4.15+ 56a2b7f2a39a drm/edid: abstract override/firmware EDID retrieval
-Cc: <stable@vger.kernel.org> # v4.15+
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Harish Chegondi <harish.chegondi@intel.com>
-Tested-by: Paul Wise <pabs3@bonedaddy.net>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190610093054.28445-1-jani.nikula@intel.com
+Reported-by: Erik Čuk <erik.cuk@domel.com>
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_edid.c         |   30 ++++++++++++++++++++++++++++++
- drivers/gpu/drm/drm_probe_helper.c |    7 +++++++
- include/drm/drm_edid.h             |    1 +
- 3 files changed, 38 insertions(+)
+ drivers/rtc/rtc-pcf8523.c |   32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -1595,6 +1595,36 @@ static struct edid *drm_get_override_edi
+--- a/drivers/rtc/rtc-pcf8523.c
++++ b/drivers/rtc/rtc-pcf8523.c
+@@ -85,6 +85,18 @@ static int pcf8523_write(struct i2c_clie
+ 	return 0;
  }
  
- /**
-+ * drm_add_override_edid_modes - add modes from override/firmware EDID
-+ * @connector: connector we're probing
-+ *
-+ * Add modes from the override/firmware EDID, if available. Only to be used from
-+ * drm_helper_probe_single_connector_modes() as a fallback for when DDC probe
-+ * failed during drm_get_edid() and caused the override/firmware EDID to be
-+ * skipped.
-+ *
-+ * Return: The number of modes added or 0 if we couldn't find any.
-+ */
-+int drm_add_override_edid_modes(struct drm_connector *connector)
++static int pcf8523_voltage_low(struct i2c_client *client)
 +{
-+	struct edid *override;
-+	int num_modes = 0;
++	u8 value;
++	int err;
 +
-+	override = drm_get_override_edid(connector);
-+	if (override) {
-+		drm_connector_update_edid_property(connector, override);
-+		num_modes = drm_add_edid_modes(connector, override);
-+		kfree(override);
++	err = pcf8523_read(client, REG_CONTROL3, &value);
++	if (err < 0)
++		return err;
 +
-+		DRM_DEBUG_KMS("[CONNECTOR:%d:%s] adding %d modes via fallback override/firmware EDID\n",
-+			      connector->base.id, connector->name, num_modes);
++	return !!(value & REG_CONTROL3_BLF);
++}
++
+ static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
+ {
+ 	u8 value;
+@@ -167,6 +179,14 @@ static int pcf8523_rtc_read_time(struct
+ 	struct i2c_msg msgs[2];
+ 	int err;
+ 
++	err = pcf8523_voltage_low(client);
++	if (err < 0) {
++		return err;
++	} else if (err > 0) {
++		dev_err(dev, "low voltage detected, time is unreliable\n");
++		return -EINVAL;
 +	}
 +
-+	return num_modes;
-+}
-+EXPORT_SYMBOL(drm_add_override_edid_modes);
-+
-+/**
-  * drm_do_get_edid - get EDID data using a custom EDID block read function
-  * @connector: connector we're probing
-  * @get_edid_block: EDID block read function
---- a/drivers/gpu/drm/drm_probe_helper.c
-+++ b/drivers/gpu/drm/drm_probe_helper.c
-@@ -479,6 +479,13 @@ retry:
+ 	msgs[0].addr = client->addr;
+ 	msgs[0].flags = 0;
+ 	msgs[0].len = 1;
+@@ -251,17 +271,13 @@ static int pcf8523_rtc_ioctl(struct devi
+ 			     unsigned long arg)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+-	u8 value;
+-	int ret = 0, err;
++	int ret;
  
- 	count = (*connector_funcs->get_modes)(connector);
+ 	switch (cmd) {
+ 	case RTC_VL_READ:
+-		err = pcf8523_read(client, REG_CONTROL3, &value);
+-		if (err < 0)
+-			return err;
+-
+-		if (value & REG_CONTROL3_BLF)
+-			ret = 1;
++		ret = pcf8523_voltage_low(client);
++		if (ret < 0)
++			return ret;
  
-+	/*
-+	 * Fallback for when DDC probe failed in drm_get_edid() and thus skipped
-+	 * override/firmware EDID.
-+	 */
-+	if (count == 0 && connector->status == connector_status_connected)
-+		count = drm_add_override_edid_modes(connector);
-+
- 	if (count == 0 && connector->status == connector_status_connected)
- 		count = drm_add_modes_noedid(connector, 1024, 768);
- 	count += drm_helper_probe_add_cmdline_mode(connector);
---- a/include/drm/drm_edid.h
-+++ b/include/drm/drm_edid.h
-@@ -466,6 +466,7 @@ struct edid *drm_get_edid_switcheroo(str
- 				     struct i2c_adapter *adapter);
- struct edid *drm_edid_duplicate(const struct edid *edid);
- int drm_add_edid_modes(struct drm_connector *connector, struct edid *edid);
-+int drm_add_override_edid_modes(struct drm_connector *connector);
- 
- u8 drm_match_cea_mode(const struct drm_display_mode *to_match);
- enum hdmi_picture_aspect drm_get_cea_aspect_ratio(const u8 video_code);
+ 		if (copy_to_user((void __user *)arg, &ret, sizeof(int)))
+ 			return -EFAULT;
 
 
