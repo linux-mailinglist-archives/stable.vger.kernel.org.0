@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B899B492F9
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:26:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB1A2492CB
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729055AbfFQVZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:25:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52188 "EHLO mail.kernel.org"
+        id S1729447AbfFQVXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:23:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729035AbfFQVZu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:25:50 -0400
+        id S1729805AbfFQVXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:23:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AF7220673;
-        Mon, 17 Jun 2019 21:25:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A188120861;
+        Mon, 17 Jun 2019 21:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806749;
-        bh=tpYiwEGQ67hUfP/N2MI6rulNvqudaMCDEMbf3KGmCNA=;
+        s=default; t=1560806632;
+        bh=Opv/mSurQ8nj6sHht/tUxAYzrYb+iP1/XHfMYCvjMQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQorDKUHkg7WH3fqkbyrAt5f63fAEBYBB5k7pt0f9U9pOXk70SaMKvosyDOthBjya
-         FKZAg5Chl6Etgk0Hompz4M9Ck3J1PCqqMVDrAIMaAjdd6aVa9iJedeRy6AddazWWVl
-         em1Z90WrnFmzrjZC5QXAJLtrwTATGyBTSxsAuSe0=
+        b=Lj+pPv/gLGlckLr6KddC8qEpQV9U1FPhHbSor+QUmflQlgbL7cdHZsWYVdW/L8SDz
+         FOw1tz+3iYE9zUMopMI5cNBiDiK9wNOyKCws7tlnDBYyb/ugdMY1AfmWVTBJ6wZpzV
+         A3JnRyWN7KKFaIlvtghsMvKBh2mHHY+O06Cljx6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Semyon Verchenko <semverchenko@factor-ts.ru>
-Subject: [PATCH 4.19 44/75] platform/x86: pmc_atom: Add Lex 3I380D industrial PC to critclk_systems DMI table
+        stable@vger.kernel.org,
+        Murray McAllister <murray.mcallister@gmail.com>,
+        Thomas Hellstrom <thellstrom@vmware.com>
+Subject: [PATCH 5.1 095/115] drm/vmwgfx: integer underflow in vmw_cmd_dx_set_shader() leading to an invalid read
 Date:   Mon, 17 Jun 2019 23:09:55 +0200
-Message-Id: <20190617210754.461919748@linuxfoundation.org>
+Message-Id: <20190617210804.767858738@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+References: <20190617210759.929316339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3d0818f5eba80fbe4c0addbfe6ddb2d19dc82cd4 ]
+From: Murray McAllister <murray.mcallister@gmail.com>
 
-The Lex 3I380D industrial PC has 4 ethernet controllers on board
-which need pmc_plt_clk0 - 3 to function, add it to the critclk_systems
-DMI table, so that drivers/clk/x86/clk-pmc-atom.c will mark the clocks
-as CLK_CRITICAL and they will not get turned off.
+commit 5ed7f4b5eca11c3c69e7c8b53e4321812bc1ee1e upstream.
 
-Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
-Reported-and-tested-by: Semyon Verchenko <semverchenko@factor-ts.ru>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If SVGA_3D_CMD_DX_SET_SHADER is called with a shader ID
+of SVGA3D_INVALID_ID, and a shader type of
+SVGA3D_SHADERTYPE_INVALID, the calculated binding.shader_slot
+will be 4294967295, leading to an out-of-bounds read in vmw_binding_loc()
+when the offset is calculated.
+
+Cc: <stable@vger.kernel.org>
+Fixes: d80efd5cb3de ("drm/vmwgfx: Initial DX support")
+Signed-off-by: Murray McAllister <murray.mcallister@gmail.com>
+Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+
 ---
- drivers/platform/x86/pmc_atom.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
-index c7039f52ad51..a311f48ce7c9 100644
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -398,12 +398,21 @@ static int pmc_dbgfs_register(struct pmc_dev *pmc)
-  */
- static const struct dmi_system_id critclk_systems[] = {
- 	{
-+		/* pmc_plt_clk0 is used for an external HSIC USB HUB */
- 		.ident = "MPL CEC1x",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "MPL AG"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "CEC10 Family"),
- 		},
- 	},
-+	{
-+		/* pmc_plt_clk0 - 3 are used for the 4 ethernet controllers */
-+		.ident = "Lex 3I380D",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "3I380D"),
-+		},
-+	},
- 	{ /*sentinel*/ }
- };
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+@@ -2351,7 +2351,8 @@ static int vmw_cmd_dx_set_shader(struct
  
--- 
-2.20.1
-
+ 	cmd = container_of(header, typeof(*cmd), header);
+ 
+-	if (cmd->body.type >= SVGA3D_SHADERTYPE_DX10_MAX) {
++	if (cmd->body.type >= SVGA3D_SHADERTYPE_DX10_MAX ||
++	    cmd->body.type < SVGA3D_SHADERTYPE_MIN) {
+ 		DRM_ERROR("Illegal shader type %u.\n",
+ 			  (unsigned) cmd->body.type);
+ 		return -EINVAL;
 
 
