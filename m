@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D2EF49247
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:18:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7742649249
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:18:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728126AbfFQVSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:18:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42328 "EHLO mail.kernel.org"
+        id S1728278AbfFQVSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:18:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727633AbfFQVSr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:18:47 -0400
+        id S1728111AbfFQVSt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:18:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E2322133F;
-        Mon, 17 Jun 2019 21:18:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29CFD2147A;
+        Mon, 17 Jun 2019 21:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806326;
-        bh=wQZM3Ik/52vbVSoWrHiMtLVPsypW3LSzIgzoAQwEykY=;
+        s=default; t=1560806328;
+        bh=BobXAKq6EkpdbWZmUctSawfQcQQcn2hoqMMa5tCR+UQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=niY8kAEVVLvQaH4j4mckLaeD/Ymsh6gw6SkoGj6KHIiFY0mKhOub5wLxBFt0RoCk/
-         yBfiycOxweaCf6ftZeGcrFMxaYMYZda8tUjJiZKwXOyb547ODBNYOZu7mjfpii8Y3A
-         1P38qRG1MQC57rB6pUo+wbcnlO6Q/Nyb302Qm/bs=
+        b=2QzDM1oUSZqV6KP4/KC7W1K4lJPOImAUR3ppTd4NLV88RzBtQKVXHjuqE645JULhv
+         oX9IEeNlvfOfL1KaEAzU+2o12GNNwE131iCjSNu1Paf+T97bAdTOwe0sCR3pFDtxMV
+         bVPezH0avuWLiXF/owALr/jsTgFdMtj7fwVD6mP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.1 014/115] ALSA: ice1712: Check correct return value to snd_i2c_sendbytes (EWS/DMX 6Fire)
-Date:   Mon, 17 Jun 2019 23:08:34 +0200
-Message-Id: <20190617210800.656483627@linuxfoundation.org>
+Subject: [PATCH 5.1 015/115] ALSA: hda/realtek - Update headset mode for ALC256
+Date:   Mon, 17 Jun 2019 23:08:35 +0200
+Message-Id: <20190617210800.701423879@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -43,43 +43,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Nuno Capela <rncbc@rncbc.org>
+From: Kailang Yang <kailang@realtek.com>
 
-commit 352bcae97f9ba87801f497571cdec20af190efe1 upstream.
+commit 717f43d81afc1250300479075952a0e36d74ded3 upstream.
 
-Check for exact and correct return value to snd_i2c_sendbytes
-call for EWS/DMX 6Fire (snd_ice1712).
+ALC255 and ALC256 were some difference for hidden register.
+This update was suitable for ALC256.
 
-Fixes a systemic error on every boot starting from kernel 5.1
-onwards to snd_ice1712 driver ("cannot send pca") on Terratec
-EWS/DMX 6Fire PCI soundcards.
-
-Check for exact and correct return value to snd_i2c_sendbytes
-call for EWS/DMX 6Fire (snd_ice1712).
-
-Fixes a systemic error on every boot to snd_ice1712 driver
-("cannot send pca") on Terratec EWS/DMX 6Fire PCI soundcards.
-
-Fixes: c99776cc4018 ("ALSA: ice1712: fix a missing check of snd_i2c_sendbytes")
-Signed-off-by: Rui Nuno Capela <rncbc@rncbc.org>
+Fixes: e69e7e03ed22 ("ALSA: hda/realtek - ALC256 speaker noise issue")
+Signed-off-by: Kailang Yang <kailang@realtek.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/ice1712/ews.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |   75 +++++++++++++++++++++++++++++++++---------
+ 1 file changed, 60 insertions(+), 15 deletions(-)
 
---- a/sound/pci/ice1712/ews.c
-+++ b/sound/pci/ice1712/ews.c
-@@ -826,7 +826,7 @@ static int snd_ice1712_6fire_read_pca(st
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4084,18 +4084,19 @@ static struct coef_fw alc225_pre_hsmode[
+ static void alc_headset_mode_unplugged(struct hda_codec *codec)
+ {
+ 	static struct coef_fw coef0255[] = {
++		WRITE_COEF(0x1b, 0x0c0b), /* LDO and MISC control */
+ 		WRITE_COEF(0x45, 0xd089), /* UAJ function set to menual mode */
+ 		UPDATE_COEFEX(0x57, 0x05, 1<<14, 0), /* Direct Drive HP Amp control(Set to verb control)*/
+ 		WRITE_COEF(0x06, 0x6104), /* Set MIC2 Vref gate with HP */
+ 		WRITE_COEFEX(0x57, 0x03, 0x8aa6), /* Direct Drive HP Amp control */
+ 		{}
+ 	};
+-	static struct coef_fw coef0255_1[] = {
+-		WRITE_COEF(0x1b, 0x0c0b), /* LDO and MISC control */
+-		{}
+-	};
+ 	static struct coef_fw coef0256[] = {
+ 		WRITE_COEF(0x1b, 0x0c4b), /* LDO and MISC control */
++		WRITE_COEF(0x45, 0xd089), /* UAJ function set to menual mode */
++		WRITE_COEF(0x06, 0x6104), /* Set MIC2 Vref gate with HP */
++		WRITE_COEFEX(0x57, 0x03, 0x09a3), /* Direct Drive HP Amp control */
++		UPDATE_COEFEX(0x57, 0x05, 1<<14, 0), /* Direct Drive HP Amp control(Set to verb control)*/
+ 		{}
+ 	};
+ 	static struct coef_fw coef0233[] = {
+@@ -4158,13 +4159,11 @@ static void alc_headset_mode_unplugged(s
  
- 	snd_i2c_lock(ice->i2c);
- 	byte = reg;
--	if (snd_i2c_sendbytes(spec->i2cdevs[EWS_I2C_6FIRE], &byte, 1)) {
-+	if (snd_i2c_sendbytes(spec->i2cdevs[EWS_I2C_6FIRE], &byte, 1) != 1) {
- 		snd_i2c_unlock(ice->i2c);
- 		dev_err(ice->card->dev, "cannot send pca\n");
- 		return -EIO;
+ 	switch (codec->core.vendor_id) {
+ 	case 0x10ec0255:
+-		alc_process_coef_fw(codec, coef0255_1);
+ 		alc_process_coef_fw(codec, coef0255);
+ 		break;
+ 	case 0x10ec0236:
+ 	case 0x10ec0256:
+ 		alc_process_coef_fw(codec, coef0256);
+-		alc_process_coef_fw(codec, coef0255);
+ 		break;
+ 	case 0x10ec0234:
+ 	case 0x10ec0274:
+@@ -4217,6 +4216,12 @@ static void alc_headset_mode_mic_in(stru
+ 		WRITE_COEF(0x06, 0x6100), /* Set MIC2 Vref gate to normal */
+ 		{}
+ 	};
++	static struct coef_fw coef0256[] = {
++		UPDATE_COEFEX(0x57, 0x05, 1<<14, 1<<14), /* Direct Drive HP Amp control(Set to verb control)*/
++		WRITE_COEFEX(0x57, 0x03, 0x09a3),
++		WRITE_COEF(0x06, 0x6100), /* Set MIC2 Vref gate to normal */
++		{}
++	};
+ 	static struct coef_fw coef0233[] = {
+ 		UPDATE_COEF(0x35, 0, 1<<14),
+ 		WRITE_COEF(0x06, 0x2100),
+@@ -4264,14 +4269,19 @@ static void alc_headset_mode_mic_in(stru
+ 	};
+ 
+ 	switch (codec->core.vendor_id) {
+-	case 0x10ec0236:
+ 	case 0x10ec0255:
+-	case 0x10ec0256:
+ 		alc_write_coef_idx(codec, 0x45, 0xc489);
+ 		snd_hda_set_pin_ctl_cache(codec, hp_pin, 0);
+ 		alc_process_coef_fw(codec, coef0255);
+ 		snd_hda_set_pin_ctl_cache(codec, mic_pin, PIN_VREF50);
+ 		break;
++	case 0x10ec0236:
++	case 0x10ec0256:
++		alc_write_coef_idx(codec, 0x45, 0xc489);
++		snd_hda_set_pin_ctl_cache(codec, hp_pin, 0);
++		alc_process_coef_fw(codec, coef0256);
++		snd_hda_set_pin_ctl_cache(codec, mic_pin, PIN_VREF50);
++		break;
+ 	case 0x10ec0234:
+ 	case 0x10ec0274:
+ 	case 0x10ec0294:
+@@ -4353,6 +4363,14 @@ static void alc_headset_mode_default(str
+ 		WRITE_COEF(0x49, 0x0049),
+ 		{}
+ 	};
++	static struct coef_fw coef0256[] = {
++		WRITE_COEF(0x45, 0xc489),
++		WRITE_COEFEX(0x57, 0x03, 0x0da3),
++		WRITE_COEF(0x49, 0x0049),
++		UPDATE_COEFEX(0x57, 0x05, 1<<14, 0), /* Direct Drive HP Amp control(Set to verb control)*/
++		WRITE_COEF(0x06, 0x6100),
++		{}
++	};
+ 	static struct coef_fw coef0233[] = {
+ 		WRITE_COEF(0x06, 0x2100),
+ 		WRITE_COEF(0x32, 0x4ea3),
+@@ -4403,11 +4421,16 @@ static void alc_headset_mode_default(str
+ 		alc_process_coef_fw(codec, alc225_pre_hsmode);
+ 		alc_process_coef_fw(codec, coef0225);
+ 		break;
+-	case 0x10ec0236:
+ 	case 0x10ec0255:
+-	case 0x10ec0256:
+ 		alc_process_coef_fw(codec, coef0255);
+ 		break;
++	case 0x10ec0236:
++	case 0x10ec0256:
++		alc_write_coef_idx(codec, 0x1b, 0x0e4b);
++		alc_write_coef_idx(codec, 0x45, 0xc089);
++		msleep(50);
++		alc_process_coef_fw(codec, coef0256);
++		break;
+ 	case 0x10ec0234:
+ 	case 0x10ec0274:
+ 	case 0x10ec0294:
+@@ -4451,8 +4474,7 @@ static void alc_headset_mode_ctia(struct
+ 	};
+ 	static struct coef_fw coef0256[] = {
+ 		WRITE_COEF(0x45, 0xd489), /* Set to CTIA type */
+-		WRITE_COEF(0x1b, 0x0c6b),
+-		WRITE_COEFEX(0x57, 0x03, 0x8ea6),
++		WRITE_COEF(0x1b, 0x0e6b),
+ 		{}
+ 	};
+ 	static struct coef_fw coef0233[] = {
+@@ -4570,8 +4592,7 @@ static void alc_headset_mode_omtp(struct
+ 	};
+ 	static struct coef_fw coef0256[] = {
+ 		WRITE_COEF(0x45, 0xe489), /* Set to OMTP Type */
+-		WRITE_COEF(0x1b, 0x0c6b),
+-		WRITE_COEFEX(0x57, 0x03, 0x8ea6),
++		WRITE_COEF(0x1b, 0x0e6b),
+ 		{}
+ 	};
+ 	static struct coef_fw coef0233[] = {
+@@ -4703,13 +4724,37 @@ static void alc_determine_headset_type(s
+ 	};
+ 
+ 	switch (codec->core.vendor_id) {
+-	case 0x10ec0236:
+ 	case 0x10ec0255:
++		alc_process_coef_fw(codec, coef0255);
++		msleep(300);
++		val = alc_read_coef_idx(codec, 0x46);
++		is_ctia = (val & 0x0070) == 0x0070;
++		break;
++	case 0x10ec0236:
+ 	case 0x10ec0256:
++		alc_write_coef_idx(codec, 0x1b, 0x0e4b);
++		alc_write_coef_idx(codec, 0x06, 0x6104);
++		alc_write_coefex_idx(codec, 0x57, 0x3, 0x09a3);
++
++		snd_hda_codec_write(codec, 0x21, 0,
++			    AC_VERB_SET_AMP_GAIN_MUTE, AMP_OUT_MUTE);
++		msleep(80);
++		snd_hda_codec_write(codec, 0x21, 0,
++			    AC_VERB_SET_PIN_WIDGET_CONTROL, 0x0);
++
+ 		alc_process_coef_fw(codec, coef0255);
+ 		msleep(300);
+ 		val = alc_read_coef_idx(codec, 0x46);
+ 		is_ctia = (val & 0x0070) == 0x0070;
++
++		alc_write_coefex_idx(codec, 0x57, 0x3, 0x0da3);
++		alc_update_coefex_idx(codec, 0x57, 0x5, 1<<14, 0);
++
++		snd_hda_codec_write(codec, 0x21, 0,
++			    AC_VERB_SET_PIN_WIDGET_CONTROL, PIN_OUT);
++		msleep(80);
++		snd_hda_codec_write(codec, 0x21, 0,
++			    AC_VERB_SET_AMP_GAIN_MUTE, AMP_OUT_UNMUTE);
+ 		break;
+ 	case 0x10ec0234:
+ 	case 0x10ec0274:
 
 
