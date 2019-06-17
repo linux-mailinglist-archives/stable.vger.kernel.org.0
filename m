@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9DEA49430
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E846E4941D
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728111AbfFQVgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:36:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46656 "EHLO mail.kernel.org"
+        id S1727711AbfFQVfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729462AbfFQVWF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:22:05 -0400
+        id S1729556AbfFQVWc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:22:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2518208CB;
-        Mon, 17 Jun 2019 21:22:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C125320673;
+        Mon, 17 Jun 2019 21:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806525;
-        bh=spFdKtBn734P0rF1qx0cgEPcZGvSaAAFlKMTfzB/c04=;
+        s=default; t=1560806551;
+        bh=W0AM3mZ2w2n/ClyM2senMPvoTAFPrTIAe6at9yE9fyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jq/FYL3+rv4VfHQKi04BTe2gKWUQ7azsMaLUuClocCJyroZZr8Sco2v/R9b4Avmd+
-         jmuqoNBNW9r9GLVfxMgAXAhvF1wCt/a+eYvq2IaG/2xJYnlYZzIyBORyve2CORf6+o
-         cN0HKZNT1YP2BWkjwzJZ5r5ehSVZvddUDxdfeTPQ=
+        b=RGNqAsozvz4fmVFOMz//X9jC8gIssrJwVcGG7eLwhuTSR2z+Kv8jH190nYRxvzIpS
+         NiqXeZrvnWFb00yI0fB7WLZmrNTKzvElr78sfXyeOXEUSK0iPCfg0MBhBCIvGCX/nu
+         2My5ulyq1djq0WCPsY1Rbk03SIiGBxz2jw7uyaMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+47ded6c0f23016cde310@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 045/115] Revert "ALSA: seq: Protect in-kernel ioctl calls with mutex"
-Date:   Mon, 17 Jun 2019 23:09:05 +0200
-Message-Id: <20190617210802.581623298@linuxfoundation.org>
+        stable@vger.kernel.org, Young Xiao <YangX92@hotmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 046/115] Drivers: misc: fix out-of-bounds access in function param_set_kgdbts_var
+Date:   Mon, 17 Jun 2019 23:09:06 +0200
+Message-Id: <20190617210802.647826725@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -44,48 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f0654ba94e33699b295ce4f3dc73094db6209035 ]
+[ Upstream commit b281218ad4311a0342a40cb02fb17a363df08b48 ]
 
-This reverts commit feb689025fbb6f0aa6297d3ddf97de945ea4ad32.
+There is an out-of-bounds access to "config[len - 1]" array when the
+variable "len" is zero.
 
-The fix attempt was incorrect, leading to the mutex deadlock through
-the close of OSS sequencer client.  The proper fix needs more
-consideration, so let's revert it now.
+See commit dada6a43b040 ("kgdboc: fix KASAN global-out-of-bounds bug
+in param_set_kgdboc_var()") for details.
 
-Fixes: feb689025fbb ("ALSA: seq: Protect in-kernel ioctl calls with mutex")
-Reported-by: syzbot+47ded6c0f23016cde310@syzkaller.appspotmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Young Xiao <YangX92@hotmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_clientmgr.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/misc/kgdbts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/core/seq/seq_clientmgr.c b/sound/core/seq/seq_clientmgr.c
-index 8599f2937ac1..c99e1b77a45b 100644
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -2337,19 +2337,14 @@ int snd_seq_kernel_client_ctl(int clientid, unsigned int cmd, void *arg)
+diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
+index de20bdaa148d..8b01257783dd 100644
+--- a/drivers/misc/kgdbts.c
++++ b/drivers/misc/kgdbts.c
+@@ -1135,7 +1135,7 @@ static void kgdbts_put_char(u8 chr)
+ static int param_set_kgdbts_var(const char *kmessage,
+ 				const struct kernel_param *kp)
  {
- 	const struct ioctl_handler *handler;
- 	struct snd_seq_client *client;
--	int err;
+-	int len = strlen(kmessage);
++	size_t len = strlen(kmessage);
  
- 	client = clientptr(clientid);
- 	if (client == NULL)
- 		return -ENXIO;
+ 	if (len >= MAX_CONFIG_LEN) {
+ 		printk(KERN_ERR "kgdbts: config string too long\n");
+@@ -1155,7 +1155,7 @@ static int param_set_kgdbts_var(const char *kmessage,
  
- 	for (handler = ioctl_handlers; handler->cmd > 0; ++handler) {
--		if (handler->cmd == cmd) {
--			mutex_lock(&client->ioctl_mutex);
--			err = handler->func(client, arg);
--			mutex_unlock(&client->ioctl_mutex);
--			return err;
--		}
-+		if (handler->cmd == cmd)
-+			return handler->func(client, arg);
- 	}
+ 	strcpy(config, kmessage);
+ 	/* Chop out \n char as a result of echo */
+-	if (config[len - 1] == '\n')
++	if (len && config[len - 1] == '\n')
+ 		config[len - 1] = '\0';
  
- 	pr_debug("ALSA: seq unknown ioctl() 0x%x (type='%c', number=0x%02x)\n",
+ 	/* Go and configure with the new params. */
 -- 
 2.20.1
 
