@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3B4A4935A
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2918493AE
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730808AbfFQVaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:30:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57526 "EHLO mail.kernel.org"
+        id S1729728AbfFQV0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:26:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730333AbfFQVaP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:30:15 -0400
+        id S1730279AbfFQV0s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:26:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98352204FD;
-        Mon, 17 Jun 2019 21:30:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E05B20657;
+        Mon, 17 Jun 2019 21:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560807015;
-        bh=ZJEh321ZjSB2kRnIHaSQrvNPnNFl8ZTzTjIEDmcabaI=;
+        s=default; t=1560806807;
+        bh=dFEDfaVOXr8xrEKzzjhSMrHtue7lma0PXPH0Q/4AO0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HL7HDJJoa0X5//PZtaY881fU4Em8vJd6WIhO5WZPlsiUPy1jnoqJ3anCp7cf8n5oz
-         GMvLJ5+WgK03k4rtfkifcJ7LUoGCSgAn3+kOcuMJEvNjUbn2sfNhZvxYZOuvSIBdI8
-         rbE5nmYndPXBWzJ+D47m1OJ6jGWna1yY24DWX4C8=
+        b=PGnmwWvnyzlxz/dSwUPRkDbg+9RCM9SsXKEdPt4gIAx+fNgBVFFFto3Q1fVISIU87
+         Mhu4QUdJlDg89Z9v0FqG6tWIV5+YZk7h8MT9DqnNrFCxzXDeQPU8UtbhG0uXqQIVrq
+         aH2p4zWxQ1ZMT7FNeFupcia1Q9q2XSA6ZcHc4HQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 31/53] arm64/mm: Inhibit huge-vmap with ptdump
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 63/75] USB: serial: pl2303: add Allied Telesis VT-Kit3
 Date:   Mon, 17 Jun 2019 23:10:14 +0200
-Message-Id: <20190617210750.941334533@linuxfoundation.org>
+Message-Id: <20190617210755.465974328@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-References: <20190617210745.104187490@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,76 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7ba36eccb3f83983a651efd570b4f933ecad1b5c ]
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-The arm64 ptdump code can race with concurrent modification of the
-kernel page tables. At the time this was added, this was sound as:
+commit c5f81656a18b271976a86724dadd8344e54de74e upstream.
 
-* Modifications to leaf entries could result in stale information being
-  logged, but would not result in a functional problem.
+This is adds the vendor and device id for the AT-VT-Kit3 which is a
+pl2303-based device.
 
-* Boot time modifications to non-leaf entries (e.g. freeing of initmem)
-  were performed when the ptdump code cannot be invoked.
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-* At runtime, modifications to non-leaf entries only occurred in the
-  vmalloc region, and these were strictly additive, as intermediate
-  entries were never freed.
-
-However, since commit:
-
-  commit 324420bf91f6 ("arm64: add support for ioremap() block mappings")
-
-... it has been possible to create huge mappings in the vmalloc area at
-runtime, and as part of this existing intermediate levels of table my be
-removed and freed.
-
-It's possible for the ptdump code to race with this, and continue to
-walk tables which have been freed (and potentially poisoned or
-reallocated). As a result of this, the ptdump code may dereference bogus
-addresses, which could be fatal.
-
-Since huge-vmap is a TLB and memory optimization, we can disable it when
-the runtime ptdump code is in use to avoid this problem.
-
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Fixes: 324420bf91f60582 ("arm64: add support for ioremap() block mappings")
-Acked-by: Ard Biesheuvel <ard.biesheuvel@arm.com>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/mmu.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/usb/serial/pl2303.c |    1 +
+ drivers/usb/serial/pl2303.h |    3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 6ac0d32d60a5..abb9d2ecc675 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -899,13 +899,18 @@ void *__init fixmap_remap_fdt(phys_addr_t dt_phys)
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -106,6 +106,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(SANWA_VENDOR_ID, SANWA_PRODUCT_ID) },
+ 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530_PRODUCT_ID) },
+ 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
++	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
+ 	{ }					/* Terminating entry */
+ };
  
- int __init arch_ioremap_pud_supported(void)
- {
--	/* only 4k granule supports level 1 block mappings */
--	return IS_ENABLED(CONFIG_ARM64_4K_PAGES);
-+	/*
-+	 * Only 4k granule supports level 1 block mappings.
-+	 * SW table walks can't handle removal of intermediate entries.
-+	 */
-+	return IS_ENABLED(CONFIG_ARM64_4K_PAGES) &&
-+	       !IS_ENABLED(CONFIG_ARM64_PTDUMP_DEBUGFS);
- }
+--- a/drivers/usb/serial/pl2303.h
++++ b/drivers/usb/serial/pl2303.h
+@@ -155,3 +155,6 @@
+ #define SMART_VENDOR_ID	0x0b8c
+ #define SMART_PRODUCT_ID	0x2303
  
- int __init arch_ioremap_pmd_supported(void)
- {
--	return 1;
-+	/* See arch_ioremap_pud_supported() */
-+	return !IS_ENABLED(CONFIG_ARM64_PTDUMP_DEBUGFS);
- }
- 
- int pud_set_huge(pud_t *pud, phys_addr_t phys, pgprot_t prot)
--- 
-2.20.1
-
++/* Allied Telesis VT-Kit3 */
++#define AT_VENDOR_ID		0x0caa
++#define AT_VTKIT3_PRODUCT_ID	0x3001
 
 
