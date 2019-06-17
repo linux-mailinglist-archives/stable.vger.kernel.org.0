@@ -2,133 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09DC34941B
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16673493C8
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729538AbfFQVWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:22:25 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:38918 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729110AbfFQVWZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 17:22:25 -0400
-Received: by mail-wm1-f67.google.com with SMTP id z23so892419wma.4
-        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 14:22:24 -0700 (PDT)
+        id S1729172AbfFQVd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:33:26 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:45945 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729812AbfFQV0F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 17:26:05 -0400
+Received: by mail-lj1-f195.google.com with SMTP id m23so10777126lje.12;
+        Mon, 17 Jun 2019 14:26:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=brauner.io; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=TmAxRc5Ao15ufDfIpyVOarM24v8sriD2DFt+v+/KWs8=;
-        b=AP9eqINZr39hvjsQ/TSc9kqzZmxEst/Cs40Zx8C1pWL3K/ploASez5lUjyTP2D5cQm
-         ClADWsLajpphjVRYvYYbO3WaDBVywsDCN5Zr11KbOwq02iXK2HMMPjJochM82fCPPhv3
-         LzXfVYTbhmk6fhZFPVPI06zZwu3FRa07d+bVxj9Zj4XT58ggZVHk8fhpe8BY2jXHLw2f
-         WNbg+BRrVwOdcB3PMq8YbZjo04ByENHA/O+XgppEQgpxkRrse66OUGvSg/O6f5UmGQu+
-         TR5HiPEXDOM+7M+UqIhb/fcxmsepBUfzG+z8awdGoFJGt4JrnkeQ/eSkmnMCnJNLe7IH
-         Ckig==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=SgrTuP6AQJPtUFPq6sFHz2StVLkigVx7MIwgSvRBi6w=;
+        b=l/ElTctsOi+gGau20KA8uGy9YGXLuScH8X8b1uZiNffsaZIVn790yRgvbVNt18Vswg
+         Hksl10Z1eZT0BUcY1/FloOBQ16pqcnEFzIjCMH6spvZbQ9BOS4f/LN4UhPtIa6MF/oLd
+         d3XWZr0jfQQv+SOg08BGYSL8ZlWOYncwEk46Fey8W0uzMXsEmnjSCTASr7tuEYNfa2ZM
+         WHHLdOPQ83V8oNsDZhm5maZrlD9liREWpos1XBZRpvj2Tc5CnxrIvW3t2KXYGo2D0kl5
+         BchRpImz1DkVhujje0XDQVFOHa4kpzL9fTKC6DWmg8lf0coYbcANLGwfTAXaPRoX9y3M
+         rNgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=TmAxRc5Ao15ufDfIpyVOarM24v8sriD2DFt+v+/KWs8=;
-        b=H8a+21g4wTt+ahKAnkMWAVpbgqXDfyNNvwqV1ButMKGtdfaV9dppNTKY9a0MW2QdkP
-         BSIme/uWEawNcZJLS9VCrjYjGgvYRQvkKnOWHfIDYzRSSg914F8WjYl2/nDjT+M4o5g4
-         wriyVbWwaS6ENFr1Z3jhgh/x/8t+iVuBH+LzoR+wpN8aPSvFCpS7/U+SmYyJ5eXfAKcf
-         sKuD8o0VPp8UovfmutUboFPz/yE/qb7VYzaep6VT8QzI6OlrTwllB0aQGRAdRe0tu6v5
-         VE+Dr2aod413oOy5EbS5NtZ7ZwsOqUyjMjBL4h2fIagmGfGTvY++YIzMTZykq75hTzsI
-         bbBQ==
-X-Gm-Message-State: APjAAAVxdmctydURIkbydODz42pxinDsUvCylvhfGJxZXwKR800Tdp87
-        HVBvHPiw5OP1fTA806Ervjoodg==
-X-Google-Smtp-Source: APXvYqyg5EXyQIx5w7TwviJmLrfY1HyRUq/DFZ8ZsH7v6gi7rLdCxns1w21cpdGxRPv7bM1CRLWNOw==
-X-Received: by 2002:a1c:a842:: with SMTP id r63mr392815wme.117.1560806543320;
-        Mon, 17 Jun 2019 14:22:23 -0700 (PDT)
-Received: from localhost.localdomain ([212.91.227.56])
-        by smtp.gmail.com with ESMTPSA id r131sm396216wmf.4.2019.06.17.14.22.22
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 17 Jun 2019 14:22:22 -0700 (PDT)
-From:   Christian Brauner <christian@brauner.io>
-To:     viro@zeniv.linux.org.uk, torvalds@linux-foundation.org,
-        ebiederm@xmission.com
-Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Christian Brauner <christian@brauner.io>,
-        stable@vger.kernel.org
-Subject: [PATCH v1] fs/namespace: fix unprivileged mount propagation
-Date:   Mon, 17 Jun 2019 23:22:14 +0200
-Message-Id: <20190617212214.29868-1-christian@brauner.io>
-X-Mailer: git-send-email 2.21.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=SgrTuP6AQJPtUFPq6sFHz2StVLkigVx7MIwgSvRBi6w=;
+        b=m7KKUBCGd+h8ShRLK6pkLG1Mp1zRnlydU1kl9WHeb9VJ6JPFSvWUR1b228nPhjCuKB
+         2/rUv1+G9nD1DrsVQ3Tau4rmLYI47t0jNTpmESeSnD0Uf7VkLkTyc6t11I8NL8R8apJK
+         tVADbjquvaQQrCCrYrkryuIjJ95byTPRmqpDunLXVi9OQjiUIWHU+r7McVkTve13fkiH
+         SBoh+qYrfLJKLbM0B6kVyeU5PbgLBr4ponVa3xeXSloqo/jOOTgGm51Je1jFb/5Jy4J8
+         O6MWaBQ1eAd+6HGed90RRQoyhz/pxOo5v/gYIf5ZsSeuOBPWddX8haNhzU/lJI8LOfuu
+         WxmQ==
+X-Gm-Message-State: APjAAAXr0e0b1t2gSA4QtuATxE0ob3uv5Okj65sd4R8vT9LxDUcjxm8Z
+        ci7yDt5oz9Q/4YusaMS0vA6pzqPRDnO1LWQyqg==
+X-Google-Smtp-Source: APXvYqxFledApKEXfw6Y6/el0MQeLQCJnRLGw147lUZtU+VV3t9B7No5NNn3uVNh8KWzfoCBP2jJpf2I1ZF2RDOZzp4=
+X-Received: by 2002:a2e:9997:: with SMTP id w23mr27645106lji.45.1560806762821;
+ Mon, 17 Jun 2019 14:26:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20190614030229.22375-1-lsahlber@redhat.com> <CAH2r5muLjnEer+6Fn2ikLRF6BuK2F2qCzXTHS5Kakhbk7mS4Lg@mail.gmail.com>
+In-Reply-To: <CAH2r5muLjnEer+6Fn2ikLRF6BuK2F2qCzXTHS5Kakhbk7mS4Lg@mail.gmail.com>
+From:   Pavel Shilovsky <piastryyy@gmail.com>
+Date:   Mon, 17 Jun 2019 14:25:51 -0700
+Message-ID: <CAKywueSaqY2qDvzbtL5ua8v18n1uY=SZDi5F4bUQRQ_Ft2ptfA@mail.gmail.com>
+Subject: Re: [PATCH] cifs: fix GlobalMid_Lock bug in cifs_reconnect
+To:     Steve French <smfrench@gmail.com>
+Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
+        linux-cifs <linux-cifs@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When propagating mounts across mount namespaces owned by different user
-namespaces it is not possible anymore to move or umount the mount in the
-less privileged mount namespace.
+Acked-by: Pavel Shilovsky <pshilov@microsoft.com>
 
-Here is a reproducer:
+--
+Best regards,
+Pavel Shilovsky
 
-  sudo mount -t tmpfs tmpfs /mnt
-  sudo --make-rshared /mnt
-
-  # create unprivileged user + mount namespace and preserve propagation
-  unshare -U -m --map-root --propagation=unchanged
-
-  # now change back to the original mount namespace in another terminal:
-  sudo mkdir /mnt/aaa
-  sudo mount -t tmpfs tmpfs /mnt/aaa
-
-  # now in the unprivileged user + mount namespace
-  mount --move /mnt/aaa /opt
-
-Unfortunately, this is a pretty big deal for userspace since this is
-e.g. used to inject mounts into running unprivileged containers.
-So this regression really needs to go away rather quickly.
-
-The problem is that a recent change falsely locked the root of the newly
-added mounts by setting MNT_LOCKED. Fix this by only locking the mounts
-on copy_mnt_ns() and not when adding a new mount.
-
-Fixes: 3bd045cc9c4b ("separate copying and locking mount tree on cross-userns copies")
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: <stable@vger.kernel.org>
-Tested-by: Christian Brauner <christian@brauner.io>
-Acked-by: Christian Brauner <christian@brauner.io>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Christian Brauner <christian@brauner.io>
----
-v1:
-- Christian Brauner <christian@brauner.io>:
-  - fix accidental whitespace change
----
- fs/namespace.c | 1 +
- fs/pnode.c     | 1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/namespace.c b/fs/namespace.c
-index b26778bdc236..44b540e6feb9 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -2105,6 +2105,7 @@ static int attach_recursive_mnt(struct mount *source_mnt,
- 		/* Notice when we are propagating across user namespaces */
- 		if (child->mnt_parent->mnt_ns->user_ns != user_ns)
- 			lock_mnt_tree(child);
-+		child->mnt.mnt_flags &= ~MNT_LOCKED;
- 		commit_tree(child);
- 	}
- 	put_mountpoint(smp);
-diff --git a/fs/pnode.c b/fs/pnode.c
-index 595857a1883e..49f6d7ff2139 100644
---- a/fs/pnode.c
-+++ b/fs/pnode.c
-@@ -261,7 +261,6 @@ static int propagate_one(struct mount *m)
- 	child = copy_tree(last_source, last_source->mnt.mnt_root, type);
- 	if (IS_ERR(child))
- 		return PTR_ERR(child);
--	child->mnt.mnt_flags &= ~MNT_LOCKED;
- 	mnt_set_mountpoint(m, mp, child);
- 	last_dest = m;
- 	last_source = child;
--- 
-2.21.0
-
+=D1=87=D1=82, 13 =D0=B8=D1=8E=D0=BD. 2019 =D0=B3. =D0=B2 20:57, Steve Frenc=
+h <smfrench@gmail.com>:
+>
+> tentatively merged into cifs-2.6.git for-next and to the github tree
+>
+> On Thu, Jun 13, 2019 at 10:02 PM Ronnie Sahlberg <lsahlber@redhat.com> wr=
+ote:
+> >
+> > We can not hold the GlobalMid_Lock spinlock during the
+> > dfs processing in cifs_reconnect since it invokes things that may sleep
+> > and thus trigger :
+> >
+> > BUG: sleeping function called from invalid context at kernel/locking/rw=
+sem.c:23
+> >
+> > Thus we need to drop the spinlock during this code block.
+> >
+> > RHBZ: 1716743
+> >
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+> > ---
+> >  fs/cifs/connect.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+> > index 8c4121da624e..8dd6637a3cbb 100644
+> > --- a/fs/cifs/connect.c
+> > +++ b/fs/cifs/connect.c
+> > @@ -476,6 +476,7 @@ cifs_reconnect(struct TCP_Server_Info *server)
+> >         spin_lock(&GlobalMid_Lock);
+> >         server->nr_targets =3D 1;
+> >  #ifdef CONFIG_CIFS_DFS_UPCALL
+> > +       spin_unlock(&GlobalMid_Lock);
+> >         cifs_sb =3D find_super_by_tcp(server);
+> >         if (IS_ERR(cifs_sb)) {
+> >                 rc =3D PTR_ERR(cifs_sb);
+> > @@ -493,6 +494,7 @@ cifs_reconnect(struct TCP_Server_Info *server)
+> >         }
+> >         cifs_dbg(FYI, "%s: will retry %d target(s)\n", __func__,
+> >                  server->nr_targets);
+> > +       spin_lock(&GlobalMid_Lock);
+> >  #endif
+> >         if (server->tcpStatus =3D=3D CifsExiting) {
+> >                 /* the demux thread will exit normally
+> > --
+> > 2.13.6
+> >
+>
+>
+> --
+> Thanks,
+>
+> Steve
