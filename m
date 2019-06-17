@@ -2,277 +2,234 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB5548A46
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 19:37:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A28D648B16
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 19:59:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726047AbfFQRhV convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 17 Jun 2019 13:37:21 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:58738 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725995AbfFQRhV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 13:37:21 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id DAA5E2E97C8
-        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 17:37:19 +0000 (UTC)
-Received: from [172.54.67.194] (cpt-large-cpu-02.paas.prod.upshift.rdu2.redhat.com [10.0.18.84])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 76E17989C;
-        Mon, 17 Jun 2019 17:37:17 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1728691AbfFQR7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 13:59:03 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:35345 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728683AbfFQR7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 13:59:03 -0400
+Received: by mail-pl1-f193.google.com with SMTP id p1so4398320plo.2
+        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 10:59:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=98n6ZHrDJ8hHttCLc1inB11JuSkBEgDS0TKJr/PR7Zk=;
+        b=UHl6hfVqQlRSbLQZJ9rvEg3kuQ8N4tef3GpJjNmJtM6p3an8g41J0dxWGb8xG2DPrz
+         sAjdwqZXvIdhtYJGTlOLwQuE4d+Rvu44G68oMRlSPqWf992mN+rdyePuTRXrON9+waW6
+         AuJ82YWMK1XLGqcjLpUujx4vQnw2RvoqNjbO4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=98n6ZHrDJ8hHttCLc1inB11JuSkBEgDS0TKJr/PR7Zk=;
+        b=KL7xYl/+neqJ/DI4VkT4ouL9yjbq0upQOpnAR4fDRt3W0DZnYop9LfKdALsL/mVdEJ
+         NGql/nB6/Lo7c5xty6a75DQwPgN/jzc89YxvNM4KG/X0rxv1qCNHGVC2UTuNT58c6IFj
+         WoFccqSlidEN8cnrscqvxdpfSS/23SdO9jJUU9reIZaIqCSZZwPt+f1o4QXqXYa0UelO
+         HWIqKGQ2Sl527aAMc4PL8oT9wQokUz/s3+qJV1RVrA71DmZpQZnL8CDhjm2bKWv4WtL0
+         XR7VEK7x0dKucsa7FMAVsG0144PZ/Y9G6+LExghdELcdJsvZ1RXvAKYDvX12DOsCEfvO
+         rX5g==
+X-Gm-Message-State: APjAAAUGWE+PUAlXBJMEsIas2wzmBE0gWJQXQVVHw+n8mCdqadW/XWAN
+        /xENIUAwdtFL1SNdpCq6Njh1NQ==
+X-Google-Smtp-Source: APXvYqxhK3GXMrgbsgnHN+m3eV/JC6yuo7bBQmIJ3YfzRrEjP9lcqXWS3vYT5HeqNxLLgFp/OooEMw==
+X-Received: by 2002:a17:902:8f81:: with SMTP id z1mr42314084plo.290.1560794342357;
+        Mon, 17 Jun 2019 10:59:02 -0700 (PDT)
+Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:24fa:e766:52c9:e3b2])
+        by smtp.gmail.com with ESMTPSA id q1sm15145809pfn.178.2019.06.17.10.58.16
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Mon, 17 Jun 2019 10:58:59 -0700 (PDT)
+From:   Douglas Anderson <dianders@chromium.org>
+To:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>
+Cc:     brcm80211-dev-list.pdl@broadcom.com,
+        linux-rockchip@lists.infradead.org,
+        Double Lo <double.lo@cypress.com>, briannorris@chromium.org,
+        linux-wireless@vger.kernel.org,
+        Naveen Gupta <naveen.gupta@cypress.com>,
+        Madhan Mohan R <madhanmohan.r@cypress.com>, mka@chromium.org,
+        Wright Feng <wright.feng@cypress.com>,
+        Chi-Hsien Lin <chi-hsien.lin@cypress.com>,
+        netdev@vger.kernel.org, brcm80211-dev-list@cypress.com,
+        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Jiong Wu <lohengrin1024@gmail.com>,
+        Ritesh Harjani <riteshh@codeaurora.org>,
+        Allison Randal <allison@lohutok.net>,
+        linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>
+Subject: [PATCH v5 2/5] mmc: core: API to temporarily disable retuning for SDIO CRC errors
+Date:   Mon, 17 Jun 2019 10:56:50 -0700
+Message-Id: <20190617175653.21756-3-dianders@chromium.org>
+X-Mailer: git-send-email 2.22.0.410.gd8fdbe21b5-goog
+In-Reply-To: <20190617175653.21756-1-dianders@chromium.org>
+References: <20190617175653.21756-1-dianders@chromium.org>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.5E470A3B37.7LBI1FZCOJ@redhat.com>
-X-Gitlab-Pipeline-ID: 12508
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Mon, 17 Jun 2019 17:37:19 +0000 (UTC)
-Date:   Mon, 17 Jun 2019 13:37:21 -0400
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Normally when the MMC core sees an "-EILSEQ" error returned by a host
+controller then it will trigger a retuning of the card.  This is
+generally a good idea.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+However, if a command is expected to sometimes cause transfer errors
+then these transfer errors shouldn't cause a re-tuning.  This
+re-tuning will be a needless waste of time.  One example case where a
+transfer is expected to cause errors is when transitioning between
+idle (sometimes referred to as "sleep" in Broadcom code) and active
+state on certain Broadcom WiFi SDIO cards.  Specifically if the card
+was already transitioning between states when the command was sent it
+could cause an error on the SDIO bus.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 7aa823a959e1 - Linux 4.19.51
+Let's add an API that the SDIO function drivers can call that will
+temporarily disable the auto-tuning functionality.  Then we can add a
+call to this in the Broadcom WiFi driver and any other driver that
+might have similar needs.
 
-The results of these automated tests are provided below.
+NOTE: this makes the assumption that the card is already tuned well
+enough that it's OK to disable the auto-retuning during one of these
+error-prone situations.  Presumably the driver code performing the
+error-prone transfer knows how to recover / retry from errors.  ...and
+after we can get back to a state where transfers are no longer
+error-prone then we can enable the auto-retuning again.  If we truly
+find ourselves in a case where the card needs to be retuned sometimes
+to handle one of these error-prone transfers then we can always try a
+few transfers first without auto-retuning and then re-try with
+auto-retuning if the first few fail.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+Without this change on rk3288-veyron-minnie I periodically see this in
+the logs of a machine just sitting there idle:
+  dwmmc_rockchip ff0d0000.dwmmc: Successfully tuned phase to XYZ
 
+Commit notes:
+Patches #2 - #5 will go through Ulf's tree.
+END
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+Fixes: bd11e8bd03ca ("mmc: core: Flag re-tuning is needed on CRC errors")
+Cc: stable@vger.kernel.org
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+---
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+Changes in v5:
+- Add missing sdio_retune_crc_enable() in comments (Ulf).
+- /s/reneable/re-enable (Ulf).
+- Remove leftover prototypes: mmc_expect_errors_begin() / end() (Ulf).
 
-Merge testing
--------------
+Changes in v4:
+- Moved to SDIO API only (Adrian, Ulf).
+- Renamed to make it less generic, now retune_crc_disable (Ulf).
+- Function header makes it clear host must be claimed (Ulf).
+- No more WARN_ON (Ulf).
 
-We cloned this repository and checked out the following commit:
+Changes in v3:
+- Took out the spinlock since I believe this is all in one context.
 
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 7aa823a959e1 - Linux 4.19.51
+Changes in v2:
+- Updated commit message to clarify based on discussion of v1.
 
+ drivers/mmc/core/core.c       |  5 +++--
+ drivers/mmc/core/sdio_io.c    | 37 +++++++++++++++++++++++++++++++++++
+ include/linux/mmc/host.h      |  1 +
+ include/linux/mmc/sdio_func.h |  3 +++
+ 4 files changed, 44 insertions(+), 2 deletions(-)
 
-We then merged the patchset with `git am`:
+diff --git a/drivers/mmc/core/core.c b/drivers/mmc/core/core.c
+index 6db36dc870b5..9020cb2490f7 100644
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -144,8 +144,9 @@ void mmc_request_done(struct mmc_host *host, struct mmc_request *mrq)
+ 	int err = cmd->error;
+ 
+ 	/* Flag re-tuning needed on CRC errors */
+-	if ((cmd->opcode != MMC_SEND_TUNING_BLOCK &&
+-	    cmd->opcode != MMC_SEND_TUNING_BLOCK_HS200) &&
++	if (cmd->opcode != MMC_SEND_TUNING_BLOCK &&
++	    cmd->opcode != MMC_SEND_TUNING_BLOCK_HS200 &&
++	    !host->retune_crc_disable &&
+ 	    (err == -EILSEQ || (mrq->sbc && mrq->sbc->error == -EILSEQ) ||
+ 	    (mrq->data && mrq->data->error == -EILSEQ) ||
+ 	    (mrq->stop && mrq->stop->error == -EILSEQ)))
+diff --git a/drivers/mmc/core/sdio_io.c b/drivers/mmc/core/sdio_io.c
+index f79f0b0caab8..0acb1a29c968 100644
+--- a/drivers/mmc/core/sdio_io.c
++++ b/drivers/mmc/core/sdio_io.c
+@@ -734,3 +734,40 @@ int sdio_set_host_pm_flags(struct sdio_func *func, mmc_pm_flag_t flags)
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(sdio_set_host_pm_flags);
++
++/**
++ *	sdio_retune_crc_disable - temporarily disable retuning on CRC errors
++ *	@func: SDIO function attached to host
++ *
++ *	If the SDIO card is known to be in a state where it might produce
++ *	CRC errors on the bus in response to commands (like if we know it is
++ *	transitioning between power states), an SDIO function driver can
++ *	call this function to temporarily disable the SD/MMC core behavior of
++ *	triggering an automatic retuning.
++ *
++ *	This function should be called while the host is claimed and the host
++ *	should remain claimed until sdio_retune_crc_enable() is called.
++ *	Specifically, the expected sequence of calls is:
++ *	- sdio_claim_host()
++ *	- sdio_retune_crc_disable()
++ *	- some number of calls like sdio_writeb() and sdio_readb()
++ *	- sdio_retune_crc_enable()
++ *	- sdio_release_host()
++ */
++void sdio_retune_crc_disable(struct sdio_func *func)
++{
++	func->card->host->retune_crc_disable = true;
++}
++EXPORT_SYMBOL_GPL(sdio_retune_crc_disable);
++
++/**
++ *	sdio_retune_crc_enable - re-enable retuning on CRC errors
++ *	@func: SDIO function attached to host
++ *
++ *	This is the compement to sdio_retune_crc_disable().
++ */
++void sdio_retune_crc_enable(struct sdio_func *func)
++{
++	func->card->host->retune_crc_disable = false;
++}
++EXPORT_SYMBOL_GPL(sdio_retune_crc_enable);
+diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
+index 43d0f0c496f6..ecb7972e2423 100644
+--- a/include/linux/mmc/host.h
++++ b/include/linux/mmc/host.h
+@@ -398,6 +398,7 @@ struct mmc_host {
+ 	unsigned int		retune_now:1;	/* do re-tuning at next req */
+ 	unsigned int		retune_paused:1; /* re-tuning is temporarily disabled */
+ 	unsigned int		use_blk_mq:1;	/* use blk-mq */
++	unsigned int		retune_crc_disable:1; /* don't trigger retune upon crc */
+ 
+ 	int			rescan_disable;	/* disable card detection */
+ 	int			rescan_entered;	/* used with nonremovable devices */
+diff --git a/include/linux/mmc/sdio_func.h b/include/linux/mmc/sdio_func.h
+index e9dfdd501cd1..4820e6d09dac 100644
+--- a/include/linux/mmc/sdio_func.h
++++ b/include/linux/mmc/sdio_func.h
+@@ -167,4 +167,7 @@ extern void sdio_f0_writeb(struct sdio_func *func, unsigned char b,
+ extern mmc_pm_flag_t sdio_get_host_pm_caps(struct sdio_func *func);
+ extern int sdio_set_host_pm_flags(struct sdio_func *func, mmc_pm_flag_t flags);
+ 
++extern void sdio_retune_crc_disable(struct sdio_func *func);
++extern void sdio_retune_crc_enable(struct sdio_func *func);
++
+ #endif /* LINUX_MMC_SDIO_FUNC_H */
+-- 
+2.22.0.410.gd8fdbe21b5-goog
 
-  drm-nouveau-add-kconfig-option-to-turn-off-nouveau-legacy-contexts.-v3.patch
-  nouveau-fix-build-with-config_nouveau_legacy_ctx_support-disabled.patch
-  hid-multitouch-handle-faulty-elo-touch-device.patch
-  hid-wacom-don-t-set-tool-type-until-we-re-in-range.patch
-  hid-wacom-don-t-report-anything-prior-to-the-tool-entering-range.patch
-  hid-wacom-send-btn_touch-in-response-to-intuosp2_bt-eraser-contact.patch
-  hid-wacom-correct-button-numbering-2nd-gen-intuos-pro-over-bluetooth.patch
-  hid-wacom-sync-intuosp2_bt-touch-state-after-each-frame-if-necessary.patch
-  revert-alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
-  alsa-oxfw-allow-pcm-capture-for-stanton-scs.1m.patch
-  alsa-hda-realtek-update-headset-mode-for-alc256.patch
-  alsa-firewire-motu-fix-destruction-of-data-for-isochronous-resources.patch
-  libata-extend-quirks-for-the-st1000lm024-drives-with-nolpm-quirk.patch
-  mm-list_lru.c-fix-memory-leak-in-__memcg_init_list_lru_node.patch
-  fs-ocfs2-fix-race-in-ocfs2_dentry_attach_lock.patch
-  mm-vmscan.c-fix-trying-to-reclaim-unevictable-lru-page.patch
-  signal-ptrace-don-t-leak-unitialized-kernel-memory-with-ptrace_peek_siginfo.patch
-  ptrace-restore-smp_rmb-in-__ptrace_may_access.patch
-  iommu-arm-smmu-avoid-constant-zero-in-tlbi-writes.patch
-  i2c-acorn-fix-i2c-warning.patch
-  bcache-fix-stack-corruption-by-preceding_key.patch
-  bcache-only-set-bcache_dev_wb_running-when-cached-device-attached.patch
-  cgroup-use-css_tryget-instead-of-css_tryget_online-in-task_get_css.patch
-  asoc-cs42xx8-add-regcache-mask-dirty.patch
-  asoc-fsl_asrc-fix-the-issue-about-unsupported-rate.patch
-  drm-i915-sdvo-implement-proper-hdmi-audio-support-for-sdvo.patch
-  x86-uaccess-kcov-disable-stack-protector.patch
-  alsa-seq-protect-in-kernel-ioctl-calls-with-mutex.patch
-  alsa-seq-fix-race-of-get-subscription-call-vs-port-d.patch
-  revert-alsa-seq-protect-in-kernel-ioctl-calls-with-m.patch
-  s390-kasan-fix-strncpy_from_user-kasan-checks.patch
-  drivers-misc-fix-out-of-bounds-access-in-function-pa.patch
-  f2fs-fix-to-avoid-accessing-xattr-across-the-boundar.patch
-  scsi-qedi-remove-memset-memcpy-to-nfunc-and-use-func.patch
-  scsi-qedi-remove-set-but-not-used-variables-cdev-and.patch
-  scsi-lpfc-correct-rcu-unlock-issue-in-lpfc_nvme_info.patch
-  scsi-lpfc-add-check-for-loss-of-ndlp-when-sending-rr.patch
-  arm64-mm-inhibit-huge-vmap-with-ptdump.patch
-  nvme-fix-srcu-locking-on-error-return-in-nvme_get_ns.patch
-  nvme-remove-the-ifdef-around-nvme_nvm_ioctl.patch
-  nvme-merge-nvme_ns_ioctl-into-nvme_ioctl.patch
-  nvme-release-namespace-srcu-protection-before-perfor.patch
-  nvme-fix-memory-leak-for-power-latency-tolerance.patch
-  platform-x86-pmc_atom-add-lex-3i380d-industrial-pc-t.patch
-  platform-x86-pmc_atom-add-several-beckhoff-automatio.patch
-  scsi-bnx2fc-fix-incorrect-cast-to-u64-on-shift-opera.patch
-  libnvdimm-fix-compilation-warnings-with-w-1.patch
-  selftests-fib_rule_tests-fix-local-ipv4-address-typo.patch
-  selftests-timers-add-missing-fflush-stdout-calls.patch
-  tracing-prevent-hist_field_var_ref-from-accessing-nu.patch
-  usbnet-ipheth-fix-racing-condition.patch
-  kvm-arm-arm64-move-cc-it-checks-under-hyp-s-makefile.patch
-  kvm-x86-pmu-mask-the-result-of-rdpmc-according-to-th.patch
-  kvm-x86-pmu-do-not-mask-the-value-that-is-written-to.patch
-  kvm-s390-fix-memory-slot-handling-for-kvm_set_user_m.patch
-  tools-kvm_stat-fix-fields-filter-for-child-events.patch
-  drm-vmwgfx-integer-underflow-in-vmw_cmd_dx_set_shader-leading-to-an-invalid-read.patch
-  drm-vmwgfx-null-pointer-dereference-from-vmw_cmd_dx_view_define.patch
-  usb-dwc2-fix-dma-cache-alignment-issues.patch
-  usb-dwc2-host-fix-wmaxpacketsize-handling-fix-webcam-regression.patch
-  usb-fix-chipmunk-like-voice-when-using-logitech-c270-for-recording-audio.patch
-  usb-usb-storage-add-new-id-to-ums-realtek.patch
-  usb-serial-pl2303-add-allied-telesis-vt-kit3.patch
-  usb-serial-option-add-support-for-simcom-sim7500-sim7600-rndis-mode.patch
-  usb-serial-option-add-telit-0x1260-and-0x1261-compositions.patch
-  timekeeping-repair-ktime_get_coarse-granularity.patch
-  ras-cec-convert-the-timer-callback-to-a-workqueue.patch
-  ras-cec-fix-binary-search-function.patch
-  x86-microcode-cpuhotplug-add-a-microcode-loader-cpu-hotplug-callback.patch
-  x86-kasan-fix-boot-with-5-level-paging-and-kasan.patch
-  x86-mm-kaslr-compute-the-size-of-the-vmemmap-section-properly.patch
-  x86-resctrl-prevent-null-pointer-dereference-when-local-mbm-is-disabled.patch
-  drm-edid-abstract-override-firmware-edid-retrieval.patch
-  drm-add-fallback-override-firmware-edid-modes-workaround.patch
-  rtc-pcf8523-don-t-return-invalid-date-when-battery-is-low.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ Usex - version 1.9-29 [7]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ storage: SCSI VPD [9]
-       🚧 ✅ storage: software RAID testing [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ Usex - version 1.9-29 [7]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ storage: software RAID testing [10]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ storage: software RAID testing [10]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       🚧 ✅ Storage SAN device stress [12]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ Usex - version 1.9-29 [7]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ storage: SCSI VPD [9]
-       🚧 ✅ storage: software RAID testing [10]
-
-    Host 3:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/hba/san-device-stress
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
