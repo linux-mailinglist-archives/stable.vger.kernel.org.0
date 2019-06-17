@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB11C4934F
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:30:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 408D549350
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:30:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730234AbfFQV3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:29:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56898 "EHLO mail.kernel.org"
+        id S1730164AbfFQV3v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:29:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730746AbfFQV3o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:29:44 -0400
+        id S1729963AbfFQV3q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:29:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53752204FD;
-        Mon, 17 Jun 2019 21:29:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E69A7204FD;
+        Mon, 17 Jun 2019 21:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806983;
-        bh=w26sXmIzQUheGu5+XH8ob7JoiCXheJ8GW07IOZlQBgc=;
+        s=default; t=1560806986;
+        bh=PUNNahiVj8y47dRYhB1/uNkyF/LxS2ZbcuAPzyHaIyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ohHtRoGCOJ4SRCvhAmOWTZ41vYyynwoLKzJ0VtoTOXqO7eOtCLo6kHMXrUG1mA+JU
-         LjGvXGRoNBpIvC+5Tz/nxT4hkqNjtDaP5XUZ333hibtQ+RFPN8pI9Zggxep82BN2KI
-         nWKurAy0lBCDNA/Zer/AyVkfpwSTcz6Q7OFaM1YY=
+        b=hcTgmcIMxdIYNr9x5AeghKhACW+HbWdZVg5uT/WV+VR69rp7dFX5dAqzbXDrXKXs0
+         bEhXSQz27CXioLw43004/wa3nl+OGAQwfCIJqdE3CohUbGSOW1sfaMl5omkQRAB/7k
+         BXqqZCcbqten8HQC7Stb/lHzayfy56uey/yU0AFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 49/53] USB: serial: option: add Telit 0x1260 and 0x1261 compositions
-Date:   Mon, 17 Jun 2019 23:10:32 +0200
-Message-Id: <20190617210752.515798693@linuxfoundation.org>
+        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        linux-edac <linux-edac@vger.kernel.org>
+Subject: [PATCH 4.14 50/53] RAS/CEC: Fix binary search function
+Date:   Mon, 17 Jun 2019 23:10:33 +0200
+Message-Id: <20190617210752.550132533@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
 References: <20190617210745.104187490@linuxfoundation.org>
@@ -43,33 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit f3dfd4072c3ee6e287f501a18b5718b185d6a940 upstream.
+commit f3c74b38a55aefe1004200d15a83f109b510068c upstream.
 
-Added support for Telit LE910Cx 0x1260 and 0x1261 compositions.
+Switch to using Donald Knuth's binary search algorithm (The Art of
+Computer Programming, vol. 3, section 6.2.1). This should've been done
+from the very beginning but the author must've been smoking something
+very potent at the time.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+The problem with the current one was that it would return the wrong
+element index in certain situations:
+
+  https://lkml.kernel.org/r/CAM_iQpVd02zkVJ846cj-Fg1yUNuz6tY5q1Vpj4LrXmE06dPYYg@mail.gmail.com
+
+and the noodling code after the loop was fishy at best.
+
+So switch to using Knuth's binary search. The final result is much
+cleaner and straightforward.
+
+Fixes: 011d82611172 ("RAS: Add a Corrected Errors Collector")
+Reported-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/ras/cec.c |   34 ++++++++++++++++++++--------------
+ 1 file changed, 20 insertions(+), 14 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1174,6 +1174,10 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1213, 0xff) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1214),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
-+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
-+	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
-+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
-+	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1900),				/* Telit LN940 (QMI) */
- 	  .driver_info = NCTRL(0) | RSVD(1) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1901, 0xff),	/* Telit LN940 (MBIM) */
+--- a/drivers/ras/cec.c
++++ b/drivers/ras/cec.c
+@@ -185,32 +185,38 @@ static void cec_timer_fn(unsigned long d
+  */
+ static int __find_elem(struct ce_array *ca, u64 pfn, unsigned int *to)
+ {
++	int min = 0, max = ca->n - 1;
+ 	u64 this_pfn;
+-	int min = 0, max = ca->n;
+ 
+-	while (min < max) {
+-		int tmp = (max + min) >> 1;
++	while (min <= max) {
++		int i = (min + max) >> 1;
+ 
+-		this_pfn = PFN(ca->array[tmp]);
++		this_pfn = PFN(ca->array[i]);
+ 
+ 		if (this_pfn < pfn)
+-			min = tmp + 1;
++			min = i + 1;
+ 		else if (this_pfn > pfn)
+-			max = tmp;
+-		else {
+-			min = tmp;
+-			break;
++			max = i - 1;
++		else if (this_pfn == pfn) {
++			if (to)
++				*to = i;
++
++			return i;
+ 		}
+ 	}
+ 
++	/*
++	 * When the loop terminates without finding @pfn, min has the index of
++	 * the element slot where the new @pfn should be inserted. The loop
++	 * terminates when min > max, which means the min index points to the
++	 * bigger element while the max index to the smaller element, in-between
++	 * which the new @pfn belongs to.
++	 *
++	 * For more details, see exercise 1, Section 6.2.1 in TAOCP, vol. 3.
++	 */
+ 	if (to)
+ 		*to = min;
+ 
+-	this_pfn = PFN(ca->array[min]);
+-
+-	if (this_pfn == pfn)
+-		return min;
+-
+ 	return -ENOKEY;
+ }
+ 
 
 
