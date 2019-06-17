@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD53B493B7
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:33:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 786B249345
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:29:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729926AbfFQV03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:26:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53058 "EHLO mail.kernel.org"
+        id S1729863AbfFQV3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:29:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729266AbfFQV03 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:26:29 -0400
+        id S1730168AbfFQV3V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:29:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7C9020657;
-        Mon, 17 Jun 2019 21:26:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFC9D2070B;
+        Mon, 17 Jun 2019 21:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806788;
-        bh=oF9suLnqZQ9gBdYVunJ7VyARLD44xus73sHTu7hwBmc=;
+        s=default; t=1560806960;
+        bh=bARVfcUCbmuW2vaRSIe61rMyBmPVikjcO8HqO9tWEhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SVPJp96qvLlYVRPsTneP7cPSR/odxIu+IYvCH9mDySrxDDf3Van85PxrXlsgWO6ro
-         xde3o5esY0BCoULQ1/ZdKs6B3xNsagaMvR9MxQ6nSNIErHdIFRoWRQTr+FLFQsGe9h
-         QRwQbqUjT5EJjFBtAzFz3dkN9ajtiKstWhbIfx48=
+        b=1fY9+/86piSsLONH9ZWkzmFAdtl4B3DjLvvKq4zNS5A3/KaubU2ePqj2Nk7oeGGj2
+         SzX9Zbl6Zcq2hj3kIb5qDTwJPL/XBtY2lTZC5hRsULmXQAoOUWlHzKVZLT78yzVvd7
+         wiT6bZvcxIEEwOAhbNyxdazhCpVPzQ01kBdAbu4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Raspl <raspl@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/75] tools/kvm_stat: fix fields filter for child events
+        stable@vger.kernel.org,
+        syzbot+9437020c82413d00222d@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 24/53] ALSA: seq: Fix race of get-subscription call vs port-delete ioctls
 Date:   Mon, 17 Jun 2019 23:10:07 +0200
-Message-Id: <20190617210754.977526241@linuxfoundation.org>
+Message-Id: <20190617210750.044414043@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
+References: <20190617210745.104187490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 883d25e70b2f699fed9017e509d1ef8e36229b89 ]
+[ Upstream commit 2eabc5ec8ab4d4748a82050dfcb994119b983750 ]
 
-The fields filter would not work with child fields, as the respective
-parents would not be included. No parents displayed == no childs displayed.
-To reproduce, run on s390 (would work on other platforms, too, but would
-require a different filter name):
-- Run 'kvm_stat -d'
-- Press 'f'
-- Enter 'instruct'
-Notice that events like instruction_diag_44 or instruction_diag_500 are not
-displayed - the output remains empty.
-With this patch, we will filter by matching events and their parents.
-However, consider the following example where we filter by
-instruction_diag_44:
+The snd_seq_ioctl_get_subscription() retrieves the port subscriber
+information as a pointer, while the object isn't protected, hence it
+may be deleted before the actual reference.  This race was spotted by
+syzkaller and may lead to a UAF.
 
-  kvm statistics - summary
-                   regex filter: instruction_diag_44
-   Event                                         Total %Total CurAvg/s
-   exit_instruction                                276  100.0       12
-     instruction_diag_44                           256   92.8       11
-   Total                                           276              12
+The fix is simply copying the data in the lookup function that
+performs in the rwsem to protect against the deletion.
 
-Note that the parent ('exit_instruction') displays the total events, but
-the childs listed do not match its total (256 instead of 276). This is
-intended (since we're filtering all but one child), but might be confusing
-on first sight.
-
-Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reported-by: syzbot+9437020c82413d00222d@syzkaller.appspotmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/kvm/kvm_stat/kvm_stat     | 16 ++++++++++++----
- tools/kvm/kvm_stat/kvm_stat.txt |  2 ++
- 2 files changed, 14 insertions(+), 4 deletions(-)
+ sound/core/seq/seq_clientmgr.c | 10 ++--------
+ sound/core/seq/seq_ports.c     | 13 ++++++++-----
+ sound/core/seq/seq_ports.h     |  5 +++--
+ 3 files changed, 13 insertions(+), 15 deletions(-)
 
-diff --git a/tools/kvm/kvm_stat/kvm_stat b/tools/kvm/kvm_stat/kvm_stat
-index 195ba486640f..ba7ee74ee533 100755
---- a/tools/kvm/kvm_stat/kvm_stat
-+++ b/tools/kvm/kvm_stat/kvm_stat
-@@ -575,8 +575,12 @@ class TracepointProvider(Provider):
-     def update_fields(self, fields_filter):
-         """Refresh fields, applying fields_filter"""
-         self.fields = [field for field in self._get_available_fields()
--                       if self.is_field_wanted(fields_filter, field) or
--                       ARCH.tracepoint_is_child(field)]
-+                       if self.is_field_wanted(fields_filter, field)]
-+        # add parents for child fields - otherwise we won't see any output!
-+        for field in self._fields:
-+            parent = ARCH.tracepoint_is_child(field)
-+            if (parent and parent not in self._fields):
-+                self.fields.append(parent)
+diff --git a/sound/core/seq/seq_clientmgr.c b/sound/core/seq/seq_clientmgr.c
+index 692631bd4a35..068880ac47b5 100644
+--- a/sound/core/seq/seq_clientmgr.c
++++ b/sound/core/seq/seq_clientmgr.c
+@@ -1904,20 +1904,14 @@ static int snd_seq_ioctl_get_subscription(struct snd_seq_client *client,
+ 	int result;
+ 	struct snd_seq_client *sender = NULL;
+ 	struct snd_seq_client_port *sport = NULL;
+-	struct snd_seq_subscribers *p;
  
-     @staticmethod
-     def _get_online_cpus():
-@@ -735,8 +739,12 @@ class DebugfsProvider(Provider):
-     def update_fields(self, fields_filter):
-         """Refresh fields, applying fields_filter"""
-         self._fields = [field for field in self._get_available_fields()
--                        if self.is_field_wanted(fields_filter, field) or
--                        ARCH.debugfs_is_child(field)]
-+                        if self.is_field_wanted(fields_filter, field)]
-+        # add parents for child fields - otherwise we won't see any output!
-+        for field in self._fields:
-+            parent = ARCH.debugfs_is_child(field)
-+            if (parent and parent not in self._fields):
-+                self.fields.append(parent)
+ 	result = -EINVAL;
+ 	if ((sender = snd_seq_client_use_ptr(subs->sender.client)) == NULL)
+ 		goto __end;
+ 	if ((sport = snd_seq_port_use_ptr(sender, subs->sender.port)) == NULL)
+ 		goto __end;
+-	p = snd_seq_port_get_subscription(&sport->c_src, &subs->dest);
+-	if (p) {
+-		result = 0;
+-		*subs = p->info;
+-	} else
+-		result = -ENOENT;
+-
++	result = snd_seq_port_get_subscription(&sport->c_src, &subs->dest,
++					       subs);
+       __end:
+       	if (sport)
+ 		snd_seq_port_unlock(sport);
+diff --git a/sound/core/seq/seq_ports.c b/sound/core/seq/seq_ports.c
+index d3fc73ac230b..c8fa4336bccd 100644
+--- a/sound/core/seq/seq_ports.c
++++ b/sound/core/seq/seq_ports.c
+@@ -635,20 +635,23 @@ int snd_seq_port_disconnect(struct snd_seq_client *connector,
  
-     @property
-     def fields(self):
-diff --git a/tools/kvm/kvm_stat/kvm_stat.txt b/tools/kvm/kvm_stat/kvm_stat.txt
-index 0811d860fe75..c057ba52364e 100644
---- a/tools/kvm/kvm_stat/kvm_stat.txt
-+++ b/tools/kvm/kvm_stat/kvm_stat.txt
-@@ -34,6 +34,8 @@ INTERACTIVE COMMANDS
- *c*::	clear filter
  
- *f*::	filter by regular expression
-+ ::     *Note*: Child events pull in their parents, and parents' stats summarize
-+                all child events, not just the filtered ones
+ /* get matched subscriber */
+-struct snd_seq_subscribers *snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
+-							  struct snd_seq_addr *dest_addr)
++int snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
++				  struct snd_seq_addr *dest_addr,
++				  struct snd_seq_port_subscribe *subs)
+ {
+-	struct snd_seq_subscribers *s, *found = NULL;
++	struct snd_seq_subscribers *s;
++	int err = -ENOENT;
  
- *g*::	filter by guest name/PID
+ 	down_read(&src_grp->list_mutex);
+ 	list_for_each_entry(s, &src_grp->list_head, src_list) {
+ 		if (addr_match(dest_addr, &s->info.dest)) {
+-			found = s;
++			*subs = s->info;
++			err = 0;
+ 			break;
+ 		}
+ 	}
+ 	up_read(&src_grp->list_mutex);
+-	return found;
++	return err;
+ }
  
+ /*
+diff --git a/sound/core/seq/seq_ports.h b/sound/core/seq/seq_ports.h
+index 26bd71f36c41..06003b36652e 100644
+--- a/sound/core/seq/seq_ports.h
++++ b/sound/core/seq/seq_ports.h
+@@ -135,7 +135,8 @@ int snd_seq_port_subscribe(struct snd_seq_client_port *port,
+ 			   struct snd_seq_port_subscribe *info);
+ 
+ /* get matched subscriber */
+-struct snd_seq_subscribers *snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
+-							  struct snd_seq_addr *dest_addr);
++int snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
++				  struct snd_seq_addr *dest_addr,
++				  struct snd_seq_port_subscribe *subs);
+ 
+ #endif
 -- 
 2.20.1
 
