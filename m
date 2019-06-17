@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AAD449267
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C9C49269
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:20:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727077AbfFQVT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:19:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43922 "EHLO mail.kernel.org"
+        id S1728974AbfFQVT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:19:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728974AbfFQVTz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:19:55 -0400
+        id S1728978AbfFQVT7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:19:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA07020861;
-        Mon, 17 Jun 2019 21:19:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8771A208E4;
+        Mon, 17 Jun 2019 21:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806395;
-        bh=f/SzpYjd0lhy06NyDMf28RJygr0QXRE60ZLcfnmLH+A=;
+        s=default; t=1560806398;
+        bh=cEKgHV/LLYblwDFGLNJwQps4H5yoUuSaeVkJzJ5+/mM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcBMTGqlBkOBxDZRG5/bEeRyMPZ5zrxc27jmhcEAaozXJ+GAv8kbrp8YgUVUDSpZ7
-         Zu6FeTSUrK+ByRN5/BYN9CdZ0tlILJA50T/5f7Mh8L+e/cdvQKOpCcOYQ1KHuSKjay
-         wgnoJgpMr1JhIkuU4CV8fZ1Yik3saj6WfJOb/rTE=
+        b=XHe3PTZ0oHsdg+xkh8NpLckVsstBM4i6/hEKYXfjE+ZeQMPiqlWTEOb2GNkAhnbQC
+         qYwaXHaoF/ALAq8wOejP9Cg0Y8pv/dhCGLYZtBF6ofDLp/YeII/4vgUGbi9dJadY7+
+         suUMBtMA1e1NXmHA/L0XhwTYS833qPu++NxLuR/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.1 036/115] ASoC: soc-core: fixup references at soc_cleanup_card_resources()
-Date:   Mon, 17 Jun 2019 23:08:56 +0200
-Message-Id: <20190617210801.831121133@linuxfoundation.org>
+        stable@vger.kernel.org, Louis Li <Ching-shih.Li@amd.com>,
+        Shirish S <shirish.s@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.1 037/115] drm/amdgpu/{uvd,vcn}: fetch rings read_ptr after alloc
+Date:   Mon, 17 Jun 2019 23:08:57 +0200
+Message-Id: <20190617210801.911010192@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -44,73 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Shirish S <shirish.s@amd.com>
 
-commit 29040d1ac569606fece70966179de272cfc0d4db upstream.
+commit 517b91f4cde3043d77b2178548473e8545ef07cb upstream.
 
-commit 53e947a0e1f7 ("ASoC: soc-core: merge card resources cleanup
-method") merged cleanup method of snd_soc_instantiate_card() and
-soc_cleanup_card_resources().
+[What]
+readptr read always returns zero, since most likely
+these blocks are either power or clock gated.
 
-But, after this commit, if user uses unbind/bind to Component factor
-drivers, Kernel might indicates refcount error at
-soc_cleanup_card_resources().
+[How]
+fetch rptr after amdgpu_ring_alloc() which informs
+the power management code that the block is about to be
+used and hence the gating is turned off.
 
-The 1st reason is card->snd_card is still exist even though
-snd_card_free() was called, but it is already cleaned.
-We need to set NULL to it.
-
-2nd is card->dapm and card create debugfs, but its dentry is still
-exist even though it was removed. We need to set NULL to it.
-
-Fixes: 53e947a0e1f7 ("ASoC: soc-core: merge card resources cleanup method")
-Cc: stable@vger.kernel.org # for v5.1
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Louis Li <Ching-shih.Li@amd.com>
+Signed-off-by: Shirish S <shirish.s@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-core.c |    7 ++++++-
- sound/soc/soc-dapm.c |    3 +++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c |    4 +++-
+ drivers/gpu/drm/amd/amdgpu/uvd_v6_0.c   |    5 ++++-
+ drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c   |    5 ++++-
+ 3 files changed, 11 insertions(+), 3 deletions(-)
 
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -228,7 +228,10 @@ static void soc_init_card_debugfs(struct
- 
- static void soc_cleanup_card_debugfs(struct snd_soc_card *card)
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
+@@ -594,7 +594,7 @@ error:
+ int amdgpu_vcn_enc_ring_test_ring(struct amdgpu_ring *ring)
  {
-+	if (!card->debugfs_card_root)
-+		return;
- 	debugfs_remove_recursive(card->debugfs_card_root);
-+	card->debugfs_card_root = NULL;
- }
+ 	struct amdgpu_device *adev = ring->adev;
+-	uint32_t rptr = amdgpu_ring_get_rptr(ring);
++	uint32_t rptr;
+ 	unsigned i;
+ 	int r;
  
- static void snd_soc_debugfs_init(void)
-@@ -2034,8 +2037,10 @@ static void soc_check_tplg_fes(struct sn
- static int soc_cleanup_card_resources(struct snd_soc_card *card)
+@@ -602,6 +602,8 @@ int amdgpu_vcn_enc_ring_test_ring(struct
+ 	if (r)
+ 		return r;
+ 
++	rptr = amdgpu_ring_get_rptr(ring);
++
+ 	amdgpu_ring_write(ring, VCN_ENC_CMD_END);
+ 	amdgpu_ring_commit(ring);
+ 
+--- a/drivers/gpu/drm/amd/amdgpu/uvd_v6_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/uvd_v6_0.c
+@@ -170,13 +170,16 @@ static void uvd_v6_0_enc_ring_set_wptr(s
+ static int uvd_v6_0_enc_ring_test_ring(struct amdgpu_ring *ring)
  {
- 	/* free the ALSA card at first; this syncs with pending operations */
--	if (card->snd_card)
-+	if (card->snd_card) {
- 		snd_card_free(card->snd_card);
-+		card->snd_card = NULL;
-+	}
+ 	struct amdgpu_device *adev = ring->adev;
+-	uint32_t rptr = amdgpu_ring_get_rptr(ring);
++	uint32_t rptr;
+ 	unsigned i;
+ 	int r;
  
- 	/* remove and free each DAI */
- 	soc_remove_dai_links(card);
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2192,7 +2192,10 @@ static void dapm_debugfs_add_widget(stru
+ 	r = amdgpu_ring_alloc(ring, 16);
+ 	if (r)
+ 		return r;
++
++	rptr = amdgpu_ring_get_rptr(ring);
++
+ 	amdgpu_ring_write(ring, HEVC_ENC_CMD_END);
+ 	amdgpu_ring_commit(ring);
  
- static void dapm_debugfs_cleanup(struct snd_soc_dapm_context *dapm)
+--- a/drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c
+@@ -175,7 +175,7 @@ static void uvd_v7_0_enc_ring_set_wptr(s
+ static int uvd_v7_0_enc_ring_test_ring(struct amdgpu_ring *ring)
  {
-+	if (!dapm->debugfs_dapm)
-+		return;
- 	debugfs_remove_recursive(dapm->debugfs_dapm);
-+	dapm->debugfs_dapm = NULL;
- }
+ 	struct amdgpu_device *adev = ring->adev;
+-	uint32_t rptr = amdgpu_ring_get_rptr(ring);
++	uint32_t rptr;
+ 	unsigned i;
+ 	int r;
  
- #else
+@@ -185,6 +185,9 @@ static int uvd_v7_0_enc_ring_test_ring(s
+ 	r = amdgpu_ring_alloc(ring, 16);
+ 	if (r)
+ 		return r;
++
++	rptr = amdgpu_ring_get_rptr(ring);
++
+ 	amdgpu_ring_write(ring, HEVC_ENC_CMD_END);
+ 	amdgpu_ring_commit(ring);
+ 
 
 
