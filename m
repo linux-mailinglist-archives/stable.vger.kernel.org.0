@@ -2,109 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 707A3477C4
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 03:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B88D04782F
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 04:30:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727515AbfFQBrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Jun 2019 21:47:23 -0400
-Received: from inva021.nxp.com ([92.121.34.21]:35748 "EHLO inva021.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727481AbfFQBrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 16 Jun 2019 21:47:22 -0400
-Received: from inva021.nxp.com (localhost [127.0.0.1])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id F3651200B3A;
-        Mon, 17 Jun 2019 03:47:20 +0200 (CEST)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 9BDA5200B38;
-        Mon, 17 Jun 2019 03:47:17 +0200 (CEST)
-Received: from localhost.localdomain (mega.ap.freescale.net [10.192.208.232])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 87604402D6;
-        Mon, 17 Jun 2019 09:47:13 +0800 (SGT)
-From:   Peter Chen <peter.chen@nxp.com>
-To:     gregkh@linuxfoundation.org
-Cc:     linux-usb@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Jun Li <jun.li@nxp.com>
-Subject: [PATCH 1/1] usb: chipidea: udc: workaround for endpoint conflict issue
-Date:   Mon, 17 Jun 2019 09:49:07 +0800
-Message-Id: <20190617014907.9184-2-peter.chen@nxp.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190617014907.9184-1-peter.chen@nxp.com>
-References: <20190617014907.9184-1-peter.chen@nxp.com>
-X-Virus-Scanned: ClamAV using ClamSMTP
+        id S1727482AbfFQCaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Jun 2019 22:30:30 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:37006 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727322AbfFQCaa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Jun 2019 22:30:30 -0400
+Received: by mail-lf1-f66.google.com with SMTP id d11so5318286lfb.4
+        for <stable@vger.kernel.org>; Sun, 16 Jun 2019 19:30:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=DGmSRiaozDL/dTempqHSPFFhsp5hMg0xq639rw6BjeY=;
+        b=HQwUO17hmToC7W5MJWHwjEL3kKgwSpD9H94bMlM/Ta41otpJp+QAnmEbS3xNNMVyN9
+         9z5rFGH7Vflg30fxYnokeMOG8wGGM7bxoS5sgNeSPRXHkxQ59ME3/CbJjSX4iVsgIuV8
+         lZg7Fs7A+3bVyzWbqBP/oQQYUA2OHZeniUqWhaUKskMm3GUw/1kgzltMpQLiR0N2X6T3
+         rSbtCWiw+m+AOG7pQz6D2X8IzJS8V9aKFi1PKuwSrKMdHKDhotsdup4n1JaZfdFB64em
+         SNxuPeBBUA69FmE6YwOGW0qfSxYXv0qJjrCWiC7jz7sF8Jr4NEdBKG6Lz9doH5YaljeJ
+         gaBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=DGmSRiaozDL/dTempqHSPFFhsp5hMg0xq639rw6BjeY=;
+        b=NA11mxjH2ZrxUsoZ0ZKW0Q2LYKzqwvpUW8MZwISPPwuE4+FNaMf4V2LWN5Sd94oKEK
+         JKCI3HixgNp/nKGmApizJXIgVOcXYdj9w7hrhYP6mBHVBlRgkEticatwa25s41lIE0mA
+         TePxkcsvzItSQAvJQ0iBorFAkNZX+gnCu3K6q9MFZ3ytz9HK+EqlOuyri3SteK5Edw7u
+         B4awTskDclbp2bEh4h5L0MIFkwgc2HVnYIDPYp8pDE2wGgzXteN6bxKIcSGzdZacIKkR
+         g2qskl8ngUNK2yytlTcdBEDfDC1eAH9SS8tGrIe2T2DZchXDLJigCdH+cOXKAjweVxo4
+         8zIA==
+X-Gm-Message-State: APjAAAWVtcIajwXvBtW//ojsrJw4wEZ27hMWtIdBc18lP5ZqJda3haCq
+        bp9SU79bNJZj59a1NY54D3S1aOg1UiuRYy9DEyKynw==
+X-Google-Smtp-Source: APXvYqwFlpSmLZPWiJg2WPhlYlFtfj/+EcdKnMcnlOd66/vAgtevltcMhNg0YOTqz2tnYdteWzStXhs7/XBbhRqm7vQ=
+X-Received: by 2002:ac2:482d:: with SMTP id 13mr10070457lft.132.1560738627381;
+ Sun, 16 Jun 2019 19:30:27 -0700 (PDT)
+MIME-Version: 1.0
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 17 Jun 2019 08:00:00 +0530
+Message-ID: <CA+G9fYsr_YW7PSoP+ew60TfNOj885y6j-e2weuWBuU1ccKcAAg@mail.gmail.com>
+Subject: kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
+To:     Netdev <netdev@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>, sgarzare@redhat.com,
+        Daniel Borkmann <daniel@iogearbox.net>, kafai@fb.com,
+        jakub@cloudflare.com, lkft-triage@lists.linaro.org,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-An endpoint conflict occurs when the USB is working in device mode
-during an isochronous communication. When the endpointA IN direction
-is an isochronous IN endpoint, and the host sends an IN token to
-endpointA on another device, then the OUT transaction may be missed
-regardless the OUT endpoint number. Generally, this occurs when the
-device is connected to the host through a hub and other devices are
-connected to the same hub.
+Kernel warning while running kernel selftest bpf test_sockmap test case on
+x86_64 and arm64.
+The kernel warning log pops up continuously.
 
-The affected OUT endpoint can be either control, bulk, isochronous, or
-an interrupt endpoint. After the OUT endpoint is primed, if an IN token
-to the same endpoint number on another device is received, then the OUT
-endpoint may be unprimed (cannot be detected by software), which causes
-this endpoint to no longer respond to the host OUT token, and thus, no
-corresponding interrupt occurs.
+Linux version 5.1.10-rc2
 
-There is no good workaround for this issue, the only thing the software
-could do is numbering isochronous IN from the highest endpoint since we
-have observed most of device number endpoint from the lowest.
+Steps to reproduce:
+Boot stable rc 5.1.10-rc2 kernel on x86_64 or arm64
+cd selftests/bpf
+./test_sockmap
 
-Cc: <stable@vger.kernel.org> #v3.14+
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Jun Li <jun.li@nxp.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
----
- drivers/usb/chipidea/udc.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+[   37.600406] WARNING: CPU: 3 PID: 57 at
+/usr/src/kernel/kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
+[   37.610034] Modules linked in: x86_pkg_temp_thermal fuse
+[   37.615371] CPU: 3 PID: 57 Comm: kworker/3:1 Not tainted 5.1.10-rc2 #1
+[   37.615454] WARNING: CPU: 0 PID: 5 at
+/usr/src/kernel/kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
+[   37.621892] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
+2.0b 07/27/2017
+[   37.621895] Workqueue: events sk_psock_destroy_deferred
+[   37.631183] Modules linked in: x86_pkg_temp_thermal fuse
+[   37.638654] RIP: 0010:__flush_work+0x2c2/0x2d0
+[   37.638655] Code: c6 00 31 c0 e9 71 ff ff ff 41 8b 0c 24 49 8b 54
+24 08 83 e1 08 49 0f ba 2c 24 03 80 c9 f0 e9 d2 fe ff ff 0f 0b e9 50
+ff ff ff <0f> 0b 31 c0 e9 47 ff ff ff e8 90 9d fd ff 0f 1f 44 00 00 55
+31 f6
+[   37.643879] CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.1.10-rc2 #1
+[   37.643880] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
+2.0b 07/27/2017
+[   37.649183] RSP: 0018:ffffb038c1a23ca0 EFLAGS: 00010246
+[   37.653630] Workqueue: events sk_psock_destroy_deferred
+[   37.672375] RAX: 0000000000000000 RBX: ffff9e73d9492068 RCX: 0000000000000006
+[   37.672376] RDX: 0000000000000006 RSI: 0000000000000001 RDI: ffff9e73d9492068
+[   37.678805] RIP: 0010:__flush_work+0x2c2/0x2d0
+[   37.678807] Code: c6 00 31 c0 e9 71 ff ff ff 41 8b 0c 24 49 8b 54
+24 08 83 e1 08 49 0f ba 2c 24 03 80 c9 f0 e9 d2 fe ff ff 0f 0b e9 50
+ff ff ff <0f> 0b 31 c0 e9 47 ff ff ff e8 90 9d fd ff 0f 1f 44 00 00 55
+31 f6
+[   37.686274] RBP: ffffb038c1a23d68 R08: 0000000000000000 R09: 0000000000000000
+[   37.686275] R10: 0000000000000000 R11: 0000000000000000 R12: ffff9e73d9492068
+[   37.691494] RSP: 0018:ffffb038c18fbca0 EFLAGS: 00010246
+[   37.696720] R13: 0000000000000001 R14: ffffb038c1a23d98 R15: ffffffff9a490d40
+[   37.696721] FS:  0000000000000000(0000) GS:ffff9e73dfb80000(0000)
+knlGS:0000000000000000
+[   37.703851] RAX: 0000000000000000 RBX: ffff9e73d9490868 RCX: 0000000000000006
+[   37.703852] RDX: 0000000000000006 RSI: 0000000000000001 RDI: ffff9e73d9490868
+[   37.710976] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   37.710977] CR2: 00007f38680ca8a0 CR3: 00000002ee614006 CR4: 00000000003606e0
+[   37.715419] RBP: ffffb038c18fbd68 R08: 0000000000000000 R09: 0000000000000000
+[   37.715420] R10: 0000000000000000 R11: 0000000000000000 R12: ffff9e73d9490868
+[   37.734156] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   37.734157] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   37.741282] R13: 0000000000000001 R14: ffffb038c18fbd98 R15: ffffffff9a490d40
+[   37.741283] FS:  0000000000000000(0000) GS:ffff9e73dfa00000(0000)
+knlGS:0000000000000000
+[   37.748405] Call Trace:
+[   37.748410]  ? work_busy+0xc0/0xc0
+[   37.753621] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   37.753622] CR2: 00007f38680c9788 CR3: 000000045454a004 CR4: 00000000003606f0
+[   37.760746]  ? mark_held_locks+0x4d/0x80
+[   37.768823] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   37.768824] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   37.775946]  ? __cancel_work_timer+0x11a/0x1d0
+[   37.783071] Call Trace:
+[   37.783075]  ? work_busy+0xc0/0xc0
+[   37.788808]  ? cancel_delayed_work_sync+0x13/0x20
+[   37.788810]  ? lockdep_hardirqs_on+0xf6/0x190
+[   37.795934]  ? mark_held_locks+0x4d/0x80
+[   37.803055]  ? __cancel_work_timer+0x11a/0x1d0
+[   37.803057]  ? work_busy+0xc0/0xc0
+[   37.810179]  ? __cancel_work_timer+0x11a/0x1d0
+[   37.817303]  __cancel_work_timer+0x134/0x1d0
+[   37.824453]  ? cancel_delayed_work_sync+0x13/0x20
+[   37.824455]  ? lockdep_hardirqs_on+0xf6/0x190
+[   37.831579]  cancel_delayed_work_sync+0x13/0x20
+[   37.839654]  ? __cancel_work_timer+0x11a/0x1d0
+[   37.839657]  ? work_busy+0xc0/0xc0
+[   37.842100]  strp_done+0x1c/0x50
+[   37.845497]  __cancel_work_timer+0x134/0x1d0
+[   37.851242]  sk_psock_destroy_deferred+0x34/0x1c0
+[   37.858372]  cancel_delayed_work_sync+0x13/0x20
+[   37.862292]  process_one_work+0x281/0x610
+[   37.869415]  strp_done+0x1c/0x50
+[   37.876540]  worker_thread+0x3c/0x3f0
+[   37.880975]  sk_psock_destroy_deferred+0x34/0x1c0
+[   37.883419]  ? __kthread_parkme+0x61/0x90
+[   37.886819]  process_one_work+0x281/0x610
+[   37.891514]  kthread+0x12c/0x150
+[   37.895868]  worker_thread+0x3c/0x3f0
+[   37.899783]  ? process_one_work+0x610/0x610
+[   37.904221]  kthread+0x12c/0x150
+[   37.907615]  ? kthread_park+0x90/0x90
+[   37.907618]  ret_from_fork+0x3a/0x50
+[   37.912052]  ? process_one_work+0x610/0x610
+[   37.916355] irq event stamp: 57860
+[   37.921058]  ? kthread_park+0x90/0x90
+[   37.921060]  ret_from_fork+0x3a/0x50
+[   37.925407] hardirqs last  enabled at (57859): [<ffffffff9a4949ba>]
+__cancel_work_timer+0x11a/0x1d0
+[   37.925409] hardirqs last disabled at (57860): [<ffffffff9a401bab>]
+trace_hardirqs_off_thunk+0x1a/0x1c
+[   37.929944] irq event stamp: 47474
+[   37.934378] softirqs last  enabled at (57812): [<ffffffff9add14d5>]
+release_sock+0x85/0xb0
+[   37.934379] softirqs last disabled at (57810): [<ffffffff9add140a>]
+__release_sock+0xda/0x120
+[   37.937773] hardirqs last  enabled at (47473): [<ffffffff9a4949ba>]
+__cancel_work_timer+0x11a/0x1d0
+[   37.937775] hardirqs last disabled at (47474): [<ffffffff9a401bab>]
+trace_hardirqs_off_thunk+0x1a/0x1c
+[   37.940998] ---[ end trace ae349dc9a55c8bc8 ]---
+[   37.941056] WARNING: CPU: 3 PID: 57 at
+/usr/src/kernel/kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
+[   37.945263] softirqs last  enabled at (47440): [<ffffffff9add14d5>]
+release_sock+0x85/0xb0
+[   37.945264] softirqs last disabled at (47438): [<ffffffff9add140a>]
+__release_sock+0xda/0x120
+[   37.949968] Modules linked in: x86_pkg_temp_thermal fuse
+[   37.954493] ---[ end trace ae349dc9a55c8bc9 ]---
+[   37.954522] WARNING: CPU: 0 PID: 5 at
+/usr/src/kernel/kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
+[...]
 
-diff --git a/drivers/usb/chipidea/udc.c b/drivers/usb/chipidea/udc.c
-index 829e947cabf5..6a5ee8e6da10 100644
---- a/drivers/usb/chipidea/udc.c
-+++ b/drivers/usb/chipidea/udc.c
-@@ -1622,6 +1622,25 @@ static int ci_udc_pullup(struct usb_gadget *_gadget, int is_on)
- static int ci_udc_start(struct usb_gadget *gadget,
- 			 struct usb_gadget_driver *driver);
- static int ci_udc_stop(struct usb_gadget *gadget);
-+
-+/* Match ISOC IN from the highest endpoint */
-+static struct usb_ep *ci_udc_match_ep(struct usb_gadget *gadget,
-+			      struct usb_endpoint_descriptor *desc,
-+			      struct usb_ss_ep_comp_descriptor *comp_desc)
-+{
-+	struct ci_hdrc *ci = container_of(gadget, struct ci_hdrc, gadget);
-+	struct usb_ep *ep;
-+
-+	if (usb_endpoint_xfer_isoc(desc) && usb_endpoint_dir_in(desc)) {
-+		list_for_each_entry_reverse(ep, &ci->gadget.ep_list, ep_list) {
-+			if (ep->caps.dir_in && !ep->claimed)
-+				return ep;
-+		}
-+	}
-+
-+	return NULL;
-+}
-+
- /**
-  * Device operations part of the API to the USB controller hardware,
-  * which don't involve endpoints (or i/o)
-@@ -1635,6 +1654,7 @@ static const struct usb_gadget_ops usb_gadget_ops = {
- 	.vbus_draw	= ci_udc_vbus_draw,
- 	.udc_start	= ci_udc_start,
- 	.udc_stop	= ci_udc_stop,
-+	.match_ep 	= ci_udc_match_ep,
- };
- 
- static int init_eps(struct ci_hdrc *ci)
--- 
-2.14.1
+metadata:
+  git branch: linux-5.1.y
+  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+  git commit: b7eabc3862b8717f2bcc47f3f3830ec575423c8c
+  git describe: v5.1.9-157-gb7eabc3862b8
+  make_kernelversion: 5.1.10-rc2
+  kernel-config:
+http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/intel-corei7-64/lkft/linux-stable-rc-5.1/33/config
+  kernel-defconfig:
+http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/intel-corei7-64/lkft/linux-stable-rc-5.1/33/defconfig
+  build-url: https://ci.linaro.org/job/openembedded-lkft-linux-stable-rc-5.1/DISTRO=lkft,MACHINE=intel-corei7-64,label=docker-lkft/33/
+  build-location:
+http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/intel-corei7-64/lkft/linux-stable-rc-5.1/33
+  toolchain: x86_64-linaro-linux 7.%
+  series: lkft
+  email-notification: ''
+  kselftest__url: https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.1.tar.xz
+  kselftest__version: '5.1'
+  kselftest__revision: '5.1'
 
+Full test log,
+https://lkft.validation.linaro.org/scheduler/job/775857#L1114
+
+Best regards
+Naresh Kamboju
