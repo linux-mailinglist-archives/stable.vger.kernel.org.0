@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87DEC4942B
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21159492DD
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729392AbfFQVVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:21:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46146 "EHLO mail.kernel.org"
+        id S1729978AbfFQVYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:24:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729389AbfFQVVh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:21:37 -0400
+        id S1728841AbfFQVYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:24:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D47C92089E;
-        Mon, 17 Jun 2019 21:21:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65C8A21019;
+        Mon, 17 Jun 2019 21:24:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806497;
-        bh=tpYiwEGQ67hUfP/N2MI6rulNvqudaMCDEMbf3KGmCNA=;
+        s=default; t=1560806680;
+        bh=zUIkRL2+2N6TejLuqB/35gmEd3f/CWpfpIxNm+H4+/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=syv7xCeWnMJnlBNW3m9s97xlnMwJXLuCE6MVoxUXzPK7JipY7yordy4/Af6exPNQE
-         WHPffX8axvNPU1y9AfouhqUOy8gHkzRdr0bwZaHt76mURJcyZMmm+gqUdzHj48mFd/
-         KBfLzCfG8R8dt8uXM0bIxpjMapiCZW19rG9mL73w=
+        b=HSkhgjuY0fiuqif8x/kzcbDE+OSvU/BkEvRsYUsaIwIcAonBcWL4W4KKHSTf0wfkO
+         urf7bKsBoLy68sA9LeIZxb6H5i6k3TiRis6jB4PNhlhiwDfxaw+19+OjZadJCAipHA
+         Fyig9y0Vx5H7f5yIUR4v6LIxO8rRWaqMbk0buCPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Semyon Verchenko <semverchenko@factor-ts.ru>
-Subject: [PATCH 5.1 071/115] platform/x86: pmc_atom: Add Lex 3I380D industrial PC to critclk_systems DMI table
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
+Subject: [PATCH 4.19 20/75] i2c: acorn: fix i2c warning
 Date:   Mon, 17 Jun 2019 23:09:31 +0200
-Message-Id: <20190617210803.690453638@linuxfoundation.org>
+Message-Id: <20190617210753.632805954@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3d0818f5eba80fbe4c0addbfe6ddb2d19dc82cd4 ]
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-The Lex 3I380D industrial PC has 4 ethernet controllers on board
-which need pmc_plt_clk0 - 3 to function, add it to the critclk_systems
-DMI table, so that drivers/clk/x86/clk-pmc-atom.c will mark the clocks
-as CLK_CRITICAL and they will not get turned off.
+commit ca21f851cc9643af049226d57fabc3c883ea648e upstream.
 
-Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
-Reported-and-tested-by: Semyon Verchenko <semverchenko@factor-ts.ru>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The Acorn i2c driver (for RiscPC) triggers the "i2c adapter has no name"
+warning in the I2C core driver, resulting in the RTC being inaccessible.
+Fix this.
+
+Fixes: 2236baa75f70 ("i2c: Sanity checks on adapter registration")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/platform/x86/pmc_atom.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/i2c/busses/i2c-acorn.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
-index c7039f52ad51..a311f48ce7c9 100644
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -398,12 +398,21 @@ static int pmc_dbgfs_register(struct pmc_dev *pmc)
-  */
- static const struct dmi_system_id critclk_systems[] = {
- 	{
-+		/* pmc_plt_clk0 is used for an external HSIC USB HUB */
- 		.ident = "MPL CEC1x",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "MPL AG"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "CEC10 Family"),
- 		},
- 	},
-+	{
-+		/* pmc_plt_clk0 - 3 are used for the 4 ethernet controllers */
-+		.ident = "Lex 3I380D",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "3I380D"),
-+		},
-+	},
- 	{ /*sentinel*/ }
+--- a/drivers/i2c/busses/i2c-acorn.c
++++ b/drivers/i2c/busses/i2c-acorn.c
+@@ -81,6 +81,7 @@ static struct i2c_algo_bit_data ioc_data
+ 
+ static struct i2c_adapter ioc_ops = {
+ 	.nr			= 0,
++	.name			= "ioc",
+ 	.algo_data		= &ioc_data,
  };
  
--- 
-2.20.1
-
 
 
