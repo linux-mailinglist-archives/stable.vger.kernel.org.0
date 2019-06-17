@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D54E54926F
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:20:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 546BB492B0
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:23:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726088AbfFQVUK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:20:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44262 "EHLO mail.kernel.org"
+        id S1728905AbfFQVWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:22:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727768AbfFQVUK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:20:10 -0400
+        id S1729595AbfFQVWq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:22:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1960D20B1F;
-        Mon, 17 Jun 2019 21:20:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10439206B7;
+        Mon, 17 Jun 2019 21:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806409;
-        bh=QJf27Qb/dJuewX1xtCeVJs7PldHnm/zNe9TQQdObKf8=;
+        s=default; t=1560806565;
+        bh=s5RU2z2EeN8CvBgLSIQwUVZ59OMSqmNvSR+IMSGrvgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MgETYPXX4MM5aBVZl8qjnuadRH8SwaP/VhJOfSUQd6vH3uGzPBNpk22eqXoTQbuth
-         xShcYT4lD56X4HkYuQqhCGlVrZUowdY73lx18J0z6z8h23T5DFH0ypbBi6a1sL1iuP
-         hmKlf3mfrMAp6CP+TJoPQhHY12GSP3ADOhZ9iGRk=
+        b=Jj/rwIPv/Kc+78bufKe+uKBJcuE/dYqyli+Rpq3G6elQAmuyFNwIm3FXuvuihcqNg
+         8+z6tH5NQBOPmKFJ+rcsIztEnkHCzLsuhrdjt01x8Q2D4le+1Kh4447UIfGclJETTP
+         B7qhmvb6ObQNZV0FCbmtvhXnVEjNJ9jew1QMezbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Heinrich Fink <heinrich.fink@daqri.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
+        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.1 040/115] drm/i915: Fix per-pixel alpha with CCS
-Date:   Mon, 17 Jun 2019 23:09:00 +0200
-Message-Id: <20190617210802.066159118@linuxfoundation.org>
+Subject: [PATCH 5.1 041/115] drm/i915/dmc: protect against reading random memory
+Date:   Mon, 17 Jun 2019 23:09:01 +0200
+Message-Id: <20190617210802.120521623@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -48,53 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Lucas De Marchi <lucas.demarchi@intel.com>
 
-commit 77ce94dbe586c1a6a26cf021c08109c9ce71b3e0 upstream.
+commit 326fb6dd1483c985a6ef47db3fa8788bb99e8b83 upstream.
 
-We forgot to set .has_alpha=true for the A+CCS formats when the code
-started to consult .has_alpha. This manifests as A+CCS being treated
-as X+CCS which means no per-pixel alpha blending. Fix the format
-list appropriately.
+While loading the DMC firmware we were double checking the headers made
+sense, but in no place we checked that we were actually reading memory
+we were supposed to. This could be wrong in case the firmware file is
+truncated or malformed.
 
+Before this patch:
+	# ls -l /lib/firmware/i915/icl_dmc_ver1_07.bin
+	-rw-r--r-- 1 root root  25716 Feb  1 12:26 icl_dmc_ver1_07.bin
+	# truncate -s 25700 /lib/firmware/i915/icl_dmc_ver1_07.bin
+	# modprobe i915
+	# dmesg| grep -i dmc
+	[drm:intel_csr_ucode_init [i915]] Loading i915/icl_dmc_ver1_07.bin
+	[drm] Finished loading DMC firmware i915/icl_dmc_ver1_07.bin (v1.7)
+
+i.e. it loads random data. Now it fails like below:
+	[drm:intel_csr_ucode_init [i915]] Loading i915/icl_dmc_ver1_07.bin
+	[drm:csr_load_work_fn [i915]] *ERROR* Truncated DMC firmware, rejecting.
+	i915 0000:00:02.0: Failed to load DMC firmware i915/icl_dmc_ver1_07.bin. Disabling runtime power management.
+	i915 0000:00:02.0: DMC firmware homepage: https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915
+
+Before reading any part of the firmware file, validate the input first.
+
+Fixes: eb805623d8b1 ("drm/i915/skl: Add support to load SKL CSR firmware.")
 Cc: stable@vger.kernel.org
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Matt Roper <matthew.d.roper@intel.com>
-Cc: Heinrich Fink <heinrich.fink@daqri.com>
-Reported-by: Heinrich Fink <heinrich.fink@daqri.com>
-Tested-by: Heinrich Fink <heinrich.fink@daqri.com>
-Fixes: b20815255693 ("drm/i915: Add plane alpha blending support, v2.")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190603142500.25680-1-ville.syrjala@linux.intel.com
-Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-(cherry picked from commit 38f300410f3e15b6fec76c8d8baed7111b5ea4e4)
+Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190605235535.17791-1-lucas.demarchi@intel.com
+(cherry picked from commit bc7b488b1d1c71dc4c5182206911127bc6c410d6)
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/intel_display.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/intel_csr.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/gpu/drm/i915/intel_display.c
-+++ b/drivers/gpu/drm/i915/intel_display.c
-@@ -2444,10 +2444,14 @@ static unsigned int intel_fb_modifier_to
-  * main surface.
-  */
- static const struct drm_format_info ccs_formats[] = {
--	{ .format = DRM_FORMAT_XRGB8888, .depth = 24, .num_planes = 2, .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
--	{ .format = DRM_FORMAT_XBGR8888, .depth = 24, .num_planes = 2, .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
--	{ .format = DRM_FORMAT_ARGB8888, .depth = 32, .num_planes = 2, .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
--	{ .format = DRM_FORMAT_ABGR8888, .depth = 32, .num_planes = 2, .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
-+	{ .format = DRM_FORMAT_XRGB8888, .depth = 24, .num_planes = 2,
-+	  .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
-+	{ .format = DRM_FORMAT_XBGR8888, .depth = 24, .num_planes = 2,
-+	  .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
-+	{ .format = DRM_FORMAT_ARGB8888, .depth = 32, .num_planes = 2,
-+	  .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, .has_alpha = true, },
-+	{ .format = DRM_FORMAT_ABGR8888, .depth = 32, .num_planes = 2,
-+	  .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, .has_alpha = true, },
- };
+--- a/drivers/gpu/drm/i915/intel_csr.c
++++ b/drivers/gpu/drm/i915/intel_csr.c
+@@ -300,10 +300,17 @@ static u32 *parse_csr_fw(struct drm_i915
+ 	u32 dmc_offset = CSR_DEFAULT_FW_OFFSET, readcount = 0, nbytes;
+ 	u32 i;
+ 	u32 *dmc_payload;
++	size_t fsize;
  
- static const struct drm_format_info *
+ 	if (!fw)
+ 		return NULL;
+ 
++	fsize = sizeof(struct intel_css_header) +
++		sizeof(struct intel_package_header) +
++		sizeof(struct intel_dmc_header);
++	if (fsize > fw->size)
++		goto error_truncated;
++
+ 	/* Extract CSS Header information*/
+ 	css_header = (struct intel_css_header *)fw->data;
+ 	if (sizeof(struct intel_css_header) !=
+@@ -363,6 +370,9 @@ static u32 *parse_csr_fw(struct drm_i915
+ 	/* Convert dmc_offset into number of bytes. By default it is in dwords*/
+ 	dmc_offset *= 4;
+ 	readcount += dmc_offset;
++	fsize += dmc_offset;
++	if (fsize > fw->size)
++		goto error_truncated;
+ 
+ 	/* Extract dmc_header information. */
+ 	dmc_header = (struct intel_dmc_header *)&fw->data[readcount];
+@@ -394,6 +404,10 @@ static u32 *parse_csr_fw(struct drm_i915
+ 
+ 	/* fw_size is in dwords, so multiplied by 4 to convert into bytes. */
+ 	nbytes = dmc_header->fw_size * 4;
++	fsize += nbytes;
++	if (fsize > fw->size)
++		goto error_truncated;
++
+ 	if (nbytes > csr->max_fw_size) {
+ 		DRM_ERROR("DMC FW too big (%u bytes)\n", nbytes);
+ 		return NULL;
+@@ -407,6 +421,10 @@ static u32 *parse_csr_fw(struct drm_i915
+ 	}
+ 
+ 	return memcpy(dmc_payload, &fw->data[readcount], nbytes);
++
++error_truncated:
++	DRM_ERROR("Truncated DMC firmware, rejecting.\n");
++	return NULL;
+ }
+ 
+ static void intel_csr_runtime_pm_get(struct drm_i915_private *dev_priv)
 
 
