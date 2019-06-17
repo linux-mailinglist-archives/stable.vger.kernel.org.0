@@ -2,176 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96082495CA
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 01:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D97F0495DD
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 01:30:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727964AbfFQXW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 19:22:57 -0400
-Received: from mga05.intel.com ([192.55.52.43]:50493 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726121AbfFQXW5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 19:22:57 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Jun 2019 16:22:57 -0700
-X-ExtLoop1: 1
-Received: from schen9-desk.jf.intel.com (HELO [10.54.74.162]) ([10.54.74.162])
-  by fmsmga008.fm.intel.com with ESMTP; 17 Jun 2019 16:22:56 -0700
-To:     Jonathan Corbet <corbet@lwn.net>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ben Greear <greearb@candelatech.com>, stable@vger.kernel.org,
-        Andi Kleen <ak@linux.intel.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Jun Nakajima <jun.nakajima@intel.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Asit Mallick <asit.k.mallick@intel.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Jon Masters <jcm@redhat.com>,
-        Waiman Long <longman9394@gmail.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Mark Gross <mgross@linux.intel.com>,
-        LKML <linux-kernel@vger.kernel.org>, x86@kernel.org
-References: <c63945d34bfc9df2412f813d0b9b3a321a65de5d.1560795378.git.tim.c.chen@linux.intel.com>
- <alpine.DEB.2.21.1906172217540.1963@nanos.tec.linutronix.de>
- <20190617161600.77f5f5eb@lwn.net>
-From:   Tim Chen <tim.c.chen@linux.intel.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=tim.c.chen@linux.intel.com; prefer-encrypt=mutual; keydata=
- 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
- l50q2K/r651xphs7CGEdKi1nU0YJVbQxJQ==
-Subject: Re: [PATCH v3] Documentation: Add section about CPU vulnerabilities
- for Spectre
-Message-ID: <c6c233d6-948e-a663-5e82-3a5cea2e0aeb@linux.intel.com>
-Date:   Mon, 17 Jun 2019 16:22:55 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1726808AbfFQXaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 19:30:13 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:37209 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726336AbfFQXaN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 19:30:13 -0400
+Received: by mail-lj1-f196.google.com with SMTP id 131so11094332ljf.4
+        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 16:30:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=TSlnrikhmcgad5C0n4qp/v4MF0qr179vLd3WTKmDTCM=;
+        b=BxpvYJ+agSNLwq4y9NHDYqRZrmep21oIT9drwkiIH2vfs5ZeeuU6IKHLuxX9G306a4
+         4mMlrj/9OewJMlCd2mOEFWBGl+lmtDoa19iHj8blbUjKhIUwxNFWEzt6rRvmSEdNkivr
+         WGZut+frZ7Ro5jVpYWitT+690GF3d6LM1mkuY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=TSlnrikhmcgad5C0n4qp/v4MF0qr179vLd3WTKmDTCM=;
+        b=et6vYN7QKK0I0DfrFnKI9ZFHKTvx9aL0Uk4T+PogQW5thWFP5cTyov9uJeDar8xJk8
+         RWJhZrkKRZzWY++BfaXRU8aQjh4TrJRplVJbWLzyVuenSB/n5V0UwajFkv1QFy60fgRd
+         txtZav5IS6E9cxiK5LknSufkwHRLxgsHj4l+MH3SzPJ2JDUcsb9Tp7CLKwGwmbPkn1o3
+         W++gqmXYPj8dXVyDqBgRfMg32Nnk0ZLt6W2RhTE33CeZn8UKaVkaubMkfBf8KoZ1bgKA
+         eLiklO92kB+GqHyAmRqAhU6oRXpoJmdZ5qMh8dErr7NUTyG7hSyafAnX9f3Yf7NQd1YL
+         HZjQ==
+X-Gm-Message-State: APjAAAVUluRrsOIm3e3tdWG0IH4RIUUZbJCg9kb3RgAcymT8W56UP+W7
+        +CwQe76/nua4EPz0U/OmHpREEUgVAU0=
+X-Google-Smtp-Source: APXvYqwzo1zhuVwl6F9/Z+Q1Kjsi579z4q/CZkgpB8Ym/KAGBGJffsCG2kQlvhTReo/pCcn1nUsb2w==
+X-Received: by 2002:a2e:124b:: with SMTP id t72mr52795620lje.143.1560814211371;
+        Mon, 17 Jun 2019 16:30:11 -0700 (PDT)
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com. [209.85.167.50])
+        by smtp.gmail.com with ESMTPSA id n10sm1955561lfe.24.2019.06.17.16.30.10
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Mon, 17 Jun 2019 16:30:10 -0700 (PDT)
+Received: by mail-lf1-f50.google.com with SMTP id b11so7825762lfa.5
+        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 16:30:10 -0700 (PDT)
+X-Received: by 2002:ac2:4565:: with SMTP id k5mr544968lfm.170.1560814210085;
+ Mon, 17 Jun 2019 16:30:10 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20190617161600.77f5f5eb@lwn.net>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20190617212214.29868-1-christian@brauner.io> <20190617213211.GV17978@ZenIV.linux.org.uk>
+In-Reply-To: <20190617213211.GV17978@ZenIV.linux.org.uk>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 17 Jun 2019 16:29:54 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whvURjNyBUx_V7z3ukSeHN6A5jbQF5c53X40undQy8v9w@mail.gmail.com>
+Message-ID: <CAHk-=whvURjNyBUx_V7z3ukSeHN6A5jbQF5c53X40undQy8v9w@mail.gmail.com>
+Subject: Re: [PATCH v1] fs/namespace: fix unprivileged mount propagation
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Christian Brauner <christian@brauner.io>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/17/19 3:16 PM, Jonathan Corbet wrote:
-> On Mon, 17 Jun 2019 22:21:51 +0200 (CEST)
-> Thomas Gleixner <tglx@linutronix.de> wrote:
-> 
->>> +Spectre variant 1 attacks take advantage of speculative execution of
->>> +conditional branches, while Spectre variant 2 attacks use speculative
->>> +execution of indirect branches to leak privileged memory. See [1] [5]
->>> +[7] [10] [11].  
->>
->> It would be great to actually link these [N] to the actual http link at the
->> bottom. No idea what's the best way to do that.
->>
->> Jonathan?
-> 
-> Append an underscore to the link text, so:
-> 
-> 	See [1_] [5_] ...
-> 	
-> Then, when adding the links:
-> 
-> 	.. _1: https://.../
-> 
-> There are other ways; see
-> 
->     http://docutils.sourceforge.net/docs/user/rst/quickref.html#external-hyperlink-targets 
-> 
-> for the list.
+On Mon, Jun 17, 2019 at 2:32 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
+>
+> Applied.  Linus, if you want to apply it directly, feel free to add my
+> Acked-by.  Alternatively, wait until tonight and I'll send a pull request
+> with that (as well as missing mntget() in fsmount(2) fix, at least).
 
-Jonathan,
+I've pulled it from you. Thanks,
 
-I want to actually have a generated reference section.  The method you suggested will generate
-the reference link as a footer on the same page that refers to the link.  I haven't quite figured
-out how to generate a proper bibliography like reference section with hyperlink after googling
-for quite a while.
-
-
-> 
->> The below renders horribly when converted to HTML
->>
->> You probably want to wrap these into a table
->>
->>> +	nospectre_v2	[X86] Disable all mitigations for the Spectre variant 2
->>> +			(indirect branch prediction) vulnerability. System may
->>> +			allow data leaks with this option, which is equivalent
->>> +			to spectre_v2=off.
->>> +
->>> +
->>> +        spectre_v2=     [X86] Control mitigation of Spectre variant 2
->>> +			(indirect branch speculation) vulnerability.
->>> +			The default operation protects the kernel from
->>> +			user space attacks.  
->>
->> Maybe Jonathan has a better idea.
-> 
-> The easiest thing is probably a definition list:
-> 
-> 	nospectre_v2
-> 	    [X86] Disable all mitigations for the Spectre variant 2
-> 	    (indirect branch prediction) ...
-> 
-> 	spectrev2=
-> 	    ...
-> 
-> i.e. just move the descriptive text into an indented block below the term
-> of interest.
-> 
-
-Thanks for this suggestion.
-
-Tim
+                   Linus
