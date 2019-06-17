@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A70349457
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A379349264
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:19:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728917AbfFQVTs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:19:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43724 "EHLO mail.kernel.org"
+        id S1728934AbfFQVTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:19:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728446AbfFQVTs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:19:48 -0400
+        id S1728446AbfFQVTu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:19:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5963E2089E;
-        Mon, 17 Jun 2019 21:19:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F9072089E;
+        Mon, 17 Jun 2019 21:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806386;
-        bh=S4e/gtUZeusv/WpAX1lvOIB/VF9tw+8nMleUNsOV9Ko=;
+        s=default; t=1560806389;
+        bh=goB30XYJSdJ3iZ8ZaMJq7F0qL9XgA4A141PfIb707tA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1K7ZBzhM8zxS140h+MuwfaaOV+b10kbsUAyRlfdThazI30d+Iqbz9/BSUAmYZXA0s
-         j8K9yZIy6KeR5+MyPxmkV4KhvmxIo21KjhJnntSN+9NzO/4NHpxOvzzNm32ZDZ9mv5
-         DeNHNy2yfade5zEFp2pl1aWedS0GBrbuDydIwOPg=
+        b=2C5a2tdRvnrpcH3FSukOdNIBp4uRLi1jEvnjkf/cvPkUbbUAvaKVwhVqjuh+zV17z
+         1a0DnrXXKmJyELVHzkgqeqXlPZ5hFUq5+X5wYcHzKgMOMvl+YhGxLfGf/igePrAvto
+         gHwhLZlXv/GvxXMEpHfUa3oTJj4/f3bn3TUqaGzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.1 033/115] cgroup: Use css_tryget() instead of css_tryget_online() in task_get_css()
-Date:   Mon, 17 Jun 2019 23:08:53 +0200
-Message-Id: <20190617210801.657189956@linuxfoundation.org>
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.1 034/115] ASoC: cs42xx8: Add regcache mask dirty
+Date:   Mon, 17 Jun 2019 23:08:54 +0200
+Message-Id: <20190617210801.721408131@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -42,88 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: S.j. Wang <shengjiu.wang@nxp.com>
 
-commit 18fa84a2db0e15b02baa5d94bdb5bd509175d2f6 upstream.
+commit ad6eecbfc01c987e0253371f274c3872042e4350 upstream.
 
-A PF_EXITING task can stay associated with an offline css.  If such
-task calls task_get_css(), it can get stuck indefinitely.  This can be
-triggered by BSD process accounting which writes to a file with
-PF_EXITING set when racing against memcg disable as in the backtrace
-at the end.
+Add regcache_mark_dirty before regcache_sync for power
+of codec may be lost at suspend, then all the register
+need to be reconfigured.
 
-After this change, task_get_css() may return a css which was already
-offline when the function was called.  None of the existing users are
-affected by this change.
-
-  INFO: rcu_sched self-detected stall on CPU
-  INFO: rcu_sched detected stalls on CPUs/tasks:
-  ...
-  NMI backtrace for cpu 0
-  ...
-  Call Trace:
-   <IRQ>
-   dump_stack+0x46/0x68
-   nmi_cpu_backtrace.cold.2+0x13/0x57
-   nmi_trigger_cpumask_backtrace+0xba/0xca
-   rcu_dump_cpu_stacks+0x9e/0xce
-   rcu_check_callbacks.cold.74+0x2af/0x433
-   update_process_times+0x28/0x60
-   tick_sched_timer+0x34/0x70
-   __hrtimer_run_queues+0xee/0x250
-   hrtimer_interrupt+0xf4/0x210
-   smp_apic_timer_interrupt+0x56/0x110
-   apic_timer_interrupt+0xf/0x20
-   </IRQ>
-  RIP: 0010:balance_dirty_pages_ratelimited+0x28f/0x3d0
-  ...
-   btrfs_file_write_iter+0x31b/0x563
-   __vfs_write+0xfa/0x140
-   __kernel_write+0x4f/0x100
-   do_acct_process+0x495/0x580
-   acct_process+0xb9/0xdb
-   do_exit+0x748/0xa00
-   do_group_exit+0x3a/0xa0
-   get_signal+0x254/0x560
-   do_signal+0x23/0x5c0
-   exit_to_usermode_loop+0x5d/0xa0
-   prepare_exit_to_usermode+0x53/0x80
-   retint_user+0x8/0x8
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: stable@vger.kernel.org # v4.2+
-Fixes: ec438699a9ae ("cgroup, block: implement task_get_css() and use it in bio_associate_current()")
+Fixes: 0c516b4ff85c ("ASoC: cs42xx8: Add codec driver
+support for CS42448/CS42888")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/cgroup.h |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ sound/soc/codecs/cs42xx8.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/cgroup.h
-+++ b/include/linux/cgroup.h
-@@ -487,7 +487,7 @@ static inline struct cgroup_subsys_state
-  *
-  * Find the css for the (@task, @subsys_id) combination, increment a
-  * reference on and return it.  This function is guaranteed to return a
-- * valid css.
-+ * valid css.  The returned css may already have been offlined.
-  */
- static inline struct cgroup_subsys_state *
- task_get_css(struct task_struct *task, int subsys_id)
-@@ -497,7 +497,13 @@ task_get_css(struct task_struct *task, i
- 	rcu_read_lock();
- 	while (true) {
- 		css = task_css(task, subsys_id);
--		if (likely(css_tryget_online(css)))
-+		/*
-+		 * Can't use css_tryget_online() here.  A task which has
-+		 * PF_EXITING set may stay associated with an offline css.
-+		 * If such task calls this function, css_tryget_online()
-+		 * will keep failing.
-+		 */
-+		if (likely(css_tryget(css)))
- 			break;
- 		cpu_relax();
- 	}
+--- a/sound/soc/codecs/cs42xx8.c
++++ b/sound/soc/codecs/cs42xx8.c
+@@ -558,6 +558,7 @@ static int cs42xx8_runtime_resume(struct
+ 	msleep(5);
+ 
+ 	regcache_cache_only(cs42xx8->regmap, false);
++	regcache_mark_dirty(cs42xx8->regmap);
+ 
+ 	ret = regcache_sync(cs42xx8->regmap);
+ 	if (ret) {
 
 
