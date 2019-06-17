@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C1BC49453
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7AE349259
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:19:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728794AbfFQVTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728784AbfFQVTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Jun 2019 17:19:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43120 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728745AbfFQVTU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:19:20 -0400
+        id S1728753AbfFQVTX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:19:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D243220B1F;
-        Mon, 17 Jun 2019 21:19:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8073120861;
+        Mon, 17 Jun 2019 21:19:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806360;
-        bh=WrlX2A+LaoJ85GVbGcNaxS6vS7xBK2PoILYMjk4Xuys=;
+        s=default; t=1560806363;
+        bh=t1pnHkiMF9SWwsIGha+06k/Ipy6GL626EqbrM5cEYcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MsqNeOx1j3+wc2lJyJUhS8a5LCYq9aEaanm2SiAICEKuCZ1+fCosF7XRsunIKTzEi
-         Bzd/jppi1sCt/nYS7jJwSWWbmQCK1fyIszG5stfdBuc6CTqGBpvuJkKh+QbtV0ufe0
-         CQNgsnJUitPKVTervwdD+DUPdNY7VKoPLppmWZY4=
+        b=wE1hkPYNgL0wnDFqj2Zuu7qs4UKthEQGLF+79VdtfkqHkeiqDjKVCl6AzhoHBtIZV
+         jGGlrFoHnM1Hj6hEpHZnIjad9JoGec++/JZdZYbXEVMFeyf/RGuH8sotZYfrPdQkWc
+         4yM11MREmxeX7wBPqUToLSIZ8U5zm+rGjczywtds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrei Vagin <avagin@gmail.com>,
-        syzbot+0d602a1b0d8c95bdf299@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Oleg Nesterov <oleg@redhat.com>, Jann Horn <jannh@google.com>,
         "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.1 025/115] signal/ptrace: Dont leak unitialized kernel memory with PTRACE_PEEK_SIGINFO
-Date:   Mon, 17 Jun 2019 23:08:45 +0200
-Message-Id: <20190617210801.224292495@linuxfoundation.org>
+Subject: [PATCH 5.1 026/115] ptrace: restore smp_rmb() in __ptrace_may_access()
+Date:   Mon, 17 Jun 2019 23:08:46 +0200
+Message-Id: <20190617210801.285626070@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -44,76 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Jann Horn <jannh@google.com>
 
-commit f6e2aa91a46d2bc79fce9b93a988dbe7655c90c0 upstream.
+commit f6581f5b55141a95657ef5742cf6a6bfa20a109f upstream.
 
-Recently syzbot in conjunction with KMSAN reported that
-ptrace_peek_siginfo can copy an uninitialized siginfo to userspace.
-Inspecting ptrace_peek_siginfo confirms this.
+Restore the read memory barrier in __ptrace_may_access() that was deleted
+a couple years ago. Also add comments on this barrier and the one it pairs
+with to explain why they're there (as far as I understand).
 
-The problem is that off when initialized from args.off can be
-initialized to a negaive value.  At which point the "if (off >= 0)"
-test to see if off became negative fails because off started off
-negative.
-
-Prevent the core problem by adding a variable found that is only true
-if a siginfo is found and copied to a temporary in preparation for
-being copied to userspace.
-
-Prevent args.off from being truncated when being assigned to off by
-testing that off is <= the maximum possible value of off.  Convert off
-to an unsigned long so that we should not have to truncate args.off,
-we have well defined overflow behavior so if we add another check we
-won't risk fighting undefined compiler behavior, and so that we have a
-type whose maximum value is easy to test for.
-
-Cc: Andrei Vagin <avagin@gmail.com>
+Fixes: bfedb589252c ("mm: Add a user_ns owner to mm_struct and fix ptrace permission checks")
 Cc: stable@vger.kernel.org
-Reported-by: syzbot+0d602a1b0d8c95bdf299@syzkaller.appspotmail.com
-Fixes: 84c751bd4aeb ("ptrace: add ability to retrieve signals without removing from a queue (v4)")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/ptrace.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ kernel/cred.c   |    9 +++++++++
+ kernel/ptrace.c |   10 ++++++++++
+ 2 files changed, 19 insertions(+)
 
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -450,6 +450,15 @@ int commit_creds(struct cred *new)
+ 		if (task->mm)
+ 			set_dumpable(task->mm, suid_dumpable);
+ 		task->pdeath_signal = 0;
++		/*
++		 * If a task drops privileges and becomes nondumpable,
++		 * the dumpability change must become visible before
++		 * the credential change; otherwise, a __ptrace_may_access()
++		 * racing with this change may be able to attach to a task it
++		 * shouldn't be able to attach to (as if the task had dropped
++		 * privileges without becoming nondumpable).
++		 * Pairs with a read barrier in __ptrace_may_access().
++		 */
+ 		smp_wmb();
+ 	}
+ 
 --- a/kernel/ptrace.c
 +++ b/kernel/ptrace.c
-@@ -704,6 +704,10 @@ static int ptrace_peek_siginfo(struct ta
- 	if (arg.nr < 0)
- 		return -EINVAL;
- 
-+	/* Ensure arg.off fits in an unsigned long */
-+	if (arg.off > ULONG_MAX)
-+		return 0;
-+
- 	if (arg.flags & PTRACE_PEEKSIGINFO_SHARED)
- 		pending = &child->signal->shared_pending;
- 	else
-@@ -711,18 +715,20 @@ static int ptrace_peek_siginfo(struct ta
- 
- 	for (i = 0; i < arg.nr; ) {
- 		kernel_siginfo_t info;
--		s32 off = arg.off + i;
-+		unsigned long off = arg.off + i;
-+		bool found = false;
- 
- 		spin_lock_irq(&child->sighand->siglock);
- 		list_for_each_entry(q, &pending->list, list) {
- 			if (!off--) {
-+				found = true;
- 				copy_siginfo(&info, &q->info);
- 				break;
- 			}
- 		}
- 		spin_unlock_irq(&child->sighand->siglock);
- 
--		if (off >= 0) /* beyond the end of the list */
-+		if (!found) /* beyond the end of the list */
- 			break;
- 
- #ifdef CONFIG_COMPAT
+@@ -323,6 +323,16 @@ static int __ptrace_may_access(struct ta
+ 	return -EPERM;
+ ok:
+ 	rcu_read_unlock();
++	/*
++	 * If a task drops privileges and becomes nondumpable (through a syscall
++	 * like setresuid()) while we are trying to access it, we must ensure
++	 * that the dumpability is read after the credentials; otherwise,
++	 * we may be able to attach to a task that we shouldn't be able to
++	 * attach to (as if the task had dropped privileges without becoming
++	 * nondumpable).
++	 * Pairs with a write barrier in commit_creds().
++	 */
++	smp_rmb();
+ 	mm = task->mm;
+ 	if (mm &&
+ 	    ((get_dumpable(mm) != SUID_DUMP_USER) &&
 
 
