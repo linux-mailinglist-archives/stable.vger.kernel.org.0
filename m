@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C3DF4936E
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:30:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB11C4934F
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:30:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730739AbfFQV3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:29:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56876 "EHLO mail.kernel.org"
+        id S1730234AbfFQV3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:29:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730730AbfFQV3l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:29:41 -0400
+        id S1730746AbfFQV3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:29:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63F9D20673;
-        Mon, 17 Jun 2019 21:29:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53752204FD;
+        Mon, 17 Jun 2019 21:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806980;
-        bh=bpDKAsTgt3xv12xbpfJYU6uZ/4ata7f1fGHctvls5tA=;
+        s=default; t=1560806983;
+        bh=w26sXmIzQUheGu5+XH8ob7JoiCXheJ8GW07IOZlQBgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vOIMXYSLxAk2oVNuneFODElGM6c2/aibNZAaWxay/Fiyvb8HF1INlI5rUEaEI11GW
-         VTbS6Je7S2mrMdMzLwAIlz6fHKT8SjpSfaOcsCHoA3NJmdBi5kMCo2ZAM9WB7jvQTv
-         ioBE93PZvOoBzggbZD53hMfnMfdoofephFsGACMM=
+        b=ohHtRoGCOJ4SRCvhAmOWTZ41vYyynwoLKzJ0VtoTOXqO7eOtCLo6kHMXrUG1mA+JU
+         LjGvXGRoNBpIvC+5Tz/nxT4hkqNjtDaP5XUZ333hibtQ+RFPN8pI9Zggxep82BN2KI
+         nWKurAy0lBCDNA/Zer/AyVkfpwSTcz6Q7OFaM1YY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=B6rgen=20Storvist?= <jorgen.storvist@gmail.com>,
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 48/53] USB: serial: option: add support for Simcom SIM7500/SIM7600 RNDIS mode
-Date:   Mon, 17 Jun 2019 23:10:31 +0200
-Message-Id: <20190617210752.467963732@linuxfoundation.org>
+Subject: [PATCH 4.14 49/53] USB: serial: option: add Telit 0x1260 and 0x1261 compositions
+Date:   Mon, 17 Jun 2019 23:10:32 +0200
+Message-Id: <20190617210752.515798693@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
 References: <20190617210745.104187490@linuxfoundation.org>
@@ -44,48 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jörgen Storvist <jorgen.storvist@gmail.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit 5417a7e482962952e622eabd60cd3600dd65dedf upstream.
+commit f3dfd4072c3ee6e287f501a18b5718b185d6a940 upstream.
 
-Added IDs for Simcom SIM7500/SIM7600 series cellular module in RNDIS
-mode. Reserved the interface for ADB.
+Added support for Telit LE910Cx 0x1260 and 0x1261 compositions.
 
-T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  7 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=1e0e ProdID=9011 Rev=03.18
-S:  Manufacturer=SimTech, Incorporated
-S:  Product=SimTech, Incorporated
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 8 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=02 Prot=ff Driver=rndis_host
-I:  If#=0x1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x7 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-
-Signed-off-by: Jörgen Storvist <jorgen.storvist@gmail.com>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -1775,6 +1775,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE(ALINK_VENDOR_ID, SIMCOM_PRODUCT_SIM7100E),
- 	  .driver_info = RSVD(5) | RSVD(6) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9003, 0xff) },	/* Simcom SIM7500/SIM7600 MBIM mode */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9011, 0xff),	/* Simcom SIM7500/SIM7600 RNDIS mode */
-+	  .driver_info = RSVD(7) },
- 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X060S_X200),
- 	  .driver_info = NCTRL(0) | NCTRL(1) | RSVD(4) },
- 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X220_X500D),
+@@ -1174,6 +1174,10 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1213, 0xff) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1214),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
++	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1900),				/* Telit LN940 (QMI) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1901, 0xff),	/* Telit LN940 (MBIM) */
 
 
