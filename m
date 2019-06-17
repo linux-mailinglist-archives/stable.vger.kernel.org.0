@@ -2,120 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3626247EB0
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 11:45:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FC6F47EBD
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 11:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727483AbfFQJpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 05:45:02 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:43655 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725837AbfFQJpC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 05:45:02 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id F27B0222B8;
-        Mon, 17 Jun 2019 05:45:00 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 17 Jun 2019 05:45:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=2/XSbS
-        Gx7ly08RYbnK3cGJVhGRaYE+xTkztSYBTnPc4=; b=GZeGNfwtyOu6Cc7zXBu/9X
-        l0YMzpAEH4LZYcclWAki8DPJWUzhTPEizgNp/N8u/BNe+ipNauh0EPl2kPcOhV06
-        23rUgl50TwRYcHOnxHEjC0MRhDvgzg0X9RCR+XU0Hn7ImuIGNpV53GRevt3BXWDb
-        CDe/CumINjuaf5yes9JcXYZGy8C/ZDzXx/dR5LsY7jdS98X8piATyLzzm6ZVXaLs
-        WudX8RQwZrgeOdVSybOLY38TlhTqEVH7kCwhMZHkwQFJZ/IxEMRoX83zLC3kUWpy
-        e72QNRwLGziwMoEKv0qhF1+dMxuIRyoovLrwWpH+xkCJaeSxp40A/YPI1bBVIlfQ
-        ==
-X-ME-Sender: <xms:HGEHXfsOEOarTG2Xhr-9olBKSsrxqXPzaNZEwL5bJ_8F93EmEms-iQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeijedgudelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:HGEHXVXWAN6Tv5mOkCXIjqR_P_uih787navo-S4NQwu4yp6c-5Njnw>
-    <xmx:HGEHXQWxc-vBhAaijAbuN82j4l-E-248Z60KYfv6RpOPuDjyU2FV5Q>
-    <xmx:HGEHXQSti8QTj1nnP34-3iSZffFm2EP1d13ZRiRlDNavdrXTWh9pEg>
-    <xmx:HGEHXU74M95Cp-ZfSQMq1_USdJcOE40Wo3U_GNdczbAQcXNm0gKp0w>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C8C4A380091;
-        Mon, 17 Jun 2019 05:44:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86/resctrl: Don't stop walking closids when a locksetup" failed to apply to 5.1-stable tree
-To:     james.morse@arm.com, bp@alien8.de, fenghua.yu@intel.com,
-        hpa@zytor.com, reinette.chatre@intel.com, stable@vger.kernel.org,
-        tglx@linutronix.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Jun 2019 11:44:58 +0200
-Message-ID: <1560764698180165@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1726248AbfFQJrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 05:47:49 -0400
+Received: from mout.web.de ([217.72.192.78]:56847 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726048AbfFQJrt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 05:47:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1560764846;
+        bh=H/PHN8avuX81CPYaydwdQJ4ODG2xpiWuNDvE+koj39c=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=fNK2WQ+oRZ/RzK25qnZ8cCqDfo+bKS6e8WdMsiPM+b2Z2EatEo37K9JTj/z9uhMFM
+         RY4WACpsATZsu6UC5J96jC+fpPIRVrcH3qju+F3v/U0nGJE7R/JZJupAqzFNKxLkip
+         XMGg8lRLxH133WDc0RxvMJDceXa5ij4c1nJyd/uA=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from localhost.localdomain ([89.15.236.75]) by smtp.web.de (mrweb101
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 0LilAv-1iCyrT2O0z-00cyrg; Mon, 17
+ Jun 2019 11:47:26 +0200
+From:   Soeren Moch <smoch@web.de>
+To:     Stanislaw Gruszka <sgruszka@redhat.com>
+Cc:     Soeren Moch <smoch@web.de>,
+        Helmut Schaa <helmut.schaa@googlemail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] rt2x00: fix rx queue hang
+Date:   Mon, 17 Jun 2019 11:46:56 +0200
+Message-Id: <20190617094656.3952-1-smoch@web.de>
+X-Mailer: git-send-email 2.17.1
+X-Provags-ID: V03:K1:3a3ZYjP+AqN63izDtlh9rhWTl4i2jSWid+rszOAEsfpWHT8/y3O
+ NdCi9iShGxrhUFBc6Es54sBTPUJuMyXPc3yNbDBFXXGRwm4DAAe/x4XDBjHUNQ0qmtuvbNO
+ sYmTTsA0/x9X7NxUg5LpzwtFCMeayiAdwkTFTeDPU1PQuB4uiN2rva5TVRB03K2WDgdQmH/
+ EpLigVkko/2sDNhEnfXFQ==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:p7/ouLm1HwM=:fr/6/hQornvx+OdS9e2yaU
+ qY4oB+R2aQjIw78QJfTgz+kmgAjSFQNMjXSOfG5Uofda9cS8HmoeTUnJ367rs1FVRPf7UUOHu
+ TcoHrLmezI2c9TvtcmFqeZb9GTwrOYk26HULwMBkC2ncnyD9PPAiW+IVafhW97Uti8QtOaNh3
+ 3arunkYxota5wdKoQ7dHtTqcBiO6YyOZqdxFIwS+vh2kf3s3QPybCUpRHOtyv6Xw87wFHEIO0
+ oKVW3psf+fIgn/xbRCLCv/fWRE5WTbnokIV/4rWFVFGbR/7yEJMsBk9XZqemgvgMiUaqhLyJ5
+ imJk8S5ePfmtHidCBCbMXcvUuecsKe2Yy0yoKYDd8ys4L2waHe3+PPxZTIK8KSd6ifYxtDuqm
+ zzNvOCvy+ZzsePbUtYctsIRvzI8+ysFAnd274yVg1xFfVr2iF3+Sx+8DDzap57q83ota4uDRn
+ 4qv992ws15CN56is/U1HTYYqTxtZRcfb5PfEbTf3Sdey1ZSGZg/dGqxaowRQocnn4AoTc3Tyw
+ PUVYS53eJWSoj/VMVF2EoK8fh8bTf38b9wuBe+43TXEp9KoAj3J1ySP/3Oxyuoakz949jvdnD
+ qZtOSig34oOdQsy5Apz2/O6iWADeMh3b2eK+RfMKlZLRNgvdBbluGa7o4EnmEv2i+DLFmrPaC
+ ksmyaXSDb9s/VkS4PrRLEHucLesPKgShpFF4j46+Ax4cmz1Q+YMo5lqgERfDLdneEgvrwS/QO
+ a7V7G6E3huQIRhLEAdrxLo0f00A53otwzLvhooeb9qna6wC1ELT3eSFn+wdlRm/kI8DmA3/si
+ 59n0FHb6owOMqlGHdnxuuQKDBwPpG83MnIbS8JxfsnW2uu4fLzYUMVUxOcHyslvgvDWMCw6AN
+ F3rs85H3+3eh2TGjPKk88Zqg45OGx1Pu+8B56rEMCWaBadqqz/W1whqaxzz9C2CgkGhuhLm53
+ 9US0CObCLBOUFkAIfUUCEzccmJOaX2iY=
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Since commit ed194d136769 ("usb: core: remove local_irq_save() around
+ ->complete() handler") the handlers rt2x00usb_interrupt_rxdone() and
+rt2x00usb_interrupt_txdone() are not running with interrupts disabled
+anymore. So these handlers are not guaranteed to run completely before
+workqueue processing starts. So only mark entries ready for workqueue
+processing after proper accounting in the dma done queue.
+Note that rt2x00usb_work_rxdone() processes all available entries, not
+only such for which queue_work() was called.
 
-The patch below does not apply to the 5.1-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This fixes a regression on a RT5370 based wifi stick in AP mode, which
+suddenly stopped data transmission after some period of heavy load. Also
+stopping the hanging hostapd resulted in the error message "ieee80211
+phy0: rt2x00queue_flush_queue: Warning - Queue 14 failed to flush".
+Other operation modes are probably affected as well, this just was
+the used testcase.
 
-thanks,
+Fixes: ed194d136769 ("usb: core: remove local_irq_save() around ->complete=
+() handler")
+Cc: Stanislaw Gruszka <sgruszka@redhat.com>
+Cc: Helmut Schaa <helmut.schaa@googlemail.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: linux-wireless@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org # 4.20+
+Signed-off-by: Soeren Moch <smoch@web.de>
+=2D--
+ drivers/net/wireless/ralink/rt2x00/rt2x00dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
+diff --git a/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c b/drivers/net/=
+wireless/ralink/rt2x00/rt2x00dev.c
+index 1b08b01db27b..9c102a501ee6 100644
+=2D-- a/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c
++++ b/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c
+@@ -263,9 +263,9 @@ EXPORT_SYMBOL_GPL(rt2x00lib_dmastart);
 
------------------- original commit in Linus's tree ------------------
+ void rt2x00lib_dmadone(struct queue_entry *entry)
+ {
+-	set_bit(ENTRY_DATA_STATUS_PENDING, &entry->flags);
+ 	clear_bit(ENTRY_OWNER_DEVICE_DATA, &entry->flags);
+ 	rt2x00queue_index_inc(entry, Q_INDEX_DMA_DONE);
++	set_bit(ENTRY_DATA_STATUS_PENDING, &entry->flags);
+ }
+ EXPORT_SYMBOL_GPL(rt2x00lib_dmadone);
 
-From 87d3aa28f345bea77c396855fa5d5fec4c24461f Mon Sep 17 00:00:00 2001
-From: James Morse <james.morse@arm.com>
-Date: Mon, 3 Jun 2019 18:25:31 +0100
-Subject: [PATCH] x86/resctrl: Don't stop walking closids when a locksetup
- group is found
-
-When a new control group is created __init_one_rdt_domain() walks all
-the other closids to calculate the sets of used and unused bits.
-
-If it discovers a pseudo_locksetup group, it breaks out of the loop.  This
-means any later closid doesn't get its used bits added to used_b.  These
-bits will then get set in unused_b, and added to the new control group's
-configuration, even if they were marked as exclusive for a later closid.
-
-When encountering a pseudo_locksetup group, we should continue. This is
-because "a resource group enters 'pseudo-locked' mode after the schemata is
-written while the resource group is in 'pseudo-locksetup' mode." When we
-find a pseudo_locksetup group, its configuration is expected to be
-overwritten, we can skip it.
-
-Fixes: dfe9674b04ff6 ("x86/intel_rdt: Enable entering of pseudo-locksetup mode")
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: H Peter Avin <hpa@zytor.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20190603172531.178830-1-james.morse@arm.com
-
-diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index 333c177a2471..869cbef5da81 100644
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -2542,7 +2542,12 @@ static int __init_one_rdt_domain(struct rdt_domain *d, struct rdt_resource *r,
- 		if (closid_allocated(i) && i != closid) {
- 			mode = rdtgroup_mode_by_closid(i);
- 			if (mode == RDT_MODE_PSEUDO_LOCKSETUP)
--				break;
-+				/*
-+				 * ctrl values for locksetup aren't relevant
-+				 * until the schemata is written, and the mode
-+				 * becomes RDT_MODE_PSEUDO_LOCKED.
-+				 */
-+				continue;
- 			/*
- 			 * If CDP is active include peer domain's
- 			 * usage to ensure there is no overlap
+=2D-
+2.17.1
 
