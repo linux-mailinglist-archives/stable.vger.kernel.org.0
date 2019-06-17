@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC26047E5D
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 11:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22CF447EB2
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 11:45:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727952AbfFQJ06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 05:26:58 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:56845 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726286AbfFQJ05 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 05:26:57 -0400
+        id S1727617AbfFQJpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 05:45:10 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:34289 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725837AbfFQJpK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 05:45:10 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 5D96B78E;
-        Mon, 17 Jun 2019 05:26:54 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 17 Jun 2019 05:26:54 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 368AA22305;
+        Mon, 17 Jun 2019 05:45:09 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 17 Jun 2019 05:45:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=f/25c7
-        3ju6WY5I5hx7DtE2vAR6y8Tbm2E0Sw7fsG6cg=; b=xzDhu2mPUW5IHn2tBQIx6k
-        oC87vGdfZI2nzJbhhGCiyozcGX7cD6dk6vdFrQ5cO6wTGkiGzIHOOlIcuF4BvYZJ
-        cNr3sv/phv6UdvQ0LdJSoeIfYhF+4imSv1V5SJrLP3JVbPLTggaxglX6ZXqo8B98
-        T8ubAvM6qirRrlhyXPXltsaDaW/cXPdCvx/Brpohnjn3u8RC712a0NdEt2Nuu5/h
-        11z40qCs1KUQn8IfTkE83QQsh+tRQ/2LFE5CkcZ6IGySxr1OBftU/YNHQhPvviBG
-        xPWSLPegd7RPUFPG9HEnpob46sQOn84MT3P7JBZ5ieEM/dMVji6ZyC/uyq7+3q6w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=mmKIYW
+        hfvbe2jrI32I3NM86AgYPLTBv2Iu83Dkz/AT4=; b=u4aASgkJsX+WMrFAFGNXdm
+        E+KIjS2lZY59hE66//+jT/LwmA8Db1+CyWYEDy+Zrxmse6AUGnueXJehydyrBygN
+        jH31ptfPiIsPa3pwv/DyueF73QXufMtkyUIW2deSuKcls5g1zCAOB7F057hfjlmv
+        IBvG+8y7OZms+mbNSudIK2GJsdl33ytupgYjRguieA0+DlLT2vG/PvU3KXy/Oyru
+        pNxDFL5k6i+bNirp91AM0hZ/HsCKQ4eTYKju9hHP9ZphdlIqs9SS6iKBn+wXcgxj
+        4/kA2H+0r7+OFcEZ1j3/1sUJ+A488KYYRoZKyxb9LP5zBaoVIJKTNRNIrShu76pQ
         ==
-X-ME-Sender: <xms:3FwHXX9tAPDU8-ODM8EKIro403-aIran0rB_Ht5aENymNNTRToRsgQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeijedgudeiucetufdoteggodetrfdotf
+X-ME-Sender: <xms:JWEHXcKN3P0PFietoHSpQJJQvGnRdLJvwlg1fye_3q6Lma-d4cUUVQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeijedgudelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:3FwHXQVc5D5LUE-pjqM0l8VmrLMipjW0cNYMr1KEZuYpde4FU-Q-EQ>
-    <xmx:3FwHXQyafgtEQ84sct5sfzG4dUG_EDFruCZ86L82v-U8q_97tUUNtw>
-    <xmx:3FwHXXQV_YgWKimfB8OCG2GlLgfcCHiWsarxZNZSZlb4aGdirILOsQ>
-    <xmx:3VwHXc238Waw44EY6xszQ0W8r28VWjuyoO1Rv7UIxtj31PL1jxYMwQ>
+    ucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:JWEHXVfZehpFfEnEO_eJCue_NVU2hP4BllZsrdW33YB-V4ocjvqh7A>
+    <xmx:JWEHXUsdmL31VfPL9DU8n3oa1ijOYKI9XL98NgCVjUlfUlJ4MV6gRw>
+    <xmx:JWEHXTE6SbPZXJaGTK_Af_9uG6htY8E-8Uxa22rMUTY_0bVxCtz5IA>
+    <xmx:JWEHXQaGX45LPcyFSxn4iCsZnx3W7E1dYixlTDnU8PumYPtEYFmf3w>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6679E380086;
-        Mon, 17 Jun 2019 05:26:52 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] RAS/CEC: Convert the timer callback to a workqueue" failed to apply to 4.14-stable tree
-To:     xiyou.wangcong@gmail.com, bp@suse.de, linux-edac@vger.kernel.org,
-        stable@vger.kernel.org, tglx@linutronix.de, tony.luck@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9554D8005C;
+        Mon, 17 Jun 2019 05:45:08 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86/resctrl: Don't stop walking closids when a locksetup" failed to apply to 4.19-stable tree
+To:     james.morse@arm.com, bp@alien8.de, fenghua.yu@intel.com,
+        hpa@zytor.com, reinette.chatre@intel.com, stable@vger.kernel.org,
+        tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Jun 2019 11:26:49 +0200
-Message-ID: <15607636091776@kroah.com>
+Date:   Mon, 17 Jun 2019 11:44:58 +0200
+Message-ID: <156076469820123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,139 +70,52 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0ade0b6240c4853cf9725924c46c10f4251639d7 Mon Sep 17 00:00:00 2001
-From: Cong Wang <xiyou.wangcong@gmail.com>
-Date: Tue, 16 Apr 2019 14:33:51 -0700
-Subject: [PATCH] RAS/CEC: Convert the timer callback to a workqueue
+From 87d3aa28f345bea77c396855fa5d5fec4c24461f Mon Sep 17 00:00:00 2001
+From: James Morse <james.morse@arm.com>
+Date: Mon, 3 Jun 2019 18:25:31 +0100
+Subject: [PATCH] x86/resctrl: Don't stop walking closids when a locksetup
+ group is found
 
-cec_timer_fn() is a timer callback which reads ce_arr.array[] and
-updates its decay values. However, it runs in interrupt context and the
-mutex protection the CEC uses for that array, is inadequate. Convert the
-used timer to a workqueue to keep the tasks the CEC performs preemptible
-and thus low-prio.
+When a new control group is created __init_one_rdt_domain() walks all
+the other closids to calculate the sets of used and unused bits.
 
- [ bp: Rewrite commit message.
-   s/timer/decay/gi to make it agnostic as to what facility is used. ]
+If it discovers a pseudo_locksetup group, it breaks out of the loop.  This
+means any later closid doesn't get its used bits added to used_b.  These
+bits will then get set in unused_b, and added to the new control group's
+configuration, even if they were marked as exclusive for a later closid.
 
-Fixes: 011d82611172 ("RAS: Add a Corrected Errors Collector")
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: linux-edac <linux-edac@vger.kernel.org>
+When encountering a pseudo_locksetup group, we should continue. This is
+because "a resource group enters 'pseudo-locked' mode after the schemata is
+written while the resource group is in 'pseudo-locksetup' mode." When we
+find a pseudo_locksetup group, its configuration is expected to be
+overwritten, we can skip it.
+
+Fixes: dfe9674b04ff6 ("x86/intel_rdt: Enable entering of pseudo-locksetup mode")
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Reinette Chatre <reinette.chatre@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H Peter Avin <hpa@zytor.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20190416213351.28999-2-xiyou.wangcong@gmail.com
+Link: https://lkml.kernel.org/r/20190603172531.178830-1-james.morse@arm.com
 
-diff --git a/drivers/ras/cec.c b/drivers/ras/cec.c
-index dbfe3e61d2c2..673f8a128397 100644
---- a/drivers/ras/cec.c
-+++ b/drivers/ras/cec.c
-@@ -2,6 +2,7 @@
- #include <linux/mm.h>
- #include <linux/gfp.h>
- #include <linux/kernel.h>
-+#include <linux/workqueue.h>
- 
- #include <asm/mce.h>
- 
-@@ -123,16 +124,12 @@ static u64 dfs_pfn;
- /* Amount of errors after which we offline */
- static unsigned int count_threshold = COUNT_MASK;
- 
--/*
-- * The timer "decays" element count each timer_interval which is 24hrs by
-- * default.
-- */
--
--#define CEC_TIMER_DEFAULT_INTERVAL	24 * 60 * 60	/* 24 hrs */
--#define CEC_TIMER_MIN_INTERVAL		 1 * 60 * 60	/* 1h */
--#define CEC_TIMER_MAX_INTERVAL	   30 *	24 * 60 * 60	/* one month */
--static struct timer_list cec_timer;
--static u64 timer_interval = CEC_TIMER_DEFAULT_INTERVAL;
-+/* Each element "decays" each decay_interval which is 24hrs by default. */
-+#define CEC_DECAY_DEFAULT_INTERVAL	24 * 60 * 60	/* 24 hrs */
-+#define CEC_DECAY_MIN_INTERVAL		 1 * 60 * 60	/* 1h */
-+#define CEC_DECAY_MAX_INTERVAL	   30 *	24 * 60 * 60	/* one month */
-+static struct delayed_work cec_work;
-+static u64 decay_interval = CEC_DECAY_DEFAULT_INTERVAL;
- 
- /*
-  * Decrement decay value. We're using DECAY_BITS bits to denote decay of an
-@@ -160,20 +157,21 @@ static void do_spring_cleaning(struct ce_array *ca)
- /*
-  * @interval in seconds
-  */
--static void cec_mod_timer(struct timer_list *t, unsigned long interval)
-+static void cec_mod_work(unsigned long interval)
- {
- 	unsigned long iv;
- 
--	iv = interval * HZ + jiffies;
--
--	mod_timer(t, round_jiffies(iv));
-+	iv = interval * HZ;
-+	mod_delayed_work(system_wq, &cec_work, round_jiffies(iv));
- }
- 
--static void cec_timer_fn(struct timer_list *unused)
-+static void cec_work_fn(struct work_struct *work)
- {
-+	mutex_lock(&ce_mutex);
- 	do_spring_cleaning(&ce_arr);
-+	mutex_unlock(&ce_mutex);
- 
--	cec_mod_timer(&cec_timer, timer_interval);
-+	cec_mod_work(decay_interval);
- }
- 
- /*
-@@ -380,15 +378,15 @@ static int decay_interval_set(void *data, u64 val)
- {
- 	*(u64 *)data = val;
- 
--	if (val < CEC_TIMER_MIN_INTERVAL)
-+	if (val < CEC_DECAY_MIN_INTERVAL)
- 		return -EINVAL;
- 
--	if (val > CEC_TIMER_MAX_INTERVAL)
-+	if (val > CEC_DECAY_MAX_INTERVAL)
- 		return -EINVAL;
- 
--	timer_interval = val;
-+	decay_interval = val;
- 
--	cec_mod_timer(&cec_timer, timer_interval);
-+	cec_mod_work(decay_interval);
- 	return 0;
- }
- DEFINE_DEBUGFS_ATTRIBUTE(decay_interval_ops, u64_get, decay_interval_set, "%lld\n");
-@@ -432,7 +430,7 @@ static int array_dump(struct seq_file *m, void *v)
- 
- 	seq_printf(m, "Flags: 0x%x\n", ca->flags);
- 
--	seq_printf(m, "Timer interval: %lld seconds\n", timer_interval);
-+	seq_printf(m, "Decay interval: %lld seconds\n", decay_interval);
- 	seq_printf(m, "Decays: %lld\n", ca->decays_done);
- 
- 	seq_printf(m, "Action threshold: %d\n", count_threshold);
-@@ -478,7 +476,7 @@ static int __init create_debugfs_nodes(void)
- 	}
- 
- 	decay = debugfs_create_file("decay_interval", S_IRUSR | S_IWUSR, d,
--				    &timer_interval, &decay_interval_ops);
-+				    &decay_interval, &decay_interval_ops);
- 	if (!decay) {
- 		pr_warn("Error creating decay_interval debugfs node!\n");
- 		goto err;
-@@ -514,8 +512,8 @@ void __init cec_init(void)
- 	if (create_debugfs_nodes())
- 		return;
- 
--	timer_setup(&cec_timer, cec_timer_fn, 0);
--	cec_mod_timer(&cec_timer, CEC_TIMER_DEFAULT_INTERVAL);
-+	INIT_DELAYED_WORK(&cec_work, cec_work_fn);
-+	schedule_delayed_work(&cec_work, CEC_DECAY_DEFAULT_INTERVAL);
- 
- 	pr_info("Correctable Errors collector initialized.\n");
- }
+diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+index 333c177a2471..869cbef5da81 100644
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -2542,7 +2542,12 @@ static int __init_one_rdt_domain(struct rdt_domain *d, struct rdt_resource *r,
+ 		if (closid_allocated(i) && i != closid) {
+ 			mode = rdtgroup_mode_by_closid(i);
+ 			if (mode == RDT_MODE_PSEUDO_LOCKSETUP)
+-				break;
++				/*
++				 * ctrl values for locksetup aren't relevant
++				 * until the schemata is written, and the mode
++				 * becomes RDT_MODE_PSEUDO_LOCKED.
++				 */
++				continue;
+ 			/*
+ 			 * If CDP is active include peer domain's
+ 			 * usage to ensure there is no overlap
 
