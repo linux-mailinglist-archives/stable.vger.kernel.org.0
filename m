@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F355649459
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F6734945A
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727450AbfFQVUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:20:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44076 "EHLO mail.kernel.org"
+        id S1727366AbfFQVh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:37:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727768AbfFQVUC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:20:02 -0400
+        id S1725497AbfFQVUF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:20:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AC34208E4;
-        Mon, 17 Jun 2019 21:20:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A4F620861;
+        Mon, 17 Jun 2019 21:20:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806401;
-        bh=qYwM9jm+FVb7wXjiK/klsiEjTOeg5vw+eV9SmRt0aNU=;
+        s=default; t=1560806403;
+        bh=6n+foonixuc31PF4ZuMbKS89R8pdNFk0aCM+W91tW0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/BTACVWhyx7Ra/FlrUYfLoGo8lK0pjGumXD70/JfeuST1iFhWCYs4P088htV/Fwm
-         wIX2N5ML2o267+Z/i7Xdl/fk+uWmChWzaCaL4e0e2TT2pnnhWpMu4fn8tQraO4FB/2
-         6LwbBcruMy1m3UXZGgAQ4FHlJwhMftXzs2GekhyE=
+        b=dD/KEKgKln2W6R1wwhfIS+Ly5K7JCqjI+hEI8yu7yOH9HhwjX7nn5kleBnvLcB4/+
+         atCjuNGoxzVSuOyjw1NDBz1CAS8OiyPr3058I4Rntb3dhiV8zJD4l41johQ8ZfD8pc
+         v3/uOH2yDGmO7IEZABudCaXy6EE8QC5kcGOWi7HU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        zardam@gmail.com,
+        stable@vger.kernel.org,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Imre Deak <imre.deak@intel.com>,
+        <ville.syrjala@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.1 038/115] drm/i915/sdvo: Implement proper HDMI audio support for SDVO
-Date:   Mon, 17 Jun 2019 23:08:58 +0200
-Message-Id: <20190617210801.957636823@linuxfoundation.org>
+Subject: [PATCH 5.1 039/115] drm/i915/dsi: Use a fuzzy check for burst mode clock check
+Date:   Mon, 17 Jun 2019 23:08:59 +0200
+Message-Id: <20190617210802.013103791@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -46,184 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit d74408f528261f900dddb9778f61b5c5a7a6249c upstream.
+commit f9a99131ce18d9dddcaa14ec2c436e42f0bbee5e upstream.
 
-Our SDVO audio support is pretty bogus. We can't push audio over the
-SDVO bus, so trying to enable audio in the SDVO control register doesn't
-do anything. In fact it looks like the SDVO encoder will always mix in
-the audio coming over HDA, and there's no (at least documented) way to
-disable that from our side. So HDMI audio does work currently on gen4
-but only by luck really. On gen3 it got broken by the referenced commit.
-And what has always been missing on every platform is the ELD.
+Prior to this commit we fail to init the DSI panel on the GPD MicroPC:
+https://www.indiegogo.com/projects/gpd-micropc-6-inch-handheld-industry-laptop#/
 
-To pass the ELD to the audio driver we need to write it to magic buffer
-in the SDVO encoder hardware which then gets pulled out via HDA in the
-other end. Ie. pretty much the same thing we had for native HDMI before
-we started to just pass the ELD between the drivers. This sort of
-explains why we even have that silly hardware buffer with native HDMI.
+The problem is intel_dsi_vbt_init() failing with the following error:
+*ERROR* Burst mode freq is less than computed
 
-$ cat /proc/asound/card0/eld#1.0
--monitor_present		0
--eld_valid		0
-+monitor_present		1
-+eld_valid		1
-+monitor_name		LG TV
-+connection_type		HDMI
-+...
+The pclk in the VBT panel modeline is 70000, together with 24 bpp and
+4 lines this results in a bitrate value of 70000 * 24 / 4 = 420000.
+But the target_burst_mode_freq in the VBT is 418000.
 
-This also fixes our state readout since we can now query the SDVO
-encoder about the state of the "ELD valid" and "presence detect"
-bits. As mentioned those don't actually control whether audio
-gets sent over the HDMI cable, but it's the best we can do. And with
-the state checker appeased we can re-enable HDMI audio for gen3.
+This commit works around this problem by adding an intel_fuzzy_clock_check
+when target_burst_mode_freq < bitrate and setting target_burst_mode_freq to
+bitrate when that checks succeeds, fixing the panel not working.
 
 Cc: stable@vger.kernel.org
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: zardam@gmail.com
-Tested-by: zardam@gmail.com
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=108976
-Fixes: de44e256b92c ("drm/i915/sdvo: Shut up state checker with hdmi cards on gen3")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190409144054.24561-3-ville.syrjala@linux.intel.com
-Reviewed-by: Imre Deak <imre.deak@intel.com>
-(cherry picked from commit dc49a56bd43bb04982e64b44436831da801d0237)
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190524174028.21659-2-hdegoede@redhat.com
+(cherry picked from commit 2c1c55252647abd989b94f725b190c700312d053)
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/intel_sdvo.c      |   58 ++++++++++++++++++++++++++-------
- drivers/gpu/drm/i915/intel_sdvo_regs.h |    3 +
- 2 files changed, 50 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/i915/intel_display.c |    2 +-
+ drivers/gpu/drm/i915/intel_drv.h     |    1 +
+ drivers/gpu/drm/i915/intel_dsi_vbt.c |   11 +++++++++++
+ 3 files changed, 13 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/intel_sdvo.c
-+++ b/drivers/gpu/drm/i915/intel_sdvo.c
-@@ -909,6 +909,13 @@ static bool intel_sdvo_set_colorimetry(s
- 	return intel_sdvo_set_value(intel_sdvo, SDVO_CMD_SET_COLORIMETRY, &mode, 1);
+--- a/drivers/gpu/drm/i915/intel_display.c
++++ b/drivers/gpu/drm/i915/intel_display.c
+@@ -11757,7 +11757,7 @@ encoder_retry:
+ 	return 0;
  }
  
-+static bool intel_sdvo_set_audio_state(struct intel_sdvo *intel_sdvo,
-+				       u8 audio_state)
-+{
-+	return intel_sdvo_set_value(intel_sdvo, SDVO_CMD_SET_AUDIO_STAT,
-+				    &audio_state, 1);
-+}
-+
- #if 0
- static void intel_sdvo_dump_hdmi_buf(struct intel_sdvo *intel_sdvo)
+-static bool intel_fuzzy_clock_check(int clock1, int clock2)
++bool intel_fuzzy_clock_check(int clock1, int clock2)
  {
-@@ -1366,11 +1373,6 @@ static void intel_sdvo_pre_enable(struct
- 	else
- 		sdvox |= SDVO_PIPE_SEL(crtc->pipe);
+ 	int diff;
  
--	if (crtc_state->has_audio) {
--		WARN_ON_ONCE(INTEL_GEN(dev_priv) < 4);
--		sdvox |= SDVO_AUDIO_ENABLE;
--	}
--
- 	if (INTEL_GEN(dev_priv) >= 4) {
- 		/* done in crtc_mode_set as the dpll_md reg must be written early */
- 	} else if (IS_I945G(dev_priv) || IS_I945GM(dev_priv) ||
-@@ -1510,8 +1512,13 @@ static void intel_sdvo_get_config(struct
- 	if (sdvox & HDMI_COLOR_RANGE_16_235)
- 		pipe_config->limited_color_range = true;
+--- a/drivers/gpu/drm/i915/intel_drv.h
++++ b/drivers/gpu/drm/i915/intel_drv.h
+@@ -1707,6 +1707,7 @@ int vlv_force_pll_on(struct drm_i915_pri
+ 		     const struct dpll *dpll);
+ void vlv_force_pll_off(struct drm_i915_private *dev_priv, enum pipe pipe);
+ int lpt_get_iclkip(struct drm_i915_private *dev_priv);
++bool intel_fuzzy_clock_check(int clock1, int clock2);
  
--	if (sdvox & SDVO_AUDIO_ENABLE)
--		pipe_config->has_audio = true;
-+	if (intel_sdvo_get_value(intel_sdvo, SDVO_CMD_GET_AUDIO_STAT,
-+				 &val, 1)) {
-+		u8 mask = SDVO_AUDIO_ELD_VALID | SDVO_AUDIO_PRESENCE_DETECT;
-+
-+		if ((val & mask) == mask)
-+			pipe_config->has_audio = true;
-+	}
+ /* modesetting asserts */
+ void assert_panel_unlocked(struct drm_i915_private *dev_priv,
+--- a/drivers/gpu/drm/i915/intel_dsi_vbt.c
++++ b/drivers/gpu/drm/i915/intel_dsi_vbt.c
+@@ -871,6 +871,17 @@ bool intel_dsi_vbt_init(struct intel_dsi
+ 		if (mipi_config->target_burst_mode_freq) {
+ 			u32 bitrate = intel_dsi_bitrate(intel_dsi);
  
- 	if (intel_sdvo_get_value(intel_sdvo, SDVO_CMD_GET_ENCODE,
- 				 &val, 1)) {
-@@ -1524,6 +1531,32 @@ static void intel_sdvo_get_config(struct
- 	     pipe_config->pixel_multiplier, encoder_pixel_multiplier);
- }
- 
-+static void intel_sdvo_disable_audio(struct intel_sdvo *intel_sdvo)
-+{
-+	intel_sdvo_set_audio_state(intel_sdvo, 0);
-+}
++			/*
++			 * Sometimes the VBT contains a slightly lower clock,
++			 * then the bitrate we have calculated, in this case
++			 * just replace it with the calculated bitrate.
++			 */
++			if (mipi_config->target_burst_mode_freq < bitrate &&
++			    intel_fuzzy_clock_check(
++					mipi_config->target_burst_mode_freq,
++					bitrate))
++				mipi_config->target_burst_mode_freq = bitrate;
 +
-+static void intel_sdvo_enable_audio(struct intel_sdvo *intel_sdvo,
-+				    const struct intel_crtc_state *crtc_state,
-+				    const struct drm_connector_state *conn_state)
-+{
-+	const struct drm_display_mode *adjusted_mode =
-+		&crtc_state->base.adjusted_mode;
-+	struct drm_connector *connector = conn_state->connector;
-+	u8 *eld = connector->eld;
-+
-+	eld[6] = drm_av_sync_delay(connector, adjusted_mode) / 2;
-+
-+	intel_sdvo_set_audio_state(intel_sdvo, 0);
-+
-+	intel_sdvo_write_infoframe(intel_sdvo, SDVO_HBUF_INDEX_ELD,
-+				   SDVO_HBUF_TX_DISABLED,
-+				   eld, drm_eld_size(eld));
-+
-+	intel_sdvo_set_audio_state(intel_sdvo, SDVO_AUDIO_ELD_VALID |
-+				   SDVO_AUDIO_PRESENCE_DETECT);
-+}
-+
- static void intel_disable_sdvo(struct intel_encoder *encoder,
- 			       const struct intel_crtc_state *old_crtc_state,
- 			       const struct drm_connector_state *conn_state)
-@@ -1533,6 +1566,9 @@ static void intel_disable_sdvo(struct in
- 	struct intel_crtc *crtc = to_intel_crtc(old_crtc_state->base.crtc);
- 	u32 temp;
- 
-+	if (old_crtc_state->has_audio)
-+		intel_sdvo_disable_audio(intel_sdvo);
-+
- 	intel_sdvo_set_active_outputs(intel_sdvo, 0);
- 	if (0)
- 		intel_sdvo_set_encoder_power_state(intel_sdvo,
-@@ -1618,6 +1654,9 @@ static void intel_enable_sdvo(struct int
- 		intel_sdvo_set_encoder_power_state(intel_sdvo,
- 						   DRM_MODE_DPMS_ON);
- 	intel_sdvo_set_active_outputs(intel_sdvo, intel_sdvo->attached_output);
-+
-+	if (pipe_config->has_audio)
-+		intel_sdvo_enable_audio(intel_sdvo, pipe_config, conn_state);
- }
- 
- static enum drm_mode_status
-@@ -2480,7 +2519,6 @@ static bool
- intel_sdvo_dvi_init(struct intel_sdvo *intel_sdvo, int device)
- {
- 	struct drm_encoder *encoder = &intel_sdvo->base.base;
--	struct drm_i915_private *dev_priv = to_i915(encoder->dev);
- 	struct drm_connector *connector;
- 	struct intel_encoder *intel_encoder = to_intel_encoder(encoder);
- 	struct intel_connector *intel_connector;
-@@ -2517,9 +2555,7 @@ intel_sdvo_dvi_init(struct intel_sdvo *i
- 	encoder->encoder_type = DRM_MODE_ENCODER_TMDS;
- 	connector->connector_type = DRM_MODE_CONNECTOR_DVID;
- 
--	/* gen3 doesn't do the hdmi bits in the SDVO register */
--	if (INTEL_GEN(dev_priv) >= 4 &&
--	    intel_sdvo_is_hdmi_connector(intel_sdvo, device)) {
-+	if (intel_sdvo_is_hdmi_connector(intel_sdvo, device)) {
- 		connector->connector_type = DRM_MODE_CONNECTOR_HDMIA;
- 		intel_sdvo_connector->is_hdmi = true;
- 	}
---- a/drivers/gpu/drm/i915/intel_sdvo_regs.h
-+++ b/drivers/gpu/drm/i915/intel_sdvo_regs.h
-@@ -707,6 +707,9 @@ struct intel_sdvo_enhancements_arg {
- #define SDVO_CMD_GET_AUDIO_ENCRYPT_PREFER 0x90
- #define SDVO_CMD_SET_AUDIO_STAT		0x91
- #define SDVO_CMD_GET_AUDIO_STAT		0x92
-+  #define SDVO_AUDIO_ELD_VALID		(1 << 0)
-+  #define SDVO_AUDIO_PRESENCE_DETECT	(1 << 1)
-+  #define SDVO_AUDIO_CP_READY		(1 << 2)
- #define SDVO_CMD_SET_HBUF_INDEX		0x93
-   #define SDVO_HBUF_INDEX_ELD		0
-   #define SDVO_HBUF_INDEX_AVI_IF	1
+ 			if (mipi_config->target_burst_mode_freq < bitrate) {
+ 				DRM_ERROR("Burst mode freq is less than computed\n");
+ 				return false;
 
 
