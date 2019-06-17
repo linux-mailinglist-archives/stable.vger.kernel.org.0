@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 335844939C
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3844B49347
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:29:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730419AbfFQV1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:27:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54710 "EHLO mail.kernel.org"
+        id S1730080AbfFQV32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:29:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730428AbfFQV1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:27:41 -0400
+        id S1730702AbfFQV31 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:29:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9798C20861;
-        Mon, 17 Jun 2019 21:27:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9C782063F;
+        Mon, 17 Jun 2019 21:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806860;
-        bh=Kg5kTKUY3h2hQMAlBQ1cN/Yt4INR2q4uE9EYTntycI4=;
+        s=default; t=1560806966;
+        bh=50KnVm1WMS4CbST70N/lWUYI26/0dp84qG0OkcYUK8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9W0U/7VzeVYD+xwohb6ahpu8qdKwubKXq7CEblJfRrVlFC0v8pYq1htAuxlhiU5v
-         AEagFRXeTNXn78oRBS+mxF/4Q1lgHP12TWM967qXzC5hoAVzyS33agwLHvq4U6ALS6
-         qL7uKqKs/LVCZPcw6gyzPoF1E/gDEtrLJtohx4ng=
+        b=rRtwW4sUMSLNPVQtj2JZ+sbKRaBadBjM17j+OrIzhoRk1xQYc8T0yHztq2V7WByly
+         A5TB1fQpd69E4aLeg7581UYdLcbje3Mc0SGdxpB8W+rPwfDpETEcsfKVc2xDBT5CnE
+         toskEUjS4rX5LUtc+ZX+q7fBjW9uOolYDjBpFsSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Erik=20=C4=8Cuk?= <erik.cuk@domel.com>,
-        Baruch Siach <baruch@tkos.co.il>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4.19 75/75] rtc: pcf8523: dont return invalid date when battery is low
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Minas Harutyunyan <hminas@synopsys.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>
+Subject: [PATCH 4.14 43/53] usb: dwc2: Fix DMA cache alignment issues
 Date:   Mon, 17 Jun 2019 23:10:26 +0200
-Message-Id: <20190617210756.242262218@linuxfoundation.org>
+Message-Id: <20190617210752.152355123@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
+References: <20190617210745.104187490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,80 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baruch Siach <baruch@tkos.co.il>
+From: Martin Schiller <ms@dev.tdt.de>
 
-commit ecb4a353d3afd45b9bb30c85d03ee113a0589079 upstream.
+commit 4a4863bf2e7932e584a3a462d3c6daf891142ddc upstream.
 
-The RTC_VL_READ ioctl reports the low battery condition. Still,
-pcf8523_rtc_read_time() happily returns invalid dates in this case.
-Check the battery health on pcf8523_rtc_read_time() to avoid that.
+Insert a padding between data and the stored_xfer_buffer pointer to
+ensure they are not on the same cache line.
 
-Reported-by: Erik Čuk <erik.cuk@domel.com>
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Otherwise, the stored_xfer_buffer gets corrupted for IN URBs on
+non-cache-coherent systems. (In my case: Lantiq xRX200 MIPS)
+
+Fixes: 3bc04e28a030 ("usb: dwc2: host: Get aligned DMA in a more supported way")
+Fixes: 56406e017a88 ("usb: dwc2: Fix DMA alignment to start at allocated boundary")
+Cc: <stable@vger.kernel.org>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/rtc/rtc-pcf8523.c |   32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+ drivers/usb/dwc2/hcd.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/rtc/rtc-pcf8523.c
-+++ b/drivers/rtc/rtc-pcf8523.c
-@@ -85,6 +85,18 @@ static int pcf8523_write(struct i2c_clie
- 	return 0;
- }
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -2652,8 +2652,10 @@ static void dwc2_free_dma_aligned_buffer
+ 		return;
  
-+static int pcf8523_voltage_low(struct i2c_client *client)
-+{
-+	u8 value;
-+	int err;
-+
-+	err = pcf8523_read(client, REG_CONTROL3, &value);
-+	if (err < 0)
-+		return err;
-+
-+	return !!(value & REG_CONTROL3_BLF);
-+}
-+
- static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
- {
- 	u8 value;
-@@ -167,6 +179,14 @@ static int pcf8523_rtc_read_time(struct
- 	struct i2c_msg msgs[2];
- 	int err;
+ 	/* Restore urb->transfer_buffer from the end of the allocated area */
+-	memcpy(&stored_xfer_buffer, urb->transfer_buffer +
+-	       urb->transfer_buffer_length, sizeof(urb->transfer_buffer));
++	memcpy(&stored_xfer_buffer,
++	       PTR_ALIGN(urb->transfer_buffer + urb->transfer_buffer_length,
++			 dma_get_cache_alignment()),
++	       sizeof(urb->transfer_buffer));
  
-+	err = pcf8523_voltage_low(client);
-+	if (err < 0) {
-+		return err;
-+	} else if (err > 0) {
-+		dev_err(dev, "low voltage detected, time is unreliable\n");
-+		return -EINVAL;
-+	}
-+
- 	msgs[0].addr = client->addr;
- 	msgs[0].flags = 0;
- 	msgs[0].len = 1;
-@@ -251,17 +271,13 @@ static int pcf8523_rtc_ioctl(struct devi
- 			     unsigned long arg)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
--	u8 value;
--	int ret = 0, err;
-+	int ret;
+ 	if (usb_urb_dir_in(urb))
+ 		memcpy(stored_xfer_buffer, urb->transfer_buffer,
+@@ -2680,6 +2682,7 @@ static int dwc2_alloc_dma_aligned_buffer
+ 	 * DMA
+ 	 */
+ 	kmalloc_size = urb->transfer_buffer_length +
++		(dma_get_cache_alignment() - 1) +
+ 		sizeof(urb->transfer_buffer);
  
- 	switch (cmd) {
- 	case RTC_VL_READ:
--		err = pcf8523_read(client, REG_CONTROL3, &value);
--		if (err < 0)
--			return err;
--
--		if (value & REG_CONTROL3_BLF)
--			ret = 1;
-+		ret = pcf8523_voltage_low(client);
-+		if (ret < 0)
-+			return ret;
+ 	kmalloc_ptr = kmalloc(kmalloc_size, mem_flags);
+@@ -2690,7 +2693,8 @@ static int dwc2_alloc_dma_aligned_buffer
+ 	 * Position value of original urb->transfer_buffer pointer to the end
+ 	 * of allocation for later referencing
+ 	 */
+-	memcpy(kmalloc_ptr + urb->transfer_buffer_length,
++	memcpy(PTR_ALIGN(kmalloc_ptr + urb->transfer_buffer_length,
++			 dma_get_cache_alignment()),
+ 	       &urb->transfer_buffer, sizeof(urb->transfer_buffer));
  
- 		if (copy_to_user((void __user *)arg, &ret, sizeof(int)))
- 			return -EFAULT;
+ 	if (usb_urb_dir_out(urb))
 
 
