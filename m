@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E68D493BD
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 008174940D
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:35:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729104AbfFQV0L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:26:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52656 "EHLO mail.kernel.org"
+        id S1727813AbfFQVXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:23:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729615AbfFQV0K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:26:10 -0400
+        id S1729232AbfFQVXB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:23:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7AAB20657;
-        Mon, 17 Jun 2019 21:26:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C411420B1F;
+        Mon, 17 Jun 2019 21:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806770;
-        bh=eoircKri8yZq6TBBlqggoJktGga+3JD24JCOXyw7Q5Y=;
+        s=default; t=1560806580;
+        bh=FeheFKigpxGw75v9GJh3ld5FsQx3jZkBdirXQYlwRdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2pQpgX71JhB5RpWLH0JRfskXi92Hi4KKnPG7SEKj59ZIqHPWovF8tP4oaO8/FBs8P
-         hQq1m8UzECJycYZh6Rjrk+8w6p/yo+OQWZIPIHxIB9JaTKZZDvmxvCNjuBfZSQIbGR
-         wNSJt33L/2wUJ4P7BhDHVBCUAi5TqO8nVAgsrZkE=
+        b=ZrCD3HK72f9QcyAdvQoLAljwSLlhlF1UDpo/TWvqKxQdBI5+NY/VHadW4woEQ4gPH
+         w5wyUypHzeDbFSCoK8aY3zrND0vHE75WM48WeUyIrspvwDtHvTOkVp6OS7z0pSpI6u
+         H5U6vzN1t0cDGxn4UEQuyNalUM9JkFNhB7Q/sIck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Zweigle <Oliver.Zweigle@faro.com>,
-        Bernd Eckstein <3ernd.Eckstein@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 51/75] usbnet: ipheth: fix racing condition
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=B6rgen=20Storvist?= <jorgen.storvist@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.1 102/115] USB: serial: option: add support for Simcom SIM7500/SIM7600 RNDIS mode
 Date:   Mon, 17 Jun 2019 23:10:02 +0200
-Message-Id: <20190617210754.728210378@linuxfoundation.org>
+Message-Id: <20190617210805.268780293@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+References: <20190617210759.929316339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 94d250fae48e6f873d8362308f5c4d02cd1b1fd2 ]
+From: Jörgen Storvist <jorgen.storvist@gmail.com>
 
-Fix a racing condition in ipheth.c that can lead to slow performance.
+commit 5417a7e482962952e622eabd60cd3600dd65dedf upstream.
 
-Bug: In ipheth_tx(), netif_wake_queue() may be called on the callback
-ipheth_sndbulk_callback(), _before_ netif_stop_queue() is called.
-When this happens, the queue is stopped longer than it needs to be,
-thus reducing network performance.
+Added IDs for Simcom SIM7500/SIM7600 series cellular module in RNDIS
+mode. Reserved the interface for ADB.
 
-Fix: Move netif_stop_queue() in front of usb_submit_urb(). Now the order
-is always correct. In case, usb_submit_urb() fails, the queue is woken up
-again as callback will not fire.
+T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  7 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1e0e ProdID=9011 Rev=03.18
+S:  Manufacturer=SimTech, Incorporated
+S:  Product=SimTech, Incorporated
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 8 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=02 Prot=ff Driver=rndis_host
+I:  If#=0x1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
+I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x7 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
 
-Testing: This racing condition is usually not noticeable, as it has to
-occur very frequently to slowdown the network. The callback from the USB
-is usually triggered slow enough, so the situation does not appear.
-However, on a Ubuntu Linux on VMWare Workstation, running on Windows 10,
-the we loose the race quite often and the following speedup can be noticed:
+Signed-off-by: Jörgen Storvist <jorgen.storvist@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Without this patch: Download:  4.10 Mbit/s, Upload:  4.01 Mbit/s
-With this patch:    Download: 36.23 Mbit/s, Upload: 17.61 Mbit/s
-
-Signed-off-by: Oliver Zweigle <Oliver.Zweigle@faro.com>
-Signed-off-by: Bernd Eckstein <3ernd.Eckstein@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/ipheth.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/usb/ipheth.c b/drivers/net/usb/ipheth.c
-index 3d8a70d3ea9b..3d71f1716390 100644
---- a/drivers/net/usb/ipheth.c
-+++ b/drivers/net/usb/ipheth.c
-@@ -437,17 +437,18 @@ static int ipheth_tx(struct sk_buff *skb, struct net_device *net)
- 			  dev);
- 	dev->tx_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
- 
-+	netif_stop_queue(net);
- 	retval = usb_submit_urb(dev->tx_urb, GFP_ATOMIC);
- 	if (retval) {
- 		dev_err(&dev->intf->dev, "%s: usb_submit_urb: %d\n",
- 			__func__, retval);
- 		dev->net->stats.tx_errors++;
- 		dev_kfree_skb_any(skb);
-+		netif_wake_queue(net);
- 	} else {
- 		dev->net->stats.tx_packets++;
- 		dev->net->stats.tx_bytes += skb->len;
- 		dev_consume_skb_any(skb);
--		netif_stop_queue(net);
- 	}
- 
- 	return NETDEV_TX_OK;
--- 
-2.20.1
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1772,6 +1772,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE(ALINK_VENDOR_ID, SIMCOM_PRODUCT_SIM7100E),
+ 	  .driver_info = RSVD(5) | RSVD(6) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9003, 0xff) },	/* Simcom SIM7500/SIM7600 MBIM mode */
++	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9011, 0xff),	/* Simcom SIM7500/SIM7600 RNDIS mode */
++	  .driver_info = RSVD(7) },
+ 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X060S_X200),
+ 	  .driver_info = NCTRL(0) | NCTRL(1) | RSVD(4) },
+ 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X220_X500D),
 
 
