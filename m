@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1F8491D8
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:00:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F97E491E4
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726248AbfFQVAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:00:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
+        id S1726427AbfFQVBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:01:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725497AbfFQVAP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:00:15 -0400
+        id S1726048AbfFQVBG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:01:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE71D2080A;
-        Mon, 17 Jun 2019 21:00:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 407A92089E;
+        Mon, 17 Jun 2019 21:01:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560805214;
-        bh=3K1wq8SumDUjOos8o3r6Jn8Nne8mBnHJ7iCT3yQAKzE=;
+        s=default; t=1560805265;
+        bh=I22ngSnRDX4LRCzoA95hI7JoidIA8kOS0pUMP+DxLak=;
         h=Subject:To:From:Date:From;
-        b=duIM1sRRlw7q8+L/3flE7jyQynL+ZmJdpawa0WGbA4i9H+SJiBRNZR3fhXivbqlfd
-         u+sWu/WxLJuJTO5JrYbqT3qwqhsNoK604xGXrtNSZYw2ctpfsdi+EDl8cZrSExGkV6
-         sw6hVRt+cEkDJ4SooxeTc5qdC1gcxoDJ9Z2OF34c=
-Subject: patch "staging: erofs: add requirements field in superblock" added to staging-linus
+        b=kLnv2XudgQ4y+XRd5kt1CNiCpRFPJQgaRDtIYMSaUfxMlbnRgV0Mmg0xDV5t0oHxp
+         XWtD7Py8XKjPg5bzggAKflD9or0l7pd6zL/vL6mckZX4Qf/ZjGMW5zN3LYvIuqnQPt
+         ptWoiBfjZivOZmLV5a6IrzoME9jsNacUUjA0iWXs=
+Subject: patch "staging: erofs: add requirements field in superblock" added to staging-testing
 To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org, yuchao0@huawei.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Jun 2019 23:00:11 +0200
-Message-ID: <156080521116227@kroah.com>
+Date:   Mon, 17 Jun 2019 23:01:03 +0200
+Message-ID: <156080526382119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -44,13 +44,13 @@ This is a note to let you know that I've just added the patch titled
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-linus branch.
+in the staging-testing branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
 If you have any questions about this process, please let me know.
 
