@@ -2,134 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A4D949562
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 00:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42EA8495A9
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 01:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726898AbfFQWrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 18:47:21 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:34885 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725839AbfFQWrV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 18:47:21 -0400
-Received: by mail-pg1-f196.google.com with SMTP id s27so6570293pgl.2;
-        Mon, 17 Jun 2019 15:47:21 -0700 (PDT)
+        id S1726427AbfFQXFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 19:05:52 -0400
+Received: from mail-wm1-f52.google.com ([209.85.128.52]:39355 "EHLO
+        mail-wm1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726001AbfFQXFw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 19:05:52 -0400
+Received: by mail-wm1-f52.google.com with SMTP id z23so1104633wma.4
+        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 16:05:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=x92Aza9jCNmVRM2Nosfan3LRA81lLexSKzqeyp5AkVQ=;
-        b=Jwyt0Gi7i6IZYUPNpCDeG5Y8Vz/iiqg+OrOKJgn84ED80FJv4jiYiC6PNdaneUZAp1
-         O8HIJkRgqeMHF1JAH8XUA+kI2zXS431TlJ1aDYyUZg6s5URU2ESuIwX3nbKuzZtCpzID
-         VK+2CBYKZJjmIPoefjiBtzuv+QP4mA8lwE/5g+Hnd+vWIo2FPrcGFG2N49NDdqIAxa1W
-         pPo59yNC1g7de5H2h6kryK1eEAnKWmIOCXZga3NVjUt81fyzX8Np8Aw/yAqA1v0k+6gT
-         i/RM7PljXeJjr65PIMsnsjr2CW8INXgAluttGU9KEI8x9JY+K/SHjhnovwVL8eHqZBG0
-         0cHg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=/KC4vDZ+ycH5YWt3nCREwyo664j5FHVxGvScda+jD1Y=;
+        b=rbuMy1TdDDA5EnEVpl3GaB8ohQoZtHFEVn+MTVhhz9pU7yUJO1akC8qy5nFeJGNP4A
+         oxidwoH+knVefpH5i4BGQdzrUT5pvxaBSBs35fWwDvSU0ulJX/xlfrYeuqZbNF7HY/0y
+         e4FXyEBQSz8Fazih6xbi5VViQKhiZoU3+ZrRLfMyqg6Vyyc0ZH+tQi299j2O+jtHxPfa
+         h0GmyegU+tmKxKl3rP/DFM4jWyFxHurfrD4lkE71kRxsL9xfzoCwbtXeb7vq3Xy0kpVl
+         rCpdVIlGcsImVPpavexOG9MEvA1Qdh8JnhpLz88K5T/lDU0UIWozbzjFsKtoWBx8EGE+
+         iObA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=x92Aza9jCNmVRM2Nosfan3LRA81lLexSKzqeyp5AkVQ=;
-        b=dMbLzkrzNH7O0zbrkd7Kuep7/Kkb4/SLOVBV5zjUJi8DF+U3r0kQVkSqVqYThN2sDn
-         9MfAVIaFlzIpDYarkMAE4dv3cyr7xb3L/fkZC/USULze9zaM54/cs5Ti2/gh0wZH3e0d
-         5WUP99EmpsDN8k0hQgn25QbzQ/zuqfDqvi/gecXks4wCTLk+boJmGFhYI9uNADLrbnPe
-         FQ5HOpzzvEisIFBnXleetTy4UlhV5QUR2tsabCrpUvS4p8in6oSYJEvyYDY9saI8rzYw
-         IxKSyahf3X1FCuxDBDjBdEj4l6Rm+r0bYEVOPck/6PdHZplLrGyDuE4w1V5pcCgc+qES
-         Q7+w==
-X-Gm-Message-State: APjAAAUyIPKQ+lIV7PT51TjJIM/mgZXGNiPHIpZMp60KfEgV6QfOWf66
-        /Bwqzaq8p8S//GmRI2/rkPI=
-X-Google-Smtp-Source: APXvYqxHtAfylvCP56eWkQvDkttRjJFDRaouEYspgpRiV0+q0SkHxXkcTDaTC2c4DT+tnngNj2/OEQ==
-X-Received: by 2002:a62:1bd1:: with SMTP id b200mr91086764pfb.210.1560811640999;
-        Mon, 17 Jun 2019 15:47:20 -0700 (PDT)
-Received: from ArchLinux ([103.231.91.66])
-        by smtp.gmail.com with ESMTPSA id p2sm17663408pfb.118.2019.06.17.15.47.14
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 17 Jun 2019 15:47:19 -0700 (PDT)
-Date:   Tue, 18 Jun 2019 04:17:07 +0530
-From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 5.1.11
-Message-ID: <20190617224707.GA30899@ArchLinux>
-References: <20190617180944.GA16975@kroah.com>
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=/KC4vDZ+ycH5YWt3nCREwyo664j5FHVxGvScda+jD1Y=;
+        b=E8lUDmSNndfw4l3tIK4ebZlx6TUeRFhHr1zaqBAIhHc/upMVjdvZa5C3U7Dsy+DKLR
+         x1cMukYYQConCSF+gcuC0cW2EbcR/DGZPBMrN1WSMPn1mm5imWdmp8x89RmfL0WrpLjZ
+         sX8Q1mDz8d/b5Bu55DMI/Dy0Vh6qYhpVlQJW8YrAZqW0u4Oia+ptjIAF30VPiji8pULG
+         l0XQRnptFQ1fdgBRayu26nKrxoKsOstzU2EleLX5+DmJrErEKuxwvlrugGePD/ZCR+Gl
+         zxo3lcJd6wKCZkcT9viw9tGqEEWvQioU7AjxiGnFyjEx7xzm3FpbFG197m5X0BhK4Wgz
+         uwmQ==
+X-Gm-Message-State: APjAAAV6RPSSD9018LXybyEHjQJypZh6yjMC8hEinMaI4xz5+p4cXZH4
+        AjYFGGUn5qu6eKPZDgtHZ1pMAupvZIs2LA==
+X-Google-Smtp-Source: APXvYqyxieimSGhEpl93UBg1GKmML5w8cQiVkfi+mqkEyeox1izP2b1yq1+W1S/3uN6uWb/wkfHxsw==
+X-Received: by 2002:a05:600c:240e:: with SMTP id 14mr614751wmp.30.1560812750333;
+        Mon, 17 Jun 2019 16:05:50 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id g17sm11372082wrm.7.2019.06.17.16.05.48
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 17 Jun 2019 16:05:48 -0700 (PDT)
+Message-ID: <5d081ccc.1c69fb81.3e98b.bfe8@mx.google.com>
+Date:   Mon, 17 Jun 2019 16:05:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
-Content-Disposition: inline
-In-Reply-To: <20190617180944.GA16975@kroah.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.52
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 110 boots: 0 failed,
+ 109 passed with 1 untried/unknown (v4.19.52)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.19.y boot: 110 boots: 0 failed, 109 passed with 1 untried=
+/unknown (v4.19.52)
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.52/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.52/
 
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.52
+Git Commit: 6500aa436df40a46998f7a56a32e8199a3513e6d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 64 unique boards, 24 SoC families, 15 builds out of 206
 
-
-Thanks, a bunch Greg!
-
-On 20:09 Mon 17 Jun , Greg KH wrote:
->I'm announcing the release of the 5.1.11 kernel.
->
->All users of the 5.1 kernel series must upgrade.
->
->The updated 5.1.y git tree can be found at:
->	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.1.y
->and can be browsed at the normal kernel.org git web browser:
->	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
->
->thanks,
->
->greg k-h
->
->------------
->
-> Documentation/networking/ip-sysctl.txt |    8 ++++++++
-> Makefile                               |    2 +-
-> include/linux/tcp.h                    |    4 ++++
-> include/net/netns/ipv4.h               |    1 +
-> include/net/tcp.h                      |    2 ++
-> include/uapi/linux/snmp.h              |    1 +
-> net/ipv4/proc.c                        |    1 +
-> net/ipv4/sysctl_net_ipv4.c             |   11 +++++++++++
-> net/ipv4/tcp.c                         |    1 +
-> net/ipv4/tcp_input.c                   |   26 ++++++++++++++++++++------
-> net/ipv4/tcp_ipv4.c                    |    1 +
-> net/ipv4/tcp_output.c                  |   10 +++++++---
-> net/ipv4/tcp_timer.c                   |    1 +
-> 13 files changed, 59 insertions(+), 10 deletions(-)
->
->Eric Dumazet (4):
->      tcp: limit payload size of sacked skbs
->      tcp: tcp_fragment() should apply sane memory limits
->      tcp: add tcp_min_snd_mss sysctl
->      tcp: enforce tcp_min_snd_mss in tcp_mtu_probing()
->
->Greg Kroah-Hartman (1):
->      Linux 5.1.11
->
-
-
-
---UugvWAfsgieZRqgk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAl0IGGYACgkQsjqdtxFL
-KRWjVwf9FxyxD1R5TDrakjqnps5/1HB7ZZDWENzK5f69icEXHbPejEpipJXw/85k
-CYeVXZxhc9T5WdxmSheFNsJ85LLSR7n3/FxF6Ga70Rh4ShDONoe9eJIX5Dnrdfka
-2PsUAuIjqCPflUnm9bEskHSmXDezl1a+ojgjTimD0dq4Z8zv2RH3VkZcg/JgMKNy
-0+ji/r9gQ/wVRhLNmwW/mYEMopC8K8bhaGbirVd4t5fMw8EgogsUzCfsYAzNEOlZ
-CYmx8isnxNVhH3LIxaqLtDuNmuJ/AbiphbhFe4DeIACklM1s0VlNxsQXf/xFjJ4Q
-I5xhRwDh9vPd4G5Ped1seX9CBCCj9Q==
-=ynAQ
------END PGP SIGNATURE-----
-
---UugvWAfsgieZRqgk--
+---
+For more info write to <info@kernelci.org>
