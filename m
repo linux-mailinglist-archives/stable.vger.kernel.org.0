@@ -2,134 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58BA948473
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 15:48:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2DE5484CC
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 16:02:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725995AbfFQNsk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 09:48:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37196 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726822AbfFQNsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 09:48:40 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 116A02085A;
-        Mon, 17 Jun 2019 13:48:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560779319;
-        bh=C8x4XMBWurVmDDCvxvDaMnT68umwkOurL5UcRw8O5VU=;
-        h=Subject:To:From:Date:From;
-        b=sCDCQkijg3IKB7dIzIw4PScg1Fnk0ew88z7mvYFZvbcpwN7yJps+Bb7ssgPy2Bhz2
-         tTP4tFSWdJZjchL8qq2L07N08Hzzt3nNXGccdq/8SFkQIctjX5XTbtiqJb7r83ULfG
-         Vk6bSBAYHfZ1rHntyRl/9zIVicK/PVG7E+9fNQFQ=
-Subject: patch "usb: chipidea: udc: workaround for endpoint conflict issue" added to usb-linus
-To:     peter.chen@nxp.com, festevam@gmail.com, gregkh@linuxfoundation.org,
-        jun.li@nxp.com, sergei.shtylyov@cogentembedded.com,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Jun 2019 15:48:36 +0200
-Message-ID: <156077931647160@kroah.com>
+        id S1725995AbfFQOCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 10:02:15 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:41252 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725906AbfFQOCP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 10:02:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=VY1lHdBgYCCCW3qLjN3FEOmA/p1aLGXZnNLs05o4lrM=; b=mkorBebSNsClbwPJKDcXy091n
+        Ka/nuPa3uOABUQHQBHrm+M4326L4N2A0Ipm2LnvwIHAaCMZ1N+5pUD5BtcXHNDePDNStAvpttBpjT
+        OhCQ/PdE4GNOTDItS0gWHXkxn3EST9eE2cR+83Welzg8ybLxC7+7F7L+5K3DNQw3XpLTX9oNisGEU
+        TJTwr5Bqjwp6OdfI6bKdfi3nauV+2nmxf0pzj0dA5Yog6ZSabZLvYmxG7Pi7253pMYd+PfD9jCpSU
+        U2CP8ArK5iHVkx+gU4XB8EU6uoNUIGGhW4PUeJusy++c8FUwrJeWaDDOu8E/ard1jqJ3sLrTwMQRA
+        Yky4GOs0w==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
+        id 1hcsD6-00009r-EY; Mon, 17 Jun 2019 14:02:12 +0000
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 1518C201D1C98; Mon, 17 Jun 2019 16:02:10 +0200 (CEST)
+Date:   Mon, 17 Jun 2019 16:02:10 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        akpm@linux-foundation.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] ubsan: mark ubsan_type_mismatch_common inline
+Message-ID: <20190617140210.GB3436@hirez.programming.kicks-ass.net>
+References: <20190617123109.667090-1-arnd@arndb.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190617123109.667090-1-arnd@arndb.de>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jun 17, 2019 at 02:31:09PM +0200, Arnd Bergmann wrote:
+> objtool points out a condition that it does not like:
+> 
+> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+> 
+> I guess this is related to the call ubsan_type_mismatch_common()
+> not being inline before it calls user_access_restore(), though
+> I don't fully understand why that is a problem.
 
-This is a note to let you know that I've just added the patch titled
+The rules are that when AC is set, one is not allowed to CALL schedule,
+because scheduling does not save/restore AC.  Preemption, through the
+exceptions is fine, because the exceptions do save/restore AC.
 
-    usb: chipidea: udc: workaround for endpoint conflict issue
+And while most functions do not appear to call into schedule, function
+trace ensures that every single call does in fact call into schedule.
+Therefore any CALL (with AC set) is invalid.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+> Marking the function inline shuts up the warning and might be
+> the right thing to do. The patch that caused this is marked
+> for stable backports, so this one should probably be backported
+> as well.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+This appears to be a 'fun' interaction between different checkers. What
+happens is that __ubsan_handle_type_mismatch*() calls into
+stackleak_track_stack() because it has an on-stack variable. It does
+this before calling ubsan_type_mismatch_common().
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+ubsan_type_mismatch_common() does user_access_save/restore which
+saves/restores AC and allows 'normal' code to be ran.
 
-If you have any questions about this process, please let me know.
+With the proposed __always_inline, the code generation changes such that
+we run user_access_save() _before_ stackleack_track_stack() (for,
+afaict, undefined raisins), and the warning goes away.
 
+Maybe we should disable stackleak when building ubsan instead? We
+already disable stack-protector when building ubsan.
 
-From c19dffc0a9511a7d7493ec21019aefd97e9a111b Mon Sep 17 00:00:00 2001
-From: Peter Chen <peter.chen@nxp.com>
-Date: Mon, 17 Jun 2019 09:49:07 +0800
-Subject: usb: chipidea: udc: workaround for endpoint conflict issue
+> Fixes: 42440c1f9911 ("lib/ubsan: add type mismatch handler for new GCC/Clang")
 
-An endpoint conflict occurs when the USB is working in device mode
-during an isochronous communication. When the endpointA IN direction
-is an isochronous IN endpoint, and the host sends an IN token to
-endpointA on another device, then the OUT transaction may be missed
-regardless the OUT endpoint number. Generally, this occurs when the
-device is connected to the host through a hub and other devices are
-connected to the same hub.
+I don't think this is quite right, because back then there wasn't any
+uaccess validation.
 
-The affected OUT endpoint can be either control, bulk, isochronous, or
-an interrupt endpoint. After the OUT endpoint is primed, if an IN token
-to the same endpoint number on another device is received, then the OUT
-endpoint may be unprimed (cannot be detected by software), which causes
-this endpoint to no longer respond to the host OUT token, and thus, no
-corresponding interrupt occurs.
-
-There is no good workaround for this issue, the only thing the software
-could do is numbering isochronous IN from the highest endpoint since we
-have observed most of device number endpoint from the lowest.
-
-Cc: <stable@vger.kernel.org> #v3.14+
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Jun Li <jun.li@nxp.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/chipidea/udc.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
-
-diff --git a/drivers/usb/chipidea/udc.c b/drivers/usb/chipidea/udc.c
-index 829e947cabf5..6a5ee8e6da10 100644
---- a/drivers/usb/chipidea/udc.c
-+++ b/drivers/usb/chipidea/udc.c
-@@ -1622,6 +1622,25 @@ static int ci_udc_pullup(struct usb_gadget *_gadget, int is_on)
- static int ci_udc_start(struct usb_gadget *gadget,
- 			 struct usb_gadget_driver *driver);
- static int ci_udc_stop(struct usb_gadget *gadget);
-+
-+/* Match ISOC IN from the highest endpoint */
-+static struct usb_ep *ci_udc_match_ep(struct usb_gadget *gadget,
-+			      struct usb_endpoint_descriptor *desc,
-+			      struct usb_ss_ep_comp_descriptor *comp_desc)
-+{
-+	struct ci_hdrc *ci = container_of(gadget, struct ci_hdrc, gadget);
-+	struct usb_ep *ep;
-+
-+	if (usb_endpoint_xfer_isoc(desc) && usb_endpoint_dir_in(desc)) {
-+		list_for_each_entry_reverse(ep, &ci->gadget.ep_list, ep_list) {
-+			if (ep->caps.dir_in && !ep->claimed)
-+				return ep;
-+		}
-+	}
-+
-+	return NULL;
-+}
-+
- /**
-  * Device operations part of the API to the USB controller hardware,
-  * which don't involve endpoints (or i/o)
-@@ -1635,6 +1654,7 @@ static const struct usb_gadget_ops usb_gadget_ops = {
- 	.vbus_draw	= ci_udc_vbus_draw,
- 	.udc_start	= ci_udc_start,
- 	.udc_stop	= ci_udc_stop,
-+	.match_ep 	= ci_udc_match_ep,
- };
- 
- static int init_eps(struct ci_hdrc *ci)
--- 
-2.22.0
-
-
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  lib/ubsan.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/lib/ubsan.c b/lib/ubsan.c
+> index ecc179338094..3d8836f0fc5c 100644
+> --- a/lib/ubsan.c
+> +++ b/lib/ubsan.c
+> @@ -309,7 +309,7 @@ static void handle_object_size_mismatch(struct type_mismatch_data_common *data,
+>  	ubsan_epilogue(&flags);
+>  }
+>  
+> -static void ubsan_type_mismatch_common(struct type_mismatch_data_common *data,
+> +static __always_inline void ubsan_type_mismatch_common(struct type_mismatch_data_common *data,
+>  				unsigned long ptr)
+>  {
+>  	unsigned long flags = user_access_save();
