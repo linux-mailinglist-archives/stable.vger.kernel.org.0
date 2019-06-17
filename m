@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F15E149365
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4A434940A
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:35:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729764AbfFQVaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:30:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57322 "EHLO mail.kernel.org"
+        id S1729716AbfFQVX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:23:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730324AbfFQVaE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:30:04 -0400
+        id S1726723AbfFQVX1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:23:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F7FC204FD;
-        Mon, 17 Jun 2019 21:30:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6110520657;
+        Mon, 17 Jun 2019 21:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560807003;
-        bh=oHZ+D+qqoj/Fy19Nk7YNcsjpllGzO0Ch48+MNTt6MOY=;
+        s=default; t=1560806606;
+        bh=WRt3hZwVhxYc1hGY5XlW7OH/gGDtHJG3c1BdxS3erHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CdhaBVkMoPz7p0Ki7Fc3VZSpTKh0YRMlDLp9vv2cQlxptDi0KA9m8aYYQmIvI/YQb
-         ElW+AOwDkKc6eYzSzwEumk1lU+SMvscApbQJBkk1rYEJZZzN4GmxUIoDUeBDzun2gH
-         5dyfY2rA40WTXbjFpk0qfQlk4RkzzXFkvAqiTkko=
+        b=BCfCbjb99QFjwZbrzkRV8NYwNyxFgal4g8ds133Dn3L26bRunwua0gt/XsEF+yTt5
+         ADhno82q7/uosIgOg95LOSgu4ZEAn/rVGOxEzlgepfqyyhiOatKn+cHDkB38JuoDJ8
+         iJ9tTIuZMF6I/TnMcSat1u4IJdfkpXEDgVmkB9hE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Young Xiao <YangX92@hotmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/53] Drivers: misc: fix out-of-bounds access in function param_set_kgdbts_var
+        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+        Borislav Petkov <bp@suse.de>,
+        Kees Cook <keescook@chromium.org>,
+        "Kirill A. Shutemov" <kirill@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
+        kirill.shutemov@linux.intel.com,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>
+Subject: [PATCH 5.1 110/115] x86/mm/KASLR: Compute the size of the vmemmap section properly
 Date:   Mon, 17 Jun 2019 23:10:10 +0200
-Message-Id: <20190617210750.416667064@linuxfoundation.org>
+Message-Id: <20190617210805.524763038@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-References: <20190617210745.104187490@linuxfoundation.org>
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+References: <20190617210759.929316339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +51,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b281218ad4311a0342a40cb02fb17a363df08b48 ]
+From: Baoquan He <bhe@redhat.com>
 
-There is an out-of-bounds access to "config[len - 1]" array when the
-variable "len" is zero.
+commit 00e5a2bbcc31d5fea853f8daeba0f06c1c88c3ff upstream.
 
-See commit dada6a43b040 ("kgdboc: fix KASAN global-out-of-bounds bug
-in param_set_kgdboc_var()") for details.
+The size of the vmemmap section is hardcoded to 1 TB to support the
+maximum amount of system RAM in 4-level paging mode - 64 TB.
 
-Signed-off-by: Young Xiao <YangX92@hotmail.com>
+However, 1 TB is not enough for vmemmap in 5-level paging mode. Assuming
+the size of struct page is 64 Bytes, to support 4 PB system RAM in 5-level,
+64 TB of vmemmap area is needed:
+
+  4 * 1000^5 PB / 4096 bytes page size * 64 bytes per page struct / 1000^4 TB = 62.5 TB.
+
+This hardcoding may cause vmemmap to corrupt the following
+cpu_entry_area section, if KASLR puts vmemmap very close to it and the
+actual vmemmap size is bigger than 1 TB.
+
+So calculate the actual size of the vmemmap region needed and then align
+it up to 1 TB boundary.
+
+In 4-level paging mode it is always 1 TB. In 5-level it's adjusted on
+demand. The current code reserves 0.5 PB for vmemmap on 5-level. With
+this change, the space can be saved and thus used to increase entropy
+for the randomization.
+
+ [ bp: Spell out how the 64 TB needed for vmemmap is computed and massage commit
+   message. ]
+
+Fixes: eedb92abb9bb ("x86/mm: Make virtual memory layout dynamic for CONFIG_X86_5LEVEL=y")
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Kirill A. Shutemov <kirill@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: kirill.shutemov@linux.intel.com
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable <stable@vger.kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190523025744.3756-1-bhe@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/misc/kgdbts.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/mm/kaslr.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
-index fc7efedbc4be..94cbc5c98cae 100644
---- a/drivers/misc/kgdbts.c
-+++ b/drivers/misc/kgdbts.c
-@@ -1134,7 +1134,7 @@ static void kgdbts_put_char(u8 chr)
+--- a/arch/x86/mm/kaslr.c
++++ b/arch/x86/mm/kaslr.c
+@@ -52,7 +52,7 @@ static __initdata struct kaslr_memory_re
+ } kaslr_regions[] = {
+ 	{ &page_offset_base, 0 },
+ 	{ &vmalloc_base, 0 },
+-	{ &vmemmap_base, 1 },
++	{ &vmemmap_base, 0 },
+ };
  
- static int param_set_kgdbts_var(const char *kmessage, struct kernel_param *kp)
- {
--	int len = strlen(kmessage);
-+	size_t len = strlen(kmessage);
+ /* Get size in bytes used by the memory region */
+@@ -78,6 +78,7 @@ void __init kernel_randomize_memory(void
+ 	unsigned long rand, memory_tb;
+ 	struct rnd_state rand_state;
+ 	unsigned long remain_entropy;
++	unsigned long vmemmap_size;
  
- 	if (len >= MAX_CONFIG_LEN) {
- 		printk(KERN_ERR "kgdbts: config string too long\n");
-@@ -1154,7 +1154,7 @@ static int param_set_kgdbts_var(const char *kmessage, struct kernel_param *kp)
+ 	vaddr_start = pgtable_l5_enabled() ? __PAGE_OFFSET_BASE_L5 : __PAGE_OFFSET_BASE_L4;
+ 	vaddr = vaddr_start;
+@@ -109,6 +110,14 @@ void __init kernel_randomize_memory(void
+ 	if (memory_tb < kaslr_regions[0].size_tb)
+ 		kaslr_regions[0].size_tb = memory_tb;
  
- 	strcpy(config, kmessage);
- 	/* Chop out \n char as a result of echo */
--	if (config[len - 1] == '\n')
-+	if (len && config[len - 1] == '\n')
- 		config[len - 1] = '\0';
- 
- 	/* Go and configure with the new params. */
--- 
-2.20.1
-
++	/*
++	 * Calculate the vmemmap region size in TBs, aligned to a TB
++	 * boundary.
++	 */
++	vmemmap_size = (kaslr_regions[0].size_tb << (TB_SHIFT - PAGE_SHIFT)) *
++			sizeof(struct page);
++	kaslr_regions[2].size_tb = DIV_ROUND_UP(vmemmap_size, 1UL << TB_SHIFT);
++
+ 	/* Calculate entropy available between regions */
+ 	remain_entropy = vaddr_end - vaddr_start;
+ 	for (i = 0; i < ARRAY_SIZE(kaslr_regions); i++)
 
 
