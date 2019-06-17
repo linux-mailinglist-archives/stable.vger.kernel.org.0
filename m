@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E47B7493E3
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C55C49446
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:37:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729954AbfFQVYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:24:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50380 "EHLO mail.kernel.org"
+        id S1728633AbfFQVUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:20:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728841AbfFQVYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:24:38 -0400
+        id S1728572AbfFQVUm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:20:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB8E220673;
-        Mon, 17 Jun 2019 21:24:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4878D2166E;
+        Mon, 17 Jun 2019 21:20:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806678;
-        bh=oywjT/WGxmlXWiGqewKHuaN1H1kBYOm+AcDn/SJIaZw=;
+        s=default; t=1560806441;
+        bh=K9YiwPPDxB8mOZ09FRBTU6I4dFJtBg+bcPCXOeZ3GEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hRXh6VRCwD2QyCnf9EVICg14gc7I0+fUit8MT8uIt3aZ8btGneFfBXy0T7qQ+rvq+
-         j4EPmq4Wm9PwyT628jd5UyyVAs60het3zowWG6sDO5NGWSK/gU4SqT1pYDofc647iP
-         LsNInAoomS2x/Ni83g6R+NdC1WwNeP7V7EzBTG/s=
+        b=KX78MgMRAf/an1RQ6Tna14bjsU4p6kt6XnmtRowajylKLUmVsECBbsmaYlduHqWeu
+         AR645l7oRjaqTcErG627Oy5NRo/u9gmuCKsdjxuEoVF98Hz4Mk5LpQZiwHV0vDUAmk
+         GaORpOBAXKJaTUKK/jA3ejy4E2FFHcTbtgFOCjRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Backlund <tmb@mageia.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sven Joachim <svenjoac@gmx.de>
-Subject: [PATCH 4.19 02/75] nouveau: Fix build with CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT disabled
-Date:   Mon, 17 Jun 2019 23:09:13 +0200
-Message-Id: <20190617210752.904005380@linuxfoundation.org>
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 054/115] scsi: qedi: remove set but not used variables cdev and udev
+Date:   Mon, 17 Jun 2019 23:09:14 +0200
+Message-Id: <20190617210803.161309467@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+References: <20190617210759.929316339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Backlund <tmb@mageia.org>
+[ Upstream commit d0adee5d12752256ff0c87ad7f002f21fe49d618 ]
 
-Not-entirely-upstream-sha1-but-equivalent: bed2dd8421
-("drm/ttm: Quick-test mmap offset in ttm_bo_mmap()")
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Setting CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT=n (added by commit: b30a43ac7132)
-causes the build to fail with:
+drivers/scsi/qedi/qedi_iscsi.c: In function 'qedi_ep_connect':
+drivers/scsi/qedi/qedi_iscsi.c:813:23: warning: variable 'udev' set but not used [-Wunused-but-set-variable]
+drivers/scsi/qedi/qedi_iscsi.c:812:18: warning: variable 'cdev' set but not used [-Wunused-but-set-variable]
 
-ERROR: "drm_legacy_mmap" [drivers/gpu/drm/nouveau/nouveau.ko] undefined!
+These have never been used since introduction.
 
-This does not happend upstream as the offending code got removed in:
-bed2dd8421 ("drm/ttm: Quick-test mmap offset in ttm_bo_mmap()")
-
-Fix that by adding check for CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT around
-the drm_legacy_mmap() call.
-
-Also, as Sven Joachim pointed out, we need to make the check in
-CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT=n case return -EINVAL as its done
-for basically all other gpu drivers, especially in upstream kernels
-drivers/gpu/drm/ttm/ttm_bo_vm.c as of the upstream commit bed2dd8421.
-
-NOTE. This is a minimal stable-only fix for trees where b30a43ac7132 is
-backported as the build error affects nouveau only.
-
-Fixes: b30a43ac7132 ("drm/nouveau: add kconfig option to turn off nouveau
-       legacy contexts. (v3)")
-Signed-off-by: Thomas Backlund <tmb@mageia.org>
-Cc: stable@vger.kernel.org
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sven Joachim <svenjoac@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_ttm.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/qedi/qedi_iscsi.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nouveau_ttm.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_ttm.c
-@@ -169,7 +169,11 @@ nouveau_ttm_mmap(struct file *filp, stru
- 	struct nouveau_drm *drm = nouveau_drm(file_priv->minor->dev);
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index bf371e7b957d..c3d0d246df14 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -809,8 +809,6 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
+ 	struct qedi_endpoint *qedi_ep;
+ 	struct sockaddr_in *addr;
+ 	struct sockaddr_in6 *addr6;
+-	struct qed_dev *cdev  =  NULL;
+-	struct qedi_uio_dev *udev = NULL;
+ 	struct iscsi_path path_req;
+ 	u32 msg_type = ISCSI_KEVENT_IF_DOWN;
+ 	u32 iscsi_cid = QEDI_CID_RESERVED;
+@@ -830,8 +828,6 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
+ 	}
  
- 	if (unlikely(vma->vm_pgoff < DRM_FILE_PAGE_OFFSET))
-+#if defined(CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT)
- 		return drm_legacy_mmap(filp, vma);
-+#else
-+		return -EINVAL;
-+#endif
+ 	qedi = iscsi_host_priv(shost);
+-	cdev = qedi->cdev;
+-	udev = qedi->udev;
  
- 	return ttm_bo_mmap(filp, vma, &drm->ttm.bdev);
- }
+ 	if (test_bit(QEDI_IN_OFFLINE, &qedi->flags) ||
+ 	    test_bit(QEDI_IN_RECOVERY, &qedi->flags)) {
+-- 
+2.20.1
+
 
 
