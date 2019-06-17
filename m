@@ -2,277 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1339B4914F
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 22:25:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF27B49152
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 22:26:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726683AbfFQUZt convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 17 Jun 2019 16:25:49 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:51572 "EHLO mx1.redhat.com"
+        id S1727027AbfFQU0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 16:26:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726614AbfFQUZt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 16:25:49 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726614AbfFQU0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 16:26:45 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id BBFC730860A8
-        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 20:25:48 +0000 (UTC)
-Received: from [172.54.67.194] (cpt-large-cpu-02.paas.prod.upshift.rdu2.redhat.com [10.0.18.84])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 426FA19746;
-        Mon, 17 Jun 2019 20:25:46 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AA4D20861;
+        Mon, 17 Jun 2019 20:26:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560803205;
+        bh=3B+EgTk23Q2ngx/vipiVpBWzn1Ue5rkX3mfBnqFcHzA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FihulygP6bSANnpsQUei6O2S5RBxyzy7oDcg5GTU3CsNpq5iMg5Dhs89KwGd4NuIJ
+         87bXjwSaFZWvTAUElPQJ8x4+ggn78tvIKjrssLWqb2ZBwYGF6OTEkdbyyZWNmwIT3l
+         fCUQc5L2gKyWXMGIuNB0KQCY4DzHQ76ToUn7XdfU=
+Date:   Mon, 17 Jun 2019 22:26:42 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     avagin@gmail.com, linux- stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>
+Subject: Re: stable-rc: ptrace: peeksiginfo failed on 4.19, 4.14, 4.9 and 4.4
+Message-ID: <20190617202642.GA8067@kroah.com>
+References: <CA+G9fYsFL5AH6dkdN2Qd6UP=wdiXRDR_ioQFPSCq=uUBcmtHXw@mail.gmail.com>
+ <87lfy0pd63.fsf@xmission.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.8BBB10A45B.EHR2UF4ZZ6@redhat.com>
-X-Gitlab-Pipeline-ID: 12529
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Mon, 17 Jun 2019 20:25:48 +0000 (UTC)
-Date:   Mon, 17 Jun 2019 16:25:49 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87lfy0pd63.fsf@xmission.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Mon, Jun 17, 2019 at 08:13:56AM -0500, Eric W. Biederman wrote:
+> Naresh Kamboju <naresh.kamboju@linaro.org> writes:
+> 
+> > selftests: ptrace: peeksiginfo failed on x86_64, i386, arm64 and arm.
+> > FAILED on stable rc branches 4.19, 4.14, 4.9 and 4.4.
+> > PASS on mainline, next and 5.1 stable rc branch.
+> 
+> Greg.
+> 
+> Looking in my email it appears 4.19, 4.14, 4.9, and 4.4 patches are
+> missing the "found=1" line from the original change.   This explains
+> the test failure.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Ugh, that was due to me doing the backport by hand, sorry about that.
+Sasha, thanks for fixing this.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 6500aa436df4 - Linux 4.19.52
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 6500aa436df4 - Linux 4.19.52
-
-
-We then merged the patchset with `git am`:
-
-  drm-nouveau-add-kconfig-option-to-turn-off-nouveau-legacy-contexts.-v3.patch
-  nouveau-fix-build-with-config_nouveau_legacy_ctx_support-disabled.patch
-  hid-multitouch-handle-faulty-elo-touch-device.patch
-  hid-wacom-don-t-set-tool-type-until-we-re-in-range.patch
-  hid-wacom-don-t-report-anything-prior-to-the-tool-entering-range.patch
-  hid-wacom-send-btn_touch-in-response-to-intuosp2_bt-eraser-contact.patch
-  hid-wacom-correct-button-numbering-2nd-gen-intuos-pro-over-bluetooth.patch
-  hid-wacom-sync-intuosp2_bt-touch-state-after-each-frame-if-necessary.patch
-  revert-alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
-  alsa-oxfw-allow-pcm-capture-for-stanton-scs.1m.patch
-  alsa-hda-realtek-update-headset-mode-for-alc256.patch
-  alsa-firewire-motu-fix-destruction-of-data-for-isochronous-resources.patch
-  libata-extend-quirks-for-the-st1000lm024-drives-with-nolpm-quirk.patch
-  mm-list_lru.c-fix-memory-leak-in-__memcg_init_list_lru_node.patch
-  fs-ocfs2-fix-race-in-ocfs2_dentry_attach_lock.patch
-  mm-vmscan.c-fix-trying-to-reclaim-unevictable-lru-page.patch
-  signal-ptrace-don-t-leak-unitialized-kernel-memory-with-ptrace_peek_siginfo.patch
-  ptrace-restore-smp_rmb-in-__ptrace_may_access.patch
-  iommu-arm-smmu-avoid-constant-zero-in-tlbi-writes.patch
-  i2c-acorn-fix-i2c-warning.patch
-  bcache-fix-stack-corruption-by-preceding_key.patch
-  bcache-only-set-bcache_dev_wb_running-when-cached-device-attached.patch
-  cgroup-use-css_tryget-instead-of-css_tryget_online-in-task_get_css.patch
-  asoc-cs42xx8-add-regcache-mask-dirty.patch
-  asoc-fsl_asrc-fix-the-issue-about-unsupported-rate.patch
-  drm-i915-sdvo-implement-proper-hdmi-audio-support-for-sdvo.patch
-  x86-uaccess-kcov-disable-stack-protector.patch
-  alsa-seq-protect-in-kernel-ioctl-calls-with-mutex.patch
-  alsa-seq-fix-race-of-get-subscription-call-vs-port-d.patch
-  revert-alsa-seq-protect-in-kernel-ioctl-calls-with-m.patch
-  s390-kasan-fix-strncpy_from_user-kasan-checks.patch
-  drivers-misc-fix-out-of-bounds-access-in-function-pa.patch
-  f2fs-fix-to-avoid-accessing-xattr-across-the-boundar.patch
-  scsi-qedi-remove-memset-memcpy-to-nfunc-and-use-func.patch
-  scsi-qedi-remove-set-but-not-used-variables-cdev-and.patch
-  scsi-lpfc-correct-rcu-unlock-issue-in-lpfc_nvme_info.patch
-  scsi-lpfc-add-check-for-loss-of-ndlp-when-sending-rr.patch
-  arm64-mm-inhibit-huge-vmap-with-ptdump.patch
-  nvme-fix-srcu-locking-on-error-return-in-nvme_get_ns.patch
-  nvme-remove-the-ifdef-around-nvme_nvm_ioctl.patch
-  nvme-merge-nvme_ns_ioctl-into-nvme_ioctl.patch
-  nvme-release-namespace-srcu-protection-before-perfor.patch
-  nvme-fix-memory-leak-for-power-latency-tolerance.patch
-  platform-x86-pmc_atom-add-lex-3i380d-industrial-pc-t.patch
-  platform-x86-pmc_atom-add-several-beckhoff-automatio.patch
-  scsi-bnx2fc-fix-incorrect-cast-to-u64-on-shift-opera.patch
-  libnvdimm-fix-compilation-warnings-with-w-1.patch
-  selftests-fib_rule_tests-fix-local-ipv4-address-typo.patch
-  selftests-timers-add-missing-fflush-stdout-calls.patch
-  tracing-prevent-hist_field_var_ref-from-accessing-nu.patch
-  usbnet-ipheth-fix-racing-condition.patch
-  kvm-arm-arm64-move-cc-it-checks-under-hyp-s-makefile.patch
-  kvm-x86-pmu-mask-the-result-of-rdpmc-according-to-th.patch
-  kvm-x86-pmu-do-not-mask-the-value-that-is-written-to.patch
-  kvm-s390-fix-memory-slot-handling-for-kvm_set_user_m.patch
-  tools-kvm_stat-fix-fields-filter-for-child-events.patch
-  drm-vmwgfx-integer-underflow-in-vmw_cmd_dx_set_shader-leading-to-an-invalid-read.patch
-  drm-vmwgfx-null-pointer-dereference-from-vmw_cmd_dx_view_define.patch
-  usb-dwc2-fix-dma-cache-alignment-issues.patch
-  usb-dwc2-host-fix-wmaxpacketsize-handling-fix-webcam-regression.patch
-  usb-fix-chipmunk-like-voice-when-using-logitech-c270-for-recording-audio.patch
-  usb-usb-storage-add-new-id-to-ums-realtek.patch
-  usb-serial-pl2303-add-allied-telesis-vt-kit3.patch
-  usb-serial-option-add-support-for-simcom-sim7500-sim7600-rndis-mode.patch
-  usb-serial-option-add-telit-0x1260-and-0x1261-compositions.patch
-  timekeeping-repair-ktime_get_coarse-granularity.patch
-  ras-cec-convert-the-timer-callback-to-a-workqueue.patch
-  ras-cec-fix-binary-search-function.patch
-  x86-microcode-cpuhotplug-add-a-microcode-loader-cpu-hotplug-callback.patch
-  x86-kasan-fix-boot-with-5-level-paging-and-kasan.patch
-  x86-mm-kaslr-compute-the-size-of-the-vmemmap-section-properly.patch
-  x86-resctrl-prevent-null-pointer-dereference-when-local-mbm-is-disabled.patch
-  drm-edid-abstract-override-firmware-edid-retrieval.patch
-  drm-add-fallback-override-firmware-edid-modes-workaround.patch
-  rtc-pcf8523-don-t-return-invalid-date-when-battery-is-low.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-07672ca5ab0259e26c948377f333fcd35a65d734.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-07672ca5ab0259e26c948377f333fcd35a65d734.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-07672ca5ab0259e26c948377f333fcd35a65d734.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-07672ca5ab0259e26c948377f333fcd35a65d734.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-07672ca5ab0259e26c948377f333fcd35a65d734.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-07672ca5ab0259e26c948377f333fcd35a65d734.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-07672ca5ab0259e26c948377f333fcd35a65d734.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-07672ca5ab0259e26c948377f333fcd35a65d734.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-       🚧 ✅ storage: SCSI VPD [10]
-       🚧 ✅ storage: software RAID testing [11]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-       🚧 ✅ storage: software RAID testing [11]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-       🚧 ✅ storage: software RAID testing [11]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       🚧 ✅ Storage SAN device stress [12]
-
-    Host 3:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-       🚧 ✅ storage: SCSI VPD [10]
-       🚧 ✅ storage: software RAID testing [11]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/hba/san-device-stress
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+greg k-h
