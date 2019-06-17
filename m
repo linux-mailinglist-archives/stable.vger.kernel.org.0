@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFEAF49372
+	by mail.lfdr.de (Postfix) with ESMTP id 4B73E49371
 	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:31:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729081AbfFQV3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:29:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56686 "EHLO mail.kernel.org"
+        id S1730037AbfFQV3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:29:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730711AbfFQV3a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:29:30 -0400
+        id S1730436AbfFQV3c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:29:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 556FD2070B;
-        Mon, 17 Jun 2019 21:29:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A167204FD;
+        Mon, 17 Jun 2019 21:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806968;
-        bh=ENv/xhMinTOHgToCBl2xoVx3Umh/VAwRLAuPKRvHo18=;
+        s=default; t=1560806972;
+        bh=9PkkKS4eK3cHYIwtOop9pQXBjR3OgNjWLKjzMomaHd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5tv1pXWtSubWt6eDFbrT0BWkBqYOsNZQgYMt5euASkUp0F17Iya1tLKfESirhLql
-         iF1LG9EKsDVf4BzX2J5eyZGKg/k5tSNOnkk4LkS2d0ziYPMk5CCTxUlCQJSn4MQwlZ
-         ZBnKoy9PgBFKE6hJId7OOD3c7lBckmUj+zOtH8VA=
+        b=SLRLRdTWCLvrvoPYEFaqMh2HIB1SNIFhm9kkEgK6KUYpshKxaiEnx04O2XHVY9cii
+         9XmzDHwaISy9vtkpQASzqml4DyWrOG1oQyxhcwTreADEdUcNqpbh3AazzQS7syq07t
+         ZJfyEfcssHod0sf7pMt0kK2Ox0GUYbuCDzZnbaDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: [PATCH 4.14 44/53] usb: dwc2: host: Fix wMaxPacketSize handling (fix webcam regression)
-Date:   Mon, 17 Jun 2019 23:10:27 +0200
-Message-Id: <20190617210752.236584103@linuxfoundation.org>
+        stable@vger.kernel.org, Marco Zatta <marco@zatta.me>
+Subject: [PATCH 4.14 45/53] USB: Fix chipmunk-like voice when using Logitech C270 for recording audio.
+Date:   Mon, 17 Jun 2019 23:10:28 +0200
+Message-Id: <20190617210752.338665036@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
 References: <20190617210745.104187490@linuxfoundation.org>
@@ -45,240 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Marco Zatta <marco@zatta.me>
 
-commit babd183915e91a64e976b9e8ab682bb56624df76 upstream.
+commit bd21f0222adab64974b7d1b4b8c7ce6b23e9ea4d upstream.
 
-In commit abb621844f6a ("usb: ch9: make usb_endpoint_maxp() return
-only packet size") the API to usb_endpoint_maxp() changed.  It used to
-just return wMaxPacketSize but after that commit it returned
-wMaxPacketSize with the high bits (the multiplier) masked off.  If you
-wanted to get the multiplier it was now up to your code to call the
-new usb_endpoint_maxp_mult() which was introduced in
-commit 541b6fe63023 ("usb: add helper to extract bits 12:11 of
-wMaxPacketSize").
+This patch fixes the chipmunk-like voice that manifets randomly when
+using the integrated mic of the Logitech Webcam HD C270.
 
-Prior to the API change most host drivers were updated, but no update
-was made to dwc2.  Presumably it was assumed that dwc2 was too
-simplistic to use the multiplier and thus just didn't support a
-certain class of USB devices.  However, it turns out that dwc2 did use
-the multiplier and many devices using it were working quite nicely.
-That means that many USB devices have been broken since the API
-change.  One such device is a Logitech HD Pro Webcam C920.
+The issue was solved initially for this device by commit 2394d67e446b
+("USB: add RESET_RESUME for webcams shown to be quirky") but it was then
+reintroduced by e387ef5c47dd ("usb: Add USB_QUIRK_RESET_RESUME for all
+Logitech UVC webcams"). This patch is to have the fix back.
 
-Specifically, though dwc2 didn't directly call usb_endpoint_maxp(), it
-did call usb_maxpacket() which in turn called usb_endpoint_maxp().
-
-Let's update dwc2 to work properly with the new API.
-
-Fixes: abb621844f6a ("usb: ch9: make usb_endpoint_maxp() return only packet size")
-Cc: stable@vger.kernel.org
-Acked-by: Minas Harutyunyan <hminas@synopsys.com>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Marco Zatta <marco@zatta.me>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc2/hcd.c       |   29 +++++++++++++++++------------
- drivers/usb/dwc2/hcd.h       |   20 +++++++++++---------
- drivers/usb/dwc2/hcd_intr.c  |    5 +++--
- drivers/usb/dwc2/hcd_queue.c |   10 ++++++----
- 4 files changed, 37 insertions(+), 27 deletions(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/dwc2/hcd.c
-+++ b/drivers/usb/dwc2/hcd.c
-@@ -2779,7 +2779,7 @@ static int dwc2_assign_and_init_hc(struc
- 	chan->dev_addr = dwc2_hcd_get_dev_addr(&urb->pipe_info);
- 	chan->ep_num = dwc2_hcd_get_ep_num(&urb->pipe_info);
- 	chan->speed = qh->dev_speed;
--	chan->max_packet = dwc2_max_packet(qh->maxp);
-+	chan->max_packet = qh->maxp;
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -70,6 +70,9 @@ static const struct usb_device_id usb_qu
+ 	/* Cherry Stream G230 2.0 (G85-231) and 3.0 (G85-232) */
+ 	{ USB_DEVICE(0x046a, 0x0023), .driver_info = USB_QUIRK_RESET_RESUME },
  
- 	chan->xfer_started = 0;
- 	chan->halt_status = DWC2_HC_XFER_NO_HALT_STATUS;
-@@ -2857,7 +2857,7 @@ static int dwc2_assign_and_init_hc(struc
- 		 * This value may be modified when the transfer is started
- 		 * to reflect the actual transfer length
- 		 */
--		chan->multi_count = dwc2_hb_mult(qh->maxp);
-+		chan->multi_count = qh->maxp_mult;
- 
- 	if (hsotg->params.dma_desc_enable) {
- 		chan->desc_list_addr = qh->desc_list_dma;
-@@ -3956,19 +3956,21 @@ static struct dwc2_hcd_urb *dwc2_hcd_urb
- 
- static void dwc2_hcd_urb_set_pipeinfo(struct dwc2_hsotg *hsotg,
- 				      struct dwc2_hcd_urb *urb, u8 dev_addr,
--				      u8 ep_num, u8 ep_type, u8 ep_dir, u16 mps)
-+				      u8 ep_num, u8 ep_type, u8 ep_dir,
-+				      u16 maxp, u16 maxp_mult)
- {
- 	if (dbg_perio() ||
- 	    ep_type == USB_ENDPOINT_XFER_BULK ||
- 	    ep_type == USB_ENDPOINT_XFER_CONTROL)
- 		dev_vdbg(hsotg->dev,
--			 "addr=%d, ep_num=%d, ep_dir=%1x, ep_type=%1x, mps=%d\n",
--			 dev_addr, ep_num, ep_dir, ep_type, mps);
-+			 "addr=%d, ep_num=%d, ep_dir=%1x, ep_type=%1x, maxp=%d (%d mult)\n",
-+			 dev_addr, ep_num, ep_dir, ep_type, maxp, maxp_mult);
- 	urb->pipe_info.dev_addr = dev_addr;
- 	urb->pipe_info.ep_num = ep_num;
- 	urb->pipe_info.pipe_type = ep_type;
- 	urb->pipe_info.pipe_dir = ep_dir;
--	urb->pipe_info.mps = mps;
-+	urb->pipe_info.maxp = maxp;
-+	urb->pipe_info.maxp_mult = maxp_mult;
- }
- 
- /*
-@@ -4059,8 +4061,9 @@ void dwc2_hcd_dump_state(struct dwc2_hso
- 					dwc2_hcd_is_pipe_in(&urb->pipe_info) ?
- 					"IN" : "OUT");
- 				dev_dbg(hsotg->dev,
--					"      Max packet size: %d\n",
--					dwc2_hcd_get_mps(&urb->pipe_info));
-+					"      Max packet size: %d (%d mult)\n",
-+					dwc2_hcd_get_maxp(&urb->pipe_info),
-+					dwc2_hcd_get_maxp_mult(&urb->pipe_info));
- 				dev_dbg(hsotg->dev,
- 					"      transfer_buffer: %p\n",
- 					urb->buf);
-@@ -4673,8 +4676,10 @@ static void dwc2_dump_urb_info(struct us
- 	}
- 
- 	dev_vdbg(hsotg->dev, "  Speed: %s\n", speed);
--	dev_vdbg(hsotg->dev, "  Max packet size: %d\n",
--		 usb_maxpacket(urb->dev, urb->pipe, usb_pipeout(urb->pipe)));
-+	dev_vdbg(hsotg->dev, "  Max packet size: %d (%d mult)\n",
-+		 usb_endpoint_maxp(&urb->ep->desc),
-+		 usb_endpoint_maxp_mult(&urb->ep->desc));
++	/* Logitech HD Webcam C270 */
++	{ USB_DEVICE(0x046d, 0x0825), .driver_info = USB_QUIRK_RESET_RESUME },
 +
- 	dev_vdbg(hsotg->dev, "  Data buffer length: %d\n",
- 		 urb->transfer_buffer_length);
- 	dev_vdbg(hsotg->dev, "  Transfer buffer: %p, Transfer DMA: %08lx\n",
-@@ -4757,8 +4762,8 @@ static int _dwc2_hcd_urb_enqueue(struct
- 	dwc2_hcd_urb_set_pipeinfo(hsotg, dwc2_urb, usb_pipedevice(urb->pipe),
- 				  usb_pipeendpoint(urb->pipe), ep_type,
- 				  usb_pipein(urb->pipe),
--				  usb_maxpacket(urb->dev, urb->pipe,
--						!(usb_pipein(urb->pipe))));
-+				  usb_endpoint_maxp(&ep->desc),
-+				  usb_endpoint_maxp_mult(&ep->desc));
- 
- 	buf = urb->transfer_buffer;
- 
---- a/drivers/usb/dwc2/hcd.h
-+++ b/drivers/usb/dwc2/hcd.h
-@@ -170,7 +170,8 @@ struct dwc2_hcd_pipe_info {
- 	u8 ep_num;
- 	u8 pipe_type;
- 	u8 pipe_dir;
--	u16 mps;
-+	u16 maxp;
-+	u16 maxp_mult;
- };
- 
- struct dwc2_hcd_iso_packet_desc {
-@@ -263,6 +264,7 @@ struct dwc2_hs_transfer_time {
-  *                       - USB_ENDPOINT_XFER_ISOC
-  * @ep_is_in:           Endpoint direction
-  * @maxp:               Value from wMaxPacketSize field of Endpoint Descriptor
-+ * @maxp_mult:          Multiplier for maxp
-  * @dev_speed:          Device speed. One of the following values:
-  *                       - USB_SPEED_LOW
-  *                       - USB_SPEED_FULL
-@@ -335,6 +337,7 @@ struct dwc2_qh {
- 	u8 ep_type;
- 	u8 ep_is_in;
- 	u16 maxp;
-+	u16 maxp_mult;
- 	u8 dev_speed;
- 	u8 data_toggle;
- 	u8 ping_state;
-@@ -489,9 +492,14 @@ static inline u8 dwc2_hcd_get_pipe_type(
- 	return pipe->pipe_type;
- }
- 
--static inline u16 dwc2_hcd_get_mps(struct dwc2_hcd_pipe_info *pipe)
-+static inline u16 dwc2_hcd_get_maxp(struct dwc2_hcd_pipe_info *pipe)
-+{
-+	return pipe->maxp;
-+}
-+
-+static inline u16 dwc2_hcd_get_maxp_mult(struct dwc2_hcd_pipe_info *pipe)
- {
--	return pipe->mps;
-+	return pipe->maxp_mult;
- }
- 
- static inline u8 dwc2_hcd_get_dev_addr(struct dwc2_hcd_pipe_info *pipe)
-@@ -606,12 +614,6 @@ static inline bool dbg_urb(struct urb *u
- static inline bool dbg_perio(void) { return false; }
- #endif
- 
--/* High bandwidth multiplier as encoded in highspeed endpoint descriptors */
--#define dwc2_hb_mult(wmaxpacketsize) (1 + (((wmaxpacketsize) >> 11) & 0x03))
--
--/* Packet size for any kind of endpoint descriptor */
--#define dwc2_max_packet(wmaxpacketsize) ((wmaxpacketsize) & 0x07ff)
--
- /*
-  * Returns true if frame1 index is greater than frame2 index. The comparison
-  * is done modulo FRLISTEN_64_SIZE. This accounts for the rollover of the
---- a/drivers/usb/dwc2/hcd_intr.c
-+++ b/drivers/usb/dwc2/hcd_intr.c
-@@ -1579,8 +1579,9 @@ static void dwc2_hc_ahberr_intr(struct d
- 
- 	dev_err(hsotg->dev, "  Speed: %s\n", speed);
- 
--	dev_err(hsotg->dev, "  Max packet size: %d\n",
--		dwc2_hcd_get_mps(&urb->pipe_info));
-+	dev_err(hsotg->dev, "  Max packet size: %d (mult %d)\n",
-+		dwc2_hcd_get_maxp(&urb->pipe_info),
-+		dwc2_hcd_get_maxp_mult(&urb->pipe_info));
- 	dev_err(hsotg->dev, "  Data buffer length: %d\n", urb->length);
- 	dev_err(hsotg->dev, "  Transfer buffer: %p, Transfer DMA: %08lx\n",
- 		urb->buf, (unsigned long)urb->dma);
---- a/drivers/usb/dwc2/hcd_queue.c
-+++ b/drivers/usb/dwc2/hcd_queue.c
-@@ -703,7 +703,7 @@ static void dwc2_hs_pmap_unschedule(stru
- static int dwc2_uframe_schedule_split(struct dwc2_hsotg *hsotg,
- 				      struct dwc2_qh *qh)
- {
--	int bytecount = dwc2_hb_mult(qh->maxp) * dwc2_max_packet(qh->maxp);
-+	int bytecount = qh->maxp_mult * qh->maxp;
- 	int ls_search_slice;
- 	int err = 0;
- 	int host_interval_in_sched;
-@@ -1327,7 +1327,7 @@ static int dwc2_check_max_xfer_size(stru
- 	u32 max_channel_xfer_size;
- 	int status = 0;
- 
--	max_xfer_size = dwc2_max_packet(qh->maxp) * dwc2_hb_mult(qh->maxp);
-+	max_xfer_size = qh->maxp * qh->maxp_mult;
- 	max_channel_xfer_size = hsotg->params.max_transfer_size;
- 
- 	if (max_xfer_size > max_channel_xfer_size) {
-@@ -1460,8 +1460,9 @@ static void dwc2_qh_init(struct dwc2_hso
- 	u32 prtspd = (hprt & HPRT0_SPD_MASK) >> HPRT0_SPD_SHIFT;
- 	bool do_split = (prtspd == HPRT0_SPD_HIGH_SPEED &&
- 			 dev_speed != USB_SPEED_HIGH);
--	int maxp = dwc2_hcd_get_mps(&urb->pipe_info);
--	int bytecount = dwc2_hb_mult(maxp) * dwc2_max_packet(maxp);
-+	int maxp = dwc2_hcd_get_maxp(&urb->pipe_info);
-+	int maxp_mult = dwc2_hcd_get_maxp_mult(&urb->pipe_info);
-+	int bytecount = maxp_mult * maxp;
- 	char *speed, *type;
- 
- 	/* Initialize QH */
-@@ -1473,6 +1474,7 @@ static void dwc2_qh_init(struct dwc2_hso
- 
- 	qh->data_toggle = DWC2_HC_PID_DATA0;
- 	qh->maxp = maxp;
-+	qh->maxp_mult = maxp_mult;
- 	INIT_LIST_HEAD(&qh->qtd_list);
- 	INIT_LIST_HEAD(&qh->qh_list_entry);
- 
+ 	/* Logitech HD Pro Webcams C920, C920-C, C925e and C930e */
+ 	{ USB_DEVICE(0x046d, 0x082d), .driver_info = USB_QUIRK_DELAY_INIT },
+ 	{ USB_DEVICE(0x046d, 0x0841), .driver_info = USB_QUIRK_DELAY_INIT },
 
 
