@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4825D49330
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDDEB492EE
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:25:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729588AbfFQV2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:28:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55556 "EHLO mail.kernel.org"
+        id S1730051AbfFQVZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:25:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729095AbfFQV23 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:28:29 -0400
+        id S1729693AbfFQVZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:25:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27BC3204FD;
-        Mon, 17 Jun 2019 21:28:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D69B920657;
+        Mon, 17 Jun 2019 21:25:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806908;
-        bh=W0nEJ2HcSn5ppc2AopiwdJYBkCjGNiQP/SC3t8g1ZkA=;
+        s=default; t=1560806724;
+        bh=fqkjKtFeCYJPAeyGJH6xJYw/kbvNAqSDYjsLukaKB+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q3t6bHRiT+HKyCOg3aKbeIUpIW+rwxv2LGidZhyXbExZSiufZvnoqpq5AENLQV6gz
-         UVWfO9ucJJTP/VkEtxJAaCcMRSloWEAqQ6kdrwGY6+QYeZ2DLEg+GjzKyV+T8zzXA3
-         CFnhCVAtU043+tMClMGiMdo1QY7sSnkq5XedEwhM=
+        b=cMKXJ30pqGrUeC32GXWDwUnx0MgMCcc43PuZ39vsOQV10j8XrI6ZodakmTapoApA6
+         NEdSbYA1jrUIwwpLA/j3d/Ds2vC2bbme7ccyFxQ2bVsY4kKA4fm/PqOhcDw9tZNw/J
+         +RL/suq1k7wH/yiz7C+z7KhDhyB4mmNwtkSJyoww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 4.14 04/53] HID: wacom: Sync INTUOSP2_BT touch state after each frame if necessary
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 36/75] scsi: lpfc: correct rcu unlock issue in lpfc_nvme_info_show
 Date:   Mon, 17 Jun 2019 23:09:47 +0200
-Message-Id: <20190617210746.039489860@linuxfoundation.org>
+Message-Id: <20190617210754.185875136@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-References: <20190617210745.104187490@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +46,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <jason.gerecke@wacom.com>
+[ Upstream commit 79080d349f7f58a2e86c56043a3d04184d5f294a ]
 
-commit 69dbdfffef20c715df9f381b2cee4e9e0a4efd93 upstream.
+Many of the exit cases were not releasing the rcu read lock.  Corrected the
+exit paths.
 
-The Bluetooth interface of the 2nd-gen Intuos Pro batches together four
-independent "frames" of finger data into a single report. Each frame
-is essentially equivalent to a single USB report, with the up-to-10
-fingers worth of information being spread across two frames. At the
-moment the driver only calls `input_sync` after processing all four
-frames have been processed, which can result in the driver sending
-multiple updates for a single slot within the same SYN_REPORT. This
-can confuse userspace, so modify the driver to sync more often if
-necessary (i.e., after reporting the state of all fingers).
-
-Fixes: 4922cd26f03c ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
-Cc: <stable@vger.kernel.org> # 4.11+
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Tested-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_attr.c | 32 +++++++++++++++++++-------------
+ 1 file changed, 19 insertions(+), 13 deletions(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1328,11 +1328,17 @@ static void wacom_intuos_pro2_bt_touch(s
- 		if (wacom->num_contacts_left <= 0) {
- 			wacom->num_contacts_left = 0;
- 			wacom->shared->touch_down = wacom_wac_finger_count_touches(wacom);
-+			input_sync(touch_input);
+diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
+index cb19b12e7211..55cd96e2469c 100644
+--- a/drivers/scsi/lpfc/lpfc_attr.c
++++ b/drivers/scsi/lpfc/lpfc_attr.c
+@@ -341,7 +341,7 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
+ 		  phba->sli4_hba.scsi_xri_max,
+ 		  lpfc_sli4_get_els_iocb_cnt(phba));
+ 	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+-		goto buffer_done;
++		goto rcu_unlock_buf_done;
+ 
+ 	/* Port state is only one of two values for now. */
+ 	if (localport->port_id)
+@@ -357,7 +357,7 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
+ 		  wwn_to_u64(vport->fc_nodename.u.wwn),
+ 		  localport->port_id, statep);
+ 	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+-		goto buffer_done;
++		goto rcu_unlock_buf_done;
+ 
+ 	list_for_each_entry(ndlp, &vport->fc_nodes, nlp_listp) {
+ 		nrport = NULL;
+@@ -384,39 +384,39 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
+ 
+ 		/* Tab in to show lport ownership. */
+ 		if (strlcat(buf, "NVME RPORT       ", PAGE_SIZE) >= PAGE_SIZE)
+-			goto buffer_done;
++			goto rcu_unlock_buf_done;
+ 		if (phba->brd_no >= 10) {
+ 			if (strlcat(buf, " ", PAGE_SIZE) >= PAGE_SIZE)
+-				goto buffer_done;
++				goto rcu_unlock_buf_done;
  		}
+ 
+ 		scnprintf(tmp, sizeof(tmp), "WWPN x%llx ",
+ 			  nrport->port_name);
+ 		if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+-			goto buffer_done;
++			goto rcu_unlock_buf_done;
+ 
+ 		scnprintf(tmp, sizeof(tmp), "WWNN x%llx ",
+ 			  nrport->node_name);
+ 		if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+-			goto buffer_done;
++			goto rcu_unlock_buf_done;
+ 
+ 		scnprintf(tmp, sizeof(tmp), "DID x%06x ",
+ 			  nrport->port_id);
+ 		if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+-			goto buffer_done;
++			goto rcu_unlock_buf_done;
+ 
+ 		/* An NVME rport can have multiple roles. */
+ 		if (nrport->port_role & FC_PORT_ROLE_NVME_INITIATOR) {
+ 			if (strlcat(buf, "INITIATOR ", PAGE_SIZE) >= PAGE_SIZE)
+-				goto buffer_done;
++				goto rcu_unlock_buf_done;
+ 		}
+ 		if (nrport->port_role & FC_PORT_ROLE_NVME_TARGET) {
+ 			if (strlcat(buf, "TARGET ", PAGE_SIZE) >= PAGE_SIZE)
+-				goto buffer_done;
++				goto rcu_unlock_buf_done;
+ 		}
+ 		if (nrport->port_role & FC_PORT_ROLE_NVME_DISCOVERY) {
+ 			if (strlcat(buf, "DISCSRVC ", PAGE_SIZE) >= PAGE_SIZE)
+-				goto buffer_done;
++				goto rcu_unlock_buf_done;
+ 		}
+ 		if (nrport->port_role & ~(FC_PORT_ROLE_NVME_INITIATOR |
+ 					  FC_PORT_ROLE_NVME_TARGET |
+@@ -424,12 +424,12 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
+ 			scnprintf(tmp, sizeof(tmp), "UNKNOWN ROLE x%x",
+ 				  nrport->port_role);
+ 			if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+-				goto buffer_done;
++				goto rcu_unlock_buf_done;
+ 		}
+ 
+ 		scnprintf(tmp, sizeof(tmp), "%s\n", statep);
+ 		if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
+-			goto buffer_done;
++			goto rcu_unlock_buf_done;
  	}
+ 	rcu_read_unlock();
  
--	input_report_switch(touch_input, SW_MUTE_DEVICE, !(data[281] >> 7));
--	input_sync(touch_input);
-+	if (wacom->num_contacts_left == 0) {
-+		// Be careful that we don't accidentally call input_sync with
-+		// only a partial set of fingers of processed
-+		input_report_switch(touch_input, SW_MUTE_DEVICE, !(data[281] >> 7));
-+		input_sync(touch_input);
-+	}
+@@ -491,7 +491,13 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
+ 		  atomic_read(&lport->cmpl_fcp_err));
+ 	strlcat(buf, tmp, PAGE_SIZE);
+ 
+-buffer_done:
++	/* RCU is already unlocked. */
++	goto buffer_done;
 +
- }
++ rcu_unlock_buf_done:
++	rcu_read_unlock();
++
++ buffer_done:
+ 	len = strnlen(buf, PAGE_SIZE);
  
- static void wacom_intuos_pro2_bt_pad(struct wacom_wac *wacom)
+ 	if (unlikely(len >= (PAGE_SIZE - 1))) {
+-- 
+2.20.1
+
 
 
