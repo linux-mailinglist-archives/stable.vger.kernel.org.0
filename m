@@ -2,296 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C139D48B73
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 20:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D0C248BDF
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 20:24:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728654AbfFQSJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 14:09:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44704 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727580AbfFQSJy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 14:09:54 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E7FA208C4;
-        Mon, 17 Jun 2019 18:09:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560794994;
-        bh=oMYDQUXKSwPcLkBmI9wP3NaGmS+6lBlRr2hYTuc/Bwo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UXGs3mALRyEzzWf3kzgD76Fj4N+m51teyPFBy4f9WAmMAHFPG/n5kQ1ipQz6n5dQd
-         eLvnqYj/5+JYzfre4bMtgw+fRbOoHej1CQ7jT68THpE9gyAAVac83btTtvLD/4uLpB
-         /KwUF151X4LdVj6tcqK0fICvln1K3vOdSsBXKLig=
-Date:   Mon, 17 Jun 2019 20:09:51 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 5.1.11
-Message-ID: <20190617180951.GB16975@kroah.com>
-References: <20190617180944.GA16975@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190617180944.GA16975@kroah.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+        id S1726098AbfFQSYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 14:24:07 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:36824 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725764AbfFQSYH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 14:24:07 -0400
+Received: by mail-io1-f67.google.com with SMTP id h6so23460950ioh.3;
+        Mon, 17 Jun 2019 11:24:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=LNDj/9Uge4rb5LG4sl2oFwkMWYo5QYyd6vgWjHPxMYU=;
+        b=qQYXAZfu49iyzDbgqn6cbHpgYcLoIDlv7zGX98wyqWvuIYcHIxug+f4sJAV0e8O4xS
+         s2aspucn8QC8QewHtixUcfZtc37sAjg4Air9VWD8cmQdivRugh0avoZmTyk4tvKkEMM+
+         uCi9QqhFp1GzZUUoej5+j58BBKCszJrqE9LSTLHE3OQBav6nWg3gvpNEdf7ol3uwnMri
+         Ha2g/qaKSkhHN+sklpgoeU6VM0qsdYBK1J0JAG/c0O5TAzucfcxvUH8rWNbS3nvxTQmi
+         W45Q9UxajNij0sKKOqw9/RMl+1F/XFB7aUFZk/25qTaw1H1SumUXrt6TCVFXSbtgxEHf
+         7PyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=LNDj/9Uge4rb5LG4sl2oFwkMWYo5QYyd6vgWjHPxMYU=;
+        b=MOomKdaZ4tlHnx2hA8hPuFwByQVapFn7Ii6TIOoSiZimsGehhTK+cHcsUQcm8t5FQV
+         hQQuVqxQRVq08wEXY2MpJr2HrdBR9A61y5myHl00mIEIDlnXC2MAt8BjE0hHKdKCt3cM
+         uosNvXFWKqu8ZHFnbgR5SSun3d07lidsv+f7451rI17a20Ur8lZ3tmBMbMYlxqwwuucb
+         paTnHNCzgr8TvQaWU6wZgcsHCQd7Tuicb1+1c6qnAQZl1+hEeNMRP0enY2FwqQV2gZJA
+         hkiAVJFPxYe6cD9TH2HnvWYL0wT3G68Ke661Z4KcMLfa4ANdURaeo/B0YKE/10JYBtiF
+         Ohrw==
+X-Gm-Message-State: APjAAAX6967Y+DKCtqLGHZwchjy/t01KjCKM6Pw73E25GvNLAqx0IxZ/
+        BBVJonACh2IoEQGXV/DnUxA=
+X-Google-Smtp-Source: APXvYqzyjNQeJEGdeV6RSpDBxUhnrQBrAbJd9GIEz2zpA9IlQT9KOaNLnUdyRAooNwA/EyrALQpQGw==
+X-Received: by 2002:a5d:8e08:: with SMTP id e8mr42656031iod.139.1560795845930;
+        Mon, 17 Jun 2019 11:24:05 -0700 (PDT)
+Received: from svens-asus.arcx.com ([184.94.50.30])
+        by smtp.gmail.com with ESMTPSA id r5sm13961804iom.42.2019.06.17.11.24.04
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Mon, 17 Jun 2019 11:24:05 -0700 (PDT)
+From:   Sven Van Asbroeck <thesven73@gmail.com>
+X-Google-Original-From: Sven Van Asbroeck <TheSven73@gmail.com>
+To:     Luis Chamberlain <mcgrof@kernel.org>
+Cc:     Stable <stable@vger.kernel.org>,
+        Mimi Zohar <zohar@linux.vnet.ibm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] firmware: improve LSM/IMA security behaviour
+Date:   Mon, 17 Jun 2019 14:23:54 -0400
+Message-Id: <20190617182354.10846-1-TheSven73@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Documentation/networking/ip-sysctl.txt b/Documentation/networking/ip-sysctl.txt
-index c4ac35234f05..f0d09162c7a3 100644
---- a/Documentation/networking/ip-sysctl.txt
-+++ b/Documentation/networking/ip-sysctl.txt
-@@ -250,6 +250,14 @@ tcp_base_mss - INTEGER
- 	Path MTU discovery (MTU probing).  If MTU probing is enabled,
- 	this is the initial MSS used by the connection.
+The firmware loader queries if LSM/IMA permits it to load firmware
+via the sysfs fallback. Unfortunately, the code does the opposite:
+it expressly permits sysfs fw loading if security_kernel_load_data(
+LOADING_FIRMWARE) returns -EACCES. This happens because a
+zero-on-success return value is cast to a bool that's true on success.
+
+Fix the return value handling so we get the correct behaviour.
+
+Fixes: 6e852651f28e ("firmware: add call to LSM hook before firmware sysfs fallback")
+Cc: Stable <stable@vger.kernel.org>
+Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
+Cc: Kees Cook <keescook@chromium.org>
+To: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+---
+ drivers/base/firmware_loader/fallback.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/base/firmware_loader/fallback.c b/drivers/base/firmware_loader/fallback.c
+index f962488546b6..103b5d37fa86 100644
+--- a/drivers/base/firmware_loader/fallback.c
++++ b/drivers/base/firmware_loader/fallback.c
+@@ -659,7 +659,7 @@ static bool fw_run_sysfs_fallback(enum fw_opt opt_flags)
+ 	/* Also permit LSMs and IMA to fail firmware sysfs fallback */
+ 	ret = security_kernel_load_data(LOADING_FIRMWARE);
+ 	if (ret < 0)
+-		return ret;
++		return false;
  
-+tcp_min_snd_mss - INTEGER
-+	TCP SYN and SYNACK messages usually advertise an ADVMSS option,
-+	as described in RFC 1122 and RFC 6691.
-+	If this ADVMSS option is smaller than tcp_min_snd_mss,
-+	it is silently capped to tcp_min_snd_mss.
-+
-+	Default : 48 (at least 8 bytes of payload per segment)
-+
- tcp_congestion_control - STRING
- 	Set the congestion control algorithm to be used for new
- 	connections. The algorithm "reno" is always available, but
-diff --git a/Makefile b/Makefile
-index e7d1973d9c26..5171900e5c93 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 1
--SUBLEVEL = 10
-+SUBLEVEL = 11
- EXTRAVERSION =
- NAME = Shy Crocodile
- 
-diff --git a/include/linux/tcp.h b/include/linux/tcp.h
-index a9b0280687d5..2ba676469f98 100644
---- a/include/linux/tcp.h
-+++ b/include/linux/tcp.h
-@@ -488,4 +488,8 @@ static inline u16 tcp_mss_clamp(const struct tcp_sock *tp, u16 mss)
- 
- 	return (user_mss && user_mss < mss) ? user_mss : mss;
+ 	return fw_force_sysfs_fallback(opt_flags);
  }
-+
-+int tcp_skb_shift(struct sk_buff *to, struct sk_buff *from, int pcount,
-+		  int shiftlen);
-+
- #endif	/* _LINUX_TCP_H */
-diff --git a/include/net/netns/ipv4.h b/include/net/netns/ipv4.h
-index 7698460a3dd1..623cfbb7b8dc 100644
---- a/include/net/netns/ipv4.h
-+++ b/include/net/netns/ipv4.h
-@@ -117,6 +117,7 @@ struct netns_ipv4 {
- #endif
- 	int sysctl_tcp_mtu_probing;
- 	int sysctl_tcp_base_mss;
-+	int sysctl_tcp_min_snd_mss;
- 	int sysctl_tcp_probe_threshold;
- 	u32 sysctl_tcp_probe_interval;
- 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 68ee02523b87..36fcd0ad0515 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -55,6 +55,8 @@ void tcp_time_wait(struct sock *sk, int state, int timeo);
- 
- #define MAX_TCP_HEADER	(128 + MAX_HEADER)
- #define MAX_TCP_OPTION_SPACE 40
-+#define TCP_MIN_SND_MSS		48
-+#define TCP_MIN_GSO_SIZE	(TCP_MIN_SND_MSS - MAX_TCP_OPTION_SPACE)
- 
- /*
-  * Never offer a window over 32767 without using window scaling. Some
-diff --git a/include/uapi/linux/snmp.h b/include/uapi/linux/snmp.h
-index 86dc24a96c90..fd42c1316d3d 100644
---- a/include/uapi/linux/snmp.h
-+++ b/include/uapi/linux/snmp.h
-@@ -283,6 +283,7 @@ enum
- 	LINUX_MIB_TCPACKCOMPRESSED,		/* TCPAckCompressed */
- 	LINUX_MIB_TCPZEROWINDOWDROP,		/* TCPZeroWindowDrop */
- 	LINUX_MIB_TCPRCVQDROP,			/* TCPRcvQDrop */
-+	LINUX_MIB_TCPWQUEUETOOBIG,		/* TCPWqueueTooBig */
- 	__LINUX_MIB_MAX
- };
- 
-diff --git a/net/ipv4/proc.c b/net/ipv4/proc.c
-index c3610b37bb4c..dff6755dc1a7 100644
---- a/net/ipv4/proc.c
-+++ b/net/ipv4/proc.c
-@@ -291,6 +291,7 @@ static const struct snmp_mib snmp4_net_list[] = {
- 	SNMP_MIB_ITEM("TCPAckCompressed", LINUX_MIB_TCPACKCOMPRESSED),
- 	SNMP_MIB_ITEM("TCPZeroWindowDrop", LINUX_MIB_TCPZEROWINDOWDROP),
- 	SNMP_MIB_ITEM("TCPRcvQDrop", LINUX_MIB_TCPRCVQDROP),
-+	SNMP_MIB_ITEM("TCPWqueueTooBig", LINUX_MIB_TCPWQUEUETOOBIG),
- 	SNMP_MIB_SENTINEL
- };
- 
-diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
-index eeb4041fa5f9..4f1fa744d3c8 100644
---- a/net/ipv4/sysctl_net_ipv4.c
-+++ b/net/ipv4/sysctl_net_ipv4.c
-@@ -39,6 +39,8 @@ static int ip_local_port_range_min[] = { 1, 1 };
- static int ip_local_port_range_max[] = { 65535, 65535 };
- static int tcp_adv_win_scale_min = -31;
- static int tcp_adv_win_scale_max = 31;
-+static int tcp_min_snd_mss_min = TCP_MIN_SND_MSS;
-+static int tcp_min_snd_mss_max = 65535;
- static int ip_privileged_port_min;
- static int ip_privileged_port_max = 65535;
- static int ip_ttl_min = 1;
-@@ -748,6 +750,15 @@ static struct ctl_table ipv4_net_table[] = {
- 		.mode		= 0644,
- 		.proc_handler	= proc_dointvec,
- 	},
-+	{
-+		.procname	= "tcp_min_snd_mss",
-+		.data		= &init_net.ipv4.sysctl_tcp_min_snd_mss,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec_minmax,
-+		.extra1		= &tcp_min_snd_mss_min,
-+		.extra2		= &tcp_min_snd_mss_max,
-+	},
- 	{
- 		.procname	= "tcp_probe_threshold",
- 		.data		= &init_net.ipv4.sysctl_tcp_probe_threshold,
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 6baa6dc1b13b..365c8490b34b 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -3889,6 +3889,7 @@ void __init tcp_init(void)
- 	unsigned long limit;
- 	unsigned int i;
- 
-+	BUILD_BUG_ON(TCP_MIN_SND_MSS <= MAX_TCP_OPTION_SPACE);
- 	BUILD_BUG_ON(sizeof(struct tcp_skb_cb) >
- 		     FIELD_SIZEOF(struct sk_buff, cb));
- 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 731d3045b50a..d48f935c8e28 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -1296,7 +1296,7 @@ static bool tcp_shifted_skb(struct sock *sk, struct sk_buff *prev,
- 	TCP_SKB_CB(skb)->seq += shifted;
- 
- 	tcp_skb_pcount_add(prev, pcount);
--	BUG_ON(tcp_skb_pcount(skb) < pcount);
-+	WARN_ON_ONCE(tcp_skb_pcount(skb) < pcount);
- 	tcp_skb_pcount_add(skb, -pcount);
- 
- 	/* When we're adding to gso_segs == 1, gso_size will be zero,
-@@ -1362,6 +1362,21 @@ static int skb_can_shift(const struct sk_buff *skb)
- 	return !skb_headlen(skb) && skb_is_nonlinear(skb);
- }
- 
-+int tcp_skb_shift(struct sk_buff *to, struct sk_buff *from,
-+		  int pcount, int shiftlen)
-+{
-+	/* TCP min gso_size is 8 bytes (TCP_MIN_GSO_SIZE)
-+	 * Since TCP_SKB_CB(skb)->tcp_gso_segs is 16 bits, we need
-+	 * to make sure not storing more than 65535 * 8 bytes per skb,
-+	 * even if current MSS is bigger.
-+	 */
-+	if (unlikely(to->len + shiftlen >= 65535 * TCP_MIN_GSO_SIZE))
-+		return 0;
-+	if (unlikely(tcp_skb_pcount(to) + pcount > 65535))
-+		return 0;
-+	return skb_shift(to, from, shiftlen);
-+}
-+
- /* Try collapsing SACK blocks spanning across multiple skbs to a single
-  * skb.
-  */
-@@ -1467,7 +1482,7 @@ static struct sk_buff *tcp_shift_skb_data(struct sock *sk, struct sk_buff *skb,
- 	if (!after(TCP_SKB_CB(skb)->seq + len, tp->snd_una))
- 		goto fallback;
- 
--	if (!skb_shift(prev, skb, len))
-+	if (!tcp_skb_shift(prev, skb, pcount, len))
- 		goto fallback;
- 	if (!tcp_shifted_skb(sk, prev, skb, state, pcount, len, mss, dup_sack))
- 		goto out;
-@@ -1485,11 +1500,10 @@ static struct sk_buff *tcp_shift_skb_data(struct sock *sk, struct sk_buff *skb,
- 		goto out;
- 
- 	len = skb->len;
--	if (skb_shift(prev, skb, len)) {
--		pcount += tcp_skb_pcount(skb);
--		tcp_shifted_skb(sk, prev, skb, state, tcp_skb_pcount(skb),
-+	pcount = tcp_skb_pcount(skb);
-+	if (tcp_skb_shift(prev, skb, pcount, len))
-+		tcp_shifted_skb(sk, prev, skb, state, pcount,
- 				len, mss, 0);
--	}
- 
- out:
- 	return prev;
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index a2896944aa37..72cb13cf41e7 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -2626,6 +2626,7 @@ static int __net_init tcp_sk_init(struct net *net)
- 	net->ipv4.sysctl_tcp_ecn_fallback = 1;
- 
- 	net->ipv4.sysctl_tcp_base_mss = TCP_BASE_MSS;
-+	net->ipv4.sysctl_tcp_min_snd_mss = TCP_MIN_SND_MSS;
- 	net->ipv4.sysctl_tcp_probe_threshold = TCP_PROBE_THRESHOLD;
- 	net->ipv4.sysctl_tcp_probe_interval = TCP_PROBE_INTERVAL;
- 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 4522579aaca2..2d86e1bc483c 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1299,6 +1299,11 @@ int tcp_fragment(struct sock *sk, enum tcp_queue tcp_queue,
- 	if (nsize < 0)
- 		nsize = 0;
- 
-+	if (unlikely((sk->sk_wmem_queued >> 1) > sk->sk_sndbuf)) {
-+		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPWQUEUETOOBIG);
-+		return -ENOMEM;
-+	}
-+
- 	if (skb_unclone(skb, gfp))
- 		return -ENOMEM;
- 
-@@ -1457,8 +1462,7 @@ static inline int __tcp_mtu_to_mss(struct sock *sk, int pmtu)
- 	mss_now -= icsk->icsk_ext_hdr_len;
- 
- 	/* Then reserve room for full set of TCP options and 8 bytes of data */
--	if (mss_now < 48)
--		mss_now = 48;
-+	mss_now = max(mss_now, sock_net(sk)->ipv4.sysctl_tcp_min_snd_mss);
- 	return mss_now;
- }
- 
-@@ -2750,7 +2754,7 @@ static bool tcp_collapse_retrans(struct sock *sk, struct sk_buff *skb)
- 		if (next_skb_size <= skb_availroom(skb))
- 			skb_copy_bits(next_skb, 0, skb_put(skb, next_skb_size),
- 				      next_skb_size);
--		else if (!skb_shift(skb, next_skb, next_skb_size))
-+		else if (!tcp_skb_shift(skb, next_skb, 1, next_skb_size))
- 			return false;
- 	}
- 	tcp_highest_sack_replace(sk, next_skb, skb);
-diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index f0c86398e6a7..cec6c542ca39 100644
---- a/net/ipv4/tcp_timer.c
-+++ b/net/ipv4/tcp_timer.c
-@@ -154,6 +154,7 @@ static void tcp_mtu_probing(struct inet_connection_sock *icsk, struct sock *sk)
- 		mss = tcp_mtu_to_mss(sk, icsk->icsk_mtup.search_low) >> 1;
- 		mss = min(net->ipv4.sysctl_tcp_base_mss, mss);
- 		mss = max(mss, 68 - tcp_sk(sk)->tcp_header_len);
-+		mss = max(mss, net->ipv4.sysctl_tcp_min_snd_mss);
- 		icsk->icsk_mtup.search_low = tcp_mss_to_mtu(sk, mss);
- 	}
- 	tcp_sync_mss(sk, icsk->icsk_pmtu_cookie);
+-- 
+2.17.1
+
