@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F5374933A
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:28:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D95C493B1
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729638AbfFQV24 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:28:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56034 "EHLO mail.kernel.org"
+        id S1730301AbfFQV06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:26:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730625AbfFQV24 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:28:56 -0400
+        id S1729999AbfFQV05 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:26:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4C97204FD;
-        Mon, 17 Jun 2019 21:28:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 348042063F;
+        Mon, 17 Jun 2019 21:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806934;
-        bh=sSkpEd/tsKtdVlynj8lDlqkdYmDE5okHyirgF3MBG4w=;
+        s=default; t=1560806816;
+        bh=KQRPPfBfIe6EpwOI41pQA4ra/TRfh8MbVhGnotLGUnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRNJ9I1nDylUQJPnNHI/me2cO1szczJ41wSguqk82JVfHK5AtN5GTDnxveK3Q+cjf
-         BgtzsPO611Y8xBqOwX6iNJpOGr9c1bbEfmvD5ID4mucdMeMCAQ0ydCZvLSI6z+W8RQ
-         0a9mdbkBV1rTSKncQMz1quHza5VXBMMWhauA8GJs=
+        b=JXGtRR5zF1wpJXlev56VGojeIYgnK4docXEmM8JhVYOYEMxtH+yFgq/eZb/IeOBID
+         4exq+s0nh28JBkvxO+r8rqsHYYwgWFhHK60NlUY/FAmp2URnOXZ5/YmPnRFP6JRS14
+         MAGTIo3iSyAfn8DjJorw9Bc1aEiha79WwpGxtDBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Semyon Verchenko <semverchenko@factor-ts.ru>
-Subject: [PATCH 4.14 33/53] platform/x86: pmc_atom: Add Lex 3I380D industrial PC to critclk_systems DMI table
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 65/75] USB: serial: option: add Telit 0x1260 and 0x1261 compositions
 Date:   Mon, 17 Jun 2019 23:10:16 +0200
-Message-Id: <20190617210751.164769195@linuxfoundation.org>
+Message-Id: <20190617210755.598477789@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-References: <20190617210745.104187490@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3d0818f5eba80fbe4c0addbfe6ddb2d19dc82cd4 ]
+From: Daniele Palmas <dnlplm@gmail.com>
 
-The Lex 3I380D industrial PC has 4 ethernet controllers on board
-which need pmc_plt_clk0 - 3 to function, add it to the critclk_systems
-DMI table, so that drivers/clk/x86/clk-pmc-atom.c will mark the clocks
-as CLK_CRITICAL and they will not get turned off.
+commit f3dfd4072c3ee6e287f501a18b5718b185d6a940 upstream.
 
-Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
-Reported-and-tested-by: Semyon Verchenko <semverchenko@factor-ts.ru>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Added support for Telit LE910Cx 0x1260 and 0x1261 compositions.
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/platform/x86/pmc_atom.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
-index 50f2a125cd2c..e3e1f83a2dd7 100644
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -428,12 +428,21 @@ static int pmc_dbgfs_register(struct pmc_dev *pmc)
-  */
- static const struct dmi_system_id critclk_systems[] = {
- 	{
-+		/* pmc_plt_clk0 is used for an external HSIC USB HUB */
- 		.ident = "MPL CEC1x",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "MPL AG"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "CEC10 Family"),
- 		},
- 	},
-+	{
-+		/* pmc_plt_clk0 - 3 are used for the 4 ethernet controllers */
-+		.ident = "Lex 3I380D",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "3I380D"),
-+		},
-+	},
- 	{ /*sentinel*/ }
- };
- 
--- 
-2.20.1
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1171,6 +1171,10 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1213, 0xff) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1214),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
++	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1900),				/* Telit LN940 (QMI) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1901, 0xff),	/* Telit LN940 (MBIM) */
 
 
