@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE4C4493E7
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDE774943D
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730032AbfFQVZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:25:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51088 "EHLO mail.kernel.org"
+        id S1728733AbfFQVU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:20:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730028AbfFQVZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:25:08 -0400
+        id S1726568AbfFQVU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:20:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F9362070B;
-        Mon, 17 Jun 2019 21:25:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A635121019;
+        Mon, 17 Jun 2019 21:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806707;
-        bh=/b6D2v5AkpL+O5/7LJH+ix77sBO15xAX169kA2TaGH8=;
+        s=default; t=1560806456;
+        bh=g7P1L7SKa2rzkL/jonQy9+CIUKP/zXnEziXf8WBo9aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABL155fNibbSqx71RAbdlJ2PeIemAN8lD5nNNn/4xYOAUV455g8ju+EdDu+TdfVvy
-         aZqRt6WClSVjqfA16NXoYuK6GApTfhsyuJt45U99HeB/BcxVCrJD28ydGOoshxGsIs
-         kRTtsGfZydYBmaYzy2nTL94dt2nRNyU2LGeSdsMU=
+        b=GuI+gtlu1oLmF1/oloqe/FcrFbgOog+1yPUv2ABhQZKuQTgjnCsl0p60Zdb68HZeU
+         mdwcDgtpKJ8poMUewm1o2prLyFtZWoDY5W3ntIeBIhsphYclz+HPYSIPea9l7EBiFF
+         c1er8GMsHnP6MqPDFI/H1MouGuogMyqO+kbrSc48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 4.19 08/75] HID: wacom: Sync INTUOSP2_BT touch state after each frame if necessary
+        stable@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 059/115] net: macb: fix error format in dev_err()
 Date:   Mon, 17 Jun 2019 23:09:19 +0200
-Message-Id: <20190617210753.170219676@linuxfoundation.org>
+Message-Id: <20190617210803.306492097@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+References: <20190617210759.929316339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +46,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <jason.gerecke@wacom.com>
+[ Upstream commit f413cbb332a0b5251a790f396d0eb4ebcade5dec ]
 
-commit 69dbdfffef20c715df9f381b2cee4e9e0a4efd93 upstream.
+Errors are negative numbers. Using %u shows them as very large positive
+numbers such as 4294967277 that don't make sense. Use the %d format
+instead, and get a much nicer -19.
 
-The Bluetooth interface of the 2nd-gen Intuos Pro batches together four
-independent "frames" of finger data into a single report. Each frame
-is essentially equivalent to a single USB report, with the up-to-10
-fingers worth of information being spread across two frames. At the
-moment the driver only calls `input_sync` after processing all four
-frames have been processed, which can result in the driver sending
-multiple updates for a single slot within the same SYN_REPORT. This
-can confuse userspace, so modify the driver to sync more often if
-necessary (i.e., after reporting the state of all fingers).
-
-Fixes: 4922cd26f03c ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
-Cc: <stable@vger.kernel.org> # 4.11+
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+Fixes: b48e0bab142f ("net: macb: Migrate to devm clock interface")
+Fixes: 93b31f48b3ba ("net/macb: unify clock management")
+Fixes: 421d9df0628b ("net/macb: merge at91_ether driver into macb driver")
+Fixes: aead88bd0e99 ("net: ethernet: macb: Add support for rx_clk")
+Fixes: f5473d1d44e4 ("net: macb: Support clock management for tsu_clk")
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/cadence/macb_main.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1369,11 +1369,17 @@ static void wacom_intuos_pro2_bt_touch(s
- 		if (wacom->num_contacts_left <= 0) {
- 			wacom->num_contacts_left = 0;
- 			wacom->shared->touch_down = wacom_wac_finger_count_touches(wacom);
-+			input_sync(touch_input);
- 		}
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index a6535e226d84..d005ed12b4d1 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -3377,7 +3377,7 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
+ 		if (!err)
+ 			err = -ENODEV;
+ 
+-		dev_err(&pdev->dev, "failed to get macb_clk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to get macb_clk (%d)\n", err);
+ 		return err;
  	}
  
--	input_report_switch(touch_input, SW_MUTE_DEVICE, !(data[281] >> 7));
--	input_sync(touch_input);
-+	if (wacom->num_contacts_left == 0) {
-+		// Be careful that we don't accidentally call input_sync with
-+		// only a partial set of fingers of processed
-+		input_report_switch(touch_input, SW_MUTE_DEVICE, !(data[281] >> 7));
-+		input_sync(touch_input);
-+	}
-+
- }
+@@ -3386,7 +3386,7 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
+ 		if (!err)
+ 			err = -ENODEV;
  
- static void wacom_intuos_pro2_bt_pad(struct wacom_wac *wacom)
+-		dev_err(&pdev->dev, "failed to get hclk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to get hclk (%d)\n", err);
+ 		return err;
+ 	}
+ 
+@@ -3404,31 +3404,31 @@ static int macb_clk_init(struct platform_device *pdev, struct clk **pclk,
+ 
+ 	err = clk_prepare_enable(*pclk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to enable pclk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to enable pclk (%d)\n", err);
+ 		return err;
+ 	}
+ 
+ 	err = clk_prepare_enable(*hclk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to enable hclk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to enable hclk (%d)\n", err);
+ 		goto err_disable_pclk;
+ 	}
+ 
+ 	err = clk_prepare_enable(*tx_clk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to enable tx_clk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to enable tx_clk (%d)\n", err);
+ 		goto err_disable_hclk;
+ 	}
+ 
+ 	err = clk_prepare_enable(*rx_clk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to enable rx_clk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to enable rx_clk (%d)\n", err);
+ 		goto err_disable_txclk;
+ 	}
+ 
+ 	err = clk_prepare_enable(*tsu_clk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to enable tsu_clk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to enable tsu_clk (%d)\n", err);
+ 		goto err_disable_rxclk;
+ 	}
+ 
+@@ -3902,7 +3902,7 @@ static int at91ether_clk_init(struct platform_device *pdev, struct clk **pclk,
+ 
+ 	err = clk_prepare_enable(*pclk);
+ 	if (err) {
+-		dev_err(&pdev->dev, "failed to enable pclk (%u)\n", err);
++		dev_err(&pdev->dev, "failed to enable pclk (%d)\n", err);
+ 		return err;
+ 	}
+ 
+-- 
+2.20.1
+
 
 
