@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B894493CF
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C79C1493F4
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730077AbfFQVZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:25:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51666 "EHLO mail.kernel.org"
+        id S1729471AbfFQVYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:24:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729704AbfFQVZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:25:30 -0400
+        id S1729845AbfFQVYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:24:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C58520657;
-        Mon, 17 Jun 2019 21:25:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E8E72070B;
+        Mon, 17 Jun 2019 21:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806730;
-        bh=fAdnBziSJffBYuKkdBsMDxs4Ewy2DtT/7aKScd6MlMg=;
+        s=default; t=1560806643;
+        bh=9Uu2P+0tXcD/Wapl3Z4SCnB0cUKh2ZVQTx4ZFSkCqgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rABUamYi/fgyR8G6nFxht1hSa7VewI/iA4uHG6CDrFJAh88t4ZyvpdaCWjUNyd8vc
-         dDtSXLhAWXiTOCHvMgt2rEP/FSF4TvBEUU5MvAW8jTie7oKLquTju1go4LA7NKXLgB
-         32tJF5GMqZDOpqwLzZaUvU6fxyMB2VZGgqWLlOXc=
+        b=TgPh4wYYbb1gVISTHE5PA9aZ5reUfyNgMLWo5T//FnITLwoRvjzObzgGIT8FZUPmP
+         a0JIEXIPw6n0hlJ+AZdekBhdOOgCPGP8co0v2MKOILIcpMtPNZ7xhBWF0zArABtjFk
+         llXOHtx0NShSkWbl/hvTq9Ak5WYp9BxFBbDDCquE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/75] arm64/mm: Inhibit huge-vmap with ptdump
+Subject: [PATCH 5.1 089/115] KVM: x86/pmu: mask the result of rdpmc according to the width of the counters
 Date:   Mon, 17 Jun 2019 23:09:49 +0200
-Message-Id: <20190617210754.255442955@linuxfoundation.org>
+Message-Id: <20190617210804.501479428@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+References: <20190617210759.929316339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,74 +43,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7ba36eccb3f83983a651efd570b4f933ecad1b5c ]
+[ Upstream commit 0e6f467ee28ec97f68c7b74e35ec1601bb1368a7 ]
 
-The arm64 ptdump code can race with concurrent modification of the
-kernel page tables. At the time this was added, this was sound as:
+This patch will simplify the changes in the next, by enforcing the
+masking of the counters to RDPMC and RDMSR.
 
-* Modifications to leaf entries could result in stale information being
-  logged, but would not result in a functional problem.
-
-* Boot time modifications to non-leaf entries (e.g. freeing of initmem)
-  were performed when the ptdump code cannot be invoked.
-
-* At runtime, modifications to non-leaf entries only occurred in the
-  vmalloc region, and these were strictly additive, as intermediate
-  entries were never freed.
-
-However, since commit:
-
-  commit 324420bf91f6 ("arm64: add support for ioremap() block mappings")
-
-... it has been possible to create huge mappings in the vmalloc area at
-runtime, and as part of this existing intermediate levels of table my be
-removed and freed.
-
-It's possible for the ptdump code to race with this, and continue to
-walk tables which have been freed (and potentially poisoned or
-reallocated). As a result of this, the ptdump code may dereference bogus
-addresses, which could be fatal.
-
-Since huge-vmap is a TLB and memory optimization, we can disable it when
-the runtime ptdump code is in use to avoid this problem.
-
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Fixes: 324420bf91f60582 ("arm64: add support for ioremap() block mappings")
-Acked-by: Ard Biesheuvel <ard.biesheuvel@arm.com>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/mmu.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/x86/kvm/pmu.c           | 10 +++-------
+ arch/x86/kvm/pmu.h           |  3 ++-
+ arch/x86/kvm/pmu_amd.c       |  2 +-
+ arch/x86/kvm/vmx/pmu_intel.c | 13 +++++++++----
+ 4 files changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 8080c9f489c3..0fa558176fb1 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -921,13 +921,18 @@ void *__init fixmap_remap_fdt(phys_addr_t dt_phys)
+diff --git a/arch/x86/kvm/pmu.c b/arch/x86/kvm/pmu.c
+index e39741997893..dd745b58ffd8 100644
+--- a/arch/x86/kvm/pmu.c
++++ b/arch/x86/kvm/pmu.c
+@@ -283,7 +283,7 @@ int kvm_pmu_rdpmc(struct kvm_vcpu *vcpu, unsigned idx, u64 *data)
+ 	bool fast_mode = idx & (1u << 31);
+ 	struct kvm_pmu *pmu = vcpu_to_pmu(vcpu);
+ 	struct kvm_pmc *pmc;
+-	u64 ctr_val;
++	u64 mask = fast_mode ? ~0u : ~0ull;
  
- int __init arch_ioremap_pud_supported(void)
- {
--	/* only 4k granule supports level 1 block mappings */
--	return IS_ENABLED(CONFIG_ARM64_4K_PAGES);
-+	/*
-+	 * Only 4k granule supports level 1 block mappings.
-+	 * SW table walks can't handle removal of intermediate entries.
-+	 */
-+	return IS_ENABLED(CONFIG_ARM64_4K_PAGES) &&
-+	       !IS_ENABLED(CONFIG_ARM64_PTDUMP_DEBUGFS);
+ 	if (!pmu->version)
+ 		return 1;
+@@ -291,15 +291,11 @@ int kvm_pmu_rdpmc(struct kvm_vcpu *vcpu, unsigned idx, u64 *data)
+ 	if (is_vmware_backdoor_pmc(idx))
+ 		return kvm_pmu_rdpmc_vmware(vcpu, idx, data);
+ 
+-	pmc = kvm_x86_ops->pmu_ops->msr_idx_to_pmc(vcpu, idx);
++	pmc = kvm_x86_ops->pmu_ops->msr_idx_to_pmc(vcpu, idx, &mask);
+ 	if (!pmc)
+ 		return 1;
+ 
+-	ctr_val = pmc_read_counter(pmc);
+-	if (fast_mode)
+-		ctr_val = (u32)ctr_val;
+-
+-	*data = ctr_val;
++	*data = pmc_read_counter(pmc) & mask;
+ 	return 0;
  }
  
- int __init arch_ioremap_pmd_supported(void)
- {
--	return 1;
-+	/* See arch_ioremap_pud_supported() */
-+	return !IS_ENABLED(CONFIG_ARM64_PTDUMP_DEBUGFS);
+diff --git a/arch/x86/kvm/pmu.h b/arch/x86/kvm/pmu.h
+index ba8898e1a854..22dff661145a 100644
+--- a/arch/x86/kvm/pmu.h
++++ b/arch/x86/kvm/pmu.h
+@@ -25,7 +25,8 @@ struct kvm_pmu_ops {
+ 	unsigned (*find_fixed_event)(int idx);
+ 	bool (*pmc_is_enabled)(struct kvm_pmc *pmc);
+ 	struct kvm_pmc *(*pmc_idx_to_pmc)(struct kvm_pmu *pmu, int pmc_idx);
+-	struct kvm_pmc *(*msr_idx_to_pmc)(struct kvm_vcpu *vcpu, unsigned idx);
++	struct kvm_pmc *(*msr_idx_to_pmc)(struct kvm_vcpu *vcpu, unsigned idx,
++					  u64 *mask);
+ 	int (*is_valid_msr_idx)(struct kvm_vcpu *vcpu, unsigned idx);
+ 	bool (*is_valid_msr)(struct kvm_vcpu *vcpu, u32 msr);
+ 	int (*get_msr)(struct kvm_vcpu *vcpu, u32 msr, u64 *data);
+diff --git a/arch/x86/kvm/pmu_amd.c b/arch/x86/kvm/pmu_amd.c
+index 50fa9450fcf1..d3118088f1cd 100644
+--- a/arch/x86/kvm/pmu_amd.c
++++ b/arch/x86/kvm/pmu_amd.c
+@@ -186,7 +186,7 @@ static int amd_is_valid_msr_idx(struct kvm_vcpu *vcpu, unsigned idx)
  }
  
- int pud_set_huge(pud_t *pudp, phys_addr_t phys, pgprot_t prot)
+ /* idx is the ECX register of RDPMC instruction */
+-static struct kvm_pmc *amd_msr_idx_to_pmc(struct kvm_vcpu *vcpu, unsigned idx)
++static struct kvm_pmc *amd_msr_idx_to_pmc(struct kvm_vcpu *vcpu, unsigned idx, u64 *mask)
+ {
+ 	struct kvm_pmu *pmu = vcpu_to_pmu(vcpu);
+ 	struct kvm_pmc *counters;
+diff --git a/arch/x86/kvm/vmx/pmu_intel.c b/arch/x86/kvm/vmx/pmu_intel.c
+index 5ab4a364348e..ad7ea81fbfbf 100644
+--- a/arch/x86/kvm/vmx/pmu_intel.c
++++ b/arch/x86/kvm/vmx/pmu_intel.c
+@@ -126,7 +126,7 @@ static int intel_is_valid_msr_idx(struct kvm_vcpu *vcpu, unsigned idx)
+ }
+ 
+ static struct kvm_pmc *intel_msr_idx_to_pmc(struct kvm_vcpu *vcpu,
+-					    unsigned idx)
++					    unsigned idx, u64 *mask)
+ {
+ 	struct kvm_pmu *pmu = vcpu_to_pmu(vcpu);
+ 	bool fixed = idx & (1u << 30);
+@@ -138,6 +138,7 @@ static struct kvm_pmc *intel_msr_idx_to_pmc(struct kvm_vcpu *vcpu,
+ 	if (fixed && idx >= pmu->nr_arch_fixed_counters)
+ 		return NULL;
+ 	counters = fixed ? pmu->fixed_counters : pmu->gp_counters;
++	*mask &= pmu->counter_bitmask[fixed ? KVM_PMC_FIXED : KVM_PMC_GP];
+ 
+ 	return &counters[idx];
+ }
+@@ -183,9 +184,13 @@ static int intel_pmu_get_msr(struct kvm_vcpu *vcpu, u32 msr, u64 *data)
+ 		*data = pmu->global_ovf_ctrl;
+ 		return 0;
+ 	default:
+-		if ((pmc = get_gp_pmc(pmu, msr, MSR_IA32_PERFCTR0)) ||
+-		    (pmc = get_fixed_pmc(pmu, msr))) {
+-			*data = pmc_read_counter(pmc);
++		if ((pmc = get_gp_pmc(pmu, msr, MSR_IA32_PERFCTR0))) {
++			u64 val = pmc_read_counter(pmc);
++			*data = val & pmu->counter_bitmask[KVM_PMC_GP];
++			return 0;
++		} else if ((pmc = get_fixed_pmc(pmu, msr))) {
++			u64 val = pmc_read_counter(pmc);
++			*data = val & pmu->counter_bitmask[KVM_PMC_FIXED];
+ 			return 0;
+ 		} else if ((pmc = get_gp_pmc(pmu, msr, MSR_P6_EVNTSEL0))) {
+ 			*data = pmc->eventsel;
 -- 
 2.20.1
 
