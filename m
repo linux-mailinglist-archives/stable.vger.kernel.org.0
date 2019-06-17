@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18BD2493D3
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57562493F3
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729671AbfFQVZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:25:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52280 "EHLO mail.kernel.org"
+        id S1729453AbfFQVX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:23:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730132AbfFQVZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:25:54 -0400
+        id S1729017AbfFQVX6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:23:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A776C2166E;
-        Mon, 17 Jun 2019 21:25:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69CF22063F;
+        Mon, 17 Jun 2019 21:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806753;
-        bh=RWS4ypcpewR1dccRFjGV9Y/7aVml2BDNYi2XHtLitoo=;
+        s=default; t=1560806637;
+        bh=Sqcme+VWlYgXM3RIsP6CG6OkhM/xpEogeAgWCEriq2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDbeTRD3xX/6TapbzGkmPk8mDDhjrZFZ5uNWUQ8xofg/1SYnect56v1Bk/lTHbA6J
-         Xs4D0C2YYaRWLNoITWZ/X6YdJ31oqwpchJ5V4XG2XFpvtzGeBGx4WV4DsNUi/9mVut
-         NEy3N0knQgTVEXFSQf2yew1dh3y6wEwk1etsnLQQ=
+        b=NdenmgdGG2NtD7rWP49I5JXRBz3Qb4FSjgtMPbhkVs/XxXk9/lAJ+d5gn0heAALIr
+         RKF+IhmWoPB/oOP1IY1WWY2hskSteymfbRvl4iCRUK2u41Pzohbz6j345sZo1TVJpf
+         KvZNxT8iCbi/rfIh6Ewi7SMIArNtCCV/yE7PGulM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 45/75] platform/x86: pmc_atom: Add several Beckhoff Automation boards to critclk_systems DMI table
-Date:   Mon, 17 Jun 2019 23:09:56 +0200
-Message-Id: <20190617210754.500430741@linuxfoundation.org>
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Minas Harutyunyan <hminas@synopsys.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>
+Subject: [PATCH 5.1 097/115] usb: dwc2: Fix DMA cache alignment issues
+Date:   Mon, 17 Jun 2019 23:09:57 +0200
+Message-Id: <20190617210804.850628684@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+References: <20190617210759.929316339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d6423bd03031c020121da26c41a26bd5cc6d0da3 ]
+From: Martin Schiller <ms@dev.tdt.de>
 
-There are several Beckhoff Automation industrial PC boards which use
-pmc_plt_clk* clocks for ethernet controllers. This adds affected boards
-to critclk_systems DMI table so the clocks are marked as CLK_CRITICAL and
-not turned off.
+commit 4a4863bf2e7932e584a3a462d3c6daf891142ddc upstream.
 
-Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
-Signed-off-by: Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Insert a padding between data and the stored_xfer_buffer pointer to
+ensure they are not on the same cache line.
+
+Otherwise, the stored_xfer_buffer gets corrupted for IN URBs on
+non-cache-coherent systems. (In my case: Lantiq xRX200 MIPS)
+
+Fixes: 3bc04e28a030 ("usb: dwc2: host: Get aligned DMA in a more supported way")
+Fixes: 56406e017a88 ("usb: dwc2: Fix DMA alignment to start at allocated boundary")
+Cc: <stable@vger.kernel.org>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/platform/x86/pmc_atom.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/usb/dwc2/hcd.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
-index a311f48ce7c9..b1d804376237 100644
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -413,6 +413,30 @@ static const struct dmi_system_id critclk_systems[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "3I380D"),
- 		},
- 	},
-+	{
-+		/* pmc_plt_clk* - are used for ethernet controllers */
-+		.ident = "Beckhoff CB3163",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "CB3163"),
-+		},
-+	},
-+	{
-+		/* pmc_plt_clk* - are used for ethernet controllers */
-+		.ident = "Beckhoff CB6263",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "CB6263"),
-+		},
-+	},
-+	{
-+		/* pmc_plt_clk* - are used for ethernet controllers */
-+		.ident = "Beckhoff CB6363",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "CB6363"),
-+		},
-+	},
- 	{ /*sentinel*/ }
- };
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -2664,8 +2664,10 @@ static void dwc2_free_dma_aligned_buffer
+ 		return;
  
--- 
-2.20.1
-
+ 	/* Restore urb->transfer_buffer from the end of the allocated area */
+-	memcpy(&stored_xfer_buffer, urb->transfer_buffer +
+-	       urb->transfer_buffer_length, sizeof(urb->transfer_buffer));
++	memcpy(&stored_xfer_buffer,
++	       PTR_ALIGN(urb->transfer_buffer + urb->transfer_buffer_length,
++			 dma_get_cache_alignment()),
++	       sizeof(urb->transfer_buffer));
+ 
+ 	if (usb_urb_dir_in(urb)) {
+ 		if (usb_pipeisoc(urb->pipe))
+@@ -2697,6 +2699,7 @@ static int dwc2_alloc_dma_aligned_buffer
+ 	 * DMA
+ 	 */
+ 	kmalloc_size = urb->transfer_buffer_length +
++		(dma_get_cache_alignment() - 1) +
+ 		sizeof(urb->transfer_buffer);
+ 
+ 	kmalloc_ptr = kmalloc(kmalloc_size, mem_flags);
+@@ -2707,7 +2710,8 @@ static int dwc2_alloc_dma_aligned_buffer
+ 	 * Position value of original urb->transfer_buffer pointer to the end
+ 	 * of allocation for later referencing
+ 	 */
+-	memcpy(kmalloc_ptr + urb->transfer_buffer_length,
++	memcpy(PTR_ALIGN(kmalloc_ptr + urb->transfer_buffer_length,
++			 dma_get_cache_alignment()),
+ 	       &urb->transfer_buffer, sizeof(urb->transfer_buffer));
+ 
+ 	if (usb_urb_dir_out(urb))
 
 
