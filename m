@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B75404931F
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58AEF49396
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730428AbfFQV1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:27:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54812 "EHLO mail.kernel.org"
+        id S1730395AbfFQV11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:27:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730107AbfFQV1q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:27:46 -0400
+        id S1729475AbfFQV10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:27:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C99002070B;
-        Mon, 17 Jun 2019 21:27:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E46B3204FD;
+        Mon, 17 Jun 2019 21:27:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806865;
-        bh=x/C2d2mxfXgIw/4tYqINkyi/w6w4KJi8gRh9kImqzYA=;
+        s=default; t=1560806845;
+        bh=DkQ4+3eXZuqP2wd/INZMDQrJBw4VOOOrip6+Xw6VTSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0BQdI0mQRIc6bzc/xkFXgJAU7Hr4Xksx/yTyBj0+iUMjtJxyTYOiL/1k9MaP0eOnR
-         9doL1KTwBYXak0a3rlfjM3qCPhx9BfYKrdkTUX63Fqdb31MbdyRrWvazXJIhfb/AiA
-         bIzRRD7tEfhP5vmqHM+1o0fYbsatbn1VW4P5twNQ=
+        b=JPc6nlhf4JuruuJckvX1QGFFn7p+qyyX50jjR8QMHuo4NSv/WmbbSOTltKH5/iu+g
+         7r8CAhmNFVOwONSdzXX1mwQzE9cWoL5hJXCf4M0mIlPDJj0UvadjZX160iVyuGjR4c
+         MIRS0PSiqFwyKmFypnLJmt2G+u9c5FvBNcbDu1bc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dave Airlie <airlied@redhat.com>
-Subject: [PATCH 4.14 01/53] drm/nouveau: add kconfig option to turn off nouveau legacy contexts. (v3)
+        stable@vger.kernel.org, Randall Huang <huangrandall@google.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 33/75] f2fs: fix to avoid accessing xattr across the boundary
 Date:   Mon, 17 Jun 2019 23:09:44 +0200
-Message-Id: <20190617210745.290194666@linuxfoundation.org>
+Message-Id: <20190617210754.076823433@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-References: <20190617210745.104187490@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,112 +44,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Airlie <airlied@redhat.com>
+[ Upstream commit 2777e654371dd4207a3a7f4fb5fa39550053a080 ]
 
-commit b30a43ac7132cdda833ac4b13dd1ebd35ace14b7 upstream.
+When we traverse xattr entries via __find_xattr(),
+if the raw filesystem content is faked or any hardware failure occurs,
+out-of-bound error can be detected by KASAN.
+Fix the issue by introducing boundary check.
 
-There was a nouveau DDX that relied on legacy context ioctls to work,
-but we fixed it years ago, give distros that have a modern DDX the
-option to break the uAPI and close the mess of holes that legacy
-context support is.
+[   38.402878] c7   1827 BUG: KASAN: slab-out-of-bounds in f2fs_getxattr+0x518/0x68c
+[   38.402891] c7   1827 Read of size 4 at addr ffffffc0b6fb35dc by task
+[   38.402935] c7   1827 Call trace:
+[   38.402952] c7   1827 [<ffffff900809003c>] dump_backtrace+0x0/0x6bc
+[   38.402966] c7   1827 [<ffffff9008090030>] show_stack+0x20/0x2c
+[   38.402981] c7   1827 [<ffffff900871ab10>] dump_stack+0xfc/0x140
+[   38.402995] c7   1827 [<ffffff9008325c40>] print_address_description+0x80/0x2d8
+[   38.403009] c7   1827 [<ffffff900832629c>] kasan_report_error+0x198/0x1fc
+[   38.403022] c7   1827 [<ffffff9008326104>] kasan_report_error+0x0/0x1fc
+[   38.403037] c7   1827 [<ffffff9008325000>] __asan_load4+0x1b0/0x1b8
+[   38.403051] c7   1827 [<ffffff90085fcc44>] f2fs_getxattr+0x518/0x68c
+[   38.403066] c7   1827 [<ffffff90085fc508>] f2fs_xattr_generic_get+0xb0/0xd0
+[   38.403080] c7   1827 [<ffffff9008395708>] __vfs_getxattr+0x1f4/0x1fc
+[   38.403096] c7   1827 [<ffffff9008621bd0>] inode_doinit_with_dentry+0x360/0x938
+[   38.403109] c7   1827 [<ffffff900862d6cc>] selinux_d_instantiate+0x2c/0x38
+[   38.403123] c7   1827 [<ffffff900861b018>] security_d_instantiate+0x68/0x98
+[   38.403136] c7   1827 [<ffffff9008377db8>] d_splice_alias+0x58/0x348
+[   38.403149] c7   1827 [<ffffff900858d16c>] f2fs_lookup+0x608/0x774
+[   38.403163] c7   1827 [<ffffff900835eacc>] lookup_slow+0x1e0/0x2cc
+[   38.403177] c7   1827 [<ffffff9008367fe0>] walk_component+0x160/0x520
+[   38.403190] c7   1827 [<ffffff9008369ef4>] path_lookupat+0x110/0x2b4
+[   38.403203] c7   1827 [<ffffff900835dd38>] filename_lookup+0x1d8/0x3a8
+[   38.403216] c7   1827 [<ffffff900835eeb0>] user_path_at_empty+0x54/0x68
+[   38.403229] c7   1827 [<ffffff9008395f44>] SyS_getxattr+0xb4/0x18c
+[   38.403241] c7   1827 [<ffffff9008084200>] el0_svc_naked+0x34/0x38
 
-Full context of the story:
-
-commit 0e975980d435d58df2d430d688b8c18778b42218
-Author: Peter Antoine <peter.antoine@intel.com>
-Date:   Tue Jun 23 08:18:49 2015 +0100
-
-    drm: Turn off Legacy Context Functions
-
-    The context functions are not used by the i915 driver and should not
-    be used by modeset drivers. These driver functions contain several bugs
-    and security holes. This change makes these functions optional can be
-    turned on by a setting, they are turned off by default for modeset
-    driver with the exception of the nouvea driver that may require them with
-    an old version of libdrm.
-
-    The previous attempt was
-
-    commit 7c510133d93dd6f15ca040733ba7b2891ed61fd1
-    Author: Daniel Vetter <daniel.vetter@ffwll.ch>
-    Date:   Thu Aug 8 15:41:21 2013 +0200
-
-        drm: mark context support as a legacy subsystem
-
-    but this had to be reverted
-
-    commit c21eb21cb50d58e7cbdcb8b9e7ff68b85cfa5095
-    Author: Dave Airlie <airlied@redhat.com>
-    Date:   Fri Sep 20 08:32:59 2013 +1000
-
-        Revert "drm: mark context support as a legacy subsystem"
-
-    v2: remove returns from void function, and formatting (Daniel Vetter)
-
-    v3:
-    - s/Nova/nouveau/ in the commit message, and add references to the
-      previous attempts
-    - drop the part touching the drm hw lock, that should be a separate
-      patch.
-
-    Signed-off-by: Peter Antoine <peter.antoine@intel.com> (v2)
-    Cc: Peter Antoine <peter.antoine@intel.com> (v2)
-    Reviewed-by: Peter Antoine <peter.antoine@intel.com>
-    Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-v2: move DRM_VM dependency into legacy config.
-v3: fix missing dep (kbuild robot)
-
-Cc: stable@vger.kernel.org
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Randall Huang <huangrandall@google.com>
+[Jaegeuk Kim: Fix wrong ending boundary]
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/Kconfig       |   13 ++++++++++++-
- drivers/gpu/drm/nouveau/nouveau_drm.c |    7 +++++--
- 2 files changed, 17 insertions(+), 3 deletions(-)
+ fs/f2fs/xattr.c | 36 +++++++++++++++++++++++++++---------
+ fs/f2fs/xattr.h |  2 ++
+ 2 files changed, 29 insertions(+), 9 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/Kconfig
-+++ b/drivers/gpu/drm/nouveau/Kconfig
-@@ -16,10 +16,21 @@ config DRM_NOUVEAU
- 	select INPUT if ACPI && X86
- 	select THERMAL if ACPI && X86
- 	select ACPI_VIDEO if ACPI && X86
--	select DRM_VM
- 	help
- 	  Choose this option for open-source NVIDIA support.
+diff --git a/fs/f2fs/xattr.c b/fs/f2fs/xattr.c
+index 409a637f7a92..88e30f7cf9e1 100644
+--- a/fs/f2fs/xattr.c
++++ b/fs/f2fs/xattr.c
+@@ -205,12 +205,17 @@ static inline const struct xattr_handler *f2fs_xattr_handler(int index)
+ 	return handler;
+ }
  
-+config NOUVEAU_LEGACY_CTX_SUPPORT
-+	bool "Nouveau legacy context support"
-+	depends on DRM_NOUVEAU
-+	select DRM_VM
-+	default y
-+	help
-+	  There was a version of the nouveau DDX that relied on legacy
-+	  ctx ioctls not erroring out. But that was back in time a long
-+	  ways, so offer a way to disable it now. For uapi compat with
-+	  old nouveau ddx this should be on by default, but modern distros
-+	  should consider turning it off.
+-static struct f2fs_xattr_entry *__find_xattr(void *base_addr, int index,
+-					size_t len, const char *name)
++static struct f2fs_xattr_entry *__find_xattr(void *base_addr,
++				void *last_base_addr, int index,
++				size_t len, const char *name)
+ {
+ 	struct f2fs_xattr_entry *entry;
+ 
+ 	list_for_each_xattr(entry, base_addr) {
++		if ((void *)(entry) + sizeof(__u32) > last_base_addr ||
++			(void *)XATTR_NEXT_ENTRY(entry) > last_base_addr)
++			return NULL;
 +
- config NOUVEAU_PLATFORM_DRIVER
- 	bool "Nouveau (NVIDIA) SoC GPUs"
- 	depends on DRM_NOUVEAU && ARCH_TEGRA
---- a/drivers/gpu/drm/nouveau/nouveau_drm.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
-@@ -967,8 +967,11 @@ nouveau_driver_fops = {
- static struct drm_driver
- driver_stub = {
- 	.driver_features =
--		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER |
--		DRIVER_KMS_LEGACY_CONTEXT,
-+		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER
-+#if defined(CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT)
-+		| DRIVER_KMS_LEGACY_CONTEXT
-+#endif
-+		,
+ 		if (entry->e_name_index != index)
+ 			continue;
+ 		if (entry->e_name_len != len)
+@@ -300,20 +305,22 @@ static int lookup_all_xattrs(struct inode *inode, struct page *ipage,
+ 				const char *name, struct f2fs_xattr_entry **xe,
+ 				void **base_addr, int *base_size)
+ {
+-	void *cur_addr, *txattr_addr, *last_addr = NULL;
++	void *cur_addr, *txattr_addr, *last_txattr_addr;
++	void *last_addr = NULL;
+ 	nid_t xnid = F2FS_I(inode)->i_xattr_nid;
+-	unsigned int size = xnid ? VALID_XATTR_BLOCK_SIZE : 0;
+ 	unsigned int inline_size = inline_xattr_size(inode);
+ 	int err = 0;
  
- 	.load = nouveau_drm_load,
- 	.unload = nouveau_drm_unload,
+-	if (!size && !inline_size)
++	if (!xnid && !inline_size)
+ 		return -ENODATA;
+ 
+-	*base_size = inline_size + size + XATTR_PADDING_SIZE;
++	*base_size = XATTR_SIZE(xnid, inode) + XATTR_PADDING_SIZE;
+ 	txattr_addr = f2fs_kzalloc(F2FS_I_SB(inode), *base_size, GFP_NOFS);
+ 	if (!txattr_addr)
+ 		return -ENOMEM;
+ 
++	last_txattr_addr = (void *)txattr_addr + XATTR_SIZE(xnid, inode);
++
+ 	/* read from inline xattr */
+ 	if (inline_size) {
+ 		err = read_inline_xattr(inode, ipage, txattr_addr);
+@@ -340,7 +347,11 @@ static int lookup_all_xattrs(struct inode *inode, struct page *ipage,
+ 	else
+ 		cur_addr = txattr_addr;
+ 
+-	*xe = __find_xattr(cur_addr, index, len, name);
++	*xe = __find_xattr(cur_addr, last_txattr_addr, index, len, name);
++	if (!*xe) {
++		err = -EFAULT;
++		goto out;
++	}
+ check:
+ 	if (IS_XATTR_LAST_ENTRY(*xe)) {
+ 		err = -ENODATA;
+@@ -584,7 +595,8 @@ static int __f2fs_setxattr(struct inode *inode, int index,
+ 			struct page *ipage, int flags)
+ {
+ 	struct f2fs_xattr_entry *here, *last;
+-	void *base_addr;
++	void *base_addr, *last_base_addr;
++	nid_t xnid = F2FS_I(inode)->i_xattr_nid;
+ 	int found, newsize;
+ 	size_t len;
+ 	__u32 new_hsize;
+@@ -608,8 +620,14 @@ static int __f2fs_setxattr(struct inode *inode, int index,
+ 	if (error)
+ 		return error;
+ 
++	last_base_addr = (void *)base_addr + XATTR_SIZE(xnid, inode);
++
+ 	/* find entry with wanted name. */
+-	here = __find_xattr(base_addr, index, len, name);
++	here = __find_xattr(base_addr, last_base_addr, index, len, name);
++	if (!here) {
++		error = -EFAULT;
++		goto exit;
++	}
+ 
+ 	found = IS_XATTR_LAST_ENTRY(here) ? 0 : 1;
+ 
+diff --git a/fs/f2fs/xattr.h b/fs/f2fs/xattr.h
+index dbcd1d16e669..2a4ecaf338ea 100644
+--- a/fs/f2fs/xattr.h
++++ b/fs/f2fs/xattr.h
+@@ -74,6 +74,8 @@ struct f2fs_xattr_entry {
+ 				entry = XATTR_NEXT_ENTRY(entry))
+ #define VALID_XATTR_BLOCK_SIZE	(PAGE_SIZE - sizeof(struct node_footer))
+ #define XATTR_PADDING_SIZE	(sizeof(__u32))
++#define XATTR_SIZE(x,i)		(((x) ? VALID_XATTR_BLOCK_SIZE : 0) +	\
++						(inline_xattr_size(i)))
+ #define MIN_OFFSET(i)		XATTR_ALIGN(inline_xattr_size(i) +	\
+ 						VALID_XATTR_BLOCK_SIZE)
+ 
+-- 
+2.20.1
+
 
 
