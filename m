@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8668B493FA
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7585049323
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:28:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729167AbfFQVXu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:23:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49134 "EHLO mail.kernel.org"
+        id S1729629AbfFQV1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:27:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729798AbfFQVXt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:23:49 -0400
+        id S1730453AbfFQV1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:27:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1FED2063F;
-        Mon, 17 Jun 2019 21:23:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A19821670;
+        Mon, 17 Jun 2019 21:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806629;
-        bh=kJ5JTwgCEYcI+hFwmE4jkYxJJCOO4tFsYdl/XPLK8vo=;
+        s=default; t=1560806870;
+        bh=tWefMRkelchA+e4UgU8lEUCGjI9nt4Jk4KLvr521j5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c0xs6WL3CALJ6CNbhwZIz17iGw+930MPljVT/i8c794FTnNxxgfnzTgvwTbax4tnY
-         6CdNsW4MTXPm7sWvUPDUsNcrTb6ZB9LVhH97p9GFco44fCd+xPVv5eYhOTEFad6h6H
-         pAZmdEmBx8d0Xc1RWLrxZqNGDIcoKnpnSU0ahHGE=
+        b=Ohjm5hFcN0bdj5UgnTGZaB3mspU2Ad8ocRzewInXWP1m6Zj4hGXmRAmljkJNGcadG
+         lqWjNsZ+7859YTf/f8zhJvW+2cUOzm32lTKSXye6kRCIPgckbUH6UnYETzGxpNNeEW
+         7NFvRqg0UabMntXQG1NBYwEx5lLDc9nfBRoVkKD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Raspl <raspl@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 094/115] tools/kvm_stat: fix fields filter for child events
+        stable@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
+        Wu Fangsuo <fangsuowu@asrmicro.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Pankaj Suryawanshi <pankaj.suryawanshi@einfochips.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 11/53] mm/vmscan.c: fix trying to reclaim unevictable LRU page
 Date:   Mon, 17 Jun 2019 23:09:54 +0200
-Message-Id: <20190617210804.722941384@linuxfoundation.org>
+Message-Id: <20190617210747.339699837@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
+References: <20190617210745.104187490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +47,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 883d25e70b2f699fed9017e509d1ef8e36229b89 ]
+From: Minchan Kim <minchan@kernel.org>
 
-The fields filter would not work with child fields, as the respective
-parents would not be included. No parents displayed == no childs displayed.
-To reproduce, run on s390 (would work on other platforms, too, but would
-require a different filter name):
-- Run 'kvm_stat -d'
-- Press 'f'
-- Enter 'instruct'
-Notice that events like instruction_diag_44 or instruction_diag_500 are not
-displayed - the output remains empty.
-With this patch, we will filter by matching events and their parents.
-However, consider the following example where we filter by
-instruction_diag_44:
+commit a58f2cef26e1ca44182c8b22f4f4395e702a5795 upstream.
 
-  kvm statistics - summary
-                   regex filter: instruction_diag_44
-   Event                                         Total %Total CurAvg/s
-   exit_instruction                                276  100.0       12
-     instruction_diag_44                           256   92.8       11
-   Total                                           276              12
+There was the below bug report from Wu Fangsuo.
 
-Note that the parent ('exit_instruction') displays the total events, but
-the childs listed do not match its total (256 instead of 276). This is
-intended (since we're filtering all but one child), but might be confusing
-on first sight.
+On the CMA allocation path, isolate_migratepages_range() could isolate
+unevictable LRU pages and reclaim_clean_page_from_list() can try to
+reclaim them if they are clean file-backed pages.
 
-Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  page:ffffffbf02f33b40 count:86 mapcount:84 mapping:ffffffc08fa7a810 index:0x24
+  flags: 0x19040c(referenced|uptodate|arch_1|mappedtodisk|unevictable|mlocked)
+  raw: 000000000019040c ffffffc08fa7a810 0000000000000024 0000005600000053
+  raw: ffffffc009b05b20 ffffffc009b05b20 0000000000000000 ffffffc09bf3ee80
+  page dumped because: VM_BUG_ON_PAGE(PageLRU(page) || PageUnevictable(page))
+  page->mem_cgroup:ffffffc09bf3ee80
+  ------------[ cut here ]------------
+  kernel BUG at /home/build/farmland/adroid9.0/kernel/linux/mm/vmscan.c:1350!
+  Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+  Modules linked in:
+  CPU: 0 PID: 7125 Comm: syz-executor Tainted: G S              4.14.81 #3
+  Hardware name: ASR AQUILAC EVB (DT)
+  task: ffffffc00a54cd00 task.stack: ffffffc009b00000
+  PC is at shrink_page_list+0x1998/0x3240
+  LR is at shrink_page_list+0x1998/0x3240
+  pc : [<ffffff90083a2158>] lr : [<ffffff90083a2158>] pstate: 60400045
+  sp : ffffffc009b05940
+  ..
+     shrink_page_list+0x1998/0x3240
+     reclaim_clean_pages_from_list+0x3c0/0x4f0
+     alloc_contig_range+0x3bc/0x650
+     cma_alloc+0x214/0x668
+     ion_cma_allocate+0x98/0x1d8
+     ion_alloc+0x200/0x7e0
+     ion_ioctl+0x18c/0x378
+     do_vfs_ioctl+0x17c/0x1780
+     SyS_ioctl+0xac/0xc0
+
+Wu found it's due to commit ad6b67041a45 ("mm: remove SWAP_MLOCK in
+ttu").  Before that, unevictable pages go to cull_mlocked so that we
+can't reach the VM_BUG_ON_PAGE line.
+
+To fix the issue, this patch filters out unevictable LRU pages from the
+reclaim_clean_pages_from_list in CMA.
+
+Link: http://lkml.kernel.org/r/20190524071114.74202-1-minchan@kernel.org
+Fixes: ad6b67041a45 ("mm: remove SWAP_MLOCK in ttu")
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+Reported-by: Wu Fangsuo <fangsuowu@asrmicro.com>
+Debugged-by: Wu Fangsuo <fangsuowu@asrmicro.com>
+Tested-by: Wu Fangsuo <fangsuowu@asrmicro.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Pankaj Suryawanshi <pankaj.suryawanshi@einfochips.com>
+Cc: <stable@vger.kernel.org>	[4.12+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/kvm/kvm_stat/kvm_stat     | 16 ++++++++++++----
- tools/kvm/kvm_stat/kvm_stat.txt |  2 ++
- 2 files changed, 14 insertions(+), 4 deletions(-)
+ mm/vmscan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/kvm/kvm_stat/kvm_stat b/tools/kvm/kvm_stat/kvm_stat
-index 2ed395b817cb..bc508dae286c 100755
---- a/tools/kvm/kvm_stat/kvm_stat
-+++ b/tools/kvm/kvm_stat/kvm_stat
-@@ -575,8 +575,12 @@ class TracepointProvider(Provider):
-     def update_fields(self, fields_filter):
-         """Refresh fields, applying fields_filter"""
-         self.fields = [field for field in self._get_available_fields()
--                       if self.is_field_wanted(fields_filter, field) or
--                       ARCH.tracepoint_is_child(field)]
-+                       if self.is_field_wanted(fields_filter, field)]
-+        # add parents for child fields - otherwise we won't see any output!
-+        for field in self._fields:
-+            parent = ARCH.tracepoint_is_child(field)
-+            if (parent and parent not in self._fields):
-+                self.fields.append(parent)
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -1393,7 +1393,7 @@ unsigned long reclaim_clean_pages_from_l
  
-     @staticmethod
-     def _get_online_cpus():
-@@ -735,8 +739,12 @@ class DebugfsProvider(Provider):
-     def update_fields(self, fields_filter):
-         """Refresh fields, applying fields_filter"""
-         self._fields = [field for field in self._get_available_fields()
--                        if self.is_field_wanted(fields_filter, field) or
--                        ARCH.debugfs_is_child(field)]
-+                        if self.is_field_wanted(fields_filter, field)]
-+        # add parents for child fields - otherwise we won't see any output!
-+        for field in self._fields:
-+            parent = ARCH.debugfs_is_child(field)
-+            if (parent and parent not in self._fields):
-+                self.fields.append(parent)
- 
-     @property
-     def fields(self):
-diff --git a/tools/kvm/kvm_stat/kvm_stat.txt b/tools/kvm/kvm_stat/kvm_stat.txt
-index 0811d860fe75..c057ba52364e 100644
---- a/tools/kvm/kvm_stat/kvm_stat.txt
-+++ b/tools/kvm/kvm_stat/kvm_stat.txt
-@@ -34,6 +34,8 @@ INTERACTIVE COMMANDS
- *c*::	clear filter
- 
- *f*::	filter by regular expression
-+ ::     *Note*: Child events pull in their parents, and parents' stats summarize
-+                all child events, not just the filtered ones
- 
- *g*::	filter by guest name/PID
- 
--- 
-2.20.1
-
+ 	list_for_each_entry_safe(page, next, page_list, lru) {
+ 		if (page_is_file_cache(page) && !PageDirty(page) &&
+-		    !__PageMovable(page)) {
++		    !__PageMovable(page) && !PageUnevictable(page)) {
+ 			ClearPageActive(page);
+ 			list_move(&page->lru, &clean_pages);
+ 		}
 
 
