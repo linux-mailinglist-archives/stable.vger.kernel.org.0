@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 786B249345
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EE5B49407
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:35:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729863AbfFQV3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:29:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56526 "EHLO mail.kernel.org"
+        id S1729025AbfFQVXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:23:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730168AbfFQV3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:29:21 -0400
+        id S1728776AbfFQVXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:23:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFC9D2070B;
-        Mon, 17 Jun 2019 21:29:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBAA0208E4;
+        Mon, 17 Jun 2019 21:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806960;
-        bh=bARVfcUCbmuW2vaRSIe61rMyBmPVikjcO8HqO9tWEhw=;
+        s=default; t=1560806594;
+        bh=LoHlJZBEv0RrFbmc7NuM7XQI0oTKz8RtuWr9Qov2/a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1fY9+/86piSsLONH9ZWkzmFAdtl4B3DjLvvKq4zNS5A3/KaubU2ePqj2Nk7oeGGj2
-         SzX9Zbl6Zcq2hj3kIb5qDTwJPL/XBtY2lTZC5hRsULmXQAoOUWlHzKVZLT78yzVvd7
-         wiT6bZvcxIEEwOAhbNyxdazhCpVPzQ01kBdAbu4s=
+        b=wiOOsKcfTlkoXaeB4OV4SGRQ9cXii+zNYs7wHD+ZBhKxds1TXepqzpCx5VQtB+EGl
+         TVyEa3j4FMVhcYvGR1AvnXPuil9hAkGT6DZUyXwbffM108P8tYQlyXrMAgnpfv1crH
+         2gS+OGS1bOmmr5JRHc/Q3OCeEQg1CHn/Nq7U55VM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9437020c82413d00222d@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/53] ALSA: seq: Fix race of get-subscription call vs port-delete ioctls
+        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        linux-edac <linux-edac@vger.kernel.org>
+Subject: [PATCH 5.1 107/115] RAS/CEC: Fix binary search function
 Date:   Mon, 17 Jun 2019 23:10:07 +0200
-Message-Id: <20190617210750.044414043@linuxfoundation.org>
+Message-Id: <20190617210805.428973654@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-References: <20190617210745.104187490@linuxfoundation.org>
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+References: <20190617210759.929316339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,102 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2eabc5ec8ab4d4748a82050dfcb994119b983750 ]
+From: Borislav Petkov <bp@suse.de>
 
-The snd_seq_ioctl_get_subscription() retrieves the port subscriber
-information as a pointer, while the object isn't protected, hence it
-may be deleted before the actual reference.  This race was spotted by
-syzkaller and may lead to a UAF.
+commit f3c74b38a55aefe1004200d15a83f109b510068c upstream.
 
-The fix is simply copying the data in the lookup function that
-performs in the rwsem to protect against the deletion.
+Switch to using Donald Knuth's binary search algorithm (The Art of
+Computer Programming, vol. 3, section 6.2.1). This should've been done
+from the very beginning but the author must've been smoking something
+very potent at the time.
 
-Reported-by: syzbot+9437020c82413d00222d@syzkaller.appspotmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The problem with the current one was that it would return the wrong
+element index in certain situations:
+
+  https://lkml.kernel.org/r/CAM_iQpVd02zkVJ846cj-Fg1yUNuz6tY5q1Vpj4LrXmE06dPYYg@mail.gmail.com
+
+and the noodling code after the loop was fishy at best.
+
+So switch to using Knuth's binary search. The final result is much
+cleaner and straightforward.
+
+Fixes: 011d82611172 ("RAS: Add a Corrected Errors Collector")
+Reported-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/core/seq/seq_clientmgr.c | 10 ++--------
- sound/core/seq/seq_ports.c     | 13 ++++++++-----
- sound/core/seq/seq_ports.h     |  5 +++--
- 3 files changed, 13 insertions(+), 15 deletions(-)
+ drivers/ras/cec.c |   34 ++++++++++++++++++++--------------
+ 1 file changed, 20 insertions(+), 14 deletions(-)
 
-diff --git a/sound/core/seq/seq_clientmgr.c b/sound/core/seq/seq_clientmgr.c
-index 692631bd4a35..068880ac47b5 100644
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -1904,20 +1904,14 @@ static int snd_seq_ioctl_get_subscription(struct snd_seq_client *client,
- 	int result;
- 	struct snd_seq_client *sender = NULL;
- 	struct snd_seq_client_port *sport = NULL;
--	struct snd_seq_subscribers *p;
- 
- 	result = -EINVAL;
- 	if ((sender = snd_seq_client_use_ptr(subs->sender.client)) == NULL)
- 		goto __end;
- 	if ((sport = snd_seq_port_use_ptr(sender, subs->sender.port)) == NULL)
- 		goto __end;
--	p = snd_seq_port_get_subscription(&sport->c_src, &subs->dest);
--	if (p) {
--		result = 0;
--		*subs = p->info;
--	} else
--		result = -ENOENT;
--
-+	result = snd_seq_port_get_subscription(&sport->c_src, &subs->dest,
-+					       subs);
-       __end:
-       	if (sport)
- 		snd_seq_port_unlock(sport);
-diff --git a/sound/core/seq/seq_ports.c b/sound/core/seq/seq_ports.c
-index d3fc73ac230b..c8fa4336bccd 100644
---- a/sound/core/seq/seq_ports.c
-+++ b/sound/core/seq/seq_ports.c
-@@ -635,20 +635,23 @@ int snd_seq_port_disconnect(struct snd_seq_client *connector,
- 
- 
- /* get matched subscriber */
--struct snd_seq_subscribers *snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
--							  struct snd_seq_addr *dest_addr)
-+int snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
-+				  struct snd_seq_addr *dest_addr,
-+				  struct snd_seq_port_subscribe *subs)
+--- a/drivers/ras/cec.c
++++ b/drivers/ras/cec.c
+@@ -181,32 +181,38 @@ static void cec_work_fn(struct work_stru
+  */
+ static int __find_elem(struct ce_array *ca, u64 pfn, unsigned int *to)
  {
--	struct snd_seq_subscribers *s, *found = NULL;
-+	struct snd_seq_subscribers *s;
-+	int err = -ENOENT;
++	int min = 0, max = ca->n - 1;
+ 	u64 this_pfn;
+-	int min = 0, max = ca->n;
  
- 	down_read(&src_grp->list_mutex);
- 	list_for_each_entry(s, &src_grp->list_head, src_list) {
- 		if (addr_match(dest_addr, &s->info.dest)) {
--			found = s;
-+			*subs = s->info;
-+			err = 0;
- 			break;
+-	while (min < max) {
+-		int tmp = (max + min) >> 1;
++	while (min <= max) {
++		int i = (min + max) >> 1;
+ 
+-		this_pfn = PFN(ca->array[tmp]);
++		this_pfn = PFN(ca->array[i]);
+ 
+ 		if (this_pfn < pfn)
+-			min = tmp + 1;
++			min = i + 1;
+ 		else if (this_pfn > pfn)
+-			max = tmp;
+-		else {
+-			min = tmp;
+-			break;
++			max = i - 1;
++		else if (this_pfn == pfn) {
++			if (to)
++				*to = i;
++
++			return i;
  		}
  	}
- 	up_read(&src_grp->list_mutex);
--	return found;
-+	return err;
+ 
++	/*
++	 * When the loop terminates without finding @pfn, min has the index of
++	 * the element slot where the new @pfn should be inserted. The loop
++	 * terminates when min > max, which means the min index points to the
++	 * bigger element while the max index to the smaller element, in-between
++	 * which the new @pfn belongs to.
++	 *
++	 * For more details, see exercise 1, Section 6.2.1 in TAOCP, vol. 3.
++	 */
+ 	if (to)
+ 		*to = min;
+ 
+-	this_pfn = PFN(ca->array[min]);
+-
+-	if (this_pfn == pfn)
+-		return min;
+-
+ 	return -ENOKEY;
  }
  
- /*
-diff --git a/sound/core/seq/seq_ports.h b/sound/core/seq/seq_ports.h
-index 26bd71f36c41..06003b36652e 100644
---- a/sound/core/seq/seq_ports.h
-+++ b/sound/core/seq/seq_ports.h
-@@ -135,7 +135,8 @@ int snd_seq_port_subscribe(struct snd_seq_client_port *port,
- 			   struct snd_seq_port_subscribe *info);
- 
- /* get matched subscriber */
--struct snd_seq_subscribers *snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
--							  struct snd_seq_addr *dest_addr);
-+int snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
-+				  struct snd_seq_addr *dest_addr,
-+				  struct snd_seq_port_subscribe *subs);
- 
- #endif
--- 
-2.20.1
-
 
 
