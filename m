@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EC734942A
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9DEA49430
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728900AbfFQVVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:21:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46098 "EHLO mail.kernel.org"
+        id S1728111AbfFQVgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:36:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728904AbfFQVVf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:21:35 -0400
+        id S1729462AbfFQVWF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:22:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E54C2089E;
-        Mon, 17 Jun 2019 21:21:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2518208CB;
+        Mon, 17 Jun 2019 21:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806493;
-        bh=C84SnixK0vcc3hScpam/cnjcq0vDT3Nt64nsnV6q0jU=;
+        s=default; t=1560806525;
+        bh=spFdKtBn734P0rF1qx0cgEPcZGvSaAAFlKMTfzB/c04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZBan9yxPiJj9fzEdBEIuBopjT5n7pjAKRudWXFGjH0/V+KvBnOonHpSO9Afvf76U2
-         Gr9nfSiTronU9HtOfYZdCz3DQIBHq/LC6YhvGzEC8sTwES7FH2gJC2IWnTA5gvyWsu
-         tDaUpqcnc7obGDKkn5QSJmFDMLgJ1hbvRoMGU2Jo=
+        b=Jq/FYL3+rv4VfHQKi04BTe2gKWUQ7azsMaLUuClocCJyroZZr8Sco2v/R9b4Avmd+
+         jmuqoNBNW9r9GLVfxMgAXAhvF1wCt/a+eYvq2IaG/2xJYnlYZzIyBORyve2CORf6+o
+         cN0HKZNT1YP2BWkjwzJZ5r5ehSVZvddUDxdfeTPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+9437020c82413d00222d@syzkaller.appspotmail.com,
+        syzbot+47ded6c0f23016cde310@syzkaller.appspotmail.com,
         Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 044/115] ALSA: seq: Fix race of get-subscription call vs port-delete ioctls
-Date:   Mon, 17 Jun 2019 23:09:04 +0200
-Message-Id: <20190617210802.304772741@linuxfoundation.org>
+Subject: [PATCH 5.1 045/115] Revert "ALSA: seq: Protect in-kernel ioctl calls with mutex"
+Date:   Mon, 17 Jun 2019 23:09:05 +0200
+Message-Id: <20190617210802.581623298@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -44,100 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2eabc5ec8ab4d4748a82050dfcb994119b983750 ]
+[ Upstream commit f0654ba94e33699b295ce4f3dc73094db6209035 ]
 
-The snd_seq_ioctl_get_subscription() retrieves the port subscriber
-information as a pointer, while the object isn't protected, hence it
-may be deleted before the actual reference.  This race was spotted by
-syzkaller and may lead to a UAF.
+This reverts commit feb689025fbb6f0aa6297d3ddf97de945ea4ad32.
 
-The fix is simply copying the data in the lookup function that
-performs in the rwsem to protect against the deletion.
+The fix attempt was incorrect, leading to the mutex deadlock through
+the close of OSS sequencer client.  The proper fix needs more
+consideration, so let's revert it now.
 
-Reported-by: syzbot+9437020c82413d00222d@syzkaller.appspotmail.com
+Fixes: feb689025fbb ("ALSA: seq: Protect in-kernel ioctl calls with mutex")
+Reported-by: syzbot+47ded6c0f23016cde310@syzkaller.appspotmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_clientmgr.c | 10 ++--------
- sound/core/seq/seq_ports.c     | 13 ++++++++-----
- sound/core/seq/seq_ports.h     |  5 +++--
- 3 files changed, 13 insertions(+), 15 deletions(-)
+ sound/core/seq/seq_clientmgr.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
 diff --git a/sound/core/seq/seq_clientmgr.c b/sound/core/seq/seq_clientmgr.c
-index b3280e81bfd1..8599f2937ac1 100644
+index 8599f2937ac1..c99e1b77a45b 100644
 --- a/sound/core/seq/seq_clientmgr.c
 +++ b/sound/core/seq/seq_clientmgr.c
-@@ -1900,20 +1900,14 @@ static int snd_seq_ioctl_get_subscription(struct snd_seq_client *client,
- 	int result;
- 	struct snd_seq_client *sender = NULL;
- 	struct snd_seq_client_port *sport = NULL;
--	struct snd_seq_subscribers *p;
- 
- 	result = -EINVAL;
- 	if ((sender = snd_seq_client_use_ptr(subs->sender.client)) == NULL)
- 		goto __end;
- 	if ((sport = snd_seq_port_use_ptr(sender, subs->sender.port)) == NULL)
- 		goto __end;
--	p = snd_seq_port_get_subscription(&sport->c_src, &subs->dest);
--	if (p) {
--		result = 0;
--		*subs = p->info;
--	} else
--		result = -ENOENT;
--
-+	result = snd_seq_port_get_subscription(&sport->c_src, &subs->dest,
-+					       subs);
-       __end:
-       	if (sport)
- 		snd_seq_port_unlock(sport);
-diff --git a/sound/core/seq/seq_ports.c b/sound/core/seq/seq_ports.c
-index da31aa8e216e..16289aefb443 100644
---- a/sound/core/seq/seq_ports.c
-+++ b/sound/core/seq/seq_ports.c
-@@ -635,20 +635,23 @@ int snd_seq_port_disconnect(struct snd_seq_client *connector,
- 
- 
- /* get matched subscriber */
--struct snd_seq_subscribers *snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
--							  struct snd_seq_addr *dest_addr)
-+int snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
-+				  struct snd_seq_addr *dest_addr,
-+				  struct snd_seq_port_subscribe *subs)
+@@ -2337,19 +2337,14 @@ int snd_seq_kernel_client_ctl(int clientid, unsigned int cmd, void *arg)
  {
--	struct snd_seq_subscribers *s, *found = NULL;
-+	struct snd_seq_subscribers *s;
-+	int err = -ENOENT;
+ 	const struct ioctl_handler *handler;
+ 	struct snd_seq_client *client;
+-	int err;
  
- 	down_read(&src_grp->list_mutex);
- 	list_for_each_entry(s, &src_grp->list_head, src_list) {
- 		if (addr_match(dest_addr, &s->info.dest)) {
--			found = s;
-+			*subs = s->info;
-+			err = 0;
- 			break;
- 		}
+ 	client = clientptr(clientid);
+ 	if (client == NULL)
+ 		return -ENXIO;
+ 
+ 	for (handler = ioctl_handlers; handler->cmd > 0; ++handler) {
+-		if (handler->cmd == cmd) {
+-			mutex_lock(&client->ioctl_mutex);
+-			err = handler->func(client, arg);
+-			mutex_unlock(&client->ioctl_mutex);
+-			return err;
+-		}
++		if (handler->cmd == cmd)
++			return handler->func(client, arg);
  	}
- 	up_read(&src_grp->list_mutex);
--	return found;
-+	return err;
- }
  
- /*
-diff --git a/sound/core/seq/seq_ports.h b/sound/core/seq/seq_ports.h
-index 26bd71f36c41..06003b36652e 100644
---- a/sound/core/seq/seq_ports.h
-+++ b/sound/core/seq/seq_ports.h
-@@ -135,7 +135,8 @@ int snd_seq_port_subscribe(struct snd_seq_client_port *port,
- 			   struct snd_seq_port_subscribe *info);
- 
- /* get matched subscriber */
--struct snd_seq_subscribers *snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
--							  struct snd_seq_addr *dest_addr);
-+int snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
-+				  struct snd_seq_addr *dest_addr,
-+				  struct snd_seq_port_subscribe *subs);
- 
- #endif
+ 	pr_debug("ALSA: seq unknown ioctl() 0x%x (type='%c', number=0x%02x)\n",
 -- 
 2.20.1
 
