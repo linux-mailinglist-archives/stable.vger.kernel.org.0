@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 795BA49458
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AAD449267
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:19:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728446AbfFQVTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:19:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43846 "EHLO mail.kernel.org"
+        id S1727077AbfFQVT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:19:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728950AbfFQVTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:19:53 -0400
+        id S1728974AbfFQVTz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:19:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C94D920861;
-        Mon, 17 Jun 2019 21:19:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA07020861;
+        Mon, 17 Jun 2019 21:19:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806392;
-        bh=JEiq76uPupu5wSbzUc+/5bPp0j7rYM2+Zt2cLThnE4M=;
+        s=default; t=1560806395;
+        bh=f/SzpYjd0lhy06NyDMf28RJygr0QXRE60ZLcfnmLH+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MIlcuzfAi7HZ2BRzNoCoaFZeuZX1PBdaavllCkJZGXXDSP6P5APkl/bOUhL7QVeGs
-         J81yoqdz4dlIw6AJ8VM6g4dvBaj34Ad2l73oknvFgIGqEvKNZu5Dg3o0XYlB6BbvVf
-         Q9IsyboU2KQjgd7oCozAbXWkjT5r9Ii1R/TTH5Aw=
+        b=jcBMTGqlBkOBxDZRG5/bEeRyMPZ5zrxc27jmhcEAaozXJ+GAv8kbrp8YgUVUDSpZ7
+         Zu6FeTSUrK+ByRN5/BYN9CdZ0tlILJA50T/5f7Mh8L+e/cdvQKOpCcOYQ1KHuSKjay
+         wgnoJgpMr1JhIkuU4CV8fZ1Yik3saj6WfJOb/rTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
+        stable@vger.kernel.org,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.1 035/115] ASoC: fsl_asrc: Fix the issue about unsupported rate
-Date:   Mon, 17 Jun 2019 23:08:55 +0200
-Message-Id: <20190617210801.774779911@linuxfoundation.org>
+Subject: [PATCH 5.1 036/115] ASoC: soc-core: fixup references at soc_cleanup_card_resources()
+Date:   Mon, 17 Jun 2019 23:08:56 +0200
+Message-Id: <20190617210801.831121133@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -44,40 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: S.j. Wang <shengjiu.wang@nxp.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-commit b06c58c2a1eed571ea2a6640fdb85b7b00196b1e upstream.
+commit 29040d1ac569606fece70966179de272cfc0d4db upstream.
 
-When the output sample rate is [8kHz, 30kHz], the limitation
-of the supported ratio range is [1/24, 8]. In the driver
-we use (8kHz, 30kHz) instead of [8kHz, 30kHz].
-So this patch is to fix this issue and the potential rounding
-issue with divider.
+commit 53e947a0e1f7 ("ASoC: soc-core: merge card resources cleanup
+method") merged cleanup method of snd_soc_instantiate_card() and
+soc_cleanup_card_resources().
 
-Fixes: fff6e03c7b65 ("ASoC: fsl_asrc: add support for 8-30kHz
-output sample rate")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+But, after this commit, if user uses unbind/bind to Component factor
+drivers, Kernel might indicates refcount error at
+soc_cleanup_card_resources().
+
+The 1st reason is card->snd_card is still exist even though
+snd_card_free() was called, but it is already cleaned.
+We need to set NULL to it.
+
+2nd is card->dapm and card create debugfs, but its dentry is still
+exist even though it was removed. We need to set NULL to it.
+
+Fixes: 53e947a0e1f7 ("ASoC: soc-core: merge card resources cleanup method")
+Cc: stable@vger.kernel.org # for v5.1
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/fsl/fsl_asrc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/soc-core.c |    7 ++++++-
+ sound/soc/soc-dapm.c |    3 +++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
---- a/sound/soc/fsl/fsl_asrc.c
-+++ b/sound/soc/fsl/fsl_asrc.c
-@@ -282,8 +282,8 @@ static int fsl_asrc_config_pair(struct f
- 		return -EINVAL;
- 	}
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -228,7 +228,10 @@ static void soc_init_card_debugfs(struct
  
--	if ((outrate > 8000 && outrate < 30000) &&
--	    (outrate/inrate > 24 || inrate/outrate > 8)) {
-+	if ((outrate >= 8000 && outrate <= 30000) &&
-+	    (outrate > 24 * inrate || inrate > 8 * outrate)) {
- 		pair_err("exceed supported ratio range [1/24, 8] for \
- 				inrate/outrate: %d/%d\n", inrate, outrate);
- 		return -EINVAL;
+ static void soc_cleanup_card_debugfs(struct snd_soc_card *card)
+ {
++	if (!card->debugfs_card_root)
++		return;
+ 	debugfs_remove_recursive(card->debugfs_card_root);
++	card->debugfs_card_root = NULL;
+ }
+ 
+ static void snd_soc_debugfs_init(void)
+@@ -2034,8 +2037,10 @@ static void soc_check_tplg_fes(struct sn
+ static int soc_cleanup_card_resources(struct snd_soc_card *card)
+ {
+ 	/* free the ALSA card at first; this syncs with pending operations */
+-	if (card->snd_card)
++	if (card->snd_card) {
+ 		snd_card_free(card->snd_card);
++		card->snd_card = NULL;
++	}
+ 
+ 	/* remove and free each DAI */
+ 	soc_remove_dai_links(card);
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -2192,7 +2192,10 @@ static void dapm_debugfs_add_widget(stru
+ 
+ static void dapm_debugfs_cleanup(struct snd_soc_dapm_context *dapm)
+ {
++	if (!dapm->debugfs_dapm)
++		return;
+ 	debugfs_remove_recursive(dapm->debugfs_dapm);
++	dapm->debugfs_dapm = NULL;
+ }
+ 
+ #else
 
 
