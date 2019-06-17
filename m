@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE5634945B
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F92249456
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725497AbfFQVhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:37:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
+        id S1726095AbfFQVTo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:19:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727159AbfFQVTm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:19:42 -0400
+        id S1728446AbfFQVTo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:19:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2908208CB;
-        Mon, 17 Jun 2019 21:19:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95F142089E;
+        Mon, 17 Jun 2019 21:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806381;
-        bh=5/2JiO3y3S7WEs1kSBMXafw4iEBz3HJ6ihd/kswEY7A=;
+        s=default; t=1560806384;
+        bh=XbH14dwzEOGD/utq9Pe7jfloTnsYnbypF2eZJ6RCK5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rKkfyNDLz4fm81Rn5S0J5rxOGe9hWvRroWaTmqs2hgmat+YhQXgJPITK0rsSdSPui
-         GOh57TTSus3QNOIPkEp79muY/TrK5VCrYJKHsHZMvw2eSWy74zUztpDhHmfAdyM2Nd
-         DF/P4cx/xVhdgxGU/RAlMkC2Rx+4ty9BMgaL70dA=
+        b=EvE+AYnruAt0z0wl98vjyXA4G5VO1IGTGBSN9CtRjMEol86l9k0NLGPH6sJ965hq+
+         ClovUb1Fd04oAsH6qwKrzvYYz/DpuEz/Y6N7BzYpKklfgzq23IKIviXeY5DuDnXl6o
+         fYzpel9w9elTGFaIxLQUSbubbiR69aKG+VTqAzi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Rolf Fokkens <rolf@rolffokkens.nl>,
-        Pierre JUHEN <pierre.juhen@orange.fr>,
-        Shenghui Wang <shhuiw@foxmail.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Nix <nix@esperi.org.uk>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.1 031/115] bcache: fix stack corruption by PRECEDING_KEY()
-Date:   Mon, 17 Jun 2019 23:08:51 +0200
-Message-Id: <20190617210801.562856521@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B8rn=20Forsman?= <bjorn.forsman@gmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.1 032/115] bcache: only set BCACHE_DEV_WB_RUNNING when cached device attached
+Date:   Mon, 17 Jun 2019 23:08:52 +0200
+Message-Id: <20190617210801.614134712@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -49,125 +46,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Coly Li <colyli@suse.de>
 
-commit 31b90956b124240aa8c63250243ae1a53585c5e2 upstream.
+commit 1f0ffa67349c56ea54c03ccfd1e073c990e7411e upstream.
 
-Recently people report bcache code compiled with gcc9 is broken, one of
-the buggy behavior I observe is that two adjacent 4KB I/Os should merge
-into one but they don't. Finally it turns out to be a stack corruption
-caused by macro PRECEDING_KEY().
+When people set a writeback percent via sysfs file,
+  /sys/block/bcache<N>/bcache/writeback_percent
+current code directly sets BCACHE_DEV_WB_RUNNING to dc->disk.flags
+and schedules kworker dc->writeback_rate_update.
 
-See how PRECEDING_KEY() is defined in bset.h,
-437 #define PRECEDING_KEY(_k)                                       \
-438 ({                                                              \
-439         struct bkey *_ret = NULL;                               \
-440                                                                 \
-441         if (KEY_INODE(_k) || KEY_OFFSET(_k)) {                  \
-442                 _ret = &KEY(KEY_INODE(_k), KEY_OFFSET(_k), 0);  \
-443                                                                 \
-444                 if (!_ret->low)                                 \
-445                         _ret->high--;                           \
-446                 _ret->low--;                                    \
-447         }                                                       \
-448                                                                 \
-449         _ret;                                                   \
-450 })
+If there is no cache set attached to, the writeback kernel thread is
+not running indeed, running dc->writeback_rate_update does not make
+sense and may cause NULL pointer deference when reference cache set
+pointer inside update_writeback_rate().
 
-At line 442, _ret points to address of a on-stack variable combined by
-KEY(), the life range of this on-stack variable is in line 442-446,
-once _ret is returned to bch_btree_insert_key(), the returned address
-points to an invalid stack address and this address is overwritten in
-the following called bch_btree_iter_init(). Then argument 'search' of
-bch_btree_iter_init() points to some address inside stackframe of
-bch_btree_iter_init(), exact address depends on how the compiler
-allocates stack space. Now the stack is corrupted.
+This patch checks whether the cache set point (dc->disk.c) is NULL in
+sysfs interface handler, and only set BCACHE_DEV_WB_RUNNING and
+schedule dc->writeback_rate_update when dc->disk.c is not NULL (it
+means the cache device is attached to a cache set).
 
-Fixes: 0eacac22034c ("bcache: PRECEDING_KEY()")
+This problem might be introduced from initial bcache commit, but
+commit 3fd47bfe55b0 ("bcache: stop dc->writeback_rate_update properly")
+changes part of the original code piece, so I add 'Fixes: 3fd47bfe55b0'
+to indicate from which commit this patch can be applied.
+
+Fixes: 3fd47bfe55b0 ("bcache: stop dc->writeback_rate_update properly")
+Reported-by: Bjørn Forsman <bjorn.forsman@gmail.com>
 Signed-off-by: Coly Li <colyli@suse.de>
-Reviewed-by: Rolf Fokkens <rolf@rolffokkens.nl>
-Reviewed-by: Pierre JUHEN <pierre.juhen@orange.fr>
-Tested-by: Shenghui Wang <shhuiw@foxmail.com>
-Tested-by: Pierre JUHEN <pierre.juhen@orange.fr>
-Cc: Kent Overstreet <kent.overstreet@gmail.com>
-Cc: Nix <nix@esperi.org.uk>
+Reviewed-by: Bjørn Forsman <bjorn.forsman@gmail.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/bset.c |   16 +++++++++++++---
- drivers/md/bcache/bset.h |   34 ++++++++++++++++++++--------------
- 2 files changed, 33 insertions(+), 17 deletions(-)
+ drivers/md/bcache/sysfs.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/md/bcache/bset.c
-+++ b/drivers/md/bcache/bset.c
-@@ -887,12 +887,22 @@ unsigned int bch_btree_insert_key(struct
- 	struct bset *i = bset_tree_last(b)->data;
- 	struct bkey *m, *prev = NULL;
- 	struct btree_iter iter;
-+	struct bkey preceding_key_on_stack = ZERO_KEY;
-+	struct bkey *preceding_key_p = &preceding_key_on_stack;
+--- a/drivers/md/bcache/sysfs.c
++++ b/drivers/md/bcache/sysfs.c
+@@ -431,8 +431,13 @@ STORE(bch_cached_dev)
+ 			bch_writeback_queue(dc);
+ 	}
  
- 	BUG_ON(b->ops->is_extents && !KEY_SIZE(k));
- 
--	m = bch_btree_iter_init(b, &iter, b->ops->is_extents
--				? PRECEDING_KEY(&START_KEY(k))
--				: PRECEDING_KEY(k));
 +	/*
-+	 * If k has preceding key, preceding_key_p will be set to address
-+	 *  of k's preceding key; otherwise preceding_key_p will be set
-+	 * to NULL inside preceding_key().
++	 * Only set BCACHE_DEV_WB_RUNNING when cached device attached to
++	 * a cache set, otherwise it doesn't make sense.
 +	 */
-+	if (b->ops->is_extents)
-+		preceding_key(&START_KEY(k), &preceding_key_p);
-+	else
-+		preceding_key(k, &preceding_key_p);
-+
-+	m = bch_btree_iter_init(b, &iter, preceding_key_p);
+ 	if (attr == &sysfs_writeback_percent)
+-		if (!test_and_set_bit(BCACHE_DEV_WB_RUNNING, &dc->disk.flags))
++		if ((dc->disk.c != NULL) &&
++		    (!test_and_set_bit(BCACHE_DEV_WB_RUNNING, &dc->disk.flags)))
+ 			schedule_delayed_work(&dc->writeback_rate_update,
+ 				      dc->writeback_rate_update_seconds * HZ);
  
- 	if (b->ops->insert_fixup(b, k, &iter, replace_key))
- 		return status;
---- a/drivers/md/bcache/bset.h
-+++ b/drivers/md/bcache/bset.h
-@@ -434,20 +434,26 @@ static inline bool bch_cut_back(const st
- 	return __bch_cut_back(where, k);
- }
- 
--#define PRECEDING_KEY(_k)					\
--({								\
--	struct bkey *_ret = NULL;				\
--								\
--	if (KEY_INODE(_k) || KEY_OFFSET(_k)) {			\
--		_ret = &KEY(KEY_INODE(_k), KEY_OFFSET(_k), 0);	\
--								\
--		if (!_ret->low)					\
--			_ret->high--;				\
--		_ret->low--;					\
--	}							\
--								\
--	_ret;							\
--})
-+/*
-+ * Pointer '*preceding_key_p' points to a memory object to store preceding
-+ * key of k. If the preceding key does not exist, set '*preceding_key_p' to
-+ * NULL. So the caller of preceding_key() needs to take care of memory
-+ * which '*preceding_key_p' pointed to before calling preceding_key().
-+ * Currently the only caller of preceding_key() is bch_btree_insert_key(),
-+ * and it points to an on-stack variable, so the memory release is handled
-+ * by stackframe itself.
-+ */
-+static inline void preceding_key(struct bkey *k, struct bkey **preceding_key_p)
-+{
-+	if (KEY_INODE(k) || KEY_OFFSET(k)) {
-+		(**preceding_key_p) = KEY(KEY_INODE(k), KEY_OFFSET(k), 0);
-+		if (!(*preceding_key_p)->low)
-+			(*preceding_key_p)->high--;
-+		(*preceding_key_p)->low--;
-+	} else {
-+		(*preceding_key_p) = NULL;
-+	}
-+}
- 
- static inline bool bch_ptr_invalid(struct btree_keys *b, const struct bkey *k)
- {
 
 
