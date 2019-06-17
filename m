@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D7DB49426
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 068D5493E1
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729353AbfFQVV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:21:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45962 "EHLO mail.kernel.org"
+        id S1729938AbfFQVYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:24:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729346AbfFQVV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:21:26 -0400
+        id S1728963AbfFQVYa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:24:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78EDE21670;
-        Mon, 17 Jun 2019 21:21:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E54D52063F;
+        Mon, 17 Jun 2019 21:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806485;
-        bh=htbrBP4pYaPcphySl1i1AzxHM0t2q3InZbASBN6OIX0=;
+        s=default; t=1560806669;
+        bh=welHjufBx5KtGae43pwEQmzihyKLa93/yiYwieSvCQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlqM8s0XPHXCSv20LxuCMWtCDtkzYuZrVvIz4HutrNUBI5vc8NVNsPC+H7cvAgA38
-         J+f1eyJX7FIAO/etZ9JCfgRjGD9F6V72JJzZ9k4NpnXLxxtxKV2JQOhSpkuuwSOoWp
-         6V9t3uihSJ/9PkmWN1LU+aCVJHk2r/ujp4F/efLw=
+        b=NkzD7DpZVHnms1cy8zUkPGlQOYUFRjNzeW5UZ/ffDMqAy5WRD8TfxPmtg+070iBUo
+         7vhBVPZ6xCCASYUHApFz7UWFe3BLZZ4WnBqAICS9lkb+awTAQKP1TjwtA3eVVUtn7K
+         QdSlYPC+5v975Dc7canxuQm1plGVbFMzlQhNcdYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Keith Busch <keith.busch@intel.com>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        stable@vger.kernel.org, Andrei Vagin <avagin@gmail.com>,
+        syzbot+0d602a1b0d8c95bdf299@syzkaller.appspotmail.com,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 068/115] nvme: merge nvme_ns_ioctl into nvme_ioctl
+Subject: [PATCH 4.19 17/75] [PATCH] signal/ptrace: Dont leak unitialized kernel memory with PTRACE_PEEK_SIGINFO
 Date:   Mon, 17 Jun 2019 23:09:28 +0200
-Message-Id: <20190617210803.591007455@linuxfoundation.org>
+Message-Id: <20190617210753.532172735@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,87 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 90ec611adcf20b96d0c2b7166497d53e4301a57f ]
+[ Upstream commit f6e2aa91a46d2bc79fce9b93a988dbe7655c90c0 ]
 
-Merge the two functions to make future changes a little easier.
+Recently syzbot in conjunction with KMSAN reported that
+ptrace_peek_siginfo can copy an uninitialized siginfo to userspace.
+Inspecting ptrace_peek_siginfo confirms this.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <keith.busch@intel.com>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+The problem is that off when initialized from args.off can be
+initialized to a negaive value.  At which point the "if (off >= 0)"
+test to see if off became negative fails because off started off
+negative.
+
+Prevent the core problem by adding a variable found that is only true
+if a siginfo is found and copied to a temporary in preparation for
+being copied to userspace.
+
+Prevent args.off from being truncated when being assigned to off by
+testing that off is <= the maximum possible value of off.  Convert off
+to an unsigned long so that we should not have to truncate args.off,
+we have well defined overflow behavior so if we add another check we
+won't risk fighting undefined compiler behavior, and so that we have a
+type whose maximum value is easy to test for.
+
+Cc: Andrei Vagin <avagin@gmail.com>
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+0d602a1b0d8c95bdf299@syzkaller.appspotmail.com
+Fixes: 84c751bd4aeb ("ptrace: add ability to retrieve signals without removing from a queue (v4)")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 47 ++++++++++++++++++++--------------------
- 1 file changed, 24 insertions(+), 23 deletions(-)
+ kernel/ptrace.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index decc0b3a3854..8b77e6a05f4b 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1383,32 +1383,11 @@ static void nvme_put_ns_from_disk(struct nvme_ns_head *head, int idx)
- 		srcu_read_unlock(&head->srcu, idx);
- }
+diff --git a/kernel/ptrace.c b/kernel/ptrace.c
+index fc0d667f5792..ed33066a9736 100644
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -704,6 +704,10 @@ static int ptrace_peek_siginfo(struct task_struct *child,
+ 	if (arg.nr < 0)
+ 		return -EINVAL;
  
--static int nvme_ns_ioctl(struct nvme_ns *ns, unsigned cmd, unsigned long arg)
--{
--	switch (cmd) {
--	case NVME_IOCTL_ID:
--		force_successful_syscall_return();
--		return ns->head->ns_id;
--	case NVME_IOCTL_ADMIN_CMD:
--		return nvme_user_cmd(ns->ctrl, NULL, (void __user *)arg);
--	case NVME_IOCTL_IO_CMD:
--		return nvme_user_cmd(ns->ctrl, ns, (void __user *)arg);
--	case NVME_IOCTL_SUBMIT_IO:
--		return nvme_submit_io(ns, (void __user *)arg);
--	default:
--		if (ns->ndev)
--			return nvme_nvm_ioctl(ns, cmd, arg);
--		if (is_sed_ioctl(cmd))
--			return sed_ioctl(ns->ctrl->opal_dev, cmd,
--					 (void __user *) arg);
--		return -ENOTTY;
--	}
--}
--
- static int nvme_ioctl(struct block_device *bdev, fmode_t mode,
- 		unsigned int cmd, unsigned long arg)
- {
- 	struct nvme_ns_head *head = NULL;
-+	void __user *argp = (void __user *)arg;
- 	struct nvme_ns *ns;
- 	int srcu_idx, ret;
- 
-@@ -1416,7 +1395,29 @@ static int nvme_ioctl(struct block_device *bdev, fmode_t mode,
- 	if (unlikely(!ns))
- 		return -EWOULDBLOCK;
- 
--	ret = nvme_ns_ioctl(ns, cmd, arg);
-+	switch (cmd) {
-+	case NVME_IOCTL_ID:
-+		force_successful_syscall_return();
-+		ret = ns->head->ns_id;
-+		break;
-+	case NVME_IOCTL_ADMIN_CMD:
-+		ret = nvme_user_cmd(ns->ctrl, NULL, argp);
-+		break;
-+	case NVME_IOCTL_IO_CMD:
-+		ret = nvme_user_cmd(ns->ctrl, ns, argp);
-+		break;
-+	case NVME_IOCTL_SUBMIT_IO:
-+		ret = nvme_submit_io(ns, argp);
-+		break;
-+	default:
-+		if (ns->ndev)
-+			ret = nvme_nvm_ioctl(ns, cmd, arg);
-+		else if (is_sed_ioctl(cmd))
-+			ret = sed_ioctl(ns->ctrl->opal_dev, cmd, argp);
-+		else
-+			ret = -ENOTTY;
-+	}
++	/* Ensure arg.off fits in an unsigned long */
++	if (arg.off > ULONG_MAX)
++		return 0;
 +
- 	nvme_put_ns_from_disk(head, srcu_idx);
- 	return ret;
- }
+ 	if (arg.flags & PTRACE_PEEKSIGINFO_SHARED)
+ 		pending = &child->signal->shared_pending;
+ 	else
+@@ -711,18 +715,20 @@ static int ptrace_peek_siginfo(struct task_struct *child,
+ 
+ 	for (i = 0; i < arg.nr; ) {
+ 		siginfo_t info;
+-		s32 off = arg.off + i;
++		unsigned long off = arg.off + i;
++		bool found = false;
+ 
+ 		spin_lock_irq(&child->sighand->siglock);
+ 		list_for_each_entry(q, &pending->list, list) {
+ 			if (!off--) {
++				found = true;
+ 				copy_siginfo(&info, &q->info);
+ 				break;
+ 			}
+ 		}
+ 		spin_unlock_irq(&child->sighand->siglock);
+ 
+-		if (off >= 0) /* beyond the end of the list */
++		if (!found) /* beyond the end of the list */
+ 			break;
+ 
+ #ifdef CONFIG_COMPAT
 -- 
 2.20.1
 
