@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A0D4946C
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AC494924F
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728377AbfFQViN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:38:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42490 "EHLO mail.kernel.org"
+        id S1728561AbfFQVTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:19:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728287AbfFQVSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:18:55 -0400
+        id S1728518AbfFQVS6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:18:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E17842133F;
-        Mon, 17 Jun 2019 21:18:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEA10208E4;
+        Mon, 17 Jun 2019 21:18:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806334;
-        bh=M3WtjkHNv4iTtky1f5EnerEPfoZTklWgPAO2tVoeFv4=;
+        s=default; t=1560806337;
+        bh=Hdy65pl9aaW/j2RWGkgGiRNaTj6XOwC3oaVLul7OVVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GU6+GZ8O+L6VKtnBvPuxxEnU/X+RQlqbU2Yj5oVmKWCDhPIEeDBMgll9H17W0Qoae
-         Y8vxoBE7MWeTwaPD/skfegC+2fZplqanz6Ii7Q5pr1XVIYSuiAPAsHFCz+eCpTEDLi
-         mqVFRhyqud1cRS4gFydwB8AzWwq5C17FJZo+Wgrc=
+        b=wXQzxvKnI1p4U6UiqFKwvIPe73Lul795zEWMKFhxM1+KWURoYJmK6C1kC1GD9W71r
+         kL5Gb5mT101qJg8vA/Ykgnv6xblGVBRStBdG/rocK6Te8DygegGRVCJJe30B2LMis2
+         Slv6U3pv+Jiy4h4n3onUrT6LSI4PrEvXTnOCheIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
-        Richard Guy Briggs <rgb@redhat.com>,
+        stable@vger.kernel.org, Gen Zhang <blackgod016574@gmail.com>,
         Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.1 017/115] selinux: log raw contexts as untrusted strings
-Date:   Mon, 17 Jun 2019 23:08:37 +0200
-Message-Id: <20190617210800.792335370@linuxfoundation.org>
+Subject: [PATCH 5.1 018/115] selinux: fix a missing-check bug in selinux_add_mnt_opt( )
+Date:   Mon, 17 Jun 2019 23:08:38 +0200
+Message-Id: <20190617210800.846376843@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -44,61 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Gen Zhang <blackgod016574@gmail.com>
 
-commit aff7ed4851680d0d28ad9f52cd2f99213e1371b2 upstream.
+commit e2e0e09758a6f7597de0f9b819647addfb71b6bd upstream.
 
-These strings may come from untrusted sources (e.g. file xattrs) so they
-need to be properly escaped.
+In selinux_add_mnt_opt(), 'val' is allocated by kmemdup_nul(). It returns
+NULL when fails. So 'val' should be checked. And 'mnt_opts' should be
+freed when error.
 
-Reproducer:
-    # setenforce 0
-    # touch /tmp/test
-    # setfattr -n security.selinux -v 'kuřecí řízek' /tmp/test
-    # runcon system_u:system_r:sshd_t:s0 cat /tmp/test
-    (look at the generated AVCs)
-
-Actual result:
-    type=AVC [...] trawcon=kuřecí řízek
-
-Expected result:
-    type=AVC [...] trawcon=6B75C5996563C3AD20C599C3AD7A656B
-
-Fixes: fede148324c3 ("selinux: log invalid contexts in AVCs")
-Cc: stable@vger.kernel.org # v5.1+
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Acked-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
+Fixes: 757cbe597fe8 ("LSM: new method: ->sb_add_mnt_opt()")
+Cc: <stable@vger.kernel.org>
+[PM: fixed some indenting problems]
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/selinux/avc.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ security/selinux/hooks.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -739,14 +739,20 @@ static void avc_audit_post_callback(stru
- 	rc = security_sid_to_context_inval(sad->state, sad->ssid, &scontext,
- 					   &scontext_len);
- 	if (!rc && scontext) {
--		audit_log_format(ab, " srawcon=%s", scontext);
-+		if (scontext_len && scontext[scontext_len - 1] == '\0')
-+			scontext_len--;
-+		audit_log_format(ab, " srawcon=");
-+		audit_log_n_untrustedstring(ab, scontext, scontext_len);
- 		kfree(scontext);
- 	}
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1048,15 +1048,24 @@ static int selinux_add_mnt_opt(const cha
+ 	if (token == Opt_error)
+ 		return -EINVAL;
  
- 	rc = security_sid_to_context_inval(sad->state, sad->tsid, &scontext,
- 					   &scontext_len);
- 	if (!rc && scontext) {
--		audit_log_format(ab, " trawcon=%s", scontext);
-+		if (scontext_len && scontext[scontext_len - 1] == '\0')
-+			scontext_len--;
-+		audit_log_format(ab, " trawcon=");
-+		audit_log_n_untrustedstring(ab, scontext, scontext_len);
- 		kfree(scontext);
+-	if (token != Opt_seclabel)
++	if (token != Opt_seclabel) {
+ 		val = kmemdup_nul(val, len, GFP_KERNEL);
++		if (!val) {
++			rc = -ENOMEM;
++			goto free_opt;
++		}
++	}
+ 	rc = selinux_add_opt(token, val, mnt_opts);
+ 	if (unlikely(rc)) {
+ 		kfree(val);
+-		if (*mnt_opts) {
+-			selinux_free_mnt_opts(*mnt_opts);
+-			*mnt_opts = NULL;
+-		}
++		goto free_opt;
++	}
++	return rc;
++
++free_opt:
++	if (*mnt_opts) {
++		selinux_free_mnt_opts(*mnt_opts);
++		*mnt_opts = NULL;
  	}
+ 	return rc;
  }
 
 
