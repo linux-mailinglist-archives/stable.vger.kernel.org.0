@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 017734929E
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0951493A4
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729034AbfFQVWD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:22:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46614 "EHLO mail.kernel.org"
+        id S1729824AbfFQV1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:27:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729026AbfFQVWD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:22:03 -0400
+        id S1730374AbfFQV1R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:27:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 080062089E;
-        Mon, 17 Jun 2019 21:22:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AE852063F;
+        Mon, 17 Jun 2019 21:27:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806522;
-        bh=eoircKri8yZq6TBBlqggoJktGga+3JD24JCOXyw7Q5Y=;
+        s=default; t=1560806836;
+        bh=KJ+YJKyC3zl5fWNmO53Na+GxPfZc8sgKoRsOHBTjoss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v2jogH6bllmQ+FkN+iB8DSvwGI4DJgYYb/MiTZkmZZLKusw57fF/5JE8UJqncyV6n
-         +g3oFCE/zSx/PujfOunqd2oW+vdvum+aEo/rmFF+dIQMxEOndrV6bkzni1wColZjtR
-         aFKsuJzLvRKKkqBleQtwocXpkDTiJ2yacRzIBTl4=
+        b=Zsm3VYqmqPfkdNKcjKzZfaB6YUjI6oKJtEGS5joReZBcyVHSJwcwM9Gh7ee8IdX5S
+         wTbIMYZjvBeEBdp1lzja7fLO++M9NNghBP4YcebaSzzBhv4NByfl7jbYsBJOeCOibP
+         3wQ5LIyc2OujKEFirieu911QaiBN2mhrNN3uN9Ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Zweigle <Oliver.Zweigle@faro.com>,
-        Bernd Eckstein <3ernd.Eckstein@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 080/115] usbnet: ipheth: fix racing condition
-Date:   Mon, 17 Jun 2019 23:09:40 +0200
-Message-Id: <20190617210804.063164863@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+47ded6c0f23016cde310@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 30/75] Revert "ALSA: seq: Protect in-kernel ioctl calls with mutex"
+Date:   Mon, 17 Jun 2019 23:09:41 +0200
+Message-Id: <20190617210753.982269979@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 94d250fae48e6f873d8362308f5c4d02cd1b1fd2 ]
+[ Upstream commit f0654ba94e33699b295ce4f3dc73094db6209035 ]
 
-Fix a racing condition in ipheth.c that can lead to slow performance.
+This reverts commit feb689025fbb6f0aa6297d3ddf97de945ea4ad32.
 
-Bug: In ipheth_tx(), netif_wake_queue() may be called on the callback
-ipheth_sndbulk_callback(), _before_ netif_stop_queue() is called.
-When this happens, the queue is stopped longer than it needs to be,
-thus reducing network performance.
+The fix attempt was incorrect, leading to the mutex deadlock through
+the close of OSS sequencer client.  The proper fix needs more
+consideration, so let's revert it now.
 
-Fix: Move netif_stop_queue() in front of usb_submit_urb(). Now the order
-is always correct. In case, usb_submit_urb() fails, the queue is woken up
-again as callback will not fire.
-
-Testing: This racing condition is usually not noticeable, as it has to
-occur very frequently to slowdown the network. The callback from the USB
-is usually triggered slow enough, so the situation does not appear.
-However, on a Ubuntu Linux on VMWare Workstation, running on Windows 10,
-the we loose the race quite often and the following speedup can be noticed:
-
-Without this patch: Download:  4.10 Mbit/s, Upload:  4.01 Mbit/s
-With this patch:    Download: 36.23 Mbit/s, Upload: 17.61 Mbit/s
-
-Signed-off-by: Oliver Zweigle <Oliver.Zweigle@faro.com>
-Signed-off-by: Bernd Eckstein <3ernd.Eckstein@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: feb689025fbb ("ALSA: seq: Protect in-kernel ioctl calls with mutex")
+Reported-by: syzbot+47ded6c0f23016cde310@syzkaller.appspotmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/ipheth.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/core/seq/seq_clientmgr.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/usb/ipheth.c b/drivers/net/usb/ipheth.c
-index 3d8a70d3ea9b..3d71f1716390 100644
---- a/drivers/net/usb/ipheth.c
-+++ b/drivers/net/usb/ipheth.c
-@@ -437,17 +437,18 @@ static int ipheth_tx(struct sk_buff *skb, struct net_device *net)
- 			  dev);
- 	dev->tx_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+diff --git a/sound/core/seq/seq_clientmgr.c b/sound/core/seq/seq_clientmgr.c
+index 37312a3ae60f..f59e13c1d84a 100644
+--- a/sound/core/seq/seq_clientmgr.c
++++ b/sound/core/seq/seq_clientmgr.c
+@@ -2337,19 +2337,14 @@ int snd_seq_kernel_client_ctl(int clientid, unsigned int cmd, void *arg)
+ {
+ 	const struct ioctl_handler *handler;
+ 	struct snd_seq_client *client;
+-	int err;
  
-+	netif_stop_queue(net);
- 	retval = usb_submit_urb(dev->tx_urb, GFP_ATOMIC);
- 	if (retval) {
- 		dev_err(&dev->intf->dev, "%s: usb_submit_urb: %d\n",
- 			__func__, retval);
- 		dev->net->stats.tx_errors++;
- 		dev_kfree_skb_any(skb);
-+		netif_wake_queue(net);
- 	} else {
- 		dev->net->stats.tx_packets++;
- 		dev->net->stats.tx_bytes += skb->len;
- 		dev_consume_skb_any(skb);
--		netif_stop_queue(net);
+ 	client = clientptr(clientid);
+ 	if (client == NULL)
+ 		return -ENXIO;
+ 
+ 	for (handler = ioctl_handlers; handler->cmd > 0; ++handler) {
+-		if (handler->cmd == cmd) {
+-			mutex_lock(&client->ioctl_mutex);
+-			err = handler->func(client, arg);
+-			mutex_unlock(&client->ioctl_mutex);
+-			return err;
+-		}
++		if (handler->cmd == cmd)
++			return handler->func(client, arg);
  	}
  
- 	return NETDEV_TX_OK;
+ 	pr_debug("ALSA: seq unknown ioctl() 0x%x (type='%c', number=0x%02x)\n",
 -- 
 2.20.1
 
