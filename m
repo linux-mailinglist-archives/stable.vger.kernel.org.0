@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9273549374
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:31:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5B5849399
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729371AbfFQV3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:29:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56376 "EHLO mail.kernel.org"
+        id S1729916AbfFQV1c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:27:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729043AbfFQV3M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:29:12 -0400
+        id S1728967AbfFQV1c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:27:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D7A62063F;
-        Mon, 17 Jun 2019 21:29:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 955E2208E4;
+        Mon, 17 Jun 2019 21:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806951;
-        bh=dNlhZXcSxapq/pBxruiZXHFae5wUZKQT88NMHvsonGU=;
+        s=default; t=1560806851;
+        bh=FSFXtZJkL9X7zdl8EW5+2gIrlqAmjxup/ATjnuMEnyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbXQlrD/OMMpu+qjTqG31fkB8zpZGFepKoa6r3eM5p2iM04GTe/Dd+dZjb7FO/Ysm
-         P0P7lpAHw7OA2hC3q8yP6t5sUSVhhouM7OCV19oxNY6tUdiQRehbet78IC1Pg92jDl
-         NDxS/i1xLItEfKmakVgxP+O9Mq+UqKq/w/j5UJoY=
+        b=tEjzN2LrCXkfVCHwyTgniEHXoKU+d4nQHH8Nnjzlo/FyhP0RrRxApEfVCVUXin6NL
+         pGNFrp+waxchbl2ezaGCYVW9h5gDvD0C/KCq6nitKGaT9JJ+sAMVx41tgHuBpe/KTv
+         d1vy6kn7ll2EskRcUEMReDdQXIDDEhNjqHX/OnNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <nadav.amit@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 39/53] KVM: x86/pmu: do not mask the value that is written to fixed PMUs
-Date:   Mon, 17 Jun 2019 23:10:22 +0200
-Message-Id: <20190617210751.866366227@linuxfoundation.org>
+        stable@vger.kernel.org, Prarit Bhargava <prarit@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>
+Subject: [PATCH 4.19 72/75] x86/resctrl: Prevent NULL pointer dereference when local MBM is disabled
+Date:   Mon, 17 Jun 2019 23:10:23 +0200
+Message-Id: <20190617210756.057833262@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-References: <20190617210745.104187490@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2924b52117b2812e9633d5ea337333299166d373 ]
+From: Prarit Bhargava <prarit@redhat.com>
 
-According to the SDM, for MSR_IA32_PERFCTR0/1 "the lower-order 32 bits of
-each MSR may be written with any value, and the high-order 8 bits are
-sign-extended according to the value of bit 31", but the fixed counters
-in real hardware are limited to the width of the fixed counters ("bits
-beyond the width of the fixed-function counter are reserved and must be
-written as zeros").  Fix KVM to do the same.
+commit c7563e62a6d720aa3b068e26ddffab5f0df29263 upstream.
 
-Reported-by: Nadav Amit <nadav.amit@gmail.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Booting with kernel parameter "rdt=cmt,mbmtotal,memlocal,l3cat,mba" and
+executing "mount -t resctrl resctrl -o mba_MBps /sys/fs/resctrl" results in
+a NULL pointer dereference on systems which do not have local MBM support
+enabled..
+
+BUG: kernel NULL pointer dereference, address: 0000000000000020
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP PTI
+CPU: 0 PID: 722 Comm: kworker/0:3 Not tainted 5.2.0-0.rc3.git0.1.el7_UNSUPPORTED.x86_64 #2
+Workqueue: events mbm_handle_overflow
+RIP: 0010:mbm_handle_overflow+0x150/0x2b0
+
+Only enter the bandwith update loop if the system has local MBM enabled.
+
+Fixes: de73f38f7680 ("x86/intel_rdt/mba_sc: Feedback loop to dynamically update mem bandwidth")
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Reinette Chatre <reinette.chatre@intel.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20190610171544.13474-1-prarit@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/kvm/pmu_intel.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/x86/kernel/cpu/intel_rdt_monitor.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/kvm/pmu_intel.c b/arch/x86/kvm/pmu_intel.c
-index 5ab4a364348e..2729131fe9bf 100644
---- a/arch/x86/kvm/pmu_intel.c
-+++ b/arch/x86/kvm/pmu_intel.c
-@@ -235,11 +235,14 @@ static int intel_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		}
- 		break;
- 	default:
--		if ((pmc = get_gp_pmc(pmu, msr, MSR_IA32_PERFCTR0)) ||
--		    (pmc = get_fixed_pmc(pmu, msr))) {
--			if (!msr_info->host_initiated)
--				data = (s64)(s32)data;
--			pmc->counter += data - pmc_read_counter(pmc);
-+		if ((pmc = get_gp_pmc(pmu, msr, MSR_IA32_PERFCTR0))) {
-+			if (msr_info->host_initiated)
-+				pmc->counter = data;
-+			else
-+				pmc->counter = (s32)data;
-+			return 0;
-+		} else if ((pmc = get_fixed_pmc(pmu, msr))) {
-+			pmc->counter = data;
- 			return 0;
- 		} else if ((pmc = get_gp_pmc(pmu, msr, MSR_P6_EVNTSEL0))) {
- 			if (data == pmc->eventsel)
--- 
-2.20.1
-
+--- a/arch/x86/kernel/cpu/intel_rdt_monitor.c
++++ b/arch/x86/kernel/cpu/intel_rdt_monitor.c
+@@ -371,6 +371,9 @@ static void update_mba_bw(struct rdtgrou
+ 	struct list_head *head;
+ 	struct rdtgroup *entry;
+ 
++	if (!is_mbm_local_enabled())
++		return;
++
+ 	r_mba = &rdt_resources_all[RDT_RESOURCE_MBA];
+ 	closid = rgrp->closid;
+ 	rmid = rgrp->mon.rmid;
 
 
