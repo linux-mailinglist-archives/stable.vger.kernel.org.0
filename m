@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F6734945A
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D54E54926F
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:20:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727366AbfFQVh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:37:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44138 "EHLO mail.kernel.org"
+        id S1726088AbfFQVUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:20:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725497AbfFQVUF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:20:05 -0400
+        id S1727768AbfFQVUK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:20:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A4F620861;
-        Mon, 17 Jun 2019 21:20:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1960D20B1F;
+        Mon, 17 Jun 2019 21:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806403;
-        bh=6n+foonixuc31PF4ZuMbKS89R8pdNFk0aCM+W91tW0U=;
+        s=default; t=1560806409;
+        bh=QJf27Qb/dJuewX1xtCeVJs7PldHnm/zNe9TQQdObKf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dD/KEKgKln2W6R1wwhfIS+Ly5K7JCqjI+hEI8yu7yOH9HhwjX7nn5kleBnvLcB4/+
-         atCjuNGoxzVSuOyjw1NDBz1CAS8OiyPr3058I4Rntb3dhiV8zJD4l41johQ8ZfD8pc
-         v3/uOH2yDGmO7IEZABudCaXy6EE8QC5kcGOWi7HU=
+        b=MgETYPXX4MM5aBVZl8qjnuadRH8SwaP/VhJOfSUQd6vH3uGzPBNpk22eqXoTQbuth
+         xShcYT4lD56X4HkYuQqhCGlVrZUowdY73lx18J0z6z8h23T5DFH0ypbBi6a1sL1iuP
+         hmKlf3mfrMAp6CP+TJoPQhHY12GSP3ADOhZ9iGRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Heinrich Fink <heinrich.fink@daqri.com>,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
         <ville.syrjala@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
         Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.1 039/115] drm/i915/dsi: Use a fuzzy check for burst mode clock check
-Date:   Mon, 17 Jun 2019 23:08:59 +0200
-Message-Id: <20190617210802.013103791@linuxfoundation.org>
+Subject: [PATCH 5.1 040/115] drm/i915: Fix per-pixel alpha with CCS
+Date:   Mon, 17 Jun 2019 23:09:00 +0200
+Message-Id: <20190617210802.066159118@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -46,78 +48,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit f9a99131ce18d9dddcaa14ec2c436e42f0bbee5e upstream.
+commit 77ce94dbe586c1a6a26cf021c08109c9ce71b3e0 upstream.
 
-Prior to this commit we fail to init the DSI panel on the GPD MicroPC:
-https://www.indiegogo.com/projects/gpd-micropc-6-inch-handheld-industry-laptop#/
-
-The problem is intel_dsi_vbt_init() failing with the following error:
-*ERROR* Burst mode freq is less than computed
-
-The pclk in the VBT panel modeline is 70000, together with 24 bpp and
-4 lines this results in a bitrate value of 70000 * 24 / 4 = 420000.
-But the target_burst_mode_freq in the VBT is 418000.
-
-This commit works around this problem by adding an intel_fuzzy_clock_check
-when target_burst_mode_freq < bitrate and setting target_burst_mode_freq to
-bitrate when that checks succeeds, fixing the panel not working.
+We forgot to set .has_alpha=true for the A+CCS formats when the code
+started to consult .has_alpha. This manifests as A+CCS being treated
+as X+CCS which means no per-pixel alpha blending. Fix the format
+list appropriately.
 
 Cc: stable@vger.kernel.org
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190524174028.21659-2-hdegoede@redhat.com
-(cherry picked from commit 2c1c55252647abd989b94f725b190c700312d053)
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Matt Roper <matthew.d.roper@intel.com>
+Cc: Heinrich Fink <heinrich.fink@daqri.com>
+Reported-by: Heinrich Fink <heinrich.fink@daqri.com>
+Tested-by: Heinrich Fink <heinrich.fink@daqri.com>
+Fixes: b20815255693 ("drm/i915: Add plane alpha blending support, v2.")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190603142500.25680-1-ville.syrjala@linux.intel.com
+Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+(cherry picked from commit 38f300410f3e15b6fec76c8d8baed7111b5ea4e4)
 Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/intel_display.c |    2 +-
- drivers/gpu/drm/i915/intel_drv.h     |    1 +
- drivers/gpu/drm/i915/intel_dsi_vbt.c |   11 +++++++++++
- 3 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/intel_display.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 --- a/drivers/gpu/drm/i915/intel_display.c
 +++ b/drivers/gpu/drm/i915/intel_display.c
-@@ -11757,7 +11757,7 @@ encoder_retry:
- 	return 0;
- }
+@@ -2444,10 +2444,14 @@ static unsigned int intel_fb_modifier_to
+  * main surface.
+  */
+ static const struct drm_format_info ccs_formats[] = {
+-	{ .format = DRM_FORMAT_XRGB8888, .depth = 24, .num_planes = 2, .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
+-	{ .format = DRM_FORMAT_XBGR8888, .depth = 24, .num_planes = 2, .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
+-	{ .format = DRM_FORMAT_ARGB8888, .depth = 32, .num_planes = 2, .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
+-	{ .format = DRM_FORMAT_ABGR8888, .depth = 32, .num_planes = 2, .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
++	{ .format = DRM_FORMAT_XRGB8888, .depth = 24, .num_planes = 2,
++	  .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
++	{ .format = DRM_FORMAT_XBGR8888, .depth = 24, .num_planes = 2,
++	  .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, },
++	{ .format = DRM_FORMAT_ARGB8888, .depth = 32, .num_planes = 2,
++	  .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, .has_alpha = true, },
++	{ .format = DRM_FORMAT_ABGR8888, .depth = 32, .num_planes = 2,
++	  .cpp = { 4, 1, }, .hsub = 8, .vsub = 16, .has_alpha = true, },
+ };
  
--static bool intel_fuzzy_clock_check(int clock1, int clock2)
-+bool intel_fuzzy_clock_check(int clock1, int clock2)
- {
- 	int diff;
- 
---- a/drivers/gpu/drm/i915/intel_drv.h
-+++ b/drivers/gpu/drm/i915/intel_drv.h
-@@ -1707,6 +1707,7 @@ int vlv_force_pll_on(struct drm_i915_pri
- 		     const struct dpll *dpll);
- void vlv_force_pll_off(struct drm_i915_private *dev_priv, enum pipe pipe);
- int lpt_get_iclkip(struct drm_i915_private *dev_priv);
-+bool intel_fuzzy_clock_check(int clock1, int clock2);
- 
- /* modesetting asserts */
- void assert_panel_unlocked(struct drm_i915_private *dev_priv,
---- a/drivers/gpu/drm/i915/intel_dsi_vbt.c
-+++ b/drivers/gpu/drm/i915/intel_dsi_vbt.c
-@@ -871,6 +871,17 @@ bool intel_dsi_vbt_init(struct intel_dsi
- 		if (mipi_config->target_burst_mode_freq) {
- 			u32 bitrate = intel_dsi_bitrate(intel_dsi);
- 
-+			/*
-+			 * Sometimes the VBT contains a slightly lower clock,
-+			 * then the bitrate we have calculated, in this case
-+			 * just replace it with the calculated bitrate.
-+			 */
-+			if (mipi_config->target_burst_mode_freq < bitrate &&
-+			    intel_fuzzy_clock_check(
-+					mipi_config->target_burst_mode_freq,
-+					bitrate))
-+				mipi_config->target_burst_mode_freq = bitrate;
-+
- 			if (mipi_config->target_burst_mode_freq < bitrate) {
- 				DRM_ERROR("Burst mode freq is less than computed\n");
- 				return false;
+ static const struct drm_format_info *
 
 
