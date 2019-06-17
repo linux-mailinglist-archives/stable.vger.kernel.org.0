@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2918493AE
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B51E49402
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:35:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729728AbfFQV0s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:26:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
+        id S1729375AbfFQVXn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:23:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730279AbfFQV0s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:26:48 -0400
+        id S1729127AbfFQVXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:23:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E05B20657;
-        Mon, 17 Jun 2019 21:26:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D71F42063F;
+        Mon, 17 Jun 2019 21:23:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806807;
-        bh=dFEDfaVOXr8xrEKzzjhSMrHtue7lma0PXPH0Q/4AO0k=;
+        s=default; t=1560806618;
+        bh=KcMuKTI5gDno5w4zQGw5XRL5F7L95Z/bmJYo59bCvjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PGnmwWvnyzlxz/dSwUPRkDbg+9RCM9SsXKEdPt4gIAx+fNgBVFFFto3Q1fVISIU87
-         Mhu4QUdJlDg89Z9v0FqG6tWIV5+YZk7h8MT9DqnNrFCxzXDeQPU8UtbhG0uXqQIVrq
-         aH2p4zWxQ1ZMT7FNeFupcia1Q9q2XSA6ZcHc4HQI=
+        b=vRjQ7zTla8mQU0ORLc8+0AFOvyViiq57EVObM1HAoZ6Ppb5p/xYMiToaNGK/LVPf/
+         t/9Rfg28vDleF7f79vZWUljuIXZ6mPdHjQsBTxuK4nFIy0UxJf0Dt6/6H//D/S79c8
+         6lPFdYYdz736IZK0CX2ZLo2IkET1L1uaDocM/SII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 63/75] USB: serial: pl2303: add Allied Telesis VT-Kit3
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.1 114/115] powerpc: Fix kexec failure on book3s/32
 Date:   Mon, 17 Jun 2019 23:10:14 +0200
-Message-Id: <20190617210755.465974328@linuxfoundation.org>
+Message-Id: <20190617210805.662683030@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+References: <20190617210759.929316339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit c5f81656a18b271976a86724dadd8344e54de74e upstream.
+commit 6c284228eb356a1ec62a704b4d2329711831eaed upstream.
 
-This is adds the vendor and device id for the AT-VT-Kit3 which is a
-pl2303-based device.
+In the old days, _PAGE_EXEC didn't exist on 6xx aka book3s/32.
+Therefore, allthough __mapin_ram_chunk() was already mapping kernel
+text with PAGE_KERNEL_TEXT and the rest with PAGE_KERNEL, the entire
+memory was executable. Part of the memory (first 512kbytes) was
+mapped with BATs instead of page table, but it was also entirely
+mapped as executable.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+In commit 385e89d5b20f ("powerpc/mm: add exec protection on
+powerpc 603"), we started adding exec protection to some 6xx, namely
+the 603, for pages mapped via pagetables.
+
+Then, in commit 63b2bc619565 ("powerpc/mm/32s: Use BATs for
+STRICT_KERNEL_RWX"), the exec protection was extended to BAT mapped
+memory, so that really only the kernel text could be executed.
+
+The problem here is that kexec is based on copying some code into
+upper part of memory then executing it from there in order to install
+a fresh new kernel at its definitive location.
+
+However, the code is position independant and first part of it is
+just there to deactivate the MMU and jump to the second part. So it
+is possible to run this first part inplace instead of running the
+copy. Once the MMU is off, there is no protection anymore and the
+second part of the code will just run as before.
+
+Reported-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Fixes: 63b2bc619565 ("powerpc/mm/32s: Use BATs for STRICT_KERNEL_RWX")
+Cc: stable@vger.kernel.org # v5.1+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Tested-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/pl2303.c |    1 +
- drivers/usb/serial/pl2303.h |    3 +++
- 2 files changed, 4 insertions(+)
+ arch/powerpc/include/asm/kexec.h       |    3 +++
+ arch/powerpc/kernel/machine_kexec_32.c |    4 +++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -106,6 +106,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(SANWA_VENDOR_ID, SANWA_PRODUCT_ID) },
- 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530_PRODUCT_ID) },
- 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
-+	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
- 	{ }					/* Terminating entry */
- };
+--- a/arch/powerpc/include/asm/kexec.h
++++ b/arch/powerpc/include/asm/kexec.h
+@@ -94,6 +94,9 @@ static inline bool kdump_in_progress(voi
+ 	return crashing_cpu >= 0;
+ }
  
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -155,3 +155,6 @@
- #define SMART_VENDOR_ID	0x0b8c
- #define SMART_PRODUCT_ID	0x2303
++void relocate_new_kernel(unsigned long indirection_page, unsigned long reboot_code_buffer,
++			 unsigned long start_address) __noreturn;
++
+ #ifdef CONFIG_KEXEC_FILE
+ extern const struct kexec_file_ops kexec_elf64_ops;
  
-+/* Allied Telesis VT-Kit3 */
-+#define AT_VENDOR_ID		0x0caa
-+#define AT_VTKIT3_PRODUCT_ID	0x3001
+--- a/arch/powerpc/kernel/machine_kexec_32.c
++++ b/arch/powerpc/kernel/machine_kexec_32.c
+@@ -30,7 +30,6 @@ typedef void (*relocate_new_kernel_t)(
+  */
+ void default_machine_kexec(struct kimage *image)
+ {
+-	extern const unsigned char relocate_new_kernel[];
+ 	extern const unsigned int relocate_new_kernel_size;
+ 	unsigned long page_list;
+ 	unsigned long reboot_code_buffer, reboot_code_buffer_phys;
+@@ -58,6 +57,9 @@ void default_machine_kexec(struct kimage
+ 				reboot_code_buffer + KEXEC_CONTROL_PAGE_SIZE);
+ 	printk(KERN_INFO "Bye!\n");
+ 
++	if (!IS_ENABLED(CONFIG_FSL_BOOKE) && !IS_ENABLED(CONFIG_44x))
++		relocate_new_kernel(page_list, reboot_code_buffer_phys, image->start);
++
+ 	/* now call it */
+ 	rnk = (relocate_new_kernel_t) reboot_code_buffer;
+ 	(*rnk)(page_list, reboot_code_buffer_phys, image->start);
 
 
