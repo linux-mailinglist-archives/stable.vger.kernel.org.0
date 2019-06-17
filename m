@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F5949438
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1A48493F6
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729260AbfFQVVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:21:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45422 "EHLO mail.kernel.org"
+        id S1729862AbfFQVYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:24:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729255AbfFQVU7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:20:59 -0400
+        id S1729215AbfFQVYK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:24:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C056620652;
-        Mon, 17 Jun 2019 21:20:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB8C820657;
+        Mon, 17 Jun 2019 21:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806459;
-        bh=Ze0tQg+VYoEJTS66SX6YjnPROS4quAqXyFUgMLVNzW4=;
+        s=default; t=1560806649;
+        bh=CRUyWK9NyptmT2V8ZmUnha77qJW0NiUSmcI4NGUdFCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TX7XVNJ9agtiY/gUFqTRLiSkNXlAxAhAWn1Z8KILP5RWgtXWBEPpAdxAe4dCkjUtU
-         Kgh1q97/uYJVk02s7EZaN1OVjd7jl+0t4IQ3t6rlxO9qqRD0HfC5RcPOIwRxZFjgu2
-         /1tTkucg+y5C+URk1qqmEV5qb8gugmUh95DgVJ5A=
+        b=f8Hq3N/X0Bl3XVFsgJJKvdtwv4LlvWBxADjIh/JUE1IwEBBrwL7t3PTjtSXl1M+fa
+         5165vjX2TpViKreE80HUaqG+y3OHQOjYW/OC8bF3kR9vy0eGqtV6+vHWK/FXjOb+Ot
+         JR24QoNpJoO1rJmFLj1oVgeXlsPoQgAEThQcG7ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 060/115] enetc: Fix NULL dma address unmap for Tx BD extensions
-Date:   Mon, 17 Jun 2019 23:09:20 +0200
-Message-Id: <20190617210803.334871153@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 10/75] ALSA: oxfw: allow PCM capture for Stanton SCS.1m
+Date:   Mon, 17 Jun 2019 23:09:21 +0200
+Message-Id: <20190617210753.265413601@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f4a0be84d73ec648628bf8094600ceb73cb6073f ]
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-For the unlikely case of TxBD extensions (i.e. ptp)
-the driver tries to unmap the tx_swbd corresponding
-to the extension, which is bogus as it has no buffer
-attached.
+commit d8fa87c368f5b4096c4746894fdcc195da285df1 upstream.
 
-Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Stanton SCS.1m can transfer isochronous packet with Multi Bit Linear
+Audio data channels, therefore it allows software to capture PCM
+substream. However, ALSA oxfw driver doesn't.
+
+This commit changes the driver to add one PCM substream for capture
+direction.
+
+Fixes: de5126cc3c0b ("ALSA: oxfw: add stream format quirk for SCS.1 models")
+Cc: <stable@vger.kernel.org> # v4.5+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/firewire/oxfw/oxfw.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
-index 5bb9eb35d76d..491475d87736 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -313,7 +313,9 @@ static bool enetc_clean_tx_ring(struct enetc_bdr *tx_ring, int napi_budget)
- 	while (bds_to_clean && tx_frm_cnt < ENETC_DEFAULT_TX_WORK) {
- 		bool is_eof = !!tx_swbd->skb;
+--- a/sound/firewire/oxfw/oxfw.c
++++ b/sound/firewire/oxfw/oxfw.c
+@@ -170,9 +170,6 @@ static int detect_quirks(struct snd_oxfw
+ 		oxfw->midi_input_ports = 0;
+ 		oxfw->midi_output_ports = 0;
  
--		enetc_unmap_tx_buff(tx_ring, tx_swbd);
-+		if (likely(tx_swbd->dma))
-+			enetc_unmap_tx_buff(tx_ring, tx_swbd);
-+
- 		if (is_eof) {
- 			napi_consume_skb(tx_swbd->skb, napi_budget);
- 			tx_swbd->skb = NULL;
--- 
-2.20.1
-
+-		/* Output stream exists but no data channels are useful. */
+-		oxfw->has_output = false;
+-
+ 		return snd_oxfw_scs1x_add(oxfw);
+ 	}
+ 
 
 
