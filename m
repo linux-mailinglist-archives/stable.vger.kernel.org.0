@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E18C49327
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3513C493BB
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:33:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730488AbfFQV2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:28:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55136 "EHLO mail.kernel.org"
+        id S1730156AbfFQV0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:26:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730483AbfFQV2D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:28:03 -0400
+        id S1730132AbfFQV0A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:26:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECB6521670;
-        Mon, 17 Jun 2019 21:28:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 786FF20657;
+        Mon, 17 Jun 2019 21:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806882;
-        bh=Mm6v6hn8aAZZsBNYyrCi/dyo8XDrkvk0FkDew2xsk+w=;
+        s=default; t=1560806759;
+        bh=SK3oSmqXwer41s9Yr8FkCSvEhPOOeSfkILVtbJpAmIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRnDw1HMppZxiNv8Vn5IsM1/Ppeeku4iPYUxpF6K9SZw8eWZeh+v+ffkHjlACNqzQ
-         +Zqu6AkdfWoRZ0ffRywqhBGH+gUQSLdcyVKnZvRdC7mbjzadoZ3E9W74PCpBIEhP/X
-         H1Is38kGPLBVtDMWmSQt1XgXCyShHYwQZyrPvanM=
+        b=M0LuQ8HI3a02NiI5CjjCIAVl0NlVsavgQvN23bZ9lqAARA0HcWU8Flv9jQ11RJpfE
+         DYdFnu45BbGNUxZ0os1cKjC118gdlZccvguf/+ILBaEzeJ3fsy4sCDma26C63hXII7
+         rGOQ8/GgF8Ny2MQjT9c3qTGezbXMBJi/5YiEYk10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno <kholk11@gmail.com>,
-        Marc Gonzalez <marc.w.gonzalez@free.fr>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 4.14 15/53] iommu/arm-smmu: Avoid constant zero in TLBI writes
+        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        Qian Cai <cai@lca.pw>, Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 47/75] libnvdimm: Fix compilation warnings with W=1
 Date:   Mon, 17 Jun 2019 23:09:58 +0200
-Message-Id: <20190617210748.121647525@linuxfoundation.org>
+Message-Id: <20190617210754.573771786@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-References: <20190617210745.104187490@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,77 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+[ Upstream commit c01dafad77fea8d64c4fdca0a6031c980842ad65 ]
 
-commit 4e4abae311e4b44aaf61f18a826fd7136037f199 upstream.
+Several places (dimm_devs.c, core.c etc) include label.h but only
+label.c uses NSINDEX_SIGNATURE, so move its definition to label.c
+instead.
 
-Apparently, some Qualcomm arm64 platforms which appear to expose their
-SMMU global register space are still, in fact, using a hypervisor to
-mediate it by trapping and emulating register accesses. Sadly, some
-deployed versions of said trapping code have bugs wherein they go
-horribly wrong for stores using r31 (i.e. XZR/WZR) as the source
-register.
+In file included from drivers/nvdimm/dimm_devs.c:23:
+drivers/nvdimm/label.h:41:19: warning: 'NSINDEX_SIGNATURE' defined but
+not used [-Wunused-const-variable=]
 
-While this can be mitigated for GCC today by tweaking the constraints
-for the implementation of writel_relaxed(), to avoid any potential
-arms race with future compilers more aggressively optimising register
-allocation, the simple way is to just remove all the problematic
-constant zeros. For the write-only TLB operations, the actual value is
-irrelevant anyway and any old nearby variable will provide a suitable
-GPR to encode. The one point at which we really do need a zero to clear
-a context bank happens before any of the TLB maintenance where crashes
-have been reported, so is apparently not a problem... :/
+Also, some places abuse "/**" which is only reserved for the kernel-doc.
 
-Reported-by: AngeloGioacchino Del Regno <kholk11@gmail.com>
-Tested-by: Marc Gonzalez <marc.w.gonzalez@free.fr>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Marc Gonzalez <marc.w.gonzalez@free.fr>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/nvdimm/bus.c:648: warning: cannot understand function prototype:
+'struct attribute_group nd_device_attribute_group = '
+drivers/nvdimm/bus.c:677: warning: cannot understand function prototype:
+'struct attribute_group nd_numa_attribute_group = '
 
+Those are just some member assignments for the "struct attribute_group"
+instances and it can't be expressed in the kernel-doc.
+
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm-smmu.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/nvdimm/bus.c   | 4 ++--
+ drivers/nvdimm/label.c | 2 ++
+ drivers/nvdimm/label.h | 2 --
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/iommu/arm-smmu.c
-+++ b/drivers/iommu/arm-smmu.c
-@@ -56,6 +56,15 @@
- #include "io-pgtable.h"
- #include "arm-smmu-regs.h"
+diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
+index 9148015ed803..a3132a9eb91c 100644
+--- a/drivers/nvdimm/bus.c
++++ b/drivers/nvdimm/bus.c
+@@ -612,7 +612,7 @@ static struct attribute *nd_device_attributes[] = {
+ 	NULL,
+ };
  
+-/**
 +/*
-+ * Apparently, some Qualcomm arm64 platforms which appear to expose their SMMU
-+ * global register space are still, in fact, using a hypervisor to mediate it
-+ * by trapping and emulating register accesses. Sadly, some deployed versions
-+ * of said trapping code have bugs wherein they go horribly wrong for stores
-+ * using r31 (i.e. XZR/WZR) as the source register.
-+ */
-+#define QCOM_DUMMY_VAL -1
+  * nd_device_attribute_group - generic attributes for all devices on an nd bus
+  */
+ struct attribute_group nd_device_attribute_group = {
+@@ -641,7 +641,7 @@ static umode_t nd_numa_attr_visible(struct kobject *kobj, struct attribute *a,
+ 	return a->mode;
+ }
+ 
+-/**
++/*
+  * nd_numa_attribute_group - NUMA attributes for all devices on an nd bus
+  */
+ struct attribute_group nd_numa_attribute_group = {
+diff --git a/drivers/nvdimm/label.c b/drivers/nvdimm/label.c
+index 452ad379ed70..9f1b7e3153f9 100644
+--- a/drivers/nvdimm/label.c
++++ b/drivers/nvdimm/label.c
+@@ -25,6 +25,8 @@ static guid_t nvdimm_btt2_guid;
+ static guid_t nvdimm_pfn_guid;
+ static guid_t nvdimm_dax_guid;
+ 
++static const char NSINDEX_SIGNATURE[] = "NAMESPACE_INDEX\0";
 +
- #define ARM_MMU500_ACTLR_CPRE		(1 << 1)
- 
- #define ARM_MMU500_ACR_CACHE_LOCK	(1 << 26)
-@@ -404,7 +413,7 @@ static void __arm_smmu_tlb_sync(struct a
+ static u32 best_seq(u32 a, u32 b)
  {
- 	unsigned int spin_cnt, delay;
+ 	a &= NSINDEX_SEQ_MASK;
+diff --git a/drivers/nvdimm/label.h b/drivers/nvdimm/label.h
+index 18bbe183b3a9..52f9fcada00a 100644
+--- a/drivers/nvdimm/label.h
++++ b/drivers/nvdimm/label.h
+@@ -38,8 +38,6 @@ enum {
+ 	ND_NSINDEX_INIT = 0x1,
+ };
  
--	writel_relaxed(0, sync);
-+	writel_relaxed(QCOM_DUMMY_VAL, sync);
- 	for (delay = 1; delay < TLB_LOOP_TIMEOUT; delay *= 2) {
- 		for (spin_cnt = TLB_SPIN_COUNT; spin_cnt > 0; spin_cnt--) {
- 			if (!(readl_relaxed(status) & sTLBGSTATUS_GSACTIVE))
-@@ -1635,8 +1644,8 @@ static void arm_smmu_device_reset(struct
- 	}
- 
- 	/* Invalidate the TLB, just in case */
--	writel_relaxed(0, gr0_base + ARM_SMMU_GR0_TLBIALLH);
--	writel_relaxed(0, gr0_base + ARM_SMMU_GR0_TLBIALLNSNH);
-+	writel_relaxed(QCOM_DUMMY_VAL, gr0_base + ARM_SMMU_GR0_TLBIALLH);
-+	writel_relaxed(QCOM_DUMMY_VAL, gr0_base + ARM_SMMU_GR0_TLBIALLNSNH);
- 
- 	reg = readl_relaxed(ARM_SMMU_GR0_NS(smmu) + ARM_SMMU_GR0_sCR0);
- 
+-static const char NSINDEX_SIGNATURE[] = "NAMESPACE_INDEX\0";
+-
+ /**
+  * struct nd_namespace_index - label set superblock
+  * @sig: NAMESPACE_INDEX\0
+-- 
+2.20.1
+
 
 
