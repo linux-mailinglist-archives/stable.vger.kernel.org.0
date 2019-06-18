@@ -2,167 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFB7549937
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 08:47:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCB6249941
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 08:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728281AbfFRGrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 02:47:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53892 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728454AbfFRGrY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jun 2019 02:47:24 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14CEA20B1F;
-        Tue, 18 Jun 2019 05:31:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560835862;
-        bh=fV6QcoI+aIA1mXYCOxmK14DJFY38+KvvHmb6bd+WQPI=;
-        h=Subject:To:From:Date:From;
-        b=QiOYpihFAhQEPGYBbX1YQq0RTaxOU3koW5tHlCBBFnO4taaZtE5Vz4h/OAPakAe5y
-         j+c07dvSrESMHSn0gjhrXL40OaxYCmMS3372or1bDyICdL8ReOafLA4Mg9Wh8YEVto
-         8x4VcnHGXD4aJEotpPKFSKbX6/c8fxJR4jL6mLm4=
-Subject: patch "staging: erofs: add requirements field in superblock" added to staging-next
-To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, yuchao0@huawei.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Jun 2019 07:31:00 +0200
-Message-ID: <156083586020466@kroah.com>
+        id S1726685AbfFRGr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 02:47:56 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:50903 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725970AbfFRGr4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 02:47:56 -0400
+Received: by mail-wm1-f65.google.com with SMTP id c66so1880951wmf.0
+        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 23:47:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=vRFNIr9G6Fzz5c1sBOt27MrpC76GvaAC2OqrJIKUh/o=;
+        b=eahmUQER9CDOoGxeFqLhMj7nBKoDjgiHmBsx8joSdXCelgmLze6YxqRTiCn4hdOVmX
+         Yev7EdhYAnpmO2GyKn4xjnxRGRKAPguxlQ+iHx4Ghjsl0GKk59vA1HqCa+rgo/Cb9yz0
+         Z9OeHD5wH0fvAL46y9U7KxJGgLnzucbel08foOeKG0hMEY+t/xHVIuUnqe0gojOPKzH0
+         JQkFjS+U4OKfHbpkZ/2iUhhtADaSOeU9FklJkOL/XZCkYRy47lSfZK3XJRex6yqKXIRf
+         y0PU8JT3px6iXP2SrMtQ9LAkSoCfqvaJTQrwv7+oIIP1+RqcdeEfYxNVcIGxO1j+oYl/
+         xiyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=vRFNIr9G6Fzz5c1sBOt27MrpC76GvaAC2OqrJIKUh/o=;
+        b=k1C8BIqYhDbHWeuKM2oi9r6eOzyp2iRpz9S0I/gsaI/3XxFnYFf7io6objtaK8+H3t
+         mBggH1Tym/8GnhifpLfQQrKShmxQaYBf1iyvcdLCxewK92QUAAJ0uwk09zTXAxlci8ry
+         x4FWXYSYxxRqx2EJDo9tcpLaqcg4a8Rcj0sMeTB1xIPd8HbeGrfuhAOzYIuhZADdjabf
+         jlmaTKKwa9LMptwftUwlezH+QCZ7He0DG5pD1UeIGepgCyexFTmp9IdHshQQaQJiG/Pu
+         +3Cj16fgRKbmOmFzIeKA+PFhIeVTLc4vgVtQn6ppHIdwNiI7sc2y6eeZXhODn4Ag/rI7
+         mVdg==
+X-Gm-Message-State: APjAAAXWcXDJyIdLcw2fZsWEVOz53YWm/YUtee2qec/GystvK+TaLNx/
+        aTyFqms1u/Lkw0F++xzbwyOY4gmXMzBT5w==
+X-Google-Smtp-Source: APXvYqy/ubKmTCQuVybXXyHgbxSZ4mMeL8/f0kHPSz0SgO5r/UN33fjbuw8TKVedVsGhqLxYL0LVxw==
+X-Received: by 2002:a7b:c057:: with SMTP id u23mr1584502wmc.29.1560836123871;
+        Mon, 17 Jun 2019 22:35:23 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id p26sm6307876wrp.58.2019.06.17.22.35.23
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 17 Jun 2019 22:35:23 -0700 (PDT)
+Message-ID: <5d08781b.1c69fb81.75c22.1434@mx.google.com>
+Date:   Mon, 17 Jun 2019 22:35:23 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.182-63-g36c456baf9b1
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.4.y boot: 79 boots: 1 failed,
+ 77 passed with 1 conflict (v4.4.182-63-g36c456baf9b1)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y boot: 79 boots: 1 failed, 77 passed with 1 conflict (=
+v4.4.182-63-g36c456baf9b1)
 
-This is a note to let you know that I've just added the patch titled
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.182-63-g36c456baf9b1/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.182-63-g36c456baf9b1/
 
-    staging: erofs: add requirements field in superblock
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.182-63-g36c456baf9b1
+Git Commit: 36c456baf9b18b0b852e6dc52d20d678aefff775
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 39 unique boards, 20 SoC families, 14 builds out of 190
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+Boot Regressions Detected:
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+x86_64:
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+    x86_64_defconfig:
+        gcc-8:
+          qemu:
+              lab-baylibre: failing since 1 day (last pass: v4.4.181-51-g3c=
+b069b52684 - first fail: v4.4.182-63-g4d1195c2c43c)
 
-If you have any questions about this process, please let me know.
+Boot Failure Detected:
 
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
 
-From 5efe5137f05bbb4688890620934538c005e7d1d6 Mon Sep 17 00:00:00 2001
-From: Gao Xiang <gaoxiang25@huawei.com>
-Date: Thu, 13 Jun 2019 16:35:41 +0800
-Subject: staging: erofs: add requirements field in superblock
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
 
-There are some backward incompatible features pending
-for months, mainly due to on-disk format expensions.
+x86_64:
+    x86_64_defconfig:
+        qemu:
+            lab-drue: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
+            lab-linaro-lkft: PASS (gcc-8)
+            lab-mhart: PASS (gcc-8)
 
-However, we should ensure that it cannot be mounted with
-old kernels. Otherwise, it will causes unexpected behaviors.
-
-Fixes: ba2b77a82022 ("staging: erofs: add super block operations")
-Cc: <stable@vger.kernel.org> # 4.19+
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/erofs/erofs_fs.h | 13 ++++++++++---
- drivers/staging/erofs/internal.h |  2 ++
- drivers/staging/erofs/super.c    | 19 +++++++++++++++++++
- 3 files changed, 31 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/staging/erofs/erofs_fs.h b/drivers/staging/erofs/erofs_fs.h
-index fa52898df006..8ddb2b3e7d39 100644
---- a/drivers/staging/erofs/erofs_fs.h
-+++ b/drivers/staging/erofs/erofs_fs.h
-@@ -17,10 +17,16 @@
- #define EROFS_SUPER_MAGIC_V1    0xE0F5E1E2
- #define EROFS_SUPER_OFFSET      1024
- 
-+/*
-+ * Any bits that aren't in EROFS_ALL_REQUIREMENTS should be
-+ * incompatible with this kernel version.
-+ */
-+#define EROFS_ALL_REQUIREMENTS  0
-+
- struct erofs_super_block {
- /*  0 */__le32 magic;           /* in the little endian */
- /*  4 */__le32 checksum;        /* crc32c(super_block) */
--/*  8 */__le32 features;
-+/*  8 */__le32 features;        /* (aka. feature_compat) */
- /* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
- /* 13 */__u8 reserved;
- 
-@@ -34,9 +40,10 @@ struct erofs_super_block {
- /* 44 */__le32 xattr_blkaddr;
- /* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
- /* 64 */__u8 volume_name[16];   /* volume name */
-+/* 80 */__le32 requirements;    /* (aka. feature_incompat) */
- 
--/* 80 */__u8 reserved2[48];     /* 128 bytes */
--} __packed;
-+/* 84 */__u8 reserved2[44];
-+} __packed;                     /* 128 bytes */
- 
- /*
-  * erofs inode data mapping:
-diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
-index c47778b3fabd..382258fc124d 100644
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -115,6 +115,8 @@ struct erofs_sb_info {
- 
- 	u8 uuid[16];                    /* 128-bit uuid for volume */
- 	u8 volume_name[16];             /* volume name */
-+	u32 requirements;
-+
- 	char *dev_name;
- 
- 	unsigned int mount_opt;
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index f580d4ef77a1..cadbcc11702a 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -71,6 +71,22 @@ static void free_inode(struct inode *inode)
- 	kmem_cache_free(erofs_inode_cachep, vi);
- }
- 
-+static bool check_layout_compatibility(struct super_block *sb,
-+				       struct erofs_super_block *layout)
-+{
-+	const unsigned int requirements = le32_to_cpu(layout->requirements);
-+
-+	EROFS_SB(sb)->requirements = requirements;
-+
-+	/* check if current kernel meets all mandatory requirements */
-+	if (requirements & (~EROFS_ALL_REQUIREMENTS)) {
-+		errln("unidentified requirements %x, please upgrade kernel version",
-+		      requirements & ~EROFS_ALL_REQUIREMENTS);
-+		return false;
-+	}
-+	return true;
-+}
-+
- static int superblock_read(struct super_block *sb)
- {
- 	struct erofs_sb_info *sbi;
-@@ -104,6 +120,9 @@ static int superblock_read(struct super_block *sb)
- 		goto out;
- 	}
- 
-+	if (!check_layout_compatibility(sb, layout))
-+		goto out;
-+
- 	sbi->blocks = le32_to_cpu(layout->blocks);
- 	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
- #ifdef CONFIG_EROFS_FS_XATTR
--- 
-2.22.0
-
-
+For more info write to <info@kernelci.org>
