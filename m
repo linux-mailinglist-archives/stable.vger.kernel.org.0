@@ -2,81 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 027934A725
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 18:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F1744A829
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 19:21:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729943AbfFRQie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 12:38:34 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:38563 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729349AbfFRQie (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 12:38:34 -0400
-Received: by mail-pg1-f195.google.com with SMTP id v11so7985981pgl.5;
-        Tue, 18 Jun 2019 09:38:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=/EfAKVzSSLPKC8VVPVL8gdO6/pui4HoD4gSi5/mcpaE=;
-        b=hskVJCSf3dPuSpZ9man8x91OJsP9Chxq48WeJBZqEF+M9nanraSBXMuFMXp40VhwCI
-         k1drCjcDr9cB4StfhR2uMvt1bQPNGVdwh6cLjTpzgxg84OQNvrKohP/mYE9E4ZpyMYvR
-         XS+iduJKKcVBKtCKLc3YuKaPgXIagTVjRQ2xDQn57Q60RfeUsYBpdm/efiygE8bB6q+Z
-         yGonZc7Rqjzwjw2BXnqfOiIhRjh+a9QdsXbIkiIhCk5MgFnGuQBsYrOyjzH4lWZYO+RE
-         kfbaJQQvxL4NxWmQxIzSCfv8UJEPQZWwztXIuDVhZjwtmWL9cjwhXb/VNAx8cOxUoo5w
-         hO/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=/EfAKVzSSLPKC8VVPVL8gdO6/pui4HoD4gSi5/mcpaE=;
-        b=c08JVIWyYZPdrJxzHYejJSLDxydj23A61uP9mfJIR4vEaYpkLz2yHkP+xdVB+1i/Lj
-         zttt8xkBDHID6q1keZHhN0xJ8LgchmVqgTPP6ViiYpj0lfRg3C0vtDUR8p40HXJYC+Qi
-         63z4yJkdYPf6NY6RW8yPIns0aAlFc1613tfEu9pYeCog/M20wKbiOzFWlmZyxNLauFPe
-         K3ZZuwjKGdttFuN+rqh13zJGeRlvHPOWphFYskqyPVhcdbcSSVM8lQZXFU7XjjJ9D0Ar
-         YGYyzGFmAisWLOLdM2BeCWIZ5x+CyYbfQKxqdK4OanK0BGK0AXZznjXCmaaWQgD0CN3h
-         yMdw==
-X-Gm-Message-State: APjAAAU3VWGGQMvlDjPcRknRGqjdM/MH+6Yd+kft1t7cxOFxTUjwlQGV
-        qjsd2hHGDDXH1ByL2us0+QA=
-X-Google-Smtp-Source: APXvYqzTujjF0Hp+8EaxbYE6ARtau2nKVYu3MJRuCfMNbvqv8w1udyE4gnvd+ea4lSsZcIcy/1m+RA==
-X-Received: by 2002:a62:1ac8:: with SMTP id a191mr59423049pfa.164.1560875913559;
-        Tue, 18 Jun 2019 09:38:33 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id p68sm15162065pfb.80.2019.06.18.09.38.32
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 18 Jun 2019 09:38:33 -0700 (PDT)
-Date:   Tue, 18 Jun 2019 09:38:32 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.1 000/115] 5.1.12-stable review
-Message-ID: <20190618163832.GC1718@roeck-us.net>
-References: <20190617210759.929316339@linuxfoundation.org>
+        id S1729337AbfFRRV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 13:21:57 -0400
+Received: from foss.arm.com ([217.140.110.172]:51330 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728572AbfFRRV5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Jun 2019 13:21:57 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6A8CF344;
+        Tue, 18 Jun 2019 10:21:56 -0700 (PDT)
+Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.105])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2E4113F738;
+        Tue, 18 Jun 2019 10:21:55 -0700 (PDT)
+From:   James Morse <james.morse@arm.com>
+To:     stable@vger.kernel.org
+Cc:     Fenghua Yu <fenghua.yu@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        H Peter Anvin <hpa@zytor.com>, x86@kernel.org,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH stable v5.1.11] x86/resctrl: Don't stop walking closids when a locksetup group is found
+Date:   Tue, 18 Jun 2019 18:21:44 +0100
+Message-Id: <20190618172144.262042-1-james.morse@arm.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 17, 2019 at 11:08:20PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.1.12 release.
-> There are 115 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed 19 Jun 2019 09:06:21 PM UTC.
-> Anything received after that time might be too late.
-> 
+commit 87d3aa28f345bea77c396855fa5d5fec4c24461f upstream.
 
-Build results:
-	total: 159 pass: 159 fail: 0
-Qemu test results:
-	total: 366 pass: 366 fail: 0
+When a new control group is created __init_one_rdt_domain() walks all
+the other closids to calculate the sets of used and unused bits.
 
-Guenter
+If it discovers a pseudo_locksetup group, it breaks out of the loop.  This
+means any later closid doesn't get its used bits added to used_b.  These
+bits will then get set in unused_b, and added to the new control group's
+configuration, even if they were marked as exclusive for a later closid.
+
+When encountering a pseudo_locksetup group, we should continue. This is
+because "a resource group enters 'pseudo-locked' mode after the schemata is
+written while the resource group is in 'pseudo-locksetup' mode." When we
+find a pseudo_locksetup group, its configuration is expected to be
+overwritten, we can skip it.
+
+Fixes: dfe9674b04ff6 ("x86/intel_rdt: Enable entering of pseudo-locksetup mode")
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Reinette Chatre <reinette.chatre@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H Peter Avin <hpa@zytor.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20190603172531.178830-1-james.morse@arm.com
+[Dropped comment due to lack of space]
+Signed-off-by: James Morse <james.morse@arm.com>
+---
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+index 85212a32b54d..c51b56e29948 100644
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -2556,7 +2556,7 @@ static int rdtgroup_init_alloc(struct rdtgroup *rdtgrp)
+ 				if (closid_allocated(i) && i != closid) {
+ 					mode = rdtgroup_mode_by_closid(i);
+ 					if (mode == RDT_MODE_PSEUDO_LOCKSETUP)
+-						break;
++						continue;
+ 					/*
+ 					 * If CDP is active include peer
+ 					 * domain's usage to ensure there
+-- 
+2.20.1
+
