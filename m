@@ -2,111 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07C0A4AAE1
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 21:10:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E27144AB25
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 21:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730476AbfFRTKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 15:10:30 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60886 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730348AbfFRTKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 15:10:30 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5IJ858N047684
-        for <stable@vger.kernel.org>; Tue, 18 Jun 2019 15:10:28 -0400
-Received: from e14.ny.us.ibm.com (e14.ny.us.ibm.com [129.33.205.204])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2t758msrjt-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Tue, 18 Jun 2019 15:10:28 -0400
-Received: from localhost
-        by e14.ny.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <haren@linux.vnet.ibm.com>;
-        Tue, 18 Jun 2019 20:10:27 +0100
-Received: from b01cxnp23033.gho.pok.ibm.com (9.57.198.28)
-        by e14.ny.us.ibm.com (146.89.104.201) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Tue, 18 Jun 2019 20:10:24 +0100
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x5IJANko39584084
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Jun 2019 19:10:23 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7F31311207E;
-        Tue, 18 Jun 2019 19:10:23 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F287E11207C;
-        Tue, 18 Jun 2019 19:10:22 +0000 (GMT)
-Received: from [9.70.82.143] (unknown [9.70.82.143])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 18 Jun 2019 19:10:22 +0000 (GMT)
-Subject: [PATCH V2] crypto/NX: Set receive window credits to max number of
- CRBs in RxFIFO
-From:   Haren Myneni <haren@linux.vnet.ibm.com>
-To:     mpe@ellerman.id.au, herbert@gondor.apana.org.au
-Cc:     linuxppc-dev@lists.ozlabs.org, linux-crypto@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Date:   Tue, 18 Jun 2019 12:09:22 -0700
-Mime-Version: 1.0
-X-Mailer: Evolution 2.28.3 
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-x-cbid: 19061819-0052-0000-0000-000003D27AC4
-X-IBM-SpamModules-Scores: 
-X-IBM-SpamModules-Versions: BY=3.00011286; HX=3.00000242; KW=3.00000007;
- PH=3.00000004; SC=3.00000286; SDB=6.01219867; UDB=6.00641674; IPR=6.01001008;
- MB=3.00027363; MTD=3.00000008; XFM=3.00000015; UTC=2019-06-18 19:10:26
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19061819-0053-0000-0000-0000615F0043
-Message-Id: <1560884962.22818.9.camel@hbabu-laptop>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-18_09:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1810050000 definitions=main-1906180151
+        id S1730531AbfFRTpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 15:45:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58648 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730494AbfFRTpJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Jun 2019 15:45:09 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1B5C2084B;
+        Tue, 18 Jun 2019 19:45:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560887108;
+        bh=IEU0WN1hXf6sVpK7YQcRbO2NvXoxZ0k1XIC5okkGVAY=;
+        h=Date:From:To:Subject:From;
+        b=aXYvuxTS/RAy0WJJwUhsWcVaOZ0L3ZiqdNGpG1Sk8s/N/71+9JJMLu7ENcR1N5NCe
+         9ZBS+jtrGwRMSiXGuh/OK61w0Mql7XlZxB96+dBhqdnLC8lBrHbyi669mSDXSy8LCQ
+         JLLcoEKpI5AVmIoBXslPUHG2wu2TNRZq3/HMIjSg=
+Date:   Tue, 18 Jun 2019 12:45:07 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, vdavydov.dev@gmail.com,
+        stable@vger.kernel.org, sfr@canb.auug.org.au,
+        rppt@linux.vnet.ibm.com, mhocko@suse.com,
+        mgorman@techsingularity.net, aryabinin@virtuozzo.com,
+        akpm@linux-foundation.org, colin.king@canonical.com
+Subject:  +
+ mm-idle-page-fix-oops-because-end_pfn-is-larger-than-max_pfn.patch added to
+ -mm tree
+Message-ID: <20190618194507.lwgft%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-    
-System gets checkstop if RxFIFO overruns with more requests than the
-maximum possible number of CRBs in FIFO at the same time. The max number
-of requests per window is controlled by window credits. So find max
-CRBs from FIFO size and set it to receive window credits.
 
-Fixes: b0d6c9bab5e4 ("crypto/nx: Add P9 NX support for 842 compression engine")
-CC: stable@vger.kernel.org # v4.14+   
-Signed-off-by:Haren Myneni <haren@us.ibm.com>
+The patch titled
+     Subject: mm/page_idle.c: fix oops because end_pfn is larger than max_pfn
+has been added to the -mm tree.  Its filename is
+     mm-idle-page-fix-oops-because-end_pfn-is-larger-than-max_pfn.patch
 
-diff --git a/drivers/crypto/nx/nx-842-powernv.c b/drivers/crypto/nx/nx-842-powernv.c
-index 4acbc47..e78ff5c 100644
---- a/drivers/crypto/nx/nx-842-powernv.c
-+++ b/drivers/crypto/nx/nx-842-powernv.c
-@@ -27,8 +27,6 @@
- #define WORKMEM_ALIGN	(CRB_ALIGN)
- #define CSB_WAIT_MAX	(5000) /* ms */
- #define VAS_RETRIES	(10)
--/* # of requests allowed per RxFIFO at a time. 0 for unlimited */
--#define MAX_CREDITS_PER_RXFIFO	(1024)
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-idle-page-fix-oops-because-end_pfn-is-larger-than-max_pfn.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-idle-page-fix-oops-because-end_pfn-is-larger-than-max_pfn.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Colin Ian King <colin.king@canonical.com>
+Subject: mm/page_idle.c: fix oops because end_pfn is larger than max_pfn
+
+Currently the calcuation of end_pfn can round up the pfn number to more
+than the actual maximum number of pfns, causing an Oops.  Fix this by
+ensuring end_pfn is never more than max_pfn.
+
+This can be easily triggered when on systems where the end_pfn gets
+rounded up to more than max_pfn using the idle-page stress-ng stress test:
+
+sudo stress-ng --idle-page 0
+
+[ 3812.222790] BUG: unable to handle kernel paging request at 00000000000020d8
+[ 3812.224341] #PF error: [normal kernel read fault]
+[ 3812.225144] PGD 0 P4D 0
+[ 3812.225626] Oops: 0000 [#1] SMP PTI
+[ 3812.226264] CPU: 1 PID: 11039 Comm: stress-ng-idle- Not tainted 5.0.0-5-generic #6-Ubuntu
+[ 3812.227643] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+[ 3812.229286] RIP: 0010:page_idle_get_page+0xc8/0x1a0
+[ 3812.230173] Code: 0f b1 0a 75 7d 48 8b 03 48 89 c2 48 c1 e8 33 83 e0 07 48 c1 ea 36 48 8d 0c 40 4c 8d 24 88 49 c1 e4 07 4c 03 24 d5 00 89 c3 be <49> 8b 44 24 58 48 8d b8 80 a1 02 00 e8 07 d5 77 00 48 8b 53 08 48
+[ 3812.234641] RSP: 0018:ffffafd7c672fde8 EFLAGS: 00010202
+[ 3812.235792] RAX: 0000000000000005 RBX: ffffe36341fff700 RCX: 000000000000000f
+[ 3812.237739] RDX: 0000000000000284 RSI: 0000000000000275 RDI: 0000000001fff700
+[ 3812.239225] RBP: ffffafd7c672fe00 R08: ffffa0bc34056410 R09: 0000000000000276
+[ 3812.241027] R10: ffffa0bc754e9b40 R11: ffffa0bc330f6400 R12: 0000000000002080
+[ 3812.242555] R13: ffffe36341fff700 R14: 0000000000080000 R15: ffffa0bc330f6400
+[ 3812.244073] FS: 00007f0ec1ea5740(0000) GS:ffffa0bc7db00000(0000) knlGS:0000000000000000
+[ 3812.245968] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 3812.247162] CR2: 00000000000020d8 CR3: 0000000077d68000 CR4: 00000000000006e0
+[ 3812.249045] Call Trace:
+[ 3812.249625] page_idle_bitmap_write+0x8c/0x140
+[ 3812.250567] sysfs_kf_bin_write+0x5c/0x70
+[ 3812.251406] kernfs_fop_write+0x12e/0x1b0
+[ 3812.252282] __vfs_write+0x1b/0x40
+[ 3812.253002] vfs_write+0xab/0x1b0
+[ 3812.253941] ksys_write+0x55/0xc0
+[ 3812.254660] __x64_sys_write+0x1a/0x20
+[ 3812.255446] do_syscall_64+0x5a/0x110
+[ 3812.256254] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Link: http://lkml.kernel.org/r/20190618124352.28307-1-colin.king@canonical.com
+Fixes: 33c3fc71c8cf ("mm: introduce idle page tracking")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/page_idle.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/mm/page_idle.c~mm-idle-page-fix-oops-because-end_pfn-is-larger-than-max_pfn
++++ a/mm/page_idle.c
+@@ -136,7 +136,7 @@ static ssize_t page_idle_bitmap_read(str
  
- struct nx842_workmem {
- 	/* Below fields must be properly aligned */
-@@ -812,7 +810,11 @@ static int __init vas_cfg_coproc_info(struct device_node *dn, int chip_id,
- 	rxattr.lnotify_lpid = lpid;
- 	rxattr.lnotify_pid = pid;
- 	rxattr.lnotify_tid = tid;
--	rxattr.wcreds_max = MAX_CREDITS_PER_RXFIFO;
-+	/*
-+	 * Maximum RX window credits can not be more than #CRBs in
-+	 * RxFIFO. Otherwise, can get checkstop if RxFIFO overruns.
-+	 */
-+	rxattr.wcreds_max = fifo_size / CRB_SIZE;
+ 	end_pfn = pfn + count * BITS_PER_BYTE;
+ 	if (end_pfn > max_pfn)
+-		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
++		end_pfn = max_pfn;
  
- 	/*
- 	 * Open a VAS receice window which is used to configure RxFIFO
-    
+ 	for (; pfn < end_pfn; pfn++) {
+ 		bit = pfn % BITMAP_CHUNK_BITS;
+@@ -181,7 +181,7 @@ static ssize_t page_idle_bitmap_write(st
+ 
+ 	end_pfn = pfn + count * BITS_PER_BYTE;
+ 	if (end_pfn > max_pfn)
+-		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
++		end_pfn = max_pfn;
+ 
+ 	for (; pfn < end_pfn; pfn++) {
+ 		bit = pfn % BITMAP_CHUNK_BITS;
+_
 
+Patches currently in -mm which might be from colin.king@canonical.com are
+
+mm-idle-page-fix-oops-because-end_pfn-is-larger-than-max_pfn.patch
+scripts-spellingtxt-add-more-spellings-to-spellingtxt.patch
+z3fold-add-inter-page-compaction-fix.patch
+coda-clean-up-indentation-replace-spaces-with-tab.patch
 
