@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 775154A663
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 18:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7671D4A664
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 18:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729655AbfFRQPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 12:15:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52364 "EHLO mail.kernel.org"
+        id S1729386AbfFRQQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 12:16:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729386AbfFRQPy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jun 2019 12:15:54 -0400
+        id S1729349AbfFRQQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Jun 2019 12:16:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99759213F2;
-        Tue, 18 Jun 2019 16:15:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2383F20B1F;
+        Tue, 18 Jun 2019 16:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560874554;
-        bh=6auq0aCzEEdxBiTpUDAKZDPjNMktlQmkhCY+LSwgp+4=;
+        s=default; t=1560874562;
+        bh=1FIrss7gHYBXPWD1e/rjV+3x4n6lIp1ylsslDp/WAPs=;
         h=Subject:To:From:Date:From;
-        b=wE+LNoIEV9bE8xUiH+OLo8G+hsavnlVT5eOn1mxjSDKg6Hvq9ajntSBHruMQsGBWV
-         vM4ffeF5fY0jq+sfOoaqh70ypmIw54PHExJGk7dCH9HfZ1Tgm7wCCZFaVg7Hbdzpem
-         1fNuk1jrSEXzn75eal8vEAdZl7jCv3w/9Tiu9EEc=
-Subject: patch "usb: xhci: Don't try to recover an endpoint if port is in error" added to usb-linus
-To:     mathias.nyman@linux.intel.com, chiranjeevi.rapolu@intel.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=sZDTAWk0RBsLkfdKlcbrTfWfM0q/wVZC9xTEHWvLi1zh1ac1d4DMgQtg+jqi7n98L
+         ugpCRir0F1K9YkhlWGKfPfr6ge05bGnWAaCtOXoAzEgRDJy67NxHokWcxZaEH8kkH9
+         AgGewnEsIQypBJ0eHv0u0QRWtkbwRJ+gnlj4AHSk=
+Subject: patch "xhci: detect USB 3.2 capable host controllers correctly" added to usb-linus
+To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Jun 2019 18:15:51 +0200
-Message-ID: <1560874551213124@kroah.com>
+Date:   Tue, 18 Jun 2019 18:15:52 +0200
+Message-ID: <156087455216977@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: xhci: Don't try to recover an endpoint if port is in error
+    xhci: detect USB 3.2 capable host controllers correctly
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,125 +55,70 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From b8c3b718087bf7c3c8e388eb1f72ac1108a4926e Mon Sep 17 00:00:00 2001
+From ddd57980a0fde30f7b5d14b888a2cc84d01610e8 Mon Sep 17 00:00:00 2001
 From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Tue, 18 Jun 2019 17:27:47 +0300
-Subject: usb: xhci: Don't try to recover an endpoint if port is in error
- state.
+Date: Tue, 18 Jun 2019 17:27:48 +0300
+Subject: xhci: detect USB 3.2 capable host controllers correctly
 
-A USB3 device needs to be reset and re-enumarated if the port it
-connects to goes to a error state, with link state inactive.
+USB 3.2 capability in a host can be detected from the
+xHCI Supported Protocol Capability major and minor revision fields.
 
-There is no use in trying to recover failed transactions by resetting
-endpoints at this stage. Tests show that in rare cases, after multiple
-endpoint resets of a roothub port the whole host controller might stop
-completely.
+If major is 0x3 and minor 0x20 then the host is USB 3.2 capable.
 
-Several retries to recover from transaction error can happen as
-it can take a long time before the hub thread discovers the USB3
-port error and inactive link.
+For USB 3.2 capable hosts set the root hub lane count to 2.
 
-We can't reliably detect the port error from slot or endpoint context
-due to a limitation in xhci, see xhci specs section 4.8.3:
-"There are several cases where the EP State field in the Output
-Endpoint Context may not reflect the current state of an endpoint"
-and
-"Software should maintain an accurate value for EP State, by tracking it
-with an internal variable that is driven by Events and Doorbell accesses"
+The Major Revision and Minor Revision fields contain a BCD version number.
+The value of the Major Revision field is JJh and the value of the Minor
+Revision field is MNh for version JJ.M.N, where JJ = major revision number,
+M - minor version number, N = sub-minor version number,
+e.g. version 3.1 is represented with a value of 0310h.
 
-Same appears to be true for slot state.
+Also fix the extra whitespace printed out when announcing regular
+SuperSpeed hosts.
 
-set a flag to the corresponding slot if a USB3 roothub port link goes
-inactive to prevent both queueing new URBs and resetting endpoints.
-
-Reported-by: Rapolu Chiranjeevi <chiranjeevi.rapolu@intel.com>
-Tested-by: Rapolu Chiranjeevi <chiranjeevi.rapolu@intel.com>
-Cc: <stable@vger.kernel.org>
+Cc: <stable@vger.kernel.org> # v4.18+
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-ring.c | 15 ++++++++++++++-
- drivers/usb/host/xhci.c      |  5 +++++
- drivers/usb/host/xhci.h      |  9 +++++++++
- 3 files changed, 28 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index feffceb31e8a..121782e22c01 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -1612,8 +1612,13 @@ static void handle_port_status(struct xhci_hcd *xhci,
- 		usb_hcd_resume_root_hub(hcd);
- 	}
- 
--	if (hcd->speed >= HCD_USB3 && (portsc & PORT_PLS_MASK) == XDEV_INACTIVE)
-+	if (hcd->speed >= HCD_USB3 &&
-+	    (portsc & PORT_PLS_MASK) == XDEV_INACTIVE) {
-+		slot_id = xhci_find_slot_id_by_port(hcd, xhci, hcd_portnum + 1);
-+		if (slot_id && xhci->devs[slot_id])
-+			xhci->devs[slot_id]->flags |= VDEV_PORT_ERROR;
- 		bus_state->port_remote_wakeup &= ~(1 << hcd_portnum);
-+	}
- 
- 	if ((portsc & PORT_PLC) && (portsc & PORT_PLS_MASK) == XDEV_RESUME) {
- 		xhci_dbg(xhci, "port resume event for port %d\n", port_id);
-@@ -1801,6 +1806,14 @@ static void xhci_cleanup_halted_endpoint(struct xhci_hcd *xhci,
- {
- 	struct xhci_virt_ep *ep = &xhci->devs[slot_id]->eps[ep_index];
- 	struct xhci_command *command;
-+
-+	/*
-+	 * Avoid resetting endpoint if link is inactive. Can cause host hang.
-+	 * Device will be reset soon to recover the link so don't do anything
-+	 */
-+	if (xhci->devs[slot_id]->flags & VDEV_PORT_ERROR)
-+		return;
-+
- 	command = xhci_alloc_command(xhci, false, GFP_ATOMIC);
- 	if (!command)
- 		return;
 diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 20db378a6012..78a2a937dd83 100644
+index 78a2a937dd83..3f79f35d0b19 100644
 --- a/drivers/usb/host/xhci.c
 +++ b/drivers/usb/host/xhci.c
-@@ -1466,6 +1466,10 @@ static int xhci_urb_enqueue(struct usb_hcd *hcd, struct urb *urb, gfp_t mem_flag
- 			xhci_dbg(xhci, "urb submitted during PCI suspend\n");
- 		return -ESHUTDOWN;
- 	}
-+	if (xhci->devs[slot_id]->flags & VDEV_PORT_ERROR) {
-+		xhci_dbg(xhci, "Can't queue urb, port error, link inactive\n");
-+		return -ENODEV;
-+	}
- 
- 	if (usb_endpoint_xfer_isoc(&urb->ep->desc))
- 		num_tds = urb->number_of_packets;
-@@ -3754,6 +3758,7 @@ static int xhci_discover_or_reset_device(struct usb_hcd *hcd,
- 	}
- 	/* If necessary, update the number of active TTs on this root port */
- 	xhci_update_tt_active_eps(xhci, virt_dev, old_active_eps);
-+	virt_dev->flags = 0;
- 	ret = 0;
- 
- command_cleanup:
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 7f8b950d1a73..92e764c54154 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1010,6 +1010,15 @@ struct xhci_virt_device {
- 	u8				real_port;
- 	struct xhci_interval_bw_table	*bw_table;
- 	struct xhci_tt_bw_info		*tt_info;
-+	/*
-+	 * flags for state tracking based on events and issued commands.
-+	 * Software can not rely on states from output contexts because of
-+	 * latency between events and xHC updating output context values.
-+	 * See xhci 1.1 section 4.8.3 for more details
-+	 */
-+	unsigned long			flags;
-+#define VDEV_PORT_ERROR			BIT(0) /* Port error, link inactive */
+@@ -5065,16 +5065,26 @@ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks)
+ 	} else {
+ 		/*
+ 		 * Some 3.1 hosts return sbrn 0x30, use xhci supported protocol
+-		 * minor revision instead of sbrn
++		 * minor revision instead of sbrn. Minor revision is a two digit
++		 * BCD containing minor and sub-minor numbers, only show minor.
+ 		 */
+-		minor_rev = xhci->usb3_rhub.min_rev;
+-		if (minor_rev) {
++		minor_rev = xhci->usb3_rhub.min_rev / 0x10;
 +
- 	/* The current max exit latency for the enabled USB3 link states. */
- 	u16				current_mel;
- 	/* Used for the debugfs interfaces. */
++		switch (minor_rev) {
++		case 2:
++			hcd->speed = HCD_USB32;
++			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
++			hcd->self.root_hub->rx_lanes = 2;
++			hcd->self.root_hub->tx_lanes = 2;
++			break;
++		case 1:
+ 			hcd->speed = HCD_USB31;
+ 			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
++			break;
+ 		}
+-		xhci_info(xhci, "Host supports USB 3.%x %s SuperSpeed\n",
++		xhci_info(xhci, "Host supports USB 3.%x %sSuperSpeed\n",
+ 			  minor_rev,
+-			  minor_rev ? "Enhanced" : "");
++			  minor_rev ? "Enhanced " : "");
+ 
+ 		xhci->usb3_rhub.hcd = hcd;
+ 		/* xHCI private pointer was set in xhci_pci_probe for the second
 -- 
 2.22.0
 
