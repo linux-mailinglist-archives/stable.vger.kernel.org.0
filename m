@@ -2,153 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD164ADB3
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 00:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C26C4AE1E
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 00:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730333AbfFRWLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 18:11:13 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:47254 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729982AbfFRWLM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 18:11:12 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5IM9Wp6080715;
-        Tue, 18 Jun 2019 22:10:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2018-07-02;
- bh=Zc2OUm1tnM3N2m7NXIMcwM3Hdgj3tqDikz5h/JZLlPw=;
- b=pChkqb2/rjNMRDRJzKlMsm16PdLxVJCZ10fEz2t3p+DvZsTUNdQq+YZgzkFrJ3IqK9Hc
- DM8cDMG7F0TCra0DDX+J3I5TU5qskXQD/1nbeA43TDZq7sVefljpljvMfxfi3IaaXI3U
- iKiuEa+Mw3wPAE+sWYFsLAHnQatG2AbO9KcUdGJcWkk9IUKfqNwHhaOpj7nAjMcRpqHp
- SdnJrlUV8wtS0g1X5ysVMy7UWs6Y4MopeiLMIyeeEUJkpTu3/IW+wJoPtiayxTxGtABm
- wwe4axjpwLYzzebmfYEUwi1+YsHBQuGfpUgybKABBZN5OAXqsODj7VizdE9Gf2LZoQwK 2g== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2130.oracle.com with ESMTP id 2t7809839u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Jun 2019 22:10:37 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5IM983t057436;
-        Tue, 18 Jun 2019 22:10:37 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by userp3020.oracle.com with ESMTP id 2t77ymrcde-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 Jun 2019 22:10:37 +0000
-Received: from abhmp0006.oracle.com (abhmp0006.oracle.com [141.146.116.12])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x5IMAZqp004922;
-        Tue, 18 Jun 2019 22:10:35 GMT
-Received: from [10.159.158.20] (/10.159.158.20)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 18 Jun 2019 15:10:35 -0700
-Subject: Re: [PATCH 0/6] libnvdimm: Fix async operations and locking
-To:     Dan Williams <dan.j.williams@intel.com>, linux-nvdimm@lists.01.org
-Cc:     Ira Weiny <ira.weiny@intel.com>, Dave Jiang <dave.jiang@intel.com>,
-        Keith Busch <keith.busch@intel.com>, stable@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Erwin Tsaur <erwin.tsaur@oracle.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        linux-kernel@vger.kernel.org
-References: <156029554317.419799.1324389595953183385.stgit@dwillia2-desk3.amr.corp.intel.com>
-From:   Jane Chu <jane.chu@oracle.com>
-Organization: Oracle Corporation
-Message-ID: <53fa618d-376f-2200-c8ba-e22ba004cdc0@oracle.com>
-Date:   Tue, 18 Jun 2019 15:10:33 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S1730989AbfFRWsk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 18:48:40 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:41815 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730341AbfFRWsj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 18:48:39 -0400
+Received: by mail-lj1-f194.google.com with SMTP id s21so1203923lji.8
+        for <stable@vger.kernel.org>; Tue, 18 Jun 2019 15:48:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=codecoup-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=m8772S93SESJK7k4owiJBKvos4eqPSCTz+wD3Mw1imI=;
+        b=mXMRsfFQJAPYdse+uAWzSKjIfN/Lz/jZT/lIjbTE6baWDexkaNIIuOuBl5NTZgUpxy
+         C3WQt7J3dYeE4jKl54hdzuUMT9Ucw+GCY34uHUS5FFgDA6Tt9V3nOswYfqJSlxCBXP74
+         v0JcVx6sWmNLaiC40C0PB7Aj8jCZ3tIM73oTcKWHcjkElLZ5SA4+2pXnpTNjSyaJza3Y
+         o7djHoGilHU0bLCEnMpkEFSNZ6Y9qf+/ETM3ddInToNTTUIwR3v0ub44HRSYHTOK8V5b
+         ygCJpQdMY5Wqx0/Nz5iGR25tUMgneIJk65pUcs4mVOda+6zflGdsIjJqVXZGb7HR0bhj
+         I4Hg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=m8772S93SESJK7k4owiJBKvos4eqPSCTz+wD3Mw1imI=;
+        b=e67UcRy7s3p2DoHguJLNesnlgvKx3qJtfxcPLCcdgVIQubbRrxD2CpVQuIN0U7NwHJ
+         PW6XG9FvLDBF9wkPDlH4h+/D01Ou/CLSLssiK8LNy5StEQhBn+cDND8z/ohJedDr9wGF
+         bny753MB8Bn9mOJfU3opawOhdPlpmdIWd7qfTiDeokuNNUtebXglWNF3yS0PW8czK/n7
+         SWFIvN06EmL9ZBxXolLWzkTMUddyBjQSCfzHbgM90CUMHDQ6IH4T7OwHqZ80xCmjtkbh
+         UWLpU2TPo2DimwCHurKVuBps1jhG2pMiRYJ3ALqrFQgz08mYKgtkwI6o4I0NiY/KX00x
+         8eUQ==
+X-Gm-Message-State: APjAAAUYFzjGgTW4ID3KPWl9ngbScbBvdYeMMEQMiGXHWNugmA9xCRdj
+        ebSYc8C1A6qk3F0AJ8NHCVvt3w==
+X-Google-Smtp-Source: APXvYqyAjiVKxCOYRa3BP9kn0EdaEbwl1LmG/mIuTFk7SJGcqL1RixwWU93f2PljEzxkooclI8d2fQ==
+X-Received: by 2002:a2e:3807:: with SMTP id f7mr24271929lja.87.1560898117578;
+        Tue, 18 Jun 2019 15:48:37 -0700 (PDT)
+Received: from localhost.localdomain (ftth-nat-19.ip4.greenlan.pl. [185.56.210.19])
+        by smtp.gmail.com with ESMTPSA id h11sm2398837lfm.14.2019.06.18.15.48.36
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 18 Jun 2019 15:48:36 -0700 (PDT)
+From:   Szymon Janc <szymon.janc@codecoup.pl>
+To:     linux-bluetooth@vger.kernel.org
+Cc:     Szymon Janc <szymon.janc@codecoup.pl>,
+        Maarten Fonville <maarten.fonville@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] Bluetooth: SMP: Workaround Microsoft Surface Precision Mouse bug
+Date:   Wed, 19 Jun 2019 00:47:47 +0200
+Message-Id: <20190618224747.446-1-szymon.janc@codecoup.pl>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-In-Reply-To: <156029554317.419799.1324389595953183385.stgit@dwillia2-desk3.amr.corp.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9292 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1810050000 definitions=main-1906180177
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9292 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
- definitions=main-1906180177
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/11/2019 4:25 PM, Dan Williams wrote:
-> The libnvdimm subsystem uses async operations to parallelize device
-> probing operations and to allow sysfs to trigger device_unregister() on
-> deleted namepsaces. A multithreaded stress test of the libnvdimm sysfs
-> interface uncovered a case where device_unregister() is triggered
-> multiple times, and the subsequent investigation uncovered a broken
-> locking scenario.
-> 
-> The lack of lockdep coverage for device_lock() stymied the debug. That
-> is, until patch6 "driver-core, libnvdimm: Let device subsystems add
-> local lockdep coverage" solved that with a shadow lock, with lockdep
-> coverage, to mirror device_lock() operations. Given the time saved with
-> shadow-lock debug-hack, patch6 attempts to generalize device_lock()
-> debug facility that might be able to be carried upstream. Patch6 is
-> staged at the end of this fix series in case it is contentious and needs
-> to be dropped.
-> 
-> Patch1 "drivers/base: Introduce kill_device()" could be achieved with
-> local libnvdimm infrastructure. However, the existing 'dead' flag in
-> 'struct device_private' aims to solve similar async register/unregister
-> races so the fix in patch2 "libnvdimm/bus: Prevent duplicate
-> device_unregister() calls" can be implemented with existing driver-core
-> infrastructure.
-> 
-> Patch3 is a rare lockdep warning that is intermittent based on
-> namespaces racing ahead of the completion of probe of their parent
-> region. It is not related to the other fixes, it just happened to
-> trigger as a result of the async stress test.
-> 
-> Patch4 and patch5 address an ABBA deadlock tripped by the stress test.
-> 
-> These patches pass the failing stress test and the existing libnvdimm
-> unit tests with CONFIG_PROVE_LOCKING=y and the new "dev->lockdep_mutex"
-> shadow lock with no lockdep warnings.
-> 
-> ---
-> 
-> Dan Williams (6):
->        drivers/base: Introduce kill_device()
->        libnvdimm/bus: Prevent duplicate device_unregister() calls
->        libnvdimm/region: Register badblocks before namespaces
->        libnvdimm/bus: Stop holding nvdimm_bus_list_mutex over __nd_ioctl()
->        libnvdimm/bus: Fix wait_nvdimm_bus_probe_idle() ABBA deadlock
->        driver-core, libnvdimm: Let device subsystems add local lockdep coverage
-> 
-> 
->   drivers/acpi/nfit/core.c        |   28 ++++---
->   drivers/acpi/nfit/nfit.h        |   24 ++++++
->   drivers/base/core.c             |   30 ++++++--
->   drivers/nvdimm/btt_devs.c       |   16 ++--
->   drivers/nvdimm/bus.c            |  154 +++++++++++++++++++++++++++------------
->   drivers/nvdimm/core.c           |   10 +--
->   drivers/nvdimm/dimm_devs.c      |    4 +
->   drivers/nvdimm/namespace_devs.c |   36 +++++----
->   drivers/nvdimm/nd-core.h        |   71 ++++++++++++++++++
->   drivers/nvdimm/pfn_devs.c       |   24 +++---
->   drivers/nvdimm/pmem.c           |    4 +
->   drivers/nvdimm/region.c         |   24 +++---
->   drivers/nvdimm/region_devs.c    |   12 ++-
->   include/linux/device.h          |    6 ++
->   14 files changed, 308 insertions(+), 135 deletions(-)
-> 
+Microsoft Surface Precision Mouse provides bogus identity address when
+pairing. It connects with Static Random address but provides Public
+Address in SMP Identity Address Information PDU. Address has same
+value but type is different. Workaround this by dropping IRK if ID
+address discrepancy is detected.
 
-Tested-by: Jane Chu <jane.chu@oracle.com>
+> HCI Event: LE Meta Event (0x3e) plen 19
+      LE Connection Complete (0x01)
+        Status: Success (0x00)
+        Handle: 75
+        Role: Master (0x00)
+        Peer address type: Random (0x01)
+        Peer address: E0:52:33:93:3B:21 (Static)
+        Connection interval: 50.00 msec (0x0028)
+        Connection latency: 0 (0x0000)
+        Supervision timeout: 420 msec (0x002a)
+        Master clock accuracy: 0x00
 
-Specifically, running parallel ndctls creating/destroying namespaces in 
-multiple processes concurrently led to system panic, that has been 
-verified fixed by this patch series.
+....
 
-Thanks!
--jane
+> ACL Data RX: Handle 75 flags 0x02 dlen 12
+      SMP: Identity Address Information (0x09) len 7
+        Address type: Public (0x00)
+        Address: E0:52:33:93:3B:21
+
+Signed-off-by: Szymon Janc <szymon.janc@codecoup.pl>
+Tested-by: Maarten Fonville <maarten.fonville@gmail.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=199461
+Cc: stable@vger.kernel.org
+---
+ net/bluetooth/smp.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/net/bluetooth/smp.c b/net/bluetooth/smp.c
+index e68c715f8d37..d528d95a2c27 100644
+--- a/net/bluetooth/smp.c
++++ b/net/bluetooth/smp.c
+@@ -2579,6 +2579,20 @@ static int smp_cmd_ident_addr_info(struct l2cap_conn *conn,
+ 		goto distribute;
+ 	}
+ 
++	/*
++	 * Drop IRK if peer is using identity address during pairing but is
++	 * providing different address as identity information.
++	 *
++	 * Microsoft Surface Precision Mouse is known to have this bug.
++	 */
++	if (hci_is_identity_address(&hcon->dst, hcon->dst_type) &&
++	    (bacmp(&info->bdaddr, &hcon->dst) ||
++	     info->addr_type != hcon->dst_type)) {
++		bt_dev_err(hcon->hdev,
++			   "ignoring IRK with invalid identity address");
++		goto distribute;
++	}
++
+ 	bacpy(&smp->id_addr, &info->bdaddr);
+ 	smp->id_addr_type = info->addr_type;
+ 
+-- 
+2.21.0
+
