@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F1744A829
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 19:21:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F377D4A82C
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 19:22:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729337AbfFRRV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 13:21:57 -0400
-Received: from foss.arm.com ([217.140.110.172]:51330 "EHLO foss.arm.com"
+        id S1729455AbfFRRWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 13:22:25 -0400
+Received: from foss.arm.com ([217.140.110.172]:51360 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728572AbfFRRV5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jun 2019 13:21:57 -0400
+        id S1728572AbfFRRWZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Jun 2019 13:22:25 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6A8CF344;
-        Tue, 18 Jun 2019 10:21:56 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 30859CFC;
+        Tue, 18 Jun 2019 10:22:24 -0700 (PDT)
 Received: from eglon.cambridge.arm.com (eglon.cambridge.arm.com [10.1.196.105])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2E4113F738;
-        Tue, 18 Jun 2019 10:21:55 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EB47B3F738;
+        Tue, 18 Jun 2019 10:22:22 -0700 (PDT)
 From:   James Morse <james.morse@arm.com>
 To:     stable@vger.kernel.org
 Cc:     Fenghua Yu <fenghua.yu@intel.com>,
@@ -25,9 +25,9 @@ Cc:     Fenghua Yu <fenghua.yu@intel.com>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
         H Peter Anvin <hpa@zytor.com>, x86@kernel.org,
         James Morse <james.morse@arm.com>
-Subject: [PATCH stable v5.1.11] x86/resctrl: Don't stop walking closids when a locksetup group is found
-Date:   Tue, 18 Jun 2019 18:21:44 +0100
-Message-Id: <20190618172144.262042-1-james.morse@arm.com>
+Subject: [PATCH stable v4.19.52] x86/resctrl: Don't stop walking closids when a locksetup group is found
+Date:   Tue, 18 Jun 2019 18:22:03 +0100
+Message-Id: <20190618172203.262098-1-james.morse@arm.com>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -61,25 +61,25 @@ Cc: Borislav Petkov <bp@alien8.de>
 Cc: H Peter Avin <hpa@zytor.com>
 Cc: <stable@vger.kernel.org>
 Link: https://lkml.kernel.org/r/20190603172531.178830-1-james.morse@arm.com
-[Dropped comment due to lack of space]
+[Dropped comment due to lack space]
 Signed-off-by: James Morse <james.morse@arm.com>
 ---
- arch/x86/kernel/cpu/resctrl/rdtgroup.c | 2 +-
+ arch/x86/kernel/cpu/intel_rdt_rdtgroup.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index 85212a32b54d..c51b56e29948 100644
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -2556,7 +2556,7 @@ static int rdtgroup_init_alloc(struct rdtgroup *rdtgrp)
+diff --git a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
+index 643670fb8943..274d220d0a83 100644
+--- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
++++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
+@@ -2379,7 +2379,7 @@ static int rdtgroup_init_alloc(struct rdtgroup *rdtgrp)
  				if (closid_allocated(i) && i != closid) {
  					mode = rdtgroup_mode_by_closid(i);
  					if (mode == RDT_MODE_PSEUDO_LOCKSETUP)
 -						break;
 +						continue;
- 					/*
- 					 * If CDP is active include peer
- 					 * domain's usage to ensure there
+ 					used_b |= *ctrl;
+ 					if (mode == RDT_MODE_SHAREABLE)
+ 						d->new_ctrl |= *ctrl;
 -- 
 2.20.1
 
