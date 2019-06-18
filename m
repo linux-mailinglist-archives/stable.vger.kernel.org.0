@@ -2,87 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67FF64A250
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 15:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA98A4A274
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 15:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729202AbfFRNfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 09:35:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50886 "EHLO mail.kernel.org"
+        id S1729265AbfFRNh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 09:37:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727584AbfFRNfG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jun 2019 09:35:06 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726248AbfFRNh6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Jun 2019 09:37:58 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4184B2085A;
-        Tue, 18 Jun 2019 13:35:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8730420823;
+        Tue, 18 Jun 2019 13:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560864905;
-        bh=LfDIusApwnD9DgCP5+CwGDN+aRi7wKCcbdDOmRSvwjw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ef/t2lHewy0vT4DZgwqkZZ4p5C2hdQNUrEeh+/eL5ei5oaKn0RdOaetURRFExqO0Q
-         PzbQi6l4i/qraVhPWmCL2QRwdViXvAp+izBgbe6F25+PMaozlUiW8Vf2Evg8C++Vzj
-         PSKEXMngtP4cbWNMSc8k4YBEMDkz0DuHqIj0kIFs=
-Date:   Tue, 18 Jun 2019 15:35:02 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
+        s=default; t=1560865077;
+        bh=ZLBtEm7zQVesFFCcAaPBIdGsaSsT8cqYWREkYWR+x7I=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=gb45AAwqW1HCwFIxD0ZqeN0uRDFfsmJrYNt0OCr81qvBCPGmWQiSpVJ8H9lRjxlSz
+         UaZLvseOlwI5mc3YvMhrMkZpZr1tAjAp8aFDWlg6j7Ea8dkSA+XpMgP3V0z+cX3ams
+         BJBDRIN9TxJlD/51jjF2rA1bG2uoeejfQYcj6O5I=
 Subject: Re: [PATCH 5.1 000/115] 5.1.12-stable review
-Message-ID: <20190618133502.GA5416@kroah.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
 References: <20190617210759.929316339@linuxfoundation.org>
- <CA+G9fYsUmFrTDHJfS=1vYVfv4BVRZ0AByEOHV6toidAxWuDqDg@mail.gmail.com>
+From:   shuah <shuah@kernel.org>
+Message-ID: <716d3e71-3ae0-709a-4705-db4c3c5ff3f9@kernel.org>
+Date:   Tue, 18 Jun 2019 07:37:45 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYsUmFrTDHJfS=1vYVfv4BVRZ0AByEOHV6toidAxWuDqDg@mail.gmail.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 18, 2019 at 06:04:25PM +0530, Naresh Kamboju wrote:
-> On Tue, 18 Jun 2019 at 02:50, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.1.12 release.
-> > There are 115 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Wed 19 Jun 2019 09:06:21 PM UTC.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.12-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
+On 6/17/19 3:08 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.1.12 release.
+> There are 115 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+> Responses should be made by Wed 19 Jun 2019 09:06:21 PM UTC.
+> Anything received after that time might be too late.
 > 
-> NOTE:
-> kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
-> Kernel warning is been fixed by below patch.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.12-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
+> and the diffstat can be found below.
 > 
-> > John Fastabend <john.fastabend@gmail.com>
-> >     bpf: sockmap, only stop/flush strp if it was enabled at some point
+> thanks,
+> 
+> greg k-h
+> 
 
-What is the git commit id for this patch?
+Compiled and booted on my test system. No dmesg regressions.
 
 thanks,
-
-greg k-h
+-- Shuah
