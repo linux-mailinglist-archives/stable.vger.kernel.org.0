@@ -2,111 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18EC249671
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 02:50:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 796B349675
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 02:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726007AbfFRAus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 20:50:48 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:51057 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725829AbfFRAus (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 20:50:48 -0400
-Received: by mail-wm1-f67.google.com with SMTP id c66so1302417wmf.0
-        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 17:50:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=VCXDcNl+K32BYbF78ee7gYIpu018su0TlbymGib3qxc=;
-        b=cXQfCoqjEyMsJLEAvkR5JwOs4HAa7REHHIqieSstZyG0J6QlWGvstxVH78pPW8xwsn
-         5OwfHNKrJ7y9ZjUlNzvxHqiWGaZQgodmSAOJ9PpUpGHx35aDKNZqlSkHedTJaNj+CW2c
-         dcy3e0ZYYU21hpw3cOM+25MHsD78I0S6l0sA3u7PCYHJFdI4wMO1YhqFqO47KU6+2/8a
-         oY5RQvOYaldCSxkOSFQR1eGQv8jkbH4qukintArOwfkBeZL7RCv1fyjfNBDykOA45KhJ
-         KiUNcJBlpRdfOYICSc1Zs6jU7pas+5EqTvGDNnZKOneWptO/3JmeeTy+spL+7GBBlsiz
-         Q88w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=VCXDcNl+K32BYbF78ee7gYIpu018su0TlbymGib3qxc=;
-        b=tyU9t+HM4rCZRL7TwSZOmdPg47CzG4IZdQtZhvQylWi5LJrtbreeb5YzVS3OAxEydE
-         I4vZ/LXb5bUJjxfZnPd046p5CyR5uUt/TT8JjgBPhQqupu1EIkGbEnmQfHPOp9unI/Bv
-         cpP3u+X+lX44mkb8v/W59l3lW20vpc27YOpA4y6kH6vgnfyuZumXcAF2Md/9u4QCGjc2
-         pklsAdXpo+NBfMJ204TNqABhthlO1C0CKI6V+jtW2X333MRUQNN7VXrYoGlW5JoYlMLj
-         1mbP9oOdy9EQBu8eXsaY2psaswiw86SI2RAa+tWX8C8xbQwGggt8s5vC37Q4TNM1OZEJ
-         zPLw==
-X-Gm-Message-State: APjAAAUwl6VtqWURtZbKGTsk7RobN08efYWBBuZjFWPVpZSsuGNKK9PV
-        MgBZiKVIiG/yF1c43UvFyUs/ZOTUWf337A==
-X-Google-Smtp-Source: APXvYqyPPPzrqkRpjXbSJ6+Ks728VURs0yWjqsJUiWoN3k2U33UF+cQYxn3EmMhCAs/CmmVgOlfWFw==
-X-Received: by 2002:a1c:ddd6:: with SMTP id u205mr808127wmg.54.1560819045889;
-        Mon, 17 Jun 2019 17:50:45 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o185sm536432wmo.45.2019.06.17.17.50.45
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 17 Jun 2019 17:50:45 -0700 (PDT)
-Message-ID: <5d083565.1c69fb81.40dae.3224@mx.google.com>
-Date:   Mon, 17 Jun 2019 17:50:45 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1725870AbfFRAzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 20:55:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38922 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725829AbfFRAzO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 20:55:14 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B089320833;
+        Tue, 18 Jun 2019 00:55:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560819314;
+        bh=LngrchH4I/IBN3Zh6OPsxtvSRQcY1UhYSAdzmmrSMZI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=oYn2ijJx2tyO/bwbH/NumDeIYuwoNhxc+WEvJdQ3tRhRtrnjbJZED4nHzzNDovMfg
+         he7lamj91s07bXu4cRiBZDOjDkCsVNcfnoqnniZvSwuaIT3b4wFSvVSYEb8RwvVW6W
+         13yAsZGMAoZL5Co54QcVOqiHELUx4VfuqjzqGSRg=
+Date:   Mon, 17 Jun 2019 20:55:12 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Nadav Amit <namit@vmware.com>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Borislav Petkov <bp@suse.de>, Toshi Kani <toshi.kani@hpe.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH 1/3] resource: Fix locking in find_next_iomem_res()
+Message-ID: <20190618005512.GC2226@sasha-vm>
+References: <20190613045903.4922-2-namit@vmware.com>
+ <20190615221557.CD1492183F@mail.kernel.org>
+ <549284C3-6A1C-4434-B716-FF9B0C87EE45@vmware.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.182-63-g4d1195c2c43c
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.4.y boot: 79 boots: 1 failed,
- 77 passed with 1 conflict (v4.4.182-63-g4d1195c2c43c)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <549284C3-6A1C-4434-B716-FF9B0C87EE45@vmware.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 79 boots: 1 failed, 77 passed with 1 conflict (=
-v4.4.182-63-g4d1195c2c43c)
+On Mon, Jun 17, 2019 at 07:14:53PM +0000, Nadav Amit wrote:
+>> On Jun 15, 2019, at 3:15 PM, Sasha Levin <sashal@kernel.org> wrote:
+>>
+>> Hi,
+>>
+>> [This is an automated email]
+>>
+>> This commit has been processed because it contains a "Fixes:" tag,
+>> fixing commit: ff3cc952d3f0 resource: Add remove_resource interface.
+>>
+>> The bot has tested the following trees: v5.1.9, v4.19.50, v4.14.125, v4.9.181.
+>>
+>> v5.1.9: Build OK!
+>> v4.19.50: Failed to apply! Possible dependencies:
+>>    010a93bf97c7 ("resource: Fix find_next_iomem_res() iteration issue")
+>>    a98959fdbda1 ("resource: Include resource end in walk_*() interfaces")
+>>
+>> v4.14.125: Failed to apply! Possible dependencies:
+>>    010a93bf97c7 ("resource: Fix find_next_iomem_res() iteration issue")
+>>    0e4c12b45aa8 ("x86/mm, resource: Use PAGE_KERNEL protection for ioremap of memory pages")
+>>    1d2e733b13b4 ("resource: Provide resource struct in resource walk callback")
+>>    4ac2aed837cb ("resource: Consolidate resource walking code")
+>>    a98959fdbda1 ("resource: Include resource end in walk_*() interfaces")
+>>
+>> v4.9.181: Failed to apply! Possible dependencies:
+>>    010a93bf97c7 ("resource: Fix find_next_iomem_res() iteration issue")
+>>    0e4c12b45aa8 ("x86/mm, resource: Use PAGE_KERNEL protection for ioremap of memory pages")
+>>    1d2e733b13b4 ("resource: Provide resource struct in resource walk callback")
+>>    4ac2aed837cb ("resource: Consolidate resource walking code")
+>>    60fe3910bb02 ("kexec_file: Allow arch-specific memory walking for kexec_add_buffer")
+>>    a0458284f062 ("powerpc: Add support code for kexec_file_load()")
+>>    a98959fdbda1 ("resource: Include resource end in walk_*() interfaces")
+>>    da6658859b9c ("powerpc: Change places using CONFIG_KEXEC to use CONFIG_KEXEC_CORE instead.")
+>>    ec2b9bfaac44 ("kexec_file: Change kexec_add_buffer to take kexec_buf as argument.")
+>
+>Is there a reason 010a93bf97c7 ("resource: Fix find_next_iomem_res()
+>iteration issue”) was not backported?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.182-63-g4d1195c2c43c/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.182-63-g4d1195c2c43c/
+Mostly because it's not tagged for stable :)
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.182-63-g4d1195c2c43c
-Git Commit: 4d1195c2c43c331095e91d0f198adf6c03ea8a08
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 39 unique boards, 20 SoC families, 14 builds out of 190
-
-Boot Regressions Detected:
-
-x86_64:
-
-    x86_64_defconfig:
-        gcc-8:
-          qemu:
-              lab-baylibre: new failure (last pass: v4.4.181-51-g3cb069b526=
-84)
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-x86_64:
-    x86_64_defconfig:
-        qemu:
-            lab-drue: PASS (gcc-8)
-            lab-baylibre: FAIL (gcc-8)
-            lab-collabora: PASS (gcc-8)
-            lab-linaro-lkft: PASS (gcc-8)
-            lab-mhart: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+--
+Thanks,
+Sasha
