@@ -2,58 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A37D4A8A2
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 19:39:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 469B14A8C3
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 19:49:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730185AbfFRRip (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 13:38:45 -0400
-Received: from smtp2.ono.com ([62.42.230.179]:18612 "EHLO smtp2.ono.com"
+        id S1729491AbfFRRtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 13:49:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729477AbfFRRio (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jun 2019 13:38:44 -0400
-X-Junkmail-Premium-Raw: score=26/50,refid=2.7.2:2019.6.18.165417:17:26.894,ip=62.42.230.133,rules=__HAS_MSGID,
- __SANE_MSGID, MSGID_JMAIL_DEFAULT, INVALID_MSGID_NO_FQDN, __HAS_FROM,
- FROM_NAME_PHRASE, FROM_NAME_ALLCAPS, __HAS_REPLYTO, __FRAUD_WEBMAIL_REPLYTO,
- BLANK_SUBJECT, __MIME_VERSION, __CT, __CT_TEXT_PLAIN, __CTE, MISSING_HEADERS,
- __ANY_URI, __FRAUD_BODY_WEBMAIL, __URI_NO_WWW, __NO_HTML_TAG_RAW,
- BODYTEXTP_SIZE_400_LESS, BODY_SIZE_200_299, BODYTEXTP_SIZE_3000_LESS,
- __MIME_TEXT_P1, __MIME_TEXT_ONLY, __URI_NS, HTML_00_01, HTML_00_10,
- BODY_SIZE_5000_LESS, __FRAUD_WEBMAIL, WEBMAIL_REPLYTO_NOT_FROM,
- FRAUD_WEBMAIL_R_NOT_F, __MIME_TEXT_P, FRAUD_LITTLE_BODY,
- __PHISH_SPEAR_STRUCTURE_1, BODY_SIZE_1000_LESS, BODY_SIZE_2000_LESS,
- SMALL_BODY, __PHISH_SPEAR_STRUCTURE_2, REPLYTO_FROM_DIFF_ADDY, NO_URI_HTTPS,
- BODY_SIZE_7000_LESS, TO_MALFORMED
-Received: from resprs03 (62.42.230.133) by smtp2.ono.com (9.0.019.09-1)
-        id 5CAF0F5D03693A66; Tue, 18 Jun 2019 19:30:26 +0200
-Received: from (149.126.75.9) by webmailcpr03n.ono.com;  Tue, 18 Jun 2019 19:30:24 +0200
-Message-ID: <33042059.649451560879024452.JavaMail.defaultUser@defaultHost>
-Date:   Tue, 18 Jun 2019 19:30:24 +0200 (CEST)
-From:   DR ALBERT ZONGO <rjpd@ono.com>
-Reply-To: dralbertddzongo@gmail.com
-Subject: 
+        id S1729285AbfFRRtx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Jun 2019 13:49:53 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 946F420863;
+        Tue, 18 Jun 2019 17:49:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560880192;
+        bh=2s5JXaKAuAm51+zEi5iSTey2SYDXY/3li7doYYkuVg8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=PQoUj4xgzTjeYc9oX9DHwNKU15/cbzRwP5rwHjYZX7eZOT38i9SZVV8DI5lNcgdWH
+         ofgyy9gef30zDQ3fF7YSsh+C+XHCaDDyBTWPx2TaumYwAbk0qCCaetUCEXZk/ntGs9
+         QCMiK+unMa6ml6T/2KteVIrZFfSDnJ4hz1P+2R5Y=
+Date:   Tue, 18 Jun 2019 19:49:49 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     James Feeney <james@nurealm.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 5.1 003/115] HID: input: make sure the wheel high
+ resolution multiplier is set
+Message-ID: <20190618174949.GD3649@kroah.com>
+References: <20190617210759.929316339@linuxfoundation.org>
+ <20190617210800.096317488@linuxfoundation.org>
+ <a90f3536-8833-498d-c9d5-ef460ad153da@nurealm.net>
 MIME-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a90f3536-8833-498d-c9d5-ef460ad153da@nurealm.net>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Jun 18, 2019 at 11:22:55AM -0600, James Feeney wrote:
+> Uhm - could someone please "clue me in" here?
+> 
+> When I look into:
+> 
+> 'move all the pending queues back to their "real" places'
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/commit/?id=c5da0df8985ac2f29ffdaba77bae201121bc0e10
 
+No need to worry about that patch, that was done because my scripts
+normally assume specific directory locations of the patch queues, and I
+had to do a kernel release that did not include the existing pending
+patches.
 
+> I can find both the "d43c17ead879ba7c076dc2f5fd80cd76047c9ff4" patch, "HID: input: make sure the wheel high resolution multiplier is set" and the "39b3c3a5fbc5d744114e497d35bf0c12f798c134" patch, "HID: input: fix assignment of .value".
+> 
+> I take this to mean that these patches are "in the stable-queue".  But then, these patches are not "in the kernel".
 
---
-Greetings,
+Yes.
 
-I have an intending proposal for you please i need you to contact my 
-private
+> So then, how do these patches go from being "in the stable-queue" to being "in the kernel"?
 
- E-mail (dralbertddzongo@gmail.com) for more updates,
+I apply them when I do the release in a few hours/days.
 
-Best Wishes.
+> To the "uninitiated" and "naive", as I am, to outward appearances, the
+> patches are "just sitting there".  How do the patches get selected for
+> inclusion into the "next" kernel revision?
 
-DR ALBERT ZONGO
+I already selected them, sent emails saying they were selected and to
+what specific branches they were selected to.  Then when the -rc
+releases happen so that people can do one final round of testing and
+object if I messed anything up, they get sent out again (which you
+responded to here.)
 
---
+If all goes well, when the "deadling" passes (usually 2 days +-2 days
+depending on stuff), I'll do a realease and apply the patches "for real"
+to the different kernel branches and cut a release.
 
+Then I start all over again...
+
+I understand that seeing a git tree of patches in a quilt series is odd,
+but it is very powerful and works very very well for what we do here.
+
+Does that help?
+
+greg k-h
