@@ -2,101 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C53049D70
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 11:34:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 196E349DAA
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 11:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729256AbfFRJel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 05:34:41 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:43892 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729220AbfFRJel (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jun 2019 05:34:41 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 30CC6223864;
-        Tue, 18 Jun 2019 09:34:36 +0000 (UTC)
-Received: from localhost (unknown [10.43.2.57])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9674D605CE;
-        Tue, 18 Jun 2019 09:34:33 +0000 (UTC)
-Date:   Tue, 18 Jun 2019 11:34:31 +0200
-From:   Stanislaw Gruszka <sgruszka@redhat.com>
-To:     Soeren Moch <smoch@web.de>
-Cc:     Helmut Schaa <helmut.schaa@googlemail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] rt2x00: fix rx queue hang
-Message-ID: <20190618093431.GA2577@redhat.com>
-References: <20190617094656.3952-1-smoch@web.de>
+        id S1729369AbfFRJna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 05:43:30 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:45716 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729320AbfFRJna (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 05:43:30 -0400
+Received: by mail-wr1-f67.google.com with SMTP id f9so13128158wre.12
+        for <stable@vger.kernel.org>; Tue, 18 Jun 2019 02:43:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=7H+CZItQJTM8gOKdEIO6tgbmZC/1DVL8U5ona3SCpCI=;
+        b=JYSw0J9LwR9z1olZKP5pOeo7gFsg4wsGqQREgLv5uujdwMQZ13dKmnktQmUj90br2A
+         T9+kD4Vo6jJyl+J+sozpDSDFhpphseGt0xai/5Iau93K3Uf8oCND7+ET85vP6B3fIj+u
+         6VllquoAFFbhn3DuvR8cZIfHzlq1sWeJFRGnmUvFaA/6RiYmS0gYpzU3WTfOBukcKlDm
+         Sh8bInk0jBsRM29bVMSSY2RJQT8UnMV6w/Vq6ZUtRZO3oHaUWUuHiD5ed6Q5nvCen9t3
+         qiABAOJVxmrIjA9KzjCWEm8vM+MhBi8vEffEyXNoIhU0EkUZ0O5QPRf+ErPUIVPDDoB8
+         vkYg==
+X-Gm-Message-State: APjAAAWbQe6Q1MeNOxyuKE5CzU7vQ2fhbcjKTwBeNCl73H3DwdXCUmQB
+        mLARC/eBEF9/YxDFxYaywyjAN9/rqKg=
+X-Google-Smtp-Source: APXvYqx1u72NgLWUSb0cmYjIEFnfvl7lohvWUsuD8u7IfbzZrWhSU9lechEAXsHLnsuA/1rkasQ/sQ==
+X-Received: by 2002:adf:ff84:: with SMTP id j4mr2988875wrr.71.1560851007943;
+        Tue, 18 Jun 2019 02:43:27 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:1da0:213e:1763:a1a8? ([2001:b07:6468:f312:1da0:213e:1763:a1a8])
+        by smtp.gmail.com with ESMTPSA id x8sm1752029wmc.5.2019.06.18.02.43.22
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Tue, 18 Jun 2019 02:43:27 -0700 (PDT)
+Subject: Re: [PATCH 22/43] KVM: nVMX: Don't dump VMCS if virtual APIC page
+ can't be mapped
+To:     Sean Christopherson <sean.j.christopherson@intel.com>,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        vkuznets@redhat.com, stable@vger.kernel.org
+References: <1560445409-17363-1-git-send-email-pbonzini@redhat.com>
+ <1560445409-17363-23-git-send-email-pbonzini@redhat.com>
+ <20190617191724.GA26860@flask> <20190617200700.GA30158@linux.intel.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <0d59375c-9313-d31a-4af9-d68115e05d55@redhat.com>
+Date:   Tue, 18 Jun 2019 11:43:29 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190617094656.3952-1-smoch@web.de>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Tue, 18 Jun 2019 09:34:41 +0000 (UTC)
+In-Reply-To: <20190617200700.GA30158@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
-
-On Mon, Jun 17, 2019 at 11:46:56AM +0200, Soeren Moch wrote:
-> Since commit ed194d136769 ("usb: core: remove local_irq_save() around
->  ->complete() handler") the handlers rt2x00usb_interrupt_rxdone() and
-> rt2x00usb_interrupt_txdone() are not running with interrupts disabled
-> anymore. So these handlers are not guaranteed to run completely before
-> workqueue processing starts. So only mark entries ready for workqueue
-> processing after proper accounting in the dma done queue.
-
-It was always the case on SMP machines that rt2x00usb_interrupt_{tx/rx}done
-can run concurrently with rt2x00_work_{rx,tx}done, so I do not
-understand how removing local_irq_save() around complete handler broke
-things.
-
-Have you reverted commit ed194d136769 and the revert does solve the problem ?
-
-Between 4.19 and 4.20 we have some quite big changes in rt2x00 driver:
-
-0240564430c0 rt2800: flush and txstatus rework for rt2800mmio
-adf26a356f13 rt2x00: use different txstatus timeouts when flushing
-5022efb50f62 rt2x00: do not check for txstatus timeout every time on tasklet
-0b0d556e0ebb rt2800mmio: use txdone/txstatus routines from lib
-5c656c71b1bf rt2800: move usb specific txdone/txstatus routines to rt2800lib
-
-so I'm a bit afraid that one of those changes is real cause of
-the issue not ed194d136769 .
-
-> Note that rt2x00usb_work_rxdone() processes all available entries, not
-> only such for which queue_work() was called.
+On 17/06/19 22:07, Sean Christopherson wrote:
+> On Mon, Jun 17, 2019 at 09:17:24PM +0200, Radim Krčmář wrote:
+>> 2019-06-13 19:03+0200, Paolo Bonzini:
+>>> From: Sean Christopherson <sean.j.christopherson@intel.com>
+>>>
+>>> ... as a malicious userspace can run a toy guest to generate invalid
+>>> virtual-APIC page addresses in L1, i.e. flood the kernel log with error
+>>> messages.
+>>>
+>>> Fixes: 690908104e39d ("KVM: nVMX: allow tests to use bad virtual-APIC page address")
+>>> Cc: stable@vger.kernel.org
+>>> Cc: Paolo Bonzini <pbonzini@redhat.com>
+>>> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+>>> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+>>> ---
+>>
+>> Makes me wonder why it looks like this in kvm/queue. :)
 > 
-> This fixes a regression on a RT5370 based wifi stick in AP mode, which
-> suddenly stopped data transmission after some period of heavy load. Also
-> stopping the hanging hostapd resulted in the error message "ieee80211
-> phy0: rt2x00queue_flush_queue: Warning - Queue 14 failed to flush".
-> Other operation modes are probably affected as well, this just was
-> the used testcase.
+> Presumably something is wonky in Paolo's workflow, this happened before.
 
-Do you know what actually make the traffic stop,
-TX queue hung or RX queue hung?
+It's more my non-workflow... when I cannot find a patch for some reason
+(deleted by mistake, eaten by Gmane, etc.), I search it with Google and
+sometimes spinics.net comes up which mangles the domain.  I should just
+subscribe to kvm@vger.kernel.org since Gmane has gotten less reliable,
+or set up a Patchew instance for it.
 
-> diff --git a/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c b/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c
-> index 1b08b01db27b..9c102a501ee6 100644
-> --- a/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c
-> +++ b/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c
-> @@ -263,9 +263,9 @@ EXPORT_SYMBOL_GPL(rt2x00lib_dmastart);
-> 
->  void rt2x00lib_dmadone(struct queue_entry *entry)
->  {
-> -	set_bit(ENTRY_DATA_STATUS_PENDING, &entry->flags);
->  	clear_bit(ENTRY_OWNER_DEVICE_DATA, &entry->flags);
->  	rt2x00queue_index_inc(entry, Q_INDEX_DMA_DONE);
-> +	set_bit(ENTRY_DATA_STATUS_PENDING, &entry->flags);
-
-Unfortunately I do not understand how this suppose to fix the problem,
-could you elaborate more about this change?
-
-Stanislaw
+Paolo
