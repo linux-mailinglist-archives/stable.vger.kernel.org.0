@@ -2,155 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A0F4A0A0
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 14:19:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D14104A0E3
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 14:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726181AbfFRMTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 08:19:20 -0400
-Received: from mga05.intel.com ([192.55.52.43]:17732 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725913AbfFRMTU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jun 2019 08:19:20 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Jun 2019 05:19:19 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,389,1557212400"; 
-   d="scan'208";a="186094783"
-Received: from ideak-desk.fi.intel.com ([10.237.72.204])
-  by fmsmga002.fm.intel.com with ESMTP; 18 Jun 2019 05:19:18 -0700
-Date:   Tue, 18 Jun 2019 15:19:17 +0300
-From:   Imre Deak <imre.deak@intel.com>
-To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, Blubberbub@protonmail.com,
-        stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH v2 1/4] drm/i915: Don't clobber M/N values
- during fastset check
-Message-ID: <20190618121917.GB3733@ideak-desk.fi.intel.com>
-Reply-To: imre.deak@intel.com
-References: <20190612130801.2085-1-ville.syrjala@linux.intel.com>
- <20190612172423.25231-1-ville.syrjala@linux.intel.com>
- <20190613092459.GV5942@intel.com>
+        id S1725913AbfFRMej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 08:34:39 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:33913 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725919AbfFRMei (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 08:34:38 -0400
+Received: by mail-lf1-f65.google.com with SMTP id y198so9155263lfa.1
+        for <stable@vger.kernel.org>; Tue, 18 Jun 2019 05:34:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=mS5RnvuKMOqlVsA7l+DtvxWKqOTIjTs/YP9uQGG4Zag=;
+        b=oLIKcVxnz9IgOVdTuatFzk9cKxcOC9pl2aLFEZAHUgH75Dtfia6TJH22C2G65VmFz1
+         IbeXyqX9QEtZJIHrdmhT2Huph1UYaCA04l374aUTnwowEkHwfS/1VBU/H/DUPOdrqbjk
+         jnRl20Vo3VHfBF6EZy4Zyq8ocVi891nAO1eyXIY0t4E0MnOWJGSDJSWYPMDBHvi0CPN2
+         5Ish1ieKg7f/sGXWANwnMMFknL6Cpz8X1T9tim4Lkspi2UoOrHg9ZQRTKLOIkZuI6PcM
+         KZpuHggz16ZkhyUSr5+XrDxMmCIlVyzvJS9aP/gmz3NUsCvTdAIEV+hI+jj7hPKTiWBe
+         p1xg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=mS5RnvuKMOqlVsA7l+DtvxWKqOTIjTs/YP9uQGG4Zag=;
+        b=AsTViS90tWHLui+IYEy51ONgK2iB+8VPC8BeGX+0664lbafwje2VJwHQyN0USnOxC1
+         UHM0EIRtaAr/HpfAiypMnl+qX+EoiAF9B376MzM2BQgh+WjgI9envOQgxvHrxXhxMQXW
+         t4cGFjzim5A7+C4GPmTZoYCF2H39an0k7aEvpeI/RgaMHOUu/KsjfJuEhM5EQ7c08EQN
+         BkYp3b4YYBEfc2vTpTrxnEEQ0BhmgaFaPl1jdot7cte/o9bxfstxIrH3bIFJPef7WM0H
+         X3EuPl80YcLpJvAxJ4/ouFaCjsyfu8cXorHIYlsleYkMYZJSOj+3h4vQlf/eZmbXJrnp
+         3w7A==
+X-Gm-Message-State: APjAAAVkg3ZIk9IoSLuWkxEVAQi/f8yMfXpmsGk6zh5FUWQinGjYm/nB
+        g73tCOi7ykPpUpcJx7wMMRVk6HlZmAlMzHkNukZv+A==
+X-Google-Smtp-Source: APXvYqxOQvAdJzvQbybKhqM925/XVRciuQGlH6JgKMdujokRD/VIzJBvMPzoA4gtPpNxqV9I+Zq3ObgXqtZlRc+eIaU=
+X-Received: by 2002:a05:6512:51c:: with SMTP id o28mr42431131lfb.67.1560861276939;
+ Tue, 18 Jun 2019 05:34:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190613092459.GV5942@intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 18 Jun 2019 18:04:25 +0530
+Message-ID: <CA+G9fYsUmFrTDHJfS=1vYVfv4BVRZ0AByEOHV6toidAxWuDqDg@mail.gmail.com>
+Subject: Re: [PATCH 5.1 000/115] 5.1.12-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 13, 2019 at 12:24:59PM +0300, Ville Syrjälä wrote:
-> On Wed, Jun 12, 2019 at 08:24:23PM +0300, Ville Syrjala wrote:
-> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > 
-> > We're now calling intel_pipe_config_compare(..., true) uncoditionally
-> > which means we're always going clobber the calculated M/N values with
-> > the old values if the fuzzy M/N check passes. That causes problems
-> > because the fuzzy check allows for a huge difference in the values.
-> > 
-> > I'm actually tempted to just make the M/N checks exact, but that might
-> > prevent fastboot from kicking in when people want it. So for now let's
-> > overwrite the computed values with the old values only if decide to skip
-> > the modeset.
-> > 
-> > v2: Copy has_drrs along with M/N M2/N2 values
-> > 
-> > Cc: stable@vger.kernel.org
-> > Cc: Blubberbub@protonmail.com
-> > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> > Cc: Hans de Goede <hdegoede@redhat.com>
-> > Tested-by: Blubberbub@protonmail.com
-> > Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110782
-> > Fixes: d19f958db23c ("drm/i915: Enable fastset for non-boot modesets.")
-> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> 
-> Looks like also
-> https://bugs.freedesktop.org/show_bug.cgi?id=110675
+On Tue, 18 Jun 2019 at 02:50, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.1.12 release.
+> There are 115 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed 19 Jun 2019 09:06:21 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.1.12-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.1.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Ok, the copying from old-state to new-state is needed to keep HW/SW
-state verification later pass, but we want to preserve the calculated
-state if we'll need to reprogram everything based on that. Makes sense:
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Reviewed-by: Imre Deak <imre.deak@intel.com>
+NOTE:
+kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
+Kernel warning is been fixed by below patch.
 
-> 
-> > ---
-> >  drivers/gpu/drm/i915/intel_display.c | 36 +++++++++++++++++++++-------
-> >  1 file changed, 28 insertions(+), 8 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
-> > index 1b1ddb48ca7a..3d8ed1cf0ab7 100644
-> > --- a/drivers/gpu/drm/i915/intel_display.c
-> > +++ b/drivers/gpu/drm/i915/intel_display.c
-> > @@ -12299,9 +12299,6 @@ intel_compare_link_m_n(const struct intel_link_m_n *m_n,
-> >  			      m2_n2->gmch_m, m2_n2->gmch_n, !adjust) &&
-> >  	    intel_compare_m_n(m_n->link_m, m_n->link_n,
-> >  			      m2_n2->link_m, m2_n2->link_n, !adjust)) {
-> > -		if (adjust)
-> > -			*m2_n2 = *m_n;
-> > -
-> >  		return true;
-> >  	}
-> >  
-> > @@ -13433,6 +13430,33 @@ static int calc_watermark_data(struct intel_atomic_state *state)
-> >  	return 0;
-> >  }
-> >  
-> > +static void intel_crtc_check_fastset(struct intel_crtc_state *old_crtc_state,
-> > +				     struct intel_crtc_state *new_crtc_state)
-> > +{
-> > +	struct drm_i915_private *dev_priv =
-> > +		to_i915(new_crtc_state->base.crtc->dev);
-> > +
-> > +	if (!intel_pipe_config_compare(dev_priv, old_crtc_state,
-> > +				       new_crtc_state, true))
-> > +		return;
-> > +
-> > +	new_crtc_state->base.mode_changed = false;
-> > +	new_crtc_state->update_pipe = true;
-> > +
-> > +	/*
-> > +	 * If we're not doing the full modeset we want to
-> > +	 * keep the current M/N values as they may be
-> > +	 * sufficiently different to the computed values
-> > +	 * to cause problems.
-> > +	 *
-> > +	 * FIXME: should really copy more fuzzy state here
-> > +	 */
-> > +	new_crtc_state->fdi_m_n = old_crtc_state->fdi_m_n;
-> > +	new_crtc_state->dp_m_n = old_crtc_state->dp_m_n;
-> > +	new_crtc_state->dp_m2_n2 = old_crtc_state->dp_m2_n2;
-> > +	new_crtc_state->has_drrs = old_crtc_state->has_drrs;
-> > +}
-> > +
-> >  /**
-> >   * intel_atomic_check - validate state object
-> >   * @dev: drm device
-> > @@ -13474,11 +13498,7 @@ static int intel_atomic_check(struct drm_device *dev,
-> >  		if (ret)
-> >  			goto fail;
-> >  
-> > -		if (intel_pipe_config_compare(dev_priv, old_crtc_state,
-> > -					      new_crtc_state, true)) {
-> > -			new_crtc_state->base.mode_changed = false;
-> > -			new_crtc_state->update_pipe = true;
-> > -		}
-> > +		intel_crtc_check_fastset(old_crtc_state, new_crtc_state);
-> >  
-> >  		if (needs_modeset(&new_crtc_state->base))
-> >  			any_ms = true;
-> > -- 
-> > 2.21.0
-> 
-> -- 
-> Ville Syrjälä
-> Intel
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+> John Fastabend <john.fastabend@gmail.com>
+>     bpf: sockmap, only stop/flush strp if it was enabled at some point
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.1.12-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.1.y
+git commit: 760bc74bb0d3cb65cdc8af61a564384ba10374ac
+git describe: v5.1.11-116-g760bc74bb0d3
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.1-oe/bui=
+ld/v5.1.11-116-g760bc74bb0d3
+
+
+No regressions (compared to build v5.1.11)
+
+No fixes (compared to build v5.1.11)
+
+Ran 22821 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* libgpiod
+* ltp-containers-tests
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* network-basic-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
