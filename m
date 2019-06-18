@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 177544A3ED
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 16:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC184A404
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 16:30:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729407AbfFRO3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 10:29:06 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50478 "EHLO
+        id S1729078AbfFRO3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 10:29:46 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50488 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725919AbfFRO3G (ORCPT
+        by vger.kernel.org with ESMTP id S1729383AbfFRO3G (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 10:29:06 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hdF6e-0007nF-0i; Tue, 18 Jun 2019 15:29:04 +0100
+        id 1hdF6e-0007nI-Cm; Tue, 18 Jun 2019 15:29:04 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hdF6d-0000Hd-Id; Tue, 18 Jun 2019 15:29:03 +0100
+        id 1hdF6d-0000HJ-Ce; Tue, 18 Jun 2019 15:29:03 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,17 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Young Xiao" <YangX92@hotmail.com>,
-        "Marcel Holtmann" <marcel@holtmann.org>
+        "Hugh Dickins" <hughd@google.com>,
+        "Oleg Nesterov" <oleg@redhat.com>,
+        "Andy Lutomirski" <luto@kernel.org>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Pavel Emelyanov" <xemul@parallels.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 Date:   Tue, 18 Jun 2019 15:28:02 +0100
-Message-ID: <lsq.1560868082.707403898@decadent.org.uk>
+Message-ID: <lsq.1560868082.752973508@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 06/10] Bluetooth: hidp: fix buffer overflow
+Subject: [PATCH 3.16 01/10] mm: introduce vma_is_anonymous(vma) helper
 In-Reply-To: <lsq.1560868079.359853905@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,31 +50,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Young Xiao <YangX92@hotmail.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit a1616a5ac99ede5d605047a9012481ce7ff18b16 upstream.
+commit b5330628546616af14ff23075fbf8d4ad91f6e25 upstream.
 
-Struct ca is copied from userspace. It is not checked whether the "name"
-field is NULL terminated, which allows local users to obtain potentially
-sensitive information from kernel stack memory, via a HIDPCONNADD command.
+special_mapping_fault() is absolutely broken.  It seems it was always
+wrong, but this didn't matter until vdso/vvar started to use more than
+one page.
 
-This vulnerability is similar to CVE-2011-1079.
+And after this change vma_is_anonymous() becomes really trivial, it
+simply checks vm_ops == NULL.  However, I do think the helper makes
+sense.  There are a lot of ->vm_ops != NULL checks, the helper makes the
+caller's code more understandable (self-documented) and this is more
+grep-friendly.
 
-Signed-off-by: Young Xiao <YangX92@hotmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+This patch (of 3):
+
+Preparation.  Add the new simple helper, vma_is_anonymous(vma), and change
+handle_pte_fault() to use it.  It will have more users.
+
+The name is not accurate, say a hpet_mmap()'ed vma is not anonymous.
+Perhaps it should be named vma_has_fault() instead.  But it matches the
+logic in mmap.c/memory.c (see next changes).  "True" just means that a
+page fault will use do_anonymous_page().
+
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Pavel Emelyanov <xemul@parallels.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[bwh: Backported to 3.16 as dependency of "mm/mincore.c: make mincore() more
+ conservative"; adjusted context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/bluetooth/hidp/sock.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/mm.h | 5 +++++
+ mm/memory.c        | 8 ++++----
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
---- a/net/bluetooth/hidp/sock.c
-+++ b/net/bluetooth/hidp/sock.c
-@@ -76,6 +76,7 @@ static int hidp_sock_ioctl(struct socket
- 			sockfd_put(csock);
- 			return err;
- 		}
-+		ca.name[sizeof(ca.name)-1] = 0;
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1241,6 +1241,11 @@ int get_cmdline(struct task_struct *task
  
- 		err = hidp_connection_add(&ca, csock, isock);
- 		if (!err && copy_to_user(argp, &ca, sizeof(ca)))
+ int vma_is_stack_for_task(struct vm_area_struct *vma, struct task_struct *t);
+ 
++static inline bool vma_is_anonymous(struct vm_area_struct *vma)
++{
++	return !vma->vm_ops;
++}
++
+ extern unsigned long move_page_tables(struct vm_area_struct *vma,
+ 		unsigned long old_addr, struct vm_area_struct *new_vma,
+ 		unsigned long new_addr, unsigned long len,
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3105,12 +3105,12 @@ static int handle_pte_fault(struct mm_st
+ 	entry = *pte;
+ 	if (!pte_present(entry)) {
+ 		if (pte_none(entry)) {
+-			if (vma->vm_ops)
++			if (vma_is_anonymous(vma))
++				return do_anonymous_page(mm, vma, address,
++							 pte, pmd, flags);
++			else
+ 				return do_fault(mm, vma, address, pte,
+ 						pmd, flags, entry);
+-
+-			return do_anonymous_page(mm, vma, address,
+-						 pte, pmd, flags);
+ 		}
+ 		return do_swap_page(mm, vma, address,
+ 					pte, pmd, flags, entry);
 
