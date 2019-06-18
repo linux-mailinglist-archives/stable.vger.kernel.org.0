@@ -2,90 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 469B14A8C3
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 19:49:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA48C4A968
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 20:06:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729491AbfFRRtx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 13:49:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40402 "EHLO mail.kernel.org"
+        id S1727616AbfFRSG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 14:06:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729285AbfFRRtx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jun 2019 13:49:53 -0400
+        id S1729715AbfFRSG0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Jun 2019 14:06:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 946F420863;
-        Tue, 18 Jun 2019 17:49:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2110B2063F;
+        Tue, 18 Jun 2019 18:06:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560880192;
-        bh=2s5JXaKAuAm51+zEi5iSTey2SYDXY/3li7doYYkuVg8=;
+        s=default; t=1560881185;
+        bh=ywTAzS6PnjPNgGXbrpsoPgcUIqAYyPOI5rdEt/0+45c=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PQoUj4xgzTjeYc9oX9DHwNKU15/cbzRwP5rwHjYZX7eZOT38i9SZVV8DI5lNcgdWH
-         ofgyy9gef30zDQ3fF7YSsh+C+XHCaDDyBTWPx2TaumYwAbk0qCCaetUCEXZk/ntGs9
-         QCMiK+unMa6ml6T/2KteVIrZFfSDnJ4hz1P+2R5Y=
-Date:   Tue, 18 Jun 2019 19:49:49 +0200
+        b=RT/DMCHJLRJFLus4HeBNgutI1Q6kceJR4q3d+UdHNbI46kEbG49/Rf63ecJBPVlbl
+         C/uX63tbGnnJuoZOYtaPxznZP6PAvXyquHXiPySxL2EzSnfeFXqa+/L4XIsa4iCgFG
+         SVVHLdtURFxcvdJcZ/YZZe36AW1lgXvHUYJ/WjIM=
+Date:   Tue, 18 Jun 2019 20:06:23 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     James Feeney <james@nurealm.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 5.1 003/115] HID: input: make sure the wheel high
- resolution multiplier is set
-Message-ID: <20190618174949.GD3649@kroah.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 5.1 000/115] 5.1.12-stable review
+Message-ID: <20190618180623.GD31484@kroah.com>
 References: <20190617210759.929316339@linuxfoundation.org>
- <20190617210800.096317488@linuxfoundation.org>
- <a90f3536-8833-498d-c9d5-ef460ad153da@nurealm.net>
+ <CA+G9fYsUmFrTDHJfS=1vYVfv4BVRZ0AByEOHV6toidAxWuDqDg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <a90f3536-8833-498d-c9d5-ef460ad153da@nurealm.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYsUmFrTDHJfS=1vYVfv4BVRZ0AByEOHV6toidAxWuDqDg@mail.gmail.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 18, 2019 at 11:22:55AM -0600, James Feeney wrote:
-> Uhm - could someone please "clue me in" here?
+On Tue, Jun 18, 2019 at 06:04:25PM +0530, Naresh Kamboju wrote:
+> On Tue, 18 Jun 2019 at 02:50, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.1.12 release.
+> > There are 115 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Wed 19 Jun 2019 09:06:21 PM UTC.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.12-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> When I look into:
-> 
-> 'move all the pending queues back to their "real" places'
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/commit/?id=c5da0df8985ac2f29ffdaba77bae201121bc0e10
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 
-No need to worry about that patch, that was done because my scripts
-normally assume specific directory locations of the patch queues, and I
-had to do a kernel release that did not include the existing pending
-patches.
-
-> I can find both the "d43c17ead879ba7c076dc2f5fd80cd76047c9ff4" patch, "HID: input: make sure the wheel high resolution multiplier is set" and the "39b3c3a5fbc5d744114e497d35bf0c12f798c134" patch, "HID: input: fix assignment of .value".
-> 
-> I take this to mean that these patches are "in the stable-queue".  But then, these patches are not "in the kernel".
-
-Yes.
-
-> So then, how do these patches go from being "in the stable-queue" to being "in the kernel"?
-
-I apply them when I do the release in a few hours/days.
-
-> To the "uninitiated" and "naive", as I am, to outward appearances, the
-> patches are "just sitting there".  How do the patches get selected for
-> inclusion into the "next" kernel revision?
-
-I already selected them, sent emails saying they were selected and to
-what specific branches they were selected to.  Then when the -rc
-releases happen so that people can do one final round of testing and
-object if I messed anything up, they get sent out again (which you
-responded to here.)
-
-If all goes well, when the "deadling" passes (usually 2 days +-2 days
-depending on stuff), I'll do a realease and apply the patches "for real"
-to the different kernel branches and cut a release.
-
-Then I start all over again...
-
-I understand that seeing a git tree of patches in a quilt series is odd,
-but it is very powerful and works very very well for what we do here.
-
-Does that help?
+Thanks for testing all of these and letting me know.
 
 greg k-h
