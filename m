@@ -2,96 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 796B349675
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 02:55:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88EC549699
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 03:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725870AbfFRAzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 20:55:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38922 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725829AbfFRAzO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 20:55:14 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B089320833;
-        Tue, 18 Jun 2019 00:55:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560819314;
-        bh=LngrchH4I/IBN3Zh6OPsxtvSRQcY1UhYSAdzmmrSMZI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oYn2ijJx2tyO/bwbH/NumDeIYuwoNhxc+WEvJdQ3tRhRtrnjbJZED4nHzzNDovMfg
-         he7lamj91s07bXu4cRiBZDOjDkCsVNcfnoqnniZvSwuaIT3b4wFSvVSYEb8RwvVW6W
-         13yAsZGMAoZL5Co54QcVOqiHELUx4VfuqjzqGSRg=
-Date:   Mon, 17 Jun 2019 20:55:12 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Nadav Amit <namit@vmware.com>
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Borislav Petkov <bp@suse.de>, Toshi Kani <toshi.kani@hpe.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH 1/3] resource: Fix locking in find_next_iomem_res()
-Message-ID: <20190618005512.GC2226@sasha-vm>
-References: <20190613045903.4922-2-namit@vmware.com>
- <20190615221557.CD1492183F@mail.kernel.org>
- <549284C3-6A1C-4434-B716-FF9B0C87EE45@vmware.com>
+        id S1726026AbfFRBN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 21:13:57 -0400
+Received: from mail-wm1-f47.google.com ([209.85.128.47]:54357 "EHLO
+        mail-wm1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726007AbfFRBN5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 21:13:57 -0400
+Received: by mail-wm1-f47.google.com with SMTP id g135so1310020wme.4
+        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 18:13:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=U3YA36iSQ/DrG2Mki6dRHnXw/I/GcA23oMKlseIgPBE=;
+        b=a4J5xWhPocjD1DO7TpZQ78rwW7C3kpx8Havl8zVSEcYvLr5q3o/pFkMVlSjm/sxoss
+         ldY8B0TX+GnD4jZGf1Euz2Gu56OSjpYkXbL5R9gW2y82Jq+O8XzCN+TGy3acXhwcsSNF
+         XQKT4RlxU9rQaPgRpJTWY7qKfiXBlLSUuQeg70Kb/Vv7DajCT/fk4zPaVlcOvnbj7z1x
+         p2VZw43okSrAc7bB6CLKOkvf3Ly3bemyvsDrQOZ2SFPsNKoSD54f/DRN+x8vuuVg4UN4
+         wizhlq/71x8cjII2xxFV2tGRRnI5MzAdZiOEcfg91I7CrrGUButPQtEZIuGmutRVckO1
+         z7vQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=U3YA36iSQ/DrG2Mki6dRHnXw/I/GcA23oMKlseIgPBE=;
+        b=HQllPiOBJTE1NQN8dlib68XDI3FM9c4+WiVPZPGiB+Df3oH1lP9TlvVMdBMmE3ujZU
+         Xqq+I7jknTzZOz47xMbG77OS3RoXNyDYXBhqJosI3QricsPyCoFH06C3szUSZhdhharc
+         AAOotNq4ppgW9+JmAsJEeIzxWuk6hUJ7nUzW52bQVkTqUGTms9dPoKzkHGpQtwn5h4xb
+         8bj+K8PgI8GhrEcUG8/wVKROWOm9gqHPnLX0Yn5CoNvU/+TvGolGj/Kg7qgR1WIi5X/J
+         wnP0UgTeuyXBO6gdjoiSs59HBCTLdDsklvLZC8w/CTeOjewNqQUqidAYFLDWaxd8SsXK
+         rYGg==
+X-Gm-Message-State: APjAAAWiBrOjVUGnNCfyzrd6pu3EKPOkX3HqmUI2NaGrCSFWDgZweo8B
+        SQbkT5arqGDvB1EBJ6u4V7peCfv2DPwPIw==
+X-Google-Smtp-Source: APXvYqy3xBK6dfEF87oKxXR+tvAdqxar1TOd5s4bXRQYR/fEkmL4ajQ/IPoBPhkEKuOHOc2uMAJncQ==
+X-Received: by 2002:a7b:cd84:: with SMTP id y4mr910994wmj.41.1560820435548;
+        Mon, 17 Jun 2019 18:13:55 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id c11sm10097443wrs.97.2019.06.17.18.13.54
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 17 Jun 2019 18:13:55 -0700 (PDT)
+Message-ID: <5d083ad3.1c69fb81.c8c26.48ed@mx.google.com>
+Date:   Mon, 17 Jun 2019 18:13:55 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <549284C3-6A1C-4434-B716-FF9B0C87EE45@vmware.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.182-90-g518562d36e0f
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.9.y boot: 88 boots: 0 failed,
+ 88 passed (v4.9.182-90-g518562d36e0f)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 17, 2019 at 07:14:53PM +0000, Nadav Amit wrote:
->> On Jun 15, 2019, at 3:15 PM, Sasha Levin <sashal@kernel.org> wrote:
->>
->> Hi,
->>
->> [This is an automated email]
->>
->> This commit has been processed because it contains a "Fixes:" tag,
->> fixing commit: ff3cc952d3f0 resource: Add remove_resource interface.
->>
->> The bot has tested the following trees: v5.1.9, v4.19.50, v4.14.125, v4.9.181.
->>
->> v5.1.9: Build OK!
->> v4.19.50: Failed to apply! Possible dependencies:
->>    010a93bf97c7 ("resource: Fix find_next_iomem_res() iteration issue")
->>    a98959fdbda1 ("resource: Include resource end in walk_*() interfaces")
->>
->> v4.14.125: Failed to apply! Possible dependencies:
->>    010a93bf97c7 ("resource: Fix find_next_iomem_res() iteration issue")
->>    0e4c12b45aa8 ("x86/mm, resource: Use PAGE_KERNEL protection for ioremap of memory pages")
->>    1d2e733b13b4 ("resource: Provide resource struct in resource walk callback")
->>    4ac2aed837cb ("resource: Consolidate resource walking code")
->>    a98959fdbda1 ("resource: Include resource end in walk_*() interfaces")
->>
->> v4.9.181: Failed to apply! Possible dependencies:
->>    010a93bf97c7 ("resource: Fix find_next_iomem_res() iteration issue")
->>    0e4c12b45aa8 ("x86/mm, resource: Use PAGE_KERNEL protection for ioremap of memory pages")
->>    1d2e733b13b4 ("resource: Provide resource struct in resource walk callback")
->>    4ac2aed837cb ("resource: Consolidate resource walking code")
->>    60fe3910bb02 ("kexec_file: Allow arch-specific memory walking for kexec_add_buffer")
->>    a0458284f062 ("powerpc: Add support code for kexec_file_load()")
->>    a98959fdbda1 ("resource: Include resource end in walk_*() interfaces")
->>    da6658859b9c ("powerpc: Change places using CONFIG_KEXEC to use CONFIG_KEXEC_CORE instead.")
->>    ec2b9bfaac44 ("kexec_file: Change kexec_add_buffer to take kexec_buf as argument.")
->
->Is there a reason 010a93bf97c7 ("resource: Fix find_next_iomem_res()
->iteration issue”) was not backported?
+stable-rc/linux-4.9.y boot: 88 boots: 0 failed, 88 passed (v4.9.182-90-g518=
+562d36e0f)
 
-Mostly because it's not tagged for stable :)
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.182-90-g518562d36e0f/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.182-90-g518562d36e0f/
 
---
-Thanks,
-Sasha
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.182-90-g518562d36e0f
+Git Commit: 518562d36e0fece01bc58f8f627b429c38c6f963
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 45 unique boards, 23 SoC families, 15 builds out of 197
+
+---
+For more info write to <info@kernelci.org>
