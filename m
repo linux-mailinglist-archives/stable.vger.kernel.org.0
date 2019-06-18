@@ -2,124 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7671D4A664
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 18:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96BDA4A719
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 18:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729386AbfFRQQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 12:16:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52468 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729349AbfFRQQD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jun 2019 12:16:03 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2383F20B1F;
-        Tue, 18 Jun 2019 16:16:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560874562;
-        bh=1FIrss7gHYBXPWD1e/rjV+3x4n6lIp1ylsslDp/WAPs=;
-        h=Subject:To:From:Date:From;
-        b=sZDTAWk0RBsLkfdKlcbrTfWfM0q/wVZC9xTEHWvLi1zh1ac1d4DMgQtg+jqi7n98L
-         ugpCRir0F1K9YkhlWGKfPfr6ge05bGnWAaCtOXoAzEgRDJy67NxHokWcxZaEH8kkH9
-         AgGewnEsIQypBJ0eHv0u0QRWtkbwRJ+gnlj4AHSk=
-Subject: patch "xhci: detect USB 3.2 capable host controllers correctly" added to usb-linus
-To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
+        id S1729472AbfFRQhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 12:37:21 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:36102 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729327AbfFRQhU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 12:37:20 -0400
+Received: by mail-pf1-f195.google.com with SMTP id r7so7980697pfl.3;
+        Tue, 18 Jun 2019 09:37:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=LoZXdKl2ZPQX9tqpcBDQyfYSEa9pJ4C8X2I1zGq15V4=;
+        b=Ui9bGCqOBdwv8kLPjHSIH7yYQe5FoY7pnWfjoUKdvr8O+u58Mv+FowTaxBoZRx0KxP
+         h7rWuystssbE5iwW+ygcjmk0A5+UoTiIChXynqvAvdQF5j8jruff4mdiq+A8S0dNStD+
+         kSkT3zpcnP4gamU/ELgJvEEQvoRN+pdGLNORqsOQ7RVj0lfJFznyj0gFn3qW14QKXq30
+         nVICTxHO1zihccN/diiform61TRhhdEFXd/hdOfdWUwPJFuutY/13K4XOf3u2WCoR8g7
+         +BCO3v+88xMB9IKDmePgjR3FzvBjC+K9cyFueeXWTztD1pMat/sMUC7JD5nT4n1WBjDS
+         H75Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=LoZXdKl2ZPQX9tqpcBDQyfYSEa9pJ4C8X2I1zGq15V4=;
+        b=kK1VEps0xGZ/hBeJeJd9hOshMZQeLzrQJeioA2ESGWjiJXYW+Cj5izjGMiRjOBDPhx
+         7btUQMALoJ7w+yW3uKrxsI4oS1dziV7mxj1hEVt3LxkT+LksIC/SxQ09cHCb/+kfVkZC
+         3EYJMKQt4hH0FSzStoeROC4535P4s4y8TGoabb0nX880YEszMz0T80SJTW4uutJhCSEP
+         GBz8r1avjq8jjH6MpmWkQehMaGJ6er0M9rzmSGSjHNxbBU0dQ4n6iFCXYEQ9NRB1vcKy
+         3V5D7gvHRUGtq4fim8gFmjtXoWWQkAm85Sr4l+VV8va//b6fRnbyX9PcIOIsS/2WwGpH
+         Ngjg==
+X-Gm-Message-State: APjAAAWePy3YGOZLkdP3RqnVr6PWusy5qpYjA3argLpLYi63wMd43KWh
+        KwDrdWAwue/AybG0bRM0srY=
+X-Google-Smtp-Source: APXvYqwdJX5B3ykM7QtH1dueV+gmYd0gbAfeNw5ni5qEZHHTY+l1CL51AyBpLWfMv7VCzj8u9OgCEg==
+X-Received: by 2002:a62:e511:: with SMTP id n17mr111127105pff.181.1560875840335;
+        Tue, 18 Jun 2019 09:37:20 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 30sm5170171pjk.17.2019.06.18.09.37.18
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 18 Jun 2019 09:37:19 -0700 (PDT)
+Date:   Tue, 18 Jun 2019 09:37:18 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Jun 2019 18:15:52 +0200
-Message-ID: <156087455216977@kroah.com>
+Subject: Re: [PATCH 4.14 00/53] 4.14.128-stable review
+Message-ID: <20190618163718.GA1718@roeck-us.net>
+References: <20190617210745.104187490@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jun 17, 2019 at 11:09:43PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.128 release.
+> There are 53 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed 19 Jun 2019 09:06:21 PM UTC.
+> Anything received after that time might be too late.
+> 
 
-This is a note to let you know that I've just added the patch titled
+Build results:
+	total: 172 pass: 172 fail: 0
+Qemu test results:
+	total: 348 pass: 348 fail: 0
 
-    xhci: detect USB 3.2 capable host controllers correctly
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From ddd57980a0fde30f7b5d14b888a2cc84d01610e8 Mon Sep 17 00:00:00 2001
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Tue, 18 Jun 2019 17:27:48 +0300
-Subject: xhci: detect USB 3.2 capable host controllers correctly
-
-USB 3.2 capability in a host can be detected from the
-xHCI Supported Protocol Capability major and minor revision fields.
-
-If major is 0x3 and minor 0x20 then the host is USB 3.2 capable.
-
-For USB 3.2 capable hosts set the root hub lane count to 2.
-
-The Major Revision and Minor Revision fields contain a BCD version number.
-The value of the Major Revision field is JJh and the value of the Minor
-Revision field is MNh for version JJ.M.N, where JJ = major revision number,
-M - minor version number, N = sub-minor version number,
-e.g. version 3.1 is represented with a value of 0310h.
-
-Also fix the extra whitespace printed out when announcing regular
-SuperSpeed hosts.
-
-Cc: <stable@vger.kernel.org> # v4.18+
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/host/xhci.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 78a2a937dd83..3f79f35d0b19 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -5065,16 +5065,26 @@ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks)
- 	} else {
- 		/*
- 		 * Some 3.1 hosts return sbrn 0x30, use xhci supported protocol
--		 * minor revision instead of sbrn
-+		 * minor revision instead of sbrn. Minor revision is a two digit
-+		 * BCD containing minor and sub-minor numbers, only show minor.
- 		 */
--		minor_rev = xhci->usb3_rhub.min_rev;
--		if (minor_rev) {
-+		minor_rev = xhci->usb3_rhub.min_rev / 0x10;
-+
-+		switch (minor_rev) {
-+		case 2:
-+			hcd->speed = HCD_USB32;
-+			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
-+			hcd->self.root_hub->rx_lanes = 2;
-+			hcd->self.root_hub->tx_lanes = 2;
-+			break;
-+		case 1:
- 			hcd->speed = HCD_USB31;
- 			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
-+			break;
- 		}
--		xhci_info(xhci, "Host supports USB 3.%x %s SuperSpeed\n",
-+		xhci_info(xhci, "Host supports USB 3.%x %sSuperSpeed\n",
- 			  minor_rev,
--			  minor_rev ? "Enhanced" : "");
-+			  minor_rev ? "Enhanced " : "");
- 
- 		xhci->usb3_rhub.hcd = hcd;
- 		/* xHCI private pointer was set in xhci_pci_probe for the second
--- 
-2.22.0
-
-
+Guenter
