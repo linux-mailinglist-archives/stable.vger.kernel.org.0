@@ -2,170 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA2E349917
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 08:44:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AE92499F0
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 09:10:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725963AbfFRGoI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 02:44:08 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:47095 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726238AbfFRGoI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 02:44:08 -0400
-Received: by mail-lj1-f194.google.com with SMTP id v24so11854105ljg.13
-        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 23:44:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=lgpzRv5/vynNFVxE3s7Hk+KSeLSqjof34qro8UmBm8o=;
-        b=ndvLQD4k5zwfsFqkCbpeU/GdORiZuLt2tQGPpLggKjVnArKNlOlBe01TuLIDNUq31V
-         YDKYozo8e5N0MIWhExz6KSZh5eu2+kcH5NWyGnXBlECDSH5Y+fIDPGDHQO1ZCI9gE6lS
-         uRnU62oK5BRiTw29kLb5SU/3z/yCyljtzmHvh5DFJ+SfwbQoT33keMUVnET74f7coWSU
-         xm04O86GOb1XopcpqRZz08BElMK4i0EaaO5bb+LQGPppA9yhmFzr7XFDCJAuv8wWzrcX
-         pAyUlw0Xjgt7m07w4e3fiL3NDYoYRZUzQNL7ayeS+BDw7s+n2ydNPhTMTPWKv1+pnW+q
-         fY5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=lgpzRv5/vynNFVxE3s7Hk+KSeLSqjof34qro8UmBm8o=;
-        b=ocJ/IPZzTGS9KWAebcLNxkvVDGpb9vlTHtk5By7WzkpxH5VB6E4ZO286LJP39CisTW
-         d7WsQJxFTozDj8WPVmcE9Dv/YDbnb9LGMenyn4xEqa9l1JU4p264hykANT46DmQ+Cy/A
-         3byn00+Q/mYSjag2cRXoq0YpbWqzQlvQmEgDdah65ET6A1S9PG+HwLcLQXdhdS7Pprz0
-         t+yXgDCzLO588h+O7vnhPJA9FccAJFOxDryLsWSm6vSUj2d7wHgAamN9bXOx3AzFIqtr
-         qJJfUWpLLGjePiUDWgOYkT0xd3EmMHurye6RjOMgLDX0PbkUh5+wDqOVIbAtAU2eYqNp
-         Qp4Q==
-X-Gm-Message-State: APjAAAXW5bgkZZOXXFESWOb+KjnLGl+af2ckXmxh3YUmc8L0eUNPMfbw
-        O7me6RP87EA8tMtMyU8Nq7CXt/9vP28NyRlOh5D2mg==
-X-Google-Smtp-Source: APXvYqysx31qoiT/uxvMzQli9uOZPuPw935uTXzuZMOOepVzmNXRBmm8ahGu34wMTrts4UWwpQRpMCKlnOxf9U4V5Bo=
-X-Received: by 2002:a2e:8495:: with SMTP id b21mr20543162ljh.149.1560839768102;
- Mon, 17 Jun 2019 23:36:08 -0700 (PDT)
+        id S1725955AbfFRHK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 03:10:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37004 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725919AbfFRHK6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Jun 2019 03:10:58 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F086D20679;
+        Tue, 18 Jun 2019 07:10:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560841857;
+        bh=sYAy74i6KJ3u+l87uskrheOKbfhTyV6tVL4ZoHFpFVc=;
+        h=Subject:To:From:Date:From;
+        b=B/FDAgCqkPlF9ZTrDxhvzFCohlhST3T7nSSxCifukuRBw3dF0hVxNxCYDW4V21e/6
+         0dDCGwjOY1ssYRfzS0LN0EsfDwARrERSjbS+nd6dMsl+aZ58CCBgKmRxF5D08OKiA/
+         2INybpMTUmhSjOxraXHk99ylqKKit16F8N0opKo8=
+Subject: patch "firmware: improve LSM/IMA security behaviour" added to driver-core-testing
+To:     thesven73@gmail.com, TheSven73@gmail.com,
+        gregkh@linuxfoundation.org, keescook@chromium.org,
+        mcgrof@kernel.org, rafael@kernel.org, stable@vger.kernel.org,
+        zohar@linux.ibm.com, zohar@linux.vnet.ibm.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 18 Jun 2019 09:10:55 +0200
+Message-ID: <1560841855116208@kroah.com>
 MIME-Version: 1.0
-References: <20190617210745.104187490@linuxfoundation.org>
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 18 Jun 2019 12:05:57 +0530
-Message-ID: <CA+G9fYueq_CFv59aYSguU_yq_nd9zwpcpnJKrqVtx_VOCSZ+9A@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/53] 4.14.128-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 18 Jun 2019 at 02:58, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.128 release.
-> There are 53 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed 19 Jun 2019 09:06:21 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.128-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This is a note to let you know that I've just added the patch titled
 
-NOTE:
-Backported patch media: v4l2-ioctl: clear fields in s_parm
-fixed v4l2-compliance test case VIDIOC_G-S_PARM
+    firmware: improve LSM/IMA security behaviour
 
-Summary
-------------------------------------------------------------------------
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-testing branch.
 
-kernel: 4.14.128-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: 16102d7ed8409bff0d3b105d08bb2ca26343c539
-git describe: v4.14.127-54-g16102d7ed840
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.127-54-g16102d7ed840
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-No regressions (compared to build v4.14.127)
+The patch will be merged to the driver-core-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-Fixes (compared to build v4.14.127)
-------------------------------------------------------------------------
-  v4l2-compliance:
-    * VIDIOC_G-S_PARM
+If you have any questions about this process, please let me know.
 
-Ran 22198 total tests in the following environments and test suites.
 
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
+From 2472d64af2d3561954e2f05365a67692bb852f2a Mon Sep 17 00:00:00 2001
+From: Sven Van Asbroeck <thesven73@gmail.com>
+Date: Mon, 17 Jun 2019 14:23:54 -0400
+Subject: firmware: improve LSM/IMA security behaviour
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
+The firmware loader queries if LSM/IMA permits it to load firmware
+via the sysfs fallback. Unfortunately, the code does the opposite:
+it expressly permits sysfs fw loading if security_kernel_load_data(
+LOADING_FIRMWARE) returns -EACCES. This happens because a
+zero-on-success return value is cast to a bool that's true on success.
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Fix the return value handling so we get the correct behaviour.
+
+Fixes: 6e852651f28e ("firmware: add call to LSM hook before firmware sysfs fallback")
+Cc: Stable <stable@vger.kernel.org>
+Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
+Cc: Kees Cook <keescook@chromium.org>
+To: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/base/firmware_loader/fallback.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/base/firmware_loader/fallback.c b/drivers/base/firmware_loader/fallback.c
+index b5cd96fd0e77..29becea1910d 100644
+--- a/drivers/base/firmware_loader/fallback.c
++++ b/drivers/base/firmware_loader/fallback.c
+@@ -659,7 +659,7 @@ static bool fw_run_sysfs_fallback(enum fw_opt opt_flags)
+ 	/* Also permit LSMs and IMA to fail firmware sysfs fallback */
+ 	ret = security_kernel_load_data(LOADING_FIRMWARE);
+ 	if (ret < 0)
+-		return ret;
++		return false;
+ 
+ 	return fw_force_sysfs_fallback(opt_flags);
+ }
+-- 
+2.22.0
+
+
