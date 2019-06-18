@@ -2,222 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7008F4A3F7
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 16:29:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 701DF4A40E
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 16:32:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729692AbfFRO3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 10:29:22 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50504 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729394AbfFRO3H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 10:29:07 -0400
-Received: from [167.98.27.226] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hdF6e-0007nJ-5U; Tue, 18 Jun 2019 15:29:04 +0100
-Received: from ben by deadeye with local (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hdF6d-0000Hh-Jm; Tue, 18 Jun 2019 15:29:03 +0100
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+        id S1729189AbfFRObY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 10:31:24 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:35219 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725919AbfFRObX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 10:31:23 -0400
+Received: by mail-lf1-f66.google.com with SMTP id a25so9461074lfg.2;
+        Tue, 18 Jun 2019 07:31:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=KS72y9tYRBol5/KnOsvhBghl9/3z1sLdxINCtK5+heI=;
+        b=J2UqlpY0VhOSeTS4dgxMAgAd6hBDiaCwTNzVxmJ2VZms8tyJE1a2Hve0Puner0kfOd
+         ZAMMtWFn46WtQdtU4tl2k13xmKFY0Xml/uCz1v5LzpkugSlVqT1zOiICh2ieleaTf/qz
+         /enwofIAuzpBQY3ricVfXQW468TKkAiky3Az0g8FQIWwc/YYwBuxHhGCWHCNHQatQ5S1
+         Sb4Ri/styKtyt8TRLcvBAmwRq+G55VaMTwk5DOzkyKCs6KKfgTFMg/dd1Zyy6Yafp5g+
+         N54VlgF9uQ5OW/mBVBZA8GWGkwCXFzLuC0HlgMOexu8poRnSmX1qwrLXT380LFQ54LTM
+         QNXA==
+X-Gm-Message-State: APjAAAX5QO/ZjTxaCtrh+PXixjYH1ARNg8BepWF6zOwx8is7OeqxhV3+
+        YbDdXXN9hC4cjd1sENh4NEmy2UXt
+X-Google-Smtp-Source: APXvYqyfQKY0PhE0ARY+YledqeQb5c9mIdNB9g3MFnizu9PXBdrn2bxvwPxlsY4fnyHI5bAoigjZ0A==
+X-Received: by 2002:a19:6703:: with SMTP id b3mr59753084lfc.153.1560868282087;
+        Tue, 18 Jun 2019 07:31:22 -0700 (PDT)
+Received: from xi.terra (c-74bee655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.190.116])
+        by smtp.gmail.com with ESMTPSA id z12sm2222078lfg.67.2019.06.18.07.31.20
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 18 Jun 2019 07:31:20 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.92)
+        (envelope-from <johan@kernel.org>)
+        id 1hdF8q-0007ep-Te; Tue, 18 Jun 2019 16:31:20 +0200
+Date:   Tue, 18 Jun 2019 16:31:20 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Felipe Balbi <felipe.balbi@linux.intel.com>
+Cc:     Johan Hovold <johan@kernel.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        linux-usb@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] usb: xhci: dbc: get rid of global pointer
+Message-ID: <20190618143120.GI31871@localhost>
+References: <20190611172416.12473-1-felipe.balbi@linux.intel.com>
+ <20190614145236.GB3849@localhost>
+ <877e9kiuew.fsf@linux.intel.com>
 MIME-Version: 1.0
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jonathan Lemon" <jonathan.lemon@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Jonathan Looney" <jtl@netflix.com>,
-        "Eric Dumazet" <edumazet@google.com>,
-        "Yuchung Cheng" <ycheng@google.com>,
-        "Neal Cardwell" <ncardwell@google.com>,
-        "Tyler Hicks" <tyhicks@canonical.com>,
-        "Bruce Curtis" <brucec@netflix.com>
-Date:   Tue, 18 Jun 2019 15:28:02 +0100
-Message-ID: <lsq.1560868082.58770032@decadent.org.uk>
-X-Mailer: LinuxStableQueue (scripts by bwh)
-X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 07/10] tcp: limit payload size of sacked skbs
-In-Reply-To: <lsq.1560868079.359853905@decadent.org.uk>
-X-SA-Exim-Connect-IP: 167.98.27.226
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
+Content-Disposition: inline
+In-Reply-To: <877e9kiuew.fsf@linux.intel.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-3.16.69-rc1 review patch.  If anyone has any objections, please let me know.
 
-------------------
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-From: Eric Dumazet <edumazet@google.com>
+On Mon, Jun 17, 2019 at 09:43:19AM +0300, Felipe Balbi wrote:
+>=20
+> Hi,
+>=20
+> Johan Hovold <johan@kernel.org> writes:
+> > On Tue, Jun 11, 2019 at 08:24:16PM +0300, Felipe Balbi wrote:
+> >> If we happen to have two XHCI controllers with DbC capability, then
+> >> there's no hope this will ever work as the global pointer will be
+> >> overwritten by the controller that probes last.
+> >>=20
+> >> Avoid this problem by keeping the tty_driver struct pointer inside
+> >> struct xhci_dbc.
+> >
+> > How did you test this patch?
+>=20
+> by running it on a machine that actually has two DbCs
+>=20
+> >> @@ -279,52 +279,52 @@ static const struct tty_operations dbc_tty_ops =
+=3D {
+> >>  	.unthrottle		=3D dbc_tty_unthrottle,
+> >>  };
+> >> =20
+> >> -static struct tty_driver *dbc_tty_driver;
+> >> -
+> >>  int xhci_dbc_tty_register_driver(struct xhci_hcd *xhci)
+> >>  {
+> >>  	int			status;
+> >>  	struct xhci_dbc		*dbc =3D xhci->dbc;
+> >> =20
+> >> -	dbc_tty_driver =3D tty_alloc_driver(1, TTY_DRIVER_REAL_RAW |
+> >> +	dbc->tty_driver =3D tty_alloc_driver(1, TTY_DRIVER_REAL_RAW |
+> >>  					  TTY_DRIVER_DYNAMIC_DEV);
+> >> -	if (IS_ERR(dbc_tty_driver)) {
+> >> -		status =3D PTR_ERR(dbc_tty_driver);
+> >> -		dbc_tty_driver =3D NULL;
+> >> +	if (IS_ERR(dbc->tty_driver)) {
+> >> +		status =3D PTR_ERR(dbc->tty_driver);
+> >> +		dbc->tty_driver =3D NULL;
+> >>  		return status;
+> >>  	}
+> >> =20
+> >> -	dbc_tty_driver->driver_name =3D "dbc_serial";
+> >> -	dbc_tty_driver->name =3D "ttyDBC";
+> >> +	dbc->tty_driver->driver_name =3D "dbc_serial";
+> >> +	dbc->tty_driver->name =3D "ttyDBC";
+> >
+> > You're now registering multiple drivers for the same thing (and wasting
+> > a major number for each) and specifically using the same name, which
+> > should lead to name clashes when registering the second port.
+>=20
+> No warnings were printed while running this, actually. Odd
 
-commit 3b4929f65b0d8249f19a50245cd88ed1a2f78cff upstream.
+Odd indeed. I get the expected warning from sysfs when trying to
+register a second tty using an already registered name:
 
-Jonathan Looney reported that TCP can trigger the following crash
-in tcp_shifted_skb() :
+[  643.360555] sysfs: cannot create duplicate filename '/class/tty/ttyS0'
+[  643.360637] CPU: 1 PID: 2383 Comm: modprobe Not tainted 5.2.0-rc1 #2
+[  643.360702] Hardware name:  /D34010WYK, BIOS WYLPT10H.86A.0051.2019.0322=
+=2E1320 03/22/2019
+[  643.360784] Call Trace:
+[  643.360823]  dump_stack+0x46/0x60
+[  643.360865]  sysfs_warn_dup.cold.3+0x17/0x2f
+[  643.360914]  sysfs_do_create_link_sd.isra.2+0xa6/0xc0
+[  643.360961]  device_add+0x30d/0x660
+[  643.360987]  tty_register_device_attr+0xdd/0x1d0
+[  643.361018]  ? sysfs_create_file_ns+0x5d/0x90
+[  643.361049]  usb_serial_device_probe+0x72/0xf0 [usbserial]
+=2E..
 
-	BUG_ON(tcp_skb_pcount(skb) < pcount);
+Are you sure you actually did register two xhci debug ttys?
 
-This can happen if the remote peer has advertized the smallest
-MSS that linux TCP accepts : 48
+Johan
 
-An skb can hold 17 fragments, and each fragment can hold 32KB
-on x86, or 64KB on PowerPC.
+--ZGiS0Q5IWpPtfppv
+Content-Type: application/pgp-signature; name="signature.asc"
 
-This means that the 16bit witdh of TCP_SKB_CB(skb)->tcp_gso_segs
-can overflow.
+-----BEGIN PGP SIGNATURE-----
 
-Note that tcp_sendmsg() builds skbs with less than 64KB
-of payload, so this problem needs SACK to be enabled.
-SACK blocks allow TCP to coalesce multiple skbs in the retransmit
-queue, thus filling the 17 fragments to maximal capacity.
+iHUEABYIAB0WIQQHbPq+cpGvN/peuzMLxc3C7H1lCAUCXQj1qwAKCRALxc3C7H1l
+CL/OAQCsHyez+eOKy5J2+gS1uwdz4rgQpPM/wj8cQMuU/MEFgQD+L8qQ89I/nF6X
+wI5NDR8tbnOfR3r5l5QF9t2SRZiVgwY=
+=4XXc
+-----END PGP SIGNATURE-----
 
-CVE-2019-11477 -- u16 overflow of TCP_SKB_CB(skb)->tcp_gso_segs
-
-Backport notes, provided by Joao Martins <joao.m.martins@oracle.com>
-
-v4.15 or since commit 737ff314563 ("tcp: use sequence distance to
-detect reordering") had switched from the packet-based FACK tracking and
-switched to sequence-based.
-
-v4.14 and older still have the old logic and hence on
-tcp_skb_shift_data() needs to retain its original logic and have
-@fack_count in sync. In other words, we keep the increment of pcount with
-tcp_skb_pcount(skb) to later used that to update fack_count. To make it
-more explicit we track the new skb that gets incremented to pcount in
-@next_pcount, and we get to avoid the constant invocation of
-tcp_skb_pcount(skb) all together.
-
-Fixes: 832d11c5cd07 ("tcp: Try to restore large SKBs while SACK processing")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Jonathan Looney <jtl@netflix.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
-Cc: Yuchung Cheng <ycheng@google.com>
-Cc: Bruce Curtis <brucec@netflix.com>
-Cc: Jonathan Lemon <jonathan.lemon@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[Salvatore Bonaccorso: Adjust for context changes to backport to
-4.9.168]
-[bwh: Backported to 3.16: adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
----
- include/linux/tcp.h   |  4 ++++
- include/net/tcp.h     |  2 ++
- net/ipv4/tcp.c        |  1 +
- net/ipv4/tcp_input.c  | 26 ++++++++++++++++++++------
- net/ipv4/tcp_output.c |  6 +++---
- 5 files changed, 30 insertions(+), 9 deletions(-)
-
---- a/include/linux/tcp.h
-+++ b/include/linux/tcp.h
-@@ -394,4 +394,7 @@ static inline int fastopen_init_queue(st
- 	return 0;
- }
- 
-+int tcp_skb_shift(struct sk_buff *to, struct sk_buff *from, int pcount,
-+		  int shiftlen);
-+
- #endif	/* _LINUX_TCP_H */
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -55,6 +55,8 @@ void tcp_time_wait(struct sock *sk, int
- 
- #define MAX_TCP_HEADER	(128 + MAX_HEADER)
- #define MAX_TCP_OPTION_SPACE 40
-+#define TCP_MIN_SND_MSS		48
-+#define TCP_MIN_GSO_SIZE	(TCP_MIN_SND_MSS - MAX_TCP_OPTION_SPACE)
- 
- /* 
-  * Never offer a window over 32767 without using window scaling. Some
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -3169,6 +3169,7 @@ void __init tcp_init(void)
- 	int max_rshare, max_wshare, cnt;
- 	unsigned int i;
- 
-+	BUILD_BUG_ON(TCP_MIN_SND_MSS <= MAX_TCP_OPTION_SPACE);
- 	BUILD_BUG_ON(sizeof(struct tcp_skb_cb) > sizeof(skb->cb));
- 
- 	percpu_counter_init(&tcp_sockets_allocated, 0);
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -1296,7 +1296,7 @@ static bool tcp_shifted_skb(struct sock
- 	TCP_SKB_CB(skb)->seq += shifted;
- 
- 	skb_shinfo(prev)->gso_segs += pcount;
--	BUG_ON(skb_shinfo(skb)->gso_segs < pcount);
-+	WARN_ON_ONCE(tcp_skb_pcount(skb) < pcount);
- 	skb_shinfo(skb)->gso_segs -= pcount;
- 
- 	/* When we're adding to gso_segs == 1, gso_size will be zero,
-@@ -1362,6 +1362,21 @@ static int skb_can_shift(const struct sk
- 	return !skb_headlen(skb) && skb_is_nonlinear(skb);
- }
- 
-+int tcp_skb_shift(struct sk_buff *to, struct sk_buff *from,
-+		  int pcount, int shiftlen)
-+{
-+	/* TCP min gso_size is 8 bytes (TCP_MIN_GSO_SIZE)
-+	 * Since TCP_SKB_CB(skb)->tcp_gso_segs is 16 bits, we need
-+	 * to make sure not storing more than 65535 * 8 bytes per skb,
-+	 * even if current MSS is bigger.
-+	 */
-+	if (unlikely(to->len + shiftlen >= 65535 * TCP_MIN_GSO_SIZE))
-+		return 0;
-+	if (unlikely(tcp_skb_pcount(to) + pcount > 65535))
-+		return 0;
-+	return skb_shift(to, from, shiftlen);
-+}
-+
- /* Try collapsing SACK blocks spanning across multiple skbs to a single
-  * skb.
-  */
-@@ -1373,6 +1388,7 @@ static struct sk_buff *tcp_shift_skb_dat
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	struct sk_buff *prev;
- 	int mss;
-+	int next_pcount;
- 	int pcount = 0;
- 	int len;
- 	int in_sack;
-@@ -1467,7 +1483,7 @@ static struct sk_buff *tcp_shift_skb_dat
- 	if (!after(TCP_SKB_CB(skb)->seq + len, tp->snd_una))
- 		goto fallback;
- 
--	if (!skb_shift(prev, skb, len))
-+	if (!tcp_skb_shift(prev, skb, pcount, len))
- 		goto fallback;
- 	if (!tcp_shifted_skb(sk, skb, state, pcount, len, mss, dup_sack))
- 		goto out;
-@@ -1486,9 +1502,10 @@ static struct sk_buff *tcp_shift_skb_dat
- 		goto out;
- 
- 	len = skb->len;
--	if (skb_shift(prev, skb, len)) {
--		pcount += tcp_skb_pcount(skb);
--		tcp_shifted_skb(sk, skb, state, tcp_skb_pcount(skb), len, mss, 0);
-+	next_pcount = tcp_skb_pcount(skb);
-+	if (tcp_skb_shift(prev, skb, next_pcount, len)) {
-+		pcount += next_pcount;
-+		tcp_shifted_skb(sk, skb, state, next_pcount, len, mss, 0);
- 	}
- 
- out:
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -1254,8 +1254,8 @@ static inline int __tcp_mtu_to_mss(struc
- 	mss_now -= icsk->icsk_ext_hdr_len;
- 
- 	/* Then reserve room for full set of TCP options and 8 bytes of data */
--	if (mss_now < 48)
--		mss_now = 48;
-+	if (mss_now < TCP_MIN_SND_MSS)
-+		mss_now = TCP_MIN_SND_MSS;
- 	return mss_now;
- }
- 
-
+--ZGiS0Q5IWpPtfppv--
