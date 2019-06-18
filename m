@@ -2,98 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 643BA4A3DE
-	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 16:25:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C4454A3EE
+	for <lists+stable@lfdr.de>; Tue, 18 Jun 2019 16:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729287AbfFROZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 10:25:04 -0400
-Received: from mga07.intel.com ([134.134.136.100]:24098 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728982AbfFROZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jun 2019 10:25:03 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Jun 2019 07:25:03 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,389,1557212400"; 
-   d="scan'208";a="243006671"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.164])
-  by orsmga001.jf.intel.com with ESMTP; 18 Jun 2019 07:25:01 -0700
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     <gregkh@linuxfoundation.org>
-Cc:     <linux-usb@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        "# v4 . 18+" <stable@vger.kernel.org>
-Subject: [PATCH 2/2] xhci: detect USB 3.2 capable host controllers correctly
-Date:   Tue, 18 Jun 2019 17:27:48 +0300
-Message-Id: <1560868068-2583-3-git-send-email-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1560868068-2583-1-git-send-email-mathias.nyman@linux.intel.com>
-References: <1560868068-2583-1-git-send-email-mathias.nyman@linux.intel.com>
+        id S1729485AbfFRO3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 10:29:06 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50484 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729381AbfFRO3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 10:29:06 -0400
+Received: from [167.98.27.226] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1hdF6e-0007nD-4h; Tue, 18 Jun 2019 15:29:04 +0100
+Received: from ben by deadeye with local (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1hdF6d-0000HG-Bs; Tue, 18 Jun 2019 15:29:03 +0100
+Content-Type: text/plain; charset="UTF-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+CC:     torvalds@linux-foundation.org, Guenter Roeck <linux@roeck-us.net>,
+        akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>
+Date:   Tue, 18 Jun 2019 15:27:59 +0100
+Message-ID: <lsq.1560868079.359853905@decadent.org.uk>
+X-Mailer: LinuxStableQueue (scripts by bwh)
+X-Patchwork-Hint: ignore
+Subject: [PATCH 3.16 00/10] 3.16.69-rc1 review
+X-SA-Exim-Connect-IP: 167.98.27.226
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-USB 3.2 capability in a host can be detected from the
-xHCI Supported Protocol Capability major and minor revision fields.
+This is the start of the stable review cycle for the 3.16.69 release.
+There are 10 patches in this series, which will be posted as responses
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-If major is 0x3 and minor 0x20 then the host is USB 3.2 capable.
+Responses should be made by Thu Jun 20 14:27:59 UTC 2019.
+Anything received after that time might be too late.
 
-For USB 3.2 capable hosts set the root hub lane count to 2.
+All the patches have also been committed to the linux-3.16.y-rc branch of
+https://git.kernel.org/pub/scm/linux/kernel/git/bwh/linux-stable-rc.git .
+A shortlog and diffstat can be found below.
 
-The Major Revision and Minor Revision fields contain a BCD version number.
-The value of the Major Revision field is JJh and the value of the Minor
-Revision field is MNh for version JJ.M.N, where JJ = major revision number,
-M - minor version number, N = sub-minor version number,
-e.g. version 3.1 is represented with a value of 0310h.
+Ben.
 
-Also fix the extra whitespace printed out when announcing regular
-SuperSpeed hosts.
+-------------
 
-Cc: <stable@vger.kernel.org> # v4.18+
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
----
- drivers/usb/host/xhci.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+Dan Carpenter (1):
+      drivers/virt/fsl_hypervisor.c: prevent integer overflow in ioctl
+         [6a024330650e24556b8a18cc654ad00cfecf6c6c]
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 78a2a93..3f79f35 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -5065,16 +5065,26 @@ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks)
- 	} else {
- 		/*
- 		 * Some 3.1 hosts return sbrn 0x30, use xhci supported protocol
--		 * minor revision instead of sbrn
-+		 * minor revision instead of sbrn. Minor revision is a two digit
-+		 * BCD containing minor and sub-minor numbers, only show minor.
- 		 */
--		minor_rev = xhci->usb3_rhub.min_rev;
--		if (minor_rev) {
-+		minor_rev = xhci->usb3_rhub.min_rev / 0x10;
-+
-+		switch (minor_rev) {
-+		case 2:
-+			hcd->speed = HCD_USB32;
-+			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
-+			hcd->self.root_hub->rx_lanes = 2;
-+			hcd->self.root_hub->tx_lanes = 2;
-+			break;
-+		case 1:
- 			hcd->speed = HCD_USB31;
- 			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
-+			break;
- 		}
--		xhci_info(xhci, "Host supports USB 3.%x %s SuperSpeed\n",
-+		xhci_info(xhci, "Host supports USB 3.%x %sSuperSpeed\n",
- 			  minor_rev,
--			  minor_rev ? "Enhanced" : "");
-+			  minor_rev ? "Enhanced " : "");
- 
- 		xhci->usb3_rhub.hcd = hcd;
- 		/* xHCI private pointer was set in xhci_pci_probe for the second
+Eric Dumazet (4):
+      tcp: add tcp_min_snd_mss sysctl
+         [5f3e2bf008c2221478101ee72f5cb4654b9fc363]
+      tcp: enforce tcp_min_snd_mss in tcp_mtu_probing()
+         [967c05aee439e6e5d7d805e195b3a20ef5c433d6]
+      tcp: limit payload size of sacked skbs
+         [3b4929f65b0d8249f19a50245cd88ed1a2f78cff]
+      tcp: tcp_fragment() should apply sane memory limits
+         [f070ef2ac66716357066b683fb0baf55f8191a2e]
+
+Jason Yan (1):
+      scsi: megaraid_sas: return error when create DMA pool failed
+         [bcf3b67d16a4c8ffae0aa79de5853435e683945c]
+
+Jiri Kosina (1):
+      mm/mincore.c: make mincore() more conservative
+         [134fca9063ad4851de767d1768180e5dede9a881]
+
+Oleg Nesterov (1):
+      mm: introduce vma_is_anonymous(vma) helper
+         [b5330628546616af14ff23075fbf8d4ad91f6e25]
+
+Sriram Rajagopalan (1):
+      ext4: zero out the unused memory region in the extent tree block
+         [592acbf16821288ecdc4192c47e3774a4c48bb64]
+
+Young Xiao (1):
+      Bluetooth: hidp: fix buffer overflow
+         [a1616a5ac99ede5d605047a9012481ce7ff18b16]
+
+ Documentation/networking/ip-sysctl.txt    |  8 ++++++++
+ Makefile                                  |  4 ++--
+ drivers/scsi/megaraid/megaraid_sas_base.c |  1 +
+ drivers/virt/fsl_hypervisor.c             |  3 +++
+ fs/ext4/extents.c                         | 17 +++++++++++++++--
+ include/linux/mm.h                        |  5 +++++
+ include/linux/tcp.h                       |  3 +++
+ include/net/tcp.h                         |  3 +++
+ include/uapi/linux/snmp.h                 |  1 +
+ mm/memory.c                               |  8 ++++----
+ mm/mincore.c                              | 21 +++++++++++++++++++++
+ net/bluetooth/hidp/sock.c                 |  1 +
+ net/ipv4/proc.c                           |  1 +
+ net/ipv4/sysctl_net_ipv4.c                | 11 +++++++++++
+ net/ipv4/tcp.c                            |  1 +
+ net/ipv4/tcp_input.c                      | 27 ++++++++++++++++++++++-----
+ net/ipv4/tcp_output.c                     |  9 +++++++--
+ net/ipv4/tcp_timer.c                      |  1 +
+ 18 files changed, 110 insertions(+), 15 deletions(-)
+
 -- 
-2.7.4
+Ben Hutchings
+I'm always amazed by the number of people who take up solipsism because
+they heard someone else explain it. - E*Borg on alt.fan.pratchett
 
