@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D83344B7AC
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 14:10:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1B464B7BA
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 14:13:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727002AbfFSMKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 08:10:49 -0400
-Received: from mail.acehprov.go.id ([123.108.97.111]:43246 "EHLO
+        id S1731701AbfFSMMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 08:12:41 -0400
+Received: from mail.acehprov.go.id ([123.108.97.111]:46448 "EHLO
         mail.acehprov.go.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726246AbfFSMKs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 08:10:48 -0400
-X-Greylist: delayed 2561 seconds by postgrey-1.27 at vger.kernel.org; Wed, 19 Jun 2019 08:10:47 EDT
+        with ESMTP id S1727076AbfFSMMl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 08:12:41 -0400
 Received: from localhost (localhost [127.0.0.1])
-        by mail.acehprov.go.id (Postfix) with ESMTP id 0647A3055B56;
-        Wed, 19 Jun 2019 17:57:36 +0700 (WIB)
+        by mail.acehprov.go.id (Postfix) with ESMTP id E5F113055B5F;
+        Wed, 19 Jun 2019 17:57:38 +0700 (WIB)
 Received: from mail.acehprov.go.id ([127.0.0.1])
         by localhost (mail.acehprov.go.id [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id A7-XNym2w7Yw; Wed, 19 Jun 2019 17:57:35 +0700 (WIB)
+        with ESMTP id PYNjtsbUm15Z; Wed, 19 Jun 2019 17:57:38 +0700 (WIB)
 Received: from mail.acehprov.go.id (localhost [127.0.0.1])
-        by mail.acehprov.go.id (Postfix) with ESMTPS id 509AC30556CA;
-        Wed, 19 Jun 2019 17:57:08 +0700 (WIB)
-DKIM-Filter: OpenDKIM Filter v2.8.0 mail.acehprov.go.id 509AC30556CA
+        by mail.acehprov.go.id (Postfix) with ESMTPS id 3F9433055A77;
+        Wed, 19 Jun 2019 17:57:32 +0700 (WIB)
+DKIM-Filter: OpenDKIM Filter v2.8.0 mail.acehprov.go.id 3F9433055A77
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acehprov.go.id;
-        s=327C6C40-AE75-11E3-A0E3-F52F162F8E7F; t=1560941828;
+        s=327C6C40-AE75-11E3-A0E3-F52F162F8E7F; t=1560941852;
         bh=Nhy+dzZkoPKwL31/rWSM04hYWMKm3WlwsIlYaZJYy8w=;
         h=Date:From:Reply-To:Message-ID:Subject:MIME-Version:Content-Type:
          Content-Transfer-Encoding;
-        b=xeR1QKyqwk728HuvjWtu9fTR0Li1IjGCngD3knofmcJ9oH6CX9E4OluehuELlUHpo
-         UsN9ZJvfFXi11SsTZF/uGGKU7hnXgLkU9xEVcGSoEh3vZVmbI/lUHFgt0MVfRPa5Jc
-         YiK+vfc9qquEbai2A0Fm3WdpEyua0MlFFWVFEuGo=
+        b=A0bUO7RASkz4dTN2wOPYsF7IyWjMONMQq/NBF6ebwk5Gzug7YTWFden+YV+BinyTx
+         WkY5StQjWppLMU8vw5CruJ7POeGT69lcntsuat+tKUieOSKp0BqkO2XmGogTthKsx6
+         4Jv5cinEgsEKPGQ9aYWGJlUhzg1aHoz7w4eG20hI=
 Received: from mail.acehprov.go.id (mail.acehprov.go.id [123.108.97.111])
-        by mail.acehprov.go.id (Postfix) with ESMTP id AB3D7305566A;
-        Wed, 19 Jun 2019 17:57:06 +0700 (WIB)
-Date:   Wed, 19 Jun 2019 17:57:06 +0700 (WIT)
+        by mail.acehprov.go.id (Postfix) with ESMTP id 99F4A3055A45;
+        Wed, 19 Jun 2019 17:57:29 +0700 (WIB)
+Date:   Wed, 19 Jun 2019 17:57:29 +0700 (WIT)
 From:   Sistemas administrador <firman_hidayah@acehprov.go.id>
 Reply-To: mailsss@mail2world.com
-Message-ID: <1800240968.159938.1560941826671.JavaMail.zimbra@acehprov.go.id>
+Message-ID: <1332296064.159943.1560941849596.JavaMail.zimbra@acehprov.go.id>
 Subject: 
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -44,7 +43,7 @@ Content-Transfer-Encoding: quoted-printable
 X-Originating-IP: [223.225.81.121]
 X-Mailer: Zimbra 8.0.4_GA_5737 (zclient/8.0.4_GA_5737)
 Thread-Topic: 
-Thread-Index: 5pWKuP/4FxzYFFuu8JovUHFzDTlEOg==
+Thread-Index: UHuszLSSRM6HTyGgxkGqcp7tH39ecA==
 To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
