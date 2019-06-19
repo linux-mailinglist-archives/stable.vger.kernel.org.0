@@ -2,89 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD674AEB6
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 01:27:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 507FE4AEE0
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 02:06:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726007AbfFRX1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 19:27:04 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:39742 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725913AbfFRX1E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 19:27:04 -0400
-Received: by mail-ot1-f67.google.com with SMTP id r21so14407421otq.6;
-        Tue, 18 Jun 2019 16:27:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=q4kPRWYHYHjdTHQi+BuH9rZBEiPrjwElzrl/VSKZd5g=;
-        b=JcSOX8Mu7ozpTDACthKmo/MuHf8h+d3xAEf5HhYucienONi5b2kT4TQM/AcGGP1Y4g
-         tl+MGizAOHSsOI/i7JcnlgOempZmIZ2+SZRz+HkzxyypK13PH7tNjayIK9UUfieNAOz5
-         5GaJ014pWE22gQbd+lEJr2m+Ip408UUGuVQeX+FXevXQiqDrX1i3wi+nm1W3Xdqo5Y0s
-         7wg45jM2WaT3ZugHCtihThem50VXgG9ycBwD6+hwLKAMX2+4ZEvL2BGf8WiaWUY+UUUd
-         fZGZeq2CbxWz4ISBj2eNcGgwy13Po6lLyP+ZKVjsdEXn+ChllacNhIHDTJc1tZsk+spL
-         31sA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=q4kPRWYHYHjdTHQi+BuH9rZBEiPrjwElzrl/VSKZd5g=;
-        b=Pyx+ApFAipDT1sZ3n5x5V8LWCEJG4YqJnE9C+5PEqeS64txDjkYctRQuojK9Veq7zB
-         Os+t3n/fzOc3FLeowYpYCIOkpquNoACVfKTUoTKspqkzt3j8BTA16k9zjjXWRdnNCVck
-         GiEErksOqM5UaHKMAaHO7cmd4KHSZYi/sYR0RcvjbdnPcxsY3ufgLEHx6IBiQxngfySK
-         tAE58ZVxiRpo/wR0T4qH8RFc9mdVXw/yEQ7+41SIY/qm8GMZLoZiCr1wl3Re301N8knQ
-         JX1uiAM1KJicY5/GQ1GvtkI8rjIcKGAGKFeYU2I+FdBuG+mN5i8a80Z0sgjsDJwhKpdj
-         X+Yw==
-X-Gm-Message-State: APjAAAX+oVv5AmJ+6518wn+h6hD2tFw48N+2gHMEbt4w9wGsyrIkomvO
-        89Ndgm38r1WodX8lMLXDFLYJh8p3
-X-Google-Smtp-Source: APXvYqxs37AWfZmn7zIye9xgRom2dzsvir883Gz+cJz1yCzg7qB1etyrACrRBsNOBmG5mbUQn/fhvQ==
-X-Received: by 2002:a9d:eab:: with SMTP id 40mr28068647otj.316.1560900424067;
-        Tue, 18 Jun 2019 16:27:04 -0700 (PDT)
-Received: from rYz3n ([2600:1700:210:3790::48])
-        by smtp.gmail.com with ESMTPSA id y7sm6106378oix.47.2019.06.18.16.27.03
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 18 Jun 2019 16:27:03 -0700 (PDT)
-Date:   Tue, 18 Jun 2019 18:27:02 -0500
-From:   Jiunn Chang <c0d1n61at3@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.1 000/115] 5.1.12-stable review
-Message-ID: <20190618232701.uqjdck5fzaggk3r5@rYz3n>
-References: <20190617210759.929316339@linuxfoundation.org>
+        id S1726023AbfFSAE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jun 2019 20:04:57 -0400
+Received: from bilbo.ozlabs.org ([203.11.71.1]:42103 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725913AbfFSAE5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Jun 2019 20:04:57 -0400
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 45T4vT61ykz9sCJ;
+        Wed, 19 Jun 2019 10:04:53 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=canb.auug.org.au;
+        s=201702; t=1560902694;
+        bh=gqYMTl+alz3vCwp2SdrGYR9nhdCyJlvrQA4NpZQyrwM=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=eL52hdoeZ8i6hR2FXuJy64L9vI0RIzGWGpXfsZBAKNDmyP7zqCRIeIV28MtLC688J
+         5Y7tA9RaUzJF+IeLmF7KcIsg/xYO7kqe8NIh72cK0P7aA8w6MWGEZnpNZZ6KobbDzq
+         28nzsaBgBPyM1Rqo+Kj/SpJOPnUf6MdWn8p0Rga2OO776YNSlRWbiS+asHspvBcv+D
+         kpnylZMm+XdzSAN7eRVaFehgGLeq4bArMfyKNRNltNj2p95xP3H7izqFOL3ePWUvmi
+         edxmptdcahX1rn4wB5jPomCye/+zIEET4h0YVrrf6tWxpkbgrlIOsOYLcHJFcib37X
+         9m+PPdlRoJpFw==
+Date:   Wed, 19 Jun 2019 10:04:48 +1000
+From:   Stephen Rothwell <sfr@canb.auug.org.au>
+To:     akpm@linux-foundation.org
+Cc:     mm-commits@vger.kernel.org, vdavydov.dev@gmail.com,
+        stable@vger.kernel.org, rppt@linux.vnet.ibm.com, mhocko@suse.com,
+        mgorman@techsingularity.net, aryabinin@virtuozzo.com,
+        colin.king@canonical.com
+Subject: Re: +
+ mm-idle-page-fix-oops-because-end_pfn-is-larger-than-max_pfn.patch added to
+ -mm tree
+Message-ID: <20190619100448.014a245a@canb.auug.org.au>
+In-Reply-To: <20190618194507.lwgft%akpm@linux-foundation.org>
+References: <20190618194507.lwgft%akpm@linux-foundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-User-Agent: NeoMutt/20180716
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/LeiKJJ5V9=HNHhXVKBHm9vK"; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 17, 2019 at 11:08:20PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.1.12 release.
-> There are 115 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed 19 Jun 2019 09:06:21 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.12-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> -------------
+--Sig_/LeiKJJ5V9=HNHhXVKBHm9vK
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Compiled and booted.  No regressions x86_64.
+Hi all,
 
-THX
+On Tue, 18 Jun 2019 12:45:07 -0700 akpm@linux-foundation.org wrote:
+>
+> The patch titled
+>      Subject: mm/page_idle.c: fix oops because end_pfn is larger than max=
+_pfn
+> has been added to the -mm tree.  Its filename is
+>      mm-idle-page-fix-oops-because-end_pfn-is-larger-than-max_pfn.patch
+
+Added to linux-next today.
+
+--=20
+Cheers,
+Stephen Rothwell
+
+--Sig_/LeiKJJ5V9=HNHhXVKBHm9vK
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAl0JfCAACgkQAVBC80lX
+0Gyx4Af9HLSaCFdoRPp22+aKDOpWC3wwE9AXskW85N40/yZiC1pIGo7NaMv+oT2m
+DORKs+TVXU8YsXi3izq/rymTzQSlQWVLWyseQy+uFNPEPD14cZKOHFtIB7cqB1+D
+wDEJMqOliawM8v5mk/3FciDCitZKwU6E4t5B0S5kMtSEL2T2+AMP0CiAQ0BTjCSc
+T9IqoNwOWVjuR0721Tv+MuSXygGbW62PmKZC2DyglGb5SDTQ8eE4bqNxygYGpydS
+MJTTRIYvPOLlQ3P/zFIC+6nQ2SrnIEtLvkH+ZekDI1misuuz1LHogRKif3VRsNUm
+BWzvDeAiH2X1ucXw9tmqnse0SXJb0A==
+=J66P
+-----END PGP SIGNATURE-----
+
+--Sig_/LeiKJJ5V9=HNHhXVKBHm9vK--
