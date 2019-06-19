@@ -2,111 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 558D34B7F0
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 14:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D454B87D
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 14:31:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731855AbfFSMQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 08:16:42 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:60171 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731568AbfFSMQm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 08:16:42 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id DF92780470; Wed, 19 Jun 2019 14:16:27 +0200 (CEST)
-Date:   Wed, 19 Jun 2019 14:16:38 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+e4c8abb920efa77bace9@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.1 043/115] ALSA: seq: Protect in-kernel ioctl calls
- with mutex
-Message-ID: <20190619121637.GA19792@amd>
-References: <20190617210759.929316339@linuxfoundation.org>
- <20190617210802.258998943@linuxfoundation.org>
+        id S1732005AbfFSMbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 08:31:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58524 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731999AbfFSMbc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Jun 2019 08:31:32 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7683421655;
+        Wed, 19 Jun 2019 12:31:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560947491;
+        bh=zYSek47GtRxIiyiTqpLwRIT0/soRvhGEvD4P78UzuQw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FLJRZqKfP9LmIP/EJ7sG7OmLlB7qDHKBHV9DTDHTnEvBy67DUYJjeIm7Tstzia2uk
+         s0hi8spx8K9FpufwIP5atMokVINriGXENZd2PH/X5AbP4FCvpETXXF2MT7LPVF2ifw
+         y7o2c54pnFsYazeirvm6XGW9Z/ZY3IZiyYg6wQJQ=
+Date:   Wed, 19 Jun 2019 14:31:28 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 4.14] perf machine: Guard against NULL in machine__exit()
+Message-ID: <20190619123128.GA23334@kroah.com>
+References: <20190619120030.6099-1-tommi.t.rantala@nokia.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190617210802.258998943@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20190619120030.6099-1-tommi.t.rantala@nokia.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Jun 19, 2019 at 12:00:46PM +0000, Rantala, Tommi T. (Nokia - FI/Espoo) wrote:
+> From: Arnaldo Carvalho de Melo <acme@redhat.com>
+> 
+> commit 4a2233b194c77ae1ea8304cb7c00b551de4313f0 upstream.
+> 
+> A recent fix for 'perf trace' introduced a bug where
+> machine__exit(trace->host) could be called while trace->host was still
+> NULL, so make this more robust by guarding against NULL, just like
+> free() does.
+> 
+> The problem happens, for instance, when !root users try to run 'perf
+> trace':
+> 
+>   [acme@jouet linux]$ trace
+>   Error:	No permissions to read /sys/kernel/debug/tracing/events/raw_syscalls/sys_(enter|exit)
+>   Hint:	Try 'sudo mount -o remount,mode=755 /sys/kernel/debug/tracing'
+> 
+>   perf: Segmentation fault
+>   Obtained 7 stack frames.
+>   [0x4f1b2e]
+>   /lib64/libc.so.6(+0x3671f) [0x7f43a1dd971f]
+>   [0x4f3fec]
+>   [0x47468b]
+>   [0x42a2db]
+>   /lib64/libc.so.6(__libc_start_main+0xe9) [0x7f43a1dc3509]
+>   [0x42a6c9]
+>   Segmentation fault (core dumped)
+>   [acme@jouet linux]$
+> 
+> Cc: Adrian Hunter <adrian.hunter@intel.com>
+> Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+> Cc: Andrei Vagin <avagin@openvz.org>
+> Cc: David Ahern <dsahern@gmail.com>
+> Cc: Jiri Olsa <jolsa@kernel.org>
+> Cc: Namhyung Kim <namhyung@kernel.org>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Vasily Averin <vvs@virtuozzo.com>
+> Cc: Wang Nan <wangnan0@huawei.com>
+> Fixes: 33974a414ce2 ("perf trace: Call machine__exit() at exit")
+> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+> Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
+> ---
+>  tools/perf/util/machine.c | 3 +++
+>  1 file changed, 3 insertions(+)
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Now applied, thanks.
 
-Hi!
-
-> [ Upstream commit feb689025fbb6f0aa6297d3ddf97de945ea4ad32 ]
->=20
-> ALSA OSS sequencer calls the ioctl function indirectly via
-> snd_seq_kernel_client_ctl().  While we already applied the protection
-> against races between the normal ioctls and writes via the client's
-> ioctl_mutex, this code path was left untouched.  And this seems to be
-> the cause of still remaining some rare UAF as spontaneously triggered
-> by syzkaller.
->=20
-> For the sake of robustness, wrap the ioctl_mutex also for the call via
-> snd_seq_kernel_client_ctl(), too.
-
-This is reverted with patch after the next one. Should simply this and
-the revert be deleted from the queue?
-
-Thanks,
-								Pavel
-
-
-> diff --git a/sound/core/seq/seq_clientmgr.c b/sound/core/seq/seq_clientmg=
-r.c
-> index 38e7deab6384..b3280e81bfd1 100644
-> --- a/sound/core/seq/seq_clientmgr.c
-> +++ b/sound/core/seq/seq_clientmgr.c
-> @@ -2343,14 +2343,19 @@ int snd_seq_kernel_client_ctl(int clientid, unsig=
-ned int cmd, void *arg)
->  {
->  	const struct ioctl_handler *handler;
->  	struct snd_seq_client *client;
-> +	int err;
-> =20
->  	client =3D clientptr(clientid);
->  	if (client =3D=3D NULL)
->  		return -ENXIO;
-> =20
->  	for (handler =3D ioctl_handlers; handler->cmd > 0; ++handler) {
-> -		if (handler->cmd =3D=3D cmd)
-> -			return handler->func(client, arg);
-> +		if (handler->cmd =3D=3D cmd) {
-> +			mutex_lock(&client->ioctl_mutex);
-> +			err =3D handler->func(client, arg);
-> +			mutex_unlock(&client->ioctl_mutex);
-> +			return err;
-> +		}
->  	}
-> =20
->  	pr_debug("ALSA: seq unknown ioctl() 0x%x (type=3D'%c', number=3D0x%02x)=
-\n",
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---cNdxnHkX5QqsyA0e
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl0KJ6UACgkQMOfwapXb+vLRIACgpxVaZo8G/mYONSgkmeOfcYQ/
-XHMAoJXByHRwnAmMnp39J/t+b2fnMDfk
-=8kd5
------END PGP SIGNATURE-----
-
---cNdxnHkX5QqsyA0e--
+greg k-h
