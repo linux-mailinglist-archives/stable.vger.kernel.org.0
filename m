@@ -2,68 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D45024C21C
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 22:11:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80FA64C267
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 22:28:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726244AbfFSULj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 16:11:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58482 "EHLO mail.kernel.org"
+        id S1726482AbfFSU26 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 16:28:58 -0400
+Received: from mga07.intel.com ([134.134.136.100]:43836 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726175AbfFSULi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Jun 2019 16:11:38 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A2E52084A;
-        Wed, 19 Jun 2019 20:11:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560975098;
-        bh=ufGXvlZ2oTEKufBzdv5TWcAajgtSj8R8w3ocK3xoc6o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=n/P2ytqoa4CHBYW0h3D8zdoeGL6fXEhsCbYD1mjWA0M9en9jRSvjyLvTNAxxmXn8m
-         wegd9U4u1hMoQHEs+mxLfEfCJVonMmLE8zqmKWViZ2GoVdW28j2rqbIaDsCRaWy+dP
-         77Y974gtUinTHbNigAOz4ddSSxCc3iPmW9N5KL2Q=
-Date:   Wed, 19 Jun 2019 16:11:36 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jan Kara <jack@suse.cz>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+10007d66ca02b08f0e60@syzkaller.appspotmail.com,
-        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.1 35/70] loop: Don't change loop device under
- exclusive opener
-Message-ID: <20190619201136.GD2226@sasha-vm>
-References: <20190608113950.8033-1-sashal@kernel.org>
- <20190608113950.8033-35-sashal@kernel.org>
- <20190610090013.GF12765@quack2.suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190610090013.GF12765@quack2.suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1726230AbfFSU25 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Jun 2019 16:28:57 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Jun 2019 13:28:56 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,394,1557212400"; 
+   d="scan'208";a="358307881"
+Received: from rchatre-s.jf.intel.com ([10.54.70.76])
+  by fmsmga005.fm.intel.com with ESMTP; 19 Jun 2019 13:28:56 -0700
+From:   Reinette Chatre <reinette.chatre@intel.com>
+To:     tglx@linutronix.de, fenghua.yu@intel.com, bp@alien8.de,
+        tony.luck@intel.com
+Cc:     mingo@redhat.com, hpa@zytor.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] x86/resctrl: Prevent possible overrun during bitmap operations
+Date:   Wed, 19 Jun 2019 13:27:16 -0700
+Message-Id: <58c9b6081fd9bf599af0dfc01a6fdd335768efef.1560975645.git.reinette.chatre@intel.com>
+X-Mailer: git-send-email 2.17.2
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 10, 2019 at 11:00:13AM +0200, Jan Kara wrote:
->On Sat 08-06-19 07:39:14, Sasha Levin wrote:
->> From: Jan Kara <jack@suse.cz>
->>
->> [ Upstream commit 33ec3e53e7b1869d7851e59e126bdb0fe0bd1982 ]
->
->Please don't push this to stable kernels because...
+While the DOC at the beginning of lib/bitmap.c explicitly states that
+"The number of valid bits in a given bitmap does _not_ need to be an
+exact multiple of BITS_PER_LONG.", some of the bitmap operations do
+indeed access BITS_PER_LONG portions of the provided bitmap no matter
+the size of the provided bitmap. For example, if find_first_bit()
+is provided with an 8 bit bitmap the operation will access
+BITS_PER_LONG bits from the provided bitmap. While the operation
+ensures that these extra bits do not affect the result, the memory
+is still accessed.
 
-I've dropped this, but...
+The capacity bitmasks (CBMs) are typically stored in u32 since they
+can never exceed 32 bits. A few instances exist where a bitmap_*
+operation is performed on a CBM by simply pointing the bitmap operation
+to the stored u32 value.
 
->> [Deliberately chosen not to CC stable as a user with priviledges to
->> trigger this race has other means of taking the system down and this
->> has a potential of breaking some weird userspace setup]
->
->... of this. Thanks!
+The consequence of this pattern is that some bitmap_* operations will
+access out-of-bounds memory when interacting with the provided CBM.
 
-Can't this be triggered by an "innocent" user, rather as part of an
-attack? Why can't this race happen during regular usage?
+This same issue has previously been addressed with commit 49e00eee0061
+("x86/intel_rdt: Fix out-of-bounds memory access in CBM tests")
+but at that time not all instances of the issue were fixed.
 
---
-Thanks,
-Sasha
+Fix this by using an unsigned long to store the capacity bitmask data
+that is passed to bitmap functions.
+
+Fixes: e651901187ab ("x86/intel_rdt: Introduce "bit_usage" to display cache allocations details")
+Fixes: f4e80d67a527 ("x86/intel_rdt: Resctrl files reflect pseudo-locked information")
+Fixes: 95f0b77efa57 ("x86/intel_rdt: Initialize new resource group with sane defaults")
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+---
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c | 35 ++++++++++++--------------
+ 1 file changed, 16 insertions(+), 19 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+index 333c177a2471..b63e50b1a096 100644
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -804,8 +804,12 @@ static int rdt_bit_usage_show(struct kernfs_open_file *of,
+ 			      struct seq_file *seq, void *v)
+ {
+ 	struct rdt_resource *r = of->kn->parent->priv;
+-	u32 sw_shareable = 0, hw_shareable = 0;
+-	u32 exclusive = 0, pseudo_locked = 0;
++	/*
++	 * Use unsigned long even though only 32 bits are used to ensure
++	 * test_bit() is used safely.
++	 */
++	unsigned long sw_shareable = 0, hw_shareable = 0;
++	unsigned long exclusive = 0, pseudo_locked = 0;
+ 	struct rdt_domain *dom;
+ 	int i, hwb, swb, excl, psl;
+ 	enum rdtgrp_mode mode;
+@@ -850,10 +854,10 @@ static int rdt_bit_usage_show(struct kernfs_open_file *of,
+ 		}
+ 		for (i = r->cache.cbm_len - 1; i >= 0; i--) {
+ 			pseudo_locked = dom->plr ? dom->plr->cbm : 0;
+-			hwb = test_bit(i, (unsigned long *)&hw_shareable);
+-			swb = test_bit(i, (unsigned long *)&sw_shareable);
+-			excl = test_bit(i, (unsigned long *)&exclusive);
+-			psl = test_bit(i, (unsigned long *)&pseudo_locked);
++			hwb = test_bit(i, &hw_shareable);
++			swb = test_bit(i, &sw_shareable);
++			excl = test_bit(i, &exclusive);
++			psl = test_bit(i, &pseudo_locked);
+ 			if (hwb && swb)
+ 				seq_putc(seq, 'X');
+ 			else if (hwb && !swb)
+@@ -2494,26 +2498,19 @@ static int mkdir_mondata_all(struct kernfs_node *parent_kn,
+  */
+ static void cbm_ensure_valid(u32 *_val, struct rdt_resource *r)
+ {
+-	/*
+-	 * Convert the u32 _val to an unsigned long required by all the bit
+-	 * operations within this function. No more than 32 bits of this
+-	 * converted value can be accessed because all bit operations are
+-	 * additionally provided with cbm_len that is initialized during
+-	 * hardware enumeration using five bits from the EAX register and
+-	 * thus never can exceed 32 bits.
+-	 */
+-	unsigned long *val = (unsigned long *)_val;
++	unsigned long val = *_val;
+ 	unsigned int cbm_len = r->cache.cbm_len;
+ 	unsigned long first_bit, zero_bit;
+ 
+-	if (*val == 0)
++	if (val == 0)
+ 		return;
+ 
+-	first_bit = find_first_bit(val, cbm_len);
+-	zero_bit = find_next_zero_bit(val, cbm_len, first_bit);
++	first_bit = find_first_bit(&val, cbm_len);
++	zero_bit = find_next_zero_bit(&val, cbm_len, first_bit);
+ 
+ 	/* Clear any remaining bits to ensure contiguous region */
+-	bitmap_clear(val, zero_bit, cbm_len - zero_bit);
++	bitmap_clear(&val, zero_bit, cbm_len - zero_bit);
++	*_val = (u32)val;
+ }
+ 
+ /*
+-- 
+2.17.2
+
