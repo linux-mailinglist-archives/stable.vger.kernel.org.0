@@ -2,176 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 650524BDC0
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 18:10:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 644194BD7E
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 18:05:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726109AbfFSQKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 12:10:22 -0400
-Received: from linuxlounge.net ([88.198.164.195]:34154 "EHLO linuxlounge.net"
+        id S1726251AbfFSQFz convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 19 Jun 2019 12:05:55 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:43182 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725843AbfFSQKW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Jun 2019 12:10:22 -0400
-X-Greylist: delayed 491 seconds by postgrey-1.27 at vger.kernel.org; Wed, 19 Jun 2019 12:10:20 EDT
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxlounge.net;
-        s=mail; t=1560960128;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references:openpgp:openpgp:autocrypt:autocrypt;
-        bh=Ujr3SGWwolYYbNyZ7XPeBIp6gIMbzVP7DHNPDTCIwus=;
-        b=YHeZPiJaifw4YYCSKs+695Mib/e7DjqNF/xdkiodF4fA7bgen9xdXeesTorUbj7oaMw4sz
-        qPYRwDa8Oi3ldgtWSyQJUQJPTTK0NcRnrzOYoTmKHuEXtW21ReCt6lQYe79joJ5W1dLjJw
-        dZzLKGkyZYwc7FO7s/dPihzowpRjBYY=
-References: <20190609164127.843327870@linuxfoundation.org>
- <20190609164131.760341489@linuxfoundation.org>
-From:   Martin Weinelt <martin@linuxlounge.net>
-Openpgp: preference=signencrypt
-Autocrypt: addr=martin@linuxlounge.net; prefer-encrypt=mutual; keydata=
- mQENBEv1rfkBCADFlzzmynjVg8L5ok/ef2Jxz8D96PtEAP//3U612b4QbHXzHC6+C2qmFEL6
- 5kG1U1a7PPsEaS/A6K9AUpDhT7y6tX1IxAkSkdIEmIgWC5Pu2df4+xyWXarJfqlBeJ82biot
- /qETntfo01wm0AtqfJzDh/BkUpQw0dbWBSnAF6LytoNEggIGnUGmzvCidrEEsTCO6YlHfKIH
- cpz7iwgVZi4Ajtsky8v8P8P7sX0se/ce1L+qX/qN7TnXpcdVSfZpMnArTPkrmlJT4inBLhKx
- UeDMQmHe+BQvATa21fhcqi3BPIMwIalzLqVSIvRmKY6oYdCbKLM2TZ5HmyJepusl2Gi3ABEB
- AAG0J01hcnRpbiBXZWluZWx0IDxtYXJ0aW5AbGludXhsb3VuZ2UubmV0PokBWAQTAQoAQgIb
- IwYLCQgHAwIGFQgCCQoLBBYCAwECHgECF4ACGQEWIQTu0BYCvL0ZbDi8mh+9SqBSj2PxfgUC
- W/RuFQUJEd/znAAKCRC9SqBSj2PxfpfDCACDx6BYz6cGMiweQ96lXi+ihx7RBaXsfPp2KxUo
- eHilrDPqknq62XJibCyNCJiYGNb+RUS5WfDUAqxdl4HuNxQMC/sYlbP4b7p9Y1Q9QiTP4f6M
- 8+Uvpicin+9H/lye5hS/Gp2KUiVI/gzqW68WqMhARUYw00lVSlJHy+xHEGVuQ0vmeopjU81R
- 0si4+HhMX2HtILTxoUcvm67AFKidTHYMJKwNyMHiLLvSK6wwiy+MXaiqrMVTwSIOQhLgLVcJ
- 33GNJ2Emkgkhs6xcaiN8xTjxDmiU7b5lXW4JiAsd1rbKINajcA7DVlZ/evGfpN9FczyZ4W6F
- Rf21CxSwtqv2SQHBuQENBEv1rfkBCADJX6bbb5LsXjdxDeFgqo+XRUvW0bzuS3SYNo0fuktM
- 5WYMCX7TzoF556QU8A7C7bDUkT4THBUzfaA8ZKIuneYW2WN1OI0zRMpmWVeZcUQpXncWWKCg
- LBNYtk9CCukPE0OpDFnbR+GhGd1KF/YyemYnzwW2f1NOtHjwT3iuYnzzZNlWoZAR2CRSD02B
- YU87Mr2CMXrgG/pdRiaD+yBUG9RxCUkIWJQ5dcvgrsg81vOTj6OCp/47Xk/457O0pUFtySKS
- jZkZN6S7YXl/t+8C9g7o3N58y/X95VVEw/G3KegUR2SwcLdok4HaxgOy5YHiC+qtGNZmDiQn
- NXN7WIN/oof7ABEBAAGJATwEGAEKACYCGwwWIQTu0BYCvL0ZbDi8mh+9SqBSj2PxfgUCW/Ru
- GAUJEd/znwAKCRC9SqBSj2PxfpzMCACH55MVYTVykq+CWj1WMKHex9iFg7M9DkWQCF/Zl+0v
- QmyRMEMZnFW8GdX/Qgd4QbZMUTOGevGxFPTe4p0PPKqKEDXXXxTTHQETE/Hl0jJvyu+MgTxG
- E9/KrWmsmQC7ogTFCHf0vvVY3UjWChOqRE19Buk4eYpMbuU1dYefLNcD15o4hGDhohYn3SJr
- q9eaoO6rpnNIrNodeG+1vZYG1B2jpEdU4v354ziGcibt5835IONuVdvuZMFQJ4Pn2yyC+qJe
- ekXwZ5f4JEt0lWD9YUxB2cU+xM9sbDcQ2b6+ypVFzMyfU0Q6LzYugAqajZ10gWKmeyjisgyq
- sv5UJTKaOB/t
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 45/83] staging: vc04_services: prevent integer
- overflow in create_pagelist()
-Message-ID: <c069dac7-7416-78af-80fd-e8836c76c82d@linuxlounge.net>
-Date:   Wed, 19 Jun 2019 18:02:07 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.1
-In-Reply-To: <20190609164131.760341489@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        id S1726091AbfFSQFz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Jun 2019 12:05:55 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 92ADF81F33
+        for <stable@vger.kernel.org>; Wed, 19 Jun 2019 16:05:54 +0000 (UTC)
+Received: from [172.54.67.194] (cpt-large-cpu-02.paas.prod.upshift.rdu2.redhat.com [10.0.18.84])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0079E608A7;
+        Wed, 19 Jun 2019 16:05:51 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.93900B3832.W6EVEZZR2P@redhat.com>
+X-Gitlab-Pipeline-ID: 12764
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Wed, 19 Jun 2019 16:05:54 +0000 (UTC)
+Date:   Wed, 19 Jun 2019 12:05:55 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi.
+Hello,
 
-On 6/9/19 6:42 PM, Greg Kroah-Hartman wrote:
-> From: Dan Carpenter <dan.carpenter@oracle.com>
-> 
-> commit ca641bae6da977d638458e78cd1487b6160a2718 upstream.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-This commit breaks the kernel build because the vchiq_pagelist_info
-struct is not defined in v4.9.182.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 9f31eb60d7a2 - Linux 4.19.53
 
-It was only added in v4.10, in commit
-4807f2c0e684e907c501cb96049809d7a957dbc2.
+The results of these automated tests are provided below.
 
-
-Best regards,
-
-Martin Weinelt
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
 
-In file included from ./include/uapi/linux/posix_types.h:4:0,
-                 from ./include/uapi/linux/types.h:13,
-                 from ./include/linux/compiler.h:224,
-                 from ./include/linux/linkage.h:4,
-                 from ./include/linux/kernel.h:6,
-                 from
-drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c:34:
-drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c: In
-function 'create_pagelist':
-./include/linux/stddef.h:7:14: warning: return makes integer from
-pointer without a cast [-Wint-conversion]
- #define NULL ((void *)0)
-              ^
-drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c:385:10:
-note: in expansion of macro 'NULL'
-   return NULL;
-          ^~~~
-drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c:391:12:
-error: invalid application of 'sizeof' to incomplete type 'struct
-vchiq_pagelist_info'
-     sizeof(struct vchiq_pagelist_info)) /
-            ^~~~~~
-In file included from ./include/uapi/linux/posix_types.h:4:0,
-                 from ./include/uapi/linux/types.h:13,
-                 from ./include/linux/compiler.h:224,
-                 from ./include/linux/linkage.h:4,
-                 from ./include/linux/kernel.h:6,
-                 from
-drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c:34:
-./include/linux/stddef.h:7:14: warning: return makes integer from
-pointer without a cast [-Wint-conversion]
- #define NULL ((void *)0)
-              ^
-drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c:394:10:
-note: in expansion of macro 'NULL'
-   return NULL;
-          ^~~~
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 9f31eb60d7a2 - Linux 4.19.53
 
 
-> 
-> The create_pagelist() "count" parameter comes from the user in
-> vchiq_ioctl() and it could overflow.  If you look at how create_page()
-> is called in vchiq_prepare_bulk_data(), then the "size" variable is an
-> int so it doesn't make sense to allow negatives or larger than INT_MAX.
-> 
-> I don't know this code terribly well, but I believe that typical values
-> of "count" are typically quite low and I don't think this check will
-> affect normal valid uses at all.
-> 
-> The "pagelist_size" calculation can also overflow on 32 bit systems, but
-> not on 64 bit systems.  I have added an integer overflow check for that
-> as well.
-> 
-> The Raspberry PI doesn't offer the same level of memory protection that
-> x86 does so these sorts of bugs are probably not super critical to fix.
-> 
-> Fixes: 71bad7f08641 ("staging: add bcm2708 vchiq driver")
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c |    9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> --- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
-> +++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
-> @@ -381,9 +381,18 @@ create_pagelist(char __user *buf, size_t
->  	int run, addridx, actual_pages;
->          unsigned long *need_release;
->  
-> +	if (count >= INT_MAX - PAGE_SIZE)
-> +		return NULL;
-> +
->  	offset = (unsigned int)buf & (PAGE_SIZE - 1);
->  	num_pages = (count + offset + PAGE_SIZE - 1) / PAGE_SIZE;
->  
-> +	if (num_pages > (SIZE_MAX - sizeof(PAGELIST_T) -
-> +			 sizeof(struct vchiq_pagelist_info)) /
-> +			(sizeof(u32) + sizeof(pages[0]) +
-> +			 sizeof(struct scatterlist)))
-> +		return NULL;
-> +
->  	*ppagelist = NULL;
->  
->  	/* Allocate enough storage to hold the page pointers and the page
-> 
+We then merged the patchset with `git am`:
+
+  ax25-fix-inconsistent-lock-state-in-ax25_destroy_timer.patch
+  be2net-fix-number-of-rx-queues-used-for-flow-hashing.patch
+  hv_netvsc-set-probe-mode-to-sync.patch
+  ipv6-flowlabel-fl6_sock_lookup-must-use-atomic_inc_not_zero.patch
+  lapb-fixed-leak-of-control-blocks.patch
+  neigh-fix-use-after-free-read-in-pneigh_get_next.patch
+  net-dsa-rtl8366-fix-up-vlan-filtering.patch
+  net-openvswitch-do-not-free-vport-if-register_netdevice-is-failed.patch
+  net-phylink-set-the-autoneg-state-in-phylink_phy_change.patch
+  nfc-ensure-presence-of-required-attributes-in-the-deactivate_target-handler.patch
+  sctp-free-cookie-before-we-memdup-a-new-one.patch
+  sunhv-fix-device-naming-inconsistency-between-sunhv_console-and-sunhv_reg.patch
+  tipc-purge-deferredq-list-for-each-grp-member-in-tipc_group_delete.patch
+  vsock-virtio-set-sock_done-on-peer-shutdown.patch
+  net-mlx5-avoid-reloading-already-removed-devices.patch
+  net-mvpp2-prs-fix-parser-range-for-vid-filtering.patch
+  net-mvpp2-prs-use-the-correct-helpers-when-removing-all-vid-filters.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-ce226e94fdc2705ca7eef6580ab406bdeff22e0a.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-ce226e94fdc2705ca7eef6580ab406bdeff22e0a.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-ce226e94fdc2705ca7eef6580ab406bdeff22e0a.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-ce226e94fdc2705ca7eef6580ab406bdeff22e0a.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-ce226e94fdc2705ca7eef6580ab406bdeff22e0a.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-ce226e94fdc2705ca7eef6580ab406bdeff22e0a.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-ce226e94fdc2705ca7eef6580ab406bdeff22e0a.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-ce226e94fdc2705ca7eef6580ab406bdeff22e0a.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ Ethernet drivers sanity [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       🚧 ✅ Networking socket: fuzz [7]
+       🚧 ✅ Networking sctp-auth: sockopts test [8]
+       🚧 ✅ tuned: tune-processes-through-perf [9]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [10]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ Ethernet drivers sanity [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       🚧 ✅ Networking socket: fuzz [7]
+       🚧 ✅ Networking sctp-auth: sockopts test [8]
+       🚧 ✅ tuned: tune-processes-through-perf [9]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [10]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [10]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Ethernet drivers sanity [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       🚧 ✅ Networking socket: fuzz [7]
+       🚧 ✅ Networking sctp-auth: sockopts test [8]
+       🚧 ✅ tuned: tune-processes-through-perf [9]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ Ethernet drivers sanity [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       🚧 ✅ Networking socket: fuzz [7]
+       🚧 ✅ Networking sctp-auth: sockopts test [8]
+       🚧 ✅ tuned: tune-processes-through-perf [9]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [10]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
