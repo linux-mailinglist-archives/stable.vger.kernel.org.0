@@ -2,85 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 328684BCAC
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 17:22:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87DCB4BD40
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 17:49:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726091AbfFSPWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 11:22:07 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:38448 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725899AbfFSPWH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Jun 2019 11:22:07 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id D4782C18B2C2;
-        Wed, 19 Jun 2019 15:13:21 +0000 (UTC)
-Received: from emilne (unknown [10.18.25.205])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 21FDE5D9D6;
-        Wed, 19 Jun 2019 15:13:17 +0000 (UTC)
-Message-ID: <a05c420e46d995a2397c46d416eaeb627c94ea11.camel@redhat.com>
-Subject: Re: [PATCH] scsi: vmw_pscsi: Fix use-after-free in
- pvscsi_queue_lck()
-From:   "Ewan D. Milne" <emilne@redhat.com>
-To:     Jan Kara <jack@suse.cz>, Jim Gill <jgill@vmware.com>
-Cc:     VMware PV-Drivers <pv-drivers@vmware.com>,
-        linux-scsi@vger.kernel.org, stable@vger.kernel.org
-Date:   Wed, 19 Jun 2019 11:13:16 -0400
-In-Reply-To: <20190619070541.30070-1-jack@suse.cz>
-References: <20190619070541.30070-1-jack@suse.cz>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Wed, 19 Jun 2019 15:13:29 +0000 (UTC)
+        id S1726251AbfFSPtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 11:49:18 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:45020 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726091AbfFSPtS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 11:49:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:Subject:To:From:
+        Sender:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=LXPjLNu43L+aeGVYkIB1yd/iquv+iBHgJ8B1TLPYwtY=; b=jjHpPylGOxNl7XpFmwcnErwvB
+        i8DASE4uk/OQYtvk35XPPxYEeibujH1sVTEyDXsPzZgkJRHfjdR6bYpfYg8oHQh7EzqPhvSPw9Axv
+        BvldMlbl9gk3eFYodKjhojVRGmGtTUQg613g7NWlcE3TwQOg/tyG5+5Qco3GCURC6PRgA=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=optimist)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hdcpo-0007VW-9L; Wed, 19 Jun 2019 15:49:16 +0000
+Received: from broonie by optimist with local (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hdcpn-0008Mu-Hm; Wed, 19 Jun 2019 16:49:15 +0100
+From:   Build bot for Mark Brown <broonie@kernel.org>
+To:     kernel-build-reports@lists.linaro.org,
+        linaro-kernel@lists.linaro.org, stable@vger.kernel.org
+Subject: v5.1.12 build: 0 failures 9 warnings (v5.1.12)
+Message-Id: <E1hdcpn-0008Mu-Hm@optimist>
+Date:   Wed, 19 Jun 2019 16:49:15 +0100
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2019-06-19 at 09:05 +0200, Jan Kara wrote:
-> Once we unlock adapter->hw_lock in pvscsi_queue_lck() nothing prevents just
-> queued scsi_cmnd from completing and freeing the request. Thus cmd->cmnd[0]
-> dereference can dereference already freed request leading to kernel crashes or
-> other issues (which one of our customers observed). Store cmd->cmnd[0] in a
-> local variable before unlocking adapter->hw_lock to fix the issue.
-> 
-> CC: stable@vger.kernel.org
-> Signed-off-by: Jan Kara <jack@suse.cz>
-> ---
->  drivers/scsi/vmw_pvscsi.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/scsi/vmw_pvscsi.c b/drivers/scsi/vmw_pvscsi.c
-> index ecee4b3ff073..377b07b2feeb 100644
-> --- a/drivers/scsi/vmw_pvscsi.c
-> +++ b/drivers/scsi/vmw_pvscsi.c
-> @@ -763,6 +763,7 @@ static int pvscsi_queue_lck(struct scsi_cmnd *cmd, void (*done)(struct scsi_cmnd
->  	struct pvscsi_adapter *adapter = shost_priv(host);
->  	struct pvscsi_ctx *ctx;
->  	unsigned long flags;
-> +	unsigned char op;
->  
->  	spin_lock_irqsave(&adapter->hw_lock, flags);
->  
-> @@ -775,13 +776,14 @@ static int pvscsi_queue_lck(struct scsi_cmnd *cmd, void (*done)(struct scsi_cmnd
->  	}
->  
->  	cmd->scsi_done = done;
-> +	op = cmd->cmnd[0];
->  
->  	dev_dbg(&cmd->device->sdev_gendev,
-> -		"queued cmd %p, ctx %p, op=%x\n", cmd, ctx, cmd->cmnd[0]);
-> +		"queued cmd %p, ctx %p, op=%x\n", cmd, ctx, op);
->  
->  	spin_unlock_irqrestore(&adapter->hw_lock, flags);
->  
-> -	pvscsi_kick_io(adapter, cmd->cmnd[0]);
-> +	pvscsi_kick_io(adapter, op);
->  
->  	return 0;
->  }
+Tree/Branch: v5.1.12
+Git describe: v5.1.12
+Commit: 5752b50477 Linux 5.1.12
 
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Build Time: 135 min 24 sec
 
+Passed:   11 / 11   (100.00 %)
+Failed:    0 / 11   (  0.00 %)
+
+Errors: 0
+Warnings: 9
+Section Mismatches: 0
+
+-------------------------------------------------------------------------------
+defconfigs with issues (other than build errors):
+      1 warnings    0 mismatches  : arm64-allmodconfig
+      5 warnings    0 mismatches  : arm-multi_v5_defconfig
+      5 warnings    0 mismatches  : arm-multi_v7_defconfig
+      8 warnings    0 mismatches  : arm-allmodconfig
+      5 warnings    0 mismatches  : arm-multi_v4t_defconfig
+      3 warnings    0 mismatches  : x86_64-allmodconfig
+      1 warnings    0 mismatches  : arm64-defconfig
+
+-------------------------------------------------------------------------------
+
+Warnings Summary: 9
+	  8 ../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	  5 ../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	  4 ../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+	  3 ../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	  3 ../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	  2 ../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	  1 ../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	  1 ../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	  1 ../drivers/staging/erofs/unzip_vle.c:263:29: warning: array subscript is above array bounds [-Warray-bounds]
+
+
+
+===============================================================================
+Detailed per-defconfig build reports below:
+
+
+-------------------------------------------------------------------------------
+arm64-allmodconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
+
+Warnings:
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-multi_v5_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
+
+Warnings:
+	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+
+-------------------------------------------------------------------------------
+arm-multi_v7_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
+
+Warnings:
+	../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-allmodconfig : PASS, 0 errors, 8 warnings, 0 section mismatches
+
+Warnings:
+	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/staging/erofs/unzip_vle.c:263:29: warning: array subscript is above array bounds [-Warray-bounds]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-multi_v4t_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
+
+Warnings:
+	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+
+-------------------------------------------------------------------------------
+x86_64-allmodconfig : PASS, 0 errors, 3 warnings, 0 section mismatches
+
+Warnings:
+	../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm64-defconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
+
+Warnings:
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+-------------------------------------------------------------------------------
+
+Passed with no errors, warnings or mismatches:
+
+x86_64-allnoconfig
+arm64-allnoconfig
+arm-allnoconfig
+x86_64-defconfig
