@@ -2,80 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF2E84C361
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 23:58:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8F6F4C368
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 00:03:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726322AbfFSV6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 17:58:39 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:40517 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726230AbfFSV6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 17:58:39 -0400
-Received: by mail-pl1-f196.google.com with SMTP id a93so428651pla.7;
-        Wed, 19 Jun 2019 14:58:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=I6gqBD2/XW+8NP4mZX0Dd/oS4kA8uH11DjSxrIn/eNM=;
-        b=LeKU0DeGzD0RIc4tuIfAr6Qvp0mwfZASU7scgBAGTtlpPbmTaAgcxwdmlQp5mHMyyw
-         Ezdg2loVfPVLH6BdcUBZ9l5w4W3PPpsTg++JERT0MinSngr+Fn8Ekqh89Q4ud/UO46EV
-         N9/JXaI/acIjd2HajtDdCu+Eh8eFCPXat/58/j3xDvmtK1l7VHnhPQyBOZf6MSgP5Obt
-         FKJ70BIArMF3D0SONbgcN5Y2TwckMTuFfyG+HoKdk3dtHnPm4H3b3+oC8epBxEfIdMff
-         9NT0mV9Bshj2ZRjnCrk0lNnSj5kyracF8zb6xFMN6VXL7oBUbuFVlMQHf6TEhFxfl2PH
-         C/aw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=I6gqBD2/XW+8NP4mZX0Dd/oS4kA8uH11DjSxrIn/eNM=;
-        b=l+CV4sIVP1LSyPqD5jhOFRfXb8IDfpqfbOcp7bUExgtL19bNFhUZWAxHIvFMlFzDZQ
-         mL3nNN7jwHQ7a/4C8QRpxnxkP31IQwG4GW9fZuu9Jp/GX5BsJbC/2c9LwuBU4hzZ8nUo
-         ZOVrRdb++DqTCwIw8162y/UOg4SPczuXLS/318T3tSEaDaTFPvQiY0KHey0lECocRvjY
-         UId1f/07hJdFRlDgfbVSZjCp4kQXWzyKooGzBvMOfAotqeVcEWfMd811An14t/bJRgad
-         BUQMiMnYS+ay4k6hCBS4LOUgn/+OpNThbXUIeXSjdv5MNr9iYLrmQIw8dhTflpsvo0v6
-         6XNg==
-X-Gm-Message-State: APjAAAWHkLmBclL9ehIQjcRl67F3uBB+Yr+0Eo5AFT4Q8lGkO0YE7sxF
-        Yfn9UQo9JCQJ92F25iolrsktfo1z
-X-Google-Smtp-Source: APXvYqz88Zejf8xFLMYATsBrHyzKXT4f2Yl2zEqRlKc3Lzl0eyzc47OxVBoyXoCWqKGJYU6zGiDZDA==
-X-Received: by 2002:a17:902:4623:: with SMTP id o32mr4204005pld.112.1560981518966;
-        Wed, 19 Jun 2019 14:58:38 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id f14sm25735414pfn.53.2019.06.19.14.58.37
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 19 Jun 2019 14:58:37 -0700 (PDT)
-Date:   Wed, 19 Jun 2019 14:58:36 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Ben Hutchings <ben@decadent.org.uk>
+        id S1726246AbfFSWDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 18:03:13 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:32864 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726230AbfFSWDN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 18:03:13 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1hdiff-0005xY-BN; Wed, 19 Jun 2019 23:03:11 +0100
+Received: from ben by deadeye with local (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1hdiff-0004If-4N; Wed, 19 Jun 2019 23:03:11 +0100
+Message-ID: <2349a7aefb2ad2d0cc623be310b2162130fc06de.camel@decadent.org.uk>
+Subject: Re: [PATCH 3.16 00/10] 3.16.69-rc1 review
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
         Denis Kirjanov <kda@linux-powerpc.org>
-Subject: Re: [PATCH 3.16 00/10] 3.16.69-rc1 review
-Message-ID: <20190619215836.GA2387@roeck-us.net>
+Date:   Wed, 19 Jun 2019 23:02:57 +0100
+In-Reply-To: <20190619215836.GA2387@roeck-us.net>
 References: <lsq.1560868079.359853905@decadent.org.uk>
+         <20190619215836.GA2387@roeck-us.net>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-gVg17ikfxwMw2FePTx6n"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <lsq.1560868079.359853905@decadent.org.uk>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 18, 2019 at 03:27:59PM +0100, Ben Hutchings wrote:
-> This is the start of the stable review cycle for the 3.16.69 release.
-> There are 10 patches in this series, which will be posted as responses
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu Jun 20 14:27:59 UTC 2019.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 136 pass: 136 fail: 0
-Qemu test results:
-	total: 231 pass: 231 fail: 0
+--=-gVg17ikfxwMw2FePTx6n
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Guenter
+On Wed, 2019-06-19 at 14:58 -0700, Guenter Roeck wrote:
+> On Tue, Jun 18, 2019 at 03:27:59PM +0100, Ben Hutchings wrote:
+> > This is the start of the stable review cycle for the 3.16.69 release.
+> > There are 10 patches in this series, which will be posted as responses
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >=20
+> > Responses should be made by Thu Jun 20 14:27:59 UTC 2019.
+> > Anything received after that time might be too late.
+> >=20
+>=20
+> Build results:
+> 	total: 136 pass: 136 fail: 0
+> Qemu test results:
+> 	total: 231 pass: 231 fail: 0
+
+Great, thanks for checking.
+
+Ben.
+
+--=20
+Ben Hutchings
+We get into the habit of living before acquiring the habit of thinking.
+                                                         - Albert Camus
+
+
+
+--=-gVg17ikfxwMw2FePTx6n
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl0KsREACgkQ57/I7JWG
+EQkEIxAAmkGctw6DIAKsRi/IRY8xVWQlEjxc13bN8iNN4Dxbv3yh/7bP1XSCxyOF
+3NuorBiQzMvTz6eQVDGs3ezJ9tiE0sXTMMJjQv9BdX7vNwCyWrwaGyUqQTlBv1Di
+92l+lE1WOP0qLuW0S+U0wLNhuLx7dABMfmsmvXJ6a5rjEv4XsWLiCXPrsdGRSThV
+PGW28vyXTGy5l/uCWnSaclv27BaWI8eYputCPTI3QMrJO6resOjM1pUL+IJuClb/
+yujq1Qg8L8k+RASYZ6E+DJUTqzsgvs8ADVebmnybnIwYz4pQg0f3f3gWWxj4niLE
+Hi+rt9rT9P+sQAod9jofGutr7ubbHTn9SszD0kJkuQ63flu86zT9UW523KC530Qg
+UPi4nLNhrT1HGANZmIqq4uBZnmrXpcefFZxwrfk/ZymkY0w5Z0MQs8DQoUji7jRp
+lFmeoQJvBdUkHtzCaSPUjA5GGi/KaUmXeJ2kAhm8uAl3n7mpJrAAhFiXVfyWnXGc
+PubcrN3Mh/0PHdzJMaSwB2kCBOfCkh42ZsF3jS4Oyb5KxRS5cV7LALrngWY/ATWZ
+OnPzsBN1M0k+Lwva1DNtbiDv/UAxE7IjP39wbFxftnhagI3QWNo3DxYT7jntFkG6
+81nr6OxzQWlUoL9QE3uDqRpbDLvbxQKfSUvz+edVecHHVfXMJes=
+=Sb0T
+-----END PGP SIGNATURE-----
+
+--=-gVg17ikfxwMw2FePTx6n--
