@@ -2,76 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1B464B7BA
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 14:13:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CFE24B69E
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 13:03:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731701AbfFSMMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 08:12:41 -0400
-Received: from mail.acehprov.go.id ([123.108.97.111]:46448 "EHLO
-        mail.acehprov.go.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727076AbfFSMMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 08:12:41 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by mail.acehprov.go.id (Postfix) with ESMTP id E5F113055B5F;
-        Wed, 19 Jun 2019 17:57:38 +0700 (WIB)
-Received: from mail.acehprov.go.id ([127.0.0.1])
-        by localhost (mail.acehprov.go.id [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id PYNjtsbUm15Z; Wed, 19 Jun 2019 17:57:38 +0700 (WIB)
-Received: from mail.acehprov.go.id (localhost [127.0.0.1])
-        by mail.acehprov.go.id (Postfix) with ESMTPS id 3F9433055A77;
-        Wed, 19 Jun 2019 17:57:32 +0700 (WIB)
-DKIM-Filter: OpenDKIM Filter v2.8.0 mail.acehprov.go.id 3F9433055A77
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acehprov.go.id;
-        s=327C6C40-AE75-11E3-A0E3-F52F162F8E7F; t=1560941852;
-        bh=Nhy+dzZkoPKwL31/rWSM04hYWMKm3WlwsIlYaZJYy8w=;
-        h=Date:From:Reply-To:Message-ID:Subject:MIME-Version:Content-Type:
-         Content-Transfer-Encoding;
-        b=A0bUO7RASkz4dTN2wOPYsF7IyWjMONMQq/NBF6ebwk5Gzug7YTWFden+YV+BinyTx
-         WkY5StQjWppLMU8vw5CruJ7POeGT69lcntsuat+tKUieOSKp0BqkO2XmGogTthKsx6
-         4Jv5cinEgsEKPGQ9aYWGJlUhzg1aHoz7w4eG20hI=
-Received: from mail.acehprov.go.id (mail.acehprov.go.id [123.108.97.111])
-        by mail.acehprov.go.id (Postfix) with ESMTP id 99F4A3055A45;
-        Wed, 19 Jun 2019 17:57:29 +0700 (WIB)
-Date:   Wed, 19 Jun 2019 17:57:29 +0700 (WIT)
-From:   Sistemas administrador <firman_hidayah@acehprov.go.id>
-Reply-To: mailsss@mail2world.com
-Message-ID: <1332296064.159943.1560941849596.JavaMail.zimbra@acehprov.go.id>
-Subject: 
+        id S1731143AbfFSLDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 07:03:44 -0400
+Received: from foss.arm.com ([217.140.110.172]:33560 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727126AbfFSLDo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Jun 2019 07:03:44 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2C6C9360;
+        Wed, 19 Jun 2019 04:03:43 -0700 (PDT)
+Received: from [10.1.197.45] (e112298-lin.cambridge.arm.com [10.1.197.45])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3BA003F738;
+        Wed, 19 Jun 2019 04:05:28 -0700 (PDT)
+Subject: Re: [PATCH v4.4 00/45] V4.4 backport of arm64 Spectre patches
+To:     Viresh Kumar <viresh.kumar@linaro.org>
+Cc:     linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com
+References: <cover.1560480942.git.viresh.kumar@linaro.org>
+ <7329e6d9-140d-59bc-c835-5f6300cf60e0@arm.com>
+ <20190618102122.z52oi37pp3wigqxx@vireshk-i7>
+From:   Julien Thierry <julien.thierry@arm.com>
+Message-ID: <ed7d6125-e8ec-c3a1-06c7-2a2fa2c92d32@arm.com>
+Date:   Wed, 19 Jun 2019 12:03:39 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
 MIME-Version: 1.0
+In-Reply-To: <20190618102122.z52oi37pp3wigqxx@vireshk-i7>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Originating-IP: [223.225.81.121]
-X-Mailer: Zimbra 8.0.4_GA_5737 (zclient/8.0.4_GA_5737)
-Thread-Topic: 
-Thread-Index: UHuszLSSRM6HTyGgxkGqcp7tH39ecA==
-To:     unlisted-recipients:; (no To-header on input)
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ATENCI=C3=93N;
+Hi Viresh,
 
-Su buz=C3=B3n ha superado el l=C3=ADmite de almacenamiento, que es de 5 GB =
-definidos por el administrador, quien actualmente est=C3=A1 ejecutando en 1=
-0.9GB, no puede ser capaz de enviar o recibir correo nuevo hasta que vuelva=
- a validar su buz=C3=B3n de correo electr=C3=B3nico. Para revalidar su buz=
-=C3=B3n de correo, env=C3=ADe la siguiente informaci=C3=B3n a continuaci=C3=
-=B3n:
+On 18/06/2019 11:21, Viresh Kumar wrote:
+> On 17-06-19, 17:03, Julien Thierry wrote:
+>> On 14/06/2019 04:07, Viresh Kumar wrote:
 
-nombre:
-Nombre de usuario:
-contrase=C3=B1a:
-Confirmar contrase=C3=B1a:
-E-mail:
-tel=C3=A9fono:
+[...]
 
-Si usted no puede revalidar su buz=C3=B3n, el buz=C3=B3n se deshabilitar=C3=
-=A1!
+> I have updated the stable/v4.4.y/spectre branch with all the changes you
+> suggested and pushed the earlier version to stable/v4.4.y/spectre-v1 branch.
+> 
+> Will it be possible for you to have a look at stable/v4.4.y/spectre branch to
+> see if it is okay, so I can send the v2 version ? Don't want to spam list
+> unnecessary with so many patches :)
+> 
 
-Disculpa las molestias.
-C=C3=B3digo de verificaci=C3=B3n: es: 006524
-Correo Soporte T=C3=A9cnico =C2=A92019
+I've given a run for your new version and it looks like the BP hardening
+is not taking place.
 
-=C2=A1gracias
-Sistemas administrador
+I believe the culprit is update_cpu_capabilities(), which in 4.4 tests
+for capability.desc to know where to stop (and requires all valid
+capabilities to have a description).
+
+Since commit 644c2ae19 "arm64: cpufeature: Test 'matches' pointer to
+find the end of the list", the restriction was lifted.
+Unfortunately for you, the errata workarounds using BP hardening were
+introduced after that commit and were not given a description. So they
+do not get applied and also, in the current state, would prevent
+following entries in the errata table from getting applied.
+
+So either 644c2ae19 needs to be backported, or the workarounds need to
+be given descriptions.
+
+I'll let you know if I find anything else.
+
+Cheers,
+
+-- 
+Julien Thierry
