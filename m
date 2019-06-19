@@ -2,75 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CF9A4B4D7
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 11:21:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE75C4B5DE
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 12:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731347AbfFSJVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 05:21:39 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:39208 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730996AbfFSJVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 05:21:39 -0400
-Received: from localhost.localdomain (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id B2ABC2614E9;
-        Wed, 19 Jun 2019 10:21:37 +0100 (BST)
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Hans Verkuil <hans.verkuil@cisco.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@iki.fi>, linux-media@vger.kernel.org
-Cc:     kernel@collabora.com,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] media: v4l2: Test type instead of cfg->type in v4l2_ctrl_new_custom()
-Date:   Wed, 19 Jun 2019 11:21:33 +0200
-Message-Id: <20190619092133.28977-1-boris.brezillon@collabora.com>
-X-Mailer: git-send-email 2.20.1
+        id S1731556AbfFSKFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 06:05:02 -0400
+Received: from Galois.linutronix.de ([146.0.238.70]:50048 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726959AbfFSKFC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 06:05:02 -0400
+Received: from p5b06daab.dip0.t-ipconnect.de ([91.6.218.171] helo=nanos)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1hdXSI-0002d2-1J; Wed, 19 Jun 2019 12:04:38 +0200
+Date:   Wed, 19 Jun 2019 12:04:36 +0200 (CEST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     Tim Chen <tim.c.chen@linux.intel.com>
+cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ben Greear <greearb@candelatech.com>, stable@vger.kernel.org,
+        Andi Kleen <ak@linux.intel.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Jun Nakajima <jun.nakajima@intel.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Asit Mallick <asit.k.mallick@intel.com>,
+        Arjan van de Ven <arjan@linux.intel.com>,
+        Jon Masters <jcm@redhat.com>,
+        Waiman Long <longman9394@gmail.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Mark Gross <mgross@linux.intel.com>,
+        LKML <linux-kernel@vger.kernel.org>, x86@kernel.org
+Subject: Re: [PATCH v4] Documentation: Add section about CPU vulnerabilities
+ for Spectre
+In-Reply-To: <20190618212457.9764-1-tim.c.chen@linux.intel.com>
+Message-ID: <alpine.DEB.2.21.1906191204060.1765@nanos.tec.linutronix.de>
+References: <20190618212457.9764-1-tim.c.chen@linux.intel.com>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-cfg->type can be overridden by v4l2_ctrl_fill() and the new value is
-stored in the local type var. Fix the tests to use this local var.
+On Tue, 18 Jun 2019, Tim Chen wrote:
 
-Fixes: 0996517cf8ea ("V4L/DVB: v4l2: Add new control handling framework")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
----
- drivers/media/v4l2-core/v4l2-ctrls.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+> Add documentation for Spectre vulnerability and the mitigation mechanisms:
+> 
+> - Explain the problem and risks
+> - Document the mitigation mechanisms
+> - Document the command line controls
+> - Document the sysfs files
+> 
+> Co-developed-by: Andi Kleen <ak@linux.intel.com>
+> Signed-off-by: Andi Kleen <ak@linux.intel.com>
+> Co-developed-by: Tim Chen <tim.c.chen@linux.intel.com>
+> Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
+> Cc: stable@vger.kernel.org
 
-diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
-index c342385baec3..1acc249aaeed 100644
---- a/drivers/media/v4l2-core/v4l2-ctrls.c
-+++ b/drivers/media/v4l2-core/v4l2-ctrls.c
-@@ -2470,16 +2470,15 @@ struct v4l2_ctrl *v4l2_ctrl_new_custom(struct v4l2_ctrl_handler *hdl,
- 		v4l2_ctrl_fill(cfg->id, &name, &type, &min, &max, &step,
- 								&def, &flags);
- 
--	is_menu = (cfg->type == V4L2_CTRL_TYPE_MENU ||
--		   cfg->type == V4L2_CTRL_TYPE_INTEGER_MENU);
-+	is_menu = (type == V4L2_CTRL_TYPE_MENU ||
-+		   type == V4L2_CTRL_TYPE_INTEGER_MENU);
- 	if (is_menu)
- 		WARN_ON(step);
- 	else
- 		WARN_ON(cfg->menu_skip_mask);
--	if (cfg->type == V4L2_CTRL_TYPE_MENU && qmenu == NULL)
-+	if (type == V4L2_CTRL_TYPE_MENU && qmenu == NULL) {
- 		qmenu = v4l2_ctrl_get_menu(cfg->id);
--	else if (cfg->type == V4L2_CTRL_TYPE_INTEGER_MENU &&
--		 qmenu_int == NULL) {
-+	} else if (type == V4L2_CTRL_TYPE_INTEGER_MENU && qmenu_int == NULL) {
- 		handler_set_err(hdl, -EINVAL);
- 		return NULL;
- 	}
--- 
-2.20.1
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 
+Renders nicely now. Good work!
+
+Thanks,
+
+	tglx
