@@ -2,97 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8F6F4C368
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 00:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 637F44C3F4
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 01:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726246AbfFSWDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 18:03:13 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:32864 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726230AbfFSWDN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 18:03:13 -0400
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hdiff-0005xY-BN; Wed, 19 Jun 2019 23:03:11 +0100
-Received: from ben by deadeye with local (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hdiff-0004If-4N; Wed, 19 Jun 2019 23:03:11 +0100
-Message-ID: <2349a7aefb2ad2d0cc623be310b2162130fc06de.camel@decadent.org.uk>
-Subject: Re: [PATCH 3.16 00/10] 3.16.69-rc1 review
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        Denis Kirjanov <kda@linux-powerpc.org>
-Date:   Wed, 19 Jun 2019 23:02:57 +0100
-In-Reply-To: <20190619215836.GA2387@roeck-us.net>
-References: <lsq.1560868079.359853905@decadent.org.uk>
-         <20190619215836.GA2387@roeck-us.net>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-gVg17ikfxwMw2FePTx6n"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1726479AbfFSXHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 19:07:53 -0400
+Received: from mail-wm1-f48.google.com ([209.85.128.48]:54962 "EHLO
+        mail-wm1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726449AbfFSXHx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 19:07:53 -0400
+Received: by mail-wm1-f48.google.com with SMTP id g135so1093654wme.4
+        for <stable@vger.kernel.org>; Wed, 19 Jun 2019 16:07:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=jlKmSmj7uzUXj4X78Rf4YjFcOflcjRjYyamShYRyagM=;
+        b=lh9ucU1kXv0rz19dmXzwTYCI+RPGnt66wc5nr7npg1Pt+05m3iMYvLLPFE4yQagAoT
+         gZd1zjlOZf8RHKab/qtqwRn48j3h0Tt+61pgU8rF7jNNYWWHEQPNHZjtDgFkoUgh/hoL
+         pqvhkA32Sv85dQsPgAMN38VTWPvD3YsxsctNa9uBVrNqYk+Hw8OC+bmLdnT7v7EudIuV
+         Eq8kjpg0olDWeQ22mDzKs5f4PgyIxnhUMCzBtAu+sTsW31cvLB4I97E4tdliQdzkldQl
+         NlG++c7zo1C7fnT6vqxHqtJN2VppcrDy04l5CS8s12pCTgzQAeYfqbYDW32LgeO4qDnv
+         0gOg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=jlKmSmj7uzUXj4X78Rf4YjFcOflcjRjYyamShYRyagM=;
+        b=pTh+K3IMLtErmmsRPtXuiqzIoQq1kztupmfGTPrGVWwiZNScauEAZFsN7HmgauWIYz
+         HWzz8DyaXRQmGLIBVJorUOhTAuG7uDxOPg4LqURLKPO89ydjABNwvVZv/XlWavSQwzsN
+         m70RB7PPKlxOxhK8ZG9TaOnBzv8M/Zz/ZbinStNn3T2AJFT0WuBrp6kIFIhYLdYxhXE4
+         +Q5AU3/9NxDPEGu2ChO0w3tE3NzCxNQxnygo5PFbHiHSUzBKjy06h6N7TqpKlTRiD9rA
+         gwGEUi9FAxnmbHnaar3D20QGdKpFfBs0mlO0Kstd3xogeKzCCZFZZ0GppvHuGb9xd/Wo
+         E8wQ==
+X-Gm-Message-State: APjAAAXWSjRde/logjeSqzG72A+8rSY57f8LYt9GOhsYvzPH8SzwLcUQ
+        QrFDFS36AVgBYG/xwuED6yvBbF2B1aexrg==
+X-Google-Smtp-Source: APXvYqxq7Esy33bN/rUdduxth8tAuMS0k5D+L7secwLXOZ4M2Adz9hKDkzKo7Jb1i4qP91nYQpYs7w==
+X-Received: by 2002:a7b:ce8a:: with SMTP id q10mr9408169wmj.109.1560985671147;
+        Wed, 19 Jun 2019 16:07:51 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y6sm18635425wrp.12.2019.06.19.16.07.50
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 19 Jun 2019 16:07:50 -0700 (PDT)
+Message-ID: <5d0ac046.1c69fb81.86a34.59e5@mx.google.com>
+Date:   Wed, 19 Jun 2019 16:07:50 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.128
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 118 boots: 0 failed,
+ 104 passed with 14 offline (v4.14.128)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y boot: 118 boots: 0 failed, 104 passed with 14 offlin=
+e (v4.14.128)
 
---=-gVg17ikfxwMw2FePTx6n
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.128/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.128/
 
-On Wed, 2019-06-19 at 14:58 -0700, Guenter Roeck wrote:
-> On Tue, Jun 18, 2019 at 03:27:59PM +0100, Ben Hutchings wrote:
-> > This is the start of the stable review cycle for the 3.16.69 release.
-> > There are 10 patches in this series, which will be posted as responses
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >=20
-> > Responses should be made by Thu Jun 20 14:27:59 UTC 2019.
-> > Anything received after that time might be too late.
-> >=20
->=20
-> Build results:
-> 	total: 136 pass: 136 fail: 0
-> Qemu test results:
-> 	total: 231 pass: 231 fail: 0
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.128
+Git Commit: bb263a2a2d4380a56edab6dce5a2c064769676fb
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 63 unique boards, 23 SoC families, 14 builds out of 201
 
-Great, thanks for checking.
+Offline Platforms:
 
-Ben.
+arm:
 
---=20
-Ben Hutchings
-We get into the habit of living before acquiring the habit of thinking.
-                                                         - Albert Camus
+    sama5_defconfig:
+        gcc-8
+            at91-sama5d4_xplained: 1 offline lab
 
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-ifc6410: 1 offline lab
 
+    tegra_defconfig:
+        gcc-8
+            tegra30-beaver: 1 offline lab
 
---=-gVg17ikfxwMw2FePTx6n
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+    multi_v7_defconfig:
+        gcc-8
+            alpine-db: 1 offline lab
+            at91-sama5d4_xplained: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            tegra30-beaver: 1 offline lab
 
------BEGIN PGP SIGNATURE-----
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl0KsREACgkQ57/I7JWG
-EQkEIxAAmkGctw6DIAKsRi/IRY8xVWQlEjxc13bN8iNN4Dxbv3yh/7bP1XSCxyOF
-3NuorBiQzMvTz6eQVDGs3ezJ9tiE0sXTMMJjQv9BdX7vNwCyWrwaGyUqQTlBv1Di
-92l+lE1WOP0qLuW0S+U0wLNhuLx7dABMfmsmvXJ6a5rjEv4XsWLiCXPrsdGRSThV
-PGW28vyXTGy5l/uCWnSaclv27BaWI8eYputCPTI3QMrJO6resOjM1pUL+IJuClb/
-yujq1Qg8L8k+RASYZ6E+DJUTqzsgvs8ADVebmnybnIwYz4pQg0f3f3gWWxj4niLE
-Hi+rt9rT9P+sQAod9jofGutr7ubbHTn9SszD0kJkuQ63flu86zT9UW523KC530Qg
-UPi4nLNhrT1HGANZmIqq4uBZnmrXpcefFZxwrfk/ZymkY0w5Z0MQs8DQoUji7jRp
-lFmeoQJvBdUkHtzCaSPUjA5GGi/KaUmXeJ2kAhm8uAl3n7mpJrAAhFiXVfyWnXGc
-PubcrN3Mh/0PHdzJMaSwB2kCBOfCkh42ZsF3jS4Oyb5KxRS5cV7LALrngWY/ATWZ
-OnPzsBN1M0k+Lwva1DNtbiDv/UAxE7IjP39wbFxftnhagI3QWNo3DxYT7jntFkG6
-81nr6OxzQWlUoL9QE3uDqRpbDLvbxQKfSUvz+edVecHHVfXMJes=
-=Sb0T
------END PGP SIGNATURE-----
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
 
---=-gVg17ikfxwMw2FePTx6n--
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            juno-r2: 1 offline lab
+            mt7622-rfb1: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
