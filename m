@@ -2,212 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CE974C12D
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 21:04:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BBA14C177
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 21:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726332AbfFSTEw convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 19 Jun 2019 15:04:52 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:43422 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726109AbfFSTEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Jun 2019 15:04:52 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id D81712F8BEC
-        for <stable@vger.kernel.org>; Wed, 19 Jun 2019 19:04:51 +0000 (UTC)
-Received: from [172.54.67.194] (cpt-large-cpu-02.paas.prod.upshift.rdu2.redhat.com [10.0.18.84])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6E8A95C207;
-        Wed, 19 Jun 2019 19:04:49 +0000 (UTC)
+        id S1730020AbfFSTZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 15:25:33 -0400
+Received: from mail-wr1-f46.google.com ([209.85.221.46]:36619 "EHLO
+        mail-wr1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729659AbfFSTZd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 15:25:33 -0400
+Received: by mail-wr1-f46.google.com with SMTP id n4so467658wrs.3
+        for <stable@vger.kernel.org>; Wed, 19 Jun 2019 12:25:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=z4B0WS5XAFgBHm+b9OQ7enlvrHftrnmUSmQ89jOfF3k=;
+        b=QYhWQNjRhTGNlHSrzPkgIdiZBDzqGQFJy7RMH/8FitPFyfGw8pd7Omy9ZxvDnEYq0a
+         X4ZCzP/Q9lKzobzjR9+Nh3XQSXI0+oR9eMGcic4gdcs4pYESXX9vj5/mOpw+tuZH/Een
+         ejubvK8R7kMBz+iC+fMRTcgjG6kSXNCgtDwkcO0y5fAhkjWu6rCxVgDg8JUX06c874wH
+         Mz2016e1pdFREx1TVngrZNupOt03x1Mlka19EdTZ9f6xFtW1ApLU+yMLOMhNfPHrL4HY
+         xSigyRZuWiwhn+T/KKe5Nl4IhHzhxWX+woIA8vmWtfrMcf5pllHGp9ej0YaOYgrxcAB6
+         bzqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=z4B0WS5XAFgBHm+b9OQ7enlvrHftrnmUSmQ89jOfF3k=;
+        b=DLxSNAU7egLtph4YzQ5au/z4UNH+xNZ1aG5+NJUGNUAW4Fkbg3qOY6/IowyvaHH8q8
+         v8p5sy4sQaQPAmMTM3WTPho6goxS8ogyEDhHL7QkoNG9BFno8+8w09QIVQzUoxGAn08e
+         l6GSLcZOCBj4gwxxSKSndvIQ1EJLiHmxyqDKD37seXVVtrCVMkbMGYVA30OSZb4+BZL9
+         +yHR4tAKuz8UaaC5oxP63ddMIZ7MRfMY30Qv+wo7CCUe1mY10nWAn4MZj+3a0MwGpnwX
+         QkJ+Ha6HamQU701LYgJN1c4Kcwf8avzTHYmNmKH9HXIODmi8XMn8qqt0ChWxHzX/ZcXK
+         siTg==
+X-Gm-Message-State: APjAAAWfLgjS4s/eiy2ItGd5WThS32D5W9jFFoPLnm7hcDY/XTbRJk6h
+        xWTntac2SBwvrsc1Am/F9AeePpELW6mDnA==
+X-Google-Smtp-Source: APXvYqyBpm2zO2zqUdLjZdwluLxWrkv3FKWtLWBNzw2fVM2Wkw+Ekpj4yZkBRQq6zDWmiVIKbSeOOQ==
+X-Received: by 2002:a5d:5452:: with SMTP id w18mr52140144wrv.327.1560972330642;
+        Wed, 19 Jun 2019 12:25:30 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id d4sm14141496wra.38.2019.06.19.12.25.29
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 19 Jun 2019 12:25:29 -0700 (PDT)
+Message-ID: <5d0a8c29.1c69fb81.c381f.043a@mx.google.com>
+Date:   Wed, 19 Jun 2019 12:25:29 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.1ABE330EDD.YH92SBMNSF@redhat.com>
-X-Gitlab-Pipeline-ID: 12818
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Wed, 19 Jun 2019 19:04:51 +0000 (UTC)
-Date:   Wed, 19 Jun 2019 15:04:52 -0400
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.1.12
+X-Kernelci-Branch: linux-5.1.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.1.y boot: 128 boots: 1 failed, 127 passed (v5.1.12)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+stable-rc/linux-5.1.y boot: 128 boots: 1 failed, 127 passed (v5.1.12)
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.1.y/kernel/v5.1.12/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
+/kernel/v5.1.12/
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 9f31eb60d7a2 - Linux 4.19.53
+Tree: stable-rc
+Branch: linux-5.1.y
+Git Describe: v5.1.12
+Git Commit: 5752b50477dace442b8ca238a6957918436efeeb
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 75 unique boards, 24 SoC families, 15 builds out of 209
 
-The results of these automated tests are provided below.
+Boot Failure Detected:
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            bcm4708-smartrg-sr400ac: 1 failed lab
 
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 9f31eb60d7a2 - Linux 4.19.53
-
-
-We then merged the patchset with `git am`:
-
-  ax25-fix-inconsistent-lock-state-in-ax25_destroy_timer.patch
-  be2net-fix-number-of-rx-queues-used-for-flow-hashing.patch
-  hv_netvsc-set-probe-mode-to-sync.patch
-  ipv6-flowlabel-fl6_sock_lookup-must-use-atomic_inc_not_zero.patch
-  lapb-fixed-leak-of-control-blocks.patch
-  neigh-fix-use-after-free-read-in-pneigh_get_next.patch
-  net-dsa-rtl8366-fix-up-vlan-filtering.patch
-  net-openvswitch-do-not-free-vport-if-register_netdevice-is-failed.patch
-  net-phylink-set-the-autoneg-state-in-phylink_phy_change.patch
-  nfc-ensure-presence-of-required-attributes-in-the-deactivate_target-handler.patch
-  sctp-free-cookie-before-we-memdup-a-new-one.patch
-  sunhv-fix-device-naming-inconsistency-between-sunhv_console-and-sunhv_reg.patch
-  tipc-purge-deferredq-list-for-each-grp-member-in-tipc_group_delete.patch
-  vsock-virtio-set-sock_done-on-peer-shutdown.patch
-  net-mlx5-avoid-reloading-already-removed-devices.patch
-  net-mvpp2-prs-fix-parser-range-for-vid-filtering.patch
-  net-mvpp2-prs-use-the-correct-helpers-when-removing-all-vid-filters.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-2dbb2586d1e16cbcb8650365ee6d923516a47c52.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-2dbb2586d1e16cbcb8650365ee6d923516a47c52.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-2dbb2586d1e16cbcb8650365ee6d923516a47c52.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-2dbb2586d1e16cbcb8650365ee6d923516a47c52.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-2dbb2586d1e16cbcb8650365ee6d923516a47c52.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-2dbb2586d1e16cbcb8650365ee6d923516a47c52.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-2dbb2586d1e16cbcb8650365ee6d923516a47c52.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-2dbb2586d1e16cbcb8650365ee6d923516a47c52.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       🚧 ✅ Networking socket: fuzz [8]
-       🚧 ✅ Networking sctp-auth: sockopts test [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       🚧 ✅ Networking socket: fuzz [8]
-       🚧 ✅ Networking sctp-auth: sockopts test [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       🚧 ✅ Networking socket: fuzz [8]
-       🚧 ✅ Networking sctp-auth: sockopts test [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       🚧 ✅ Networking socket: fuzz [8]
-       🚧 ✅ Networking sctp-auth: sockopts test [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+---
+For more info write to <info@kernelci.org>
