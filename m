@@ -2,76 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 664CC4B297
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 09:05:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC604B2FF
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 09:24:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730418AbfFSHFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 03:05:46 -0400
-Received: from mx2.suse.de ([195.135.220.15]:33722 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726251AbfFSHFq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Jun 2019 03:05:46 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id CA423AB7D;
-        Wed, 19 Jun 2019 07:05:44 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 6BC8B1E4329; Wed, 19 Jun 2019 09:05:43 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     Jim Gill <jgill@vmware.com>
-Cc:     VMware PV-Drivers <pv-drivers@vmware.com>,
-        linux-scsi@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: [PATCH] scsi: vmw_pscsi: Fix use-after-free in pvscsi_queue_lck()
-Date:   Wed, 19 Jun 2019 09:05:41 +0200
-Message-Id: <20190619070541.30070-1-jack@suse.cz>
-X-Mailer: git-send-email 2.16.4
+        id S1730996AbfFSHYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 03:24:41 -0400
+Received: from mga03.intel.com ([134.134.136.65]:52552 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725854AbfFSHYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Jun 2019 03:24:41 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Jun 2019 00:24:40 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,392,1557212400"; 
+   d="scan'208";a="150528022"
+Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.164]) ([10.237.72.164])
+  by orsmga007.jf.intel.com with ESMTP; 19 Jun 2019 00:24:39 -0700
+Subject: Re: [PATCH] usb: xhci: dbc: get rid of global pointer
+To:     Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Johan Hovold <johan@kernel.org>
+Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org
+References: <20190611172416.12473-1-felipe.balbi@linux.intel.com>
+ <20190614145236.GB3849@localhost> <877e9kiuew.fsf@linux.intel.com>
+ <20190618143120.GI31871@localhost> <877e9if5iz.fsf@linux.intel.com>
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+Message-ID: <cbd4a9d6-fab9-2af0-54ce-b574a3491abf@linux.intel.com>
+Date:   Wed, 19 Jun 2019 10:27:30 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.4.0
+MIME-Version: 1.0
+In-Reply-To: <877e9if5iz.fsf@linux.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Once we unlock adapter->hw_lock in pvscsi_queue_lck() nothing prevents just
-queued scsi_cmnd from completing and freeing the request. Thus cmd->cmnd[0]
-dereference can dereference already freed request leading to kernel crashes or
-other issues (which one of our customers observed). Store cmd->cmnd[0] in a
-local variable before unlocking adapter->hw_lock to fix the issue.
+On 19.6.2019 9.33, Felipe Balbi wrote:
+> 
+> 
+> @Mathias, can you drop the previous fix? I'll try to come up with a
+> better version of this.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- drivers/scsi/vmw_pvscsi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Dropped
 
-diff --git a/drivers/scsi/vmw_pvscsi.c b/drivers/scsi/vmw_pvscsi.c
-index ecee4b3ff073..377b07b2feeb 100644
---- a/drivers/scsi/vmw_pvscsi.c
-+++ b/drivers/scsi/vmw_pvscsi.c
-@@ -763,6 +763,7 @@ static int pvscsi_queue_lck(struct scsi_cmnd *cmd, void (*done)(struct scsi_cmnd
- 	struct pvscsi_adapter *adapter = shost_priv(host);
- 	struct pvscsi_ctx *ctx;
- 	unsigned long flags;
-+	unsigned char op;
- 
- 	spin_lock_irqsave(&adapter->hw_lock, flags);
- 
-@@ -775,13 +776,14 @@ static int pvscsi_queue_lck(struct scsi_cmnd *cmd, void (*done)(struct scsi_cmnd
- 	}
- 
- 	cmd->scsi_done = done;
-+	op = cmd->cmnd[0];
- 
- 	dev_dbg(&cmd->device->sdev_gendev,
--		"queued cmd %p, ctx %p, op=%x\n", cmd, ctx, cmd->cmnd[0]);
-+		"queued cmd %p, ctx %p, op=%x\n", cmd, ctx, op);
- 
- 	spin_unlock_irqrestore(&adapter->hw_lock, flags);
- 
--	pvscsi_kick_io(adapter, cmd->cmnd[0]);
-+	pvscsi_kick_io(adapter, op);
- 
- 	return 0;
- }
--- 
-2.16.4
+-Mathias
 
