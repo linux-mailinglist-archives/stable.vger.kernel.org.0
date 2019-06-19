@@ -2,94 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 328714B03F
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 04:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EDCC4B0E7
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 06:40:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726330AbfFSCvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jun 2019 22:51:48 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:44370 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726181AbfFSCvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jun 2019 22:51:48 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5J2nJkC075342;
-        Wed, 19 Jun 2019 02:51:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : references : date : in-reply-to : message-id : mime-version :
- content-type; s=corp-2018-07-02;
- bh=L4phCbahTYJumOSspv1r7NxClQaWWMs5xDPyNWp/G6w=;
- b=MPOSUmu1KK3+g0SG5BW3UbjLkcgMh+DJAjWdLQr4S+X8tqs7Z4MHZ/pF3QKiaYkFzt0z
- QCV5PonpxjKUVzq/hfDJH88s2MMcqtJZJtwTGfjWW/uXVH5D70p57XcJ+ApxAo/qEDkw
- 1I5A7MuLqhqH005HclYlygoSEC0h6iNVp6SHvs/2MIErnfUuKL3+3C4r0qSYdzTcmSp2
- 9DUjDnGL/jzTj0DZfnFfjTjfWJidQdYVXzYR3jvBDVlk+WOms4Co3g9hV+jGqBV+iaOR
- ulTgFCUQ2doDwuASSgwH1oIoIVkxT58Ywm943sdfN3ytBNGN2nusbY848Rd9ZUo3rBEe /g== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2120.oracle.com with ESMTP id 2t78098qh8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 Jun 2019 02:51:19 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5J2p9nh163405;
-        Wed, 19 Jun 2019 02:51:18 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3020.oracle.com with ESMTP id 2t77ymtuuk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 Jun 2019 02:51:18 +0000
-Received: from abhmp0022.oracle.com (abhmp0022.oracle.com [141.146.116.28])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x5J2pFbs004087;
-        Wed, 19 Jun 2019 02:51:15 GMT
-Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 18 Jun 2019 19:51:14 -0700
-To:     Stanley Chu <stanley.chu@mediatek.com>
-Cc:     <linux-scsi@vger.kernel.org>, <martin.petersen@oracle.com>,
-        <avri.altman@wdc.com>, <alim.akhtar@samsung.com>,
-        <pedrom.sousa@synopsys.com>, <linux-mediatek@lists.infradead.org>,
-        <linux-arm-kernel@lists.infradead.org>, <matthias.bgg@gmail.com>,
-        <evgreen@chromium.org>, <beanhuo@micron.com>,
-        <marc.w.gonzalez@free.fr>, <ygardi@codeaurora.org>,
-        <subhashj@codeaurora.org>, <sthumma@codeaurora.org>,
-        <kuohong.wang@mediatek.com>, <peter.wang@mediatek.com>,
-        <chun-hung.wu@mediatek.com>, <andy.teng@mediatek.com>,
-        <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] scsi: ufs: Avoid runtime suspend possibly being blocked forever
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-References: <1560352745-24681-1-git-send-email-stanley.chu@mediatek.com>
-Date:   Tue, 18 Jun 2019 22:51:10 -0400
-In-Reply-To: <1560352745-24681-1-git-send-email-stanley.chu@mediatek.com>
-        (Stanley Chu's message of "Wed, 12 Jun 2019 23:19:05 +0800")
-Message-ID: <yq18stywan5.fsf@oracle.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
+        id S1725866AbfFSEk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 00:40:26 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:35124 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725800AbfFSEkZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 00:40:25 -0400
+Received: by mail-lj1-f194.google.com with SMTP id x25so1853970ljh.2
+        for <stable@vger.kernel.org>; Tue, 18 Jun 2019 21:40:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=jzsAnOW0fiQKd91apGMhizgDc21BUMXc9JiZfugsWIs=;
+        b=c59f8lIUe36phMpw9ATYq8C9p86NK7iNRNUtf7m7HybHY8uzb7pZGJMNCEFz5qGF4c
+         25wvKBlryiyndOfi04/8SArC5wwAxbFNiK3axmQdEyVYy9xOCuhAkbYKFiglETfNZNJ6
+         wPAAzH7ZH3LDckayhcEfjhRmlSJUD33EHZm3WWNLHRsORSAxAkyxS8AeOtDRg8CsYp0d
+         Qwy0pqV8MQk8OMTPJj0qUDOvpZ5T8wHXjsZPRAHkdoAkl1zR6plDaehAXSrvh9CtlUlk
+         pM5lr62r1gXqk4QgTK/hAHh6J0ETGjU21ggNbdakog+N1Wgy6FrHt6rAVLZz7sFhdbqi
+         sUYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=jzsAnOW0fiQKd91apGMhizgDc21BUMXc9JiZfugsWIs=;
+        b=Fvw8l5NwEsT5CpeOkPymhLcGcEtqHt8G/ZhedXcItIxH3M98fHrLJJuz10JpHXcaLn
+         fDwaZqvQcRBWr3WPAGWKqUC/2lb0Fbs/5vGCvV64D5GJiV6zsDtXS/M/oz+3IgCNAoQ/
+         ybFlQGsfRBxixwP+YlNo+zyhlqDw4mQO380tWlhUYAjhNe2lsrZkiNIUP6mC5DlNLY2Y
+         MEzlQkLDvCie0IfI4lcODS66R06BWFP0Zxiu/YRu0wbBhxWjGiLv8tvxahVKXEXTTT9b
+         RvQMTILUIYzKKYwKXaM/pY8e56YyY6na+gqOK4kd4JlEK7506itPbWZxyLpIpRX940wD
+         N5jg==
+X-Gm-Message-State: APjAAAVApdJOjfAMEIPwkI/9qXhzQZiXue5haMrFF1zlLjtmHo/Dm0fQ
+        9b0EEQfrgMD8AKeN8xJw0Moje67jmnJOY6E1I1YwWQ==
+X-Google-Smtp-Source: APXvYqwOza7DC7cFHNRbAMh2d9YefDyLYP7euYEy2neD9yOj3NA6R+Z8Zj5AM81hpKPlb8QGZ68F4vdZ68MiYe933n4=
+X-Received: by 2002:a2e:8559:: with SMTP id u25mr18237899ljj.224.1560919223720;
+ Tue, 18 Jun 2019 21:40:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9292 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=974
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1810050000 definitions=main-1906190020
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9292 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
- definitions=main-1906190021
+References: <20190617210759.929316339@linuxfoundation.org> <CA+G9fYsUmFrTDHJfS=1vYVfv4BVRZ0AByEOHV6toidAxWuDqDg@mail.gmail.com>
+ <20190618133502.GA5416@kroah.com>
+In-Reply-To: <20190618133502.GA5416@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 19 Jun 2019 10:10:12 +0530
+Message-ID: <CA+G9fYsDG94ZjpchTqD80vioNBUdoUXH_k-tBM0L8YumefYO-w@mail.gmail.com>
+Subject: Re: [PATCH 5.1 000/115] 5.1.12-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 18 Jun 2019 at 19:05, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, Jun 18, 2019 at 06:04:25PM +0530, Naresh Kamboju wrote:
+> > On Tue, 18 Jun 2019 at 02:50, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > This is the start of the stable review cycle for the 5.1.12 release.
+> > > There are 115 patches in this series, all will be posted as a respons=
+e
+> > > to this one.  If anyone has any issues with these being applied, plea=
+se
+> > > let me know.
+> > >
+> > > Responses should be made by Wed 19 Jun 2019 09:06:21 PM UTC.
+> > > Anything received after that time might be too late.
+> > >
+> > > The whole patch series can be found in one patch at:
+> > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/pa=
+tch-5.1.12-rc1.gz
+> > > or in the git tree and branch at:
+> > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git linux-5.1.y
+> > > and the diffstat can be found below.
+> > >
+> > > thanks,
+> > >
+> > > greg k-h
+> >
+> > Results from Linaro=E2=80=99s test farm.
+> > No regressions on arm64, arm, x86_64, and i386.
+> >
+> > NOTE:
+> > kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
+> > Kernel warning is been fixed by below patch.
+> >
+> > > John Fastabend <john.fastabend@gmail.com>
+> > >     bpf: sockmap, only stop/flush strp if it was enabled at some poin=
+t
+>
+> What is the git commit id for this patch?
 
-Stanley,
+     Upstream commit 014894360ec95abe868e94416b3dd6569f6e2c0c
 
-> UFS runtime suspend can be triggered after pm_runtime_enable()
-> is invoked in ufshcd_pltfrm_init(). However if the first runtime
-> suspend is triggered before binding ufs_hba structure to ufs
-> device structure via platform_set_drvdata(), then UFS runtime
-> suspend will be no longer triggered in the future because its
-> dev->power.runtime_error was set in the first triggering and does
-> not have any chance to be cleared.
-
-Applied to 5.2/scsi-fixes. Thanks!
-
--- 
-Martin K. Petersen	Oracle Linux Engineering
+- Naresh
