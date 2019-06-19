@@ -2,133 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 479F34B9D1
-	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 15:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30B004B9F5
+	for <lists+stable@lfdr.de>; Wed, 19 Jun 2019 15:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730126AbfFSNZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 09:25:29 -0400
-Received: from mout.kundenserver.de ([212.227.126.131]:33203 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726060AbfFSNZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 09:25:29 -0400
-Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
- (mreue011 [212.227.15.129]) with ESMTPA (Nemesis) id
- 1Mbies-1iBHAs3HME-00dBxG; Wed, 19 Jun 2019 15:24:48 +0200
-From:   Arnd Bergmann <arnd@arndb.de>
-To:     Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Max Kellermann <max.kellermann@gmail.com>,
-        Wolfgang Rohdewald <wolfgang@rohdewald.de>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Richard Fontana <rfontana@redhat.com>,
-        Sean Young <sean@mess.org>, linux-media@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] [RESEND^2] media: don't drop front-end reference count for ->detach
-Date:   Wed, 19 Jun 2019 15:24:17 +0200
-Message-Id: <20190619132447.2224228-1-arnd@arndb.de>
-X-Mailer: git-send-email 2.20.0
+        id S1726149AbfFSNa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 09:30:56 -0400
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:9995 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726089AbfFSNa4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 09:30:56 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d0a390e0000>; Wed, 19 Jun 2019 06:30:55 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 19 Jun 2019 06:30:55 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 19 Jun 2019 06:30:55 -0700
+Received: from [10.21.132.148] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 19 Jun
+ 2019 13:30:52 +0000
+Subject: Re: [PATCH 4.14 00/53] 4.14.128-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20190617210745.104187490@linuxfoundation.org>
+ <c4c6c3f5-2117-2db2-58a8-1a84143dc034@nvidia.com>
+ <20190619104600.GC3150@kroah.com>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <af010d53-ae9e-6550-326c-8ad9e705d8fa@nvidia.com>
+Date:   Wed, 19 Jun 2019 14:30:51 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:CeUekxDC6JO6ENQ4SJIuNU0QYix/S5DqkpwK/WxHovTZuGEQkmL
- qV32Chr0BRTxPamU1i+xY+s3Kup/Cbj53EURKJ+dS/EhNeOLMxUbzxd/EtxMh1XxZivSbtc
- o2FXbLY8t9WYX2YnZhzNNLjMsfTBJEy1fEJzFRgsnJ2ewnHsQyeZWHtyOnyihK0UZ1nW5Nn
- jL832bEXJwOBD/A+SeeZg==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:g5EO8Qvn5Ng=:f8/swMhK+LfLyGQS2Iu+wP
- BcGqJvK/cwJpevUDOHIoSCc4cVtItCIRhiN+TRxbkrOZLPLPf9nwwFNNXpQmi2RSm4ys18GFh
- 18Jb7vw4KK6HYRFGOpZkr//pdNmUj17c0iAH60nmEl7PDw0N+LN1GDgHaQpRr8W/MMZxIlNkp
- tLGa/CbmrlD8pERSQXvCfqlO0LUOHKNEFHDN5e+C2828lwT9k49HVVFd1REY8XsadAA7BgbMs
- V7weDlxPxsoXmbAJWqo3U5rMtLYB+9YdIlVd50jRr204rpOJMYYiCd2H8sriV2/4zrFZWhQOz
- wIvlxQMmsP4bOMCRqUfg6sEFpLxjh/zcjqhePraRLpPHalZs9OGIP2JDcvqmIpf767orgaj7J
- 96TjtjrEF8eYzZBYb+tIRfMRmpwN/pA1ikCQ60lSan8wI02K4bbEwsS2o6WtobHJZjhl3eb7n
- Mt49J3blfhwoR/IBvJ1KwLJDrWuoL83HvBfMxlf1rQkIgQlJE/SVDQQn9jDlvV6GBiNMH7kOY
- qqrO1U0uws8/t34l6bYaftI2ifTcKNV2bS+6MuO6n82QNq8Gj0AArhqtQWEswgaNQNJD3jgEp
- U+e27d0+gFMlXKv9ZSg4U6UjhBIpJRnTRZaMtA5xlRYVyEWYQS3Hbksb72xwCMiqVRFO8ZDZn
- eRetHON58GNSmtOj7dAJKEpJfBs6VhTYNqibfnH+nGuNlHFTd1fTfcJNdXpApmtkJbzl8Nu5V
- vHYnv8GNL1ncfmWfAbgKrIPOnALKjdllV/MdEw==
+In-Reply-To: <20190619104600.GC3150@kroah.com>
+X-Originating-IP: [172.20.13.39]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1560951055; bh=rFp82irGjb0gaWL1wPP4SC4eXNA2T1JuN30K/GQBJso=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=UkCId7pBG7OObHFbd0HZAMffQxtgtJDSvXB/CbntoAm2e6Wl1txq3Z4Av3TKX9aZY
+         ouReBTULRkgvf/8ziuruvCJd7f0ihexSukjCP/LOKp3YvOOoGluRjxbx7ov25mS08+
+         AT9yUD3bzwODmPC1uEfl7Yjp7crd292tp5wGZaAmHnYXolepmAL6Re105af9mNUktF
+         5xJQbdOARUg97rduwiArOFEpDevRcEdkHpJje3UvrGreN3qoSN46fgOnal1O0yYbxQ
+         BCLsFe6NgbqllSs1YeZGsJNk6uUMJFz1Qyr4ouHztomyrKfaq3tiTqdAPqBhQ462CD
+         JMZ6RhCdZjWfA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A bugfix introduce a link failure in configurations without CONFIG_MODULES:
 
-In file included from drivers/media/usb/dvb-usb/pctv452e.c:20:0:
-drivers/media/usb/dvb-usb/pctv452e.c: In function 'pctv452e_frontend_attach':
-drivers/media/dvb-frontends/stb0899_drv.h:151:36: error: weak declaration of 'stb0899_attach' being applied to a already existing, static definition
+On 19/06/2019 11:46, Greg Kroah-Hartman wrote:
+> On Wed, Jun 19, 2019 at 09:49:00AM +0100, Jon Hunter wrote:
+>>
+>> On 17/06/2019 22:09, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 4.14.128 release.
+>>> There are 53 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Wed 19 Jun 2019 09:06:21 PM UTC.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.128-rc1.gz
+>>> or in the git tree and branch at:
+>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>
+>> I am still waiting on the test results for 4.14-128-rc1. The builds are
+>> all passing, but waiting for the tests to complete. We have been having
+>> some issues with our test farm this week and so the results are delayed,
+>> but should be available later today, I hope.
+> 
+> No worries, thanks for testing all of these and letting me know.
 
-The problem is that the !IS_REACHABLE() declaration of stb0899_attach()
-is a 'static inline' definition that clashes with the weak definition.
+All tests passing for Tegra ...
 
-I further observed that the bugfix was only done for one of the five users
-of stb0899_attach(), the other four still have the problem.  This reverts
-the bugfix and instead addresses the problem by not dropping the reference
-count when calling '->detach()', instead we call this function directly
-in dvb_frontend_put() before dropping the kref on the front-end.
+Test results for stable-v4.14:
+    8 builds:	8 pass, 0 fail
+    16 boots:	16 pass, 0 fail
+    24 tests:	24 pass, 0 fail
 
-I first submitted this in early 2018, and after some discussion it
-was apparently discarded.  While there is a long-term plan in place,
-that plan is obviously not nearing completion yet, and the current
-kernel is still broken unless this patch is applied.
+Linux version:	4.14.128-rc1-g16102d7ed840
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
-Cc: Max Kellermann <max.kellermann@gmail.com>
-Cc: Wolfgang Rohdewald <wolfgang@rohdewald.de>
-Cc: stable@vger.kernel.org
-Fixes: f686c14364ad ("[media] stb0899: move code to "detach" callback")
-Fixes: 6cdeaed3b142 ("media: dvb_usb_pctv452e: module refcount changes were unbalanced")
-Link: https://patchwork.kernel.org/patch/10140175/
-Link: https://patchwork.linuxtv.org/patch/54831/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
-resending again, after nobody commented on the resending in March.
----
- drivers/media/dvb-core/dvb_frontend.c | 4 +++-
- drivers/media/usb/dvb-usb/pctv452e.c  | 8 --------
- 2 files changed, 3 insertions(+), 9 deletions(-)
+Cheers
+Jon
 
-diff --git a/drivers/media/dvb-core/dvb_frontend.c b/drivers/media/dvb-core/dvb_frontend.c
-index cc31c2bf0483..202f0ba5819c 100644
---- a/drivers/media/dvb-core/dvb_frontend.c
-+++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -152,6 +152,9 @@ static void dvb_frontend_free(struct kref *ref)
- 
- static void dvb_frontend_put(struct dvb_frontend *fe)
- {
-+	/* call detach before dropping the reference count */
-+	if (fe->ops.detach)
-+		fe->ops.detach(fe);
- 	/*
- 	 * Check if the frontend was registered, as otherwise
- 	 * kref was not initialized yet.
-@@ -3040,7 +3043,6 @@ void dvb_frontend_detach(struct dvb_frontend *fe)
- 	dvb_frontend_invoke_release(fe, fe->ops.release_sec);
- 	dvb_frontend_invoke_release(fe, fe->ops.tuner_ops.release);
- 	dvb_frontend_invoke_release(fe, fe->ops.analog_ops.release);
--	dvb_frontend_invoke_release(fe, fe->ops.detach);
- 	dvb_frontend_put(fe);
- }
- EXPORT_SYMBOL(dvb_frontend_detach);
-diff --git a/drivers/media/usb/dvb-usb/pctv452e.c b/drivers/media/usb/dvb-usb/pctv452e.c
-index d6b36e4f33d2..441d878fc22c 100644
---- a/drivers/media/usb/dvb-usb/pctv452e.c
-+++ b/drivers/media/usb/dvb-usb/pctv452e.c
-@@ -909,14 +909,6 @@ static int pctv452e_frontend_attach(struct dvb_usb_adapter *a)
- 						&a->dev->i2c_adap);
- 	if (!a->fe_adap[0].fe)
- 		return -ENODEV;
--
--	/*
--	 * dvb_frontend will call dvb_detach for both stb0899_detach
--	 * and stb0899_release but we only do dvb_attach(stb0899_attach).
--	 * Increment the module refcount instead.
--	 */
--	symbol_get(stb0899_attach);
--
- 	if ((dvb_attach(lnbp22_attach, a->fe_adap[0].fe,
- 					&a->dev->i2c_adap)) == NULL)
- 		err("Cannot attach lnbp22\n");
 -- 
-2.20.0
-
+nvpublic
