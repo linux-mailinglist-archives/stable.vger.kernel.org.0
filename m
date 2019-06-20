@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B983B4D7D4
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D22684D846
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728898AbfFTSLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:11:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38950 "EHLO mail.kernel.org"
+        id S1728116AbfFTSHj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:07:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728309AbfFTSLN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:11:13 -0400
+        id S1727510AbfFTSHj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:07:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA6AE215EA;
-        Thu, 20 Jun 2019 18:11:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8ABA82084E;
+        Thu, 20 Jun 2019 18:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054272;
-        bh=bvDOhLS2kF6GV1MDOs5xagA3VZMecFnAsJu3rPT1kOE=;
+        s=default; t=1561054058;
+        bh=wqRuvHsdQIPV8/iiixZaPrIr9KS31Vvl5y2qzikkCTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nDoWzDDmbpdXVxxGHRMC+cvbi5nVk1GC3JqOW28p6aDaQ9rUw1N948QOt6xbyXCj
-         zp7YmtHyJraQpaZ7l1TVrjlGZoitf8UQqtZBCRc9MY8/UoPxsgFZRihKCUCF+OIGSJ
-         BMJNfG2Pgo6owrWekkMiUIHs1CQEfjPvgSQv84pc=
+        b=WBCWx8SKuMacBpasTzezGer5Vf3N8RTxOJFgRzMp2+4zTNNHDo9Krta6cCs2wtsBY
+         HYjpKuzm8bNOrv6gnp2CDKUHJm4I4my3H4PCfyDjM4zzTalT7zKecXPzp06FJ4qh8r
+         YYCS8Xw5s2wLN9XwE75I50wSlKf9DKujPM7uOATI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 32/61] net: tulip: de4x5: Drop redundant MODULE_DEVICE_TABLE()
+Subject: [PATCH 4.9 113/117] scsi: libcxgbi: add a check for NULL pointer in cxgbi_check_route()
 Date:   Thu, 20 Jun 2019 19:57:27 +0200
-Message-Id: <20190620174343.077596702@linuxfoundation.org>
+Message-Id: <20190620174358.274189329@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3e66b7cc50ef921121babc91487e1fb98af1ba6e ]
+[ Upstream commit cc555759117e8349088e0c5d19f2f2a500bafdbd ]
 
-Building with Clang reports the redundant use of MODULE_DEVICE_TABLE():
+ip_dev_find() can return NULL so add a check for NULL pointer.
 
-drivers/net/ethernet/dec/tulip/de4x5.c:2110:1: error: redefinition of '__mod_eisa__de4x5_eisa_ids_device_table'
-MODULE_DEVICE_TABLE(eisa, de4x5_eisa_ids);
-^
-./include/linux/module.h:229:21: note: expanded from macro 'MODULE_DEVICE_TABLE'
-extern typeof(name) __mod_##type##__##name##_device_table               \
-                    ^
-<scratch space>:90:1: note: expanded from here
-__mod_eisa__de4x5_eisa_ids_device_table
-^
-drivers/net/ethernet/dec/tulip/de4x5.c:2100:1: note: previous definition is here
-MODULE_DEVICE_TABLE(eisa, de4x5_eisa_ids);
-^
-./include/linux/module.h:229:21: note: expanded from macro 'MODULE_DEVICE_TABLE'
-extern typeof(name) __mod_##type##__##name##_device_table               \
-                    ^
-<scratch space>:85:1: note: expanded from here
-__mod_eisa__de4x5_eisa_ids_device_table
-^
-
-This drops the one further from the table definition to match the common
-use of MODULE_DEVICE_TABLE().
-
-Fixes: 07563c711fbc ("EISA bus MODALIAS attributes support")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Varun Prakash <varun@chelsio.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/dec/tulip/de4x5.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/scsi/cxgbi/libcxgbi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/dec/tulip/de4x5.c b/drivers/net/ethernet/dec/tulip/de4x5.c
-index 66535d1653f6..f16853c3c851 100644
---- a/drivers/net/ethernet/dec/tulip/de4x5.c
-+++ b/drivers/net/ethernet/dec/tulip/de4x5.c
-@@ -2107,7 +2107,6 @@ static struct eisa_driver de4x5_eisa_driver = {
- 		.remove  = de4x5_eisa_remove,
-         }
- };
--MODULE_DEVICE_TABLE(eisa, de4x5_eisa_ids);
- #endif
+diff --git a/drivers/scsi/cxgbi/libcxgbi.c b/drivers/scsi/cxgbi/libcxgbi.c
+index 2ffe029ff2b6..e974106f2bb5 100644
+--- a/drivers/scsi/cxgbi/libcxgbi.c
++++ b/drivers/scsi/cxgbi/libcxgbi.c
+@@ -637,6 +637,10 @@ static struct cxgbi_sock *cxgbi_check_route(struct sockaddr *dst_addr)
  
- #ifdef CONFIG_PCI
+ 	if (ndev->flags & IFF_LOOPBACK) {
+ 		ndev = ip_dev_find(&init_net, daddr->sin_addr.s_addr);
++		if (!ndev) {
++			err = -ENETUNREACH;
++			goto rel_neigh;
++		}
+ 		mtu = ndev->mtu;
+ 		pr_info("rt dev %s, loopback -> %s, mtu %u.\n",
+ 			n->dev->name, ndev->name, mtu);
 -- 
 2.20.1
 
