@@ -2,133 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 349964DDDF
-	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 01:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 244124DDE3
+	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 01:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725906AbfFTXsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 19:48:51 -0400
-Received: from mga17.intel.com ([192.55.52.151]:14825 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725905AbfFTXsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 19:48:50 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Jun 2019 16:48:50 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,398,1557212400"; 
-   d="scan'208";a="154284155"
-Received: from schen9-desk.jf.intel.com (HELO [10.54.74.162]) ([10.54.74.162])
-  by orsmga008.jf.intel.com with ESMTP; 20 Jun 2019 16:48:49 -0700
-Subject: Re: [PATCH v5] Documentation: Add section about CPU vulnerabilities
- for Spectre
-To:     Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ben Greear <greearb@candelatech.com>, stable@vger.kernel.org,
-        Andi Kleen <ak@linux.intel.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Jun Nakajima <jun.nakajima@intel.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Asit Mallick <asit.k.mallick@intel.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Jon Masters <jcm@redhat.com>,
-        Waiman Long <longman9394@gmail.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Mark Gross <mgross@linux.intel.com>,
-        LKML <linux-kernel@vger.kernel.org>, x86@kernel.org
-References: <20190619211730.16754-1-tim.c.chen@linux.intel.com>
- <877de2e4-9189-2937-1014-4bfaf90503a5@infradead.org>
-From:   Tim Chen <tim.c.chen@linux.intel.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=tim.c.chen@linux.intel.com; prefer-encrypt=mutual; keydata=
- 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
- l50q2K/r651xphs7CGEdKi1nU0YJVbQxJQ==
-Message-ID: <a3b21209-c9c9-04c5-d5c5-16aa20b27223@linux.intel.com>
-Date:   Thu, 20 Jun 2019 16:48:48 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1725921AbfFTXvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 19:51:06 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:36397 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725886AbfFTXvG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 19:51:06 -0400
+Received: by mail-wm1-f66.google.com with SMTP id u8so4766123wmm.1
+        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 16:51:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
+        bh=1rEMOSLkLXhmvZY5HuOSKmGg6oZ+XQwBc/8alhmFjh0=;
+        b=dehBH4TbaSbSAM3l/AEQFz+Nj1rLe9ojlXVsMo5GAj2QvYCJ4xwuzMTdAAw/pt9e8u
+         MIuW2kCJdgb2N8R90uW9yolFdk9x48y985y9KoqXh3wrNJf4r08ZwVKCU72uyHaWkHp0
+         SpzgWcqUC04UzOg8MfxXvoDvFtQ0HG6Q4axiSzgLTIjy4BrvF6VtphvkvVfFZkEMjYT/
+         fiCvcLDGHR415AmoRF8Ihl73cQSjruEijemaYruGhZ7phsoXs0GHtRje+wf1cWr8jFfR
+         GiKMCcWL+NfGjNbHKVKz/Lpvxnt5APE7BrbgQVsIRUxu1JqWpL9KPN72dJTq6wx7yBBR
+         CnjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
+        bh=1rEMOSLkLXhmvZY5HuOSKmGg6oZ+XQwBc/8alhmFjh0=;
+        b=Xdd0jrUkXbM4aUl8yyJKxo2yF8IoJEYfuXenqAGOS+cwAoxq6mJVGRBFamvD4foOfE
+         vwkHHxDwjz9x9tp9OmiEaV62ApE7URbv2G/pM2+3YRfF2mBxEmhRX5olK4/r6TZk2U/0
+         LRd8OJJ0/fCPerKsSrsyv0vFPN7o2kYVI121fLqTQN5kdYMa15huDv6C2EMql+xwxsEP
+         wVhgQ9+Bfn8Na+Y+b97hsnJrzj6yi7K9FpC/unvW6v29whhV8/++uE07JEZeo6/5NW/p
+         vqlQE9hs7Xvccwgav+3bWb+Cnf9fbJcmlNmzEeTmFiqbjFZhGieoiyzzwXm5v+xOzdON
+         fpPA==
+X-Gm-Message-State: APjAAAUNHN6l75vHhi691t3p3n8J5uRRpngkHnjxyS2FSpZQx0s+ePev
+        2bs7++jBf1ZFr8EFrOWVEZ+sUw==
+X-Google-Smtp-Source: APXvYqzFmvVgAN18qhuyNeerBYANF025YE/t7cDogEO1quoMGEgsjXUVnUBSC1dpR3k7aoI4BkKlpA==
+X-Received: by 2002:a1c:208c:: with SMTP id g134mr1283805wmg.112.1561074663868;
+        Thu, 20 Jun 2019 16:51:03 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y44sm920377wrd.13.2019.06.20.16.51.03
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 20 Jun 2019 16:51:03 -0700 (PDT)
+Message-ID: <5d0c1be7.1c69fb81.2f196.5979@mx.google.com>
+Date:   Thu, 20 Jun 2019 16:51:03 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <877de2e4-9189-2937-1014-4bfaf90503a5@infradead.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.1.12-99-g10bbe23e94c5
+X-Kernelci-Branch: linux-5.1.y
+X-Kernelci-Tree: stable-rc
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
+Subject: Re: [PATCH 5.1 00/98] 5.1.13-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/20/19 12:50 PM, Randy Dunlap wrote:
-> On 6/19/19 2:17 PM, Tim Chen wrote:
->> Add documentation for Spectre vulnerability and the mitigation mechanisms:
->>
->> - Explain the problem and risks
->> - Document the mitigation mechanisms
->> - Document the command line controls
->> - Document the sysfs files
->>
->> Co-developed-by: Andi Kleen <ak@linux.intel.com>
->> Signed-off-by: Andi Kleen <ak@linux.intel.com>
->> Co-developed-by: Tim Chen <tim.c.chen@linux.intel.com>
->> Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
->> Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
->> Cc: stable@vger.kernel.org
-> 
-> Hi,
-> Please see the typo comments below.
-> 
+stable-rc/linux-5.1.y boot: 130 boots: 1 failed, 127 passed with 2 offline =
+(v5.1.12-99-g10bbe23e94c5)
 
-Thanks for the review.  Will post an updated version with
-the typos corrected.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.1.y/kernel/v5.1.12-99-g10bbe23e94c5/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
+/kernel/v5.1.12-99-g10bbe23e94c5/
 
-Tim
+Tree: stable-rc
+Branch: linux-5.1.y
+Git Describe: v5.1.12-99-g10bbe23e94c5
+Git Commit: 10bbe23e94c5975292d0a3ff74893d1625c1e07c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 76 unique boards, 25 SoC families, 16 builds out of 209
 
+Boot Failure Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            bcm4708-smartrg-sr400ac: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    tegra_defconfig:
+        gcc-8
+            tegra30-beaver: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            tegra30-beaver: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
