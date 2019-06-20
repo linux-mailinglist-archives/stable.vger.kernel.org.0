@@ -2,82 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FE3D4DDD9
-	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 01:45:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7EFC4DDDD
+	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 01:48:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725906AbfFTXpp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 19:45:45 -0400
-Received: from mail-wm1-f54.google.com ([209.85.128.54]:37981 "EHLO
-        mail-wm1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725886AbfFTXpo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 19:45:44 -0400
-Received: by mail-wm1-f54.google.com with SMTP id s15so4742924wmj.3
-        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 16:45:43 -0700 (PDT)
+        id S1726054AbfFTXsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 19:48:43 -0400
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:39642 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725905AbfFTXsm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 19:48:42 -0400
+Received: by mail-oi1-f196.google.com with SMTP id m202so3429413oig.6;
+        Thu, 20 Jun 2019 16:48:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=S7uZln84bCxKpVx963+oHUwr718plp1Ch28m6QS5bdM=;
-        b=fb7nsJb6d4FvC7qdzYaRAP+/3sQe6TGONK2EsW4i9K/L2vwsG4sxUDgUxJtwgrJl3Z
-         8EgJLSXJCruktT+p3+QL8FBnot/lw23LNARypilagObqNGgrsztiPX75s3ypFxlYZMs3
-         HVaWPEFyVCs//7oRvd6K+JBOx2GvfHBjKaUj5MfeEL5sMK7spqCZ37HzGODME4yc3s+K
-         je0pcMlMN/xGF9UsQSn7U85tWVkcITRagOpLTZkekzq+ruUoOLnC1elot9IHuqp+0Qdg
-         wc+JFh3sXHn1pSe2JystxltW3e+976vO1IMaxmefjar4ikjObG4RUaM3Dnf96f68DQUB
-         ueiQ==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=wostT3Xc6vu2lS2+SWXXzSbhD9zC9Wywuo64OXkYOLc=;
+        b=EKGHlg8cAUQZeAi2Jf8Mo/MRrT8m9sebpd2zUUJvscKapxzf0ln60tD9Oe2vOLKaFR
+         5s0sH2KCVJrBrjMm9wM1ZwcUmaKu5KO0hf0aj3OtKn4Z0CA12M2VW2mcMSMDUWqImqNe
+         /qFgKa+SRNJf23eHC+PhL1brSHN73Ey+PC+XWT4p6SEixqvOcsUvGSJOGTN4M55FHEkT
+         ezV1VueV2k2KhcnFuyYotNLS4J9JdHSAmaZzREQdO8kg6yli9ussLw6iaLWw5vXq/Z+0
+         nGqT/pbDRvtau65QhCAp3vb4HhN8MbCetUZrpkuqNMLnrBXXnmZ4SMEHp2i0HfP1e3FY
+         bCIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=S7uZln84bCxKpVx963+oHUwr718plp1Ch28m6QS5bdM=;
-        b=FY2i4xyEsR4ZDnUSLf5Gkl0dCZSQ5foj67i9Wk3PiCGGR/VFS6vVu13OxwXK6bOanT
-         MJN4V7aIB4TIS8nrR4yQpi1/2FO5kanL5gj9IvLWsbh3OoTyq2aS88wxjA43RyHFkCTo
-         sSsdPU+p1KcXgEKcfgsL1jz0hlID1v37IQivlryina+pkKttuQDn382DIbQLl9WxiLF1
-         4DkafVOpSLsQANcTsgiRAMMqPREmSE3Qf7t02LgHP30s3UgSsVZBLWxbQXB5ccikW9Rq
-         kVE7zDVAG9DJCw2ifL2z0o0PB8e8YphpTNp2mM4FUK5oh3ofTnKSVBn6GH+JHujXftVR
-         Ejqg==
-X-Gm-Message-State: APjAAAVQdIKg/W4TcX9llyN+aDTW8e9nUC6wAMmZTn+ODfiAYVJIDcPf
-        /UjjAFlg/F+sZW3jNi5S3fUTMuW6/Opisg==
-X-Google-Smtp-Source: APXvYqxbE3V7OqvYlFQ0NjZEzjuAinT50nUSxqsTwbw0+DnX4X5WOI1H/s6BQYyD90Xgre04PBnv5A==
-X-Received: by 2002:a1c:4054:: with SMTP id n81mr1281924wma.78.1561074342576;
-        Thu, 20 Jun 2019 16:45:42 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id 67sm886790wmd.38.2019.06.20.16.45.41
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 20 Jun 2019 16:45:42 -0700 (PDT)
-Message-ID: <5d0c1aa6.1c69fb81.68052.54d4@mx.google.com>
-Date:   Thu, 20 Jun 2019 16:45:42 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=wostT3Xc6vu2lS2+SWXXzSbhD9zC9Wywuo64OXkYOLc=;
+        b=F2JPrNJiSz8h2RIag6oQQ0Ayta51fqnPqXbff5Q8J8OkKCLxR3iOsnGasZHyQYAinS
+         TtLaWMjGVc6Lgd/ihBY4J5gYO0GPZ3rc21fu6SoPzCVN3aXrars0lm48nDblc8Agp43N
+         QCEgscE4E+WnNWoLybu/6gP90S3aWs4RBZC8aC6wgIH1Y1KVBM5HvrZF8JTTs4Dh9+om
+         JjGOpgr8id+zZu398FejWn7MtQQPFMKE2EmOB2vB2fhhVwDTxJTYB30klpS8bDVn9SFq
+         QKzry4gBumf9WnZEGoabAIoBl9wekQn7RUzn21GkV9hAjGtu7M5olKMlogtuM8iLGP8s
+         i1SQ==
+X-Gm-Message-State: APjAAAU5sZsaMXTJs1Qh4cw8UZ7cJpg6stF6GKe0ThZ7msvIXJYhO4op
+        vTY/ApjhhdaU646Sm1X83hvlcomC
+X-Google-Smtp-Source: APXvYqwYgelUf7yAM/9GZho8zMHQoY6q5D+SzprHr/4MPNs0POG9dov6uqoqecIRJ5yILipuIWWtqQ==
+X-Received: by 2002:aca:4806:: with SMTP id v6mr1000111oia.133.1561074521871;
+        Thu, 20 Jun 2019 16:48:41 -0700 (PDT)
+Received: from rYz3n ([2600:1700:210:3790::48])
+        by smtp.gmail.com with ESMTPSA id v198sm486452oif.0.2019.06.20.16.48.41
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Thu, 20 Jun 2019 16:48:41 -0700 (PDT)
+Date:   Thu, 20 Jun 2019 18:48:40 -0500
+From:   Jiunn Chang <c0d1n61at3@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.1 00/98] 5.1.13-stable review
+Message-ID: <20190620234839.4f4aiczjjssfn2fg@rYz3n>
+References: <20190620174349.443386789@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.128-46-g7741fd984e5d
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y boot: 63 boots: 0 failed,
- 63 passed (v4.14.128-46-g7741fd984e5d)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 63 boots: 0 failed, 63 passed (v4.14.128-46-g7=
-741fd984e5d)
+On Thu, Jun 20, 2019 at 07:56:27PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.1.13 release.
+> There are 98 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat 22 Jun 2019 05:42:15 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.13-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> -------------
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.128-46-g7741fd984e5d/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.128-46-g7741fd984e5d/
+Compiled and booted.  No regressions on x86_64.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.128-46-g7741fd984e5d
-Git Commit: 7741fd984e5da7edc8b42719cac2db8d8f56b9a3
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 33 unique boards, 16 SoC families, 11 builds out of 201
+THX
 
----
-For more info write to <info@kernelci.org>
+Jiunn
