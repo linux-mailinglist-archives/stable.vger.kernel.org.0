@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 713844D7E5
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A5F4D729
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:17:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729059AbfFTSMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:12:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40488 "EHLO mail.kernel.org"
+        id S1728947AbfFTSQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:16:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728743AbfFTSMh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:12:37 -0400
+        id S1726426AbfFTSQw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:16:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3B212089C;
-        Thu, 20 Jun 2019 18:12:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38389205F4;
+        Thu, 20 Jun 2019 18:16:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054356;
-        bh=Goa0ah6FbkFoqUl94JpmHMgSVOBKRZRD7HrHL8U8tn8=;
+        s=default; t=1561054611;
+        bh=32PFTKSoe3NbnKVPAYwFxRueF/nroXZyR+6C592GsJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qIKNeXt8E+k5hQEb2h2e7nvWiUN49yANjQkG4z9uBNXn4gAS7ZUZfNWBGdLNOyZXI
-         V/IUIOKe89fW5vvD1U+8num6TPeAFGKf1wtEB1ZhJkMzliFHbabyXdbLEDYngVMBGT
-         KuZ8+AprbA/vmjjfUIxINJwHlAbs92D8hdvbQuTk=
+        b=aRX8NMzGqLCjiG40X5pyGtMeRbKYR/kKy6w9hVYuw02iwqCyzCYHk7o9ybxN0Go/j
+         +tr268Z/tZEq5rG1uSXnB1YIAuP86W2ycSv+RZDeJlAYj8ELMxhZLRfmo1o/UpRtlz
+         3QPWObwC8ra/MPrIzTBIPoMTuMm5S5ROdvm1h2ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Alexander Lochmann <alexander.lochmann@tu-dortmund.de>,
-        Horst Schirmeier <horst.schirmeier@tu-dortmund.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Zubin Mithra <zsm@chromium.org>
-Subject: [PATCH 4.19 61/61] Abort file_remove_privs() for non-reg. files
+        stable@vger.kernel.org, Lianbo Jiang <lijiang@redhat.com>,
+        Don Brace <don.brace@microsemi.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 89/98] scsi: smartpqi: properly set both the DMA mask and the coherent DMA mask
 Date:   Thu, 20 Jun 2019 19:57:56 +0200
-Message-Id: <20190620174347.698276201@linuxfoundation.org>
+Message-Id: <20190620174353.834978324@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lochmann <alexander.lochmann@tu-dortmund.de>
+[ Upstream commit 1d94f06e7f5df4064ef336b7b710f50143b64a53 ]
 
-commit f69e749a49353d96af1a293f56b5b56de59c668a upstream.
+When SME is enabled, the smartpqi driver won't work on the HP DL385 G10
+machine, which causes the failure of kernel boot because it fails to
+allocate pqi error buffer. Please refer to the kernel log:
+....
+[    9.431749] usbcore: registered new interface driver uas
+[    9.441524] Microsemi PQI Driver (v1.1.4-130)
+[    9.442956] i40e 0000:04:00.0: fw 6.70.48768 api 1.7 nvm 10.2.5
+[    9.447237] smartpqi 0000:23:00.0: Microsemi Smart Family Controller found
+         Starting dracut initqueue hook...
+[  OK  ] Started Show Plymouth Boot Scre[    9.471654] Broadcom NetXtreme-C/E driver bnxt_en v1.9.1
+en.
+[  OK  ] Started Forward Password Requests to Plymouth Directory Watch.
+[[0;[    9.487108] smartpqi 0000:23:00.0: failed to allocate PQI error buffer
+....
+[  139.050544] dracut-initqueue[949]: Warning: dracut-initqueue timeout - starting timeout scripts
+[  139.589779] dracut-initqueue[949]: Warning: dracut-initqueue timeout - starting timeout scripts
 
-file_remove_privs() might be called for non-regular files, e.g.
-blkdev inode. There is no reason to do its job on things
-like blkdev inodes, pipes, or cdevs. Hence, abort if
-file does not refer to a regular inode.
+Basically, the fact that the coherent DMA mask value wasn't set caused the
+driver to fall back to SWIOTLB when SME is active.
 
-AV: more to the point, for devices there might be any number of
-inodes refering to given device.  Which one to strip the permissions
-from, even if that made any sense in the first place?  All of them
-will be observed with contents modified, after all.
+For correct operation, lets call the dma_set_mask_and_coherent() to
+properly set the mask for both streaming and coherent, in order to inform
+the kernel about the devices DMA addressing capabilities.
 
-Found by LockDoc (Alexander Lochmann, Horst Schirmeier and Olaf
-Spinczyk)
-
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Alexander Lochmann <alexander.lochmann@tu-dortmund.de>
-Signed-off-by: Horst Schirmeier <horst.schirmeier@tu-dortmund.de>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Zubin Mithra <zsm@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
+Acked-by: Don Brace <don.brace@microsemi.com>
+Tested-by: Don Brace <don.brace@microsemi.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/inode.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/scsi/smartpqi/smartpqi_init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -1817,8 +1817,13 @@ int file_remove_privs(struct file *file)
- 	int kill;
- 	int error = 0;
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index 75ec43aa8df3..531824afba5f 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -7285,7 +7285,7 @@ static int pqi_pci_init(struct pqi_ctrl_info *ctrl_info)
+ 	else
+ 		mask = DMA_BIT_MASK(32);
  
--	/* Fast path for nothing security related */
--	if (IS_NOSEC(inode))
-+	/*
-+	 * Fast path for nothing security related.
-+	 * As well for non-regular files, e.g. blkdev inodes.
-+	 * For example, blkdev_write_iter() might get here
-+	 * trying to remove privs which it is not allowed to.
-+	 */
-+	if (IS_NOSEC(inode) || !S_ISREG(inode->i_mode))
- 		return 0;
- 
- 	kill = dentry_needs_remove_privs(dentry);
+-	rc = dma_set_mask(&ctrl_info->pci_dev->dev, mask);
++	rc = dma_set_mask_and_coherent(&ctrl_info->pci_dev->dev, mask);
+ 	if (rc) {
+ 		dev_err(&ctrl_info->pci_dev->dev, "failed to set DMA mask\n");
+ 		goto disable_device;
+-- 
+2.20.1
+
 
 
