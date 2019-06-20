@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F73D4D72B
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:17:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C51C4D72C
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:17:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727408AbfFTSQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:16:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46146 "EHLO mail.kernel.org"
+        id S1729515AbfFTSQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:16:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726426AbfFTSQz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:16:55 -0400
+        id S1726759AbfFTSQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:16:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 636562082C;
-        Thu, 20 Jun 2019 18:16:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B4842084E;
+        Thu, 20 Jun 2019 18:16:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054614;
-        bh=PZRpMu0IVgBR/mjsC1Zw7BtrYsB/C/1oDlLmbsm/GFs=;
+        s=default; t=1561054617;
+        bh=tHW4mIdn+tNBPOKLy5LZXdyrjVi1MlDoPFy7pEkX7Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=18q4SY8Dyyd6aGIrLQotf6gA2R/Tt5kXgTeiVi9zB2iR1IQYEFNUeugypJpe7CH7b
-         3hHCGVjoL7XNiWlXlm1vE6b1TUSF4asL3geQ0/rkLwZ5z+UgIOISZrZgK8355YW9Ze
-         6NVZA5CKUaUYPEb7awGOStM1IRThL8ZdSMWjqLX8=
+        b=MUMvNVfMP/EXshP3dOIoLdN5oHqhXfctEjN/MzPclZqIdbrrz3bQxY48/MjRmt0iT
+         nIDGDVhLxjy1U02m6TzwR2czRaa2gG5AUT9r+11kv9xRxEey6KP/YI53eyGJdG3G3q
+         8p5a9WGNASIqtPu9CRIwumEQiBosslOzmP5jl7gE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Bart Van Assche <bvanassche@acm.org>,
+        stable@vger.kernel.org, Jian Luo <luojian5@huawei.com>,
+        Jason Yan <yanaijie@huawei.com>,
+        John Garry <john.garry@huawei.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 90/98] scsi: scsi_dh_alua: Fix possible null-ptr-deref
-Date:   Thu, 20 Jun 2019 19:57:57 +0200
-Message-Id: <20190620174353.891235112@linuxfoundation.org>
+Subject: [PATCH 5.1 91/98] scsi: libsas: delete sas port if expander discover failed
+Date:   Thu, 20 Jun 2019 19:57:58 +0200
+Message-Id: <20190620174353.953856764@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
 References: <20190620174349.443386789@linuxfoundation.org>
@@ -46,59 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 12e750bc62044de096ab9a95201213fd912b9994 ]
+[ Upstream commit 3b0541791453fbe7f42867e310e0c9eb6295364d ]
 
-If alloc_workqueue fails in alua_init, it should return -ENOMEM, otherwise
-it will trigger null-ptr-deref while unloading module which calls
-destroy_workqueue dereference
-wq->lock like this:
+The sas_port(phy->port) allocated in sas_ex_discover_expander() will not be
+deleted when the expander failed to discover. This will cause resource leak
+and a further issue of kernel BUG like below:
 
-BUG: KASAN: null-ptr-deref in __lock_acquire+0x6b4/0x1ee0
-Read of size 8 at addr 0000000000000080 by task syz-executor.0/7045
+[159785.843156]  port-2:17:29: trying to add phy phy-2:17:29 fails: it's
+already part of another port
+[159785.852144] ------------[ cut here  ]------------
+[159785.856833] kernel BUG at drivers/scsi/scsi_transport_sas.c:1086!
+[159785.863000] Internal error: Oops - BUG: 0 [#1] SMP
+[159785.867866] CPU: 39 PID: 16993 Comm: kworker/u96:2 Tainted: G
+W  OE     4.19.25-vhulk1901.1.0.h111.aarch64 #1
+[159785.878458] Hardware name: Huawei Technologies Co., Ltd.
+Hi1620EVBCS/Hi1620EVBCS, BIOS Hi1620 CS B070 1P TA 03/21/2019
+[159785.889231] Workqueue: 0000:74:02.0_disco_q sas_discover_domain
+[159785.895224] pstate: 40c00009 (nZcv daif +PAN +UAO)
+[159785.900094] pc : sas_port_add_phy+0x188/0x1b8
+[159785.904524] lr : sas_port_add_phy+0x188/0x1b8
+[159785.908952] sp : ffff0001120e3b80
+[159785.912341] x29: ffff0001120e3b80 x28: 0000000000000000
+[159785.917727] x27: ffff802ade8f5400 x26: ffff0000681b7560
+[159785.923111] x25: ffff802adf11a800 x24: ffff0000680e8000
+[159785.928496] x23: ffff802ade8f5728 x22: ffff802ade8f5708
+[159785.933880] x21: ffff802adea2db40 x20: ffff802ade8f5400
+[159785.939264] x19: ffff802adea2d800 x18: 0000000000000010
+[159785.944649] x17: 00000000821bf734 x16: ffff00006714faa0
+[159785.950033] x15: ffff0000e8ab4ecf x14: 7261702079646165
+[159785.955417] x13: 726c612073277469 x12: ffff00006887b830
+[159785.960802] x11: ffff00006773eaa0 x10: 7968702079687020
+[159785.966186] x9 : 0000000000002453 x8 : 726f702072656874
+[159785.971570] x7 : 6f6e6120666f2074 x6 : ffff802bcfb21290
+[159785.976955] x5 : ffff802bcfb21290 x4 : 0000000000000000
+[159785.982339] x3 : ffff802bcfb298c8 x2 : 337752b234c2ab00
+[159785.987723] x1 : 337752b234c2ab00 x0 : 0000000000000000
+[159785.993108] Process kworker/u96:2 (pid: 16993, stack limit =
+0x0000000072dae094)
+[159786.000576] Call trace:
+[159786.003097]  sas_port_add_phy+0x188/0x1b8
+[159786.007179]  sas_ex_get_linkrate.isra.5+0x134/0x140
+[159786.012130]  sas_ex_discover_expander+0x128/0x408
+[159786.016906]  sas_ex_discover_dev+0x218/0x4c8
+[159786.021249]  sas_ex_discover_devices+0x9c/0x1a8
+[159786.025852]  sas_discover_root_expander+0x134/0x160
+[159786.030802]  sas_discover_domain+0x1b8/0x1e8
+[159786.035148]  process_one_work+0x1b4/0x3f8
+[159786.039230]  worker_thread+0x54/0x470
+[159786.042967]  kthread+0x134/0x138
+[159786.046269]  ret_from_fork+0x10/0x18
+[159786.049918] Code: 91322300 f0004402 91178042 97fe4c9b (d4210000)
+[159786.056083] Modules linked in: hns3_enet_ut(OE) hclge(OE) hnae3(OE)
+hisi_sas_test_hw(OE) hisi_sas_test_main(OE) serdes(OE)
+[159786.067202] ---[ end trace 03622b9e2d99e196  ]---
+[159786.071893] Kernel panic - not syncing: Fatal exception
+[159786.077190] SMP: stopping secondary CPUs
+[159786.081192] Kernel Offset: disabled
+[159786.084753] CPU features: 0x2,a2a00a38
 
-CPU: 0 PID: 7045 Comm: syz-executor.0 Tainted: G         C        5.1.0+ #28
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1
-Call Trace:
- dump_stack+0xa9/0x10e
- __kasan_report+0x171/0x18d
- ? __lock_acquire+0x6b4/0x1ee0
- kasan_report+0xe/0x20
- __lock_acquire+0x6b4/0x1ee0
- lock_acquire+0xb4/0x1b0
- __mutex_lock+0xd8/0xb90
- drain_workqueue+0x25/0x290
- destroy_workqueue+0x1f/0x3f0
- __x64_sys_delete_module+0x244/0x330
- do_syscall_64+0x72/0x2a0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 03197b61c5ec ("scsi_dh_alua: Use workqueue for RTPG")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
+Reported-by: Jian Luo <luojian5@huawei.com>
+Signed-off-by: Jason Yan <yanaijie@huawei.com>
+CC: John Garry <john.garry@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/device_handler/scsi_dh_alua.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/scsi/libsas/sas_expander.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
-index d7ac498ba35a..2a9dcb8973b7 100644
---- a/drivers/scsi/device_handler/scsi_dh_alua.c
-+++ b/drivers/scsi/device_handler/scsi_dh_alua.c
-@@ -1174,10 +1174,8 @@ static int __init alua_init(void)
- 	int r;
- 
- 	kaluad_wq = alloc_workqueue("kaluad", WQ_MEM_RECLAIM, 0);
--	if (!kaluad_wq) {
--		/* Temporary failure, bypass */
--		return SCSI_DH_DEV_TEMP_BUSY;
--	}
-+	if (!kaluad_wq)
-+		return -ENOMEM;
- 
- 	r = scsi_register_device_handler(&alua_dh);
- 	if (r != 0) {
+diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
+index 3611a4ef0d15..7c2d78d189e4 100644
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -1014,6 +1014,8 @@ static struct domain_device *sas_ex_discover_expander(
+ 		list_del(&child->dev_list_node);
+ 		spin_unlock_irq(&parent->port->dev_list_lock);
+ 		sas_put_device(child);
++		sas_port_delete(phy->port);
++		phy->port = NULL;
+ 		return NULL;
+ 	}
+ 	list_add_tail(&child->siblings, &parent->ex_dev.children);
 -- 
 2.20.1
 
