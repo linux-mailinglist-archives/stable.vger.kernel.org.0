@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCC644D8E1
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6604B4D60E
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:04:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726877AbfFTSDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:03:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54316 "EHLO mail.kernel.org"
+        id S1727726AbfFTSDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:03:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727176AbfFTSDQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:03:16 -0400
+        id S1727729AbfFTSDs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:03:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1250721479;
-        Thu, 20 Jun 2019 18:03:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EDF021479;
+        Thu, 20 Jun 2019 18:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053795;
-        bh=WBnnoiV2xbfIcvYiH9S//5uTnemkNf6L1oc41kGnPM4=;
+        s=default; t=1561053827;
+        bh=BPA2MM4cB1nBEioHU50f6n56DuiwxF+so9xsPoBiYX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kkcB8IknGFakML9jIvTdHgS/J5e1EpsZ6BQ8O1pEd/OhTC60Y17TM7M8QvUeiEOq
-         ZigU6bCCNlEGGA23tP3sM/6NKMAyEk0xhIAs1ysNi8HULi08Lm0P9UxtdmpNOQ0VXX
-         wEiNBrHmQ79HrytFJU9Njx+od7TTCCdlVnAgbt5g=
+        b=MMVdhmyY7ECh0cxLDOISV2uMC7+5V2BIkV+wXNn8cBoFPS/1sWplGXyL69lFYxuaZ
+         e6SLzmkQoFiOELkEtOrdoyuR3yQLA+/YNvfgK1CIoIPSixEx3vwgeFk8UmzTXjxxPB
+         grdOz5rzQUGH11kFzypojvi+9CXkiaqSDtoOJEKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Kucheria <amit.kucheria@linaro.org>,
-        Eduardo Valentin <edubezval@gmail.com>,
+        stable@vger.kernel.org,
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        Daniel Gomez <dagmcr@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 012/117] drivers: thermal: tsens: Dont print error message on -EPROBE_DEFER
-Date:   Thu, 20 Jun 2019 19:55:46 +0200
-Message-Id: <20190620174352.722099714@linuxfoundation.org>
+Subject: [PATCH 4.9 013/117] mfd: tps65912-spi: Add missing of table registration
+Date:   Thu, 20 Jun 2019 19:55:47 +0200
+Message-Id: <20190620174352.777012926@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
 References: <20190620174351.964339809@linuxfoundation.org>
@@ -44,39 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fc7d18cf6a923cde7f5e7ba2c1105bb106d3e29a ]
+[ Upstream commit 9e364e87ad7f2c636276c773d718cda29d62b741 ]
 
-We print a calibration failure message on -EPROBE_DEFER from
-nvmem/qfprom as follows:
-[    3.003090] qcom-tsens 4a9000.thermal-sensor: version: 1.4
-[    3.005376] qcom-tsens 4a9000.thermal-sensor: tsens calibration failed
-[    3.113248] qcom-tsens 4a9000.thermal-sensor: version: 1.4
+MODULE_DEVICE_TABLE(of, <of_match_table> should be called to complete DT
+OF mathing mechanism and register it.
 
-This confuses people when, in fact, calibration succeeds later when
-nvmem/qfprom device is available. Don't print this message on a
--EPROBE_DEFER.
+Before this patch:
+modinfo drivers/mfd/tps65912-spi.ko | grep alias
+alias:          spi:tps65912
 
-Signed-off-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+After this patch:
+modinfo drivers/mfd/tps65912-spi.ko | grep alias
+alias:          of:N*T*Cti,tps65912C*
+alias:          of:N*T*Cti,tps65912
+alias:          spi:tps65912
+
+Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
+Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/qcom/tsens.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mfd/tps65912-spi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/thermal/qcom/tsens.c b/drivers/thermal/qcom/tsens.c
-index 3f9fe6aa51cc..ebbe1ec7b9e8 100644
---- a/drivers/thermal/qcom/tsens.c
-+++ b/drivers/thermal/qcom/tsens.c
-@@ -162,7 +162,8 @@ static int tsens_probe(struct platform_device *pdev)
- 	if (tmdev->ops->calibrate) {
- 		ret = tmdev->ops->calibrate(tmdev);
- 		if (ret < 0) {
--			dev_err(dev, "tsens calibration failed\n");
-+			if (ret != -EPROBE_DEFER)
-+				dev_err(dev, "tsens calibration failed\n");
- 			return ret;
- 		}
- 	}
+diff --git a/drivers/mfd/tps65912-spi.c b/drivers/mfd/tps65912-spi.c
+index 4aeba9b6942a..ec37cfe32ca3 100644
+--- a/drivers/mfd/tps65912-spi.c
++++ b/drivers/mfd/tps65912-spi.c
+@@ -27,6 +27,7 @@ static const struct of_device_id tps65912_spi_of_match_table[] = {
+ 	{ .compatible = "ti,tps65912", },
+ 	{ /* sentinel */ }
+ };
++MODULE_DEVICE_TABLE(of, tps65912_spi_of_match_table);
+ 
+ static int tps65912_spi_probe(struct spi_device *spi)
+ {
 -- 
 2.20.1
 
