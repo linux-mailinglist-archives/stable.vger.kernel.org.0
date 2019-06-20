@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 180D44D708
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:15:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 551714D887
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729537AbfFTSPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:15:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43748 "EHLO mail.kernel.org"
+        id S1727969AbfFTSFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:05:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729550AbfFTSPI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:15:08 -0400
+        id S1727940AbfFTSFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:05:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A404C205F4;
-        Thu, 20 Jun 2019 18:15:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0817B21479;
+        Thu, 20 Jun 2019 18:04:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054507;
-        bh=0Y6kIeY0L6yEjnbxo0rO+2g48CwMEk1CvaHVEL/4CBE=;
+        s=default; t=1561053900;
+        bh=klYtTRRgKjC6Rbo5Uwg/ph9QGs93xAmhO7bWVQiBUgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cP7msR1l5TmlIXjH0W36/fsEkdTn6ZEYezVG5+qAM/e99oMfFlpLNL9m4kqSgSbRG
-         ZspJ/6SAOXuaIY75bxgXVHLZuDCBDao+qcKUjJ26uyS4QoLjPwQ9Tq4RziK2iEqLeK
-         r6K19czimgvbHc44oSMmgnwSxmIvlDRp3DDdzyWY=
+        b=mi0ZiRar4K18UPiiALEgkiSa0L/+Q7UXlXec0FL+JMTBwF7CAY5aHxusIJgGCpcBS
+         geHT4bcbZ7Sy7opJZlZyf0MeV5p6wabFkliDRX+h09+UXoML0rOBII2jDB8yERumhk
+         ItWLjpcqQA0C/IIhgxAlfDRzFsy8UYckcxjdq5xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 13/98] sunhv: Fix device naming inconsistency between sunhv_console and sunhv_reg
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.9 066/117] cgroup: Use css_tryget() instead of css_tryget_online() in task_get_css()
 Date:   Thu, 20 Jun 2019 19:56:40 +0200
-Message-Id: <20190620174349.918337068@linuxfoundation.org>
+Message-Id: <20190620174356.755669549@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +42,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit 07a6d63eb1b54b5fb38092780fe618dfe1d96e23 ]
+commit 18fa84a2db0e15b02baa5d94bdb5bd509175d2f6 upstream.
 
-In d5a2aa24, the name in struct console sunhv_console was changed from "ttyS"
-to "ttyHV" while the name in struct uart_ops sunhv_pops remained unchanged.
+A PF_EXITING task can stay associated with an offline css.  If such
+task calls task_get_css(), it can get stuck indefinitely.  This can be
+triggered by BSD process accounting which writes to a file with
+PF_EXITING set when racing against memcg disable as in the backtrace
+at the end.
 
-This results in the hypervisor console device to be listed as "ttyHV0" under
-/proc/consoles while the device node is still named "ttyS0":
+After this change, task_get_css() may return a css which was already
+offline when the function was called.  None of the existing users are
+affected by this change.
 
-root@osaka:~# cat /proc/consoles
-ttyHV0               -W- (EC p  )    4:64
-tty0                 -WU (E     )    4:1
-root@osaka:~# readlink /sys/dev/char/4:64
-../../devices/root/f02836f0/f0285690/tty/ttyS0
-root@osaka:~#
+  INFO: rcu_sched self-detected stall on CPU
+  INFO: rcu_sched detected stalls on CPUs/tasks:
+  ...
+  NMI backtrace for cpu 0
+  ...
+  Call Trace:
+   <IRQ>
+   dump_stack+0x46/0x68
+   nmi_cpu_backtrace.cold.2+0x13/0x57
+   nmi_trigger_cpumask_backtrace+0xba/0xca
+   rcu_dump_cpu_stacks+0x9e/0xce
+   rcu_check_callbacks.cold.74+0x2af/0x433
+   update_process_times+0x28/0x60
+   tick_sched_timer+0x34/0x70
+   __hrtimer_run_queues+0xee/0x250
+   hrtimer_interrupt+0xf4/0x210
+   smp_apic_timer_interrupt+0x56/0x110
+   apic_timer_interrupt+0xf/0x20
+   </IRQ>
+  RIP: 0010:balance_dirty_pages_ratelimited+0x28f/0x3d0
+  ...
+   btrfs_file_write_iter+0x31b/0x563
+   __vfs_write+0xfa/0x140
+   __kernel_write+0x4f/0x100
+   do_acct_process+0x495/0x580
+   acct_process+0xb9/0xdb
+   do_exit+0x748/0xa00
+   do_group_exit+0x3a/0xa0
+   get_signal+0x254/0x560
+   do_signal+0x23/0x5c0
+   exit_to_usermode_loop+0x5d/0xa0
+   prepare_exit_to_usermode+0x53/0x80
+   retint_user+0x8/0x8
 
-This means that any userland code which tries to determine the name of the
-device file of the hypervisor console device can not rely on the information
-provided by /proc/consoles. In particular, booting current versions of debian-
-installer inside a SPARC LDOM will fail with the installer unable to determine
-the console device.
-
-After renaming the device in struct uart_ops sunhv_pops to "ttyHV" as well,
-the inconsistency is fixed and it is possible again to determine the name
-of the device file of the hypervisor console device by reading the contents
-of /proc/console:
-
-root@osaka:~# cat /proc/consoles
-ttyHV0               -W- (EC p  )    4:64
-tty0                 -WU (E     )    4:1
-root@osaka:~# readlink /sys/dev/char/4:64
-../../devices/root/f02836f0/f0285690/tty/ttyHV0
-root@osaka:~#
-
-With this change, debian-installer works correctly when installing inside
-a SPARC LDOM.
-
-Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: stable@vger.kernel.org # v4.2+
+Fixes: ec438699a9ae ("cgroup, block: implement task_get_css() and use it in bio_associate_current()")
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/sunhv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/sunhv.c
-+++ b/drivers/tty/serial/sunhv.c
-@@ -397,7 +397,7 @@ static const struct uart_ops sunhv_pops
- static struct uart_driver sunhv_reg = {
- 	.owner			= THIS_MODULE,
- 	.driver_name		= "sunhv",
--	.dev_name		= "ttyS",
-+	.dev_name		= "ttyHV",
- 	.major			= TTY_MAJOR,
- };
- 
+---
+ include/linux/cgroup.h |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+--- a/include/linux/cgroup.h
++++ b/include/linux/cgroup.h
+@@ -462,7 +462,7 @@ static inline struct cgroup_subsys_state
+  *
+  * Find the css for the (@task, @subsys_id) combination, increment a
+  * reference on and return it.  This function is guaranteed to return a
+- * valid css.
++ * valid css.  The returned css may already have been offlined.
+  */
+ static inline struct cgroup_subsys_state *
+ task_get_css(struct task_struct *task, int subsys_id)
+@@ -472,7 +472,13 @@ task_get_css(struct task_struct *task, i
+ 	rcu_read_lock();
+ 	while (true) {
+ 		css = task_css(task, subsys_id);
+-		if (likely(css_tryget_online(css)))
++		/*
++		 * Can't use css_tryget_online() here.  A task which has
++		 * PF_EXITING set may stay associated with an offline css.
++		 * If such task calls this function, css_tryget_online()
++		 * will keep failing.
++		 */
++		if (likely(css_tryget(css)))
+ 			break;
+ 		cpu_relax();
+ 	}
 
 
