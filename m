@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9440C4D731
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:18:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2135F4D7CC
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726215AbfFTSQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:16:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45598 "EHLO mail.kernel.org"
+        id S1726299AbfFTSKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:10:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729365AbfFTSQ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:16:26 -0400
+        id S1726274AbfFTSKo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:10:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DA06208CA;
-        Thu, 20 Jun 2019 18:16:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06FE4214AF;
+        Thu, 20 Jun 2019 18:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054585;
-        bh=qMzfbiSIwksrwUm8tdqYP8brg/c+K2rOMHysxHULuh4=;
+        s=default; t=1561054243;
+        bh=x3DQAm9fBik+KczsyNcMttT72qr4M0hPWQmDCAH5ZlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KTySs0GdGQ0Cv5p6qt1ZMtwYD/DLeE1hYWxJ951BGDU9TDaTwOO+N1y+Au1XELQcD
-         7B0B8FSlCEL1EyOZ9MVvkiqCNcvzLgwpkxhDWbnyzmVD4bpWO7j5fuud0jVGou9lmD
-         sluL6JugxST4oNOojvvybONgC5z8LCHFqgwkoPDk=
+        b=UiTisMHdizKcSos307nWxd6wS2eabA4klcSg+wZbimY+kQvgyuMmylLoBQZDuhXWA
+         ajK4aG8LOl0nUQIcaMWwmcxi1xkY3N9TuxEDk2YIB2wyW+BSsnq3EoI99eSJScPkLT
+         ArYuTWMHSV/nW2C8CFMgZ3PDQItXcTq+t2Tixjs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        linux-gpio@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Pavaman Subramaniyam <pavsubra@in.ibm.com>,
+        Anju T Sudhakar <anju@linux.vnet.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 51/98] gpio: fix gpio-adp5588 build errors
+Subject: [PATCH 4.19 23/61] powerpc/powernv: Return for invalid IMC domain
 Date:   Thu, 20 Jun 2019 19:57:18 +0200
-Message-Id: <20190620174351.591617923@linuxfoundation.org>
+Message-Id: <20190620174341.289176449@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,49 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e9646f0f5bb62b7d43f0968f39d536cfe7123b53 ]
+[ Upstream commit b59bd3527fe3c1939340df558d7f9d568fc9f882 ]
 
-The gpio-adp5588 driver uses interfaces that are provided by
-GPIOLIB_IRQCHIP, so select that symbol in its Kconfig entry.
+Currently init_imc_pmu() can fail either because we try to register an
+IMC unit with an invalid domain (i.e an IMC node not supported by the
+kernel) or something went wrong while registering a valid IMC unit. In
+both the cases kernel provides a 'Register failed' error message.
 
-Fixes these build errors:
+For example when trace-imc node is not supported by the kernel, but
+skiboot advertises a trace-imc node we print:
 
-../drivers/gpio/gpio-adp5588.c: In function ‘adp5588_irq_handler’:
-../drivers/gpio/gpio-adp5588.c:266:26: error: ‘struct gpio_chip’ has no member named ‘irq’
-            dev->gpio_chip.irq.domain, gpio));
-                          ^
-../drivers/gpio/gpio-adp5588.c: In function ‘adp5588_irq_setup’:
-../drivers/gpio/gpio-adp5588.c:298:2: error: implicit declaration of function ‘gpiochip_irqchip_add_nested’ [-Werror=implicit-function-declaration]
-  ret = gpiochip_irqchip_add_nested(&dev->gpio_chip,
-  ^
-../drivers/gpio/gpio-adp5588.c:307:2: error: implicit declaration of function ‘gpiochip_set_nested_irqchip’ [-Werror=implicit-function-declaration]
-  gpiochip_set_nested_irqchip(&dev->gpio_chip,
-  ^
+  IMC Unknown Device type
+  IMC PMU (null) Register failed
 
-Fixes: 459773ae8dbb ("gpio: adp5588-gpio: support interrupt controller")
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: linux-gpio@vger.kernel.org
-Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+To avoid confusion just print the unknown device type message, before
+attempting PMU registration, so the second message isn't printed.
+
+Fixes: 8f95faaac56c ("powerpc/powernv: Detect and create IMC device")
+Reported-by: Pavaman Subramaniyam <pavsubra@in.ibm.com>
+Signed-off-by: Anju T Sudhakar <anju@linux.vnet.ibm.com>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+[mpe: Reword change log a bit]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/platforms/powernv/opal-imc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 3f50526a771f..864a1ba7aa3a 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -824,6 +824,7 @@ config GPIO_ADP5588
- config GPIO_ADP5588_IRQ
- 	bool "Interrupt controller support for ADP5588"
- 	depends on GPIO_ADP5588=y
-+	select GPIOLIB_IRQCHIP
- 	help
- 	  Say yes here to enable the adp5588 to be used as an interrupt
- 	  controller. It requires the driver to be built in the kernel.
+diff --git a/arch/powerpc/platforms/powernv/opal-imc.c b/arch/powerpc/platforms/powernv/opal-imc.c
+index 3d27f02695e4..828f6656f8f7 100644
+--- a/arch/powerpc/platforms/powernv/opal-imc.c
++++ b/arch/powerpc/platforms/powernv/opal-imc.c
+@@ -161,6 +161,10 @@ static int imc_pmu_create(struct device_node *parent, int pmu_index, int domain)
+ 	struct imc_pmu *pmu_ptr;
+ 	u32 offset;
+ 
++	/* Return for unknown domain */
++	if (domain < 0)
++		return -EINVAL;
++
+ 	/* memory for pmu */
+ 	pmu_ptr = kzalloc(sizeof(*pmu_ptr), GFP_KERNEL);
+ 	if (!pmu_ptr)
 -- 
 2.20.1
 
