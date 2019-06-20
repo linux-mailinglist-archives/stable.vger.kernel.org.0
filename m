@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F4724D6D0
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:12:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE7F4D73B
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:18:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729028AbfFTSM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:12:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40176 "EHLO mail.kernel.org"
+        id S1727065AbfFTSQo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:16:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729015AbfFTSMX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:12:23 -0400
+        id S1728759AbfFTSQo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:16:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E0E2214AF;
-        Thu, 20 Jun 2019 18:12:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D8062089C;
+        Thu, 20 Jun 2019 18:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054342;
-        bh=e43x7xQrHz5HwBzcgzBMkIrYfjGJMrw8vc8mjv3doE0=;
+        s=default; t=1561054603;
+        bh=6KortFgTHn9xDhXXxKrciBL1+5CdIJECwaCiJ6aLxVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jr7lFjRzE7nb5JK034jRXwtHWn/xZ2SYNxU0Jy0B39T715pDBfUMjcAUlCo/3OWUY
-         gkT3i6epZ3wyHkhfG2a3NuIuaTgFt57jB7/Qzyhj0ZgZEMy9vX1xLIlkpKJVjIyY5t
-         uTBiJqEQ4+uUkg+0t33q7GRtFlovE9HIY2RKknUU=
+        b=SncB9YtsmS3eN3pGgGQuxEoJoJzWWifF05xIS6CREcle+Z71bjLWXCyupwXVkwDZy
+         EbXhzvB36jePeSTnYNUyd5HZl9YkwglHMS53UHg9Dp/wMZG/Uz/EqplkhtbBdUoCwa
+         3zkroN44xDMVBusi/s1qRWpXvILVX4FAtM6xYEjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Luo <luojian5@huawei.com>,
-        Jason Yan <yanaijie@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Max Uvarov <muvarov@gmail.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 57/61] scsi: libsas: delete sas port if expander discover failed
-Date:   Thu, 20 Jun 2019 19:57:52 +0200
-Message-Id: <20190620174347.135331519@linuxfoundation.org>
+Subject: [PATCH 5.1 86/98] net: phy: dp83867: increase SGMII autoneg timer duration
+Date:   Thu, 20 Jun 2019 19:57:53 +0200
+Message-Id: <20190620174353.661952293@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,87 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3b0541791453fbe7f42867e310e0c9eb6295364d ]
+[ Upstream commit 1a97a477e666cbdededab93bd3754e508f0c09d7 ]
 
-The sas_port(phy->port) allocated in sas_ex_discover_expander() will not be
-deleted when the expander failed to discover. This will cause resource leak
-and a further issue of kernel BUG like below:
+After reset SGMII Autoneg timer is set to 2us (bits 6 and 5 are 01).
+That is not enough to finalize autonegatiation on some devices.
+Increase this timer duration to maximum supported 16ms.
 
-[159785.843156]  port-2:17:29: trying to add phy phy-2:17:29 fails: it's
-already part of another port
-[159785.852144] ------------[ cut here  ]------------
-[159785.856833] kernel BUG at drivers/scsi/scsi_transport_sas.c:1086!
-[159785.863000] Internal error: Oops - BUG: 0 [#1] SMP
-[159785.867866] CPU: 39 PID: 16993 Comm: kworker/u96:2 Tainted: G
-W  OE     4.19.25-vhulk1901.1.0.h111.aarch64 #1
-[159785.878458] Hardware name: Huawei Technologies Co., Ltd.
-Hi1620EVBCS/Hi1620EVBCS, BIOS Hi1620 CS B070 1P TA 03/21/2019
-[159785.889231] Workqueue: 0000:74:02.0_disco_q sas_discover_domain
-[159785.895224] pstate: 40c00009 (nZcv daif +PAN +UAO)
-[159785.900094] pc : sas_port_add_phy+0x188/0x1b8
-[159785.904524] lr : sas_port_add_phy+0x188/0x1b8
-[159785.908952] sp : ffff0001120e3b80
-[159785.912341] x29: ffff0001120e3b80 x28: 0000000000000000
-[159785.917727] x27: ffff802ade8f5400 x26: ffff0000681b7560
-[159785.923111] x25: ffff802adf11a800 x24: ffff0000680e8000
-[159785.928496] x23: ffff802ade8f5728 x22: ffff802ade8f5708
-[159785.933880] x21: ffff802adea2db40 x20: ffff802ade8f5400
-[159785.939264] x19: ffff802adea2d800 x18: 0000000000000010
-[159785.944649] x17: 00000000821bf734 x16: ffff00006714faa0
-[159785.950033] x15: ffff0000e8ab4ecf x14: 7261702079646165
-[159785.955417] x13: 726c612073277469 x12: ffff00006887b830
-[159785.960802] x11: ffff00006773eaa0 x10: 7968702079687020
-[159785.966186] x9 : 0000000000002453 x8 : 726f702072656874
-[159785.971570] x7 : 6f6e6120666f2074 x6 : ffff802bcfb21290
-[159785.976955] x5 : ffff802bcfb21290 x4 : 0000000000000000
-[159785.982339] x3 : ffff802bcfb298c8 x2 : 337752b234c2ab00
-[159785.987723] x1 : 337752b234c2ab00 x0 : 0000000000000000
-[159785.993108] Process kworker/u96:2 (pid: 16993, stack limit =
-0x0000000072dae094)
-[159786.000576] Call trace:
-[159786.003097]  sas_port_add_phy+0x188/0x1b8
-[159786.007179]  sas_ex_get_linkrate.isra.5+0x134/0x140
-[159786.012130]  sas_ex_discover_expander+0x128/0x408
-[159786.016906]  sas_ex_discover_dev+0x218/0x4c8
-[159786.021249]  sas_ex_discover_devices+0x9c/0x1a8
-[159786.025852]  sas_discover_root_expander+0x134/0x160
-[159786.030802]  sas_discover_domain+0x1b8/0x1e8
-[159786.035148]  process_one_work+0x1b4/0x3f8
-[159786.039230]  worker_thread+0x54/0x470
-[159786.042967]  kthread+0x134/0x138
-[159786.046269]  ret_from_fork+0x10/0x18
-[159786.049918] Code: 91322300 f0004402 91178042 97fe4c9b (d4210000)
-[159786.056083] Modules linked in: hns3_enet_ut(OE) hclge(OE) hnae3(OE)
-hisi_sas_test_hw(OE) hisi_sas_test_main(OE) serdes(OE)
-[159786.067202] ---[ end trace 03622b9e2d99e196  ]---
-[159786.071893] Kernel panic - not syncing: Fatal exception
-[159786.077190] SMP: stopping secondary CPUs
-[159786.081192] Kernel Offset: disabled
-[159786.084753] CPU features: 0x2,a2a00a38
-
-Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
-Reported-by: Jian Luo <luojian5@huawei.com>
-Signed-off-by: Jason Yan <yanaijie@huawei.com>
-CC: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Max Uvarov <muvarov@gmail.com>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libsas/sas_expander.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/phy/dp83867.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
-index 231eb79efa32..b141d1061f38 100644
---- a/drivers/scsi/libsas/sas_expander.c
-+++ b/drivers/scsi/libsas/sas_expander.c
-@@ -989,6 +989,8 @@ static struct domain_device *sas_ex_discover_expander(
- 		list_del(&child->dev_list_node);
- 		spin_unlock_irq(&parent->port->dev_list_lock);
- 		sas_put_device(child);
-+		sas_port_delete(phy->port);
-+		phy->port = NULL;
- 		return NULL;
+diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
+index 29cae4de9a4f..ffaf67bdb140 100644
+--- a/drivers/net/phy/dp83867.c
++++ b/drivers/net/phy/dp83867.c
+@@ -26,6 +26,12 @@
+ 
+ /* Extended Registers */
+ #define DP83867_CFG4            0x0031
++#define DP83867_CFG4_SGMII_ANEG_MASK (BIT(5) | BIT(6))
++#define DP83867_CFG4_SGMII_ANEG_TIMER_11MS   (3 << 5)
++#define DP83867_CFG4_SGMII_ANEG_TIMER_800US  (2 << 5)
++#define DP83867_CFG4_SGMII_ANEG_TIMER_2US    (1 << 5)
++#define DP83867_CFG4_SGMII_ANEG_TIMER_16MS   (0 << 5)
++
+ #define DP83867_RGMIICTL	0x0032
+ #define DP83867_STRAP_STS1	0x006E
+ #define DP83867_RGMIIDCTL	0x0086
+@@ -292,6 +298,18 @@ static int dp83867_config_init(struct phy_device *phydev)
+ 				     0);
+ 		if (ret)
+ 			return ret;
++
++		/* After reset SGMII Autoneg timer is set to 2us (bits 6 and 5
++		 * are 01). That is not enough to finalize autoneg on some
++		 * devices. Increase this timer duration to maximum 16ms.
++		 */
++		ret = phy_modify_mmd(phydev, DP83867_DEVADDR,
++				     DP83867_CFG4,
++				     DP83867_CFG4_SGMII_ANEG_MASK,
++				     DP83867_CFG4_SGMII_ANEG_TIMER_16MS);
++
++		if (ret)
++			return ret;
  	}
- 	list_add_tail(&child->siblings, &parent->ex_dev.children);
+ 
+ 	/* Enable Interrupt output INT_OE in CFG3 register */
 -- 
 2.20.1
 
