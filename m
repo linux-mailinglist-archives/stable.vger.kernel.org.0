@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61EF04D909
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:32:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E554D8E2
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726614AbfFTR7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 13:59:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47084 "EHLO mail.kernel.org"
+        id S1727199AbfFTSDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:03:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726591AbfFTR73 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 13:59:29 -0400
+        id S1727581AbfFTSDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:03:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69E5020B1F;
-        Thu, 20 Jun 2019 17:59:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEDF521479;
+        Thu, 20 Jun 2019 18:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053568;
-        bh=htf8TTPlPe02GHqHbnqYzQej1yuFd/WJaoxRv4FZjBM=;
+        s=default; t=1561053798;
+        bh=S5vSnau8veV4jnNwBCLbUvZEBtP89lQiDn0A+dqi00E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=egohCAQi1e670872QHRYmLBWeiJZ4i5tXSTqnlwFzh8eVQvqou7yrSKDXGBTCYk7k
-         0eTeetCwh7JPXbN2YegswnzZX0rnSIJHw+EmCTsSgZoPb8/pavpdRiM6iMijOdgB0x
-         SbrWX8A7Pj2epN22dhloOR6xIbEltTEarnp7eewI=
+        b=mU2zoeRIpZNg1sovYVawqXoag3Ri+s48wWGQeR93ajiRJ2mhMm6wfxbO2Sgg3yWM2
+         QQ1ROvToD3y/CGej2Q02IfNraewV+yjCVS5lut99yuFr3z3SVP6Hno9g4xYHXwjrIF
+         INFzNhBgyMpCYIv/ySudjI71iT07Ow/dMNXLivTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yue Hu <huyue2@yulong.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>, Joe Perches <joe@perches.com>,
-        David Rientjes <rientjes@google.com>,
-        Dmitry Safonov <d.safonov@partner.samsung.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 06/84] mm/cma_debug.c: fix the break condition in cma_maxchunk_get()
-Date:   Thu, 20 Jun 2019 19:56:03 +0200
-Message-Id: <20190620174338.649164636@linuxfoundation.org>
+Subject: [PATCH 4.9 030/117] nvmem: core: fix read buffer in place
+Date:   Thu, 20 Jun 2019 19:56:04 +0200
+Message-Id: <20190620174353.789250695@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
-References: <20190620174337.538228162@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,42 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f0fd50504a54f5548eb666dc16ddf8394e44e4b7 ]
+[ Upstream commit 2fe518fecb3a4727393be286db9804cd82ee2d91 ]
 
-If not find zero bit in find_next_zero_bit(), it will return the size
-parameter passed in, so the start bit should be compared with bitmap_maxno
-rather than cma->count.  Although getting maxchunk is working fine due to
-zero value of order_per_bit currently, the operation will be stuck if
-order_per_bit is set as non-zero.
+When the bit_offset in the cell is zero, the pointer to the msb will
+not be properly initialized (ie, will still be pointing to the first
+byte in the buffer).
 
-Link: http://lkml.kernel.org/r/20190319092734.276-1-zbestahu@gmail.com
-Signed-off-by: Yue Hu <huyue2@yulong.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Dmitry Safonov <d.safonov@partner.samsung.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This being the case, if there are bits to clear in the msb, those will
+be left untouched while the mask will incorrectly clear bit positions
+on the first byte.
+
+This commit also makes sure that any byte unused in the cell is
+cleared.
+
+Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/cma_debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvmem/core.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/mm/cma_debug.c b/mm/cma_debug.c
-index f8e4b60db167..da50dab56b70 100644
---- a/mm/cma_debug.c
-+++ b/mm/cma_debug.c
-@@ -57,7 +57,7 @@ static int cma_maxchunk_get(void *data, u64 *val)
- 	mutex_lock(&cma->lock);
- 	for (;;) {
- 		start = find_next_zero_bit(cma->bitmap, bitmap_maxno, end);
--		if (start >= cma->count)
-+		if (start >= bitmap_maxno)
- 			break;
- 		end = find_next_bit(cma->bitmap, bitmap_maxno, start);
- 		maxchunk = max(end - start, maxchunk);
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 824e282cd80e..bb2f79933b17 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -934,7 +934,7 @@ static inline void nvmem_shift_read_buffer_in_place(struct nvmem_cell *cell,
+ 						    void *buf)
+ {
+ 	u8 *p, *b;
+-	int i, bit_offset = cell->bit_offset;
++	int i, extra, bit_offset = cell->bit_offset;
+ 
+ 	p = b = buf;
+ 	if (bit_offset) {
+@@ -949,11 +949,16 @@ static inline void nvmem_shift_read_buffer_in_place(struct nvmem_cell *cell,
+ 			p = b;
+ 			*b++ >>= bit_offset;
+ 		}
+-
+-		/* result fits in less bytes */
+-		if (cell->bytes != DIV_ROUND_UP(cell->nbits, BITS_PER_BYTE))
+-			*p-- = 0;
++	} else {
++		/* point to the msb */
++		p += cell->bytes - 1;
+ 	}
++
++	/* result fits in less bytes */
++	extra = cell->bytes - DIV_ROUND_UP(cell->nbits, BITS_PER_BYTE);
++	while (--extra >= 0)
++		*p-- = 0;
++
+ 	/* clear msb bits if any leftover in the last byte */
+ 	*p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
+ }
 -- 
 2.20.1
 
