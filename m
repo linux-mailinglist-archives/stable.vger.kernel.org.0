@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 504E94D897
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:27:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21A194D8F5
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:30:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727902AbfFTSEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:04:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57262 "EHLO mail.kernel.org"
+        id S1727109AbfFTSA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:00:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727417AbfFTSEk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:04:40 -0400
+        id S1726485AbfFTSA5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:00:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46E552082C;
-        Thu, 20 Jun 2019 18:04:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5900214AF;
+        Thu, 20 Jun 2019 18:00:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053879;
-        bh=z5SKF9DOlqPNls6ia41cYM6baailNmIznIbwfYklA1U=;
+        s=default; t=1561053656;
+        bh=9bPUddwenO1C0qTF7Qi4ohydxVEsApGo0LBqq8AN8wI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qv1pGO1njzs2RDofJLZJW3kf04ZIZj7K0VZlDJZ1KtXQKSCxjIhfaCfa6BmKkBnBi
-         NlkgFWPiggOpH0MuU6mM3ubLsUhOHQkyS6GO62f0XhsBA2dgBp7el4UJ3ekMoaimFj
-         SawvdG01x6byDKDq7e+tz0grBBXNto/kF0fgko/Y=
+        b=CqwwY1Hg35KzwtswhYrNIeG9ouNCF053gDL7hYKPX5K2fk11sJ9gpNkAoAjKZjfIs
+         bU0TLv3Shweff1bCAFj88yAaHx+hkjGRccjTYysncYNto3dNL8MR93P5FspYINQf+d
+         P+Ci7AT+S36HQk3Aj3EM9iZPrXIrK6xa8Q7Uda5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wengang Wang <wen.gang.wang@oracle.com>,
-        Daniel Sobe <daniel.sobe@nxp.com>,
-        Changwei Ge <gechangwei@live.cn>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 060/117] fs/ocfs2: fix race in ocfs2_dentry_attach_lock()
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 37/84] ARM: exynos: Fix undefined instruction during Exynos5422 resume
 Date:   Thu, 20 Jun 2019 19:56:34 +0200
-Message-Id: <20190620174356.535861617@linuxfoundation.org>
+Message-Id: <20190620174343.669895262@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,97 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wengang Wang <wen.gang.wang@oracle.com>
+[ Upstream commit 4d8e3e951a856777720272ce27f2c738a3eeef8c ]
 
-commit be99ca2716972a712cde46092c54dee5e6192bf8 upstream.
+During early system resume on Exynos5422 with performance counters enabled
+the following kernel oops happens:
 
-ocfs2_dentry_attach_lock() can be executed in parallel threads against the
-same dentry.  Make that race safe.  The race is like this:
+    Internal error: Oops - undefined instruction: 0 [#1] PREEMPT SMP ARM
+    Modules linked in:
+    CPU: 0 PID: 1433 Comm: bash Tainted: G        W         5.0.0-rc5-next-20190208-00023-gd5fb5a8a13e6-dirty #5480
+    Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
+    ...
+    Flags: nZCv  IRQs off  FIQs off  Mode SVC_32  ISA ARM  Segment none
+    Control: 10c5387d  Table: 4451006a  DAC: 00000051
+    Process bash (pid: 1433, stack limit = 0xb7e0e22f)
+    ...
+    (reset_ctrl_regs) from [<c0112ad0>] (dbg_cpu_pm_notify+0x1c/0x24)
+    (dbg_cpu_pm_notify) from [<c014c840>] (notifier_call_chain+0x44/0x84)
+    (notifier_call_chain) from [<c014cbc0>] (__atomic_notifier_call_chain+0x7c/0x128)
+    (__atomic_notifier_call_chain) from [<c01ffaac>] (cpu_pm_notify+0x30/0x54)
+    (cpu_pm_notify) from [<c055116c>] (syscore_resume+0x98/0x3f4)
+    (syscore_resume) from [<c0189350>] (suspend_devices_and_enter+0x97c/0xe74)
+    (suspend_devices_and_enter) from [<c0189fb8>] (pm_suspend+0x770/0xc04)
+    (pm_suspend) from [<c0187740>] (state_store+0x6c/0xcc)
+    (state_store) from [<c09fa698>] (kobj_attr_store+0x14/0x20)
+    (kobj_attr_store) from [<c030159c>] (sysfs_kf_write+0x4c/0x50)
+    (sysfs_kf_write) from [<c0300620>] (kernfs_fop_write+0xfc/0x1e0)
+    (kernfs_fop_write) from [<c0282be8>] (__vfs_write+0x2c/0x160)
+    (__vfs_write) from [<c0282ea4>] (vfs_write+0xa4/0x16c)
+    (vfs_write) from [<c0283080>] (ksys_write+0x40/0x8c)
+    (ksys_write) from [<c0101000>] (ret_fast_syscall+0x0/0x28)
 
-            thread A                               thread B
+Undefined instruction is triggered during CP14 reset, because bits: #16
+(Secure privileged invasive debug disabled) and #17 (Secure privileged
+noninvasive debug disable) are set in DSCR. Those bits depend on SPNIDEN
+and SPIDEN lines, which are provided by Secure JTAG hardware block. That
+block in turn is powered from cluster 0 (big/Eagle), but the Exynos5422
+boots on cluster 1 (LITTLE/KFC).
 
-(A1) enter ocfs2_dentry_attach_lock,
-seeing dentry->d_fsdata is NULL,
-and no alias found by
-ocfs2_find_local_alias, so kmalloc
-a new ocfs2_dentry_lock structure
-to local variable "dl", dl1
+To fix this issue it is enough to turn on the power on the cluster 0 for
+a while. This lets the Secure JTAG block to propagate the needed signals
+to LITTLE/KFC cores and change their DSCR.
 
-               .....
-
-                                    (B1) enter ocfs2_dentry_attach_lock,
-                                    seeing dentry->d_fsdata is NULL,
-                                    and no alias found by
-                                    ocfs2_find_local_alias so kmalloc
-                                    a new ocfs2_dentry_lock structure
-                                    to local variable "dl", dl2.
-
-                                                   ......
-
-(A2) set dentry->d_fsdata with dl1,
-call ocfs2_dentry_lock() and increase
-dl1->dl_lockres.l_ro_holders to 1 on
-success.
-              ......
-
-                                    (B2) set dentry->d_fsdata with dl2
-                                    call ocfs2_dentry_lock() and increase
-				    dl2->dl_lockres.l_ro_holders to 1 on
-				    success.
-
-                                                  ......
-
-(A3) call ocfs2_dentry_unlock()
-and decrease
-dl2->dl_lockres.l_ro_holders to 0
-on success.
-             ....
-
-                                    (B3) call ocfs2_dentry_unlock(),
-                                    decreasing
-				    dl2->dl_lockres.l_ro_holders, but
-				    see it's zero now, panic
-
-Link: http://lkml.kernel.org/r/20190529174636.22364-1-wen.gang.wang@oracle.com
-Signed-off-by: Wengang Wang <wen.gang.wang@oracle.com>
-Reported-by: Daniel Sobe <daniel.sobe@nxp.com>
-Tested-by: Daniel Sobe <daniel.sobe@nxp.com>
-Reviewed-by: Changwei Ge <gechangwei@live.cn>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/dcache.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/arm/mach-exynos/suspend.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/fs/ocfs2/dcache.c
-+++ b/fs/ocfs2/dcache.c
-@@ -310,6 +310,18 @@ int ocfs2_dentry_attach_lock(struct dent
+diff --git a/arch/arm/mach-exynos/suspend.c b/arch/arm/mach-exynos/suspend.c
+index a003833ac112..013f4d55ede8 100644
+--- a/arch/arm/mach-exynos/suspend.c
++++ b/arch/arm/mach-exynos/suspend.c
+@@ -508,8 +508,27 @@ early_wakeup:
  
- out_attach:
- 	spin_lock(&dentry_attach_lock);
-+	if (unlikely(dentry->d_fsdata && !alias)) {
-+		/* d_fsdata is set by a racing thread which is doing
-+		 * the same thing as this thread is doing. Leave the racing
-+		 * thread going ahead and we return here.
-+		 */
-+		spin_unlock(&dentry_attach_lock);
-+		iput(dl->dl_inode);
-+		ocfs2_lock_res_free(&dl->dl_lockres);
-+		kfree(dl);
-+		return 0;
-+	}
+ static void exynos5420_prepare_pm_resume(void)
+ {
++	unsigned int mpidr, cluster;
 +
- 	dentry->d_fsdata = dl;
- 	dl->dl_count++;
- 	spin_unlock(&dentry_attach_lock);
++	mpidr = read_cpuid_mpidr();
++	cluster = MPIDR_AFFINITY_LEVEL(mpidr, 1);
++
+ 	if (IS_ENABLED(CONFIG_EXYNOS5420_MCPM))
+ 		WARN_ON(mcpm_cpu_powered_up());
++
++	if (IS_ENABLED(CONFIG_HW_PERF_EVENTS) && cluster != 0) {
++		/*
++		 * When system is resumed on the LITTLE/KFC core (cluster 1),
++		 * the DSCR is not properly updated until the power is turned
++		 * on also for the cluster 0. Enable it for a while to
++		 * propagate the SPNIDEN and SPIDEN signals from Secure JTAG
++		 * block and avoid undefined instruction issue on CP14 reset.
++		 */
++		pmu_raw_writel(S5P_CORE_LOCAL_PWR_EN,
++				EXYNOS_COMMON_CONFIGURATION(0));
++		pmu_raw_writel(0,
++				EXYNOS_COMMON_CONFIGURATION(0));
++	}
+ }
+ 
+ static void exynos5420_pm_resume(void)
+-- 
+2.20.1
+
 
 
