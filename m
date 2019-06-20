@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25EA24D83C
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:25:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AAE44D7CE
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725836AbfFTSHB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:07:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33162 "EHLO mail.kernel.org"
+        id S1728853AbfFTSKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:10:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728245AbfFTSG6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:06:58 -0400
+        id S1728339AbfFTSKu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:10:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8614B204FD;
-        Thu, 20 Jun 2019 18:06:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3F782070B;
+        Thu, 20 Jun 2019 18:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054018;
-        bh=hJIVkZmUXKRDiFky2sa8B26jbrjDMH3oCqC5/EdVNPE=;
+        s=default; t=1561054249;
+        bh=zRm12ojQwWJ4Lpr1mt5mcAKZFABXiB/fuUgpIGgVEGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUiTR9gDH2pY4ncZQnxG5Jdug/Cb/6gmwZJyT30aFSWfo/etk2IOyhCAjZGeTka1X
-         3rtRAJw8ntMLxyHg5KbmksxyDrgeEcduJMXlujWtkMdZgwg74IWtzZ77ZgF8f483uQ
-         We3Ay+sW7KpmihhKeWsxnlJHVetQL9NyayQaA4Jo=
+        b=Cr1jdsHtkQgj0Y5FGO5i16RY53jBRvNclbaQl3fXR5aILqcVGc+fFzKuv0DJDeYJe
+         3mc7dlj/CTxr4SBPJAt5bmG8GatTfuWsQIZQ+7Aofp/SAQm0w0gNh24a0i8olbE9m/
+         +P4VkoyX1o5GgvH3byv9kPFpPYXigUjheN/zhTAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 106/117] configfs: Fix use-after-free when accessing sd->s_dentry
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 25/61] mISDN: make sure device name is NUL terminated
 Date:   Thu, 20 Jun 2019 19:57:20 +0200
-Message-Id: <20190620174358.025050293@linuxfoundation.org>
+Message-Id: <20190620174341.673218654@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f6122ed2a4f9c9c1c073ddf6308d1b2ac10e0781 ]
+[ Upstream commit ccfb62f27beb295103e9392462b20a6ed807d0ea ]
 
-In the vfs_statx() context, during path lookup, the dentry gets
-added to sd->s_dentry via configfs_attach_attr(). In the end,
-vfs_statx() kills the dentry by calling path_put(), which invokes
-configfs_d_iput(). Ideally, this dentry must be removed from
-sd->s_dentry but it doesn't if the sd->s_count >= 3. As a result,
-sd->s_dentry is holding reference to a stale dentry pointer whose
-memory is already freed up. This results in use-after-free issue,
-when this stale sd->s_dentry is accessed later in
-configfs_readdir() path.
+The user can change the device_name with the IMSETDEVNAME ioctl, but we
+need to ensure that the user's name is NUL terminated.  Otherwise it
+could result in a buffer overflow when we copy the name back to the user
+with IMGETDEVINFO ioctl.
 
-This issue can be easily reproduced, by running the LTP test case -
-sh fs_racer_file_list.sh /config
-(https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/fs/racer/fs_racer_file_list.sh)
+I also changed two strcpy() calls which handle the name to strscpy().
+Hopefully, there aren't any other ways to create a too long name, but
+it's nice to do this as a kernel hardening measure.
 
-Fixes: 76ae281f6307 ('configfs: fix race between dentry put and lookup')
-Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/isdn/mISDN/socket.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index d7955dc56737..a1985a9ad2d6 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -58,15 +58,13 @@ static void configfs_d_iput(struct dentry * dentry,
- 	if (sd) {
- 		/* Coordinate with configfs_readdir */
- 		spin_lock(&configfs_dirent_lock);
--		/* Coordinate with configfs_attach_attr where will increase
--		 * sd->s_count and update sd->s_dentry to new allocated one.
--		 * Only set sd->dentry to null when this dentry is the only
--		 * sd owner.
--		 * If not do so, configfs_d_iput may run just after
--		 * configfs_attach_attr and set sd->s_dentry to null
--		 * even it's still in use.
-+		/*
-+		 * Set sd->s_dentry to null only when this dentry is the one
-+		 * that is going to be killed.  Otherwise configfs_d_iput may
-+		 * run just after configfs_attach_attr and set sd->s_dentry to
-+		 * NULL even it's still in use.
- 		 */
--		if (atomic_read(&sd->s_count) <= 2)
-+		if (sd->s_dentry == dentry)
- 			sd->s_dentry = NULL;
- 
- 		spin_unlock(&configfs_dirent_lock);
+diff --git a/drivers/isdn/mISDN/socket.c b/drivers/isdn/mISDN/socket.c
+index b2abc44fa5cb..a73337b74f41 100644
+--- a/drivers/isdn/mISDN/socket.c
++++ b/drivers/isdn/mISDN/socket.c
+@@ -394,7 +394,7 @@ data_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 			memcpy(di.channelmap, dev->channelmap,
+ 			       sizeof(di.channelmap));
+ 			di.nrbchan = dev->nrbchan;
+-			strcpy(di.name, dev_name(&dev->dev));
++			strscpy(di.name, dev_name(&dev->dev), sizeof(di.name));
+ 			if (copy_to_user((void __user *)arg, &di, sizeof(di)))
+ 				err = -EFAULT;
+ 		} else
+@@ -677,7 +677,7 @@ base_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 			memcpy(di.channelmap, dev->channelmap,
+ 			       sizeof(di.channelmap));
+ 			di.nrbchan = dev->nrbchan;
+-			strcpy(di.name, dev_name(&dev->dev));
++			strscpy(di.name, dev_name(&dev->dev), sizeof(di.name));
+ 			if (copy_to_user((void __user *)arg, &di, sizeof(di)))
+ 				err = -EFAULT;
+ 		} else
+@@ -691,6 +691,7 @@ base_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
+ 			err = -EFAULT;
+ 			break;
+ 		}
++		dn.name[sizeof(dn.name) - 1] = '\0';
+ 		dev = get_mdevice(dn.id);
+ 		if (dev)
+ 			err = device_rename(&dev->dev, dn.name);
 -- 
 2.20.1
 
