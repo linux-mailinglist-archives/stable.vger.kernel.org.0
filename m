@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE164D885
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:27:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5064D7F1
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727280AbfFTSE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:04:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57792 "EHLO mail.kernel.org"
+        id S1729173AbfFTSNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:13:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727940AbfFTSEz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:04:55 -0400
+        id S1728638AbfFTSNG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:13:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E1C32173E;
-        Thu, 20 Jun 2019 18:04:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08396205F4;
+        Thu, 20 Jun 2019 18:13:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053894;
-        bh=5+pIcsxL3+kMfNjKRKyMxU8gJGrwjrepimwCwm6k9zk=;
+        s=default; t=1561054386;
+        bh=XSmt2kupemjqB1GXrcptmo3Q9SLtuR3ACvyPs23UnSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBBaULWjiqhIfd5SaAwC2O8uEY8DYgA/UZKrHnB1Tcd5zkN6Cb4mTtjPt8Nbaw7zT
-         XGn/Aq6jrx47mPxVAgBmKY+vTcBOEiEDwwAc/r8kknyxA441bpUtqxHa4XEJQ5rit5
-         uw0yQveVjLLqePjexIydYv6c24oC29dGF4FtkCrQ=
+        b=slbr1RpDYoE18+S01DISYibGpDHMryGNT0xJnQz39AMSm7GOyPIAyHgUWWN9P6TnY
+         z1uU8X0I2WiCTQnezUcOYZFJhD6fGIRkj+Ji7x4BXFpxm4obhwpP1hQEX6r8XT3Ayn
+         RZLAGWXxrPMJRGOlfz0IQ6Mmk0kvGTHTI/GGGbxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
-Subject: [PATCH 4.9 064/117] i2c: acorn: fix i2c warning
+        stable@vger.kernel.org, Young Xiao <92siuyang@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 11/98] nfc: Ensure presence of required attributes in the deactivate_target handler
 Date:   Thu, 20 Jun 2019 19:56:38 +0200
-Message-Id: <20190620174356.698304328@linuxfoundation.org>
+Message-Id: <20190620174349.861479740@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Young Xiao <92siuyang@gmail.com>
 
-commit ca21f851cc9643af049226d57fabc3c883ea648e upstream.
+[ Upstream commit 385097a3675749cbc9e97c085c0e5dfe4269ca51 ]
 
-The Acorn i2c driver (for RiscPC) triggers the "i2c adapter has no name"
-warning in the I2C core driver, resulting in the RTC being inaccessible.
-Fix this.
+Check that the NFC_ATTR_TARGET_INDEX attributes (in addition to
+NFC_ATTR_DEVICE_INDEX) are provided by the netlink client prior to
+accessing them. This prevents potential unhandled NULL pointer dereference
+exceptions which can be triggered by malicious user-mode programs,
+if they omit one or both of these attributes.
 
-Fixes: 2236baa75f70 ("i2c: Sanity checks on adapter registration")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org
+Signed-off-by: Young Xiao <92siuyang@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/i2c/busses/i2c-acorn.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/nfc/netlink.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-acorn.c
-+++ b/drivers/i2c/busses/i2c-acorn.c
-@@ -83,6 +83,7 @@ static struct i2c_algo_bit_data ioc_data
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -922,7 +922,8 @@ static int nfc_genl_deactivate_target(st
+ 	u32 device_idx, target_idx;
+ 	int rc;
  
- static struct i2c_adapter ioc_ops = {
- 	.nr			= 0,
-+	.name			= "ioc",
- 	.algo_data		= &ioc_data,
- };
+-	if (!info->attrs[NFC_ATTR_DEVICE_INDEX])
++	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
++	    !info->attrs[NFC_ATTR_TARGET_INDEX])
+ 		return -EINVAL;
  
+ 	device_idx = nla_get_u32(info->attrs[NFC_ATTR_DEVICE_INDEX]);
 
 
