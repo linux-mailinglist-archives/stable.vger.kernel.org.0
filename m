@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0AAC4D821
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC65B4D806
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727354AbfFTSYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:24:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36014 "EHLO mail.kernel.org"
+        id S1726719AbfFTSWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:22:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728104AbfFTSIg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:08:36 -0400
+        id S1728662AbfFTSLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:11:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C8022084E;
-        Thu, 20 Jun 2019 18:08:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 852D921530;
+        Thu, 20 Jun 2019 18:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054115;
-        bh=5g4ElFNDCPyJ9TdYepS3uPQ5YhDdovUUaE1ZRrmnZNM=;
+        s=default; t=1561054290;
+        bh=xh82Oq10IAg2tIgfkxQvYdcJPdGAQ7vUAQhGRQWV0jA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mM/Uqnu0auq8sN2H57lqTPLZrXyTEmQcx3I9qG2wZUnABtbLXOOwxeN1d823jlo6G
-         pwlrYOorgVqt2K8ufMgTn98yvx8NUam9AJdApTP20S5myhqBeU5QOqLYmJ3fYnhp/8
-         4Yac35tVRU+T9oTjkzG9GobYu9YvO/ejNKUlsbrs=
+        b=hasA8CGCVGeKRVsSAin8n4ng+SpeT46W4i+31yRncILLEt3C90gVBosa6rUIxuGMZ
+         BRa3j6Ls2zyxkLwa8DO1aqwgILUjYRz1UoPcfr6pXA35tDK481tAjncUB/iIuuDMdA
+         H9uqLjKe2r3P/XbdPpRgxV6lEyPA2+XqvA55i2X0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org,
+        syzbot+78fbe679c8ca8d264a8d@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        Ying Xue <ying.xue@windriver.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 04/45] ipv6: flowlabel: fl6_sock_lookup() must use atomic_inc_not_zero
-Date:   Thu, 20 Jun 2019 19:57:06 +0200
-Message-Id: <20190620174330.882005177@linuxfoundation.org>
+Subject: [PATCH 4.19 12/61] tipc: purge deferredq list for each grp member in tipc_group_delete
+Date:   Thu, 20 Jun 2019 19:57:07 +0200
+Message-Id: <20190620174339.251440063@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
-References: <20190620174328.608036501@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 65a3c497c0e965a552008db8bc2653f62bc925a1 ]
+[ Upstream commit 5cf02612b33f104fe1015b2dfaf1758ad3675588 ]
 
-Before taking a refcount, make sure the object is not already
-scheduled for deletion.
+Syzbot reported a memleak caused by grp members' deferredq list not
+purged when the grp is be deleted.
 
-Same fix is needed in ipv6_flowlabel_opt()
+The issue occurs when more(msg_grp_bc_seqno(hdr), m->bc_rcv_nxt) in
+tipc_group_filter_msg() and the skb will stay in deferredq.
 
-Fixes: 18367681a10b ("ipv6 flowlabel: Convert np->ipv6_fl_list to RCU.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
+So fix it by calling __skb_queue_purge for each member's deferredq
+in tipc_group_delete() when a tipc sk leaves the grp.
+
+Fixes: b87a5ea31c93 ("tipc: guarantee group unicast doesn't bypass group broadcast")
+Reported-by: syzbot+78fbe679c8ca8d264a8d@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Ying Xue <ying.xue@windriver.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_flowlabel.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/tipc/group.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv6/ip6_flowlabel.c
-+++ b/net/ipv6/ip6_flowlabel.c
-@@ -254,9 +254,9 @@ struct ip6_flowlabel *fl6_sock_lookup(st
- 	rcu_read_lock_bh();
- 	for_each_sk_fl_rcu(np, sfl) {
- 		struct ip6_flowlabel *fl = sfl->fl;
--		if (fl->label == label) {
-+
-+		if (fl->label == label && atomic_inc_not_zero(&fl->users)) {
- 			fl->lastuse = jiffies;
--			atomic_inc(&fl->users);
- 			rcu_read_unlock_bh();
- 			return fl;
- 		}
-@@ -623,7 +623,8 @@ int ipv6_flowlabel_opt(struct sock *sk,
- 						goto done;
- 					}
- 					fl1 = sfl->fl;
--					atomic_inc(&fl1->users);
-+					if (!atomic_inc_not_zero(&fl1->users))
-+						fl1 = NULL;
- 					break;
- 				}
- 			}
+--- a/net/tipc/group.c
++++ b/net/tipc/group.c
+@@ -218,6 +218,7 @@ void tipc_group_delete(struct net *net,
+ 
+ 	rbtree_postorder_for_each_entry_safe(m, tmp, tree, tree_node) {
+ 		tipc_group_proto_xmit(grp, m, GRP_LEAVE_MSG, &xmitq);
++		__skb_queue_purge(&m->deferredq);
+ 		list_del(&m->list);
+ 		kfree(m);
+ 	}
 
 
