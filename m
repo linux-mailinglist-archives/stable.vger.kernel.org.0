@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FFAE4D7DC
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 457594D7BB
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728762AbfFTSMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:12:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39930 "EHLO mail.kernel.org"
+        id S1728288AbfFTSJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:09:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728861AbfFTSMI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:12:08 -0400
+        id S1728672AbfFTSJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:09:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0851F2070B;
-        Thu, 20 Jun 2019 18:12:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3953C21530;
+        Thu, 20 Jun 2019 18:09:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054327;
-        bh=Gp1Vmj3iN/kkjOdO44mChH4+YNTQwOMCrfilW1G1DvQ=;
+        s=default; t=1561054178;
+        bh=Goa0ah6FbkFoqUl94JpmHMgSVOBKRZRD7HrHL8U8tn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQfKrdyzR6fKmlhILHp9Tyh96wcKqmgHopllDNofDupSm+ZXFfTY88R0vLQJcgO8M
-         gYEyfoWxfe8GLwpa6LncpTEc2hd1rNCxl12359/CmwjVwbaU+HkPgghkwPKJFa07zB
-         t2+oHqrSXSG93zSrIIbvxxAVQZaFfAFH+HhMG+mo=
+        b=bYs7P/guBu4CmaPJ82gJCx7qb52RpCNh/gUGS3dPJHqycO3n/Eq3oSuh7uz9yf9Py
+         7Io5GpbpMo3tR3NAU0Hhoo5w32kIvEJ2B1VSAaqmtkyJoTUMYG/nnxmuhFs8GW366S
+         1eAk75Xhop3+T/fJ8ttEfUh928TIMVsFp4hQpjh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 52/61] net: phylink: ensure consistent phy interface mode
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Alexander Lochmann <alexander.lochmann@tu-dortmund.de>,
+        Horst Schirmeier <horst.schirmeier@tu-dortmund.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Zubin Mithra <zsm@chromium.org>
+Subject: [PATCH 4.14 45/45] Abort file_remove_privs() for non-reg. files
 Date:   Thu, 20 Jun 2019 19:57:47 +0200
-Message-Id: <20190620174346.246862470@linuxfoundation.org>
+Message-Id: <20190620174341.933502431@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
+References: <20190620174328.608036501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c678726305b9425454be7c8a7624290b602602fc ]
+From: Alexander Lochmann <alexander.lochmann@tu-dortmund.de>
 
-Ensure that we supply the same phy interface mode to mac_link_down() as
-we did for the corresponding mac_link_up() call.  This ensures that MAC
-drivers that use the phy interface mode in these methods can depend on
-mac_link_down() always corresponding to a mac_link_up() call for the
-same interface mode.
+commit f69e749a49353d96af1a293f56b5b56de59c668a upstream.
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+file_remove_privs() might be called for non-regular files, e.g.
+blkdev inode. There is no reason to do its job on things
+like blkdev inodes, pipes, or cdevs. Hence, abort if
+file does not refer to a regular inode.
+
+AV: more to the point, for devices there might be any number of
+inodes refering to given device.  Which one to strip the permissions
+from, even if that made any sense in the first place?  All of them
+will be observed with contents modified, after all.
+
+Found by LockDoc (Alexander Lochmann, Horst Schirmeier and Olaf
+Spinczyk)
+
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Alexander Lochmann <alexander.lochmann@tu-dortmund.de>
+Signed-off-by: Horst Schirmeier <horst.schirmeier@tu-dortmund.de>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Zubin Mithra <zsm@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/phy/phylink.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ fs/inode.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
-index c5a509129ae6..b7dafa9dfef4 100644
---- a/drivers/net/phy/phylink.c
-+++ b/drivers/net/phy/phylink.c
-@@ -54,6 +54,10 @@ struct phylink {
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -1817,8 +1817,13 @@ int file_remove_privs(struct file *file)
+ 	int kill;
+ 	int error = 0;
  
- 	/* The link configuration settings */
- 	struct phylink_link_state link_config;
-+
-+	/* The current settings */
-+	phy_interface_t cur_interface;
-+
- 	struct gpio_desc *link_gpio;
- 	struct timer_list link_poll;
- 	void (*get_fixed_state)(struct net_device *dev,
-@@ -477,12 +481,12 @@ static void phylink_resolve(struct work_struct *w)
- 		if (!link_state.link) {
- 			netif_carrier_off(ndev);
- 			pl->ops->mac_link_down(ndev, pl->link_an_mode,
--					       pl->phy_state.interface);
-+					       pl->cur_interface);
- 			netdev_info(ndev, "Link is Down\n");
- 		} else {
-+			pl->cur_interface = link_state.interface;
- 			pl->ops->mac_link_up(ndev, pl->link_an_mode,
--					     pl->phy_state.interface,
--					     pl->phydev);
-+					     pl->cur_interface, pl->phydev);
+-	/* Fast path for nothing security related */
+-	if (IS_NOSEC(inode))
++	/*
++	 * Fast path for nothing security related.
++	 * As well for non-regular files, e.g. blkdev inodes.
++	 * For example, blkdev_write_iter() might get here
++	 * trying to remove privs which it is not allowed to.
++	 */
++	if (IS_NOSEC(inode) || !S_ISREG(inode->i_mode))
+ 		return 0;
  
- 			netif_carrier_on(ndev);
- 
--- 
-2.20.1
-
+ 	kill = dentry_needs_remove_privs(dentry);
 
 
