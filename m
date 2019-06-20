@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 013954D864
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 003FE4D789
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:20:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727330AbfFTSGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:06:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60500 "EHLO mail.kernel.org"
+        id S1728777AbfFTSOj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:14:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727939AbfFTSGX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:06:23 -0400
+        id S1729466AbfFTSOi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:14:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB68A204FD;
-        Thu, 20 Jun 2019 18:06:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90175205F4;
+        Thu, 20 Jun 2019 18:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053982;
-        bh=BU5f8FXmcb53yVghIuDRb3yGDVryrRRr57Yi9+ZgRhI=;
+        s=default; t=1561054477;
+        bh=G83hLEMP/1V46ithdlmH8jhthUO9F2XAI3119txh6TE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VXT4cIr1b/frZvD/Bykr6FTKbPNG2rwGL4wOEP/o0TopjBFazASy3GdW+sTRWhszz
-         it/8eWEG/gbgBKvM2uUvCFTft/LM7RJNzk7Y9aGBBfo7eG36wttU3EUxyOm8oP57G+
-         PU7F7iiCzOijZ98fmJL6R4jjN/DNmIYTHKHHtKzI=
+        b=t8i10evswgQpYXmDopsKaEgkM8LqeU/QqqxidL205gA50hxsIwWm+wn15S8q5UYpr
+         kVHwk6Px+dBYv/cYzX06+qjf+77evwgFEq8zgL3TplOFKL3uRtTG6oKa+FrIKo0nTb
+         EVmRD9DnIHP+Eq+Lo9zTaIkQpzIyTJSOLYx6L+Us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 094/117] neigh: fix use-after-free read in pneigh_get_next
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Simon Horman <horms@verge.net.au>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 41/98] ipvs: Fix use-after-free in ip_vs_in
 Date:   Thu, 20 Jun 2019 19:57:08 +0200
-Message-Id: <20190620174357.595371269@linuxfoundation.org>
+Message-Id: <20190620174350.970053102@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,185 +47,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+[ Upstream commit 719c7d563c17b150877cee03a4b812a424989dfa ]
 
-[ Upstream commit f3e92cb8e2eb8c27d109e6fd73d3a69a8c09e288 ]
+BUG: KASAN: use-after-free in ip_vs_in.part.29+0xe8/0xd20 [ip_vs]
+Read of size 4 at addr ffff8881e9b26e2c by task sshd/5603
 
-Nine years ago, I added RCU handling to neighbours, not pneighbours.
-(pneigh are not commonly used)
-
-Unfortunately I missed that /proc dump operations would use a
-common entry and exit point : neigh_seq_start() and neigh_seq_stop()
-
-We need to read_lock(tbl->lock) or risk use-after-free while
-iterating the pneigh structures.
-
-We might later convert pneigh to RCU and revert this patch.
-
-sysbot reported :
-
-BUG: KASAN: use-after-free in pneigh_get_next.isra.0+0x24b/0x280 net/core/neighbour.c:3158
-Read of size 8 at addr ffff888097f2a700 by task syz-executor.0/9825
-
-CPU: 1 PID: 9825 Comm: syz-executor.0 Not tainted 5.2.0-rc4+ #32
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+CPU: 0 PID: 5603 Comm: sshd Not tainted 4.19.39+ #30
+Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
 Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x172/0x1f0 lib/dump_stack.c:113
- print_address_description.cold+0x7c/0x20d mm/kasan/report.c:188
- __kasan_report.cold+0x1b/0x40 mm/kasan/report.c:317
- kasan_report+0x12/0x20 mm/kasan/common.c:614
- __asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:132
- pneigh_get_next.isra.0+0x24b/0x280 net/core/neighbour.c:3158
- neigh_seq_next+0xdb/0x210 net/core/neighbour.c:3240
- seq_read+0x9cf/0x1110 fs/seq_file.c:258
- proc_reg_read+0x1fc/0x2c0 fs/proc/inode.c:221
- do_loop_readv_writev fs/read_write.c:714 [inline]
- do_loop_readv_writev fs/read_write.c:701 [inline]
- do_iter_read+0x4a4/0x660 fs/read_write.c:935
- vfs_readv+0xf0/0x160 fs/read_write.c:997
- kernel_readv fs/splice.c:359 [inline]
- default_file_splice_read+0x475/0x890 fs/splice.c:414
- do_splice_to+0x127/0x180 fs/splice.c:877
- splice_direct_to_actor+0x2d2/0x970 fs/splice.c:954
- do_splice_direct+0x1da/0x2a0 fs/splice.c:1063
- do_sendfile+0x597/0xd00 fs/read_write.c:1464
- __do_sys_sendfile64 fs/read_write.c:1525 [inline]
- __se_sys_sendfile64 fs/read_write.c:1511 [inline]
- __x64_sys_sendfile64+0x1dd/0x220 fs/read_write.c:1511
- do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x4592c9
-Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f4aab51dc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000028
-RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00000000004592c9
-RDX: 0000000000000000 RSI: 0000000000000004 RDI: 0000000000000005
-RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000080000000 R11: 0000000000000246 R12: 00007f4aab51e6d4
-R13: 00000000004c689d R14: 00000000004db828 R15: 00000000ffffffff
+ dump_stack+0x71/0xab
+ print_address_description+0x6a/0x270
+ kasan_report+0x179/0x2c0
+ ip_vs_in.part.29+0xe8/0xd20 [ip_vs]
+ ip_vs_in+0xd8/0x170 [ip_vs]
+ nf_hook_slow+0x5f/0xe0
+ __ip_local_out+0x1d5/0x250
+ ip_local_out+0x19/0x60
+ __tcp_transmit_skb+0xba1/0x14f0
+ tcp_write_xmit+0x41f/0x1ed0
+ ? _copy_from_iter_full+0xca/0x340
+ __tcp_push_pending_frames+0x52/0x140
+ tcp_sendmsg_locked+0x787/0x1600
+ ? tcp_sendpage+0x60/0x60
+ ? inet_sk_set_state+0xb0/0xb0
+ tcp_sendmsg+0x27/0x40
+ sock_sendmsg+0x6d/0x80
+ sock_write_iter+0x121/0x1c0
+ ? sock_sendmsg+0x80/0x80
+ __vfs_write+0x23e/0x370
+ vfs_write+0xe7/0x230
+ ksys_write+0xa1/0x120
+ ? __ia32_sys_read+0x50/0x50
+ ? __audit_syscall_exit+0x3ce/0x450
+ do_syscall_64+0x73/0x200
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7ff6f6147c60
+Code: 73 01 c3 48 8b 0d 28 12 2d 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 5d 73 2d 00 00 75 10 b8 01 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 31 c3 48 83
+RSP: 002b:00007ffd772ead18 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 0000000000000034 RCX: 00007ff6f6147c60
+RDX: 0000000000000034 RSI: 000055df30a31270 RDI: 0000000000000003
+RBP: 000055df30a31270 R08: 0000000000000000 R09: 0000000000000000
+R10: 00007ffd772ead70 R11: 0000000000000246 R12: 00007ffd772ead74
+R13: 00007ffd772eae20 R14: 00007ffd772eae24 R15: 000055df2f12ddc0
 
-Allocated by task 9827:
- save_stack+0x23/0x90 mm/kasan/common.c:71
- set_track mm/kasan/common.c:79 [inline]
- __kasan_kmalloc mm/kasan/common.c:489 [inline]
- __kasan_kmalloc.constprop.0+0xcf/0xe0 mm/kasan/common.c:462
- kasan_kmalloc+0x9/0x10 mm/kasan/common.c:503
- __do_kmalloc mm/slab.c:3660 [inline]
- __kmalloc+0x15c/0x740 mm/slab.c:3669
- kmalloc include/linux/slab.h:552 [inline]
- pneigh_lookup+0x19c/0x4a0 net/core/neighbour.c:731
- arp_req_set_public net/ipv4/arp.c:1010 [inline]
- arp_req_set+0x613/0x720 net/ipv4/arp.c:1026
- arp_ioctl+0x652/0x7f0 net/ipv4/arp.c:1226
- inet_ioctl+0x2a0/0x340 net/ipv4/af_inet.c:926
- sock_do_ioctl+0xd8/0x2f0 net/socket.c:1043
- sock_ioctl+0x3ed/0x780 net/socket.c:1194
- vfs_ioctl fs/ioctl.c:46 [inline]
- file_ioctl fs/ioctl.c:509 [inline]
- do_vfs_ioctl+0xd5f/0x1380 fs/ioctl.c:696
- ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
- __do_sys_ioctl fs/ioctl.c:720 [inline]
- __se_sys_ioctl fs/ioctl.c:718 [inline]
- __x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
- do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+Allocated by task 6052:
+ kasan_kmalloc+0xa0/0xd0
+ __kmalloc+0x10a/0x220
+ ops_init+0x97/0x190
+ register_pernet_operations+0x1ac/0x360
+ register_pernet_subsys+0x24/0x40
+ 0xffffffffc0ea016d
+ do_one_initcall+0x8b/0x253
+ do_init_module+0xe3/0x335
+ load_module+0x2fc0/0x3890
+ __do_sys_finit_module+0x192/0x1c0
+ do_syscall_64+0x73/0x200
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Freed by task 9824:
- save_stack+0x23/0x90 mm/kasan/common.c:71
- set_track mm/kasan/common.c:79 [inline]
- __kasan_slab_free+0x102/0x150 mm/kasan/common.c:451
- kasan_slab_free+0xe/0x10 mm/kasan/common.c:459
- __cache_free mm/slab.c:3432 [inline]
- kfree+0xcf/0x220 mm/slab.c:3755
- pneigh_ifdown_and_unlock net/core/neighbour.c:812 [inline]
- __neigh_ifdown+0x236/0x2f0 net/core/neighbour.c:356
- neigh_ifdown+0x20/0x30 net/core/neighbour.c:372
- arp_ifdown+0x1d/0x21 net/ipv4/arp.c:1274
- inetdev_destroy net/ipv4/devinet.c:319 [inline]
- inetdev_event+0xa14/0x11f0 net/ipv4/devinet.c:1544
- notifier_call_chain+0xc2/0x230 kernel/notifier.c:95
- __raw_notifier_call_chain kernel/notifier.c:396 [inline]
- raw_notifier_call_chain+0x2e/0x40 kernel/notifier.c:403
- call_netdevice_notifiers_info+0x3f/0x90 net/core/dev.c:1749
- call_netdevice_notifiers_extack net/core/dev.c:1761 [inline]
- call_netdevice_notifiers net/core/dev.c:1775 [inline]
- rollback_registered_many+0x9b9/0xfc0 net/core/dev.c:8178
- rollback_registered+0x109/0x1d0 net/core/dev.c:8220
- unregister_netdevice_queue net/core/dev.c:9267 [inline]
- unregister_netdevice_queue+0x1ee/0x2c0 net/core/dev.c:9260
- unregister_netdevice include/linux/netdevice.h:2631 [inline]
- __tun_detach+0xd8a/0x1040 drivers/net/tun.c:724
- tun_detach drivers/net/tun.c:741 [inline]
- tun_chr_close+0xe0/0x180 drivers/net/tun.c:3451
- __fput+0x2ff/0x890 fs/file_table.c:280
- ____fput+0x16/0x20 fs/file_table.c:313
- task_work_run+0x145/0x1c0 kernel/task_work.c:113
- tracehook_notify_resume include/linux/tracehook.h:185 [inline]
- exit_to_usermode_loop+0x273/0x2c0 arch/x86/entry/common.c:168
- prepare_exit_to_usermode arch/x86/entry/common.c:199 [inline]
- syscall_return_slowpath arch/x86/entry/common.c:279 [inline]
- do_syscall_64+0x58e/0x680 arch/x86/entry/common.c:304
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+Freed by task 6067:
+ __kasan_slab_free+0x130/0x180
+ kfree+0x90/0x1a0
+ ops_free_list.part.7+0xa6/0xc0
+ unregister_pernet_operations+0x18b/0x1f0
+ unregister_pernet_subsys+0x1d/0x30
+ ip_vs_cleanup+0x1d/0xd2f [ip_vs]
+ __x64_sys_delete_module+0x20c/0x300
+ do_syscall_64+0x73/0x200
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-The buggy address belongs to the object at ffff888097f2a700
- which belongs to the cache kmalloc-64 of size 64
-The buggy address is located 0 bytes inside of
- 64-byte region [ffff888097f2a700, ffff888097f2a740)
+The buggy address belongs to the object at ffff8881e9b26600 which belongs to the cache kmalloc-4096 of size 4096
+The buggy address is located 2092 bytes inside of 4096-byte region [ffff8881e9b26600, ffff8881e9b27600)
 The buggy address belongs to the page:
-page:ffffea00025fca80 refcount:1 mapcount:0 mapping:ffff8880aa400340 index:0x0
-flags: 0x1fffc0000000200(slab)
-raw: 01fffc0000000200 ffffea000250d548 ffffea00025726c8 ffff8880aa400340
-raw: 0000000000000000 ffff888097f2a000 0000000100000020 0000000000000000
+page:ffffea0007a6c800 count:1 mapcount:0 mapping:ffff888107c0e600 index:0x0 compound_mapcount: 0
+flags: 0x17ffffc0008100(slab|head)
+raw: 0017ffffc0008100 dead000000000100 dead000000000200 ffff888107c0e600
+raw: 0000000000000000 0000000080070007 00000001ffffffff 0000000000000000
 page dumped because: kasan: bad access detected
 
-Memory state around the buggy address:
- ffff888097f2a600: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
- ffff888097f2a680: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
->ffff888097f2a700: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-                   ^
- ffff888097f2a780: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
- ffff888097f2a800: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+while unregistering ipvs module, ops_free_list calls
+__ip_vs_cleanup, then nf_unregister_net_hooks be called to
+do remove nf hook entries. It need a RCU period to finish,
+however net->ipvs is set to NULL immediately, which will
+trigger NULL pointer dereference when a packet is hooked
+and handled by ip_vs_in where net->ipvs is dereferenced.
 
-Fixes: 767e97e1e0db ("neigh: RCU conversion of struct neighbour")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Another scene is ops_free_list call ops_free to free the
+net_generic directly while __ip_vs_cleanup finished, then
+calling ip_vs_in will triggers use-after-free.
+
+This patch moves nf_unregister_net_hooks from __ip_vs_cleanup()
+to __ip_vs_dev_cleanup(),  where rcu_barrier() is called by
+unregister_pernet_device -> unregister_pernet_operations,
+that will do the needed grace period.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: efe41606184e ("ipvs: convert to use pernet nf_hook api")
+Suggested-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Simon Horman <horms@verge.net.au>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ net/netfilter/ipvs/ip_vs_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -2704,6 +2704,7 @@ static void *neigh_get_idx_any(struct se
- }
- 
- void *neigh_seq_start(struct seq_file *seq, loff_t *pos, struct neigh_table *tbl, unsigned int neigh_seq_flags)
-+	__acquires(tbl->lock)
- 	__acquires(rcu_bh)
+diff --git a/net/netfilter/ipvs/ip_vs_core.c b/net/netfilter/ipvs/ip_vs_core.c
+index 14457551bcb4..8ebf21149ec3 100644
+--- a/net/netfilter/ipvs/ip_vs_core.c
++++ b/net/netfilter/ipvs/ip_vs_core.c
+@@ -2312,7 +2312,6 @@ static void __net_exit __ip_vs_cleanup(struct net *net)
  {
- 	struct neigh_seq_state *state = seq->private;
-@@ -2714,6 +2715,7 @@ void *neigh_seq_start(struct seq_file *s
+ 	struct netns_ipvs *ipvs = net_ipvs(net);
  
- 	rcu_read_lock_bh();
- 	state->nht = rcu_dereference_bh(tbl->nht);
-+	read_lock(&tbl->lock);
- 
- 	return *pos ? neigh_get_idx_any(seq, pos) : SEQ_START_TOKEN;
- }
-@@ -2747,8 +2749,13 @@ out:
- EXPORT_SYMBOL(neigh_seq_next);
- 
- void neigh_seq_stop(struct seq_file *seq, void *v)
-+	__releases(tbl->lock)
- 	__releases(rcu_bh)
+-	nf_unregister_net_hooks(net, ip_vs_ops, ARRAY_SIZE(ip_vs_ops));
+ 	ip_vs_service_net_cleanup(ipvs);	/* ip_vs_flush() with locks */
+ 	ip_vs_conn_net_cleanup(ipvs);
+ 	ip_vs_app_net_cleanup(ipvs);
+@@ -2327,6 +2326,7 @@ static void __net_exit __ip_vs_dev_cleanup(struct net *net)
  {
-+	struct neigh_seq_state *state = seq->private;
-+	struct neigh_table *tbl = state->tbl;
-+
-+	read_unlock(&tbl->lock);
- 	rcu_read_unlock_bh();
- }
- EXPORT_SYMBOL(neigh_seq_stop);
+ 	struct netns_ipvs *ipvs = net_ipvs(net);
+ 	EnterFunction(2);
++	nf_unregister_net_hooks(net, ip_vs_ops, ARRAY_SIZE(ip_vs_ops));
+ 	ipvs->enable = 0;	/* Disable packet reception */
+ 	smp_wmb();
+ 	ip_vs_sync_net_cleanup(ipvs);
+-- 
+2.20.1
+
 
 
