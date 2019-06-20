@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF0914D7F5
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE9744D923
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:32:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729199AbfFTSNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:13:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41128 "EHLO mail.kernel.org"
+        id S1726212AbfFTSbi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:31:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729188AbfFTSNM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:13:12 -0400
+        id S1726535AbfFTR71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 13:59:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56C80205F4;
-        Thu, 20 Jun 2019 18:13:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AEE62083B;
+        Thu, 20 Jun 2019 17:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054391;
-        bh=p9hmAQUJusUI99n1JUXlwchn+tXW9z4v2lUCvzTYy3I=;
+        s=default; t=1561053565;
+        bh=TkcytEJVON9wn1hDN20FRA7Dfh1rEOlGD+FP8E/35ws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tMaGGQpIC4+PNY15W/WJ26Grr85n8yCAJjIchHIpIV8m1gY1/KE9vE2dCCdlRiDi3
-         FloDx485qnK1BVkSgVTqBVqYvMczfdijIGUBHEBi+nDtynH/WRr67bgzmLDGRdcEt1
-         qdgDemwIpmAhDPal0AJZm10kkBYNLPTROvbPDKQg=
+        b=U1xnnbTiuLibAvRdEvh33bCeqTKZdA1saBRbLyZ9wkgfIBWwEBxvBp1jgYrbrNrqI
+         RGqcwvZLVfv/zxWHafUNogb3BqbO0Q8QsRAaz1cpe158HIsB8L1RUSXaHO+/Mws422
+         OI8rHkW+8vIKZRlADrdhcEKO6Ob0Vya4Vlg5Y2GE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 02/98] ax25: fix inconsistent lock state in ax25_destroy_timer
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Keerthy <j-keerthy@ti.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Tero Kristo <t-kristo@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 32/84] gpio: gpio-omap: add check for off wake capable gpios
 Date:   Thu, 20 Jun 2019 19:56:29 +0200
-Message-Id: <20190620174349.532510588@linuxfoundation.org>
+Message-Id: <20190620174342.849871455@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,117 +50,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+[ Upstream commit da38ef3ed10a09248e13ae16530c2c6d448dc47d ]
 
-[ Upstream commit d4d5d8e83c9616aeef28a2869cea49cc3fb35526 ]
+We are currently assuming all GPIOs are non-wakeup capable GPIOs as we
+not configuring the bank->non_wakeup_gpios like we used to earlier with
+platform_data.
 
-Before thread in process context uses bh_lock_sock()
-we must disable bh.
+Let's add omap_gpio_is_off_wakeup_capable() to make the handling clearer
+while considering that later patches may want to configure SoC specific
+bank->non_wakeup_gpios for the GPIOs in wakeup domain.
 
-sysbot reported :
-
-WARNING: inconsistent lock state
-5.2.0-rc3+ #32 Not tainted
-
-inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
-blkid/26581 [HC0[0]:SC1[1]:HE1:SE0] takes:
-00000000e0da85ee (slock-AF_AX25){+.?.}, at: spin_lock include/linux/spinlock.h:338 [inline]
-00000000e0da85ee (slock-AF_AX25){+.?.}, at: ax25_destroy_timer+0x53/0xc0 net/ax25/af_ax25.c:275
-{SOFTIRQ-ON-W} state was registered at:
-  lock_acquire+0x16f/0x3f0 kernel/locking/lockdep.c:4303
-  __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
-  _raw_spin_lock+0x2f/0x40 kernel/locking/spinlock.c:151
-  spin_lock include/linux/spinlock.h:338 [inline]
-  ax25_rt_autobind+0x3ca/0x720 net/ax25/ax25_route.c:429
-  ax25_connect.cold+0x30/0xa4 net/ax25/af_ax25.c:1221
-  __sys_connect+0x264/0x330 net/socket.c:1834
-  __do_sys_connect net/socket.c:1845 [inline]
-  __se_sys_connect net/socket.c:1842 [inline]
-  __x64_sys_connect+0x73/0xb0 net/socket.c:1842
-  do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-irq event stamp: 2272
-hardirqs last  enabled at (2272): [<ffffffff810065f3>] trace_hardirqs_on_thunk+0x1a/0x1c
-hardirqs last disabled at (2271): [<ffffffff8100660f>] trace_hardirqs_off_thunk+0x1a/0x1c
-softirqs last  enabled at (1522): [<ffffffff87400654>] __do_softirq+0x654/0x94c kernel/softirq.c:320
-softirqs last disabled at (2267): [<ffffffff81449010>] invoke_softirq kernel/softirq.c:374 [inline]
-softirqs last disabled at (2267): [<ffffffff81449010>] irq_exit+0x180/0x1d0 kernel/softirq.c:414
-
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(slock-AF_AX25);
-  <Interrupt>
-    lock(slock-AF_AX25);
-
- *** DEADLOCK ***
-
-1 lock held by blkid/26581:
- #0: 0000000010fd154d ((&ax25->dtimer)){+.-.}, at: lockdep_copy_map include/linux/lockdep.h:175 [inline]
- #0: 0000000010fd154d ((&ax25->dtimer)){+.-.}, at: call_timer_fn+0xe0/0x720 kernel/time/timer.c:1312
-
-stack backtrace:
-CPU: 1 PID: 26581 Comm: blkid Not tainted 5.2.0-rc3+ #32
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x172/0x1f0 lib/dump_stack.c:113
- print_usage_bug.cold+0x393/0x4a2 kernel/locking/lockdep.c:2935
- valid_state kernel/locking/lockdep.c:2948 [inline]
- mark_lock_irq kernel/locking/lockdep.c:3138 [inline]
- mark_lock+0xd46/0x1370 kernel/locking/lockdep.c:3513
- mark_irqflags kernel/locking/lockdep.c:3391 [inline]
- __lock_acquire+0x159f/0x5490 kernel/locking/lockdep.c:3745
- lock_acquire+0x16f/0x3f0 kernel/locking/lockdep.c:4303
- __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
- _raw_spin_lock+0x2f/0x40 kernel/locking/spinlock.c:151
- spin_lock include/linux/spinlock.h:338 [inline]
- ax25_destroy_timer+0x53/0xc0 net/ax25/af_ax25.c:275
- call_timer_fn+0x193/0x720 kernel/time/timer.c:1322
- expire_timers kernel/time/timer.c:1366 [inline]
- __run_timers kernel/time/timer.c:1685 [inline]
- __run_timers kernel/time/timer.c:1653 [inline]
- run_timer_softirq+0x66f/0x1740 kernel/time/timer.c:1698
- __do_softirq+0x25c/0x94c kernel/softirq.c:293
- invoke_softirq kernel/softirq.c:374 [inline]
- irq_exit+0x180/0x1d0 kernel/softirq.c:414
- exiting_irq arch/x86/include/asm/apic.h:536 [inline]
- smp_apic_timer_interrupt+0x13b/0x550 arch/x86/kernel/apic/apic.c:1068
- apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:806
- </IRQ>
-RIP: 0033:0x7f858d5c3232
-Code: 8b 61 08 48 8b 84 24 d8 00 00 00 4c 89 44 24 28 48 8b ac 24 d0 00 00 00 4c 8b b4 24 e8 00 00 00 48 89 7c 24 68 48 89 4c 24 78 <48> 89 44 24 58 8b 84 24 e0 00 00 00 89 84 24 84 00 00 00 8b 84 24
-RSP: 002b:00007ffcaf0cf5c0 EFLAGS: 00000206 ORIG_RAX: ffffffffffffff13
-RAX: 00007f858d7d27a8 RBX: 00007f858d7d8820 RCX: 00007f858d3940d8
-RDX: 00007ffcaf0cf798 RSI: 00000000f5e616f3 RDI: 00007f858d394fee
-RBP: 0000000000000000 R08: 00007ffcaf0cf780 R09: 00007f858d7db480
-R10: 0000000000000000 R11: 0000000009691a75 R12: 0000000000000005
-R13: 00000000f5e616f3 R14: 0000000000000000 R15: 00007ffcaf0cf798
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Keerthy <j-keerthy@ti.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Tero Kristo <t-kristo@ti.com>
+Reported-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/ax25_route.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpio/gpio-omap.c | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
---- a/net/ax25/ax25_route.c
-+++ b/net/ax25/ax25_route.c
-@@ -429,9 +429,11 @@ int ax25_rt_autobind(ax25_cb *ax25, ax25
+diff --git a/drivers/gpio/gpio-omap.c b/drivers/gpio/gpio-omap.c
+index 9943273ec981..c8c49b1d5f9f 100644
+--- a/drivers/gpio/gpio-omap.c
++++ b/drivers/gpio/gpio-omap.c
+@@ -292,6 +292,22 @@ static void omap_clear_gpio_debounce(struct gpio_bank *bank, unsigned offset)
+ 	}
+ }
+ 
++/*
++ * Off mode wake-up capable GPIOs in bank(s) that are in the wakeup domain.
++ * See TRM section for GPIO for "Wake-Up Generation" for the list of GPIOs
++ * in wakeup domain. If bank->non_wakeup_gpios is not configured, assume none
++ * are capable waking up the system from off mode.
++ */
++static bool omap_gpio_is_off_wakeup_capable(struct gpio_bank *bank, u32 gpio_mask)
++{
++	u32 no_wake = bank->non_wakeup_gpios;
++
++	if (no_wake)
++		return !!(~no_wake & gpio_mask);
++
++	return false;
++}
++
+ static inline void omap_set_gpio_trigger(struct gpio_bank *bank, int gpio,
+ 						unsigned trigger)
+ {
+@@ -323,13 +339,7 @@ static inline void omap_set_gpio_trigger(struct gpio_bank *bank, int gpio,
  	}
  
- 	if (ax25->sk != NULL) {
-+		local_bh_disable();
- 		bh_lock_sock(ax25->sk);
- 		sock_reset_flag(ax25->sk, SOCK_ZAPPED);
- 		bh_unlock_sock(ax25->sk);
-+		local_bh_enable();
+ 	/* This part needs to be executed always for OMAP{34xx, 44xx} */
+-	if (!bank->regs->irqctrl) {
+-		/* On omap24xx proceed only when valid GPIO bit is set */
+-		if (bank->non_wakeup_gpios) {
+-			if (!(bank->non_wakeup_gpios & gpio_bit))
+-				goto exit;
+-		}
+-
++	if (!bank->regs->irqctrl && !omap_gpio_is_off_wakeup_capable(bank, gpio)) {
+ 		/*
+ 		 * Log the edge gpio and manually trigger the IRQ
+ 		 * after resume if the input level changes
+@@ -342,7 +352,6 @@ static inline void omap_set_gpio_trigger(struct gpio_bank *bank, int gpio,
+ 			bank->enabled_non_wakeup_gpios &= ~gpio_bit;
  	}
  
- put:
+-exit:
+ 	bank->level_mask =
+ 		readl_relaxed(bank->base + bank->regs->leveldetect0) |
+ 		readl_relaxed(bank->base + bank->regs->leveldetect1);
+-- 
+2.20.1
+
 
 
