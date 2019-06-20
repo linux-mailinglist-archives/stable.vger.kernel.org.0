@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFBAA4D794
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83C4F4D841
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728145AbfFTSN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:13:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42028 "EHLO mail.kernel.org"
+        id S1728086AbfFTSHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:07:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729356AbfFTSNz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:13:55 -0400
+        id S1728282AbfFTSHK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:07:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CC282082C;
-        Thu, 20 Jun 2019 18:13:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16E422089C;
+        Thu, 20 Jun 2019 18:07:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054434;
-        bh=rJUSdW4DU2T4HKZutJOiDPs0iaZmDRAoAusiRXVmM7E=;
+        s=default; t=1561054029;
+        bh=5FKgHiwaps52oURHQqc1RE4Wu7mEfpAXnwncpeXbwZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJWrkftX+ru+OJRDn+cgKY+ssB8GpF+uDslRXGXARHVVzM8NWnKLBtXOJR0IjxeDk
-         X+avL/e+l6eYYbyagVKjxBi7AFEhSGVWIBteIFa++Nqj2UKGQsLJOFjYeg7VKlk3Fz
-         MZi7GYPT4GVn/YnDue88e4dpUEKMLfJgLYZj/sQY=
+        b=yh28DIMXqGJjXKrZfzv6zqRHQQowxubDxzctkiR0Q3qO5jyOpYFMdhH/4e1v6a4Co
+         mZJcg6RSOIg1euLhTuqy4yp/cs7F33cMdqWoX5UWgRhC21Z6PPD1X+eIOhbQQhRWcC
+         qAKziAN7CBFsGYvoQgjLCNapyfueSRGuiu6Pl+Ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 28/98] mlxsw: spectrum_buffers: Reduce pool size on Spectrum-2
+        stable@vger.kernel.org,
+        Murray McAllister <murray.mcallister@gmail.com>,
+        Thomas Hellstrom <thellstrom@vmware.com>
+Subject: [PATCH 4.9 081/117] drm/vmwgfx: integer underflow in vmw_cmd_dx_set_shader() leading to an invalid read
 Date:   Thu, 20 Jun 2019 19:56:55 +0200
-Message-Id: <20190620174350.411020754@linuxfoundation.org>
+Message-Id: <20190620174357.187907749@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Murray McAllister <murray.mcallister@gmail.com>
 
-Due to an issue on Spectrum-2, in front-panel ports split four ways, 2 out
-of 32 port buffers cannot be used. To work around this, the next FW release
-will mark them as unused, and will report correspondingly lower total
-shared buffer size. mlxsw will pick up the new value through a query to
-cap_total_buffer_size resource. However the initial size for shared buffer
-pool 0 is hard-coded and therefore needs to be updated.
+commit 5ed7f4b5eca11c3c69e7c8b53e4321812bc1ee1e upstream.
 
-Thus reduce the pool size by 2.7 MiB (which corresponds to 2/32 of the
-total size of 42 MiB), and round down to the whole number of cells.
+If SVGA_3D_CMD_DX_SET_SHADER is called with a shader ID
+of SVGA3D_INVALID_ID, and a shader type of
+SVGA3D_SHADERTYPE_INVALID, the calculated binding.shader_slot
+will be 4294967295, leading to an out-of-bounds read in vmw_binding_loc()
+when the offset is calculated.
 
-Fixes: fe099bf682ab ("mlxsw: spectrum_buffers: Add Spectrum-2 shared buffer configuration")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org>
+Fixes: d80efd5cb3de ("drm/vmwgfx: Initial DX support")
+Signed-off-by: Murray McAllister <murray.mcallister@gmail.com>
+Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlxsw/spectrum_buffers.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_buffers.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_buffers.c
-@@ -411,9 +411,9 @@ static const struct mlxsw_sp_sb_pr mlxsw
- 	MLXSW_SP_SB_PR(MLXSW_REG_SBPR_MODE_STATIC, MLXSW_SP_SB_INFI),
- };
+
+---
+ drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+@@ -2493,7 +2493,8 @@ static int vmw_cmd_dx_set_shader(struct
  
--#define MLXSW_SP2_SB_PR_INGRESS_SIZE	40960000
-+#define MLXSW_SP2_SB_PR_INGRESS_SIZE	38128752
-+#define MLXSW_SP2_SB_PR_EGRESS_SIZE	38128752
- #define MLXSW_SP2_SB_PR_INGRESS_MNG_SIZE (200 * 1000)
--#define MLXSW_SP2_SB_PR_EGRESS_SIZE	40960000
+ 	cmd = container_of(header, typeof(*cmd), header);
  
- static const struct mlxsw_sp_sb_pr mlxsw_sp2_sb_prs[] = {
- 	/* Ingress pools. */
+-	if (cmd->body.type >= SVGA3D_SHADERTYPE_DX10_MAX) {
++	if (cmd->body.type >= SVGA3D_SHADERTYPE_DX10_MAX ||
++	    cmd->body.type < SVGA3D_SHADERTYPE_MIN) {
+ 		DRM_ERROR("Illegal shader type %u.\n",
+ 			  (unsigned) cmd->body.type);
+ 		return -EINVAL;
 
 
