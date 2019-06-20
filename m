@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97D4D4D875
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17A7B4D5B8
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:01:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726687AbfFTS0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:26:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59466 "EHLO mail.kernel.org"
+        id S1726942AbfFTSAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728076AbfFTSFq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:05:46 -0400
+        id S1726931AbfFTSAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:00:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B6D3215EA;
-        Thu, 20 Jun 2019 18:05:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EB18208CA;
+        Thu, 20 Jun 2019 18:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053946;
-        bh=e2nZU217aUWFTWDMd16QQVgHs+P9wdQvvC9J69tTyhs=;
+        s=default; t=1561053621;
+        bh=snxNge4y/YgYh8pt7CvjFkx+Ubop37dNmgxP6d0bU7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzOSPmHyBujuNNso6nuOzGeHgi5tIqNp+CWfC9pV9FO+oa/szRIc7fiqDdpnVhroZ
-         Z+wgCZcjWt0fuoZXriFlgvKqz+Gx5KK3Yf1IfbubwU/QQ8vNWMSDl4MokYUVyaUNe5
-         RkIvR5nQMlgulgSi7naIAOS20Mzn2GIVRJkTyuJ8=
+        b=AE7c/MPRVBh9I8/xKabc9J2EAr01m7yTKidDo3zw0p2znpdAHB3DIp7U6ek6X9FvX
+         1Q/v20y3flUT1F6/UcNV8+uzwjHgCZOxO4dsHUamIFmBN7z8jrdB1zXMCARXOimPAr
+         LtA4lvLmX4R0+8VUX1OmiYYdLQyRRAugYVb/OdwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
+        stable@vger.kernel.org, Oliver Zweigle <Oliver.Zweigle@faro.com>,
+        Bernd Eckstein <3ernd.Eckstein@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 075/117] arm64/mm: Inhibit huge-vmap with ptdump
-Date:   Thu, 20 Jun 2019 19:56:49 +0200
-Message-Id: <20190620174357.017502121@linuxfoundation.org>
+Subject: [PATCH 4.4 53/84] usbnet: ipheth: fix racing condition
+Date:   Thu, 20 Jun 2019 19:56:50 +0200
+Message-Id: <20190620174346.904349990@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,74 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7ba36eccb3f83983a651efd570b4f933ecad1b5c ]
+[ Upstream commit 94d250fae48e6f873d8362308f5c4d02cd1b1fd2 ]
 
-The arm64 ptdump code can race with concurrent modification of the
-kernel page tables. At the time this was added, this was sound as:
+Fix a racing condition in ipheth.c that can lead to slow performance.
 
-* Modifications to leaf entries could result in stale information being
-  logged, but would not result in a functional problem.
+Bug: In ipheth_tx(), netif_wake_queue() may be called on the callback
+ipheth_sndbulk_callback(), _before_ netif_stop_queue() is called.
+When this happens, the queue is stopped longer than it needs to be,
+thus reducing network performance.
 
-* Boot time modifications to non-leaf entries (e.g. freeing of initmem)
-  were performed when the ptdump code cannot be invoked.
+Fix: Move netif_stop_queue() in front of usb_submit_urb(). Now the order
+is always correct. In case, usb_submit_urb() fails, the queue is woken up
+again as callback will not fire.
 
-* At runtime, modifications to non-leaf entries only occurred in the
-  vmalloc region, and these were strictly additive, as intermediate
-  entries were never freed.
+Testing: This racing condition is usually not noticeable, as it has to
+occur very frequently to slowdown the network. The callback from the USB
+is usually triggered slow enough, so the situation does not appear.
+However, on a Ubuntu Linux on VMWare Workstation, running on Windows 10,
+the we loose the race quite often and the following speedup can be noticed:
 
-However, since commit:
+Without this patch: Download:  4.10 Mbit/s, Upload:  4.01 Mbit/s
+With this patch:    Download: 36.23 Mbit/s, Upload: 17.61 Mbit/s
 
-  commit 324420bf91f6 ("arm64: add support for ioremap() block mappings")
-
-... it has been possible to create huge mappings in the vmalloc area at
-runtime, and as part of this existing intermediate levels of table my be
-removed and freed.
-
-It's possible for the ptdump code to race with this, and continue to
-walk tables which have been freed (and potentially poisoned or
-reallocated). As a result of this, the ptdump code may dereference bogus
-addresses, which could be fatal.
-
-Since huge-vmap is a TLB and memory optimization, we can disable it when
-the runtime ptdump code is in use to avoid this problem.
-
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Fixes: 324420bf91f60582 ("arm64: add support for ioremap() block mappings")
-Acked-by: Ard Biesheuvel <ard.biesheuvel@arm.com>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Oliver Zweigle <Oliver.Zweigle@faro.com>
+Signed-off-by: Bernd Eckstein <3ernd.Eckstein@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/mmu.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/net/usb/ipheth.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 0a56898f8410..efd65fc85238 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -765,13 +765,18 @@ void *__init fixmap_remap_fdt(phys_addr_t dt_phys)
+diff --git a/drivers/net/usb/ipheth.c b/drivers/net/usb/ipheth.c
+index 01f95d192d25..2b16a5fed9de 100644
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -437,17 +437,18 @@ static int ipheth_tx(struct sk_buff *skb, struct net_device *net)
+ 			  dev);
+ 	dev->tx_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
  
- int __init arch_ioremap_pud_supported(void)
- {
--	/* only 4k granule supports level 1 block mappings */
--	return IS_ENABLED(CONFIG_ARM64_4K_PAGES);
-+	/*
-+	 * Only 4k granule supports level 1 block mappings.
-+	 * SW table walks can't handle removal of intermediate entries.
-+	 */
-+	return IS_ENABLED(CONFIG_ARM64_4K_PAGES) &&
-+	       !IS_ENABLED(CONFIG_ARM64_PTDUMP_DEBUGFS);
- }
++	netif_stop_queue(net);
+ 	retval = usb_submit_urb(dev->tx_urb, GFP_ATOMIC);
+ 	if (retval) {
+ 		dev_err(&dev->intf->dev, "%s: usb_submit_urb: %d\n",
+ 			__func__, retval);
+ 		dev->net->stats.tx_errors++;
+ 		dev_kfree_skb_any(skb);
++		netif_wake_queue(net);
+ 	} else {
+ 		dev->net->stats.tx_packets++;
+ 		dev->net->stats.tx_bytes += skb->len;
+ 		dev_consume_skb_any(skb);
+-		netif_stop_queue(net);
+ 	}
  
- int __init arch_ioremap_pmd_supported(void)
- {
--	return 1;
-+	/* See arch_ioremap_pud_supported() */
-+	return !IS_ENABLED(CONFIG_ARM64_PTDUMP_DEBUGFS);
- }
- 
- int pud_set_huge(pud_t *pud, phys_addr_t phys, pgprot_t prot)
+ 	return NETDEV_TX_OK;
 -- 
 2.20.1
 
