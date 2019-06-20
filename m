@@ -2,71 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEC1A4DC4A
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 23:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D3174DC51
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 23:14:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725911AbfFTVMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 17:12:35 -0400
-Received: from relay1.mentorg.com ([192.94.38.131]:36995 "EHLO
-        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725905AbfFTVMf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 17:12:35 -0400
-Received: from nat-ies.mentorg.com ([192.94.31.2] helo=svr-ies-mbx-01.mgc.mentorg.com)
-        by relay1.mentorg.com with esmtps (TLSv1.2:ECDHE-RSA-AES256-SHA384:256)
-        id 1he4MC-0007MN-8K from Cedric_Hombourger@mentor.com ; Thu, 20 Jun 2019 14:12:32 -0700
-Received: from svr-ies-mbx-02.mgc.mentorg.com (139.181.222.2) by
- svr-ies-mbx-01.mgc.mentorg.com (139.181.222.1) with Microsoft SMTP Server
- (TLS) id 15.0.1320.4; Thu, 20 Jun 2019 22:12:26 +0100
-Received: from svr-ies-mbx-02.mgc.mentorg.com ([fe80::a01f:51c9:5b6c:e0c]) by
- svr-ies-mbx-02.mgc.mentorg.com ([fe80::a01f:51c9:5b6c:e0c%22]) with mapi id
- 15.00.1320.000; Thu, 20 Jun 2019 22:12:26 +0100
-From:   "Hombourger, Cedric" <Cedric_Hombourger@mentor.com>
-To:     Paul Burton <paul.burton@mips.com>
-CC:     Sasha Levin <sashal@kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] MIPS: have "plain" make calls build dtbs for selected
- platforms
-Thread-Topic: [PATCH] MIPS: have "plain" make calls build dtbs for selected
- platforms
-Thread-Index: AQHVIcVrw5tGiAGyckKhKLs3W2AnEaadO4kAgACh3B+ABltc6YAAuWWAgAAkB9I=
-Date:   Thu, 20 Jun 2019 21:12:26 +0000
-Message-ID: <366B6D73-2DCF-49B6-80B2-B1FAD6C73580@mentor.com>
-References: <1560415970-844-1-git-send-email-Cedric_Hombourger@mentor.com>
- <20190615221604.E6FB82183F@mail.kernel.org> <1560668291651.87711@mentor.com>
- <1561017706300.81899@mentor.com>,<20190620200325.se6e6yicvlkjrb46@pburton-laptop>
-In-Reply-To: <20190620200325.se6e6yicvlkjrb46@pburton-laptop>
-Accept-Language: en-US, en-IE
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
+        id S1725921AbfFTVOF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 17:14:05 -0400
+Received: from mail-wm1-f46.google.com ([209.85.128.46]:51536 "EHLO
+        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725905AbfFTVOF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 17:14:05 -0400
+Received: by mail-wm1-f46.google.com with SMTP id 207so4414177wma.1
+        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 14:14:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HdKRiSB85LvUCFRxbPH+qwH2+8l2OVBBu3iiAsp64IY=;
+        b=AF645dhMgoSfhYEfLmjEL3aDAP2bMMP1fubjmMPUMWpz1YzpLHPaZjUTGWGTuLUOKW
+         hP4x4P13EHZuGMPfX05TCDK2GPY7XkX7pSApplUhJS9hRS0pJtXSo/LCxiNQnWKiDxoM
+         1Wo7VUxkVi6Dr7nTLehyTW4j8N4p05lhYoB9U/uQGHkEJfAf8mO12093jNVqt0VnNZVg
+         9q9YlzH1bSIO/JMMS58wLVve3kEs1A1GX2CEbPjvyGuOccn3nN6HiV2FxE9okGXUXO8l
+         Jy1fIa5klaiXzShTTEIby+w8oAnLEXDoFOH2ES7oAHcNmvgCML7+x+lCdBaetqqoPlY4
+         N4Sw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HdKRiSB85LvUCFRxbPH+qwH2+8l2OVBBu3iiAsp64IY=;
+        b=Dn08DHlJ8U6LlS08/Ma0F6VrbWxR+G4wGn18DpN3FjIQz6dVB7JcP/aa8GSpHQa9Gb
+         QrBe7CHl0zM/E2sWZ+aovmbHZx/Rct82cxOOFKCSCcIjDRpN+/ZzuF/n00DMzBT2uiL4
+         IFg8BnA6/jK1WF7ZgqiYwi7I+c1KHqH3d9KUUnBYROwcViOpN3Ov5o34ll9loy4EqWnN
+         E4+gNqVzBlfW73n8QWcTvZd47AaS+k7nW+Aj3UJOHtssokbpQKZmRtFouCspBZNdepMQ
+         XfW7Y1I2fn7n5ZArb3MVd1fqYYhy0eRsTZFTf9uNZsfJkjog9DH/gCEsP/oqZtEYakPy
+         OdRQ==
+X-Gm-Message-State: APjAAAUjvrSZypduYyR2hOolfRJaLl4sFeZ1N1g6Z1FH3qtBcPqMz0AL
+        9Fmv2nbGjqLITc05ME3ORfdO9TDIjpkTSg==
+X-Google-Smtp-Source: APXvYqwZfWhWPtznKpLqyeysgz9IUTr5bPtoEInI7nxwzngo9lFzu4VPpae24tR1fA6QskKUkBwvTg==
+X-Received: by 2002:a1c:cb4d:: with SMTP id b74mr998936wmg.43.1561065242945;
+        Thu, 20 Jun 2019 14:14:02 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id d18sm1490953wrb.90.2019.06.20.14.14.02
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 20 Jun 2019 14:14:02 -0700 (PDT)
+Message-ID: <5d0bf71a.1c69fb81.8001d.940a@mx.google.com>
+Date:   Thu, 20 Jun 2019 14:14:02 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.53-62-gf22a520163d3
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 65 boots: 0 failed,
+ 65 passed (v4.19.53-62-gf22a520163d3)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGVsbG8gUGF1bCwgDQoNCkkgd2lsbCByZWNoZWNrIHRvbW9ycm93IG1vcm5pbmcgYnV0IHRoZSBr
-ZXJuZWwgSSB3YXMgaW5pdGlhbGx5IHdvcmtpbmcgd2l0aCB3YXMgNC4xOSBhbmQgSSBkaWQgbm90
-IGZpbmQgZHRicyBiZWluZyBjb21waWxlZCBmcm9tIGEgcGxhaW4gbWFrZSBvciBmcm9tIGJ1aWxk
-ZGViIA0KDQpGb3Igd2hhdCBpdOKAmXMgd29ydGgsIEkgd2FzIHVzaW5nIHRoZSBwaXN0YWNoaW9f
-ZGVmY29uZmlnLg0KDQpNeSB0ZXN0IHdvcmtmbG93IGlzIGFzIGZvbGxvd3MgKEFSQ0ggYW5kIENS
-T1NTX0NPTVBJTEUgYXJlIHNldCBpbiBteSBlbnZpcm9ubWVudCkNCg0KbWFrZSBtcnByb3BlciAN
-Cm1ha2UgcGlzdGFjaGlvX2RlZmNvbmZpZw0KbWFrZQ0KZmluZCBhcmNoL21pcHMgLW5hbWUgKi5k
-dGINCg0KQ2VkcmljDQoNCj4gT24gMjAgSnVuIDIwMTksIGF0IDIyOjAzLCBQYXVsIEJ1cnRvbiA8
-cGF1bC5idXJ0b25AbWlwcy5jb20+IHdyb3RlOg0KPiANCj4gSGkgQ2VkcmljLA0KPiANCj4+IE9u
-IFRodSwgSnVuIDIwLCAyMDE5IGF0IDA4OjAxOjQ2QU0gKzAwMDAsIEhvbWJvdXJnZXIsIENlZHJp
-YyB3cm90ZToNCj4+IEp1c3QgdG8gZm9sbG93LXVwLiBJIGhhdmUgdmVyaWZpZWQgdGhhdCB3ZSBj
-YW4gYXBwbHkgdGhpcyBwYXRjaCB0byA0LjQNCj4+IGFuZCA0Ljkgd2l0aG91dCBpbnRyb2R1Y2lu
-ZyBhZGRpdGlvbmFsIHBhdGNoZXMgYnV0IHNpbXBseSByZXNvbHZpbmcNCj4+IGNvbmZsaWN0cy4g
-U2hvdWxkIEkgcG9zdCBzZXBhcmF0ZSBwYXRjaGVzIGZvciA0LjQgYW5kIDQuOT8NCj4gDQo+IElz
-IHRoZSBwYXRjaCBhY3R1YWxseSBuZWVkZWQgYW55IGVhcmxpZXIgdGhhbiB2NC4yMD8NCj4gDQo+
-IExvY2FsbHkgSSd2ZSBhcHBsaWVkIGl0IHRvIG1pcHMtZml4ZXMgJiB0YWdnZWQgaXQgd2l0aDoN
-Cj4gDQo+IEZpeGVzOiBkNTYxNWU0NzJkMjMgKCJidWlsZGRlYjogRml4IGluY2x1c2lvbiBvZiBk
-dGJzIGluIGRlYmlhbiBwYWNrYWdlIikNCj4gQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcgIyB2
-NC4yMCsNCj4gDQo+IEl0IGxvb2tzIHRvIG1lIGxpa2UgcHJpb3IgdG8gdGhhdCBjb21taXQgdGhp
-cyBpcyB1bm5lY2Vzc2FyeS4gSWYgdGhhdCdzDQo+IHdyb25nIHBsZWFzZSBsZXQgbWUga25vdy4N
-Cj4gDQo+IFRoYW5rcywNCj4gICAgUGF1bA0K
+stable-rc/linux-4.19.y boot: 65 boots: 0 failed, 65 passed (v4.19.53-62-gf2=
+2a520163d3)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.53-62-gf22a520163d3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.53-62-gf22a520163d3/
+
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.53-62-gf22a520163d3
+Git Commit: f22a520163d30baac515fcced7eb7ae13dc78c89
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 36 unique boards, 17 SoC families, 12 builds out of 206
+
+---
+For more info write to <info@kernelci.org>
