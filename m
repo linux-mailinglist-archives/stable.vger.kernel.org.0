@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C7BB4D87D
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:27:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B54924D593
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 19:59:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727334AbfFTSFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:05:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58586 "EHLO mail.kernel.org"
+        id S1726384AbfFTR7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 13:59:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727416AbfFTSFS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:05:18 -0400
+        id S1726388AbfFTR7B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 13:59:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D36B2089C;
-        Thu, 20 Jun 2019 18:05:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E7472084A;
+        Thu, 20 Jun 2019 17:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053918;
-        bh=CpP9HgL7rXO7Q7sG/9UEhz5tekuDMgLy+X8pz2WFkiM=;
+        s=default; t=1561053539;
+        bh=7VUVGUOm/nx2NWzmWzcjQdoXW2NdMPJLjxHaR95uAvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ETanSgi+vX1VUEDcG0zTkN9MKZ+I6Z/DI69OaDx4TbEkV0DQRv+Rhis4E3QkhEb3n
-         AiQyYiH7iA0GnXJqoOR2iwNtzpwUEHVgjeddu79UwZMs+fdOCFy6viBPtxwhSNOXex
-         QDDmbqM6HbPvKXTP/odgDk47wUNBhpJFIbOyEHJg=
+        b=HfjFhZTVWOhZFxM7U95ukw4qUCLqi6Lo+SGfHLfh9pK7QS63IaBrIf6mRe2ZTIgiC
+         +hZmpTCgYRJVun3BcdxYLin7DFC1AE0bEAreftWiFZ5CsWisP5KHjcDHHzsTywGOpV
+         KWydc46762pPHFE1UWr/If0j70i41K/lV4uZJrAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Vasut <marek.vasut+renesas@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Phil Edworthy <phil.edworthy@renesas.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        linux-renesas-soc@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 045/117] PCI: rcar: Fix 64bit MSI message address handling
-Date:   Thu, 20 Jun 2019 19:56:19 +0200
-Message-Id: <20190620174354.672833798@linuxfoundation.org>
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Elaine Zhang <zhangqing@rock-chips.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 23/84] clk: rockchip: Turn on "aclk_dmac1" for suspend on rk3288
+Date:   Thu, 20 Jun 2019 19:56:20 +0200
+Message-Id: <20190620174341.085755870@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,74 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 954b4b752a4c4e963b017ed8cef4c453c5ed308d ]
+[ Upstream commit 57a20248ef3e429dc822f0774bc4e00136c46c83 ]
 
-The MSI message address in the RC address space can be 64 bit. The
-R-Car PCIe RC supports such a 64bit MSI message address as well.
-The code currently uses virt_to_phys(__get_free_pages()) to obtain
-a reserved page for the MSI message address, and the return value
-of which can be a 64 bit physical address on 64 bit system.
+Experimentally it can be seen that going into deep sleep (specifically
+setting PMU_CLR_DMA and PMU_CLR_BUS in RK3288_PMU_PWRMODE_CON1)
+appears to fail unless "aclk_dmac1" is on.  The failure is that the
+system never signals that it made it into suspend on the GLOBAL_PWROFF
+pin and it just hangs.
 
-However, the driver only programs PCIEMSIALR register with the bottom
-32 bits of the virt_to_phys(__get_free_pages()) return value and does
-not program the top 32 bits into PCIEMSIAUR, but rather programs the
-PCIEMSIAUR register with 0x0. This worked fine on older 32 bit R-Car
-SoCs, however may fail on new 64 bit R-Car SoCs.
+NOTE that it's confirmed that it's the actual suspend that fails, not
+one of the earlier calls to read/write registers.  Specifically if you
+comment out the "PMU_GLOBAL_INT_DISABLE" setting in
+rk3288_slp_mode_set() and then comment out the "cpu_do_idle()" call in
+rockchip_lpmode_enter() then you can exercise the whole suspend path
+without any crashing.
 
-Since from a PCIe controller perspective, an inbound MSI is a memory
-write to a special address (in case of this controller, defined by
-the value in PCIEMSIAUR:PCIEMSIALR), which triggers an interrupt, but
-never hits the DRAM _and_ because allocation of an MSI by a PCIe card
-driver obtains the MSI message address by reading PCIEMSIAUR:PCIEMSIALR
-in rcar_msi_setup_irqs(), incorrectly programmed PCIEMSIAUR cannot
-cause memory corruption or other issues.
+This is currently not a problem with suspend upstream because there is
+no current way to exercise the deep suspend code.  However, anyone
+trying to make it work will run into this issue.
 
-There is however the possibility that if virt_to_phys(__get_free_pages())
-returned address above the 32bit boundary _and_ PCIEMSIAUR was programmed
-to 0x0 _and_ if the system had physical RAM at the address matching the
-value of PCIEMSIALR, a PCIe card driver could allocate a buffer with a
-physical address matching the value of PCIEMSIALR and a remote write to
-such a buffer by a PCIe card would trigger a spurious MSI.
+This was not a problem on shipping rk3288-based Chromebooks because
+those devices all ran on an old kernel based on 3.14.  On that kernel
+"aclk_dmac1" appears to be left on all the time.
 
-Fixes: e015f88c368d ("PCI: rcar: Add support for R-Car H3 to pcie-rcar")
-Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Phil Edworthy <phil.edworthy@renesas.com>
-Cc: Simon Horman <horms+renesas@verge.net.au>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-renesas-soc@vger.kernel.org
+There are several ways to skin this problem.
+
+A) We could add "aclk_dmac1" to the list of critical clocks and that
+apperas to work, but presumably that wastes power.
+
+B) We could keep a list of "struct clk" objects to enable at suspend
+time in clk-rk3288.c and use the standard clock APIs.
+
+C) We could make the rk3288-pmu driver keep a list of clocks to enable
+at suspend time.  Presumably this would require a dts and bindings
+change.
+
+D) We could just whack the clock on in the existing syscore suspend
+function where we whack a bunch of other clocks.  This is particularly
+easy because we know for sure that the clock's only parent
+("aclk_cpu") is a critical clock so we don't need to do anything more
+than ungate it.
+
+In this case I have chosen D) because it seemed like the least work,
+but any of the other options would presumably also work fine.
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Elaine Zhang <zhangqing@rock-chips.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/host/pcie-rcar.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/rockchip/clk-rk3288.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/pci/host/pcie-rcar.c b/drivers/pci/host/pcie-rcar.c
-index 77d931178178..7f6b454bca65 100644
---- a/drivers/pci/host/pcie-rcar.c
-+++ b/drivers/pci/host/pcie-rcar.c
-@@ -847,7 +847,7 @@ static int rcar_pcie_enable_msi(struct rcar_pcie *pcie)
- {
- 	struct device *dev = pcie->dev;
- 	struct rcar_msi *msi = &pcie->msi;
--	unsigned long base;
-+	phys_addr_t base;
- 	int err, i;
+diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/clk-rk3288.c
+index 9040878e3e2b..a6cda84b67da 100644
+--- a/drivers/clk/rockchip/clk-rk3288.c
++++ b/drivers/clk/rockchip/clk-rk3288.c
+@@ -797,6 +797,9 @@ static const int rk3288_saved_cru_reg_ids[] = {
+ 	RK3288_CLKSEL_CON(10),
+ 	RK3288_CLKSEL_CON(33),
+ 	RK3288_CLKSEL_CON(37),
++
++	/* We turn aclk_dmac1 on for suspend; this will restore it */
++	RK3288_CLKGATE_CON(10),
+ };
  
- 	mutex_init(&msi->lock);
-@@ -892,8 +892,8 @@ static int rcar_pcie_enable_msi(struct rcar_pcie *pcie)
+ static u32 rk3288_saved_cru_regs[ARRAY_SIZE(rk3288_saved_cru_reg_ids)];
+@@ -812,6 +815,14 @@ static int rk3288_clk_suspend(void)
+ 				readl_relaxed(rk3288_cru_base + reg_id);
  	}
- 	base = virt_to_phys((void *)msi->pages);
  
--	rcar_pci_write_reg(pcie, base | MSIFE, PCIEMSIALR);
--	rcar_pci_write_reg(pcie, 0, PCIEMSIAUR);
-+	rcar_pci_write_reg(pcie, lower_32_bits(base) | MSIFE, PCIEMSIALR);
-+	rcar_pci_write_reg(pcie, upper_32_bits(base), PCIEMSIAUR);
- 
- 	/* enable all MSI interrupts */
- 	rcar_pci_write_reg(pcie, 0xffffffff, PCIEMSIIER);
++	/*
++	 * Going into deep sleep (specifically setting PMU_CLR_DMA in
++	 * RK3288_PMU_PWRMODE_CON1) appears to fail unless
++	 * "aclk_dmac1" is on.
++	 */
++	writel_relaxed(1 << (12 + 16),
++		       rk3288_cru_base + RK3288_CLKGATE_CON(10));
++
+ 	/*
+ 	 * Switch PLLs other than DPLL (for SDRAM) to slow mode to
+ 	 * avoid crashes on resume. The Mask ROM on the system will
 -- 
 2.20.1
 
