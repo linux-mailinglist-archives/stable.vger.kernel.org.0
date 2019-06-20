@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA60F4D642
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:06:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42C434D7C6
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727487AbfFTSF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:05:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59760 "EHLO mail.kernel.org"
+        id S1728787AbfFTSKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:10:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726554AbfFTSF5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:05:57 -0400
+        id S1727982AbfFTSKQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:10:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABD67204FD;
-        Thu, 20 Jun 2019 18:05:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A2322082C;
+        Thu, 20 Jun 2019 18:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053956;
-        bh=5EM7OSah/1f58GU10tMIVjyBAbKDXvBeVdbm5RAF7eA=;
+        s=default; t=1561054215;
+        bh=MnLRgpKf8bf7JXa3l3G1EigBR7h3gNLETgMTq6ZJNU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nj5aKYuCqkfwnW439QHa8YIDoO3QZKHMPcJd0B7IzIsKicciN2erW1f4tibM5P2fP
-         vKHCH3RVqwwbcUyv6gsgPtOJkhJqNLZeG+ruOAvnu9X582LckskThUDWyDYyRqjIWG
-         PIKTBPK/8XZnsXCREmzOVnFoW7o7FB7egRA48bvg=
+        b=bhSn1y+0YvZ39csa3J+UbRR2ahqhULarDMKkKf2IgRUMuav5QEFJIkPUV/K9pSimB
+         lJvRWgqjVBn1vS/FPjs8fplv7si0Wn0MS3mCr1d0FptGhkY2ECKmp2nfwctU8rBt56
+         N/gUVoYGsRp288JA7z68aDOHx9a+bsK4zGudaRx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 086/117] USB: serial: pl2303: add Allied Telesis VT-Kit3
+        syzbot+afb980676c836b4a0afa@syzkaller.appspotmail.com,
+        Jeremy Sowden <jeremy@azazel.net>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 05/61] lapb: fixed leak of control-blocks.
 Date:   Thu, 20 Jun 2019 19:57:00 +0200
-Message-Id: <20190620174357.334925136@linuxfoundation.org>
+Message-Id: <20190620174338.536691075@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-commit c5f81656a18b271976a86724dadd8344e54de74e upstream.
+[ Upstream commit 6be8e297f9bcea666ea85ac7a6cd9d52d6deaf92 ]
 
-This is adds the vendor and device id for the AT-VT-Kit3 which is a
-pl2303-based device.
+lapb_register calls lapb_create_cb, which initializes the control-
+block's ref-count to one, and __lapb_insert_cb, which increments it when
+adding the new block to the list of blocks.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+lapb_unregister calls __lapb_remove_cb, which decrements the ref-count
+when removing control-block from the list of blocks, and calls lapb_put
+itself to decrement the ref-count before returning.
+
+However, lapb_unregister also calls __lapb_devtostruct to look up the
+right control-block for the given net_device, and __lapb_devtostruct
+also bumps the ref-count, which means that when lapb_unregister returns
+the ref-count is still 1 and the control-block is leaked.
+
+Call lapb_put after __lapb_devtostruct to fix leak.
+
+Reported-by: syzbot+afb980676c836b4a0afa@syzkaller.appspotmail.com
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/pl2303.c |    1 +
- drivers/usb/serial/pl2303.h |    3 +++
- 2 files changed, 4 insertions(+)
+ net/lapb/lapb_iface.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -101,6 +101,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(SANWA_VENDOR_ID, SANWA_PRODUCT_ID) },
- 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530_PRODUCT_ID) },
- 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
-+	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
- 	{ }					/* Terminating entry */
- };
+--- a/net/lapb/lapb_iface.c
++++ b/net/lapb/lapb_iface.c
+@@ -182,6 +182,7 @@ int lapb_unregister(struct net_device *d
+ 	lapb = __lapb_devtostruct(dev);
+ 	if (!lapb)
+ 		goto out;
++	lapb_put(lapb);
  
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -159,3 +159,6 @@
- #define SMART_VENDOR_ID	0x0b8c
- #define SMART_PRODUCT_ID	0x2303
- 
-+/* Allied Telesis VT-Kit3 */
-+#define AT_VENDOR_ID		0x0caa
-+#define AT_VTKIT3_PRODUCT_ID	0x3001
+ 	lapb_stop_t1timer(lapb);
+ 	lapb_stop_t2timer(lapb);
 
 
