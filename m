@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F32B64D647
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3DB54D678
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:08:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728120AbfFTSGL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:06:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60202 "EHLO mail.kernel.org"
+        id S1728490AbfFTSIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:08:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728116AbfFTSGL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:06:11 -0400
+        id S1728487AbfFTSId (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:08:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00221204FD;
-        Thu, 20 Jun 2019 18:06:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28BC52082C;
+        Thu, 20 Jun 2019 18:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053970;
-        bh=pdUeXeMP80SzpEbwNWNh1OV404r2EqyHxdPWYcXm/G4=;
+        s=default; t=1561054112;
+        bh=PtveUy+0uOZbpOHnaV4yvABE3ro4XwdM4Y9Hp9DxeCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDw/aYYwnNFHdxvnP6xlQE+ZefWU6PfJaMmhyRclBRKRj0sjXojtOY/1gIFDKQlmO
-         ckZ/AJySqJe4jstTZdyYRqApq3hqUlXuKUPFpiXkUMcLpWEH0Y5IqTymmKw0nYd0k1
-         EZDlL/2Vxig6NxEYCk1xxr8aVozqoZL87TzbvUs0=
+        b=roeWDdskuSxDPoyM7d7R3kjO6+Tubtb0ZFYS74kwsypA2upw1RfXhslfXKHTgbRrW
+         STzgKv3d+LQtAdIPZ8xuJrzTLgdAmujfiort16qDDpO0KZJdvPl8mfuJxRnny4ejA8
+         9IqnKyfNrG0HrfpBbTnC+jmSZTzR5CcyOPm65uKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tianhao <tizhao@redhat.com>,
         Ivan Vecera <ivecera@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 091/117] be2net: Fix number of Rx queues used for flow hashing
+Subject: [PATCH 4.14 03/45] be2net: Fix number of Rx queues used for flow hashing
 Date:   Thu, 20 Jun 2019 19:57:05 +0200
-Message-Id: <20190620174357.486695783@linuxfoundation.org>
+Message-Id: <20190620174330.439064686@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
+References: <20190620174328.608036501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -104,7 +104,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/emulex/benet/be_ethtool.c
 +++ b/drivers/net/ethernet/emulex/benet/be_ethtool.c
-@@ -1108,7 +1108,7 @@ static int be_get_rxnfc(struct net_devic
+@@ -1103,7 +1103,7 @@ static int be_get_rxnfc(struct net_devic
  		cmd->data = be_get_rss_hash_opts(adapter, cmd->flow_type);
  		break;
  	case ETHTOOL_GRXRINGS:
