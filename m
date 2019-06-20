@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48E894D7DE
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 989EC4D751
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:18:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728882AbfFTSMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:12:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40116 "EHLO mail.kernel.org"
+        id S1729355AbfFTSRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:17:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728689AbfFTSMT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:12:19 -0400
+        id S1729744AbfFTSRi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:17:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A339F2070B;
-        Thu, 20 Jun 2019 18:12:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA1802089C;
+        Thu, 20 Jun 2019 18:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054339;
-        bh=HIuE3JNFb/DYg2FOXYFgoUdtkIziSqzhWLsa9y8tBu4=;
+        s=default; t=1561054658;
+        bh=tp6DY4yMQ+DaK5o5g/yaSk5enRavQe1Wh/2njTOIatE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+minqsiEBTck5ODXPXxUKlUBgLoeXVXZ2Rx5dSq1aL4sgA8Hmb8Uv4krts8KZw26
-         86dWXRG0Z4chdVsVyvLoal15W1qa5E7/8v9v47VtHiIbyrToeXEuwgvI7xXec7gQ7n
-         yHCsqI1YPws+viY+VzMSq1ImTWJ9KDlOdZyjsBK8=
+        b=yFrkAp7H0Temv3qcPMJaOAZkcIRCi7jgapTiqBa/Q21Jj62hMLW838yqyo/eI388s
+         AH2ysVLQux592NVpLZsWT946wtz6+Oe4C1g0GvfxjxAj+tNraqDVqyhndJVU2f/yVs
+         kyXmalIxO7CX4bPDXCo+661DN12YiQoVV56sdw1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Max Uvarov <muvarov@gmail.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/61] scsi: scsi_dh_alua: Fix possible null-ptr-deref
-Date:   Thu, 20 Jun 2019 19:57:51 +0200
-Message-Id: <20190620174347.001604173@linuxfoundation.org>
+Subject: [PATCH 5.1 85/98] net: phy: dp83867: fix speed 10 in sgmii mode
+Date:   Thu, 20 Jun 2019 19:57:52 +0200
+Message-Id: <20190620174353.605621189@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 12e750bc62044de096ab9a95201213fd912b9994 ]
+[ Upstream commit 333061b924539c0de081339643f45514f5f1c1e6 ]
 
-If alloc_workqueue fails in alua_init, it should return -ENOMEM, otherwise
-it will trigger null-ptr-deref while unloading module which calls
-destroy_workqueue dereference
-wq->lock like this:
+For supporting 10Mps speed in SGMII mode DP83867_10M_SGMII_RATE_ADAPT bit
+of DP83867_10M_SGMII_CFG register has to be cleared by software.
+That does not affect speeds 100 and 1000 so can be done on init.
 
-BUG: KASAN: null-ptr-deref in __lock_acquire+0x6b4/0x1ee0
-Read of size 8 at addr 0000000000000080 by task syz-executor.0/7045
-
-CPU: 0 PID: 7045 Comm: syz-executor.0 Tainted: G         C        5.1.0+ #28
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1
-Call Trace:
- dump_stack+0xa9/0x10e
- __kasan_report+0x171/0x18d
- ? __lock_acquire+0x6b4/0x1ee0
- kasan_report+0xe/0x20
- __lock_acquire+0x6b4/0x1ee0
- lock_acquire+0xb4/0x1b0
- __mutex_lock+0xd8/0xb90
- drain_workqueue+0x25/0x290
- destroy_workqueue+0x1f/0x3f0
- __x64_sys_delete_module+0x244/0x330
- do_syscall_64+0x72/0x2a0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 03197b61c5ec ("scsi_dh_alua: Use workqueue for RTPG")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Max Uvarov <muvarov@gmail.com>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/device_handler/scsi_dh_alua.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/phy/dp83867.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
-index 12dc7100bb4c..d1154baa9436 100644
---- a/drivers/scsi/device_handler/scsi_dh_alua.c
-+++ b/drivers/scsi/device_handler/scsi_dh_alua.c
-@@ -1173,10 +1173,8 @@ static int __init alua_init(void)
- 	int r;
+diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
+index 8448d01819ef..29cae4de9a4f 100644
+--- a/drivers/net/phy/dp83867.c
++++ b/drivers/net/phy/dp83867.c
+@@ -30,6 +30,8 @@
+ #define DP83867_STRAP_STS1	0x006E
+ #define DP83867_RGMIIDCTL	0x0086
+ #define DP83867_IO_MUX_CFG	0x0170
++#define DP83867_10M_SGMII_CFG   0x016F
++#define DP83867_10M_SGMII_RATE_ADAPT_MASK BIT(7)
  
- 	kaluad_wq = alloc_workqueue("kaluad", WQ_MEM_RECLAIM, 0);
--	if (!kaluad_wq) {
--		/* Temporary failure, bypass */
--		return SCSI_DH_DEV_TEMP_BUSY;
--	}
-+	if (!kaluad_wq)
-+		return -ENOMEM;
+ #define DP83867_SW_RESET	BIT(15)
+ #define DP83867_SW_RESTART	BIT(14)
+@@ -277,6 +279,21 @@ static int dp83867_config_init(struct phy_device *phydev)
+ 				       DP83867_IO_MUX_CFG_IO_IMPEDANCE_CTRL);
+ 	}
  
- 	r = scsi_register_device_handler(&alua_dh);
- 	if (r != 0) {
++	if (phydev->interface == PHY_INTERFACE_MODE_SGMII) {
++		/* For support SPEED_10 in SGMII mode
++		 * DP83867_10M_SGMII_RATE_ADAPT bit
++		 * has to be cleared by software. That
++		 * does not affect SPEED_100 and
++		 * SPEED_1000.
++		 */
++		ret = phy_modify_mmd(phydev, DP83867_DEVADDR,
++				     DP83867_10M_SGMII_CFG,
++				     DP83867_10M_SGMII_RATE_ADAPT_MASK,
++				     0);
++		if (ret)
++			return ret;
++	}
++
+ 	/* Enable Interrupt output INT_OE in CFG3 register */
+ 	if (phy_interrupt_is_valid(phydev)) {
+ 		val = phy_read(phydev, DP83867_CFG3);
 -- 
 2.20.1
 
