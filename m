@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 357F64D7D5
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21EF74D664
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:08:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728763AbfFTSL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:11:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39148 "EHLO mail.kernel.org"
+        id S1726511AbfFTSHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:07:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728412AbfFTSLZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:11:25 -0400
+        id S1728313AbfFTSHX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:07:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFA8A2082C;
-        Thu, 20 Jun 2019 18:11:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 489E52070B;
+        Thu, 20 Jun 2019 18:07:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054284;
-        bh=rLGywLM7GHWIRlLUpGXkODVGWh+wZ0q8mk2YBLfdhSY=;
+        s=default; t=1561054042;
+        bh=SZZE+pgDssWiTsN/aIEafz1u29jCy292uDmCCXDuVjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MGWoO7wGcQSPrnPDHKxweXg9GI4hsxIXbQ/hjoBi8HrenJ0BafT/lEBBfaMhzdWAi
-         Qi0C2iOa3NAF9nntG96rU5Zgo0eXeiAQLQEVq5/dgiwuwSH5obDEu061blmh5lKRPN
-         iAKPQxmK8jhl11VzDVKMNRQNvNVSDZ7V0aBJyFA8=
+        b=jOwbhcvYf8l3g1Q4WTh5wy3UVG+EdDNUXBusUxq14rgQiJqzMOoMex3a1u2vaohl3
+         LeFBUV462ws3Mjd387GeJlxM4SXByC4jalEG6FPrvDgr786zCiAg8Scy43dC+d8Rol
+         4SibhQKkmjwzxZn2Jq1ld1CIaUaQvo+pKK+vVNgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Russkikh <igor.russkikh@aquantia.com>,
-        Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/61] net: aquantia: fix LRO with FCS error
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Alexander Lochmann <alexander.lochmann@tu-dortmund.de>,
+        Horst Schirmeier <horst.schirmeier@tu-dortmund.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Zubin Mithra <zsm@chromium.org>
+Subject: [PATCH 4.9 117/117] Abort file_remove_privs() for non-reg. files
 Date:   Thu, 20 Jun 2019 19:57:31 +0200
-Message-Id: <20190620174343.664443414@linuxfoundation.org>
+Message-Id: <20190620174358.416172980@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,104 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit eaeb3b7494ba9159323814a8ce8af06a9277d99b ]
+From: Alexander Lochmann <alexander.lochmann@tu-dortmund.de>
 
-Driver stops producing skbs on ring if a packet with FCS error
-was coalesced into LRO session. Ring gets hang forever.
+commit f69e749a49353d96af1a293f56b5b56de59c668a upstream.
 
-Thats a logical error in driver processing descriptors:
-When rx_stat indicates MAC Error, next pointer and eop flags
-are not filled. This confuses driver so it waits for descriptor 0
-to be filled by HW.
+file_remove_privs() might be called for non-regular files, e.g.
+blkdev inode. There is no reason to do its job on things
+like blkdev inodes, pipes, or cdevs. Hence, abort if
+file does not refer to a regular inode.
 
-Solution is fill next pointer and eop flag even for packets with FCS error.
+AV: more to the point, for devices there might be any number of
+inodes refering to given device.  Which one to strip the permissions
+from, even if that made any sense in the first place?  All of them
+will be observed with contents modified, after all.
 
-Fixes: bab6de8fd180b ("net: ethernet: aquantia: Atlantic A0 and B0 specific functions.")
-Signed-off-by: Igor Russkikh <igor.russkikh@aquantia.com>
-Signed-off-by: Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Found by LockDoc (Alexander Lochmann, Horst Schirmeier and Olaf
+Spinczyk)
+
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Alexander Lochmann <alexander.lochmann@tu-dortmund.de>
+Signed-off-by: Horst Schirmeier <horst.schirmeier@tu-dortmund.de>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Zubin Mithra <zsm@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../aquantia/atlantic/hw_atl/hw_atl_b0.c      | 61 ++++++++++---------
- 1 file changed, 32 insertions(+), 29 deletions(-)
+ fs/inode.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
-index 56363ff5c891..51cd1f98bcf0 100644
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
-@@ -695,38 +695,41 @@ static int hw_atl_b0_hw_ring_rx_receive(struct aq_hw_s *self,
- 		if ((rx_stat & BIT(0)) || rxd_wb->type & 0x1000U) {
- 			/* MAC error or DMA error */
- 			buff->is_error = 1U;
--		} else {
--			if (self->aq_nic_cfg->is_rss) {
--				/* last 4 byte */
--				u16 rss_type = rxd_wb->type & 0xFU;
--
--				if (rss_type && rss_type < 0x8U) {
--					buff->is_hash_l4 = (rss_type == 0x4 ||
--					rss_type == 0x5);
--					buff->rss_hash = rxd_wb->rss_hash;
--				}
-+		}
-+		if (self->aq_nic_cfg->is_rss) {
-+			/* last 4 byte */
-+			u16 rss_type = rxd_wb->type & 0xFU;
-+
-+			if (rss_type && rss_type < 0x8U) {
-+				buff->is_hash_l4 = (rss_type == 0x4 ||
-+				rss_type == 0x5);
-+				buff->rss_hash = rxd_wb->rss_hash;
- 			}
-+		}
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -1804,8 +1804,13 @@ int file_remove_privs(struct file *file)
+ 	int kill;
+ 	int error = 0;
  
--			if (HW_ATL_B0_RXD_WB_STAT2_EOP & rxd_wb->status) {
--				buff->len = rxd_wb->pkt_len %
--					AQ_CFG_RX_FRAME_MAX;
--				buff->len = buff->len ?
--					buff->len : AQ_CFG_RX_FRAME_MAX;
--				buff->next = 0U;
--				buff->is_eop = 1U;
-+		if (HW_ATL_B0_RXD_WB_STAT2_EOP & rxd_wb->status) {
-+			buff->len = rxd_wb->pkt_len %
-+				AQ_CFG_RX_FRAME_MAX;
-+			buff->len = buff->len ?
-+				buff->len : AQ_CFG_RX_FRAME_MAX;
-+			buff->next = 0U;
-+			buff->is_eop = 1U;
-+		} else {
-+			buff->len =
-+				rxd_wb->pkt_len > AQ_CFG_RX_FRAME_MAX ?
-+				AQ_CFG_RX_FRAME_MAX : rxd_wb->pkt_len;
-+
-+			if (HW_ATL_B0_RXD_WB_STAT2_RSCCNT &
-+				rxd_wb->status) {
-+				/* LRO */
-+				buff->next = rxd_wb->next_desc_ptr;
-+				++ring->stats.rx.lro_packets;
- 			} else {
--				if (HW_ATL_B0_RXD_WB_STAT2_RSCCNT &
--					rxd_wb->status) {
--					/* LRO */
--					buff->next = rxd_wb->next_desc_ptr;
--					++ring->stats.rx.lro_packets;
--				} else {
--					/* jumbo */
--					buff->next =
--						aq_ring_next_dx(ring,
--								ring->hw_head);
--					++ring->stats.rx.jumbo_packets;
--				}
-+				/* jumbo */
-+				buff->next =
-+					aq_ring_next_dx(ring,
-+							ring->hw_head);
-+				++ring->stats.rx.jumbo_packets;
- 			}
- 		}
- 	}
--- 
-2.20.1
-
+-	/* Fast path for nothing security related */
+-	if (IS_NOSEC(inode))
++	/*
++	 * Fast path for nothing security related.
++	 * As well for non-regular files, e.g. blkdev inodes.
++	 * For example, blkdev_write_iter() might get here
++	 * trying to remove privs which it is not allowed to.
++	 */
++	if (IS_NOSEC(inode) || !S_ISREG(inode->i_mode))
+ 		return 0;
+ 
+ 	kill = dentry_needs_remove_privs(dentry);
 
 
