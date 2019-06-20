@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F34944D7EF
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1865A4D5CD
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729168AbfFTSNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:13:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40984 "EHLO mail.kernel.org"
+        id S1726245AbfFTSBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:01:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729166AbfFTSNE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:13:04 -0400
+        id S1727161AbfFTSBI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:01:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C5582089C;
-        Thu, 20 Jun 2019 18:13:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F9F82089C;
+        Thu, 20 Jun 2019 18:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054383;
-        bh=Egf73Uthvql39YGQPG2N1+kk+ff3ZyCN98Dwq0WQUj4=;
+        s=default; t=1561053667;
+        bh=8EyeSjUpQh19iCE24F3U8olC8MptdrzOxFATJHzEoSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CAEh/IOxdRXhR4WskXmnv6fv2kvT62Isp7cE40CUMVrR11yy7ERcX90BjPLl2T5AS
-         QNxuarU2qKqFuaJ9epSpX4ft1FBfPbV5Z0P8PgN/rywEgRLRP+6BmD//WWC9uiJ3FC
-         OdABTGqHCQV4J5INwymJR5BthLe/X+UcpsmF9g7A=
+        b=AwiEU7p0Y4TdxUOXamE/WiZGJlYIGSZeKxuT+C3s3e60VvIJm6gzD7UqBrG4KAzxk
+         b78/HVDq1GsSsKj+jgy2CXGIyyIB9h5avF9MgnLQkC/KPhnV0wB1EEOUxLRw2MvmPB
+         PMWgVRPqN8shT8ySk9mxOAcYcN3jP60aw/yi1vMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Steinar H. Gunderson" <steinar+kernel@gunderson.no>,
-        Andre Tomt <andre@tomt.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 10/98] net: tls, correctly account for copied bytes with multiple sk_msgs
-Date:   Thu, 20 Jun 2019 19:56:37 +0200
-Message-Id: <20190620174349.816327593@linuxfoundation.org>
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.4 41/84] libata: Extend quirks for the ST1000LM024 drives with NOLPM quirk
+Date:   Thu, 20 Jun 2019 19:56:38 +0200
+Message-Id: <20190620174344.378289560@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 648ee6cea7dde4a5cdf817e5d964fd60b22006a4 ]
+commit 31f6264e225fb92cf6f4b63031424f20797c297d upstream.
 
-tls_sw_do_sendpage needs to return the total number of bytes sent
-regardless of how many sk_msgs are allocated. Unfortunately, copied
-(the value we return up the stack) is zero'd before each new sk_msg
-is allocated so we only return the copied size of the last sk_msg used.
+We've received a bugreport that using LPM with ST1000LM024 drives leads
+to system lockups. So it seems that these models are buggy in more then
+1 way. Add NOLPM quirk to the existing quirks entry for BROKEN_FPDMA_AA.
 
-The caller (splice, etc.) of sendpage will then believe only part
-of its data was sent and send the missing chunks again. However,
-because the data actually was sent the receiver will get multiple
-copies of the same data.
-
-To reproduce this do multiple sendfile calls with a length close to
-the max record size. This will in turn call splice/sendpage, sendpage
-may use multiple sk_msg in this case and then returns the incorrect
-number of bytes. This will cause splice to resend creating duplicate
-data on the receiver. Andre created a C program that can easily
-generate this case so we will push a similar selftest for this to
-bpf-next shortly.
-
-The fix is to _not_ zero the copied field so that the total sent
-bytes is returned.
-
-Reported-by: Steinar H. Gunderson <steinar+kernel@gunderson.no>
-Reported-by: Andre Tomt <andre@tomt.net>
-Tested-by: Andre Tomt <andre@tomt.net>
-Fixes: d829e9c4112b ("tls: convert to generic sk_msg interface")
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1571330
+Cc: stable@vger.kernel.org
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/tls/tls_sw.c |    1 -
- 1 file changed, 1 deletion(-)
 
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -1128,7 +1128,6 @@ static int tls_sw_do_sendpage(struct soc
+---
+ drivers/ata/libata-core.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4176,9 +4176,12 @@ static const struct ata_blacklist_entry
+ 	{ "ST3320[68]13AS",	"SD1[5-9]",	ATA_HORKAGE_NONCQ |
+ 						ATA_HORKAGE_FIRMWARE_WARN },
  
- 		full_record = false;
- 		record_room = TLS_MAX_PAYLOAD_SIZE - msg_pl->sg.size;
--		copied = 0;
- 		copy = size;
- 		if (copy >= record_room) {
- 			copy = record_room;
+-	/* drives which fail FPDMA_AA activation (some may freeze afterwards) */
+-	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
+-	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
++	/* drives which fail FPDMA_AA activation (some may freeze afterwards)
++	   the ST disks also have LPM issues */
++	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
++						ATA_HORKAGE_NOLPM, },
++	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
++						ATA_HORKAGE_NOLPM, },
+ 	{ "VB0250EAVER",	"HPG7",		ATA_HORKAGE_BROKEN_FPDMA_AA },
+ 
+ 	/* Blacklist entries taken from Silicon Image 3124/3132
 
 
