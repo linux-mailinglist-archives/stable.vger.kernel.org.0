@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C134D61D
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 293A34D7F6
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727174AbfFTSEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:04:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56928 "EHLO mail.kernel.org"
+        id S1729211AbfFTSNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:13:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727168AbfFTSE3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:04:29 -0400
+        id S1729210AbfFTSNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:13:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5672821479;
-        Thu, 20 Jun 2019 18:04:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F407B208CA;
+        Thu, 20 Jun 2019 18:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053868;
-        bh=UFiHQNYzOBvgg/6HU+6lO8B/JEmfpNhFn9G0j9ouWVc=;
+        s=default; t=1561054394;
+        bh=UfCHc50+h/K+slCE7JCcG0jyf/MlE1PR41uhQPQgYXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WxZEp0aKJ85hZUXt2sqIdRr3xOBwo4aDfarf7YdTDkkocTmAY78le58qe8gQfCuZk
-         ZsNjRp9hXPT6qwOM4wDV0GykvERPtv82FgvMEsN73hgdtR37cOeDF85qJ4F1GlB4dZ
-         hNf2TV9JevaE6FIFinlubzYTGED7v3Kri7/SOAqI=
+        b=aA0P4xKi76MfafJ6azyuGDEfeC7H/an3ae6HpIGcwInFyc/uDlD1JhK7F+SxKiMID
+         mRWcfWflomsQuu/Do58mDfgeTurR+8wVjj7jcDlx9RbjJ0HuK5k+Ug6+eLhcdeszbl
+         dYol4HvziYyjH1wfpz6Xs/2tZQyxL1iGHT2FDuYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e4c8abb920efa77bace9@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 056/117] ALSA: seq: Cover unsubscribe_port() in list_mutex
+        stable@vger.kernel.org, Tianhao <tizhao@redhat.com>,
+        Ivan Vecera <ivecera@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 03/98] be2net: Fix number of Rx queues used for flow hashing
 Date:   Thu, 20 Jun 2019 19:56:30 +0200
-Message-Id: <20190620174355.988400472@linuxfoundation.org>
+Message-Id: <20190620174349.585844987@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Ivan Vecera <ivecera@redhat.com>
 
-commit 7c32ae35fbf9cffb7aa3736f44dec10c944ca18e upstream.
+[ Upstream commit 718f4a2537089ea41903bf357071306163bc7c04 ]
 
-The call of unsubscribe_port() which manages the group count and
-module refcount from delete_and_unsubscribe_port() looks racy; it's
-not covered by the group list lock, and it's likely a cause of the
-reported unbalance at port deletion.  Let's move the call inside the
-group list_mutex to plug the hole.
+Number of Rx queues used for flow hashing returned by the driver is
+incorrect and this bug prevents user to use the last Rx queue in
+indirection table.
 
-Reported-by: syzbot+e4c8abb920efa77bace9@syzkaller.appspotmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Let's say we have a NIC with 6 combined queues:
+
+[root@sm-03 ~]# ethtool -l enp4s0f0
+Channel parameters for enp4s0f0:
+Pre-set maximums:
+RX:             5
+TX:             5
+Other:          0
+Combined:       6
+Current hardware settings:
+RX:             0
+TX:             0
+Other:          0
+Combined:       6
+
+Default indirection table maps all (6) queues equally but the driver
+reports only 5 rings available.
+
+[root@sm-03 ~]# ethtool -x enp4s0f0
+RX flow hash indirection table for enp4s0f0 with 5 RX ring(s):
+    0:      0     1     2     3     4     5     0     1
+    8:      2     3     4     5     0     1     2     3
+   16:      4     5     0     1     2     3     4     5
+   24:      0     1     2     3     4     5     0     1
+...
+
+Now change indirection table somehow:
+
+[root@sm-03 ~]# ethtool -X enp4s0f0 weight 1 1
+[root@sm-03 ~]# ethtool -x enp4s0f0
+RX flow hash indirection table for enp4s0f0 with 6 RX ring(s):
+    0:      0     0     0     0     0     0     0     0
+...
+   64:      1     1     1     1     1     1     1     1
+...
+
+Now it is not possible to change mapping back to equal (default) state:
+
+[root@sm-03 ~]# ethtool -X enp4s0f0 equal 6
+Cannot set RX flow hash configuration: Invalid argument
+
+Fixes: 594ad54a2c3b ("be2net: Add support for setting and getting rx flow hash options")
+Reported-by: Tianhao <tizhao@redhat.com>
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/core/seq/seq_ports.c |    2 +-
+ drivers/net/ethernet/emulex/benet/be_ethtool.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/core/seq/seq_ports.c
-+++ b/sound/core/seq/seq_ports.c
-@@ -550,10 +550,10 @@ static void delete_and_unsubscribe_port(
- 		list_del_init(list);
- 	grp->exclusive = 0;
- 	write_unlock_irq(&grp->list_lock);
--	up_write(&grp->list_mutex);
- 
- 	if (!empty)
- 		unsubscribe_port(client, port, grp, &subs->info, ack);
-+	up_write(&grp->list_mutex);
- }
- 
- /* connect two ports */
+--- a/drivers/net/ethernet/emulex/benet/be_ethtool.c
++++ b/drivers/net/ethernet/emulex/benet/be_ethtool.c
+@@ -1105,7 +1105,7 @@ static int be_get_rxnfc(struct net_devic
+ 		cmd->data = be_get_rss_hash_opts(adapter, cmd->flow_type);
+ 		break;
+ 	case ETHTOOL_GRXRINGS:
+-		cmd->data = adapter->num_rx_qs - 1;
++		cmd->data = adapter->num_rx_qs;
+ 		break;
+ 	default:
+ 		return -EINVAL;
 
 
