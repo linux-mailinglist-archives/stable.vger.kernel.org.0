@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 921DC4D75A
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:18:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E6564D740
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:18:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727429AbfFTSSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:18:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46370 "EHLO mail.kernel.org"
+        id S1729260AbfFTSRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:17:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728987AbfFTSRH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:17:07 -0400
+        id S1729671AbfFTSRJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:17:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6F752089C;
-        Thu, 20 Jun 2019 18:17:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7221C205F4;
+        Thu, 20 Jun 2019 18:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054626;
-        bh=JKdfDt9OFrZnWSR+kRo3GBiGVO9Uw+w2VF5fUUovLRk=;
+        s=default; t=1561054628;
+        bh=mK45/Xbhgfwdi2FZYz42Tj69FVZGZYKwaWYPZwqd6P4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s/j8iF5RoZkMNcskwcUIvR8OePRSi9YUyQ80rkCNNffkq+Nj1PtsocvP75nZRkf32
-         1/LNmPBVUcD9SilHGRV3KkJV7DDMt7MV6B2xRxxpJqB1EkT9yJT2tuz69v8xtwn4BL
-         NFEczuCEiPjTak3+TGpBpYOHgdISIIOyQfwU4Dko=
+        b=yjbysLiuYbtNIYXVciAv1atfSA+D1MxMEX22PO/8iB3L5TO9ZbC78zfWYl+RYZ2Mu
+         T0HT1uH+f3Ak3WA/dq/h1drsIeuZh/zbe2Z5b6d58fVuyeU1DA7UWNpQLBtIxcaf6T
+         Sle76NbsKoy7a2wRFnHAHujOzDarUSgoVZ6XMWMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Shi <yang.shi@linux.alibaba.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Nick Piggin <npiggin@gmail.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Nadav Amit <namit@vmware.com>,
-        Minchan Kim <minchan@kernel.org>, Mel Gorman <mgorman@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.1 94/98] mm: mmu_gather: remove __tlb_reset_range() for force flush
-Date:   Thu, 20 Jun 2019 19:58:01 +0200
-Message-Id: <20190620174354.117984188@linuxfoundation.org>
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Minwoo Im <minwoo.im@samsung.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.1 95/98] nvme-tcp: rename function to have nvme_tcp prefix
+Date:   Thu, 20 Jun 2019 19:58:02 +0200
+Message-Id: <20190620174354.182824738@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
 References: <20190620174349.443386789@linuxfoundation.org>
@@ -51,198 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <yang.shi@linux.alibaba.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-commit 7a30df49f63ad92318ddf1f7498d1129a77dd4bd upstream.
+commit efb973b19b88642bb7e08b8ce8e03b0bbd2a7e2a upstream.
 
-A few new fields were added to mmu_gather to make TLB flush smarter for
-huge page by telling what level of page table is changed.
+usually nvme_ prefix is for core functions.
+While we're cleaning up, remove redundant empty lines
 
-__tlb_reset_range() is used to reset all these page table state to
-unchanged, which is called by TLB flush for parallel mapping changes for
-the same range under non-exclusive lock (i.e.  read mmap_sem).
-
-Before commit dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in
-munmap"), the syscalls (e.g.  MADV_DONTNEED, MADV_FREE) which may update
-PTEs in parallel don't remove page tables.  But, the forementioned
-commit may do munmap() under read mmap_sem and free page tables.  This
-may result in program hang on aarch64 reported by Jan Stancek.  The
-problem could be reproduced by his test program with slightly modified
-below.
-
----8<---
-
-static int map_size = 4096;
-static int num_iter = 500;
-static long threads_total;
-
-static void *distant_area;
-
-void *map_write_unmap(void *ptr)
-{
-	int *fd = ptr;
-	unsigned char *map_address;
-	int i, j = 0;
-
-	for (i = 0; i < num_iter; i++) {
-		map_address = mmap(distant_area, (size_t) map_size, PROT_WRITE | PROT_READ,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-		if (map_address == MAP_FAILED) {
-			perror("mmap");
-			exit(1);
-		}
-
-		for (j = 0; j < map_size; j++)
-			map_address[j] = 'b';
-
-		if (munmap(map_address, map_size) == -1) {
-			perror("munmap");
-			exit(1);
-		}
-	}
-
-	return NULL;
-}
-
-void *dummy(void *ptr)
-{
-	return NULL;
-}
-
-int main(void)
-{
-	pthread_t thid[2];
-
-	/* hint for mmap in map_write_unmap() */
-	distant_area = mmap(0, DISTANT_MMAP_SIZE, PROT_WRITE | PROT_READ,
-			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	munmap(distant_area, (size_t)DISTANT_MMAP_SIZE);
-	distant_area += DISTANT_MMAP_SIZE / 2;
-
-	while (1) {
-		pthread_create(&thid[0], NULL, map_write_unmap, NULL);
-		pthread_create(&thid[1], NULL, dummy, NULL);
-
-		pthread_join(thid[0], NULL);
-		pthread_join(thid[1], NULL);
-	}
-}
----8<---
-
-The program may bring in parallel execution like below:
-
-        t1                                        t2
-munmap(map_address)
-  downgrade_write(&mm->mmap_sem);
-  unmap_region()
-  tlb_gather_mmu()
-    inc_tlb_flush_pending(tlb->mm);
-  free_pgtables()
-    tlb->freed_tables = 1
-    tlb->cleared_pmds = 1
-
-                                        pthread_exit()
-                                        madvise(thread_stack, 8M, MADV_DONTNEED)
-                                          zap_page_range()
-                                            tlb_gather_mmu()
-                                              inc_tlb_flush_pending(tlb->mm);
-
-  tlb_finish_mmu()
-    if (mm_tlb_flush_nested(tlb->mm))
-      __tlb_reset_range()
-
-__tlb_reset_range() would reset freed_tables and cleared_* bits, but this
-may cause inconsistency for munmap() which do free page tables.  Then it
-may result in some architectures, e.g.  aarch64, may not flush TLB
-completely as expected to have stale TLB entries remained.
-
-Use fullmm flush since it yields much better performance on aarch64 and
-non-fullmm doesn't yields significant difference on x86.
-
-The original proposed fix came from Jan Stancek who mainly debugged this
-issue, I just wrapped up everything together.
-
-Jan's testing results:
-
-v5.2-rc2-24-gbec7550cca10
---------------------------
-         mean     stddev
-real    37.382   2.780
-user     1.420   0.078
-sys     54.658   1.855
-
-v5.2-rc2-24-gbec7550cca10 + "mm: mmu_gather: remove __tlb_reset_range() for force flush"
----------------------------------------------------------------------------------------_
-         mean     stddev
-real    37.119   2.105
-user     1.548   0.087
-sys     55.698   1.357
-
-[akpm@linux-foundation.org: coding-style fixes]
-Link: http://lkml.kernel.org/r/1558322252-113575-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Signed-off-by: Jan Stancek <jstancek@redhat.com>
-Reported-by: Jan Stancek <jstancek@redhat.com>
-Tested-by: Jan Stancek <jstancek@redhat.com>
-Suggested-by: Will Deacon <will.deacon@arm.com>
-Tested-by: Will Deacon <will.deacon@arm.com>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Nick Piggin <npiggin@gmail.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Nadav Amit <namit@vmware.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: <stable@vger.kernel.org>	[4.20+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Minwoo Im <minwoo.im@samsung.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/mmu_gather.c |   24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ drivers/nvme/host/tcp.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/mm/mmu_gather.c
-+++ b/mm/mmu_gather.c
-@@ -93,8 +93,17 @@ void arch_tlb_finish_mmu(struct mmu_gath
- 	struct mmu_gather_batch *batch, *next;
- 
- 	if (force) {
-+		/*
-+		 * The aarch64 yields better performance with fullmm by
-+		 * avoiding multiple CPUs spamming TLBI messages at the
-+		 * same time.
-+		 *
-+		 * On x86 non-fullmm doesn't yield significant difference
-+		 * against fullmm.
-+		 */
-+		tlb->fullmm = 1;
- 		__tlb_reset_range(tlb);
--		__tlb_adjust_range(tlb, start, end - start);
-+		tlb->freed_tables = 1;
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -473,7 +473,6 @@ static int nvme_tcp_handle_c2h_data(stru
  	}
  
- 	tlb_flush_mmu(tlb);
-@@ -249,10 +258,15 @@ void tlb_finish_mmu(struct mmu_gather *t
+ 	return 0;
+-
+ }
+ 
+ static int nvme_tcp_handle_comp(struct nvme_tcp_queue *queue,
+@@ -634,7 +633,6 @@ static inline void nvme_tcp_end_request(
+ 	nvme_end_request(rq, cpu_to_le16(status << 1), res);
+ }
+ 
+-
+ static int nvme_tcp_recv_data(struct nvme_tcp_queue *queue, struct sk_buff *skb,
+ 			      unsigned int *offset, size_t *len)
  {
- 	/*
- 	 * If there are parallel threads are doing PTE changes on same range
--	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer TLB
--	 * flush by batching, a thread has stable TLB entry can fail to flush
--	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
--	 * forcefully if we detect parallel PTE batching threads.
-+	 * under non-exclusive lock (e.g., mmap_sem read-side) but defer TLB
-+	 * flush by batching, one thread may end up seeing inconsistent PTEs
-+	 * and result in having stale TLB entries.  So flush TLB forcefully
-+	 * if we detect parallel PTE batching threads.
-+	 *
-+	 * However, some syscalls, e.g. munmap(), may free page tables, this
-+	 * needs force flush everything in the given range. Otherwise this
-+	 * may result in having stale TLB entries for some architectures,
-+	 * e.g. aarch64, that could specify flush what level TLB.
- 	 */
- 	bool force = mm_tlb_flush_nested(tlb->mm);
+@@ -1535,7 +1533,7 @@ out_free_queue:
+ 	return ret;
+ }
+ 
+-static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
++static int __nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
+ {
+ 	int i, ret;
+ 
+@@ -1565,7 +1563,7 @@ static unsigned int nvme_tcp_nr_io_queue
+ 	return nr_io_queues;
+ }
+ 
+-static int nvme_alloc_io_queues(struct nvme_ctrl *ctrl)
++static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
+ {
+ 	unsigned int nr_io_queues;
+ 	int ret;
+@@ -1582,7 +1580,7 @@ static int nvme_alloc_io_queues(struct n
+ 	dev_info(ctrl->device,
+ 		"creating %d I/O queues.\n", nr_io_queues);
+ 
+-	return nvme_tcp_alloc_io_queues(ctrl);
++	return __nvme_tcp_alloc_io_queues(ctrl);
+ }
+ 
+ static void nvme_tcp_destroy_io_queues(struct nvme_ctrl *ctrl, bool remove)
+@@ -1599,7 +1597,7 @@ static int nvme_tcp_configure_io_queues(
+ {
+ 	int ret;
+ 
+-	ret = nvme_alloc_io_queues(ctrl);
++	ret = nvme_tcp_alloc_io_queues(ctrl);
+ 	if (ret)
+ 		return ret;
  
 
 
