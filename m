@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B85634D6C6
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F9564D685
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:09:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728832AbfFTSLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:11:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39678 "EHLO mail.kernel.org"
+        id S1728566AbfFTSJA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:09:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728959AbfFTSLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:11:53 -0400
+        id S1728562AbfFTSJA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:09:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98DFA2089C;
-        Thu, 20 Jun 2019 18:11:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 946A12082C;
+        Thu, 20 Jun 2019 18:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054313;
-        bh=GOp3NByKc6r9Ck4fPiuEBrX64/JzIwN9Krtx+Ulfws8=;
+        s=default; t=1561054139;
+        bh=6GMUxyvK4z5r+zkQy4LTcWyhO8N/+wNeqEntJbTxUAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eN4wNP5sQDslmL0m0zKWqjOjQi5C66j7wZs0jYggEaDU0jaBsgtL6Sm7hzMxl58We
-         1qV+S6jCQmYXAByzYfV1dKzMSQ39UjSREP7DZdF92D6PWq7qpVuE9vJwe8vw0E1+SU
-         zxxpZ7eS4i+1vYMFR0DJhtlSd2iupqJKcs50GoQY=
+        b=PyEiCGQYeKuswTO17eqpZ2GfG2SqBEFcLexifvWVEfNalkmTUEr/qDm8XJb0kSdLl
+         F3E4FwVGdEf66Ez/PExLVVO1BHNBZOeRa+EfqPMJvzidXuZRddbJcACZhVdqN3KBeI
+         MD4wbS79cXzYkjtvesWDTbKcc9N9idQB+CvFh4sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 39/61] configfs: Fix use-after-free when accessing sd->s_dentry
+        stable@vger.kernel.org, Paul Mackerras <paulus@ozlabs.org>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 32/45] KVM: PPC: Book3S HV: Dont take kvm->lock around kvm_for_each_vcpu
 Date:   Thu, 20 Jun 2019 19:57:34 +0200
-Message-Id: <20190620174344.242064418@linuxfoundation.org>
+Message-Id: <20190620174339.268144038@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
+References: <20190620174328.608036501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f6122ed2a4f9c9c1c073ddf6308d1b2ac10e0781 ]
+[ Upstream commit 5a3f49364c3ffa1107bd88f8292406e98c5d206c ]
 
-In the vfs_statx() context, during path lookup, the dentry gets
-added to sd->s_dentry via configfs_attach_attr(). In the end,
-vfs_statx() kills the dentry by calling path_put(), which invokes
-configfs_d_iput(). Ideally, this dentry must be removed from
-sd->s_dentry but it doesn't if the sd->s_count >= 3. As a result,
-sd->s_dentry is holding reference to a stale dentry pointer whose
-memory is already freed up. This results in use-after-free issue,
-when this stale sd->s_dentry is accessed later in
-configfs_readdir() path.
+Currently the HV KVM code takes the kvm->lock around calls to
+kvm_for_each_vcpu() and kvm_get_vcpu_by_id() (which can call
+kvm_for_each_vcpu() internally).  However, that leads to a lock
+order inversion problem, because these are called in contexts where
+the vcpu mutex is held, but the vcpu mutexes nest within kvm->lock
+according to Documentation/virtual/kvm/locking.txt.  Hence there
+is a possibility of deadlock.
 
-This issue can be easily reproduced, by running the LTP test case -
-sh fs_racer_file_list.sh /config
-(https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/fs/racer/fs_racer_file_list.sh)
+To fix this, we simply don't take the kvm->lock mutex around these
+calls.  This is safe because the implementations of kvm_for_each_vcpu()
+and kvm_get_vcpu_by_id() have been designed to be able to be called
+locklessly.
 
-Fixes: 76ae281f6307 ('configfs: fix race between dentry put and lookup')
-Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Reviewed-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ arch/powerpc/kvm/book3s_hv.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index 920d350df37b..809c1edffbaf 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -58,15 +58,13 @@ static void configfs_d_iput(struct dentry * dentry,
- 	if (sd) {
- 		/* Coordinate with configfs_readdir */
- 		spin_lock(&configfs_dirent_lock);
--		/* Coordinate with configfs_attach_attr where will increase
--		 * sd->s_count and update sd->s_dentry to new allocated one.
--		 * Only set sd->dentry to null when this dentry is the only
--		 * sd owner.
--		 * If not do so, configfs_d_iput may run just after
--		 * configfs_attach_attr and set sd->s_dentry to null
--		 * even it's still in use.
-+		/*
-+		 * Set sd->s_dentry to null only when this dentry is the one
-+		 * that is going to be killed.  Otherwise configfs_d_iput may
-+		 * run just after configfs_attach_attr and set sd->s_dentry to
-+		 * NULL even it's still in use.
- 		 */
--		if (atomic_read(&sd->s_count) <= 2)
-+		if (sd->s_dentry == dentry)
- 			sd->s_dentry = NULL;
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 58746328b9bd..3b7488fce3db 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -392,12 +392,7 @@ static void kvmppc_dump_regs(struct kvm_vcpu *vcpu)
  
- 		spin_unlock(&configfs_dirent_lock);
+ static struct kvm_vcpu *kvmppc_find_vcpu(struct kvm *kvm, int id)
+ {
+-	struct kvm_vcpu *ret;
+-
+-	mutex_lock(&kvm->lock);
+-	ret = kvm_get_vcpu_by_id(kvm, id);
+-	mutex_unlock(&kvm->lock);
+-	return ret;
++	return kvm_get_vcpu_by_id(kvm, id);
+ }
+ 
+ static void init_vpa(struct kvm_vcpu *vcpu, struct lppaca *vpa)
+@@ -1258,7 +1253,6 @@ static void kvmppc_set_lpcr(struct kvm_vcpu *vcpu, u64 new_lpcr,
+ 	struct kvmppc_vcore *vc = vcpu->arch.vcore;
+ 	u64 mask;
+ 
+-	mutex_lock(&kvm->lock);
+ 	spin_lock(&vc->lock);
+ 	/*
+ 	 * If ILE (interrupt little-endian) has changed, update the
+@@ -1298,7 +1292,6 @@ static void kvmppc_set_lpcr(struct kvm_vcpu *vcpu, u64 new_lpcr,
+ 		mask &= 0xFFFFFFFF;
+ 	vc->lpcr = (vc->lpcr & ~mask) | (new_lpcr & mask);
+ 	spin_unlock(&vc->lock);
+-	mutex_unlock(&kvm->lock);
+ }
+ 
+ static int kvmppc_get_one_reg_hv(struct kvm_vcpu *vcpu, u64 id,
 -- 
 2.20.1
 
