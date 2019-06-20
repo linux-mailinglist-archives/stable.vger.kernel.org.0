@@ -2,1261 +2,833 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF35F4DA45
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 21:35:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C04E04DAB0
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 21:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726231AbfFTTfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 15:35:43 -0400
-Received: from mail-wr1-f46.google.com ([209.85.221.46]:34694 "EHLO
-        mail-wr1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726169AbfFTTfn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 15:35:43 -0400
-Received: by mail-wr1-f46.google.com with SMTP id k11so4235662wrl.1
-        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 12:35:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=y9yGFKvmNjs81KCjsyd6DV93Wrx5RHHeCbLtp650mRU=;
-        b=wPzR9A4cnGacABWvqYlDIuwH2yY8IBeo4nVMJQgFdzf1WQs1RXln6kn+KHM9sGnJem
-         9DECh7rkhXkIPxT5nY6jGI3/DvF6jelDBBIcGujBYGFqVHYLzo6aSZsGT+yin6AO8uSO
-         mHD95vVSbEe3H4Sfvh+wfx3ndVrSNdaCXrPpDCqESU1mG4Tv1vOeSXRXv7ZEEaiI6xxw
-         LzkwtOuFTdhuAejAEEQuK9cGcHbwtMMduJw39YXB1ns7i9uVpD5aOrxXCXHVil6EOWDN
-         FtEtNgBY7OMFCbAnyoic1kiws9fm5+ja5DVA3cTcAw8RjyEbn7YRGYUURN8BB+zpZXL3
-         pjsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=y9yGFKvmNjs81KCjsyd6DV93Wrx5RHHeCbLtp650mRU=;
-        b=oP9HL+EQFESPWJ/rJzTzRB28RdclNLS5frX9h2Kew/5EMAw0/7sY7jAhCsM1MqjC8B
-         ztOOXMWACXAX8NV/urrndgxr5pIHJXKGsZ7cM9m6tiWk3sMY79dyhop4DpPjYK2U3WqW
-         LIgCcrxumcHHObqZ3ocJWcP/yjaLcL5PcX5nx+5pYO14IfRIMJSTkYRgR7FftPISXHEx
-         LwXBY6/HkF8YX3jwLDxdVZUXg/RHhBdZk2XDrVXfBu8CqnvOASAXrC2hXMyKJI4JDmrJ
-         L5wS+gK2N7V1unFTV8jft5bfd+JsUndmfNFCRfkGopzfd4CEoEkZ2ltLwoZJ1+z9Txbw
-         2fKg==
-X-Gm-Message-State: APjAAAVyp5pH+HvN0L7aSHQmGHKPwB83oN3QEzbsJfd3k5hVF3IEhCpP
-        emvCdX43Z1l3blcBs/XU88GpOmIYWGYE8w==
-X-Google-Smtp-Source: APXvYqzmsI7TPFR6coNPB5+2n/7nMWpTaQvWBwxkOQ9SCfXXwDWV8eaeXN5W6G1PXymGoLa+EsXJkg==
-X-Received: by 2002:a5d:6144:: with SMTP id y4mr29096771wrt.84.1561059337003;
-        Thu, 20 Jun 2019 12:35:37 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o4sm283269wmh.35.2019.06.20.12.35.35
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 20 Jun 2019 12:35:36 -0700 (PDT)
-Message-ID: <5d0be008.1c69fb81.b1ac9.1add@mx.google.com>
-Date:   Thu, 20 Jun 2019 12:35:36 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726796AbfFTTu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 15:50:58 -0400
+Received: from merlin.infradead.org ([205.233.59.134]:47690 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726420AbfFTTu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 15:50:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=votu4UWFPFwXKzn3w0AwMZJEd86U+wvD9vHs+ORoTuw=; b=uWarimcgvGoPIXXhrGmDQJbCJi
+        f0bXZr3Lf57Oa3UCXXyuBWVaiAZkEgvwpMCAqXKr9TVz6dVfgvBkGKM0BckQGmDJCz2O2dZIi/gXC
+        1yV8g5m9qH+cCDsPHUH60SDkDCyRD49T4FIpGN7R91FJ/0ESjqjQlv9zqrPrIuhwDNd9SENVPftwF
+        mOMCDGeERMIwonOo53KrwnsldDT2whHTt9idPiHzhXf2z2Ch3T9qZscxlP/vJTuUf5XjqmKx4+C6r
+        QQneD/j9z7vo/+5UwNKC/7BVHWzLBk/XenKXZTFKFw0iirQ4RR9HF1wZPiUH+E/qTJQJPQM8/2ZwW
+        D5I49vow==;
+Received: from static-50-53-52-16.bvtn.or.frontiernet.net ([50.53.52.16] helo=midway.dunlab)
+        by merlin.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
+        id 1he354-0002M2-CT; Thu, 20 Jun 2019 19:50:46 +0000
+Subject: Re: [PATCH v5] Documentation: Add section about CPU vulnerabilities
+ for Spectre
+To:     Tim Chen <tim.c.chen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ben Greear <greearb@candelatech.com>, stable@vger.kernel.org,
+        Andi Kleen <ak@linux.intel.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Jun Nakajima <jun.nakajima@intel.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Asit Mallick <asit.k.mallick@intel.com>,
+        Arjan van de Ven <arjan@linux.intel.com>,
+        Jon Masters <jcm@redhat.com>,
+        Waiman Long <longman9394@gmail.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Mark Gross <mgross@linux.intel.com>,
+        LKML <linux-kernel@vger.kernel.org>, x86@kernel.org
+References: <20190619211730.16754-1-tim.c.chen@linux.intel.com>
+From:   Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <877de2e4-9189-2937-1014-4bfaf90503a5@infradead.org>
+Date:   Thu, 20 Jun 2019 12:50:41 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.19.53-62-g8661e38ef458
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed,
- 33 warnings (v4.19.53-62-g8661e38ef458)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190619211730.16754-1-tim.c.chen@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed, 33 warnings=
- (v4.19.53-62-g8661e38ef458)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.53-62-g8661e38ef458/
-
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.53-62-g8661e38ef458
-Git Commit: 8661e38ef458269230688e503c5a1c50232e5fa2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
-
-Warnings Detected:
-
-arc:
-    axs103_defconfig (gcc-8): 3 warnings
-    axs103_smp_defconfig (gcc-8): 3 warnings
-    haps_hs_defconfig (gcc-8): 1 warning
-    haps_hs_smp_defconfig (gcc-8): 1 warning
-    hsdk_defconfig (gcc-8): 3 warnings
-    nsim_hs_defconfig (gcc-8): 1 warning
-    nsim_hs_smp_defconfig (gcc-8): 1 warning
-    nsimosci_hs_defconfig (gcc-8): 3 warnings
-    nsimosci_hs_smp_defconfig (gcc-8): 3 warnings
-    vdk_hs38_defconfig (gcc-8): 4 warnings
-    vdk_hs38_smp_defconfig (gcc-8): 4 warnings
-
-arm64:
-
-arm:
-
-i386:
-
-mips:
-    lemote2f_defconfig (gcc-8): 1 warning
-    loongson3_defconfig (gcc-8): 2 warnings
-    malta_qemu_32r6_defconfig (gcc-8): 1 warning
-    nlm_xlp_defconfig (gcc-8): 1 warning
-
-riscv:
-
-x86_64:
-    tinyconfig (gcc-8): 1 warning
-
-
-Warnings summary:
-
-    25   arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is n=
-ot used [-Wunused-value]
-    3    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    2    arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined =
-but not used [-Wunused-function]
-    1    {standard input}:131: Warning: macro instruction expanded into mul=
-tiple instructions
-    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
- invalid for HOTPLUG_PCI_SHPC
-    1    .config:1007:warning: override: UNWINDER_GUESS changes choice state
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 s=
-ection mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
- mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
-ection mismatches
-
-Warnings:
-    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm' inva=
-lid for HOTPLUG_PCI_SHPC
-    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
-, 0 section mismatches
-
-Warnings:
-    {standard input}:131: Warning: macro instruction expanded into multiple=
- instructions
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3160:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 =
-section mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings=
-, 0 section mismatches
-
-Warnings:
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    .config:1007:warning: override: UNWINDER_GUESS changes choice state
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sec=
-tion mismatches
-
-Warnings:
-    arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
-ot used [-Wunused-function]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0=
- section mismatches
-
-Warnings:
-    arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
-ot used [-Wunused-function]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
-ed [-Wunused-value]
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----
-For more info write to <info@kernelci.org>
+On 6/19/19 2:17 PM, Tim Chen wrote:
+> Add documentation for Spectre vulnerability and the mitigation mechanisms:
+> 
+> - Explain the problem and risks
+> - Document the mitigation mechanisms
+> - Document the command line controls
+> - Document the sysfs files
+> 
+> Co-developed-by: Andi Kleen <ak@linux.intel.com>
+> Signed-off-by: Andi Kleen <ak@linux.intel.com>
+> Co-developed-by: Tim Chen <tim.c.chen@linux.intel.com>
+> Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
+> Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: stable@vger.kernel.org
+
+Hi,
+Please see the typo comments below.
+
+Nice writeup.
+Thanks.
+
+> ---
+>  Documentation/admin-guide/hw-vuln/index.rst   |   1 +
+>  Documentation/admin-guide/hw-vuln/spectre.rst | 697 ++++++++++++++++++
+>  Documentation/userspace-api/spec_ctrl.rst     |   2 +
+>  3 files changed, 700 insertions(+)
+>  create mode 100644 Documentation/admin-guide/hw-vuln/spectre.rst
+
+
+> diff --git a/Documentation/admin-guide/hw-vuln/spectre.rst b/Documentation/admin-guide/hw-vuln/spectre.rst
+> new file mode 100644
+> index 000000000000..42936f223a53
+> --- /dev/null
+> +++ b/Documentation/admin-guide/hw-vuln/spectre.rst
+> @@ -0,0 +1,697 @@
+> +.. SPDX-License-Identifier: GPL-2.0
+> +
+> +Spectre Side Channels
+> +=====================
+> +
+> +Spectre is a class of side channel attacks that exploit branch prediction
+> +and speculative execution on modern CPUs to read memory, possibly
+> +bypassing access controls. Speculative execution side channel exploits
+> +do not modify memory but attempt to infer privileged data in the memory.
+> +
+> +This document covers Spectre variant 1 and Spectre variant 2.
+> +
+> +Affected processors
+> +-------------------
+> +
+> +Speculative execution side channel methods affect a wide range of modern
+> +high performance processors, since most modern high speed processors
+> +use branch prediction and speculative execution.
+> +
+> +The following CPUs are vulnerable:
+> +
+> +    - Intel Core, Atom, Pentium, and Xeon processors
+> +
+> +    - AMD Phenom, EPYC, and Zen processors
+> +
+> +    - IBM POWER and zSeries processors
+> +
+> +    - Higher end ARM processors
+> +
+> +    - Apple CPUs
+> +
+> +    - Higher end MIPS CPUs
+> +
+> +    - Likely most other high performance CPUs. Contact your CPU vendor for details.
+> +
+> +Whether a processor is affected or not can be read out from the Spectre
+> +vulnerability files in sysfs. See :ref:`spectre_sys_info`.
+> +
+> +Related CVEs
+> +------------
+> +
+> +The following CVE entries describe Spectre variants:
+> +
+> +   =============   =======================  =================
+> +   CVE-2017-5753   Bounds check bypass      Spectre variant 1
+> +   CVE-2017-5715   Branch target injection  Spectre variant 2
+> +   =============   =======================  =================
+> +
+> +Problem
+> +-------
+> +
+> +CPUs use speculative operations to improve performance. That may leave
+> +traces of memory accesses or computations in the processor's caches,
+> +buffers, and branch predictors. Malicious software may be able to
+> +influence the speculative execution paths, and then use the side effects
+> +of the speculative execution in the CPUs' caches and buffers to infer
+> +privileged data touched during the speculative execution.
+> +
+> +Spectre variant 1 attacks take advantage of speculative execution of
+> +conditional branches, while Spectre variant 2 attacks use speculative
+> +execution of indirect branches to leak privileged memory.
+> +See :ref:`[1] <spec_ref1>` :ref:`[5] <spec_ref5>` :ref:`[7] <spec_ref7>`
+> +:ref:`[10] <spec_ref10>` :ref:`[11] <spec_ref11>`.
+> +
+> +Spectre variant 1 (Bounds Check Bypass)
+> +---------------------------------------
+> +
+> +The bounds check bypass attack :ref:`[2] <spec_ref2>` takes advantage
+> +of speculative execution that bypass conditional branch instructions
+
+                                 bypasses
+
+> +used for memory access bounds check (e.g. checking if the index of an
+> +array results in memory access within a valid range). This results in
+> +memory accesses to invalid memory (with out-of-bound index) that are
+> +done speculatively before validation checks resolve. Such speculative
+> +memory accesses can leave side effects, creating side channels which
+> +leak information to the attacker.
+> +
+> +There are some extensions of Spectre variant 1 attacks for reading data
+> +over the network, see :ref:`[12] <spec_ref12>`. However such attacks
+> +are difficult, low bandwidth, fragile, and are considered low risk.
+> +
+> +Spectre variant 2 (Branch Target Injection)
+> +-------------------------------------------
+> +
+> +The branch target injection attack takes advantage of speculative
+> +execution of indirect branches :ref:`[3] <spec_ref3>`.  The indirect
+> +branch predictors inside the processor used to guess the target of
+> +indirect branches can be influenced by an attacker, causing gadget code
+> +to be speculatively executed, thus exposing sensitive data touched by
+> +the victim. The side effects left in the CPU's caches during speculative
+> +execution can be measured to infer data values.
+> +
+> +.. _poison_btb:
+> +
+> +In Spectre variant 2 attacks, the attacker can steer speculative indirect
+> +branches in the victim to gadget code by poisoning the branch target
+> +buffer of a CPU used for predicting indirect branch addresses. Such
+> +poisoning could be done by indirect branching into existing code,
+> +with the address offset of the indirect branch under the attacker's
+> +control. Since the branch prediction on impacted hardware does not
+> +fully disambiguate branch address and uses the offset for prediction,
+> +this could cause privileged code's indirect branch to jump to a gadget
+> +code with the same offset.
+> +
+> +The most useful gadgets take an attacker-controlled input parameter (such
+> +as a register value) so that the memory read can be controlled. Gadgets
+> +without input parameters might be possible, but the attacker would have
+> +very little control over what memory can be read, reducing the risk of
+> +the attack revealing useful data.
+> +
+> +One other variant 2 attack vector is for the attacker to poison the
+> +return stack buffer (RSB) :ref:`[13] <spec_ref13>` to cause speculative
+> +subroutine return instruction execution to go to an gadget.  An attacker's
+
+                                                    a gadget.
+
+> +imbalanced subroutine call instructions might "poison" entries in the
+> +return stack buffer which are later consumed by a victim's subroutine
+> +return instructions.  This attack can be mitigated by flushing the return
+> +stack buffer on context switch, or virtual machine (VM) exit.
+> +
+> +On systems with simultaneous multi-threading (SMT), attacks are possible
+> +from from the sibling thread, as level 1 cache and branch target buffer
+
+   from the
+
+> +(BTB) may be shared between hardware threads in a CPU core.  A malicious
+> +program running on the sibling thread may influence its peer's BTB to
+> +steer its indirect branch speculations to gadget code, and measure the
+> +speculative execution's side effects left in level 1 cache to infer the
+> +victim's data.
+> +
+> +Attack scenarios
+> +----------------
+> +
+> +The following list of attack scenarios have been anticipated, but may
+> +not cover all possible attack vectors.
+> +
+> +1. A user process attacking the kernel
+> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> +
+> +   The attacker passes a parameter to the kernel via a register or
+> +   via a known address in memory during a syscall. Such parameter may
+> +   be used later by the kernel as an index to an array or to derive
+> +   a pointer for a Spectre variant 1 attack.  The index or pointer
+> +   is invalid, but bound checks are bypassed in the code branch taken
+> +   for speculative execution. This could cause privileged memory to be
+> +   accessed and leaked.
+> +
+> +   For kernel code that has been identified where data pointers could
+> +   potentially be influenced for Spectre attacks, new "nospec" accessor
+> +   macros are used to prevent speculative loading of data.
+> +
+> +   Spectre variant 2 attacker can :ref:`poison <poison_btb>` the branch
+> +   target buffer (BTB) before issuing syscall to launch an attack.
+> +   After entering the kernel, the kernel could use the poisoned branch
+> +   target buffer on indirect jump and jump to gadget code in speculative
+> +   execution.
+> +
+> +   If an attacker tries to control the memory addresses leaked during
+> +   speculative execution, he would also need to pass a parameter to the
+> +   gadget, either through a register or a known address in memory. After
+> +   the gadget has executed, he can measure the side effect.
+> +
+> +   The kernel can protect itself against consuming poisoned branch
+> +   target buffer entries by using return trampolines (also known as
+> +   "retpoline") :ref:`[3] <spec_ref3>` :ref:`[9] <spec_ref9>` for all
+> +   indirect branches. Return trampolines trap speculative execution paths
+> +   to prevent jumping to gadget code during speculative execution.
+> +   x86 CPUs with Enhanced Indirect Branch Restricted Speculation
+> +   (Enhanced IBRS) available in hardware should use the feature to
+> +   mitigate Spectre variant 2 instead of retpoline. Enhanced IBRS is
+> +   more efficient than retpoline.
+> +
+> +   There may be gadget code in firmware which could be exploited with
+> +   Spectre variant 2 attack by a rogue user process. To mitigate such
+> +   attacks on x86, Indirect Branch Restricted Speculation (IBRS) feature
+> +   is turned on before the kernel invokes any firmware code.
+> +
+> +2. A user process attacking another user process
+> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> +
+> +   A malicious user process can try to attack another user process,
+> +   either via a context switch on the same hardware thread, or from the
+> +   sibling hyperthread sharing a physical processor core on simultaneous
+> +   multi-threading (SMT) system.
+> +
+> +   Spectre variant 1 attacks generally require passing parameters
+> +   between the processes, which needs a data passing relationship, such
+> +   as remote procedure calls (RPC).  Those parameters are used in gadget
+> +   code to derive invalid data pointers accessing privileged memory in
+> +   the attacked process.
+> +
+> +   Spectre variant 2 attacks can be launched from a rogue process by
+> +   :ref:`poisoning <poison_btb>` the branch target buffer.  This can
+> +   influence the indirect branch targets for a victim process that either
+> +   runs later on the same hardware thread, or running concurrently on
+> +   a sibling hardware thread sharing the same physical core.
+> +
+> +   A user process can protect itself against Spectre variant 2 attacks
+> +   by using the prctl() syscall to disable indirect branch speculation
+> +   for itself.  An administrator can also cordon off an unsafe process
+> +   from polluting the branch target buffer by disabling the process's
+> +   indirect branch speculation. This comes with a performance cost
+> +   from not using indirect branch speculation and clearing the branch
+> +   target buffer.  When SMT is enabled on x86, for a process that has
+> +   indirect branch speculation disabled, Single Threaded Indirect Branch
+> +   Predictors (STIBP) :ref:`[4] <spec_ref4>` are turned on to prevent the
+> +   sibling thread from controlling branch target buffer.  In addition,
+> +   the Indirect Branch Prediction Barrier (IBPB) is issued to clear the
+> +   branch target buffer when context switching to and from such process.
+> +
+> +   On x86, the return stack buffer is stuffed on context switch.
+> +   This prevents the branch target buffer from being used for branch
+> +   prediction when the return stack buffer underflows while switching to
+> +   a deeper call stack. Any poisoned entries in the return stack buffer
+> +   left by the previous process will also be cleared.
+> +
+> +   User programs should use address space randomization to make attacks
+> +   more difficult (Set /proc/sys/kernel/randomize_va_space = 1 or 2).
+> +
+> +3. A virtualized guest attacking the host
+> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> +
+> +   The attack mechanism is similar to how user processes attack the
+> +   kernel.  The kernel is entered via hyper-calls or other virtualization
+> +   exit paths.
+> +
+> +   For Spectre variant 1 attacks, rogue guests can pass parameters
+> +   (e.g. in registers) via hyper-calls to derive invalid pointers to
+> +   speculate into privileged memory after entering the kernel.  For places
+> +   where such kernel code has been identified, nospec accessor macros
+> +   are used to stop speculative memory access.
+> +
+> +   For Spectre variant 2 attacks, rogue guests can :ref:`poison
+> +   <poison_btb>` the branch target buffer or return stack buffer, causing
+> +   the kernel to jump to gadget code in the speculative execution paths.
+> +
+> +   To mitigate variant 2, the host kernel can use return trampolines
+> +   for indirect branches to bypass the poisoned branch target buffer,
+> +   and flushing the return stack buffer on VM exit.  This prevents rogue
+> +   guests from affecting indirect branching in the host kernel.
+> +
+> +   To protect host processes from rogue guests, host processes can have
+> +   indirect branch speculation disabled via prctl().  The branch target
+> +   buffer is cleared before context switching to such processes.
+> +
+> +4. A virtualized guest attacking other guest
+> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> +
+> +   A rogue guest may attack another guest to get data accessible by the
+> +   other guest.
+> +
+> +   Spectre variant 1 attacks are possible if parameters can be passed
+> +   between guests.  This may be done via mechanisms such as shared memory
+> +   or message passing.  Such parameters could be used to derive data
+> +   pointers to privileged data in guest.  The privileged data could be
+> +   accessed by gadget code in the victim's speculation paths.
+> +
+> +   Spectre variant 2 attacks can be launched from a rogue guest by
+> +   :ref:`poisoning <poison_btb>` the branch target buffer or the return
+> +   stack buffer. Such poisoned entries could be used to influence
+> +   speculation execution paths in the victim guest.
+> +
+> +   Linux kernel mitigates attacks to other guests running in the same
+> +   CPU hardware thread by flushing the return stack buffer on VM exit,
+> +   and clearing the branch target buffer before switching to a new guest.
+> +
+> +   If SMT is used, Spectre variant 2 attacks from an untrusted guest
+> +   in the sibling hyperthread can be mitigated by the administrator,
+> +   by turning off the unsafe guest's indirect branch speculation via
+> +   prctl().  A guest can also protect itself by turning on microcode
+> +   based mitigations (such as IBPB or STIBP on x86) within the guest.
+> +
+> +.. _spectre_sys_info:
+> +
+> +Spectre system information
+> +--------------------------
+> +
+> +The Linux kernel provides a sysfs interface to enumerate the current
+> +mitigation status of the system for Spectre: whether the system is
+> +vulnerable, and which mitigations are active.
+> +
+> +The sysfs file showing Spectre variant 1 mitigation status is:
+> +
+> +   /sys/devices/system/cpu/vulnerabilities/spectre_v1
+> +
+> +The possible values in this file are:
+> +
+> +  =======================================  =================================
+> +  'Mitigation: __user pointer sanitation'  Protection in kernel on a case by
+> +                                           case base with explicit pointer
+> +                                           sanitation.
+> +  =======================================  =================================
+> +
+> +However, the protections are put in place on a case by case basis,
+> +and there is no guarantee that all possible attack vectors for Spectre
+> +variant 1 are covered.
+> +
+> +The spectre_v2 kernel file reports if the kernel has been compiled with
+> +retpoline mitigation or if the CPU has hardware mitigation, and if the
+> +CPU has support for additional process-specific mitigation.
+> +
+> +This file also reports CPU features enabled by microcode to mitigate
+> +attack between user processes:
+> +
+> +1. Indirect Branch Prediction Barrier (IBPB) to add additional
+> +   isolation between processes of different users.
+> +2. Single Thread Indirect Branch Predictors (STIBP) to add additional
+> +   isolation between CPU threads running on the same core.
+> +
+> +These CPU features may impact performance when used and can be enabled
+> +per process on a case-by-case base.
+> +
+> +The sysfs file showing Spectre variant 2 mitigation status is:
+> +
+> +   /sys/devices/system/cpu/vulnerabilities/spectre_v2
+> +
+> +The possible values in this file are:
+> +
+> +  - Kernel status:
+> +
+> +  ====================================  =================================
+> +  'Not affected'                        The processor is not vulnerable
+> +  'Vulnerable'                          Vulnerable, no mitigation
+> +  'Mitigation: Full generic retpoline'  Software-focused mitigation
+> +  'Mitigation: Full AMD retpoline'      AMD-specific software mitigation
+> +  'Mitigation: Enhanced IBRS'           Hardware-focused mitigation
+> +  ====================================  =================================
+> +
+> +  - Firmware status: Show if Indirect Branch Restricted Speculation (IBRS) is
+> +    used to protect against Spectre variant 2 attacks when calling firmware (x86 only).
+> +
+> +  ========== =============================================================
+> +  'IBRS_FW'  Protection against user program attacks when calling firmware
+> +  ========== =============================================================
+> +
+> +  - Indirect branch prediction barrier (IBPB) status for protection between
+> +    processes of different users. This feature can be controlled through
+> +    prctl() per process, or through kernel command line options. This is
+> +    an x86 only feature. For more details see below.
+> +
+> +  ===================   ========================================================
+> +  'IBPB: disabled'      IBPB unused
+> +  'IBPB: always-on'     Use IBPB on all tasks
+> +  'IBPB: conditional'   Use IBPB on SECCOMP or indirect branch restricted tasks
+> +  ===================   ========================================================
+> +
+> +  - Single threaded indirect branch prediction (STIBP) status for protection
+> +    between different hyper threads. This feature can be controlled through
+> +    prctl per process, or through kernel command line options. This is x86
+> +    only feature. For more details see below.
+> +
+> +  ====================  ========================================================
+> +  'STIBP: disabled'     STIBP unused
+> +  'STIBP: forced'       Use STIBP on all tasks
+> +  'STIBP: conditional'  Use STIBP on SECCOMP or indirect branch restricted tasks
+> +  ====================  ========================================================
+> +
+> +  - Return stack buffer (RSB) protection status:
+> +
+> +  =============   ===========================================
+> +  'RSB filling'   Protection of RSB on context switch enabled
+> +  =============   ===========================================
+> +
+> +Full mitigation might require an microcode update from the CPU
+
+                                 a microcode
+
+> +vendor. When the necessary microcode is not available, the kernel will
+> +report vulnerability.
+> +
+> +Turning on mitigation for Spectre variant 1 and Spectre variant 2
+> +-----------------------------------------------------------------
+> +
+> +1. Kernel mitigation
+> +^^^^^^^^^^^^^^^^^^^^
+> +
+> +   For the Spectre variant 1, vulnerable kernel code (as determined
+> +   by code audit or scanning tools) are annotated on a case by case
+
+                                       is annotated
+
+> +   basis to use nospec accessor macros for bounds clipping :ref:`[2]
+> +   <spec_ref2>` to avoid any usable disclosure gadgets. However, it may
+> +   not cover all attack vectors for Spectre variant 1.
+> +
+> +   For Spectre variant 2 mitigation, the compiler turns indirect calls or
+> +   jumps in the kernel into equivalent return trampolines (retpolines)
+> +   :ref:`[3] <spec_ref3>` :ref:`[9] <spec_ref9>` to go to the target
+> +   addresses.  Speculative execution paths under retpolines are trapped
+> +   in an infinite loop to prevent any speculative execution jumping to
+> +   a gadget.
+> +
+> +   To turn on retpoline mitigation on a vulnerable CPU, the kernel
+> +   needs to be compiled with a gcc compiler that supports the
+> +   -mindirect-branch=thunk-extern -mindirect-branch-register options.
+> +   If the kernel is compiled with a Clang compiler, the compiler needs
+> +   to support -mretpoline-external-thunk option.  The kernel config
+> +   CONFIG_RETPOLINE needs to be turned on, and the CPU needs to run with
+> +   the latest updated microcode.
+> +
+> +   On Intel Skylake-era systems the mitigation covers most, but not all,
+> +   cases. See :ref:`[3] <spec_ref3>` for more details.
+> +
+> +   On CPUs with hardware mitigation for Spectre variant 2 (e.g. Enhanced
+> +   IBRS on x86), retpoline is automatically disabled at run time.
+> +
+> +   The retpoline mitigation is turned on by default on vulnerable
+> +   CPUs. It can be forced on or off by the administrator
+> +   via the kernel command line and sysfs control files. See
+> +   :ref:`spectre_mitigation_control_command_line`.
+> +
+> +   On x86, indirect branch restricted speculation is turned on by default
+> +   before invoking any firmware code to prevent Spectre variant 2 exploits
+> +   using the firmware.
+> +
+> +   Using kernel address space randomization (CONFIG_RANDOMIZE_SLAB=y
+> +   and CONFIG_SLAB_FREELIST_RANDOM=y in the kernel configuration) makes
+> +   attacks on the kernel generally more difficult.
+> +
+> +2. User program mitigation
+> +^^^^^^^^^^^^^^^^^^^^^^^^^^
+> +
+> +   User programs can mitigate Spectre variant 1 using LFENCE or "bounds
+> +   clipping". For more details see :ref:`[2] <spec_ref2>`.
+> +
+> +   For Spectre variant 2 mitigation, individual user programs
+> +   can be compiled with return trampolines for indirect branches.
+> +   This protects them from consuming poisoned entries in the branch
+> +   target buffer left by malicious software.  Alternatively, the
+> +   programs can disable their indirect branch speculation via prctl()
+> +   (See :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`)
+
+end above sentence with a '.'
+
+> +   On x86, this will turn on STIBP to guard against attacks from the
+> +   sibling thread when the user program is running, and use IBPB to
+> +   flush the branch target buffer when switching to/from the program.
+> +
+> +   Restricting indirect branch speculation on a user program will
+> +   also prevent the program from launching a variant 2 attack
+> +   on x86.  All sand-boxed SECCOMP programs have indirect branch
+> +   speculation restricted by default.  Administrators can change
+> +   that behavior via the kernel command line and sysfs control files.
+> +   See :ref:`spectre_mitigation_control_command_line`.
+> +
+> +   Programs that disable their indirect branch speculation will have
+> +   more overheads and run slower.
+
+?          overhead
+
+> +
+> +   User programs should use address space randomization
+> +   (/proc/sys/kernel/randomize_va_space = 1 or 2) to make attacks more
+> +   difficult.
+> +
+> +3. VM mitigation
+> +^^^^^^^^^^^^^^^^
+> +
+> +   Within the kernel, Spectre variant 1 attacks from rogue guests are
+> +   mitigated on a case by case basis in VM exit paths. Vulnerable code
+> +   uses nospec accessor macros for "bounds clipping", to avoid any
+> +   usable disclosure gadgets.  However, this may not cover all variant
+> +   1 attack vectors.
+> +
+> +   For Spectre variant 2 attacks from rogue guests to the kernel, the
+> +   Linux kernel uses retpoline or Enhanced IBRS to prevent consumption of
+> +   poisoned entries in branch target buffer left by rogue guests.  It also
+> +   flushes the return stack buffer on every VM exit to prevent a return
+> +   stack buffer underflow so poisoned branch target buffer could be used,
+> +   or attacker guests leaving poisoned entries in the return stack buffer.
+> +
+> +   To mitigate guest-to-guest attacks in the same CPU hardware thread,
+> +   the branch target buffer is sanitized by flushing before switching
+> +   to a new guest on a CPU.
+> +
+> +   The above mitigations are turned on by default on vulnerable CPUs.
+> +
+> +   To mitigate guest-to-guest attacks from sibling thread when SMT is
+> +   in use, an untrusted guest running in the sibling thread can have
+> +   its indirect branch speculation disabled by administrator via prctl().
+> +
+> +   The kernel also allows guests to use any microcode based mitigation
+> +   they chose to use (such as IBPB or STIBP on x86) to protect themselves.
+
+           choose
+
+> +
+> +.. _spectre_mitigation_control_command_line:
+> +
+> +Mitigation control on the kernel command line
+> +---------------------------------------------
+> +
+> +Spectre variant 2 mitigation can be disabled or force enabled at the
+> +kernel command line.
+> +
+> +	nospectre_v2
+> +
+> +		[X86] Disable all mitigations for the Spectre variant 2
+> +		(indirect branch prediction) vulnerability. System may
+> +		allow data leaks with this option, which is equivalent
+> +		to spectre_v2=off.
+> +
+> +
+> +        spectre_v2=
+> +
+> +		[X86] Control mitigation of Spectre variant 2
+> +		(indirect branch speculation) vulnerability.
+> +		The default operation protects the kernel from
+> +		user space attacks.
+> +
+> +		on
+> +			unconditionally enable, implies
+> +			spectre_v2_user=on
+> +		off
+> +			unconditionally disable, implies
+> +		        spectre_v2_user=off
+> +		auto
+> +			kernel detects whether your CPU model is
+> +		        vulnerable
+> +
+> +		Selecting 'on' will, and 'auto' may, choose a
+> +		mitigation method at run time according to the
+> +		CPU, the available microcode, the setting of the
+> +		CONFIG_RETPOLINE configuration option, and the
+> +		compiler with which the kernel was built.
+> +
+> +		Selecting 'on' will also enable the mitigation
+> +		against user space to user space task attacks.
+> +
+> +		Selecting 'off' will disable both the kernel and
+> +		the user space protections.
+> +
+> +		Specific mitigations can also be selected manually:
+> +
+> +		retpoline
+> +					replace indirect branches
+> +		retpoline,generic
+> +					google's original retpoline
+> +		retpoline,amd
+> +					AMD-specific minimal thunk
+> +
+> +		Not specifying this option is equivalent to
+> +		spectre_v2=auto.
+> +
+> +For user space mitigation:
+> +
+> +        spectre_v2_user=
+> +
+> +		[X86] Control mitigation of Spectre variant 2
+> +		(indirect branch speculation) vulnerability between
+> +		user space tasks
+> +
+> +		on
+> +			Unconditionally enable mitigations. Is
+> +			enforced by spectre_v2=on
+> +
+> +		off
+> +			Unconditionally disable mitigations. Is
+> +			enforced by spectre_v2=off
+> +
+> +		prctl
+> +			Indirect branch speculation is enabled,
+> +			but mitigation can be enabled via prctl
+> +			per thread. The mitigation control state
+> +			is inherited on fork.
+> +
+> +		prctl,ibpb
+> +			Like "prctl" above, but only STIBP is
+> +			controlled per thread. IBPB is issued
+> +			always when switching between different user
+> +			space processes.
+> +
+> +		seccomp
+> +			Same as "prctl" above, but all seccomp
+> +			threads will enable the mitigation unless
+> +			they explicitly opt out.
+> +
+> +		seccomp,ibpb
+> +			Like "seccomp" above, but only STIBP is
+> +			controlled per thread. IBPB is issued
+> +			always when switching between different
+> +			user space processes.
+> +
+> +		auto
+> +			Kernel selects the mitigation depending on
+> +			the available CPU features and vulnerability.
+> +
+> +		Default mitigation:
+> +		If CONFIG_SECCOMP=y then "seccomp", otherwise "prctl"
+> +
+> +		Not specifying this option is equivalent to
+> +		spectre_v2_user=auto.
+> +
+> +		In general the kernel by default selects
+> +		reasonable mitigations for the current CPU. To
+> +		disable Spectre variant 2 mitigations boot with
+
+		                          mitigations, boot with
+
+
+> +		spectre_v2=off. Spectre variant 1 mitigations
+> +		cannot be disabled.
+> +
+> +Mitigation selection guide
+> +--------------------------
+> +
+> +1. Trusted userspace
+> +^^^^^^^^^^^^^^^^^^^^
+> +
+> +   If all userspace applications are from trusted sources and do not
+> +   execute externally supplied untrusted code, then the mitigations can
+> +   be disabled.
+> +
+> +2. Protect sensitive programs
+> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> +
+> +   For security-sensitive programs that have secrets (e.g. crypto
+> +   keys), protection against Spectre variant 2 can be put in place by
+> +   disabling indirect branch speculation when the program is running
+> +   (See :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`).
+> +
+> +3. Sandbox untrusted programs
+> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> +
+> +   Untrusted programs that could be a source of attacks can be cordoned
+> +   off by disabling their indirect branch speculation when they are run
+> +   (See :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`).
+> +   This prevents untrusted programs from polluting the branch target
+> +   buffer.  All programs running in SECCOMP sandboxes have indirect
+> +   branch speculation restricted by default. This behavior can be
+> +   changed via the kernel command line and sysfs control files. See
+> +   :ref:`spectre_mitigation_control_command_line`.
+> +
+> +3. High security mode
+> +^^^^^^^^^^^^^^^^^^^^^
+> +
+> +   All Spectre variant 2 mitigations can be forced on
+> +   at boot time for all programs (See the "on" option in
+> +   :ref:`spectre_mitigation_control_command_line`).  This will add
+> +   overhead as indirect branch speculations for all programs will be
+> +   restricted.
+> +
+> +   On x86, branch target buffer will be flushed with IBPB when switching
+> +   to a new program. STIBP is left on all the time to protect programs
+> +   against variant 2 attacks originating from programs running on
+> +   sibling threads.
+> +
+> +   Alternatively, STIBP can be used only when running programs
+> +   whose indirect branch speculation is explicitly disabled,
+> +   while IBPB is still used all the time when switching to a new
+> +   program to clear the branch target buffer (See "ibpb" option in
+> +   :ref:`spectre_mitigation_control_command_line`).  This "ibpb" option
+> +   has less performance cost than the "on" option, which leaves STIBP
+> +   on all the time.
+> +
+> +References on Spectre
+> +---------------------
+> +
+> +Intel white papers:
+> +
+> +.. _spec_ref1:
+> +
+> +[1] `Intel analysis of speculative execution side channels <https://newsroom.intel.com/wp-content/uploads/sites/11/2018/01/Intel-Analysis-of-Speculative-Execution-Side-Channels.pdf>`_.
+> +
+> +.. _spec_ref2:
+> +
+> +[2] `Bounds check bypass <https://software.intel.com/security-software-guidance/software-guidance/bounds-check-bypass>`_.
+> +
+> +.. _spec_ref3:
+> +
+> +[3] `Deep dive: Retpoline: A branch target injection mitigation <https://software.intel.com/security-software-guidance/insights/deep-dive-retpoline-branch-target-injection-mitigation>`_.
+> +
+> +.. _spec_ref4:
+> +
+> +[4] `Deep Dive: Single Thread Indirect Branch Predictors <https://software.intel.com/security-software-guidance/insights/deep-dive-single-thread-indirect-branch-predictors>`_.
+> +
+> +AMD white papers:
+> +
+> +.. _spec_ref5:
+> +
+> +[5] `AMD64 technology indirect branch control extension <https://developer.amd.com/wp-content/resources/Architecture_Guidelines_Update_Indirect_Branch_Control.pdf>`_.
+> +
+> +.. _spec_ref6:
+> +
+> +[6] `Software techniques for managing speculation on AMD processors <https://developer.amd.com/wp-content/resources/90343-B_SoftwareTechniquesforManagingSpeculation_WP_7-18Update_FNL.pdf>`_.
+> +
+> +ARM white papers:
+> +
+> +.. _spec_ref7:
+> +
+> +[7] `Cache speculation side-channels <https://developer.arm.com/support/arm-security-updates/speculative-processor-vulnerability/download-the-whitepaper>`_.
+> +
+> +.. _spec_ref8:
+> +
+> +[8] `Cache speculation issues update <https://developer.arm.com/support/arm-security-updates/speculative-processor-vulnerability/latest-updates/cache-speculation-issues-update>`_.
+> +
+> +Google white paper:
+> +
+> +.. _spec_ref9:
+> +
+> +[9] `Retpoline: a software construct for preventing branch-target-injection <https://support.google.com/faqs/answer/7625886>`_.
+> +
+> +MIPS white paper:
+> +
+> +.. _spec_ref10:
+> +
+> +[10] `MIPS: response on speculative execution and side channel vulnerabilities <https://www.mips.com/blog/mips-response-on-speculative-execution-and-side-channel-vulnerabilities/>`_.
+> +
+> +Academic papers:
+> +
+> +.. _spec_ref11:
+> +
+> +[11] `Spectre Attacks: Exploiting Speculative Execution <https://spectreattack.com/spectre.pdf>`_.
+> +
+> +.. _spec_ref12:
+> +
+> +[12] `NetSpectre: Read Arbitrary Memory over Network <https://arxiv.org/abs/1807.10535>`_.
+> +
+> +.. _spec_ref13:
+> +
+> +[13] `Spectre Returns! Speculation Attacks using the Return Stack Buffer <https://www.usenix.org/system/files/conference/woot18/woot18-paper-koruyeh.pdf>`_.
+
+
+-- 
+~Randy
