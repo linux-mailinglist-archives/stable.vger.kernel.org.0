@@ -2,86 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4AA4DB4D
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 22:35:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEC1A4DC4A
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 23:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726018AbfFTUfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 16:35:16 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:52864 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725913AbfFTUfQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 16:35:16 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5KKYe7u053632;
-        Thu, 20 Jun 2019 20:35:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : references : date : in-reply-to : message-id : mime-version :
- content-type; s=corp-2018-07-02;
- bh=pxneq9uTqALGSb+O9I6ZQbEGKX8uDk2Bht9a+At6BxU=;
- b=R0TzZBpNF77G0fhbpDyOk0a2DwSn/aiU6rWdW60eNDAoSn8IEqDle0ssM0lRupwiwnEd
- v980Yont1EVQuc4JvWV6r1Cu19IkrgdLRRC6dwwPtPdEjA8zxuUViQUO2UDpStStITkf
- c8N2pvN5nHKjx/9ZPJe/dMKZ8pydhJ4Bb5a7oZxR0mz/5h0AWsZq7ZiZ3UeWmMn3+64+
- RliVNH52n+oaoEVBHZgYhAJTq6tz6Mg1ZeURgtgv0Vj2sZUFsEkhmqqwY5Cidx4M6TbF
- B6dnx6xXNYhSd9W8mFeXFno3QBXj7A+ZN0Y+8ZLmtwPT0eL1gR1NN/8vaB98HTxwq9Nj Uw== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2120.oracle.com with ESMTP id 2t7809k5jk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 20 Jun 2019 20:35:12 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5KKZCcp076785;
-        Thu, 20 Jun 2019 20:35:12 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3020.oracle.com with ESMTP id 2t77yntwgc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 20 Jun 2019 20:35:12 +0000
-Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x5KKZ7qf026028;
-        Thu, 20 Jun 2019 20:35:07 GMT
-Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 20 Jun 2019 13:35:07 -0700
-To:     Jan Kara <jack@suse.cz>
-Cc:     Jim Gill <jgill@vmware.com>,
-        VMware PV-Drivers <pv-drivers@vmware.com>,
-        linux-scsi@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] scsi: vmw_pscsi: Fix use-after-free in pvscsi_queue_lck()
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-References: <20190619070541.30070-1-jack@suse.cz>
-Date:   Thu, 20 Jun 2019 16:35:05 -0400
-In-Reply-To: <20190619070541.30070-1-jack@suse.cz> (Jan Kara's message of
-        "Wed, 19 Jun 2019 09:05:41 +0200")
-Message-ID: <yq1zhmcq9l2.fsf@oracle.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
+        id S1725911AbfFTVMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 17:12:35 -0400
+Received: from relay1.mentorg.com ([192.94.38.131]:36995 "EHLO
+        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725905AbfFTVMf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 17:12:35 -0400
+Received: from nat-ies.mentorg.com ([192.94.31.2] helo=svr-ies-mbx-01.mgc.mentorg.com)
+        by relay1.mentorg.com with esmtps (TLSv1.2:ECDHE-RSA-AES256-SHA384:256)
+        id 1he4MC-0007MN-8K from Cedric_Hombourger@mentor.com ; Thu, 20 Jun 2019 14:12:32 -0700
+Received: from svr-ies-mbx-02.mgc.mentorg.com (139.181.222.2) by
+ svr-ies-mbx-01.mgc.mentorg.com (139.181.222.1) with Microsoft SMTP Server
+ (TLS) id 15.0.1320.4; Thu, 20 Jun 2019 22:12:26 +0100
+Received: from svr-ies-mbx-02.mgc.mentorg.com ([fe80::a01f:51c9:5b6c:e0c]) by
+ svr-ies-mbx-02.mgc.mentorg.com ([fe80::a01f:51c9:5b6c:e0c%22]) with mapi id
+ 15.00.1320.000; Thu, 20 Jun 2019 22:12:26 +0100
+From:   "Hombourger, Cedric" <Cedric_Hombourger@mentor.com>
+To:     Paul Burton <paul.burton@mips.com>
+CC:     Sasha Levin <sashal@kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] MIPS: have "plain" make calls build dtbs for selected
+ platforms
+Thread-Topic: [PATCH] MIPS: have "plain" make calls build dtbs for selected
+ platforms
+Thread-Index: AQHVIcVrw5tGiAGyckKhKLs3W2AnEaadO4kAgACh3B+ABltc6YAAuWWAgAAkB9I=
+Date:   Thu, 20 Jun 2019 21:12:26 +0000
+Message-ID: <366B6D73-2DCF-49B6-80B2-B1FAD6C73580@mentor.com>
+References: <1560415970-844-1-git-send-email-Cedric_Hombourger@mentor.com>
+ <20190615221604.E6FB82183F@mail.kernel.org> <1560668291651.87711@mentor.com>
+ <1561017706300.81899@mentor.com>,<20190620200325.se6e6yicvlkjrb46@pburton-laptop>
+In-Reply-To: <20190620200325.se6e6yicvlkjrb46@pburton-laptop>
+Accept-Language: en-US, en-IE
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9294 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=759
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1810050000 definitions=main-1906200147
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9294 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=828 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
- definitions=main-1906200147
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-Jan,
-
-> Once we unlock adapter->hw_lock in pvscsi_queue_lck() nothing prevents
-> just queued scsi_cmnd from completing and freeing the request. Thus
-> cmd->cmnd[0] dereference can dereference already freed request leading
-> to kernel crashes or other issues (which one of our customers
-> observed). Store cmd->cmnd[0] in a local variable before unlocking
-> adapter->hw_lock to fix the issue.
-
-Applied to 5.2/scsi-fixes. Thanks!
-
--- 
-Martin K. Petersen	Oracle Linux Engineering
+SGVsbG8gUGF1bCwgDQoNCkkgd2lsbCByZWNoZWNrIHRvbW9ycm93IG1vcm5pbmcgYnV0IHRoZSBr
+ZXJuZWwgSSB3YXMgaW5pdGlhbGx5IHdvcmtpbmcgd2l0aCB3YXMgNC4xOSBhbmQgSSBkaWQgbm90
+IGZpbmQgZHRicyBiZWluZyBjb21waWxlZCBmcm9tIGEgcGxhaW4gbWFrZSBvciBmcm9tIGJ1aWxk
+ZGViIA0KDQpGb3Igd2hhdCBpdOKAmXMgd29ydGgsIEkgd2FzIHVzaW5nIHRoZSBwaXN0YWNoaW9f
+ZGVmY29uZmlnLg0KDQpNeSB0ZXN0IHdvcmtmbG93IGlzIGFzIGZvbGxvd3MgKEFSQ0ggYW5kIENS
+T1NTX0NPTVBJTEUgYXJlIHNldCBpbiBteSBlbnZpcm9ubWVudCkNCg0KbWFrZSBtcnByb3BlciAN
+Cm1ha2UgcGlzdGFjaGlvX2RlZmNvbmZpZw0KbWFrZQ0KZmluZCBhcmNoL21pcHMgLW5hbWUgKi5k
+dGINCg0KQ2VkcmljDQoNCj4gT24gMjAgSnVuIDIwMTksIGF0IDIyOjAzLCBQYXVsIEJ1cnRvbiA8
+cGF1bC5idXJ0b25AbWlwcy5jb20+IHdyb3RlOg0KPiANCj4gSGkgQ2VkcmljLA0KPiANCj4+IE9u
+IFRodSwgSnVuIDIwLCAyMDE5IGF0IDA4OjAxOjQ2QU0gKzAwMDAsIEhvbWJvdXJnZXIsIENlZHJp
+YyB3cm90ZToNCj4+IEp1c3QgdG8gZm9sbG93LXVwLiBJIGhhdmUgdmVyaWZpZWQgdGhhdCB3ZSBj
+YW4gYXBwbHkgdGhpcyBwYXRjaCB0byA0LjQNCj4+IGFuZCA0Ljkgd2l0aG91dCBpbnRyb2R1Y2lu
+ZyBhZGRpdGlvbmFsIHBhdGNoZXMgYnV0IHNpbXBseSByZXNvbHZpbmcNCj4+IGNvbmZsaWN0cy4g
+U2hvdWxkIEkgcG9zdCBzZXBhcmF0ZSBwYXRjaGVzIGZvciA0LjQgYW5kIDQuOT8NCj4gDQo+IElz
+IHRoZSBwYXRjaCBhY3R1YWxseSBuZWVkZWQgYW55IGVhcmxpZXIgdGhhbiB2NC4yMD8NCj4gDQo+
+IExvY2FsbHkgSSd2ZSBhcHBsaWVkIGl0IHRvIG1pcHMtZml4ZXMgJiB0YWdnZWQgaXQgd2l0aDoN
+Cj4gDQo+IEZpeGVzOiBkNTYxNWU0NzJkMjMgKCJidWlsZGRlYjogRml4IGluY2x1c2lvbiBvZiBk
+dGJzIGluIGRlYmlhbiBwYWNrYWdlIikNCj4gQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcgIyB2
+NC4yMCsNCj4gDQo+IEl0IGxvb2tzIHRvIG1lIGxpa2UgcHJpb3IgdG8gdGhhdCBjb21taXQgdGhp
+cyBpcyB1bm5lY2Vzc2FyeS4gSWYgdGhhdCdzDQo+IHdyb25nIHBsZWFzZSBsZXQgbWUga25vdy4N
+Cj4gDQo+IFRoYW5rcywNCj4gICAgUGF1bA0K
