@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 607B94D81C
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66F034D5ED
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:02:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726178AbfFTSX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:23:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36166 "EHLO mail.kernel.org"
+        id S1727408AbfFTSCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:02:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727901AbfFTSIp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:08:45 -0400
+        id S1726859AbfFTSCL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:02:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AEC22082C;
-        Thu, 20 Jun 2019 18:08:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2407A2089C;
+        Thu, 20 Jun 2019 18:02:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054124;
-        bh=zvsQHEQrbPmKZmAkc5S6MyI8MPMNsddpk2Wdqz91InE=;
+        s=default; t=1561053730;
+        bh=BsWIxMOcWtpcr2boHLUPzToAXcpp9jOaWhh8N129Mzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qfwImR6sBA8Rox4bovQ2eVTLFWTJ/56m+wwrDLffJTqmlqDBhczoixoRjoDfNnPMi
-         Xn+Avy3N2wyRI6iLN/ddtOS/Yp3Lt+SXuu44lgZMP+o72H5YDeeXll6oBCCPshaW2E
-         ZssGxIJcQoNm5PB3VJI9IOtuozq6MAk8gdPLVQVM=
+        b=ZOn/AL6QWmA8594BzqU1gANJZmeG7QESI7FFzoA4yMxm4jNUPMhskm6Vw024tUpgp
+         Ws/G9M7giFeGeMiqx2Ayiod/v5f7XYj1PHnqSeqUq0fKcMEVtMB+EzaqeKqPpPJ3Kn
+         Vzv/VIjgvSZ331e+mySD569R4YtRk71iPAiyB7EY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Greg Rose <gvrose8192@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 07/45] net: openvswitch: do not free vport if register_netdevice() is failed.
-Date:   Thu, 20 Jun 2019 19:57:09 +0200
-Message-Id: <20190620174332.459843313@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        linux-gpio@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 73/84] gpio: fix gpio-adp5588 build errors
+Date:   Thu, 20 Jun 2019 19:57:10 +0200
+Message-Id: <20190620174348.753976681@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
-References: <20190620174328.608036501@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,108 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+[ Upstream commit e9646f0f5bb62b7d43f0968f39d536cfe7123b53 ]
 
-[ Upstream commit 309b66970ee2abf721ecd0876a48940fa0b99a35 ]
+The gpio-adp5588 driver uses interfaces that are provided by
+GPIOLIB_IRQCHIP, so select that symbol in its Kconfig entry.
 
-In order to create an internal vport, internal_dev_create() is used and
-that calls register_netdevice() internally.
-If register_netdevice() fails, it calls dev->priv_destructor() to free
-private data of netdev. actually, a private data of this is a vport.
+Fixes these build errors:
 
-Hence internal_dev_create() should not free and use a vport after failure
-of register_netdevice().
+../drivers/gpio/gpio-adp5588.c: In function ‘adp5588_irq_handler’:
+../drivers/gpio/gpio-adp5588.c:266:26: error: ‘struct gpio_chip’ has no member named ‘irq’
+            dev->gpio_chip.irq.domain, gpio));
+                          ^
+../drivers/gpio/gpio-adp5588.c: In function ‘adp5588_irq_setup’:
+../drivers/gpio/gpio-adp5588.c:298:2: error: implicit declaration of function ‘gpiochip_irqchip_add_nested’ [-Werror=implicit-function-declaration]
+  ret = gpiochip_irqchip_add_nested(&dev->gpio_chip,
+  ^
+../drivers/gpio/gpio-adp5588.c:307:2: error: implicit declaration of function ‘gpiochip_set_nested_irqchip’ [-Werror=implicit-function-declaration]
+  gpiochip_set_nested_irqchip(&dev->gpio_chip,
+  ^
 
-Test command
-    ovs-dpctl add-dp bonding_masters
-
-Splat looks like:
-[ 1035.667767] kasan: GPF could be caused by NULL-ptr deref or user memory access
-[ 1035.675958] general protection fault: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
-[ 1035.676916] CPU: 1 PID: 1028 Comm: ovs-vswitchd Tainted: G    B             5.2.0-rc3+ #240
-[ 1035.676916] RIP: 0010:internal_dev_create+0x2e5/0x4e0 [openvswitch]
-[ 1035.676916] Code: 48 c1 ea 03 80 3c 02 00 0f 85 9f 01 00 00 4c 8b 23 48 b8 00 00 00 00 00 fc ff df 49 8d bc 24 60 05 00 00 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 86 01 00 00 49 8b bc 24 60 05 00 00 e8 e4 68 f4
-[ 1035.713720] RSP: 0018:ffff88810dcb7578 EFLAGS: 00010206
-[ 1035.713720] RAX: dffffc0000000000 RBX: ffff88810d13fe08 RCX: ffffffff84297704
-[ 1035.713720] RDX: 00000000000000ac RSI: 0000000000000000 RDI: 0000000000000560
-[ 1035.713720] RBP: 00000000ffffffef R08: fffffbfff0d3b881 R09: fffffbfff0d3b881
-[ 1035.713720] R10: 0000000000000001 R11: fffffbfff0d3b880 R12: 0000000000000000
-[ 1035.768776] R13: 0000607ee460b900 R14: ffff88810dcb7690 R15: ffff88810dcb7698
-[ 1035.777709] FS:  00007f02095fc980(0000) GS:ffff88811b400000(0000) knlGS:0000000000000000
-[ 1035.777709] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1035.777709] CR2: 00007ffdf01d2f28 CR3: 0000000108258000 CR4: 00000000001006e0
-[ 1035.777709] Call Trace:
-[ 1035.777709]  ovs_vport_add+0x267/0x4f0 [openvswitch]
-[ 1035.777709]  new_vport+0x15/0x1e0 [openvswitch]
-[ 1035.777709]  ovs_vport_cmd_new+0x567/0xd10 [openvswitch]
-[ 1035.777709]  ? ovs_dp_cmd_dump+0x490/0x490 [openvswitch]
-[ 1035.777709]  ? __kmalloc+0x131/0x2e0
-[ 1035.777709]  ? genl_family_rcv_msg+0xa54/0x1030
-[ 1035.777709]  genl_family_rcv_msg+0x63a/0x1030
-[ 1035.777709]  ? genl_unregister_family+0x630/0x630
-[ 1035.841681]  ? debug_show_all_locks+0x2d0/0x2d0
-[ ... ]
-
-Fixes: cf124db566e6 ("net: Fix inconsistent teardown and release of private netdev state.")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Reviewed-by: Greg Rose <gvrose8192@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 459773ae8dbb ("gpio: adp5588-gpio: support interrupt controller")
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: linux-gpio@vger.kernel.org
+Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/vport-internal_dev.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/gpio/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/openvswitch/vport-internal_dev.c
-+++ b/net/openvswitch/vport-internal_dev.c
-@@ -176,7 +176,9 @@ static struct vport *internal_dev_create
- {
- 	struct vport *vport;
- 	struct internal_dev *internal_dev;
-+	struct net_device *dev;
- 	int err;
-+	bool free_vport = true;
- 
- 	vport = ovs_vport_alloc(0, &ovs_internal_vport_ops, parms);
- 	if (IS_ERR(vport)) {
-@@ -184,8 +186,9 @@ static struct vport *internal_dev_create
- 		goto error;
- 	}
- 
--	vport->dev = alloc_netdev(sizeof(struct internal_dev),
--				  parms->name, NET_NAME_USER, do_setup);
-+	dev = alloc_netdev(sizeof(struct internal_dev),
-+			   parms->name, NET_NAME_USER, do_setup);
-+	vport->dev = dev;
- 	if (!vport->dev) {
- 		err = -ENOMEM;
- 		goto error_free_vport;
-@@ -207,8 +210,10 @@ static struct vport *internal_dev_create
- 
- 	rtnl_lock();
- 	err = register_netdevice(vport->dev);
--	if (err)
-+	if (err) {
-+		free_vport = false;
- 		goto error_unlock;
-+	}
- 
- 	dev_set_promiscuity(vport->dev, 1);
- 	rtnl_unlock();
-@@ -218,11 +223,12 @@ static struct vport *internal_dev_create
- 
- error_unlock:
- 	rtnl_unlock();
--	free_percpu(vport->dev->tstats);
-+	free_percpu(dev->tstats);
- error_free_netdev:
--	free_netdev(vport->dev);
-+	free_netdev(dev);
- error_free_vport:
--	ovs_vport_free(vport);
-+	if (free_vport)
-+		ovs_vport_free(vport);
- error:
- 	return ERR_PTR(err);
- }
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 469dc378adeb..aaae6040b4c8 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -579,6 +579,7 @@ config GPIO_ADP5588
+ config GPIO_ADP5588_IRQ
+ 	bool "Interrupt controller support for ADP5588"
+ 	depends on GPIO_ADP5588=y
++	select GPIOLIB_IRQCHIP
+ 	help
+ 	  Say yes here to enable the adp5588 to be used as an interrupt
+ 	  controller. It requires the driver to be built in the kernel.
+-- 
+2.20.1
+
 
 
