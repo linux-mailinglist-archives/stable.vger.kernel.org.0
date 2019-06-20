@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08F6C4D7D9
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDA9F4D784
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:19:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728601AbfFTSLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:11:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39430 "EHLO mail.kernel.org"
+        id S1727770AbfFTSTp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:19:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728806AbfFTSLj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:11:39 -0400
+        id S1729483AbfFTSOp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:14:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E22F2070B;
-        Thu, 20 Jun 2019 18:11:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B6B62082C;
+        Thu, 20 Jun 2019 18:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054298;
-        bh=980y4+/bM4nqKR5zFJc08I4f1d9BaMa28HhT7rOx/s4=;
+        s=default; t=1561054484;
+        bh=e3PgroTUILzkasNEozigCK7QrPNLM19zAiAv/mT3ZVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c4aWRpHdj1pRxSNp3rjMvuDMhDrtF+im5NzIMJn0jYUoIHn8qmQabaNZtEB8xJ2Bs
-         kprL0qRZZFhJ2e0CQgZROOWRUfMFlXnv0Qll3sgrhqkynCLtbibxQq9T+LOEV1dwMp
-         se4KrSDzNr+Gkao/L3J9+d08JW0qfM5zSv5D0V5Y=
+        b=xgc5/T7n5w69lmKVtXF6AnZRzxKf0myajWAlyLnCUjbPhnJ4yaP0agpihbdj92UFY
+         xlLcHhzuCfj0hA0xxGosvOjUkwaHb+928Vqr/X7DZSdwntAOkkajjgDqptMStjDjOS
+         LXInK7u3NONrcBNfjyDR+XAdqZuqJG4mB3eWdWg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuri Chipchev <yuric@marvell.com>,
-        Maxime Chevallier <maxime.chevallier@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 15/61] net: mvpp2: prs: Fix parser range for VID filtering
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 43/98] clk: ti: clkctrl: Fix clkdm_clk handling
 Date:   Thu, 20 Jun 2019 19:57:10 +0200
-Message-Id: <20190620174339.749869176@linuxfoundation.org>
+Message-Id: <20190620174351.089052435@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Chevallier <maxime.chevallier@bootlin.com>
+[ Upstream commit 1cc54078d104f5b4d7e9f8d55362efa5a8daffdb ]
 
-[ Upstream commit 46b0090a6636cf34c0e856f15dd03e15ba4cdda6 ]
+We need to always call clkdm_clk_enable() and clkdm_clk_disable() even
+the clkctrl clock(s) enabled for the domain do not have any gate register
+bits. Otherwise clockdomains may never get enabled except when devices get
+probed with the legacy "ti,hwmods" devicetree property.
 
-VID filtering is implemented in the Header Parser, with one range of 11
-vids being assigned for each no-loopback port.
-
-Make sure we use the per-port range when looking for existing entries in
-the Parser.
-
-Since we used a global range instead of a per-port one, this causes VIDs
-to be removed from the whitelist from all ports of the same PPv2
-instance.
-
-Fixes: 56beda3db602 ("net: mvpp2: Add hardware offloading for VLAN filtering")
-Suggested-by: Yuri Chipchev <yuric@marvell.com>
-Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 88a172526c32 ("clk: ti: add support for clkctrl clocks")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c |   17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/clk/ti/clkctrl.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
-@@ -1905,8 +1905,7 @@ static int mvpp2_prs_ip6_init(struct mvp
- }
+diff --git a/drivers/clk/ti/clkctrl.c b/drivers/clk/ti/clkctrl.c
+index 639f515e08f0..3325ee43bcc1 100644
+--- a/drivers/clk/ti/clkctrl.c
++++ b/drivers/clk/ti/clkctrl.c
+@@ -137,9 +137,6 @@ static int _omap4_clkctrl_clk_enable(struct clk_hw *hw)
+ 	int ret;
+ 	union omap4_timeout timeout = { 0 };
  
- /* Find tcam entry with matched pair <vid,port> */
--static int mvpp2_prs_vid_range_find(struct mvpp2 *priv, int pmap, u16 vid,
--				    u16 mask)
-+static int mvpp2_prs_vid_range_find(struct mvpp2_port *port, u16 vid, u16 mask)
- {
- 	unsigned char byte[2], enable[2];
- 	struct mvpp2_prs_entry pe;
-@@ -1914,13 +1913,13 @@ static int mvpp2_prs_vid_range_find(stru
- 	int tid;
+-	if (!clk->enable_bit)
+-		return 0;
+-
+ 	if (clk->clkdm) {
+ 		ret = ti_clk_ll_ops->clkdm_clk_enable(clk->clkdm, hw->clk);
+ 		if (ret) {
+@@ -151,6 +148,9 @@ static int _omap4_clkctrl_clk_enable(struct clk_hw *hw)
+ 		}
+ 	}
  
- 	/* Go through the all entries with MVPP2_PRS_LU_VID */
--	for (tid = MVPP2_PE_VID_FILT_RANGE_START;
--	     tid <= MVPP2_PE_VID_FILT_RANGE_END; tid++) {
--		if (!priv->prs_shadow[tid].valid ||
--		    priv->prs_shadow[tid].lu != MVPP2_PRS_LU_VID)
-+	for (tid = MVPP2_PRS_VID_PORT_FIRST(port->id);
-+	     tid <= MVPP2_PRS_VID_PORT_LAST(port->id); tid++) {
-+		if (!port->priv->prs_shadow[tid].valid ||
-+		    port->priv->prs_shadow[tid].lu != MVPP2_PRS_LU_VID)
- 			continue;
++	if (!clk->enable_bit)
++		return 0;
++
+ 	val = ti_clk_ll_ops->clk_readl(&clk->enable_reg);
  
--		mvpp2_prs_init_from_hw(priv, &pe, tid);
-+		mvpp2_prs_init_from_hw(port->priv, &pe, tid);
+ 	val &= ~OMAP4_MODULEMODE_MASK;
+@@ -179,7 +179,7 @@ static void _omap4_clkctrl_clk_disable(struct clk_hw *hw)
+ 	union omap4_timeout timeout = { 0 };
  
- 		mvpp2_prs_tcam_data_byte_get(&pe, 2, &byte[0], &enable[0]);
- 		mvpp2_prs_tcam_data_byte_get(&pe, 3, &byte[1], &enable[1]);
-@@ -1950,7 +1949,7 @@ int mvpp2_prs_vid_entry_add(struct mvpp2
- 	memset(&pe, 0, sizeof(pe));
+ 	if (!clk->enable_bit)
+-		return;
++		goto exit;
  
- 	/* Scan TCAM and see if entry with this <vid,port> already exist */
--	tid = mvpp2_prs_vid_range_find(priv, (1 << port->id), vid, mask);
-+	tid = mvpp2_prs_vid_range_find(port, vid, mask);
+ 	val = ti_clk_ll_ops->clk_readl(&clk->enable_reg);
  
- 	reg_val = mvpp2_read(priv, MVPP2_MH_REG(port->id));
- 	if (reg_val & MVPP2_DSA_EXTENDED)
-@@ -2008,7 +2007,7 @@ void mvpp2_prs_vid_entry_remove(struct m
- 	int tid;
- 
- 	/* Scan TCAM and see if entry with this <vid,port> already exist */
--	tid = mvpp2_prs_vid_range_find(priv, (1 << port->id), vid, 0xfff);
-+	tid = mvpp2_prs_vid_range_find(port, vid, 0xfff);
- 
- 	/* No such entry */
- 	if (tid < 0)
+-- 
+2.20.1
+
 
 
