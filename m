@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 704A54D7C2
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDB304D661
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:08:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728753AbfFTSKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:10:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
+        id S1727868AbfFTSHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:07:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728755AbfFTSKG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:10:06 -0400
+        id S1726511AbfFTSHP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:07:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 107992089C;
-        Thu, 20 Jun 2019 18:10:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 547282082C;
+        Thu, 20 Jun 2019 18:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054205;
-        bh=UfCHc50+h/K+slCE7JCcG0jyf/MlE1PR41uhQPQgYXM=;
+        s=default; t=1561054034;
+        bh=9oLMAM/nIBoGCDh6ofVMyFf0mrfY/YKE5fI1NiFYlA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ga1wiDRwJW40f/xB24wfTe0xZ/6M4jZYvaq7/t7XEPh7d8pW6co5neH6YXqdT8tlf
-         m4v7No629wAi6rWXpV3TmNLzOJ7w8WeYCHOVsqLvr/k/Iuo0mk5AdHIUX4X7sdJR8X
-         Ql/xZLrRRNJk8xQ0wQ6rNZov2VxLkpJr25p9CBAk=
+        b=Mw+I28DxnlOZo+lMfUr84t/0gxLvppGiSlr2fyjOrc9zx4cIrP+hJEyS+0Lprg30N
+         nEJEcEsyjD672LgNnYGwJvEji7eqGZYFWgOetEiO6vGKSjEaWa0enHcITrQ2ckTBGw
+         I3R5SWGTm/UtB4yzVtxV6u4VWCYbZPjWHzpDNfQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianhao <tizhao@redhat.com>,
-        Ivan Vecera <ivecera@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 02/61] be2net: Fix number of Rx queues used for flow hashing
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Minas Harutyunyan <hminas@synopsys.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>
+Subject: [PATCH 4.9 083/117] usb: dwc2: Fix DMA cache alignment issues
 Date:   Thu, 20 Jun 2019 19:56:57 +0200
-Message-Id: <20190620174337.840765030@linuxfoundation.org>
+Message-Id: <20190620174357.244764381@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Vecera <ivecera@redhat.com>
+From: Martin Schiller <ms@dev.tdt.de>
 
-[ Upstream commit 718f4a2537089ea41903bf357071306163bc7c04 ]
+commit 4a4863bf2e7932e584a3a462d3c6daf891142ddc upstream.
 
-Number of Rx queues used for flow hashing returned by the driver is
-incorrect and this bug prevents user to use the last Rx queue in
-indirection table.
+Insert a padding between data and the stored_xfer_buffer pointer to
+ensure they are not on the same cache line.
 
-Let's say we have a NIC with 6 combined queues:
+Otherwise, the stored_xfer_buffer gets corrupted for IN URBs on
+non-cache-coherent systems. (In my case: Lantiq xRX200 MIPS)
 
-[root@sm-03 ~]# ethtool -l enp4s0f0
-Channel parameters for enp4s0f0:
-Pre-set maximums:
-RX:             5
-TX:             5
-Other:          0
-Combined:       6
-Current hardware settings:
-RX:             0
-TX:             0
-Other:          0
-Combined:       6
-
-Default indirection table maps all (6) queues equally but the driver
-reports only 5 rings available.
-
-[root@sm-03 ~]# ethtool -x enp4s0f0
-RX flow hash indirection table for enp4s0f0 with 5 RX ring(s):
-    0:      0     1     2     3     4     5     0     1
-    8:      2     3     4     5     0     1     2     3
-   16:      4     5     0     1     2     3     4     5
-   24:      0     1     2     3     4     5     0     1
-...
-
-Now change indirection table somehow:
-
-[root@sm-03 ~]# ethtool -X enp4s0f0 weight 1 1
-[root@sm-03 ~]# ethtool -x enp4s0f0
-RX flow hash indirection table for enp4s0f0 with 6 RX ring(s):
-    0:      0     0     0     0     0     0     0     0
-...
-   64:      1     1     1     1     1     1     1     1
-...
-
-Now it is not possible to change mapping back to equal (default) state:
-
-[root@sm-03 ~]# ethtool -X enp4s0f0 equal 6
-Cannot set RX flow hash configuration: Invalid argument
-
-Fixes: 594ad54a2c3b ("be2net: Add support for setting and getting rx flow hash options")
-Reported-by: Tianhao <tizhao@redhat.com>
-Signed-off-by: Ivan Vecera <ivecera@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3bc04e28a030 ("usb: dwc2: host: Get aligned DMA in a more supported way")
+Fixes: 56406e017a88 ("usb: dwc2: Fix DMA alignment to start at allocated boundary")
+Cc: <stable@vger.kernel.org>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/emulex/benet/be_ethtool.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/emulex/benet/be_ethtool.c
-+++ b/drivers/net/ethernet/emulex/benet/be_ethtool.c
-@@ -1105,7 +1105,7 @@ static int be_get_rxnfc(struct net_devic
- 		cmd->data = be_get_rss_hash_opts(adapter, cmd->flow_type);
- 		break;
- 	case ETHTOOL_GRXRINGS:
--		cmd->data = adapter->num_rx_qs - 1;
-+		cmd->data = adapter->num_rx_qs;
- 		break;
- 	default:
- 		return -EINVAL;
+---
+ drivers/usb/dwc2/hcd.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+--- a/drivers/usb/dwc2/hcd.c
++++ b/drivers/usb/dwc2/hcd.c
+@@ -2552,8 +2552,10 @@ static void dwc2_free_dma_aligned_buffer
+ 		return;
+ 
+ 	/* Restore urb->transfer_buffer from the end of the allocated area */
+-	memcpy(&stored_xfer_buffer, urb->transfer_buffer +
+-	       urb->transfer_buffer_length, sizeof(urb->transfer_buffer));
++	memcpy(&stored_xfer_buffer,
++	       PTR_ALIGN(urb->transfer_buffer + urb->transfer_buffer_length,
++			 dma_get_cache_alignment()),
++	       sizeof(urb->transfer_buffer));
+ 
+ 	if (usb_urb_dir_in(urb))
+ 		memcpy(stored_xfer_buffer, urb->transfer_buffer,
+@@ -2580,6 +2582,7 @@ static int dwc2_alloc_dma_aligned_buffer
+ 	 * DMA
+ 	 */
+ 	kmalloc_size = urb->transfer_buffer_length +
++		(dma_get_cache_alignment() - 1) +
+ 		sizeof(urb->transfer_buffer);
+ 
+ 	kmalloc_ptr = kmalloc(kmalloc_size, mem_flags);
+@@ -2590,7 +2593,8 @@ static int dwc2_alloc_dma_aligned_buffer
+ 	 * Position value of original urb->transfer_buffer pointer to the end
+ 	 * of allocation for later referencing
+ 	 */
+-	memcpy(kmalloc_ptr + urb->transfer_buffer_length,
++	memcpy(PTR_ALIGN(kmalloc_ptr + urb->transfer_buffer_length,
++			 dma_get_cache_alignment()),
+ 	       &urb->transfer_buffer, sizeof(urb->transfer_buffer));
+ 
+ 	if (usb_urb_dir_out(urb))
 
 
