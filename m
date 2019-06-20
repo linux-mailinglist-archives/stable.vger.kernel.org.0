@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 505DC4D8C3
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D74924D76E
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:19:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727221AbfFTSBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:01:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50852 "EHLO mail.kernel.org"
+        id S1729007AbfFTSOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:14:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727217AbfFTSBU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:01:20 -0400
+        id S1726812AbfFTSOt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:14:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C413214AF;
-        Thu, 20 Jun 2019 18:01:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05C41205F4;
+        Thu, 20 Jun 2019 18:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053680;
-        bh=8zUxCG6iOG8UzpM1LwJPo1hDPowznZpnbthTMPJGBCs=;
+        s=default; t=1561054488;
+        bh=x3DQAm9fBik+KczsyNcMttT72qr4M0hPWQmDCAH5ZlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFLkLQM1P2NH3cDTk7YdBNdSdNHkb+zKQGBB/mHgjVyfpD0t8LzYXR+tg6chUmM13
-         BNosSF488UnkBsKOTQ45Edzr8t8rL4wMfj+A06Mg9x3sTFQbnRxDix5yX8v5reealW
-         ZMWx1Cr1BWC1zXWZ9CZm3dEqD5HDPCweRMoJg0TI=
+        b=LEp5pMXt+Sd+dv1SzH3CVZXBvWaNybHbyvkaznGYRQvqc6V4UFlhRaPekG8ir+0XS
+         ySNlPyCtIrL4xqZUqlLmShs7s/c6jZ+AyNU+LB1aV/wLauenN/EWt3UttdmfbHpo5A
+         rXUAORulpXB3T9FlqOTqHJWLWZGZMXE7412adTbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pavaman Subramaniyam <pavsubra@in.ibm.com>,
+        Anju T Sudhakar <anju@linux.vnet.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 74/84] net: tulip: de4x5: Drop redundant MODULE_DEVICE_TABLE()
+Subject: [PATCH 5.1 44/98] powerpc/powernv: Return for invalid IMC domain
 Date:   Thu, 20 Jun 2019 19:57:11 +0200
-Message-Id: <20190620174348.808318379@linuxfoundation.org>
+Message-Id: <20190620174351.143824080@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
-References: <20190620174337.538228162@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3e66b7cc50ef921121babc91487e1fb98af1ba6e ]
+[ Upstream commit b59bd3527fe3c1939340df558d7f9d568fc9f882 ]
 
-Building with Clang reports the redundant use of MODULE_DEVICE_TABLE():
+Currently init_imc_pmu() can fail either because we try to register an
+IMC unit with an invalid domain (i.e an IMC node not supported by the
+kernel) or something went wrong while registering a valid IMC unit. In
+both the cases kernel provides a 'Register failed' error message.
 
-drivers/net/ethernet/dec/tulip/de4x5.c:2110:1: error: redefinition of '__mod_eisa__de4x5_eisa_ids_device_table'
-MODULE_DEVICE_TABLE(eisa, de4x5_eisa_ids);
-^
-./include/linux/module.h:229:21: note: expanded from macro 'MODULE_DEVICE_TABLE'
-extern typeof(name) __mod_##type##__##name##_device_table               \
-                    ^
-<scratch space>:90:1: note: expanded from here
-__mod_eisa__de4x5_eisa_ids_device_table
-^
-drivers/net/ethernet/dec/tulip/de4x5.c:2100:1: note: previous definition is here
-MODULE_DEVICE_TABLE(eisa, de4x5_eisa_ids);
-^
-./include/linux/module.h:229:21: note: expanded from macro 'MODULE_DEVICE_TABLE'
-extern typeof(name) __mod_##type##__##name##_device_table               \
-                    ^
-<scratch space>:85:1: note: expanded from here
-__mod_eisa__de4x5_eisa_ids_device_table
-^
+For example when trace-imc node is not supported by the kernel, but
+skiboot advertises a trace-imc node we print:
 
-This drops the one further from the table definition to match the common
-use of MODULE_DEVICE_TABLE().
+  IMC Unknown Device type
+  IMC PMU (null) Register failed
 
-Fixes: 07563c711fbc ("EISA bus MODALIAS attributes support")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+To avoid confusion just print the unknown device type message, before
+attempting PMU registration, so the second message isn't printed.
+
+Fixes: 8f95faaac56c ("powerpc/powernv: Detect and create IMC device")
+Reported-by: Pavaman Subramaniyam <pavsubra@in.ibm.com>
+Signed-off-by: Anju T Sudhakar <anju@linux.vnet.ibm.com>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+[mpe: Reword change log a bit]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/dec/tulip/de4x5.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/platforms/powernv/opal-imc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/dec/tulip/de4x5.c b/drivers/net/ethernet/dec/tulip/de4x5.c
-index 3acde3b9b767..7799cf33cc6e 100644
---- a/drivers/net/ethernet/dec/tulip/de4x5.c
-+++ b/drivers/net/ethernet/dec/tulip/de4x5.c
-@@ -2106,7 +2106,6 @@ static struct eisa_driver de4x5_eisa_driver = {
- 		.remove  = de4x5_eisa_remove,
-         }
- };
--MODULE_DEVICE_TABLE(eisa, de4x5_eisa_ids);
- #endif
+diff --git a/arch/powerpc/platforms/powernv/opal-imc.c b/arch/powerpc/platforms/powernv/opal-imc.c
+index 3d27f02695e4..828f6656f8f7 100644
+--- a/arch/powerpc/platforms/powernv/opal-imc.c
++++ b/arch/powerpc/platforms/powernv/opal-imc.c
+@@ -161,6 +161,10 @@ static int imc_pmu_create(struct device_node *parent, int pmu_index, int domain)
+ 	struct imc_pmu *pmu_ptr;
+ 	u32 offset;
  
- #ifdef CONFIG_PCI
++	/* Return for unknown domain */
++	if (domain < 0)
++		return -EINVAL;
++
+ 	/* memory for pmu */
+ 	pmu_ptr = kzalloc(sizeof(*pmu_ptr), GFP_KERNEL);
+ 	if (!pmu_ptr)
 -- 
 2.20.1
 
