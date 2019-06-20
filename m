@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C0B4D790
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:20:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 554C54D912
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:32:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729403AbfFTSOK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:14:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42376 "EHLO mail.kernel.org"
+        id S1726774AbfFTR77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 13:59:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728989AbfFTSOK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:14:10 -0400
+        id S1726735AbfFTR76 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 13:59:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BE632084E;
-        Thu, 20 Jun 2019 18:14:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD2CA2083B;
+        Thu, 20 Jun 2019 17:59:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054449;
-        bh=hphFwK1hIXpMMA+3jCTMhQvVE8F9g39oGFKILzNNueY=;
+        s=default; t=1561053597;
+        bh=LTBT4meJ/uk4ny0lcGwS24hw7IhpJQw+FC/0HzWSDh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nHTEGzEUppL3XWdCg6xquvr3Z4+G5bHDuK0V0IPf6TQKfXlVebfi+GpvZUSInoJzN
-         QL0B31C46ahhk6Pk2qMk1f4VPBWv0LhZIbn0TWhqFNVTw7J3RpfPzeVByfNJNLHPvp
-         LDaFXvIpUBqoMbTE0EOGgy9k6yAxaSzW2UmHZ1oA=
+        b=xs9KE9A3pdorv+31p01n2KEo3bwU6wHhn6SUsSV8usunevx0aVaxdPB8dBD4qb3Ez
+         5N1NnU6k7IQ8C3M4iYPi4F2H/gNYD2kvzIAKm9YuX3UnjVARJxIeTN3TxcMauIORbT
+         Phb62rvE1RTbrmtmYBblVwZ50V55dY8hPld6pDX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Barber <smbarber@chromium.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 15/98] vsock/virtio: set SOCK_DONE on peer shutdown
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Oleg Nesterov <oleg@redhat.com>, Jann Horn <jannh@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 4.4 45/84] ptrace: restore smp_rmb() in __ptrace_may_access()
 Date:   Thu, 20 Jun 2019 19:56:42 +0200
-Message-Id: <20190620174349.990590950@linuxfoundation.org>
+Message-Id: <20190620174345.297401138@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Barber <smbarber@chromium.org>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 42f5cda5eaf4396a939ae9bb43bb8d1d09c1b15c ]
+commit f6581f5b55141a95657ef5742cf6a6bfa20a109f upstream.
 
-Set the SOCK_DONE flag to match the TCP_CLOSING state when a peer has
-shut down and there is nothing left to read.
+Restore the read memory barrier in __ptrace_may_access() that was deleted
+a couple years ago. Also add comments on this barrier and the one it pairs
+with to explain why they're there (as far as I understand).
 
-This fixes the following bug:
-1) Peer sends SHUTDOWN(RDWR).
-2) Socket enters TCP_CLOSING but SOCK_DONE is not set.
-3) read() returns -ENOTCONN until close() is called, then returns 0.
-
-Signed-off-by: Stephen Barber <smbarber@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: bfedb589252c ("mm: Add a user_ns owner to mm_struct and fix ptrace permission checks")
+Cc: stable@vger.kernel.org
+Acked-by: Kees Cook <keescook@chromium.org>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/vmw_vsock/virtio_transport_common.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -871,8 +871,10 @@ virtio_transport_recv_connected(struct s
- 		if (le32_to_cpu(pkt->hdr.flags) & VIRTIO_VSOCK_SHUTDOWN_SEND)
- 			vsk->peer_shutdown |= SEND_SHUTDOWN;
- 		if (vsk->peer_shutdown == SHUTDOWN_MASK &&
--		    vsock_stream_has_data(vsk) <= 0)
-+		    vsock_stream_has_data(vsk) <= 0) {
-+			sock_set_flag(sk, SOCK_DONE);
- 			sk->sk_state = TCP_CLOSING;
-+		}
- 		if (le32_to_cpu(pkt->hdr.flags))
- 			sk->sk_state_change(sk);
- 		break;
+---
+ kernel/cred.c   |    9 +++++++++
+ kernel/ptrace.c |   10 ++++++++++
+ 2 files changed, 19 insertions(+)
+
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -447,6 +447,15 @@ int commit_creds(struct cred *new)
+ 		if (task->mm)
+ 			set_dumpable(task->mm, suid_dumpable);
+ 		task->pdeath_signal = 0;
++		/*
++		 * If a task drops privileges and becomes nondumpable,
++		 * the dumpability change must become visible before
++		 * the credential change; otherwise, a __ptrace_may_access()
++		 * racing with this change may be able to attach to a task it
++		 * shouldn't be able to attach to (as if the task had dropped
++		 * privileges without becoming nondumpable).
++		 * Pairs with a read barrier in __ptrace_may_access().
++		 */
+ 		smp_wmb();
+ 	}
+ 
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -292,6 +292,16 @@ static int __ptrace_may_access(struct ta
+ 	return -EPERM;
+ ok:
+ 	rcu_read_unlock();
++	/*
++	 * If a task drops privileges and becomes nondumpable (through a syscall
++	 * like setresuid()) while we are trying to access it, we must ensure
++	 * that the dumpability is read after the credentials; otherwise,
++	 * we may be able to attach to a task that we shouldn't be able to
++	 * attach to (as if the task had dropped privileges without becoming
++	 * nondumpable).
++	 * Pairs with a write barrier in commit_creds().
++	 */
++	smp_rmb();
+ 	mm = task->mm;
+ 	if (mm &&
+ 	    ((get_dumpable(mm) != SUID_DUMP_USER) &&
 
 
