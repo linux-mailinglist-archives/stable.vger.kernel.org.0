@@ -2,71 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 231BF4C6D9
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 07:41:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7785B4C8B3
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 09:54:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725857AbfFTFk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 01:40:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42600 "EHLO mail.kernel.org"
+        id S1725965AbfFTHyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 03:54:45 -0400
+Received: from mga05.intel.com ([192.55.52.43]:26433 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725889AbfFTFk7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 01:40:59 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9A01208CB;
-        Thu, 20 Jun 2019 05:40:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561009258;
-        bh=7a0/eouxP9Cv5kRVCnjDX/zKAGW3xlcBWJR4C8TVLRk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=m3x2Qmer9mt1a3JaeZMyPi/mYZ9qhz0WNgKZrX5wv49hYgO9s50uHVgM9ltoCJ/uk
-         1t1jnobiEFCcMZ4Wi74NfMkG0zsQdyOVJs/6VHQfa0GSpW0in/Ede0cYa3Xn/tT8j5
-         i9IQ7zZDOviJqS8B+z7oD4XYtaXCe+5ec0DhoNhM=
-Date:   Thu, 20 Jun 2019 07:40:55 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4p2OIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-4.19
-Message-ID: <20190620054055.GA24360@kroah.com>
-References: <cki.7602EAEC92.HPY067VWRJ@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cki.7602EAEC92.HPY067VWRJ@redhat.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+        id S1725912AbfFTHyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 03:54:44 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Jun 2019 00:54:44 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,396,1557212400"; 
+   d="scan'208";a="186729197"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.164])
+  by fmsmga002.fm.intel.com with ESMTP; 20 Jun 2019 00:54:42 -0700
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <linux-usb@vger.kernel.org>, <stern@rowland.harvard.edu>,
+        "Lee, Chiasheng" <chiasheng.lee@intel.com>,
+        "# v4 . 13+" <stable@vger.kernel.org>, Lee@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH] usb: Handle USB3 remote wakeup for LPM enabled devices correctly
+Date:   Thu, 20 Jun 2019 10:56:04 +0300
+Message-Id: <1561017364-24229-1-git-send-email-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 19, 2019 at 08:12:58PM -0400, CKI Project wrote:
-> Hello,
-> 
-> We ran automated tests on a patchset that was proposed for merging into this
-> kernel tree. The patches were applied to:
-> 
->        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->             Commit: 9f31eb60d7a2 - Linux 4.19.53
-> 
-> The results of these automated tests are provided below.
-> 
->     Overall result: FAILED (see details below)
->              Merge: FAILED
-> 
-> 
-> 
-> 
-> When we attempted to merge the patchset, we received an error:
-> 
->   error: patch failed: net/ipv6/ip6_flowlabel.c:254
->   error: net/ipv6/ip6_flowlabel.c: patch does not apply
->   hint: Use 'git am --show-current-patch' to see the failed patch
->   Applying: ipv6: flowlabel: fl6_sock_lookup() must use atomic_inc_not_zero
->   Patch failed at 0001 ipv6: flowlabel: fl6_sock_lookup() must use atomic_inc_not_zero
+From: "Lee, Chiasheng" <chiasheng.lee@intel.com>
 
-Should also now be fixed.
+With Link Power Management (LPM) enabled USB3 links transition to low
+power U1/U2 link states from U0 state automatically.
 
-thanks,
+Current hub code detects USB3 remote wakeups by checking if the software
+state still shows suspended, but the link has transitioned from suspended
+U3 to enabled U0 state.
 
-greg k-h
+As it takes some time before the hub thread reads the port link state
+after a USB3 wake notification, the link may have transitioned from U0
+to U1/U2, and wake is not detected by hub code.
+
+Fix this by handling U1/U2 states in the same way as U0 in USB3 wakeup
+handling
+
+This patch should be added to stable kernels since 4.13 where LPM was
+kept enabled during suspend/resume
+
+Cc: <stable@vger.kernel.org> # v4.13+
+Signed-off-by: Lee, Chiasheng <chiasheng.lee@intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/core/hub.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 2f94568..2c8e60c 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -3617,6 +3617,7 @@ static int hub_handle_remote_wakeup(struct usb_hub *hub, unsigned int port,
+ 	struct usb_device *hdev;
+ 	struct usb_device *udev;
+ 	int connect_change = 0;
++	u16 link_state;
+ 	int ret;
+ 
+ 	hdev = hub->hdev;
+@@ -3626,9 +3627,11 @@ static int hub_handle_remote_wakeup(struct usb_hub *hub, unsigned int port,
+ 			return 0;
+ 		usb_clear_port_feature(hdev, port, USB_PORT_FEAT_C_SUSPEND);
+ 	} else {
++		link_state = portstatus & USB_PORT_STAT_LINK_STATE;
+ 		if (!udev || udev->state != USB_STATE_SUSPENDED ||
+-				 (portstatus & USB_PORT_STAT_LINK_STATE) !=
+-				 USB_SS_PORT_LS_U0)
++				(link_state != USB_SS_PORT_LS_U0 &&
++				 link_state != USB_SS_PORT_LS_U1 &&
++				 link_state != USB_SS_PORT_LS_U2))
+ 			return 0;
+ 	}
+ 
+-- 
+2.7.4
+
