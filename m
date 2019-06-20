@@ -2,117 +2,273 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2094C459
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 02:13:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20DA34C471
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 02:29:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730020AbfFTANK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 20:13:10 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:33828 "EHLO mx1.redhat.com"
+        id S1726667AbfFTA3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 20:29:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726496AbfFTANK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Jun 2019 20:13:10 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726479AbfFTA3R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Jun 2019 20:29:17 -0400
+Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 48FF730811C7
-        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 00:13:10 +0000 (UTC)
-Received: from [172.54.67.194] (cpt-large-cpu-02.paas.prod.upshift.rdu2.redhat.com [10.0.18.84])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E3F0C5C205;
-        Thu, 20 Jun 2019 00:13:07 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        by mail.kernel.org (Postfix) with ESMTPSA id 35C9F208CB;
+        Thu, 20 Jun 2019 00:29:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560990556;
+        bh=PDKLSwxZhCcxdoo0WqtAJeSYeZyHUmHf1SmbmEZjZPw=;
+        h=Date:From:To:Subject:From;
+        b=2BQs7Q1HNQ7eRcQA9BUSYBthXP1G+sXYX4I1GGhI24cR+AO8qkhHatLb5ez4fRkJh
+         PmXE7lD95hx+5HL23ty2FPaBLIbcR17+TX6xqnhJOAVOEu4w376k9sCK1xiXxSjrZ9
+         2ip7/HKsCbUn2pqXNQnFEuLLLcQJEtvKhEFgrFv4=
+Date:   Wed, 19 Jun 2019 17:29:15 -0700
+From:   akpm@linux-foundation.org
+To:     hannes@cmpxchg.org, mgorman@techsingularity.net, mhocko@suse.com,
+        mm-commits@vger.kernel.org, riel@redhat.com, sonnyrao@chromium.org,
+        stable@vger.kernel.org, vdavydov.dev@gmail.com, vovoy@chromium.org
+Subject:  +
+ =?US-ASCII?Q?mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting?=
+ =?US-ASCII?Q?-file-refaults.patch?= added to -mm tree
+Message-ID: <20190620002915.x3Lu6abxo%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2O?= FAIL: Stable queue: queue-5.1
-Message-ID: <cki.FCB5477057.6ESDYD89JG@redhat.com>
-X-Gitlab-Pipeline-ID: 12843
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Thu, 20 Jun 2019 00:13:10 +0000 (UTC)
-Date:   Wed, 19 Jun 2019 20:13:10 -0400
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+The patch titled
+     Subject: mm: vmscan: fix not scanning anonymous pages when detecting file refaults
+has been added to the -mm tree.  Its filename is
+     mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults.patch
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 5752b50477da - Linux 5.1.12
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults.patch
 
-The results of these automated tests are provided below.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-    Overall result: FAILED (see details below)
-             Merge: FAILED
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
+------------------------------------------------------
+From: Kuo-Hsin Yang <vovoy@chromium.org>
+Subject: mm: vmscan: fix not scanning anonymous pages when detecting file refaults
 
+When file refaults are detected and there are many inactive file pages,
+the system never reclaim anonymous pages, the file pages are dropped
+aggressively when there are still a lot of cold anonymous pages and system
+thrashes.  This issue impacts the performance of applications with large
+executable, e.g.  chrome.
 
-When we attempted to merge the patchset, we received an error:
+When file refaults are detected.  inactive_list_is_low() may return
+different values depends on the actual_reclaim parameter, the following 2
+conditions could be satisfied at the same time.
 
-  error: patch failed: net/ipv6/ip6_flowlabel.c:254
-  error: net/ipv6/ip6_flowlabel.c: patch does not apply
-  hint: Use 'git am --show-current-patch' to see the failed patch
-  Applying: ipv6: flowlabel: fl6_sock_lookup() must use atomic_inc_not_zero
-  Patch failed at 0001 ipv6: flowlabel: fl6_sock_lookup() must use atomic_inc_not_zero
+1) inactive_list_is_low() returns false in get_scan_count() to trigger
+   scanning file lists only.
+2) inactive_list_is_low() returns true in shrink_list() to allow
+   scanning active file list.
 
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
+In that case vmscan would only scan file lists, and as active file list is
+also scanned, inactive_list_is_low() may keep returning false in
+get_scan_count() until file cache is very low.
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+Before 2a2e48854d70 ("mm: vmscan: fix IO/refault regression in cache
+workingset transition"), inactive_list_is_low() never returns different
+value in get_scan_count() and shrink_list() in one shrink_node_memcg()
+run.  The original design should be that when inactive_list_is_low()
+returns false for file lists, vmscan only scan inactive file list.  As
+only inactive file list is scanned, inactive_list_is_low() would soon
+return true.
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+This patch makes the return value of inactive_list_is_low() independent of
+actual_reclaim.
 
-Merge testing
--------------
+The problem can be reproduced by the following test program.
 
-We cloned this repository and checked out the following commit:
+---8<---
+void fallocate_file(const char *filename, off_t size)
+{
+	struct stat st;
+	int fd;
 
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 5752b50477da - Linux 5.1.12
+	if (!stat(filename, &st) && st.st_size >= size)
+		return;
 
+	fd = open(filename, O_WRONLY | O_CREAT, 0600);
+	if (fd < 0) {
+		perror("create file");
+		exit(1);
+	}
+	if (posix_fallocate(fd, 0, size)) {
+		perror("fallocate");
+		exit(1);
+	}
+	close(fd);
+}
 
-We then merged the patchset with `git am`:
+long *alloc_anon(long size)
+{
+	long *start = malloc(size);
+	memset(start, 1, size);
+	return start;
+}
 
-  netfilter-nat-fix-udp-checksum-corruption.patch
-  ax25-fix-inconsistent-lock-state-in-ax25_destroy_timer.patch
-  be2net-fix-number-of-rx-queues-used-for-flow-hashing.patch
-  hv_netvsc-set-probe-mode-to-sync.patch
-  ipv6-flowlabel-fl6_sock_lookup-must-use-atomic_inc_not_zero.patch
-  lapb-fixed-leak-of-control-blocks.patch
-  neigh-fix-use-after-free-read-in-pneigh_get_next.patch
-  net-dsa-rtl8366-fix-up-vlan-filtering.patch
-  net-openvswitch-do-not-free-vport-if-register_netdevice-is-failed.patch
-  net-phylink-set-the-autoneg-state-in-phylink_phy_change.patch
-  net-tls-correctly-account-for-copied-bytes-with-multiple-sk_msgs.patch
-  nfc-ensure-presence-of-required-attributes-in-the-deactivate_target-handler.patch
-  sctp-free-cookie-before-we-memdup-a-new-one.patch
-  sunhv-fix-device-naming-inconsistency-between-sunhv_console-and-sunhv_reg.patch
-  tipc-purge-deferredq-list-for-each-grp-member-in-tipc_group_delete.patch
-  vsock-virtio-set-sock_done-on-peer-shutdown.patch
-  net-mlx5-avoid-reloading-already-removed-devices.patch
-  vxlan-don-t-assume-linear-buffers-in-error-handler.patch
-  geneve-don-t-assume-linear-buffers-in-error-handler.patch
-  net-mvpp2-prs-fix-parser-range-for-vid-filtering.patch
-  net-mvpp2-prs-use-the-correct-helpers-when-removing-all-vid-filters.patch
-  net-dsa-microchip-don-t-try-to-read-stats-for-unused-ports.patch
-  net-ethtool-allow-matching-on-vlan-dei-bit.patch
-  net-mlx5-update-pci-error-handler-entries-and-command-translation.patch
-  mlxsw-spectrum_router-refresh-nexthop-neighbour-when-it-becomes-dead.patch
-  net-mlx5e-add-ndo_set_feature-for-uplink-representor.patch
-  mlxsw-spectrum_flower-fix-tos-matching.patch
-  net-mlx5e-fix-source-port-matching-in-fdb-peer-flow-rule.patch
-  mlxsw-spectrum_buffers-reduce-pool-size-on-spectrum-2.patch
-  net-mlx5e-support-tagged-tunnel-over-bond.patch
-  net-correct-udp-zerocopy-refcnt-also-when-zerocopy-only-on-append.patch
-  net-mlx5e-avoid-detaching-non-existing-netdev-under-switchdev-mode.patch
-  ipv6-flowlabel-fl6_sock_lookup-must-use-atomic_inc_n.patch
+long access_file(const char *filename, long size, long rounds)
+{
+	int fd, i;
+	volatile char *start1, *end1, *start2;
+	const int page_size = getpagesize();
+	long sum = 0;
+
+	fd = open(filename, O_RDONLY);
+	if (fd == -1) {
+		perror("open");
+		exit(1);
+	}
+
+	/*
+	 * Some applications, e.g. chrome, use a lot of executable file
+	 * pages, map some of the pages with PROT_EXEC flag to simulate
+	 * the behavior.
+	 */
+	start1 = mmap(NULL, size / 2, PROT_READ | PROT_EXEC, MAP_SHARED,
+		      fd, 0);
+	if (start1 == MAP_FAILED) {
+		perror("mmap");
+		exit(1);
+	}
+	end1 = start1 + size / 2;
+
+	start2 = mmap(NULL, size / 2, PROT_READ, MAP_SHARED, fd, size / 2);
+	if (start2 == MAP_FAILED) {
+		perror("mmap");
+		exit(1);
+	}
+
+	for (i = 0; i < rounds; ++i) {
+		struct timeval before, after;
+		volatile char *ptr1 = start1, *ptr2 = start2;
+		gettimeofday(&before, NULL);
+		for (; ptr1 < end1; ptr1 += page_size, ptr2 += page_size)
+			sum += *ptr1 + *ptr2;
+		gettimeofday(&after, NULL);
+		printf("File access time, round %d: %f (sec)
+", i,
+		       (after.tv_sec - before.tv_sec) +
+		       (after.tv_usec - before.tv_usec) / 1000000.0);
+	}
+	return sum;
+}
+
+int main(int argc, char *argv[])
+{
+	const long MB = 1024 * 1024;
+	long anon_mb, file_mb, file_rounds;
+	const char filename[] = "large";
+	long *ret1;
+	long ret2;
+
+	if (argc != 4) {
+		printf("usage: thrash ANON_MB FILE_MB FILE_ROUNDS
+");
+		exit(0);
+	}
+	anon_mb = atoi(argv[1]);
+	file_mb = atoi(argv[2]);
+	file_rounds = atoi(argv[3]);
+
+	fallocate_file(filename, file_mb * MB);
+	printf("Allocate %ld MB anonymous pages
+", anon_mb);
+	ret1 = alloc_anon(anon_mb * MB);
+	printf("Access %ld MB file pages
+", file_mb);
+	ret2 = access_file(filename, file_mb * MB, file_rounds);
+	printf("Print result to prevent optimization: %ld
+",
+	       *ret1 + ret2);
+	return 0;
+}
+---8<---
+
+Running the test program on 2GB RAM VM with kernel 5.2.0-rc5, the program
+fills ram with 2048 MB memory, access a 200 MB file for 10 times.  Without
+this patch, the file cache is dropped aggresively and every access to the
+file is from disk.
+
+  $ ./thrash 2048 200 10
+  Allocate 2048 MB anonymous pages
+  Access 200 MB file pages
+  File access time, round 0: 2.489316 (sec)
+  File access time, round 1: 2.581277 (sec)
+  File access time, round 2: 2.487624 (sec)
+  File access time, round 3: 2.449100 (sec)
+  File access time, round 4: 2.420423 (sec)
+  File access time, round 5: 2.343411 (sec)
+  File access time, round 6: 2.454833 (sec)
+  File access time, round 7: 2.483398 (sec)
+  File access time, round 8: 2.572701 (sec)
+  File access time, round 9: 2.493014 (sec)
+
+With this patch, these file pages can be cached.
+
+  $ ./thrash 2048 200 10
+  Allocate 2048 MB anonymous pages
+  Access 200 MB file pages
+  File access time, round 0: 2.475189 (sec)
+  File access time, round 1: 2.440777 (sec)
+  File access time, round 2: 2.411671 (sec)
+  File access time, round 3: 1.955267 (sec)
+  File access time, round 4: 0.029924 (sec)
+  File access time, round 5: 0.000808 (sec)
+  File access time, round 6: 0.000771 (sec)
+  File access time, round 7: 0.000746 (sec)
+  File access time, round 8: 0.000738 (sec)
+  File access time, round 9: 0.000747 (sec)
+
+Link: http://lkml.kernel.org/r/20190619080835.GA68312@google.com
+Fixes: 2a2e48854d70 ("mm: vmscan: fix IO/refault regression in cache workingset transition")
+Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Sonny Rao <sonnyrao@chromium.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/vmscan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/vmscan.c~mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults
++++ a/mm/vmscan.c
+@@ -2151,7 +2151,7 @@ static bool inactive_list_is_low(struct
+ 	 * rid of the stale workingset quickly.
+ 	 */
+ 	refaults = lruvec_page_state_local(lruvec, WORKINGSET_ACTIVATE);
+-	if (file && actual_reclaim && lruvec->refaults != refaults) {
++	if (file && lruvec->refaults != refaults) {
+ 		inactive_ratio = 0;
+ 	} else {
+ 		gb = (inactive + active) >> (30 - PAGE_SHIFT);
+_
+
+Patches currently in -mm which might be from vovoy@chromium.org are
+
+mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults.patch
+
