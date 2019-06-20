@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2AB54D71A
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DB824D7EB
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729737AbfFTSQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:16:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45244 "EHLO mail.kernel.org"
+        id S1729089AbfFTSMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:12:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729730AbfFTSQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:16:09 -0400
+        id S1728807AbfFTSMu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:12:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C71892082C;
-        Thu, 20 Jun 2019 18:16:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A0EB2082C;
+        Thu, 20 Jun 2019 18:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054568;
+        s=default; t=1561054369;
         bh=2khrPAEcIHE8KFALuvBXdNyBuY58gqu34hTQh9PaFzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSxkrCWZFecIIp0uWaxiDDjns1NKmm07HvCDX5CRiPGTA80rkntI1xGSwwMIZiE5O
-         7ofW+HCzlWIn5RuqWfTHA/yIf+UW3wN4i/nPdfsln8WRKym5Fzm4geHiFFtBj5Tjqf
-         zsOK6iJF1LisUPZ1a/hLi1gpkCjrp7FGdVyh4zmM=
+        b=A8H9X6a4gSnGoSpfdUX64ppdkRSA13u8dGAepkMuFRHSELSAjHwmkS7SrpI52/oEk
+         KxmrFIhTp+wNeYKrojKWWL/vd314Yo8IcSH2AMncstLzV71XeOkL5cD5hjVA8P9XDZ
+         aPbZpYkErIT0z1OwfLbEHSbtNG6Hm2542IHjp8UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Juergen Gross <jgross@suse.com>,
         Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 73/98] xenbus: Avoid deadlock during suspend due to open transactions
+Subject: [PATCH 4.19 45/61] xenbus: Avoid deadlock during suspend due to open transactions
 Date:   Thu, 20 Jun 2019 19:57:40 +0200
-Message-Id: <20190620174352.879335822@linuxfoundation.org>
+Message-Id: <20190620174345.076749160@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
