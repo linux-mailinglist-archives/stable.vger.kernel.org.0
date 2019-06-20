@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D044D733
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:18:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E291B4D5DC
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:01:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729781AbfFTSQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:16:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45674 "EHLO mail.kernel.org"
+        id S1726276AbfFTSBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:01:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729776AbfFTSQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:16:29 -0400
+        id S1727314AbfFTSBn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:01:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6ED4205F4;
-        Thu, 20 Jun 2019 18:16:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39B7620B1F;
+        Thu, 20 Jun 2019 18:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054588;
-        bh=J1YeY68HcNxy4hxTZGUbI6MEMOoqItqMFANsYPUiprg=;
+        s=default; t=1561053702;
+        bh=5ku35xL2IOm1lfhHw1d7/RAla0NL9v23eKstzeDFCP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJ6yRzJ9zHG5xKiuRCLt0s2uTUq68kHEfOb1nZh1DsBogWeLgQTVST1i0opr5b3YE
-         hA89xK3gacHwGLpxLcYDb2POw6YP9WywNlBfiLGsyVagtJuKvR7fR2E8/tVgMrskuZ
-         fqtZEopVK9aQ2JINi06RchUEcl3eWj+gzTxsCt5A=
+        b=bwe0L3h35ajm0tnsBU3DfR+sGoAC2Z6ZoPA9bMmSzTzJlg8bCWIAxlAxT8vH9jBOS
+         4JSsMDId9X/RVpX2+wIN05QthUCFrkFeV60A60HA9PfB8rs4uxTiI6sZ+WARySXfhy
+         ZPySVrp4DGMfvhP9cXh6XC7jUvqal3HuplCvD4pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biao Huang <biao.huang@mediatek.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 52/98] net: stmmac: update rx tail pointer register to fix rx dma hang issue.
+Subject: [PATCH 4.4 82/84] Revert "crypto: crypto4xx - properly set IV after de- and encrypt"
 Date:   Thu, 20 Jun 2019 19:57:19 +0200
-Message-Id: <20190620174351.650458591@linuxfoundation.org>
+Message-Id: <20190620174349.254260381@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4523a5611526709ec9b4e2574f1bb7818212651e ]
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Currently we will not update the receive descriptor tail pointer in
-stmmac_rx_refill. Rx dma will think no available descriptors and stop
-once received packets exceed DMA_RX_SIZE, so that the rx only test will fail.
+This reverts commit e9a60ab1609a7d975922adad1bf9c46ac6954584 which is
+commit fc340115ffb8235c1bbd200c28855e6373d0dd1a upstream.
 
-Update the receive tail pointer in stmmac_rx_refill to add more descriptors
-to the rx channel, so packets can be received continually
+Hauke writes that this breaks the build and should be reverted.
 
-Fixes: 54139cf3bb33 ("net: stmmac: adding multiple buffers for rx")
-Signed-off-by: Biao Huang <biao.huang@mediatek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: Christian Lamparter <chunkeey@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/amcc/crypto4xx_alg.c  |    3 +--
+ drivers/crypto/amcc/crypto4xx_core.c |    9 ---------
+ 2 files changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 3c409862c52e..8cebc44108b2 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -3338,6 +3338,7 @@ static inline void stmmac_rx_refill(struct stmmac_priv *priv, u32 queue)
- 		entry = STMMAC_GET_ENTRY(entry, DMA_RX_SIZE);
- 	}
- 	rx_q->dirty_rx = entry;
-+	stmmac_set_rx_tail_ptr(priv, priv->ioaddr, rx_q->rx_tail_addr, queue);
- }
+--- a/drivers/crypto/amcc/crypto4xx_alg.c
++++ b/drivers/crypto/amcc/crypto4xx_alg.c
+@@ -138,8 +138,7 @@ static int crypto4xx_setkey_aes(struct c
+ 	sa = (struct dynamic_sa_ctl *) ctx->sa_in;
+ 	ctx->hash_final = 0;
  
- /**
--- 
-2.20.1
-
+-	set_dynamic_sa_command_0(sa, SA_NOT_SAVE_HASH, (cm == CRYPTO_MODE_CBC ?
+-				 SA_SAVE_IV : SA_NOT_SAVE_IV),
++	set_dynamic_sa_command_0(sa, SA_NOT_SAVE_HASH, SA_NOT_SAVE_IV,
+ 				 SA_LOAD_HASH_FROM_SA, SA_LOAD_IV_FROM_STATE,
+ 				 SA_NO_HEADER_PROC, SA_HASH_ALG_NULL,
+ 				 SA_CIPHER_ALG_AES, SA_PAD_TYPE_ZERO,
+--- a/drivers/crypto/amcc/crypto4xx_core.c
++++ b/drivers/crypto/amcc/crypto4xx_core.c
+@@ -645,15 +645,6 @@ static u32 crypto4xx_ablkcipher_done(str
+ 		addr = dma_map_page(dev->core_dev->device, sg_page(dst),
+ 				    dst->offset, dst->length, DMA_FROM_DEVICE);
+ 	}
+-
+-	if (pd_uinfo->sa_va->sa_command_0.bf.save_iv == SA_SAVE_IV) {
+-		struct crypto_skcipher *skcipher = crypto_skcipher_reqtfm(req);
+-
+-		crypto4xx_memcpy_from_le32((u32 *)req->iv,
+-			pd_uinfo->sr_va->save_iv,
+-			crypto_skcipher_ivsize(skcipher));
+-	}
+-
+ 	crypto4xx_ret_sg_desc(dev, pd_uinfo);
+ 	if (ablk_req->base.complete != NULL)
+ 		ablk_req->base.complete(&ablk_req->base, 0);
 
 
