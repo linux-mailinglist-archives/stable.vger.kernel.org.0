@@ -2,833 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C04E04DAB0
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 21:50:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A34AC4DADF
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 22:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726796AbfFTTu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 15:50:58 -0400
-Received: from merlin.infradead.org ([205.233.59.134]:47690 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726420AbfFTTu5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 15:50:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:Content-Type:
-        In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=votu4UWFPFwXKzn3w0AwMZJEd86U+wvD9vHs+ORoTuw=; b=uWarimcgvGoPIXXhrGmDQJbCJi
-        f0bXZr3Lf57Oa3UCXXyuBWVaiAZkEgvwpMCAqXKr9TVz6dVfgvBkGKM0BckQGmDJCz2O2dZIi/gXC
-        1yV8g5m9qH+cCDsPHUH60SDkDCyRD49T4FIpGN7R91FJ/0ESjqjQlv9zqrPrIuhwDNd9SENVPftwF
-        mOMCDGeERMIwonOo53KrwnsldDT2whHTt9idPiHzhXf2z2Ch3T9qZscxlP/vJTuUf5XjqmKx4+C6r
-        QQneD/j9z7vo/+5UwNKC/7BVHWzLBk/XenKXZTFKFw0iirQ4RR9HF1wZPiUH+E/qTJQJPQM8/2ZwW
-        D5I49vow==;
-Received: from static-50-53-52-16.bvtn.or.frontiernet.net ([50.53.52.16] helo=midway.dunlab)
-        by merlin.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1he354-0002M2-CT; Thu, 20 Jun 2019 19:50:46 +0000
-Subject: Re: [PATCH v5] Documentation: Add section about CPU vulnerabilities
- for Spectre
-To:     Tim Chen <tim.c.chen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ben Greear <greearb@candelatech.com>, stable@vger.kernel.org,
-        Andi Kleen <ak@linux.intel.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Jun Nakajima <jun.nakajima@intel.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Asit Mallick <asit.k.mallick@intel.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        Jon Masters <jcm@redhat.com>,
-        Waiman Long <longman9394@gmail.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Mark Gross <mgross@linux.intel.com>,
-        LKML <linux-kernel@vger.kernel.org>, x86@kernel.org
-References: <20190619211730.16754-1-tim.c.chen@linux.intel.com>
-From:   Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <877de2e4-9189-2937-1014-4bfaf90503a5@infradead.org>
-Date:   Thu, 20 Jun 2019 12:50:41 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
-MIME-Version: 1.0
-In-Reply-To: <20190619211730.16754-1-tim.c.chen@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
+        id S1726218AbfFTUDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 16:03:33 -0400
+Received: from mail-eopbgr750101.outbound.protection.outlook.com ([40.107.75.101]:54134
+        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725903AbfFTUDd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 16:03:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=wavesemi.onmicrosoft.com; s=selector1-wavesemi-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=v29dJJNvykQn+fJWRTTPGchZkBFetIV1OtEvVAm8o58=;
+ b=QIqtqozE+ZZ8ggeL7SNIh8hpISBkl3OWzwzuhMay8i8drtrcbf92HwDz9oZVFJSh7gQ5lHcE8TiukXDfDYF64MV6lPmFWBHURe86uQi4NTLvoMO0GAWUhiYFX5bTXOkW803/YuZNcmdjsmllJZ1iVKW3TGD1cpclsXFJfZyj8aQ=
+Received: from MWHPR2201MB1277.namprd22.prod.outlook.com (10.172.60.12) by
+ MWHPR2201MB1184.namprd22.prod.outlook.com (10.174.171.39) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2008.13; Thu, 20 Jun 2019 20:03:29 +0000
+Received: from MWHPR2201MB1277.namprd22.prod.outlook.com
+ ([fe80::6975:b632:c85b:9e40]) by MWHPR2201MB1277.namprd22.prod.outlook.com
+ ([fe80::6975:b632:c85b:9e40%2]) with mapi id 15.20.2008.007; Thu, 20 Jun 2019
+ 20:03:29 +0000
+From:   Paul Burton <paul.burton@mips.com>
+To:     "Hombourger, Cedric" <Cedric_Hombourger@mentor.com>
+CC:     Sasha Levin <sashal@kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] MIPS: have "plain" make calls build dtbs for selected
+ platforms
+Thread-Topic: [PATCH] MIPS: have "plain" make calls build dtbs for selected
+ platforms
+Thread-Index: AQHVIgBpf6BYLkAQw0aPbj6clwp5T6adO4kAgACh3B+ABltpAIAAyaOA
+Date:   Thu, 20 Jun 2019 20:03:29 +0000
+Message-ID: <20190620200325.se6e6yicvlkjrb46@pburton-laptop>
+References: <1560415970-844-1-git-send-email-Cedric_Hombourger@mentor.com>
+ <20190615221604.E6FB82183F@mail.kernel.org> <1560668291651.87711@mentor.com>
+ <1561017706300.81899@mentor.com>
+In-Reply-To: <1561017706300.81899@mentor.com>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: BY5PR13CA0033.namprd13.prod.outlook.com
+ (2603:10b6:a03:180::46) To MWHPR2201MB1277.namprd22.prod.outlook.com
+ (2603:10b6:301:18::12)
+user-agent: NeoMutt/20180716
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=pburton@wavecomp.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [12.94.197.246]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: e50b23d5-1807-49e9-e59f-08d6f5ba5c91
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:MWHPR2201MB1184;
+x-ms-traffictypediagnostic: MWHPR2201MB1184:
+x-microsoft-antispam-prvs: <MWHPR2201MB1184434A80F8A011DAE2D0E6C1E40@MWHPR2201MB1184.namprd22.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:7219;
+x-forefront-prvs: 0074BBE012
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(7916004)(39840400004)(366004)(396003)(346002)(376002)(136003)(199004)(189003)(71190400001)(229853002)(6246003)(4326008)(54906003)(58126008)(316002)(99286004)(25786009)(6512007)(9686003)(52116002)(6116002)(6436002)(3846002)(2906002)(42882007)(6486002)(256004)(53936002)(102836004)(446003)(11346002)(8676002)(305945005)(476003)(7736002)(386003)(6506007)(186003)(1076003)(66946007)(4744005)(26005)(68736007)(76176011)(66066001)(33716001)(5660300002)(6916009)(73956011)(486006)(66446008)(81156014)(66476007)(64756008)(66556008)(478600001)(44832011)(14454004)(71200400001)(8936002)(81166006);DIR:OUT;SFP:1102;SCL:1;SRVR:MWHPR2201MB1184;H:MWHPR2201MB1277.namprd22.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: wavecomp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: e3Ium3BNKYSYCl8c6HfxsnP6VD8mSpQWME4xqcllZuvKXwkl2YxE9Ps6qlwKJjF9+jxUkkdD6UkwJOr6UIgQdb8QQAtsNCkmWUg9+ohgQqEv0PzXtgSbvoWDbfsw1AUBXj7Q+04MwdpG4yUjyBjdJIMLV40nc95NC+4LtbOsyYzEMaklRuh725COqJy5IcLNimvF2pTCGbgLLf4MCuaDNQWwCoEHulNooZzwovwwE7PRLmtN1igTIhQeyASFqAhy52Wr+JrTi85LK92++rlDjQTwoUT0I2GFgIGWWrPZSkKywrdPgm7OL7bDl0MxlbAs7zsy2+D0iNNRTvZz3Lls3t8yJfZxmtm8enl2YEmlQVsD9/guyNu5NLrYsbVKR7n9xVBR8/t8UCZd+gY4KL6BAg4GxuMoh1yfmEu8+1Yv/Mg=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <37EBF8B93C6D0842B386569C71AEA6C6@namprd22.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: mips.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e50b23d5-1807-49e9-e59f-08d6f5ba5c91
+X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Jun 2019 20:03:29.3257
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 463607d3-1db3-40a0-8a29-970c56230104
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: pburton@wavecomp.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR2201MB1184
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/19/19 2:17 PM, Tim Chen wrote:
-> Add documentation for Spectre vulnerability and the mitigation mechanisms:
-> 
-> - Explain the problem and risks
-> - Document the mitigation mechanisms
-> - Document the command line controls
-> - Document the sysfs files
-> 
-> Co-developed-by: Andi Kleen <ak@linux.intel.com>
-> Signed-off-by: Andi Kleen <ak@linux.intel.com>
-> Co-developed-by: Tim Chen <tim.c.chen@linux.intel.com>
-> Signed-off-by: Tim Chen <tim.c.chen@linux.intel.com>
-> Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-> Cc: stable@vger.kernel.org
+Hi Cedric,
 
-Hi,
-Please see the typo comments below.
+On Thu, Jun 20, 2019 at 08:01:46AM +0000, Hombourger, Cedric wrote:
+> Just to follow-up. I have verified that we can apply this patch to 4.4
+> and 4.9 without introducing additional patches but simply resolving
+> conflicts. Should I post separate patches for 4.4 and 4.9?
 
-Nice writeup.
-Thanks.
+Is the patch actually needed any earlier than v4.20?
 
-> ---
->  Documentation/admin-guide/hw-vuln/index.rst   |   1 +
->  Documentation/admin-guide/hw-vuln/spectre.rst | 697 ++++++++++++++++++
->  Documentation/userspace-api/spec_ctrl.rst     |   2 +
->  3 files changed, 700 insertions(+)
->  create mode 100644 Documentation/admin-guide/hw-vuln/spectre.rst
+Locally I've applied it to mips-fixes & tagged it with:
 
+Fixes: d5615e472d23 ("builddeb: Fix inclusion of dtbs in debian package")
+Cc: stable@vger.kernel.org # v4.20+
 
-> diff --git a/Documentation/admin-guide/hw-vuln/spectre.rst b/Documentation/admin-guide/hw-vuln/spectre.rst
-> new file mode 100644
-> index 000000000000..42936f223a53
-> --- /dev/null
-> +++ b/Documentation/admin-guide/hw-vuln/spectre.rst
-> @@ -0,0 +1,697 @@
-> +.. SPDX-License-Identifier: GPL-2.0
-> +
-> +Spectre Side Channels
-> +=====================
-> +
-> +Spectre is a class of side channel attacks that exploit branch prediction
-> +and speculative execution on modern CPUs to read memory, possibly
-> +bypassing access controls. Speculative execution side channel exploits
-> +do not modify memory but attempt to infer privileged data in the memory.
-> +
-> +This document covers Spectre variant 1 and Spectre variant 2.
-> +
-> +Affected processors
-> +-------------------
-> +
-> +Speculative execution side channel methods affect a wide range of modern
-> +high performance processors, since most modern high speed processors
-> +use branch prediction and speculative execution.
-> +
-> +The following CPUs are vulnerable:
-> +
-> +    - Intel Core, Atom, Pentium, and Xeon processors
-> +
-> +    - AMD Phenom, EPYC, and Zen processors
-> +
-> +    - IBM POWER and zSeries processors
-> +
-> +    - Higher end ARM processors
-> +
-> +    - Apple CPUs
-> +
-> +    - Higher end MIPS CPUs
-> +
-> +    - Likely most other high performance CPUs. Contact your CPU vendor for details.
-> +
-> +Whether a processor is affected or not can be read out from the Spectre
-> +vulnerability files in sysfs. See :ref:`spectre_sys_info`.
-> +
-> +Related CVEs
-> +------------
-> +
-> +The following CVE entries describe Spectre variants:
-> +
-> +   =============   =======================  =================
-> +   CVE-2017-5753   Bounds check bypass      Spectre variant 1
-> +   CVE-2017-5715   Branch target injection  Spectre variant 2
-> +   =============   =======================  =================
-> +
-> +Problem
-> +-------
-> +
-> +CPUs use speculative operations to improve performance. That may leave
-> +traces of memory accesses or computations in the processor's caches,
-> +buffers, and branch predictors. Malicious software may be able to
-> +influence the speculative execution paths, and then use the side effects
-> +of the speculative execution in the CPUs' caches and buffers to infer
-> +privileged data touched during the speculative execution.
-> +
-> +Spectre variant 1 attacks take advantage of speculative execution of
-> +conditional branches, while Spectre variant 2 attacks use speculative
-> +execution of indirect branches to leak privileged memory.
-> +See :ref:`[1] <spec_ref1>` :ref:`[5] <spec_ref5>` :ref:`[7] <spec_ref7>`
-> +:ref:`[10] <spec_ref10>` :ref:`[11] <spec_ref11>`.
-> +
-> +Spectre variant 1 (Bounds Check Bypass)
-> +---------------------------------------
-> +
-> +The bounds check bypass attack :ref:`[2] <spec_ref2>` takes advantage
-> +of speculative execution that bypass conditional branch instructions
+It looks to me like prior to that commit this is unnecessary. If that's
+wrong please let me know.
 
-                                 bypasses
-
-> +used for memory access bounds check (e.g. checking if the index of an
-> +array results in memory access within a valid range). This results in
-> +memory accesses to invalid memory (with out-of-bound index) that are
-> +done speculatively before validation checks resolve. Such speculative
-> +memory accesses can leave side effects, creating side channels which
-> +leak information to the attacker.
-> +
-> +There are some extensions of Spectre variant 1 attacks for reading data
-> +over the network, see :ref:`[12] <spec_ref12>`. However such attacks
-> +are difficult, low bandwidth, fragile, and are considered low risk.
-> +
-> +Spectre variant 2 (Branch Target Injection)
-> +-------------------------------------------
-> +
-> +The branch target injection attack takes advantage of speculative
-> +execution of indirect branches :ref:`[3] <spec_ref3>`.  The indirect
-> +branch predictors inside the processor used to guess the target of
-> +indirect branches can be influenced by an attacker, causing gadget code
-> +to be speculatively executed, thus exposing sensitive data touched by
-> +the victim. The side effects left in the CPU's caches during speculative
-> +execution can be measured to infer data values.
-> +
-> +.. _poison_btb:
-> +
-> +In Spectre variant 2 attacks, the attacker can steer speculative indirect
-> +branches in the victim to gadget code by poisoning the branch target
-> +buffer of a CPU used for predicting indirect branch addresses. Such
-> +poisoning could be done by indirect branching into existing code,
-> +with the address offset of the indirect branch under the attacker's
-> +control. Since the branch prediction on impacted hardware does not
-> +fully disambiguate branch address and uses the offset for prediction,
-> +this could cause privileged code's indirect branch to jump to a gadget
-> +code with the same offset.
-> +
-> +The most useful gadgets take an attacker-controlled input parameter (such
-> +as a register value) so that the memory read can be controlled. Gadgets
-> +without input parameters might be possible, but the attacker would have
-> +very little control over what memory can be read, reducing the risk of
-> +the attack revealing useful data.
-> +
-> +One other variant 2 attack vector is for the attacker to poison the
-> +return stack buffer (RSB) :ref:`[13] <spec_ref13>` to cause speculative
-> +subroutine return instruction execution to go to an gadget.  An attacker's
-
-                                                    a gadget.
-
-> +imbalanced subroutine call instructions might "poison" entries in the
-> +return stack buffer which are later consumed by a victim's subroutine
-> +return instructions.  This attack can be mitigated by flushing the return
-> +stack buffer on context switch, or virtual machine (VM) exit.
-> +
-> +On systems with simultaneous multi-threading (SMT), attacks are possible
-> +from from the sibling thread, as level 1 cache and branch target buffer
-
-   from the
-
-> +(BTB) may be shared between hardware threads in a CPU core.  A malicious
-> +program running on the sibling thread may influence its peer's BTB to
-> +steer its indirect branch speculations to gadget code, and measure the
-> +speculative execution's side effects left in level 1 cache to infer the
-> +victim's data.
-> +
-> +Attack scenarios
-> +----------------
-> +
-> +The following list of attack scenarios have been anticipated, but may
-> +not cover all possible attack vectors.
-> +
-> +1. A user process attacking the kernel
-> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> +
-> +   The attacker passes a parameter to the kernel via a register or
-> +   via a known address in memory during a syscall. Such parameter may
-> +   be used later by the kernel as an index to an array or to derive
-> +   a pointer for a Spectre variant 1 attack.  The index or pointer
-> +   is invalid, but bound checks are bypassed in the code branch taken
-> +   for speculative execution. This could cause privileged memory to be
-> +   accessed and leaked.
-> +
-> +   For kernel code that has been identified where data pointers could
-> +   potentially be influenced for Spectre attacks, new "nospec" accessor
-> +   macros are used to prevent speculative loading of data.
-> +
-> +   Spectre variant 2 attacker can :ref:`poison <poison_btb>` the branch
-> +   target buffer (BTB) before issuing syscall to launch an attack.
-> +   After entering the kernel, the kernel could use the poisoned branch
-> +   target buffer on indirect jump and jump to gadget code in speculative
-> +   execution.
-> +
-> +   If an attacker tries to control the memory addresses leaked during
-> +   speculative execution, he would also need to pass a parameter to the
-> +   gadget, either through a register or a known address in memory. After
-> +   the gadget has executed, he can measure the side effect.
-> +
-> +   The kernel can protect itself against consuming poisoned branch
-> +   target buffer entries by using return trampolines (also known as
-> +   "retpoline") :ref:`[3] <spec_ref3>` :ref:`[9] <spec_ref9>` for all
-> +   indirect branches. Return trampolines trap speculative execution paths
-> +   to prevent jumping to gadget code during speculative execution.
-> +   x86 CPUs with Enhanced Indirect Branch Restricted Speculation
-> +   (Enhanced IBRS) available in hardware should use the feature to
-> +   mitigate Spectre variant 2 instead of retpoline. Enhanced IBRS is
-> +   more efficient than retpoline.
-> +
-> +   There may be gadget code in firmware which could be exploited with
-> +   Spectre variant 2 attack by a rogue user process. To mitigate such
-> +   attacks on x86, Indirect Branch Restricted Speculation (IBRS) feature
-> +   is turned on before the kernel invokes any firmware code.
-> +
-> +2. A user process attacking another user process
-> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> +
-> +   A malicious user process can try to attack another user process,
-> +   either via a context switch on the same hardware thread, or from the
-> +   sibling hyperthread sharing a physical processor core on simultaneous
-> +   multi-threading (SMT) system.
-> +
-> +   Spectre variant 1 attacks generally require passing parameters
-> +   between the processes, which needs a data passing relationship, such
-> +   as remote procedure calls (RPC).  Those parameters are used in gadget
-> +   code to derive invalid data pointers accessing privileged memory in
-> +   the attacked process.
-> +
-> +   Spectre variant 2 attacks can be launched from a rogue process by
-> +   :ref:`poisoning <poison_btb>` the branch target buffer.  This can
-> +   influence the indirect branch targets for a victim process that either
-> +   runs later on the same hardware thread, or running concurrently on
-> +   a sibling hardware thread sharing the same physical core.
-> +
-> +   A user process can protect itself against Spectre variant 2 attacks
-> +   by using the prctl() syscall to disable indirect branch speculation
-> +   for itself.  An administrator can also cordon off an unsafe process
-> +   from polluting the branch target buffer by disabling the process's
-> +   indirect branch speculation. This comes with a performance cost
-> +   from not using indirect branch speculation and clearing the branch
-> +   target buffer.  When SMT is enabled on x86, for a process that has
-> +   indirect branch speculation disabled, Single Threaded Indirect Branch
-> +   Predictors (STIBP) :ref:`[4] <spec_ref4>` are turned on to prevent the
-> +   sibling thread from controlling branch target buffer.  In addition,
-> +   the Indirect Branch Prediction Barrier (IBPB) is issued to clear the
-> +   branch target buffer when context switching to and from such process.
-> +
-> +   On x86, the return stack buffer is stuffed on context switch.
-> +   This prevents the branch target buffer from being used for branch
-> +   prediction when the return stack buffer underflows while switching to
-> +   a deeper call stack. Any poisoned entries in the return stack buffer
-> +   left by the previous process will also be cleared.
-> +
-> +   User programs should use address space randomization to make attacks
-> +   more difficult (Set /proc/sys/kernel/randomize_va_space = 1 or 2).
-> +
-> +3. A virtualized guest attacking the host
-> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> +
-> +   The attack mechanism is similar to how user processes attack the
-> +   kernel.  The kernel is entered via hyper-calls or other virtualization
-> +   exit paths.
-> +
-> +   For Spectre variant 1 attacks, rogue guests can pass parameters
-> +   (e.g. in registers) via hyper-calls to derive invalid pointers to
-> +   speculate into privileged memory after entering the kernel.  For places
-> +   where such kernel code has been identified, nospec accessor macros
-> +   are used to stop speculative memory access.
-> +
-> +   For Spectre variant 2 attacks, rogue guests can :ref:`poison
-> +   <poison_btb>` the branch target buffer or return stack buffer, causing
-> +   the kernel to jump to gadget code in the speculative execution paths.
-> +
-> +   To mitigate variant 2, the host kernel can use return trampolines
-> +   for indirect branches to bypass the poisoned branch target buffer,
-> +   and flushing the return stack buffer on VM exit.  This prevents rogue
-> +   guests from affecting indirect branching in the host kernel.
-> +
-> +   To protect host processes from rogue guests, host processes can have
-> +   indirect branch speculation disabled via prctl().  The branch target
-> +   buffer is cleared before context switching to such processes.
-> +
-> +4. A virtualized guest attacking other guest
-> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> +
-> +   A rogue guest may attack another guest to get data accessible by the
-> +   other guest.
-> +
-> +   Spectre variant 1 attacks are possible if parameters can be passed
-> +   between guests.  This may be done via mechanisms such as shared memory
-> +   or message passing.  Such parameters could be used to derive data
-> +   pointers to privileged data in guest.  The privileged data could be
-> +   accessed by gadget code in the victim's speculation paths.
-> +
-> +   Spectre variant 2 attacks can be launched from a rogue guest by
-> +   :ref:`poisoning <poison_btb>` the branch target buffer or the return
-> +   stack buffer. Such poisoned entries could be used to influence
-> +   speculation execution paths in the victim guest.
-> +
-> +   Linux kernel mitigates attacks to other guests running in the same
-> +   CPU hardware thread by flushing the return stack buffer on VM exit,
-> +   and clearing the branch target buffer before switching to a new guest.
-> +
-> +   If SMT is used, Spectre variant 2 attacks from an untrusted guest
-> +   in the sibling hyperthread can be mitigated by the administrator,
-> +   by turning off the unsafe guest's indirect branch speculation via
-> +   prctl().  A guest can also protect itself by turning on microcode
-> +   based mitigations (such as IBPB or STIBP on x86) within the guest.
-> +
-> +.. _spectre_sys_info:
-> +
-> +Spectre system information
-> +--------------------------
-> +
-> +The Linux kernel provides a sysfs interface to enumerate the current
-> +mitigation status of the system for Spectre: whether the system is
-> +vulnerable, and which mitigations are active.
-> +
-> +The sysfs file showing Spectre variant 1 mitigation status is:
-> +
-> +   /sys/devices/system/cpu/vulnerabilities/spectre_v1
-> +
-> +The possible values in this file are:
-> +
-> +  =======================================  =================================
-> +  'Mitigation: __user pointer sanitation'  Protection in kernel on a case by
-> +                                           case base with explicit pointer
-> +                                           sanitation.
-> +  =======================================  =================================
-> +
-> +However, the protections are put in place on a case by case basis,
-> +and there is no guarantee that all possible attack vectors for Spectre
-> +variant 1 are covered.
-> +
-> +The spectre_v2 kernel file reports if the kernel has been compiled with
-> +retpoline mitigation or if the CPU has hardware mitigation, and if the
-> +CPU has support for additional process-specific mitigation.
-> +
-> +This file also reports CPU features enabled by microcode to mitigate
-> +attack between user processes:
-> +
-> +1. Indirect Branch Prediction Barrier (IBPB) to add additional
-> +   isolation between processes of different users.
-> +2. Single Thread Indirect Branch Predictors (STIBP) to add additional
-> +   isolation between CPU threads running on the same core.
-> +
-> +These CPU features may impact performance when used and can be enabled
-> +per process on a case-by-case base.
-> +
-> +The sysfs file showing Spectre variant 2 mitigation status is:
-> +
-> +   /sys/devices/system/cpu/vulnerabilities/spectre_v2
-> +
-> +The possible values in this file are:
-> +
-> +  - Kernel status:
-> +
-> +  ====================================  =================================
-> +  'Not affected'                        The processor is not vulnerable
-> +  'Vulnerable'                          Vulnerable, no mitigation
-> +  'Mitigation: Full generic retpoline'  Software-focused mitigation
-> +  'Mitigation: Full AMD retpoline'      AMD-specific software mitigation
-> +  'Mitigation: Enhanced IBRS'           Hardware-focused mitigation
-> +  ====================================  =================================
-> +
-> +  - Firmware status: Show if Indirect Branch Restricted Speculation (IBRS) is
-> +    used to protect against Spectre variant 2 attacks when calling firmware (x86 only).
-> +
-> +  ========== =============================================================
-> +  'IBRS_FW'  Protection against user program attacks when calling firmware
-> +  ========== =============================================================
-> +
-> +  - Indirect branch prediction barrier (IBPB) status for protection between
-> +    processes of different users. This feature can be controlled through
-> +    prctl() per process, or through kernel command line options. This is
-> +    an x86 only feature. For more details see below.
-> +
-> +  ===================   ========================================================
-> +  'IBPB: disabled'      IBPB unused
-> +  'IBPB: always-on'     Use IBPB on all tasks
-> +  'IBPB: conditional'   Use IBPB on SECCOMP or indirect branch restricted tasks
-> +  ===================   ========================================================
-> +
-> +  - Single threaded indirect branch prediction (STIBP) status for protection
-> +    between different hyper threads. This feature can be controlled through
-> +    prctl per process, or through kernel command line options. This is x86
-> +    only feature. For more details see below.
-> +
-> +  ====================  ========================================================
-> +  'STIBP: disabled'     STIBP unused
-> +  'STIBP: forced'       Use STIBP on all tasks
-> +  'STIBP: conditional'  Use STIBP on SECCOMP or indirect branch restricted tasks
-> +  ====================  ========================================================
-> +
-> +  - Return stack buffer (RSB) protection status:
-> +
-> +  =============   ===========================================
-> +  'RSB filling'   Protection of RSB on context switch enabled
-> +  =============   ===========================================
-> +
-> +Full mitigation might require an microcode update from the CPU
-
-                                 a microcode
-
-> +vendor. When the necessary microcode is not available, the kernel will
-> +report vulnerability.
-> +
-> +Turning on mitigation for Spectre variant 1 and Spectre variant 2
-> +-----------------------------------------------------------------
-> +
-> +1. Kernel mitigation
-> +^^^^^^^^^^^^^^^^^^^^
-> +
-> +   For the Spectre variant 1, vulnerable kernel code (as determined
-> +   by code audit or scanning tools) are annotated on a case by case
-
-                                       is annotated
-
-> +   basis to use nospec accessor macros for bounds clipping :ref:`[2]
-> +   <spec_ref2>` to avoid any usable disclosure gadgets. However, it may
-> +   not cover all attack vectors for Spectre variant 1.
-> +
-> +   For Spectre variant 2 mitigation, the compiler turns indirect calls or
-> +   jumps in the kernel into equivalent return trampolines (retpolines)
-> +   :ref:`[3] <spec_ref3>` :ref:`[9] <spec_ref9>` to go to the target
-> +   addresses.  Speculative execution paths under retpolines are trapped
-> +   in an infinite loop to prevent any speculative execution jumping to
-> +   a gadget.
-> +
-> +   To turn on retpoline mitigation on a vulnerable CPU, the kernel
-> +   needs to be compiled with a gcc compiler that supports the
-> +   -mindirect-branch=thunk-extern -mindirect-branch-register options.
-> +   If the kernel is compiled with a Clang compiler, the compiler needs
-> +   to support -mretpoline-external-thunk option.  The kernel config
-> +   CONFIG_RETPOLINE needs to be turned on, and the CPU needs to run with
-> +   the latest updated microcode.
-> +
-> +   On Intel Skylake-era systems the mitigation covers most, but not all,
-> +   cases. See :ref:`[3] <spec_ref3>` for more details.
-> +
-> +   On CPUs with hardware mitigation for Spectre variant 2 (e.g. Enhanced
-> +   IBRS on x86), retpoline is automatically disabled at run time.
-> +
-> +   The retpoline mitigation is turned on by default on vulnerable
-> +   CPUs. It can be forced on or off by the administrator
-> +   via the kernel command line and sysfs control files. See
-> +   :ref:`spectre_mitigation_control_command_line`.
-> +
-> +   On x86, indirect branch restricted speculation is turned on by default
-> +   before invoking any firmware code to prevent Spectre variant 2 exploits
-> +   using the firmware.
-> +
-> +   Using kernel address space randomization (CONFIG_RANDOMIZE_SLAB=y
-> +   and CONFIG_SLAB_FREELIST_RANDOM=y in the kernel configuration) makes
-> +   attacks on the kernel generally more difficult.
-> +
-> +2. User program mitigation
-> +^^^^^^^^^^^^^^^^^^^^^^^^^^
-> +
-> +   User programs can mitigate Spectre variant 1 using LFENCE or "bounds
-> +   clipping". For more details see :ref:`[2] <spec_ref2>`.
-> +
-> +   For Spectre variant 2 mitigation, individual user programs
-> +   can be compiled with return trampolines for indirect branches.
-> +   This protects them from consuming poisoned entries in the branch
-> +   target buffer left by malicious software.  Alternatively, the
-> +   programs can disable their indirect branch speculation via prctl()
-> +   (See :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`)
-
-end above sentence with a '.'
-
-> +   On x86, this will turn on STIBP to guard against attacks from the
-> +   sibling thread when the user program is running, and use IBPB to
-> +   flush the branch target buffer when switching to/from the program.
-> +
-> +   Restricting indirect branch speculation on a user program will
-> +   also prevent the program from launching a variant 2 attack
-> +   on x86.  All sand-boxed SECCOMP programs have indirect branch
-> +   speculation restricted by default.  Administrators can change
-> +   that behavior via the kernel command line and sysfs control files.
-> +   See :ref:`spectre_mitigation_control_command_line`.
-> +
-> +   Programs that disable their indirect branch speculation will have
-> +   more overheads and run slower.
-
-?          overhead
-
-> +
-> +   User programs should use address space randomization
-> +   (/proc/sys/kernel/randomize_va_space = 1 or 2) to make attacks more
-> +   difficult.
-> +
-> +3. VM mitigation
-> +^^^^^^^^^^^^^^^^
-> +
-> +   Within the kernel, Spectre variant 1 attacks from rogue guests are
-> +   mitigated on a case by case basis in VM exit paths. Vulnerable code
-> +   uses nospec accessor macros for "bounds clipping", to avoid any
-> +   usable disclosure gadgets.  However, this may not cover all variant
-> +   1 attack vectors.
-> +
-> +   For Spectre variant 2 attacks from rogue guests to the kernel, the
-> +   Linux kernel uses retpoline or Enhanced IBRS to prevent consumption of
-> +   poisoned entries in branch target buffer left by rogue guests.  It also
-> +   flushes the return stack buffer on every VM exit to prevent a return
-> +   stack buffer underflow so poisoned branch target buffer could be used,
-> +   or attacker guests leaving poisoned entries in the return stack buffer.
-> +
-> +   To mitigate guest-to-guest attacks in the same CPU hardware thread,
-> +   the branch target buffer is sanitized by flushing before switching
-> +   to a new guest on a CPU.
-> +
-> +   The above mitigations are turned on by default on vulnerable CPUs.
-> +
-> +   To mitigate guest-to-guest attacks from sibling thread when SMT is
-> +   in use, an untrusted guest running in the sibling thread can have
-> +   its indirect branch speculation disabled by administrator via prctl().
-> +
-> +   The kernel also allows guests to use any microcode based mitigation
-> +   they chose to use (such as IBPB or STIBP on x86) to protect themselves.
-
-           choose
-
-> +
-> +.. _spectre_mitigation_control_command_line:
-> +
-> +Mitigation control on the kernel command line
-> +---------------------------------------------
-> +
-> +Spectre variant 2 mitigation can be disabled or force enabled at the
-> +kernel command line.
-> +
-> +	nospectre_v2
-> +
-> +		[X86] Disable all mitigations for the Spectre variant 2
-> +		(indirect branch prediction) vulnerability. System may
-> +		allow data leaks with this option, which is equivalent
-> +		to spectre_v2=off.
-> +
-> +
-> +        spectre_v2=
-> +
-> +		[X86] Control mitigation of Spectre variant 2
-> +		(indirect branch speculation) vulnerability.
-> +		The default operation protects the kernel from
-> +		user space attacks.
-> +
-> +		on
-> +			unconditionally enable, implies
-> +			spectre_v2_user=on
-> +		off
-> +			unconditionally disable, implies
-> +		        spectre_v2_user=off
-> +		auto
-> +			kernel detects whether your CPU model is
-> +		        vulnerable
-> +
-> +		Selecting 'on' will, and 'auto' may, choose a
-> +		mitigation method at run time according to the
-> +		CPU, the available microcode, the setting of the
-> +		CONFIG_RETPOLINE configuration option, and the
-> +		compiler with which the kernel was built.
-> +
-> +		Selecting 'on' will also enable the mitigation
-> +		against user space to user space task attacks.
-> +
-> +		Selecting 'off' will disable both the kernel and
-> +		the user space protections.
-> +
-> +		Specific mitigations can also be selected manually:
-> +
-> +		retpoline
-> +					replace indirect branches
-> +		retpoline,generic
-> +					google's original retpoline
-> +		retpoline,amd
-> +					AMD-specific minimal thunk
-> +
-> +		Not specifying this option is equivalent to
-> +		spectre_v2=auto.
-> +
-> +For user space mitigation:
-> +
-> +        spectre_v2_user=
-> +
-> +		[X86] Control mitigation of Spectre variant 2
-> +		(indirect branch speculation) vulnerability between
-> +		user space tasks
-> +
-> +		on
-> +			Unconditionally enable mitigations. Is
-> +			enforced by spectre_v2=on
-> +
-> +		off
-> +			Unconditionally disable mitigations. Is
-> +			enforced by spectre_v2=off
-> +
-> +		prctl
-> +			Indirect branch speculation is enabled,
-> +			but mitigation can be enabled via prctl
-> +			per thread. The mitigation control state
-> +			is inherited on fork.
-> +
-> +		prctl,ibpb
-> +			Like "prctl" above, but only STIBP is
-> +			controlled per thread. IBPB is issued
-> +			always when switching between different user
-> +			space processes.
-> +
-> +		seccomp
-> +			Same as "prctl" above, but all seccomp
-> +			threads will enable the mitigation unless
-> +			they explicitly opt out.
-> +
-> +		seccomp,ibpb
-> +			Like "seccomp" above, but only STIBP is
-> +			controlled per thread. IBPB is issued
-> +			always when switching between different
-> +			user space processes.
-> +
-> +		auto
-> +			Kernel selects the mitigation depending on
-> +			the available CPU features and vulnerability.
-> +
-> +		Default mitigation:
-> +		If CONFIG_SECCOMP=y then "seccomp", otherwise "prctl"
-> +
-> +		Not specifying this option is equivalent to
-> +		spectre_v2_user=auto.
-> +
-> +		In general the kernel by default selects
-> +		reasonable mitigations for the current CPU. To
-> +		disable Spectre variant 2 mitigations boot with
-
-		                          mitigations, boot with
-
-
-> +		spectre_v2=off. Spectre variant 1 mitigations
-> +		cannot be disabled.
-> +
-> +Mitigation selection guide
-> +--------------------------
-> +
-> +1. Trusted userspace
-> +^^^^^^^^^^^^^^^^^^^^
-> +
-> +   If all userspace applications are from trusted sources and do not
-> +   execute externally supplied untrusted code, then the mitigations can
-> +   be disabled.
-> +
-> +2. Protect sensitive programs
-> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> +
-> +   For security-sensitive programs that have secrets (e.g. crypto
-> +   keys), protection against Spectre variant 2 can be put in place by
-> +   disabling indirect branch speculation when the program is running
-> +   (See :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`).
-> +
-> +3. Sandbox untrusted programs
-> +^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> +
-> +   Untrusted programs that could be a source of attacks can be cordoned
-> +   off by disabling their indirect branch speculation when they are run
-> +   (See :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`).
-> +   This prevents untrusted programs from polluting the branch target
-> +   buffer.  All programs running in SECCOMP sandboxes have indirect
-> +   branch speculation restricted by default. This behavior can be
-> +   changed via the kernel command line and sysfs control files. See
-> +   :ref:`spectre_mitigation_control_command_line`.
-> +
-> +3. High security mode
-> +^^^^^^^^^^^^^^^^^^^^^
-> +
-> +   All Spectre variant 2 mitigations can be forced on
-> +   at boot time for all programs (See the "on" option in
-> +   :ref:`spectre_mitigation_control_command_line`).  This will add
-> +   overhead as indirect branch speculations for all programs will be
-> +   restricted.
-> +
-> +   On x86, branch target buffer will be flushed with IBPB when switching
-> +   to a new program. STIBP is left on all the time to protect programs
-> +   against variant 2 attacks originating from programs running on
-> +   sibling threads.
-> +
-> +   Alternatively, STIBP can be used only when running programs
-> +   whose indirect branch speculation is explicitly disabled,
-> +   while IBPB is still used all the time when switching to a new
-> +   program to clear the branch target buffer (See "ibpb" option in
-> +   :ref:`spectre_mitigation_control_command_line`).  This "ibpb" option
-> +   has less performance cost than the "on" option, which leaves STIBP
-> +   on all the time.
-> +
-> +References on Spectre
-> +---------------------
-> +
-> +Intel white papers:
-> +
-> +.. _spec_ref1:
-> +
-> +[1] `Intel analysis of speculative execution side channels <https://newsroom.intel.com/wp-content/uploads/sites/11/2018/01/Intel-Analysis-of-Speculative-Execution-Side-Channels.pdf>`_.
-> +
-> +.. _spec_ref2:
-> +
-> +[2] `Bounds check bypass <https://software.intel.com/security-software-guidance/software-guidance/bounds-check-bypass>`_.
-> +
-> +.. _spec_ref3:
-> +
-> +[3] `Deep dive: Retpoline: A branch target injection mitigation <https://software.intel.com/security-software-guidance/insights/deep-dive-retpoline-branch-target-injection-mitigation>`_.
-> +
-> +.. _spec_ref4:
-> +
-> +[4] `Deep Dive: Single Thread Indirect Branch Predictors <https://software.intel.com/security-software-guidance/insights/deep-dive-single-thread-indirect-branch-predictors>`_.
-> +
-> +AMD white papers:
-> +
-> +.. _spec_ref5:
-> +
-> +[5] `AMD64 technology indirect branch control extension <https://developer.amd.com/wp-content/resources/Architecture_Guidelines_Update_Indirect_Branch_Control.pdf>`_.
-> +
-> +.. _spec_ref6:
-> +
-> +[6] `Software techniques for managing speculation on AMD processors <https://developer.amd.com/wp-content/resources/90343-B_SoftwareTechniquesforManagingSpeculation_WP_7-18Update_FNL.pdf>`_.
-> +
-> +ARM white papers:
-> +
-> +.. _spec_ref7:
-> +
-> +[7] `Cache speculation side-channels <https://developer.arm.com/support/arm-security-updates/speculative-processor-vulnerability/download-the-whitepaper>`_.
-> +
-> +.. _spec_ref8:
-> +
-> +[8] `Cache speculation issues update <https://developer.arm.com/support/arm-security-updates/speculative-processor-vulnerability/latest-updates/cache-speculation-issues-update>`_.
-> +
-> +Google white paper:
-> +
-> +.. _spec_ref9:
-> +
-> +[9] `Retpoline: a software construct for preventing branch-target-injection <https://support.google.com/faqs/answer/7625886>`_.
-> +
-> +MIPS white paper:
-> +
-> +.. _spec_ref10:
-> +
-> +[10] `MIPS: response on speculative execution and side channel vulnerabilities <https://www.mips.com/blog/mips-response-on-speculative-execution-and-side-channel-vulnerabilities/>`_.
-> +
-> +Academic papers:
-> +
-> +.. _spec_ref11:
-> +
-> +[11] `Spectre Attacks: Exploiting Speculative Execution <https://spectreattack.com/spectre.pdf>`_.
-> +
-> +.. _spec_ref12:
-> +
-> +[12] `NetSpectre: Read Arbitrary Memory over Network <https://arxiv.org/abs/1807.10535>`_.
-> +
-> +.. _spec_ref13:
-> +
-> +[13] `Spectre Returns! Speculation Attacks using the Return Stack Buffer <https://www.usenix.org/system/files/conference/woot18/woot18-paper-koruyeh.pdf>`_.
-
-
--- 
-~Randy
+Thanks,
+    Paul
