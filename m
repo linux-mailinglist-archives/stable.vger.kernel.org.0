@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEAC04D870
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 590F24D7C4
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727460AbfFTSFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:05:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59668 "EHLO mail.kernel.org"
+        id S1728773AbfFTSKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:10:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726423AbfFTSFy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:05:54 -0400
+        id S1728771AbfFTSKM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:10:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 134BB204FD;
-        Thu, 20 Jun 2019 18:05:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCC4621530;
+        Thu, 20 Jun 2019 18:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053953;
-        bh=HJaYIRQbEsz5NDstb/O2VfR5UOkNscug82Nvcx9Puqw=;
+        s=default; t=1561054211;
+        bh=U+Fw+56pmtSjJpXkynyZcARIJ3ukFQN6yVeJ/gkDaHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFNWdPex0b/3IzYLHHfi1MuBgZlAWhbi2nZA759vV6y5T1o/xDSXkmJ1Dybnm5ywn
-         lqBWbWP+U+phu7Mm4SNBB1Gq4sDqoe8EVUz2OSYDryCiRFedVmojenmj/TzrYTU884
-         SKeqYj5aLgbcG7QpN7tQ2+cD5F3sZT0YqT+gml+k=
+        b=X9Ll0lnjl0L43mv0VhkqHDn3X5vcGD8j7P74y39mHSxIYu5BQgb2p5rvAr3PjCEiv
+         QhtCdMvdPWF8los65DfKW0qP43klG03qt5Gm59uENOBS85mzkNp9p26J4oHaKriFzs
+         HPMpmFxCPbi5ycO58/c1aQb2V+hlzUE+MsgRz1jM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH 4.9 085/117] USB: usb-storage: Add new ID to ums-realtek
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 04/61] ipv6: flowlabel: fl6_sock_lookup() must use atomic_inc_not_zero
 Date:   Thu, 20 Jun 2019 19:56:59 +0200
-Message-Id: <20190620174357.302728119@linuxfoundation.org>
+Message-Id: <20190620174338.178666754@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 1a6dd3fea131276a4fc44ae77b0f471b0b473577 upstream.
+[ Upstream commit 65a3c497c0e965a552008db8bc2653f62bc925a1 ]
 
-There is one more Realtek card reader requires ums-realtek to work
-correctly.
+Before taking a refcount, make sure the object is not already
+scheduled for deletion.
 
-Add the device ID to support it.
+Same fix is needed in ipv6_flowlabel_opt()
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: stable <stable@vger.kernel.org>
+Fixes: 18367681a10b ("ipv6 flowlabel: Convert np->ipv6_fl_list to RCU.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/storage/unusual_realtek.h |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/ipv6/ip6_flowlabel.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/storage/unusual_realtek.h
-+++ b/drivers/usb/storage/unusual_realtek.h
-@@ -29,6 +29,11 @@ UNUSUAL_DEV(0x0bda, 0x0138, 0x0000, 0x99
- 		"USB Card Reader",
- 		USB_SC_DEVICE, USB_PR_DEVICE, init_realtek_cr, 0),
- 
-+UNUSUAL_DEV(0x0bda, 0x0153, 0x0000, 0x9999,
-+		"Realtek",
-+		"USB Card Reader",
-+		USB_SC_DEVICE, USB_PR_DEVICE, init_realtek_cr, 0),
+--- a/net/ipv6/ip6_flowlabel.c
++++ b/net/ipv6/ip6_flowlabel.c
+@@ -254,9 +254,9 @@ struct ip6_flowlabel *fl6_sock_lookup(st
+ 	rcu_read_lock_bh();
+ 	for_each_sk_fl_rcu(np, sfl) {
+ 		struct ip6_flowlabel *fl = sfl->fl;
+-		if (fl->label == label) {
 +
- UNUSUAL_DEV(0x0bda, 0x0158, 0x0000, 0x9999,
- 		"Realtek",
- 		"USB Card Reader",
++		if (fl->label == label && atomic_inc_not_zero(&fl->users)) {
+ 			fl->lastuse = jiffies;
+-			atomic_inc(&fl->users);
+ 			rcu_read_unlock_bh();
+ 			return fl;
+ 		}
+@@ -622,7 +622,8 @@ int ipv6_flowlabel_opt(struct sock *sk,
+ 						goto done;
+ 					}
+ 					fl1 = sfl->fl;
+-					atomic_inc(&fl1->users);
++					if (!atomic_inc_not_zero(&fl1->users))
++						fl1 = NULL;
+ 					break;
+ 				}
+ 			}
 
 
