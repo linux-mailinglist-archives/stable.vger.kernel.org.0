@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E69334D60D
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:04:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7E3D4D589
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 19:58:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727724AbfFTSDq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:03:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55334 "EHLO mail.kernel.org"
+        id S1726184AbfFTR6h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 13:58:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727718AbfFTSDp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:03:45 -0400
+        id S1726127AbfFTR6h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 13:58:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85B9E2089C;
-        Thu, 20 Jun 2019 18:03:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 474A52089C;
+        Thu, 20 Jun 2019 17:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053825;
-        bh=mcK8O7cJ4axg7PLZnsULxdnjfTpJ58vP4mLaz6OLczQ=;
+        s=default; t=1561053516;
+        bh=p8QAe8L5yFGVoN5DckeG8AwTo4cHDT5Na/CYR17iuqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/5WewNxps46ieyijo9V5wmnJppqsBHHKf+kqwp4W7SfsTqa1PWNlruXSM8otx4ri
-         FO/pHqDqaAir80zhl7rmzsAd/dOmCknzk9rn8ze+oyG1cFqAvSY40UCDv9QeDAdIo1
-         AcZQdf68Ka154JK30QhN2ILISxfbDwtuh7b7731Y=
+        b=Rj5LXw4PgKqb+ka/8htvZ//ReLk17KBozA14T/VPd/g//2W8qF4bMquwTrVlkVhr9
+         IRVEUk637mO7ka5vJQrUdD/lLzDXCbTwRRmjrHkMi3yNWn0oMvI3CwSZOY6CrdgKvZ
+         kI/kV5PK4FFCiZLCqawMwGmQWY9WsReRrYGH44sQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
-        "Angus Ainslie (Purism)" <angus@akkea.ca>,
-        Chris Healy <cphealy@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 039/117] ARM: dts: imx6ul: Specify IMX6UL_CLK_IPG as "ipg" clock to SDMA
+        stable@vger.kernel.org, Liwei Song <liwei.song@windriver.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 16/84] ALSA: hda - Register irq handler after the chip initialization
 Date:   Thu, 20 Jun 2019 19:56:13 +0200
-Message-Id: <20190620174354.339677307@linuxfoundation.org>
+Message-Id: <20190620174339.943397713@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,43 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7b3132ecefdd1fcdf6b86e62021d0e55ea8034db ]
+[ Upstream commit f495222e28275222ab6fd93813bd3d462e16d340 ]
 
-Since 25aaa75df1e6 SDMA driver uses clock rates of "ipg" and "ahb"
-clock to determine if it needs to configure the IP block as operating
-at 1:1 or 1:2 clock ratio (ACR bit in SDMAARM_CONFIG). Specifying both
-clocks as IMX6UL_CLK_SDMA results in driver incorrectly thinking that
-ratio is 1:1 which results in broken SDMA funtionality. Fix the code
-to specify IMX6UL_CLK_IPG as "ipg" clock for SDMA, to avoid detecting
-incorrect clock ratio.
+Currently the IRQ handler in HD-audio controller driver is registered
+before the chip initialization.  That is, we have some window opened
+between the azx_acquire_irq() call and the CORB/RIRB setup.  If an
+interrupt is triggered in this small window, the IRQ handler may
+access to the uninitialized RIRB buffer, which leads to a NULL
+dereference Oops.
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Angus Ainslie (Purism) <angus@akkea.ca>
-Cc: Chris Healy <cphealy@gmail.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: Fabio Estevam <fabio.estevam@nxp.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+This is usually no big problem since most of Intel chips do register
+the IRQ via MSI, and we've already fixed the order of the IRQ
+enablement and the CORB/RIRB setup in the former commit b61749a89f82
+("sound: enable interrupt after dma buffer initialization"), hence the
+IRQ won't be triggered in that room.  However, some platforms use a
+shared IRQ, and this may allow the IRQ trigger by another source.
+
+Another possibility is the kdump environment: a stale interrupt might
+be present in there, the IRQ handler can be falsely triggered as well.
+
+For covering this small race, let's move the azx_acquire_irq() call
+after hda_intel_init_chip() call.  Although this is a bit radical
+change, it can cover more widely than checking the CORB/RIRB setup
+locally in the callee side.
+
+Reported-by: Liwei Song <liwei.song@windriver.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6ul.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/hda_intel.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
-index c5c05fdccc78..7839300fe46b 100644
---- a/arch/arm/boot/dts/imx6ul.dtsi
-+++ b/arch/arm/boot/dts/imx6ul.dtsi
-@@ -669,7 +669,7 @@
- 					     "fsl,imx35-sdma";
- 				reg = <0x020ec000 0x4000>;
- 				interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
--				clocks = <&clks IMX6UL_CLK_SDMA>,
-+				clocks = <&clks IMX6UL_CLK_IPG>,
- 					 <&clks IMX6UL_CLK_SDMA>;
- 				clock-names = "ipg", "ahb";
- 				#dma-cells = <3>;
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 74c9600876d6..ef8955abd918 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1707,9 +1707,6 @@ static int azx_first_init(struct azx *chip)
+ 			chip->msi = 0;
+ 	}
+ 
+-	if (azx_acquire_irq(chip, 0) < 0)
+-		return -EBUSY;
+-
+ 	pci_set_master(pci);
+ 	synchronize_irq(bus->irq);
+ 
+@@ -1820,6 +1817,9 @@ static int azx_first_init(struct azx *chip)
+ 		return -ENODEV;
+ 	}
+ 
++	if (azx_acquire_irq(chip, 0) < 0)
++		return -EBUSY;
++
+ 	strcpy(card->driver, "HDA-Intel");
+ 	strlcpy(card->shortname, driver_short_names[chip->driver_type],
+ 		sizeof(card->shortname));
 -- 
 2.20.1
 
