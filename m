@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20DA34C471
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 02:29:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ED0F4C495
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 02:48:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726667AbfFTA3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 20:29:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59408 "EHLO mail.kernel.org"
+        id S1726479AbfFTAsM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 20:48:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726479AbfFTA3R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Jun 2019 20:29:17 -0400
+        id S1726072AbfFTAsM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Jun 2019 20:48:12 -0400
 Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35C9F208CB;
-        Thu, 20 Jun 2019 00:29:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D7C1214AF;
+        Thu, 20 Jun 2019 00:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560990556;
-        bh=PDKLSwxZhCcxdoo0WqtAJeSYeZyHUmHf1SmbmEZjZPw=;
+        s=default; t=1560991690;
+        bh=Y1yQkBP7jy4Sn9ZF4DYY1ZZ859hH3StjKTY54I4Ovew=;
         h=Date:From:To:Subject:From;
-        b=2BQs7Q1HNQ7eRcQA9BUSYBthXP1G+sXYX4I1GGhI24cR+AO8qkhHatLb5ez4fRkJh
-         PmXE7lD95hx+5HL23ty2FPaBLIbcR17+TX6xqnhJOAVOEu4w376k9sCK1xiXxSjrZ9
-         2ip7/HKsCbUn2pqXNQnFEuLLLcQJEtvKhEFgrFv4=
-Date:   Wed, 19 Jun 2019 17:29:15 -0700
+        b=ezU3KfMTX2vpzSysHwZoRQ4i115rUFMux/zopB80kkW2FXoKvLBs3rXTaldCaHAjZ
+         gU5b/FhXJ7lgEivjSum3Xj9QuKEjL+jr1l9D93RFCHqLB78Q2D2VK8jns+RSAB521a
+         cM5tN8/dnmZpsY7iwpek+/oWwQ1wlNtwD7QNhrKw=
+Date:   Wed, 19 Jun 2019 17:48:09 -0700
 From:   akpm@linux-foundation.org
-To:     hannes@cmpxchg.org, mgorman@techsingularity.net, mhocko@suse.com,
-        mm-commits@vger.kernel.org, riel@redhat.com, sonnyrao@chromium.org,
-        stable@vger.kernel.org, vdavydov.dev@gmail.com, vovoy@chromium.org
+To:     corbet@lwn.net, dan.j.williams@intel.com, david@redhat.com,
+        jane.chu@oracle.com, jglisse@redhat.com, jmoyer@redhat.com,
+        logang@deltatee.com, mhocko@suse.com, mm-commits@vger.kernel.org,
+        osalvador@suse.de, pasha.tatashin@soleen.com,
+        richardw.yang@linux.intel.com, rppt@linux.ibm.com,
+        stable@vger.kernel.org, toshi.kani@hpe.com, vbabka@suse.cz
 Subject:  +
- =?US-ASCII?Q?mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting?=
- =?US-ASCII?Q?-file-refaults.patch?= added to -mm tree
-Message-ID: <20190620002915.x3Lu6abxo%akpm@linux-foundation.org>
+ libnvdimm-pfn-fix-fsdax-mode-namespace-info-block-zero-fields.patch added
+ to -mm tree
+Message-ID: <20190620004809.k9BgL_IOQ%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -42,14 +46,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm: vmscan: fix not scanning anonymous pages when detecting file refaults
+     Subject: libnvdimm/pfn: fix fsdax-mode namespace info-block zero-fields
 has been added to the -mm tree.  Its filename is
-     mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults.patch
+     libnvdimm-pfn-fix-fsdax-mode-namespace-info-block-zero-fields.patch
 
 This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults.patch
+    http://ozlabs.org/~akpm/mmots/broken-out/libnvdimm-pfn-fix-fsdax-mode-n=
+amespace-info-block-zero-fields.patch
 and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults.patch
+    http://ozlabs.org/~akpm/mmotm/broken-out/libnvdimm-pfn-fix-fsdax-mode-n=
+amespace-info-block-zero-fields.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -57,218 +63,164 @@ Before you just go and hit "reply", please:
    c) Ideally: find the original patch on the mailing list and do a
       reply-to-all to that, adding suitable additional cc's
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+*** Remember to use Documentation/process/submit-checklist.rst when testing=
+ your code ***
 
 The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: Kuo-Hsin Yang <vovoy@chromium.org>
-Subject: mm: vmscan: fix not scanning anonymous pages when detecting file refaults
+=46rom: Dan Williams <dan.j.williams@intel.com>
+Subject: libnvdimm/pfn: fix fsdax-mode namespace info-block zero-fields
 
-When file refaults are detected and there are many inactive file pages,
-the system never reclaim anonymous pages, the file pages are dropped
-aggressively when there are still a lot of cold anonymous pages and system
-thrashes.  This issue impacts the performance of applications with large
-executable, e.g.  chrome.
+At namespace creation time there is the potential for the "expected to be
+zero" fields of a 'pfn' info-block to be filled with indeterminate data.=20
+While the kernel buffer is zeroed on allocation it is immediately
+overwritten by nd_pfn_validate() filling it with the current contents of
+the on-media info-block location.  For fields like, 'flags' and the
+'padding' it potentially means that future implementations can not rely on
+those fields being zero.
 
-When file refaults are detected.  inactive_list_is_low() may return
-different values depends on the actual_reclaim parameter, the following 2
-conditions could be satisfied at the same time.
+In preparation to stop using the 'start_pad' and 'end_trunc' fields for
+section alignment, arrange for fields that are not explicitly initialized
+to be guaranteed zero.  Bump the minor version to indicate it is safe to
+assume the 'padding' and 'flags' are zero.  Otherwise, this corruption is
+expected to benign since all other critical fields are explicitly
+initialized.
 
-1) inactive_list_is_low() returns false in get_scan_count() to trigger
-   scanning file lists only.
-2) inactive_list_is_low() returns true in shrink_list() to allow
-   scanning active file list.
+Note The cc: stable is about spreading this new policy to as many kernels
+as possible not fixing an issue in those kernels.  It is not until the
+change titled "libnvdimm/pfn: Stop padding pmem namespaces to section
+alignment" where this improper initialization becomes a problem.  So if
+someone decides to backport "libnvdimm/pfn: Stop padding pmem namespaces
+to section alignment" (which is not tagged for stable), make sure this
+pre-requisite is flagged.
 
-In that case vmscan would only scan file lists, and as active file list is
-also scanned, inactive_list_is_low() may keep returning false in
-get_scan_count() until file cache is very low.
-
-Before 2a2e48854d70 ("mm: vmscan: fix IO/refault regression in cache
-workingset transition"), inactive_list_is_low() never returns different
-value in get_scan_count() and shrink_list() in one shrink_node_memcg()
-run.  The original design should be that when inactive_list_is_low()
-returns false for file lists, vmscan only scan inactive file list.  As
-only inactive file list is scanned, inactive_list_is_low() would soon
-return true.
-
-This patch makes the return value of inactive_list_is_low() independent of
-actual_reclaim.
-
-The problem can be reproduced by the following test program.
-
----8<---
-void fallocate_file(const char *filename, off_t size)
-{
-	struct stat st;
-	int fd;
-
-	if (!stat(filename, &st) && st.st_size >= size)
-		return;
-
-	fd = open(filename, O_WRONLY | O_CREAT, 0600);
-	if (fd < 0) {
-		perror("create file");
-		exit(1);
-	}
-	if (posix_fallocate(fd, 0, size)) {
-		perror("fallocate");
-		exit(1);
-	}
-	close(fd);
-}
-
-long *alloc_anon(long size)
-{
-	long *start = malloc(size);
-	memset(start, 1, size);
-	return start;
-}
-
-long access_file(const char *filename, long size, long rounds)
-{
-	int fd, i;
-	volatile char *start1, *end1, *start2;
-	const int page_size = getpagesize();
-	long sum = 0;
-
-	fd = open(filename, O_RDONLY);
-	if (fd == -1) {
-		perror("open");
-		exit(1);
-	}
-
-	/*
-	 * Some applications, e.g. chrome, use a lot of executable file
-	 * pages, map some of the pages with PROT_EXEC flag to simulate
-	 * the behavior.
-	 */
-	start1 = mmap(NULL, size / 2, PROT_READ | PROT_EXEC, MAP_SHARED,
-		      fd, 0);
-	if (start1 == MAP_FAILED) {
-		perror("mmap");
-		exit(1);
-	}
-	end1 = start1 + size / 2;
-
-	start2 = mmap(NULL, size / 2, PROT_READ, MAP_SHARED, fd, size / 2);
-	if (start2 == MAP_FAILED) {
-		perror("mmap");
-		exit(1);
-	}
-
-	for (i = 0; i < rounds; ++i) {
-		struct timeval before, after;
-		volatile char *ptr1 = start1, *ptr2 = start2;
-		gettimeofday(&before, NULL);
-		for (; ptr1 < end1; ptr1 += page_size, ptr2 += page_size)
-			sum += *ptr1 + *ptr2;
-		gettimeofday(&after, NULL);
-		printf("File access time, round %d: %f (sec)
-", i,
-		       (after.tv_sec - before.tv_sec) +
-		       (after.tv_usec - before.tv_usec) / 1000000.0);
-	}
-	return sum;
-}
-
-int main(int argc, char *argv[])
-{
-	const long MB = 1024 * 1024;
-	long anon_mb, file_mb, file_rounds;
-	const char filename[] = "large";
-	long *ret1;
-	long ret2;
-
-	if (argc != 4) {
-		printf("usage: thrash ANON_MB FILE_MB FILE_ROUNDS
-");
-		exit(0);
-	}
-	anon_mb = atoi(argv[1]);
-	file_mb = atoi(argv[2]);
-	file_rounds = atoi(argv[3]);
-
-	fallocate_file(filename, file_mb * MB);
-	printf("Allocate %ld MB anonymous pages
-", anon_mb);
-	ret1 = alloc_anon(anon_mb * MB);
-	printf("Access %ld MB file pages
-", file_mb);
-	ret2 = access_file(filename, file_mb * MB, file_rounds);
-	printf("Print result to prevent optimization: %ld
-",
-	       *ret1 + ret2);
-	return 0;
-}
----8<---
-
-Running the test program on 2GB RAM VM with kernel 5.2.0-rc5, the program
-fills ram with 2048 MB memory, access a 200 MB file for 10 times.  Without
-this patch, the file cache is dropped aggresively and every access to the
-file is from disk.
-
-  $ ./thrash 2048 200 10
-  Allocate 2048 MB anonymous pages
-  Access 200 MB file pages
-  File access time, round 0: 2.489316 (sec)
-  File access time, round 1: 2.581277 (sec)
-  File access time, round 2: 2.487624 (sec)
-  File access time, round 3: 2.449100 (sec)
-  File access time, round 4: 2.420423 (sec)
-  File access time, round 5: 2.343411 (sec)
-  File access time, round 6: 2.454833 (sec)
-  File access time, round 7: 2.483398 (sec)
-  File access time, round 8: 2.572701 (sec)
-  File access time, round 9: 2.493014 (sec)
-
-With this patch, these file pages can be cached.
-
-  $ ./thrash 2048 200 10
-  Allocate 2048 MB anonymous pages
-  Access 200 MB file pages
-  File access time, round 0: 2.475189 (sec)
-  File access time, round 1: 2.440777 (sec)
-  File access time, round 2: 2.411671 (sec)
-  File access time, round 3: 1.955267 (sec)
-  File access time, round 4: 0.029924 (sec)
-  File access time, round 5: 0.000808 (sec)
-  File access time, round 6: 0.000771 (sec)
-  File access time, round 7: 0.000746 (sec)
-  File access time, round 8: 0.000738 (sec)
-  File access time, round 9: 0.000747 (sec)
-
-Link: http://lkml.kernel.org/r/20190619080835.GA68312@google.com
-Fixes: 2a2e48854d70 ("mm: vmscan: fix IO/refault regression in cache workingset transition")
-Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Sonny Rao <sonnyrao@chromium.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Rik van Riel <riel@redhat.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Link: http://lkml.kernel.org/r/156092356065.979959.6681003754765958296.stgi=
+t@dwillia2-desk3.amr.corp.intel.com
+Fixes: 32ab0a3f5170 ("libnvdimm, pmem: 'struct page' for pmem")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Cc: <stable@vger.kernel.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Jane Chu <jane.chu@oracle.com>
+Cc: Jeff Moyer <jmoyer@redhat.com>
+Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Toshi Kani <toshi.kani@hpe.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/vmscan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvdimm/dax_devs.c |    2 +-
+ drivers/nvdimm/pfn.h      |    1 +
+ drivers/nvdimm/pfn_devs.c |   18 +++++++++++++++---
+ 3 files changed, 17 insertions(+), 4 deletions(-)
 
---- a/mm/vmscan.c~mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults
-+++ a/mm/vmscan.c
-@@ -2151,7 +2151,7 @@ static bool inactive_list_is_low(struct
- 	 * rid of the stale workingset quickly.
- 	 */
- 	refaults = lruvec_page_state_local(lruvec, WORKINGSET_ACTIVATE);
--	if (file && actual_reclaim && lruvec->refaults != refaults) {
-+	if (file && lruvec->refaults != refaults) {
- 		inactive_ratio = 0;
- 	} else {
- 		gb = (inactive + active) >> (30 - PAGE_SHIFT);
+--- a/drivers/nvdimm/dax_devs.c~libnvdimm-pfn-fix-fsdax-mode-namespace-info=
+-block-zero-fields
++++ a/drivers/nvdimm/dax_devs.c
+@@ -118,7 +118,7 @@ int nd_dax_probe(struct device *dev, str
+ 	nvdimm_bus_unlock(&ndns->dev);
+ 	if (!dax_dev)
+ 		return -ENOMEM;
+-	pfn_sb =3D devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb =3D devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	nd_pfn->pfn_sb =3D pfn_sb;
+ 	rc =3D nd_pfn_validate(nd_pfn, DAX_SIG);
+ 	dev_dbg(dev, "dax: %s\n", rc =3D=3D 0 ? dev_name(dax_dev) : "<none>");
+--- a/drivers/nvdimm/pfn_devs.c~libnvdimm-pfn-fix-fsdax-mode-namespace-info=
+-block-zero-fields
++++ a/drivers/nvdimm/pfn_devs.c
+@@ -412,6 +412,15 @@ static int nd_pfn_clear_memmap_errors(st
+ 	return 0;
+ }
+=20
++/**
++ * nd_pfn_validate - read and validate info-block
++ * @nd_pfn: fsdax namespace runtime state / properties
++ * @sig: 'devdax' or 'fsdax' signature
++ *
++ * Upon return the info-block buffer contents (->pfn_sb) are
++ * indeterminate when validation fails, and a coherent info-block
++ * otherwise.
++ */
+ int nd_pfn_validate(struct nd_pfn *nd_pfn, const char *sig)
+ {
+ 	u64 checksum, offset;
+@@ -557,7 +566,7 @@ int nd_pfn_probe(struct device *dev, str
+ 	nvdimm_bus_unlock(&ndns->dev);
+ 	if (!pfn_dev)
+ 		return -ENOMEM;
+-	pfn_sb =3D devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb =3D devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	nd_pfn =3D to_nd_pfn(pfn_dev);
+ 	nd_pfn->pfn_sb =3D pfn_sb;
+ 	rc =3D nd_pfn_validate(nd_pfn, PFN_SIG);
+@@ -694,7 +703,7 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 	u64 checksum;
+ 	int rc;
+=20
+-	pfn_sb =3D devm_kzalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb =3D devm_kmalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	if (!pfn_sb)
+ 		return -ENOMEM;
+=20
+@@ -703,11 +712,14 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 		sig =3D DAX_SIG;
+ 	else
+ 		sig =3D PFN_SIG;
++
+ 	rc =3D nd_pfn_validate(nd_pfn, sig);
+ 	if (rc !=3D -ENODEV)
+ 		return rc;
+=20
+ 	/* no info block, do init */;
++	memset(pfn_sb, 0, sizeof(*pfn_sb));
++
+ 	nd_region =3D to_nd_region(nd_pfn->dev.parent);
+ 	if (nd_region->ro) {
+ 		dev_info(&nd_pfn->dev,
+@@ -760,7 +772,7 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 	memcpy(pfn_sb->uuid, nd_pfn->uuid, 16);
+ 	memcpy(pfn_sb->parent_uuid, nd_dev_to_uuid(&ndns->dev), 16);
+ 	pfn_sb->version_major =3D cpu_to_le16(1);
+-	pfn_sb->version_minor =3D cpu_to_le16(2);
++	pfn_sb->version_minor =3D cpu_to_le16(3);
+ 	pfn_sb->start_pad =3D cpu_to_le32(start_pad);
+ 	pfn_sb->end_trunc =3D cpu_to_le32(end_trunc);
+ 	pfn_sb->align =3D cpu_to_le32(nd_pfn->align);
+--- a/drivers/nvdimm/pfn.h~libnvdimm-pfn-fix-fsdax-mode-namespace-info-bloc=
+k-zero-fields
++++ a/drivers/nvdimm/pfn.h
+@@ -28,6 +28,7 @@ struct nd_pfn_sb {
+ 	__le32 end_trunc;
+ 	/* minor-version-2 record the base alignment of the mapping */
+ 	__le32 align;
++	/* minor-version-3 guarantee the padding and flags are zero */
+ 	u8 padding[4000];
+ 	__le64 checksum;
+ };
 _
 
-Patches currently in -mm which might be from vovoy@chromium.org are
+Patches currently in -mm which might be from dan.j.williams@intel.com are
 
-mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults.patch
+mm-sparsemem-introduce-struct-mem_section_usage.patch
+mm-sparsemem-introduce-a-section_is_early-flag.patch
+mm-sparsemem-add-helpers-track-active-portions-of-a-section-at-boot.patch
+mm-hotplug-prepare-shrink_zone-pgdat_span-for-sub-section-removal.patch
+mm-sparsemem-convert-kmalloc_section_memmap-to-populate_section_memmap.patch
+mm-hotplug-kill-is_dev_zone-usage-in-__remove_pages.patch
+mm-kill-is_dev_zone-helper.patch
+mm-sparsemem-prepare-for-sub-section-ranges.patch
+mm-sparsemem-support-sub-section-hotplug.patch
+mm-document-zone_device-memory-model-implications.patch
+mm-devm_memremap_pages-enable-sub-section-remap.patch
+libnvdimm-pfn-fix-fsdax-mode-namespace-info-block-zero-fields.patch
+libnvdimm-pfn-stop-padding-pmem-namespaces-to-section-alignment.patch
 
