@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F69D4D8E6
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 074B14D8BD
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:28:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727554AbfFTS3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:29:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54546 "EHLO mail.kernel.org"
+        id S1727629AbfFTSD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:03:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727606AbfFTSDV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:03:21 -0400
+        id S1727626AbfFTSDZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:03:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F8C921479;
-        Thu, 20 Jun 2019 18:03:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A574204FD;
+        Thu, 20 Jun 2019 18:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053801;
-        bh=dXL5b03flAPcpcuWlTJ2U+RH4K9Xbh+O5tOkr79hCb8=;
+        s=default; t=1561053804;
+        bh=1H2OOZ5xJRq9mj4X0Y/7+7y3oHkhm0n8Pn1EyciXXso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oTvVlQKCRV2rzOYciYmVRtbU+39Ic3NXScuZec6a/Mtd7WjyO65OFYypeKmD+rEHT
-         udphNgNq8MAPna9HAZxxt/vxoSC/HFQdf5juzA5KMeFPPV3GzXoXKRRNI57ZsmC0ID
-         Wm5kVI32vPy6ZLJQ4YhsKvr1KXJTVQlizkgOUFH4=
+        b=bm8xLgsDBWlH9XiZUlIjy/oteyA6Bv2lMwvsuYHtJaAi2+HIJyjlwLaeUYkszYEZf
+         7CFrUoJvUAjDz8hqCIbx+qEKJCXXiUvXFpdKt7psqLMBed07p498fw7hE8A/HZDdYc
+         xilu//9mxtMWzp/YHppgmsH0Bj50x1bvRlCpF1Jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kirill Smelkov <kirr@nexedi.com>,
-        Han-Wen Nienhuys <hanwen@google.com>,
-        Jakob Unterwurzacher <jakobunt@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 031/117] fuse: retrieve: cap requested size to negotiated max_write
-Date:   Thu, 20 Jun 2019 19:56:05 +0200
-Message-Id: <20190620174353.861621759@linuxfoundation.org>
+Subject: [PATCH 4.9 032/117] nfsd: allow fh_want_write to be called twice
+Date:   Thu, 20 Jun 2019 19:56:06 +0200
+Message-Id: <20190620174353.921173617@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
 References: <20190620174351.964339809@linuxfoundation.org>
@@ -46,61 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7640682e67b33cab8628729afec8ca92b851394f ]
+[ Upstream commit 0b8f62625dc309651d0efcb6a6247c933acd8b45 ]
 
-FUSE filesystem server and kernel client negotiate during initialization
-phase, what should be the maximum write size the client will ever issue.
-Correspondingly the filesystem server then queues sys_read calls to read
-requests with buffer capacity large enough to carry request header + that
-max_write bytes. A filesystem server is free to set its max_write in
-anywhere in the range between [1*page, fc->max_pages*page]. In particular
-go-fuse[2] sets max_write by default as 64K, wheres default fc->max_pages
-corresponds to 128K. Libfuse also allows users to configure max_write, but
-by default presets it to possible maximum.
+A fuzzer recently triggered lockdep warnings about potential sb_writers
+deadlocks caused by fh_want_write().
 
-If max_write is < fc->max_pages*page, and in NOTIFY_RETRIEVE handler we
-allow to retrieve more than max_write bytes, corresponding prepared
-NOTIFY_REPLY will be thrown away by fuse_dev_do_read, because the
-filesystem server, in full correspondence with server/client contract, will
-be only queuing sys_read with ~max_write buffer capacity, and
-fuse_dev_do_read throws away requests that cannot fit into server request
-buffer. In turn the filesystem server could get stuck waiting indefinitely
-for NOTIFY_REPLY since NOTIFY_RETRIEVE handler returned OK which is
-understood by clients as that NOTIFY_REPLY was queued and will be sent
-back.
+Looks like we aren't careful to pair each fh_want_write() with an
+fh_drop_write().
 
-Cap requested size to negotiate max_write to avoid the problem.  This
-aligns with the way NOTIFY_RETRIEVE handler works, which already
-unconditionally caps requested retrieve size to fuse_conn->max_pages.  This
-way it should not hurt NOTIFY_RETRIEVE semantic if we return less data than
-was originally requested.
+It's not normally a problem since fh_put() will call fh_drop_write() for
+us.  And was OK for NFSv3 where we'd do one operation that might call
+fh_want_write(), and then put the filehandle.
 
-Please see [1] for context where the problem of stuck filesystem was hit
-for real, how the situation was traced and for more involving patch that
-did not make it into the tree.
+But an NFSv4 protocol fuzzer can do weird things like call unlink twice
+in a compound, and then we get into trouble.
 
-[1] https://marc.info/?l=linux-fsdevel&m=155057023600853&w=2
-[2] https://github.com/hanwen/go-fuse
+I'm a little worried about this approach of just leaving everything to
+fh_put().  But I think there are probably a lot of
+fh_want_write()/fh_drop_write() imbalances so for now I think we need it
+to be more forgiving.
 
-Signed-off-by: Kirill Smelkov <kirr@nexedi.com>
-Cc: Han-Wen Nienhuys <hanwen@google.com>
-Cc: Jakob Unterwurzacher <jakobunt@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/vfs.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -1668,7 +1668,7 @@ static int fuse_retrieve(struct fuse_con
- 	offset = outarg->offset & ~PAGE_MASK;
- 	file_size = i_size_read(inode);
+diff --git a/fs/nfsd/vfs.h b/fs/nfsd/vfs.h
+index 0bf9e7bf5800..9140b9cf3870 100644
+--- a/fs/nfsd/vfs.h
++++ b/fs/nfsd/vfs.h
+@@ -116,8 +116,11 @@ void		nfsd_put_raparams(struct file *file, struct raparms *ra);
  
--	num = outarg->size;
-+	num = min(outarg->size, fc->max_write);
- 	if (outarg->offset > file_size)
- 		num = 0;
- 	else if (outarg->offset + num > file_size)
+ static inline int fh_want_write(struct svc_fh *fh)
+ {
+-	int ret = mnt_want_write(fh->fh_export->ex_path.mnt);
++	int ret;
+ 
++	if (fh->fh_want_write)
++		return 0;
++	ret = mnt_want_write(fh->fh_export->ex_path.mnt);
+ 	if (!ret)
+ 		fh->fh_want_write = true;
+ 	return ret;
+-- 
+2.20.1
+
 
 
