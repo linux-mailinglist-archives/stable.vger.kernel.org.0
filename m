@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D30C4D847
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 578434D691
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:09:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727749AbfFTSHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:07:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34404 "EHLO mail.kernel.org"
+        id S1728681AbfFTSJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:09:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727510AbfFTSHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:07:41 -0400
+        id S1726669AbfFTSJo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:09:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 407682089C;
-        Thu, 20 Jun 2019 18:07:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 718E62082C;
+        Thu, 20 Jun 2019 18:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054060;
-        bh=GNAkOgeppAFJLfe8olWqbUZabhusjg8Ki6Qhz2n1N0Q=;
+        s=default; t=1561054183;
+        bh=zcu4yxtJsx+AVeYMzqd5C3jKuyG8OpnTkaxcUbuioDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U5mJizWGHACK24+lr7H/bTGDy9bniRjzxY++xYtgRSaxRyfwdGHM9n3T1hk1S0Eq2
-         yAZOJ3Gt+b+6uB7g7Xg/4tNV4brGFpUjqFVTRWnV4N6lmzD+m8OCiU2dOnQExwNNx+
-         EIr92U3OFONnLFnsEXR8SKT12epCMHK9Nkfe0miY=
+        b=XjWFTf2NskXJl0uGTGkpZZ8TeOJXVtdHrH55ifpPU661EUh4yf8rusL1IgMtn06FA
+         Sl1GtTo6TwadittPtL1JV+VloyPc5kVLItIsT4pTZQVtbk787oWL/tWirkp5VrcpJr
+         nI7EBjC6vithSk7i2psUYQmWqf7GjBk2jKA/DlEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lianbo Jiang <lijiang@redhat.com>,
-        Don Brace <don.brace@microsemi.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 114/117] scsi: smartpqi: properly set both the DMA mask and the coherent DMA mask
+        stable@vger.kernel.org,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 26/45] ALSA: hda - Force polling mode on CNL for fixing codec communication
 Date:   Thu, 20 Jun 2019 19:57:28 +0200
-Message-Id: <20190620174358.309462542@linuxfoundation.org>
+Message-Id: <20190620174338.603309659@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
+References: <20190620174328.608036501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1d94f06e7f5df4064ef336b7b710f50143b64a53 ]
+[ Upstream commit fa763f1b2858752e6150ffff46886a1b7faffc82 ]
 
-When SME is enabled, the smartpqi driver won't work on the HP DL385 G10
-machine, which causes the failure of kernel boot because it fails to
-allocate pqi error buffer. Please refer to the kernel log:
-....
-[    9.431749] usbcore: registered new interface driver uas
-[    9.441524] Microsemi PQI Driver (v1.1.4-130)
-[    9.442956] i40e 0000:04:00.0: fw 6.70.48768 api 1.7 nvm 10.2.5
-[    9.447237] smartpqi 0000:23:00.0: Microsemi Smart Family Controller found
-         Starting dracut initqueue hook...
-[  OK  ] Started Show Plymouth Boot Scre[    9.471654] Broadcom NetXtreme-C/E driver bnxt_en v1.9.1
-en.
-[  OK  ] Started Forward Password Requests to Plymouth Directory Watch.
-[[0;[    9.487108] smartpqi 0000:23:00.0: failed to allocate PQI error buffer
-....
-[  139.050544] dracut-initqueue[949]: Warning: dracut-initqueue timeout - starting timeout scripts
-[  139.589779] dracut-initqueue[949]: Warning: dracut-initqueue timeout - starting timeout scripts
+We observed the same issue as reported by commit a8d7bde23e7130686b7662
+("ALSA: hda - Force polling mode on CFL for fixing codec communication")
+We don't have a better solution. So apply the same workaround to CNL.
 
-Basically, the fact that the coherent DMA mask value wasn't set caused the
-driver to fall back to SWIOTLB when SME is active.
-
-For correct operation, lets call the dma_set_mask_and_coherent() to
-properly set the mask for both streaming and coherent, in order to inform
-the kernel about the devices DMA addressing capabilities.
-
-Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
-Acked-by: Don Brace <don.brace@microsemi.com>
-Tested-by: Don Brace <don.brace@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/hda_intel.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index 06a062455404..b12f7f952b70 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -5478,7 +5478,7 @@ static int pqi_pci_init(struct pqi_ctrl_info *ctrl_info)
- 	else
- 		mask = DMA_BIT_MASK(32);
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 65fb1e7edb9c..d349f69ef03c 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -376,6 +376,7 @@ enum {
  
--	rc = dma_set_mask(&ctrl_info->pci_dev->dev, mask);
-+	rc = dma_set_mask_and_coherent(&ctrl_info->pci_dev->dev, mask);
- 	if (rc) {
- 		dev_err(&ctrl_info->pci_dev->dev, "failed to set DMA mask\n");
- 		goto disable_device;
+ #define IS_BXT(pci) ((pci)->vendor == 0x8086 && (pci)->device == 0x5a98)
+ #define IS_CFL(pci) ((pci)->vendor == 0x8086 && (pci)->device == 0xa348)
++#define IS_CNL(pci) ((pci)->vendor == 0x8086 && (pci)->device == 0x9dc8)
+ 
+ static char *driver_short_names[] = {
+ 	[AZX_DRIVER_ICH] = "HDA Intel",
+@@ -1751,8 +1752,8 @@ static int azx_create(struct snd_card *card, struct pci_dev *pci,
+ 	else
+ 		chip->bdl_pos_adj = bdl_pos_adj[dev];
+ 
+-	/* Workaround for a communication error on CFL (bko#199007) */
+-	if (IS_CFL(pci))
++	/* Workaround for a communication error on CFL (bko#199007) and CNL */
++	if (IS_CFL(pci) || IS_CNL(pci))
+ 		chip->polling_mode = 1;
+ 
+ 	err = azx_bus_init(chip, model[dev], &pci_hda_io_ops);
 -- 
 2.20.1
 
