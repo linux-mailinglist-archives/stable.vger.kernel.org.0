@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE6F24D853
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E761C4D7D0
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726370AbfFTSZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:25:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33782 "EHLO mail.kernel.org"
+        id S1727318AbfFTSK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:10:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727893AbfFTSHV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:07:21 -0400
+        id S1726852AbfFTSKz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:10:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0F89214AF;
-        Thu, 20 Jun 2019 18:07:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 527A92070B;
+        Thu, 20 Jun 2019 18:10:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054040;
-        bh=28RQEocHXMyMc52tIA8yMURHobn6pY+6+nuVZ/IHVys=;
+        s=default; t=1561054254;
+        bh=Jf9Rg/Nz9me9qjtqEAu8XUhKLnO80a9Z7ifNKsmayrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XCFOfLnyJE4UtDLMnMV5mMRKpu2VfzIljImg/RP8tILpaghaVndogtnuk3L1vzeiu
-         /H9f09/nZ0k3muMFf9BRI8LMLwxOfG+GBkDX//E2e/8SbaeFecIBii2//WT/g3ti32
-         YoF0bA4SJPNzcPf7qrDa/oq8DV3bYxdcZ2GCjwpY=
+        b=Yi9POyMBjiP1CotXjj6/oIeWOqD629DkxvOR26MFkM9R9yCBWMMlzhY0o/YIFisi7
+         V1xrlrju5/HbfWPGKg2RrMMXC3eCiZbTjFkW9LuOUN8FST3EIxspAaBwVn4LGztEMr
+         KzSBDOS5YSEUUhSdjmTx8qWem7V64K1iZEAI41iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        stable@vger.kernel.org, Yabin Cui <yabinc@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 108/117] perf record: Fix s390 missing module symbol and warning for non-root users
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>, mark.rutland@arm.com,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 27/61] perf/ring_buffer: Fix exposing a temporarily decreased data_head
 Date:   Thu, 20 Jun 2019 19:57:22 +0200
-Message-Id: <20190620174358.096022974@linuxfoundation.org>
+Message-Id: <20190620174342.032903539@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,100 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6738028dd57df064b969d8392c943ef3b3ae705d ]
+[ Upstream commit 1b038c6e05ff70a1e66e3e571c2e6106bdb75f53 ]
 
-Command 'perf record' and 'perf report' on a system without kernel
-debuginfo packages uses /proc/kallsyms and /proc/modules to find
-addresses for kernel and module symbols. On x86 this works for root and
-non-root users.
+In perf_output_put_handle(), an IRQ/NMI can happen in below location and
+write records to the same ring buffer:
 
-On s390, when invoked as non-root user, many of the following warnings
-are shown and module symbols are missing:
+	...
+	local_dec_and_test(&rb->nest)
+	...                          <-- an IRQ/NMI can happen here
+	rb->user_page->data_head = head;
+	...
 
-    proc/{kallsyms,modules} inconsistency while looking for
-        "[sha1_s390]" module!
+In this case, a value A is written to data_head in the IRQ, then a value
+B is written to data_head after the IRQ. And A > B. As a result,
+data_head is temporarily decreased from A to B. And a reader may see
+data_head < data_tail if it read the buffer frequently enough, which
+creates unexpected behaviors.
 
-Command 'perf record' creates a list of module start addresses by
-parsing the output of /proc/modules and creates a PERF_RECORD_MMAP
-record for the kernel and each module. The following function call
-sequence is executed:
+This can be fixed by moving dec(&rb->nest) to after updating data_head,
+which prevents the IRQ/NMI above from updating data_head.
 
-  machine__create_kernel_maps
-    machine__create_module
-      modules__parse
-        machine__create_module --> for each line in /proc/modules
-          arch__fix_module_text_start
+[ Split up by peterz. ]
 
-Function arch__fix_module_text_start() is s390 specific. It opens
-file /sys/module/<name>/sections/.text to extract the module's .text
-section start address. On s390 the module loader prepends a header
-before the first section, whereas on x86 the module's text section
-address is identical the the module's load address.
-
-However module section files are root readable only. For non-root the
-read operation fails and machine__create_module() returns an error.
-Command perf record does not generate any PERF_RECORD_MMAP record
-for loaded modules. Later command perf report complains about missing
-module maps.
-
-To fix this function arch__fix_module_text_start() always returns
-success. For root users there is no change, for non-root users
-the module's load address is used as module's text start address
-(the prepended header then counts as part of the text section).
-
-This enable non-root users to use module symbols and avoid the
-warning when perf report is executed.
-
-Output before:
-
-  [tmricht@m83lp54 perf]$ ./perf report -D | fgrep MMAP
-  0 0x168 [0x50]: PERF_RECORD_MMAP ... x [kernel.kallsyms]_text
-
-Output after:
-
-  [tmricht@m83lp54 perf]$ ./perf report -D | fgrep MMAP
-  0 0x168 [0x50]: PERF_RECORD_MMAP ... x [kernel.kallsyms]_text
-  0 0x1b8 [0x98]: PERF_RECORD_MMAP ... x /lib/modules/.../autofs4.ko.xz
-  0 0x250 [0xa8]: PERF_RECORD_MMAP ... x /lib/modules/.../sha_common.ko.xz
-  0 0x2f8 [0x98]: PERF_RECORD_MMAP ... x /lib/modules/.../des_generic.ko.xz
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Link: http://lkml.kernel.org/r/20190522144601.50763-4-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Yabin Cui <yabinc@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: mark.rutland@arm.com
+Fixes: ef60777c9abd ("perf: Optimize the perf_output() path by removing IRQ-disables")
+Link: http://lkml.kernel.org/r/20190517115418.224478157@infradead.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/s390/util/machine.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ kernel/events/ring_buffer.c | 24 ++++++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/arch/s390/util/machine.c b/tools/perf/arch/s390/util/machine.c
-index b9a95a1a8e69..d3d1452021d4 100644
---- a/tools/perf/arch/s390/util/machine.c
-+++ b/tools/perf/arch/s390/util/machine.c
-@@ -4,16 +4,19 @@
- #include "util.h"
- #include "machine.h"
- #include "api/fs/fs.h"
-+#include "debug.h"
+diff --git a/kernel/events/ring_buffer.c b/kernel/events/ring_buffer.c
+index 99c7f199f2d4..31edf1f39cca 100644
+--- a/kernel/events/ring_buffer.c
++++ b/kernel/events/ring_buffer.c
+@@ -52,11 +52,18 @@ static void perf_output_put_handle(struct perf_output_handle *handle)
+ 	head = local_read(&rb->head);
  
- int arch__fix_module_text_start(u64 *start, const char *name)
- {
-+	u64 m_start = *start;
- 	char path[PATH_MAX];
+ 	/*
+-	 * IRQ/NMI can happen here, which means we can miss a head update.
++	 * IRQ/NMI can happen here and advance @rb->head, causing our
++	 * load above to be stale.
+ 	 */
  
- 	snprintf(path, PATH_MAX, "module/%.*s/sections/.text",
- 				(int)strlen(name) - 2, name + 1);
--
--	if (sysfs__read_ull(path, (unsigned long long *)start) < 0)
--		return -1;
-+	if (sysfs__read_ull(path, (unsigned long long *)start) < 0) {
-+		pr_debug2("Using module %s start:%#lx\n", path, m_start);
-+		*start = m_start;
+-	if (!local_dec_and_test(&rb->nest))
++	/*
++	 * If this isn't the outermost nesting, we don't have to update
++	 * @rb->user_page->data_head.
++	 */
++	if (local_read(&rb->nest) > 1) {
++		local_dec(&rb->nest);
+ 		goto out;
 +	}
  
- 	return 0;
- }
+ 	/*
+ 	 * Since the mmap() consumer (userspace) can run on a different CPU:
+@@ -88,9 +95,18 @@ static void perf_output_put_handle(struct perf_output_handle *handle)
+ 	rb->user_page->data_head = head;
+ 
+ 	/*
+-	 * Now check if we missed an update -- rely on previous implied
+-	 * compiler barriers to force a re-read.
++	 * We must publish the head before decrementing the nest count,
++	 * otherwise an IRQ/NMI can publish a more recent head value and our
++	 * write will (temporarily) publish a stale value.
++	 */
++	barrier();
++	local_set(&rb->nest, 0);
++
++	/*
++	 * Ensure we decrement @rb->nest before we validate the @rb->head.
++	 * Otherwise we cannot be sure we caught the 'last' nested update.
+ 	 */
++	barrier();
+ 	if (unlikely(head != local_read(&rb->head))) {
+ 		local_inc(&rb->nest);
+ 		goto again;
 -- 
 2.20.1
 
