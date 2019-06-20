@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B41B84D7AC
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 247A84D802
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727953AbfFTSIw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:08:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36224 "EHLO mail.kernel.org"
+        id S1729088AbfFTSVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:21:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728537AbfFTSIs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:08:48 -0400
+        id S1728607AbfFTSLm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:11:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6EA82084E;
-        Thu, 20 Jun 2019 18:08:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DFE02089C;
+        Thu, 20 Jun 2019 18:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054127;
-        bh=l/yJKou2oDHAdhnzdsC8NyeBypmK5iwGNwUo+9N61XY=;
+        s=default; t=1561054301;
+        bh=nUY6ILTxX+DakTlISDVeWnorLgfPe9zH17lpV8hhCvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JLBLhQTpFh5aNFU/xWxb97iIdTrJ98zYyfYiWfSgzyk0qzN3oupKy9i1xnQP4dd4f
-         kzAeWSmdmlj74QMPt6go1xNvxdY6En7vzR5Gf3EHeCj1eX3GZycnYch8y1d7a6YZau
-         J/MxgPS8ze1AkxPYPz5h4wUQdlNWN7M3YFZItqLk=
+        b=SkEckStZBLv2r4ZjmjxHWhPJI6Z8Hdo37/DhsjzK5JqvyJxUiOEXdK4CZNMqRLcJQ
+         qiOULDK1Pdg6+IWnC3w4L9vkI7wIC6PyraX66RWhca8mXtKchKRJy77r5g+bqq2NpG
+         /14FJf2pcTWK4x53mZw/REcKmYph0OR5i0qTTcNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
-        syzbot+f7e9153b037eac9b1df8@syzkaller.appspotmail.com,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-Subject: [PATCH 4.14 08/45] sctp: Free cookie before we memdup a new one
-Date:   Thu, 20 Jun 2019 19:57:10 +0200
-Message-Id: <20190620174333.093872702@linuxfoundation.org>
+        stable@vger.kernel.org, Yuri Chipchev <yuric@marvell.com>,
+        Maxime Chevallier <maxime.chevallier@bootlin.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 16/61] net: mvpp2: prs: Use the correct helpers when removing all VID filters
+Date:   Thu, 20 Jun 2019 19:57:11 +0200
+Message-Id: <20190620174339.937895518@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
-References: <20190620174328.608036501@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,82 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Horman <nhorman@tuxdriver.com>
+From: Maxime Chevallier <maxime.chevallier@bootlin.com>
 
-[ Upstream commit ce950f1050cece5e406a5cde723c69bba60e1b26 ]
+[ Upstream commit 6b7a3430c163455cf8a514d636bda52b04654972 ]
 
-Based on comments from Xin, even after fixes for our recent syzbot
-report of cookie memory leaks, its possible to get a resend of an INIT
-chunk which would lead to us leaking cookie memory.
+When removing all VID filters, the mvpp2_prs_vid_entry_remove would be
+called with the TCAM id incorrectly used as a VID, causing the wrong
+TCAM entries to be invalidated.
 
-To ensure that we don't leak cookie memory, free any previously
-allocated cookie first.
+Fix this by directly invalidating entries in the VID range.
 
-Change notes
-v1->v2
-update subsystem tag in subject (davem)
-repeat kfree check for peer_random and peer_hmacs (xin)
-
-v2->v3
-net->sctp
-also free peer_chunks
-
-v3->v4
-fix subject tags
-
-v4->v5
-remove cut line
-
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
-Reported-by: syzbot+f7e9153b037eac9b1df8@syzkaller.appspotmail.com
-CC: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-CC: Xin Long <lucien.xin@gmail.com>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Fixes: 56beda3db602 ("net: mvpp2: Add hardware offloading for VLAN filtering")
+Suggested-by: Yuri Chipchev <yuric@marvell.com>
+Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/sm_make_chunk.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -2586,6 +2586,8 @@ do_addr_param:
- 	case SCTP_PARAM_STATE_COOKIE:
- 		asoc->peer.cookie_len =
- 			ntohs(param.p->length) - sizeof(struct sctp_paramhdr);
-+		if (asoc->peer.cookie)
-+			kfree(asoc->peer.cookie);
- 		asoc->peer.cookie = kmemdup(param.cookie->body, asoc->peer.cookie_len, gfp);
- 		if (!asoc->peer.cookie)
- 			retval = 0;
-@@ -2650,6 +2652,8 @@ do_addr_param:
- 			goto fall_through;
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
+@@ -2025,8 +2025,10 @@ void mvpp2_prs_vid_remove_all(struct mvp
  
- 		/* Save peer's random parameter */
-+		if (asoc->peer.peer_random)
-+			kfree(asoc->peer.peer_random);
- 		asoc->peer.peer_random = kmemdup(param.p,
- 					    ntohs(param.p->length), gfp);
- 		if (!asoc->peer.peer_random) {
-@@ -2663,6 +2667,8 @@ do_addr_param:
- 			goto fall_through;
+ 	for (tid = MVPP2_PRS_VID_PORT_FIRST(port->id);
+ 	     tid <= MVPP2_PRS_VID_PORT_LAST(port->id); tid++) {
+-		if (priv->prs_shadow[tid].valid)
+-			mvpp2_prs_vid_entry_remove(port, tid);
++		if (priv->prs_shadow[tid].valid) {
++			mvpp2_prs_hw_inv(priv, tid);
++			priv->prs_shadow[tid].valid = false;
++		}
+ 	}
+ }
  
- 		/* Save peer's HMAC list */
-+		if (asoc->peer.peer_hmacs)
-+			kfree(asoc->peer.peer_hmacs);
- 		asoc->peer.peer_hmacs = kmemdup(param.p,
- 					    ntohs(param.p->length), gfp);
- 		if (!asoc->peer.peer_hmacs) {
-@@ -2678,6 +2684,8 @@ do_addr_param:
- 		if (!ep->auth_enable)
- 			goto fall_through;
- 
-+		if (asoc->peer.peer_chunks)
-+			kfree(asoc->peer.peer_chunks);
- 		asoc->peer.peer_chunks = kmemdup(param.p,
- 					    ntohs(param.p->length), gfp);
- 		if (!asoc->peer.peer_chunks)
 
 
