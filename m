@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B41244D7BC
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D556B4D808
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728353AbfFTSJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:09:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
+        id S1726761AbfFTSWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:22:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728677AbfFTSJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:09:42 -0400
+        id S1728509AbfFTSLP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:11:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA5D12168B;
-        Thu, 20 Jun 2019 18:09:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83B52215EA;
+        Thu, 20 Jun 2019 18:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054181;
-        bh=gI+9GKnFAdUY0K+fbh1vYOGBLn1al+T1hwahrVBIaZU=;
+        s=default; t=1561054275;
+        bh=qbPcjr/LBfpOJDxo37Q16bYknL/wsFWe6s4ii73uDLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n9W90/0IcdLDM6qq8lKNvudc/ce7S2YyrRXkQ53pJUX2VAStL3rW5tbyLoa9fKR2T
-         lYiPUF7b4dD7HQCrBP4uu+r6CBerjEzSBamV8xNL67d1SwteFc4oleQrvxuTGVPExp
-         YEh5ehLHlil1aeq6PSqSNizTlKkaRqD97bPlAqP8=
+        b=NsoLGyiQnbkls7TNRx1PNVqPU2V99GeqCBuDwiTFVCSc9R/pUZ335N4EhOrpguOsL
+         okAFCRCppwl8Rkssds7Tbge3PYkjaUdcK2mO4G6dH15e81UTolj4LpCSNICuXbaIat
+         tDRz7sC61zrUQlhaIMdEdX+ThPA/LIaEwSvwXVOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yingjoe Chen <yingjoe.chen@mediatek.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 25/45] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
-Date:   Thu, 20 Jun 2019 19:57:27 +0200
-Message-Id: <20190620174338.192490154@linuxfoundation.org>
+Subject: [PATCH 4.19 33/61] ACPI/PCI: PM: Add missing wakeup.flags.valid checks
+Date:   Thu, 20 Jun 2019 19:57:28 +0200
+Message-Id: <20190620174343.156517840@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
-References: <20190620174328.608036501@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a0692f0eef91354b62c2b4c94954536536be5425 ]
+[ Upstream commit 9a51c6b1f9e0239a9435db036b212498a2a3b75c ]
 
-If I2C_M_RECV_LEN check failed, msgs[i].buf allocated by memdup_user
-will not be freed. Pump index up so it will be freed.
+Both acpi_pci_need_resume() and acpi_dev_needs_resume() check if the
+current ACPI wakeup configuration of the device matches what is
+expected as far as system wakeup from sleep states is concerned, as
+reflected by the device_may_wakeup() return value for the device.
 
-Fixes: 838bfa6049fb ("i2c-dev: Add support for I2C_M_RECV_LEN")
-Signed-off-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+However, they only should do that if wakeup.flags.valid is set for
+the device's ACPI companion, because otherwise the wakeup.prepare_count
+value for it is meaningless.
+
+Add the missing wakeup.flags.valid checks to these functions.
+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/device_pm.c | 4 ++--
+ drivers/pci/pci-acpi.c   | 3 ++-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 00e8e675cbeb..eaa312bc3a3c 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -297,6 +297,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
- 			    rdwr_pa[i].buf[0] < 1 ||
- 			    rdwr_pa[i].len < rdwr_pa[i].buf[0] +
- 					     I2C_SMBUS_BLOCK_MAX) {
-+				i++;
- 				res = -EINVAL;
- 				break;
- 			}
+diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
+index a7c2673ffd36..1806260938e8 100644
+--- a/drivers/acpi/device_pm.c
++++ b/drivers/acpi/device_pm.c
+@@ -948,8 +948,8 @@ static bool acpi_dev_needs_resume(struct device *dev, struct acpi_device *adev)
+ 	u32 sys_target = acpi_target_system_state();
+ 	int ret, state;
+ 
+-	if (!pm_runtime_suspended(dev) || !adev ||
+-	    device_may_wakeup(dev) != !!adev->wakeup.prepare_count)
++	if (!pm_runtime_suspended(dev) || !adev || (adev->wakeup.flags.valid &&
++	    device_may_wakeup(dev) != !!adev->wakeup.prepare_count))
+ 		return true;
+ 
+ 	if (sys_target == ACPI_STATE_S0)
+diff --git a/drivers/pci/pci-acpi.c b/drivers/pci/pci-acpi.c
+index f8436d1c4d45..f7218c1673ce 100644
+--- a/drivers/pci/pci-acpi.c
++++ b/drivers/pci/pci-acpi.c
+@@ -625,7 +625,8 @@ static bool acpi_pci_need_resume(struct pci_dev *dev)
+ 	if (!adev || !acpi_device_power_manageable(adev))
+ 		return false;
+ 
+-	if (device_may_wakeup(&dev->dev) != !!adev->wakeup.prepare_count)
++	if (adev->wakeup.flags.valid &&
++	    device_may_wakeup(&dev->dev) != !!adev->wakeup.prepare_count)
+ 		return true;
+ 
+ 	if (acpi_target_system_state() == ACPI_STATE_S0)
 -- 
 2.20.1
 
