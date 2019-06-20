@@ -2,98 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE38A4DC88
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 23:29:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7904C4DC9D
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 23:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726293AbfFTV3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 17:29:40 -0400
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:41737 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725906AbfFTV3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 17:29:40 -0400
-Received: by mail-ed1-f66.google.com with SMTP id p15so6720660eds.8
-        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 14:29:39 -0700 (PDT)
+        id S1726138AbfFTVee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 17:34:34 -0400
+Received: from mail-eopbgr750091.outbound.protection.outlook.com ([40.107.75.91]:39758
+        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726008AbfFTVee (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 17:34:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=v3IpD3zOAyT/o3jFLveqYdHxVLapPS/YFt6LidFqVKU=;
-        b=KvOr4Sp+Id3A6XKZfDq0jaToh9hTpDvR4uHERHTmM5jYRInzJr41kiC9SoOmmDJhky
-         oWXqPY/lKaIz9THmlD7IH7YFcmC3tZDq/MG8PgXKGCf9XHFgOdbfcOfRn1VFfw/TeOoP
-         bFK/Xo6W9HJHbqyCJAlgYtMGuDNKG7dFjc43Q=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=v3IpD3zOAyT/o3jFLveqYdHxVLapPS/YFt6LidFqVKU=;
-        b=jUomFpOe3klF6Q5KKMjZoAU29zJF/ubUtCxzzmJOsY4LoakT6sHLZUiMcDPl2cuN2+
-         0U2dYydOwS7pvn/iIGP38ka4DeLMjbx9OOo0vkRDK8BYJn9ATr58g1HHGmEUXTwlsscB
-         VJmV/+5JDzQ8gtEK0E+JMxPNvVMrq824mtrrClrg7AFZQ94+zoKKEAY6bBWt4kn6S/rR
-         NYAWxsCbJ2Fxu34a0bJcm2PboK2AjDTG9L56MHKMZftyvHV+fZNZOALOe2tj7TuHmrXz
-         4BqnBEu08zxoQJpTpo5Dcbba7afpLV3c0oxiJmbvDz1fQOerS1aFZk5tc1XHM9CXxWQF
-         5zBg==
-X-Gm-Message-State: APjAAAUb/AinLfUe4yHmOIZKLRUXUQzlHdAkdorlBS+sZQ79b0BzktMt
-        T5nSdkBXGagnDEJSSkqsc2NiZgVtJMc=
-X-Google-Smtp-Source: APXvYqxKRyjfjhS6I2jkxdXiYyC+IiIXdIcX+X4PhnYHt7HmyJpu2L23UXzZiQ28pIBBs5pTgv/Vnw==
-X-Received: by 2002:a50:a56a:: with SMTP id z39mr64693236edb.107.1561066178382;
-        Thu, 20 Jun 2019 14:29:38 -0700 (PDT)
-Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com. [209.85.208.42])
-        by smtp.gmail.com with ESMTPSA id y11sm196079edj.96.2019.06.20.14.29.36
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Thu, 20 Jun 2019 14:29:37 -0700 (PDT)
-Received: by mail-ed1-f42.google.com with SMTP id w13so6773467eds.4
-        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 14:29:36 -0700 (PDT)
-X-Received: by 2002:a17:906:b315:: with SMTP id n21mr8174762ejz.312.1561066175899;
- Thu, 20 Jun 2019 14:29:35 -0700 (PDT)
+ d=wavesemi.onmicrosoft.com; s=selector1-wavesemi-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=E9drLOeHfcjuBmuT0pYMdpgQOVuKqTDh6DTw1qUcGrs=;
+ b=BZVg7dPlyVZQJ7dV71BzDIkWW4akL/uvRI0DR3MKQJRTfvhdMr4eoxThXxKNmyhp00LV/eBIMd31LeX+iP0WwAGQWA+s9ww29KgpEiAS+IgC5HfNcbtUZZJz7HfgtBeUuKZ/3KQj8nAztdGYfYghuHg+z9HkY5QyQM9PHwxsTIM=
+Received: from MWHPR2201MB1277.namprd22.prod.outlook.com (10.172.60.12) by
+ MWHPR2201MB1055.namprd22.prod.outlook.com (10.174.169.141) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1987.15; Thu, 20 Jun 2019 21:34:30 +0000
+Received: from MWHPR2201MB1277.namprd22.prod.outlook.com
+ ([fe80::6975:b632:c85b:9e40]) by MWHPR2201MB1277.namprd22.prod.outlook.com
+ ([fe80::6975:b632:c85b:9e40%2]) with mapi id 15.20.2008.007; Thu, 20 Jun 2019
+ 21:34:30 +0000
+From:   Paul Burton <paul.burton@mips.com>
+To:     "Hombourger, Cedric" <Cedric_Hombourger@mentor.com>
+CC:     Sasha Levin <sashal@kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] MIPS: have "plain" make calls build dtbs for selected
+ platforms
+Thread-Topic: [PATCH] MIPS: have "plain" make calls build dtbs for selected
+ platforms
+Thread-Index: AQHVIgBpf6BYLkAQw0aPbj6clwp5T6adO4kAgACh3B+ABltpAIAAyaOAgAATRgCAAAYngA==
+Date:   Thu, 20 Jun 2019 21:34:30 +0000
+Message-ID: <20190620213427.pavgu64cxhrsmuo7@pburton-laptop>
+References: <1560415970-844-1-git-send-email-Cedric_Hombourger@mentor.com>
+ <20190615221604.E6FB82183F@mail.kernel.org> <1560668291651.87711@mentor.com>
+ <1561017706300.81899@mentor.com>
+ <20190620200325.se6e6yicvlkjrb46@pburton-laptop>
+ <366B6D73-2DCF-49B6-80B2-B1FAD6C73580@mentor.com>
+In-Reply-To: <366B6D73-2DCF-49B6-80B2-B1FAD6C73580@mentor.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: BYAPR01CA0029.prod.exchangelabs.com (2603:10b6:a02:80::42)
+ To MWHPR2201MB1277.namprd22.prod.outlook.com (2603:10b6:301:18::12)
+user-agent: NeoMutt/20180716
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=pburton@wavecomp.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [73.93.153.114]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 6c09630a-74e9-4335-b8d3-08d6f5c71399
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:MWHPR2201MB1055;
+x-ms-traffictypediagnostic: MWHPR2201MB1055:
+x-microsoft-antispam-prvs: <MWHPR2201MB105538B038293D2C86DD6B58C1E40@MWHPR2201MB1055.namprd22.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-forefront-prvs: 0074BBE012
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(7916004)(396003)(39850400004)(366004)(346002)(376002)(136003)(189003)(199004)(476003)(26005)(1076003)(6116002)(3846002)(54906003)(6436002)(316002)(58126008)(11346002)(6486002)(6916009)(446003)(102836004)(44832011)(42882007)(6512007)(6506007)(486006)(66946007)(186003)(386003)(64756008)(73956011)(66476007)(53936002)(8936002)(66556008)(7736002)(99286004)(8676002)(71190400001)(6246003)(81166006)(4326008)(52116002)(81156014)(33716001)(66066001)(305945005)(9686003)(2906002)(14454004)(71200400001)(5660300002)(478600001)(25786009)(66446008)(76176011)(229853002)(256004)(68736007)(14444005);DIR:OUT;SFP:1102;SCL:1;SRVR:MWHPR2201MB1055;H:MWHPR2201MB1277.namprd22.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: wavecomp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: jcNgHf+cKZcGYhsV1zrKENiKuSNw3Am/O8b6QJ4CRRI+MVHWInjoL5R04tydLO4wHwbC6yBsvnlUSmZUNpRydahqzik+5GVKx2T5toGYr4Xaaw108mvKM5hQovqUlyim1VMgUVzH6+JbliQix+Gu5AsVDyIz4svppStN506rWxtLv9xW+EDlML1/ew9fekwNT5aZiF4beyTST65l7lgP0KDWADZim5/1NfTbz9V5UAlE+0TGHmYE1hLqv1CIQy1xlGiCbWwjNWkDAsxy0Buw+iU1aGMo5JY9WrFJ4wNCeS+zJKqXURxko5b80IymXsClUZi5k04inGLikZcZjf95ihcuGMsBk6QTGiN5DQcBt/lEckd7/u5dc5M6ucuQ2hlFROqkk26BIsIO+axjgTJ5nW2dLyTsr60OdSf8cyZeXTU=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <97B42FC4A6994C4AAA315BB4E5726C90@namprd22.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20190620151839.195506-1-zwisler@google.com> <20190620151839.195506-3-zwisler@google.com>
- <20190620212517.GC4650@mit.edu>
-In-Reply-To: <20190620212517.GC4650@mit.edu>
-From:   Ross Zwisler <zwisler@chromium.org>
-Date:   Thu, 20 Jun 2019 15:29:24 -0600
-X-Gmail-Original-Message-ID: <CAGRrVHw8LuMT7eTnJ4VV9OpnetSSYaLh5nLkN4Anevz6r8KmZA@mail.gmail.com>
-Message-ID: <CAGRrVHw8LuMT7eTnJ4VV9OpnetSSYaLh5nLkN4Anevz6r8KmZA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] jbd2: introduce jbd2_inode dirty range scoping
-To:     "Theodore Ts'o" <tytso@mit.edu>,
-        Ross Zwisler <zwisler@chromium.org>,
-        linux-kernel@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        Jan Kara <jack@suse.com>, linux-ext4@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-        Fletcher Woodruff <fletcherw@google.com>,
-        Justin TerAvest <teravest@google.com>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-OriginatorOrg: mips.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6c09630a-74e9-4335-b8d3-08d6f5c71399
+X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Jun 2019 21:34:30.5510
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 463607d3-1db3-40a0-8a29-970c56230104
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: pburton@wavecomp.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR2201MB1055
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 20, 2019 at 3:25 PM Theodore Ts'o <tytso@mit.edu> wrote:
-> On Thu, Jun 20, 2019 at 09:18:38AM -0600, Ross Zwisler wrote:
-> > diff --git a/include/linux/jbd2.h b/include/linux/jbd2.h
-> > index 5c04181b7c6d8..0e0393e7f41a4 100644
-> > --- a/include/linux/jbd2.h
-> > +++ b/include/linux/jbd2.h
-> > @@ -1397,6 +1413,12 @@ extern int        jbd2_journal_force_commit(journal_t *);
-> >  extern int      jbd2_journal_force_commit_nested(journal_t *);
-> >  extern int      jbd2_journal_inode_add_write(handle_t *handle, struct jbd2_inode *inode);
-> >  extern int      jbd2_journal_inode_add_wait(handle_t *handle, struct jbd2_inode *inode);
-> > +extern int      jbd2_journal_inode_ranged_write(handle_t *handle,
-> > +                     struct jbd2_inode *inode, loff_t start_byte,
-> > +                     loff_t length);
-> > +extern int      jbd2_journal_inode_ranged_wait(handle_t *handle,
-> > +                     struct jbd2_inode *inode, loff_t start_byte,
-> > +                     loff_t length);
-> >  extern int      jbd2_journal_begin_ordered_truncate(journal_t *journal,
-> >                               struct jbd2_inode *inode, loff_t new_size);
-> >  extern void     jbd2_journal_init_jbd_inode(struct jbd2_inode *jinode, struct inode *inode);
->
-> You're adding two new functions that are called from outside the jbd2
-> subsystem.  To support compiling jbd2 as a module, we also need to add
-> EXPORT_SYMBOL declarations for these two functions.
->
-> I'll take care of this when applying this change.
+Hi Cedric,
 
-Ah, yep, great catch.  Thanks!
+On Thu, Jun 20, 2019 at 09:12:26PM +0000, Hombourger, Cedric wrote:
+> Hello Paul,=20
+>=20
+> I will recheck tomorrow morning but the kernel I was initially working
+> with was 4.19 and I did not find dtbs being compiled from a plain make
+> or from builddeb=20
+
+Oh, sure - I don't expect they'd get built either. I did think builddeb
+would succeed without them though, but actually looking at history it
+would still fail for v4.1 through v4.19 because although builddeb
+checked for a dtbs_install target in the arch Makefile prior to the
+commit I mentioned before, we used to have one in those versions...
+
+So I'll mark your commit for backport as far as v4.1 where our
+dtbs_install target was introduced.
+
+The usual approach is that the patch goes into mainline first, and once
+that happens you can submit your backports for the stable branches where
+it doesn't apply cleanly. You should receive an email following the
+failed attempts to cherry-pick the commit onto the stable branches,
+which is often a good reminder to handle the backport.
+
+(PS. Top posting is frowned upon pretty much universally in the kernel
+     communify - I'd recommend switching your email reply style before
+     it draws too much attention ;) )
+
+Thanks,
+    Paul
