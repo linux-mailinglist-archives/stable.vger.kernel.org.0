@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FA8A4D795
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F8234D83F
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729337AbfFTSNy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:13:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41956 "EHLO mail.kernel.org"
+        id S1726966AbfFTSHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:07:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728909AbfFTSNw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:13:52 -0400
+        id S1728274AbfFTSHH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:07:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BA6121530;
-        Thu, 20 Jun 2019 18:13:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7463F204FD;
+        Thu, 20 Jun 2019 18:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054431;
-        bh=IxqxiMlvpXKFP286NRjzeIqo26A/KytFVKH6GK7ag1w=;
+        s=default; t=1561054027;
+        bh=jRb63u0flW0ZwiuAomKq5fUyu4kMUUlUDQbzoA90WyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xnN8CemNH3ctTsbjRcM5Vx4TMnTe+ZcNfS+5qyFAgcSzDfBNz/O8kWzW2d7ppLOWQ
-         ffcxij1e+qSHbYReyM65YkJoQLPTzLYugbLWyItUUElHtO0IYNDA4EtyDUEQqbMh6+
-         jFKizYzxNFy99+ItxGjr1/0w8SDfBeiDV/Ze/jAU=
+        b=CXhaqb76spZfqqLOoJRKQ3tB/oKB+OUlyyTxizaAb7+7RUueVHKaEAXrsDrc6cxSq
+         kdf2ij8ZCYXK6dP3NHpsbLF7ZkOZhGZwlaid3xjyQ4b5zH3/Pr3TlKKKMoyDDHHcs5
+         /n6dm9Kbt9QEUiXa3L5VvpwhkUjRoBDXpN6+J0wI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raed Salem <raeds@mellanox.com>,
-        Roi Dayan <roid@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.1 27/98] net/mlx5e: Fix source port matching in fdb peer flow rule
+        stable@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 080/117] KVM: s390: fix memory slot handling for KVM_SET_USER_MEMORY_REGION
 Date:   Thu, 20 Jun 2019 19:56:54 +0200
-Message-Id: <20190620174350.374992630@linuxfoundation.org>
+Message-Id: <20190620174357.159202946@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raed Salem <raeds@mellanox.com>
+[ Upstream commit 19ec166c3f39fe1d3789888a74cc95544ac266d4 ]
 
-The cited commit changed the initialization placement of the eswitch
-attributes so it is done prior to parse tc actions function call,
-including among others the in_rep and in_mdev fields which are mistakenly
-reassigned inside the parse actions function.
+kselftests exposed a problem in the s390 handling for memory slots.
+Right now we only do proper memory slot handling for creation of new
+memory slots. Neither MOVE, nor DELETION are handled properly. Let us
+implement those.
 
-This breaks the source port matching criteria of the peer redirect rule.
-
-Fix by removing the now redundant reassignment of the already initialized
-fields.
-
-Fixes: 988ab9c7363a ("net/mlx5e: Introduce mlx5e_flow_esw_attr_init() helper")
-Signed-off-by: Raed Salem <raeds@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |    3 ---
- 1 file changed, 3 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 35 +++++++++++++++++++++--------------
+ 1 file changed, 21 insertions(+), 14 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -2572,9 +2572,6 @@ static int parse_tc_fdb_actions(struct m
- 	if (!flow_action_has_entries(flow_action))
- 		return -EINVAL;
- 
--	attr->in_rep = rpriv->rep;
--	attr->in_mdev = priv->mdev;
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 2032ab81b2d7..07f571900676 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3288,21 +3288,28 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
+ 				const struct kvm_memory_slot *new,
+ 				enum kvm_mr_change change)
+ {
+-	int rc;
 -
- 	flow_action_for_each(i, act, flow_action) {
- 		switch (act->id) {
- 		case FLOW_ACTION_DROP:
+-	/* If the basics of the memslot do not change, we do not want
+-	 * to update the gmap. Every update causes several unnecessary
+-	 * segment translation exceptions. This is usually handled just
+-	 * fine by the normal fault handler + gmap, but it will also
+-	 * cause faults on the prefix page of running guest CPUs.
+-	 */
+-	if (old->userspace_addr == mem->userspace_addr &&
+-	    old->base_gfn * PAGE_SIZE == mem->guest_phys_addr &&
+-	    old->npages * PAGE_SIZE == mem->memory_size)
+-		return;
++	int rc = 0;
+ 
+-	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
+-		mem->guest_phys_addr, mem->memory_size);
++	switch (change) {
++	case KVM_MR_DELETE:
++		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
++					old->npages * PAGE_SIZE);
++		break;
++	case KVM_MR_MOVE:
++		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
++					old->npages * PAGE_SIZE);
++		if (rc)
++			break;
++		/* FALLTHROUGH */
++	case KVM_MR_CREATE:
++		rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
++				      mem->guest_phys_addr, mem->memory_size);
++		break;
++	case KVM_MR_FLAGS_ONLY:
++		break;
++	default:
++		WARN(1, "Unknown KVM MR CHANGE: %d\n", change);
++	}
+ 	if (rc)
+ 		pr_warn("failed to commit memory region\n");
+ 	return;
+-- 
+2.20.1
+
 
 
