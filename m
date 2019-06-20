@@ -2,77 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC5984CA49
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 11:08:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09D5C4CA65
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 11:13:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730504AbfFTJI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 05:08:29 -0400
-Received: from mx2.suse.de ([195.135.220.15]:42028 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725875AbfFTJI3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 05:08:29 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 515E1ACAE;
-        Thu, 20 Jun 2019 09:08:28 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 01F7C1E434D; Thu, 20 Jun 2019 11:08:27 +0200 (CEST)
-Date:   Thu, 20 Jun 2019 11:08:27 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Jan Kara <jack@suse.cz>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+10007d66ca02b08f0e60@syzkaller.appspotmail.com,
-        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.1 35/70] loop: Don't change loop device under
- exclusive opener
-Message-ID: <20190620090827.GJ13630@quack2.suse.cz>
-References: <20190608113950.8033-1-sashal@kernel.org>
- <20190608113950.8033-35-sashal@kernel.org>
- <20190610090013.GF12765@quack2.suse.cz>
- <20190619201136.GD2226@sasha-vm>
+        id S1726185AbfFTJNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 05:13:14 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:40159 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725889AbfFTJNL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 05:13:11 -0400
+Received: by mail-wm1-f68.google.com with SMTP id v19so2326100wmj.5;
+        Thu, 20 Jun 2019 02:13:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=wGXxJqECKz9cySdRUBaO0GlwWrE9CiX7wN8WQeEMVA4=;
+        b=jQ86ZolbYH3Y4/PH2mE8qNDk118/dnGikW9LBMwhxzPkZEs6N0I7T2ZBnUl/Me2Zhd
+         WAfyVmsVRzDGGrtxuSerIgtvu37yPW6x2NW5c/LVjE+Tl8oNnTPnWaxEqyC3wgO8gPpT
+         bnsitRR1WYRtNPJknEmItodaS3lJU1cl7b3sZtbQPVcC585Kl7hA2HLzSMFL2GLMlub2
+         zkIEdBOPRNMpR9czW3DzuXLvw1R5VE7ffPF5y2Iz6oUWHRlVimtio5NFLSUXldq/5tr+
+         miCi2IcXM+09i3OXe9C955ssP1L7prRhm1hmxkH4wteZt7olnhqsOzCLuLVXfzP1Xcnj
+         K1nA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=wGXxJqECKz9cySdRUBaO0GlwWrE9CiX7wN8WQeEMVA4=;
+        b=MU3Db0UDsNCKgvK3AoEi8Ife2piyjPUBXSvlGQBEMRMeQjDh36AHCyjmzn3OXTWF6E
+         do9UmoofMbxdK1qi6FdrBKhjSUdxlAVSMfmVFTr4W/ZnXZA6a13Ls9zYavt01kRoTDny
+         YnSi84mO1a1G5zYmMSEYeMIX07Ye3Fk7R/JdYiA8ufIYiAtyaTDpBqfOfnem7jmCDPP+
+         U4cZ5qK6Ku2lH2KgGHDyfzLIKq5DW61JelBDNojPj4veK0XA963EUvXLHsZiX7qYyW9G
+         4WnAjp8cGNh0EDt8Ifpo8eCteqThUKsQHj1LVgGCxjovk86a/ekwidVM1CHQzoHgCLf4
+         ZRwA==
+X-Gm-Message-State: APjAAAVGo9x6tuh3bQ8/Wbu7m+R7EnS5t+vgE6ylrI3f3rejCrZtT2/1
+        Bl+yL6SvgMCpB0xWXxDEZns=
+X-Google-Smtp-Source: APXvYqxdb65XWtl4WJaYkSAXJ0d5symvMDqq82VznzsRvUOCOO0R7Tcu7Or2GEc3v2auihHgZxk5cw==
+X-Received: by 2002:a1c:b6d4:: with SMTP id g203mr1967964wmf.19.1561021988879;
+        Thu, 20 Jun 2019 02:13:08 -0700 (PDT)
+Received: from localhost (p2E5BEF36.dip0.t-ipconnect.de. [46.91.239.54])
+        by smtp.gmail.com with ESMTPSA id 72sm17272000wrk.22.2019.06.20.02.13.07
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Thu, 20 Jun 2019 02:13:08 -0700 (PDT)
+Date:   Thu, 20 Jun 2019 11:13:07 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] arm64: tegra: Fix AGIC register range
+Message-ID: <20190620091307.GF26689@ulmo>
+References: <20190620081702.17209-1-jonathanh@nvidia.com>
+ <20190620081702.17209-2-jonathanh@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="5CUMAwwhRxlRszMD"
 Content-Disposition: inline
-In-Reply-To: <20190619201136.GD2226@sasha-vm>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190620081702.17209-2-jonathanh@nvidia.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 19-06-19 16:11:36, Sasha Levin wrote:
-> On Mon, Jun 10, 2019 at 11:00:13AM +0200, Jan Kara wrote:
-> > On Sat 08-06-19 07:39:14, Sasha Levin wrote:
-> > > From: Jan Kara <jack@suse.cz>
-> > > 
-> > > [ Upstream commit 33ec3e53e7b1869d7851e59e126bdb0fe0bd1982 ]
-> > 
-> > Please don't push this to stable kernels because...
-> 
-> I've dropped this, but...
 
-OK, thanks.
+--5CUMAwwhRxlRszMD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > > [Deliberately chosen not to CC stable as a user with priviledges to
-> > > trigger this race has other means of taking the system down and this
-> > > has a potential of breaking some weird userspace setup]
-> > 
-> > ... of this. Thanks!
-> 
-> Can't this be triggered by an "innocent" user, rather as part of an
-> attack? Why can't this race happen during regular usage?
+On Thu, Jun 20, 2019 at 09:17:00AM +0100, Jon Hunter wrote:
+> The Tegra AGIC interrupt controller is an ARM GIC400 interrupt
+> controller. Per the ARM GIC device-tree binding, the first address
+> region is for the GIC distributor registers and the second address
+> region is for the GIC CPU interface registers. The address space for
+> the distributor registers is 4kB, but currently this is incorrectly
+> defined as 8kB for the Tegra AGIC and overlaps with the CPU interface
+> registers. Correct the address space for the distributor to be 4kB.
+>=20
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+> ---
+>  arch/arm64/boot/dts/nvidia/tegra210.dtsi | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Well, the problem happens when mount happens on loop device when someone
-modifies the backing file of the loop device. So for this to be
-triggerable, you have to have control over assignment of backing files to
-loop devices (you have to be owner of these loop devices to be able to do
-this - pretty much means root in most setups) and be able to trigger mount
-on this device. If you have these capabilities, there are much more
-efficient ways to gain full administrator priviledges on the system,
-deadlocking the kernel is thus the least of your worries.
+Applied to for-5.3/arm64/dt, though I also added the following Fixes:
+line:
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Fixes: bcdbde433542 ("arm64: tegra: Add AGIC node for Tegra210")
+
+Thanks,
+Thierry
+
+--5CUMAwwhRxlRszMD
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl0LTiIACgkQ3SOs138+
+s6GY4w/+MMaim+cU/P4jt3haccBqVOz26dTGf4DqXEF/agrQwv0CwCOuwWjUxzLY
+enl2a+nzqXC6UwHRetCeL+En/ul0nbmF8+4OptO+gFd5t6E2T+bcV6KeV7DxrfMp
+uTWAwiQctbDqJjRJ2dv1weTTfbpC/hEtd4VmbPW7R62z5FEC+EmUcOFbIQql3XuK
+6No6LVFDiCvV+8p4zHpbNEmfm/glVzsoV/CjS/rGVszfGteG1+dNX2gt5ASuxjFB
+5XyN9z2NSzkQat9sMKMk56EY1xC+HuHi5ZlZboReTxf9wq/3rpofyalMoeWcm4RV
+rzNWNXU5yWoII8L4CR80WsGV4BphyklkzFUgC61Z7MXu/STIGrTPB3U9vbJdBNov
+kidAGdL1u+ya9cvrBB3St+G9P+rsYIGAgZY0yePBTlXRSUYbYkfSiyiKiDVdE1LM
+riiaB4gqMpxchLlY0AcUf0gGep+1z+eOTmKng2EmEbSAF1D3WW7r48EMyctvhRo/
+3jHaWe3K8uzYVT3eYANyAWK3pacyWFPjVSZTbFJ9taLZIKsKXj7LQrclZGZ79NvN
+QOxbQepxdHyMgJ+ZeueB+vbspaMpcmAfNhrcmlZ9oeFU2EDTjqCJfy4Tw8yEaKwn
+zK39Mhin/EY8vr76fV8k2Oz644MiCxV4zyz31F/b+TRisRf7AI4=
+=Gdxk
+-----END PGP SIGNATURE-----
+
+--5CUMAwwhRxlRszMD--
