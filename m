@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0174D6F8
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:14:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2944D831
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729187AbfFTSOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:14:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42690 "EHLO mail.kernel.org"
+        id S1728474AbfFTSI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:08:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728962AbfFTSOY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:14:24 -0400
+        id S1728281AbfFTSIZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:08:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65CEB205F4;
-        Thu, 20 Jun 2019 18:14:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DECFD2089C;
+        Thu, 20 Jun 2019 18:08:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054463;
-        bh=VqzwzHHbmfYIgfW2lSoHJXCgE3kN9UfqUcUCgn0i6Ds=;
+        s=default; t=1561054104;
+        bh=/SYrF4igYH9DXu7t6onqiM2r0S/NibwYcqITNb3Z4Us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GgtF71D25WrlgNXTD+gBKNe0JL5CPy9Lpas3IBQDxO/Mbk99Kjg3VMU43vHeZQsZj
-         0uy7VZkeqpYgUDFMtcqV6gUcwucjDkg0sAO65OU9nyxYtZVvS4jDlbhX9KewTESMBB
-         gy5TB+wiboiPo8nvr49m3KJ1MYTqDRVAHY63GGEg=
+        b=Vj+0UHHhYfo4UzLi2/Ng7CkmUq6rx3fAImBAzLzJQpTp5ivzLu5eW3c38JY6q7Wdf
+         qdUXBnOXonq1nardcm6Db7VYhNQCBo3dubWTn16sORidDQRU67GJ/RkPzINjITLFt6
+         nAKKf8IZPyde+8CGNIPwuLGwK/wEzqDWS+4RuNHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 37/98] netfilter: nf_tables: fix oops during rule dump
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 02/45] ax25: fix inconsistent lock state in ax25_destroy_timer
 Date:   Thu, 20 Jun 2019 19:57:04 +0200
-Message-Id: <20190620174350.778751666@linuxfoundation.org>
+Message-Id: <20190620174329.954085990@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
+References: <20190620174328.608036501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,109 +44,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2c82c7e724ff51cab78e1afd5c2aaa31994fe41e ]
+From: Eric Dumazet <edumazet@google.com>
 
-We can oops in nf_tables_fill_rule_info().
+[ Upstream commit d4d5d8e83c9616aeef28a2869cea49cc3fb35526 ]
 
-Its not possible to fetch previous element in rcu-protected lists
-when deletions are not prevented somehow: list_del_rcu poisons
-the ->prev pointer value.
+Before thread in process context uses bh_lock_sock()
+we must disable bh.
 
-Before rcu-conversion this was safe as dump operations did hold
-nfnetlink mutex.
+sysbot reported :
 
-Pass previous rule as argument, obtained by keeping a pointer to
-the previous rule during traversal.
+WARNING: inconsistent lock state
+5.2.0-rc3+ #32 Not tainted
 
-Fixes: d9adf22a291883 ("netfilter: nf_tables: use call_rcu in netlink dumps")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
+blkid/26581 [HC0[0]:SC1[1]:HE1:SE0] takes:
+00000000e0da85ee (slock-AF_AX25){+.?.}, at: spin_lock include/linux/spinlock.h:338 [inline]
+00000000e0da85ee (slock-AF_AX25){+.?.}, at: ax25_destroy_timer+0x53/0xc0 net/ax25/af_ax25.c:275
+{SOFTIRQ-ON-W} state was registered at:
+  lock_acquire+0x16f/0x3f0 kernel/locking/lockdep.c:4303
+  __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
+  _raw_spin_lock+0x2f/0x40 kernel/locking/spinlock.c:151
+  spin_lock include/linux/spinlock.h:338 [inline]
+  ax25_rt_autobind+0x3ca/0x720 net/ax25/ax25_route.c:429
+  ax25_connect.cold+0x30/0xa4 net/ax25/af_ax25.c:1221
+  __sys_connect+0x264/0x330 net/socket.c:1834
+  __do_sys_connect net/socket.c:1845 [inline]
+  __se_sys_connect net/socket.c:1842 [inline]
+  __x64_sys_connect+0x73/0xb0 net/socket.c:1842
+  do_syscall_64+0xfd/0x680 arch/x86/entry/common.c:301
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+irq event stamp: 2272
+hardirqs last  enabled at (2272): [<ffffffff810065f3>] trace_hardirqs_on_thunk+0x1a/0x1c
+hardirqs last disabled at (2271): [<ffffffff8100660f>] trace_hardirqs_off_thunk+0x1a/0x1c
+softirqs last  enabled at (1522): [<ffffffff87400654>] __do_softirq+0x654/0x94c kernel/softirq.c:320
+softirqs last disabled at (2267): [<ffffffff81449010>] invoke_softirq kernel/softirq.c:374 [inline]
+softirqs last disabled at (2267): [<ffffffff81449010>] irq_exit+0x180/0x1d0 kernel/softirq.c:414
+
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(slock-AF_AX25);
+  <Interrupt>
+    lock(slock-AF_AX25);
+
+ *** DEADLOCK ***
+
+1 lock held by blkid/26581:
+ #0: 0000000010fd154d ((&ax25->dtimer)){+.-.}, at: lockdep_copy_map include/linux/lockdep.h:175 [inline]
+ #0: 0000000010fd154d ((&ax25->dtimer)){+.-.}, at: call_timer_fn+0xe0/0x720 kernel/time/timer.c:1312
+
+stack backtrace:
+CPU: 1 PID: 26581 Comm: blkid Not tainted 5.2.0-rc3+ #32
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+ print_usage_bug.cold+0x393/0x4a2 kernel/locking/lockdep.c:2935
+ valid_state kernel/locking/lockdep.c:2948 [inline]
+ mark_lock_irq kernel/locking/lockdep.c:3138 [inline]
+ mark_lock+0xd46/0x1370 kernel/locking/lockdep.c:3513
+ mark_irqflags kernel/locking/lockdep.c:3391 [inline]
+ __lock_acquire+0x159f/0x5490 kernel/locking/lockdep.c:3745
+ lock_acquire+0x16f/0x3f0 kernel/locking/lockdep.c:4303
+ __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
+ _raw_spin_lock+0x2f/0x40 kernel/locking/spinlock.c:151
+ spin_lock include/linux/spinlock.h:338 [inline]
+ ax25_destroy_timer+0x53/0xc0 net/ax25/af_ax25.c:275
+ call_timer_fn+0x193/0x720 kernel/time/timer.c:1322
+ expire_timers kernel/time/timer.c:1366 [inline]
+ __run_timers kernel/time/timer.c:1685 [inline]
+ __run_timers kernel/time/timer.c:1653 [inline]
+ run_timer_softirq+0x66f/0x1740 kernel/time/timer.c:1698
+ __do_softirq+0x25c/0x94c kernel/softirq.c:293
+ invoke_softirq kernel/softirq.c:374 [inline]
+ irq_exit+0x180/0x1d0 kernel/softirq.c:414
+ exiting_irq arch/x86/include/asm/apic.h:536 [inline]
+ smp_apic_timer_interrupt+0x13b/0x550 arch/x86/kernel/apic/apic.c:1068
+ apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:806
+ </IRQ>
+RIP: 0033:0x7f858d5c3232
+Code: 8b 61 08 48 8b 84 24 d8 00 00 00 4c 89 44 24 28 48 8b ac 24 d0 00 00 00 4c 8b b4 24 e8 00 00 00 48 89 7c 24 68 48 89 4c 24 78 <48> 89 44 24 58 8b 84 24 e0 00 00 00 89 84 24 84 00 00 00 8b 84 24
+RSP: 002b:00007ffcaf0cf5c0 EFLAGS: 00000206 ORIG_RAX: ffffffffffffff13
+RAX: 00007f858d7d27a8 RBX: 00007f858d7d8820 RCX: 00007f858d3940d8
+RDX: 00007ffcaf0cf798 RSI: 00000000f5e616f3 RDI: 00007f858d394fee
+RBP: 0000000000000000 R08: 00007ffcaf0cf780 R09: 00007f858d7db480
+R10: 0000000000000000 R11: 0000000009691a75 R12: 0000000000000005
+R13: 00000000f5e616f3 R14: 0000000000000000 R15: 00007ffcaf0cf798
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ net/ax25/ax25_route.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index aa5e7b00a581..101975386547 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -2261,13 +2261,13 @@ static int nf_tables_fill_rule_info(struct sk_buff *skb, struct net *net,
- 				    u32 flags, int family,
- 				    const struct nft_table *table,
- 				    const struct nft_chain *chain,
--				    const struct nft_rule *rule)
-+				    const struct nft_rule *rule,
-+				    const struct nft_rule *prule)
- {
- 	struct nlmsghdr *nlh;
- 	struct nfgenmsg *nfmsg;
- 	const struct nft_expr *expr, *next;
- 	struct nlattr *list;
--	const struct nft_rule *prule;
- 	u16 type = nfnl_msg_type(NFNL_SUBSYS_NFTABLES, event);
- 
- 	nlh = nlmsg_put(skb, portid, seq, type, sizeof(struct nfgenmsg), flags);
-@@ -2287,8 +2287,7 @@ static int nf_tables_fill_rule_info(struct sk_buff *skb, struct net *net,
- 			 NFTA_RULE_PAD))
- 		goto nla_put_failure;
- 
--	if ((event != NFT_MSG_DELRULE) && (rule->list.prev != &chain->rules)) {
--		prule = list_prev_entry(rule, list);
-+	if (event != NFT_MSG_DELRULE && prule) {
- 		if (nla_put_be64(skb, NFTA_RULE_POSITION,
- 				 cpu_to_be64(prule->handle),
- 				 NFTA_RULE_PAD))
-@@ -2335,7 +2334,7 @@ static void nf_tables_rule_notify(const struct nft_ctx *ctx,
- 
- 	err = nf_tables_fill_rule_info(skb, ctx->net, ctx->portid, ctx->seq,
- 				       event, 0, ctx->family, ctx->table,
--				       ctx->chain, rule);
-+				       ctx->chain, rule, NULL);
- 	if (err < 0) {
- 		kfree_skb(skb);
- 		goto err;
-@@ -2360,12 +2359,13 @@ static int __nf_tables_dump_rules(struct sk_buff *skb,
- 				  const struct nft_chain *chain)
- {
- 	struct net *net = sock_net(skb->sk);
-+	const struct nft_rule *rule, *prule;
- 	unsigned int s_idx = cb->args[0];
--	const struct nft_rule *rule;
- 
-+	prule = NULL;
- 	list_for_each_entry_rcu(rule, &chain->rules, list) {
- 		if (!nft_is_active(net, rule))
--			goto cont;
-+			goto cont_skip;
- 		if (*idx < s_idx)
- 			goto cont;
- 		if (*idx > s_idx) {
-@@ -2377,11 +2377,13 @@ static int __nf_tables_dump_rules(struct sk_buff *skb,
- 					NFT_MSG_NEWRULE,
- 					NLM_F_MULTI | NLM_F_APPEND,
- 					table->family,
--					table, chain, rule) < 0)
-+					table, chain, rule, prule) < 0)
- 			return 1;
- 
- 		nl_dump_check_consistent(cb, nlmsg_hdr(skb));
- cont:
-+		prule = rule;
-+cont_skip:
- 		(*idx)++;
+--- a/net/ax25/ax25_route.c
++++ b/net/ax25/ax25_route.c
+@@ -443,9 +443,11 @@ int ax25_rt_autobind(ax25_cb *ax25, ax25
  	}
- 	return 0;
-@@ -2537,7 +2539,7 @@ static int nf_tables_getrule(struct net *net, struct sock *nlsk,
  
- 	err = nf_tables_fill_rule_info(skb2, net, NETLINK_CB(skb).portid,
- 				       nlh->nlmsg_seq, NFT_MSG_NEWRULE, 0,
--				       family, table, chain, rule);
-+				       family, table, chain, rule, NULL);
- 	if (err < 0)
- 		goto err;
+ 	if (ax25->sk != NULL) {
++		local_bh_disable();
+ 		bh_lock_sock(ax25->sk);
+ 		sock_reset_flag(ax25->sk, SOCK_ZAPPED);
+ 		bh_unlock_sock(ax25->sk);
++		local_bh_enable();
+ 	}
  
--- 
-2.20.1
-
+ put:
 
 
