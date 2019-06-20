@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE7364D7DD
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C24374D756
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:18:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728877AbfFTSMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:12:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40028 "EHLO mail.kernel.org"
+        id S1729581AbfFTSRx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:17:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728689AbfFTSMN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:12:13 -0400
+        id S1729751AbfFTSRd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:17:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D37A52070B;
-        Thu, 20 Jun 2019 18:12:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53ED4205F4;
+        Thu, 20 Jun 2019 18:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054333;
-        bh=aFBehdYRciLSJKafsb5y0VEz0EYr9uZ8mMN3bksJzoI=;
+        s=default; t=1561054652;
+        bh=FNNY4z0fWNTg2RzTbJOuQrUVa1cKqXAWH9utYhcXyvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dj6VKHDbIByJNTqkmC6eGrp8kkZuOw9Rtc9DeS4qlVRPTsQ6Ixc5CaNK+9+vo8Z4u
-         v9JSKElc8/XoS0OLEA3OM7xzDIy4vdQ6rLZL/FQpX32LIf2cZaMs0ZY6243ZMOJCto
-         EoLRX+iSmY3e3bhgdTO4ZNRWTSOwrezgnpMaWYkE=
+        b=bSYHoC/q6nFEHtWW7Q31I2Mz0P8B7/w7mhFzOCUTLjgutbfbPlVzcu0lmP9DW3LCt
+         vGVJSU6QAUa8Uf9y6L8zx8JNt75azVQnXgfpD/L7VPiXmuJ/HFETrY/16pHeYecWZ+
+         WHEprz3RMoEM0k7958cC7dZ3PP7uqNmstKdZE3Y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 54/61] scsi: libcxgbi: add a check for NULL pointer in cxgbi_check_route()
-Date:   Thu, 20 Jun 2019 19:57:49 +0200
-Message-Id: <20190620174346.629683659@linuxfoundation.org>
+        stable@vger.kernel.org, Jes Sorensen <jsorensen@fb.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 83/98] blk-mq: Fix memory leak in error handling
+Date:   Thu, 20 Jun 2019 19:57:50 +0200
+Message-Id: <20190620174353.494201302@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cc555759117e8349088e0c5d19f2f2a500bafdbd ]
+[ Upstream commit 41de54c64811bf087c8464fdeb43c6ad8be2686b ]
 
-ip_dev_find() can return NULL so add a check for NULL pointer.
+If blk_mq_init_allocated_queue() fails, make sure to free the poll
+stat callback struct allocated.
 
-Signed-off-by: Varun Prakash <varun@chelsio.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Jes Sorensen <jsorensen@fb.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/cxgbi/libcxgbi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ block/blk-mq.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/cxgbi/libcxgbi.c b/drivers/scsi/cxgbi/libcxgbi.c
-index f2c561ca731a..cd2c247d6d0c 100644
---- a/drivers/scsi/cxgbi/libcxgbi.c
-+++ b/drivers/scsi/cxgbi/libcxgbi.c
-@@ -641,6 +641,10 @@ cxgbi_check_route(struct sockaddr *dst_addr, int ifindex)
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 11efca3534ad..00b826399228 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2846,7 +2846,7 @@ struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
+ 		goto err_exit;
  
- 	if (ndev->flags & IFF_LOOPBACK) {
- 		ndev = ip_dev_find(&init_net, daddr->sin_addr.s_addr);
-+		if (!ndev) {
-+			err = -ENETUNREACH;
-+			goto rel_neigh;
-+		}
- 		mtu = ndev->mtu;
- 		pr_info("rt dev %s, loopback -> %s, mtu %u.\n",
- 			n->dev->name, ndev->name, mtu);
+ 	if (blk_mq_alloc_ctxs(q))
+-		goto err_exit;
++		goto err_poll;
+ 
+ 	/* init q->mq_kobj and sw queues' kobjects */
+ 	blk_mq_sysfs_init(q);
+@@ -2907,6 +2907,9 @@ struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
+ 	kfree(q->queue_hw_ctx);
+ err_sys_init:
+ 	blk_mq_sysfs_deinit(q);
++err_poll:
++	blk_stat_free_callback(q->poll_cb);
++	q->poll_cb = NULL;
+ err_exit:
+ 	q->mq_ops = NULL;
+ 	return ERR_PTR(-ENOMEM);
 -- 
 2.20.1
 
