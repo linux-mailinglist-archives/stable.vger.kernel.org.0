@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 502424D6CE
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:12:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B72944D74F
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:18:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728709AbfFTSMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:12:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40084 "EHLO mail.kernel.org"
+        id S1729325AbfFTSRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:17:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726728AbfFTSMR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:12:17 -0400
+        id S1729951AbfFTSRg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:17:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 084BD2084E;
-        Thu, 20 Jun 2019 18:12:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20F9D205F4;
+        Thu, 20 Jun 2019 18:17:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054336;
-        bh=mmKY/OogbVB4LITLKwUTZyi18QtBldDAFDfIpqEGvzY=;
+        s=default; t=1561054655;
+        bh=UYULzn93A56phEQURk35RZhM5uJHEBZUBnFkb6r3RXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GIWZ9oWT0R3ElOfP6s4saiZWbPIitmt7yDmxg5JOuFAod6p7LpaECDKdyyUeqyPic
-         CzzQ4i360VsHLq4llMPFATJvuwexFgBmLi569XPpWDHDR1LQUlnuYEDWsZECxS0e68
-         qxXdYDq2I9fU1IQPqpIrUhTMLUW7rVxebdnACVqw=
+        b=U+3AbsNOzaFvDBJbHhPU9+7Jq83Rkt3wguZmWpllnRGn/QpUVZdu4qDUrlz3a4gJs
+         Fu4ma/9abqxbqCY48Uz9CtgHw0hg7kEfe7F1QJsXbA4Jul//R1lTU31eyMKcfEAPHk
+         Aabajr/YbjpSy48CcKD4ns3Vbuu0MKTW9mj6TJkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lianbo Jiang <lijiang@redhat.com>,
-        Don Brace <don.brace@microsemi.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 55/61] scsi: smartpqi: properly set both the DMA mask and the coherent DMA mask
-Date:   Thu, 20 Jun 2019 19:57:50 +0200
-Message-Id: <20190620174346.809959668@linuxfoundation.org>
+Subject: [PATCH 5.1 84/98] net: phylink: ensure consistent phy interface mode
+Date:   Thu, 20 Jun 2019 19:57:51 +0200
+Message-Id: <20190620174353.556736178@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1d94f06e7f5df4064ef336b7b710f50143b64a53 ]
+[ Upstream commit c678726305b9425454be7c8a7624290b602602fc ]
 
-When SME is enabled, the smartpqi driver won't work on the HP DL385 G10
-machine, which causes the failure of kernel boot because it fails to
-allocate pqi error buffer. Please refer to the kernel log:
-....
-[    9.431749] usbcore: registered new interface driver uas
-[    9.441524] Microsemi PQI Driver (v1.1.4-130)
-[    9.442956] i40e 0000:04:00.0: fw 6.70.48768 api 1.7 nvm 10.2.5
-[    9.447237] smartpqi 0000:23:00.0: Microsemi Smart Family Controller found
-         Starting dracut initqueue hook...
-[  OK  ] Started Show Plymouth Boot Scre[    9.471654] Broadcom NetXtreme-C/E driver bnxt_en v1.9.1
-en.
-[  OK  ] Started Forward Password Requests to Plymouth Directory Watch.
-[[0;[    9.487108] smartpqi 0000:23:00.0: failed to allocate PQI error buffer
-....
-[  139.050544] dracut-initqueue[949]: Warning: dracut-initqueue timeout - starting timeout scripts
-[  139.589779] dracut-initqueue[949]: Warning: dracut-initqueue timeout - starting timeout scripts
+Ensure that we supply the same phy interface mode to mac_link_down() as
+we did for the corresponding mac_link_up() call.  This ensures that MAC
+drivers that use the phy interface mode in these methods can depend on
+mac_link_down() always corresponding to a mac_link_up() call for the
+same interface mode.
 
-Basically, the fact that the coherent DMA mask value wasn't set caused the
-driver to fall back to SWIOTLB when SME is active.
-
-For correct operation, lets call the dma_set_mask_and_coherent() to
-properly set the mask for both streaming and coherent, in order to inform
-the kernel about the devices DMA addressing capabilities.
-
-Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
-Acked-by: Don Brace <don.brace@microsemi.com>
-Tested-by: Don Brace <don.brace@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/phylink.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index 3781e8109dd7..411d656f2530 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -6378,7 +6378,7 @@ static int pqi_pci_init(struct pqi_ctrl_info *ctrl_info)
- 	else
- 		mask = DMA_BIT_MASK(32);
+diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
+index d8f919fe49fd..507baa10ec70 100644
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -51,6 +51,10 @@ struct phylink {
  
--	rc = dma_set_mask(&ctrl_info->pci_dev->dev, mask);
-+	rc = dma_set_mask_and_coherent(&ctrl_info->pci_dev->dev, mask);
- 	if (rc) {
- 		dev_err(&ctrl_info->pci_dev->dev, "failed to set DMA mask\n");
- 		goto disable_device;
+ 	/* The link configuration settings */
+ 	struct phylink_link_state link_config;
++
++	/* The current settings */
++	phy_interface_t cur_interface;
++
+ 	struct gpio_desc *link_gpio;
+ 	struct timer_list link_poll;
+ 	void (*get_fixed_state)(struct net_device *dev,
+@@ -453,12 +457,12 @@ static void phylink_resolve(struct work_struct *w)
+ 		if (!link_state.link) {
+ 			netif_carrier_off(ndev);
+ 			pl->ops->mac_link_down(ndev, pl->link_an_mode,
+-					       pl->phy_state.interface);
++					       pl->cur_interface);
+ 			netdev_info(ndev, "Link is Down\n");
+ 		} else {
++			pl->cur_interface = link_state.interface;
+ 			pl->ops->mac_link_up(ndev, pl->link_an_mode,
+-					     pl->phy_state.interface,
+-					     pl->phydev);
++					     pl->cur_interface, pl->phydev);
+ 
+ 			netif_carrier_on(ndev);
+ 
 -- 
 2.20.1
 
