@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B3C34D793
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB2DD4D6A1
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:10:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729431AbfFTSOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:14:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42562 "EHLO mail.kernel.org"
+        id S1728388AbfFTSKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:10:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729426AbfFTSOT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:14:19 -0400
+        id S1728799AbfFTSKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:10:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91857205F4;
-        Thu, 20 Jun 2019 18:14:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9FAC2082C;
+        Thu, 20 Jun 2019 18:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054458;
-        bh=qaolnFThAXRJh7xb80Fx8IN+cYUOpdIQLpeqRO5twEI=;
+        s=default; t=1561054220;
+        bh=SjfTpmvzvuQZ9JZgKZvtzkAgoLB4u3yXSE2feqq0kUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mipC7RZ7lqNgX6Zm6YC7Xh9fG0Fh3Xa7w5h2it3OClf2G1I4eegqNXS2cqLU8fyQM
-         gBxK9CD+fsZs4UAfuBQCgEMqMIVrzvaJKRKun0zG63qv2O6VkOd5cejvPZbPq0r2+O
-         jnTtN/LoxD3z20aLWlmqsnScjOFpMSasuHxLvw/I=
+        b=skm4ODibmPXABGUdekoFOZ7G2orcr9/iECBeveWCggQ35tLQOexXQ1L7dlc2T5EqG
+         sT1hRJSPfQBgjxts54dsWE/J7kimDCnrSDVz7jc6NcPa00sNgq8QnPJLCXG7KMNKex
+         GNhfFYUUJWEn2JukpZRp4qBzfiMENtniYsLSwXnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 35/98] staging: wilc1000: Fix some double unlock bugs in wilc_wlan_cleanup()
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 07/61] net: dsa: rtl8366: Fix up VLAN filtering
 Date:   Thu, 20 Jun 2019 19:57:02 +0200
-Message-Id: <20190620174350.685315646@linuxfoundation.org>
+Message-Id: <20190620174338.691124752@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fea69916360468e364a4988db25a5afa835f3406 ]
+From: Linus Walleij <linus.walleij@linaro.org>
 
-If ->hif_read_reg() or ->hif_write_reg() fail then the code unlocks
-and keeps executing.  It should just return.
+[ Upstream commit 760c80b70bed2cd01630e8595d1bbde910339f31 ]
 
-Fixes: c5c77ba18ea6 ("staging: wilc1000: Add SDIO/SPI 802.11 driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+We get this regression when using RTL8366RB as part of a bridge
+with OpenWrt:
+
+WARNING: CPU: 0 PID: 1347 at net/switchdev/switchdev.c:291
+	 switchdev_port_attr_set_now+0x80/0xa4
+lan0: Commit of attribute (id=7) failed.
+(...)
+realtek-smi switch lan0: failed to initialize vlan filtering on this port
+
+This is because it is trying to disable VLAN filtering
+on VLAN0, as we have forgot to add 1 to the port number
+to get the right VLAN in rtl8366_vlan_filtering(): when
+we initialize the VLAN we associate VLAN1 with port 0,
+VLAN2 with port 1 etc, so we need to add 1 to the port
+offset.
+
+Fixes: d8652956cf37 ("net: dsa: realtek-smi: Add Realtek SMI driver")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wilc1000/wilc_wlan.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/dsa/rtl8366.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/wilc1000/wilc_wlan.c b/drivers/staging/wilc1000/wilc_wlan.c
-index c2389695fe20..70b1ab21f8a3 100644
---- a/drivers/staging/wilc1000/wilc_wlan.c
-+++ b/drivers/staging/wilc1000/wilc_wlan.c
-@@ -1076,13 +1076,17 @@ void wilc_wlan_cleanup(struct net_device *dev)
- 	acquire_bus(wilc, WILC_BUS_ACQUIRE_AND_WAKEUP);
+--- a/drivers/net/dsa/rtl8366.c
++++ b/drivers/net/dsa/rtl8366.c
+@@ -307,7 +307,8 @@ int rtl8366_vlan_filtering(struct dsa_sw
+ 	struct rtl8366_vlan_4k vlan4k;
+ 	int ret;
  
- 	ret = wilc->hif_func->hif_read_reg(wilc, WILC_GP_REG_0, &reg);
--	if (!ret)
-+	if (!ret) {
- 		release_bus(wilc, WILC_BUS_RELEASE_ALLOW_SLEEP);
-+		return;
-+	}
+-	if (!smi->ops->is_vlan_valid(smi, port))
++	/* Use VLAN nr port + 1 since VLAN0 is not valid */
++	if (!smi->ops->is_vlan_valid(smi, port + 1))
+ 		return -EINVAL;
  
- 	ret = wilc->hif_func->hif_write_reg(wilc, WILC_GP_REG_0,
- 					(reg | ABORT_INT));
--	if (!ret)
-+	if (!ret) {
- 		release_bus(wilc, WILC_BUS_RELEASE_ALLOW_SLEEP);
-+		return;
-+	}
+ 	dev_info(smi->dev, "%s filtering on port %d\n",
+@@ -318,12 +319,12 @@ int rtl8366_vlan_filtering(struct dsa_sw
+ 	 * The hardware support filter ID (FID) 0..7, I have no clue how to
+ 	 * support this in the driver when the callback only says on/off.
+ 	 */
+-	ret = smi->ops->get_vlan_4k(smi, port, &vlan4k);
++	ret = smi->ops->get_vlan_4k(smi, port + 1, &vlan4k);
+ 	if (ret)
+ 		return ret;
  
- 	release_bus(wilc, WILC_BUS_RELEASE_ALLOW_SLEEP);
- 	wilc->hif_func->hif_deinit(NULL);
--- 
-2.20.1
-
+ 	/* Just set the filter to FID 1 for now then */
+-	ret = rtl8366_set_vlan(smi, port,
++	ret = rtl8366_set_vlan(smi, port + 1,
+ 			       vlan4k.member,
+ 			       vlan4k.untag,
+ 			       1);
 
 
