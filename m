@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9BF94D705
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97D4D4D875
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726485AbfFTSPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:15:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43686 "EHLO mail.kernel.org"
+        id S1726687AbfFTS0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:26:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729537AbfFTSPF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:15:05 -0400
+        id S1728076AbfFTSFq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:05:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10F9721655;
-        Thu, 20 Jun 2019 18:15:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B6D3215EA;
+        Thu, 20 Jun 2019 18:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054504;
-        bh=7Jwudyk8gLrRqbOd0GnOM9PbiioVLQlwYWYtl1inm6Y=;
+        s=default; t=1561053946;
+        bh=e2nZU217aUWFTWDMd16QQVgHs+P9wdQvvC9J69tTyhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7ebzLXkeYWfWJfzBVXE9y2pJFtjelgaOvSCDpUbNEDgmtGJZgsxBqR04klMniltI
-         RtlfJNyJPmOFHt96Ji7tVNZ5WxFu83rcL/bAhRiZ5M18n8YMGORCMI6ES7+YZwJ0D/
-         JkmGpa12j6sjvkXeq93/74L66FnXBz7FtKdnY7qs=
+        b=mzOSPmHyBujuNNso6nuOzGeHgi5tIqNp+CWfC9pV9FO+oa/szRIc7fiqDdpnVhroZ
+         Z+wgCZcjWt0fuoZXriFlgvKqz+Gx5KK3Yf1IfbubwU/QQ8vNWMSDl4MokYUVyaUNe5
+         RkIvR5nQMlgulgSi7naIAOS20Mzn2GIVRJkTyuJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Maxime Chevallier <maxime.chevallier@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 22/98] net: ethtool: Allow matching on vlan DEI bit
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 075/117] arm64/mm: Inhibit huge-vmap with ptdump
 Date:   Thu, 20 Jun 2019 19:56:49 +0200
-Message-Id: <20190620174350.214938409@linuxfoundation.org>
+Message-Id: <20190620174357.017502121@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +47,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Chevallier <maxime.chevallier@bootlin.com>
+[ Upstream commit 7ba36eccb3f83983a651efd570b4f933ecad1b5c ]
 
-[ Upstream commit f0d2ca1531377e7da888913e277eefac05a59b6f ]
+The arm64 ptdump code can race with concurrent modification of the
+kernel page tables. At the time this was added, this was sound as:
 
-Using ethtool, users can specify a classification action matching on the
-full vlan tag, which includes the DEI bit (also previously called CFI).
+* Modifications to leaf entries could result in stale information being
+  logged, but would not result in a functional problem.
 
-However, when converting the ethool_flow_spec to a flow_rule, we use
-dissector keys to represent the matching patterns.
+* Boot time modifications to non-leaf entries (e.g. freeing of initmem)
+  were performed when the ptdump code cannot be invoked.
 
-Since the vlan dissector key doesn't include the DEI bit, this
-information was silently discarded when translating the ethtool
-flow spec in to a flow_rule.
+* At runtime, modifications to non-leaf entries only occurred in the
+  vmalloc region, and these were strictly additive, as intermediate
+  entries were never freed.
 
-This commit adds the DEI bit into the vlan dissector key, and allows
-propagating the information to the driver when parsing the ethtool flow
-spec.
+However, since commit:
 
-Fixes: eca4205f9ec3 ("ethtool: add ethtool_rx_flow_spec to flow_rule structure translator")
-Reported-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  commit 324420bf91f6 ("arm64: add support for ioremap() block mappings")
+
+... it has been possible to create huge mappings in the vmalloc area at
+runtime, and as part of this existing intermediate levels of table my be
+removed and freed.
+
+It's possible for the ptdump code to race with this, and continue to
+walk tables which have been freed (and potentially poisoned or
+reallocated). As a result of this, the ptdump code may dereference bogus
+addresses, which could be fatal.
+
+Since huge-vmap is a TLB and memory optimization, we can disable it when
+the runtime ptdump code is in use to avoid this problem.
+
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: 324420bf91f60582 ("arm64: add support for ioremap() block mappings")
+Acked-by: Ard Biesheuvel <ard.biesheuvel@arm.com>
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/flow_dissector.h |    1 +
- net/core/ethtool.c           |    5 +++++
- 2 files changed, 6 insertions(+)
+ arch/arm64/mm/mmu.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/include/net/flow_dissector.h
-+++ b/include/net/flow_dissector.h
-@@ -46,6 +46,7 @@ struct flow_dissector_key_tags {
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index 0a56898f8410..efd65fc85238 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -765,13 +765,18 @@ void *__init fixmap_remap_fdt(phys_addr_t dt_phys)
  
- struct flow_dissector_key_vlan {
- 	u16	vlan_id:12,
-+		vlan_dei:1,
- 		vlan_priority:3;
- 	__be16	vlan_tpid;
- };
---- a/net/core/ethtool.c
-+++ b/net/core/ethtool.c
-@@ -3022,6 +3022,11 @@ ethtool_rx_flow_rule_create(const struct
- 			match->mask.vlan.vlan_id =
- 				ntohs(ext_m_spec->vlan_tci) & 0x0fff;
+ int __init arch_ioremap_pud_supported(void)
+ {
+-	/* only 4k granule supports level 1 block mappings */
+-	return IS_ENABLED(CONFIG_ARM64_4K_PAGES);
++	/*
++	 * Only 4k granule supports level 1 block mappings.
++	 * SW table walks can't handle removal of intermediate entries.
++	 */
++	return IS_ENABLED(CONFIG_ARM64_4K_PAGES) &&
++	       !IS_ENABLED(CONFIG_ARM64_PTDUMP_DEBUGFS);
+ }
  
-+			match->key.vlan.vlan_dei =
-+				!!(ext_h_spec->vlan_tci & htons(0x1000));
-+			match->mask.vlan.vlan_dei =
-+				!!(ext_m_spec->vlan_tci & htons(0x1000));
-+
- 			match->key.vlan.vlan_priority =
- 				(ntohs(ext_h_spec->vlan_tci) & 0xe000) >> 13;
- 			match->mask.vlan.vlan_priority =
+ int __init arch_ioremap_pmd_supported(void)
+ {
+-	return 1;
++	/* See arch_ioremap_pud_supported() */
++	return !IS_ENABLED(CONFIG_ARM64_PTDUMP_DEBUGFS);
+ }
+ 
+ int pud_set_huge(pud_t *pud, phys_addr_t phys, pgprot_t prot)
+-- 
+2.20.1
+
 
 
