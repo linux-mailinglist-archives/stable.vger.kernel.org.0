@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9875F4D6C8
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:12:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D94404D7B8
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:23:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728247AbfFTSMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:12:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39772 "EHLO mail.kernel.org"
+        id S1728215AbfFTSJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:09:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728959AbfFTSL7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:11:59 -0400
+        id S1728253AbfFTSJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:09:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BF682084E;
-        Thu, 20 Jun 2019 18:11:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECDB7214AF;
+        Thu, 20 Jun 2019 18:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054319;
-        bh=9TlGhu5PE6MnakiwtG3u2ciQ4gIz2gyIJSShFYv6hJ0=;
+        s=default; t=1561054170;
+        bh=ICO58TXrwAo41I5GC74JbpD0aHdDig58jpWBe5JFhIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W06JYHvhU2FT7hi2ViO5M9rZJs/zA9aG4bq6M9vQfAQAhixHk9pTg6lOhVFHVHufh
-         jMJ/qQVoO7QOlzfsv/L5wLRwmUchPmBX0Y+2jEzdhXrD8zMAg5YJuUkkPio/gno3Yi
-         P/2ZB/419ppHcksBUCxjhWtUTyUOOVPlEJT+NURg=
+        b=DmINvp8mCrrHAmvJiImugiWEBD0NO0T7vlmYcqHTOkmAH5Wc8UKgS7tWHf2I7DZkm
+         w8Gp8774O3li4rFND/9g3YgWz0qyoXd0HLhVEdIvlQ5Z5mvvzMklPVbIO0m8+Oehyv
+         FDcLlwiBMBXSJjQSJxjstiPz+T4ZYkrU7lWmRgkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 49/61] arm64: use the correct function type in SYSCALL_DEFINE0
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Aaron Skomra <aaron.skomra@wacom.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 4.14 42/45] HID: wacom: Send BTN_TOUCH in response to INTUOSP2_BT eraser contact
 Date:   Thu, 20 Jun 2019 19:57:44 +0200
-Message-Id: <20190620174345.789949072@linuxfoundation.org>
+Message-Id: <20190620174341.058021702@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
+References: <20190620174328.608036501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0e358bd7b7ebd27e491dabed938eae254c17fe3b ]
+From: Jason Gerecke <jason.gerecke@wacom.com>
 
-Although a syscall defined using SYSCALL_DEFINE0 doesn't accept
-parameters, use the correct function type to avoid indirect call
-type mismatches with Control-Flow Integrity checking.
+commit fe7f8d73d1af19b678171170e4e5384deb57833d upstream.
 
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The Bluetooth reports from the 2nd-gen Intuos Pro have separate bits for
+indicating if the tip or eraser is in contact with the tablet. At the
+moment, only the tip contact bit controls the state of the BTN_TOUCH
+event. This prevents the eraser from working as expected. This commit
+changes the driver to send BTN_TOUCH whenever either the tip or eraser
+contact bit is set.
+
+Fixes: 4922cd26f03c ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
+Cc: <stable@vger.kernel.org> # 4.11+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Aaron Skomra <aaron.skomra@wacom.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/include/asm/syscall_wrapper.h | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/hid/wacom_wac.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/syscall_wrapper.h b/arch/arm64/include/asm/syscall_wrapper.h
-index a4477e515b79..507d0ee6bc69 100644
---- a/arch/arm64/include/asm/syscall_wrapper.h
-+++ b/arch/arm64/include/asm/syscall_wrapper.h
-@@ -30,10 +30,10 @@
- 	}										\
- 	static inline long __do_compat_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1275,7 +1275,7 @@ static void wacom_intuos_pro2_bt_pen(str
+ 			input_report_abs(pen_input, ABS_PRESSURE, get_unaligned_le16(&frame[5]));
+ 			input_report_abs(pen_input, ABS_DISTANCE, range ? frame[13] : wacom->features.distance_max);
  
--#define COMPAT_SYSCALL_DEFINE0(sname)					\
--	asmlinkage long __arm64_compat_sys_##sname(void);		\
--	ALLOW_ERROR_INJECTION(__arm64_compat_sys_##sname, ERRNO);	\
--	asmlinkage long __arm64_compat_sys_##sname(void)
-+#define COMPAT_SYSCALL_DEFINE0(sname)							\
-+	asmlinkage long __arm64_compat_sys_##sname(const struct pt_regs *__unused);	\
-+	ALLOW_ERROR_INJECTION(__arm64_compat_sys_##sname, ERRNO);			\
-+	asmlinkage long __arm64_compat_sys_##sname(const struct pt_regs *__unused)
+-			input_report_key(pen_input, BTN_TOUCH, frame[0] & 0x01);
++			input_report_key(pen_input, BTN_TOUCH, frame[0] & 0x09);
+ 			input_report_key(pen_input, BTN_STYLUS, frame[0] & 0x02);
+ 			input_report_key(pen_input, BTN_STYLUS2, frame[0] & 0x04);
  
- #define COND_SYSCALL_COMPAT(name) \
- 	cond_syscall(__arm64_compat_sys_##name);
-@@ -62,11 +62,11 @@
- 	static inline long __do_sys##name(__MAP(x,__SC_DECL,__VA_ARGS__))
- 
- #ifndef SYSCALL_DEFINE0
--#define SYSCALL_DEFINE0(sname)					\
--	SYSCALL_METADATA(_##sname, 0);				\
--	asmlinkage long __arm64_sys_##sname(void);		\
--	ALLOW_ERROR_INJECTION(__arm64_sys_##sname, ERRNO);	\
--	asmlinkage long __arm64_sys_##sname(void)
-+#define SYSCALL_DEFINE0(sname)							\
-+	SYSCALL_METADATA(_##sname, 0);						\
-+	asmlinkage long __arm64_sys_##sname(const struct pt_regs *__unused);	\
-+	ALLOW_ERROR_INJECTION(__arm64_sys_##sname, ERRNO);			\
-+	asmlinkage long __arm64_sys_##sname(const struct pt_regs *__unused)
- #endif
- 
- #ifndef COND_SYSCALL
--- 
-2.20.1
-
 
 
