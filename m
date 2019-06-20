@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C1114D5C1
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:01:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B21F24D6EE
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:14:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727028AbfFTSAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:00:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49648 "EHLO mail.kernel.org"
+        id S1728836AbfFTSOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:14:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727048AbfFTSAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:00:42 -0400
+        id S1729081AbfFTSOB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:14:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0629121479;
-        Thu, 20 Jun 2019 18:00:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 311F5205F4;
+        Thu, 20 Jun 2019 18:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053641;
-        bh=5EM7OSah/1f58GU10tMIVjyBAbKDXvBeVdbm5RAF7eA=;
+        s=default; t=1561054440;
+        bh=6ijn6mL8RusQO+kHen1qojezEJ0W/LWwviffWpE/j+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0uvGhvgHTGJ77VALgD7PDuu0uMmZqPQLOnZmsjKOdXL6j71svGm03uzeRhMmv2wff
-         Z5TEh4jYjvqkKqyxASPf/6yduFNOjeBYT+YQI8FeVSJ0yXpL6/Wy7eAI2aPAYYshXW
-         3zuyu7rM5lpfu01cmXkZZE+fNTZrI+pna2v5FepU=
+        b=fpdddb6v7Bb5RDdM58VoDodQ7CXddoLvDU8Yu01BbHMGvAALXELZsEbMwK98BngvL
+         d3GaxAkOYLIcc6wyQNSZcsIof8q9RfSmcW0Frvs9tXNhBgaNMGB8P/Tb3Zpq31sSrK
+         78ypo2zZZ+730Qu1tIPoEczffMZwDHYdXxlNFZfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 60/84] USB: serial: pl2303: add Allied Telesis VT-Kit3
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 30/98] net: correct udp zerocopy refcnt also when zerocopy only on append
 Date:   Thu, 20 Jun 2019 19:56:57 +0200
-Message-Id: <20190620174347.842164007@linuxfoundation.org>
+Message-Id: <20190620174350.484033329@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
-References: <20190620174337.538228162@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Willem de Bruijn <willemb@google.com>
 
-commit c5f81656a18b271976a86724dadd8344e54de74e upstream.
+[ Upstream commit 522924b583082f51b8a2406624a2f27c22119b20 ]
 
-This is adds the vendor and device id for the AT-VT-Kit3 which is a
-pl2303-based device.
+The below patch fixes an incorrect zerocopy refcnt increment when
+appending with MSG_MORE to an existing zerocopy udp skb.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+  send(.., MSG_ZEROCOPY | MSG_MORE);	// refcnt 1
+  send(.., MSG_ZEROCOPY | MSG_MORE);	// refcnt still 1 (bar frags)
+
+But it missed that zerocopy need not be passed at the first send. The
+right test whether the uarg is newly allocated and thus has extra
+refcnt 1 is not !skb, but !skb_zcopy.
+
+  send(.., MSG_MORE);			// <no uarg>
+  send(.., MSG_ZEROCOPY);		// refcnt 1
+
+Fixes: 100f6d8e09905 ("net: correct zerocopy refcnt with udp MSG_MORE")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/pl2303.c |    1 +
- drivers/usb/serial/pl2303.h |    3 +++
- 2 files changed, 4 insertions(+)
+ net/ipv4/ip_output.c  |    2 +-
+ net/ipv6/ip6_output.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -101,6 +101,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(SANWA_VENDOR_ID, SANWA_PRODUCT_ID) },
- 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530_PRODUCT_ID) },
- 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
-+	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
- 	{ }					/* Terminating entry */
- };
- 
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -159,3 +159,6 @@
- #define SMART_VENDOR_ID	0x0b8c
- #define SMART_PRODUCT_ID	0x2303
- 
-+/* Allied Telesis VT-Kit3 */
-+#define AT_VENDOR_ID		0x0caa
-+#define AT_VTKIT3_PRODUCT_ID	0x3001
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -923,7 +923,7 @@ static int __ip_append_data(struct sock
+ 		uarg = sock_zerocopy_realloc(sk, length, skb_zcopy(skb));
+ 		if (!uarg)
+ 			return -ENOBUFS;
+-		extra_uref = !skb;	/* only extra ref if !MSG_MORE */
++		extra_uref = !skb_zcopy(skb);	/* only ref on new uarg */
+ 		if (rt->dst.dev->features & NETIF_F_SG &&
+ 		    csummode == CHECKSUM_PARTIAL) {
+ 			paged = true;
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1344,7 +1344,7 @@ emsgsize:
+ 		uarg = sock_zerocopy_realloc(sk, length, skb_zcopy(skb));
+ 		if (!uarg)
+ 			return -ENOBUFS;
+-		extra_uref = !skb;	/* only extra ref if !MSG_MORE */
++		extra_uref = !skb_zcopy(skb);	/* only ref on new uarg */
+ 		if (rt->dst.dev->features & NETIF_F_SG &&
+ 		    csummode == CHECKSUM_PARTIAL) {
+ 			paged = true;
 
 
