@@ -2,209 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DB894D2E7
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 18:11:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 568764D3CC
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 18:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726697AbfFTQL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 12:11:57 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:36142 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726654AbfFTQL5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 12:11:57 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 264FE83F3C;
-        Thu, 20 Jun 2019 16:11:56 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7EF7761987;
-        Thu, 20 Jun 2019 16:11:55 +0000 (UTC)
-Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 3C7971806B0E;
-        Thu, 20 Jun 2019 16:11:53 +0000 (UTC)
-Date:   Thu, 20 Jun 2019 12:11:52 -0400 (EDT)
-From:   Veronika Kabatova <vkabatov@redhat.com>
-To:     Guillaume Tucker <guillaume.tucker@gmail.com>
-Cc:     kernelci@groups.io, automated-testing@yoctoproject.org,
-        info@kernelci.org, Tim Bird <Tim.Bird@sony.com>,
-        syzkaller@googlegroups.com, lkp@lists.01.org,
-        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        Eliska Slobodova <eslobodo@redhat.com>,
-        CKI Project <cki-project@redhat.com>
-Message-ID: <1759213455.26229412.1561047112464.JavaMail.zimbra@redhat.com>
-In-Reply-To: <CAH1_8nAx-1+uqOwAOCfGbqdWzgWD1-oikAfoVBqw4qPcu8v4fw@mail.gmail.com>
-References: <1204558561.21265703.1558449611621.JavaMail.zimbra@redhat.com> <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com> <CAH1_8nAx-1+uqOwAOCfGbqdWzgWD1-oikAfoVBqw4qPcu8v4fw@mail.gmail.com>
-Subject: Re: CKI hackfest @Plumbers invite
+        id S1726686AbfFTQbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 12:31:48 -0400
+Received: from new2-smtp.messagingengine.com ([66.111.4.224]:50233 "EHLO
+        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726620AbfFTQbs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 12:31:48 -0400
+X-Greylist: delayed 458 seconds by postgrey-1.27 at vger.kernel.org; Thu, 20 Jun 2019 12:31:47 EDT
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 4FDE12DE3;
+        Thu, 20 Jun 2019 12:24:06 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 20 Jun 2019 12:24:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=xu9are
+        87ya2DkVzUSPPgRLfUhEEb8HlZo83LiAOJ0xs=; b=E2Unidxp8ql7PQEQhJXkFH
+        rhR7eprhTQUrC5jMlR7lAT97CfbrPspfthO057wSuPI3KYYOszJeow7prn2rUU8a
+        WtWRh/+XSMHHiXQJhWULt56O0En38qWoLE6lzyFZ9juoxDs0zvz1t/uYSKtCA26n
+        izEpgx8RR0bo1PnDk1IhNNWn6adb+tBIjPw8UMswzQF98EPcL/iDGCp+3sP5+Cd5
+        QxdQmbYOUH9xJQHUGcR4oA4T9+A3QT5eaqUBNIxUJRiOrV4wCRKHeTsDj38S3cJi
+        AyUdmP7WUzNpiGwNVNassV8PD1rCmv/66HfUsGWdl8fN30kU/reN5V05HKQ5il8Q
+        ==
+X-ME-Sender: <xms:JLMLXe2WgGiRh10RkV92rMsC1kkonmBmKd0r-FChdy4YvS1zYTBkEw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrtdeggddutdegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:JbMLXcQk8D7Ivuf5pYO63XEiJaOm6L1MFnqHeAQkI6MM-Nc_qpHC9w>
+    <xmx:JbMLXWAaDn7Xt50hIr3dLNgg2a3IRQbNmvPZIUIuL4H0Ax91BnMwhg>
+    <xmx:JbMLXQE5y7X0cZC2KXbUCGS0JQfAr4Ysaah4waqELhkPAvl-N-XuVQ>
+    <xmx:JrMLXRoOuhISrAbRg0ehFG4UirUNzH64aHc17fA-nfIYIAx7ql1taA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7FA9180060;
+        Thu, 20 Jun 2019 12:24:04 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] coredump: fix race condition between collapse_huge_page() and" failed to apply to 4.9-stable tree
+To:     aarcange@redhat.com, akpm@linux-foundation.org, hughd@google.com,
+        jannh@google.com, jgg@mellanox.com,
+        kirill.shutemov@linux.intel.com, mhocko@suse.com,
+        mike.kravetz@oracle.com, oleg@redhat.com, peterx@redhat.com,
+        rppt@linux.vnet.ibm.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 20 Jun 2019 18:24:02 +0200
+Message-ID: <1561047841541@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.40.204.239, 10.4.195.12]
-Thread-Topic: CKI hackfest @Plumbers invite
-Thread-Index: skr/QCNoOlzeCUrzcig8JpHiZicQTw==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Thu, 20 Jun 2019 16:11:56 +0000 (UTC)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
------ Original Message -----
-> From: "Guillaume Tucker" <guillaume.tucker@gmail.com>
-> To: kernelci@groups.io, vkabatov@redhat.com
-> Cc: automated-testing@yoctoproject.org, info@kernelci.org, "Tim Bird" <Tim.Bird@sony.com>, khilamn@baylibre.org,
-> syzkaller@googlegroups.com, lkp@lists.01.org, stable@vger.kernel.org, "Laura Abbott" <labbott@redhat.com>, "Eliska
-> Slobodova" <eslobodo@redhat.com>, "CKI Project" <cki-project@redhat.com>
-> Sent: Thursday, June 20, 2019 5:42:11 PM
-> Subject: Re: CKI hackfest @Plumbers invite
-> 
-> Hi Veronika,
-> 
-> On Tue, May 21, 2019 at 3:55 PM Veronika Kabatova <vkabatov@redhat.com>
-> wrote:
-> 
-> > Hi,
-> >
-> > as some of you have heard, CKI Project is planning hackfest CI meetings
-> > after
-> > Plumbers conference this year (Sept. 12-13). We would like to invite
-> > everyone
-> > who has interest in CI for kernel to come and join us.
-> >
-> > The early agenda with summary is at the end of the email. If you think
-> > there's
-> > something important missing let us know! Also let us know in case you'd
-> > want to
-> > lead any of the sessions, we'd be happy to delegate out some work :)
-> >
-> >
-> > Please send us an email as soon as you decide to come and feel free to
-> > invite
-> > other people who should be present. We are not planning to cap the
-> > attendance
-> > right now but need to solve the logistics based on the interest. The event
-> > is
-> > free to attend, no additional registration except letting us know is
-> > needed.
-> >
-> 
-> Please do count me in as well!
-> 
+thanks,
 
-\o/
+greg k-h
 
-> One topic I would like to add to the agenda is:
-> 
-> - Open testing philosophy
->   - Connecting components from different origins: builders, test
->     labs, databases, dashboards...
->   - Interoperability: documented remote APIs to let components
->     talk to each other
->   - kernelci.org already does this with distributed builds and
->     test labs, it would be good to apply the same principles to
->     to other existing systems doing upstream kernel testing for
->     everyone's benefit
->   - Optimal utilisation of available resources
->   - Enable more high-level features by joining
->     forces (bisections, cross-referencing of results, bug
->     tracking...)
-> 
-> This does have some commonality with "Common hardware pools"
-> and "Avoiding effort duplication" but I think it makes sense to
-> keep it together as a general approach.
-> 
+------------------ original commit in Linus's tree ------------------
 
-I agree that this topic is important (and I believe some other CKI people
-made that clear as well) so I added it to the agenda topics. The list of
-those is getting long so we'd definitely need to curate it properly soon
-but I'll make sure this stays there.
+From 59ea6d06cfa9247b586a695c21f94afa7183af74 Mon Sep 17 00:00:00 2001
+From: Andrea Arcangeli <aarcange@redhat.com>
+Date: Thu, 13 Jun 2019 15:56:11 -0700
+Subject: [PATCH] coredump: fix race condition between collapse_huge_page() and
+ core dumping
 
+When fixing the race conditions between the coredump and the mmap_sem
+holders outside the context of the process, we focused on
+mmget_not_zero()/get_task_mm() callers in 04f5866e41fb70 ("coredump: fix
+race condition between mmget_not_zero()/get_task_mm() and core
+dumping"), but those aren't the only cases where the mmap_sem can be
+taken outside of the context of the process as Michal Hocko noticed
+while backporting that commit to older -stable kernels.
 
-Thanks for the interest!
-Veronika
+If mmgrab() is called in the context of the process, but then the
+mm_count reference is transferred outside the context of the process,
+that can also be a problem if the mmap_sem has to be taken for writing
+through that mm_count reference.
 
-> Thanks,
-> Guillaume
-> 
-> Feel free to contact us if you have any questions,
-> > Veronika
-> > CKI Project
-> >
-> >
-> > -----------------------------------------------------------
-> > Here is an early agenda we put together:
-> > - Introductions
-> > - Common place for upstream results, result publishing in general
-> >   - The discussion on the mailing list is going strong so we might be able
-> > to
-> >     substitute this session for a different one in case everything is
-> > solved by
-> >     September.
-> > - Test result interpretation and bug detection
-> >   - How to autodetect infrastructure failures, regressions/new bugs and
-> > test
-> >     bugs? How to handle continuous failures due to known bugs in both
-> > tests and
-> >     kernel? What's your solution? Can people always trust the results they
-> >     receive?
-> > - Getting results to developers/maintainers
-> >   - Aimed at kernel developers and maintainers, share your feedback and
-> >     expectations.
-> >   - How much data should be sent in the initial communication vs. a click
-> > away
-> >     in a dashboard? Do you want incremental emails with new results as
-> > they come
-> >     in?
-> >   - What about adding checks to tested patches in Patchwork when patch
-> > series
-> >     are being tested?
-> >   - Providing enough data/script to reproduce the failure. What if special
-> > HW
-> >     is needed?
-> > - Onboarding new kernel trees to test
-> >   - Aimed at kernel developers and maintainers.
-> >   - Which trees are most prone to bring in new problems? Which are the most
-> >     critical ones? Do you want them to be tested? Which tests do you feel
-> > are
-> >     most beneficial for specific trees or in general?
-> > - Security when testing untrusted patches
-> >   - How do we merge, compile, and test patches that have untrusted code in
-> > them
-> >     and have not yet been reviewed? How do we avoid abuse of systems,
-> >     information theft, or other damage?
-> >   - Check out the original patch that sparked the discussion at
-> >     https://patchwork.ozlabs.org/patch/862123/
-> > - Avoiding effort duplication
-> >   - Food for thought by GregKH
-> >   - X different CI systems running ${TEST} on latest stable kernel on
-> > x86_64
-> >     might look useless on the first look but is it? AMD/Intel CPUs,
-> > different
-> >     network cards, different graphic drivers, compilers, kernel
-> > configuration...
-> >     How do we distribute the workload to avoid doing the same thing all
-> > over
-> >     again while still running in enough different environments to get the
-> > most
-> >     coverage?
-> > - Common hardware pools
-> >   - Is this something people are interested in? Would be helpful
-> > especially for
-> >     HW that's hard to access, eg. ppc64le or s390x systems. Companies
-> > could also
-> >     sing up to share their HW for testing to ensure kernel works with their
-> >     products.
-> >
-> > -=-=-=-=-=-=-=-=-=-=-=-
-> > Groups.io Links: You receive all messages sent to this group.
-> >
-> > View/Reply Online (#404): https://groups.io/g/kernelci/message/404
-> > Mute This Topic: https://groups.io/mt/31697554/924702
-> > Group Owner: kernelci+owner@groups.io
-> > Unsubscribe: https://groups.io/g/kernelci/unsub  [
-> > guillaume.tucker@gmail.com]
-> > -=-=-=-=-=-=-=-=-=-=-=-
-> >
-> >
-> 
+khugepaged registration calls mmgrab() in the context of the process,
+but the mmap_sem for writing is taken later in the context of the
+khugepaged kernel thread.
+
+collapse_huge_page() after taking the mmap_sem for writing doesn't
+modify any vma, so it's not obvious that it could cause a problem to the
+coredump, but it happens to modify the pmd in a way that breaks an
+invariant that pmd_trans_huge_lock() relies upon.  collapse_huge_page()
+needs the mmap_sem for writing just to block concurrent page faults that
+call pmd_trans_huge_lock().
+
+Specifically the invariant that "!pmd_trans_huge()" cannot become a
+"pmd_trans_huge()" doesn't hold while collapse_huge_page() runs.
+
+The coredump will call __get_user_pages() without mmap_sem for reading,
+which eventually can invoke a lockless page fault which will need a
+functional pmd_trans_huge_lock().
+
+So collapse_huge_page() needs to use mmget_still_valid() to check it's
+not running concurrently with the coredump...  as long as the coredump
+can invoke page faults without holding the mmap_sem for reading.
+
+This has "Fixes: khugepaged" to facilitate backporting, but in my view
+it's more a bug in the coredump code that will eventually have to be
+rewritten to stop invoking page faults without the mmap_sem for reading.
+So the long term plan is still to drop all mmget_still_valid().
+
+Link: http://lkml.kernel.org/r/20190607161558.32104-1-aarcange@redhat.com
+Fixes: ba76149f47d8 ("thp: khugepaged")
+Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
+Reported-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+index a3fda9f024c3..4a7944078cc3 100644
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -54,6 +54,10 @@ static inline void mmdrop(struct mm_struct *mm)
+  * followed by taking the mmap_sem for writing before modifying the
+  * vmas or anything the coredump pretends not to change from under it.
+  *
++ * It also has to be called when mmgrab() is used in the context of
++ * the process, but then the mm_count refcount is transferred outside
++ * the context of the process to run down_write() on that pinned mm.
++ *
+  * NOTE: find_extend_vma() called from GUP context is the only place
+  * that can modify the "mm" (notably the vm_start/end) under mmap_sem
+  * for reading and outside the context of the process, so it is also
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index a335f7c1fac4..0f7419938008 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1004,6 +1004,9 @@ static void collapse_huge_page(struct mm_struct *mm,
+ 	 * handled by the anon_vma lock + PG_lock.
+ 	 */
+ 	down_write(&mm->mmap_sem);
++	result = SCAN_ANY_PROCESS;
++	if (!mmget_still_valid(mm))
++		goto out;
+ 	result = hugepage_vma_revalidate(mm, address, &vma);
+ 	if (result)
+ 		goto out;
+
