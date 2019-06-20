@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCF594D77B
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:19:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D30C4D847
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729149AbfFTSPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:15:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44342 "EHLO mail.kernel.org"
+        id S1727749AbfFTSHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:07:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729406AbfFTSPb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:15:31 -0400
+        id S1727510AbfFTSHl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:07:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC64F2082C;
-        Thu, 20 Jun 2019 18:15:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 407682089C;
+        Thu, 20 Jun 2019 18:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054530;
-        bh=NjJ/4uuqZnv3/Az8pb2ngp8cd+vyciN0pchqZBP0SbM=;
+        s=default; t=1561054060;
+        bh=GNAkOgeppAFJLfe8olWqbUZabhusjg8Ki6Qhz2n1N0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EmJ3vv3M1kqL7R92W7/dKK/+wMxykgmYbotzCSq+gpFCjZ3DppQpfjywvHTMbd955
-         4JH9UW6vg5m9EXXxua6NVcX44L6gzVfAtF8Cy/JncxqrjKdF4eZFHaz9vpBS+gyzAh
-         y4gO6mRfhmG0H9WzbDGy7ljYBos+9qamrr5AxhXA=
+        b=U5mJizWGHACK24+lr7H/bTGDy9bniRjzxY++xYtgRSaxRyfwdGHM9n3T1hk1S0Eq2
+         yAZOJ3Gt+b+6uB7g7Xg/4tNV4brGFpUjqFVTRWnV4N6lmzD+m8OCiU2dOnQExwNNx+
+         EIr92U3OFONnLFnsEXR8SKT12epCMHK9Nkfe0miY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Igor Russkikh <igor.russkikh@aquantia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Lianbo Jiang <lijiang@redhat.com>,
+        Don Brace <don.brace@microsemi.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 61/98] net: aquantia: tx clean budget logic error
+Subject: [PATCH 4.9 114/117] scsi: smartpqi: properly set both the DMA mask and the coherent DMA mask
 Date:   Thu, 20 Jun 2019 19:57:28 +0200
-Message-Id: <20190620174352.152564588@linuxfoundation.org>
+Message-Id: <20190620174358.309462542@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 31bafc49a7736989e4c2d9f7280002c66536e590 ]
+[ Upstream commit 1d94f06e7f5df4064ef336b7b710f50143b64a53 ]
 
-In case no other traffic happening on the ring, full tx cleanup
-may not be completed. That may cause socket buffer to overflow
-and tx traffic to stuck until next activity on the ring happens.
+When SME is enabled, the smartpqi driver won't work on the HP DL385 G10
+machine, which causes the failure of kernel boot because it fails to
+allocate pqi error buffer. Please refer to the kernel log:
+....
+[    9.431749] usbcore: registered new interface driver uas
+[    9.441524] Microsemi PQI Driver (v1.1.4-130)
+[    9.442956] i40e 0000:04:00.0: fw 6.70.48768 api 1.7 nvm 10.2.5
+[    9.447237] smartpqi 0000:23:00.0: Microsemi Smart Family Controller found
+         Starting dracut initqueue hook...
+[  OK  ] Started Show Plymouth Boot Scre[    9.471654] Broadcom NetXtreme-C/E driver bnxt_en v1.9.1
+en.
+[  OK  ] Started Forward Password Requests to Plymouth Directory Watch.
+[[0;[    9.487108] smartpqi 0000:23:00.0: failed to allocate PQI error buffer
+....
+[  139.050544] dracut-initqueue[949]: Warning: dracut-initqueue timeout - starting timeout scripts
+[  139.589779] dracut-initqueue[949]: Warning: dracut-initqueue timeout - starting timeout scripts
 
-This is due to logic error in budget variable decrementor.
-Variable is compared with zero, and then post decremented,
-causing it to become MAX_INT. Solution is remove decrementor
-from the `for` statement and rewrite it in a clear way.
+Basically, the fact that the coherent DMA mask value wasn't set caused the
+driver to fall back to SWIOTLB when SME is active.
 
-Fixes: b647d3980948e ("net: aquantia: Add tx clean budget and valid budget handling logic")
-Signed-off-by: Igor Russkikh <igor.russkikh@aquantia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+For correct operation, lets call the dma_set_mask_and_coherent() to
+properly set the mask for both streaming and coherent, in order to inform
+the kernel about the devices DMA addressing capabilities.
+
+Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
+Acked-by: Don Brace <don.brace@microsemi.com>
+Tested-by: Don Brace <don.brace@microsemi.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_ring.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/scsi/smartpqi/smartpqi_init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-index e2ffb159cbe2..bf4aa7060f1a 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-@@ -139,10 +139,10 @@ void aq_ring_queue_stop(struct aq_ring_s *ring)
- bool aq_ring_tx_clean(struct aq_ring_s *self)
- {
- 	struct device *dev = aq_nic_get_dev(self->aq_nic);
--	unsigned int budget = AQ_CFG_TX_CLEAN_BUDGET;
-+	unsigned int budget;
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index 06a062455404..b12f7f952b70 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -5478,7 +5478,7 @@ static int pqi_pci_init(struct pqi_ctrl_info *ctrl_info)
+ 	else
+ 		mask = DMA_BIT_MASK(32);
  
--	for (; self->sw_head != self->hw_head && budget--;
--		self->sw_head = aq_ring_next_dx(self, self->sw_head)) {
-+	for (budget = AQ_CFG_TX_CLEAN_BUDGET;
-+	     budget && self->sw_head != self->hw_head; budget--) {
- 		struct aq_ring_buff_s *buff = &self->buff_ring[self->sw_head];
- 
- 		if (likely(buff->is_mapped)) {
-@@ -167,6 +167,7 @@ bool aq_ring_tx_clean(struct aq_ring_s *self)
- 
- 		buff->pa = 0U;
- 		buff->eop_index = 0xffffU;
-+		self->sw_head = aq_ring_next_dx(self, self->sw_head);
- 	}
- 
- 	return !!budget;
+-	rc = dma_set_mask(&ctrl_info->pci_dev->dev, mask);
++	rc = dma_set_mask_and_coherent(&ctrl_info->pci_dev->dev, mask);
+ 	if (rc) {
+ 		dev_err(&ctrl_info->pci_dev->dev, "failed to set DMA mask\n");
+ 		goto disable_device;
 -- 
 2.20.1
 
