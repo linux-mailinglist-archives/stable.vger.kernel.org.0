@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF144D85F
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D19C4D6C1
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:12:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727660AbfFTSGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:06:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60766 "EHLO mail.kernel.org"
+        id S1728806AbfFTSLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:11:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727936AbfFTSGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:06:34 -0400
+        id S1728947AbfFTSLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:11:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F894204FD;
-        Thu, 20 Jun 2019 18:06:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C40962070B;
+        Thu, 20 Jun 2019 18:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053993;
-        bh=Iz+s5FrWakQFdWSwoRfCM8MiMavQPXKCX7ztijiLTUI=;
+        s=default; t=1561054304;
+        bh=oZYhfpp0Op1xc6m4V+6kPYh6gfC2XpR7/BahVh4+Pxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m8oux/viArC9rlR78k1twhS30rillhIOBU8oQKOy+RwZUGF3tplWPPkQcyqL8uuEx
-         Pve4/DNCEsXNTgluW4b0lQ6Nl3BnyV9XNE5CYQEjuSlinTxtqHtzGFxq3L4aW8JrNG
-         M60qlidI5DJHgejvZdRRhsGELBj/vWR0i1IRKFtU=
+        b=IF2mG9j5acBI2J9ubO2NQIyPp/qmU1/ny0XTPa+0LTPzvDmEDlZKZATlkxk+Jji+4
+         pYxgFqRSTeiZmO1fiRMqKSLgc0KgyaSy2wY9dcMXAVs8QzUGMDGLXSs8DIj5mW0NOO
+         94BpZJaHEXiRbIQcaR8kYGizp7uurN1xYun871po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jeffrin Jose T <jeffrin@rajagiritech.edu.in>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 098/117] selftests: netfilter: missing error check when setting up veth interface
+Subject: [PATCH 4.19 17/61] Staging: vc04_services: Fix a couple error codes
 Date:   Thu, 20 Jun 2019 19:57:12 +0200
-Message-Id: <20190620174357.733319559@linuxfoundation.org>
+Message-Id: <20190620174340.093063170@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 82ce6eb1dd13fd12e449b2ee2c2ec051e6f52c43 ]
+[ Upstream commit ca4e4efbefbbdde0a7bb3023ea08d491f4daf9b9 ]
 
-A test for the basic NAT functionality uses ip command which needs veth
-device. There is a condition where the kernel support for veth is not
-compiled into the kernel and the test script breaks. This patch contains
-code for reasonable error display and correct code exit.
+These are accidentally returning positive EINVAL instead of negative
+-EINVAL.  Some of the callers treat positive values as success.
 
-Signed-off-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 7b3ad5abf027 ("staging: Import the BCM2835 MMAL-based V4L2 camera driver.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/netfilter/nft_nat.sh | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/staging/vc04_services/bcm2835-camera/controls.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/netfilter/nft_nat.sh b/tools/testing/selftests/netfilter/nft_nat.sh
-index 8ec76681605c..f25f72a75cf3 100755
---- a/tools/testing/selftests/netfilter/nft_nat.sh
-+++ b/tools/testing/selftests/netfilter/nft_nat.sh
-@@ -23,7 +23,11 @@ ip netns add ns0
- ip netns add ns1
- ip netns add ns2
+diff --git a/drivers/staging/vc04_services/bcm2835-camera/controls.c b/drivers/staging/vc04_services/bcm2835-camera/controls.c
+index cff7b1e07153..b688ebc01740 100644
+--- a/drivers/staging/vc04_services/bcm2835-camera/controls.c
++++ b/drivers/staging/vc04_services/bcm2835-camera/controls.c
+@@ -576,7 +576,7 @@ static int ctrl_set_image_effect(struct bm2835_mmal_dev *dev,
+ 				dev->colourfx.enable ? "true" : "false",
+ 				dev->colourfx.u, dev->colourfx.v,
+ 				ret, (ret == 0 ? 0 : -EINVAL));
+-	return (ret == 0 ? 0 : EINVAL);
++	return (ret == 0 ? 0 : -EINVAL);
+ }
  
--ip link add veth0 netns ns0 type veth peer name eth0 netns ns1
-+ip link add veth0 netns ns0 type veth peer name eth0 netns ns1 > /dev/null 2>&1
-+if [ $? -ne 0 ];then
-+    echo "SKIP: No virtual ethernet pair device support in kernel"
-+    exit $ksft_skip
-+fi
- ip link add veth1 netns ns0 type veth peer name eth0 netns ns2
+ static int ctrl_set_colfx(struct bm2835_mmal_dev *dev,
+@@ -600,7 +600,7 @@ static int ctrl_set_colfx(struct bm2835_mmal_dev *dev,
+ 		 "%s: After: mmal_ctrl:%p ctrl id:0x%x ctrl val:%d ret %d(%d)\n",
+ 			__func__, mmal_ctrl, ctrl->id, ctrl->val, ret,
+ 			(ret == 0 ? 0 : -EINVAL));
+-	return (ret == 0 ? 0 : EINVAL);
++	return (ret == 0 ? 0 : -EINVAL);
+ }
  
- ip -net ns0 link set lo up
+ static int ctrl_set_bitrate(struct bm2835_mmal_dev *dev,
 -- 
 2.20.1
 
