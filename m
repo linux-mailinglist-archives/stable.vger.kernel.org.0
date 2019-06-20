@@ -2,115 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7904C4DC9D
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 23:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FFCD4DD06
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 23:51:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726138AbfFTVee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 17:34:34 -0400
-Received: from mail-eopbgr750091.outbound.protection.outlook.com ([40.107.75.91]:39758
-        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726008AbfFTVee (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 17:34:34 -0400
+        id S1726127AbfFTVvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 17:51:04 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:54529 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725905AbfFTVvE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 17:51:04 -0400
+Received: by mail-wm1-f66.google.com with SMTP id g135so4458492wme.4
+        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 14:51:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=wavesemi.onmicrosoft.com; s=selector1-wavesemi-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=E9drLOeHfcjuBmuT0pYMdpgQOVuKqTDh6DTw1qUcGrs=;
- b=BZVg7dPlyVZQJ7dV71BzDIkWW4akL/uvRI0DR3MKQJRTfvhdMr4eoxThXxKNmyhp00LV/eBIMd31LeX+iP0WwAGQWA+s9ww29KgpEiAS+IgC5HfNcbtUZZJz7HfgtBeUuKZ/3KQj8nAztdGYfYghuHg+z9HkY5QyQM9PHwxsTIM=
-Received: from MWHPR2201MB1277.namprd22.prod.outlook.com (10.172.60.12) by
- MWHPR2201MB1055.namprd22.prod.outlook.com (10.174.169.141) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1987.15; Thu, 20 Jun 2019 21:34:30 +0000
-Received: from MWHPR2201MB1277.namprd22.prod.outlook.com
- ([fe80::6975:b632:c85b:9e40]) by MWHPR2201MB1277.namprd22.prod.outlook.com
- ([fe80::6975:b632:c85b:9e40%2]) with mapi id 15.20.2008.007; Thu, 20 Jun 2019
- 21:34:30 +0000
-From:   Paul Burton <paul.burton@mips.com>
-To:     "Hombourger, Cedric" <Cedric_Hombourger@mentor.com>
-CC:     Sasha Levin <sashal@kernel.org>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] MIPS: have "plain" make calls build dtbs for selected
- platforms
-Thread-Topic: [PATCH] MIPS: have "plain" make calls build dtbs for selected
- platforms
-Thread-Index: AQHVIgBpf6BYLkAQw0aPbj6clwp5T6adO4kAgACh3B+ABltpAIAAyaOAgAATRgCAAAYngA==
-Date:   Thu, 20 Jun 2019 21:34:30 +0000
-Message-ID: <20190620213427.pavgu64cxhrsmuo7@pburton-laptop>
-References: <1560415970-844-1-git-send-email-Cedric_Hombourger@mentor.com>
- <20190615221604.E6FB82183F@mail.kernel.org> <1560668291651.87711@mentor.com>
- <1561017706300.81899@mentor.com>
- <20190620200325.se6e6yicvlkjrb46@pburton-laptop>
- <366B6D73-2DCF-49B6-80B2-B1FAD6C73580@mentor.com>
-In-Reply-To: <366B6D73-2DCF-49B6-80B2-B1FAD6C73580@mentor.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: BYAPR01CA0029.prod.exchangelabs.com (2603:10b6:a02:80::42)
- To MWHPR2201MB1277.namprd22.prod.outlook.com (2603:10b6:301:18::12)
-user-agent: NeoMutt/20180716
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=pburton@wavecomp.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [73.93.153.114]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 6c09630a-74e9-4335-b8d3-08d6f5c71399
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:MWHPR2201MB1055;
-x-ms-traffictypediagnostic: MWHPR2201MB1055:
-x-microsoft-antispam-prvs: <MWHPR2201MB105538B038293D2C86DD6B58C1E40@MWHPR2201MB1055.namprd22.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
-x-forefront-prvs: 0074BBE012
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(7916004)(396003)(39850400004)(366004)(346002)(376002)(136003)(189003)(199004)(476003)(26005)(1076003)(6116002)(3846002)(54906003)(6436002)(316002)(58126008)(11346002)(6486002)(6916009)(446003)(102836004)(44832011)(42882007)(6512007)(6506007)(486006)(66946007)(186003)(386003)(64756008)(73956011)(66476007)(53936002)(8936002)(66556008)(7736002)(99286004)(8676002)(71190400001)(6246003)(81166006)(4326008)(52116002)(81156014)(33716001)(66066001)(305945005)(9686003)(2906002)(14454004)(71200400001)(5660300002)(478600001)(25786009)(66446008)(76176011)(229853002)(256004)(68736007)(14444005);DIR:OUT;SFP:1102;SCL:1;SRVR:MWHPR2201MB1055;H:MWHPR2201MB1277.namprd22.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: wavecomp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: jcNgHf+cKZcGYhsV1zrKENiKuSNw3Am/O8b6QJ4CRRI+MVHWInjoL5R04tydLO4wHwbC6yBsvnlUSmZUNpRydahqzik+5GVKx2T5toGYr4Xaaw108mvKM5hQovqUlyim1VMgUVzH6+JbliQix+Gu5AsVDyIz4svppStN506rWxtLv9xW+EDlML1/ew9fekwNT5aZiF4beyTST65l7lgP0KDWADZim5/1NfTbz9V5UAlE+0TGHmYE1hLqv1CIQy1xlGiCbWwjNWkDAsxy0Buw+iU1aGMo5JY9WrFJ4wNCeS+zJKqXURxko5b80IymXsClUZi5k04inGLikZcZjf95ihcuGMsBk6QTGiN5DQcBt/lEckd7/u5dc5M6ucuQ2hlFROqkk26BIsIO+axjgTJ5nW2dLyTsr60OdSf8cyZeXTU=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <97B42FC4A6994C4AAA315BB4E5726C90@namprd22.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
+        bh=HdKRiSB85LvUCFRxbPH+qwH2+8l2OVBBu3iiAsp64IY=;
+        b=adCZ7DlLhDJnuCuFWtzZ2dd/AJpf6b3LITsDlPVoauW3kEDPuqHPRP3FngEI3tkPiB
+         r9zIeW5QyGol3X6HlR/TP04jw+ZhUkAemCDMJvI3U/C2QtGZaO7bgaCFpsRdgmDPpovp
+         ybU6WWH95MHjIioR14e7xPbJHzfSkS41aYiheb6wCQof5lVUD03rGKbGk+euJeWX8d0J
+         vVpWe6C8voK2Zecb5Uvg92JOoapfj1Xz8s3LOuwStrpIw6wl0jq+Gd1fiPNctLVaqe1m
+         6WLZN5GXQaxQ328jUSZlC5dYaVsRnQhtfKbtRr55M6W7qVrYxKyS2y0NcB+20Otn3x7i
+         NB8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
+        bh=HdKRiSB85LvUCFRxbPH+qwH2+8l2OVBBu3iiAsp64IY=;
+        b=bPnKJtE35h0vrnUFD6E7B5Ytt60MXJWX9YFEm76VdGkglsP9wYi4qu5WEFi+n1WrGh
+         DlH9Ow82OmyDZj7ILutYmKbYa1duOE6i4BOU3Fk1AOBCxVS9oWnW/z74sgAlMA4Q8x2C
+         YKVFp1MAuInR07ufiqMG0UaBBdzq1ZPgnZEvDXVsUNXqHfx37kr/hYs2MTKHEu2X7P35
+         29Lodaj6SodnSo/SrXcnNy+p2wYNS33TD0riytB7keDiM+ARHgWei/v7Kau2GpDAtm9V
+         pdnvof43c0KFRzxAH5X7NsUVdWKZfMu6YK2GrXgYEFquCPMEwkAPR8nWSd19fyRnQdNM
+         Kgbg==
+X-Gm-Message-State: APjAAAUfag0AtIFz/terkoQTNJQDO+aj8Hr6HWE/SSIC6ZTbfeRNq7YX
+        hSmFKwMKOpJ/vo2UIW6xyhsaDA==
+X-Google-Smtp-Source: APXvYqxE+fMhvRwwGs/E8tt4mvpclneumNMW2tbRUdT2KOqS4Iaz0JpzFG+gGiH9wHN1UcMnYIxQ2A==
+X-Received: by 2002:a05:600c:114f:: with SMTP id z15mr979377wmz.131.1561067462667;
+        Thu, 20 Jun 2019 14:51:02 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id e21sm1414724wra.27.2019.06.20.14.51.01
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 20 Jun 2019 14:51:02 -0700 (PDT)
+Message-ID: <5d0bffc6.1c69fb81.a28a3.8deb@mx.google.com>
+Date:   Thu, 20 Jun 2019 14:51:02 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-OriginatorOrg: mips.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6c09630a-74e9-4335-b8d3-08d6f5c71399
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Jun 2019 21:34:30.5510
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 463607d3-1db3-40a0-8a29-970c56230104
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: pburton@wavecomp.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR2201MB1055
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.53-62-gf22a520163d3
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
+Subject: Re: [PATCH 4.19 00/61] 4.19.54-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Cedric,
+stable-rc/linux-4.19.y boot: 65 boots: 0 failed, 65 passed (v4.19.53-62-gf2=
+2a520163d3)
 
-On Thu, Jun 20, 2019 at 09:12:26PM +0000, Hombourger, Cedric wrote:
-> Hello Paul,=20
->=20
-> I will recheck tomorrow morning but the kernel I was initially working
-> with was 4.19 and I did not find dtbs being compiled from a plain make
-> or from builddeb=20
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.53-62-gf22a520163d3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.53-62-gf22a520163d3/
 
-Oh, sure - I don't expect they'd get built either. I did think builddeb
-would succeed without them though, but actually looking at history it
-would still fail for v4.1 through v4.19 because although builddeb
-checked for a dtbs_install target in the arch Makefile prior to the
-commit I mentioned before, we used to have one in those versions...
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.53-62-gf22a520163d3
+Git Commit: f22a520163d30baac515fcced7eb7ae13dc78c89
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 36 unique boards, 17 SoC families, 12 builds out of 206
 
-So I'll mark your commit for backport as far as v4.1 where our
-dtbs_install target was introduced.
-
-The usual approach is that the patch goes into mainline first, and once
-that happens you can submit your backports for the stable branches where
-it doesn't apply cleanly. You should receive an email following the
-failed attempts to cherry-pick the commit onto the stable branches,
-which is often a good reminder to handle the backport.
-
-(PS. Top posting is frowned upon pretty much universally in the kernel
-     communify - I'd recommend switching your email reply style before
-     it draws too much attention ;) )
-
-Thanks,
-    Paul
+---
+For more info write to <info@kernelci.org>
