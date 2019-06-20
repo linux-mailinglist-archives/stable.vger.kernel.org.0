@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CA054D7A5
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:20:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3AD4D919
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:32:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728949AbfFTSNV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:13:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41258 "EHLO mail.kernel.org"
+        id S1726917AbfFTSAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:00:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729240AbfFTSNU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:13:20 -0400
+        id S1726907AbfFTSAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:00:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A248205F4;
-        Thu, 20 Jun 2019 18:13:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0481F208CA;
+        Thu, 20 Jun 2019 18:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054400;
-        bh=U+Fw+56pmtSjJpXkynyZcARIJ3ukFQN6yVeJ/gkDaHU=;
+        s=default; t=1561053618;
+        bh=lYwmXNi2gRXd0Sj13VdaDEUHQXlhtornMixWj3JjQKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JDROP4HSbmgc7owJ8L3+aTmubM9GHzoDo00ruvdLNuNQjde1i1gNb2aA5KRGFwpcR
-         P35KK2NZyQ+TF9J6aMI1KzbmH0QV6i3Dl4gMfOK06VsasjDI1eUvtUPk4MQWMCI1/n
-         vIQwtIShuIfDb/9R3pECKrGtXw9icaMLmwZzJ1Yk=
+        b=hgBrTBzKLV8Hg0SM8EAP4lrDHJ7xggNfMb9BIfBu0oL9xOcl5gu5kBwav6Sl/TqQy
+         Cox0KkK8Ab6lhd09KYE1w8p2eZhG8JhYlsOdNJu1vwScAizDrY4sQau5ngljyq29RO
+         3jD97TKjFWmYjqWLn3cL5WmDfXBD4ba5g2jvhMzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 05/98] ipv6: flowlabel: fl6_sock_lookup() must use atomic_inc_not_zero
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 35/84] ARM: dts: exynos: Always enable necessary APIO_1V8 and ABB_1V8 regulators on Arndale Octa
 Date:   Thu, 20 Jun 2019 19:56:32 +0200
-Message-Id: <20190620174349.648944378@linuxfoundation.org>
+Message-Id: <20190620174343.321036371@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+[ Upstream commit 5ab99cf7d5e96e3b727c30e7a8524c976bd3723d ]
 
-[ Upstream commit 65a3c497c0e965a552008db8bc2653f62bc925a1 ]
+The PVDD_APIO_1V8 (LDO2) and PVDD_ABB_1V8 (LDO8) regulators were turned
+off by Linux kernel as unused.  However they supply critical parts of
+SoC so they should be always on:
 
-Before taking a refcount, make sure the object is not already
-scheduled for deletion.
+1. PVDD_APIO_1V8 supplies SYS pins (gpx[0-3], PSHOLD), HDMI level shift,
+   RTC, VDD1_12 (DRAM internal 1.8 V logic), pull-up for PMIC interrupt
+   lines, TTL/UARTR level shift, reset pins and SW-TACT1 button.
+   It also supplies unused blocks like VDDQ_SRAM (for SROM controller) and
+   VDDQ_GPIO (gpm7, gpy7).
+   The LDO2 cannot be turned off (S2MPS11 keeps it on anyway) so
+   marking it "always-on" only reflects its real status.
 
-Same fix is needed in ipv6_flowlabel_opt()
+2. PVDD_ABB_1V8 supplies Adaptive Body Bias Generator for ARM cores,
+   memory and Mali (G3D).
 
-Fixes: 18367681a10b ("ipv6 flowlabel: Convert np->ipv6_fl_list to RCU.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_flowlabel.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/exynos5420-arndale-octa.dts | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/ipv6/ip6_flowlabel.c
-+++ b/net/ipv6/ip6_flowlabel.c
-@@ -254,9 +254,9 @@ struct ip6_flowlabel *fl6_sock_lookup(st
- 	rcu_read_lock_bh();
- 	for_each_sk_fl_rcu(np, sfl) {
- 		struct ip6_flowlabel *fl = sfl->fl;
--		if (fl->label == label) {
-+
-+		if (fl->label == label && atomic_inc_not_zero(&fl->users)) {
- 			fl->lastuse = jiffies;
--			atomic_inc(&fl->users);
- 			rcu_read_unlock_bh();
- 			return fl;
- 		}
-@@ -622,7 +622,8 @@ int ipv6_flowlabel_opt(struct sock *sk,
- 						goto done;
- 					}
- 					fl1 = sfl->fl;
--					atomic_inc(&fl1->users);
-+					if (!atomic_inc_not_zero(&fl1->users))
-+						fl1 = NULL;
- 					break;
- 				}
- 			}
+diff --git a/arch/arm/boot/dts/exynos5420-arndale-octa.dts b/arch/arm/boot/dts/exynos5420-arndale-octa.dts
+index 4ecef6981d5c..b54c0b8a5b34 100644
+--- a/arch/arm/boot/dts/exynos5420-arndale-octa.dts
++++ b/arch/arm/boot/dts/exynos5420-arndale-octa.dts
+@@ -97,6 +97,7 @@
+ 				regulator-name = "PVDD_APIO_1V8";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 			};
+ 
+ 			ldo3_reg: LDO3 {
+@@ -135,6 +136,7 @@
+ 				regulator-name = "PVDD_ABB_1V8";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 			};
+ 
+ 			ldo9_reg: LDO9 {
+-- 
+2.20.1
+
 
 
