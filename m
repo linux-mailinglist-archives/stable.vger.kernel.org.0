@@ -2,102 +2,273 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B18E44C8D6
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 10:01:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A12D14C8F9
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 10:08:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726429AbfFTIBw convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 20 Jun 2019 04:01:52 -0400
-Received: from relay1.mentorg.com ([192.94.38.131]:36394 "EHLO
-        relay1.mentorg.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725875AbfFTIBw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 04:01:52 -0400
-Received: from nat-ies.mentorg.com ([192.94.31.2] helo=svr-ies-mbx-02.mgc.mentorg.com)
-        by relay1.mentorg.com with esmtps (TLSv1.2:ECDHE-RSA-AES256-SHA384:256)
-        id 1hds10-0004u6-36 from Cedric_Hombourger@mentor.com ; Thu, 20 Jun 2019 01:01:50 -0700
-Received: from svr-ies-mbx-02.mgc.mentorg.com (139.181.222.2) by
- svr-ies-mbx-02.mgc.mentorg.com (139.181.222.2) with Microsoft SMTP Server
- (TLS) id 15.0.1320.4; Thu, 20 Jun 2019 09:01:46 +0100
-Received: from svr-ies-mbx-02.mgc.mentorg.com ([fe80::a01f:51c9:5b6c:e0c]) by
- svr-ies-mbx-02.mgc.mentorg.com ([fe80::a01f:51c9:5b6c:e0c%22]) with mapi id
- 15.00.1320.000; Thu, 20 Jun 2019 09:01:46 +0100
-From:   "Hombourger, Cedric" <Cedric_Hombourger@mentor.com>
-To:     Sasha Levin <sashal@kernel.org>
-CC:     "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] MIPS: have "plain" make calls build dtbs for selected
- platforms
-Thread-Topic: [PATCH] MIPS: have "plain" make calls build dtbs for selected
- platforms
-Thread-Index: AQHVIcVrw5tGiAGyckKhKLs3W2AnEaadO4kAgACh3B+ABltc6Q==
-Date:   Thu, 20 Jun 2019 08:01:46 +0000
-Message-ID: <1561017706300.81899@mentor.com>
-References: <1560415970-844-1-git-send-email-Cedric_Hombourger@mentor.com>,<20190615221604.E6FB82183F@mail.kernel.org>,<1560668291651.87711@mentor.com>
-In-Reply-To: <1560668291651.87711@mentor.com>
-Accept-Language: en-US, en-IE
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [137.202.0.90]
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1725977AbfFTIIE convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 20 Jun 2019 04:08:04 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:56012 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725877AbfFTIID (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 04:08:03 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 38B4B8112E
+        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 08:08:03 +0000 (UTC)
+Received: from [172.54.67.194] (cpt-large-cpu-02.paas.prod.upshift.rdu2.redhat.com [10.0.18.84])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CAE041001B04;
+        Thu, 20 Jun 2019 08:08:00 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.96210E39D2.3B9JIJYYSE@redhat.com>
+X-Gitlab-Pipeline-ID: 12851
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Thu, 20 Jun 2019 08:08:03 +0000 (UTC)
+Date:   Thu, 20 Jun 2019 04:08:03 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings,
+Hello,
 
-Just to follow-up. I have verified that we can apply this patch to 4.4 and 4.9 without introducing additional patches but simply resolving conflicts. Should I post separate patches for 4.4 and 4.9?
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-Thank you
-Cedric
-________________________________________
-From: Hombourger, Cedric
-Sent: Sunday, June 16, 2019 8:58 AM
-To: Sasha Levin
-Cc: linux-mips@vger.kernel.org; stable@vger.kernel.org
-Subject: Re: [PATCH] MIPS: have "plain" make calls build dtbs for selected platforms
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 9f31eb60d7a2 - Linux 4.19.53
 
-Hello Sasha,
+The results of these automated tests are provided below.
 
-Thanks a lot for testing all these configurations (and I apologize if I missed anything to fulfill the process to contribute to -stable)
-I will check the configurations that fail and check if we just need to resolve the patch conflict(s). Should we mark the current patch as targeting v4.19+ and submit specific patches for < 4.19? Your guidance would be greatly appreciated
-
-Thank you
-Cedric
-________________________________________
-From: Sasha Levin <sashal@kernel.org>
-Sent: Sunday, June 16, 2019 12:16 AM
-To: Sasha Levin; Hombourger, Cedric
-Cc: Hombourger, Cedric; linux-mips@vger.kernel.org; stable@vger.kernel.org; stable@vger.kernel.org
-Subject: Re: [PATCH] MIPS: have "plain" make calls build dtbs for selected platforms
-
-Hi,
-
-[This is an automated email]
-
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
-
-The bot has tested the following trees: v5.1.9, v4.19.50, v4.14.125, v4.9.181, v4.4.181.
-
-v5.1.9: Build OK!
-v4.19.50: Build OK!
-v4.14.125: Failed to apply! Possible dependencies:
-    04d8405e714e ("MIPS: Set defconfig target to a generic system for 32r2el")
-
-v4.9.181: Failed to apply! Possible dependencies:
-    04d8405e714e ("MIPS: Set defconfig target to a generic system for 32r2el")
-
-v4.4.181: Failed to apply! Possible dependencies:
-    04d8405e714e ("MIPS: Set defconfig target to a generic system for 32r2el")
-    aadeec4df9b3 ("MIPS: tools: Build relocs tool")
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
 
-How should we proceed with this patch?
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
---
-Thanks,
-Sasha
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 9f31eb60d7a2 - Linux 4.19.53
+
+
+We then merged the patchset with `git am`:
+
+  ax25-fix-inconsistent-lock-state-in-ax25_destroy_timer.patch
+  be2net-fix-number-of-rx-queues-used-for-flow-hashing.patch
+  hv_netvsc-set-probe-mode-to-sync.patch
+  ipv6-flowlabel-fl6_sock_lookup-must-use-atomic_inc_not_zero.patch
+  lapb-fixed-leak-of-control-blocks.patch
+  neigh-fix-use-after-free-read-in-pneigh_get_next.patch
+  net-dsa-rtl8366-fix-up-vlan-filtering.patch
+  net-openvswitch-do-not-free-vport-if-register_netdevice-is-failed.patch
+  net-phylink-set-the-autoneg-state-in-phylink_phy_change.patch
+  nfc-ensure-presence-of-required-attributes-in-the-deactivate_target-handler.patch
+  sctp-free-cookie-before-we-memdup-a-new-one.patch
+  sunhv-fix-device-naming-inconsistency-between-sunhv_console-and-sunhv_reg.patch
+  tipc-purge-deferredq-list-for-each-grp-member-in-tipc_group_delete.patch
+  vsock-virtio-set-sock_done-on-peer-shutdown.patch
+  net-mlx5-avoid-reloading-already-removed-devices.patch
+  net-mvpp2-prs-fix-parser-range-for-vid-filtering.patch
+  net-mvpp2-prs-use-the-correct-helpers-when-removing-all-vid-filters.patch
+  staging-vc04_services-fix-a-couple-error-codes.patch
+  perf-x86-intel-ds-fix-event-vs.-uevent-pebs-constrai.patch
+  netfilter-nf_queue-fix-reinject-verdict-handling.patch
+  ipvs-fix-use-after-free-in-ip_vs_in.patch
+  selftests-netfilter-missing-error-check-when-setting.patch
+  clk-ti-clkctrl-fix-clkdm_clk-handling.patch
+  powerpc-powernv-return-for-invalid-imc-domain.patch
+  usb-xhci-fix-a-potential-null-pointer-dereference-in.patch
+  misdn-make-sure-device-name-is-nul-terminated.patch
+  x86-cpu-amd-don-t-force-the-cpb-cap-when-running-und.patch
+  perf-ring_buffer-fix-exposing-a-temporarily-decrease.patch
+  perf-ring_buffer-add-ordering-to-rb-nest-increment.patch
+  perf-ring-buffer-always-use-read-write-_once-for-rb-.patch
+  gpio-fix-gpio-adp5588-build-errors.patch
+  net-stmmac-update-rx-tail-pointer-register-to-fix-rx.patch
+  net-tulip-de4x5-drop-redundant-module_device_table.patch
+  acpi-pci-pm-add-missing-wakeup.flags.valid-checks.patch
+  loop-don-t-change-loop-device-under-exclusive-opener.patch
+  drm-etnaviv-lock-mmu-while-dumping-core.patch
+  net-aquantia-tx-clean-budget-logic-error.patch
+  net-aquantia-fix-lro-with-fcs-error.patch
+  i2c-dev-fix-potential-memory-leak-in-i2cdev_ioctl_rd.patch
+  alsa-hda-force-polling-mode-on-cnl-for-fixing-codec-.patch
+  configfs-fix-use-after-free-when-accessing-sd-s_dent.patch
+  perf-data-fix-strncat-may-truncate-build-failure-wit.patch
+  perf-namespace-protect-reading-thread-s-namespace.patch
+  perf-record-fix-s390-missing-module-symbol-and-warni.patch
+  ia64-fix-build-errors-by-exporting-paddr_to_nid.patch
+  xen-pvcalls-remove-set-but-not-used-variable.patch
+  xenbus-avoid-deadlock-during-suspend-due-to-open-tra.patch
+  kvm-ppc-book3s-use-new-mutex-to-synchronize-access-t.patch
+  kvm-ppc-book3s-hv-don-t-take-kvm-lock-around-kvm_for.patch
+  arm64-fix-syscall_fn_t-type.patch
+  arm64-use-the-correct-function-type-in-syscall_defin.patch
+  arm64-use-the-correct-function-type-for-__arm64_sys_.patch
+  net-sh_eth-fix-mdio-access-in-sh_eth_close-for-r-car.patch
+  net-phylink-ensure-consistent-phy-interface-mode.patch
+  net-phy-dp83867-set-up-rgmii-tx-delay.patch
+  scsi-libcxgbi-add-a-check-for-null-pointer-in-cxgbi_.patch
+  scsi-smartpqi-properly-set-both-the-dma-mask-and-the.patch
+  scsi-scsi_dh_alua-fix-possible-null-ptr-deref.patch
+  scsi-libsas-delete-sas-port-if-expander-discover-fai.patch
+  mlxsw-spectrum-prevent-force-of-56g.patch
+  ocfs2-fix-error-path-kobject-memory-leak.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-f2df5c7c97a0ad033576aad0718c3669087dd99f.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-f2df5c7c97a0ad033576aad0718c3669087dd99f.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-f2df5c7c97a0ad033576aad0718c3669087dd99f.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-f2df5c7c97a0ad033576aad0718c3669087dd99f.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-f2df5c7c97a0ad033576aad0718c3669087dd99f.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-f2df5c7c97a0ad033576aad0718c3669087dd99f.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-f2df5c7c97a0ad033576aad0718c3669087dd99f.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-f2df5c7c97a0ad033576aad0718c3669087dd99f.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ LTP: openposix test suite [5]
+       ✅ Ethernet drivers sanity [6]
+       ✅ audit: audit testsuite test [7]
+       ✅ httpd: mod_ssl smoke sanity [8]
+       ✅ iotop: sanity [9]
+       ✅ Usex - version 1.9-29 [10]
+       🚧 ✅ Networking socket: fuzz [11]
+       🚧 ✅ Networking sctp-auth: sockopts test [12]
+       🚧 ✅ tuned: tune-processes-through-perf [13]
+       🚧 ✅ storage: SCSI VPD [14]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ LTP: openposix test suite [5]
+       ✅ Ethernet drivers sanity [6]
+       ✅ audit: audit testsuite test [7]
+       ✅ httpd: mod_ssl smoke sanity [8]
+       ✅ iotop: sanity [9]
+       ✅ Usex - version 1.9-29 [10]
+       🚧 ✅ Networking socket: fuzz [11]
+       🚧 ✅ Networking sctp-auth: sockopts test [12]
+       🚧 ✅ tuned: tune-processes-through-perf [13]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ LTP: openposix test suite [5]
+       ✅ Ethernet drivers sanity [6]
+       ✅ audit: audit testsuite test [7]
+       ✅ httpd: mod_ssl smoke sanity [8]
+       ✅ iotop: sanity [9]
+       🚧 ✅ Networking socket: fuzz [11]
+       🚧 ✅ Networking sctp-auth: sockopts test [12]
+       🚧 ✅ tuned: tune-processes-through-perf [13]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ LTP: openposix test suite [5]
+       ✅ Ethernet drivers sanity [6]
+       ✅ audit: audit testsuite test [7]
+       ✅ httpd: mod_ssl smoke sanity [8]
+       ✅ iotop: sanity [9]
+       ✅ Usex - version 1.9-29 [10]
+       🚧 ✅ Networking socket: fuzz [11]
+       🚧 ✅ Networking sctp-auth: sockopts test [12]
+       🚧 ✅ tuned: tune-processes-through-perf [13]
+       🚧 ✅ storage: SCSI VPD [14]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
