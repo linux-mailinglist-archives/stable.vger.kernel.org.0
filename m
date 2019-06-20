@@ -2,146 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6EAF4D066
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 16:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 431934D0BA
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 16:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726697AbfFTO3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 10:29:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38210 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726675AbfFTO3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 10:29:21 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 017FD206E0;
-        Thu, 20 Jun 2019 14:29:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561040960;
-        bh=jGmcXFeW7D8HKNyL/7thTeEj0zTlF5U4/cIcsDDUCcE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bWZIWH1KS7f4YtgkdDQ1w1wqZnbknVtlEjsKM3/0EvS2BVM9DQEtY3E8AbvcgmQ5j
-         +9V/tRmfj/fFD1RtgIAerM3bvwacNNtvsKzpzC+csNmLj2Oy1HYI3wIAn8J0Eddrl6
-         qA8Hk0xtO2X6F75FZY+zij/t168hRiOm0RZ10QK0=
-Date:   Thu, 20 Jun 2019 16:29:18 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Michal Hocko <mhocko@kernel.org>
-Cc:     Stable tree <stable@vger.kernel.org>,
-        Jason Gunthorpe <jgg@mellanox.com>, linux-mm@kvack.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Jann Horn <jannh@google.com>, Oleg Nesterov <oleg@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Joel Fernandes <joel@joelfernandes.org>
-Subject: Re: [PATCH stable-4.4 v3] coredump: fix race condition between
- mmget_not_zero()/get_task_mm() and core dumping
-Message-ID: <20190620142918.GE9832@kroah.com>
-References: <20190610074635.2319-1-mhocko@kernel.org>
- <20190617065824.28305-1-mhocko@kernel.org>
+        id S1731943AbfFTOsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 10:48:23 -0400
+Received: from mail-eopbgr20089.outbound.protection.outlook.com ([40.107.2.89]:32771
+        "EHLO EUR02-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726551AbfFTOsW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 10:48:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qBbZIeA/XEPZCqAoBDVPKDME8hRssu/w4IpL9O/IYr0=;
+ b=mJQ+UdbXN2a2kUDD0LmT18T6EBC8uIwAuEQqDhyBn1ALScCbk9c0PauWlipaUkkwHl0AxpPHrZRq8+5NoS+aPJx987FE7Djbok8FMKsyh9v+xAwEfB24a8XvoQpm5wfmX1o+7ul52kJjfdmmG8oO9jNncSh3BSqggh2v+XmPNAM=
+Received: from VI1PR0402MB2800.eurprd04.prod.outlook.com (10.175.24.138) by
+ VI1PR0402MB2765.eurprd04.prod.outlook.com (10.175.20.142) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1987.12; Thu, 20 Jun 2019 14:48:18 +0000
+Received: from VI1PR0402MB2800.eurprd04.prod.outlook.com
+ ([fe80::714d:36e8:3ca4:f188]) by VI1PR0402MB2800.eurprd04.prod.outlook.com
+ ([fe80::714d:36e8:3ca4:f188%3]) with mapi id 15.20.1987.014; Thu, 20 Jun 2019
+ 14:48:18 +0000
+From:   Ioana Ciornei <ioana.ciornei@nxp.com>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     "stable-commits@vger.kernel.org" <stable-commits@vger.kernel.org>,
+        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
+        David Miller <davem@davemloft.net>
+Subject: RE: Patch "net: phylink: set the autoneg state in phylink_phy_change"
+ has been added to the 5.1-stable tree
+Thread-Topic: Patch "net: phylink: set the autoneg state in
+ phylink_phy_change" has been added to the 5.1-stable tree
+Thread-Index: AQHVJp7GvtUQ454g10e1mAYmttBZM6akoBlQ
+Date:   Thu, 20 Jun 2019 14:48:18 +0000
+Message-ID: <VI1PR0402MB28004F08C06FAEC6FADD7DEAE0E40@VI1PR0402MB2800.eurprd04.prod.outlook.com>
+References: <156094908410230@kroah.com>
+In-Reply-To: <156094908410230@kroah.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=ioana.ciornei@nxp.com; 
+x-originating-ip: [188.26.252.192]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: ea64fbcb-5436-4bc5-475e-08d6f58e5591
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:VI1PR0402MB2765;
+x-ms-traffictypediagnostic: VI1PR0402MB2765:
+x-ms-exchange-purlcount: 2
+x-microsoft-antispam-prvs: <VI1PR0402MB27656B48A2623F34E86BD015E0E40@VI1PR0402MB2765.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:10000;
+x-forefront-prvs: 0074BBE012
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(376002)(396003)(366004)(39850400004)(136003)(53754006)(189003)(199004)(64756008)(53936002)(68736007)(305945005)(9686003)(66476007)(186003)(76176011)(4326008)(76116006)(256004)(73956011)(26005)(476003)(6506007)(71190400001)(2501003)(53546011)(5660300002)(66446008)(71200400001)(14454004)(229853002)(14444005)(86362001)(52536014)(3846002)(102836004)(55016002)(6306002)(81156014)(316002)(966005)(66066001)(81166006)(446003)(110136005)(99286004)(25786009)(66946007)(33656002)(486006)(2906002)(6436002)(54906003)(7736002)(44832011)(8936002)(66556008)(11346002)(74316002)(478600001)(6246003)(8676002)(7696005)(6116002)(6606295002);DIR:OUT;SFP:1101;SCL:1;SRVR:VI1PR0402MB2765;H:VI1PR0402MB2800.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: V+onCdZmDu5i7X2uuEdnV9VHEgXfiWyQTCm5QpuQqDGJWiqI1dSoYY/XGdnWBdWlW2YF5RpnXGlxwQ6LF9aCpQ+rlLXF2ta7RPKKubqqtWhjK1NCgtZnt+uLebrV+GdLzmJbojxUe5oRv595HzD8vvYVtUi1W96lan3X2WE3FnnwWRFlHtDFObcUSpz+alYxINcgUAwswW3vTa6/OS6OS3a5y0meqDmcwEYggbb7nhTwil8forScx4BcKw0NUj4ZeNruhJ+hlXDV8to/F67X/wBY/ZB5WqdHlM95JYz2TOAFENPGEcHkA/zCKgRcA/V3+vSlim9M46Ea/lJ0v6HQDe9bOgg36e0wJ3KG3vfYn3BvCPpJObhuqcMaKwGnnXISdngwqK8d3sQq6B541duCmTbsJqbkkiA55O7SfT1lb2k=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190617065824.28305-1-mhocko@kernel.org>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ea64fbcb-5436-4bc5-475e-08d6f58e5591
+X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Jun 2019 14:48:18.8248
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: ioana.ciornei@nxp.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR0402MB2765
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 17, 2019 at 08:58:24AM +0200, Michal Hocko wrote:
-> From: Andrea Arcangeli <aarcange@redhat.com>
-> 
-> Upstream 04f5866e41fb70690e28397487d8bd8eea7d712a commit.
-> 
-> The core dumping code has always run without holding the mmap_sem for
-> writing, despite that is the only way to ensure that the entire vma
-> layout will not change from under it.  Only using some signal
-> serialization on the processes belonging to the mm is not nearly enough.
-> This was pointed out earlier.  For example in Hugh's post from Jul 2017:
-> 
->   https://lkml.kernel.org/r/alpine.LSU.2.11.1707191716030.2055@eggly.anvils
-> 
->   "Not strictly relevant here, but a related note: I was very surprised
->    to discover, only quite recently, how handle_mm_fault() may be called
->    without down_read(mmap_sem) - when core dumping. That seems a
->    misguided optimization to me, which would also be nice to correct"
-> 
-> In particular because the growsdown and growsup can move the
-> vm_start/vm_end the various loops the core dump does around the vma will
-> not be consistent if page faults can happen concurrently.
-> 
-> Pretty much all users calling mmget_not_zero()/get_task_mm() and then
-> taking the mmap_sem had the potential to introduce unexpected side
-> effects in the core dumping code.
-> 
-> Adding mmap_sem for writing around the ->core_dump invocation is a
-> viable long term fix, but it requires removing all copy user and page
-> faults and to replace them with get_dump_page() for all binary formats
-> which is not suitable as a short term fix.
-> 
-> For the time being this solution manually covers the places that can
-> confuse the core dump either by altering the vma layout or the vma flags
-> while it runs.  Once ->core_dump runs under mmap_sem for writing the
-> function mmget_still_valid() can be dropped.
-> 
-> Allowing mmap_sem protected sections to run in parallel with the
-> coredump provides some minor parallelism advantage to the swapoff code
-> (which seems to be safe enough by never mangling any vma field and can
-> keep doing swapins in parallel to the core dumping) and to some other
-> corner case.
-> 
-> In order to facilitate the backporting I added "Fixes: 86039bd3b4e6"
-> however the side effect of this same race condition in /proc/pid/mem
-> should be reproducible since before 2.6.12-rc2 so I couldn't add any
-> other "Fixes:" because there's no hash beyond the git genesis commit.
-> 
-> Because find_extend_vma() is the only location outside of the process
-> context that could modify the "mm" structures under mmap_sem for
-> reading, by adding the mmget_still_valid() check to it, all other cases
-> that take the mmap_sem for reading don't need the new check after
-> mmget_not_zero()/get_task_mm().  The expand_stack() in page fault
-> context also doesn't need the new check, because all tasks under core
-> dumping are frozen.
-> 
-> Link: http://lkml.kernel.org/r/20190325224949.11068-1-aarcange@redhat.com
-> Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
-> Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-> Reported-by: Jann Horn <jannh@google.com>
-> Suggested-by: Oleg Nesterov <oleg@redhat.com>
-> Acked-by: Peter Xu <peterx@redhat.com>
-> Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-> Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-> Reviewed-by: Jann Horn <jannh@google.com>
-> Acked-by: Jason Gunthorpe <jgg@mellanox.com>
-> Acked-by: Michal Hocko <mhocko@suse.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
-> [mhocko@suse.com: stable 4.4 backport
->  - drop infiniband part because of missing 5f9794dc94f59
->  - drop userfaultfd_event_wait_completion hunk because of
->    missing 9cd75c3cd4c3d]
->  - handle binder_update_page_range because of missing 720c241924046
->  - handle mlx5_ib_disassociate_ucontext - akaher@vmware.com
-> ]
-> Signed-off-by: Michal Hocko <mhocko@suse.com>
+
+> Subject: Patch "net: phylink: set the autoneg state in phylink_phy_change=
+" has
+> been added to the 5.1-stable tree
+>=20
+>=20
+> This is a note to let you know that I've just added the patch titled
+>=20
+>     net: phylink: set the autoneg state in phylink_phy_change
+>=20
+> to the 5.1-stable tree which can be found at:
+>=20
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git=20
+>=20
+> The filename of the patch is:
+>      net-phylink-set-the-autoneg-state-in-phylink_phy_change.patch
+> and it can be found in the queue-5.1 subdirectory.
+>=20
+> If you, or anyone else, feels it should not be added to the stable tree, =
+please let
+> <stable@vger.kernel.org> know about it.
+
+Hi all,
+
+Sorry for the late response but this patch should not be added to stables t=
+rees since it was already reverted in net-next.
+More information can be found at: https://marc.info/?l=3Dlinux-netdev&m=3D1=
+56104162206869&w=3D2
+
+Thanks,
+Ioana
+
+>=20
+>=20
+> From foo@baz Wed 19 Jun 2019 02:33:45 PM CEST
+> From: Ioana Ciornei <ioana.ciornei@nxp.com>
+> Date: Thu, 13 Jun 2019 09:37:51 +0300
+> Subject: net: phylink: set the autoneg state in phylink_phy_change
+>=20
+> From: Ioana Ciornei <ioana.ciornei@nxp.com>
+>=20
+> [ Upstream commit ef7bfa84725d891bbdb88707ed55b2cbf94942bb ]
+>=20
+> The phy_state field of phylink should carry only valid information especi=
+ally
+> when this can be passed to the .mac_config callback.
+> Update the an_enabled field with the autoneg state in the phylink_phy_cha=
+nge
+> function.
+>=20
+> Fixes: 9525ae83959b ("phylink: add phylink infrastructure")
+> Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > ---
->  drivers/android/binder.c          |  6 ++++++
->  drivers/infiniband/hw/mlx4/main.c |  3 +++
->  fs/proc/task_mmu.c                | 18 ++++++++++++++++++
->  fs/userfaultfd.c                  | 10 ++++++++--
->  include/linux/mm.h                | 21 +++++++++++++++++++++
->  mm/mmap.c                         |  7 ++++++-
->  6 files changed, 62 insertions(+), 3 deletions(-)
-
-I've queued this up now, as it looks like everyone agrees with it.  What
-about a 4.9.y backport?
-
-thanks,
-
-greg k-h
+>  drivers/net/phy/phylink.c |    1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> --- a/drivers/net/phy/phylink.c
+> +++ b/drivers/net/phy/phylink.c
+> @@ -638,6 +638,7 @@ static void phylink_phy_change(struct ph
+>  		pl->phy_state.pause |=3D MLO_PAUSE_ASYM;
+>  	pl->phy_state.interface =3D phydev->interface;
+>  	pl->phy_state.link =3D up;
+> +	pl->phy_state.an_enabled =3D phydev->autoneg;
+>  	mutex_unlock(&pl->state_mutex);
+>=20
+>  	phylink_run_resolve(pl);
+>=20
+>=20
+> Patches currently in stable-queue which might be from ioana.ciornei@nxp.c=
+om
+> are
+>=20
+> queue-5.1/net-phylink-set-the-autoneg-state-in-phylink_phy_change.patch
