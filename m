@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 988554D838
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38DC14D80B
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727241AbfFTSID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:08:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35040 "EHLO mail.kernel.org"
+        id S1726533AbfFTSWg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:22:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728414AbfFTSIA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:08:00 -0400
+        id S1726494AbfFTSKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:10:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BE9B21670;
-        Thu, 20 Jun 2019 18:07:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F06621537;
+        Thu, 20 Jun 2019 18:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054080;
-        bh=upEVnw1kzCasYRFExIc5e5hpkGiwl0rOpPec6g/Pr/Y=;
+        s=default; t=1561054231;
+        bh=f71/z4ZI1OFo3ElfPtSw2oyiw5zxr3DPqg14ucDRLTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L6xW5WjiPPVxq8wHi3L/Jdi50zOZi1t69WhWvrQPAqcKZ1ZZ3NuPp+AsSFeLKOmft
-         ZEwxbCK9CzUyafeRJ9wgOSVcBcTK8dOo3duoLZponzbBy+enmWQ88gmAfgGEf+wJ10
-         SfNukt2dPSXNfyEWbYVToLiJAq6S4pme3M0+ADzs=
+        b=tUwWK9w44wx8RAMO+Lp3U/I+XUCN19a5ys5x1M5veXyT8/+NHTXRxxeIhelFD/QPa
+         gr4hMrSJLZ7mgWv2eVass4pnhv7ukvsRk+0C3cal8hDI25jGr1Cvbk5tqzsCtXyRzP
+         F4MmhPmj1GRRsymUACRXyfjS9EpSowZuuNlnelso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jagdish Motwani <jagdish.motwani@sophos.com>,
         Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/45] netfilter: nf_queue: fix reinject verdict handling
+Subject: [PATCH 4.19 19/61] netfilter: nf_queue: fix reinject verdict handling
 Date:   Thu, 20 Jun 2019 19:57:14 +0200
-Message-Id: <20190620174333.723645570@linuxfoundation.org>
+Message-Id: <20190620174340.514808963@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
-References: <20190620174328.608036501@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,10 +63,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/net/netfilter/nf_queue.c b/net/netfilter/nf_queue.c
-index f7e21953b1de..8260b1e73bbd 100644
+index d67a96a25a68..7569ba00e732 100644
 --- a/net/netfilter/nf_queue.c
 +++ b/net/netfilter/nf_queue.c
-@@ -193,6 +193,7 @@ static unsigned int nf_iterate(struct sk_buff *skb,
+@@ -238,6 +238,7 @@ static unsigned int nf_iterate(struct sk_buff *skb,
  repeat:
  		verdict = nf_hook_entry_hookfn(hook, skb, state);
  		if (verdict != NF_ACCEPT) {
