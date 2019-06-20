@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 590F24D7C4
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB2734D8F9
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:30:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728773AbfFTSKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:10:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37802 "EHLO mail.kernel.org"
+        id S1726425AbfFTSAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:00:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728771AbfFTSKM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:10:12 -0400
+        id S1727064AbfFTSAs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:00:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCC4621530;
-        Thu, 20 Jun 2019 18:10:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02B51214AF;
+        Thu, 20 Jun 2019 18:00:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054211;
-        bh=U+Fw+56pmtSjJpXkynyZcARIJ3ukFQN6yVeJ/gkDaHU=;
+        s=default; t=1561053647;
+        bh=prdMiaT7N9TrVI/A20MwePkGZCg2cYEobayyrSDpkg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9Ll0lnjl0L43mv0VhkqHDn3X5vcGD8j7P74y39mHSxIYu5BQgb2p5rvAr3PjCEiv
-         QhtCdMvdPWF8los65DfKW0qP43klG03qt5Gm59uENOBS85mzkNp9p26J4oHaKriFzs
-         HPMpmFxCPbi5ycO58/c1aQb2V+hlzUE+MsgRz1jM=
+        b=lPc1wWuDHyW7dlhD8uHz8XtR1ss0JcGGk//rG/1zJzQQiDp0a2KDEOJ+KGk5KGExk
+         hp5+Zorl96YfdUMZvR05CaDn4M00BV/MZhdZFW3nFlbu+DXgi2KtsC8323PwqKItG0
+         J2S1dKpEeTi8nfbNDOv0Rsnuwo5CpRwvG3kLTgQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 04/61] ipv6: flowlabel: fl6_sock_lookup() must use atomic_inc_not_zero
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 62/84] USB: serial: option: add Telit 0x1260 and 0x1261 compositions
 Date:   Thu, 20 Jun 2019 19:56:59 +0200
-Message-Id: <20190620174338.178666754@linuxfoundation.org>
+Message-Id: <20190620174347.946623015@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 65a3c497c0e965a552008db8bc2653f62bc925a1 ]
+commit f3dfd4072c3ee6e287f501a18b5718b185d6a940 upstream.
 
-Before taking a refcount, make sure the object is not already
-scheduled for deletion.
+Added support for Telit LE910Cx 0x1260 and 0x1261 compositions.
 
-Same fix is needed in ipv6_flowlabel_opt()
-
-Fixes: 18367681a10b ("ipv6 flowlabel: Convert np->ipv6_fl_list to RCU.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv6/ip6_flowlabel.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/ipv6/ip6_flowlabel.c
-+++ b/net/ipv6/ip6_flowlabel.c
-@@ -254,9 +254,9 @@ struct ip6_flowlabel *fl6_sock_lookup(st
- 	rcu_read_lock_bh();
- 	for_each_sk_fl_rcu(np, sfl) {
- 		struct ip6_flowlabel *fl = sfl->fl;
--		if (fl->label == label) {
-+
-+		if (fl->label == label && atomic_inc_not_zero(&fl->users)) {
- 			fl->lastuse = jiffies;
--			atomic_inc(&fl->users);
- 			rcu_read_unlock_bh();
- 			return fl;
- 		}
-@@ -622,7 +622,8 @@ int ipv6_flowlabel_opt(struct sock *sk,
- 						goto done;
- 					}
- 					fl1 = sfl->fl;
--					atomic_inc(&fl1->users);
-+					if (!atomic_inc_not_zero(&fl1->users))
-+						fl1 = NULL;
- 					break;
- 				}
- 			}
+---
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1166,6 +1166,10 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1213, 0xff) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1214),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
++	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1900),				/* Telit LN940 (QMI) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1901, 0xff),	/* Telit LN940 (MBIM) */
 
 
