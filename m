@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD24C4D75F
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:18:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 140D74D7B4
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:23:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729449AbfFTSQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
+        id S1728425AbfFTSJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:09:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729748AbfFTSQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:16:17 -0400
+        id S1728217AbfFTSJX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:09:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2184F2084E;
-        Thu, 20 Jun 2019 18:16:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C98C32082C;
+        Thu, 20 Jun 2019 18:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054576;
-        bh=gSTcU5yYVxpNXbaEv5qzLEoi8nI93HSQ4dnyex2vwY8=;
+        s=default; t=1561054162;
+        bh=9p28c3RznQiz5aW5S9Jv555YmAzoCf9lQtwhUb6LtGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qtD+UGkzKn9Qyfwxv9cRgHkoW4wB8fhqdOydDivJ2omsX04GER6S4UkZ5Trebo7uh
-         mdrDYYBURXOqJxTZhqpzcR8eTn3WNyR2L6tohB0/qbagYSWj1PPUdN9c4r5bF7Nqio
-         9Wy4pTmu0fj/qWO1MALrgnGz1wscuEyXVgghh9o0=
+        b=bdKybB4Vnb0t5W2CR1KU6mR+RCZfTq+PB5Al8c1naCIcfm6vH4TwFhM8JrtWxkphN
+         uWMTVAc4TYgZ65LiI2dx3cjq8W+kHIy9eKtVVE0gs78+jlQK8J7WjiMCXki1SpwbiZ
+         /Kebi0yWw/vb4zD5d79vRl4fscFL1mwQJlE5IDQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Mackerras <paulus@ozlabs.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 75/98] KVM: PPC: Book3S HV: Use new mutex to synchronize MMU setup
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 4.14 40/45] HID: wacom: Dont set tool type until were in range
 Date:   Thu, 20 Jun 2019 19:57:42 +0200
-Message-Id: <20190620174352.994573093@linuxfoundation.org>
+Message-Id: <20190620174340.517860181@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
+References: <20190620174328.608036501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,308 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0d4ee88d92884c661fcafd5576da243aa943dc24 ]
+From: Jason Gerecke <jason.gerecke@wacom.com>
 
-Currently the HV KVM code uses kvm->lock in conjunction with a flag,
-kvm->arch.mmu_ready, to synchronize MMU setup and hold off vcpu
-execution until the MMU-related data structures are ready.  However,
-this means that kvm->lock is being taken inside vcpu->mutex, which
-is contrary to Documentation/virtual/kvm/locking.txt and results in
-lockdep warnings.
+commit 2cc08800a6b9fcda7c7afbcf2da1a6e8808da725 upstream.
 
-To fix this, we add a new mutex, kvm->arch.mmu_setup_lock, which nests
-inside the vcpu mutexes, and is taken in the places where kvm->lock
-was taken that are related to MMU setup.
+The serial number and tool type information that is reported by the tablet
+while a pen is merely "in prox" instead of fully "in range" can be stale
+and cause us to report incorrect tool information. Serial number, tool
+type, and other information is only valid once the pen comes fully in range
+so we should be careful to not use this information until that point.
 
-Additionally we take the new mutex in the vcpu creation code at the
-point where we are creating a new vcore, in order to provide mutual
-exclusion with kvmppc_update_lpcr() and ensure that an update to
-kvm->arch.lpcr doesn't get missed, which could otherwise lead to a
-stale vcore->lpcr value.
+In particular, this issue may cause the driver to incorectly report
+BTN_TOOL_RUBBER after switching from the eraser tool back to the pen.
 
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a48324de6d4d ("HID: wacom: Bluetooth IRQ for Intuos Pro should handle prox/range")
+Cc: <stable@vger.kernel.org> # 4.11+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/include/asm/kvm_host.h |  1 +
- arch/powerpc/kvm/book3s_64_mmu_hv.c | 36 ++++++++++++++---------------
- arch/powerpc/kvm/book3s_hv.c        | 31 ++++++++++++++++++-------
- 3 files changed, 42 insertions(+), 26 deletions(-)
+ drivers/hid/wacom_wac.c |   17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
-index e6b5bb012ccb..8d3658275a34 100644
---- a/arch/powerpc/include/asm/kvm_host.h
-+++ b/arch/powerpc/include/asm/kvm_host.h
-@@ -317,6 +317,7 @@ struct kvm_arch {
- #endif
- 	struct kvmppc_ops *kvm_ops;
- #ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
-+	struct mutex mmu_setup_lock;	/* nests inside vcpu mutexes */
- 	u64 l1_ptcr;
- 	int max_nested_lpid;
- 	struct kvm_nested_guest *nested_guests[KVM_MAX_NESTED_GUESTS];
-diff --git a/arch/powerpc/kvm/book3s_64_mmu_hv.c b/arch/powerpc/kvm/book3s_64_mmu_hv.c
-index be7bc070eae5..c1ced22455f9 100644
---- a/arch/powerpc/kvm/book3s_64_mmu_hv.c
-+++ b/arch/powerpc/kvm/book3s_64_mmu_hv.c
-@@ -63,7 +63,7 @@ struct kvm_resize_hpt {
- 	struct work_struct work;
- 	u32 order;
- 
--	/* These fields protected by kvm->lock */
-+	/* These fields protected by kvm->arch.mmu_setup_lock */
- 
- 	/* Possible values and their usage:
- 	 *  <0     an error occurred during allocation,
-@@ -73,7 +73,7 @@ struct kvm_resize_hpt {
- 	int error;
- 
- 	/* Private to the work thread, until error != -EBUSY,
--	 * then protected by kvm->lock.
-+	 * then protected by kvm->arch.mmu_setup_lock.
- 	 */
- 	struct kvm_hpt_info hpt;
- };
-@@ -139,7 +139,7 @@ long kvmppc_alloc_reset_hpt(struct kvm *kvm, int order)
- 	long err = -EBUSY;
- 	struct kvm_hpt_info info;
- 
--	mutex_lock(&kvm->lock);
-+	mutex_lock(&kvm->arch.mmu_setup_lock);
- 	if (kvm->arch.mmu_ready) {
- 		kvm->arch.mmu_ready = 0;
- 		/* order mmu_ready vs. vcpus_running */
-@@ -183,7 +183,7 @@ long kvmppc_alloc_reset_hpt(struct kvm *kvm, int order)
- 		/* Ensure that each vcpu will flush its TLB on next entry. */
- 		cpumask_setall(&kvm->arch.need_tlb_flush);
- 
--	mutex_unlock(&kvm->lock);
-+	mutex_unlock(&kvm->arch.mmu_setup_lock);
- 	return err;
- }
- 
-@@ -1447,7 +1447,7 @@ static void resize_hpt_pivot(struct kvm_resize_hpt *resize)
- 
- static void resize_hpt_release(struct kvm *kvm, struct kvm_resize_hpt *resize)
- {
--	if (WARN_ON(!mutex_is_locked(&kvm->lock)))
-+	if (WARN_ON(!mutex_is_locked(&kvm->arch.mmu_setup_lock)))
- 		return;
- 
- 	if (!resize)
-@@ -1474,14 +1474,14 @@ static void resize_hpt_prepare_work(struct work_struct *work)
- 	if (WARN_ON(resize->error != -EBUSY))
- 		return;
- 
--	mutex_lock(&kvm->lock);
-+	mutex_lock(&kvm->arch.mmu_setup_lock);
- 
- 	/* Request is still current? */
- 	if (kvm->arch.resize_hpt == resize) {
- 		/* We may request large allocations here:
--		 * do not sleep with kvm->lock held for a while.
-+		 * do not sleep with kvm->arch.mmu_setup_lock held for a while.
- 		 */
--		mutex_unlock(&kvm->lock);
-+		mutex_unlock(&kvm->arch.mmu_setup_lock);
- 
- 		resize_hpt_debug(resize, "resize_hpt_prepare_work(): order = %d\n",
- 				 resize->order);
-@@ -1494,9 +1494,9 @@ static void resize_hpt_prepare_work(struct work_struct *work)
- 		if (WARN_ON(err == -EBUSY))
- 			err = -EINPROGRESS;
- 
--		mutex_lock(&kvm->lock);
-+		mutex_lock(&kvm->arch.mmu_setup_lock);
- 		/* It is possible that kvm->arch.resize_hpt != resize
--		 * after we grab kvm->lock again.
-+		 * after we grab kvm->arch.mmu_setup_lock again.
- 		 */
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1225,13 +1225,13 @@ static void wacom_intuos_pro2_bt_pen(str
+ 		/* Add back in missing bits of ID for non-USI pens */
+ 		wacom->id[0] |= (wacom->serial[0] >> 32) & 0xFFFFF;
  	}
+-	wacom->tool[0]   = wacom_intuos_get_tool_type(wacom_intuos_id_mangle(wacom->id[0]));
  
-@@ -1505,7 +1505,7 @@ static void resize_hpt_prepare_work(struct work_struct *work)
- 	if (kvm->arch.resize_hpt != resize)
- 		resize_hpt_release(kvm, resize);
+ 	for (i = 0; i < pen_frames; i++) {
+ 		unsigned char *frame = &data[i*pen_frame_len + 1];
+ 		bool valid = frame[0] & 0x80;
+ 		bool prox = frame[0] & 0x40;
+ 		bool range = frame[0] & 0x20;
++		bool invert = frame[0] & 0x10;
  
--	mutex_unlock(&kvm->lock);
-+	mutex_unlock(&kvm->arch.mmu_setup_lock);
- }
- 
- long kvm_vm_ioctl_resize_hpt_prepare(struct kvm *kvm,
-@@ -1522,7 +1522,7 @@ long kvm_vm_ioctl_resize_hpt_prepare(struct kvm *kvm,
- 	if (shift && ((shift < 18) || (shift > 46)))
- 		return -EINVAL;
- 
--	mutex_lock(&kvm->lock);
-+	mutex_lock(&kvm->arch.mmu_setup_lock);
- 
- 	resize = kvm->arch.resize_hpt;
- 
-@@ -1565,7 +1565,7 @@ long kvm_vm_ioctl_resize_hpt_prepare(struct kvm *kvm,
- 	ret = 100; /* estimated time in ms */
- 
- out:
--	mutex_unlock(&kvm->lock);
-+	mutex_unlock(&kvm->arch.mmu_setup_lock);
- 	return ret;
- }
- 
-@@ -1588,7 +1588,7 @@ long kvm_vm_ioctl_resize_hpt_commit(struct kvm *kvm,
- 	if (shift && ((shift < 18) || (shift > 46)))
- 		return -EINVAL;
- 
--	mutex_lock(&kvm->lock);
-+	mutex_lock(&kvm->arch.mmu_setup_lock);
- 
- 	resize = kvm->arch.resize_hpt;
- 
-@@ -1625,7 +1625,7 @@ long kvm_vm_ioctl_resize_hpt_commit(struct kvm *kvm,
- 	smp_mb();
- out_no_hpt:
- 	resize_hpt_release(kvm, resize);
--	mutex_unlock(&kvm->lock);
-+	mutex_unlock(&kvm->arch.mmu_setup_lock);
- 	return ret;
- }
- 
-@@ -1868,7 +1868,7 @@ static ssize_t kvm_htab_write(struct file *file, const char __user *buf,
- 		return -EINVAL;
- 
- 	/* lock out vcpus from running while we're doing this */
--	mutex_lock(&kvm->lock);
-+	mutex_lock(&kvm->arch.mmu_setup_lock);
- 	mmu_ready = kvm->arch.mmu_ready;
- 	if (mmu_ready) {
- 		kvm->arch.mmu_ready = 0;	/* temporarily */
-@@ -1876,7 +1876,7 @@ static ssize_t kvm_htab_write(struct file *file, const char __user *buf,
- 		smp_mb();
- 		if (atomic_read(&kvm->arch.vcpus_running)) {
- 			kvm->arch.mmu_ready = 1;
--			mutex_unlock(&kvm->lock);
-+			mutex_unlock(&kvm->arch.mmu_setup_lock);
- 			return -EBUSY;
- 		}
- 	}
-@@ -1963,7 +1963,7 @@ static ssize_t kvm_htab_write(struct file *file, const char __user *buf,
- 	/* Order HPTE updates vs. mmu_ready */
- 	smp_wmb();
- 	kvm->arch.mmu_ready = mmu_ready;
--	mutex_unlock(&kvm->lock);
-+	mutex_unlock(&kvm->arch.mmu_setup_lock);
- 
- 	if (err)
- 		return err;
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index bd68b3e59de5..9f49087c3a41 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -2257,11 +2257,17 @@ static struct kvm_vcpu *kvmppc_core_vcpu_create_hv(struct kvm *kvm,
- 			pr_devel("KVM: collision on id %u", id);
- 			vcore = NULL;
- 		} else if (!vcore) {
-+			/*
-+			 * Take mmu_setup_lock for mutual exclusion
-+			 * with kvmppc_update_lpcr().
-+			 */
- 			err = -ENOMEM;
- 			vcore = kvmppc_vcore_create(kvm,
- 					id & ~(kvm->arch.smt_mode - 1));
-+			mutex_lock(&kvm->arch.mmu_setup_lock);
- 			kvm->arch.vcores[core] = vcore;
- 			kvm->arch.online_vcores++;
-+			mutex_unlock(&kvm->arch.mmu_setup_lock);
- 		}
- 	}
- 	mutex_unlock(&kvm->lock);
-@@ -3821,7 +3827,7 @@ static int kvmhv_setup_mmu(struct kvm_vcpu *vcpu)
- 	int r = 0;
- 	struct kvm *kvm = vcpu->kvm;
- 
--	mutex_lock(&kvm->lock);
-+	mutex_lock(&kvm->arch.mmu_setup_lock);
- 	if (!kvm->arch.mmu_ready) {
- 		if (!kvm_is_radix(kvm))
- 			r = kvmppc_hv_setup_htab_rma(vcpu);
-@@ -3831,7 +3837,7 @@ static int kvmhv_setup_mmu(struct kvm_vcpu *vcpu)
- 			kvm->arch.mmu_ready = 1;
- 		}
- 	}
--	mutex_unlock(&kvm->lock);
-+	mutex_unlock(&kvm->arch.mmu_setup_lock);
- 	return r;
- }
- 
-@@ -4439,7 +4445,8 @@ static void kvmppc_core_commit_memory_region_hv(struct kvm *kvm,
- 
- /*
-  * Update LPCR values in kvm->arch and in vcores.
-- * Caller must hold kvm->lock.
-+ * Caller must hold kvm->arch.mmu_setup_lock (for mutual exclusion
-+ * of kvm->arch.lpcr update).
-  */
- void kvmppc_update_lpcr(struct kvm *kvm, unsigned long lpcr, unsigned long mask)
- {
-@@ -4491,7 +4498,7 @@ void kvmppc_setup_partition_table(struct kvm *kvm)
- 
- /*
-  * Set up HPT (hashed page table) and RMA (real-mode area).
-- * Must be called with kvm->lock held.
-+ * Must be called with kvm->arch.mmu_setup_lock held.
-  */
- static int kvmppc_hv_setup_htab_rma(struct kvm_vcpu *vcpu)
- {
-@@ -4579,7 +4586,10 @@ static int kvmppc_hv_setup_htab_rma(struct kvm_vcpu *vcpu)
- 	goto out_srcu;
- }
- 
--/* Must be called with kvm->lock held and mmu_ready = 0 and no vcpus running */
-+/*
-+ * Must be called with kvm->arch.mmu_setup_lock held and
-+ * mmu_ready = 0 and no vcpus running.
-+ */
- int kvmppc_switch_mmu_to_hpt(struct kvm *kvm)
- {
- 	if (nesting_enabled(kvm))
-@@ -4596,7 +4606,10 @@ int kvmppc_switch_mmu_to_hpt(struct kvm *kvm)
- 	return 0;
- }
- 
--/* Must be called with kvm->lock held and mmu_ready = 0 and no vcpus running */
-+/*
-+ * Must be called with kvm->arch.mmu_setup_lock held and
-+ * mmu_ready = 0 and no vcpus running.
-+ */
- int kvmppc_switch_mmu_to_radix(struct kvm *kvm)
- {
- 	int err;
-@@ -4701,6 +4714,8 @@ static int kvmppc_core_init_vm_hv(struct kvm *kvm)
- 	char buf[32];
- 	int ret;
- 
-+	mutex_init(&kvm->arch.mmu_setup_lock);
+ 		if (!valid)
+ 			continue;
+@@ -1240,8 +1240,13 @@ static void wacom_intuos_pro2_bt_pen(str
+ 			wacom->shared->stylus_in_proximity = false;
+ 			wacom_exit_report(wacom);
+ 			input_sync(pen_input);
 +
- 	/* Allocate the guest's logical partition ID */
++			wacom->tool[0] = 0;
++			wacom->id[0] = 0;
++			wacom->serial[0] = 0;
+ 			return;
+ 		}
++
+ 		if (range) {
+ 			/* Fix rotation alignment: userspace expects zero at left */
+ 			int16_t rotation = (int16_t)get_unaligned_le16(&frame[9]);
+@@ -1249,6 +1254,16 @@ static void wacom_intuos_pro2_bt_pen(str
+ 			if (rotation > 899)
+ 				rotation -= 1800;
  
- 	lpid = kvmppc_alloc_lpid();
-@@ -5226,7 +5241,7 @@ static int kvmhv_configure_mmu(struct kvm *kvm, struct kvm_ppc_mmuv3_cfg *cfg)
- 	if (kvmhv_on_pseries() && !radix)
- 		return -EINVAL;
- 
--	mutex_lock(&kvm->lock);
-+	mutex_lock(&kvm->arch.mmu_setup_lock);
- 	if (radix != kvm_is_radix(kvm)) {
- 		if (kvm->arch.mmu_ready) {
- 			kvm->arch.mmu_ready = 0;
-@@ -5254,7 +5269,7 @@ static int kvmhv_configure_mmu(struct kvm *kvm, struct kvm_ppc_mmuv3_cfg *cfg)
- 	err = 0;
- 
-  out_unlock:
--	mutex_unlock(&kvm->lock);
-+	mutex_unlock(&kvm->arch.mmu_setup_lock);
- 	return err;
- }
- 
--- 
-2.20.1
-
++			if (!wacom->tool[0]) { /* first in range */
++				/* Going into range select tool */
++				if (invert)
++					wacom->tool[0] = BTN_TOOL_RUBBER;
++				else if (wacom->id[0])
++					wacom->tool[0] = wacom_intuos_get_tool_type(wacom->id[0]);
++				else
++					wacom->tool[0] = BTN_TOOL_PEN;
++			}
++
+ 			input_report_abs(pen_input, ABS_X, get_unaligned_le16(&frame[1]));
+ 			input_report_abs(pen_input, ABS_Y, get_unaligned_le16(&frame[3]));
+ 			input_report_abs(pen_input, ABS_TILT_X, (char)frame[7]);
 
 
