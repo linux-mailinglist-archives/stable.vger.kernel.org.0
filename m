@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5628D4D85D
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A54424D77F
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:19:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725914AbfFTSGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:06:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60892 "EHLO mail.kernel.org"
+        id S1729649AbfFTSPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:15:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728189AbfFTSGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:06:40 -0400
+        id S1727072AbfFTSPm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:15:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE17A204FD;
-        Thu, 20 Jun 2019 18:06:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6983A2082C;
+        Thu, 20 Jun 2019 18:15:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053999;
-        bh=bDBU2rsX9swvTzPHVgf99wGmSk/InOxpTryZw0jnALs=;
+        s=default; t=1561054541;
+        bh=YxXQNDlm9HOLIXBSPo+bZeDS1xe31V47vTznjhXkoiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fy5jPduR4TyOR7S1WtoTDK6irH3d20Ff8a0lBt3GJaVIoehjpwov0IWsFDo1D2ntV
-         iwXLQgj6d0T3x0LuaUAyF8HRybxxKboWA6PlgYbyvxUyxLNNK5amXBCOjWRHM1kUoC
-         daiOoJdJG10ehaUXdFSNJCOvgku2PvZvu83Kax80=
+        b=ROE8hiUecGbeI4Qo+Exo1S2gByKbdPxKhaFLyULAfQppXbevZE+2i9z60HrOfeiaQ
+         WGOGLi27F0xQV6vhFoH7G3DaqvAGrZNLKt+UIZvfXfAOZSv0CbncfVg5g02O29I1/V
+         XXSPwoUmmG2ZAMAMOC+k0qp65IhEbMN0E0gleuAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -34,12 +34,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
         jiaxun.yang@flygoat.com, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 100/117] x86/CPU/AMD: Dont force the CPB cap when running under a hypervisor
+Subject: [PATCH 5.1 47/98] x86/CPU/AMD: Dont force the CPB cap when running under a hypervisor
 Date:   Thu, 20 Jun 2019 19:57:14 +0200
-Message-Id: <20190620174357.804264248@linuxfoundation.org>
+Message-Id: <20190620174351.320811744@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -92,10 +92,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index be6d0543e626..52a65f14db06 100644
+index 01004bfb1a1b..524709dcf749 100644
 --- a/arch/x86/kernel/cpu/amd.c
 +++ b/arch/x86/kernel/cpu/amd.c
-@@ -766,8 +766,11 @@ static void init_amd_zn(struct cpuinfo_x86 *c)
+@@ -820,8 +820,11 @@ static void init_amd_zn(struct cpuinfo_x86 *c)
  {
  	set_cpu_cap(c, X86_FEATURE_ZEN);
  
