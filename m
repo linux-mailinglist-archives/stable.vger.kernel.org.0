@@ -2,126 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B6554C4BB
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 03:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33DF94C4C0
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 03:05:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730991AbfFTBEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jun 2019 21:04:08 -0400
-Received: from mail-wm1-f43.google.com ([209.85.128.43]:36130 "EHLO
-        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730984AbfFTBEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 21:04:08 -0400
-Received: by mail-wm1-f43.google.com with SMTP id u8so1347442wmm.1
-        for <stable@vger.kernel.org>; Wed, 19 Jun 2019 18:04:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=xMUoAG9mM5Xwl2Y5R1HxzYqDWazixDCY7IIMdml02x4=;
-        b=H+qDjQArRsXuJHYALzG8xpy88REA1DOZnmNWZ7J+rLJId+jP36cShDV879EaQ6kiNr
-         1UtGVEO91KuCbZ3/a2G9pqmTSbWyQO6xprSyofZKivD74w14NHpUwMntXRupdyEL4eyo
-         E3Y+dlJa3FEwoZQ4J9WtNvy4ANO/GR2R0b1mcRDfdc/nk31GoBdwo+lCMcEVhm5lySzH
-         /DnaWw4s5FjNmrOg6aKvRwh9UyiPNDqcQlr0796Xeu2CLLQ8Ueyy3OvXMTrajdiesXli
-         wOkPepmkz8znMFlfoTgwdIIdzmJn+IbKqUZ2EGnSH2XUIIgRgNSJXLJ4n5pKwWqo/3LQ
-         kz3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=xMUoAG9mM5Xwl2Y5R1HxzYqDWazixDCY7IIMdml02x4=;
-        b=jSmJTD06DqB84g2rVY50KWDdgedPVttRvNmQChuirLv2PMH/BExpjBQ4zYMMUY8jJp
-         uzGOSlmP2SxIJ8NG4oZz1NM6SQUvsCx9ZoZlW3eG5IEDGMtCPse9NvtLPgen5C6ATTZu
-         jSHb1BQIg3M5O8MLermi+kCvVKaLZ4u2mUggN4KxL4yTrDEctvwxZbmLwtB2cwbj6qZZ
-         9KN2NfK3jHZXepMV/zhC+rIFnoM1ijHHavKP6CvMKkbK/leiYQBM/6UulcG09NNkH9h3
-         VsSemzDNIT8/Zqoh3FHV7gSEGL4JIzJF8dB6hh20Z6P40rllELR1aJVyRE5PFeiloUH+
-         6SDQ==
-X-Gm-Message-State: APjAAAWsJEQML1n94TVNHSt60VaWgQ90YsfrHyj0WW5jzTtHr9Z+knGp
-        woyg5tnXnZuwvUyipzN35UrEsDczqOZ2tQ==
-X-Google-Smtp-Source: APXvYqzl+n0ubbN2ihrlRUToNypq8YMuoYbOxUPdMMP+0N77hoIumUsnqhiiZEW0Gpz4oBVfjeNXOQ==
-X-Received: by 2002:a1c:8049:: with SMTP id b70mr57477wmd.33.1560992645732;
-        Wed, 19 Jun 2019 18:04:05 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id u23sm1792790wmj.33.2019.06.19.18.04.05
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 19 Jun 2019 18:04:05 -0700 (PDT)
-Message-ID: <5d0adb85.1c69fb81.be084.9d36@mx.google.com>
-Date:   Wed, 19 Jun 2019 18:04:05 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1731066AbfFTBFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jun 2019 21:05:01 -0400
+Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:41996 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731067AbfFTBFB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jun 2019 21:05:01 -0400
+Received: from pps.filterd (m0001255.ppops.net [127.0.0.1])
+        by mx0b-00082601.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5K12Epn011335
+        for <stable@vger.kernel.org>; Wed, 19 Jun 2019 18:05:00 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type; s=facebook;
+ bh=UeowdcOCFMUQPPPGTQqUXffwP9NuXJLQNLadx7jDkj0=;
+ b=Y5GuKHYy5DU6I1d0lRR/STm3Eaxlumnyd5W/41HrCXDLFZjkvcjF21h2lWZfKTZEMVBH
+ zvIhOC07JNtIXutoqVP2x84E4t65gHgNVc3UOIFKMyNs33xeK9sGHoG5C2ubxo/TYIx1
+ jJDFit2rMxTAQnKyxBesKOVkx8mBkj3BrcA= 
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by mx0b-00082601.pphosted.com with ESMTP id 2t7rex1par-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <stable@vger.kernel.org>; Wed, 19 Jun 2019 18:05:00 -0700
+Received: from mx-out.facebook.com (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:83::7) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Wed, 19 Jun 2019 18:04:58 -0700
+Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
+        id ED22C62E2FFC; Wed, 19 Jun 2019 18:04:56 -0700 (PDT)
+Smtp-Origin-Hostprefix: devbig
+From:   Song Liu <songliubraving@fb.com>
+Smtp-Origin-Hostname: devbig006.ftw2.facebook.com
+To:     <linux-kernel@vger.kernel.org>
+CC:     <kernel-team@fb.com>, <acme@redhat.com>, <davidca@fb.com>,
+        <jolsa@kernel.org>, <namhyung@kernel.org>,
+        Song Liu <songliubraving@fb.com>, <stable@vger.kernel.org>
+Smtp-Origin-Cluster: ftw2c04
+Subject: [PATCH] perf: assign proper ff->ph in perf_event__synthesize_features()
+Date:   Wed, 19 Jun 2019 18:04:53 -0700
+Message-ID: <20190620010453.4118689-1-songliubraving@fb.com>
+X-Mailer: git-send-email 2.17.1
+X-FB-Internal: Safe
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.182
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.9.y boot: 92 boots: 0 failed,
- 78 passed with 14 offline (v4.9.182)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-19_15:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=642 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1906200005
+X-FB-Internal: deliver
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 92 boots: 0 failed, 78 passed with 14 offline (=
-v4.9.182)
+bpf/btf  write_* functions need ff->ph->env.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.182/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.182/
+With this missing, pipe-mode (perf record -o -)  would crash like:
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.182
-Git Commit: f4e2dd989e87a5982ae52bf5dc150287da8d729b
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 49 unique boards, 22 SoC families, 15 builds out of 197
+Program terminated with signal SIGSEGV, Segmentation fault.
 
-Offline Platforms:
+This patch assign proper ph value to ff.
 
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra30-beaver: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    socfpga_defconfig:
-        gcc-8
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            tegra30-beaver: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-
+Cc: stable@vger.kernel.org #v5.1+
+Fixes: 606f972b1361 ("perf bpf: Save bpf_prog_info information as headers to perf.data")
+Reported-by: David Carrillo Cisneros <davidca@fb.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 ---
-For more info write to <info@kernelci.org>
+ tools/perf/util/header.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+index 06ddb6618ef3..5f1aa0284e1b 100644
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -3684,6 +3684,7 @@ int perf_event__synthesize_features(struct perf_tool *tool,
+ 		return -ENOMEM;
+ 
+ 	ff.size = sz - sz_hdr;
++	ff.ph = &session->header;
+ 
+ 	for_each_set_bit(feat, header->adds_features, HEADER_FEAT_BITS) {
+ 		if (!feat_ops[feat].synthesize) {
+-- 
+2.17.1
+
