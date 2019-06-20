@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DAD8D4D886
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:27:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED5044D8C0
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:30:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727961AbfFTSFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:05:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57870 "EHLO mail.kernel.org"
+        id S1727161AbfFTSBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:01:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727948AbfFTSE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:04:58 -0400
+        id S1727177AbfFTSBL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:01:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E59742168B;
-        Thu, 20 Jun 2019 18:04:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20BC9214AF;
+        Thu, 20 Jun 2019 18:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053897;
-        bh=xU+BtTdGagfZ3V0Qjo0BVdC7AiKUCZEwsrR52cvNAuA=;
+        s=default; t=1561053670;
+        bh=4EQFF575OSksr+Czwy7Daf1KcxUt6KdPuAr8LL/g0+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HPsn5gFiJaUFKWRir4LQTtOhE99JzakWSnuXIJxlHxjOaJ2vP4ixdznom0vTRa9jV
-         42XGcAbc/ZLdUczG3UlmnAmXMvG4sp+iRSPYZnxPGL/HQOkkwBr41vTq8y2g/c3Wli
-         VDDnjWfZI2I4/Q/PNveW1QnuvXE/P91IPOT6vFlQ=
+        b=0M4RFprbvj4y1SrcCt3HBl1gYdA8+RdUTNgbbgteJbNaqZ92akj2rzw2WZp/anfFZ
+         ho2Y0BsPncER2FPaG2sjB0wlluzkuYTxqAX1JlIT/foQbdHuY4dZQOtdjM0cABioFW
+         c0gn4vTRK6DrwW4x5UD8xZOuaxXTFg6shx50NO2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Rolf Fokkens <rolf@rolffokkens.nl>,
-        Pierre JUHEN <pierre.juhen@orange.fr>,
-        Shenghui Wang <shhuiw@foxmail.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Nix <nix@esperi.org.uk>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 065/117] bcache: fix stack corruption by PRECEDING_KEY()
+        stable@vger.kernel.org,
+        syzbot+f90a420dfe2b1b03cb2c@syzkaller.appspotmail.com,
+        Shakeel Butt <shakeelb@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 42/84] mm/list_lru.c: fix memory leak in __memcg_init_list_lru_node
 Date:   Thu, 20 Jun 2019 19:56:39 +0200
-Message-Id: <20190620174356.726325530@linuxfoundation.org>
+Message-Id: <20190620174344.583952251@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,127 +48,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Shakeel Butt <shakeelb@google.com>
 
-commit 31b90956b124240aa8c63250243ae1a53585c5e2 upstream.
+commit 3510955b327176fd4cbab5baa75b449f077722a2 upstream.
 
-Recently people report bcache code compiled with gcc9 is broken, one of
-the buggy behavior I observe is that two adjacent 4KB I/Os should merge
-into one but they don't. Finally it turns out to be a stack corruption
-caused by macro PRECEDING_KEY().
+Syzbot reported following memory leak:
 
-See how PRECEDING_KEY() is defined in bset.h,
-437 #define PRECEDING_KEY(_k)                                       \
-438 ({                                                              \
-439         struct bkey *_ret = NULL;                               \
-440                                                                 \
-441         if (KEY_INODE(_k) || KEY_OFFSET(_k)) {                  \
-442                 _ret = &KEY(KEY_INODE(_k), KEY_OFFSET(_k), 0);  \
-443                                                                 \
-444                 if (!_ret->low)                                 \
-445                         _ret->high--;                           \
-446                 _ret->low--;                                    \
-447         }                                                       \
-448                                                                 \
-449         _ret;                                                   \
-450 })
+ffffffffda RBX: 0000000000000003 RCX: 0000000000441f79
+BUG: memory leak
+unreferenced object 0xffff888114f26040 (size 32):
+  comm "syz-executor626", pid 7056, jiffies 4294948701 (age 39.410s)
+  hex dump (first 32 bytes):
+    40 60 f2 14 81 88 ff ff 40 60 f2 14 81 88 ff ff  @`......@`......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+     slab_post_alloc_hook mm/slab.h:439 [inline]
+     slab_alloc mm/slab.c:3326 [inline]
+     kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+     kmalloc include/linux/slab.h:547 [inline]
+     __memcg_init_list_lru_node+0x58/0xf0 mm/list_lru.c:352
+     memcg_init_list_lru_node mm/list_lru.c:375 [inline]
+     memcg_init_list_lru mm/list_lru.c:459 [inline]
+     __list_lru_init+0x193/0x2a0 mm/list_lru.c:626
+     alloc_super+0x2e0/0x310 fs/super.c:269
+     sget_userns+0x94/0x2a0 fs/super.c:609
+     sget+0x8d/0xb0 fs/super.c:660
+     mount_nodev+0x31/0xb0 fs/super.c:1387
+     fuse_mount+0x2d/0x40 fs/fuse/inode.c:1236
+     legacy_get_tree+0x27/0x80 fs/fs_context.c:661
+     vfs_get_tree+0x2e/0x120 fs/super.c:1476
+     do_new_mount fs/namespace.c:2790 [inline]
+     do_mount+0x932/0xc50 fs/namespace.c:3110
+     ksys_mount+0xab/0x120 fs/namespace.c:3319
+     __do_sys_mount fs/namespace.c:3333 [inline]
+     __se_sys_mount fs/namespace.c:3330 [inline]
+     __x64_sys_mount+0x26/0x30 fs/namespace.c:3330
+     do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
+     entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-At line 442, _ret points to address of a on-stack variable combined by
-KEY(), the life range of this on-stack variable is in line 442-446,
-once _ret is returned to bch_btree_insert_key(), the returned address
-points to an invalid stack address and this address is overwritten in
-the following called bch_btree_iter_init(). Then argument 'search' of
-bch_btree_iter_init() points to some address inside stackframe of
-bch_btree_iter_init(), exact address depends on how the compiler
-allocates stack space. Now the stack is corrupted.
+This is a simple off by one bug on the error path.
 
-Fixes: 0eacac22034c ("bcache: PRECEDING_KEY()")
-Signed-off-by: Coly Li <colyli@suse.de>
-Reviewed-by: Rolf Fokkens <rolf@rolffokkens.nl>
-Reviewed-by: Pierre JUHEN <pierre.juhen@orange.fr>
-Tested-by: Shenghui Wang <shhuiw@foxmail.com>
-Tested-by: Pierre JUHEN <pierre.juhen@orange.fr>
-Cc: Kent Overstreet <kent.overstreet@gmail.com>
-Cc: Nix <nix@esperi.org.uk>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: http://lkml.kernel.org/r/20190528043202.99980-1-shakeelb@google.com
+Fixes: 60d3fd32a7a9 ("list_lru: introduce per-memcg lists")
+Reported-by: syzbot+f90a420dfe2b1b03cb2c@syzkaller.appspotmail.com
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: <stable@vger.kernel.org>	[4.0+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/bcache/bset.c |   16 +++++++++++++---
- drivers/md/bcache/bset.h |   34 ++++++++++++++++++++--------------
- 2 files changed, 33 insertions(+), 17 deletions(-)
+ mm/list_lru.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/bcache/bset.c
-+++ b/drivers/md/bcache/bset.c
-@@ -823,12 +823,22 @@ unsigned bch_btree_insert_key(struct btr
- 	struct bset *i = bset_tree_last(b)->data;
- 	struct bkey *m, *prev = NULL;
- 	struct btree_iter iter;
-+	struct bkey preceding_key_on_stack = ZERO_KEY;
-+	struct bkey *preceding_key_p = &preceding_key_on_stack;
- 
- 	BUG_ON(b->ops->is_extents && !KEY_SIZE(k));
- 
--	m = bch_btree_iter_init(b, &iter, b->ops->is_extents
--				? PRECEDING_KEY(&START_KEY(k))
--				: PRECEDING_KEY(k));
-+	/*
-+	 * If k has preceding key, preceding_key_p will be set to address
-+	 *  of k's preceding key; otherwise preceding_key_p will be set
-+	 * to NULL inside preceding_key().
-+	 */
-+	if (b->ops->is_extents)
-+		preceding_key(&START_KEY(k), &preceding_key_p);
-+	else
-+		preceding_key(k, &preceding_key_p);
-+
-+	m = bch_btree_iter_init(b, &iter, preceding_key_p);
- 
- 	if (b->ops->insert_fixup(b, k, &iter, replace_key))
- 		return status;
---- a/drivers/md/bcache/bset.h
-+++ b/drivers/md/bcache/bset.h
-@@ -417,20 +417,26 @@ static inline bool bch_cut_back(const st
- 	return __bch_cut_back(where, k);
+--- a/mm/list_lru.c
++++ b/mm/list_lru.c
+@@ -313,7 +313,7 @@ static int __memcg_init_list_lru_node(st
+ 	}
+ 	return 0;
+ fail:
+-	__memcg_destroy_list_lru_node(memcg_lrus, begin, i - 1);
++	__memcg_destroy_list_lru_node(memcg_lrus, begin, i);
+ 	return -ENOMEM;
  }
  
--#define PRECEDING_KEY(_k)					\
--({								\
--	struct bkey *_ret = NULL;				\
--								\
--	if (KEY_INODE(_k) || KEY_OFFSET(_k)) {			\
--		_ret = &KEY(KEY_INODE(_k), KEY_OFFSET(_k), 0);	\
--								\
--		if (!_ret->low)					\
--			_ret->high--;				\
--		_ret->low--;					\
--	}							\
--								\
--	_ret;							\
--})
-+/*
-+ * Pointer '*preceding_key_p' points to a memory object to store preceding
-+ * key of k. If the preceding key does not exist, set '*preceding_key_p' to
-+ * NULL. So the caller of preceding_key() needs to take care of memory
-+ * which '*preceding_key_p' pointed to before calling preceding_key().
-+ * Currently the only caller of preceding_key() is bch_btree_insert_key(),
-+ * and it points to an on-stack variable, so the memory release is handled
-+ * by stackframe itself.
-+ */
-+static inline void preceding_key(struct bkey *k, struct bkey **preceding_key_p)
-+{
-+	if (KEY_INODE(k) || KEY_OFFSET(k)) {
-+		(**preceding_key_p) = KEY(KEY_INODE(k), KEY_OFFSET(k), 0);
-+		if (!(*preceding_key_p)->low)
-+			(*preceding_key_p)->high--;
-+		(*preceding_key_p)->low--;
-+	} else {
-+		(*preceding_key_p) = NULL;
-+	}
-+}
- 
- static inline bool bch_ptr_invalid(struct btree_keys *b, const struct bkey *k)
- {
 
 
