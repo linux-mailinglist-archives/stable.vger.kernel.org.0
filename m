@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 940844D865
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A87BB4D5E9
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728148AbfFTSG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:06:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60580 "EHLO mail.kernel.org"
+        id S1726453AbfFTSCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:02:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728143AbfFTSGZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:06:25 -0400
+        id S1727397AbfFTSCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:02:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73995214AF;
-        Thu, 20 Jun 2019 18:06:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91A0221479;
+        Thu, 20 Jun 2019 18:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053985;
-        bh=qcaCHRrJutC7PBtw8DrRMnauqZWyAhYooM+x7R3QrsU=;
+        s=default; t=1561053728;
+        bh=eyuOxI71prna88R5lnuoLifJTKB9Tn477jX+DSh3PO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CRbapW1ONXA67w4Dv0HEBvbWkKZSJW53XRDDnQzZLo0BE4dSYI8M4/xs3wnainaqL
-         t0QyvNE/DwRvncstbDSfHm5Mhdibs6Hv2x8nHBAAgTdCgRPbvVjtO69dzMCOHyVcBJ
-         Ou0bHZBU3w/yqpIGto5WwlWF8sOeslQnpUzNxRKU=
+        b=c9JFsu0jX4RpYYQNXY00cY7BIwDUVloCztiNCKh7WboycyQ2XVWTjQd0FKhxBh5kR
+         OyBMd3XJ4aUP0+RBAgoyHzcC+qpZRz7SaH45V5yKHqd8g/r9H6yQ4+W7nCt3k1jtU1
+         UxMeMSE7iWAN13E+Qz1vqZr885OFiQ43JapcRDLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 095/117] sunhv: Fix device naming inconsistency between sunhv_console and sunhv_reg
+        stable@vger.kernel.org, Yabin Cui <yabinc@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>, acme@kernel.org,
+        mark.rutland@arm.com, namhyung@kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 72/84] perf/ring_buffer: Add ordering to rb->nest increment
 Date:   Thu, 20 Jun 2019 19:57:09 +0200
-Message-Id: <20190620174357.628574230@linuxfoundation.org>
+Message-Id: <20190620174348.717271940@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +52,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+[ Upstream commit 3f9fbe9bd86c534eba2faf5d840fd44c6049f50e ]
 
-[ Upstream commit 07a6d63eb1b54b5fb38092780fe618dfe1d96e23 ]
+Similar to how decrementing rb->next too early can cause data_head to
+(temporarily) be observed to go backward, so too can this happen when
+we increment too late.
 
-In d5a2aa24, the name in struct console sunhv_console was changed from "ttyS"
-to "ttyHV" while the name in struct uart_ops sunhv_pops remained unchanged.
+This barrier() ensures the rb->head load happens after the increment,
+both the one in the 'goto again' path, as the one from
+perf_output_get_handle() -- albeit very unlikely to matter for the
+latter.
 
-This results in the hypervisor console device to be listed as "ttyHV0" under
-/proc/consoles while the device node is still named "ttyS0":
-
-root@osaka:~# cat /proc/consoles
-ttyHV0               -W- (EC p  )    4:64
-tty0                 -WU (E     )    4:1
-root@osaka:~# readlink /sys/dev/char/4:64
-../../devices/root/f02836f0/f0285690/tty/ttyS0
-root@osaka:~#
-
-This means that any userland code which tries to determine the name of the
-device file of the hypervisor console device can not rely on the information
-provided by /proc/consoles. In particular, booting current versions of debian-
-installer inside a SPARC LDOM will fail with the installer unable to determine
-the console device.
-
-After renaming the device in struct uart_ops sunhv_pops to "ttyHV" as well,
-the inconsistency is fixed and it is possible again to determine the name
-of the device file of the hypervisor console device by reading the contents
-of /proc/console:
-
-root@osaka:~# cat /proc/consoles
-ttyHV0               -W- (EC p  )    4:64
-tty0                 -WU (E     )    4:1
-root@osaka:~# readlink /sys/dev/char/4:64
-../../devices/root/f02836f0/f0285690/tty/ttyHV0
-root@osaka:~#
-
-With this change, debian-installer works correctly when installing inside
-a SPARC LDOM.
-
-Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Yabin Cui <yabinc@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: acme@kernel.org
+Cc: mark.rutland@arm.com
+Cc: namhyung@kernel.org
+Fixes: ef60777c9abd ("perf: Optimize the perf_output() path by removing IRQ-disables")
+Link: http://lkml.kernel.org/r/20190517115418.309516009@infradead.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sunhv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/events/ring_buffer.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/tty/serial/sunhv.c
-+++ b/drivers/tty/serial/sunhv.c
-@@ -392,7 +392,7 @@ static struct uart_ops sunhv_pops = {
- static struct uart_driver sunhv_reg = {
- 	.owner			= THIS_MODULE,
- 	.driver_name		= "sunhv",
--	.dev_name		= "ttyS",
-+	.dev_name		= "ttyHV",
- 	.major			= TTY_MAJOR,
- };
+diff --git a/kernel/events/ring_buffer.c b/kernel/events/ring_buffer.c
+index 70e31c48ae9b..410f83cad06c 100644
+--- a/kernel/events/ring_buffer.c
++++ b/kernel/events/ring_buffer.c
+@@ -49,6 +49,15 @@ static void perf_output_put_handle(struct perf_output_handle *handle)
+ 	unsigned long head;
  
+ again:
++	/*
++	 * In order to avoid publishing a head value that goes backwards,
++	 * we must ensure the load of @rb->head happens after we've
++	 * incremented @rb->nest.
++	 *
++	 * Otherwise we can observe a @rb->head value before one published
++	 * by an IRQ/NMI happening between the load and the increment.
++	 */
++	barrier();
+ 	head = local_read(&rb->head);
+ 
+ 	/*
+-- 
+2.20.1
+
 
 
