@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 691CC4D607
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:03:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 075A24D94B
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:33:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726178AbfFTSDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:03:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54936 "EHLO mail.kernel.org"
+        id S1726045AbfFTR61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 13:58:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727260AbfFTSDe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:03:34 -0400
+        id S1725815AbfFTR6Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 13:58:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 011DF21655;
-        Thu, 20 Jun 2019 18:03:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97F68208CA;
+        Thu, 20 Jun 2019 17:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053813;
-        bh=QFpOEXXW0FjTm7dhG4KwD1l7Bk6rjye07FM0QSmow6Y=;
+        s=default; t=1561053505;
+        bh=Q3Y+jTMtwJ6igER/h8jL54dZxpdJqUUZCd15E/OgiYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXm/VXwXp9MTVbWYnTvNGfoe4e8jG3U/NjLyCM+L2gfpKifLll3FMM/eVF1mRjrln
-         C2kHILqHOSYLU9JGYouH2Bh+bXcYGWw/AXW/APm+iAlnho0732zggRQo5h/hUgmZmN
-         N8Ihm+MiaqL1sKLAbeHZ7VPFGIt7d4Su/+u4iaxU=
+        b=dbzbrKLhFOipFxjvmZLW5NppCZ9CUYPD0fRt7AZ/EHsR5AuTick0hnmYbWJPrl9Sv
+         Te7gGQWjx5IVyTMHBSKghu9bOqFNuUzVBc9xjbKbZ1opxujTYpcmtRsK8LpxlMNP0O
+         U9zl7qW9zhJOg4PnTPV2AINNORiT5WonEIjjjfVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Miroslav Lichvar <mlichvar@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <john.stultz@linaro.org>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Prarit Bhargava <prarit@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 035/117] soc: mediatek: pwrap: Zero initialize rdata in pwrap_init_cipher
+Subject: [PATCH 4.4 12/84] ntp: Allow TAI-UTC offset to be set to zero
 Date:   Thu, 20 Jun 2019 19:56:09 +0200
-Message-Id: <20190620174354.094825607@linuxfoundation.org>
+Message-Id: <20190620174339.252672771@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,42 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 89e28da82836530f1ac7a3a32fecc31f22d79b3e ]
+[ Upstream commit fdc6bae940ee9eb869e493990540098b8c0fd6ab ]
 
-When building with -Wsometimes-uninitialized, Clang warns:
+The ADJ_TAI adjtimex mode sets the TAI-UTC offset of the system clock.
+It is typically set by NTP/PTP implementations and it is automatically
+updated by the kernel on leap seconds. The initial value is zero (which
+applications may interpret as unknown), but this value cannot be set by
+adjtimex. This limitation seems to go back to the original "nanokernel"
+implementation by David Mills.
 
-drivers/soc/mediatek/mtk-pmic-wrap.c:1358:6: error: variable 'rdata' is
-used uninitialized whenever '||' condition is true
-[-Werror,-Wsometimes-uninitialized]
+Change the ADJ_TAI check to accept zero as a valid TAI-UTC offset in
+order to allow setting it back to the initial value.
 
-If pwrap_write returns non-zero, pwrap_read will not be called to
-initialize rdata, meaning that we will use some random uninitialized
-stack value in our print statement. Zero initialize rdata in case this
-happens.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/401
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 153b5d054ac2 ("ntp: support for TAI")
+Suggested-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Richard Cochran <richardcochran@gmail.com>
+Cc: Prarit Bhargava <prarit@redhat.com>
+Link: https://lkml.kernel.org/r/20190417084833.7401-1-mlichvar@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/mtk-pmic-wrap.c | 2 +-
+ kernel/time/ntp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/mediatek/mtk-pmic-wrap.c b/drivers/soc/mediatek/mtk-pmic-wrap.c
-index e929f5142862..36226976773f 100644
---- a/drivers/soc/mediatek/mtk-pmic-wrap.c
-+++ b/drivers/soc/mediatek/mtk-pmic-wrap.c
-@@ -778,7 +778,7 @@ static bool pwrap_is_pmic_cipher_ready(struct pmic_wrapper *wrp)
- static int pwrap_init_cipher(struct pmic_wrapper *wrp)
- {
- 	int ret;
--	u32 rdata;
-+	u32 rdata = 0;
+diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
+index ab861771e37f..0e0dc5d89911 100644
+--- a/kernel/time/ntp.c
++++ b/kernel/time/ntp.c
+@@ -633,7 +633,7 @@ static inline void process_adjtimex_modes(struct timex *txc,
+ 		time_constant = max(time_constant, 0l);
+ 	}
  
- 	pwrap_writel(wrp, 0x1, PWRAP_CIPHER_SWRST);
- 	pwrap_writel(wrp, 0x0, PWRAP_CIPHER_SWRST);
+-	if (txc->modes & ADJ_TAI && txc->constant > 0)
++	if (txc->modes & ADJ_TAI && txc->constant >= 0)
+ 		*time_tai = txc->constant;
+ 
+ 	if (txc->modes & ADJ_OFFSET)
 -- 
 2.20.1
 
