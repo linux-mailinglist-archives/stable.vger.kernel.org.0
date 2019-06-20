@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66F034D5ED
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:02:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08F6C4D7D9
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727408AbfFTSCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:02:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52484 "EHLO mail.kernel.org"
+        id S1728601AbfFTSLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:11:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726859AbfFTSCL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:02:11 -0400
+        id S1728806AbfFTSLj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:11:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2407A2089C;
-        Thu, 20 Jun 2019 18:02:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E22F2070B;
+        Thu, 20 Jun 2019 18:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053730;
-        bh=BsWIxMOcWtpcr2boHLUPzToAXcpp9jOaWhh8N129Mzk=;
+        s=default; t=1561054298;
+        bh=980y4+/bM4nqKR5zFJc08I4f1d9BaMa28HhT7rOx/s4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOn/AL6QWmA8594BzqU1gANJZmeG7QESI7FFzoA4yMxm4jNUPMhskm6Vw024tUpgp
-         Ws/G9M7giFeGeMiqx2Ayiod/v5f7XYj1PHnqSeqUq0fKcMEVtMB+EzaqeKqPpPJ3Kn
-         Vzv/VIjgvSZ331e+mySD569R4YtRk71iPAiyB7EY=
+        b=c4aWRpHdj1pRxSNp3rjMvuDMhDrtF+im5NzIMJn0jYUoIHn8qmQabaNZtEB8xJ2Bs
+         kprL0qRZZFhJ2e0CQgZROOWRUfMFlXnv0Qll3sgrhqkynCLtbibxQq9T+LOEV1dwMp
+         se4KrSDzNr+Gkao/L3J9+d08JW0qfM5zSv5D0V5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        linux-gpio@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 73/84] gpio: fix gpio-adp5588 build errors
+        stable@vger.kernel.org, Yuri Chipchev <yuric@marvell.com>,
+        Maxime Chevallier <maxime.chevallier@bootlin.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 15/61] net: mvpp2: prs: Fix parser range for VID filtering
 Date:   Thu, 20 Jun 2019 19:57:10 +0200
-Message-Id: <20190620174348.753976681@linuxfoundation.org>
+Message-Id: <20190620174339.749869176@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
-References: <20190620174337.538228162@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e9646f0f5bb62b7d43f0968f39d536cfe7123b53 ]
+From: Maxime Chevallier <maxime.chevallier@bootlin.com>
 
-The gpio-adp5588 driver uses interfaces that are provided by
-GPIOLIB_IRQCHIP, so select that symbol in its Kconfig entry.
+[ Upstream commit 46b0090a6636cf34c0e856f15dd03e15ba4cdda6 ]
 
-Fixes these build errors:
+VID filtering is implemented in the Header Parser, with one range of 11
+vids being assigned for each no-loopback port.
 
-../drivers/gpio/gpio-adp5588.c: In function ‘adp5588_irq_handler’:
-../drivers/gpio/gpio-adp5588.c:266:26: error: ‘struct gpio_chip’ has no member named ‘irq’
-            dev->gpio_chip.irq.domain, gpio));
-                          ^
-../drivers/gpio/gpio-adp5588.c: In function ‘adp5588_irq_setup’:
-../drivers/gpio/gpio-adp5588.c:298:2: error: implicit declaration of function ‘gpiochip_irqchip_add_nested’ [-Werror=implicit-function-declaration]
-  ret = gpiochip_irqchip_add_nested(&dev->gpio_chip,
-  ^
-../drivers/gpio/gpio-adp5588.c:307:2: error: implicit declaration of function ‘gpiochip_set_nested_irqchip’ [-Werror=implicit-function-declaration]
-  gpiochip_set_nested_irqchip(&dev->gpio_chip,
-  ^
+Make sure we use the per-port range when looking for existing entries in
+the Parser.
 
-Fixes: 459773ae8dbb ("gpio: adp5588-gpio: support interrupt controller")
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: linux-gpio@vger.kernel.org
-Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since we used a global range instead of a per-port one, this causes VIDs
+to be removed from the whitelist from all ports of the same PPv2
+instance.
+
+Fixes: 56beda3db602 ("net: mvpp2: Add hardware offloading for VLAN filtering")
+Suggested-by: Yuri Chipchev <yuric@marvell.com>
+Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c |   17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 469dc378adeb..aaae6040b4c8 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -579,6 +579,7 @@ config GPIO_ADP5588
- config GPIO_ADP5588_IRQ
- 	bool "Interrupt controller support for ADP5588"
- 	depends on GPIO_ADP5588=y
-+	select GPIOLIB_IRQCHIP
- 	help
- 	  Say yes here to enable the adp5588 to be used as an interrupt
- 	  controller. It requires the driver to be built in the kernel.
--- 
-2.20.1
-
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
+@@ -1905,8 +1905,7 @@ static int mvpp2_prs_ip6_init(struct mvp
+ }
+ 
+ /* Find tcam entry with matched pair <vid,port> */
+-static int mvpp2_prs_vid_range_find(struct mvpp2 *priv, int pmap, u16 vid,
+-				    u16 mask)
++static int mvpp2_prs_vid_range_find(struct mvpp2_port *port, u16 vid, u16 mask)
+ {
+ 	unsigned char byte[2], enable[2];
+ 	struct mvpp2_prs_entry pe;
+@@ -1914,13 +1913,13 @@ static int mvpp2_prs_vid_range_find(stru
+ 	int tid;
+ 
+ 	/* Go through the all entries with MVPP2_PRS_LU_VID */
+-	for (tid = MVPP2_PE_VID_FILT_RANGE_START;
+-	     tid <= MVPP2_PE_VID_FILT_RANGE_END; tid++) {
+-		if (!priv->prs_shadow[tid].valid ||
+-		    priv->prs_shadow[tid].lu != MVPP2_PRS_LU_VID)
++	for (tid = MVPP2_PRS_VID_PORT_FIRST(port->id);
++	     tid <= MVPP2_PRS_VID_PORT_LAST(port->id); tid++) {
++		if (!port->priv->prs_shadow[tid].valid ||
++		    port->priv->prs_shadow[tid].lu != MVPP2_PRS_LU_VID)
+ 			continue;
+ 
+-		mvpp2_prs_init_from_hw(priv, &pe, tid);
++		mvpp2_prs_init_from_hw(port->priv, &pe, tid);
+ 
+ 		mvpp2_prs_tcam_data_byte_get(&pe, 2, &byte[0], &enable[0]);
+ 		mvpp2_prs_tcam_data_byte_get(&pe, 3, &byte[1], &enable[1]);
+@@ -1950,7 +1949,7 @@ int mvpp2_prs_vid_entry_add(struct mvpp2
+ 	memset(&pe, 0, sizeof(pe));
+ 
+ 	/* Scan TCAM and see if entry with this <vid,port> already exist */
+-	tid = mvpp2_prs_vid_range_find(priv, (1 << port->id), vid, mask);
++	tid = mvpp2_prs_vid_range_find(port, vid, mask);
+ 
+ 	reg_val = mvpp2_read(priv, MVPP2_MH_REG(port->id));
+ 	if (reg_val & MVPP2_DSA_EXTENDED)
+@@ -2008,7 +2007,7 @@ void mvpp2_prs_vid_entry_remove(struct m
+ 	int tid;
+ 
+ 	/* Scan TCAM and see if entry with this <vid,port> already exist */
+-	tid = mvpp2_prs_vid_range_find(priv, (1 << port->id), vid, 0xfff);
++	tid = mvpp2_prs_vid_range_find(port, vid, 0xfff);
+ 
+ 	/* No such entry */
+ 	if (tid < 0)
 
 
