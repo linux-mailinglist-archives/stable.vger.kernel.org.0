@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83AF94D7A4
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:20:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE9354D622
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:04:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728339AbfFTSNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:13:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41308 "EHLO mail.kernel.org"
+        id S1727208AbfFTSEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:04:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729253AbfFTSNX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:13:23 -0400
+        id S1727897AbfFTSEi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:04:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CF0A2082C;
-        Thu, 20 Jun 2019 18:13:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFD3321530;
+        Thu, 20 Jun 2019 18:04:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054402;
-        bh=MnLRgpKf8bf7JXa3l3G1EigBR7h3gNLETgMTq6ZJNU8=;
+        s=default; t=1561053877;
+        bh=4EQFF575OSksr+Czwy7Daf1KcxUt6KdPuAr8LL/g0+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0I24ZKhCnzXtwowSEsl5Uv1o4OsqunqI4zp1fBCEpFAfCmSntFB3b2xDNngqhMF11
-         zQCkA5ByKsI5Wbge3SR3QyD5mt+5SvOCVJ7jyHq4y4VZuwOkWMvl3nWJsO0bd9OvZK
-         c6BSMn1j4jUfAf0swWHuxHppKMwcvQ6m8PjzG7x4=
+        b=wnQ3ayVZNr5VHIylXCzWN/VXnB5IXBYijgG+m431A3jHNIucVIdlHPj25avK7xbOb
+         VzM/93OqxkF5e6OYZvfF8qKcz27KFOooBk2vt/stXS/JXpOEOqcYEQ8PMiKZaIzjj7
+         66vvlM3icopeJn9sZWRLMrDvtwHTdLM8DwnKd1Jk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+afb980676c836b4a0afa@syzkaller.appspotmail.com,
-        Jeremy Sowden <jeremy@azazel.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 06/98] lapb: fixed leak of control-blocks.
+        syzbot+f90a420dfe2b1b03cb2c@syzkaller.appspotmail.com,
+        Shakeel Butt <shakeelb@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 059/117] mm/list_lru.c: fix memory leak in __memcg_init_list_lru_node
 Date:   Thu, 20 Jun 2019 19:56:33 +0200
-Message-Id: <20190620174349.679064015@linuxfoundation.org>
+Message-Id: <20190620174356.362248041@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +48,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Sowden <jeremy@azazel.net>
+From: Shakeel Butt <shakeelb@google.com>
 
-[ Upstream commit 6be8e297f9bcea666ea85ac7a6cd9d52d6deaf92 ]
+commit 3510955b327176fd4cbab5baa75b449f077722a2 upstream.
 
-lapb_register calls lapb_create_cb, which initializes the control-
-block's ref-count to one, and __lapb_insert_cb, which increments it when
-adding the new block to the list of blocks.
+Syzbot reported following memory leak:
 
-lapb_unregister calls __lapb_remove_cb, which decrements the ref-count
-when removing control-block from the list of blocks, and calls lapb_put
-itself to decrement the ref-count before returning.
+ffffffffda RBX: 0000000000000003 RCX: 0000000000441f79
+BUG: memory leak
+unreferenced object 0xffff888114f26040 (size 32):
+  comm "syz-executor626", pid 7056, jiffies 4294948701 (age 39.410s)
+  hex dump (first 32 bytes):
+    40 60 f2 14 81 88 ff ff 40 60 f2 14 81 88 ff ff  @`......@`......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+     slab_post_alloc_hook mm/slab.h:439 [inline]
+     slab_alloc mm/slab.c:3326 [inline]
+     kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+     kmalloc include/linux/slab.h:547 [inline]
+     __memcg_init_list_lru_node+0x58/0xf0 mm/list_lru.c:352
+     memcg_init_list_lru_node mm/list_lru.c:375 [inline]
+     memcg_init_list_lru mm/list_lru.c:459 [inline]
+     __list_lru_init+0x193/0x2a0 mm/list_lru.c:626
+     alloc_super+0x2e0/0x310 fs/super.c:269
+     sget_userns+0x94/0x2a0 fs/super.c:609
+     sget+0x8d/0xb0 fs/super.c:660
+     mount_nodev+0x31/0xb0 fs/super.c:1387
+     fuse_mount+0x2d/0x40 fs/fuse/inode.c:1236
+     legacy_get_tree+0x27/0x80 fs/fs_context.c:661
+     vfs_get_tree+0x2e/0x120 fs/super.c:1476
+     do_new_mount fs/namespace.c:2790 [inline]
+     do_mount+0x932/0xc50 fs/namespace.c:3110
+     ksys_mount+0xab/0x120 fs/namespace.c:3319
+     __do_sys_mount fs/namespace.c:3333 [inline]
+     __se_sys_mount fs/namespace.c:3330 [inline]
+     __x64_sys_mount+0x26/0x30 fs/namespace.c:3330
+     do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
+     entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-However, lapb_unregister also calls __lapb_devtostruct to look up the
-right control-block for the given net_device, and __lapb_devtostruct
-also bumps the ref-count, which means that when lapb_unregister returns
-the ref-count is still 1 and the control-block is leaked.
+This is a simple off by one bug on the error path.
 
-Call lapb_put after __lapb_devtostruct to fix leak.
-
-Reported-by: syzbot+afb980676c836b4a0afa@syzkaller.appspotmail.com
-Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: http://lkml.kernel.org/r/20190528043202.99980-1-shakeelb@google.com
+Fixes: 60d3fd32a7a9 ("list_lru: introduce per-memcg lists")
+Reported-by: syzbot+f90a420dfe2b1b03cb2c@syzkaller.appspotmail.com
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: <stable@vger.kernel.org>	[4.0+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/lapb/lapb_iface.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/net/lapb/lapb_iface.c
-+++ b/net/lapb/lapb_iface.c
-@@ -182,6 +182,7 @@ int lapb_unregister(struct net_device *d
- 	lapb = __lapb_devtostruct(dev);
- 	if (!lapb)
- 		goto out;
-+	lapb_put(lapb);
+---
+ mm/list_lru.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/list_lru.c
++++ b/mm/list_lru.c
+@@ -313,7 +313,7 @@ static int __memcg_init_list_lru_node(st
+ 	}
+ 	return 0;
+ fail:
+-	__memcg_destroy_list_lru_node(memcg_lrus, begin, i - 1);
++	__memcg_destroy_list_lru_node(memcg_lrus, begin, i);
+ 	return -ENOMEM;
+ }
  
- 	lapb_stop_t1timer(lapb);
- 	lapb_stop_t2timer(lapb);
 
 
