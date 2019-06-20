@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DB824D7EB
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0BD94D813
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729089AbfFTSMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:12:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40728 "EHLO mail.kernel.org"
+        id S1727319AbfFTSXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:23:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728807AbfFTSMu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:12:50 -0400
+        id S1728012AbfFTSJR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:09:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A0EB2082C;
-        Thu, 20 Jun 2019 18:12:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F135421530;
+        Thu, 20 Jun 2019 18:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054369;
-        bh=2khrPAEcIHE8KFALuvBXdNyBuY58gqu34hTQh9PaFzo=;
+        s=default; t=1561054156;
+        bh=Q6CrEpxPxmKmaeCV5mUXAGmZF14pXmptx7Sf0ATDSHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A8H9X6a4gSnGoSpfdUX64ppdkRSA13u8dGAepkMuFRHSELSAjHwmkS7SrpI52/oEk
-         KxmrFIhTp+wNeYKrojKWWL/vd314Yo8IcSH2AMncstLzV71XeOkL5cD5hjVA8P9XDZ
-         aPbZpYkErIT0z1OwfLbEHSbtNG6Hm2542IHjp8UU=
+        b=wxSlgqjMobgk8SttE1vJ1JrSwPhw+FmckT/24dc7pVZSq1fjOPXtzBiaZuMT/ubJq
+         +yD68tqaw8nL4oio7AGPCFnuOCn57kjDqT2IHrbULMC6K+i/wMEBq2G3Nw1Yf0SPzn
+         6kluJ63nDK4zn8Pc0wcryOYNcDfMuMRlvqmp600w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ross Lagerwall <ross.lagerwall@citrix.com>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        stable@vger.kernel.org, Jian Luo <luojian5@huawei.com>,
+        Jason Yan <yanaijie@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 45/61] xenbus: Avoid deadlock during suspend due to open transactions
+Subject: [PATCH 4.14 38/45] scsi: libsas: delete sas port if expander discover failed
 Date:   Thu, 20 Jun 2019 19:57:40 +0200
-Message-Id: <20190620174345.076749160@linuxfoundation.org>
+Message-Id: <20190620174340.143534005@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
-References: <20190620174336.357373754@linuxfoundation.org>
+In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
+References: <20190620174328.608036501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,159 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d10e0cc113c9e1b64b5c6e3db37b5c839794f3df ]
+[ Upstream commit 3b0541791453fbe7f42867e310e0c9eb6295364d ]
 
-During a suspend/resume, the xenwatch thread waits for all outstanding
-xenstore requests and transactions to complete. This does not work
-correctly for transactions started by userspace because it waits for
-them to complete after freezing userspace threads which means the
-transactions have no way of completing, resulting in a deadlock. This is
-trivial to reproduce by running this script and then suspending the VM:
+The sas_port(phy->port) allocated in sas_ex_discover_expander() will not be
+deleted when the expander failed to discover. This will cause resource leak
+and a further issue of kernel BUG like below:
 
-    import pyxs, time
-    c = pyxs.client.Client(xen_bus_path="/dev/xen/xenbus")
-    c.connect()
-    c.transaction()
-    time.sleep(3600)
+[159785.843156]  port-2:17:29: trying to add phy phy-2:17:29 fails: it's
+already part of another port
+[159785.852144] ------------[ cut here  ]------------
+[159785.856833] kernel BUG at drivers/scsi/scsi_transport_sas.c:1086!
+[159785.863000] Internal error: Oops - BUG: 0 [#1] SMP
+[159785.867866] CPU: 39 PID: 16993 Comm: kworker/u96:2 Tainted: G
+W  OE     4.19.25-vhulk1901.1.0.h111.aarch64 #1
+[159785.878458] Hardware name: Huawei Technologies Co., Ltd.
+Hi1620EVBCS/Hi1620EVBCS, BIOS Hi1620 CS B070 1P TA 03/21/2019
+[159785.889231] Workqueue: 0000:74:02.0_disco_q sas_discover_domain
+[159785.895224] pstate: 40c00009 (nZcv daif +PAN +UAO)
+[159785.900094] pc : sas_port_add_phy+0x188/0x1b8
+[159785.904524] lr : sas_port_add_phy+0x188/0x1b8
+[159785.908952] sp : ffff0001120e3b80
+[159785.912341] x29: ffff0001120e3b80 x28: 0000000000000000
+[159785.917727] x27: ffff802ade8f5400 x26: ffff0000681b7560
+[159785.923111] x25: ffff802adf11a800 x24: ffff0000680e8000
+[159785.928496] x23: ffff802ade8f5728 x22: ffff802ade8f5708
+[159785.933880] x21: ffff802adea2db40 x20: ffff802ade8f5400
+[159785.939264] x19: ffff802adea2d800 x18: 0000000000000010
+[159785.944649] x17: 00000000821bf734 x16: ffff00006714faa0
+[159785.950033] x15: ffff0000e8ab4ecf x14: 7261702079646165
+[159785.955417] x13: 726c612073277469 x12: ffff00006887b830
+[159785.960802] x11: ffff00006773eaa0 x10: 7968702079687020
+[159785.966186] x9 : 0000000000002453 x8 : 726f702072656874
+[159785.971570] x7 : 6f6e6120666f2074 x6 : ffff802bcfb21290
+[159785.976955] x5 : ffff802bcfb21290 x4 : 0000000000000000
+[159785.982339] x3 : ffff802bcfb298c8 x2 : 337752b234c2ab00
+[159785.987723] x1 : 337752b234c2ab00 x0 : 0000000000000000
+[159785.993108] Process kworker/u96:2 (pid: 16993, stack limit =
+0x0000000072dae094)
+[159786.000576] Call trace:
+[159786.003097]  sas_port_add_phy+0x188/0x1b8
+[159786.007179]  sas_ex_get_linkrate.isra.5+0x134/0x140
+[159786.012130]  sas_ex_discover_expander+0x128/0x408
+[159786.016906]  sas_ex_discover_dev+0x218/0x4c8
+[159786.021249]  sas_ex_discover_devices+0x9c/0x1a8
+[159786.025852]  sas_discover_root_expander+0x134/0x160
+[159786.030802]  sas_discover_domain+0x1b8/0x1e8
+[159786.035148]  process_one_work+0x1b4/0x3f8
+[159786.039230]  worker_thread+0x54/0x470
+[159786.042967]  kthread+0x134/0x138
+[159786.046269]  ret_from_fork+0x10/0x18
+[159786.049918] Code: 91322300 f0004402 91178042 97fe4c9b (d4210000)
+[159786.056083] Modules linked in: hns3_enet_ut(OE) hclge(OE) hnae3(OE)
+hisi_sas_test_hw(OE) hisi_sas_test_main(OE) serdes(OE)
+[159786.067202] ---[ end trace 03622b9e2d99e196  ]---
+[159786.071893] Kernel panic - not syncing: Fatal exception
+[159786.077190] SMP: stopping secondary CPUs
+[159786.081192] Kernel Offset: disabled
+[159786.084753] CPU features: 0x2,a2a00a38
 
-Even if this deadlock were resolved, misbehaving userspace should not
-prevent a VM from being migrated. So, instead of waiting for these
-transactions to complete before suspending, store the current generation
-id for each transaction when it is started. The global generation id is
-incremented during resume. If the caller commits the transaction and the
-generation id does not match the current generation id, return EAGAIN so
-that they try again. If the transaction was instead discarded, return OK
-since no changes were made anyway.
-
-This only affects users of the xenbus file interface. In-kernel users of
-xenbus are assumed to be well-behaved and complete all transactions
-before freezing.
-
-Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: 2908d778ab3e ("[SCSI] aic94xx: new driver")
+Reported-by: Jian Luo <luojian5@huawei.com>
+Signed-off-by: Jason Yan <yanaijie@huawei.com>
+CC: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xenbus/xenbus.h              |  3 +++
- drivers/xen/xenbus/xenbus_dev_frontend.c | 18 ++++++++++++++++++
- drivers/xen/xenbus/xenbus_xs.c           |  7 +++++--
- 3 files changed, 26 insertions(+), 2 deletions(-)
+ drivers/scsi/libsas/sas_expander.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/xen/xenbus/xenbus.h b/drivers/xen/xenbus/xenbus.h
-index 092981171df1..d75a2385b37c 100644
---- a/drivers/xen/xenbus/xenbus.h
-+++ b/drivers/xen/xenbus/xenbus.h
-@@ -83,6 +83,7 @@ struct xb_req_data {
- 	int num_vecs;
- 	int err;
- 	enum xb_req_state state;
-+	bool user_req;
- 	void (*cb)(struct xb_req_data *);
- 	void *par;
- };
-@@ -133,4 +134,6 @@ void xenbus_ring_ops_init(void);
- int xenbus_dev_request_and_reply(struct xsd_sockmsg *msg, void *par);
- void xenbus_dev_queue_reply(struct xb_req_data *req);
- 
-+extern unsigned int xb_dev_generation_id;
-+
- #endif
-diff --git a/drivers/xen/xenbus/xenbus_dev_frontend.c b/drivers/xen/xenbus/xenbus_dev_frontend.c
-index 0782ff3c2273..39c63152a358 100644
---- a/drivers/xen/xenbus/xenbus_dev_frontend.c
-+++ b/drivers/xen/xenbus/xenbus_dev_frontend.c
-@@ -62,6 +62,8 @@
- 
- #include "xenbus.h"
- 
-+unsigned int xb_dev_generation_id;
-+
- /*
-  * An element of a list of outstanding transactions, for which we're
-  * still waiting a reply.
-@@ -69,6 +71,7 @@
- struct xenbus_transaction_holder {
- 	struct list_head list;
- 	struct xenbus_transaction handle;
-+	unsigned int generation_id;
- };
- 
- /*
-@@ -441,6 +444,7 @@ static int xenbus_write_transaction(unsigned msg_type,
- 			rc = -ENOMEM;
- 			goto out;
- 		}
-+		trans->generation_id = xb_dev_generation_id;
- 		list_add(&trans->list, &u->transactions);
- 	} else if (msg->hdr.tx_id != 0 &&
- 		   !xenbus_get_transaction(u, msg->hdr.tx_id))
-@@ -449,6 +453,20 @@ static int xenbus_write_transaction(unsigned msg_type,
- 		 !(msg->hdr.len == 2 &&
- 		   (!strcmp(msg->body, "T") || !strcmp(msg->body, "F"))))
- 		return xenbus_command_reply(u, XS_ERROR, "EINVAL");
-+	else if (msg_type == XS_TRANSACTION_END) {
-+		trans = xenbus_get_transaction(u, msg->hdr.tx_id);
-+		if (trans && trans->generation_id != xb_dev_generation_id) {
-+			list_del(&trans->list);
-+			kfree(trans);
-+			if (!strcmp(msg->body, "T"))
-+				return xenbus_command_reply(u, XS_ERROR,
-+							    "EAGAIN");
-+			else
-+				return xenbus_command_reply(u,
-+							    XS_TRANSACTION_END,
-+							    "OK");
-+		}
-+	}
- 
- 	rc = xenbus_dev_request_and_reply(&msg->hdr, u);
- 	if (rc && trans) {
-diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
-index 49a3874ae6bb..ddc18da61834 100644
---- a/drivers/xen/xenbus/xenbus_xs.c
-+++ b/drivers/xen/xenbus/xenbus_xs.c
-@@ -105,6 +105,7 @@ static void xs_suspend_enter(void)
- 
- static void xs_suspend_exit(void)
- {
-+	xb_dev_generation_id++;
- 	spin_lock(&xs_state_lock);
- 	xs_suspend_active--;
- 	spin_unlock(&xs_state_lock);
-@@ -125,7 +126,7 @@ static uint32_t xs_request_enter(struct xb_req_data *req)
- 		spin_lock(&xs_state_lock);
+diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
+index ffea620a147d..259ee0d3c3e6 100644
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -989,6 +989,8 @@ static struct domain_device *sas_ex_discover_expander(
+ 		list_del(&child->dev_list_node);
+ 		spin_unlock_irq(&parent->port->dev_list_lock);
+ 		sas_put_device(child);
++		sas_port_delete(phy->port);
++		phy->port = NULL;
+ 		return NULL;
  	}
- 
--	if (req->type == XS_TRANSACTION_START)
-+	if (req->type == XS_TRANSACTION_START && !req->user_req)
- 		xs_state_users++;
- 	xs_state_users++;
- 	rq_id = xs_request_id++;
-@@ -140,7 +141,7 @@ void xs_request_exit(struct xb_req_data *req)
- 	spin_lock(&xs_state_lock);
- 	xs_state_users--;
- 	if ((req->type == XS_TRANSACTION_START && req->msg.type == XS_ERROR) ||
--	    (req->type == XS_TRANSACTION_END &&
-+	    (req->type == XS_TRANSACTION_END && !req->user_req &&
- 	     !WARN_ON_ONCE(req->msg.type == XS_ERROR &&
- 			   !strcmp(req->body, "ENOENT"))))
- 		xs_state_users--;
-@@ -286,6 +287,7 @@ int xenbus_dev_request_and_reply(struct xsd_sockmsg *msg, void *par)
- 	req->num_vecs = 1;
- 	req->cb = xenbus_dev_queue_reply;
- 	req->par = par;
-+	req->user_req = true;
- 
- 	xs_send(req, msg);
- 
-@@ -313,6 +315,7 @@ static void *xs_talkv(struct xenbus_transaction t,
- 	req->vec = iovec;
- 	req->num_vecs = num_vecs;
- 	req->cb = xs_wake_up;
-+	req->user_req = false;
- 
- 	msg.req_id = 0;
- 	msg.tx_id = t.id;
+ 	list_add_tail(&child->siblings, &parent->ex_dev.children);
 -- 
 2.20.1
 
