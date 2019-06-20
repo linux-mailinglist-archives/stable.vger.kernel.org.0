@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B73194D772
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:19:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4C724D5D5
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729097AbfFTSPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:15:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43846 "EHLO mail.kernel.org"
+        id S1727244AbfFTSB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:01:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728734AbfFTSPL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:15:11 -0400
+        id S1726114AbfFTSB3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:01:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43FF8205F4;
-        Thu, 20 Jun 2019 18:15:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C4EB2084A;
+        Thu, 20 Jun 2019 18:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054510;
-        bh=50bSpiPB+3y8lu4ANYQ0JDtfg3smk3IlAvksqKPAm5E=;
+        s=default; t=1561053688;
+        bh=xwCTgva9OI67grSH5Oh2hITs1mJLqZptYrYyn964VaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rSmEfku/6KL30rs507La2Dqg3I583XCvbzgCr7Dy9J8CEv5q005qGr6XSV7iA50/R
-         ne4j43O9tNF5r5mfUJWwZnF4/U/nhPosrU/rj0yCFWp176gWOA5w5Sq63SHisizQww
-         KbY/lcSdr3wjxUbxzIZ6pNPjNBYPRDVHD1gXLCZo=
+        b=1T+WtLA6tlFac974CprhGQYSyXk4w4kpC0oMYzOshw202keF602LHb+uvkn5X5nP8
+         yMe/dOWPtSQ1iKXXAce6yVW9pmhuYIsNDO7S7QcJ4jrnaM1EpU8bMsIoDGJX6A8IFD
+         pzb2Rd+EIgEqwndWaENpadeXn0ykbjzyp2cXD9sU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 46/98] mISDN: make sure device name is NUL terminated
-Date:   Thu, 20 Jun 2019 19:57:13 +0200
-Message-Id: <20190620174351.255536460@linuxfoundation.org>
+Subject: [PATCH 4.4 77/84] ia64: fix build errors by exporting paddr_to_nid()
+Date:   Thu, 20 Jun 2019 19:57:14 +0200
+Message-Id: <20190620174348.926262865@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ccfb62f27beb295103e9392462b20a6ed807d0ea ]
+[ Upstream commit 9a626c4a6326da4433a0d4d4a8a7d1571caf1ed3 ]
 
-The user can change the device_name with the IMSETDEVNAME ioctl, but we
-need to ensure that the user's name is NUL terminated.  Otherwise it
-could result in a buffer overflow when we copy the name back to the user
-with IMGETDEVINFO ioctl.
+Fix build errors on ia64 when DISCONTIGMEM=y and NUMA=y by
+exporting paddr_to_nid().
 
-I also changed two strcpy() calls which handle the name to strscpy().
-Hopefully, there aren't any other ways to create a too long name, but
-it's nice to do this as a kernel hardening measure.
+Fixes these build errors:
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ERROR: "paddr_to_nid" [sound/core/snd-pcm.ko] undefined!
+ERROR: "paddr_to_nid" [net/sunrpc/sunrpc.ko] undefined!
+ERROR: "paddr_to_nid" [fs/cifs/cifs.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/video/fbdev/core/fb.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/usb/mon/usbmon.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/usb/core/usbcore.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/md/raid1.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/md/dm-mod.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/md/dm-crypt.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/md/dm-bufio.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/ide/ide-core.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/ide/ide-cd_mod.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/gpu/drm/drm.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/char/agp/agpgart.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/block/nbd.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/block/loop.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/block/brd.ko] undefined!
+ERROR: "paddr_to_nid" [crypto/ccm.ko] undefined!
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: linux-ia64@vger.kernel.org
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/mISDN/socket.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/ia64/mm/numa.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/isdn/mISDN/socket.c b/drivers/isdn/mISDN/socket.c
-index a14e35d40538..84e1d4c2db66 100644
---- a/drivers/isdn/mISDN/socket.c
-+++ b/drivers/isdn/mISDN/socket.c
-@@ -393,7 +393,7 @@ data_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
- 			memcpy(di.channelmap, dev->channelmap,
- 			       sizeof(di.channelmap));
- 			di.nrbchan = dev->nrbchan;
--			strcpy(di.name, dev_name(&dev->dev));
-+			strscpy(di.name, dev_name(&dev->dev), sizeof(di.name));
- 			if (copy_to_user((void __user *)arg, &di, sizeof(di)))
- 				err = -EFAULT;
- 		} else
-@@ -676,7 +676,7 @@ base_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
- 			memcpy(di.channelmap, dev->channelmap,
- 			       sizeof(di.channelmap));
- 			di.nrbchan = dev->nrbchan;
--			strcpy(di.name, dev_name(&dev->dev));
-+			strscpy(di.name, dev_name(&dev->dev), sizeof(di.name));
- 			if (copy_to_user((void __user *)arg, &di, sizeof(di)))
- 				err = -EFAULT;
- 		} else
-@@ -690,6 +690,7 @@ base_sock_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
- 			err = -EFAULT;
- 			break;
- 		}
-+		dn.name[sizeof(dn.name) - 1] = '\0';
- 		dev = get_mdevice(dn.id);
- 		if (dev)
- 			err = device_rename(&dev->dev, dn.name);
+diff --git a/arch/ia64/mm/numa.c b/arch/ia64/mm/numa.c
+index aa19b7ac8222..476c7b4be378 100644
+--- a/arch/ia64/mm/numa.c
++++ b/arch/ia64/mm/numa.c
+@@ -49,6 +49,7 @@ paddr_to_nid(unsigned long paddr)
+ 
+ 	return (i < num_node_memblks) ? node_memblk[i].nid : (num_node_memblks ? -1 : 0);
+ }
++EXPORT_SYMBOL(paddr_to_nid);
+ 
+ #if defined(CONFIG_SPARSEMEM) && defined(CONFIG_NUMA)
+ /*
 -- 
 2.20.1
 
