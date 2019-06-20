@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCBF54D738
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:18:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B6A84D5D2
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729813AbfFTSQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:16:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45822 "EHLO mail.kernel.org"
+        id S1726619AbfFTSBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:01:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729809AbfFTSQi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:16:38 -0400
+        id S1727230AbfFTSBX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:01:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDD3B205F4;
-        Thu, 20 Jun 2019 18:16:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A4E72083B;
+        Thu, 20 Jun 2019 18:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054597;
-        bh=zgbUZHD2UZoYFx3E8SfXLifV6MSgtlLNZd2Kb/AYhUg=;
+        s=default; t=1561053682;
+        bh=eqKl0zvJukqapTrsVsf8Glo6wcBxzBGqmpgcdf9rP5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L2RUeENzLqmJdMIB2D9qIZ9RbbWhkTrSmqm+sEOGeHujbQzinPeXmXQYwhsORukTD
-         CYjVWFDF3ULujSrXl/2pDxk1i58X2VritHrUJ9ruhpqRB2DXSFKfa6F3lpc5QYAu52
-         HRTCdDGVNecbWYmf6/IVqsiG/3WTbAiV2w+vi+aY=
+        b=02o/49R0ZJB6Zqn5XsatdCxTHztvUVEPQ+ZTuysz5U36HQyVIrb4cwm74SERjOhPj
+         rfakEpb/lkBs9ek4QaD6c9qPfWYssEzlbyXWtRPWodq5nft2mZpGbXFssrfeuf4+e5
+         BzA4yQa8UmPJFE0EffW1exicKfTlaBkiGHw0wpzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org, Yingjoe Chen <yingjoe.chen@mediatek.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 45/98] usb: xhci: Fix a potential null pointer dereference in xhci_debugfs_create_endpoint()
+Subject: [PATCH 4.4 75/84] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
 Date:   Thu, 20 Jun 2019 19:57:12 +0200
-Message-Id: <20190620174351.203439345@linuxfoundation.org>
+Message-Id: <20190620174348.846387719@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5bce256f0b528624a34fe907db385133bb7be33e ]
+[ Upstream commit a0692f0eef91354b62c2b4c94954536536be5425 ]
 
-In xhci_debugfs_create_slot(), kzalloc() can fail and
-dev->debugfs_private will be NULL.
-In xhci_debugfs_create_endpoint(), dev->debugfs_private is used without
-any null-pointer check, and can cause a null pointer dereference.
+If I2C_M_RECV_LEN check failed, msgs[i].buf allocated by memdup_user
+will not be freed. Pump index up so it will be freed.
 
-To fix this bug, a null-pointer check is added in
-xhci_debugfs_create_endpoint().
-
-This bug is found by a runtime fuzzing tool named FIZZER written by us.
-
-[subjet line change change, add potential -Mathais]
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 838bfa6049fb ("i2c-dev: Add support for I2C_M_RECV_LEN")
+Signed-off-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-debugfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/i2c/i2c-dev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/xhci-debugfs.c b/drivers/usb/host/xhci-debugfs.c
-index cadc01336bf8..7ba6afc7ef23 100644
---- a/drivers/usb/host/xhci-debugfs.c
-+++ b/drivers/usb/host/xhci-debugfs.c
-@@ -440,6 +440,9 @@ void xhci_debugfs_create_endpoint(struct xhci_hcd *xhci,
- 	struct xhci_ep_priv	*epriv;
- 	struct xhci_slot_priv	*spriv = dev->debugfs_private;
- 
-+	if (!spriv)
-+		return;
-+
- 	if (spriv->eps[ep_index])
- 		return;
- 
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 57e3790c87b1..e56b774e7cf9 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -295,6 +295,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 			    rdwr_pa[i].buf[0] < 1 ||
+ 			    rdwr_pa[i].len < rdwr_pa[i].buf[0] +
+ 					     I2C_SMBUS_BLOCK_MAX) {
++				i++;
+ 				res = -EINVAL;
+ 				break;
+ 			}
 -- 
 2.20.1
 
