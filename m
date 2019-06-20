@@ -2,129 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4E44D3C7
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 18:30:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36BDD4D3CB
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 18:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726654AbfFTQaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 12:30:22 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:45292 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726530AbfFTQaW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 12:30:22 -0400
-Received: by mail-ot1-f68.google.com with SMTP id x21so3279598otq.12
-        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 09:30:21 -0700 (PDT)
+        id S1726675AbfFTQa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 12:30:56 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:32943 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726620AbfFTQa4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 12:30:56 -0400
+Received: by mail-pg1-f193.google.com with SMTP id m4so1252059pgk.0
+        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 09:30:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=DApYrgtFGUX8hglw1AcOz6adgUtgKXSMo50u9kqGqWo=;
-        b=IbYvmcN3FD1XsFJRWLBVeAh4cj+ztsE2rAJY2j9X45js8FuU/UPlkV5Z4mXnvi7Y7S
-         A1GJpNUvJJbYn4ayjrn7/ANF+NiX7qKfqVlzDYpeflENEtIxLPu+qyys3bQLnsGfTQ1q
-         nP6mTojxuOtLIWObuYkjJyA/1wtWC7fvvWuTmmiY8UwiqIT0/aeMmX6iPRbPwOg5iGPr
-         uvfM5n2Dc7iiy1RvSAtGN0+PsX0kiVynUGI3ramtVIYzCGNtSNnR70SGPuHH87OdZOvD
-         shvfqPmJ4PpbxFg34W9zwV3aCJNPq3GMuGB4dV59hH1kuK1Ja8KmFwrH/fL/dTGr3744
-         /wLg==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :user-agent;
+        bh=SYmQcOhS9WgXdk0pzaHqd/oVUIIoK5M46QRCry6cRJw=;
+        b=MrC+WANEAxnII4IF/0rirrWnsNRSsbkt91czmFzB0i++CGwPyYLL+Zm7irtrOUxrLC
+         617bcBUgdCPeCglB/VODiHn5F7wcOogMha5K08hPdFIgsDMclTFgd3/oCYw0ILzV9yq3
+         KO5xfhAmzjsfZ23lJpHtbxq+0vLxFrgSS1++Y=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=DApYrgtFGUX8hglw1AcOz6adgUtgKXSMo50u9kqGqWo=;
-        b=WEJoxv7CszsCl7ryoMUiHBUERTQYi4gWardI2lG2P5bT3g8E4nTbunorqup/Q7QYw9
-         T5axGe6xprM9bvwcpS0RYtQAhzojyC+Mz/KtVLz+3oiQUReJfRMee5Wva9/g6HW51Is2
-         N5qrNsJqm9jsbyopZaYlkTo/WmwuiyXflQdWA7IqBhBGDjLE5LgubRDp9a9Dx93VLXsM
-         7euzG2LfE29fQDMO+jCEmKy58w3xkOEqh987zFtLYeDZo7gqdCVS7VPJ0UlUP4KcpHTH
-         5vmWWmFNPq8a6z9/mEvTibgRp0Con0E11A+bSXkf5XB1uiEV5u0ALhuKL1+N48SgVPAm
-         pZ/Q==
-X-Gm-Message-State: APjAAAVO6tXTyXZgIn/GztSPh+I434peZmsO+TLLxX3rudRR3izaRx+9
-        FUxqPXabQFddOFq4u4HMj9I98mlgQJUuN0J1qazQGw==
-X-Google-Smtp-Source: APXvYqxIllarlavyR5g1oQ37eeWGGe9Qov4pSV/b7aFTtPwH8mY5U/JzeG/yRiJUeWSkE5MXZLJELq2eNsiljKeKmTU=
-X-Received: by 2002:a9d:7b48:: with SMTP id f8mr14032030oto.207.1561048221363;
- Thu, 20 Jun 2019 09:30:21 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=SYmQcOhS9WgXdk0pzaHqd/oVUIIoK5M46QRCry6cRJw=;
+        b=lOBvS0QJG2AXS/Q5Xav6ArwczQcg+TcIOsQwjoCz38sv5OPiLAMEfqKjg41C7ambjO
+         Gv6Z1IJYzMog5KO+wbbgyBRmFrRU2KOmLJBtuxsQMsfrNIzoxMdrKVhCbREPs9Ey5yXV
+         vWSvPjgLEescquh3yGQja9EoKeqJpLjT9kI4JcG4/yWWOOhW6H8KKV0smnSvwnQyEvAx
+         KkGyGgsSHDe0dT5fmJtJz7myEtYGZaRINpLF/JWXGdyZHbwGiRK/ucJuNKsEJn1cARpI
+         JclBRmsRpOjvYugVr3g1dNuCcdI3oicXL8skXsZCofVrMrZTx9wdCIHIF/xaggW8RkbP
+         XTLg==
+X-Gm-Message-State: APjAAAXCmFkL7PGxFFBg372yxAyBMl0n+aY5TLMxR35fiV4CgGEuM+4N
+        UrnQ2M87xj3rU3vjE/0rsnoU+a51I9s=
+X-Google-Smtp-Source: APXvYqzami6nH+XFYEKnYr0vyehD7AZgweHIqxE4wvYGQd/ibEXGs0YI3hSyFBq2dExkUz+LWjCOWg==
+X-Received: by 2002:aa7:9092:: with SMTP id i18mr16332514pfa.101.1561048255195;
+        Thu, 20 Jun 2019 09:30:55 -0700 (PDT)
+Received: from google.com ([2620:15c:202:201:49ea:b78f:4f04:4d25])
+        by smtp.googlemail.com with ESMTPSA id s9sm231030pjp.7.2019.06.20.09.30.53
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Thu, 20 Jun 2019 09:30:54 -0700 (PDT)
+Date:   Thu, 20 Jun 2019 09:30:49 -0700
+From:   Zubin Mithra <zsm@chromium.org>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, groeck@chromium.org,
+        alexander.lochmann@tu-dortmund.de, viro@zeniv.linux.org.uk
+Subject: f69e749a4935 ("Abort file_remove_privs() for non-reg. files")
+Message-ID: <20190620163048.GA189243@google.com>
 MIME-Version: 1.0
-References: <156092349300.979959.17603710711957735135.stgit@dwillia2-desk3.amr.corp.intel.com>
- <874l4kjv6o.fsf@linux.ibm.com>
-In-Reply-To: <874l4kjv6o.fsf@linux.ibm.com>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Thu, 20 Jun 2019 09:30:10 -0700
-Message-ID: <CAPcyv4ioWRhU9AbyTHhf9PavL0GSs=6h3dGyaQPb7vLJ2+z23g@mail.gmail.com>
-Subject: Re: [PATCH v10 00/13] mm: Sub-section memory hotplug support
-To:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Jane Chu <jane.chu@oracle.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Jonathan Corbet <corbet@lwn.net>, Qian Cai <cai@lca.pw>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Toshi Kani <toshi.kani@hpe.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Jeff Moyer <jmoyer@redhat.com>, Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        stable <stable@vger.kernel.org>,
-        Wei Yang <richardw.yang@linux.intel.com>,
-        Linux MM <linux-mm@kvack.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 20, 2019 at 5:31 AM Aneesh Kumar K.V
-<aneesh.kumar@linux.ibm.com> wrote:
->
-> Dan Williams <dan.j.williams@intel.com> writes:
->
-> > Changes since v9 [1]:
-> > - Fix multiple issues related to the fact that pfn_valid() has
-> >   traditionally returned true for any pfn in an 'early' (onlined at
-> >   boot) section regardless of whether that pfn represented 'System RAM'.
-> >   Teach pfn_valid() to maintain its traditional behavior in the presence
-> >   of subsections. Specifically, subsection precision for pfn_valid() is
-> >   only considered for non-early / hot-plugged sections. (Qian)
-> >
-> > - Related to the first item introduce a SECTION_IS_EARLY
-> >   (->section_mem_map flag) to remove the existing hacks for determining
-> >   an early section by looking at whether the usemap was allocated from the
-> >   slab.
-> >
-> > - Kill off the EEXIST hackery in __add_pages(). It breaks
-> >   (arch_add_memory() false-positive) the detection of subsection
-> >   collisions reported by section_activate(). It is also obviated by
-> >   David's recent reworks to move the 'System RAM' request_region() earlier
-> >   in the add_memory() sequence().
-> >
-> > - Switch to an arch-independent / static subsection-size of 2MB.
-> >   Otherwise, a per-arch subsection-size is a roadblock on the path to
-> >   persistent memory namespace compatibility across archs. (Jeff)
-> >
-> > - Update the changelog for "libnvdimm/pfn: Fix fsdax-mode namespace
-> >   info-block zero-fields" to clarify that the "Cc: stable" is only there
-> >   as safety measure for a distro that decides to backport "libnvdimm/pfn:
-> >   Stop padding pmem namespaces to section alignment", otherwise there is
-> >   no known bug exposure in older kernels. (Andrew)
-> >
-> > - Drop some redundant subsection checks (Oscar)
-> >
-> > - Collect some reviewed-bys
-> >
-> > [1]: https://lore.kernel.org/lkml/155977186863.2443951.9036044808311959913.stgit@dwillia2-desk3.amr.corp.intel.com/
->
->
-> You can add Tested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-> for ppc64.
+Hello,
 
-Thank you!
+Syzkaller has triggered a kernel WARNING when fuzzing a 4.14 kernel with the following stacktrace.
+Call Trace:
+ __dump_stack lib/dump_stack.c:17 [inline]
+ dump_stack+0x114/0x1cf lib/dump_stack.c:53
+ panic+0x1bb/0x3a0 kernel/panic.c:181
+ __warn.cold.9+0x149/0x186 kernel/panic.c:542
+ report_bug+0x1f7/0x272 lib/bug.c:186
+ fixup_bug arch/x86/kernel/traps.c:177 [inline]
+ do_error_trap+0x1c1/0x430 arch/x86/kernel/traps.c:295
+ do_invalid_op+0x20/0x30 arch/x86/kernel/traps.c:314
+ invalid_op+0x1b/0x40 arch/x86/entry/entry_64.S:944
+ __remove_privs fs/inode.c:1805 [inline]
+ file_remove_privs+0x291/0x4c0 fs/inode.c:1827
+ __generic_file_write_iter+0x166/0x5b0 mm/filemap.c:3096
+ blkdev_write_iter+0x1f5/0x3b0 fs/block_dev.c:1905
+ call_write_iter include/linux/fs.h:1782 [inline]
+ new_sync_write fs/read_write.c:471 [inline]
+ __vfs_write+0x53f/0x7d0 fs/read_write.c:484
+ vfs_write+0x18c/0x500 fs/read_write.c:546
+ SYSC_write fs/read_write.c:593 [inline]
+ SyS_write+0xf4/0x230 fs/read_write.c:585
+ do_syscall_32_irqs_on arch/x86/entry/common.c:340 [inline]
+ do_fast_syscall_32+0x3c1/0xbf1 arch/x86/entry/common.c:403
+ entry_SYSENTER_compat+0x84/0x96 arch/x86/entry/entry_64_compat.S:139
 
-> BTW even after this series we have the kernel crash mentioned in the
-> below email on reconfigure.
->
-> https://lore.kernel.org/linux-mm/20190514025354.9108-1-aneesh.kumar@linux.ibm.com
->
-> I guess we need to conclude how the reserve space struct page should be
-> initialized ?
 
-Yes, that issue is independent of the subsection changes. I'll take a
-closer look.
+Could the following patch be applied to 5.0.y, 4.19.y, 4.14.y? The commit is present in 5.1.y.
+* f69e749a4935 ("Abort file_remove_privs() for non-reg. files")
+
+
+Tests run:
+* Syzkaller reproducer
+* Chrome OS tryjobs
+
+
+Thanks,
+- Zubin
