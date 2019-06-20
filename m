@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C8284D867
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35FFC4D6B3
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727566AbfFTSGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:06:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60298 "EHLO mail.kernel.org"
+        id S1727028AbfFTSLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:11:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728124AbfFTSGN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:06:13 -0400
+        id S1728289AbfFTSLA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:11:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9471221530;
-        Thu, 20 Jun 2019 18:06:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E8AF2166E;
+        Thu, 20 Jun 2019 18:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053973;
-        bh=5g4ElFNDCPyJ9TdYepS3uPQ5YhDdovUUaE1ZRrmnZNM=;
+        s=default; t=1561054259;
+        bh=0Y6kIeY0L6yEjnbxo0rO+2g48CwMEk1CvaHVEL/4CBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+UlOrJNiNq7WUAUzqRGMt0wZssHx+tHEc5GN445Fuv17uY/+eQ+xxuU4VYYtj6qX
-         1EKoNGGJm6Is/SBnxen8RGMfsTcXsX86g+zYsEGzLfc58MFJLEPYrPdCITJXzI7BLS
-         RAzlRHJvUy1OlUFkqs2fm8GV948HTRruVvWQjMY4=
+        b=mXjUCaofDFP10+cfHxAMb1PfuSKOWD7Dd0t90BhTq9U2EaHbcxpFP1x+tU9t227Zx
+         KtqtqN7+NO2gB9WBUb0TD9Pu29ugv4d+MZciojamk+OEJUksqobbGC0J4L5hRnVIE1
+         r0ew1hLI3l16ITRbV0ydUsWyQDMf7UgHk/oYHL0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 092/117] ipv6: flowlabel: fl6_sock_lookup() must use atomic_inc_not_zero
+Subject: [PATCH 4.19 11/61] sunhv: Fix device naming inconsistency between sunhv_console and sunhv_reg
 Date:   Thu, 20 Jun 2019 19:57:06 +0200
-Message-Id: <20190620174357.517902879@linuxfoundation.org>
+Message-Id: <20190620174339.181065281@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 
-[ Upstream commit 65a3c497c0e965a552008db8bc2653f62bc925a1 ]
+[ Upstream commit 07a6d63eb1b54b5fb38092780fe618dfe1d96e23 ]
 
-Before taking a refcount, make sure the object is not already
-scheduled for deletion.
+In d5a2aa24, the name in struct console sunhv_console was changed from "ttyS"
+to "ttyHV" while the name in struct uart_ops sunhv_pops remained unchanged.
 
-Same fix is needed in ipv6_flowlabel_opt()
+This results in the hypervisor console device to be listed as "ttyHV0" under
+/proc/consoles while the device node is still named "ttyS0":
 
-Fixes: 18367681a10b ("ipv6 flowlabel: Convert np->ipv6_fl_list to RCU.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
+root@osaka:~# cat /proc/consoles
+ttyHV0               -W- (EC p  )    4:64
+tty0                 -WU (E     )    4:1
+root@osaka:~# readlink /sys/dev/char/4:64
+../../devices/root/f02836f0/f0285690/tty/ttyS0
+root@osaka:~#
+
+This means that any userland code which tries to determine the name of the
+device file of the hypervisor console device can not rely on the information
+provided by /proc/consoles. In particular, booting current versions of debian-
+installer inside a SPARC LDOM will fail with the installer unable to determine
+the console device.
+
+After renaming the device in struct uart_ops sunhv_pops to "ttyHV" as well,
+the inconsistency is fixed and it is possible again to determine the name
+of the device file of the hypervisor console device by reading the contents
+of /proc/console:
+
+root@osaka:~# cat /proc/consoles
+ttyHV0               -W- (EC p  )    4:64
+tty0                 -WU (E     )    4:1
+root@osaka:~# readlink /sys/dev/char/4:64
+../../devices/root/f02836f0/f0285690/tty/ttyHV0
+root@osaka:~#
+
+With this change, debian-installer works correctly when installing inside
+a SPARC LDOM.
+
+Signed-off-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_flowlabel.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/tty/serial/sunhv.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/ip6_flowlabel.c
-+++ b/net/ipv6/ip6_flowlabel.c
-@@ -254,9 +254,9 @@ struct ip6_flowlabel *fl6_sock_lookup(st
- 	rcu_read_lock_bh();
- 	for_each_sk_fl_rcu(np, sfl) {
- 		struct ip6_flowlabel *fl = sfl->fl;
--		if (fl->label == label) {
-+
-+		if (fl->label == label && atomic_inc_not_zero(&fl->users)) {
- 			fl->lastuse = jiffies;
--			atomic_inc(&fl->users);
- 			rcu_read_unlock_bh();
- 			return fl;
- 		}
-@@ -623,7 +623,8 @@ int ipv6_flowlabel_opt(struct sock *sk,
- 						goto done;
- 					}
- 					fl1 = sfl->fl;
--					atomic_inc(&fl1->users);
-+					if (!atomic_inc_not_zero(&fl1->users))
-+						fl1 = NULL;
- 					break;
- 				}
- 			}
+--- a/drivers/tty/serial/sunhv.c
++++ b/drivers/tty/serial/sunhv.c
+@@ -397,7 +397,7 @@ static const struct uart_ops sunhv_pops
+ static struct uart_driver sunhv_reg = {
+ 	.owner			= THIS_MODULE,
+ 	.driver_name		= "sunhv",
+-	.dev_name		= "ttyS",
++	.dev_name		= "ttyHV",
+ 	.major			= TTY_MAJOR,
+ };
+ 
 
 
