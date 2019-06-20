@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 343A84D914
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FF1A4D632
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726781AbfFTSAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:00:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48394 "EHLO mail.kernel.org"
+        id S1726898AbfFTSFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:05:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726798AbfFTSAD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:00:03 -0400
+        id S1728005AbfFTSFQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:05:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 091122084A;
-        Thu, 20 Jun 2019 18:00:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6ABD52089C;
+        Thu, 20 Jun 2019 18:05:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053602;
-        bh=xU+BtTdGagfZ3V0Qjo0BVdC7AiKUCZEwsrR52cvNAuA=;
+        s=default; t=1561053914;
+        bh=MJE0HAq12zyKKz3lrXSzxezCIdo/FxGye4GRmSXfdMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1uj/RkiPqYlfClDaY+F6wqI8ierbJlI/lBEHM/Y+3eEgrBqKgsar1c1xEistEXOI
-         r29kt5aoraM+UMlELctRi1OvuXUrnOcJswtU0qd3IX65163xeZcGhzgYW0j17KUcxN
-         S/9jaxDCJtEXxzGL1X/927Mxps+fq3RopI9HcKBM=
+        b=GdOIRZrrfSvoW/kBlw0Tz2Y0qTVUDETlMuLZkfQduWCLOCGXhT/cAPEXwvpgbpT+B
+         p40qxC0zddg+xurTr0/QZQfqvqCwIcRd5/+bUwnW3LNzL3gBcVTfLs/F5IgG9pL+/c
+         HikYMT7RmVBRm3ewGeY6OhvPRL8F0QPBI7tLTmyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Rolf Fokkens <rolf@rolffokkens.nl>,
-        Pierre JUHEN <pierre.juhen@orange.fr>,
-        Shenghui Wang <shhuiw@foxmail.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Nix <nix@esperi.org.uk>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 47/84] bcache: fix stack corruption by PRECEDING_KEY()
-Date:   Thu, 20 Jun 2019 19:56:44 +0200
-Message-Id: <20190620174345.663462301@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+9437020c82413d00222d@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 071/117] ALSA: seq: Fix race of get-subscription call vs port-delete ioctls
+Date:   Thu, 20 Jun 2019 19:56:45 +0200
+Message-Id: <20190620174356.905268478@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
-References: <20190620174337.538228162@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,127 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+[ Upstream commit 2eabc5ec8ab4d4748a82050dfcb994119b983750 ]
 
-commit 31b90956b124240aa8c63250243ae1a53585c5e2 upstream.
+The snd_seq_ioctl_get_subscription() retrieves the port subscriber
+information as a pointer, while the object isn't protected, hence it
+may be deleted before the actual reference.  This race was spotted by
+syzkaller and may lead to a UAF.
 
-Recently people report bcache code compiled with gcc9 is broken, one of
-the buggy behavior I observe is that two adjacent 4KB I/Os should merge
-into one but they don't. Finally it turns out to be a stack corruption
-caused by macro PRECEDING_KEY().
+The fix is simply copying the data in the lookup function that
+performs in the rwsem to protect against the deletion.
 
-See how PRECEDING_KEY() is defined in bset.h,
-437 #define PRECEDING_KEY(_k)                                       \
-438 ({                                                              \
-439         struct bkey *_ret = NULL;                               \
-440                                                                 \
-441         if (KEY_INODE(_k) || KEY_OFFSET(_k)) {                  \
-442                 _ret = &KEY(KEY_INODE(_k), KEY_OFFSET(_k), 0);  \
-443                                                                 \
-444                 if (!_ret->low)                                 \
-445                         _ret->high--;                           \
-446                 _ret->low--;                                    \
-447         }                                                       \
-448                                                                 \
-449         _ret;                                                   \
-450 })
-
-At line 442, _ret points to address of a on-stack variable combined by
-KEY(), the life range of this on-stack variable is in line 442-446,
-once _ret is returned to bch_btree_insert_key(), the returned address
-points to an invalid stack address and this address is overwritten in
-the following called bch_btree_iter_init(). Then argument 'search' of
-bch_btree_iter_init() points to some address inside stackframe of
-bch_btree_iter_init(), exact address depends on how the compiler
-allocates stack space. Now the stack is corrupted.
-
-Fixes: 0eacac22034c ("bcache: PRECEDING_KEY()")
-Signed-off-by: Coly Li <colyli@suse.de>
-Reviewed-by: Rolf Fokkens <rolf@rolffokkens.nl>
-Reviewed-by: Pierre JUHEN <pierre.juhen@orange.fr>
-Tested-by: Shenghui Wang <shhuiw@foxmail.com>
-Tested-by: Pierre JUHEN <pierre.juhen@orange.fr>
-Cc: Kent Overstreet <kent.overstreet@gmail.com>
-Cc: Nix <nix@esperi.org.uk>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: syzbot+9437020c82413d00222d@syzkaller.appspotmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/bset.c |   16 +++++++++++++---
- drivers/md/bcache/bset.h |   34 ++++++++++++++++++++--------------
- 2 files changed, 33 insertions(+), 17 deletions(-)
+ sound/core/seq/seq_clientmgr.c | 10 ++--------
+ sound/core/seq/seq_ports.c     | 13 ++++++++-----
+ sound/core/seq/seq_ports.h     |  5 +++--
+ 3 files changed, 13 insertions(+), 15 deletions(-)
 
---- a/drivers/md/bcache/bset.c
-+++ b/drivers/md/bcache/bset.c
-@@ -823,12 +823,22 @@ unsigned bch_btree_insert_key(struct btr
- 	struct bset *i = bset_tree_last(b)->data;
- 	struct bkey *m, *prev = NULL;
- 	struct btree_iter iter;
-+	struct bkey preceding_key_on_stack = ZERO_KEY;
-+	struct bkey *preceding_key_p = &preceding_key_on_stack;
+diff --git a/sound/core/seq/seq_clientmgr.c b/sound/core/seq/seq_clientmgr.c
+index 3b1b2e9fb33e..881c965555c5 100644
+--- a/sound/core/seq/seq_clientmgr.c
++++ b/sound/core/seq/seq_clientmgr.c
+@@ -1905,20 +1905,14 @@ static int snd_seq_ioctl_get_subscription(struct snd_seq_client *client,
+ 	int result;
+ 	struct snd_seq_client *sender = NULL;
+ 	struct snd_seq_client_port *sport = NULL;
+-	struct snd_seq_subscribers *p;
  
- 	BUG_ON(b->ops->is_extents && !KEY_SIZE(k));
+ 	result = -EINVAL;
+ 	if ((sender = snd_seq_client_use_ptr(subs->sender.client)) == NULL)
+ 		goto __end;
+ 	if ((sport = snd_seq_port_use_ptr(sender, subs->sender.port)) == NULL)
+ 		goto __end;
+-	p = snd_seq_port_get_subscription(&sport->c_src, &subs->dest);
+-	if (p) {
+-		result = 0;
+-		*subs = p->info;
+-	} else
+-		result = -ENOENT;
+-
++	result = snd_seq_port_get_subscription(&sport->c_src, &subs->dest,
++					       subs);
+       __end:
+       	if (sport)
+ 		snd_seq_port_unlock(sport);
+diff --git a/sound/core/seq/seq_ports.c b/sound/core/seq/seq_ports.c
+index a42e2ce4a726..9cfe4fcee9a5 100644
+--- a/sound/core/seq/seq_ports.c
++++ b/sound/core/seq/seq_ports.c
+@@ -635,20 +635,23 @@ int snd_seq_port_disconnect(struct snd_seq_client *connector,
  
--	m = bch_btree_iter_init(b, &iter, b->ops->is_extents
--				? PRECEDING_KEY(&START_KEY(k))
--				: PRECEDING_KEY(k));
-+	/*
-+	 * If k has preceding key, preceding_key_p will be set to address
-+	 *  of k's preceding key; otherwise preceding_key_p will be set
-+	 * to NULL inside preceding_key().
-+	 */
-+	if (b->ops->is_extents)
-+		preceding_key(&START_KEY(k), &preceding_key_p);
-+	else
-+		preceding_key(k, &preceding_key_p);
-+
-+	m = bch_btree_iter_init(b, &iter, preceding_key_p);
  
- 	if (b->ops->insert_fixup(b, k, &iter, replace_key))
- 		return status;
---- a/drivers/md/bcache/bset.h
-+++ b/drivers/md/bcache/bset.h
-@@ -417,20 +417,26 @@ static inline bool bch_cut_back(const st
- 	return __bch_cut_back(where, k);
+ /* get matched subscriber */
+-struct snd_seq_subscribers *snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
+-							  struct snd_seq_addr *dest_addr)
++int snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
++				  struct snd_seq_addr *dest_addr,
++				  struct snd_seq_port_subscribe *subs)
+ {
+-	struct snd_seq_subscribers *s, *found = NULL;
++	struct snd_seq_subscribers *s;
++	int err = -ENOENT;
+ 
+ 	down_read(&src_grp->list_mutex);
+ 	list_for_each_entry(s, &src_grp->list_head, src_list) {
+ 		if (addr_match(dest_addr, &s->info.dest)) {
+-			found = s;
++			*subs = s->info;
++			err = 0;
+ 			break;
+ 		}
+ 	}
+ 	up_read(&src_grp->list_mutex);
+-	return found;
++	return err;
  }
  
--#define PRECEDING_KEY(_k)					\
--({								\
--	struct bkey *_ret = NULL;				\
--								\
--	if (KEY_INODE(_k) || KEY_OFFSET(_k)) {			\
--		_ret = &KEY(KEY_INODE(_k), KEY_OFFSET(_k), 0);	\
--								\
--		if (!_ret->low)					\
--			_ret->high--;				\
--		_ret->low--;					\
--	}							\
--								\
--	_ret;							\
--})
-+/*
-+ * Pointer '*preceding_key_p' points to a memory object to store preceding
-+ * key of k. If the preceding key does not exist, set '*preceding_key_p' to
-+ * NULL. So the caller of preceding_key() needs to take care of memory
-+ * which '*preceding_key_p' pointed to before calling preceding_key().
-+ * Currently the only caller of preceding_key() is bch_btree_insert_key(),
-+ * and it points to an on-stack variable, so the memory release is handled
-+ * by stackframe itself.
-+ */
-+static inline void preceding_key(struct bkey *k, struct bkey **preceding_key_p)
-+{
-+	if (KEY_INODE(k) || KEY_OFFSET(k)) {
-+		(**preceding_key_p) = KEY(KEY_INODE(k), KEY_OFFSET(k), 0);
-+		if (!(*preceding_key_p)->low)
-+			(*preceding_key_p)->high--;
-+		(*preceding_key_p)->low--;
-+	} else {
-+		(*preceding_key_p) = NULL;
-+	}
-+}
+ /*
+diff --git a/sound/core/seq/seq_ports.h b/sound/core/seq/seq_ports.h
+index 26bd71f36c41..06003b36652e 100644
+--- a/sound/core/seq/seq_ports.h
++++ b/sound/core/seq/seq_ports.h
+@@ -135,7 +135,8 @@ int snd_seq_port_subscribe(struct snd_seq_client_port *port,
+ 			   struct snd_seq_port_subscribe *info);
  
- static inline bool bch_ptr_invalid(struct btree_keys *b, const struct bkey *k)
- {
+ /* get matched subscriber */
+-struct snd_seq_subscribers *snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
+-							  struct snd_seq_addr *dest_addr);
++int snd_seq_port_get_subscription(struct snd_seq_port_subs_info *src_grp,
++				  struct snd_seq_addr *dest_addr,
++				  struct snd_seq_port_subscribe *subs);
+ 
+ #endif
+-- 
+2.20.1
+
 
 
