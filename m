@@ -2,109 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7975D4CA27
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 11:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC5984CA49
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 11:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730930AbfFTJAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 05:00:23 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:41927 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726539AbfFTJAX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 05:00:23 -0400
-Received: by mail-pf1-f196.google.com with SMTP id m30so1283072pff.8;
-        Thu, 20 Jun 2019 02:00:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=9mZWqiev/Unq+yxOlmq3nGcEHMBANDGewZajCQ6YEDc=;
-        b=L+l5mzWSPYtd/+Wi+/zSnb5yNtada/zpZySwqsUYKxYWVBKOEHKvVYyZlCcYP9FgSx
-         iZ8sn1PyIlIsNgAZwv5u3ACfuqqRYXRK4F66zRUOO2GV8E4JzC7aGd7CIvtJP+SnnuW4
-         k7btPQZ9mYK+zfe0aD9zT44YutP+6UfBkpyRM2WtFVV04IjBTyBzOuW9G1L4NRun8shm
-         AOxFkJJWtrD/bjNkJw0kpsHPt8LCoPPr5r6nLWr/ip0SWUtFq/1G3hnwt5EgGiZBF62+
-         q1fkVqvKcyCNhrcgQTc6tkYd2f3batVtm/coERP1czagBsyyvLPnBiIrpEFhIM4mGoNz
-         pjZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=9mZWqiev/Unq+yxOlmq3nGcEHMBANDGewZajCQ6YEDc=;
-        b=D/pP/4kEj0TN6Rty6IuvZY96yYPdUbeCCOgzfOmt1yNeImXmWJCdUinuWSR7L3VLlq
-         YBZZRQUtbGmjOX18ADu7y0v1eBoEWw1D/UyIHPHrhG/diX/RMYT0hI3Oy3yDP5eIbRpQ
-         e0b9kr/A7WCVXo06wqySvXsVmK8bN7jAWhNqel/Xpok6N0fxrl8yPGrOIrL9sZH0irps
-         aEY08ml7+19rtifelSBKoQdkQ/3Ghdba2fhhLgBRoK8G3MmQiZ8sU+WPn4mlHGOXe2lF
-         5f9kdtNMyVi1a4x+kfPXqZyIaUjcdJBudDXja8t2XqVxgIed4A9Gum5Cvkjt0b573vhq
-         tQcg==
-X-Gm-Message-State: APjAAAVYr/IMZ1CMwO4y1IJsLCKvMyrWZRkGXqFb050rGVqOxFVEYqsr
-        i+g/TkXRPuC9YH1DjPaEsYQ4DDHZ
-X-Google-Smtp-Source: APXvYqzo+rTxgjrUjGfk8CKkbLda89Le3yKz/DFV96t5ocCNur5kDi3FfMOVzimVD6FNIpdb75xktQ==
-X-Received: by 2002:aa7:8294:: with SMTP id s20mr119818264pfm.75.1561021222275;
-        Thu, 20 Jun 2019 02:00:22 -0700 (PDT)
-Received: from localhost.localdomain ([203.205.141.123])
-        by smtp.googlemail.com with ESMTPSA id h62sm23183321pgc.54.2019.06.20.02.00.20
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 20 Jun 2019 02:00:21 -0700 (PDT)
-From:   Wanpeng Li <kernellwp@gmail.com>
-X-Google-Original-From: Wanpeng Li <wanpengli@tencent.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] KVM: VMX: Raise #GP when guest read/write forbidden IA32_XSS
-Date:   Thu, 20 Jun 2019 17:00:02 +0800
-Message-Id: <1561021202-13789-1-git-send-email-wanpengli@tencent.com>
-X-Mailer: git-send-email 2.7.4
+        id S1730504AbfFTJI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 05:08:29 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42028 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725875AbfFTJI3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 05:08:29 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 515E1ACAE;
+        Thu, 20 Jun 2019 09:08:28 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 01F7C1E434D; Thu, 20 Jun 2019 11:08:27 +0200 (CEST)
+Date:   Thu, 20 Jun 2019 11:08:27 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+10007d66ca02b08f0e60@syzkaller.appspotmail.com,
+        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.1 35/70] loop: Don't change loop device under
+ exclusive opener
+Message-ID: <20190620090827.GJ13630@quack2.suse.cz>
+References: <20190608113950.8033-1-sashal@kernel.org>
+ <20190608113950.8033-35-sashal@kernel.org>
+ <20190610090013.GF12765@quack2.suse.cz>
+ <20190619201136.GD2226@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190619201136.GD2226@sasha-vm>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+On Wed 19-06-19 16:11:36, Sasha Levin wrote:
+> On Mon, Jun 10, 2019 at 11:00:13AM +0200, Jan Kara wrote:
+> > On Sat 08-06-19 07:39:14, Sasha Levin wrote:
+> > > From: Jan Kara <jack@suse.cz>
+> > > 
+> > > [ Upstream commit 33ec3e53e7b1869d7851e59e126bdb0fe0bd1982 ]
+> > 
+> > Please don't push this to stable kernels because...
+> 
+> I've dropped this, but...
 
-Raise #GP when guest read/write forbidden IA32_XSS.  
+OK, thanks.
 
-Fixes: 203000993de5 (kvm: vmx: add MSR logic for XSAVES) 
-Reported-by: Xiaoyao Li <xiaoyao.li@linux.intel.com>
-Reported-by: Tao Xu <tao3.xu@intel.com>
-Cc: Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
----
- arch/x86/kvm/vmx/vmx.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+> > > [Deliberately chosen not to CC stable as a user with priviledges to
+> > > trigger this race has other means of taking the system down and this
+> > > has a potential of breaking some weird userspace setup]
+> > 
+> > ... of this. Thanks!
+> 
+> Can't this be triggered by an "innocent" user, rather as part of an
+> attack? Why can't this race happen during regular usage?
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index b939a68..d174b62 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -1732,7 +1732,10 @@ static int vmx_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		return vmx_get_vmx_msr(&vmx->nested.msrs, msr_info->index,
- 				       &msr_info->data);
- 	case MSR_IA32_XSS:
--		if (!vmx_xsaves_supported())
-+		if (!vmx_xsaves_supported() ||
-+			(!msr_info->host_initiated &&
-+			!(guest_cpuid_has(vcpu, X86_FEATURE_XSAVE) &&
-+			guest_cpuid_has(vcpu, X86_FEATURE_XSAVES))))
- 			return 1;
- 		msr_info->data = vcpu->arch.ia32_xss;
- 		break;
-@@ -1962,7 +1965,10 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 			return 1;
- 		return vmx_set_vmx_msr(vcpu, msr_index, data);
- 	case MSR_IA32_XSS:
--		if (!vmx_xsaves_supported())
-+		if (!vmx_xsaves_supported() ||
-+			(!msr_info->host_initiated &&
-+			!(guest_cpuid_has(vcpu, X86_FEATURE_XSAVE) &&
-+			guest_cpuid_has(vcpu, X86_FEATURE_XSAVES))))
- 			return 1;
- 		/*
- 		 * The only supported bit as of Skylake is bit 8, but
+Well, the problem happens when mount happens on loop device when someone
+modifies the backing file of the loop device. So for this to be
+triggerable, you have to have control over assignment of backing files to
+loop devices (you have to be owner of these loop devices to be able to do
+this - pretty much means root in most setups) and be able to trigger mount
+on this device. If you have these capabilities, there are much more
+efficient ways to gain full administrator priviledges on the system,
+deadlocking the kernel is thus the least of your worries.
+
+								Honza
 -- 
-2.7.4
-
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
