@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B7A4D8DC
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 689554D94A
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727569AbfFTSDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54082 "EHLO mail.kernel.org"
+        id S1726008AbfFTR6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 13:58:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727566AbfFTSDF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:03:05 -0400
+        id S1725815AbfFTR6W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 13:58:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47CC2204FD;
-        Thu, 20 Jun 2019 18:03:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C2CF2089C;
+        Thu, 20 Jun 2019 17:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053784;
-        bh=gZWrYGruu5U/CADA8WM2KdoZ5CPFKIrqP3iR77YIUcw=;
+        s=default; t=1561053501;
+        bh=/cC1kmlS19a+4DW3fvTVQ9I6aRUhCNvMoGNsPxNR0EA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=McwJBfQ3tE3JoYlftFwf91CMIGkMPRrKUyTv5GWpARfVOSdD7vbYSva5zh+/rv1xm
-         9CvnhC0O3FSCkapaXiVKsehntgxBqcx0ZdT0P9vF49+bYKC2IRkvqAaRrsL7Va8V1E
-         G+kyvCnPmV+umH2BNQmN6RBNOh9fj5zeXE8Mw8SQ=
+        b=on2MVZxeTkY3HnbbL3uHGjNZag+fMsMiLDuWpX49a3rMEYJ9+BkEW8squI+jM0bGi
+         dAPtpTpyNEvRxixnrigKCq80vGcR/Yb+Evc+d3BOfIgVSE2CYp+KsFaGPcs+arqwuA
+         ACXTFD2aDTUclps3jrKribO/2U1+6MbsCpDEPiHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Georg Hofmann <georg@hofmannsweb.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
+        Zhang Yu <zhangyu31@baidu.com>,
+        Davidlohr Bueso <dbueso@suse.de>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 026/117] watchdog: imx2_wdt: Fix set_timeout for big timeout values
+Subject: [PATCH 4.4 03/84] ipc: prevent lockup on alloc_msg and free_msg
 Date:   Thu, 20 Jun 2019 19:56:00 +0200
-Message-Id: <20190620174353.545162591@linuxfoundation.org>
+Message-Id: <20190620174338.016420880@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
+References: <20190620174337.538228162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +49,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b07e228eee69601addba98b47b1a3850569e5013 ]
+[ Upstream commit d6a2946a88f524a47cc9b79279667137899db807 ]
 
-The documentated behavior is: if max_hw_heartbeat_ms is implemented, the
-minimum of the set_timeout argument and max_hw_heartbeat_ms should be used.
-This patch implements this behavior.
-Previously only the first 7bits were used and the input argument was
-returned.
+msgctl10 of ltp triggers the following lockup When CONFIG_KASAN is
+enabled on large memory SMP systems, the pages initialization can take a
+long time, if msgctl10 requests a huge block memory, and it will block
+rcu scheduler, so release cpu actively.
 
-Signed-off-by: Georg Hofmann <georg@hofmannsweb.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+After adding schedule() in free_msg, free_msg can not be called when
+holding spinlock, so adding msg to a tmp list, and free it out of
+spinlock
+
+  rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+  rcu:     Tasks blocked on level-1 rcu_node (CPUs 16-31): P32505
+  rcu:     Tasks blocked on level-1 rcu_node (CPUs 48-63): P34978
+  rcu:     (detected by 11, t=35024 jiffies, g=44237529, q=16542267)
+  msgctl10        R  running task    21608 32505   2794 0x00000082
+  Call Trace:
+   preempt_schedule_irq+0x4c/0xb0
+   retint_kernel+0x1b/0x2d
+  RIP: 0010:__is_insn_slot_addr+0xfb/0x250
+  Code: 82 1d 00 48 8b 9b 90 00 00 00 4c 89 f7 49 c1 ee 03 e8 59 83 1d 00 48 b8 00 00 00 00 00 fc ff df 4c 39 eb 48 89 9d 58 ff ff ff <41> c6 04 06 f8 74 66 4c 8d 75 98 4c 89 f1 48 c1 e9 03 48 01 c8 48
+  RSP: 0018:ffff88bce041f758 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
+  RAX: dffffc0000000000 RBX: ffffffff8471bc50 RCX: ffffffff828a2a57
+  RDX: dffffc0000000000 RSI: dffffc0000000000 RDI: ffff88bce041f780
+  RBP: ffff88bce041f828 R08: ffffed15f3f4c5b3 R09: ffffed15f3f4c5b3
+  R10: 0000000000000001 R11: ffffed15f3f4c5b2 R12: 000000318aee9b73
+  R13: ffffffff8471bc50 R14: 1ffff1179c083ef0 R15: 1ffff1179c083eec
+   kernel_text_address+0xc1/0x100
+   __kernel_text_address+0xe/0x30
+   unwind_get_return_address+0x2f/0x50
+   __save_stack_trace+0x92/0x100
+   create_object+0x380/0x650
+   __kmalloc+0x14c/0x2b0
+   load_msg+0x38/0x1a0
+   do_msgsnd+0x19e/0xcf0
+   do_syscall_64+0x117/0x400
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+  rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+  rcu:     Tasks blocked on level-1 rcu_node (CPUs 0-15): P32170
+  rcu:     (detected by 14, t=35016 jiffies, g=44237525, q=12423063)
+  msgctl10        R  running task    21608 32170  32155 0x00000082
+  Call Trace:
+   preempt_schedule_irq+0x4c/0xb0
+   retint_kernel+0x1b/0x2d
+  RIP: 0010:lock_acquire+0x4d/0x340
+  Code: 48 81 ec c0 00 00 00 45 89 c6 4d 89 cf 48 8d 6c 24 20 48 89 3c 24 48 8d bb e4 0c 00 00 89 74 24 0c 48 c7 44 24 20 b3 8a b5 41 <48> c1 ed 03 48 c7 44 24 28 b4 25 18 84 48 c7 44 24 30 d0 54 7a 82
+  RSP: 0018:ffff88af83417738 EFLAGS: 00000282 ORIG_RAX: ffffffffffffff13
+  RAX: dffffc0000000000 RBX: ffff88bd335f3080 RCX: 0000000000000002
+  RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff88bd335f3d64
+  RBP: ffff88af83417758 R08: 0000000000000000 R09: 0000000000000000
+  R10: 0000000000000001 R11: ffffed13f3f745b2 R12: 0000000000000000
+  R13: 0000000000000002 R14: 0000000000000000 R15: 0000000000000000
+   is_bpf_text_address+0x32/0xe0
+   kernel_text_address+0xec/0x100
+   __kernel_text_address+0xe/0x30
+   unwind_get_return_address+0x2f/0x50
+   __save_stack_trace+0x92/0x100
+   save_stack+0x32/0xb0
+   __kasan_slab_free+0x130/0x180
+   kfree+0xfa/0x2d0
+   free_msg+0x24/0x50
+   do_msgrcv+0x508/0xe60
+   do_syscall_64+0x117/0x400
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Davidlohr said:
+ "So after releasing the lock, the msg rbtree/list is empty and new
+  calls will not see those in the newly populated tmp_msg list, and
+  therefore they cannot access the delayed msg freeing pointers, which
+  is good. Also the fact that the node_cache is now freed before the
+  actual messages seems to be harmless as this is wanted for
+  msg_insert() avoiding GFP_ATOMIC allocations, and after releasing the
+  info->lock the thing is freed anyway so it should not change things"
+
+Link: http://lkml.kernel.org/r/1552029161-4957-1-git-send-email-lirongqing@baidu.com
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
+Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/imx2_wdt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ ipc/mqueue.c  | 10 ++++++++--
+ ipc/msgutil.c |  6 ++++++
+ 2 files changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 518dfa1047cb..5098982e1a58 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -181,8 +181,10 @@ static void __imx2_wdt_set_timeout(struct watchdog_device *wdog,
- static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
- 				unsigned int new_timeout)
- {
--	__imx2_wdt_set_timeout(wdog, new_timeout);
-+	unsigned int actual;
+diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+index 5e24eb0ab5dd..6ed74825ab54 100644
+--- a/ipc/mqueue.c
++++ b/ipc/mqueue.c
+@@ -373,7 +373,8 @@ static void mqueue_evict_inode(struct inode *inode)
+ 	struct user_struct *user;
+ 	unsigned long mq_bytes, mq_treesize;
+ 	struct ipc_namespace *ipc_ns;
+-	struct msg_msg *msg;
++	struct msg_msg *msg, *nmsg;
++	LIST_HEAD(tmp_msg);
  
-+	actual = min(new_timeout, wdog->max_hw_heartbeat_ms * 1000);
-+	__imx2_wdt_set_timeout(wdog, actual);
- 	wdog->timeout = new_timeout;
- 	return 0;
- }
+ 	clear_inode(inode);
+ 
+@@ -384,10 +385,15 @@ static void mqueue_evict_inode(struct inode *inode)
+ 	info = MQUEUE_I(inode);
+ 	spin_lock(&info->lock);
+ 	while ((msg = msg_get(info)) != NULL)
+-		free_msg(msg);
++		list_add_tail(&msg->m_list, &tmp_msg);
+ 	kfree(info->node_cache);
+ 	spin_unlock(&info->lock);
+ 
++	list_for_each_entry_safe(msg, nmsg, &tmp_msg, m_list) {
++		list_del(&msg->m_list);
++		free_msg(msg);
++	}
++
+ 	/* Total amount of bytes accounted for the mqueue */
+ 	mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
+ 		min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
+diff --git a/ipc/msgutil.c b/ipc/msgutil.c
+index ed81aafd2392..9467307487f7 100644
+--- a/ipc/msgutil.c
++++ b/ipc/msgutil.c
+@@ -18,6 +18,7 @@
+ #include <linux/utsname.h>
+ #include <linux/proc_ns.h>
+ #include <linux/uaccess.h>
++#include <linux/sched.h>
+ 
+ #include "util.h"
+ 
+@@ -66,6 +67,9 @@ static struct msg_msg *alloc_msg(size_t len)
+ 	pseg = &msg->next;
+ 	while (len > 0) {
+ 		struct msg_msgseg *seg;
++
++		cond_resched();
++
+ 		alen = min(len, DATALEN_SEG);
+ 		seg = kmalloc(sizeof(*seg) + alen, GFP_KERNEL);
+ 		if (seg == NULL)
+@@ -178,6 +182,8 @@ void free_msg(struct msg_msg *msg)
+ 	kfree(msg);
+ 	while (seg != NULL) {
+ 		struct msg_msgseg *tmp = seg->next;
++
++		cond_resched();
+ 		kfree(seg);
+ 		seg = tmp;
+ 	}
 -- 
 2.20.1
 
