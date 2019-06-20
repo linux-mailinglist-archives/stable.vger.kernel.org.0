@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6744D7A6
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:20:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA5AA4D896
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728978AbfFTSNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:13:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41214 "EHLO mail.kernel.org"
+        id S1727890AbfFTSEg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:04:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729225AbfFTSNR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:13:17 -0400
+        id S1727882AbfFTSEf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:04:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9435D205F4;
-        Thu, 20 Jun 2019 18:13:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA50821479;
+        Thu, 20 Jun 2019 18:04:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054397;
-        bh=MQN4MAjNFJVdVhKnJ8v6yKJubeZvUYDV17bY1w9W8uU=;
+        s=default; t=1561053874;
+        bh=vWblSKgM7/w+DGeiPntDismRJC5xmWE9Nfwes/z5ies=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HySCpiwzGgkEOVZK27SfTVWhsQdZGT6YD6xb8R0L+2w6TeirG3Y9wygMJI775CBkD
-         6UKEu2ncJ3bdfDQsA/iZE4gc9elEIyRGHM+rHTrRSq/R6vaNoBUj7nFeznpcMs4kTD
-         bszk6qVG3VvbW4HBpk3ukgopAhTsWlEPrjoNny98=
+        b=i95V9WhROCMMlPv4RTDlO8KuYilkecUYwp7g73/IgwY0mQvZyB9nfnrohzHwUD6s2
+         p1vI2PFlKNArWanibO5HRwpYn2378b2hJ9gbwxf3X9R6402CFfRoGwSPhC5gfZLZkn
+         tr/IdYiwPll2/c3zsM7MWwNBgRLZLE8eZsrETjak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 04/98] hv_netvsc: Set probe mode to sync
-Date:   Thu, 20 Jun 2019 19:56:31 +0200
-Message-Id: <20190620174349.618100712@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.9 058/117] libata: Extend quirks for the ST1000LM024 drives with NOLPM quirk
+Date:   Thu, 20 Jun 2019 19:56:32 +0200
+Message-Id: <20190620174356.227658568@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 9a33629ba6b26caebd73e3c581ba1e6068c696a7 ]
+commit 31f6264e225fb92cf6f4b63031424f20797c297d upstream.
 
-For better consistency of synthetic NIC names, we set the probe mode to
-PROBE_FORCE_SYNCHRONOUS. So the names can be aligned with the vmbus
-channel offer sequence.
+We've received a bugreport that using LPM with ST1000LM024 drives leads
+to system lockups. So it seems that these models are buggy in more then
+1 way. Add NOLPM quirk to the existing quirks entry for BROKEN_FPDMA_AA.
 
-Fixes: af0a5646cb8d ("use the new async probing feature for the hyperv drivers")
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1571330
+Cc: stable@vger.kernel.org
+Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/hyperv/netvsc_drv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -2414,7 +2414,7 @@ static struct  hv_driver netvsc_drv = {
- 	.probe = netvsc_probe,
- 	.remove = netvsc_remove,
- 	.driver = {
--		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
-+		.probe_type = PROBE_FORCE_SYNCHRONOUS,
- 	},
- };
+---
+ drivers/ata/libata-core.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4355,9 +4355,12 @@ static const struct ata_blacklist_entry
+ 	{ "ST3320[68]13AS",	"SD1[5-9]",	ATA_HORKAGE_NONCQ |
+ 						ATA_HORKAGE_FIRMWARE_WARN },
  
+-	/* drives which fail FPDMA_AA activation (some may freeze afterwards) */
+-	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
+-	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
++	/* drives which fail FPDMA_AA activation (some may freeze afterwards)
++	   the ST disks also have LPM issues */
++	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
++						ATA_HORKAGE_NOLPM, },
++	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
++						ATA_HORKAGE_NOLPM, },
+ 	{ "VB0250EAVER",	"HPG7",		ATA_HORKAGE_BROKEN_FPDMA_AA },
+ 
+ 	/* Blacklist entries taken from Silicon Image 3124/3132
 
 
