@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4C724D5D5
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5628D4D85D
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727244AbfFTSB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:01:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51122 "EHLO mail.kernel.org"
+        id S1725914AbfFTSGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:06:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726114AbfFTSB3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:01:29 -0400
+        id S1728189AbfFTSGk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:06:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C4EB2084A;
-        Thu, 20 Jun 2019 18:01:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE17A204FD;
+        Thu, 20 Jun 2019 18:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053688;
-        bh=xwCTgva9OI67grSH5Oh2hITs1mJLqZptYrYyn964VaQ=;
+        s=default; t=1561053999;
+        bh=bDBU2rsX9swvTzPHVgf99wGmSk/InOxpTryZw0jnALs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1T+WtLA6tlFac974CprhGQYSyXk4w4kpC0oMYzOshw202keF602LHb+uvkn5X5nP8
-         yMe/dOWPtSQ1iKXXAce6yVW9pmhuYIsNDO7S7QcJ4jrnaM1EpU8bMsIoDGJX6A8IFD
-         pzb2Rd+EIgEqwndWaENpadeXn0ykbjzyp2cXD9sU=
+        b=Fy5jPduR4TyOR7S1WtoTDK6irH3d20Ff8a0lBt3GJaVIoehjpwov0IWsFDo1D2ntV
+         iwXLQgj6d0T3x0LuaUAyF8HRybxxKboWA6PlgYbyvxUyxLNNK5amXBCOjWRHM1kUoC
+         daiOoJdJG10ehaUXdFSNJCOvgku2PvZvu83Kax80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
+        stable@vger.kernel.org, Frank van der Linden <fllinden@amazon.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
+        jiaxun.yang@flygoat.com, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 77/84] ia64: fix build errors by exporting paddr_to_nid()
+Subject: [PATCH 4.9 100/117] x86/CPU/AMD: Dont force the CPB cap when running under a hypervisor
 Date:   Thu, 20 Jun 2019 19:57:14 +0200
-Message-Id: <20190620174348.926262865@linuxfoundation.org>
+Message-Id: <20190620174357.804264248@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
-References: <20190620174337.538228162@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,56 +49,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9a626c4a6326da4433a0d4d4a8a7d1571caf1ed3 ]
+[ Upstream commit 2ac44ab608705948564791ce1d15d43ba81a1e38 ]
 
-Fix build errors on ia64 when DISCONTIGMEM=y and NUMA=y by
-exporting paddr_to_nid().
+For F17h AMD CPUs, the CPB capability ('Core Performance Boost') is forcibly set,
+because some versions of that chip incorrectly report that they do not have it.
 
-Fixes these build errors:
+However, a hypervisor may filter out the CPB capability, for good
+reasons. For example, KVM currently does not emulate setting the CPB
+bit in MSR_K7_HWCR, and unchecked MSR access errors will be thrown
+when trying to set it as a guest:
 
-ERROR: "paddr_to_nid" [sound/core/snd-pcm.ko] undefined!
-ERROR: "paddr_to_nid" [net/sunrpc/sunrpc.ko] undefined!
-ERROR: "paddr_to_nid" [fs/cifs/cifs.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/video/fbdev/core/fb.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/usb/mon/usbmon.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/usb/core/usbcore.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/md/raid1.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/md/dm-mod.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/md/dm-crypt.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/md/dm-bufio.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/ide/ide-core.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/ide/ide-cd_mod.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/gpu/drm/drm.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/char/agp/agpgart.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/block/nbd.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/block/loop.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/block/brd.ko] undefined!
-ERROR: "paddr_to_nid" [crypto/ccm.ko] undefined!
+	unchecked MSR access error: WRMSR to 0xc0010015 (tried to write 0x0000000001000011) at rIP: 0xffffffff890638f4 (native_write_msr+0x4/0x20)
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: linux-ia64@vger.kernel.org
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+	Call Trace:
+	boost_set_msr+0x50/0x80 [acpi_cpufreq]
+	cpuhp_invoke_callback+0x86/0x560
+	sort_range+0x20/0x20
+	cpuhp_thread_fun+0xb0/0x110
+	smpboot_thread_fn+0xef/0x160
+	kthread+0x113/0x130
+	kthread_create_worker_on_cpu+0x70/0x70
+	ret_from_fork+0x35/0x40
+
+To avoid this issue, don't forcibly set the CPB capability for a CPU
+when running under a hypervisor.
+
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+Acked-by: Borislav Petkov <bp@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: bp@alien8.de
+Cc: jiaxun.yang@flygoat.com
+Fixes: 0237199186e7 ("x86/CPU/AMD: Set the CPB bit unconditionally on F17h")
+Link: http://lkml.kernel.org/r/20190522221745.GA15789@dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com
+[ Minor edits to the changelog. ]
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/mm/numa.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/cpu/amd.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/ia64/mm/numa.c b/arch/ia64/mm/numa.c
-index aa19b7ac8222..476c7b4be378 100644
---- a/arch/ia64/mm/numa.c
-+++ b/arch/ia64/mm/numa.c
-@@ -49,6 +49,7 @@ paddr_to_nid(unsigned long paddr)
+diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
+index be6d0543e626..52a65f14db06 100644
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -766,8 +766,11 @@ static void init_amd_zn(struct cpuinfo_x86 *c)
+ {
+ 	set_cpu_cap(c, X86_FEATURE_ZEN);
  
- 	return (i < num_node_memblks) ? node_memblk[i].nid : (num_node_memblks ? -1 : 0);
+-	/* Fix erratum 1076: CPB feature bit not being set in CPUID. */
+-	if (!cpu_has(c, X86_FEATURE_CPB))
++	/*
++	 * Fix erratum 1076: CPB feature bit not being set in CPUID.
++	 * Always set it, except when running under a hypervisor.
++	 */
++	if (!cpu_has(c, X86_FEATURE_HYPERVISOR) && !cpu_has(c, X86_FEATURE_CPB))
+ 		set_cpu_cap(c, X86_FEATURE_CPB);
  }
-+EXPORT_SYMBOL(paddr_to_nid);
  
- #if defined(CONFIG_SPARSEMEM) && defined(CONFIG_NUMA)
- /*
 -- 
 2.20.1
 
