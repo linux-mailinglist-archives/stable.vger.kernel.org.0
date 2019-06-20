@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B794D719
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B35C74D7EA
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729290AbfFTSQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:16:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45124 "EHLO mail.kernel.org"
+        id S1729095AbfFTSMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:12:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729711AbfFTSQE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:16:04 -0400
+        id S1729089AbfFTSMs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:12:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26F47208CA;
-        Thu, 20 Jun 2019 18:16:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 986BD214AF;
+        Thu, 20 Jun 2019 18:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054562;
-        bh=A0ZMX69gc3yuNN1AmuTtB2l1SGUCCmEgsDeBG7r0wa8=;
+        s=default; t=1561054367;
+        bh=eQPis8RUW9sKszh/XffmnxG5x2vEuII50SRZgvkX7uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hzty2LQPaNRx6e3yYKHi1GbhxVCMb3KF4r9hJ7ec08lVsW/cyyvUE+1Bka27AmH4S
-         kaSwtHgcjWH65riUkM3VYFL41SLmeujqrNbPUEBdrpdfYtb/EhfoLr37U2y5oYtD0d
-         2lQA20IFfjjOZnp/zkzVyGtpE/sOu5Y9IXJl8yik=
+        b=L3ULAJOfH1as9t32p0oNEf/2zciDWydjswv3MjD8hl1t2uKRfxr0iskjReLxQuYSy
+         g8m3EatYZLboI1rZJu9NwWmr7HkKSJyHXSVdTYy8wh7Tes5sw433QgG1+UekOdYPFr
+         ezYiBAn6WniK6oDj+2Zdbqp/byie+P2gtKgs4VQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 71/98] dpaa_eth: use only online CPU portals
-Date:   Thu, 20 Jun 2019 19:57:38 +0200
-Message-Id: <20190620174352.739435973@linuxfoundation.org>
+Subject: [PATCH 4.19 44/61] xen/pvcalls: Remove set but not used variable
+Date:   Thu, 20 Jun 2019 19:57:39 +0200
+Message-Id: <20190620174344.909296746@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,93 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7aae703f8096d21e34ce5f34f16715587bc30902 ]
+[ Upstream commit 41349672e3cbc2e8349831f21253509c3415aa2b ]
 
-Make sure only the portals for the online CPUs are used.
-Without this change, there are issues when someone boots with
-maxcpus=n, with n < actual number of cores available as frames
-either received or corresponding to the transmit confirmation
-path would be offered for dequeue to the offline CPU portals,
-getting lost.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Signed-off-by: Madalin Bucur <madalin.bucur@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+drivers/xen/pvcalls-front.c: In function pvcalls_front_sendmsg:
+drivers/xen/pvcalls-front.c:543:25: warning: variable bedata set but not used [-Wunused-but-set-variable]
+drivers/xen/pvcalls-front.c: In function pvcalls_front_recvmsg:
+drivers/xen/pvcalls-front.c:638:25: warning: variable bedata set but not used [-Wunused-but-set-variable]
+
+They are never used since introduction.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c     | 9 ++++-----
- drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c | 4 ++--
- 2 files changed, 6 insertions(+), 7 deletions(-)
+ drivers/xen/pvcalls-front.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-index d3f2408dc9e8..f38c3fa7d705 100644
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-@@ -780,7 +780,7 @@ static void dpaa_eth_add_channel(u16 channel)
- 	struct qman_portal *portal;
- 	int cpu;
+diff --git a/drivers/xen/pvcalls-front.c b/drivers/xen/pvcalls-front.c
+index 91da7e44d5d4..3a144eecb6a7 100644
+--- a/drivers/xen/pvcalls-front.c
++++ b/drivers/xen/pvcalls-front.c
+@@ -538,7 +538,6 @@ static int __write_ring(struct pvcalls_data_intf *intf,
+ int pvcalls_front_sendmsg(struct socket *sock, struct msghdr *msg,
+ 			  size_t len)
+ {
+-	struct pvcalls_bedata *bedata;
+ 	struct sock_mapping *map;
+ 	int sent, tot_sent = 0;
+ 	int count = 0, flags;
+@@ -550,7 +549,6 @@ int pvcalls_front_sendmsg(struct socket *sock, struct msghdr *msg,
+ 	map = pvcalls_enter_sock(sock);
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+-	bedata = dev_get_drvdata(&pvcalls_front_dev->dev);
  
--	for_each_cpu(cpu, cpus) {
-+	for_each_cpu_and(cpu, cpus, cpu_online_mask) {
- 		portal = qman_get_affine_portal(cpu);
- 		qman_p_static_dequeue_add(portal, pool);
- 	}
-@@ -896,7 +896,7 @@ static void dpaa_fq_setup(struct dpaa_priv *priv,
- 	u16 channels[NR_CPUS];
- 	struct dpaa_fq *fq;
+ 	mutex_lock(&map->active.out_mutex);
+ 	if ((flags & MSG_DONTWAIT) && !pvcalls_front_write_todo(map)) {
+@@ -633,7 +631,6 @@ static int __read_ring(struct pvcalls_data_intf *intf,
+ int pvcalls_front_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 		     int flags)
+ {
+-	struct pvcalls_bedata *bedata;
+ 	int ret;
+ 	struct sock_mapping *map;
  
--	for_each_cpu(cpu, affine_cpus)
-+	for_each_cpu_and(cpu, affine_cpus, cpu_online_mask)
- 		channels[num_portals++] = qman_affine_channel(cpu);
+@@ -643,7 +640,6 @@ int pvcalls_front_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 	map = pvcalls_enter_sock(sock);
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+-	bedata = dev_get_drvdata(&pvcalls_front_dev->dev);
  
- 	if (num_portals == 0)
-@@ -2174,7 +2174,6 @@ static int dpaa_eth_poll(struct napi_struct *napi, int budget)
- 	if (cleaned < budget) {
- 		napi_complete_done(napi, cleaned);
- 		qman_p_irqsource_add(np->p, QM_PIRQ_DQRI);
--
- 	} else if (np->down) {
- 		qman_p_irqsource_add(np->p, QM_PIRQ_DQRI);
- 	}
-@@ -2448,7 +2447,7 @@ static void dpaa_eth_napi_enable(struct dpaa_priv *priv)
- 	struct dpaa_percpu_priv *percpu_priv;
- 	int i;
- 
--	for_each_possible_cpu(i) {
-+	for_each_online_cpu(i) {
- 		percpu_priv = per_cpu_ptr(priv->percpu_priv, i);
- 
- 		percpu_priv->np.down = 0;
-@@ -2461,7 +2460,7 @@ static void dpaa_eth_napi_disable(struct dpaa_priv *priv)
- 	struct dpaa_percpu_priv *percpu_priv;
- 	int i;
- 
--	for_each_possible_cpu(i) {
-+	for_each_online_cpu(i) {
- 		percpu_priv = per_cpu_ptr(priv->percpu_priv, i);
- 
- 		percpu_priv->np.down = 1;
-diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c b/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c
-index bdee441bc3b7..7ce2e99b594d 100644
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c
-@@ -569,7 +569,7 @@ static int dpaa_set_coalesce(struct net_device *dev,
- 	qman_dqrr_get_ithresh(portal, &prev_thresh);
- 
- 	/* set new values */
--	for_each_cpu(cpu, cpus) {
-+	for_each_cpu_and(cpu, cpus, cpu_online_mask) {
- 		portal = qman_get_affine_portal(cpu);
- 		res = qman_portal_set_iperiod(portal, period);
- 		if (res)
-@@ -586,7 +586,7 @@ static int dpaa_set_coalesce(struct net_device *dev,
- 
- revert_values:
- 	/* restore previous values */
--	for_each_cpu(cpu, cpus) {
-+	for_each_cpu_and(cpu, cpus, cpu_online_mask) {
- 		if (!needs_revert[cpu])
- 			continue;
- 		portal = qman_get_affine_portal(cpu);
+ 	mutex_lock(&map->active.in_mutex);
+ 	if (len > XEN_FLEX_RING_SIZE(PVCALLS_RING_ORDER))
 -- 
 2.20.1
 
