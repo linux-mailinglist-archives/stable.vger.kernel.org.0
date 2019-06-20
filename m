@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C22F4D91B
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:32:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1533E4D83E
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726970AbfFTSAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:00:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49364 "EHLO mail.kernel.org"
+        id S1726757AbfFTSHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:07:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726967AbfFTSAa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:00:30 -0400
+        id S1728271AbfFTSHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:07:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 814DF214AF;
-        Thu, 20 Jun 2019 18:00:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C70E72070B;
+        Thu, 20 Jun 2019 18:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053630;
-        bh=RjWjbrUsKAnG9glT+LX1xw7oZU0QdimWMnifTTPmnqY=;
+        s=default; t=1561054024;
+        bh=dNlhZXcSxapq/pBxruiZXHFae5wUZKQT88NMHvsonGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJKRH0Y/qoeLYIyPR5mxYAcOkewVac1XxukzBc9RBFjk2Q7nz9rA0/uZ0jrmRY/u+
-         SaCGNTo5rHvn/17Qm0zR4YnrWg+dJyYV4xTWeWZqg1j1KORxig5FhJFY/vo1oUf1gf
-         qFFEouN/1GMnS1y8wD3XZ2rLYgeqRSZzCpVVv2Y8=
+        b=sO9qidqvI5fdFPdbvKf5cBbodadh9rAnJirHJmrmfRvK6dKrfPhpw8J+f7set5SNy
+         vlWQU5BWi07zMQSxFOxI6KsxuawHhCgEr85HatpFkzpZoCF0S8nqmta5ILYnQlg7LQ
+         2S+I1D0FJ0bhdBcA165SVQoI9ljiQf5aIiXeLcpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Murray McAllister <murray.mcallister@gmail.com>,
-        Thomas Hellstrom <thellstrom@vmware.com>
-Subject: [PATCH 4.4 56/84] drm/vmwgfx: integer underflow in vmw_cmd_dx_set_shader() leading to an invalid read
+        stable@vger.kernel.org, Nadav Amit <nadav.amit@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 079/117] KVM: x86/pmu: do not mask the value that is written to fixed PMUs
 Date:   Thu, 20 Jun 2019 19:56:53 +0200
-Message-Id: <20190620174347.499299948@linuxfoundation.org>
+Message-Id: <20190620174357.130820494@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
-References: <20190620174337.538228162@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Murray McAllister <murray.mcallister@gmail.com>
+[ Upstream commit 2924b52117b2812e9633d5ea337333299166d373 ]
 
-commit 5ed7f4b5eca11c3c69e7c8b53e4321812bc1ee1e upstream.
+According to the SDM, for MSR_IA32_PERFCTR0/1 "the lower-order 32 bits of
+each MSR may be written with any value, and the high-order 8 bits are
+sign-extended according to the value of bit 31", but the fixed counters
+in real hardware are limited to the width of the fixed counters ("bits
+beyond the width of the fixed-function counter are reserved and must be
+written as zeros").  Fix KVM to do the same.
 
-If SVGA_3D_CMD_DX_SET_SHADER is called with a shader ID
-of SVGA3D_INVALID_ID, and a shader type of
-SVGA3D_SHADERTYPE_INVALID, the calculated binding.shader_slot
-will be 4294967295, leading to an out-of-bounds read in vmw_binding_loc()
-when the offset is calculated.
-
-Cc: <stable@vger.kernel.org>
-Fixes: d80efd5cb3de ("drm/vmwgfx: Initial DX support")
-Signed-off-by: Murray McAllister <murray.mcallister@gmail.com>
-Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
+Reported-by: Nadav Amit <nadav.amit@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kvm/pmu_intel.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
-@@ -2442,7 +2442,8 @@ static int vmw_cmd_dx_set_shader(struct
- 
- 	cmd = container_of(header, typeof(*cmd), header);
- 
--	if (cmd->body.type >= SVGA3D_SHADERTYPE_DX10_MAX) {
-+	if (cmd->body.type >= SVGA3D_SHADERTYPE_DX10_MAX ||
-+	    cmd->body.type < SVGA3D_SHADERTYPE_MIN) {
- 		DRM_ERROR("Illegal shader type %u.\n",
- 			  (unsigned) cmd->body.type);
- 		return -EINVAL;
+diff --git a/arch/x86/kvm/pmu_intel.c b/arch/x86/kvm/pmu_intel.c
+index 5ab4a364348e..2729131fe9bf 100644
+--- a/arch/x86/kvm/pmu_intel.c
++++ b/arch/x86/kvm/pmu_intel.c
+@@ -235,11 +235,14 @@ static int intel_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		}
+ 		break;
+ 	default:
+-		if ((pmc = get_gp_pmc(pmu, msr, MSR_IA32_PERFCTR0)) ||
+-		    (pmc = get_fixed_pmc(pmu, msr))) {
+-			if (!msr_info->host_initiated)
+-				data = (s64)(s32)data;
+-			pmc->counter += data - pmc_read_counter(pmc);
++		if ((pmc = get_gp_pmc(pmu, msr, MSR_IA32_PERFCTR0))) {
++			if (msr_info->host_initiated)
++				pmc->counter = data;
++			else
++				pmc->counter = (s32)data;
++			return 0;
++		} else if ((pmc = get_fixed_pmc(pmu, msr))) {
++			pmc->counter = data;
+ 			return 0;
+ 		} else if ((pmc = get_gp_pmc(pmu, msr, MSR_P6_EVNTSEL0))) {
+ 			if (data == pmc->eventsel)
+-- 
+2.20.1
+
 
 
