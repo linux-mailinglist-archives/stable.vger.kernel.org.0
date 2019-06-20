@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C2944D77E
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:19:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3DC34D7D6
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729624AbfFTSPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:15:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44474 "EHLO mail.kernel.org"
+        id S1728528AbfFTSL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:11:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729627AbfFTSPh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:15:37 -0400
+        id S1728631AbfFTSLV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:11:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A4FE2082C;
-        Thu, 20 Jun 2019 18:15:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 383AE2082C;
+        Thu, 20 Jun 2019 18:11:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054536;
-        bh=ZNLpGD2Qmwj7p07ux6Tt5MCr2BG4AVR1RFrcd1bxSws=;
+        s=default; t=1561054280;
+        bh=DCfJvXUgoP1A8hfG9soHPyW+yo3f7SmIlNViB9KaVw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YR089eZG01h+Cp1TPUtPRMXBNvHL59xWENpVehow9Ou8rGBba8Q89kL4u0KViwFfi
-         J+yTtAtHlB+SDHPT/kYufLZ+1GjCnkaKoTL1N4QcQtxS25gYfpJDFrwhJqY3uZPyVa
-         LcbOLoIRZKjWjmN/8v8T3G30FKRiZ8WaH6sfRAhE=
+        b=fcQ3yXj4Qqqa5xNf3RvQnmogi7bNir7rJ5Qc1sNkfEtzNs6YIK7FVnML/tCX+r2p7
+         bDIpQ5AYMrz3eFZXt89uJC5zkdY6NkRIkZK2HfMqLAY6l9GpyWt3j86DhR14mrsGS0
+         r6j9CqPGaMLJ9nPf9wyWSnXYG6Br/IDkM6ajehKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yingjoe Chen <yingjoe.chen@mediatek.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, Igor Russkikh <igor.russkikh@aquantia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 63/98] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
+Subject: [PATCH 4.19 35/61] net: aquantia: tx clean budget logic error
 Date:   Thu, 20 Jun 2019 19:57:30 +0200
-Message-Id: <20190620174352.273247343@linuxfoundation.org>
+Message-Id: <20190620174343.477478446@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a0692f0eef91354b62c2b4c94954536536be5425 ]
+[ Upstream commit 31bafc49a7736989e4c2d9f7280002c66536e590 ]
 
-If I2C_M_RECV_LEN check failed, msgs[i].buf allocated by memdup_user
-will not be freed. Pump index up so it will be freed.
+In case no other traffic happening on the ring, full tx cleanup
+may not be completed. That may cause socket buffer to overflow
+and tx traffic to stuck until next activity on the ring happens.
 
-Fixes: 838bfa6049fb ("i2c-dev: Add support for I2C_M_RECV_LEN")
-Signed-off-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+This is due to logic error in budget variable decrementor.
+Variable is compared with zero, and then post decremented,
+causing it to become MAX_INT. Solution is remove decrementor
+from the `for` statement and rewrite it in a clear way.
+
+Fixes: b647d3980948e ("net: aquantia: Add tx clean budget and valid budget handling logic")
+Signed-off-by: Igor Russkikh <igor.russkikh@aquantia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/aquantia/atlantic/aq_ring.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 3f7b9af11137..776f36690448 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -283,6 +283,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
- 			    msgs[i].len < 1 || msgs[i].buf[0] < 1 ||
- 			    msgs[i].len < msgs[i].buf[0] +
- 					     I2C_SMBUS_BLOCK_MAX) {
-+				i++;
- 				res = -EINVAL;
- 				break;
- 			}
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+index 6f3312350cac..b3c7994d73eb 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+@@ -139,10 +139,10 @@ void aq_ring_queue_stop(struct aq_ring_s *ring)
+ bool aq_ring_tx_clean(struct aq_ring_s *self)
+ {
+ 	struct device *dev = aq_nic_get_dev(self->aq_nic);
+-	unsigned int budget = AQ_CFG_TX_CLEAN_BUDGET;
++	unsigned int budget;
+ 
+-	for (; self->sw_head != self->hw_head && budget--;
+-		self->sw_head = aq_ring_next_dx(self, self->sw_head)) {
++	for (budget = AQ_CFG_TX_CLEAN_BUDGET;
++	     budget && self->sw_head != self->hw_head; budget--) {
+ 		struct aq_ring_buff_s *buff = &self->buff_ring[self->sw_head];
+ 
+ 		if (likely(buff->is_mapped)) {
+@@ -167,6 +167,7 @@ bool aq_ring_tx_clean(struct aq_ring_s *self)
+ 
+ 		buff->pa = 0U;
+ 		buff->eop_index = 0xffffU;
++		self->sw_head = aq_ring_next_dx(self, self->sw_head);
+ 	}
+ 
+ 	return !!budget;
 -- 
 2.20.1
 
