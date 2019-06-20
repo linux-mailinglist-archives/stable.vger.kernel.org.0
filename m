@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A54424D77F
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:19:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 988554D838
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729649AbfFTSPp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:15:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44616 "EHLO mail.kernel.org"
+        id S1727241AbfFTSID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:08:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727072AbfFTSPm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:15:42 -0400
+        id S1728414AbfFTSIA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:08:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6983A2082C;
-        Thu, 20 Jun 2019 18:15:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BE9B21670;
+        Thu, 20 Jun 2019 18:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054541;
-        bh=YxXQNDlm9HOLIXBSPo+bZeDS1xe31V47vTznjhXkoiI=;
+        s=default; t=1561054080;
+        bh=upEVnw1kzCasYRFExIc5e5hpkGiwl0rOpPec6g/Pr/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ROE8hiUecGbeI4Qo+Exo1S2gByKbdPxKhaFLyULAfQppXbevZE+2i9z60HrOfeiaQ
-         WGOGLi27F0xQV6vhFoH7G3DaqvAGrZNLKt+UIZvfXfAOZSv0CbncfVg5g02O29I1/V
-         XXSPwoUmmG2ZAMAMOC+k0qp65IhEbMN0E0gleuAI=
+        b=L6xW5WjiPPVxq8wHi3L/Jdi50zOZi1t69WhWvrQPAqcKZ1ZZ3NuPp+AsSFeLKOmft
+         ZEwxbCK9CzUyafeRJ9wgOSVcBcTK8dOo3duoLZponzbBy+enmWQ88gmAfgGEf+wJ10
+         SfNukt2dPSXNfyEWbYVToLiJAq6S4pme3M0+ADzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank van der Linden <fllinden@amazon.com>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
-        jiaxun.yang@flygoat.com, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org,
+        Jagdish Motwani <jagdish.motwani@sophos.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 47/98] x86/CPU/AMD: Dont force the CPB cap when running under a hypervisor
+Subject: [PATCH 4.14 12/45] netfilter: nf_queue: fix reinject verdict handling
 Date:   Thu, 20 Jun 2019 19:57:14 +0200
-Message-Id: <20190620174351.320811744@linuxfoundation.org>
+Message-Id: <20190620174333.723645570@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
+References: <20190620174328.608036501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,66 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2ac44ab608705948564791ce1d15d43ba81a1e38 ]
+[ Upstream commit 946c0d8e6ed43dae6527e878d0077c1e11015db0 ]
 
-For F17h AMD CPUs, the CPB capability ('Core Performance Boost') is forcibly set,
-because some versions of that chip incorrectly report that they do not have it.
+This patch fixes netfilter hook traversal when there are more than 1 hooks
+returning NF_QUEUE verdict. When the first queue reinjects the packet,
+'nf_reinject' starts traversing hooks with a proper hook_index. However,
+if it again receives a NF_QUEUE verdict (by some other netfilter hook), it
+queues the packet with a wrong hook_index. So, when the second queue
+reinjects the packet, it re-executes hooks in between.
 
-However, a hypervisor may filter out the CPB capability, for good
-reasons. For example, KVM currently does not emulate setting the CPB
-bit in MSR_K7_HWCR, and unchecked MSR access errors will be thrown
-when trying to set it as a guest:
-
-	unchecked MSR access error: WRMSR to 0xc0010015 (tried to write 0x0000000001000011) at rIP: 0xffffffff890638f4 (native_write_msr+0x4/0x20)
-
-	Call Trace:
-	boost_set_msr+0x50/0x80 [acpi_cpufreq]
-	cpuhp_invoke_callback+0x86/0x560
-	sort_range+0x20/0x20
-	cpuhp_thread_fun+0xb0/0x110
-	smpboot_thread_fn+0xef/0x160
-	kthread+0x113/0x130
-	kthread_create_worker_on_cpu+0x70/0x70
-	ret_from_fork+0x35/0x40
-
-To avoid this issue, don't forcibly set the CPB capability for a CPU
-when running under a hypervisor.
-
-Signed-off-by: Frank van der Linden <fllinden@amazon.com>
-Acked-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: bp@alien8.de
-Cc: jiaxun.yang@flygoat.com
-Fixes: 0237199186e7 ("x86/CPU/AMD: Set the CPB bit unconditionally on F17h")
-Link: http://lkml.kernel.org/r/20190522221745.GA15789@dev-dsk-fllinden-2c-c1893d73.us-west-2.amazon.com
-[ Minor edits to the changelog. ]
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: 960632ece694 ("netfilter: convert hook list to an array")
+Signed-off-by: Jagdish Motwani <jagdish.motwani@sophos.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/amd.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/netfilter/nf_queue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 01004bfb1a1b..524709dcf749 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -820,8 +820,11 @@ static void init_amd_zn(struct cpuinfo_x86 *c)
- {
- 	set_cpu_cap(c, X86_FEATURE_ZEN);
- 
--	/* Fix erratum 1076: CPB feature bit not being set in CPUID. */
--	if (!cpu_has(c, X86_FEATURE_CPB))
-+	/*
-+	 * Fix erratum 1076: CPB feature bit not being set in CPUID.
-+	 * Always set it, except when running under a hypervisor.
-+	 */
-+	if (!cpu_has(c, X86_FEATURE_HYPERVISOR) && !cpu_has(c, X86_FEATURE_CPB))
- 		set_cpu_cap(c, X86_FEATURE_CPB);
- }
- 
+diff --git a/net/netfilter/nf_queue.c b/net/netfilter/nf_queue.c
+index f7e21953b1de..8260b1e73bbd 100644
+--- a/net/netfilter/nf_queue.c
++++ b/net/netfilter/nf_queue.c
+@@ -193,6 +193,7 @@ static unsigned int nf_iterate(struct sk_buff *skb,
+ repeat:
+ 		verdict = nf_hook_entry_hookfn(hook, skb, state);
+ 		if (verdict != NF_ACCEPT) {
++			*index = i;
+ 			if (verdict != NF_REPEAT)
+ 				return verdict;
+ 			goto repeat;
 -- 
 2.20.1
 
