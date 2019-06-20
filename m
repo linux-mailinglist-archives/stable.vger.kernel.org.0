@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01AC84D5BA
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:01:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC18F4D655
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:08:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726954AbfFTSAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:00:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49134 "EHLO mail.kernel.org"
+        id S1727240AbfFTSGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:06:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726948AbfFTSAZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:00:25 -0400
+        id S1726863AbfFTSGv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:06:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B688A2168B;
-        Thu, 20 Jun 2019 18:00:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A611E2089C;
+        Thu, 20 Jun 2019 18:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053624;
-        bh=VX0Mch9mxPNtTWpyXYP91PK7meeVE2iNkr4GOupQ+Mw=;
+        s=default; t=1561054010;
+        bh=stD2km8O8ryVNFcQWPdJVNae5/6WaYBBT71xURYlIts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBI/29+5kSkLE7eOJna8xYYWw6YJ3T7PDAL3Uq78nBZoLeOYr1GTip96gu7fYTwSE
-         /2J5fRwBXtbI5xaEcfEuZuEfhHCQYVx3cPHdUJeXK7zxCG43rYEQqPGl/GydVpATjC
-         6d/2C2CgrPA9N1dzffGUn7FqusdINxarWWUmhWkg=
+        b=iaKFvJRBN/BumnhmyHzvQ733h64ztEtoyCTgM2ed6NnYSCLQ17m8EplSFA9tLrNZf
+         SABn0jnXCrkwb8XP1jaYKF/0E6Nwd89wRzAyrXzwPzU7fuCr3qP7sHPoXNOsQm83d4
+         MWnW+lFliJt4a8xcQ3ZVyaGDowMYpOJZJfDspwD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <nadav.amit@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 54/84] KVM: x86/pmu: do not mask the value that is written to fixed PMUs
+Subject: [PATCH 4.9 077/117] selftests/timers: Add missing fflush(stdout) calls
 Date:   Thu, 20 Jun 2019 19:56:51 +0200
-Message-Id: <20190620174347.119128481@linuxfoundation.org>
+Message-Id: <20190620174357.074110773@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174337.538228162@linuxfoundation.org>
-References: <20190620174337.538228162@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+References: <20190620174351.964339809@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +44,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2924b52117b2812e9633d5ea337333299166d373 ]
+[ Upstream commit fe48319243a626c860fd666ca032daacc2ba84a5 ]
 
-According to the SDM, for MSR_IA32_PERFCTR0/1 "the lower-order 32 bits of
-each MSR may be written with any value, and the high-order 8 bits are
-sign-extended according to the value of bit 31", but the fixed counters
-in real hardware are limited to the width of the fixed counters ("bits
-beyond the width of the fixed-function counter are reserved and must be
-written as zeros").  Fix KVM to do the same.
+When running under a pipe, some timer tests would not report output in
+real-time because stdout flushes were missing after printf()s that lacked
+a newline. This adds them to restore real-time status output that humans
+can enjoy.
 
-Reported-by: Nadav Amit <nadav.amit@gmail.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/pmu_intel.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ tools/testing/selftests/timers/adjtick.c        | 1 +
+ tools/testing/selftests/timers/leapcrash.c      | 1 +
+ tools/testing/selftests/timers/mqueue-lat.c     | 1 +
+ tools/testing/selftests/timers/nanosleep.c      | 1 +
+ tools/testing/selftests/timers/nsleep-lat.c     | 1 +
+ tools/testing/selftests/timers/raw_skew.c       | 1 +
+ tools/testing/selftests/timers/set-tai.c        | 1 +
+ tools/testing/selftests/timers/set-tz.c         | 2 ++
+ tools/testing/selftests/timers/threadtest.c     | 1 +
+ tools/testing/selftests/timers/valid-adjtimex.c | 2 ++
+ 10 files changed, 12 insertions(+)
 
-diff --git a/arch/x86/kvm/pmu_intel.c b/arch/x86/kvm/pmu_intel.c
-index 23a7c7ba377a..8fc07ea23344 100644
---- a/arch/x86/kvm/pmu_intel.c
-+++ b/arch/x86/kvm/pmu_intel.c
-@@ -235,11 +235,14 @@ static int intel_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+diff --git a/tools/testing/selftests/timers/adjtick.c b/tools/testing/selftests/timers/adjtick.c
+index 9887fd538fec..91316ab4b041 100644
+--- a/tools/testing/selftests/timers/adjtick.c
++++ b/tools/testing/selftests/timers/adjtick.c
+@@ -147,6 +147,7 @@ int check_tick_adj(long tickval)
+ 
+ 	eppm = get_ppm_drift();
+ 	printf("%lld usec, %lld ppm", systick + (systick * eppm / MILLION), eppm);
++	fflush(stdout);
+ 
+ 	tx1.modes = 0;
+ 	adjtimex(&tx1);
+diff --git a/tools/testing/selftests/timers/leapcrash.c b/tools/testing/selftests/timers/leapcrash.c
+index a1071bdbdeb7..a77c70b47495 100644
+--- a/tools/testing/selftests/timers/leapcrash.c
++++ b/tools/testing/selftests/timers/leapcrash.c
+@@ -114,6 +114,7 @@ int main(void)
  		}
- 		break;
- 	default:
--		if ((pmc = get_gp_pmc(pmu, msr, MSR_IA32_PERFCTR0)) ||
--		    (pmc = get_fixed_pmc(pmu, msr))) {
--			if (!msr_info->host_initiated)
--				data = (s64)(s32)data;
--			pmc->counter += data - pmc_read_counter(pmc);
-+		if ((pmc = get_gp_pmc(pmu, msr, MSR_IA32_PERFCTR0))) {
-+			if (msr_info->host_initiated)
-+				pmc->counter = data;
-+			else
-+				pmc->counter = (s32)data;
-+			return 0;
-+		} else if ((pmc = get_fixed_pmc(pmu, msr))) {
-+			pmc->counter = data;
- 			return 0;
- 		} else if ((pmc = get_gp_pmc(pmu, msr, MSR_P6_EVNTSEL0))) {
- 			if (data == pmc->eventsel)
+ 		clear_time_state();
+ 		printf(".");
++		fflush(stdout);
+ 	}
+ 	printf("[OK]\n");
+ 	return ksft_exit_pass();
+diff --git a/tools/testing/selftests/timers/mqueue-lat.c b/tools/testing/selftests/timers/mqueue-lat.c
+index a2a3924d0b41..efdb62470052 100644
+--- a/tools/testing/selftests/timers/mqueue-lat.c
++++ b/tools/testing/selftests/timers/mqueue-lat.c
+@@ -113,6 +113,7 @@ int main(int argc, char **argv)
+ 	int ret;
+ 
+ 	printf("Mqueue latency :                          ");
++	fflush(stdout);
+ 
+ 	ret = mqueue_lat_test();
+ 	if (ret < 0) {
+diff --git a/tools/testing/selftests/timers/nanosleep.c b/tools/testing/selftests/timers/nanosleep.c
+index ff942ff7c9b3..2e6e94c02a33 100644
+--- a/tools/testing/selftests/timers/nanosleep.c
++++ b/tools/testing/selftests/timers/nanosleep.c
+@@ -153,6 +153,7 @@ int main(int argc, char **argv)
+ 			continue;
+ 
+ 		printf("Nanosleep %-31s ", clockstring(clockid));
++		fflush(stdout);
+ 
+ 		length = 10;
+ 		while (length <= (NSEC_PER_SEC * 10)) {
+diff --git a/tools/testing/selftests/timers/nsleep-lat.c b/tools/testing/selftests/timers/nsleep-lat.c
+index 2d7898fda0f1..ac06cf10a5c2 100644
+--- a/tools/testing/selftests/timers/nsleep-lat.c
++++ b/tools/testing/selftests/timers/nsleep-lat.c
+@@ -166,6 +166,7 @@ int main(int argc, char **argv)
+ 			continue;
+ 
+ 		printf("nsleep latency %-26s ", clockstring(clockid));
++		fflush(stdout);
+ 
+ 		length = 10;
+ 		while (length <= (NSEC_PER_SEC * 10)) {
+diff --git a/tools/testing/selftests/timers/raw_skew.c b/tools/testing/selftests/timers/raw_skew.c
+index 0ab937a17ebb..4e631da7f956 100644
+--- a/tools/testing/selftests/timers/raw_skew.c
++++ b/tools/testing/selftests/timers/raw_skew.c
+@@ -124,6 +124,7 @@ int main(int argv, char **argc)
+ 		printf("WARNING: ADJ_OFFSET in progress, this will cause inaccurate results\n");
+ 
+ 	printf("Estimating clock drift: ");
++	fflush(stdout);
+ 	sleep(120);
+ 
+ 	get_monotonic_and_raw(&mon, &raw);
+diff --git a/tools/testing/selftests/timers/set-tai.c b/tools/testing/selftests/timers/set-tai.c
+index dc88dbc8831f..3ae76ab483de 100644
+--- a/tools/testing/selftests/timers/set-tai.c
++++ b/tools/testing/selftests/timers/set-tai.c
+@@ -66,6 +66,7 @@ int main(int argc, char **argv)
+ 	printf("tai offset started at %i\n", ret);
+ 
+ 	printf("Checking tai offsets can be properly set: ");
++	fflush(stdout);
+ 	for (i = 1; i <= 60; i++) {
+ 		ret = set_tai(i);
+ 		ret = get_tai();
+diff --git a/tools/testing/selftests/timers/set-tz.c b/tools/testing/selftests/timers/set-tz.c
+index f4184928b16b..b038131c9682 100644
+--- a/tools/testing/selftests/timers/set-tz.c
++++ b/tools/testing/selftests/timers/set-tz.c
+@@ -76,6 +76,7 @@ int main(int argc, char **argv)
+ 	printf("tz_minuteswest started at %i, dst at %i\n", min, dst);
+ 
+ 	printf("Checking tz_minuteswest can be properly set: ");
++	fflush(stdout);
+ 	for (i = -15*60; i < 15*60; i += 30) {
+ 		ret = set_tz(i, dst);
+ 		ret = get_tz_min();
+@@ -87,6 +88,7 @@ int main(int argc, char **argv)
+ 	printf("[OK]\n");
+ 
+ 	printf("Checking invalid tz_minuteswest values are caught: ");
++	fflush(stdout);
+ 
+ 	if (!set_tz(-15*60-1, dst)) {
+ 		printf("[FAILED] %i didn't return failure!\n", -15*60-1);
+diff --git a/tools/testing/selftests/timers/threadtest.c b/tools/testing/selftests/timers/threadtest.c
+index e632e116f05e..a4bf736dd842 100644
+--- a/tools/testing/selftests/timers/threadtest.c
++++ b/tools/testing/selftests/timers/threadtest.c
+@@ -175,6 +175,7 @@ int main(int argc, char **argv)
+ 	strftime(buf, 255, "%a, %d %b %Y %T %z", localtime(&start));
+ 	printf("%s\n", buf);
+ 	printf("Testing consistency with %i threads for %ld seconds: ", thread_count, runtime);
++	fflush(stdout);
+ 
+ 	/* spawn */
+ 	for (i = 0; i < thread_count; i++)
+diff --git a/tools/testing/selftests/timers/valid-adjtimex.c b/tools/testing/selftests/timers/valid-adjtimex.c
+index 60fe3c569bd9..a747645d79f4 100644
+--- a/tools/testing/selftests/timers/valid-adjtimex.c
++++ b/tools/testing/selftests/timers/valid-adjtimex.c
+@@ -134,6 +134,7 @@ int validate_freq(void)
+ 	/* Set the leap second insert flag */
+ 
+ 	printf("Testing ADJ_FREQ... ");
++	fflush(stdout);
+ 	for (i = 0; i < NUM_FREQ_VALID; i++) {
+ 		tx.modes = ADJ_FREQUENCY;
+ 		tx.freq = valid_freq[i];
+@@ -261,6 +262,7 @@ int set_bad_offset(long sec, long usec, int use_nano)
+ int validate_set_offset(void)
+ {
+ 	printf("Testing ADJ_SETOFFSET... ");
++	fflush(stdout);
+ 
+ 	/* Test valid values */
+ 	if (set_offset(NSEC_PER_SEC - 1, 1))
 -- 
 2.20.1
 
