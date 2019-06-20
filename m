@@ -2,116 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B00864CEC2
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 15:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA2A4CF3F
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 15:44:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731820AbfFTNcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 09:32:39 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:59276 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731770AbfFTNci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 09:32:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
-        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
-        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
-        List-Archive; bh=OU8h7GYHNznH778rX36bPEvMnuvSQdzNrA5A/oaRaAk=; b=Ec6GFCf2FlA6
-        u44e2e7k9+5fyKBC7wetOUC+VUPyOdpTDrSU5Mek3sOBT5Fo5a/BIDIGY6ofFpJSREj5UqiDZtDNS
-        ZZvK2c7xqKZnkqzSUuF93HZeS+L4Sg44uiYlDMH9WtJbBJKq1nrkA3YK+3mO3vfkn9TrpIPNTkKF8
-        oXE90=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=finisterre.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1hdxB2-0000kJ-3U; Thu, 20 Jun 2019 13:32:32 +0000
-Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
-        id 9ADFB44004A; Thu, 20 Jun 2019 14:32:31 +0100 (BST)
-From:   Mark Brown <broonie@kernel.org>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Georg Waibel <georg.waibel@sensor-technik.de>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sangbeom Kim <sbkim73@samsung.com>, <stable@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Applied "regulator: s2mps11: Fix ERR_PTR dereference on GPIO lookup failure" to the regulator tree
-In-Reply-To: <1560948159-21926-1-git-send-email-krzk@kernel.org>
-X-Patchwork-Hint: ignore
-Message-Id: <20190620133231.9ADFB44004A@finisterre.sirena.org.uk>
-Date:   Thu, 20 Jun 2019 14:32:31 +0100 (BST)
+        id S1726562AbfFTNok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 09:44:40 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:39588 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726654AbfFTNok (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 09:44:40 -0400
+Received: from zn.tnic (p200300EC2F07DE00D53AC9D946AF6654.dip0.t-ipconnect.de [IPv6:2003:ec:2f07:de00:d53a:c9d9:46af:6654])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 0A0C01EC08BF;
+        Thu, 20 Jun 2019 15:44:37 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1561038278;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=rUNsSF+JR74CeJtCQdzcIH31DxAglLW7nCzn5d5D+V4=;
+        b=fpj+eHKQ3qBP+eePTJpVO4X/AbY9HoG0Yvq8uG5Y9Cp9ew5DtinheLjsu7HK2mURN4DuVl
+        gSrS1eHswrhJnke5bQ5MC2hVgDBocvndRlmdAJhKmn6aqaHoKkPtnTr4bkXtZ2DyZ8sDQ6
+        U8zhp7cKY1S0bJML/iUBMB1IPSDS3ww=
+Date:   Thu, 20 Jun 2019 15:44:29 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Reinette Chatre <reinette.chatre@intel.com>
+Cc:     tglx@linutronix.de, fenghua.yu@intel.com, tony.luck@intel.com,
+        mingo@redhat.com, hpa@zytor.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/resctrl: Prevent possible overrun during bitmap
+ operations
+Message-ID: <20190620134429.GD28032@zn.tnic>
+References: <58c9b6081fd9bf599af0dfc01a6fdd335768efef.1560975645.git.reinette.chatre@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <58c9b6081fd9bf599af0dfc01a6fdd335768efef.1560975645.git.reinette.chatre@intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch
+On Wed, Jun 19, 2019 at 01:27:16PM -0700, Reinette Chatre wrote:
+> @@ -2494,26 +2498,19 @@ static int mkdir_mondata_all(struct kernfs_node *parent_kn,
+>   */
+>  static void cbm_ensure_valid(u32 *_val, struct rdt_resource *r)
+>  {
+> -	/*
+> -	 * Convert the u32 _val to an unsigned long required by all the bit
+> -	 * operations within this function. No more than 32 bits of this
+> -	 * converted value can be accessed because all bit operations are
+> -	 * additionally provided with cbm_len that is initialized during
+> -	 * hardware enumeration using five bits from the EAX register and
+> -	 * thus never can exceed 32 bits.
+> -	 */
+> -	unsigned long *val = (unsigned long *)_val;
+> +	unsigned long val = *_val;
+>  	unsigned int cbm_len = r->cache.cbm_len;
+>  	unsigned long first_bit, zero_bit;
 
-   regulator: s2mps11: Fix ERR_PTR dereference on GPIO lookup failure
+Please sort function local variables declaration in a reverse christmas
+tree order:
 
-has been applied to the regulator tree at
+	<type A> longest_variable_name;
+	<type B> shorter_var_name;
+	<type C> even_shorter;
+	<type D> i;
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-5.2
+> -	if (*val == 0)
+> +	if (val == 0)
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
+	if (!val)
 
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
+>  		return;
+>  
+> -	first_bit = find_first_bit(val, cbm_len);
+> -	zero_bit = find_next_zero_bit(val, cbm_len, first_bit);
+> +	first_bit = find_first_bit(&val, cbm_len);
+> +	zero_bit = find_next_zero_bit(&val, cbm_len, first_bit);
+>  
+>  	/* Clear any remaining bits to ensure contiguous region */
+> -	bitmap_clear(val, zero_bit, cbm_len - zero_bit);
+> +	bitmap_clear(&val, zero_bit, cbm_len - zero_bit);
+> +	*_val = (u32)val;
 
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
+... and also, that function should simply return the u32 value instead
+of using @_val as an input and output var.
 
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
+But that should be a separate cleanup patch anyway.
 
-Thanks,
-Mark
+Thx.
 
-From 70ca117b02f3b1c8830fe95e4e3dea2937038e11 Mon Sep 17 00:00:00 2001
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Date: Wed, 19 Jun 2019 14:42:39 +0200
-Subject: [PATCH] regulator: s2mps11: Fix ERR_PTR dereference on GPIO lookup
- failure
-
-If devm_gpiod_get_from_of_node() call returns ERR_PTR, it is assigned
-into an array of GPIO descriptors and used later because such error is
-not treated as critical thus it is not propagated back to the probe
-function.
-
-All code later expects that such GPIO descriptor is either a NULL or
-proper value.  This later might lead to dereference of ERR_PTR.
-
-Only devices with S2MPS14 flavor are affected (other do not control
-regulators with GPIOs).
-
-Fixes: 1c984942f0a4 ("regulator: s2mps11: Pass descriptor instead of GPIO number")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- drivers/regulator/s2mps11.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/regulator/s2mps11.c b/drivers/regulator/s2mps11.c
-index 134c62db36c5..af9bf10b4c33 100644
---- a/drivers/regulator/s2mps11.c
-+++ b/drivers/regulator/s2mps11.c
-@@ -824,6 +824,7 @@ static void s2mps14_pmic_dt_parse_ext_control_gpio(struct platform_device *pdev,
- 		if (IS_ERR(gpio[reg])) {
- 			dev_err(&pdev->dev, "Failed to get control GPIO for %d/%s\n",
- 				reg, rdata[reg].name);
-+			gpio[reg] = NULL;
- 			continue;
- 		}
- 		if (gpio[reg])
 -- 
-2.20.1
+Regards/Gruss,
+    Boris.
 
+Good mailing practices for 400: avoid top-posting and trim the reply.
