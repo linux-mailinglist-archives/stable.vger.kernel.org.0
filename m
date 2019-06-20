@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA5AA4D896
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:27:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CA054D7A5
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:20:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727890AbfFTSEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:04:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57128 "EHLO mail.kernel.org"
+        id S1728949AbfFTSNV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:13:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727882AbfFTSEf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:04:35 -0400
+        id S1729240AbfFTSNU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:13:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA50821479;
-        Thu, 20 Jun 2019 18:04:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A248205F4;
+        Thu, 20 Jun 2019 18:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053874;
-        bh=vWblSKgM7/w+DGeiPntDismRJC5xmWE9Nfwes/z5ies=;
+        s=default; t=1561054400;
+        bh=U+Fw+56pmtSjJpXkynyZcARIJ3ukFQN6yVeJ/gkDaHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i95V9WhROCMMlPv4RTDlO8KuYilkecUYwp7g73/IgwY0mQvZyB9nfnrohzHwUD6s2
-         p1vI2PFlKNArWanibO5HRwpYn2378b2hJ9gbwxf3X9R6402CFfRoGwSPhC5gfZLZkn
-         tr/IdYiwPll2/c3zsM7MWwNBgRLZLE8eZsrETjak=
+        b=JDROP4HSbmgc7owJ8L3+aTmubM9GHzoDo00ruvdLNuNQjde1i1gNb2aA5KRGFwpcR
+         P35KK2NZyQ+TF9J6aMI1KzbmH0QV6i3Dl4gMfOK06VsasjDI1eUvtUPk4MQWMCI1/n
+         vIQwtIShuIfDb/9R3pECKrGtXw9icaMLmwZzJ1Yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 058/117] libata: Extend quirks for the ST1000LM024 drives with NOLPM quirk
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 05/98] ipv6: flowlabel: fl6_sock_lookup() must use atomic_inc_not_zero
 Date:   Thu, 20 Jun 2019 19:56:32 +0200
-Message-Id: <20190620174356.227658568@linuxfoundation.org>
+Message-Id: <20190620174349.648944378@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 31f6264e225fb92cf6f4b63031424f20797c297d upstream.
+[ Upstream commit 65a3c497c0e965a552008db8bc2653f62bc925a1 ]
 
-We've received a bugreport that using LPM with ST1000LM024 drives leads
-to system lockups. So it seems that these models are buggy in more then
-1 way. Add NOLPM quirk to the existing quirks entry for BROKEN_FPDMA_AA.
+Before taking a refcount, make sure the object is not already
+scheduled for deletion.
 
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1571330
-Cc: stable@vger.kernel.org
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Same fix is needed in ipv6_flowlabel_opt()
+
+Fixes: 18367681a10b ("ipv6 flowlabel: Convert np->ipv6_fl_list to RCU.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/ata/libata-core.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/ipv6/ip6_flowlabel.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -4355,9 +4355,12 @@ static const struct ata_blacklist_entry
- 	{ "ST3320[68]13AS",	"SD1[5-9]",	ATA_HORKAGE_NONCQ |
- 						ATA_HORKAGE_FIRMWARE_WARN },
- 
--	/* drives which fail FPDMA_AA activation (some may freeze afterwards) */
--	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
--	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
-+	/* drives which fail FPDMA_AA activation (some may freeze afterwards)
-+	   the ST disks also have LPM issues */
-+	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
-+						ATA_HORKAGE_NOLPM, },
-+	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
-+						ATA_HORKAGE_NOLPM, },
- 	{ "VB0250EAVER",	"HPG7",		ATA_HORKAGE_BROKEN_FPDMA_AA },
- 
- 	/* Blacklist entries taken from Silicon Image 3124/3132
+--- a/net/ipv6/ip6_flowlabel.c
++++ b/net/ipv6/ip6_flowlabel.c
+@@ -254,9 +254,9 @@ struct ip6_flowlabel *fl6_sock_lookup(st
+ 	rcu_read_lock_bh();
+ 	for_each_sk_fl_rcu(np, sfl) {
+ 		struct ip6_flowlabel *fl = sfl->fl;
+-		if (fl->label == label) {
++
++		if (fl->label == label && atomic_inc_not_zero(&fl->users)) {
+ 			fl->lastuse = jiffies;
+-			atomic_inc(&fl->users);
+ 			rcu_read_unlock_bh();
+ 			return fl;
+ 		}
+@@ -622,7 +622,8 @@ int ipv6_flowlabel_opt(struct sock *sk,
+ 						goto done;
+ 					}
+ 					fl1 = sfl->fl;
+-					atomic_inc(&fl1->users);
++					if (!atomic_inc_not_zero(&fl1->users))
++						fl1 = NULL;
+ 					break;
+ 				}
+ 			}
 
 
