@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A06784D83B
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:25:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D044D733
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:18:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727793AbfFTSG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:06:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33086 "EHLO mail.kernel.org"
+        id S1729781AbfFTSQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:16:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726863AbfFTSG4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:06:56 -0400
+        id S1729776AbfFTSQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:16:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0256204FD;
-        Thu, 20 Jun 2019 18:06:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6ED4205F4;
+        Thu, 20 Jun 2019 18:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054015;
-        bh=gI+9GKnFAdUY0K+fbh1vYOGBLn1al+T1hwahrVBIaZU=;
+        s=default; t=1561054588;
+        bh=J1YeY68HcNxy4hxTZGUbI6MEMOoqItqMFANsYPUiprg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=akSPKjEB04Zl0HZK4XWFASayqjrDtv8iuyUbvYJuo3A/Svr419lIEWapIxc24UwOH
-         ztjzY/QWJR5pV3I0Ul0AgQ/2JFsJ9Nwl51tllIouPDe3wqgEm/DABSWcZ2OUZfKka8
-         fhuf0N1oLmtKhQ9hqVIMujiZtofUEd0GpO0rK2SE=
+        b=KJ6yRzJ9zHG5xKiuRCLt0s2uTUq68kHEfOb1nZh1DsBogWeLgQTVST1i0opr5b3YE
+         hA89xK3gacHwGLpxLcYDb2POw6YP9WywNlBfiLGsyVagtJuKvR7fR2E8/tVgMrskuZ
+         fqtZEopVK9aQ2JINi06RchUEcl3eWj+gzTxsCt5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yingjoe Chen <yingjoe.chen@mediatek.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, Biao Huang <biao.huang@mediatek.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 105/117] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
+Subject: [PATCH 5.1 52/98] net: stmmac: update rx tail pointer register to fix rx dma hang issue.
 Date:   Thu, 20 Jun 2019 19:57:19 +0200
-Message-Id: <20190620174357.989869781@linuxfoundation.org>
+Message-Id: <20190620174351.650458591@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
+References: <20190620174349.443386789@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a0692f0eef91354b62c2b4c94954536536be5425 ]
+[ Upstream commit 4523a5611526709ec9b4e2574f1bb7818212651e ]
 
-If I2C_M_RECV_LEN check failed, msgs[i].buf allocated by memdup_user
-will not be freed. Pump index up so it will be freed.
+Currently we will not update the receive descriptor tail pointer in
+stmmac_rx_refill. Rx dma will think no available descriptors and stop
+once received packets exceed DMA_RX_SIZE, so that the rx only test will fail.
 
-Fixes: 838bfa6049fb ("i2c-dev: Add support for I2C_M_RECV_LEN")
-Signed-off-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Update the receive tail pointer in stmmac_rx_refill to add more descriptors
+to the rx channel, so packets can be received continually
+
+Fixes: 54139cf3bb33 ("net: stmmac: adding multiple buffers for rx")
+Signed-off-by: Biao Huang <biao.huang@mediatek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c | 1 +
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 00e8e675cbeb..eaa312bc3a3c 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -297,6 +297,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
- 			    rdwr_pa[i].buf[0] < 1 ||
- 			    rdwr_pa[i].len < rdwr_pa[i].buf[0] +
- 					     I2C_SMBUS_BLOCK_MAX) {
-+				i++;
- 				res = -EINVAL;
- 				break;
- 			}
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 3c409862c52e..8cebc44108b2 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3338,6 +3338,7 @@ static inline void stmmac_rx_refill(struct stmmac_priv *priv, u32 queue)
+ 		entry = STMMAC_GET_ENTRY(entry, DMA_RX_SIZE);
+ 	}
+ 	rx_q->dirty_rx = entry;
++	stmmac_set_rx_tail_ptr(priv, priv->ioaddr, rx_q->rx_tail_addr, queue);
+ }
+ 
+ /**
 -- 
 2.20.1
 
