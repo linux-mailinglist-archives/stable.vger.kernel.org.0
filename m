@@ -2,77 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A43E24D005
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 16:07:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11A644D023
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 16:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726654AbfFTOH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 10:07:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58942 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726562AbfFTOH6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 10:07:58 -0400
+        id S1731950AbfFTOPy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 10:15:54 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:44733 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731943AbfFTOPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 10:15:53 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 41EE3220EB;
+        Thu, 20 Jun 2019 10:15:52 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 20 Jun 2019 10:15:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=olGQayuTAXkDyp5Vn6sgCIfCq0O
+        50GeQrrkDfRM4POQ=; b=ldbWOywLSz/NsGj53nBBi8XrPt261ZUVEEslcJnflEW
+        4Zof7uouBVZl4yFgduIt0wztS4yfWxI2c/Y9CZmkFvOL92ZaYcQlCjbPrGCJSU27
+        PU5iPoPAaId4qqhYejYZMQE649BzOkXcU1Ouer4j+frVEaY963UbyZjgvhRhYjza
+        7Jsg6yoewbqdbgo8LOZ5TiIRBQXfVxRi1kGMq81SNIrcPji3OlHJuq5XzHeH/Vyt
+        w+5N6hqjcqU8yOf8VpJ44JsAtjbZtwgGAIVr3rXvcldbSjEd8spnn73+yFVkD8Lx
+        lXEePWwQymJQlv/8AoTMQQ0aEIB6hQnFeIzgpCcuFxg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=olGQay
+        uTAXkDyp5Vn6sgCIfCq0O50GeQrrkDfRM4POQ=; b=Qs6gNeok3Nj724ceimH1or
+        +j7T68TdsaMG/E4QwF4yO5YRuf6ePp/fH41fTv7hiFyVIUZyh8HidI2xsa1MY8AN
+        dBntCAyJhSV1t8YVi5FMLIkdVpcO1NEKmfal91aCVcUhhrWGWGVEtHj/QIjinhHu
+        hBnfOrF8TQxV3/CgVpcFxH+uoiPrDFM6Ey1PcNV5yqcxoNGz2qt7ZwUqpE7/zJ9F
+        v+X1Bj/M0mluvZsZ17Y+gQnrK0OU2Gy95Uczp682dWheL2iM+D0AKefQ6bE2U8KS
+        2zzLjMDGssKAbaYiWS6LRSBzCa8SZrDMRk+fA+zEISmPWYb7keo/zkSx+GuuB44w
+        ==
+X-ME-Sender: <xms:F5ULXcIx6ZNUtGJpzKVrz2ui0NGat3CvauzTJbUnE14_la7MUuK9wA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrtdeggdejjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
+    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
+    lhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:F5ULXfR9-moLAwy5RMsuKz1uwm_sfUdhirhFG06XQDLH407WrOhw4g>
+    <xmx:F5ULXaJqAXN8pwlbzV8tRc9FXDOvuiIqjK3K8Kb_AuT35VHBFifRdg>
+    <xmx:F5ULXd9x4hUq24NyRzjigfBIKa-72SemhLlqB9EVX_rh_6heCV5Wmw>
+    <xmx:GJULXQjeyH7Ofx6-EX035XJXzyKoo7AW6XsxDcYeMgzo-mPPAnT7Tw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02BCC20679;
-        Thu, 20 Jun 2019 14:07:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561039677;
-        bh=RLfDCQj8K73tn7XVe6xvrqpIPPfI9HpAQniOrHih8jI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jExcuJKyZIdBiIm5kIwl6MLois9WztXJbJmE58LFlfCmHfSWCGVHQzd5KVmLopTFl
-         KSADCw3nM8cLHtVdWaOCWN7FXZbqxf0YQgM4gLCyVIIE2E6740TECRjO9FQ5phuzz4
-         4hHhSrZMa3MlcByBGLUdafK3NMUpkxG78DbbabfI=
-Date:   Thu, 20 Jun 2019 16:07:55 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Christian Lamparter <chunkeey@gmail.com>
-Cc:     Hauke Mehrtens <hauke@hauke-m.de>, herbert@gondor.apana.org.au,
-        davem@davemloft.net, stable <stable@vger.kernel.org>,
-        linux-crypto@vger.kernel.org, Amit Pundir <amit.pundir@linaro.org>
-Subject: Re: crypto: crypto4xx - properly set IV after de- and encrypt breaks
- kernel 4.4
-Message-ID: <20190620140755.GC7117@kroah.com>
-References: <9d744c3b-d4ff-b84b-527b-fc050794499b@hauke-m.de>
- <4226536.PGTo7a8ESG@debian64>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 139448005A;
+        Thu, 20 Jun 2019 10:15:50 -0400 (EDT)
+Date:   Thu, 20 Jun 2019 16:15:49 +0200
+From:   Greg KH <greg@kroah.com>
+To:     "Gerecke, Jason" <killertofu@gmail.com>
+Cc:     stable@vger.kernel.org, Aaron Armstrong Skomra <skomra@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Subject: Re: [PATCH 1/3] HID: wacom: Don't set tool type until we're in range
+Message-ID: <20190620141549.GA9832@kroah.com>
+References: <15606126649212@kroah.com>
+ <20190617215946.13423-1-jason.gerecke@wacom.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4226536.PGTo7a8ESG@debian64>
+In-Reply-To: <20190617215946.13423-1-jason.gerecke@wacom.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 20, 2019 at 02:07:27PM +0200, Christian Lamparter wrote:
-> On Thursday, June 20, 2019 11:36:50 AM CEST Hauke Mehrtens wrote:
-> > Hi,
-> > 
-> > The patch "crypto: crypto4xx - properly set IV after de- and encrypt"
-> > causes a compile error on kernel 4.4.
+On Mon, Jun 17, 2019 at 02:59:46PM -0700, Gerecke, Jason wrote:
+> From: Jason Gerecke <jason.gerecke@wacom.com>
 > 
-> 3.18 as well.
-> > 
-> > When I revert this commit it compiles for me again:
-> > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?id=e9a60ab1609a7d975922adad1bf9c46ac6954584
-> > 
-> > I do not have hardware to test if it is really working.
+> The serial number and tool type information that is reported by the tablet
+> while a pen is merely "in prox" instead of fully "in range" can be stale
+> and cause us to report incorrect tool information. Serial number, tool
+> type, and other information is only valid once the pen comes fully in range
+> so we should be careful to not use this information until that point.
 > 
-> I have a few APM821XX. But please note drivers without
+> In particular, this issue may cause the driver to incorectly report
+> BTN_TOOL_RUBBER after switching from the eraser tool back to the pen.
 > 
-> commit b66c685a482117d4e9ee987d252ca673689a5302
-> Author: Christian Lamparter <chunkeey@gmail.com>
-> Date:   Fri Dec 22 21:18:36 2017 +0100
-> 
->     crypto: crypto4xx - support Revision B parts
-> 
-> don't work on those and I do have my doubts that 460EX
-> series (and older) would either. I also don't believe that
-> the inital driver as it was submitted would have worked.
-> >From what I've seen in their SDK, they patched the testmgr
-> at the time to either disable tests or provided their own...
-> so, might as well revert these patches for 4.4 and 3.18.
+> Fixes: a48324de6d4d ("HID: wacom: Bluetooth IRQ for Intuos Pro should handle prox/range")
+> Cc: <stable@vger.kernel.org> # 4.11+
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+> Original commit in Linus' tree: 2cc08800a6b9fcda7c7afbcf2da1a6e8808da725
 
-Now reverted from both, thanks.
+All 3 patches now applied, thanks.
 
 greg k-h
