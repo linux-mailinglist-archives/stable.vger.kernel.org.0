@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F33D14D779
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D7734D6B8
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:12:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729582AbfFTSPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:15:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44184 "EHLO mail.kernel.org"
+        id S1728708AbfFTSLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:11:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729594AbfFTSPZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:15:25 -0400
+        id S1727637AbfFTSLK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:11:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFE902082C;
-        Thu, 20 Jun 2019 18:15:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD8CD2166E;
+        Thu, 20 Jun 2019 18:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054524;
-        bh=MVJXWWRUgvZ1zUCh0VY4byhSg34+07e77MeVGbVwFVo=;
+        s=default; t=1561054269;
+        bh=4fXlYpDtVwzR2XnaWuS2EBV4dzux4eUOf4rpqXy2GZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XGUKNsrVhRorGaXn4mbncwnxLYVSX90oy/NiFnP0SuStkeM6X761RfLlxSRuTb2Kw
-         wMfUeTw81Vv2XoTwgrbSeh74dzYLl0e3VBFPDyfgi6eYNe75swHNVPlJJw3Zg9kR5m
-         fRhbpm41+Cp6otGlcNVLLRBEp/nkrgVvhwDx8GLY=
+        b=B1L1M5ZIYJdvzId26SW6heUWVW7n9G1Bo4ksst75e31R2IWdmmRwGm11AfqcTK4SN
+         6A/ygaJaSNg9a5RcJVFNSygTidJZbfcQq0DyoC4UIZXQ5N9Z6s06x/xLOzLuVrtF2h
+         /eDaaGh7BMK0FplKZl2WN+ElT2TcNyeAK/KZbu94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org, Biao Huang <biao.huang@mediatek.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 59/98] ACPI/PCI: PM: Add missing wakeup.flags.valid checks
+Subject: [PATCH 4.19 31/61] net: stmmac: update rx tail pointer register to fix rx dma hang issue.
 Date:   Thu, 20 Jun 2019 19:57:26 +0200
-Message-Id: <20190620174352.041727866@linuxfoundation.org>
+Message-Id: <20190620174342.719197932@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174349.443386789@linuxfoundation.org>
-References: <20190620174349.443386789@linuxfoundation.org>
+In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
+References: <20190620174336.357373754@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9a51c6b1f9e0239a9435db036b212498a2a3b75c ]
+[ Upstream commit 4523a5611526709ec9b4e2574f1bb7818212651e ]
 
-Both acpi_pci_need_resume() and acpi_dev_needs_resume() check if the
-current ACPI wakeup configuration of the device matches what is
-expected as far as system wakeup from sleep states is concerned, as
-reflected by the device_may_wakeup() return value for the device.
+Currently we will not update the receive descriptor tail pointer in
+stmmac_rx_refill. Rx dma will think no available descriptors and stop
+once received packets exceed DMA_RX_SIZE, so that the rx only test will fail.
 
-However, they only should do that if wakeup.flags.valid is set for
-the device's ACPI companion, because otherwise the wakeup.prepare_count
-value for it is meaningless.
+Update the receive tail pointer in stmmac_rx_refill to add more descriptors
+to the rx channel, so packets can be received continually
 
-Add the missing wakeup.flags.valid checks to these functions.
-
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fixes: 54139cf3bb33 ("net: stmmac: adding multiple buffers for rx")
+Signed-off-by: Biao Huang <biao.huang@mediatek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/device_pm.c | 4 ++--
- drivers/pci/pci-acpi.c   | 3 ++-
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
-index 824ae985ad93..ccb59768b1f3 100644
---- a/drivers/acpi/device_pm.c
-+++ b/drivers/acpi/device_pm.c
-@@ -949,8 +949,8 @@ static bool acpi_dev_needs_resume(struct device *dev, struct acpi_device *adev)
- 	u32 sys_target = acpi_target_system_state();
- 	int ret, state;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 50c00822b2d8..45e64d71a93f 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3319,6 +3319,7 @@ static inline void stmmac_rx_refill(struct stmmac_priv *priv, u32 queue)
+ 		entry = STMMAC_GET_ENTRY(entry, DMA_RX_SIZE);
+ 	}
+ 	rx_q->dirty_rx = entry;
++	stmmac_set_rx_tail_ptr(priv, priv->ioaddr, rx_q->rx_tail_addr, queue);
+ }
  
--	if (!pm_runtime_suspended(dev) || !adev ||
--	    device_may_wakeup(dev) != !!adev->wakeup.prepare_count)
-+	if (!pm_runtime_suspended(dev) || !adev || (adev->wakeup.flags.valid &&
-+	    device_may_wakeup(dev) != !!adev->wakeup.prepare_count))
- 		return true;
- 
- 	if (sys_target == ACPI_STATE_S0)
-diff --git a/drivers/pci/pci-acpi.c b/drivers/pci/pci-acpi.c
-index e1949f7efd9c..bf32fde328c2 100644
---- a/drivers/pci/pci-acpi.c
-+++ b/drivers/pci/pci-acpi.c
-@@ -666,7 +666,8 @@ static bool acpi_pci_need_resume(struct pci_dev *dev)
- 	if (!adev || !acpi_device_power_manageable(adev))
- 		return false;
- 
--	if (device_may_wakeup(&dev->dev) != !!adev->wakeup.prepare_count)
-+	if (adev->wakeup.flags.valid &&
-+	    device_may_wakeup(&dev->dev) != !!adev->wakeup.prepare_count)
- 		return true;
- 
- 	if (acpi_target_system_state() == ACPI_STATE_S0)
+ /**
 -- 
 2.20.1
 
