@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 807984D7F9
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 713844D7E5
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:24:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727073AbfFTSV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:21:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40424 "EHLO mail.kernel.org"
+        id S1729059AbfFTSMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:12:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728817AbfFTSMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:12:34 -0400
+        id S1728743AbfFTSMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:12:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 302AA205F4;
-        Thu, 20 Jun 2019 18:12:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3B212089C;
+        Thu, 20 Jun 2019 18:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561054353;
-        bh=jTmDsx1uxWJJAKePfTT5smH8ihEcf+ejQk0qhzH5X0c=;
+        s=default; t=1561054356;
+        bh=Goa0ah6FbkFoqUl94JpmHMgSVOBKRZRD7HrHL8U8tn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SAt+foCsrKKcKKSqYC7z6Ul+nbc+N7lufcD6A2MXp+v3HTr4L+F2wAw8TX4/FRLV+
-         mOt4ayIZHJ1Qj66/PAvmEdFaiJsfkEXWTdKgldCvZVTgm69R9DExeZXI27vTAsAeoz
-         oq1GFD1QUefJEzS6DsziIitEZjiQF5pDPmSZTVcE=
+        b=qIKNeXt8E+k5hQEb2h2e7nvWiUN49yANjQkG4z9uBNXn4gAS7ZUZfNWBGdLNOyZXI
+         V/IUIOKe89fW5vvD1U+8num6TPeAFGKf1wtEB1ZhJkMzliFHbabyXdbLEDYngVMBGT
+         KuZ8+AprbA/vmjjfUIxINJwHlAbs92D8hdvbQuTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Oleg Nesterov <oleg@redhat.com>, Jann Horn <jannh@google.com>,
-        Hugh Dickins <hughd@google.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 60/61] coredump: fix race condition between collapse_huge_page() and core dumping
-Date:   Thu, 20 Jun 2019 19:57:55 +0200
-Message-Id: <20190620174347.575809772@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Alexander Lochmann <alexander.lochmann@tu-dortmund.de>,
+        Horst Schirmeier <horst.schirmeier@tu-dortmund.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Zubin Mithra <zsm@chromium.org>
+Subject: [PATCH 4.19 61/61] Abort file_remove_privs() for non-reg. files
+Date:   Thu, 20 Jun 2019 19:57:56 +0200
+Message-Id: <20190620174347.698276201@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190620174336.357373754@linuxfoundation.org>
 References: <20190620174336.357373754@linuxfoundation.org>
@@ -52,97 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Arcangeli <aarcange@redhat.com>
+From: Alexander Lochmann <alexander.lochmann@tu-dortmund.de>
 
-commit 59ea6d06cfa9247b586a695c21f94afa7183af74 upstream.
+commit f69e749a49353d96af1a293f56b5b56de59c668a upstream.
 
-When fixing the race conditions between the coredump and the mmap_sem
-holders outside the context of the process, we focused on
-mmget_not_zero()/get_task_mm() callers in 04f5866e41fb70 ("coredump: fix
-race condition between mmget_not_zero()/get_task_mm() and core
-dumping"), but those aren't the only cases where the mmap_sem can be
-taken outside of the context of the process as Michal Hocko noticed
-while backporting that commit to older -stable kernels.
+file_remove_privs() might be called for non-regular files, e.g.
+blkdev inode. There is no reason to do its job on things
+like blkdev inodes, pipes, or cdevs. Hence, abort if
+file does not refer to a regular inode.
 
-If mmgrab() is called in the context of the process, but then the
-mm_count reference is transferred outside the context of the process,
-that can also be a problem if the mmap_sem has to be taken for writing
-through that mm_count reference.
+AV: more to the point, for devices there might be any number of
+inodes refering to given device.  Which one to strip the permissions
+from, even if that made any sense in the first place?  All of them
+will be observed with contents modified, after all.
 
-khugepaged registration calls mmgrab() in the context of the process,
-but the mmap_sem for writing is taken later in the context of the
-khugepaged kernel thread.
+Found by LockDoc (Alexander Lochmann, Horst Schirmeier and Olaf
+Spinczyk)
 
-collapse_huge_page() after taking the mmap_sem for writing doesn't
-modify any vma, so it's not obvious that it could cause a problem to the
-coredump, but it happens to modify the pmd in a way that breaks an
-invariant that pmd_trans_huge_lock() relies upon.  collapse_huge_page()
-needs the mmap_sem for writing just to block concurrent page faults that
-call pmd_trans_huge_lock().
-
-Specifically the invariant that "!pmd_trans_huge()" cannot become a
-"pmd_trans_huge()" doesn't hold while collapse_huge_page() runs.
-
-The coredump will call __get_user_pages() without mmap_sem for reading,
-which eventually can invoke a lockless page fault which will need a
-functional pmd_trans_huge_lock().
-
-So collapse_huge_page() needs to use mmget_still_valid() to check it's
-not running concurrently with the coredump...  as long as the coredump
-can invoke page faults without holding the mmap_sem for reading.
-
-This has "Fixes: khugepaged" to facilitate backporting, but in my view
-it's more a bug in the coredump code that will eventually have to be
-rewritten to stop invoking page faults without the mmap_sem for reading.
-So the long term plan is still to drop all mmget_still_valid().
-
-Link: http://lkml.kernel.org/r/20190607161558.32104-1-aarcange@redhat.com
-Fixes: ba76149f47d8 ("thp: khugepaged")
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Reported-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Alexander Lochmann <alexander.lochmann@tu-dortmund.de>
+Signed-off-by: Horst Schirmeier <horst.schirmeier@tu-dortmund.de>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Zubin Mithra <zsm@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/sched/mm.h |    4 ++++
- mm/khugepaged.c          |    3 +++
- 2 files changed, 7 insertions(+)
+ fs/inode.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/include/linux/sched/mm.h
-+++ b/include/linux/sched/mm.h
-@@ -54,6 +54,10 @@ static inline void mmdrop(struct mm_stru
-  * followed by taking the mmap_sem for writing before modifying the
-  * vmas or anything the coredump pretends not to change from under it.
-  *
-+ * It also has to be called when mmgrab() is used in the context of
-+ * the process, but then the mm_count refcount is transferred outside
-+ * the context of the process to run down_write() on that pinned mm.
-+ *
-  * NOTE: find_extend_vma() called from GUP context is the only place
-  * that can modify the "mm" (notably the vm_start/end) under mmap_sem
-  * for reading and outside the context of the process, so it is also
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1005,6 +1005,9 @@ static void collapse_huge_page(struct mm
- 	 * handled by the anon_vma lock + PG_lock.
- 	 */
- 	down_write(&mm->mmap_sem);
-+	result = SCAN_ANY_PROCESS;
-+	if (!mmget_still_valid(mm))
-+		goto out;
- 	result = hugepage_vma_revalidate(mm, address, &vma);
- 	if (result)
- 		goto out;
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -1817,8 +1817,13 @@ int file_remove_privs(struct file *file)
+ 	int kill;
+ 	int error = 0;
+ 
+-	/* Fast path for nothing security related */
+-	if (IS_NOSEC(inode))
++	/*
++	 * Fast path for nothing security related.
++	 * As well for non-regular files, e.g. blkdev inodes.
++	 * For example, blkdev_write_iter() might get here
++	 * trying to remove privs which it is not allowed to.
++	 */
++	if (IS_NOSEC(inode) || !S_ISREG(inode->i_mode))
+ 		return 0;
+ 
+ 	kill = dentry_needs_remove_privs(dentry);
 
 
