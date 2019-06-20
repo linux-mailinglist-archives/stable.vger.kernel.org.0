@@ -2,119 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C86364C944
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 10:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91B234CA76
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 11:16:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730930AbfFTISV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 04:18:21 -0400
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:11525 "EHLO
-        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725877AbfFTISV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 04:18:21 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d0b414b0000>; Thu, 20 Jun 2019 01:18:19 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Thu, 20 Jun 2019 01:18:20 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Thu, 20 Jun 2019 01:18:20 -0700
-Received: from HQMAIL104.nvidia.com (172.18.146.11) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 20 Jun
- 2019 08:18:19 +0000
-Received: from hqnvemgw01.nvidia.com (172.20.150.20) by HQMAIL104.nvidia.com
- (172.18.146.11) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Thu, 20 Jun 2019 08:18:19 +0000
-Received: from moonraker.nvidia.com (Not Verified[10.21.132.148]) by hqnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5d0b414a0002>; Thu, 20 Jun 2019 01:18:19 -0700
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Thierry Reding <thierry.reding@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>
-CC:     <devicetree@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-        Jon Hunter <jonathanh@nvidia.com>, <stable@vger.kernel.org>
-Subject: [PATCH 3/3] arm64: tegra: Fix Jetson Nano GPU regulator
-Date:   Thu, 20 Jun 2019 09:17:02 +0100
-Message-ID: <20190620081702.17209-4-jonathanh@nvidia.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190620081702.17209-1-jonathanh@nvidia.com>
-References: <20190620081702.17209-1-jonathanh@nvidia.com>
-X-NVConfidentiality: public
+        id S1725977AbfFTJQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 05:16:08 -0400
+Received: from paleale.coelho.fi ([176.9.41.70]:54574 "EHLO
+        farmhouse.coelho.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725953AbfFTJQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 05:16:08 -0400
+X-Greylist: delayed 1779 seconds by postgrey-1.27 at vger.kernel.org; Thu, 20 Jun 2019 05:16:07 EDT
+Received: from 91-156-6-193.elisa-laajakaista.fi ([91.156.6.193] helo=redipa.ger.corp.intel.com)
+        by farmhouse.coelho.fi with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <luca@coelho.fi>)
+        id 1hdsiA-0003KB-OJ; Thu, 20 Jun 2019 11:46:26 +0300
+From:   Luca Coelho <luca@coelho.fi>
+To:     kvalo@codeaurora.org
+Cc:     linux-wireless@vger.kernel.org, Oren Givon <oren.givon@intel.com>,
+        stable@vger.kernel.org, Luciano Coelho <luciano.coelho@intel.com>
+Subject: [PATCH] iwlwifi: add support for hr1 RF ID
+Date:   Thu, 20 Jun 2019 11:46:23 +0300
+Message-Id: <20190620084623.12014-1-luca@coelho.fi>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1561018699; bh=4BwHSOEWA4xYe11LAIREqHwR6axdZ3eGywYYy70TgW8=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:X-NVConfidentiality:MIME-Version:
-         Content-Type;
-        b=dO+pB5Vrs3cuDGLZqJ7Ruu7nqJsI3Dj87xL3W4JQ/bejWWxHemt12lK/Jnd41uihN
-         T1cDI5B6OzTT63Zbl125ecsHEXI6k9vKJRaclNzkRJRNdxUZCqwldoOzqeR8MBhRNc
-         FFDCRxvS3Uv0cKoXvSufbZRTgCjyQ9lUDSzPfg4y40odu7iCOw4dM0iadYnyuqUSp7
-         JNPHqE2WK26kMscAsCgPWDWkFYvlVonNijQVAGKBf08TWF1psufYwfkslC2A0qQ6ps
-         Dh0VjQw/iag/Hx7ZUeGaECr9IRaKudQZTj6JsZ9+RsH3Q4qEtdeRGQjoZVKUmqM5Av
-         sE8OqSKZS1BwQ==
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There are a few issues with the GPU regulator defined for Jetson Nano
-which are:
+From: Oren Givon <oren.givon@intel.com>
 
-1. The GPU regulator is a PWM based regulator and not a fixed voltage
-   regulator.
-2. The output voltages for the GPU regulator are not correct.
-3. The regulator enable ramp delay is too short for the regulator and
-   needs to be increased. 2ms should be sufficient.
-4. This is the same regulator used on Jetson TX1 and so make the ramp
-   delay and settling time the same as Jetson TX1.
+The 22000 series FW that was meant to be used with hr is
+also the FW that is used for hr1 and has a different RF ID.
+Add support to load the hr FW when hr1 RF ID is detected.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Cc: stable@vger.kernel.org # 5.1+
+Signed-off-by: Oren Givon <oren.givon@intel.com>
+Signed-off-by: Luciano Coelho <luciano.coelho@intel.com>
 ---
- .../boot/dts/nvidia/tegra210-p3450-0000.dts   | 21 +++++++++++--------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-csr.h    | 1 +
+ drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 8 +++++---
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra210-p3450-0000.dts b/arch/arm64/boot/dts/nvidia/tegra210-p3450-0000.dts
-index 63df72eecf21..9d17ec707bce 100644
---- a/arch/arm64/boot/dts/nvidia/tegra210-p3450-0000.dts
-+++ b/arch/arm64/boot/dts/nvidia/tegra210-p3450-0000.dts
-@@ -88,6 +88,10 @@
- 		status = "okay";
- 	};
- 
-+	pwm@7000a000 {
-+		status = "okay";
-+	};
-+
- 	i2c@7000c500 {
- 		status = "okay";
- 		clock-frequency = <100000>;
-@@ -664,17 +668,16 @@
- 		};
- 
- 		vdd_gpu: regulator@6 {
--			compatible = "regulator-fixed";
-+			compatible = "pwm-regulator";
- 			reg = <6>;
--
-+			pwms = <&pwm 1 4880>;
- 			regulator-name = "VDD_GPU";
--			regulator-min-microvolt = <5000000>;
--			regulator-max-microvolt = <5000000>;
--			regulator-enable-ramp-delay = <250>;
--
--			gpio = <&pmic 6 GPIO_ACTIVE_HIGH>;
--			enable-active-high;
--
-+			regulator-min-microvolt = <710000>;
-+			regulator-max-microvolt = <1320000>;
-+			regulator-ramp-delay = <80>;
-+			regulator-enable-ramp-delay = <2000>;
-+			regulator-settling-time-us = <160>;
-+			enable-gpios = <&pmic 6 GPIO_ACTIVE_HIGH>;
- 			vin-supply = <&vdd_5v0_sys>;
- 		};
- 	};
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-csr.h b/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
+index 553554846009..93da96a7247c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
+@@ -336,6 +336,7 @@ enum {
+ /* RF_ID value */
+ #define CSR_HW_RF_ID_TYPE_JF		(0x00105100)
+ #define CSR_HW_RF_ID_TYPE_HR		(0x0010A000)
++#define CSR_HW_RF_ID_TYPE_HR1		(0x0010c100)
+ #define CSR_HW_RF_ID_TYPE_HRCDB		(0x00109F00)
+ #define CSR_HW_RF_ID_TYPE_GF		(0x0010D000)
+ #define CSR_HW_RF_ID_TYPE_GF4		(0x0010E000)
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+index b93753233223..38ab24d96244 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+@@ -3575,9 +3575,11 @@ struct iwl_trans *iwl_trans_pcie_alloc(struct pci_dev *pdev,
+ 			trans->cfg = &iwlax411_2ax_cfg_so_gf4_a0;
+ 		}
+ 	} else if (cfg == &iwl_ax101_cfg_qu_hr) {
+-		if (CSR_HW_RF_ID_TYPE_CHIP_ID(trans->hw_rf_id) ==
+-		    CSR_HW_RF_ID_TYPE_CHIP_ID(CSR_HW_RF_ID_TYPE_HR) &&
+-		    trans->hw_rev == CSR_HW_REV_TYPE_QNJ_B0) {
++		if ((CSR_HW_RF_ID_TYPE_CHIP_ID(trans->hw_rf_id) ==
++		     CSR_HW_RF_ID_TYPE_CHIP_ID(CSR_HW_RF_ID_TYPE_HR) &&
++		     trans->hw_rev == CSR_HW_REV_TYPE_QNJ_B0) ||
++		    (CSR_HW_RF_ID_TYPE_CHIP_ID(trans->hw_rf_id) ==
++		     CSR_HW_RF_ID_TYPE_CHIP_ID(CSR_HW_RF_ID_TYPE_HR1))) {
+ 			trans->cfg = &iwl22000_2ax_cfg_qnj_hr_b0;
+ 		} else if (CSR_HW_RF_ID_TYPE_CHIP_ID(trans->hw_rf_id) ==
+ 		    CSR_HW_RF_ID_TYPE_CHIP_ID(CSR_HW_RF_ID_TYPE_HR)) {
 -- 
-2.17.1
+2.20.1
 
