@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3ECD4D86E
-	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20D294D84B
+	for <lists+stable@lfdr.de>; Thu, 20 Jun 2019 20:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728114AbfFTS0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 14:26:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60034 "EHLO mail.kernel.org"
+        id S1726375AbfFTSHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 14:07:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726546AbfFTSGF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 Jun 2019 14:06:05 -0400
+        id S1728384AbfFTSHw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 Jun 2019 14:07:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AE25204FD;
-        Thu, 20 Jun 2019 18:06:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B6372084E;
+        Thu, 20 Jun 2019 18:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561053964;
-        bh=i9Ko+0/eQ4ec+hUVmpS3MjI3uwmIUDUjQmFTmcYNk1s=;
+        s=default; t=1561054071;
+        bh=dDIlcOc0mj6TJSxSLEG7JNU0rapaycQ7btP3ssfYTcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TahNF0GltYeurJerwxoTgMnfQF+WgHTXMJmRg/4+LIBOkETPUCQrcSY0TqLcGwUYs
-         8NgW/wvRwDIkHyrV++R7S9LMavLBNJZVaUZ0by8z7NntnzzKPPV5aJNpV86cfuLTpV
-         x7QkkpddmukpUZ1GHq4I267WTRD3usXKvMvO8cY8=
+        b=1CwL8mGOLr4J4X1ID1a3sLTcOXMZaH9mfHNzvLp4yrQi8FqFqjDpzsTH8Wdjtc/fb
+         hdlwT6lU/1l9KqnsO1WhE/4Zx8/ZhSdFzri1o9H5D6aV4H9GMxtp0eZghSMeYrvagU
+         vhvCmesDY7+rgVJyi/zx2OpzhqIDzr8p7Jjt0Yzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Erik=20=C4=8Cuk?= <erik.cuk@domel.com>,
-        Baruch Siach <baruch@tkos.co.il>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4.9 089/117] rtc: pcf8523: dont return invalid date when battery is low
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andrei Vagin <avagin@openvz.org>,
+        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Wang Nan <wangnan0@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Tommi Rantala <tommi.t.rantala@nokia.com>
+Subject: [PATCH 4.14 01/45] perf machine: Guard against NULL in machine__exit()
 Date:   Thu, 20 Jun 2019 19:57:03 +0200
-Message-Id: <20190620174357.424257264@linuxfoundation.org>
+Message-Id: <20190620174329.129654050@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
-References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174328.608036501@linuxfoundation.org>
+References: <20190620174328.608036501@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,80 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baruch Siach <baruch@tkos.co.il>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit ecb4a353d3afd45b9bb30c85d03ee113a0589079 upstream.
+commit 4a2233b194c77ae1ea8304cb7c00b551de4313f0 upstream.
 
-The RTC_VL_READ ioctl reports the low battery condition. Still,
-pcf8523_rtc_read_time() happily returns invalid dates in this case.
-Check the battery health on pcf8523_rtc_read_time() to avoid that.
+A recent fix for 'perf trace' introduced a bug where
+machine__exit(trace->host) could be called while trace->host was still
+NULL, so make this more robust by guarding against NULL, just like
+free() does.
 
-Reported-by: Erik Čuk <erik.cuk@domel.com>
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+The problem happens, for instance, when !root users try to run 'perf
+trace':
+
+  [acme@jouet linux]$ trace
+  Error:	No permissions to read /sys/kernel/debug/tracing/events/raw_syscalls/sys_(enter|exit)
+  Hint:	Try 'sudo mount -o remount,mode=755 /sys/kernel/debug/tracing'
+
+  perf: Segmentation fault
+  Obtained 7 stack frames.
+  [0x4f1b2e]
+  /lib64/libc.so.6(+0x3671f) [0x7f43a1dd971f]
+  [0x4f3fec]
+  [0x47468b]
+  [0x42a2db]
+  /lib64/libc.so.6(__libc_start_main+0xe9) [0x7f43a1dc3509]
+  [0x42a6c9]
+  Segmentation fault (core dumped)
+  [acme@jouet linux]$
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andrei Vagin <avagin@openvz.org>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Vasily Averin <vvs@virtuozzo.com>
+Cc: Wang Nan <wangnan0@huawei.com>
+Fixes: 33974a414ce2 ("perf trace: Call machine__exit() at exit")
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/rtc/rtc-pcf8523.c |   32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+ tools/perf/util/machine.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/rtc/rtc-pcf8523.c
-+++ b/drivers/rtc/rtc-pcf8523.c
-@@ -82,6 +82,18 @@ static int pcf8523_write(struct i2c_clie
- 	return 0;
- }
+--- a/tools/perf/util/machine.c
++++ b/tools/perf/util/machine.c
+@@ -156,6 +156,9 @@ void machine__delete_threads(struct mach
  
-+static int pcf8523_voltage_low(struct i2c_client *client)
-+{
-+	u8 value;
-+	int err;
-+
-+	err = pcf8523_read(client, REG_CONTROL3, &value);
-+	if (err < 0)
-+		return err;
-+
-+	return !!(value & REG_CONTROL3_BLF);
-+}
-+
- static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
+ void machine__exit(struct machine *machine)
  {
- 	u8 value;
-@@ -164,6 +176,14 @@ static int pcf8523_rtc_read_time(struct
- 	struct i2c_msg msgs[2];
- 	int err;
- 
-+	err = pcf8523_voltage_low(client);
-+	if (err < 0) {
-+		return err;
-+	} else if (err > 0) {
-+		dev_err(dev, "low voltage detected, time is unreliable\n");
-+		return -EINVAL;
-+	}
++	if (machine == NULL)
++		return;
 +
- 	msgs[0].addr = client->addr;
- 	msgs[0].flags = 0;
- 	msgs[0].len = 1;
-@@ -248,17 +268,13 @@ static int pcf8523_rtc_ioctl(struct devi
- 			     unsigned long arg)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
--	u8 value;
--	int ret = 0, err;
-+	int ret;
- 
- 	switch (cmd) {
- 	case RTC_VL_READ:
--		err = pcf8523_read(client, REG_CONTROL3, &value);
--		if (err < 0)
--			return err;
--
--		if (value & REG_CONTROL3_BLF)
--			ret = 1;
-+		ret = pcf8523_voltage_low(client);
-+		if (ret < 0)
-+			return ret;
- 
- 		if (copy_to_user((void __user *)arg, &ret, sizeof(int)))
- 			return -EFAULT;
+ 	machine__destroy_kernel_maps(machine);
+ 	map_groups__exit(&machine->kmaps);
+ 	dsos__exit(&machine->dsos);
 
 
