@@ -2,106 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 149DA4EBD0
-	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 17:20:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BDBD4EC48
+	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 17:39:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726290AbfFUPUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jun 2019 11:20:45 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:33992 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726286AbfFUPUp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Jun 2019 11:20:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=k7B4qpZRKekRsbrJRNAOCMknlWwPS/PrFmf0ar+9f2c=; b=FA4zWpbZiGYYqPMCe4vRccZWw
-        xc3qxMMiz+bl3AUk4jG0roXYSFlR8dEMaLsW46bgruBYTa3+x3QfLIiBm4h2O3e6GCy5Lmuqfz626
-        7/qXve56a4Y2OxGJJBfQqfd4oa/Q343hf3Mv6YS7XHoW9iFWRyo/Dw9c4oMHbT3+pmMLc=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=finisterre.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1heLLF-0002dm-8b; Fri, 21 Jun 2019 15:20:41 +0000
-Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
-        id AB9D5440046; Fri, 21 Jun 2019 16:20:40 +0100 (BST)
-Date:   Fri, 21 Jun 2019 16:20:40 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     Liam Girdwood <lgirdwood@gmail.com>, alsa-devel@alsa-project.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] ASoC: dapm: Adapt for debugfs API change
-Message-ID: <20190621152040.GI5316@sirena.org.uk>
-References: <20190621113357.8264-1-broonie@kernel.org>
- <20190621113357.8264-2-broonie@kernel.org>
- <20190621132222.GB10459@kroah.com>
- <20190621143053.GH5316@sirena.org.uk>
- <20190621145309.GA6313@kroah.com>
+        id S1726196AbfFUPjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jun 2019 11:39:39 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26418 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726118AbfFUPji (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Jun 2019 11:39:38 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5LFMFiB124916
+        for <stable@vger.kernel.org>; Fri, 21 Jun 2019 11:39:38 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2t8yb3yv2j-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Fri, 21 Jun 2019 11:39:37 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <iii@linux.ibm.com>;
+        Fri, 21 Jun 2019 16:39:35 +0100
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 21 Jun 2019 16:39:34 +0100
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x5LFdXDk41287780
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 21 Jun 2019 15:39:33 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0E9F611C04A;
+        Fri, 21 Jun 2019 15:39:33 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C2CD411C058;
+        Fri, 21 Jun 2019 15:39:32 +0000 (GMT)
+Received: from white.boeblingen.de.ibm.com (unknown [9.152.98.53])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 21 Jun 2019 15:39:32 +0000 (GMT)
+From:   Ilya Leoshkevich <iii@linux.ibm.com>
+To:     Laura Abbott <labbott@redhat.com>
+Cc:     Heiko Carstens <heiko.carstens@de.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Major Hayden <mhayden@redhat.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [PATCH] s390/jump_label: Use "jdd" constraint on gcc9
+Date:   Fri, 21 Jun 2019 17:39:12 +0200
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <99840513-9a7d-2c91-1e41-5355f88babcf@redhat.com>
+References: <99840513-9a7d-2c91-1e41-5355f88babcf@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ZfA+D/N/UnTE6S9V"
-Content-Disposition: inline
-In-Reply-To: <20190621145309.GA6313@kroah.com>
-X-Cookie: Editing is a rewording activity.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 19062115-0008-0000-0000-000002F5E1CE
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19062115-0009-0000-0000-000022630749
+Message-Id: <20190621153912.9528-1-iii@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-21_10:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1906210125
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+> Ah okay, I didn't realize there was more needed, I was just looking at
+> the clean cherry-pick. I'm not sure how to do the backport, if you
+> give me the patch I can verify.
 
---ZfA+D/N/UnTE6S9V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Please find the cherry-picked 146448524bdd below.
 
-On Fri, Jun 21, 2019 at 04:53:09PM +0200, Greg KH wrote:
-> On Fri, Jun 21, 2019 at 03:30:53PM +0100, Mark Brown wrote:
-> > On Fri, Jun 21, 2019 at 03:22:22PM +0200, Greg KH wrote:
+I also had to cherry-pick 159491f3b509 to fix an unrelated compilation
+error and make the build fully work.
 
-> > This is a view I still hold and in any case debugfs as it stands (and
-> > was in the kernel versions since this was broken) is still capable of
-> > reporting errors so we should fix that.
+Best regards,
+Ilya
 
-> Sort story is, I am trying to change it so that it can not report errors :)
+----
 
-Yes, I know.  This is what I think is a bad idea.
+[heiko.carstens@de.ibm.com]:
+-----
+Laura Abbott reported that the kernel doesn't build anymore with gcc 9,
+due to the "X" constraint. Ilya provided the gcc 9 patch "S/390:
+Introduce jdd constraint" which introduces the new "jdd" constraint
+which fixes this.
+-----
 
-> And even then, no kernel code should be doing anything different if
-> debugfs calls fail or not, that is why I am I making these changes.  No
-> "real" code should ever be affected, and right now, it is, if something
-> goes wrong with debugfs.
+The support for section anchors on S/390 introduced in gcc9 has changed
+the behavior of "X" constraint, which can now produce register
+references. Since existing constraints, in particular, "i", do not fit
+the intended use case on S/390, the new machine-specific "jdd"
+constraint was introduced. This patch makes jump labels use "jdd"
+constraint when building with gcc9.
 
-> So removing those checks is the goal here.  Your driver code should not
-> care if debugfs is working at all or not.
+Reported-by: Laura Abbott <labbott@redhat.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+ arch/s390/include/asm/jump_label.h | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-None of which addresses the issue which is that we should be telling
-users who are trying to use debugfs to debug things that something went
-wrong rather than silently failing and potentially confusing them with
-corrupted data display.  This isn't something you can address through
-API restrictions without hurting users unless you are prepared to add
-user visible error reporting to the debugfs core.
+diff --git a/arch/s390/include/asm/jump_label.h b/arch/s390/include/asm/jump_label.h
+index 40f651292aa7..9c7dc970e966 100644
+--- a/arch/s390/include/asm/jump_label.h
++++ b/arch/s390/include/asm/jump_label.h
+@@ -10,6 +10,12 @@
+ #define JUMP_LABEL_NOP_SIZE 6
+ #define JUMP_LABEL_NOP_OFFSET 2
+ 
++#if __GNUC__ < 9
++#define JUMP_LABEL_STATIC_KEY_CONSTRAINT "X"
++#else
++#define JUMP_LABEL_STATIC_KEY_CONSTRAINT "jdd"
++#endif
++
+ /*
+  * We use a brcl 0,2 instruction for jump labels at compile time so it
+  * can be easily distinguished from a hotpatch generated instruction.
+@@ -19,9 +25,9 @@ static __always_inline bool arch_static_branch(struct static_key *key, bool bran
+ 	asm_volatile_goto("0:	brcl 0,"__stringify(JUMP_LABEL_NOP_OFFSET)"\n"
+ 		".pushsection __jump_table, \"aw\"\n"
+ 		".balign 8\n"
+-		".quad 0b, %l[label], %0\n"
++		".quad 0b, %l[label], %0+%1\n"
+ 		".popsection\n"
+-		: : "X" (&((char *)key)[branch]) : : label);
++		: : JUMP_LABEL_STATIC_KEY_CONSTRAINT (key), "i" (branch) : : label);
+ 
+ 	return false;
+ label:
+@@ -33,9 +39,9 @@ static __always_inline bool arch_static_branch_jump(struct static_key *key, bool
+ 	asm_volatile_goto("0:	brcl 15, %l[label]\n"
+ 		".pushsection __jump_table, \"aw\"\n"
+ 		".balign 8\n"
+-		".quad 0b, %l[label], %0\n"
++		".quad 0b, %l[label], %0+%1\n"
+ 		".popsection\n"
+-		: : "X" (&((char *)key)[branch]) : : label);
++		: : JUMP_LABEL_STATIC_KEY_CONSTRAINT (key), "i" (branch) : : label);
+ 
+ 	return false;
+ label:
+-- 
+2.21.0
 
-The conditional code here beyond printing errors only affects the
-creation of further debugfs files, it's just there to avoid spewing
-secondary errors at people when something goes wrong so the underlying
-problem is clearer and is entirely compatible with the idea of not
-affecting real code.
-
---ZfA+D/N/UnTE6S9V
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl0M9ccACgkQJNaLcl1U
-h9Bq8Af+PVFkh3ZMQMAxpPrWk3rRg/BQFsbLERElZQ53DaijZATrwHksee798bg9
-ydkEqv0JLIVhQIns1BagFBxuBnaPPpKVZvbAiIvHiDPj5qf8spP/mfM9r7PaI8n5
-zquhdry2iTbY41p+oMW7GoSg744C750E/5UHHPiMr6+g75mvWQqO1K1GkOsQ3fky
-0/ecXc9nfdMJ/KLXGEKdcpNtKYEjNM4QtpmIDcteStRXH6gV/qW3Hw6s5jSpQ1jf
-4I2UdPBcPKvukjvxHos8fnKTBslUh35Yt4NmkZRDRjbozXo+Hc4D3U9mOvqkHcCV
-eQVOX17U1jPYRiXVPNlh7Z+yDO1skQ==
-=gvme
------END PGP SIGNATURE-----
-
---ZfA+D/N/UnTE6S9V--
