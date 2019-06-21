@@ -2,86 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EFE04E1D3
-	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 10:21:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3474B4E2F0
+	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 11:15:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726381AbfFUIVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jun 2019 04:21:45 -0400
-Received: from inva020.nxp.com ([92.121.34.13]:34310 "EHLO inva020.nxp.com"
+        id S1726250AbfFUJPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jun 2019 05:15:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726045AbfFUIVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Jun 2019 04:21:44 -0400
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 2CE1C1A09BC;
-        Fri, 21 Jun 2019 10:21:43 +0200 (CEST)
-Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 124901A09B4;
-        Fri, 21 Jun 2019 10:21:37 +0200 (CEST)
-Received: from mega.ap.freescale.net (mega.ap.freescale.net [10.192.208.232])
-        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 59F24402CF;
-        Fri, 21 Jun 2019 16:21:29 +0800 (SGT)
-From:   yibin.gong@nxp.com
-To:     shawnguo@kernel.org, s.hauer@pengutronix.de, festevam@gmail.com,
-        vkoul@kernel.org, dan.j.williams@intel.com, thesven73@gmail.com,
-        m.olbrich@pengutronix.de
-Cc:     linux-imx@nxp.com, stable@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, dmaengine@vger.kernel.org,
-        kernel@pengutronix.de
-Subject: [PATCH v2] dmaengine: imx-sdma: remove BD_INTR for channel0
-Date:   Fri, 21 Jun 2019 16:23:06 +0800
-Message-Id: <20190621082306.34415-1-yibin.gong@nxp.com>
-X-Mailer: git-send-email 2.17.1
-X-Virus-Scanned: ClamAV using ClamSMTP
+        id S1726232AbfFUJPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Jun 2019 05:15:15 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0956D21530;
+        Fri, 21 Jun 2019 09:15:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1561108514;
+        bh=yNc+7w1/5A1rYpibCq5H1szXHP/ogGaFNZ9V8nw1IUY=;
+        h=Subject:To:From:Date:From;
+        b=VzPFEUkG2xcneiLf7kKBHYdIXRLi2DJSmWJd2SeMh959N4IWObhS8zqm7RQ/Enl4y
+         Zjgpag6ItHgb/9B46iuWGSdYS9oecMbIhf/mSNo12RWwVRoBeq18I+g896F/XNyB+Y
+         FiqHL8ovPdlAnWT54q5LvAAWk5rFeNiGyeUlyDDQ=
+Subject: patch "Revert "serial: 8250: Don't service RX FIFO if interrupts are" added to tty-testing
+To:     o.barta89@gmail.com, andriy.shevchenko@linux.intel.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 21 Jun 2019 11:15:12 +0200
+Message-ID: <156110851224136@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
 
-It is possible for an irq triggered by channel0 to be received later
-after clks are disabled once firmware loaded during sdma probe. If
-that happens then clearing them by writing to SDMA_H_INTR won't work
-and the kernel will hang processing infinite interrupts. Actually,
-don't need interrupt triggered on channel0 since it's pollling
-SDMA_H_STATSTOP to know channel0 done rather than interrupt in
-current code, just clear BD_INTR to disable channel0 interrupt to
-avoid the above case.
-This issue was brought by commit 1d069bfa3c78 ("dmaengine: imx-sdma:
-ack channel 0 IRQ in the interrupt handler") which didn't take care
-the above case.
+This is a note to let you know that I've just added the patch titled
 
-Fixes: 1d069bfa3c78 ("dmaengine: imx-sdma: ack channel 0 IRQ in the interrupt handler")
-Cc: stable@vger.kernel.org #5.0+
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Reported-by: Sven Van Asbroeck <thesven73@gmail.com>
-Tested-by: Sven Van Asbroeck <thesven73@gmail.com>
+    Revert "serial: 8250: Don't service RX FIFO if interrupts are
+
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the tty-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 3f2640ed7be838c3f05c0d2b0f7c7508e7431e48 Mon Sep 17 00:00:00 2001
+From: Oliver Barta <o.barta89@gmail.com>
+Date: Wed, 19 Jun 2019 10:16:39 +0200
+Subject: Revert "serial: 8250: Don't service RX FIFO if interrupts are
+ disabled"
+
+This reverts commit 2e9fe539108320820016f78ca7704a7342788380.
+
+Reading LSR unconditionally but processing the error flags only if
+UART_IIR_RDI bit was set before in IIR may lead to a loss of transmission
+error information on UARTs where the transmission error flags are cleared
+by a read of LSR. Information are lost in case an error is detected right
+before the read of LSR while processing e.g. an UART_IIR_THRI interrupt.
+
+Signed-off-by: Oliver Barta <o.barta89@gmail.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 2e9fe5391083 ("serial: 8250: Don't service RX FIFO if interrupts are disabled")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/imx-sdma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_port.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-index deea9aa..b5a1ee2 100644
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -742,7 +742,7 @@ static int sdma_load_script(struct sdma_engine *sdma, void *buf, int size,
- 	spin_lock_irqsave(&sdma->channel_0_lock, flags);
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index a6fabc7e3b13..c1cec808571b 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1867,8 +1867,7 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
  
- 	bd0->mode.command = C0_SETPM;
--	bd0->mode.status = BD_DONE | BD_INTR | BD_WRAP | BD_EXTD;
-+	bd0->mode.status = BD_DONE | BD_WRAP | BD_EXTD;
- 	bd0->mode.count = size / 2;
- 	bd0->buffer_addr = buf_phys;
- 	bd0->ext_buffer_addr = address;
-@@ -1064,7 +1064,7 @@ static int sdma_load_context(struct sdma_channel *sdmac)
- 	context->gReg[7] = sdmac->watermark_level;
+ 	status = serial_port_in(port, UART_LSR);
  
- 	bd0->mode.command = C0_SETDM;
--	bd0->mode.status = BD_DONE | BD_INTR | BD_WRAP | BD_EXTD;
-+	bd0->mode.status = BD_DONE | BD_WRAP | BD_EXTD;
- 	bd0->mode.count = sizeof(*context) / 4;
- 	bd0->buffer_addr = sdma->context_phys;
- 	bd0->ext_buffer_addr = 2048 + (sizeof(*context) / 4) * channel;
+-	if (status & (UART_LSR_DR | UART_LSR_BI) &&
+-	    iir & UART_IIR_RDI) {
++	if (status & (UART_LSR_DR | UART_LSR_BI)) {
+ 		if (!up->dma || handle_rx_dma(up, iir))
+ 			status = serial8250_rx_chars(up, status);
+ 	}
 -- 
-2.7.4
+2.22.0
+
 
