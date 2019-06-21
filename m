@@ -2,101 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F6D4DEBF
-	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 03:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EFC54DF0F
+	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 04:18:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726135AbfFUBpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jun 2019 21:45:06 -0400
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:50386 "EHLO
-        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726129AbfFUBpG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 21:45:06 -0400
-Received: from pps.filterd (m0109332.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5L1iKEZ017834
-        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 18:45:05 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type; s=facebook;
- bh=NrRfeE6O7zXK/MPIrNgUA7F0KokJIm+rRUwD+I5/RIw=;
- b=YwbmlECQarVIHe+7+Zcp+04wW8sLZNiRRKUUlSsjhNCIQFWKP4J3xYvpw7v/ROb40/Hb
- GBwGbQD4Ep2Xan37H+JU2JD19E8FWCBRuN7WcW/N2Q4SVCitMBYFitkW8T2AhjuT+PIN
- SXSxIxhkpvQcMt6F/MSOnXul92qHClbDxPk= 
-Received: from maileast.thefacebook.com ([163.114.130.16])
-        by mx0a-00082601.pphosted.com with ESMTP id 2t8aj32h9b-4
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 18:45:05 -0700
-Received: from mx-out.facebook.com (2620:10d:c0a8:1b::d) by
- mail.thefacebook.com (2620:10d:c0a8:82::d) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Thu, 20 Jun 2019 18:44:56 -0700
-Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
-        id 5AFF962E2B4E; Thu, 20 Jun 2019 18:44:56 -0700 (PDT)
-Smtp-Origin-Hostprefix: devbig
-From:   Song Liu <songliubraving@fb.com>
-Smtp-Origin-Hostname: devbig006.ftw2.facebook.com
-To:     <linux-kernel@vger.kernel.org>
-CC:     <kernel-team@fb.com>, <acme@redhat.com>, <davidca@fb.com>,
-        <jolsa@kernel.org>, <namhyung@kernel.org>, <ak@linux.intel.com>,
-        Song Liu <songliubraving@fb.com>, <stable@vger.kernel.org>
-Smtp-Origin-Cluster: ftw2c04
-Subject: [PATCH] perf-script: assume native_arch for pipe mode
-Date:   Thu, 20 Jun 2019 18:44:38 -0700
-Message-ID: <20190621014438.810342-1-songliubraving@fb.com>
-X-Mailer: git-send-email 2.17.1
-X-FB-Internal: Safe
+        id S1725936AbfFUCSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jun 2019 22:18:39 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:37915 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725906AbfFUCSi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jun 2019 22:18:38 -0400
+Received: by mail-lj1-f194.google.com with SMTP id r9so4527173ljg.5
+        for <stable@vger.kernel.org>; Thu, 20 Jun 2019 19:18:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=dTHPPGOwBa2FwhZr/ABNXZ8z65KGobDyyMuTtBj4fGY=;
+        b=NP3m09PdLpDP7GTWWKWTx/AXHOWapsHVodgAXmFiSzcTk8VDI3pPk8sUEyMCwtq4h9
+         OSnYDqui8WtcCdwDjkUJV0gY7cHEwL0qUw5DMLZtP6kK4yj68AaFSpz+gZCRO/Fi0eZx
+         +PdbF2UQACqlpL+lNWGSrkND+sb90IwpgARI9F8gCW7KeUo0lE3wCAvQd1SZtOhp/XIC
+         lIcP5fBtMJwrvADOjimBW/e0toSfOFiHkVCLJDxtiEAm+5FVZAkaomjxGkmjcil3l3e3
+         rnZA9WhhbQItLYm0ndYzhXIlB55PvU81AoW6YeZ3+xvXoZphPnTe97pc/QwneAcI0A0L
+         E4Xw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=dTHPPGOwBa2FwhZr/ABNXZ8z65KGobDyyMuTtBj4fGY=;
+        b=XHymH+0rGfgXoPwj3z/zImuMn980bonFdlJkf7Lmua7B24KvQMReh6oCzEMxO8lgnz
+         P8zdKMGN/6nw6cPR/NQXHP6JOeXdPYV5rkg8P1jfksTE+ovuvAr5bnRJgRCULOk6sX/4
+         4yuNQqHaM7rLgobDLPeqf1n1UgItpEa7QUdLYxsa643jY46UeiP15hanuZ9ECTn8qrGN
+         +byFYKd+Z4WxheXx2OUtA8debYE6v4YuV7DyC4VI4G+xxH3fQpcUZWywpDb0N9VQLG2s
+         w8HwrrAYWDCj52q6tzynBQ2v1NevNB+5TDTvSWUHoJ7Bi6VxVpS59owFMH8ykUaPr8uv
+         kj7Q==
+X-Gm-Message-State: APjAAAUb5vI1b+KiYKDVme6fdp5s8bXMt59hc4fgKox1ATyU2xu3RPq3
+        EMEWit+dnR0M5tMa3v/YcdlNqU2ifqf7AOaoOP7HjA==
+X-Google-Smtp-Source: APXvYqzouJwCr7psc+7u/bTqPqXAvLl4AsG+Q4VFOuozxFshhjP4aZNTQXTfoNwoctR4jMhX1Qze7PQGdpPmVUFpRug=
+X-Received: by 2002:a2e:824d:: with SMTP id j13mr70202386ljh.137.1561083516657;
+ Thu, 20 Jun 2019 19:18:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-21_02:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
- malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1810050000 definitions=main-1906210013
-X-FB-Internal: deliver
+References: <20190620174351.964339809@linuxfoundation.org>
+In-Reply-To: <20190620174351.964339809@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 21 Jun 2019 07:48:25 +0530
+Message-ID: <CA+G9fYtGi8iaw=Uiuvtju92z7NHWf+AiFO2aF9egOORptiy98w@mail.gmail.com>
+Subject: Re: [PATCH 4.9 000/117] 4.9.183-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In pipe mode, session->header.env.arch is not populated until the events
-are processed. Therefore, the following command crashes:
+On Thu, 20 Jun 2019 at 23:33, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.183 release.
+> There are 117 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat 22 Jun 2019 05:42:15 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.183-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-   perf record -o - | perf script
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-(gdb) bt
+Summary
+------------------------------------------------------------------------
 
-It fails when we try to compare env.arch against uts.machine:
+kernel: 4.9.183-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: b2977e94f62a4008b6cc418f3af3c1a04ddb8ce3
+git describe: v4.9.182-118-gb2977e94f62a
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.182-118-gb2977e94f62a
 
-        if (!strcmp(uts.machine, session->header.env.arch) ||
-            (!strcmp(uts.machine, "x86_64") &&
-             !strcmp(session->header.env.arch, "i386")))
-                native_arch = true;
 
-In pipe mode, it is tricky to find env.arch at this stage. To keep it
-simple, let's just assume native_arch is always true for pipe mode.
+No regressions (compared to build v4.9.182)
 
-Cc: stable@vger.kernel.org #v5.1+
-Fixes: 3ab481a1cfe1 ("perf script: Support insn output for normal samples")
-Reported-by: David Carrillo Cisneros <davidca@fb.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
----
- tools/perf/builtin-script.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+No fixes (compared to build v4.9.182)
 
-diff --git a/tools/perf/builtin-script.c b/tools/perf/builtin-script.c
-index 61f00055476a..3355af25e7d0 100644
---- a/tools/perf/builtin-script.c
-+++ b/tools/perf/builtin-script.c
-@@ -3733,7 +3733,8 @@ int cmd_script(int argc, const char **argv)
- 		goto out_delete;
- 
- 	uname(&uts);
--	if (!strcmp(uts.machine, session->header.env.arch) ||
-+	if (data.is_pipe ||  /* assume pipe_mode indicates native_arch */
-+	    !strcmp(uts.machine, session->header.env.arch) ||
- 	    (!strcmp(uts.machine, "x86_64") &&
- 	     !strcmp(session->header.env.arch, "i386")))
- 		native_arch = true;
--- 
-2.17.1
 
+Ran 23588 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* prep-tmp-disk
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
