@@ -2,142 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C0754EE19
-	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 19:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F23A4EEE2
+	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 20:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726073AbfFURqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jun 2019 13:46:48 -0400
-Received: from mail-qt1-f193.google.com ([209.85.160.193]:37295 "EHLO
-        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726052AbfFURqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Jun 2019 13:46:48 -0400
-Received: by mail-qt1-f193.google.com with SMTP id y57so7793887qtk.4
-        for <stable@vger.kernel.org>; Fri, 21 Jun 2019 10:46:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=/rmiMLVq7kF2q2o6AKgSHjhv/l9ATXyCn/hQ4uzJmwg=;
-        b=PzFuJKPNTeVjy12+CqQGyGCGyNnHdgXUdKfEKQ6JEW3xNkuhZOqhP3A63RjaVIyr5E
-         HLOQbHhK1sWa9xpsXAl62zsIJAI72JIArV494r0IzaqU+dXbXRTWvQQblY6r27Glqba5
-         5J5+HoYhqV9fDFGIJNRlg4xj2SRPcyzu5lDExrk3CZVbLtDWXj3Y5BqG5ZqbqK8rQC07
-         sPytTTM1RdTUlHm164FazJ51mJ9HCh6x3R9mDnCcSTle0GfrS41rHGqYfyEonELXcKWh
-         O6L9ag33xz1NExqyhls7mSq71mI51LP35BPFlZNe/eyzNF58uBruEW9hDPHbMDnN3mj5
-         IKnw==
-X-Gm-Message-State: APjAAAWuevliUZ/qRBgxyvhQHRag2X6KukORN3HGDIOfZ1ObQnPRJ4vK
-        5dVeDt3NB/H5qwtVT/tphnBImw==
-X-Google-Smtp-Source: APXvYqypVgeY2m60j16sgUDhAGhJwXgzSED6dHO7ab7CV6hNpq8x2x6XMkqgyoiCGRkVCJiwB3VaZQ==
-X-Received: by 2002:ac8:38cf:: with SMTP id g15mr111973445qtc.268.1561139207526;
-        Fri, 21 Jun 2019 10:46:47 -0700 (PDT)
-Received: from [192.168.1.157] (pool-96-235-39-235.pitbpa.fios.verizon.net. [96.235.39.235])
-        by smtp.gmail.com with ESMTPSA id k15sm1552422qtg.22.2019.06.21.10.46.46
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Fri, 21 Jun 2019 10:46:46 -0700 (PDT)
-Subject: Re: [PATCH] s390/jump_label: Use "jdd" constraint on gcc9
-To:     Ilya Leoshkevich <iii@linux.ibm.com>
-Cc:     Heiko Carstens <heiko.carstens@de.ibm.com>,
-        stable <stable@vger.kernel.org>,
-        Major Hayden <mhayden@redhat.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>
-References: <99840513-9a7d-2c91-1e41-5355f88babcf@redhat.com>
- <20190621153912.9528-1-iii@linux.ibm.com>
-From:   Laura Abbott <labbott@redhat.com>
-Message-ID: <9210d2cc-8cca-208a-a1b4-5ccb49f4e3f8@redhat.com>
-Date:   Fri, 21 Jun 2019 13:46:46 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
-MIME-Version: 1.0
-In-Reply-To: <20190621153912.9528-1-iii@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1726106AbfFUSrH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jun 2019 14:47:07 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53452 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726066AbfFUSrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Jun 2019 14:47:07 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 03377AEE0;
+        Fri, 21 Jun 2019 18:47:06 +0000 (UTC)
+From:   Juergen Gross <jgross@suse.com>
+To:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
+Cc:     Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] xen/events: fix binding user event channels to cpus
+Date:   Fri, 21 Jun 2019 20:47:03 +0200
+Message-Id: <20190621184703.17108-1-jgross@suse.com>
+X-Mailer: git-send-email 2.16.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/21/19 11:39 AM, Ilya Leoshkevich wrote:
->> Ah okay, I didn't realize there was more needed, I was just looking at
->> the clean cherry-pick. I'm not sure how to do the backport, if you
->> give me the patch I can verify.
-> 
-> Please find the cherry-picked 146448524bdd below.
-> 
-> I also had to cherry-pick 159491f3b509 to fix an unrelated compilation
-> error and make the build fully work.
-> 
+When binding an interdomain event channel to a vcpu via
+IOCTL_EVTCHN_BIND_INTERDOMAIN not only the event channel needs to be
+bound, but the affinity of the associated IRQi must be changed, too.
+Otherwise the IRQ and the event channel won't be moved to another vcpu
+in case the original vcpu they were bound to is going offline.
 
-Yes, this worked for me (plus 159491f3b509). Thanks!
+Cc: <stable@vger.kernel.org> # 4.13
+Fixes: c48f64ab472389df ("xen-evtchn: Bind dyn evtchn:qemu-dm interrupt to next online VCPU")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ drivers/xen/events/events_base.c | 12 ++++++++++--
+ drivers/xen/evtchn.c             |  2 +-
+ include/xen/events.h             |  3 ++-
+ 3 files changed, 13 insertions(+), 4 deletions(-)
 
-> Best regards,
-> Ilya
-> 
-> ----
-> 
-> [heiko.carstens@de.ibm.com]:
-> -----
-> Laura Abbott reported that the kernel doesn't build anymore with gcc 9,
-> due to the "X" constraint. Ilya provided the gcc 9 patch "S/390:
-> Introduce jdd constraint" which introduces the new "jdd" constraint
-> which fixes this.
-> -----
-> 
-> The support for section anchors on S/390 introduced in gcc9 has changed
-> the behavior of "X" constraint, which can now produce register
-> references. Since existing constraints, in particular, "i", do not fit
-> the intended use case on S/390, the new machine-specific "jdd"
-> constraint was introduced. This patch makes jump labels use "jdd"
-> constraint when building with gcc9.
-> 
-> Reported-by: Laura Abbott <labbott@redhat.com>
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> ---
->   arch/s390/include/asm/jump_label.h | 14 ++++++++++----
->   1 file changed, 10 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/jump_label.h b/arch/s390/include/asm/jump_label.h
-> index 40f651292aa7..9c7dc970e966 100644
-> --- a/arch/s390/include/asm/jump_label.h
-> +++ b/arch/s390/include/asm/jump_label.h
-> @@ -10,6 +10,12 @@
->   #define JUMP_LABEL_NOP_SIZE 6
->   #define JUMP_LABEL_NOP_OFFSET 2
->   
-> +#if __GNUC__ < 9
-> +#define JUMP_LABEL_STATIC_KEY_CONSTRAINT "X"
-> +#else
-> +#define JUMP_LABEL_STATIC_KEY_CONSTRAINT "jdd"
-> +#endif
-> +
->   /*
->    * We use a brcl 0,2 instruction for jump labels at compile time so it
->    * can be easily distinguished from a hotpatch generated instruction.
-> @@ -19,9 +25,9 @@ static __always_inline bool arch_static_branch(struct static_key *key, bool bran
->   	asm_volatile_goto("0:	brcl 0,"__stringify(JUMP_LABEL_NOP_OFFSET)"\n"
->   		".pushsection __jump_table, \"aw\"\n"
->   		".balign 8\n"
-> -		".quad 0b, %l[label], %0\n"
-> +		".quad 0b, %l[label], %0+%1\n"
->   		".popsection\n"
-> -		: : "X" (&((char *)key)[branch]) : : label);
-> +		: : JUMP_LABEL_STATIC_KEY_CONSTRAINT (key), "i" (branch) : : label);
->   
->   	return false;
->   label:
-> @@ -33,9 +39,9 @@ static __always_inline bool arch_static_branch_jump(struct static_key *key, bool
->   	asm_volatile_goto("0:	brcl 15, %l[label]\n"
->   		".pushsection __jump_table, \"aw\"\n"
->   		".balign 8\n"
-> -		".quad 0b, %l[label], %0\n"
-> +		".quad 0b, %l[label], %0+%1\n"
->   		".popsection\n"
-> -		: : "X" (&((char *)key)[branch]) : : label);
-> +		: : JUMP_LABEL_STATIC_KEY_CONSTRAINT (key), "i" (branch) : : label);
->   
->   	return false;
->   label:
-> 
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index ff9b51055b14..e718c8fea18b 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -1294,7 +1294,7 @@ void rebind_evtchn_irq(int evtchn, int irq)
+ }
+ 
+ /* Rebind an evtchn so that it gets delivered to a specific cpu */
+-int xen_rebind_evtchn_to_cpu(int evtchn, unsigned tcpu)
++static int xen_rebind_evtchn_to_cpu(int evtchn, unsigned int tcpu)
+ {
+ 	struct evtchn_bind_vcpu bind_vcpu;
+ 	int masked;
+@@ -1328,7 +1328,6 @@ int xen_rebind_evtchn_to_cpu(int evtchn, unsigned tcpu)
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(xen_rebind_evtchn_to_cpu);
+ 
+ static int set_affinity_irq(struct irq_data *data, const struct cpumask *dest,
+ 			    bool force)
+@@ -1342,6 +1341,15 @@ static int set_affinity_irq(struct irq_data *data, const struct cpumask *dest,
+ 	return ret;
+ }
+ 
++/* To be called with desc->lock held. */
++int xen_set_affinity_evtchn(struct irq_desc *desc, unsigned int tcpu)
++{
++	struct irq_data *d = irq_desc_get_irq_data(desc);
++
++	return set_affinity_irq(d, cpumask_of(tcpu), false);
++}
++EXPORT_SYMBOL_GPL(xen_set_affinity_evtchn);
++
+ static void enable_dynirq(struct irq_data *data)
+ {
+ 	int evtchn = evtchn_from_irq(data->irq);
+diff --git a/drivers/xen/evtchn.c b/drivers/xen/evtchn.c
+index f341b016672f..052b55a14ebc 100644
+--- a/drivers/xen/evtchn.c
++++ b/drivers/xen/evtchn.c
+@@ -447,7 +447,7 @@ static void evtchn_bind_interdom_next_vcpu(int evtchn)
+ 	this_cpu_write(bind_last_selected_cpu, selected_cpu);
+ 
+ 	/* unmask expects irqs to be disabled */
+-	xen_rebind_evtchn_to_cpu(evtchn, selected_cpu);
++	xen_set_affinity_evtchn(desc, selected_cpu);
+ 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+ }
+ 
+diff --git a/include/xen/events.h b/include/xen/events.h
+index a48897199975..c0e6a0598397 100644
+--- a/include/xen/events.h
++++ b/include/xen/events.h
+@@ -3,6 +3,7 @@
+ #define _XEN_EVENTS_H
+ 
+ #include <linux/interrupt.h>
++#include <linux/irq.h>
+ #ifdef CONFIG_PCI_MSI
+ #include <linux/msi.h>
+ #endif
+@@ -59,7 +60,7 @@ void evtchn_put(unsigned int evtchn);
+ 
+ void xen_send_IPI_one(unsigned int cpu, enum ipi_vector vector);
+ void rebind_evtchn_irq(int evtchn, int irq);
+-int xen_rebind_evtchn_to_cpu(int evtchn, unsigned tcpu);
++int xen_set_affinity_evtchn(struct irq_desc *desc, unsigned int tcpu);
+ 
+ static inline void notify_remote_via_evtchn(int port)
+ {
+-- 
+2.16.4
 
