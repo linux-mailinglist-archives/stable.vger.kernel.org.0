@@ -2,116 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 620384E851
-	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 14:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DB454E8A4
+	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 15:11:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726339AbfFUMxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jun 2019 08:53:21 -0400
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:57159 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726299AbfFUMxU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Jun 2019 08:53:20 -0400
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mol@pengutronix.de>)
-        id 1heJ2R-0002To-Qd; Fri, 21 Jun 2019 14:53:07 +0200
-Received: from mol by ptx.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <mol@pengutronix.de>)
-        id 1heJ2P-0004TF-LK; Fri, 21 Jun 2019 14:53:05 +0200
-Date:   Fri, 21 Jun 2019 14:53:05 +0200
-From:   Michael Olbrich <m.olbrich@pengutronix.de>
-To:     yibin.gong@nxp.com
-Cc:     shawnguo@kernel.org, s.hauer@pengutronix.de, festevam@gmail.com,
-        vkoul@kernel.org, dan.j.williams@intel.com, thesven73@gmail.com,
-        linux-imx@nxp.com, stable@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, dmaengine@vger.kernel.org,
-        kernel@pengutronix.de
-Subject: Re: [PATCH v2] dmaengine: imx-sdma: remove BD_INTR for channel0
-Message-ID: <20190621125305.jpmkrwfgruxs2yzt@pengutronix.de>
-Mail-Followup-To: yibin.gong@nxp.com, shawnguo@kernel.org,
-        s.hauer@pengutronix.de, festevam@gmail.com, vkoul@kernel.org,
-        dan.j.williams@intel.com, thesven73@gmail.com, linux-imx@nxp.com,
-        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        dmaengine@vger.kernel.org, kernel@pengutronix.de
-References: <20190621082306.34415-1-yibin.gong@nxp.com>
+        id S1726299AbfFUNLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jun 2019 09:11:43 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43922 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726285AbfFUNLn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Jun 2019 09:11:43 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x5LD8CFn135954
+        for <stable@vger.kernel.org>; Fri, 21 Jun 2019 09:11:42 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2t8y881swk-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Fri, 21 Jun 2019 09:11:42 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
+        Fri, 21 Jun 2019 14:11:40 +0100
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (9.149.109.197)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 21 Jun 2019 14:11:37 +0100
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x5LDBbOO60489948
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 21 Jun 2019 13:11:37 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EED8642045;
+        Fri, 21 Jun 2019 13:11:36 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B5E6142042;
+        Fri, 21 Jun 2019 13:11:36 +0000 (GMT)
+Received: from osiris (unknown [9.152.212.21])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Fri, 21 Jun 2019 13:11:36 +0000 (GMT)
+Date:   Fri, 21 Jun 2019 15:11:35 +0200
+From:   Heiko Carstens <heiko.carstens@de.ibm.com>
+To:     Laura Abbott <labbott@redhat.com>
+Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Major Hayden <mhayden@redhat.com>
+Subject: Re: Request for 4.19.x backport (with conflicts)
+References: <0fc1a3e6-59ef-6390-38c4-55e7c48bee78@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190621082306.34415-1-yibin.gong@nxp.com>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-IRC:  #ptxdist @freenode
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-X-Uptime: 14:49:15 up 34 days, 19:07, 89 users,  load average: 0.03, 0.10,
- 0.09
-User-Agent: NeoMutt/20170113 (1.7.2)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: mol@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+In-Reply-To: <0fc1a3e6-59ef-6390-38c4-55e7c48bee78@redhat.com>
+X-TM-AS-GCONF: 00
+x-cbid: 19062113-0008-0000-0000-000002F5D798
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19062113-0009-0000-0000-00002262FC3D
+Message-Id: <20190621131135.GB11296@osiris>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-21_09:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1906210109
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 21, 2019 at 04:23:06PM +0800, yibin.gong@nxp.com wrote:
-> From: Robin Gong <yibin.gong@nxp.com>
-> 
-> It is possible for an irq triggered by channel0 to be received later
-> after clks are disabled once firmware loaded during sdma probe. If
-> that happens then clearing them by writing to SDMA_H_INTR won't work
-> and the kernel will hang processing infinite interrupts. Actually,
-> don't need interrupt triggered on channel0 since it's pollling
-> SDMA_H_STATSTOP to know channel0 done rather than interrupt in
-> current code, just clear BD_INTR to disable channel0 interrupt to
-> avoid the above case.
-> This issue was brought by commit 1d069bfa3c78 ("dmaengine: imx-sdma:
-> ack channel 0 IRQ in the interrupt handler") which didn't take care
-> the above case.
-> 
-> Fixes: 1d069bfa3c78 ("dmaengine: imx-sdma: ack channel 0 IRQ in the interrupt handler")
-> Cc: stable@vger.kernel.org #5.0+
-> Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-> Reported-by: Sven Van Asbroeck <thesven73@gmail.com>
-> Tested-by: Sven Van Asbroeck <thesven73@gmail.com>
+Hello Laura,
 
-Reviewed-by: Michael Olbrich <m.olbrich@pengutronix.de>
+> We're attempting to build stable kernels with gcc9. 4.19.x fails to build with
+> gcc9 as 146448524bdd ("s390/jump_label: Use "jdd" constraint on gcc9") is missing.
+> This doesn't apply cleanly to 4.19.x as it needs changes from 13ddb52c165b
+> ("s390/jump_label: Switch to relative references")
+> 
+> Which is better, taking both 13ddb52c165b and 146448524bdd or doing
+> a backport of 146448524bdd?
 
-> ---
->  drivers/dma/imx-sdma.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-> index deea9aa..b5a1ee2 100644
-> --- a/drivers/dma/imx-sdma.c
-> +++ b/drivers/dma/imx-sdma.c
-> @@ -742,7 +742,7 @@ static int sdma_load_script(struct sdma_engine *sdma, void *buf, int size,
->  	spin_lock_irqsave(&sdma->channel_0_lock, flags);
->  
->  	bd0->mode.command = C0_SETPM;
-> -	bd0->mode.status = BD_DONE | BD_INTR | BD_WRAP | BD_EXTD;
-> +	bd0->mode.status = BD_DONE | BD_WRAP | BD_EXTD;
->  	bd0->mode.count = size / 2;
->  	bd0->buffer_addr = buf_phys;
->  	bd0->ext_buffer_addr = address;
-> @@ -1064,7 +1064,7 @@ static int sdma_load_context(struct sdma_channel *sdmac)
->  	context->gReg[7] = sdmac->watermark_level;
->  
->  	bd0->mode.command = C0_SETDM;
-> -	bd0->mode.status = BD_DONE | BD_INTR | BD_WRAP | BD_EXTD;
-> +	bd0->mode.status = BD_DONE | BD_WRAP | BD_EXTD;
->  	bd0->mode.count = sizeof(*context) / 4;
->  	bd0->buffer_addr = sdma->context_phys;
->  	bd0->ext_buffer_addr = 2048 + (sizeof(*context) / 4) * channel;
-> -- 
-> 2.7.4
-> 
-> 
+I don't know which kernel version you are referring to exactly,
+however 4.19.53 from linux-stable does not contain the common code
+infrastructure for relative jump labels. The infrastructure was merged
+with 4.20: commit 50ff18ab497aa ("jump_label: Implement generic
+support for relative references").
 
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+Therefore a backport of only 146448524bdd seems to be the way to go.
+
