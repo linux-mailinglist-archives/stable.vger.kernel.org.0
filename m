@@ -2,74 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF0394E8CC
-	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 15:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 760B74E8DD
+	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 15:22:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726002AbfFUNUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jun 2019 09:20:44 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:49577 "EHLO
+        id S1725975AbfFUNWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jun 2019 09:22:25 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:39099 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725975AbfFUNUo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Jun 2019 09:20:44 -0400
+        by vger.kernel.org with ESMTP id S1725958AbfFUNWZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Jun 2019 09:22:25 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 7D3722216E;
-        Fri, 21 Jun 2019 09:20:43 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id D157522114;
+        Fri, 21 Jun 2019 09:22:24 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 21 Jun 2019 09:20:43 -0400
+  by compute6.internal (MEProxy); Fri, 21 Jun 2019 09:22:24 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=gFw1o09izVXNlusSWNvyOBEz+mi
-        9KMY//ltxGghUQDs=; b=Q91/YEztYMQm+78z6+GuAJhJDmqw+tXZBjrhE+jxpfn
-        3cftDN0EpiiS+qcFQbr3HhGo0bBuVKMgr16D/wtXgfCxymtENYSy/oYUN1hzx2Cv
-        NCW3ytNe5upBVEYAmBfOlKf6p0ZdPwBep0clkMlXenSQ6PkNJ+pkikHxW8EUIrL6
-        9HyE/lwuDeJrv2O4JUSbG3pTdajqSYQ6z/ep5EDytQISkbM1dw7uRWtqNBGiAMU2
-        rEaNOFI/uvx+q5wbsXCUZTR5vlXmbDkrnLHVKZqfUsclLBMRGdbN7dthty2JUu+W
-        2DbWj7x/Md2FZnOBgBbB3QVdfgam1BUEzrLW8cYdffA==
+        :content-type:in-reply-to; s=fm1; bh=j2yp05g5qDYVNwtcnROr99uPzOS
+        RalFOaQ4HvtAIMIA=; b=EG56U/jbXzULxT28b/phGRsCWHmuR1ZdgKId0cAwd20
+        Y7ov5N/XHnG6Fb3ZUucSeN1HF0xG7Rt277e8nQ0XQLfN3vVfxqtjbs2ahRuaWNJl
+        MBWTCDSnqGISwjrgM3l+qo0MkFn/0/l+NQJy9rxYXQq9HQZZU1ptzGHyYo7Bx/le
+        NZBG9uKvuacp0uaSjiLb3LjLZo6ZQe1cqzo3W9cSfd2YgLvry0nGP6okz2iYKslv
+        ZnbtY5TCSXRiYueZQE4jXVFvDqyWDzf4Q/KEELeFD/vF1qzgIUaCujBTrQ8h9h44
+        XiJ1p4xkkLMidQM6Y+rp+rBUh2qu5bQTS1ZWFwK5ROw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=gFw1o0
-        9izVXNlusSWNvyOBEz+mi9KMY//ltxGghUQDs=; b=iuKedUAq3P0LQXAoJa0CCq
-        RiNqsR928oqFfNkHKrl4zoquMx1KwMkF+A2fxSbksGvbHNWcy2ztrSyzu1FZMy84
-        sOddy4tXLYHKNQ/rlnSrnO85qMfyF5h1AdRH2/XkaUHpaDoJUItIcuvgBOqG9jbc
-        /DWjljeOYvJw9IlpPyeBh8ADITm5LuMva65gUHuSw0V8EsgMZYPtCobmX3dXYRsf
-        AhwHphbO2oj/Hp2FdfjW0DdUDnzmGaqmFq49d83sW7o0EMe0occrdXNLhJO5jgmY
-        93j58hDUvcoPWOn90Ce5EIqgODBrGoY4XWEaFxwUvQaq6I2gljnjnvJfYZSaUoew
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=j2yp05
+        g5qDYVNwtcnROr99uPzOSRalFOaQ4HvtAIMIA=; b=GHUSNjtjqsEm6lqCXDNlUh
+        k3l6jiYurctCnFxopabUQyHaCx5qsY5WdKDueK2l9OGrbFT2KTDRnHutRREHNfd1
+        OOfMHmW/bX8Q711uuoY3Yq1gsK2xOPCjq4bIOkZjwags3zKwC/KOvSHM2V7hoSoP
+        /iJ52OL+16OJOdEWGwt25dLKx08E6q01EqczOkKhZp4FJFg/SmyQSGkxFBgCEw+s
+        Kk6/gBIhelZD3K6j4GAes8887dwDFrPYkVdJwNkd3vNwX7Cg5UFPL0pWQluyMsKU
+        gCR/4kxd2rd4gUAx1rk8xhozTcIRvlLbweZxX/jS1FFFxOF5pwP2Wx68tI3/076A
         ==
-X-ME-Sender: <xms:qtkMXTCq3f9ydvMFnhF1M-fgENTm0o_zMCZMShgYB-y2ABSAprekZg>
+X-ME-Sender: <xms:ENoMXX09UFveOIfAKVS5RVZk8Uz2_iesQJoi_qZhBYgoZMTp09uEdg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrtdeigdeijecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
     fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
     mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
     ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:qtkMXV2DM14tMs85e_MtZ2mQOgsvFU7U6Dx6itGu_nYW96RJy17Mgw>
-    <xmx:qtkMXRWGrzLnPIk-ZtbFyfIdCliUDILKhQCodUWgHO2kTkB4EJZNwQ>
-    <xmx:qtkMXXmUIvFqa35EwyPVA25vxxRtRx9JrZ8fXYRNb0jARIYY71GqVg>
-    <xmx:q9kMXbRNbVbh-jluUxvGRnZ18b5O315JSCnAG4RL2ZF7r5cl-1Ab-A>
+    lhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:ENoMXRCb1JwPzzG-77Cbsp_VlCbYBh-q-VhisoTzA60qfLOgl3iXWA>
+    <xmx:ENoMXW7cnqpFU1EmC41lwptpqfbmRQV0al6qc6GC1PUzefXluL72fQ>
+    <xmx:ENoMXSKz5Pd_dHoOv3T1BAX5C0IGPiz_B2AYf-oNbHBuEMUeab3Eyg>
+    <xmx:ENoMXaq1XSLf09y7XYjmf-SAbWq6Mf7h-CHzTHgxNWOFa5EPI6WM_g>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 897C980060;
-        Fri, 21 Jun 2019 09:20:42 -0400 (EDT)
-Date:   Fri, 21 Jun 2019 15:20:40 +0200
+        by mail.messagingengine.com (Postfix) with ESMTPA id F246B80063;
+        Fri, 21 Jun 2019 09:22:23 -0400 (EDT)
+Date:   Fri, 21 Jun 2019 15:22:22 +0200
 From:   Greg KH <greg@kroah.com>
 To:     Mark Brown <broonie@kernel.org>
 Cc:     Liam Girdwood <lgirdwood@gmail.com>, alsa-devel@alsa-project.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] ASoC: core: Adapt for debugfs API change
-Message-ID: <20190621132040.GA10459@kroah.com>
+Subject: Re: [PATCH 2/2] ASoC: dapm: Adapt for debugfs API change
+Message-ID: <20190621132222.GB10459@kroah.com>
 References: <20190621113357.8264-1-broonie@kernel.org>
+ <20190621113357.8264-2-broonie@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190621113357.8264-1-broonie@kernel.org>
+In-Reply-To: <20190621113357.8264-2-broonie@kernel.org>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 21, 2019 at 12:33:56PM +0100, Mark Brown wrote:
+On Fri, Jun 21, 2019 at 12:33:57PM +0100, Mark Brown wrote:
 > Back in ff9fb72bc07705c (debugfs: return error values, not NULL) the
 > debugfs APIs were changed to return error pointers rather than NULL
 > pointers on error, breaking the error checking in ASoC. Update the
@@ -80,45 +81,54 @@ On Fri, Jun 21, 2019 at 12:33:56PM +0100, Mark Brown wrote:
 > Signed-off-by: Mark Brown <broonie@kernel.org>
 > Cc: stable@vger.kernel.org
 > ---
->  sound/soc/soc-core.c | 16 ++++++++++------
->  1 file changed, 10 insertions(+), 6 deletions(-)
+>  sound/soc/soc-dapm.c | 18 ++++++++++--------
+>  1 file changed, 10 insertions(+), 8 deletions(-)
 > 
-> diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-> index c510da2d4af6..6d5c09493f4b 100644
-> --- a/sound/soc/soc-core.c
-> +++ b/sound/soc/soc-core.c
-> @@ -165,9 +165,10 @@ static void soc_init_component_debugfs(struct snd_soc_component *component)
->  				component->card->debugfs_card_root);
->  	}
+> diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+> index 6b44b4a78b8e..f013b24c050a 100644
+> --- a/sound/soc/soc-dapm.c
+> +++ b/sound/soc/soc-dapm.c
+> @@ -2156,23 +2156,25 @@ void snd_soc_dapm_debugfs_init(struct snd_soc_dapm_context *dapm,
+>  {
+>  	struct dentry *d;
 >  
-> -	if (!component->debugfs_root) {
-> +	if (IS_ERR(component->debugfs_root)) {
->  		dev_warn(component->dev,
-> -			"ASoC: Failed to create component debugfs directory\n");
-> +			"ASoC: Failed to create component debugfs directory: %ld\n",
-> +			PTR_ERR(component->debugfs_root));
+> -	if (!parent)
+> +	if (!parent || IS_ERR(parent))
+>  		return;
 
-Why warn on this?  You will _never_ see this message :)
+How can parent be NULL?
+
+>  
+>  	dapm->debugfs_dapm = debugfs_create_dir("dapm", parent);
+>  
+> -	if (!dapm->debugfs_dapm) {
+> +	if (IS_ERR(dapm->debugfs_dapm)) {
+>  		dev_warn(dapm->dev,
+> -		       "ASoC: Failed to create DAPM debugfs directory\n");
+> +			 "ASoC: Failed to create DAPM debugfs directory %ld\n",
+> +			 PTR_ERR(dapm->debugfs_dapm));
+
+Same comment as before, no need to print anything.
 
 >  		return;
 >  	}
 >  
-> @@ -219,18 +220,21 @@ static void soc_init_card_debugfs(struct snd_soc_card *card)
->  
->  	card->debugfs_card_root = debugfs_create_dir(card->name,
->  						     snd_soc_debugfs_root);
-> -	if (!card->debugfs_card_root) {
-> +	if (IS_ERR(card->debugfs_card_root)) {
->  		dev_warn(card->dev,
-> -			 "ASoC: Failed to create card debugfs directory\n");
-> +			 "ASoC: Failed to create card debugfs directory: %ld\n",
-> +			 PTR_ERR(card->debugfs_card_root));
-> +		card->debugfs_card_root = NULL;
+>  	d = debugfs_create_file("bias_level", 0444,
+>  				dapm->debugfs_dapm, dapm,
+>  				&dapm_bias_fops);
+> -	if (!d)
+> +	if (IS_ERR(d))
+>  		dev_warn(dapm->dev,
+> -			 "ASoC: Failed to create bias level debugfs file\n");
+> +			 "ASoC: Failed to create bias level debugfs file: %ld\n",
+> +			 PTR_ERR(d));
 
-Same here.
+Again, no need to warn, no one will see it :)
 
-And keep card->debugfs_card_root to be the error pointer, that way no
-further files are created for that directory.
+I am trying to make it so that debugfs doesn't return anything for when
+a file is created.  Now if that will ever be possible or not, I don't
+know, but I am pretty close in one of the branches in my driver-core
+tree...
 
 thanks,
 
