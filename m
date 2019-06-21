@@ -2,147 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B50C4EDF7
-	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 19:41:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C0754EE19
+	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 19:46:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726101AbfFURlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jun 2019 13:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60086 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726233AbfFURlE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Jun 2019 13:41:04 -0400
-Received: from quaco.ghostprotocols.net (187-26-104-93.3g.claro.net.br [187.26.104.93])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8FA6208C3;
-        Fri, 21 Jun 2019 17:40:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561138863;
-        bh=QPJHaL3OS0GzfeK6O1ZxuGW8Vz75KPhsoGFuVduABng=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wN1itsimpustKG30e0ueI6HXePSqD0jBieAjifNXTLIKDv96oumJMz4CnYPlN0F2T
-         odHpXrDIn9m/RD6inXUwepvT5w1AmwYEX3WH3oxf4ayImFqnkKy57jKboPi1UOTXIR
-         VgHmCfsFgqP+xi/zcLZGnZMi+MRDRVp8vtIWzcss=
-From:   Arnaldo Carvalho de Melo <acme@kernel.org>
-To:     Ingo Molnar <mingo@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     Jiri Olsa <jolsa@kernel.org>, Namhyung Kim <namhyung@kernel.org>,
-        Clark Williams <williams@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        John Garry <john.garry@huawei.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ben Hutchings <ben@decadent.org.uk>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        linux-arm-kernel@lists.infradead.org, linuxarm@huawei.com,
-        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 19/25] perf pmu: Fix uncore PMU alias list for ARM64
-Date:   Fri, 21 Jun 2019 14:38:25 -0300
-Message-Id: <20190621173831.13780-20-acme@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190621173831.13780-1-acme@kernel.org>
-References: <20190621173831.13780-1-acme@kernel.org>
+        id S1726073AbfFURqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jun 2019 13:46:48 -0400
+Received: from mail-qt1-f193.google.com ([209.85.160.193]:37295 "EHLO
+        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726052AbfFURqs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Jun 2019 13:46:48 -0400
+Received: by mail-qt1-f193.google.com with SMTP id y57so7793887qtk.4
+        for <stable@vger.kernel.org>; Fri, 21 Jun 2019 10:46:48 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=/rmiMLVq7kF2q2o6AKgSHjhv/l9ATXyCn/hQ4uzJmwg=;
+        b=PzFuJKPNTeVjy12+CqQGyGCGyNnHdgXUdKfEKQ6JEW3xNkuhZOqhP3A63RjaVIyr5E
+         HLOQbHhK1sWa9xpsXAl62zsIJAI72JIArV494r0IzaqU+dXbXRTWvQQblY6r27Glqba5
+         5J5+HoYhqV9fDFGIJNRlg4xj2SRPcyzu5lDExrk3CZVbLtDWXj3Y5BqG5ZqbqK8rQC07
+         sPytTTM1RdTUlHm164FazJ51mJ9HCh6x3R9mDnCcSTle0GfrS41rHGqYfyEonELXcKWh
+         O6L9ag33xz1NExqyhls7mSq71mI51LP35BPFlZNe/eyzNF58uBruEW9hDPHbMDnN3mj5
+         IKnw==
+X-Gm-Message-State: APjAAAWuevliUZ/qRBgxyvhQHRag2X6KukORN3HGDIOfZ1ObQnPRJ4vK
+        5dVeDt3NB/H5qwtVT/tphnBImw==
+X-Google-Smtp-Source: APXvYqypVgeY2m60j16sgUDhAGhJwXgzSED6dHO7ab7CV6hNpq8x2x6XMkqgyoiCGRkVCJiwB3VaZQ==
+X-Received: by 2002:ac8:38cf:: with SMTP id g15mr111973445qtc.268.1561139207526;
+        Fri, 21 Jun 2019 10:46:47 -0700 (PDT)
+Received: from [192.168.1.157] (pool-96-235-39-235.pitbpa.fios.verizon.net. [96.235.39.235])
+        by smtp.gmail.com with ESMTPSA id k15sm1552422qtg.22.2019.06.21.10.46.46
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Fri, 21 Jun 2019 10:46:46 -0700 (PDT)
+Subject: Re: [PATCH] s390/jump_label: Use "jdd" constraint on gcc9
+To:     Ilya Leoshkevich <iii@linux.ibm.com>
+Cc:     Heiko Carstens <heiko.carstens@de.ibm.com>,
+        stable <stable@vger.kernel.org>,
+        Major Hayden <mhayden@redhat.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>
+References: <99840513-9a7d-2c91-1e41-5355f88babcf@redhat.com>
+ <20190621153912.9528-1-iii@linux.ibm.com>
+From:   Laura Abbott <labbott@redhat.com>
+Message-ID: <9210d2cc-8cca-208a-a1b4-5ccb49f4e3f8@redhat.com>
+Date:   Fri, 21 Jun 2019 13:46:46 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190621153912.9528-1-iii@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+On 6/21/19 11:39 AM, Ilya Leoshkevich wrote:
+>> Ah okay, I didn't realize there was more needed, I was just looking at
+>> the clean cherry-pick. I'm not sure how to do the backport, if you
+>> give me the patch I can verify.
+> 
+> Please find the cherry-picked 146448524bdd below.
+> 
+> I also had to cherry-pick 159491f3b509 to fix an unrelated compilation
+> error and make the build fully work.
+> 
 
-In commit 292c34c10249 ("perf pmu: Fix core PMU alias list for X86
-platform"), we fixed the issue of CPU events being aliased to uncore
-events.
+Yes, this worked for me (plus 159491f3b509). Thanks!
 
-Fix this same issue for ARM64, since the said commit left the (broken)
-behaviour untouched for ARM64.
-
-Signed-off-by: John Garry <john.garry@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ben Hutchings <ben@decadent.org.uk>
-Cc: Hendrik Brueckner <brueckner@linux.ibm.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linuxarm@huawei.com
-Cc: stable@vger.kernel.org
-Fixes: 292c34c10249 ("perf pmu: Fix core PMU alias list for X86 platform")
-Link: http://lkml.kernel.org/r/1560521283-73314-2-git-send-email-john.garry@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
----
- tools/perf/util/pmu.c | 28 ++++++++++++----------------
- 1 file changed, 12 insertions(+), 16 deletions(-)
-
-diff --git a/tools/perf/util/pmu.c b/tools/perf/util/pmu.c
-index e0429f4ef335..faa8eb231e1b 100644
---- a/tools/perf/util/pmu.c
-+++ b/tools/perf/util/pmu.c
-@@ -709,9 +709,7 @@ static void pmu_add_cpu_aliases(struct list_head *head, struct perf_pmu *pmu)
- {
- 	int i;
- 	struct pmu_events_map *map;
--	struct pmu_event *pe;
- 	const char *name = pmu->name;
--	const char *pname;
- 
- 	map = perf_pmu__find_map(pmu);
- 	if (!map)
-@@ -722,28 +720,26 @@ static void pmu_add_cpu_aliases(struct list_head *head, struct perf_pmu *pmu)
- 	 */
- 	i = 0;
- 	while (1) {
-+		const char *cpu_name = is_arm_pmu_core(name) ? name : "cpu";
-+		struct pmu_event *pe = &map->table[i++];
-+		const char *pname = pe->pmu ? pe->pmu : cpu_name;
- 
--		pe = &map->table[i++];
- 		if (!pe->name) {
- 			if (pe->metric_group || pe->metric_name)
- 				continue;
- 			break;
- 		}
- 
--		if (!is_arm_pmu_core(name)) {
--			pname = pe->pmu ? pe->pmu : "cpu";
--
--			/*
--			 * uncore alias may be from different PMU
--			 * with common prefix
--			 */
--			if (pmu_is_uncore(name) &&
--			    !strncmp(pname, name, strlen(pname)))
--				goto new_alias;
-+		/*
-+		 * uncore alias may be from different PMU
-+		 * with common prefix
-+		 */
-+		if (pmu_is_uncore(name) &&
-+		    !strncmp(pname, name, strlen(pname)))
-+			goto new_alias;
- 
--			if (strcmp(pname, name))
--				continue;
--		}
-+		if (strcmp(pname, name))
-+			continue;
- 
- new_alias:
- 		/* need type casts to override 'const' */
--- 
-2.20.1
+> Best regards,
+> Ilya
+> 
+> ----
+> 
+> [heiko.carstens@de.ibm.com]:
+> -----
+> Laura Abbott reported that the kernel doesn't build anymore with gcc 9,
+> due to the "X" constraint. Ilya provided the gcc 9 patch "S/390:
+> Introduce jdd constraint" which introduces the new "jdd" constraint
+> which fixes this.
+> -----
+> 
+> The support for section anchors on S/390 introduced in gcc9 has changed
+> the behavior of "X" constraint, which can now produce register
+> references. Since existing constraints, in particular, "i", do not fit
+> the intended use case on S/390, the new machine-specific "jdd"
+> constraint was introduced. This patch makes jump labels use "jdd"
+> constraint when building with gcc9.
+> 
+> Reported-by: Laura Abbott <labbott@redhat.com>
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> ---
+>   arch/s390/include/asm/jump_label.h | 14 ++++++++++----
+>   1 file changed, 10 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/jump_label.h b/arch/s390/include/asm/jump_label.h
+> index 40f651292aa7..9c7dc970e966 100644
+> --- a/arch/s390/include/asm/jump_label.h
+> +++ b/arch/s390/include/asm/jump_label.h
+> @@ -10,6 +10,12 @@
+>   #define JUMP_LABEL_NOP_SIZE 6
+>   #define JUMP_LABEL_NOP_OFFSET 2
+>   
+> +#if __GNUC__ < 9
+> +#define JUMP_LABEL_STATIC_KEY_CONSTRAINT "X"
+> +#else
+> +#define JUMP_LABEL_STATIC_KEY_CONSTRAINT "jdd"
+> +#endif
+> +
+>   /*
+>    * We use a brcl 0,2 instruction for jump labels at compile time so it
+>    * can be easily distinguished from a hotpatch generated instruction.
+> @@ -19,9 +25,9 @@ static __always_inline bool arch_static_branch(struct static_key *key, bool bran
+>   	asm_volatile_goto("0:	brcl 0,"__stringify(JUMP_LABEL_NOP_OFFSET)"\n"
+>   		".pushsection __jump_table, \"aw\"\n"
+>   		".balign 8\n"
+> -		".quad 0b, %l[label], %0\n"
+> +		".quad 0b, %l[label], %0+%1\n"
+>   		".popsection\n"
+> -		: : "X" (&((char *)key)[branch]) : : label);
+> +		: : JUMP_LABEL_STATIC_KEY_CONSTRAINT (key), "i" (branch) : : label);
+>   
+>   	return false;
+>   label:
+> @@ -33,9 +39,9 @@ static __always_inline bool arch_static_branch_jump(struct static_key *key, bool
+>   	asm_volatile_goto("0:	brcl 15, %l[label]\n"
+>   		".pushsection __jump_table, \"aw\"\n"
+>   		".balign 8\n"
+> -		".quad 0b, %l[label], %0\n"
+> +		".quad 0b, %l[label], %0+%1\n"
+>   		".popsection\n"
+> -		: : "X" (&((char *)key)[branch]) : : label);
+> +		: : JUMP_LABEL_STATIC_KEY_CONSTRAINT (key), "i" (branch) : : label);
+>   
+>   	return false;
+>   label:
+> 
 
