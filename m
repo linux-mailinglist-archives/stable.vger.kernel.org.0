@@ -2,134 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 705B44E635
-	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 12:36:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8B254E71D
+	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 13:30:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726299AbfFUKgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jun 2019 06:36:22 -0400
-Received: from mout.gmx.net ([212.227.15.19]:42117 "EHLO mout.gmx.net"
+        id S1726232AbfFULas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jun 2019 07:30:48 -0400
+Received: from mout.web.de ([212.227.15.4]:55765 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726311AbfFUKgW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Jun 2019 06:36:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1561113373;
-        bh=FZ3nDCFIqN8mN8VuNfZpLg/uHuIVZrVV40D1UObVCuU=;
-        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
-        b=gYr0XtF0rerojtRGK8y/dL+tkZbUSPRjbMslTtDKogey4krDMF5xZFRZJmBNxegfD
-         s21QimIAafXavDd8y4AJWZxpSp4Hw5iPvnwI6aLRPjbbcAu9YKCPtF6/wJbCOr21rH
-         8aIKi3VjdjyomNJFSsEj3TdZi9ckSBM+lzf0OymQ=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.129.11] ([95.91.214.138]) by mail.gmx.com (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MqJm5-1iRIlz3LEJ-00nOdZ; Fri, 21
- Jun 2019 12:36:12 +0200
-Subject: Re: [PATCH] hid: add another quirk for Chicony PixArt mouse
-To:     Oleksandr Natalenko <oleksandr@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dave Young <dyoung@redhat.com>,
-        "Herton R . Krzesinski" <herton@redhat.com>,
-        Oliver Neukum <oneukum@suse.de>, linux-input@vger.kernel.org,
+        id S1726218AbfFULar (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 Jun 2019 07:30:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1561116623;
+        bh=ohriBF6Qa7tVQ2jjGMp4RJRZn6wx7ZoLrZZ5Ug7zEPQ=;
+        h=X-UI-Sender-Class:From:Subject:To:Cc:References:Date:In-Reply-To;
+        b=bVn5kQwOil1SMa4VFPYnDQSa2b/R0aDXTLCrDS6EZMRr74WhhqZhhmgNHMtv2mgUn
+         /IToy3dXK5PKoJyejjfNCxtsJiLrEYt4TVng7Gcg89VQq904meXQJXhEqxEcqXF7Rb
+         Dc3giAowNSVkzxiWJqO0S2Xk16Btr3ygWWVwIDTI=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from [192.168.43.108] ([89.15.238.141]) by smtp.web.de (mrweb001
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 0LZeou-1iInVD11FE-00lTMR; Fri, 21
+ Jun 2019 13:30:23 +0200
+From:   Soeren Moch <smoch@web.de>
+Subject: Re: [PATCH] rt2x00: fix rx queue hang
+To:     Stanislaw Gruszka <sgruszka@redhat.com>
+Cc:     Helmut Schaa <helmut.schaa@googlemail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20190621091736.14503-1-oleksandr@redhat.com>
- <20190621093920.qlnhbneoww7c6axw@butterfly.localdomain>
-From:   Sebastian Parschauer <s.parschauer@gmx.de>
-Message-ID: <b3cbee0c-07ef-5943-cc8f-f4fa0f854440@gmx.de>
-Date:   Fri, 21 Jun 2019 12:36:11 +0200
+References: <20190617094656.3952-1-smoch@web.de>
+ <20190618093431.GA2577@redhat.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=smoch@web.de; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <b6899d78-447c-3cb3-4bec-e4050660ccaa@web.de>
+Date:   Fri, 21 Jun 2019 13:30:01 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.0
 MIME-Version: 1.0
-In-Reply-To: <20190621093920.qlnhbneoww7c6axw@butterfly.localdomain>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+In-Reply-To: <20190618093431.GA2577@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:W6/wR0IEZxVWoFe2j3QAOvBtKC2Xi4gdB1zncHkFkRFdu1PvOnC
- LUlGvs/BfhzcPJ9q8EOz67FesZKKEVP3CQ6Le+RRDZXpLtFZ5h5Xv384Vy5ekSRFR0Y4wpl
- O/6LyJbQHfwOTKpPI8QwGoFJIxeWekMX79OEX0/GTp4yfhMy0qpBB78yPcRigLnMcOpd0ow
- UVZ72vpmXGy/eXXG68Yrg==
+Content-Language: en-US
+X-Provags-ID: V03:K1:ejyXhG/mBQ/WrzMP3Mmx9IX2BSWonozc/bSHWkrHyjsjB8cKFWc
+ GfSE67GnuQVjuyDKsGoKPtMKpPYBYOv7kCrtU1gonuFbUetA502CeeMjebsszEZdKV80g0j
+ BordgU2APkXKkLYGHIDvSm6vjKBCFeRuRuV/jEzaB4of5xBC1gnJu1u+B1XN6IgvJ8xwloa
+ U1lu9JLHy8Xk8hu2klTVA==
 X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:msNBR1fBoEY=:qpSyOprnk90y65UWlATTK6
- rFfO7TF0dwDTJNSlKZAuuLb2wceeqVnbEkCwLjMpTsj3RhTQFZGJa9OAAlQfClTazSonRPne5
- n67Hgapw6T254h76q43hrRBlh+7K3KNaQYKFH8OB7aFWRCqnq2ASatNHviuhtWMMsbs4kwPQV
- zGOD2TD94cu9/zDPdJJYka3CvLB9IrTgKuiUuKeSTJfAEIc2vqPbwzbkfVT8PPosRhUB8SqkW
- FcyNTH6cA02RV51SjPSHGe+fCx4TB/dA/C0A1HqHyrF1n62kEdgQ0a5mqULqz2K2hgxcQCPL/
- E9Gu36ou8xRHQB4ccSpXKlFm4ZY7++mI2YUiv4CKVgLFo+9Y6NOmmrDIPwyWBKlVNKRqjYMC5
- G/T0OC0ruy6k3f4/efxmoL0LrST7c6i20U4JEhaYL6eBZWf4vQPvf3XXmRBOzIsd+2aOy0Xs/
- xnXoWkbPYOizvSeJa3gVCfcBSuacgHtgdMMJ2wDQUWqOU895tEvS3FPuncCgwGR8oDeu/aMAq
- ASpJCm3tPoQWDyHCYQKUSAbBRU6qf86V6GrhnshlwHrXSY2qp4vDIHoo8fNJCJP8dqwd4Gcca
- zbQzLgdmlxGklJ/5jEITSGAl54hCTqx3+hZlJk4ss8S+5lvEn3xIAiFaWclUq2TQ8BbLqTtsd
- fY4zVmkrzTxZX9XwuEW3ac297RGj7uEHgW7y6fiDJzZNSkVcJGMCCSk9j/Mh0ep0g2BZ6QSxo
- Yj1q7mOO+vQ4gychCo3XuBuyGHX+aD0VFAOrJ+r+Ft+JiQAFUvfG5TeKc6NBUd2lGGRwZDZ5T
- FIAn3fulwhrhtRqto3pV9HEBmzdtf/efRfObHwGko4aiyAoGf5/QkQdgKpo7CS5AGFBSoYUAU
- F6Ahf20BgQk1uInMbO9eR0MQcl/8v4Qet3rFWzBMlp+0IZzfu3YErc20e98Nu0g21ITZOkczU
- +TYxAUjds150CEibV7neYBCdb00uwXmobrqLSFlKsoVuhR/8CYsAo
+X-UI-Out-Filterresults: notjunk:1;V03:K0:pRgjwDXAj78=:RDFFs2kiOmKIpI8TrAZzu9
+ /gjuxpS5/K/kg1zVxiZMSM+ZcxF1QmK/qUFcaZGI6bfma1Ddwh0g7y4+mLOJR5g0GiRHM3PQs
+ 7lr8Y/hgOfHqfOggkChELk0wI6BmKnEUo7g0p2hBth0GVI/v1s4QvEg320GL2WouKmuUVXu0+
+ h91Ky9XqHmgXGJ4OCl1OSlsF/e967CeyeBYUZbjaK7Fy0Z4fHQdzZUcl6MVz85N8Z402JRtE6
+ mH4G+QCYXBcxJnFAKKn3UkNqecs2kLNM830sIvE5ShWm5nOWFnAP+H78IfCaU1VBqsFawkran
+ 8YgdRJ6/0PsnXjajRZQx0u3gFFPPKkweDI6xNpkqFo1KBaCzw+gj1GptaBxh9ZpII0MpDjcCa
+ HUSaPjHYagx8aJLSiponeAWOwDSX3MG72p2lKMnqMWO9X2l3UarPNYMI1oFGTt4yL+9asDqDY
+ AbkB2+9eyewGG97yDXUGEwsW3W3/ff3S390abCAYqY3GLv2bopR2xr6vD1NpDuWJ9Z/vUMqZo
+ OCNBxBBjNUbduyRURC2rpOb6C3vTdB6Vd79OmLJGZV8vlug5dnuyy/kAtCVA/DxyVnfTsuwS0
+ rdPchZrVeTCzEaFHXDMOicJDOk+iducSX5sJjv7CkB4LwaxKSEDy08ZsSlyn5isZNGj41mqCY
+ M8nzlRoWDVT8WZR2n6m/oBbJbBHXJzT4IwjFbI4J7kks30+l3sdT/IU87WoD3Gee31FYFtgBf
+ wyFOVGOufT1b/NnBBLyhFzEJhgpnKF9iLiV9c3ce1NIEEF22oCR9ssgrMsfLy7AAy8sRhuEuK
+ NrO5R1D7yvnmPMGCmCBjltCDacUHHQ9bFUYLZuRERnvR157+IFWQKJxaQQr64H7VMD5l97t0l
+ 8FLLmFS4rXSJUuxxOLpPfvJPapvxfL2T+6wyx3ohyJAXPs32bDDzI8w5N/xI2Rqumle0aaVBB
+ dVCAKwO9/HFzkKwAbPXUhV8ynLc6xixPYN1gt/3xEkLLcexrpLi2O
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks, got it on my radar already since Feb 5:
+Hi!
 
-https://github.com/sriemer/fix-linux-mouse/issues/15#issuecomment-46071311=
-5
-
-If you see "Manufacturer: PixArt", then chances are high, that the
-device is affected. IMHO generic quirks like described in GitHub issue
-#20 would cover those easier.
-
-Acked-by: Sebastian Parschauer <s.parschauer@gmx.de>
-
-On 21.06.19 11:39, Oleksandr Natalenko wrote:
-> Erm. Cc: s.parschauer@gmx.de instead of inactive @suse address.
+On 18.06.19 11:34, Stanislaw Gruszka wrote:
+> Hi
 >
-> On Fri, Jun 21, 2019 at 11:17:36AM +0200, Oleksandr Natalenko wrote:
->> I've spotted another Chicony PixArt mouse in the wild, which requires
->> HID_QUIRK_ALWAYS_POLL quirk, otherwise it disconnects each minute.
->>
->> USB ID of this device is 0x04f2:0x0939.
->>
->> We've introduced quirks like this for other models before, so lets add
->> this mouse too.
->>
->> Link: https://github.com/sriemer/fix-linux-mouse#usb-mouse-disconnectsr=
-econnects-every-minute-on-linux
->> Signed-off-by: Oleksandr Natalenko <oleksandr@redhat.com>
->> ---
->>   drivers/hid/hid-ids.h    | 1 +
->>   drivers/hid/hid-quirks.c | 1 +
->>   2 files changed, 2 insertions(+)
->>
->> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
->> index eac0c54c5970..69f0553d9d95 100644
->> --- a/drivers/hid/hid-ids.h
->> +++ b/drivers/hid/hid-ids.h
->> @@ -269,6 +269,7 @@
->>   #define USB_DEVICE_ID_CHICONY_MULTI_TOUCH	0xb19d
->>   #define USB_DEVICE_ID_CHICONY_WIRELESS	0x0618
->>   #define USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE	0x1053
->> +#define USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE2	0x0939
->>   #define USB_DEVICE_ID_CHICONY_WIRELESS2	0x1123
->>   #define USB_DEVICE_ID_ASUS_AK1D		0x1125
->>   #define USB_DEVICE_ID_CHICONY_TOSHIBA_WT10A	0x1408
->> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
->> index e5ca6fe2ca57..671a285724f9 100644
->> --- a/drivers/hid/hid-quirks.c
->> +++ b/drivers/hid/hid-quirks.c
->> @@ -42,6 +42,7 @@ static const struct hid_device_id hid_quirks[] =3D {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_UC100KM), HI=
-D_QUIRK_NOGET },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_=
-TOUCH), HID_QUIRK_MULTI_INPUT },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART=
-_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_=
-USB_OPTICAL_MOUSE2), HID_QUIRK_ALWAYS_POLL },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELE=
-SS), HID_QUIRK_MULTI_INPUT },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHIC, USB_DEVICE_ID_CHIC_GAMEPAD), HI=
-D_QUIRK_BADPAD },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_3AXIS_5BUTTON_ST=
-ICK), HID_QUIRK_NOGET },
->> --
->> 2.22.0
->>
+> On Mon, Jun 17, 2019 at 11:46:56AM +0200, Soeren Moch wrote:
+>> Since commit ed194d136769 ("usb: core: remove local_irq_save() around
+>>  ->complete() handler") the handlers rt2x00usb_interrupt_rxdone() and
+>> rt2x00usb_interrupt_txdone() are not running with interrupts disabled
+>> anymore. So these handlers are not guaranteed to run completely before=
+
+>> workqueue processing starts. So only mark entries ready for workqueue
+>> processing after proper accounting in the dma done queue.
+> It was always the case on SMP machines that rt2x00usb_interrupt_{tx/rx}=
+done
+> can run concurrently with rt2x00_work_{rx,tx}done, so I do not
+> understand how removing local_irq_save() around complete handler broke
+> things.
+I think because completion handlers can be interrupted now and scheduled
+away
+in the middle of processing.
+> Have you reverted commit ed194d136769 and the revert does solve the pro=
+blem ?
+Yes, I already sent a patch for this, see [1]. But this was not considere=
+d
+an acceptablesolution. Especially RT folks do not like code running with
+interrupts disabled,particularly when trying to acquire spinlocks then.
+
+[1] https://lkml.org/lkml/2019/5/31/863
+> Between 4.19 and 4.20 we have some quite big changes in rt2x00 driver:
 >
+> 0240564430c0 rt2800: flush and txstatus rework for rt2800mmio
+> adf26a356f13 rt2x00: use different txstatus timeouts when flushing
+> 5022efb50f62 rt2x00: do not check for txstatus timeout every time on ta=
+sklet
+> 0b0d556e0ebb rt2800mmio: use txdone/txstatus routines from lib
+> 5c656c71b1bf rt2800: move usb specific txdone/txstatus routines to rt28=
+00lib
+>
+> so I'm a bit afraid that one of those changes is real cause of
+> the issue not ed194d136769 .
+I tested 4.20 and 5.1 and see the exact same behavior. Reverting this
+usb core patchsolves the problem.
+4.19.x (before this usb core patch) is running fine.
+>> Note that rt2x00usb_work_rxdone() processes all available entries, not=
+
+>> only such for which queue_work() was called.
+>>
+>> This fixes a regression on a RT5370 based wifi stick in AP mode, which=
+
+>> suddenly stopped data transmission after some period of heavy load. Al=
+so
+>> stopping the hanging hostapd resulted in the error message "ieee80211
+>> phy0: rt2x00queue_flush_queue: Warning - Queue 14 failed to flush".
+>> Other operation modes are probably affected as well, this just was
+>> the used testcase.
+> Do you know what actually make the traffic stop,
+> TX queue hung or RX queue hung?
+I think RX queue hang, as stated in the patch title. "Queue 14" means QID=
+_RX
+(rt2x00queue.h, enum data_queue_qid).
+I also tried to re-add local_irq_save() in only one of the handlers. Addi=
+ng
+this tort2x00usb_interrupt_rxdone() alone solved the issue, while doing s=
+o
+for tx alonedid not.
+
+Note that this doesn't mean there is no problem for tx, that's maybe
+just more
+difficult to trigger.
+>> diff --git a/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c b/drivers/=
+net/wireless/ralink/rt2x00/rt2x00dev.c
+>> index 1b08b01db27b..9c102a501ee6 100644
+>> --- a/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c
+>> +++ b/drivers/net/wireless/ralink/rt2x00/rt2x00dev.c
+>> @@ -263,9 +263,9 @@ EXPORT_SYMBOL_GPL(rt2x00lib_dmastart);
+>>
+>>  void rt2x00lib_dmadone(struct queue_entry *entry)
+>>  {
+>> -	set_bit(ENTRY_DATA_STATUS_PENDING, &entry->flags);
+>>  	clear_bit(ENTRY_OWNER_DEVICE_DATA, &entry->flags);
+>>  	rt2x00queue_index_inc(entry, Q_INDEX_DMA_DONE);
+>> +	set_bit(ENTRY_DATA_STATUS_PENDING, &entry->flags);
+> Unfortunately I do not understand how this suppose to fix the problem,
+> could you elaborate more about this change?
+>
+Re-adding local_irq_save() around thisrt2x00lib_dmadone()solved
+the issue. So I also tried to reverse the order of these calls.
+It seems totally plausible to me, that the correct sequence is to
+first clear the device assignment, then to set the status to dma_done,
+then to trigger the workqueue processing for this entry. When the handler=
+
+is scheduled away in the middle of this sequence, now there is no
+strange state where the entry can be processed by the workqueue while
+not declared dma_done for it.
+With this changed sequence there is no need anymore to disable interrupts=
+
+for solving the hang issue.
+
+Regards,
+Soeren
+
+
