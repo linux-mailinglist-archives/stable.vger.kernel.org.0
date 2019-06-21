@@ -2,120 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F23A4EEE2
-	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 20:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C0754F00B
+	for <lists+stable@lfdr.de>; Fri, 21 Jun 2019 22:35:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726106AbfFUSrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jun 2019 14:47:07 -0400
-Received: from mx2.suse.de ([195.135.220.15]:53452 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726066AbfFUSrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Jun 2019 14:47:07 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 03377AEE0;
-        Fri, 21 Jun 2019 18:47:06 +0000 (UTC)
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] xen/events: fix binding user event channels to cpus
-Date:   Fri, 21 Jun 2019 20:47:03 +0200
-Message-Id: <20190621184703.17108-1-jgross@suse.com>
-X-Mailer: git-send-email 2.16.4
+        id S1726045AbfFUUfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jun 2019 16:35:54 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:47054 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725985AbfFUUfy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Jun 2019 16:35:54 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5LKSjW7026390;
+        Fri, 21 Jun 2019 20:35:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2018-07-02;
+ bh=I+O4EY7HfIDZE39+n2CmCAfAj+j4DjI6+VRejt3ADbY=;
+ b=2XUw0+WuaZlgLzqQhtBCIiCzoi+wlHOjQN+qS0zOcckqz/FSlqlYKzM/xYUoTGhscT8P
+ i4eChYLULBYCwbv9aQluGZSJQJvXDAo055D0l2Bkc5vC4GV1tF524Nh6ujkbyfyLS6Xo
+ hGPlHfjvZToyk32fDnrfFxonc6ouDq5IO+uWOaRDTf432J3tc3ms1eEO/4nEmk/2ZNZK
+ 4zLuNVi0Vqwo9lbP7zLApBYiuBtHDBWbKsbCVx9snabs4GVz8eXD7ek8RXjWB6JHKkzv
+ wbaOE4BbtHpNp/LGnfh65SCKroUA1ssLJrme+9GdvOlYaeP0ouCIXYXDpijrQiLv3Tjw Vg== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by aserp2120.oracle.com with ESMTP id 2t7809r9qq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 21 Jun 2019 20:35:28 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5LKXhAT064507;
+        Fri, 21 Jun 2019 20:35:27 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by userp3030.oracle.com with ESMTP id 2t77ypcvua-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 21 Jun 2019 20:35:27 +0000
+Received: from abhmp0001.oracle.com (abhmp0001.oracle.com [141.146.116.7])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x5LKZKKO003782;
+        Fri, 21 Jun 2019 20:35:21 GMT
+Received: from char.us.oracle.com (/10.152.32.25)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Fri, 21 Jun 2019 13:35:20 -0700
+Received: by char.us.oracle.com (Postfix, from userid 1000)
+        id 609E46A0131; Fri, 21 Jun 2019 16:36:45 -0400 (EDT)
+Date:   Fri, 21 Jun 2019 16:36:45 -0400
+From:   Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     zhe.he@windriver.com, konrad@darnok.org, hch@lst.de,
+        stable@vger.kernel.org, m.szyprowski@samsung.com,
+        robin.murphy@arm.com
+Subject: Re: [PATCH v2] kernel/dma: Fix panic caused by passing swiotlb to
+ command line
+Message-ID: <20190621203645.GL22931@char.us.oracle.com>
+References: <1543832571-121638-1-git-send-email-zhe.he@windriver.com>
+ <20190614215638.A58C52184E@mail.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190614215638.A58C52184E@mail.kernel.org>
+User-Agent: Mutt/1.9.1 (2017-09-22)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9295 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1906210154
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9295 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1906210154
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When binding an interdomain event channel to a vcpu via
-IOCTL_EVTCHN_BIND_INTERDOMAIN not only the event channel needs to be
-bound, but the affinity of the associated IRQi must be changed, too.
-Otherwise the IRQ and the event channel won't be moved to another vcpu
-in case the original vcpu they were bound to is going offline.
+On Fri, Jun 14, 2019 at 09:56:37PM +0000, Sasha Levin wrote:
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+> 
+> The bot has tested the following trees: v5.1.9, v4.19.50, v4.14.125, v4.9.181, v4.4.181.
+> 
+> v5.1.9: Build OK!
+> v4.19.50: Build OK!
+> v4.14.125: Failed to apply! Possible dependencies:
+>     Unable to calculate
+> 
+> v4.9.181: Failed to apply! Possible dependencies:
+>     Unable to calculate
+> 
+> v4.4.181: Failed to apply! Possible dependencies:
+>     ae7871be189c ("swiotlb: Convert swiotlb_force from int to enum")
+>     b67a8b29df7e ("arm64: mm: only initialize swiotlb when necessary")
+> 
+> 
+> How should we proceed with this patch?
+> 
 
-Cc: <stable@vger.kernel.org> # 4.13
-Fixes: c48f64ab472389df ("xen-evtchn: Bind dyn evtchn:qemu-dm interrupt to next online VCPU")
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- drivers/xen/events/events_base.c | 12 ++++++++++--
- drivers/xen/evtchn.c             |  2 +-
- include/xen/events.h             |  3 ++-
- 3 files changed, 13 insertions(+), 4 deletions(-)
+Skip.
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index ff9b51055b14..e718c8fea18b 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -1294,7 +1294,7 @@ void rebind_evtchn_irq(int evtchn, int irq)
- }
- 
- /* Rebind an evtchn so that it gets delivered to a specific cpu */
--int xen_rebind_evtchn_to_cpu(int evtchn, unsigned tcpu)
-+static int xen_rebind_evtchn_to_cpu(int evtchn, unsigned int tcpu)
- {
- 	struct evtchn_bind_vcpu bind_vcpu;
- 	int masked;
-@@ -1328,7 +1328,6 @@ int xen_rebind_evtchn_to_cpu(int evtchn, unsigned tcpu)
- 
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(xen_rebind_evtchn_to_cpu);
- 
- static int set_affinity_irq(struct irq_data *data, const struct cpumask *dest,
- 			    bool force)
-@@ -1342,6 +1341,15 @@ static int set_affinity_irq(struct irq_data *data, const struct cpumask *dest,
- 	return ret;
- }
- 
-+/* To be called with desc->lock held. */
-+int xen_set_affinity_evtchn(struct irq_desc *desc, unsigned int tcpu)
-+{
-+	struct irq_data *d = irq_desc_get_irq_data(desc);
-+
-+	return set_affinity_irq(d, cpumask_of(tcpu), false);
-+}
-+EXPORT_SYMBOL_GPL(xen_set_affinity_evtchn);
-+
- static void enable_dynirq(struct irq_data *data)
- {
- 	int evtchn = evtchn_from_irq(data->irq);
-diff --git a/drivers/xen/evtchn.c b/drivers/xen/evtchn.c
-index f341b016672f..052b55a14ebc 100644
---- a/drivers/xen/evtchn.c
-+++ b/drivers/xen/evtchn.c
-@@ -447,7 +447,7 @@ static void evtchn_bind_interdom_next_vcpu(int evtchn)
- 	this_cpu_write(bind_last_selected_cpu, selected_cpu);
- 
- 	/* unmask expects irqs to be disabled */
--	xen_rebind_evtchn_to_cpu(evtchn, selected_cpu);
-+	xen_set_affinity_evtchn(desc, selected_cpu);
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
- }
- 
-diff --git a/include/xen/events.h b/include/xen/events.h
-index a48897199975..c0e6a0598397 100644
---- a/include/xen/events.h
-+++ b/include/xen/events.h
-@@ -3,6 +3,7 @@
- #define _XEN_EVENTS_H
- 
- #include <linux/interrupt.h>
-+#include <linux/irq.h>
- #ifdef CONFIG_PCI_MSI
- #include <linux/msi.h>
- #endif
-@@ -59,7 +60,7 @@ void evtchn_put(unsigned int evtchn);
- 
- void xen_send_IPI_one(unsigned int cpu, enum ipi_vector vector);
- void rebind_evtchn_irq(int evtchn, int irq);
--int xen_rebind_evtchn_to_cpu(int evtchn, unsigned tcpu);
-+int xen_set_affinity_evtchn(struct irq_desc *desc, unsigned int tcpu);
- 
- static inline void notify_remote_via_evtchn(int port)
- {
--- 
-2.16.4
-
+> --
+> Thanks,
+> Sasha
