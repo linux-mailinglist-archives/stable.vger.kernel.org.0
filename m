@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D31414F449
-	for <lists+stable@lfdr.de>; Sat, 22 Jun 2019 10:16:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50B654F44F
+	for <lists+stable@lfdr.de>; Sat, 22 Jun 2019 10:24:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726100AbfFVIQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jun 2019 04:16:36 -0400
-Received: from mail-wm1-f50.google.com ([209.85.128.50]:52100 "EHLO
-        mail-wm1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726274AbfFVIQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jun 2019 04:16:36 -0400
-Received: by mail-wm1-f50.google.com with SMTP id 207so8238834wma.1
-        for <stable@vger.kernel.org>; Sat, 22 Jun 2019 01:16:32 -0700 (PDT)
+        id S1726137AbfFVIYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jun 2019 04:24:40 -0400
+Received: from mail-wm1-f45.google.com ([209.85.128.45]:33676 "EHLO
+        mail-wm1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726100AbfFVIYk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jun 2019 04:24:40 -0400
+Received: by mail-wm1-f45.google.com with SMTP id h19so10577510wme.0
+        for <stable@vger.kernel.org>; Sat, 22 Jun 2019 01:24:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=/v2awEybnSpOEGKwMNg1anzw/BiFLiR7YZi1VIAm4us=;
-        b=KtUDsbawRosigcj0Gi1hhVvDPXjRNCzmIJatK6UeojHJ2jRHIB7JEXCiKevGuY1upr
-         TTYkRY//FnGXoKLPsZii8CWRIoVZEZRJg0UAqJKmpat2MZtU2B+M/qWIPB62tHvKQ3bs
-         dqSt1V5LM3MVuTmLLgcxnWMJp2WPSzYi4rbcme5QTEJkTtny8hyZ7ZZ8Mh70KV8XlMFb
-         xtyFazKMWgxPsZ232ELrzQpvn3ST5teBLhdBU2O0yenCZAi1mNGJVD2If23YbJ0i9dXq
-         UYZE7jz0KO47YWeNPWlQye/19B4Tu2U0guVuMokvY6Pi4k7/7h9Ol6ZNnaOQylUswhu5
-         pLGQ==
+        bh=p/BX42kTTjM5EBD+48Lfl33byr2ujrVfxH8meFfxJ5w=;
+        b=JsrkAdRBZLi3+PHJDZdkVe7OXNK3LzA2/OnCn9MIe+QbvTGR/5eQ75Edi2l2RUtTH7
+         JBaV594Lg15A5+nBHG0c8JiFGIqhibQ7W65A4ci8jLkOZV8APMSpjyF0BLLuwBuf5vDt
+         O2rpRoA6mnJk1YX+2kGd/PNw4J1uSRC8wkTJG7qyF/GXxchiHwBH1pqMzENCOyYxIML7
+         kV3nAq+ajOVOOGHrrgxTBZa1ZVSeTxg7Oa8yumw9H7CzCkxBQ/Rd3xO8OdFBpXTRgjCb
+         zhkTgNEk7qE31XX8F19l48aEAzDRUE1637Fxv+0wBPnXRtBxBovPGJ09f8uh1YETqJgP
+         sXRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=/v2awEybnSpOEGKwMNg1anzw/BiFLiR7YZi1VIAm4us=;
-        b=R+s7WV4oN2GqMfpmmuNlSVTgClNgzaJlNgSQQu4cRtCxnrygPYvBTKCUznsctIqrxo
-         F49BIeybdKyHtwqsyx3HSzhJBIbNxGJqxCeFQfUk8K5ZXYJ4aK5Dj5/TxwJZK5YJP13W
-         fqt9p8z3/i1GvT696lJlTW/VVuT9iBlBxyedA5fDLbKDmBQKY/nOX+NwOPXiSXMq04Gn
-         gF0hCfq2w2D64+DCfXqmxaIp0ALgosytg41y2kfxygmndPKIQZi/ha0aTZ+uJpWH1jMz
-         Yldk+Rh8bZOqGS6eTJyh8j20/A04KwCULGpwSS02/IyOVRMe62hzEv9bA2rUuX/V+eua
-         jCAg==
-X-Gm-Message-State: APjAAAUF87DRNEDRjUdVwF3AQcf2RH7Cy05J+jajBk2x9aSQ77yeRYyZ
-        33o0qcgw/sJuNQESk7urFw9+7KpyTAilMg==
-X-Google-Smtp-Source: APXvYqz19qIi0miQXSdpjh8DgtgIhxrSrX1hqXQdvBr1rDya/k2nAy+UtBg9M4tRiFK8zxTI43KJEQ==
-X-Received: by 2002:a1c:5453:: with SMTP id p19mr6698656wmi.148.1561191390806;
-        Sat, 22 Jun 2019 01:16:30 -0700 (PDT)
+        bh=p/BX42kTTjM5EBD+48Lfl33byr2ujrVfxH8meFfxJ5w=;
+        b=BhHyePCloKLLbYfD8G9essgXCw9onhY3m4tiAIboI8YFNum/p/LGW43Dm62ifBqkZ+
+         SSh5CTcliup8o1gh3u8ysK4qXgmfj05tn5Tz6iGBCP0xGY5FPoVrxZCvVSH5ivkMiB7A
+         YZA4aU5r9Oq6AVuz98u4yvw/AhzkZ2TNXHDdLLUoenYDgUuFHnwGeKFjEsoczzvQx4E6
+         xwq+76/m1zcK6sEpItGDfKFVPVO4xyMxav2mz2JMP0D2ZefIHaX7oWhnc9LbU8cI0aNi
+         xa37XefLHChCdmoEX259cqMDdkHTkzCpPLOv6nQbOR/MySqo7rPZxwAFujV38s3mZFp0
+         MPtQ==
+X-Gm-Message-State: APjAAAWS1itOr2JxU8Cb9GphpE4FdkajpiWafPmf0gMdD/TvLME8pIiC
+        KwVRmiV23DbDHySOTBsnAl5AC64PnN5pmg==
+X-Google-Smtp-Source: APXvYqxuXY1Q1aYySl0N+6jTDQiebh9mkAa99ki6DHancvL4SIGDFTEMxO5lcWav7xVaKxk31jMmIQ==
+X-Received: by 2002:a1c:a686:: with SMTP id p128mr6974739wme.163.1561191873885;
+        Sat, 22 Jun 2019 01:24:33 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id q20sm10348690wra.36.2019.06.22.01.16.30
+        by smtp.gmail.com with ESMTPSA id z126sm6315446wmb.32.2019.06.22.01.24.33
         for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 22 Jun 2019 01:16:30 -0700 (PDT)
-Message-ID: <5d0de3de.1c69fb81.ee68c.8e87@mx.google.com>
-Date:   Sat, 22 Jun 2019 01:16:30 -0700 (PDT)
+        Sat, 22 Jun 2019 01:24:33 -0700 (PDT)
+Message-ID: <5d0de5c1.1c69fb81.3b1ca.2a74@mx.google.com>
+Date:   Sat, 22 Jun 2019 01:24:33 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.19.54
+X-Kernelci-Kernel: v4.19.54-2-g1632ae94e030
 X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.19.y build: 206 builds: 0 failed, 206 passed,
- 33 warnings (v4.19.54)
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed,
+ 33 warnings (v4.19.54-2-g1632ae94e030)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -63,18 +63,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y build: 206 builds: 0 failed, 206 passed, 33 warnings (v=
-4.19.54)
+stable-rc/linux-4.19.y build: 206 builds: 0 failed, 206 passed, 33 warnings=
+ (v4.19.54-2-g1632ae94e030)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.54/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.54-2-g1632ae94e030/
 
-Tree: stable
+Tree: stable-rc
 Branch: linux-4.19.y
-Git Describe: v4.19.54
-Git Commit: 63bbbcd8ed53c404649e0b4248c1e5d42c41ac97
+Git Describe: v4.19.54-2-g1632ae94e030
+Git Commit: 1632ae94e030a82bbb3d60b63e3fc677a5ff95b2
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
+e-rc.git
 Built: 7 unique architectures
 
 Warnings Detected:
