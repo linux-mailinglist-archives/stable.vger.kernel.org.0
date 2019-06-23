@@ -2,122 +2,284 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 556EC4FE03
-	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 22:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA27E4FE04
+	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 22:32:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726399AbfFWUaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jun 2019 16:30:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39078 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726290AbfFWUaH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 23 Jun 2019 16:30:07 -0400
+        id S1726299AbfFWUcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jun 2019 16:32:00 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:44513 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726296AbfFWUcA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 16:32:00 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id F08722208C;
+        Sun, 23 Jun 2019 16:31:58 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 23 Jun 2019 16:31:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=PiBP0q
+        sUKNx9xuelCZuq3AvMUyJP54UDwAYrvUPbJFs=; b=g0OgFsy/xEAl+orhjZT/t8
+        /Rfgz8Q0hAKOZEBa9/5f0PmOpanvs2FNYdfzG5aRcUtXuHVjaNmaMxsPq5Fcw++v
+        NXl3ZdFqBFci7xAoW/rt4YM3IItcJR5YYf+rL1ejp434FUvaG8Mhs0IArV+leoeb
+        p5Xq+mGnxsSON/uzRtm0+g+b9CmYiTvHeTI7YiS6Sxr3llfzUZwYucKcgjPxWG50
+        qDgEXWRLTHWTc50akEo1WXEf8qkMYzsrPwTSuoamoERuo/UJWtzebMQXo0KKOkGL
+        Vyrcg1rwCaiC9XuFkFQPO3pjaqfwop+pREx6p6fs4qJeTaiEcko8Z/eL+3QaqsvQ
+        ==
+X-ME-Sender: <xms:vuEPXYAm-rUjXmfW0BkMR6q8RcZOslix4-sDTQ0YDuZr4f-0ze_Efg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtgdduheeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppedujedvrddutdegrddvgeekrdeggeenucfrrghrrghmpehmrghilhhfrh
+    homhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:vuEPXRxu-M8yXkpiL8tI493zI5vS812Zb7YgV3KAFQz-xetOau0nnQ>
+    <xmx:vuEPXQSJi1_s1LSw1UXNCVwM4QLG77sWmz5h0HGKQNKDILEUbr3aUQ>
+    <xmx:vuEPXbfOjnwjHQgFUrg-tVnkR5tfctBi2wwHOPBVCnChZ9gkUlrkwg>
+    <xmx:vuEPXU7p3FfGb1J8LIzct0RTbbaStQiblhhzz1gnvsjAlFtXbN3F-Q>
 Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F08E6206BA;
-        Sun, 23 Jun 2019 20:30:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561321805;
-        bh=+4WcEks6Mw5lkWSJwEP48Snee0qK/icosRMZMA3+Rng=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=h79qUw2ireWgbz198ZjSVieqATIofwLkEJBGJQLyaCiojOvFsEYy0NT6veoSbCl7H
-         W67hqUQB6VdOFULLwFXd/qzvj+r1VZL2pS8YNow+JzOxyruOeCHvytMLwMGhOKoorW
-         5LpB6RSFKChrv9uKJmUfNHiaOjg0fPtBP+JRbPs0=
-Date:   Sun, 23 Jun 2019 22:29:16 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        stable <stable@vger.kernel.org>,
-        overlayfs <linux-unionfs@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] ovl: support the FS_IOC_FS[SG]ETXATTR
- ioctls" failed to apply to 5.1-stable tree
-Message-ID: <20190623202916.GA10957@kroah.com>
-References: <1560073529193139@kroah.com>
- <CAOQ4uxiTrsOs3KWOxedZicXNMJJharmWo=TDXDnxSC1XMNVKBg@mail.gmail.com>
- <CAOQ4uxiTTuOESvZ2Y5cSebqKs+qeU3q6ZMReBDro0Qv7aRBhpw@mail.gmail.com>
- <20190623010345.GJ2226@sasha-vm>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 19CE2380074;
+        Sun, 23 Jun 2019 16:31:54 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/vmwgfx: Use the backdoor port if the HB port is not" failed to apply to 4.14-stable tree
+To:     thellstrom@vmware.com, drawat@vmware.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 23 Jun 2019 22:31:42 +0200
+Message-ID: <1561321902112106@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190623010345.GJ2226@sasha-vm>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jun 22, 2019 at 09:03:45PM -0400, Sasha Levin wrote:
-> On Fri, Jun 21, 2019 at 11:15:47AM +0300, Amir Goldstein wrote:
-> > On Thu, Jun 13, 2019 at 11:49 AM Amir Goldstein <amir73il@gmail.com> wrote:
-> > > 
-> > > On Sun, Jun 9, 2019 at 12:45 PM <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > >
-> > > > The patch below does not apply to the 5.1-stable tree.
-> > > > If someone wants it applied there, or to any other stable or longterm
-> > > > tree, then please email the backport, including the original git commit
-> > > > id to <stable@vger.kernel.org>.
-> > > >
-> > > > thanks,
-> > > >
-> > > > greg k-h
-> > > >
-> > > 
-> > > FYI, the failure to apply this patch would be resolved after you
-> > > picked up "ovl: check the capability before cred overridden" for
-> > > stable, please hold off from taking this patch just yet, because
-> > > it has a bug, whose fix wasn't picked upstream yet.
-> > > 
-> > 
-> > Greg,
-> > 
-> > Please apply these patches to stable 4.19.
-> > They fix a docker regression (project quotas feature).
-> > 
-> > b21d9c435f93 ovl: support the FS_IOC_FS[SG]ETXATTR ioctls
-> > 941d935ac763 ovl: fix wrong flags check in FS_IOC_FS[SG]ETXATTR ioctls
-> > 
-> > They apply cleanly and tested on v4.19.53.
-> 
-> I've queued these for 4.19.
-> 
-> > While at it, I also tested that the following patches apply cleanly and solve
-> > relevant issues on v4.19.53, but they are not clear stable candidates.
-> > 
-> > 1) /proc/locks shows incorrect ino. Only reported by xfstests (so far):
-> > 6dde1e42f497 ovl: make i_ino consistent with st_ino in more cases
-> 
-> And this.
-> 
-> > 2) Fix output of `modinfo overlay`:
-> > 253e74833911 ovl: fix typo in MODULE_PARM_DESC
-> 
-> But not this one. Maybe we should be including these in stable trees
-> since the risk factor is low and it fixes something user-visible, but
-> our current rules object this this kind of patches so I've left it out.
-> 
-> > 3) Disallow bogus layer combinations.
-> > syzbot has started to produce repros that create bogus layer combinations.
-> > So far it has only been able to reproduce a WARN_ON, which has already
-> > been fixed in stable, by  acf3062a7e1c ("ovl: relax WARN_ON()..."), but
-> > other real bugs could be lurking if those setups are allowed.
-> > We decided to detect and error on these setups on mount, to stop syzbot
-> > (and attackers) from trying to attack overlayfs this way.
-> > To stop syzbot from mutating this class of repros on stable kernel you
-> > MAY apply these 3 patches, but in any case, I would wait a while to see
-> > if more bugs are reported on master.
-> > Although this solves a problem dating before 4.19, I have no plans
-> > of backporting these patches further back.
-> > 
-> > 146d62e5a586 ovl: detect overlapping layers
-> > 9179c21dc6ed ovl: don't fail with disconnected lower NFS
-> > 1dac6f5b0ed2 ovl: fix bogus -Wmaybe-unitialized warning
-> 
-> I've queued these 3 for 4.19.
 
-What about the ones that are needed for 5.1?
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From cc0ba0d8624f210995924bb57a8b181ce8976606 Mon Sep 17 00:00:00 2001
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Date: Wed, 29 May 2019 08:15:19 +0200
+Subject: [PATCH] drm/vmwgfx: Use the backdoor port if the HB port is not
+ available
+
+The HB port may not be available for various reasons. Either it has been
+disabled by a config option or by the hypervisor for other reasons.
+In that case, make sure we have a backup plan and use the backdoor port
+instead with a performance penalty.
+
+Cc: stable@vger.kernel.org
+Fixes: 89da76fde68d ("drm/vmwgfx: Add VMWare host messaging capability")
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Deepak Rawat <drawat@vmware.com>
+
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+index 8b9270f31409..e4e09d47c5c0 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+@@ -136,6 +136,114 @@ static int vmw_close_channel(struct rpc_channel *channel)
+ 	return 0;
+ }
+ 
++/**
++ * vmw_port_hb_out - Send the message payload either through the
++ * high-bandwidth port if available, or through the backdoor otherwise.
++ * @channel: The rpc channel.
++ * @msg: NULL-terminated message.
++ * @hb: Whether the high-bandwidth port is available.
++ *
++ * Return: The port status.
++ */
++static unsigned long vmw_port_hb_out(struct rpc_channel *channel,
++				     const char *msg, bool hb)
++{
++	unsigned long si, di, eax, ebx, ecx, edx;
++	unsigned long msg_len = strlen(msg);
++
++	if (hb) {
++		unsigned long bp = channel->cookie_high;
++
++		si = (uintptr_t) msg;
++		di = channel->cookie_low;
++
++		VMW_PORT_HB_OUT(
++			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
++			msg_len, si, di,
++			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
++			VMW_HYPERVISOR_MAGIC, bp,
++			eax, ebx, ecx, edx, si, di);
++
++		return ebx;
++	}
++
++	/* HB port not available. Send the message 4 bytes at a time. */
++	ecx = MESSAGE_STATUS_SUCCESS << 16;
++	while (msg_len && (HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS)) {
++		unsigned int bytes = min_t(size_t, msg_len, 4);
++		unsigned long word = 0;
++
++		memcpy(&word, msg, bytes);
++		msg_len -= bytes;
++		msg += bytes;
++		si = channel->cookie_high;
++		di = channel->cookie_low;
++
++		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_SENDPAYLOAD << 16),
++			 word, si, di,
++			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
++			 VMW_HYPERVISOR_MAGIC,
++			 eax, ebx, ecx, edx, si, di);
++	}
++
++	return ecx;
++}
++
++/**
++ * vmw_port_hb_in - Receive the message payload either through the
++ * high-bandwidth port if available, or through the backdoor otherwise.
++ * @channel: The rpc channel.
++ * @reply: Pointer to buffer holding reply.
++ * @reply_len: Length of the reply.
++ * @hb: Whether the high-bandwidth port is available.
++ *
++ * Return: The port status.
++ */
++static unsigned long vmw_port_hb_in(struct rpc_channel *channel, char *reply,
++				    unsigned long reply_len, bool hb)
++{
++	unsigned long si, di, eax, ebx, ecx, edx;
++
++	if (hb) {
++		unsigned long bp = channel->cookie_low;
++
++		si = channel->cookie_high;
++		di = (uintptr_t) reply;
++
++		VMW_PORT_HB_IN(
++			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
++			reply_len, si, di,
++			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
++			VMW_HYPERVISOR_MAGIC, bp,
++			eax, ebx, ecx, edx, si, di);
++
++		return ebx;
++	}
++
++	/* HB port not available. Retrieve the message 4 bytes at a time. */
++	ecx = MESSAGE_STATUS_SUCCESS << 16;
++	while (reply_len) {
++		unsigned int bytes = min_t(unsigned long, reply_len, 4);
++
++		si = channel->cookie_high;
++		di = channel->cookie_low;
++
++		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_RECVPAYLOAD << 16),
++			 MESSAGE_STATUS_SUCCESS, si, di,
++			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
++			 VMW_HYPERVISOR_MAGIC,
++			 eax, ebx, ecx, edx, si, di);
++
++		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0)
++			break;
++
++		memcpy(reply, &ebx, bytes);
++		reply_len -= bytes;
++		reply += bytes;
++	}
++
++	return ecx;
++}
+ 
+ 
+ /**
+@@ -148,11 +256,10 @@ static int vmw_close_channel(struct rpc_channel *channel)
+  */
+ static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
+ {
+-	unsigned long eax, ebx, ecx, edx, si, di, bp;
++	unsigned long eax, ebx, ecx, edx, si, di;
+ 	size_t msg_len = strlen(msg);
+ 	int retries = 0;
+ 
+-
+ 	while (retries < RETRIES) {
+ 		retries++;
+ 
+@@ -166,23 +273,14 @@ static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
+ 			VMW_HYPERVISOR_MAGIC,
+ 			eax, ebx, ecx, edx, si, di);
+ 
+-		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
+-		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
+-			/* Expected success + high-bandwidth. Give up. */
++		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
++			/* Expected success. Give up. */
+ 			return -EINVAL;
+ 		}
+ 
+ 		/* Send msg */
+-		si  = (uintptr_t) msg;
+-		di  = channel->cookie_low;
+-		bp  = channel->cookie_high;
+-
+-		VMW_PORT_HB_OUT(
+-			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
+-			msg_len, si, di,
+-			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
+-			VMW_HYPERVISOR_MAGIC, bp,
+-			eax, ebx, ecx, edx, si, di);
++		ebx = vmw_port_hb_out(channel, msg,
++				      !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
+ 
+ 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) != 0) {
+ 			return 0;
+@@ -211,7 +309,7 @@ STACK_FRAME_NON_STANDARD(vmw_send_msg);
+ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
+ 			size_t *msg_len)
+ {
+-	unsigned long eax, ebx, ecx, edx, si, di, bp;
++	unsigned long eax, ebx, ecx, edx, si, di;
+ 	char *reply;
+ 	size_t reply_len;
+ 	int retries = 0;
+@@ -233,8 +331,7 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
+ 			VMW_HYPERVISOR_MAGIC,
+ 			eax, ebx, ecx, edx, si, di);
+ 
+-		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
+-		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
++		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
+ 			DRM_ERROR("Failed to get reply size for host message.\n");
+ 			return -EINVAL;
+ 		}
+@@ -252,17 +349,8 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
+ 
+ 
+ 		/* Receive buffer */
+-		si  = channel->cookie_high;
+-		di  = (uintptr_t) reply;
+-		bp  = channel->cookie_low;
+-
+-		VMW_PORT_HB_IN(
+-			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
+-			reply_len, si, di,
+-			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
+-			VMW_HYPERVISOR_MAGIC, bp,
+-			eax, ebx, ecx, edx, si, di);
+-
++		ebx = vmw_port_hb_in(channel, reply, reply_len,
++				     !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
+ 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) == 0) {
+ 			kfree(reply);
+ 
+
