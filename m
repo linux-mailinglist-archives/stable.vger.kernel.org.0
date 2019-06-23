@@ -2,192 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42CFA4F9A6
-	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 05:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F394FA4B
+	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 06:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726365AbfFWDiw convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 22 Jun 2019 23:38:52 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:56140 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726359AbfFWDiv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 22 Jun 2019 23:38:51 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 440824E92A
-        for <stable@vger.kernel.org>; Sun, 23 Jun 2019 03:38:51 +0000 (UTC)
-Received: from [172.54.210.214] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D870F1001DE6;
-        Sun, 23 Jun 2019 03:38:48 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1726086AbfFWEwi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jun 2019 00:52:38 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:42565 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725294AbfFWEwi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 00:52:38 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 9AA9E21BBA;
+        Sun, 23 Jun 2019 00:52:35 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 23 Jun 2019 00:52:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=9
+        NUbYbNslNocPTKm5rsWXu6dHgqNp/Kvxs0srhYNSQw=; b=OwyE7NU/k07adyy12
+        1By5j31IokKVZcwUKMhK8elCau7ip58LbXEPus9kVWNEC6bVkH93BlRk0RRZ7HGh
+        NHl+TQ7irdPzd0NA8rsU5wlxH42Vw5Vs8o8NlACfnEvDZwdLY2vqPhErYpErvFxY
+        TwTMkCS98kW17cZsVWpawq9MYiY57M39qq7o7zSTyF0KYEhstWYDQK8DG7J/Hf1Y
+        /n/SrA70LvjoraYpGUhPcN9D964F2WjDlxhw8EYixiCgd6B2FlRWX69eELzY+ZbT
+        RXR6C5kRjU7Kb50TtgzXGRjfnbKlRF9wclQOevzr532NmXqQYuEEK5i6YiL+483E
+        mGo6A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=9NUbYbNslNocPTKm5rsWXu6dHgqNp/Kvxs0srhYNS
+        Qw=; b=o5URg5qNzDsP2EbtutfyWRHWwHkJrAU0RRK6Ttnc/mgXJuG+CSewJ6kgv
+        +KW5XmVd6soRRuaEzCaPHx9I7+jsbpuGoMwMss2LU1IKFme0QHsTb04CT+FznUPd
+        9BYG3cDCGv/LdusWXas5jVNHX1ddm7Qhz8dV+daWzlKad3bzg8gWc2tEueSkIt0Y
+        k49N8sgY7kIjgrUDObPPt2r17mkl0wYToMiSbLZ396R6naiI5wH05x61yn7uYr1v
+        yhYB8Cxeqv/cizrI1YtHfApJ/en2qr7/1aXJeS2Cq+KN+aC3OUcTNIeVlI+pwZL3
+        IgxMmDQffqkvF3+bCooxkIVNK5p0Q==
+X-ME-Sender: <xms:kgUPXVYdUS_q3wFWy3rnWwATkrTLhjZlxGqfMPFEkxfBlPx79oHsfw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrtdelgdekkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggugfgjfgesthekredttderjeenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:kgUPXZEN17IYp-vR-QTG_JLR-iQnez2tZtwsLmxVV7Drmn63rCF0dA>
+    <xmx:kgUPXb3vWhWHQe6leCXkxjKRuVasg7nYbnHy4Ua9_pCu90wy8cccKA>
+    <xmx:kgUPXdzUHVFAeiGW_ZYHshPEQgs-lHcPyGaoHQgRJ2Fldcq226FsDw>
+    <xmx:kwUPXbirxeJqZP4WWRvFNDPVz9LNiobdfSVAWchoCuwtFbF6VjKZSg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 62157380076;
+        Sun, 23 Jun 2019 00:52:34 -0400 (EDT)
+Date:   Sun, 23 Jun 2019 06:52:32 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Marcel Holtmann <marcel@holtmann.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "open list:BLUETOOTH DRIVERS" <linux-bluetooth@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v5.2-rc5] Bluetooth: Fix regression with minimum
+ encryption key size alignment
+Message-ID: <20190623045232.GA30005@kroah.com>
+References: <20190622134701.7088-1-marcel@holtmann.org>
+ <20190622181349.8C8F320862@mail.kernel.org>
+ <F46C65F2-411F-4B24-BD3C-ED9F39F5E65E@holtmann.org>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.F3BBD5D494.H8NPKA2G70@redhat.com>
-X-Gitlab-Pipeline-ID: 13059
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Sun, 23 Jun 2019 03:38:51 +0000 (UTC)
-Date:   Sat, 22 Jun 2019 23:38:51 -0400
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <F46C65F2-411F-4B24-BD3C-ED9F39F5E65E@holtmann.org>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Sat, Jun 22, 2019 at 08:21:07PM +0200, Marcel Holtmann wrote:
+> Hi Sasha,
+> 
+> > [This is an automated email]
+> > 
+> > This commit has been processed because it contains a "Fixes:" tag,
+> > fixing commit: d5bb334a8e17 Bluetooth: Align minimum encryption key size for LE and BR/EDR connections.
+> > 
+> > The bot has tested the following trees: v5.1.12, v4.19.53, v4.14.128, v4.9.182, v4.4.182.
+> > 
+> > v5.1.12: Build failed! Errors:
+> >    net/bluetooth/l2cap_core.c:1356:24: error: ‘HCI_MIN_ENC_KEY_SIZE’ undeclared (first use in this function); did you mean ‘SMP_MIN_ENC_KEY_SIZE’?
+> > 
+> > v4.19.53: Build failed! Errors:
+> >    net/bluetooth/l2cap_core.c:1355:24: error: ‘HCI_MIN_ENC_KEY_SIZE’ undeclared (first use in this function); did you mean ‘SMP_MIN_ENC_KEY_SIZE’?
+> > 
+> > v4.14.128: Build failed! Errors:
+> >    net/bluetooth/l2cap_core.c:1355:24: error: ‘HCI_MIN_ENC_KEY_SIZE’ undeclared (first use in this function); did you mean ‘SMP_MIN_ENC_KEY_SIZE’?
+> > 
+> > v4.9.182: Build OK!
+> > v4.4.182: Build OK!
+> > 
+> > How should we proceed with this patch?
+> 
+> either you reapply commit d5bb334a8e17 first or I have to send a version that combines both into a single commit for easy applying.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+I can reapply it...
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 5f0a74b46855 - Linux 5.1.14
+thanks,
 
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 5f0a74b46855 - Linux 5.1.14
-
-
-We grabbed the 65418671bbf7 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  tracing-silence-gcc-9-array-bounds-warning.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-5f45938ad5bd2be8cdc0ebcd75b17fa59ddce209.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-5f45938ad5bd2be8cdc0ebcd75b17fa59ddce209.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-5f45938ad5bd2be8cdc0ebcd75b17fa59ddce209.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-5f45938ad5bd2be8cdc0ebcd75b17fa59ddce209.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-5f45938ad5bd2be8cdc0ebcd75b17fa59ddce209.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-5f45938ad5bd2be8cdc0ebcd75b17fa59ddce209.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-5f45938ad5bd2be8cdc0ebcd75b17fa59ddce209.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-5f45938ad5bd2be8cdc0ebcd75b17fa59ddce209.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ AMTU (Abstract Machine Test Utility) [2]
-       ✅ LTP: openposix test suite [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ Usex - version 1.9-29 [7]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [9]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [9]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ AMTU (Abstract Machine Test Utility) [2]
-       ✅ LTP: openposix test suite [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ Usex - version 1.9-29 [7]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [9]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ LTP: openposix test suite [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [9]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ AMTU (Abstract Machine Test Utility) [2]
-       ✅ LTP: openposix test suite [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ Usex - version 1.9-29 [7]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+greg k-h
