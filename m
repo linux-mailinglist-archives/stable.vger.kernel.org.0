@@ -2,218 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C5634FD72
-	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 20:06:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 185A94FD86
+	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 20:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726669AbfFWSF7 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 23 Jun 2019 14:05:59 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:53066 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726549AbfFWSF7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 23 Jun 2019 14:05:59 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 77ECD3082A9B
-        for <stable@vger.kernel.org>; Sun, 23 Jun 2019 18:05:58 +0000 (UTC)
-Received: from [172.54.210.214] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0E2805D9D3;
-        Sun, 23 Jun 2019 18:05:55 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1726678AbfFWSZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jun 2019 14:25:27 -0400
+Received: from mail-vk1-f194.google.com ([209.85.221.194]:45291 "EHLO
+        mail-vk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726399AbfFWSZ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 14:25:27 -0400
+Received: by mail-vk1-f194.google.com with SMTP id e83so2327455vke.12
+        for <stable@vger.kernel.org>; Sun, 23 Jun 2019 11:25:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=Un5Ke0Ru3iTFXv9DrHEizflVlYGBaDhARoB+8+C5nXM=;
+        b=F7MHf4qRWpl39aVVOC+de2aPmAy3YG0C0V4Y+sJ7+GuEbZvAOo9VYkmKgqmYs5QWvi
+         MBoxV2u6v/zY6nIfs3fvgTZTRqhHVu+08NY2Gk/RokkGNdBuDqMEy+1xZt+jqmNlnFT2
+         V6XfyRWv8/GhOhY0Jl1Vv0j0zaKn5ogg/kRorpG43oYS8HxQMQZsMa4E8PWAcrYcFIoz
+         cjkl+wg+Y9B6xEoTloU2z3plnlXL6SYnkdpSQMp7/p0hVw7x7c5COUQsFJ1avpH14I5j
+         uRbZ5cUkanTI8Kc04rzb7gBM9Dyymon5dQQ9UkNqkh42XqpFW42AZyiIEFeqq3zMCiDF
+         hYtg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=Un5Ke0Ru3iTFXv9DrHEizflVlYGBaDhARoB+8+C5nXM=;
+        b=jKHvTVwdmKyy7YOPYBt4U1gVwYAXxroyMKbxcwBfjUVK6iqWe6PioNSdvyRK+juOmx
+         l52XnjJzsadN0ehrr2pelRE2UlOctvLgw+txjvMn9AlmowljUGXIOixcCx++mRVIPpt2
+         l+Kp1AaFI+IlfKyKFt71Bx87TrUjbO2TrrWX7US5Sz8kZ5PQPa8Cl6+bP5AZhx+AAM4A
+         j4luyfTeGacM16Yq1kL92UrmG+dRs25neBDM0U+PWu43yd9uGcAd90tTPK3SLnYj8XO4
+         8fpg31ShhqzSM3di/Q/KEb7hexqru/SUjX7nFFpuL6RWU5Cbu3Zr6JKO/1e4CMnvIgTR
+         ckDQ==
+X-Gm-Message-State: APjAAAXWv/PY0sXwc3FuZsJyPQKml4rjpOs1Gxj5I3i4xR1sNXsIQgiS
+        j9S5zo2K0KNjP6Cme4a7pFXJ08mAKswZFbaPPuw=
+X-Google-Smtp-Source: APXvYqzs62g6ThUt5LmhC7EUqkF0Fr5OREcGiaMgIopODYhjnfnCKbhE45edLU1g5oHTbGM3t7UF1F+0q/KYlDzOpOQ=
+X-Received: by 2002:a1f:9390:: with SMTP id v138mr12695314vkd.48.1561314325994;
+ Sun, 23 Jun 2019 11:25:25 -0700 (PDT)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.4B8EB6C012.HZK8EUTIE9@redhat.com>
-X-Gitlab-Pipeline-ID: 13074
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Sun, 23 Jun 2019 18:05:58 +0000 (UTC)
-Date:   Sun, 23 Jun 2019 14:05:59 -0400
+Received: by 2002:a67:e183:0:0:0:0:0 with HTTP; Sun, 23 Jun 2019 11:25:23
+ -0700 (PDT)
+Reply-To: miss.fatimayusuf11@gmail.com
+From:   "Miss.Fatima Yusuf" <fatimayusuf20001@gmail.com>
+Date:   Sun, 23 Jun 2019 18:25:23 +0000
+Message-ID: <CAMYDnHBA0RG0-yHZE4_6a+ndN35xa7J5yq1NKAkwhCusiZL32g@mail.gmail.com>
+Subject: From:Miss: Fatima Yusuf.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+From:Miss: Fatima Yusuf.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+For sure this mail would definitely come to you as a surprise, but do
+take your good time to go through it, My name is Ms. Fatima Yusuf,i am
+from Ivory Coast.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 78778071092e - Linux 4.19.55
+I lost my parents a year and couple of months ago. My father was a
+serving director of the Agro-exporting board until his death. He was
+assassinated by his business partners.Before his death, he made a
+deposit of US$9.7 Million Dollars here in Cote d'ivoire which was for
+the purchase of cocoa processing machine and development of another
+factory before his untimely death.
 
-The results of these automated tests are provided below.
+Being that this part of the world experiences political and crises
+time without number, there is no guarantee of lives and properties. I
+cannot invest this money here any long, despite the fact it had been
+my late father's industrial plans.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+I want you to do me a favor to receive this funds into your country or
+any safer place as the beneficiary, I have plans to invest this money
+in continuation with the investment vision of my late father, but not
+in this place again rather in your country. I have the vision of going
+into real estate and industrial production or any profitable business
+venture.
 
+I will be ready to compensate you with 20% of the total Amount, now
+all my hope is banked on you and i really wants to invest this money
+in your country, where there is stability of Government, political and
+economic welfare.
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+My greatest worry now is how to move out of this country because my
+uncle is threatening to kill me as he killed my father,Please do not
+let anybody hear about this, it is between me and you alone because of
+my security reason.
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 78778071092e - Linux 4.19.55
-
-
-We grabbed the 1dbcb6f68a4f commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  tracing-silence-gcc-9-array-bounds-warning.patch
-  objtool-support-per-function-rodata-sections.patch
-  gcc-9-silence-address-of-packed-member-warning.patch
-  ovl-support-the-fs_ioc_fs-sg-etxattr-ioctls.patch
-  ovl-fix-wrong-flags-check-in-fs_ioc_fs-sg-etxattr-io.patch
-  ovl-make-i_ino-consistent-with-st_ino-in-more-cases.patch
-  ovl-detect-overlapping-layers.patch
-  ovl-don-t-fail-with-disconnected-lower-nfs.patch
-  ovl-fix-bogus-wmaybe-unitialized-warning.patch
-  s390-jump_label-use-jdd-constraint-on-gcc9.patch
-  s390-ap-rework-assembler-functions-to-use-unions-for.patch
-  mmc-sdhci-sdhci-pci-o2micro-correctly-set-bus-width-when-tuning.patch
-  mmc-core-api-to-temporarily-disable-retuning-for-sdio-crc-errors.patch
-  mmc-core-add-sdio_retune_hold_now-and-sdio_retune_release.patch
-  mmc-core-prevent-processing-sdio-irqs-when-the-card-is-suspended.patch
-  scsi-ufs-avoid-runtime-suspend-possibly-being-blocked-forever.patch
-  usb-chipidea-udc-workaround-for-endpoint-conflict-issue.patch
-  xhci-detect-usb-3.2-capable-host-controllers-correctly.patch
-  usb-xhci-don-t-try-to-recover-an-endpoint-if-port-is-in-error-state.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-e75d10aaf8f5a3f9af33fa4ba70175c565ca2c22.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-e75d10aaf8f5a3f9af33fa4ba70175c565ca2c22.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-e75d10aaf8f5a3f9af33fa4ba70175c565ca2c22.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-e75d10aaf8f5a3f9af33fa4ba70175c565ca2c22.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-e75d10aaf8f5a3f9af33fa4ba70175c565ca2c22.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-e75d10aaf8f5a3f9af33fa4ba70175c565ca2c22.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-e75d10aaf8f5a3f9af33fa4ba70175c565ca2c22.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-e75d10aaf8f5a3f9af33fa4ba70175c565ca2c22.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-       🚧 ✅ storage: SCSI VPD [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-       🚧 ✅ storage: SCSI VPD [10]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+I am waiting to hear from you.
+Yours Sincerely,
+Miss.Fatima Yusuf.
