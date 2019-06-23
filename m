@@ -2,113 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04E6C4FB5A
-	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 13:47:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B0D4FB60
+	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 13:53:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726540AbfFWLrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jun 2019 07:47:33 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:41461 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726538AbfFWLrd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 07:47:33 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 34C1121B8C;
-        Sun, 23 Jun 2019 07:47:32 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 23 Jun 2019 07:47:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Nw+YDe
-        UGJbZzLy0cJP47Q2Wq2HTMlmxfZjxa0t2wzVs=; b=CfJgMlfBHmP5iqbRac/Huz
-        4zR4/JlXf0ZPYkgvkEc8b5GZh2OHdTN2UWurCjUDlDbWd+++lIyqwKLz32gaETx2
-        DG4EB7BGJFJL6x2YleKBNFyi3TcrE102llq+wZc6al8GLZaNqn5HE/D3UpUUnslJ
-        rawP+laaR6abqY045celO95S5uEWAEk3ZDKt30w+gnatitaVLlgtLs38gejKWW4o
-        BRzbCJ6yax9Fod5V9IUiovLXpWwnhItXwSLBTB8qyDbP11bskqt2ose6E3VBWs8y
-        iSeVTIiuPIt9AXtYRmbi5G6UVY7yWAvzYi5AsV6KkTXrS6pkhqGF82ZpGoMiaSNQ
-        ==
-X-ME-Sender: <xms:02YPXUiIcpN6UOnulWDYzzR6M6pXBXzFbZ4RVdYp74NFMastKjTj4w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtgdehtdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepudejvddruddtgedrvdegkedrgeegnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:02YPXYbpgV3mXTPVxirDZNfVsY4gRlY4fb7hmQPpl2A5gdMXPHasuA>
-    <xmx:02YPXZ3UDhPgrY6KQ8DERAAs_dKPuzcG-Aa2-rimXMGdXTxXQ5JGBQ>
-    <xmx:02YPXbzLQGVMWd7AJfYOjXWlFtVWCWoT9HeNUNU5_NhrBxDglhQC6Q>
-    <xmx:1GYPXWq2H3wfJ4EejrVLBr7aFjLxqQppulVlEcJDug1S2GzdBeGqnA>
-Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CE6B080059;
-        Sun, 23 Jun 2019 07:47:30 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mmc: sdhi: disallow HS400 for M3-W ES1.2, RZ/G2M, and V3H" failed to apply to 4.19-stable tree
-To:     wsa+renesas@sang-engineering.com, fabrizio.castro@bp.renesas.com,
-        geert+renesas@glider.be, niklas.soderlund+renesas@ragnatech.se,
-        ulf.hansson@linaro.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jun 2019 13:47:29 +0200
-Message-ID: <156129044989128@kroah.com>
+        id S1726596AbfFWLxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jun 2019 07:53:16 -0400
+Received: from mail-wr1-f49.google.com ([209.85.221.49]:32963 "EHLO
+        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726483AbfFWLxQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 07:53:16 -0400
+Received: by mail-wr1-f49.google.com with SMTP id n9so10920573wru.0
+        for <stable@vger.kernel.org>; Sun, 23 Jun 2019 04:53:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=mhvev5p2Wsit2YXVeMKt2UGgSFAfZVL4QEEXp5MsuHM=;
+        b=dLr79+MlxGmicqiByjDfKJ6M6/Bk9fZD4korRussRwzCQA2ZkQSchOuPCQGP+UuyZG
+         lz/fWbnTR2wtkhM0Dc/2ZGl/o+cEtIpTkeNpZNVYVeu/21BtAYgQWTmDWcoAHMB7Xo/a
+         9q6j1h1DnL3fL7al361WZ1VjdQiOV5O/XzPnuJcTuBX/ujiP78D9udmdeSfPnaKtigk7
+         M2FDk/Jqevb2Qr1hXJ2C1MiRJJwDkJ2Jlfa6/EwPiK83rG6OK+AMeqYuoUmDT+MPmHaq
+         NvcVOHUgi/vtSTsTdHdrTy5UpHSK/1JOCqUp5YQb2Qc8YqCGmTx1eztf0m0jDlK0p7CO
+         aQMA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=mhvev5p2Wsit2YXVeMKt2UGgSFAfZVL4QEEXp5MsuHM=;
+        b=QSkseVIolef+v371Oc2HRCI53xoM4REXyWefq/yaZCGahOxqf4Dq3vO4TBQ60I1rag
+         YHoWHli4HAAwAfm7tfNhaF58FR6+F/3Iw0pSwruyQ465JJEOaxPxIznTkeuKjMioD3DR
+         exlp4tCIjDHfVtmFLKwnZJ7WLuCvRMyGgBNRb8u3ndUL8T7rESFrCwOD3lrXTHBR92PZ
+         Cj4IaRr5LTk2BzCNwihq22DWxD2HkinPc6tJehn/Zhpl0wPiXDoqdGLUhvqNptOucobG
+         vWP4es639Rk39rN8Pnh2ytncM/YsrQRuqanfJKQV1c7RKos9ISdEKZbIOrf/5DaU0EN3
+         Bcew==
+X-Gm-Message-State: APjAAAWgJDOGxOY/gpdNDPj73K6NaMBIDQpPiZcZmg01lq99X5XkatLF
+        0p03GfbmQEnvb6Z1C9SGnADk818DCOg=
+X-Google-Smtp-Source: APXvYqxKlOplOL65ytzgqe5kHdRuJmqkUedllhw2Ba3tqP9h/Yp85Q4Jtx4KIVMQCOsTtaHGdmCrcA==
+X-Received: by 2002:a5d:4a8d:: with SMTP id o13mr8566640wrq.350.1561290793666;
+        Sun, 23 Jun 2019 04:53:13 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a2sm11826022wmj.9.2019.06.23.04.53.13
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 23 Jun 2019 04:53:13 -0700 (PDT)
+Message-ID: <5d0f6829.1c69fb81.49713.1df8@mx.google.com>
+Date:   Sun, 23 Jun 2019 04:53:13 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.55-12-g6091c94bdf41
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 120 boots: 0 failed,
+ 113 passed with 7 offline (v4.19.55-12-g6091c94bdf41)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.19.y boot: 120 boots: 0 failed, 113 passed with 7 offline=
+ (v4.19.55-12-g6091c94bdf41)
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.55-12-g6091c94bdf41/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.55-12-g6091c94bdf41/
 
-thanks,
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.55-12-g6091c94bdf41
+Git Commit: 6091c94bdf41ef32603b3b0af013d2d5d0f2d8e0
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 67 unique boards, 24 SoC families, 15 builds out of 206
 
-greg k-h
+Offline Platforms:
 
------------------- original commit in Linus's tree ------------------
+arm:
 
-From 97bf85b6ec9e6597ce81c79b26a28f7918fc4eaf Mon Sep 17 00:00:00 2001
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Date: Thu, 6 Jun 2019 13:35:35 +0200
-Subject: [PATCH] mmc: sdhi: disallow HS400 for M3-W ES1.2, RZ/G2M, and V3H
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
 
-Our HW engineers informed us that HS400 is not working on these SoC
-revisions.
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
 
-Fixes: 0f4e2054c971 ("mmc: renesas_sdhi: disable HS400 on H3 ES1.x and M3-W ES1.[012]")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
 
-diff --git a/drivers/mmc/host/renesas_sdhi_core.c b/drivers/mmc/host/renesas_sdhi_core.c
-index 5e9e36ed2107..5f8d57ac084f 100644
---- a/drivers/mmc/host/renesas_sdhi_core.c
-+++ b/drivers/mmc/host/renesas_sdhi_core.c
-@@ -620,11 +620,16 @@ static const struct renesas_sdhi_quirks sdhi_quirks_h3_es2 = {
- 	.hs400_4taps = true,
- };
- 
-+static const struct renesas_sdhi_quirks sdhi_quirks_nohs400 = {
-+	.hs400_disabled = true,
-+};
-+
- static const struct soc_device_attribute sdhi_quirks_match[]  = {
- 	{ .soc_id = "r8a7795", .revision = "ES1.*", .data = &sdhi_quirks_h3_m3w_es1 },
- 	{ .soc_id = "r8a7795", .revision = "ES2.0", .data = &sdhi_quirks_h3_es2 },
--	{ .soc_id = "r8a7796", .revision = "ES1.0", .data = &sdhi_quirks_h3_m3w_es1 },
--	{ .soc_id = "r8a7796", .revision = "ES1.1", .data = &sdhi_quirks_h3_m3w_es1 },
-+	{ .soc_id = "r8a7796", .revision = "ES1.[012]", .data = &sdhi_quirks_h3_m3w_es1 },
-+	{ .soc_id = "r8a774a1", .revision = "ES1.[012]", .data = &sdhi_quirks_h3_m3w_es1 },
-+	{ .soc_id = "r8a77980", .data = &sdhi_quirks_nohs400 },
- 	{ /* Sentinel. */ },
- };
- 
+arm64:
 
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
