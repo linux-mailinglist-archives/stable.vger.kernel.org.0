@@ -2,133 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5577B4FB61
-	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 13:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 763724FB65
+	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 13:55:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726599AbfFWLxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jun 2019 07:53:30 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:55853 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726483AbfFWLxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 07:53:30 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 7C92221550;
-        Sun, 23 Jun 2019 07:53:29 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 23 Jun 2019 07:53:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Qh+AFw
-        TQOLM6x3yyahhT74dAofRZL0dzo2C+FK9oLc0=; b=ZVLINVyN9JoJmpvLeErQLV
-        ZZKy+lhwz+gfhWsXhl5k9TWAE3AiUvlmGsGb0Xbu9Lj66nprUzvkzWn7n0cQG0hw
-        vLxKrZWQ3K9g6tA61SrXPpfeFOtrzjTUInQqfWjX1KrhOjHRukBPcj8uDcRF62dT
-        YZ1BIaanTyD6iUF9wIoaRGfNs03iwPS/enmyuVCNoUa6DG85/d8XKZkU7mNk35+f
-        7NEYnu0koXTOZRMZ/4qhCdX6tU/ny1bJ0NwSjtPAYhftZaFBrD1Jg2l2J6jXTXmb
-        6jj+/1dVHX8PE9oeq14yGNjpxDRhUZr2JyUEf7OAPEn2Pcuvw35A4d3vUNF96GwA
-        ==
-X-ME-Sender: <xms:OGgPXViTnHwU7YGutSxg0bLuisRDDWND9HcKFuRzTDc15HcKNzJT0A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtgdehudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepudejvddruddtgedrvdegkedrgeegnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:OGgPXU6BZpJV34VQLsw3SNPZe16ht44ptR2XxJZ2OGeAVUGHfBiYfA>
-    <xmx:OGgPXX8-nWeTSHuNOVyYdPBjvvz_5p2nENCG636nhS69OBYwPZ0-QQ>
-    <xmx:OGgPXT9rz-0yrLvR7dWgWA3rl-1h-iOsrNTxBI9ur7yQ6Vanng3jKg>
-    <xmx:OWgPXQhL2ypSSkkCQuAYtlKFsH0dNJRIJOBs-eWP4RJyYEstfXpRig>
-Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 704BB380076;
-        Sun, 23 Jun 2019 07:53:28 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] scsi: ufs: Avoid runtime suspend possibly being blocked" failed to apply to 4.4-stable tree
-To:     stanley.chu@mediatek.com, avri.altman@wdc.com,
-        martin.petersen@oracle.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jun 2019 13:53:27 +0200
-Message-ID: <15612908076757@kroah.com>
+        id S1726535AbfFWLzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jun 2019 07:55:17 -0400
+Received: from mail-wr1-f48.google.com ([209.85.221.48]:36700 "EHLO
+        mail-wr1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726453AbfFWLzR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 07:55:17 -0400
+Received: by mail-wr1-f48.google.com with SMTP id n4so9671212wrs.3
+        for <stable@vger.kernel.org>; Sun, 23 Jun 2019 04:55:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=YcA3kVfxXd7Vp0vMD9DMa26u4kog63VC01n0NuWOGxY=;
+        b=X0UNGyzlSvjn6Sva9ONbebEvvK69Kkd0SeznRAk7axhPlVhvnAoQATNEPCYp+js+VK
+         qOLv5eIeFvIU9xgPHFqubpmgB+8KWXhtO4C1baLLDunS7fMln/8q6kCSix9XnsUWEnW+
+         Qjl3JlnLQ8WGywXs9HGxaVmUefLIj8jud5AZinkOXAJhUIaY2wvS8p/sDXYG1MPmWAaJ
+         Dml4rOLTJdRF5mKouqXkhFqA6346aH8xUXOrK9Oaq2boYKcQahbUMIcW7kI7lnYTRWam
+         /o8EYHS0qNAnrq1Hfg7ts1Xr3liq3MYAtUMuKxC6M0hJp/IiCdKmOOOo62sL2y7mqP4X
+         lUYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=YcA3kVfxXd7Vp0vMD9DMa26u4kog63VC01n0NuWOGxY=;
+        b=nlwJS7+54sty5kyiriacx+50sL8DV4ft6smaIIWLMuz3Ecrj+kHYFeElmdZ4woNoba
+         KrL6uXHTRRGlG95yWrugrfZd/BJOPq0PUqZwdZbkYncak2PFuD3Ras0pAMIcf/DbAjxn
+         M85/0U0K+7koh/8EsU/ALxoEO2452igceUcGsog3fu2r1TQ1hBb4equPvezHllFAT13b
+         zMBvrn/Ak2PpmOZ5er37687UzFyLJkaMKT485LVv4AiwqVXFV+lM0YWmuN0zvxrh0GuA
+         u2D5Xq65OrwA6wdvCjKMBpG6oADZZzN3mIjveZNBPSSX2lQmtJkU/c2wISHhfu2oZcM2
+         OkmA==
+X-Gm-Message-State: APjAAAWUTlnZXxWhlziLdoElCMlKkOxCEWQ9q1ssX0miE4gFcuvcVYVC
+        EZS25ljitNEJASZ58XVEhNcW8CbMW1M=
+X-Google-Smtp-Source: APXvYqzCofu94PAxRpTNJOogXR2Z2PuWK4nobWUV+Z8SbefSyxs9kf58Vz8MssPtUN0r/cQL9bFLiQ==
+X-Received: by 2002:adf:f984:: with SMTP id f4mr16631929wrr.315.1561290915497;
+        Sun, 23 Jun 2019 04:55:15 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id e11sm18648356wrc.9.2019.06.23.04.55.14
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 23 Jun 2019 04:55:14 -0700 (PDT)
+Message-ID: <5d0f68a2.1c69fb81.9efbc.73bd@mx.google.com>
+Date:   Sun, 23 Jun 2019 04:55:14 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.183-3-gc46c5c4c534d
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.9.y boot: 102 boots: 0 failed,
+ 95 passed with 7 offline (v4.9.183-3-gc46c5c4c534d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.9.y boot: 102 boots: 0 failed, 95 passed with 7 offline (=
+v4.9.183-3-gc46c5c4c534d)
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.183-3-gc46c5c4c534d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.183-3-gc46c5c4c534d/
 
-thanks,
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.183-3-gc46c5c4c534d
+Git Commit: c46c5c4c534dd3026c854d24ac3424393e3c9241
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 49 unique boards, 21 SoC families, 14 builds out of 197
 
-greg k-h
+Offline Platforms:
 
------------------- original commit in Linus's tree ------------------
+arm:
 
-From 24e2e7a19f7e4b83d0d5189040d997bce3596473 Mon Sep 17 00:00:00 2001
-From: Stanley Chu <stanley.chu@mediatek.com>
-Date: Wed, 12 Jun 2019 23:19:05 +0800
-Subject: [PATCH] scsi: ufs: Avoid runtime suspend possibly being blocked
- forever
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
 
-UFS runtime suspend can be triggered after pm_runtime_enable() is invoked
-in ufshcd_pltfrm_init(). However if the first runtime suspend is triggered
-before binding ufs_hba structure to ufs device structure via
-platform_set_drvdata(), then UFS runtime suspend will be no longer
-triggered in the future because its dev->power.runtime_error was set in the
-first triggering and does not have any chance to be cleared.
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
 
-To be more clear, dev->power.runtime_error is set if hba is NULL in
-ufshcd_runtime_suspend() which returns -EINVAL to rpm_callback() where
-dev->power.runtime_error is set as -EINVAL. In this case, any future
-rpm_suspend() for UFS device fails because rpm_check_suspend_allowed()
-fails due to non-zero
-dev->power.runtime_error.
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
 
-To resolve this issue, make sure the first UFS runtime suspend get valid
-"hba" in ufshcd_runtime_suspend(): Enable UFS runtime PM only after hba is
-successfully bound to UFS device structure.
+arm64:
 
-Fixes: 62694735ca95 ([SCSI] ufs: Add runtime PM support for UFS host controller driver)
-Cc: stable@vger.kernel.org
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
 
-diff --git a/drivers/scsi/ufs/ufshcd-pltfrm.c b/drivers/scsi/ufs/ufshcd-pltfrm.c
-index 8a74ec30c3d2..d7d521b394c3 100644
---- a/drivers/scsi/ufs/ufshcd-pltfrm.c
-+++ b/drivers/scsi/ufs/ufshcd-pltfrm.c
-@@ -430,24 +430,21 @@ int ufshcd_pltfrm_init(struct platform_device *pdev,
- 		goto dealloc_host;
- 	}
- 
--	pm_runtime_set_active(&pdev->dev);
--	pm_runtime_enable(&pdev->dev);
--
- 	ufshcd_init_lanes_per_dir(hba);
- 
- 	err = ufshcd_init(hba, mmio_base, irq);
- 	if (err) {
- 		dev_err(dev, "Initialization failed\n");
--		goto out_disable_rpm;
-+		goto dealloc_host;
- 	}
- 
- 	platform_set_drvdata(pdev, hba);
- 
-+	pm_runtime_set_active(&pdev->dev);
-+	pm_runtime_enable(&pdev->dev);
-+
- 	return 0;
- 
--out_disable_rpm:
--	pm_runtime_disable(&pdev->dev);
--	pm_runtime_set_suspended(&pdev->dev);
- dealloc_host:
- 	ufshcd_dealloc_host(hba);
- out:
-
+---
+For more info write to <info@kernelci.org>
