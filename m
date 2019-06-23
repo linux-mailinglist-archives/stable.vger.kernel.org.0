@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 952994FDEA
-	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 22:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CAD44FDEB
+	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 22:22:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726290AbfFWUVx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jun 2019 16:21:53 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:60739 "EHLO
+        id S1726296AbfFWUWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jun 2019 16:22:15 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:58609 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726285AbfFWUVw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 16:21:52 -0400
+        by vger.kernel.org with ESMTP id S1726285AbfFWUWP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 16:22:15 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id F0DCA21F8A;
-        Sun, 23 Jun 2019 16:21:51 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id EA1B921F8A;
+        Sun, 23 Jun 2019 16:22:13 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 23 Jun 2019 16:21:51 -0400
+  by compute6.internal (MEProxy); Sun, 23 Jun 2019 16:22:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=84Lejl
-        fh3V5jg+Cgp0Rp1DYwl2dVaEXke6gUmGnVyZY=; b=ygIfjdhU54Ej1yuDM7dqcv
-        BHrV4nUZF/WeSJta6zcwB7hhCB58TO14l25sHSKAHDwTCfHcgC4xd46ZKcH7NE34
-        IjzoFjodpAiZqbOv4F4iaUZrqwwoVlAeD3MCxaBiVtm0WqHi8C6n2TpnYCWCLg0f
-        MOIpeHCH33UV2N+ORNJ8cmN9C0KEn7vUEbBRm2XcAhfbJrE8f0Jyqw0WmqRH1rEb
-        2QqOdipqhXHV/aUXxZeep6oE996iG+9s0awCJsvbvtyhGN+WzPbuFQOKas5uu2y1
-        YooRzafv7RaevbPOoCG/3/+aNOxvwGr4PVn3XEWGwn9Q1Zb6ENq2psjxo4paXLeQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=mNGC6E
+        IzsZjyTIjZVX+LLJHBhAs/ayob5lqQGK3CeIk=; b=yS5dv/YBtG8uFbwzm1AIyN
+        HwTAsoxFijQhvr4tA1RAs50eWAxZH+ilaSdXshDllyGbA41m5RmLLKJfXleZDnh1
+        ceipJKMyvZ04/trAYFrXsNm+VqH6M3OTM5QE/2oP89aiXYrKy3e2CnhBffplyti0
+        zzltzGJ1mSG8Up4jQoB6j564nrsoHgUXCWdk5yVDh1IbGU5zZJBgUyvvzLEeb8AJ
+        6UsihzQgNnmb6BneA8Z2pWJrjkekvgbpVZd0rFmMYhV+lu0R/iLkSHC6bhJpaHbq
+        ZsxHpk1FnPGi7tE4iP1IdbgUiYYe2Ma7aOy1KspEvlYZ+puv97dWdnJDGW17xF1g
         ==
-X-ME-Sender: <xms:X98PXerihwd7PmZcFbma0cy2tazfEbDRBUMvYPHXTWDkMKI0tbtsQw>
+X-ME-Sender: <xms:dd8PXSuk5S3DHm0KnOMDC5U3NI-4TRpDB-eWeJr2ds0HvtmluF2mqg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtgdduheegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppedujedvrddutdegrddvgeekrdeggeenucfrrghrrghmpehmrghilhhfrh
-    homhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:X98PXTqaoMn19y8QhGGIPE5GCqZ5Xt6KkqdHXFu2QRm3bvqMlPD3jQ>
-    <xmx:X98PXYPUUwvPHzjmrYabBVJSFVoOAIxpoGyCW5ho_D05GZIP_r1XBA>
-    <xmx:X98PXcw7g3-CQ7UtccwXJ8o6vmVFAsaa_2Nv5auYEHWdPJda50QB5Q>
-    <xmx:X98PXfrbYAhLT9J8VhTlCduk2Lr7I1Nv1HFcFN7eon7jwV26MUKWHA>
+    homhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:dd8PXQDdsdrAAzZLpBkkJPt9-rKF-B1-kLQas4pH3EVc_vpGgspkWQ>
+    <xmx:dd8PXU29QkPY9CYQcFnWd3Sf-YY36FezTfUYtirlgroSCkxvGIAkOg>
+    <xmx:dd8PXSQlTf-3kpzO1TW_vb1GcpQaJjrhl0X3XdidhCQkhfymU-HBAA>
+    <xmx:dd8PXYoSsg0XZzLrzBYWW3ljCjJmfMaHgWLL3gQZaLW5EcrLVAsIsw>
 Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CD163380084;
-        Sun, 23 Jun 2019 16:21:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Btrfs: fix failure to persist compression property xattr" failed to apply to 5.0-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 28440380076;
+        Sun, 23 Jun 2019 16:22:09 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: fix failure to persist compression property xattr" failed to apply to 4.19-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jun 2019 22:21:35 +0200
-Message-ID: <1561321295592@kroah.com>
+Date:   Sun, 23 Jun 2019 22:21:36 +0200
+Message-ID: <1561321296143167@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.0-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
