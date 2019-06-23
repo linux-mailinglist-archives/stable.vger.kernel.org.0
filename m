@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1EFF4FC8E
-	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 18:02:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4E254FC8F
+	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 18:02:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726781AbfFWQCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jun 2019 12:02:00 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:43187 "EHLO
+        id S1726783AbfFWQCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jun 2019 12:02:03 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:50937 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726399AbfFWQB7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 12:01:59 -0400
+        by vger.kernel.org with ESMTP id S1726399AbfFWQCD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 12:02:03 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0CDC42102F;
-        Sun, 23 Jun 2019 12:01:59 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 23 Jun 2019 12:01:59 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 117412102F;
+        Sun, 23 Jun 2019 12:02:02 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 23 Jun 2019 12:02:02 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ycJoBy
-        DJRF4/DUppyv6t2aO5YcsE9Af+Lx8ZVVV+lQk=; b=hsJLmyyZKSReDnnYSFd4zT
-        bu/xztOsaaUkYnUD0Z3BMJMxidmO5MYsHtCWtK1iFXrbwQbz+cP5R7j74VWKrBTv
-        8SFNbf3sEPmUJut4LC5WLno6im0tsQHqoIjouQ7HmiL1ruV0i1rcm3IVg87m+M34
-        viRdIj/SlOr+E0Pj/PN3OmvgFPCmrwJ4zKGKTCTXms1t87IzYapSrVrLYFdsggxc
-        t/j50G1PdPpB3fazDedo6YbUazE0WEJNY4nbTRGaSmf5YlwijinYlPc5MdiJwTkX
-        LW48i+IRr6u6msTKpAIemRSH+uxp25TdIl8h5cbguM08Fa0L1RKymJpZryElVGoA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=s+h2ZT
+        f0xv9dVtT+qjtfoWilr9x7kdPwY54Jrih44nI=; b=Wv2oInDOvAxwLU4hI8iK+O
+        bCWoiJUV0W/1/eYn+J6R7McuEp94IdFd7S80jImEufZlrtCKgaTu8hTpxfzbpqBJ
+        IDV9aM4cxMc+3boAr6f18gfEuNW0KGtkPjVUqAa6Uu1e6qaEBNixFnqTCdimXX5y
+        UULXHRPiZnIOliSGS3vEe4dDXYQA99HXPAwob92hIh5G7KDfyg9+VlCa2Hr9P0O1
+        ltx85wSdMCtRm/UPnvbgk0i9hTcHWQCJ6aA8An+kHml5ejQT58oP5/Barxwmxpe/
+        PYg5FbtXwrspyN+jZu3xSbcTSofAvMrGKkrz8LeFsripROX/voc5dovzaPz44TlA
         ==
-X-ME-Sender: <xms:dqIPXcuk_YsPqdV-VUEamWxt8U5GU8TN3Lz-A-j6iY-_t_N7jQ7dww>
+X-ME-Sender: <xms:eaIPXbiV7-M45FMzMdwLdk1ODIjudhlOpermp4njUN_kyVSM1PYGTQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtgddutddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekgedrvdeguddrudeliedrvddvtdenucfrrghrrghmpehmrghilhhfrh
     homhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
-X-ME-Proxy: <xmx:dqIPXZ4ERJFNu7-jVmZlv_t-VSYm4jwcwe0BbDKSt1ZsCeU0Djr9hQ>
-    <xmx:dqIPXZOBJuhi5MdXc1Incy0rkowARyRzG0jZ5BdgoDEcPeKg_YiFhA>
-    <xmx:dqIPXfNk_oo9SubB5vA4fRrySC9NlRBQweaNAxde41TPKY9Nz_WHrA>
-    <xmx:d6IPXSzAT03g7zMmpt5eizxkx-tCpXntKqOMhF3JGHgS46SVboqPhw>
+X-ME-Proxy: <xmx:eaIPXQVp97XcGt7WGRn1HsO4AC688jdPe_dHy8OlJYM0k50gHyJ_xQ>
+    <xmx:eaIPXRPZMFSedC-NCgE0YLjYN_N21UWRWH_oqqdCJA4EyD9CXlhFdQ>
+    <xmx:eaIPXVappzS_hZInh4wQlsQgX0f9LXcdPnWK4xd8kvMtunheKpuPOQ>
+    <xmx:eqIPXcPkTVRYnS41F__unxQhTkxikNuDfhvAMTgftuO0gXh2I6_-cQ>
 Received: from localhost (unknown [84.241.196.220])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4EBB38005B;
-        Sun, 23 Jun 2019 12:01:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] apparmor: reset pos on failure to unpack for various" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 481F8380079;
+        Sun, 23 Jun 2019 12:02:01 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] apparmor: reset pos on failure to unpack for various" failed to apply to 4.4-stable tree
 To:     mike.salvatore@canonical.com, john.johansen@canonical.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jun 2019 18:01:45 +0200
-Message-ID: <1561305705156102@kroah.com>
+Date:   Sun, 23 Jun 2019 18:01:46 +0200
+Message-ID: <156130570622436@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
