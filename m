@@ -2,284 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A5F64FE05
-	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 22:32:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F80D4FE07
+	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 22:37:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726301AbfFWUcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jun 2019 16:32:24 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:48345 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726296AbfFWUcY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 16:32:24 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5307F21AF1;
-        Sun, 23 Jun 2019 16:32:23 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 23 Jun 2019 16:32:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=RCt3m0
-        x+t7kjWxvCrDRCbWguY2IS9N5I7ekS+PNwNRU=; b=W6a5/lq+M4Te5wngio0ZXR
-        SOit17aP8ffGMeERWFkYjQNS+ErAb2bxauFT2MB4ns1bT0E2QJ8ORujxCU+Lm9ie
-        0537+mxCLatYZBOL3FEaqC/lHWRMhFJINICyoX6TwfMkxrYc/GxEtezcSPvyFBe8
-        +RaNxtFtChgiFGlvtwdr6oR1Yvd89Lk4NpWObOYgIZ6M4xfWMZGMHpQL4pvFJogY
-        hokZMc6FIAQ0xYd2wsTpIbDFUK9Eq43u1Bxnn9MHY4816Etn0SVtQPFT0XnpNCEG
-        9xOvJyTRCjuNz0TCjpnKMFbh/aSJlp7zP0DqM4D9DfM9FXSO3vcLDrxRF7DqNxUg
-        ==
-X-ME-Sender: <xms:1-EPXU6HHFMwpYnv4HlccPvy7-Kb5WwU8PNeg_sJDDz1GqislLhFJQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtgdduheeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppedujedvrddutdegrddvgeekrdeggeenucfrrghrrghmpehmrghilhhfrh
-    homhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:1-EPXcQuCLfz6DYCswgSKTigaz5D14DHE-R53ONMtQj2pnhgJ86ZWg>
-    <xmx:1-EPXfsiINrXAqwkxGGHbbE9b3tCwSMdtlsYMsZYIBP9jziluHEaKA>
-    <xmx:1-EPXW8G7g2pptb_N4vj2G2lZya-UUtoVtB4Oncm4zGDclBL9c_wpA>
-    <xmx:1-EPXYHgopkB6zq9ZHD16XlPRDjkSo7pONDVHeSEFyu0Q8OpNIw4ng>
-Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4255D380075;
-        Sun, 23 Jun 2019 16:32:18 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/vmwgfx: Use the backdoor port if the HB port is not" failed to apply to 4.9-stable tree
-To:     thellstrom@vmware.com, drawat@vmware.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jun 2019 22:31:43 +0200
-Message-ID: <1561321903194146@kroah.com>
+        id S1726299AbfFWUhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jun 2019 16:37:17 -0400
+Received: from mail-wm1-f42.google.com ([209.85.128.42]:53006 "EHLO
+        mail-wm1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726296AbfFWUhR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 16:37:17 -0400
+Received: by mail-wm1-f42.google.com with SMTP id s3so10839561wms.2
+        for <stable@vger.kernel.org>; Sun, 23 Jun 2019 13:37:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ub0AfvXz46DraPfal6//2UQwl1L9AoWMVlc9IN5qZ0s=;
+        b=nE7zXnYr8x0Oq9mcYaPrskeRVAv9wra0KSAXWAR/4VzH+sryfSmq02V2YXIXYz9BkT
+         GhWpaMyLnhmCuEY3OiDs56E8EI2pTSIl+ycfxNneKCmr08pyILdPNFeJEsmwF4mjxQ//
+         8Be/pnJ7AsH1EX0sFILpUfc77bh/pMto3wR+7V6OwRHdYNLElazSbJDEzb2OZB2/iLeS
+         ZINC/oGpKkWrygHexzVbyc7YyeS+3L2kYQXGyLSrLANugHfyPuNag9oj2mFAecElFrLF
+         KLNZFAfSw26aE8mROOhGBuvbmn58/7P1pJcA2GvWArmEzNSv3Q5A/vcjUi2rnrkofX2y
+         B+Vw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ub0AfvXz46DraPfal6//2UQwl1L9AoWMVlc9IN5qZ0s=;
+        b=BP/5UQcHNHAqylIrCOFr4GnajIsksoo5QM1BTszHFrT+vjN+7PB0dl1EIiHrc2XTuV
+         +HogsMNxyWZ/LWOVMvWtxVyyY8yXpg/+8U6CkG8r2blBPAOgu9qZsfWX3q78tFZFa9G+
+         Knh2bcJfURToQR6+iEHQI1uBjnuLqxiW/w/YIi7zkwvXKyUfUGYt+wbpAuJfS6TPznb4
+         lJ/COELzydyoycHJex5wTP0kZuWkQmYqnmlAFZfw//gDalWfojkZW7Q7THh0eGeaw9ud
+         gRy02Sb6y4dnokeyqHUwjPIz+8+hwSRNW54EkE8JJUT6aZ/yG/aB/AqAoTD91YRt0cB8
+         Jvpg==
+X-Gm-Message-State: APjAAAVDVz7DcV2qdxtk5ZICfxLigxaBGN3YOJOTkgJ9Of5Gbs1EwfUA
+        6ksUz5sbIEQrXtVGGCAsx2y5wMXO61w=
+X-Google-Smtp-Source: APXvYqyLfzXlGTpY576YlqCkS7t8Q9q/suLj3Ce9iX1hvUqDymKlKEbOrFoi7iNT4P7XFnEEHJD7ig==
+X-Received: by 2002:a05:600c:23d2:: with SMTP id p18mr12176744wmb.108.1561322235204;
+        Sun, 23 Jun 2019 13:37:15 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y17sm14932310wrg.18.2019.06.23.13.37.14
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 23 Jun 2019 13:37:14 -0700 (PDT)
+Message-ID: <5d0fe2fa.1c69fb81.b385c.292d@mx.google.com>
+Date:   Sun, 23 Jun 2019 13:37:14 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.1.14-13-g5c276064ec4a
+X-Kernelci-Branch: linux-5.1.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.1.y boot: 128 boots: 2 failed,
+ 118 passed with 7 offline, 1 untried/unknown (v5.1.14-13-g5c276064ec4a)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.1.y boot: 128 boots: 2 failed, 118 passed with 7 offline,=
+ 1 untried/unknown (v5.1.14-13-g5c276064ec4a)
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.1.y/kernel/v5.1.14-13-g5c276064ec4a/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
+/kernel/v5.1.14-13-g5c276064ec4a/
 
-thanks,
+Tree: stable-rc
+Branch: linux-5.1.y
+Git Describe: v5.1.14-13-g5c276064ec4a
+Git Commit: 5c276064ec4a2bc5299ae17c5752c835138dc32d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 73 unique boards, 24 SoC families, 15 builds out of 209
 
-greg k-h
+Boot Regressions Detected:
 
------------------- original commit in Linus's tree ------------------
+arm64:
 
-From cc0ba0d8624f210995924bb57a8b181ce8976606 Mon Sep 17 00:00:00 2001
-From: Thomas Hellstrom <thellstrom@vmware.com>
-Date: Wed, 29 May 2019 08:15:19 +0200
-Subject: [PATCH] drm/vmwgfx: Use the backdoor port if the HB port is not
- available
+    defconfig:
+        gcc-8:
+          meson-gxl-s905x-khadas-vim:
+              lab-baylibre: new failure (last pass: v5.1.14-13-gb8258e6be3b=
+b)
 
-The HB port may not be available for various reasons. Either it has been
-disabled by a config option or by the hypervisor for other reasons.
-In that case, make sure we have a backup plan and use the backdoor port
-instead with a performance penalty.
+Boot Failures Detected:
 
-Cc: stable@vger.kernel.org
-Fixes: 89da76fde68d ("drm/vmwgfx: Add VMWare host messaging capability")
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Reviewed-by: Deepak Rawat <drawat@vmware.com>
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            bcm4708-smartrg-sr400ac: 1 failed lab
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-index 8b9270f31409..e4e09d47c5c0 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-@@ -136,6 +136,114 @@ static int vmw_close_channel(struct rpc_channel *channel)
- 	return 0;
- }
- 
-+/**
-+ * vmw_port_hb_out - Send the message payload either through the
-+ * high-bandwidth port if available, or through the backdoor otherwise.
-+ * @channel: The rpc channel.
-+ * @msg: NULL-terminated message.
-+ * @hb: Whether the high-bandwidth port is available.
-+ *
-+ * Return: The port status.
-+ */
-+static unsigned long vmw_port_hb_out(struct rpc_channel *channel,
-+				     const char *msg, bool hb)
-+{
-+	unsigned long si, di, eax, ebx, ecx, edx;
-+	unsigned long msg_len = strlen(msg);
-+
-+	if (hb) {
-+		unsigned long bp = channel->cookie_high;
-+
-+		si = (uintptr_t) msg;
-+		di = channel->cookie_low;
-+
-+		VMW_PORT_HB_OUT(
-+			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
-+			msg_len, si, di,
-+			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
-+			VMW_HYPERVISOR_MAGIC, bp,
-+			eax, ebx, ecx, edx, si, di);
-+
-+		return ebx;
-+	}
-+
-+	/* HB port not available. Send the message 4 bytes at a time. */
-+	ecx = MESSAGE_STATUS_SUCCESS << 16;
-+	while (msg_len && (HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS)) {
-+		unsigned int bytes = min_t(size_t, msg_len, 4);
-+		unsigned long word = 0;
-+
-+		memcpy(&word, msg, bytes);
-+		msg_len -= bytes;
-+		msg += bytes;
-+		si = channel->cookie_high;
-+		di = channel->cookie_low;
-+
-+		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_SENDPAYLOAD << 16),
-+			 word, si, di,
-+			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
-+			 VMW_HYPERVISOR_MAGIC,
-+			 eax, ebx, ecx, edx, si, di);
-+	}
-+
-+	return ecx;
-+}
-+
-+/**
-+ * vmw_port_hb_in - Receive the message payload either through the
-+ * high-bandwidth port if available, or through the backdoor otherwise.
-+ * @channel: The rpc channel.
-+ * @reply: Pointer to buffer holding reply.
-+ * @reply_len: Length of the reply.
-+ * @hb: Whether the high-bandwidth port is available.
-+ *
-+ * Return: The port status.
-+ */
-+static unsigned long vmw_port_hb_in(struct rpc_channel *channel, char *reply,
-+				    unsigned long reply_len, bool hb)
-+{
-+	unsigned long si, di, eax, ebx, ecx, edx;
-+
-+	if (hb) {
-+		unsigned long bp = channel->cookie_low;
-+
-+		si = channel->cookie_high;
-+		di = (uintptr_t) reply;
-+
-+		VMW_PORT_HB_IN(
-+			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
-+			reply_len, si, di,
-+			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
-+			VMW_HYPERVISOR_MAGIC, bp,
-+			eax, ebx, ecx, edx, si, di);
-+
-+		return ebx;
-+	}
-+
-+	/* HB port not available. Retrieve the message 4 bytes at a time. */
-+	ecx = MESSAGE_STATUS_SUCCESS << 16;
-+	while (reply_len) {
-+		unsigned int bytes = min_t(unsigned long, reply_len, 4);
-+
-+		si = channel->cookie_high;
-+		di = channel->cookie_low;
-+
-+		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_RECVPAYLOAD << 16),
-+			 MESSAGE_STATUS_SUCCESS, si, di,
-+			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
-+			 VMW_HYPERVISOR_MAGIC,
-+			 eax, ebx, ecx, edx, si, di);
-+
-+		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0)
-+			break;
-+
-+		memcpy(reply, &ebx, bytes);
-+		reply_len -= bytes;
-+		reply += bytes;
-+	}
-+
-+	return ecx;
-+}
- 
- 
- /**
-@@ -148,11 +256,10 @@ static int vmw_close_channel(struct rpc_channel *channel)
-  */
- static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
- {
--	unsigned long eax, ebx, ecx, edx, si, di, bp;
-+	unsigned long eax, ebx, ecx, edx, si, di;
- 	size_t msg_len = strlen(msg);
- 	int retries = 0;
- 
--
- 	while (retries < RETRIES) {
- 		retries++;
- 
-@@ -166,23 +273,14 @@ static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
- 			VMW_HYPERVISOR_MAGIC,
- 			eax, ebx, ecx, edx, si, di);
- 
--		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
--		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
--			/* Expected success + high-bandwidth. Give up. */
-+		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
-+			/* Expected success. Give up. */
- 			return -EINVAL;
- 		}
- 
- 		/* Send msg */
--		si  = (uintptr_t) msg;
--		di  = channel->cookie_low;
--		bp  = channel->cookie_high;
--
--		VMW_PORT_HB_OUT(
--			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
--			msg_len, si, di,
--			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
--			VMW_HYPERVISOR_MAGIC, bp,
--			eax, ebx, ecx, edx, si, di);
-+		ebx = vmw_port_hb_out(channel, msg,
-+				      !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
- 
- 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) != 0) {
- 			return 0;
-@@ -211,7 +309,7 @@ STACK_FRAME_NON_STANDARD(vmw_send_msg);
- static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 			size_t *msg_len)
- {
--	unsigned long eax, ebx, ecx, edx, si, di, bp;
-+	unsigned long eax, ebx, ecx, edx, si, di;
- 	char *reply;
- 	size_t reply_len;
- 	int retries = 0;
-@@ -233,8 +331,7 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 			VMW_HYPERVISOR_MAGIC,
- 			eax, ebx, ecx, edx, si, di);
- 
--		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
--		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
-+		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			DRM_ERROR("Failed to get reply size for host message.\n");
- 			return -EINVAL;
- 		}
-@@ -252,17 +349,8 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 
- 
- 		/* Receive buffer */
--		si  = channel->cookie_high;
--		di  = (uintptr_t) reply;
--		bp  = channel->cookie_low;
--
--		VMW_PORT_HB_IN(
--			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
--			reply_len, si, di,
--			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
--			VMW_HYPERVISOR_MAGIC, bp,
--			eax, ebx, ecx, edx, si, di);
--
-+		ebx = vmw_port_hb_in(channel, reply, reply_len,
-+				     !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
- 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
- 
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s905x-khadas-vim: 1 failed lab
 
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
