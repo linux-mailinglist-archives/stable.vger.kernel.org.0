@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF4504FDF0
-	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 22:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F30A94FDF1
+	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 22:23:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726320AbfFWUXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jun 2019 16:23:09 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:54243 "EHLO
+        id S1726368AbfFWUX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jun 2019 16:23:27 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:43563 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726299AbfFWUXJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 16:23:09 -0400
+        by vger.kernel.org with ESMTP id S1726299AbfFWUX0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 16:23:26 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3CD1C21C0F;
-        Sun, 23 Jun 2019 16:23:08 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id D73AB21F8A;
+        Sun, 23 Jun 2019 16:23:25 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 23 Jun 2019 16:23:08 -0400
+  by compute6.internal (MEProxy); Sun, 23 Jun 2019 16:23:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=vcnU9A
-        3yLOieWcM1ajVPKC2LX2IiWQyLJlxy3r7485w=; b=lS1REU4yQRbQrIqCBECAmW
-        uPHy/vrq9CfhsKZtEefAjaTsKo5jHWcCBjxuyPwWKA0b8Z9keTDj4n/uoDQEFwMv
-        zqTOEaqNk1ssQm0vrBavum4CfG7hLQqmhRDveY/xZPCDB2+aM0dVfNm7Hm36/YGK
-        0yD3/TJOPdWSHswvwYlb9MysVI3ZwXAM2LOAEJ7zWkxha6TdErnnNhds/4zwlW8f
-        y0zHsKxi46oyTlPXGVqXcNyn6Yjh06RGghaq6KFmmm/ROzn5ShSERIucwFGHqaND
-        UFMH36Xw2vIU+TuTqCu7CPzfLk2De+vKnRVNHUEZ6bhXZ3QFcZxwCFNwWO0oTXoA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=lHhcTj
+        1CO14IXrKwirCSnH/ez/LH5PCN5Nx9fgnrFJk=; b=Nvk8baT44Cr6lIelmRI5/L
+        FEs6mE19/p1Abum1GubMrpESm+fsnvsAFyWlBNT2lcAclreSq5ngMIonSJ7o7RCb
+        NXryU/MgCGqRMr0vGwaqDsDg+MKKGlrFcQnqr3kwj25kuZJyq9InV+rr1Fw9usdp
+        gcXGiu9YHxSSYVnoKGxpyxt6enLgVr4zlF8x4VDfn+MQDT5b/edA+v5v+dmnApT1
+        TDOCKEbSKQTuHN3FKRaWczQyk8Lc2Fbt3YkZe4mf7G8N5YcmCiPrqT1WXUxI04Cq
+        hLXyzLvBlidbOB4S19VLD80DZHv1OJWkQxVe+I+Ll/PnfGh9ua4Ik0NeYrnIYx5g
         ==
-X-ME-Sender: <xms:q98PXdn4p_nQEnsofAVMnKLINEYthqTdKHFSIzUbAbZ0XIG8aw6APg>
+X-ME-Sender: <xms:vd8PXfrULHiT4h8L9yugAxldB_M_LB4xQXbhSLCrSqYBXakWBoRTbQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddruddtgdduheegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppedujedvrddutdegrddvgeekrdeggeenucfrrghrrghmpehmrghilhhfrh
-    homhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepge
-X-ME-Proxy: <xmx:rN8PXfpPRHBocxWS-BTISGjyUdEPLJMxmJ1KFRtCBpyYZIeP5YBfYw>
-    <xmx:rN8PXck_9pBeWZ--wNvCld8iQx_08kGyNEf2TMRSl1xudnmVlaciRQ>
-    <xmx:rN8PXQaKdSmHCf0KLl0Id3tPTTOkeWyKC3ivI1v6AlT5wShTdEmnJw>
-    <xmx:rN8PXR12qIMEtCNbJRCL2Sh9BPhM6BTputMDkRcKeYGTaIxyW9iDDw>
+    gheqnecuffhomhgrihhnpehqvghmuhdqphhrohhjvggtthdrohhrghenucfkphepudejvd
+    druddtgedrvdegkedrgeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhr
+    ohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:vd8PXWDKx9UqWAXF9SsQAnxPjdWf24i1T2mDKITVV0P94mkUmHg2IA>
+    <xmx:vd8PXQr8HpkbH9nhJKH295195x9f50edGiuwQfmDNPYUdEh4RvT7dA>
+    <xmx:vd8PXRBhD5UNUf5x0hr-4pW4A1Y_VKjyVo0zOFAihalBZke56ocMEg>
+    <xmx:vd8PXaVj9ZxT5PRzpRQcP9PZabJt1eL-BUlmwg7f0Y5rEFa7trCSjw>
 Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5597A380074;
-        Sun, 23 Jun 2019 16:23:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Btrfs: fix failure to persist compression property xattr" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 11FDC380085;
+        Sun, 23 Jun 2019 16:23:21 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: fix race between block group removal and block group" failed to apply to 5.0-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jun 2019 22:21:39 +0200
-Message-ID: <15613212991125@kroah.com>
+Date:   Sun, 23 Jun 2019 22:21:52 +0200
+Message-ID: <1561321312115223@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,82 +68,165 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3763771cf60236caaf7ccc79cea244c63d7c49a0 Mon Sep 17 00:00:00 2001
+From 8eaf40c0e24e98899a0f3ac9d25a33aafe13822a Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Wed, 12 Jun 2019 15:14:11 +0100
-Subject: [PATCH] Btrfs: fix failure to persist compression property xattr
- deletion on fsync
+Date: Wed, 12 Jun 2019 11:05:42 +0100
+Subject: [PATCH] Btrfs: fix race between block group removal and block group
+ allocation
 
-After the recent series of cleanups in the properties and xattrs modules
-that landed in the 5.2 merge window, we ended up with a regression where
-after deleting the compression xattr property through the setflags ioctl,
-we don't set the BTRFS_INODE_COPY_EVERYTHING flag in the inode anymore.
-As a consequence, if the inode was fsync'ed when it had the compression
-property set, after deleting the compression property through the setflags
-ioctl and fsync'ing again the inode, the log will still contain the
-compression xattr, because the inode did not had that bit set, which
-made the fsync not delete all xattrs from the log and copy all xattrs
-from the subvolume tree to the log tree.
+If a task is removing the block group that currently has the highest start
+offset amongst all existing block groups, there is a short time window
+where it races with a concurrent block group allocation, resulting in a
+transaction abort with an error code of EEXIST.
 
-This regression happens due to the fact that that series of cleanups
-made btrfs_set_prop() call the old function do_setxattr() (which is now
-named btrfs_setxattr()), and not the old version of btrfs_setxattr(),
-which is now called btrfs_setxattr_trans().
+The following diagram explains the race in detail:
 
-Fix this by setting the BTRFS_INODE_COPY_EVERYTHING bit in the current
-btrfs_setxattr() function and remove it from everywhere else, including
-its setup at btrfs_ioctl_setflags(). This is cleaner, avoids similar
-regressions in the future, and centralizes the setup of the bit. After
-all, the need to setup this bit should only be in the xattrs module,
-since it is an implementation of xattrs.
+      Task A                                                        Task B
 
-Fixes: 04e6863b19c722 ("btrfs: split btrfs_setxattr calls regarding transaction")
+ btrfs_remove_block_group(bg offset X)
+
+   remove_extent_mapping(em offset X)
+     -> removes extent map X from the
+        tree of extent maps
+        (fs_info->mapping_tree), so the
+        next call to find_next_chunk()
+        will return offset X
+
+                                                   btrfs_alloc_chunk()
+                                                     find_next_chunk()
+                                                       --> returns offset X
+
+                                                     __btrfs_alloc_chunk(offset X)
+                                                       btrfs_make_block_group()
+                                                         btrfs_create_block_group_cache()
+                                                           --> creates btrfs_block_group_cache
+                                                               object with a key corresponding
+                                                               to the block group item in the
+                                                               extent, the key is:
+                                                               (offset X, BTRFS_BLOCK_GROUP_ITEM_KEY, 1G)
+
+                                                         --> adds the btrfs_block_group_cache object
+                                                             to the list new_bgs of the transaction
+                                                             handle
+
+                                                   btrfs_end_transaction(trans handle)
+                                                     __btrfs_end_transaction()
+                                                       btrfs_create_pending_block_groups()
+                                                         --> sees the new btrfs_block_group_cache
+                                                             in the new_bgs list of the transaction
+                                                             handle
+                                                         --> its call to btrfs_insert_item() fails
+                                                             with -EEXIST when attempting to insert
+                                                             the block group item key
+                                                             (offset X, BTRFS_BLOCK_GROUP_ITEM_KEY, 1G)
+                                                             because task A has not removed that key yet
+                                                         --> aborts the running transaction with
+                                                             error -EEXIST
+
+   btrfs_del_item()
+     -> removes the block group's key from
+        the extent tree, key is
+        (offset X, BTRFS_BLOCK_GROUP_ITEM_KEY, 1G)
+
+A sample transaction abort trace:
+
+  [78912.403537] ------------[ cut here ]------------
+  [78912.403811] BTRFS: Transaction aborted (error -17)
+  [78912.404082] WARNING: CPU: 2 PID: 20465 at fs/btrfs/extent-tree.c:10551 btrfs_create_pending_block_groups+0x196/0x250 [btrfs]
+  (...)
+  [78912.405642] CPU: 2 PID: 20465 Comm: btrfs Tainted: G        W         5.0.0-btrfs-next-46 #1
+  [78912.405941] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
+  [78912.406586] RIP: 0010:btrfs_create_pending_block_groups+0x196/0x250 [btrfs]
+  (...)
+  [78912.407636] RSP: 0018:ffff9d3d4b7e3b08 EFLAGS: 00010282
+  [78912.407997] RAX: 0000000000000000 RBX: ffff90959a3796f0 RCX: 0000000000000006
+  [78912.408369] RDX: 0000000000000007 RSI: 0000000000000001 RDI: ffff909636b16860
+  [78912.408746] RBP: ffff909626758a58 R08: 0000000000000000 R09: 0000000000000000
+  [78912.409144] R10: ffff9095ff462400 R11: 0000000000000000 R12: ffff90959a379588
+  [78912.409521] R13: ffff909626758ab0 R14: ffff9095036c0000 R15: ffff9095299e1158
+  [78912.409899] FS:  00007f387f16f700(0000) GS:ffff909636b00000(0000) knlGS:0000000000000000
+  [78912.410285] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [78912.410673] CR2: 00007f429fc87cbc CR3: 000000014440a004 CR4: 00000000003606e0
+  [78912.411095] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [78912.411496] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [78912.411898] Call Trace:
+  [78912.412318]  __btrfs_end_transaction+0x5b/0x1c0 [btrfs]
+  [78912.412746]  btrfs_inc_block_group_ro+0xcf/0x160 [btrfs]
+  [78912.413179]  scrub_enumerate_chunks+0x188/0x5b0 [btrfs]
+  [78912.413622]  ? __mutex_unlock_slowpath+0x100/0x2a0
+  [78912.414078]  btrfs_scrub_dev+0x2ef/0x720 [btrfs]
+  [78912.414535]  ? __sb_start_write+0xd4/0x1c0
+  [78912.414963]  ? mnt_want_write_file+0x24/0x50
+  [78912.415403]  btrfs_ioctl+0x17fb/0x3120 [btrfs]
+  [78912.415832]  ? lock_acquire+0xa6/0x190
+  [78912.416256]  ? do_vfs_ioctl+0xa2/0x6f0
+  [78912.416685]  ? btrfs_ioctl_get_supported_features+0x30/0x30 [btrfs]
+  [78912.417116]  do_vfs_ioctl+0xa2/0x6f0
+  [78912.417534]  ? __fget+0x113/0x200
+  [78912.417954]  ksys_ioctl+0x70/0x80
+  [78912.418369]  __x64_sys_ioctl+0x16/0x20
+  [78912.418812]  do_syscall_64+0x60/0x1b0
+  [78912.419231]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  [78912.419644] RIP: 0033:0x7f3880252dd7
+  (...)
+  [78912.420957] RSP: 002b:00007f387f16ed68 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+  [78912.421426] RAX: ffffffffffffffda RBX: 000055f5becc1df0 RCX: 00007f3880252dd7
+  [78912.421889] RDX: 000055f5becc1df0 RSI: 00000000c400941b RDI: 0000000000000003
+  [78912.422354] RBP: 0000000000000000 R08: 00007f387f16f700 R09: 0000000000000000
+  [78912.422790] R10: 00007f387f16f700 R11: 0000000000000246 R12: 0000000000000000
+  [78912.423202] R13: 00007ffda49c266f R14: 0000000000000000 R15: 00007f388145e040
+  [78912.425505] ---[ end trace eb9bfe7c426fc4d3 ]---
+
+Fix this by calling remove_extent_mapping(), at btrfs_remove_block_group(),
+only at the very end, after removing the block group item key from the
+extent tree (and removing the free space tree entry if we are using the
+free space tree feature).
+
+Fixes: 04216820fe83d5 ("Btrfs: fix race between fs trimming and block group remove/allocation")
 CC: stable@vger.kernel.org # 4.4+
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 6dafa857bbb9..2a1be0d1a698 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -312,8 +312,6 @@ static int btrfs_ioctl_setflags(struct file *file, void __user *arg)
- 			btrfs_abort_transaction(trans, ret);
- 			goto out_end_trans;
- 		}
--		set_bit(BTRFS_INODE_COPY_EVERYTHING,
--			&BTRFS_I(inode)->runtime_flags);
- 	} else {
- 		ret = btrfs_set_prop(trans, inode, "btrfs.compression", NULL,
- 				     0, 0);
-diff --git a/fs/btrfs/xattr.c b/fs/btrfs/xattr.c
-index 78b6ba2029e8..95d9aebff2c4 100644
---- a/fs/btrfs/xattr.c
-+++ b/fs/btrfs/xattr.c
-@@ -213,6 +213,9 @@ int btrfs_setxattr(struct btrfs_trans_handle *trans, struct inode *inode,
- 	}
- out:
- 	btrfs_free_path(path);
-+	if (!ret)
-+		set_bit(BTRFS_INODE_COPY_EVERYTHING,
-+			&BTRFS_I(inode)->runtime_flags);
- 	return ret;
- }
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index c7adff343ba9..5faf057f6f37 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -10831,17 +10831,6 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 	remove_em = (atomic_read(&block_group->trimming) == 0);
+ 	spin_unlock(&block_group->lock);
  
-@@ -236,7 +239,6 @@ int btrfs_setxattr_trans(struct inode *inode, const char *name,
+-	if (remove_em) {
+-		struct extent_map_tree *em_tree;
+-
+-		em_tree = &fs_info->mapping_tree.map_tree;
+-		write_lock(&em_tree->lock);
+-		remove_extent_mapping(em_tree, em);
+-		write_unlock(&em_tree->lock);
+-		/* once for the tree */
+-		free_extent_map(em);
+-	}
+-
+ 	mutex_unlock(&fs_info->chunk_mutex);
  
- 	inode_inc_iversion(inode);
- 	inode->i_ctime = current_time(inode);
--	set_bit(BTRFS_INODE_COPY_EVERYTHING, &BTRFS_I(inode)->runtime_flags);
- 	ret = btrfs_update_inode(trans, root, inode);
- 	BUG_ON(ret);
+ 	ret = remove_block_group_free_space(trans, block_group);
+@@ -10858,6 +10847,19 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 		goto out;
+ 
+ 	ret = btrfs_del_item(trans, root, path);
++	if (ret)
++		goto out;
++
++	if (remove_em) {
++		struct extent_map_tree *em_tree;
++
++		em_tree = &fs_info->mapping_tree.map_tree;
++		write_lock(&em_tree->lock);
++		remove_extent_mapping(em_tree, em);
++		write_unlock(&em_tree->lock);
++		/* once for the tree */
++		free_extent_map(em);
++	}
  out:
-@@ -388,8 +390,6 @@ static int btrfs_xattr_handler_set_prop(const struct xattr_handler *handler,
- 	if (!ret) {
- 		inode_inc_iversion(inode);
- 		inode->i_ctime = current_time(inode);
--		set_bit(BTRFS_INODE_COPY_EVERYTHING,
--			&BTRFS_I(inode)->runtime_flags);
- 		ret = btrfs_update_inode(trans, root, inode);
- 		BUG_ON(ret);
- 	}
+ 	if (remove_rsv)
+ 		btrfs_delayed_refs_rsv_release(fs_info, 1);
 
