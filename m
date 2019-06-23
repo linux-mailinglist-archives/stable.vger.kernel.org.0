@@ -2,107 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EEE04F8DF
-	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 01:15:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD9A14F96B
+	for <lists+stable@lfdr.de>; Sun, 23 Jun 2019 03:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726368AbfFVXPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jun 2019 19:15:48 -0400
-Received: from mail-wr1-f49.google.com ([209.85.221.49]:36655 "EHLO
-        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726365AbfFVXPs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jun 2019 19:15:48 -0400
-Received: by mail-wr1-f49.google.com with SMTP id n4so8790679wrs.3
-        for <stable@vger.kernel.org>; Sat, 22 Jun 2019 16:15:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Vya1wTMK6cI4BnWpnsuJ8vp9yvYKtuLAG0+yYIYNWg0=;
-        b=Hyq7DI5FjGZL8hbxg3Y2+C3Do6BfAMP0ZAfnIAbNz4/LHCSbv5yZlMbRM+4Q9wvKxL
-         AXdfz8PN2UmU9+Ej5VpFmaXvg2KseEHzA6DikiUnu2auaMCZ0ZdkSKfoqME3NN06JLJ+
-         Em6Pc1AuVy00bH1KQhibgq6BC8EPSLsXmh8XR/RclEpzpf1zCUhi0sk51BjgPixZ/DTJ
-         hABYP6B718fDTf5eDRM8IYCJhVZA0Zod5f5DpiIHlOE0e8m2t/l/C/XERJEO8c+N3rTz
-         6DOW2UlCZuPgceOUjSggVWXIWPX9anQDijV63OdYrh8KqAwldqKCg8oJ+da765TMSG2P
-         KcDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Vya1wTMK6cI4BnWpnsuJ8vp9yvYKtuLAG0+yYIYNWg0=;
-        b=srxLAx0Us0HfN1MHC7t1ejO90nn4bID2KKDd+aLF1PTJkQLhorwrybZyEgvL/G8pIg
-         W7nPwBFpirHsdZJRCI6XtrJ31bBxk7qU8jOiDoJdpC8S6rF2c23zj2SFu5/t5lPO80p+
-         rBOCe2gENnuwL1QlOmOsTm2WTC2kdkSlWXP5CuL/0fdKchXSmz9dvAn1v7p/VddInsCK
-         YjFQPGQ+1vtYWAj/FYWZ8HctqeZij9Cz/EbqXw7+6sGvtdpL1mGi5mbxrtkaAEB8nDNv
-         xxpnHVsVH7b+okz19bEHYFjVlFPq1wXFOGVEnghHwqtofpk67ELjk0uVmIjO3OtN0TOM
-         Phbg==
-X-Gm-Message-State: APjAAAWvKzswWZPTjzhraJ0wkRjT6vioF4TNAbmvRVnQVM/DC6M76OQU
-        AOq/WseDHu9RVn4XTfS187RJWsfDjio=
-X-Google-Smtp-Source: APXvYqyqcG8w5J8yU9oTWrULlJJ0FQ38UC5ytJL+ycODthwmFL7kxKiI5cAiEqlJfxRE+5f2JOLlDA==
-X-Received: by 2002:a5d:5692:: with SMTP id f18mr44561163wrv.104.1561245346613;
-        Sat, 22 Jun 2019 16:15:46 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id z5sm5355999wmf.48.2019.06.22.16.15.45
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 22 Jun 2019 16:15:46 -0700 (PDT)
-Message-ID: <5d0eb6a2.1c69fb81.9fa91.d3c1@mx.google.com>
-Date:   Sat, 22 Jun 2019 16:15:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726423AbfFWBDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jun 2019 21:03:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34738 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725844AbfFWBDr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 22 Jun 2019 21:03:47 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53A472084E;
+        Sun, 23 Jun 2019 01:03:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1561251826;
+        bh=cuwbYT8yBxuJ7pc8Ea2TdAptwyRjgPT1ZamHNhYYwwY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=L24R2DEIfBcLEreg0U/G/Lx1iIAeodxZVKSaG8Buhh+Tw5gs6J2YYM+/Qpg3Wzzpr
+         KDlru/GoMdrz2sKvUXqDatA4IDugkDGxvbPXltjeDO+jZD5kVgdMwdNiUmrHdzeuhr
+         gt+yMvMrV7DMEsw3iDbYPE4UQ714s2dnp9IlNeH4=
+Date:   Sat, 22 Jun 2019 21:03:45 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Amir Goldstein <amir73il@gmail.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        stable <stable@vger.kernel.org>,
+        overlayfs <linux-unionfs@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] ovl: support the FS_IOC_FS[SG]ETXATTR
+ ioctls" failed to apply to 5.1-stable tree
+Message-ID: <20190623010345.GJ2226@sasha-vm>
+References: <1560073529193139@kroah.com>
+ <CAOQ4uxiTrsOs3KWOxedZicXNMJJharmWo=TDXDnxSC1XMNVKBg@mail.gmail.com>
+ <CAOQ4uxiTTuOESvZ2Y5cSebqKs+qeU3q6ZMReBDro0Qv7aRBhpw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.55-4-gd0fe796becb0
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y boot: 122 boots: 0 failed,
- 115 passed with 7 offline (v4.19.55-4-gd0fe796becb0)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CAOQ4uxiTTuOESvZ2Y5cSebqKs+qeU3q6ZMReBDro0Qv7aRBhpw@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 122 boots: 0 failed, 115 passed with 7 offline=
- (v4.19.55-4-gd0fe796becb0)
+On Fri, Jun 21, 2019 at 11:15:47AM +0300, Amir Goldstein wrote:
+>On Thu, Jun 13, 2019 at 11:49 AM Amir Goldstein <amir73il@gmail.com> wrote:
+>>
+>> On Sun, Jun 9, 2019 at 12:45 PM <gregkh@linuxfoundation.org> wrote:
+>> >
+>> >
+>> > The patch below does not apply to the 5.1-stable tree.
+>> > If someone wants it applied there, or to any other stable or longterm
+>> > tree, then please email the backport, including the original git commit
+>> > id to <stable@vger.kernel.org>.
+>> >
+>> > thanks,
+>> >
+>> > greg k-h
+>> >
+>>
+>> FYI, the failure to apply this patch would be resolved after you
+>> picked up "ovl: check the capability before cred overridden" for
+>> stable, please hold off from taking this patch just yet, because
+>> it has a bug, whose fix wasn't picked upstream yet.
+>>
+>
+>Greg,
+>
+>Please apply these patches to stable 4.19.
+>They fix a docker regression (project quotas feature).
+>
+>b21d9c435f93 ovl: support the FS_IOC_FS[SG]ETXATTR ioctls
+>941d935ac763 ovl: fix wrong flags check in FS_IOC_FS[SG]ETXATTR ioctls
+>
+>They apply cleanly and tested on v4.19.53.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.55-4-gd0fe796becb0/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.55-4-gd0fe796becb0/
+I've queued these for 4.19.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.55-4-gd0fe796becb0
-Git Commit: d0fe796becb0d4ff5242ea8166eb4c59a877763f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 24 SoC families, 15 builds out of 206
+>While at it, I also tested that the following patches apply cleanly and solve
+>relevant issues on v4.19.53, but they are not clear stable candidates.
+>
+>1) /proc/locks shows incorrect ino. Only reported by xfstests (so far):
+>6dde1e42f497 ovl: make i_ino consistent with st_ino in more cases
 
-Offline Platforms:
+And this.
 
-arm:
+>2) Fix output of `modinfo overlay`:
+>253e74833911 ovl: fix typo in MODULE_PARM_DESC
 
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
+But not this one. Maybe we should be including these in stable trees
+since the risk factor is low and it fixes something user-visible, but
+our current rules object this this kind of patches so I've left it out.
 
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
+>3) Disallow bogus layer combinations.
+>syzbot has started to produce repros that create bogus layer combinations.
+>So far it has only been able to reproduce a WARN_ON, which has already
+>been fixed in stable, by  acf3062a7e1c ("ovl: relax WARN_ON()..."), but
+>other real bugs could be lurking if those setups are allowed.
+>We decided to detect and error on these setups on mount, to stop syzbot
+>(and attackers) from trying to attack overlayfs this way.
+>To stop syzbot from mutating this class of repros on stable kernel you
+>MAY apply these 3 patches, but in any case, I would wait a while to see
+>if more bugs are reported on master.
+>Although this solves a problem dating before 4.19, I have no plans
+>of backporting these patches further back.
+>
+>146d62e5a586 ovl: detect overlapping layers
+>9179c21dc6ed ovl: don't fail with disconnected lower NFS
+>1dac6f5b0ed2 ovl: fix bogus -Wmaybe-unitialized warning
 
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
+I've queued these 3 for 4.19.
 
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+--
+Thanks,
+Sasha
