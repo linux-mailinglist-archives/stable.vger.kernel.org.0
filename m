@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A427350742
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F254F50868
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728939AbfFXKGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:06:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38112 "EHLO mail.kernel.org"
+        id S1730875AbfFXKRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:17:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729403AbfFXKGB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:06:01 -0400
+        id S1728562AbfFXKRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:17:05 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0370C212F5;
-        Mon, 24 Jun 2019 10:05:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 418BB2089F;
+        Mon, 24 Jun 2019 10:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370760;
-        bh=OQps3H3ljcKHdkYTP3akozmibnMzVqfCH4EZLVabmbA=;
+        s=default; t=1561371424;
+        bh=CRSruYZNYZEsKMB0PpnlbwDxJmP7qjeeKQInSfEmv5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jmp27kTv1RlcRhxf7Q/JdqryTPQ0mk+j6T95yWfBS0S7Glv6wFt/Y4VxL80n83y8F
-         NFg5heK8Nw0vHHKrYHRQotG8QG0b4O5rBFp4JkHUig/jLp7UT/4Cvb1ySJbD+A93lF
-         DXUXxNrXCBYKd76y4JmQ8DzCwOdgn0BtGPEzNPg8=
+        b=UT0WPI+eFvZQyADi8wVRAxmfDFmQRVt4532lpzB923mDmvxzybx9IyT0/xsApOGkk
+         XzGr3HzdVHQ1A5kDkd9C6C6puYzsLVjgUSEw3db0GHzopSccfMxACmD2a5vmbD/m8V
+         IkYXMf1BjdXDCf6fLGzqx54VvdMGmLh3bQluFW4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Gao Xiang <gaoxiang25@huawei.com>
-Subject: [PATCH 4.19 80/90] staging: erofs: add requirements field in superblock
+        stable@vger.kernel.org,
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
+        <sebastien.szymanski@armadeus.com>, Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.1 098/121] ARM: imx: cpuidle-imx6sx: Restrict the SW2ISO increase to i.MX6SX
 Date:   Mon, 24 Jun 2019 17:57:10 +0800
-Message-Id: <20190624092319.173827456@linuxfoundation.org>
+Message-Id: <20190624092325.745004450@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <gaoxiang25@huawei.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit 5efe5137f05bbb4688890620934538c005e7d1d6 upstream.
+commit b25af2ff7c07bd19af74e3f64ff82e2880d13d81 upstream.
 
-There are some backward incompatible features pending
-for months, mainly due to on-disk format expensions.
+Since commit 1e434b703248 ("ARM: imx: update the cpu power up timing
+setting on i.mx6sx") some characters loss is noticed on i.MX6ULL UART
+as reported by Christoph Niedermaier.
 
-However, we should ensure that it cannot be mounted with
-old kernels. Otherwise, it will causes unexpected behaviors.
+The intention of such commit was to increase the SW2ISO field for i.MX6SX
+only, but since cpuidle-imx6sx is also used on i.MX6UL/i.MX6ULL this caused
+unintended side effects on other SoCs.
 
-Fixes: ba2b77a82022 ("staging: erofs: add super block operations")
-Cc: <stable@vger.kernel.org> # 4.19+
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Fix this problem by keeping the original SW2ISO value for i.MX6UL/i.MX6ULL
+and only increase SW2ISO in the i.MX6SX case.
+
+Cc: stable@vger.kernel.org
+Fixes: 1e434b703248 ("ARM: imx: update the cpu power up timing setting on i.mx6sx")
+Reported-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Tested-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+Tested-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/erofs/erofs_fs.h |   13 ++++++++++---
- drivers/staging/erofs/internal.h |    2 ++
- drivers/staging/erofs/super.c    |   19 +++++++++++++++++++
- 3 files changed, 31 insertions(+), 3 deletions(-)
+ arch/arm/mach-imx/cpuidle-imx6sx.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/erofs/erofs_fs.h
-+++ b/drivers/staging/erofs/erofs_fs.h
-@@ -17,10 +17,16 @@
- #define EROFS_SUPER_MAGIC_V1    0xE0F5E1E2
- #define EROFS_SUPER_OFFSET      1024
+--- a/arch/arm/mach-imx/cpuidle-imx6sx.c
++++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
+@@ -15,6 +15,7 @@
  
-+/*
-+ * Any bits that aren't in EROFS_ALL_REQUIREMENTS should be
-+ * incompatible with this kernel version.
-+ */
-+#define EROFS_ALL_REQUIREMENTS  0
-+
- struct erofs_super_block {
- /*  0 */__le32 magic;           /* in the little endian */
- /*  4 */__le32 checksum;        /* crc32c(super_block) */
--/*  8 */__le32 features;
-+/*  8 */__le32 features;        /* (aka. feature_compat) */
- /* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
- /* 13 */__u8 reserved;
+ #include "common.h"
+ #include "cpuidle.h"
++#include "hardware.h"
  
-@@ -34,9 +40,10 @@ struct erofs_super_block {
- /* 44 */__le32 xattr_blkaddr;
- /* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
- /* 64 */__u8 volume_name[16];   /* volume name */
-+/* 80 */__le32 requirements;    /* (aka. feature_incompat) */
- 
--/* 80 */__u8 reserved2[48];     /* 128 bytes */
--} __packed;
-+/* 84 */__u8 reserved2[44];
-+} __packed;                     /* 128 bytes */
- 
- #define __EROFS_BIT(_prefix, _cur, _pre)	enum {	\
- 	_prefix ## _cur ## _BIT = _prefix ## _pre ## _BIT + \
---- a/drivers/staging/erofs/internal.h
-+++ b/drivers/staging/erofs/internal.h
-@@ -111,6 +111,8 @@ struct erofs_sb_info {
- 
- 	u8 uuid[16];                    /* 128-bit uuid for volume */
- 	u8 volume_name[16];             /* volume name */
-+	u32 requirements;
-+
- 	char *dev_name;
- 
- 	unsigned int mount_opt;
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -75,6 +75,22 @@ static void destroy_inode(struct inode *
- 	call_rcu(&inode->i_rcu, i_callback);
- }
- 
-+static bool check_layout_compatibility(struct super_block *sb,
-+				       struct erofs_super_block *layout)
-+{
-+	const unsigned int requirements = le32_to_cpu(layout->requirements);
-+
-+	EROFS_SB(sb)->requirements = requirements;
-+
-+	/* check if current kernel meets all mandatory requirements */
-+	if (requirements & (~EROFS_ALL_REQUIREMENTS)) {
-+		errln("unidentified requirements %x, please upgrade kernel version",
-+		      requirements & ~EROFS_ALL_REQUIREMENTS);
-+		return false;
-+	}
-+	return true;
-+}
-+
- static int superblock_read(struct super_block *sb)
+ static int imx6sx_idle_finish(unsigned long val)
  {
- 	struct erofs_sb_info *sbi;
-@@ -108,6 +124,9 @@ static int superblock_read(struct super_
- 		goto out;
- 	}
+@@ -110,7 +111,7 @@ int __init imx6sx_cpuidle_init(void)
+ 	 * except for power up sw2iso which need to be
+ 	 * larger than LDO ramp up time.
+ 	 */
+-	imx_gpc_set_arm_power_up_timing(0xf, 1);
++	imx_gpc_set_arm_power_up_timing(cpu_is_imx6sx() ? 0xf : 0x2, 1);
+ 	imx_gpc_set_arm_power_down_timing(1, 1);
  
-+	if (!check_layout_compatibility(sb, layout))
-+		goto out;
-+
- 	sbi->blocks = le32_to_cpu(layout->blocks);
- 	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
- #ifdef CONFIG_EROFS_FS_XATTR
+ 	return cpuidle_register(&imx6sx_cpuidle_driver, NULL);
 
 
