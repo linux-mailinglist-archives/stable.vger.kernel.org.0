@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88F9850867
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EC9B5073F
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730866AbfFXKRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:17:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54612 "EHLO mail.kernel.org"
+        id S1729831AbfFXKF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:05:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729631AbfFXKRD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:17:03 -0400
+        id S1729819AbfFXKF6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:58 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D13C20645;
-        Mon, 24 Jun 2019 10:17:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57E90212F5;
+        Mon, 24 Jun 2019 10:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371422;
-        bh=2JSS8IKH4OmQiltOgzRLBWCt9V9Lbb5J6fFkHC+io+k=;
+        s=default; t=1561370757;
+        bh=0soxVsViu3xx6+L+4kDR+OCTU6k4+MLhJZC68ctLQYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZJ3FPi/xKEL6plCP6JGv199eMoQgfgqezuJ0lcU40+qLCVbg20Q0qzvgU9y26115o
-         A2Zhrvh9JPhoQFRJFwcQeVnMSVs/jGbVk1mtUMTFK6qKC5pq+Q0GuXWCLhAII8/1Oi
-         NnhUug/Pz0FfpWDQYxOR8nMcnsuROPrWbZyOzScQ=
+        b=xxwCx/yh0qSiS5EfeCAFMk2ShcqlAIIMHIcJbqS8KVZzRM0lBMLEynaT2q/+hz/tM
+         pCeABD2MQaaIPC+GFfAzliR72rrrhf2NxrB/oXUke+NTJGswzb4UgahCxcYvx0hEZF
+         SydwYXygCEEkZOa01+RqW2UfJOtc/iRHFEDOg8zI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.1 097/121] powerpc/bpf: use unsigned division instruction for 64-bit operations
+        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
+        Deepak Rawat <drawat@vmware.com>
+Subject: [PATCH 4.19 79/90] drm/vmwgfx: Use the backdoor port if the HB port is not available
 Date:   Mon, 24 Jun 2019 17:57:09 +0800
-Message-Id: <20190624092325.708652754@linuxfoundation.org>
+Message-Id: <20190624092319.123052565@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +43,221 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Thomas Hellstrom <thellstrom@vmware.com>
 
-commit 758f2046ea040773ae8ea7f72dd3bbd8fa984501 upstream.
+commit cc0ba0d8624f210995924bb57a8b181ce8976606 upstream.
 
-BPF_ALU64 div/mod operations are currently using signed division, unlike
-BPF_ALU32 operations. Fix the same. DIV64 and MOD64 overflow tests pass
-with this fix.
+The HB port may not be available for various reasons. Either it has been
+disabled by a config option or by the hypervisor for other reasons.
+In that case, make sure we have a backup plan and use the backdoor port
+instead with a performance penalty.
 
-Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
-Cc: stable@vger.kernel.org # v4.8+
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: stable@vger.kernel.org
+Fixes: 89da76fde68d ("drm/vmwgfx: Add VMWare host messaging capability")
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Deepak Rawat <drawat@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/ppc-opcode.h |    1 +
- arch/powerpc/net/bpf_jit.h            |    2 +-
- arch/powerpc/net/bpf_jit_comp64.c     |    8 ++++----
- 3 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c |  146 ++++++++++++++++++++++++++++--------
+ 1 file changed, 117 insertions(+), 29 deletions(-)
 
---- a/arch/powerpc/include/asm/ppc-opcode.h
-+++ b/arch/powerpc/include/asm/ppc-opcode.h
-@@ -342,6 +342,7 @@
- #define PPC_INST_MADDLD			0x10000033
- #define PPC_INST_DIVWU			0x7c000396
- #define PPC_INST_DIVD			0x7c0003d2
-+#define PPC_INST_DIVDU			0x7c000392
- #define PPC_INST_RLWINM			0x54000000
- #define PPC_INST_RLWINM_DOT		0x54000001
- #define PPC_INST_RLWIMI			0x50000000
---- a/arch/powerpc/net/bpf_jit.h
-+++ b/arch/powerpc/net/bpf_jit.h
-@@ -116,7 +116,7 @@
- 				     ___PPC_RA(a) | IMM_L(i))
- #define PPC_DIVWU(d, a, b)	EMIT(PPC_INST_DIVWU | ___PPC_RT(d) |	      \
- 				     ___PPC_RA(a) | ___PPC_RB(b))
--#define PPC_DIVD(d, a, b)	EMIT(PPC_INST_DIVD | ___PPC_RT(d) |	      \
-+#define PPC_DIVDU(d, a, b)	EMIT(PPC_INST_DIVDU | ___PPC_RT(d) |	      \
- 				     ___PPC_RA(a) | ___PPC_RB(b))
- #define PPC_AND(d, a, b)	EMIT(PPC_INST_AND | ___PPC_RA(d) |	      \
- 				     ___PPC_RS(a) | ___PPC_RB(b))
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -399,12 +399,12 @@ static int bpf_jit_build_body(struct bpf
- 		case BPF_ALU64 | BPF_DIV | BPF_X: /* dst /= src */
- 		case BPF_ALU64 | BPF_MOD | BPF_X: /* dst %= src */
- 			if (BPF_OP(code) == BPF_MOD) {
--				PPC_DIVD(b2p[TMP_REG_1], dst_reg, src_reg);
-+				PPC_DIVDU(b2p[TMP_REG_1], dst_reg, src_reg);
- 				PPC_MULD(b2p[TMP_REG_1], src_reg,
- 						b2p[TMP_REG_1]);
- 				PPC_SUB(dst_reg, dst_reg, b2p[TMP_REG_1]);
- 			} else
--				PPC_DIVD(dst_reg, dst_reg, src_reg);
-+				PPC_DIVDU(dst_reg, dst_reg, src_reg);
- 			break;
- 		case BPF_ALU | BPF_MOD | BPF_K: /* (u32) dst %= (u32) imm */
- 		case BPF_ALU | BPF_DIV | BPF_K: /* (u32) dst /= (u32) imm */
-@@ -432,7 +432,7 @@ static int bpf_jit_build_body(struct bpf
- 				break;
- 			case BPF_ALU64:
- 				if (BPF_OP(code) == BPF_MOD) {
--					PPC_DIVD(b2p[TMP_REG_2], dst_reg,
-+					PPC_DIVDU(b2p[TMP_REG_2], dst_reg,
- 							b2p[TMP_REG_1]);
- 					PPC_MULD(b2p[TMP_REG_1],
- 							b2p[TMP_REG_1],
-@@ -440,7 +440,7 @@ static int bpf_jit_build_body(struct bpf
- 					PPC_SUB(dst_reg, dst_reg,
- 							b2p[TMP_REG_1]);
- 				} else
--					PPC_DIVD(dst_reg, dst_reg,
-+					PPC_DIVDU(dst_reg, dst_reg,
- 							b2p[TMP_REG_1]);
- 				break;
- 			}
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+@@ -136,6 +136,114 @@ static int vmw_close_channel(struct rpc_
+ 	return 0;
+ }
+ 
++/**
++ * vmw_port_hb_out - Send the message payload either through the
++ * high-bandwidth port if available, or through the backdoor otherwise.
++ * @channel: The rpc channel.
++ * @msg: NULL-terminated message.
++ * @hb: Whether the high-bandwidth port is available.
++ *
++ * Return: The port status.
++ */
++static unsigned long vmw_port_hb_out(struct rpc_channel *channel,
++				     const char *msg, bool hb)
++{
++	unsigned long si, di, eax, ebx, ecx, edx;
++	unsigned long msg_len = strlen(msg);
++
++	if (hb) {
++		unsigned long bp = channel->cookie_high;
++
++		si = (uintptr_t) msg;
++		di = channel->cookie_low;
++
++		VMW_PORT_HB_OUT(
++			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
++			msg_len, si, di,
++			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
++			VMW_HYPERVISOR_MAGIC, bp,
++			eax, ebx, ecx, edx, si, di);
++
++		return ebx;
++	}
++
++	/* HB port not available. Send the message 4 bytes at a time. */
++	ecx = MESSAGE_STATUS_SUCCESS << 16;
++	while (msg_len && (HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS)) {
++		unsigned int bytes = min_t(size_t, msg_len, 4);
++		unsigned long word = 0;
++
++		memcpy(&word, msg, bytes);
++		msg_len -= bytes;
++		msg += bytes;
++		si = channel->cookie_high;
++		di = channel->cookie_low;
++
++		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_SENDPAYLOAD << 16),
++			 word, si, di,
++			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
++			 VMW_HYPERVISOR_MAGIC,
++			 eax, ebx, ecx, edx, si, di);
++	}
++
++	return ecx;
++}
++
++/**
++ * vmw_port_hb_in - Receive the message payload either through the
++ * high-bandwidth port if available, or through the backdoor otherwise.
++ * @channel: The rpc channel.
++ * @reply: Pointer to buffer holding reply.
++ * @reply_len: Length of the reply.
++ * @hb: Whether the high-bandwidth port is available.
++ *
++ * Return: The port status.
++ */
++static unsigned long vmw_port_hb_in(struct rpc_channel *channel, char *reply,
++				    unsigned long reply_len, bool hb)
++{
++	unsigned long si, di, eax, ebx, ecx, edx;
++
++	if (hb) {
++		unsigned long bp = channel->cookie_low;
++
++		si = channel->cookie_high;
++		di = (uintptr_t) reply;
++
++		VMW_PORT_HB_IN(
++			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
++			reply_len, si, di,
++			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
++			VMW_HYPERVISOR_MAGIC, bp,
++			eax, ebx, ecx, edx, si, di);
++
++		return ebx;
++	}
++
++	/* HB port not available. Retrieve the message 4 bytes at a time. */
++	ecx = MESSAGE_STATUS_SUCCESS << 16;
++	while (reply_len) {
++		unsigned int bytes = min_t(unsigned long, reply_len, 4);
++
++		si = channel->cookie_high;
++		di = channel->cookie_low;
++
++		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_RECVPAYLOAD << 16),
++			 MESSAGE_STATUS_SUCCESS, si, di,
++			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
++			 VMW_HYPERVISOR_MAGIC,
++			 eax, ebx, ecx, edx, si, di);
++
++		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0)
++			break;
++
++		memcpy(reply, &ebx, bytes);
++		reply_len -= bytes;
++		reply += bytes;
++	}
++
++	return ecx;
++}
+ 
+ 
+ /**
+@@ -148,11 +256,10 @@ static int vmw_close_channel(struct rpc_
+  */
+ static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
+ {
+-	unsigned long eax, ebx, ecx, edx, si, di, bp;
++	unsigned long eax, ebx, ecx, edx, si, di;
+ 	size_t msg_len = strlen(msg);
+ 	int retries = 0;
+ 
+-
+ 	while (retries < RETRIES) {
+ 		retries++;
+ 
+@@ -166,23 +273,14 @@ static int vmw_send_msg(struct rpc_chann
+ 			VMW_HYPERVISOR_MAGIC,
+ 			eax, ebx, ecx, edx, si, di);
+ 
+-		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
+-		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
+-			/* Expected success + high-bandwidth. Give up. */
++		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
++			/* Expected success. Give up. */
+ 			return -EINVAL;
+ 		}
+ 
+ 		/* Send msg */
+-		si  = (uintptr_t) msg;
+-		di  = channel->cookie_low;
+-		bp  = channel->cookie_high;
+-
+-		VMW_PORT_HB_OUT(
+-			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
+-			msg_len, si, di,
+-			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
+-			VMW_HYPERVISOR_MAGIC, bp,
+-			eax, ebx, ecx, edx, si, di);
++		ebx = vmw_port_hb_out(channel, msg,
++				      !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
+ 
+ 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) != 0) {
+ 			return 0;
+@@ -211,7 +309,7 @@ STACK_FRAME_NON_STANDARD(vmw_send_msg);
+ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
+ 			size_t *msg_len)
+ {
+-	unsigned long eax, ebx, ecx, edx, si, di, bp;
++	unsigned long eax, ebx, ecx, edx, si, di;
+ 	char *reply;
+ 	size_t reply_len;
+ 	int retries = 0;
+@@ -233,8 +331,7 @@ static int vmw_recv_msg(struct rpc_chann
+ 			VMW_HYPERVISOR_MAGIC,
+ 			eax, ebx, ecx, edx, si, di);
+ 
+-		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
+-		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
++		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
+ 			DRM_ERROR("Failed to get reply size for host message.\n");
+ 			return -EINVAL;
+ 		}
+@@ -252,17 +349,8 @@ static int vmw_recv_msg(struct rpc_chann
+ 
+ 
+ 		/* Receive buffer */
+-		si  = channel->cookie_high;
+-		di  = (uintptr_t) reply;
+-		bp  = channel->cookie_low;
+-
+-		VMW_PORT_HB_IN(
+-			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
+-			reply_len, si, di,
+-			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
+-			VMW_HYPERVISOR_MAGIC, bp,
+-			eax, ebx, ecx, edx, si, di);
+-
++		ebx = vmw_port_hb_in(channel, reply, reply_len,
++				     !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
+ 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) == 0) {
+ 			kfree(reply);
+ 
 
 
