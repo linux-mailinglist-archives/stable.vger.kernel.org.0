@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC1850896
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2EDE507F0
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729136AbfFXKSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:18:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53094 "EHLO mail.kernel.org"
+        id S1728664AbfFXKGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:06:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730084AbfFXKPp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:15:45 -0400
+        id S1729827AbfFXKGJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:06:09 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17D58205ED;
-        Mon, 24 Jun 2019 10:15:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B058208E3;
+        Mon, 24 Jun 2019 10:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371344;
-        bh=wmC6sIKsGuYIVEGrslgGVmYB1d51672VeR1UWq/sook=;
+        s=default; t=1561370768;
+        bh=V5/Bc1HiibHahmpH9NiLFZHnRSakLvJGHK9NvIqtKjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pzoQ+WATQamKZISpr7+KQZYWrsonvJ/IBKI0Ed5WRQ//4KPYa7mhLr+VmGw80YGEh
-         6j1u9KJ5Pg7JoZpZd3jmqyT+rBYCGGMMGXSXCRiUKTsrDiwk/yEg2KYAHsr6B8oRPU
-         B6Qty0UefSKSddlu0dpI9+lrczGdVpUNbPVYC6dg=
+        b=pvLEhg3M7MLaR+E2MNzJ5bWY4774MD2MHlq+rvWdIh8QxRrkqPFU/9wigNpe+3cFD
+         G8rmQ2U9RT3Jwcm6MMvts6/9IARLcozNnlDLx5HsNpQyFImwFnExcy64iGToEw/jw0
+         l/IIEHzrxtwJxqSYKekvvQJE089Qd2/ezyERj7qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Lee <mark-mc.lee@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
+        stable@vger.kernel.org,
+        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 067/121] net: ethernet: mediatek: Use hw_feature to judge if HWLRO is supported
+Subject: [PATCH 4.19 49/90] net: dsa: mv88e6xxx: avoid error message on remove from VLAN 0
 Date:   Mon, 24 Jun 2019 17:56:39 +0800
-Message-Id: <20190624092324.278858135@linuxfoundation.org>
+Message-Id: <20190624092317.435358582@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9e4f56f1a7f3287718d0083b5cb85298dc05a5fd ]
+[ Upstream commit 62394708f3e01c9f2be6be74eb6305bae1ed924f ]
 
-Should hw_feature as hardware capability flags to check if hardware LRO
-got support.
+When non-bridged, non-vlan'ed mv88e6xxx port is moving down, error
+message is logged:
 
-Signed-off-by: Mark Lee <mark-mc.lee@mediatek.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+failed to kill vid 0081/0 for device eth_cu_1000_4
+
+This is caused by call from __vlan_vid_del() with vin set to zero, over
+call chain this results into _mv88e6xxx_port_vlan_del() called with
+vid=0, and mv88e6xxx_vtu_get() called from there returns -EINVAL.
+
+On symmetric path moving port up, call goes through
+mv88e6xxx_port_vlan_prepare() that calls mv88e6xxx_port_check_hw_vlan()
+that returns -EOPNOTSUPP for zero vid.
+
+This patch changes mv88e6xxx_vtu_get() to also return -EOPNOTSUPP for
+zero vid, then this error code is explicitly cleared in
+dsa_slave_vlan_rx_kill_vid() and error message is no longer logged.
+
+Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index 549d36497b8c..59601cb5aeee 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -2297,13 +2297,13 @@ static int mtk_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd,
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index dfaad1c2c2b8..411cfb806459 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -1484,7 +1484,7 @@ static int mv88e6xxx_vtu_get(struct mv88e6xxx_chip *chip, u16 vid,
+ 	int err;
  
- 	switch (cmd->cmd) {
- 	case ETHTOOL_GRXRINGS:
--		if (dev->features & NETIF_F_LRO) {
-+		if (dev->hw_features & NETIF_F_LRO) {
- 			cmd->data = MTK_MAX_RX_RING_NUM;
- 			ret = 0;
- 		}
- 		break;
- 	case ETHTOOL_GRXCLSRLCNT:
--		if (dev->features & NETIF_F_LRO) {
-+		if (dev->hw_features & NETIF_F_LRO) {
- 			struct mtk_mac *mac = netdev_priv(dev);
+ 	if (!vid)
+-		return -EINVAL;
++		return -EOPNOTSUPP;
  
- 			cmd->rule_cnt = mac->hwlro_ip_cnt;
-@@ -2311,11 +2311,11 @@ static int mtk_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd,
- 		}
- 		break;
- 	case ETHTOOL_GRXCLSRULE:
--		if (dev->features & NETIF_F_LRO)
-+		if (dev->hw_features & NETIF_F_LRO)
- 			ret = mtk_hwlro_get_fdir_entry(dev, cmd);
- 		break;
- 	case ETHTOOL_GRXCLSRLALL:
--		if (dev->features & NETIF_F_LRO)
-+		if (dev->hw_features & NETIF_F_LRO)
- 			ret = mtk_hwlro_get_fdir_all(dev, cmd,
- 						     rule_locs);
- 		break;
-@@ -2332,11 +2332,11 @@ static int mtk_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd)
- 
- 	switch (cmd->cmd) {
- 	case ETHTOOL_SRXCLSRLINS:
--		if (dev->features & NETIF_F_LRO)
-+		if (dev->hw_features & NETIF_F_LRO)
- 			ret = mtk_hwlro_add_ipaddr(dev, cmd);
- 		break;
- 	case ETHTOOL_SRXCLSRLDEL:
--		if (dev->features & NETIF_F_LRO)
-+		if (dev->hw_features & NETIF_F_LRO)
- 			ret = mtk_hwlro_del_ipaddr(dev, cmd);
- 		break;
- 	default:
+ 	entry->vid = vid - 1;
+ 	entry->valid = false;
 -- 
 2.20.1
 
