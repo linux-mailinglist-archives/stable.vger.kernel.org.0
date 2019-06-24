@@ -2,93 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D22FE50112
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 07:41:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47A2050B0B
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 14:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726787AbfFXFlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 01:41:52 -0400
-Received: from dc8-smtprelay2.synopsys.com ([198.182.47.102]:41698 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726223AbfFXFlw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 01:41:52 -0400
-Received: from mailhost.synopsys.com (unknown [10.225.0.210])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id D9084C01C4;
-        Mon, 24 Jun 2019 05:41:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1561354911; bh=E1ERrISIW+x8N6/XjWkPCVdmvp0aiB6uJtVc4k+4tXo=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=AJakDklB8qWucLSsOgZ7kcmOZ6Sd0wVHNpfzhJg27zkf+9MeY50eFDFnlhPkeRUCM
-         NsAHHH62qGvuMQA3TCQHdQ6F2WNUdq6O7en9wPPCFVRbuMp2Bv7lKP4VoddNKynS9o
-         qDS05iIumGYXIsOvKTqq4kZK+pZcqyNkYoF1x2hxyILh9iNAfEvXRcL6javwhFxR3K
-         LirNPYlsPwJc9TeWw/NgXFb7ZiEIZniIZftaqb97JQZ59uvXfi7/Wpqgz2igr3MNrx
-         6nAL523LjnSJrMhc4jCg1Tqb1B9GbbkURgkDznKe0UNnz+ciIXjYGp3seVWsGzHye1
-         4X8dgja8PUrxw==
-Received: from [10.116.70.206] (unknown [10.116.70.206])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id EB20DA0231;
-        Mon, 24 Jun 2019 05:41:47 +0000 (UTC)
-Subject: Re: [PATCH] usb: dwc2: use a longer AHB idle timeout in
- dwc2_core_reset()
-To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "felipe.balbi@linux.intel.com" <felipe.balbi@linux.intel.com>
-Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>
-References: <20190620175022.29348-1-martin.blumenstingl@googlemail.com>
-From:   Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Message-ID: <a7647aea-b3e6-b785-8476-1851f50beff1@synopsys.com>
-Date:   Mon, 24 Jun 2019 09:41:46 +0400
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S1728239AbfFXMpx convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 24 Jun 2019 08:45:53 -0400
+Received: from ip69-151.cbn.net.id ([202.158.69.151]:58621 "EHLO
+        mail.seinoindomobil.co.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725916AbfFXMpx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 08:45:53 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.seinoindomobil.co.id (Postfix) with ESMTP id EA6556B2170;
+        Mon, 24 Jun 2019 12:47:25 -0400 (EDT)
+Received: from mail.seinoindomobil.co.id ([127.0.0.1])
+        by localhost (mail.seinoindomobil.co.id [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id zsSgW_fI-Jw5; Mon, 24 Jun 2019 12:47:25 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.seinoindomobil.co.id (Postfix) with ESMTP id 7CA716B2783;
+        Mon, 24 Jun 2019 12:44:32 -0400 (EDT)
+X-Virus-Scanned: amavisd-new at seinoindomobil.co.id
+Received: from mail.seinoindomobil.co.id ([127.0.0.1])
+        by localhost (mail.seinoindomobil.co.id [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 21IWbcbopVPO; Mon, 24 Jun 2019 12:44:32 -0400 (EDT)
+Received: from [192.168.43.104] (unknown [41.147.177.76])
+        by mail.seinoindomobil.co.id (Postfix) with ESMTPSA id 9A39E6B36FE;
+        Mon, 24 Jun 2019 12:43:23 -0400 (EDT)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-In-Reply-To: <20190620175022.29348-1-martin.blumenstingl@googlemail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: LOAN OFFER.
+To:     Recipients <admin@seinoindomobil.co.id>
+From:   admin@seinoindomobil.co.id
+Date:   Mon, 24 Jun 2019 07:43:35 +0200
+Reply-To: netloanexpressny@gmail.com
+Message-Id: <20190624164323.9A39E6B36FE@mail.seinoindomobil.co.id>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/20/2019 9:51 PM, Martin Blumenstingl wrote:
-> Use a 10000us AHB idle timeout in dwc2_core_reset() and make it
-> consistent with the other "wait for AHB master IDLE state" ocurrences.
-> 
-> This fixes a problem for me where dwc2 would not want to initialize when
-> updating to 4.19 on a MIPS Lantiq VRX200 SoC. dwc2 worked fine with
-> 4.14.
-> Testing on my board shows that it takes 180us until AHB master IDLE
-> state is signalled. The very old vendor driver for this SoC (ifxhcd)
-> used a 1 second timeout.
-> Use the same timeout that is used everywhere when polling for
-> GRSTCTL_AHBIDLE instead of using a timeout that "works for one board"
-> (180us in my case) to have consistent behavior across the dwc2 driver.
-> 
-> Cc: linux-stable <stable@vger.kernel.org> # 4.19+
-> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> ---
+We Offer Loans to Private and Commercial bodies on a very low annual interest rate of 3% , This is to eradicate the growing history of Bad Credit , and also to bring stable profit to both our company and our clients.
 
-Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Are you losing sleep at nights worrying how to get a Legit Loan Lender? Contact: Aaron Lemons on NetLoanExpress now via E-mail: netloanexpressny@gmail.com
 
->   drivers/usb/dwc2/core.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/usb/dwc2/core.c b/drivers/usb/dwc2/core.c
-> index 8b499d643461..8e41d70fd298 100644
-> --- a/drivers/usb/dwc2/core.c
-> +++ b/drivers/usb/dwc2/core.c
-> @@ -531,7 +531,7 @@ int dwc2_core_reset(struct dwc2_hsotg *hsotg, bool skip_wait)
->   	}
->   
->   	/* Wait for AHB master IDLE state */
-> -	if (dwc2_hsotg_wait_bit_set(hsotg, GRSTCTL, GRSTCTL_AHBIDLE, 50)) {
-> +	if (dwc2_hsotg_wait_bit_set(hsotg, GRSTCTL, GRSTCTL_AHBIDLE, 10000)) {
->   		dev_warn(hsotg->dev, "%s: HANG! AHB Idle timeout GRSTCTL GRSTCTL_AHBIDLE\n",
->   			 __func__);
->   		return -EBUSY;
-> 
+We offer loan at low interest rate of 3% and, we offer
+*Personal loans,
+*Debt consolidation loans,
+*Venture capital,
+*Business loans,
+*Education loans,
+*Home loans
 
+For More Urgent Information Get Back To Us Immediately.
