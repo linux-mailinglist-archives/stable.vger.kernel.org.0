@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B720350767
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8A0B50779
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730192AbfFXKGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:06:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39228 "EHLO mail.kernel.org"
+        id S1730292AbfFXKHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:07:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729599AbfFXKGu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:06:50 -0400
+        id S1730289AbfFXKHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:07:19 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 982B421473;
-        Mon, 24 Jun 2019 10:06:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B96782089F;
+        Mon, 24 Jun 2019 10:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370809;
-        bh=/lLAJYDQGzK0dJdUaekE5OmOKBa+Yz4MjnphOvkmKyA=;
+        s=default; t=1561370838;
+        bh=vZY1sdaiS/R0D2sdp0wenPN2tIfc4eqi6KlHN8c41bY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W8cr9Jrl3Vy75fBe8bMzIIAlD/QYBOdqg+CImhixtREjER+nGpZ+UHaoCkKiIinJ8
-         9c9lv9g4bdNBEEX9/i+tTs+oycbiKohMhDkS3/8onL+mQFrII/mMdZwXe/55ZnagWA
-         Em+HLCF5ybRsMGcMGorPPzf333NUyiSFfN+rcOyw=
+        b=X3FZ8jYhucJIoJ57xxHP4ugaXLGWcg5JE8u8qUVijKnkxZjXxT0T+A5qOYrXJjAWT
+         fvjk2BaTBosUYYPdESdjHggk1oCqX2XOXHFRDr9R2WdeklkGBnellmF7MHB3vbe0sr
+         cWm2vNAD5C3SvU6Xff33ls1xviGd9ax+zJLzqTfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.1 001/121] tracing: Silence GCC 9 array bounds warning
-Date:   Mon, 24 Jun 2019 17:55:33 +0800
-Message-Id: <20190624092320.733047084@linuxfoundation.org>
+        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.1 002/121] mmc: sdhci: sdhci-pci-o2micro: Correctly set bus width when tuning
+Date:   Mon, 24 Jun 2019 17:55:34 +0800
+Message-Id: <20190624092320.788914733@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
 References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,103 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+From: Raul E Rangel <rrangel@chromium.org>
 
-commit 0c97bf863efce63d6ab7971dad811601e6171d2f upstream.
+commit 0f7b79a44e7d7dd3ef1f59758c1a341f217ff5e5 upstream.
 
-Starting with GCC 9, -Warray-bounds detects cases when memset is called
-starting on a member of a struct but the size to be cleared ends up
-writing over further members.
+The O2Micro controller only supports tuning at 4-bits. So the host driver
+needs to change the bus width while tuning and then set it back when done.
 
-Such a call happens in the trace code to clear, at once, all members
-after and including `seq` on struct trace_iterator:
+There was a bug in the original implementation in that mmc->ios.bus_width
+also wasn't updated. Thus setting the incorrect blocksize in
+sdhci_send_tuning which results in a tuning failure.
 
-    In function 'memset',
-        inlined from 'ftrace_dump' at kernel/trace/trace.c:8914:3:
-    ./include/linux/string.h:344:9: warning: '__builtin_memset' offset
-    [8505, 8560] from the object at 'iter' is out of the bounds of
-    referenced subobject 'seq' with type 'struct trace_seq' at offset
-    4368 [-Warray-bounds]
-      344 |  return __builtin_memset(p, c, size);
-          |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-In order to avoid GCC complaining about it, we compute the address
-ourselves by adding the offsetof distance instead of referring
-directly to the member.
-
-Since there are two places doing this clear (trace.c and trace_kdb.c),
-take the chance to move the workaround into a single place in
-the internal header.
-
-Link: http://lkml.kernel.org/r/20190523124535.GA12931@gmail.com
-
-Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-[ Removed unnecessary parenthesis around "iter" ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Fixes: 0086fc217d5d7 ("mmc: sdhci: Add support for O2 hardware tuning")
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace.c     |    6 +-----
- kernel/trace/trace.h     |   18 ++++++++++++++++++
- kernel/trace/trace_kdb.c |    6 +-----
- 3 files changed, 20 insertions(+), 10 deletions(-)
+ drivers/mmc/host/sdhci-pci-o2micro.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -8627,12 +8627,8 @@ void ftrace_dump(enum ftrace_dump_mode o
+--- a/drivers/mmc/host/sdhci-pci-o2micro.c
++++ b/drivers/mmc/host/sdhci-pci-o2micro.c
+@@ -124,6 +124,7 @@ static int sdhci_o2_execute_tuning(struc
+ 	 */
+ 	if (mmc->ios.bus_width == MMC_BUS_WIDTH_8) {
+ 		current_bus_width = mmc->ios.bus_width;
++		mmc->ios.bus_width = MMC_BUS_WIDTH_4;
+ 		sdhci_set_bus_width(host, MMC_BUS_WIDTH_4);
+ 	}
  
- 		cnt++;
+@@ -135,8 +136,10 @@ static int sdhci_o2_execute_tuning(struc
  
--		/* reset all but tr, trace, and overruns */
--		memset(&iter.seq, 0,
--		       sizeof(struct trace_iterator) -
--		       offsetof(struct trace_iterator, seq));
-+		trace_iterator_reset(&iter);
- 		iter.iter_flags |= TRACE_FILE_LAT_FMT;
--		iter.pos = -1;
+ 	sdhci_end_tuning(host);
  
- 		if (trace_find_next_entry_inc(&iter) != NULL) {
- 			int ret;
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -1964,4 +1964,22 @@ static inline void tracer_hardirqs_off(u
+-	if (current_bus_width == MMC_BUS_WIDTH_8)
++	if (current_bus_width == MMC_BUS_WIDTH_8) {
++		mmc->ios.bus_width = MMC_BUS_WIDTH_8;
+ 		sdhci_set_bus_width(host, current_bus_width);
++	}
  
- extern struct trace_iterator *tracepoint_print_iter;
- 
-+/*
-+ * Reset the state of the trace_iterator so that it can read consumed data.
-+ * Normally, the trace_iterator is used for reading the data when it is not
-+ * consumed, and must retain state.
-+ */
-+static __always_inline void trace_iterator_reset(struct trace_iterator *iter)
-+{
-+	const size_t offset = offsetof(struct trace_iterator, seq);
-+
-+	/*
-+	 * Keep gcc from complaining about overwriting more than just one
-+	 * member in the structure.
-+	 */
-+	memset((char *)iter + offset, 0, sizeof(struct trace_iterator) - offset);
-+
-+	iter->pos = -1;
-+}
-+
- #endif /* _LINUX_KERNEL_TRACE_H */
---- a/kernel/trace/trace_kdb.c
-+++ b/kernel/trace/trace_kdb.c
-@@ -41,12 +41,8 @@ static void ftrace_dump_buf(int skip_lin
- 
- 	kdb_printf("Dumping ftrace buffer:\n");
- 
--	/* reset all but tr, trace, and overruns */
--	memset(&iter.seq, 0,
--		   sizeof(struct trace_iterator) -
--		   offsetof(struct trace_iterator, seq));
-+	trace_iterator_reset(&iter);
- 	iter.iter_flags |= TRACE_FILE_LAT_FMT;
--	iter.pos = -1;
- 
- 	if (cpu_file == RING_BUFFER_ALL_CPUS) {
- 		for_each_tracing_cpu(cpu) {
+ 	host->flags &= ~SDHCI_HS400_TUNING;
+ 	return 0;
 
 
