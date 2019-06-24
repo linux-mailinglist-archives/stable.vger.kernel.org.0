@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4D950872
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3A7C5075F
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729879AbfFXKRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:17:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54940 "EHLO mail.kernel.org"
+        id S1730109AbfFXKG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:06:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730926AbfFXKRT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:17:19 -0400
+        id S1730104AbfFXKG2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:06:28 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFD15205C9;
-        Mon, 24 Jun 2019 10:17:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1898208E3;
+        Mon, 24 Jun 2019 10:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371438;
-        bh=s5a9uuW1oRpZyOUMrHNb36epUClYyXDFss5hfro8qpc=;
+        s=default; t=1561370787;
+        bh=AZ4hQFbDbc3e4yABmB6vYKoy2RI/A6f6SK1Pel/zyrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vUXopQ056/h59cEV1IXUmHtAvsXl7gxeBFVav9Cthp/DuGdoknDJEJrS6zfz9ygn
-         GdhjnJh0u5KE28oceT/0yquDV4LSEeUTtY+/k+X+3wG9hgA9/4qSRASkLeSFNZFCOq
-         uHIRc64xnQvYmyfY86xU8SrGJrUF2o0yZyX6/aTI=
+        b=BySj56OqvfJ9jLCLOgsXWAD9L+zQfhNk0fKFlEo+t6S/hApgZPu+FVJwhDTm25YHi
+         kpBl8bxaXbxAdgr6PmIZ1VKxiKLkMejbMuh69JYDJdTr+u3Pkrsq6sLc6CLoHfsYHX
+         pIg74Bd/w/RnCdFo28Z3HqMg9wN2KtaTr/g5BuZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Martin <Dave.Martin@arm.com>,
-        Anisse Astier <aastier@freebox.fr>,
-        Will Deacon <will.deacon@arm.com>
-Subject: [PATCH 5.1 102/121] arm64/sve: <uapi/asm/ptrace.h> should not depend on <uapi/linux/prctl.h>
+        stable@vger.kernel.org,
+        syzbot+7fddca22578bc67c3fe4@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 84/90] cfg80211: fix memory leak of wiphy device name
 Date:   Mon, 24 Jun 2019 17:57:14 +0800
-Message-Id: <20190624092325.925302207@linuxfoundation.org>
+Message-Id: <20190624092319.410368076@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anisse Astier <aastier@freebox.fr>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 35341ca0614ab13e1ef34ad4f29a39e15ef31fa8 upstream.
+commit 4f488fbca2a86cc7714a128952eead92cac279ab upstream.
 
-Pulling linux/prctl.h into asm/ptrace.h in the arm64 UAPI headers causes
-userspace build issues for any program (e.g. strace and qemu) that
-includes both <sys/prctl.h> and <linux/ptrace.h> when using musl libc:
+In wiphy_new_nm(), if an error occurs after dev_set_name() and
+device_initialize() have already been called, it's necessary to call
+put_device() (via wiphy_free()) to avoid a memory leak.
 
-  | error: redefinition of 'struct prctl_mm_map'
-  |  struct prctl_mm_map {
-
-See https://github.com/foundriesio/meta-lmp/commit/6d4a106e191b5d79c41b9ac78fd321316d3013c0
-for a public example of people working around this issue.
-
-Although it's a bit grotty, fix this breakage by duplicating the prctl
-constant definitions. Since these are part of the kernel ABI, they
-cannot be changed in future and so it's not the end of the world to have
-them open-coded.
-
-Fixes: 43d4da2c45b2 ("arm64/sve: ptrace and ELF coredump support")
+Reported-by: syzbot+7fddca22578bc67c3fe4@syzkaller.appspotmail.com
+Fixes: 1f87f7d3a3b4 ("cfg80211: add rfkill support")
 Cc: stable@vger.kernel.org
-Acked-by: Dave Martin <Dave.Martin@arm.com>
-Signed-off-by: Anisse Astier <aastier@freebox.fr>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/uapi/asm/ptrace.h |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/wireless/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/include/uapi/asm/ptrace.h
-+++ b/arch/arm64/include/uapi/asm/ptrace.h
-@@ -65,8 +65,6 @@
+--- a/net/wireless/core.c
++++ b/net/wireless/core.c
+@@ -498,7 +498,7 @@ use_default_name:
+ 				   &rdev->rfkill_ops, rdev);
  
- #ifndef __ASSEMBLY__
+ 	if (!rdev->rfkill) {
+-		kfree(rdev);
++		wiphy_free(&rdev->wiphy);
+ 		return NULL;
+ 	}
  
--#include <linux/prctl.h>
--
- /*
-  * User structures for general purpose, floating point and debug registers.
-  */
-@@ -113,10 +111,10 @@ struct user_sve_header {
- 
- /*
-  * Common SVE_PT_* flags:
-- * These must be kept in sync with prctl interface in <linux/ptrace.h>
-+ * These must be kept in sync with prctl interface in <linux/prctl.h>
-  */
--#define SVE_PT_VL_INHERIT		(PR_SVE_VL_INHERIT >> 16)
--#define SVE_PT_VL_ONEXEC		(PR_SVE_SET_VL_ONEXEC >> 16)
-+#define SVE_PT_VL_INHERIT		((1 << 17) /* PR_SVE_VL_INHERIT */ >> 16)
-+#define SVE_PT_VL_ONEXEC		((1 << 18) /* PR_SVE_SET_VL_ONEXEC */ >> 16)
- 
- 
- /*
 
 
