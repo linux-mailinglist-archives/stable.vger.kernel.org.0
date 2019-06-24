@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BF850677
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D673F50889
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729104AbfFXJ67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:58:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57778 "EHLO mail.kernel.org"
+        id S1728818AbfFXKSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:18:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728779AbfFXJ65 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:58:57 -0400
+        id S1729957AbfFXKQO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:16:14 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3319205ED;
-        Mon, 24 Jun 2019 09:58:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7769D20645;
+        Mon, 24 Jun 2019 10:16:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370336;
-        bh=+9cNrI//vRyQ2Xd/3xmv9YNlkXdJ71VfGcVDlNcS71M=;
+        s=default; t=1561371374;
+        bh=dCYuUHsFqV7uKyvtqq6FlM4P/lhE4gHZNSKblgjLo6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PEJk9T7hjg1QWEfJHtwLD2TUSS7/rP3S1wOdafGZqHQCHHOtVizFmj33X76+W+HXR
-         oPGZpiAuP+iazS56tstpL52k8g1a/eYt8J9nNRzNKXJzMhjTK1yWfWorm5DhcKajaw
-         19AwPtOvYK5hQcrimE1lrZI79yjPanFbub+cQUg4=
+        b=eMhDN5zzabyzv860nUqicoAPkO7ofjvIn0jqlWHZHvLh71yBBXfK0CObmD+QISFfT
+         2PTWb2dcW8FcLDP28ixdgxhFlAdUoshs7RusjsMWTbOL1iqpw0tIZHOzgcyFWVnlOC
+         B+Hu+arcuRlGrAZa8wfrSk5zkOq7uFW/rREEad2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 34/51] net: ipvlan: Fix ipvlan device tso disabled while NETIF_F_IP_CSUM is set
+Subject: [PATCH 5.1 080/121] udmabuf: actually unmap the scatterlist
 Date:   Mon, 24 Jun 2019 17:56:52 +0800
-Message-Id: <20190624092310.195683263@linuxfoundation.org>
+Message-Id: <20190624092324.958730722@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ceae266bf0ae6564ac16d086bf749a096fa90ded ]
+[ Upstream commit 283f1e383e91d96fe652fad549537ae15cf31d60 ]
 
-There's some NICs, such as hinic, with NETIF_F_IP_CSUM and NETIF_F_TSO
-on but NETIF_F_HW_CSUM off. And ipvlan device features will be
-NETIF_F_TSO on with NETIF_F_IP_CSUM and NETIF_F_IP_CSUM both off as
-IPVLAN_FEATURES only care about NETIF_F_HW_CSUM. So TSO will be
-disabled in netdev_fix_features.
-For example:
-Features for enp129s0f0:
-rx-checksumming: on
-tx-checksumming: on
-        tx-checksum-ipv4: on
-        tx-checksum-ip-generic: off [fixed]
-        tx-checksum-ipv6: on
+unmap_udmabuf fails to actually unmap the scatterlist, leaving dangling
+mappings around.
 
-Fixes: a188222b6ed2 ("net: Rename NETIF_F_ALL_CSUM to NETIF_F_CSUM_MASK")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: fbb0de795078 ("Add udmabuf misc device")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Link: http://patchwork.freedesktop.org/patch/msgid/20190604202331.17482-1-l.stach@pengutronix.de
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipvlan/ipvlan_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma-buf/udmabuf.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ipvlan/ipvlan_main.c b/drivers/net/ipvlan/ipvlan_main.c
-index d629dddb0e89..09f6795cce53 100644
---- a/drivers/net/ipvlan/ipvlan_main.c
-+++ b/drivers/net/ipvlan/ipvlan_main.c
-@@ -188,7 +188,7 @@ static void ipvlan_port_destroy(struct net_device *dev)
+diff --git a/drivers/dma-buf/udmabuf.c b/drivers/dma-buf/udmabuf.c
+index cd57747286f2..9635897458a0 100644
+--- a/drivers/dma-buf/udmabuf.c
++++ b/drivers/dma-buf/udmabuf.c
+@@ -77,6 +77,7 @@ static void unmap_udmabuf(struct dma_buf_attachment *at,
+ 			  struct sg_table *sg,
+ 			  enum dma_data_direction direction)
+ {
++	dma_unmap_sg(at->dev, sg->sgl, sg->nents, direction);
+ 	sg_free_table(sg);
+ 	kfree(sg);
  }
- 
- #define IPVLAN_FEATURES \
--	(NETIF_F_SG | NETIF_F_HW_CSUM | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST | \
-+	(NETIF_F_SG | NETIF_F_CSUM_MASK | NETIF_F_HIGHDMA | NETIF_F_FRAGLIST | \
- 	 NETIF_F_GSO | NETIF_F_TSO | NETIF_F_GSO_ROBUST | \
- 	 NETIF_F_TSO_ECN | NETIF_F_TSO6 | NETIF_F_GRO | NETIF_F_RXCSUM | \
- 	 NETIF_F_HW_VLAN_CTAG_FILTER | NETIF_F_HW_VLAN_STAG_FILTER)
 -- 
 2.20.1
 
