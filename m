@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B58B15085C
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C8D250738
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730799AbfFXKQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:16:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54258 "EHLO mail.kernel.org"
+        id S1729956AbfFXKFh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:05:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730788AbfFXKQn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:16:43 -0400
+        id S1729799AbfFXKFh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:37 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3F302089F;
-        Mon, 24 Jun 2019 10:16:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D01F121473;
+        Mon, 24 Jun 2019 10:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371403;
-        bh=CTGxW4HAeS9AfZqWdcoD0vkfG0UtNdWM6gNBiYfTMAI=;
+        s=default; t=1561370736;
+        bh=tsibFGeCM9kozJlvLSct5i3Ff8kYIeVStbM5u+Zsugk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0dSVrC+W2lMtH6qady/KCXxharSjRppWs5pjF4c5xKxx2F+jhmJaT7f83g9amjZWS
-         GkGEQD8mSH/00rm3it/8vHLVjP/f6IqvvqESciKo//0hBG3USqaXhg/lC1GThoCGt/
-         nk3qDzJ7IcrSCS8ZC61ZzLfuDovgBhj8wTVkTZoY=
+        b=2e/ypiZo03yVTnrT69Z5asUZiwkwXZKhsm15dLWTQ0+ONYQuKLqVDct7985HTPm7b
+         SMY27DoEdRFbmEHIM/N6QZx2xnoMA9U3IDQLh66cGHKb3jFBz89mf4EK728Xz+yA+m
+         S8FsjPQsQy3p4magk17fvgtN6Xe4wBK2pVSiL2Gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antti Antinoja <antti@fennosys.fi>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 090/121] ovl: dont fail with disconnected lower NFS
+        stable@vger.kernel.org, ShihPo Hung <shihpo.hung@sifive.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@sifive.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH 4.19 72/90] riscv: mm: synchronize MMU after pte change
 Date:   Mon, 24 Jun 2019 17:57:02 +0800
-Message-Id: <20190624092325.399144583@linuxfoundation.org>
+Message-Id: <20190624092318.729317368@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,79 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9179c21dc6ed1c993caa5fe4da876a6765c26af7 ]
+From: ShihPo Hung <shihpo.hung@sifive.com>
 
-NFS mounts can be disconnected from fs root.  Don't fail the overlapping
-layer check because of this.
+commit bf587caae305ae3b4393077fb22c98478ee55755 upstream.
 
-The check is not authoritative anyway, since topology can change during or
-after the check.
+Because RISC-V compliant implementations can cache invalid entries
+in TLB, an SFENCE.VMA is necessary after changes to the page table.
+This patch adds an SFENCE.vma for the vmalloc_fault path.
 
-Reported-by: Antti Antinoja <antti@fennosys.fi>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Fixes: 146d62e5a586 ("ovl: detect overlapping layers")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: ShihPo Hung <shihpo.hung@sifive.com>
+[paul.walmsley@sifive.com: reversed tab->whitespace conversion,
+ wrapped comment lines]
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@sifive.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: linux-riscv@lists.infradead.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/overlayfs/super.c | 26 +++++++++-----------------
- 1 file changed, 9 insertions(+), 17 deletions(-)
+ arch/riscv/mm/fault.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
-index c481bf5f6fe2..fa5060f59b88 100644
---- a/fs/overlayfs/super.c
-+++ b/fs/overlayfs/super.c
-@@ -1472,23 +1472,20 @@ out_err:
-  * Check if this layer root is a descendant of:
-  * - another layer of this overlayfs instance
-  * - upper/work dir of any overlayfs instance
-- * - a disconnected dentry (detached root)
-  */
- static int ovl_check_layer(struct super_block *sb, struct dentry *dentry,
- 			   const char *name)
- {
--	struct dentry *next, *parent;
--	bool is_root = false;
-+	struct dentry *next = dentry, *parent;
- 	int err = 0;
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -29,6 +29,7 @@
  
--	if (!dentry || dentry == dentry->d_sb->s_root)
-+	if (!dentry)
- 		return 0;
+ #include <asm/pgalloc.h>
+ #include <asm/ptrace.h>
++#include <asm/tlbflush.h>
  
--	next = dget(dentry);
--	/* Walk back ancestors to fs root (inclusive) looking for traps */
--	do {
--		parent = dget_parent(next);
--		is_root = (parent == next);
-+	parent = dget_parent(next);
+ /*
+  * This routine handles page faults.  It determines the address and the
+@@ -281,6 +282,18 @@ vmalloc_fault:
+ 		pte_k = pte_offset_kernel(pmd_k, addr);
+ 		if (!pte_present(*pte_k))
+ 			goto no_context;
 +
-+	/* Walk back ancestors to root (inclusive) looking for traps */
-+	while (!err && parent != next) {
- 		if (ovl_is_inuse(parent)) {
- 			err = -EBUSY;
- 			pr_err("overlayfs: %s path overlapping in-use upperdir/workdir\n",
-@@ -1497,17 +1494,12 @@ static int ovl_check_layer(struct super_block *sb, struct dentry *dentry,
- 			err = -ELOOP;
- 			pr_err("overlayfs: overlapping %s path\n", name);
- 		}
--		dput(next);
- 		next = parent;
--	} while (!err && !is_root);
--
--	/* Did we really walk to fs root or found a detached root? */
--	if (!err && next != dentry->d_sb->s_root) {
--		err = -ESTALE;
--		pr_err("overlayfs: disconnected %s path\n", name);
-+		parent = dget_parent(next);
-+		dput(next);
++		/*
++		 * The kernel assumes that TLBs don't cache invalid
++		 * entries, but in RISC-V, SFENCE.VMA specifies an
++		 * ordering constraint, not a cache flush; it is
++		 * necessary even after writing invalid entries.
++		 * Relying on flush_tlb_fix_spurious_fault would
++		 * suffice, but the extra traps reduce
++		 * performance. So, eagerly SFENCE.VMA.
++		 */
++		local_flush_tlb_page(addr);
++
+ 		return;
  	}
- 
--	dput(next);
-+	dput(parent);
- 
- 	return err;
  }
--- 
-2.20.1
-
 
 
