@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07CAF507D9
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1287950829
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730315AbfFXKKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:10:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39980 "EHLO mail.kernel.org"
+        id S1729351AbfFXKCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:02:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729928AbfFXKH3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:07:29 -0400
+        id S1729326AbfFXKCX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:02:23 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AC5A205C9;
-        Mon, 24 Jun 2019 10:07:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA8AF2146E;
+        Mon, 24 Jun 2019 10:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370848;
-        bh=hJ4L5RuYPxc94/K1BgdZzHGyztCi/po+0Lvxp83P6pw=;
+        s=default; t=1561370542;
+        bh=/KiQPSqgnA+uU5cBwuXizkixVy1P5Z7IFHizo0NUjmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zhDzs7Lsj7+sYC73soYI8wFLM0St/0EDCMWxyj5G/mqiNVdNSq6kGG72L1WJAMJVZ
-         KGXiz0zGqOLoqK4NbVjluIKZA/ESDBFYQyKlohb/S1iufhKXoegdog2/39KudJBRLO
-         dmhfCmKpgV3Q9u6e+sh3SKGtsWNX5fyYVKxHGR+E=
+        b=M97Xk7o1dUK8Fw8RnOSX7bauF+iKZ1toEpi17Ug0bTOJNz0hhtpxeHzkxM+JL9p3X
+         5STHBUKaqC65BuA8vYpq1Bead9sWggCKFLNKzkZqR9zo9b7HRqJNSyEm+h6dLrY/Sv
+         T7a8wxFVTKoDyWoMeupo/8k26z57ynqXLP16emzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
-        Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.1 023/121] Input: uinput - add compat ioctl number translation for UI_*_FF_UPLOAD
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 05/90] ovl: fix wrong flags check in FS_IOC_FS[SG]ETXATTR ioctls
 Date:   Mon, 24 Jun 2019 17:55:55 +0800
-Message-Id: <20190624092321.846986024@linuxfoundation.org>
+Message-Id: <20190624092314.323719589@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +44,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
+[ Upstream commit 941d935ac7636911a3fd8fa80e758e52b0b11e20 ]
 
-commit 7c7da40da1640ce6814dab1e8031b44e19e5a3f6 upstream.
+The ioctl argument was parsed as the wrong type.
 
-In the case of compat syscall ioctl numbers for UI_BEGIN_FF_UPLOAD and
-UI_END_FF_UPLOAD need to be adjusted before being passed on
-uinput_ioctl_handler() since code built with -m32 will be passing
-slightly different values. Extend the code already covering
-UI_SET_PHYS to cover UI_BEGIN_FF_UPLOAD and UI_END_FF_UPLOAD as well.
-
-Reported-by: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: b21d9c435f93 ("ovl: support the FS_IOC_FS[SG]ETXATTR ioctls")
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/uinput.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ fs/overlayfs/file.c | 91 ++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 65 insertions(+), 26 deletions(-)
 
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -1051,13 +1051,31 @@ static long uinput_ioctl(struct file *fi
- 
- #ifdef CONFIG_COMPAT
- 
--#define UI_SET_PHYS_COMPAT	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
-+/*
-+ * These IOCTLs change their size and thus their numbers between
-+ * 32 and 64 bits.
-+ */
-+#define UI_SET_PHYS_COMPAT		\
-+	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
-+#define UI_BEGIN_FF_UPLOAD_COMPAT	\
-+	_IOWR(UINPUT_IOCTL_BASE, 200, struct uinput_ff_upload_compat)
-+#define UI_END_FF_UPLOAD_COMPAT		\
-+	_IOW(UINPUT_IOCTL_BASE, 201, struct uinput_ff_upload_compat)
- 
- static long uinput_compat_ioctl(struct file *file,
- 				unsigned int cmd, unsigned long arg)
- {
--	if (cmd == UI_SET_PHYS_COMPAT)
-+	switch (cmd) {
-+	case UI_SET_PHYS_COMPAT:
- 		cmd = UI_SET_PHYS;
-+		break;
-+	case UI_BEGIN_FF_UPLOAD_COMPAT:
-+		cmd = UI_BEGIN_FF_UPLOAD;
-+		break;
-+	case UI_END_FF_UPLOAD_COMPAT:
-+		cmd = UI_END_FF_UPLOAD;
-+		break;
-+	}
- 
- 	return uinput_ioctl_handler(file, cmd, arg, compat_ptr(arg));
+diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
+index 749532fd51d7..0bd276e4ccbe 100644
+--- a/fs/overlayfs/file.c
++++ b/fs/overlayfs/file.c
+@@ -409,37 +409,16 @@ static long ovl_real_ioctl(struct file *file, unsigned int cmd,
+ 	return ret;
  }
+ 
+-static unsigned int ovl_get_inode_flags(struct inode *inode)
+-{
+-	unsigned int flags = READ_ONCE(inode->i_flags);
+-	unsigned int ovl_iflags = 0;
+-
+-	if (flags & S_SYNC)
+-		ovl_iflags |= FS_SYNC_FL;
+-	if (flags & S_APPEND)
+-		ovl_iflags |= FS_APPEND_FL;
+-	if (flags & S_IMMUTABLE)
+-		ovl_iflags |= FS_IMMUTABLE_FL;
+-	if (flags & S_NOATIME)
+-		ovl_iflags |= FS_NOATIME_FL;
+-
+-	return ovl_iflags;
+-}
+-
+ static long ovl_ioctl_set_flags(struct file *file, unsigned int cmd,
+-				unsigned long arg)
++				unsigned long arg, unsigned int iflags)
+ {
+ 	long ret;
+ 	struct inode *inode = file_inode(file);
+-	unsigned int flags;
+-	unsigned int old_flags;
++	unsigned int old_iflags;
+ 
+ 	if (!inode_owner_or_capable(inode))
+ 		return -EACCES;
+ 
+-	if (get_user(flags, (int __user *) arg))
+-		return -EFAULT;
+-
+ 	ret = mnt_want_write_file(file);
+ 	if (ret)
+ 		return ret;
+@@ -448,8 +427,8 @@ static long ovl_ioctl_set_flags(struct file *file, unsigned int cmd,
+ 
+ 	/* Check the capability before cred override */
+ 	ret = -EPERM;
+-	old_flags = ovl_get_inode_flags(inode);
+-	if (((flags ^ old_flags) & (FS_APPEND_FL | FS_IMMUTABLE_FL)) &&
++	old_iflags = READ_ONCE(inode->i_flags);
++	if (((iflags ^ old_iflags) & (S_APPEND | S_IMMUTABLE)) &&
+ 	    !capable(CAP_LINUX_IMMUTABLE))
+ 		goto unlock;
+ 
+@@ -469,6 +448,63 @@ static long ovl_ioctl_set_flags(struct file *file, unsigned int cmd,
+ 
+ }
+ 
++static unsigned int ovl_fsflags_to_iflags(unsigned int flags)
++{
++	unsigned int iflags = 0;
++
++	if (flags & FS_SYNC_FL)
++		iflags |= S_SYNC;
++	if (flags & FS_APPEND_FL)
++		iflags |= S_APPEND;
++	if (flags & FS_IMMUTABLE_FL)
++		iflags |= S_IMMUTABLE;
++	if (flags & FS_NOATIME_FL)
++		iflags |= S_NOATIME;
++
++	return iflags;
++}
++
++static long ovl_ioctl_set_fsflags(struct file *file, unsigned int cmd,
++				  unsigned long arg)
++{
++	unsigned int flags;
++
++	if (get_user(flags, (int __user *) arg))
++		return -EFAULT;
++
++	return ovl_ioctl_set_flags(file, cmd, arg,
++				   ovl_fsflags_to_iflags(flags));
++}
++
++static unsigned int ovl_fsxflags_to_iflags(unsigned int xflags)
++{
++	unsigned int iflags = 0;
++
++	if (xflags & FS_XFLAG_SYNC)
++		iflags |= S_SYNC;
++	if (xflags & FS_XFLAG_APPEND)
++		iflags |= S_APPEND;
++	if (xflags & FS_XFLAG_IMMUTABLE)
++		iflags |= S_IMMUTABLE;
++	if (xflags & FS_XFLAG_NOATIME)
++		iflags |= S_NOATIME;
++
++	return iflags;
++}
++
++static long ovl_ioctl_set_fsxflags(struct file *file, unsigned int cmd,
++				   unsigned long arg)
++{
++	struct fsxattr fa;
++
++	memset(&fa, 0, sizeof(fa));
++	if (copy_from_user(&fa, (void __user *) arg, sizeof(fa)))
++		return -EFAULT;
++
++	return ovl_ioctl_set_flags(file, cmd, arg,
++				   ovl_fsxflags_to_iflags(fa.fsx_xflags));
++}
++
+ static long ovl_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ {
+ 	long ret;
+@@ -480,8 +516,11 @@ static long ovl_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 		break;
+ 
+ 	case FS_IOC_SETFLAGS:
++		ret = ovl_ioctl_set_fsflags(file, cmd, arg);
++		break;
++
+ 	case FS_IOC_FSSETXATTR:
+-		ret = ovl_ioctl_set_flags(file, cmd, arg);
++		ret = ovl_ioctl_set_fsxflags(file, cmd, arg);
+ 		break;
+ 
+ 	default:
+-- 
+2.20.1
+
 
 
