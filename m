@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F06E25074C
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C4D8507E5
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729542AbfFXKGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38778 "EHLO mail.kernel.org"
+        id S1728654AbfFXKLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:11:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730128AbfFXKGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:06:33 -0400
+        id S1730138AbfFXKGg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:06:36 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BDEC208E3;
-        Mon, 24 Jun 2019 10:06:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18541208E3;
+        Mon, 24 Jun 2019 10:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370792;
-        bh=u23his4SYTuHLnCYKJPVyEumvJOfIF+cHac3gNS6sTs=;
+        s=default; t=1561370795;
+        bh=gLATnypNp2v0wAGrWsRrZZ9B5iEH6gSMGiRcoUTSREo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6qJpe+gy0uRKLnbMvVs+yK0PJcLtzQOsUV4+uxGkVBwuo8+cNsN1/84oJgnbrUCN
-         voh9BC4284tEk/5YkrAECm+y8joCqVrpuawM7ckDJT1LarbyPRC4dWSFoB2xv/xbVg
-         tPdyMfXtIJbZHUhKKCCNMof/FL/xjmpzqDZAt5Vk=
+        b=Ln4Dl7p0SjRnKiWg5hOLBEwl72Ti1GJNHpn62xjsVtPbhVOMCp2g1FCJHfdtckCHg
+         OvihV7kFaZy26vG3FWGteuJh3yaLJyxuXXpnO0oPZqnOykLS7dLf3aRb8XbDfNvFPS
+         /5M1b0ZogKxqUl+p2/3NUVc/Wk9OKmHffDtT+Iv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manikanta Pubbisetty <mpubbise@codeaurora.org>,
+        stable@vger.kernel.org, Yu Wang <yyuwang@codeaurora.org>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 86/90] {nl,mac}80211: allow 4addr AP operation on crypto controlled devices
-Date:   Mon, 24 Jun 2019 17:57:16 +0800
-Message-Id: <20190624092319.527759149@linuxfoundation.org>
+Subject: [PATCH 4.19 87/90] mac80211: handle deauthentication/disassociation from TDLS peer
+Date:   Mon, 24 Jun 2019 17:57:17 +0800
+Message-Id: <20190624092319.580084063@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
 References: <20190624092313.788773607@linuxfoundation.org>
@@ -44,108 +43,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manikanta Pubbisetty <mpubbise@codeaurora.org>
+From: Yu Wang <yyuwang@codeaurora.org>
 
-commit 33d915d9e8ce811d8958915ccd18d71a66c7c495 upstream.
+commit 79c92ca42b5a3e0ea172ea2ce8df8e125af237da upstream.
 
-As per the current design, in the case of sw crypto controlled devices,
-it is the device which advertises the support for AP/VLAN iftype based
-on it's ability to tranmsit packets encrypted in software
-(In VLAN functionality, group traffic generated for a specific
-VLAN group is always encrypted in software). Commit db3bdcb9c3ff
-("mac80211: allow AP_VLAN operation on crypto controlled devices")
-has introduced this change.
+When receiving a deauthentication/disassociation frame from a TDLS
+peer, a station should not disconnect the current AP, but only
+disable the current TDLS link if it's enabled.
 
-Since 4addr AP operation also uses AP/VLAN iftype, this conditional
-way of advertising AP/VLAN support has broken 4addr AP mode operation on
-crypto controlled devices which do not support VLAN functionality.
+Without this change, a TDLS issue can be reproduced by following the
+steps as below:
 
-In the case of ath10k driver, not all firmwares have support for VLAN
-functionality but all can support 4addr AP operation. Because AP/VLAN
-support is not advertised for these devices, 4addr AP operations are
-also blocked.
+1. STA-1 and STA-2 are connected to AP, bidirection traffic is running
+   between STA-1 and STA-2.
+2. Set up TDLS link between STA-1 and STA-2, stay for a while, then
+   teardown TDLS link.
+3. Repeat step #2 and monitor the connection between STA and AP.
 
-Fix this by allowing 4addr operation on devices which do not support
-AP/VLAN iftype but can support 4addr AP operation (decision is based on
-the wiphy flag WIPHY_FLAG_4ADDR_AP).
+During the test, one STA may send a deauthentication/disassociation
+frame to another, after TDLS teardown, with reason code 6/7, which
+means: Class 2/3 frame received from nonassociated STA.
+
+On receive this frame, the receiver STA will disconnect the current
+AP and then reconnect. It's not a expected behavior, purpose of this
+frame should be disabling the TDLS link, not the link with AP.
 
 Cc: stable@vger.kernel.org
-Fixes: db3bdcb9c3ff ("mac80211: allow AP_VLAN operation on crypto controlled devices")
-Signed-off-by: Manikanta Pubbisetty <mpubbise@codeaurora.org>
+Signed-off-by: Yu Wang <yyuwang@codeaurora.org>
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/net/cfg80211.h |    3 ++-
- net/mac80211/util.c    |    4 +++-
- net/wireless/core.c    |    6 +++++-
- net/wireless/nl80211.c |    8 ++++++--
- 4 files changed, 16 insertions(+), 5 deletions(-)
+ net/mac80211/ieee80211_i.h |    3 +++
+ net/mac80211/mlme.c        |   12 +++++++++++-
+ net/mac80211/tdls.c        |   23 +++++++++++++++++++++++
+ 3 files changed, 37 insertions(+), 1 deletion(-)
 
---- a/include/net/cfg80211.h
-+++ b/include/net/cfg80211.h
-@@ -3448,7 +3448,8 @@ struct cfg80211_ops {
-  *	on wiphy_new(), but can be changed by the driver if it has a good
-  *	reason to override the default
-  * @WIPHY_FLAG_4ADDR_AP: supports 4addr mode even on AP (with a single station
-- *	on a VLAN interface)
-+ *	on a VLAN interface). This flag also serves an extra purpose of
-+ *	supporting 4ADDR AP mode on devices which do not support AP/VLAN iftype.
-  * @WIPHY_FLAG_4ADDR_STATION: supports 4addr mode even as a station
-  * @WIPHY_FLAG_CONTROL_PORT_PROTOCOL: This device supports setting the
-  *	control port protocol ethertype. The device also honours the
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -3523,7 +3523,9 @@ int ieee80211_check_combinations(struct
- 	}
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -2183,6 +2183,9 @@ void ieee80211_tdls_cancel_channel_switc
+ 					  const u8 *addr);
+ void ieee80211_teardown_tdls_peers(struct ieee80211_sub_if_data *sdata);
+ void ieee80211_tdls_chsw_work(struct work_struct *wk);
++void ieee80211_tdls_handle_disconnect(struct ieee80211_sub_if_data *sdata,
++				      const u8 *peer, u16 reason);
++const char *ieee80211_get_reason_code_string(u16 reason_code);
  
- 	/* Always allow software iftypes */
--	if (local->hw.wiphy->software_iftypes & BIT(iftype)) {
-+	if (local->hw.wiphy->software_iftypes & BIT(iftype) ||
-+	    (iftype == NL80211_IFTYPE_AP_VLAN &&
-+	     local->hw.wiphy->flags & WIPHY_FLAG_4ADDR_AP)) {
- 		if (radar_detect)
- 			return -EINVAL;
- 		return 0;
---- a/net/wireless/core.c
-+++ b/net/wireless/core.c
-@@ -1335,8 +1335,12 @@ static int cfg80211_netdev_notifier_call
- 		}
- 		break;
- 	case NETDEV_PRE_UP:
--		if (!(wdev->wiphy->interface_modes & BIT(wdev->iftype)))
-+		if (!(wdev->wiphy->interface_modes & BIT(wdev->iftype)) &&
-+		    !(wdev->iftype == NL80211_IFTYPE_AP_VLAN &&
-+		      rdev->wiphy.flags & WIPHY_FLAG_4ADDR_AP &&
-+		      wdev->use_4addr))
- 			return notifier_from_errno(-EOPNOTSUPP);
+ extern const struct ethtool_ops ieee80211_ethtool_ops;
+ 
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -2868,7 +2868,7 @@ static void ieee80211_rx_mgmt_auth(struc
+ #define case_WLAN(type) \
+ 	case WLAN_REASON_##type: return #type
+ 
+-static const char *ieee80211_get_reason_code_string(u16 reason_code)
++const char *ieee80211_get_reason_code_string(u16 reason_code)
+ {
+ 	switch (reason_code) {
+ 	case_WLAN(UNSPECIFIED);
+@@ -2933,6 +2933,11 @@ static void ieee80211_rx_mgmt_deauth(str
+ 	if (len < 24 + 2)
+ 		return;
+ 
++	if (!ether_addr_equal(mgmt->bssid, mgmt->sa)) {
++		ieee80211_tdls_handle_disconnect(sdata, mgmt->sa, reason_code);
++		return;
++	}
 +
- 		if (rfkill_blocked(rdev->rfkill))
- 			return notifier_from_errno(-ERFKILL);
- 		break;
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -3191,8 +3191,7 @@ static int nl80211_new_interface(struct
- 			return -EINVAL;
- 	}
+ 	if (ifmgd->associated &&
+ 	    ether_addr_equal(mgmt->bssid, ifmgd->associated->bssid)) {
+ 		const u8 *bssid = ifmgd->associated->bssid;
+@@ -2982,6 +2987,11 @@ static void ieee80211_rx_mgmt_disassoc(s
  
--	if (!rdev->ops->add_virtual_intf ||
--	    !(rdev->wiphy.interface_modes & (1 << type)))
-+	if (!rdev->ops->add_virtual_intf)
- 		return -EOPNOTSUPP;
+ 	reason_code = le16_to_cpu(mgmt->u.disassoc.reason_code);
  
- 	if ((type == NL80211_IFTYPE_P2P_DEVICE || type == NL80211_IFTYPE_NAN ||
-@@ -3211,6 +3210,11 @@ static int nl80211_new_interface(struct
- 			return err;
- 	}
- 
-+	if (!(rdev->wiphy.interface_modes & (1 << type)) &&
-+	    !(type == NL80211_IFTYPE_AP_VLAN && params.use_4addr &&
-+	      rdev->wiphy.flags & WIPHY_FLAG_4ADDR_AP))
-+		return -EOPNOTSUPP;
++	if (!ether_addr_equal(mgmt->bssid, mgmt->sa)) {
++		ieee80211_tdls_handle_disconnect(sdata, mgmt->sa, reason_code);
++		return;
++	}
 +
- 	err = nl80211_parse_mon_options(rdev, type, info, &params);
- 	if (err < 0)
- 		return err;
+ 	sdata_info(sdata, "disassociated from %pM (Reason: %u=%s)\n",
+ 		   mgmt->sa, reason_code,
+ 		   ieee80211_get_reason_code_string(reason_code));
+--- a/net/mac80211/tdls.c
++++ b/net/mac80211/tdls.c
+@@ -1992,3 +1992,26 @@ void ieee80211_tdls_chsw_work(struct wor
+ 	}
+ 	rtnl_unlock();
+ }
++
++void ieee80211_tdls_handle_disconnect(struct ieee80211_sub_if_data *sdata,
++				      const u8 *peer, u16 reason)
++{
++	struct ieee80211_sta *sta;
++
++	rcu_read_lock();
++	sta = ieee80211_find_sta(&sdata->vif, peer);
++	if (!sta || !sta->tdls) {
++		rcu_read_unlock();
++		return;
++	}
++	rcu_read_unlock();
++
++	tdls_dbg(sdata, "disconnected from TDLS peer %pM (Reason: %u=%s)\n",
++		 peer, reason,
++		 ieee80211_get_reason_code_string(reason));
++
++	ieee80211_tdls_oper_request(&sdata->vif, peer,
++				    NL80211_TDLS_TEARDOWN,
++				    WLAN_REASON_TDLS_TEARDOWN_UNREACHABLE,
++				    GFP_ATOMIC);
++}
 
 
