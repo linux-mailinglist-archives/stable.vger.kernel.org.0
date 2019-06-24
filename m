@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E3DC50813
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71BF850677
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729809AbfFXKFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:05:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36972 "EHLO mail.kernel.org"
+        id S1729104AbfFXJ67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:58:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729862AbfFXKFG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:05:06 -0400
+        id S1728779AbfFXJ65 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:58:57 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB6CB205ED;
-        Mon, 24 Jun 2019 10:05:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3319205ED;
+        Mon, 24 Jun 2019 09:58:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370706;
-        bh=f7mOlQL9TkamxyGOuZuVTlKUbY5EBELhL3ElfF1O4XQ=;
+        s=default; t=1561370336;
+        bh=+9cNrI//vRyQ2Xd/3xmv9YNlkXdJ71VfGcVDlNcS71M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZqraSDgew/eA5gx6ugbCyKi6oqHeCjgLjJo1sAcdpxLyrSXdNlefitDHdI15TKQJ8
-         y66uarAWbwvMaD47lzViAvuV4Z4UNThGeAK3Q4yN5omgh5l9/Hf0eG09dWGcuV2PcX
-         +tHB55pOg5HSdTuImuU9wrJFpzF48ifC87tqLOzc=
+        b=PEJk9T7hjg1QWEfJHtwLD2TUSS7/rP3S1wOdafGZqHQCHHOtVizFmj33X76+W+HXR
+         oPGZpiAuP+iazS56tstpL52k8g1a/eYt8J9nNRzNKXJzMhjTK1yWfWorm5DhcKajaw
+         19AwPtOvYK5hQcrimE1lrZI79yjPanFbub+cQUg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 62/90] net: ipvlan: Fix ipvlan device tso disabled while NETIF_F_IP_CSUM is set
+Subject: [PATCH 4.14 34/51] net: ipvlan: Fix ipvlan device tso disabled while NETIF_F_IP_CSUM is set
 Date:   Mon, 24 Jun 2019 17:56:52 +0800
-Message-Id: <20190624092318.188767483@linuxfoundation.org>
+Message-Id: <20190624092310.195683263@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,10 +68,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/ipvlan/ipvlan_main.c b/drivers/net/ipvlan/ipvlan_main.c
-index 68b8007da82b..0115a2868933 100644
+index d629dddb0e89..09f6795cce53 100644
 --- a/drivers/net/ipvlan/ipvlan_main.c
 +++ b/drivers/net/ipvlan/ipvlan_main.c
-@@ -178,7 +178,7 @@ static void ipvlan_port_destroy(struct net_device *dev)
+@@ -188,7 +188,7 @@ static void ipvlan_port_destroy(struct net_device *dev)
  }
  
  #define IPVLAN_FEATURES \
