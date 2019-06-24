@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7124D507AE
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D82E5064E
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 11:58:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729787AbfFXKI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:08:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42920 "EHLO mail.kernel.org"
+        id S1728380AbfFXJ5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:57:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729679AbfFXKI6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:08:58 -0400
+        id S1726453AbfFXJ5r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:57:47 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C7C620645;
-        Mon, 24 Jun 2019 10:08:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54949208CA;
+        Mon, 24 Jun 2019 09:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370937;
-        bh=6Tczy/LPCmXuXBRIHyLsjCWyZj76TRsf8UNl8F5pyAc=;
+        s=default; t=1561370266;
+        bh=ZDcPbPhpv7QesIOP6V8A3EIB5GehUV5YQtLVz9w1g38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjn/Ocw4mD6DCUas0yl5gOPCzq3mdxMn7qCz1JGuOHZ3894kj4UNLUIK2H9LC5Xrv
-         nbUKU8/XljYFUApyJqIERkh6qnVpws5TxiUsy+LWsYySU825IjQfipf+FkJGGnzWHK
-         hYW9bM9hn4A8zC0bdR5eMfL34CEuELilIA90azIo=
+        b=0JCLZg8JnTuLcW6rO0GvILwvAfmzaXROraATpwkXrRH+ZO+D4NDvpOhpNpZ975Xim
+         CJE6u6AoLTxfb67DS2IEN0ll9RzhQLNzZHJEdj1CXunis8gnScEDe7m0MlKm7AmXFq
+         2pNq30Cbst3UsviCAjEPrxOuseCSc9ZpVvDg8QdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 056/121] xtensa: Fix section mismatch between memblock_reserve and mem_reserve
+        stable@vger.kernel.org,
+        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 10/51] Input: uinput - add compat ioctl number translation for UI_*_FF_UPLOAD
 Date:   Mon, 24 Jun 2019 17:56:28 +0800
-Message-Id: <20190624092323.566660181@linuxfoundation.org>
+Message-Id: <20190624092307.611971368@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit adefd051a6707a6ca0ebad278d3c1c05c960fc3b ]
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
 
-Since commit 9012d011660ea5cf2 ("compiler: allow all arches to enable
-CONFIG_OPTIMIZE_INLINING"), xtensa:tinyconfig fails to build with section
-mismatch errors.
+commit 7c7da40da1640ce6814dab1e8031b44e19e5a3f6 upstream.
 
-WARNING: vmlinux.o(.text.unlikely+0x68): Section mismatch in reference
-	from the function ___pa()
-	to the function .meminit.text:memblock_reserve()
-WARNING: vmlinux.o(.text.unlikely+0x74): Section mismatch in reference
-	from the function mem_reserve()
-	to the function .meminit.text:memblock_reserve()
-FATAL: modpost: Section mismatches detected.
+In the case of compat syscall ioctl numbers for UI_BEGIN_FF_UPLOAD and
+UI_END_FF_UPLOAD need to be adjusted before being passed on
+uinput_ioctl_handler() since code built with -m32 will be passing
+slightly different values. Extend the code already covering
+UI_SET_PHYS to cover UI_BEGIN_FF_UPLOAD and UI_END_FF_UPLOAD as well.
 
-This was not seen prior to the above mentioned commit because mem_reserve()
-was always inlined.
+Reported-by: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Mark mem_reserve(() as __init_memblock to have it reside in the same
-section as memblock_reserve().
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Message-Id: <1559220098-9955-1-git-send-email-linux@roeck-us.net>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/setup.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/misc/uinput.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
-index 4ec6fbb696bf..a5139f1d9220 100644
---- a/arch/xtensa/kernel/setup.c
-+++ b/arch/xtensa/kernel/setup.c
-@@ -310,7 +310,8 @@ extern char _SecondaryResetVector_text_start;
- extern char _SecondaryResetVector_text_end;
- #endif
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -1012,13 +1012,31 @@ static long uinput_ioctl(struct file *fi
  
--static inline int mem_reserve(unsigned long start, unsigned long end)
-+static inline int __init_memblock mem_reserve(unsigned long start,
-+					      unsigned long end)
+ #ifdef CONFIG_COMPAT
+ 
+-#define UI_SET_PHYS_COMPAT	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
++/*
++ * These IOCTLs change their size and thus their numbers between
++ * 32 and 64 bits.
++ */
++#define UI_SET_PHYS_COMPAT		\
++	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
++#define UI_BEGIN_FF_UPLOAD_COMPAT	\
++	_IOWR(UINPUT_IOCTL_BASE, 200, struct uinput_ff_upload_compat)
++#define UI_END_FF_UPLOAD_COMPAT		\
++	_IOW(UINPUT_IOCTL_BASE, 201, struct uinput_ff_upload_compat)
+ 
+ static long uinput_compat_ioctl(struct file *file,
+ 				unsigned int cmd, unsigned long arg)
  {
- 	return memblock_reserve(start, end - start);
+-	if (cmd == UI_SET_PHYS_COMPAT)
++	switch (cmd) {
++	case UI_SET_PHYS_COMPAT:
+ 		cmd = UI_SET_PHYS;
++		break;
++	case UI_BEGIN_FF_UPLOAD_COMPAT:
++		cmd = UI_BEGIN_FF_UPLOAD;
++		break;
++	case UI_END_FF_UPLOAD_COMPAT:
++		cmd = UI_END_FF_UPLOAD;
++		break;
++	}
+ 
+ 	return uinput_ioctl_handler(file, cmd, arg, compat_ptr(arg));
  }
--- 
-2.20.1
-
 
 
