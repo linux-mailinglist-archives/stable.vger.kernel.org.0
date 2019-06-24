@@ -2,96 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E41BA50B10
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 14:48:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA7D50B2B
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 14:54:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727709AbfFXMsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 08:48:38 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:43854 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726794AbfFXMsi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 08:48:38 -0400
-Received: by mail-pf1-f194.google.com with SMTP id i189so7451296pfg.10;
-        Mon, 24 Jun 2019 05:48:37 -0700 (PDT)
+        id S1728197AbfFXMyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 08:54:21 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:41589 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726740AbfFXMyU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 08:54:20 -0400
+Received: by mail-lj1-f195.google.com with SMTP id 205so3709497ljj.8;
+        Mon, 24 Jun 2019 05:54:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=oaaCCz6Ys2dbIc0p/CMP6uj9ujUCXgqFExQh+n5j2Rk=;
-        b=uHTwKx27KstqwiD7lY0j5caPzg2Gzx5Qy6ziWW7s63fR4LI7SGQ+y57hfRnzgKcBwC
-         mOPzWtdgr7OwI8Zmn4NVfrSmGS8swNdwxlEqcHSaGpLEaHDtjsV+ZRcTQochyEzJwDT7
-         ZLNgayqP+nQz4JPmWqlQpv7rWKqB7NZVJfFEgoDwhyaaosR9lyosrdgGlcHiNPAhhO0D
-         Hex+L3c/JJkXRoHZDYx+jlwnVQtLzFteyZu660l7sJ46qbub4AwHukFWGDNAJNbcrSaF
-         j/2aOoCQmLDIyV1pvpMkA1vyxxskd6Jyo9Dns/sYOggqfQSXrgQRrdDMLFNBmjcQjcFR
-         rUOw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=M1JNblMWL1UJydhDaOs1aVCdSHO2vHTNXrcJ9XfhOto=;
+        b=AF5vIQ5Hupi4FNbYV2kGV4xOfPM3ulb1rRfQmWbQr5Ro3xoofZZge6mAwUVep7f04h
+         /9FnvWP2O/GiGuxuwAZJhBpJA5eCAYuWnE6JM1h9Mydqpx3uq2jO4H2Q/EhATGLw99rr
+         /evcrL2KspOCo2UH1DdmLLcq+cxtf/djSMri+5kZ8VQBwzLSkNSq+xeKjTyqOZdiXfxc
+         r7o3AvgfaaVBwj1Ewen5q35C2XNx35g5Z0w02AsEl4AKF3ApiuaxkR3CZP6OicvK6W0d
+         2mJj38Ma8R9/lqAYOF7uVILk7S17rUzrizWUxPtSHJeoO9fFXPVN2JW2YOEjFiRE9GIJ
+         q9gA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=oaaCCz6Ys2dbIc0p/CMP6uj9ujUCXgqFExQh+n5j2Rk=;
-        b=bMz9vnfDLfx/JdRp1dZ8ogTakJN1ymQG5LEwDcyn6cT4P4yYjB1///BZYLlR/2zccd
-         dYaK6dxxUFRCedugn9sVe1TnIMxmpgtaLwoRwml15GGk/qekwC6zTpFx99XZTHSZdarO
-         gh5PrE9It2Hs0Iv9ZMgfOErL+7iS0V5Kr+6xaBFK4lF8SUWxrRuYcEtqP855pnqQeMVL
-         qVOXZYUBbMwc1gmpr3b4wrmbMvCknd0NDdT3OIehaaWjqhQ03LTipYBaDNhA5X8Prdzk
-         BcXCeH3+0Ld5kIpJKrMVvXJil4x/U1dhbcniEB5oMEfaMTRF8jY2eGfjo/gkb6B7Ishb
-         PJrg==
-X-Gm-Message-State: APjAAAWT7i+tsYAj0i1J7d+2bvEGaX97tZ9aHmiQy4yIv6mrHsbQYLpf
-        jmEDlkwL9aA8NCouMKYW8FzyOLIg
-X-Google-Smtp-Source: APXvYqwHN6OC1XcAWnXQDioUHvCsS/51HWtiliZEnI3l3tIbJiNf2IZ/BOi9bq/+WosluBQxvZZDNQ==
-X-Received: by 2002:a17:90a:af8e:: with SMTP id w14mr25120501pjq.89.1561380517258;
-        Mon, 24 Jun 2019 05:48:37 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t70sm4046967pgc.13.2019.06.24.05.48.35
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 24 Jun 2019 05:48:36 -0700 (PDT)
-Subject: Re: [PATCH 5.1 000/121] 5.1.15-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20190624092320.652599624@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <a37d3054-c0a4-da0f-8316-051f0ce293ca@roeck-us.net>
-Date:   Mon, 24 Jun 2019 05:48:34 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=M1JNblMWL1UJydhDaOs1aVCdSHO2vHTNXrcJ9XfhOto=;
+        b=k0Ckf6fhWCxjwQ+yHPQU2IWPoRn23kYbXVpDM0PNI8oxff0DH8OTk0HTTXAxdS2MMG
+         wZ+u3KtOOocM7l/HVJxOu1CA+HtGd0VY12+1wui9dJOe4i14jsIDifwhtp6zpW3REegv
+         XKSwEf1L1sedJTmO6wGpRB+iPhfE9jDgFp5RK5NivK7Utu8gQLJi1xqjuy46YJ0vLhxW
+         oKhWFn/IBqtuCuQojsCzg4O8qN+QVfr8LfIswf90nwQQ2ctYuzX8GEbFBVgv6GpNC2ux
+         c47Wds28JMkuIwcxgdQXnC1tL9cJfVAMdFlvzjFJ4MCYili3GfBP0Nmf5sqQMxW9ufBN
+         +rXw==
+X-Gm-Message-State: APjAAAUkZbs0mtGWAoHUwPLbiKn+Uex1WofVWeNI856X1z4/buXpfDZs
+        R0mDUDbRljIx1CESGTj3yKO0yRNR7rJkM8/clVg=
+X-Google-Smtp-Source: APXvYqx12fSqGEeTpRklsnlLBWi1B3OZsYNSLqkKkR4XEAv5A7APelVbsgnk/wQ5UP1qlBs2AcU4EovI5OPGe+uwOqM=
+X-Received: by 2002:a2e:7d03:: with SMTP id y3mr34782350ljc.240.1561380858632;
+ Mon, 24 Jun 2019 05:54:18 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20190621082306.34415-1-yibin.gong@nxp.com>
+In-Reply-To: <20190621082306.34415-1-yibin.gong@nxp.com>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Mon, 24 Jun 2019 09:54:40 -0300
+Message-ID: <CAOMZO5B+uXF=1WTPsA-9LrmtTF0Q0s7Fipwtd1nkWSgr3ec25w@mail.gmail.com>
+Subject: Re: [PATCH v2] dmaengine: imx-sdma: remove BD_INTR for channel0
+To:     Robin Gong <yibin.gong@nxp.com>
+Cc:     Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Vinod <vkoul@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sven Van Asbroeck <thesven73@gmail.com>,
+        Michael Olbrich <m.olbrich@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        stable <stable@vger.kernel.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>, dmaengine@vger.kernel.org,
+        Sascha Hauer <kernel@pengutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/24/19 2:55 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.1.15 release.
-> There are 121 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed 26 Jun 2019 09:22:03 AM UTC.
-> Anything received after that time might be too late.
-> 
+Hi Robin,
 
-Early feedback:
+On Fri, Jun 21, 2019 at 5:21 AM <yibin.gong@nxp.com> wrote:
+>
+> From: Robin Gong <yibin.gong@nxp.com>
+>
+> It is possible for an irq triggered by channel0 to be received later
+> after clks are disabled once firmware loaded during sdma probe. If
+> that happens then clearing them by writing to SDMA_H_INTR won't work
+> and the kernel will hang processing infinite interrupts. Actually,
+> don't need interrupt triggered on channel0 since it's pollling
+> SDMA_H_STATSTOP to know channel0 done rather than interrupt in
+> current code, just clear BD_INTR to disable channel0 interrupt to
+> avoid the above case.
+> This issue was brought by commit 1d069bfa3c78 ("dmaengine: imx-sdma:
+> ack channel 0 IRQ in the interrupt handler") which didn't take care
+> the above case.
+>
+> Fixes: 1d069bfa3c78 ("dmaengine: imx-sdma: ack channel 0 IRQ in the interrupt handler")
+> Cc: stable@vger.kernel.org #5.0+
 
-Building nds32:allmodconfig ... failed
---------------
-Error log:
-arch/nds32/math-emu/fpuemu.c: In function 'fpu_emu':
-arch/nds32/math-emu/fpuemu.c:308:48: error: 'FPCSR_mskALLE_NO_UDFE' undeclared (first use in this function); did you mean 'FPCSR_mskALLE_NO_UDF_IEXE'?
-   if (((fpu_reg->fpcsr << 5) & fpu_reg->fpcsr & FPCSR_mskALLE_NO_UDFE) ||
-                                                 ^~~~~~~~~~~~~~~~~~~~~
-                                                 FPCSR_mskALLE_NO_UDF_IEXE
-arch/nds32/math-emu/fpuemu.c:308:48: note: each undeclared identifier is reported only once for each function it appears in
-arch/nds32/math-emu/fpuemu.c:309:52: error: 'struct fpu_struct' has no member named 'UDF_trap'; did you mean 'UDF_IEX_trap'?
-       ((fpu_reg->fpcsr & FPCSR_mskUDF) && (fpu_reg->UDF_trap)))
-                                                     ^~~~~~~~
-                                                     UDF_IEX_trap
-
-Guenter
+This 5.0 notation does not look correct, as 1d069bfa3c78 was introduced in 4.10.
