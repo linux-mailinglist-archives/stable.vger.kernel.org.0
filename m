@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63D8550855
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0FB8506A1
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730763AbfFXKQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:16:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54110 "EHLO mail.kernel.org"
+        id S1729316AbfFXJ7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:59:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730759AbfFXKQf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:16:35 -0400
+        id S1729339AbfFXJ7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:59:53 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C96F721473;
-        Mon, 24 Jun 2019 10:16:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DA2A2146F;
+        Mon, 24 Jun 2019 09:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371395;
-        bh=ZoUvg6Cuj0gLOckE2E1pb8pVmMdC6IXEbv+tF/XOAV0=;
+        s=default; t=1561370393;
+        bh=98fHu+/xpXzCmO0NS//9f9neHSEPdnivLgGq94cWuBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fw+LhZGKx+1GB6Th3Zjyra0OgWQNqdTwEbqimPd5LCnajMQPLpfAaM2Xj1umuzarp
-         67NpV8ib+33pjCG3BlaP9LS/nddAjqJdKGlqpcviu1srZjbz5xunZjQUqwrafti03S
-         JDdIKeURdtXRdBqbtmJCRbLrN75dVb2G/afyKuLU=
+        b=cKBSyOVDpcn1mJoDeHCn761gzNpBglcTzZxyJXgYTD+RDCzwCugMvPFCuC+xecFJH
+         khkjno/0Jc59iS9BTO9WSNLTY3mhC2O34AZ8lh4a3MjvImYkemSrwWhcErF8ga3jyN
+         z7LQuybKJGxLYS61DmImXtJ9505DIxnhJbFa5xdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaesoo Lee <jalee@purestorage.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 088/121] nvme: Fix u32 overflow in the number of namespace list calculation
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 4.14 42/51] powerpc/bpf: use unsigned division instruction for 64-bit operations
 Date:   Mon, 24 Jun 2019 17:57:00 +0800
-Message-Id: <20190624092325.313690600@linuxfoundation.org>
+Message-Id: <20190624092310.844040207@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c8e8c77b3bdbade6e26e8e76595f141ede12b692 ]
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-The Number of Namespaces (nn) field in the identify controller data structure is
-defined as u32 and the maximum allowed value in NVMe specification is
-0xFFFFFFFEUL. This change fixes the possible overflow of the DIV_ROUND_UP()
-operation used in nvme_scan_ns_list() by casting the nn to u64.
+commit 758f2046ea040773ae8ea7f72dd3bbd8fa984501 upstream.
 
-Signed-off-by: Jaesoo Lee <jalee@purestorage.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BPF_ALU64 div/mod operations are currently using signed division, unlike
+BPF_ALU32 operations. Fix the same. DIV64 and MOD64 overflow tests pass
+with this fix.
+
+Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
+Cc: stable@vger.kernel.org # v4.8+
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/nvme/host/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/ppc-opcode.h |    1 +
+ arch/powerpc/net/bpf_jit.h            |    2 +-
+ arch/powerpc/net/bpf_jit_comp64.c     |    8 ++++----
+ 3 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 35d2202ee2fd..3a390b2c7540 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3397,7 +3397,8 @@ static int nvme_scan_ns_list(struct nvme_ctrl *ctrl, unsigned nn)
- {
- 	struct nvme_ns *ns;
- 	__le32 *ns_list;
--	unsigned i, j, nsid, prev = 0, num_lists = DIV_ROUND_UP(nn, 1024);
-+	unsigned i, j, nsid, prev = 0;
-+	unsigned num_lists = DIV_ROUND_UP_ULL((u64)nn, 1024);
- 	int ret = 0;
- 
- 	ns_list = kzalloc(NVME_IDENTIFY_DATA_SIZE, GFP_KERNEL);
--- 
-2.20.1
-
+--- a/arch/powerpc/include/asm/ppc-opcode.h
++++ b/arch/powerpc/include/asm/ppc-opcode.h
+@@ -324,6 +324,7 @@
+ #define PPC_INST_MULLI			0x1c000000
+ #define PPC_INST_DIVWU			0x7c000396
+ #define PPC_INST_DIVD			0x7c0003d2
++#define PPC_INST_DIVDU			0x7c000392
+ #define PPC_INST_RLWINM			0x54000000
+ #define PPC_INST_RLWIMI			0x50000000
+ #define PPC_INST_RLDICL			0x78000000
+--- a/arch/powerpc/net/bpf_jit.h
++++ b/arch/powerpc/net/bpf_jit.h
+@@ -116,7 +116,7 @@
+ 				     ___PPC_RA(a) | IMM_L(i))
+ #define PPC_DIVWU(d, a, b)	EMIT(PPC_INST_DIVWU | ___PPC_RT(d) |	      \
+ 				     ___PPC_RA(a) | ___PPC_RB(b))
+-#define PPC_DIVD(d, a, b)	EMIT(PPC_INST_DIVD | ___PPC_RT(d) |	      \
++#define PPC_DIVDU(d, a, b)	EMIT(PPC_INST_DIVDU | ___PPC_RT(d) |	      \
+ 				     ___PPC_RA(a) | ___PPC_RB(b))
+ #define PPC_AND(d, a, b)	EMIT(PPC_INST_AND | ___PPC_RA(d) |	      \
+ 				     ___PPC_RS(a) | ___PPC_RB(b))
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -415,12 +415,12 @@ static int bpf_jit_build_body(struct bpf
+ 			PPC_LI(b2p[BPF_REG_0], 0);
+ 			PPC_JMP(exit_addr);
+ 			if (BPF_OP(code) == BPF_MOD) {
+-				PPC_DIVD(b2p[TMP_REG_1], dst_reg, src_reg);
++				PPC_DIVDU(b2p[TMP_REG_1], dst_reg, src_reg);
+ 				PPC_MULD(b2p[TMP_REG_1], src_reg,
+ 						b2p[TMP_REG_1]);
+ 				PPC_SUB(dst_reg, dst_reg, b2p[TMP_REG_1]);
+ 			} else
+-				PPC_DIVD(dst_reg, dst_reg, src_reg);
++				PPC_DIVDU(dst_reg, dst_reg, src_reg);
+ 			break;
+ 		case BPF_ALU | BPF_MOD | BPF_K: /* (u32) dst %= (u32) imm */
+ 		case BPF_ALU | BPF_DIV | BPF_K: /* (u32) dst /= (u32) imm */
+@@ -448,7 +448,7 @@ static int bpf_jit_build_body(struct bpf
+ 				break;
+ 			case BPF_ALU64:
+ 				if (BPF_OP(code) == BPF_MOD) {
+-					PPC_DIVD(b2p[TMP_REG_2], dst_reg,
++					PPC_DIVDU(b2p[TMP_REG_2], dst_reg,
+ 							b2p[TMP_REG_1]);
+ 					PPC_MULD(b2p[TMP_REG_1],
+ 							b2p[TMP_REG_1],
+@@ -456,7 +456,7 @@ static int bpf_jit_build_body(struct bpf
+ 					PPC_SUB(dst_reg, dst_reg,
+ 							b2p[TMP_REG_1]);
+ 				} else
+-					PPC_DIVD(dst_reg, dst_reg,
++					PPC_DIVDU(dst_reg, dst_reg,
+ 							b2p[TMP_REG_1]);
+ 				break;
+ 			}
 
 
