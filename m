@@ -2,300 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBE5851A89
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 20:30:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BB4751B07
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 20:55:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728564AbfFXSax convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 24 Jun 2019 14:30:53 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:59496 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727672AbfFXSax (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 14:30:53 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 7F6A9307D981
-        for <stable@vger.kernel.org>; Mon, 24 Jun 2019 18:30:52 +0000 (UTC)
-Received: from [172.54.210.214] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DF3475D71A;
-        Mon, 24 Jun 2019 18:30:48 +0000 (UTC)
+        id S1728239AbfFXSzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 14:55:24 -0400
+Received: from mail-eopbgr740113.outbound.protection.outlook.com ([40.107.74.113]:58096
+        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729473AbfFXSzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 14:55:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Sony.onmicrosoft.com;
+ s=selector1-Sony-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DyvZ8Wt8o35zgdEk71VUOTjGxiOnzAczs/3SOfNVeLA=;
+ b=GUVQbp82+yyXSdMr0gi3+6QrSeUy/vVqTWynXndIV5K0bXXyKUAGnexYkvkVTpvjhWofBhtah0sclIV98OT1JNfotbk+aSmJX8EWnd5+CZElkurPjR9WQJEMJLUCblXrdhsWQFulh0FEoGFQAl46nTpuhg7tvJDN1JNAtOLE1eo=
+Received: from MN2PR13CA0011.namprd13.prod.outlook.com (2603:10b6:208:160::24)
+ by BN7PR13MB2243.namprd13.prod.outlook.com (2603:10b6:406:b6::27) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2032.9; Mon, 24 Jun
+ 2019 18:55:22 +0000
+Received: from CY1NAM02FT063.eop-nam02.prod.protection.outlook.com
+ (2a01:111:f400:7e45::207) by MN2PR13CA0011.outlook.office365.com
+ (2603:10b6:208:160::24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.20.2032.11 via Frontend
+ Transport; Mon, 24 Jun 2019 18:55:22 +0000
+Authentication-Results: spf=permerror (sender IP is 160.33.194.228)
+ smtp.mailfrom=sony.com; redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=sony.com;
+Received-SPF: PermError (protection.outlook.com: domain of sony.com used an
+ invalid SPF mechanism)
+Received: from usculsndmail01v.am.sony.com (160.33.194.228) by
+ CY1NAM02FT063.mail.protection.outlook.com (10.152.75.161) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.1987.11 via Frontend Transport; Mon, 24 Jun 2019 18:55:21 +0000
+Received: from usculsndmail13v.am.sony.com (usculsndmail13v.am.sony.com [146.215.230.104])
+        by usculsndmail01v.am.sony.com (Sentrion-MTA-4.3.2/Sentrion-MTA-4.3.2) with ESMTP id x5OItJxK008136;
+        Mon, 24 Jun 2019 18:55:19 GMT
+Received: from USCULXHUB05V.am.sony.com (hub.bc.in.sel.sony.com [146.215.231.43])
+        by usculsndmail13v.am.sony.com (Sentrion-MTA-4.3.2/Sentrion-MTA-4.3.2) with ESMTP id x5OItIWI000453;
+        Mon, 24 Jun 2019 18:55:19 GMT
+Received: from USCULXMSG01.am.sony.com ([fe80::b09d:6cb6:665e:d1b5]) by
+ USCULXHUB05V.am.sony.com ([146.215.231.43]) with mapi id 14.03.0439.000; Mon,
+ 24 Jun 2019 14:55:18 -0400
+From:   <Tim.Bird@sony.com>
+To:     <vkabatov@redhat.com>, <guillaume.tucker@gmail.com>
+CC:     <kernelci@groups.io>, <automated-testing@yoctoproject.org>,
+        <info@kernelci.org>, <syzkaller@googlegroups.com>,
+        <lkp@lists.01.org>, <stable@vger.kernel.org>, <labbott@redhat.com>,
+        <eslobodo@redhat.com>, <cki-project@redhat.com>
+Subject: RE: CKI hackfest @Plumbers invite
+Thread-Topic: CKI hackfest @Plumbers invite
+Thread-Index: AQHVJ37SWv4qmkd5dESo8sS6Z+b53aak+c4AgAYyvSA=
+Date:   Mon, 24 Jun 2019 18:55:12 +0000
+Message-ID: <ECADFF3FD767C149AD96A924E7EA6EAF977399CD@USCULXMSG01.am.sony.com>
+References: <1204558561.21265703.1558449611621.JavaMail.zimbra@redhat.com>
+ <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com>
+ <CAH1_8nAx-1+uqOwAOCfGbqdWzgWD1-oikAfoVBqw4qPcu8v4fw@mail.gmail.com>
+ <1759213455.26229412.1561047112464.JavaMail.zimbra@redhat.com>
+In-Reply-To: <1759213455.26229412.1561047112464.JavaMail.zimbra@redhat.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [146.215.228.6]
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.316EBB7F26.GEY5LJ9RP9@redhat.com>
-X-Gitlab-Pipeline-ID: 13137
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Mon, 24 Jun 2019 18:30:52 +0000 (UTC)
-Date:   Mon, 24 Jun 2019 14:30:53 -0400
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-HT: Tenant
+X-Forefront-Antispam-Report: CIP:160.33.194.228;IPV:NLI;CTRY:US;EFV:NLI;SFV:NSPM;SFS:(10019020)(39860400002)(346002)(136003)(396003)(376002)(2980300002)(448002)(13464003)(199004)(189003)(426003)(246002)(14444005)(486006)(70206006)(26005)(102836004)(436003)(186003)(55846006)(76176011)(4744005)(7696005)(70586007)(37786003)(476003)(2486003)(23676004)(11346002)(126002)(446003)(4326008)(33656002)(316002)(7736002)(356004)(53546011)(336012)(110136005)(50466002)(6666004)(55016002)(54906003)(5660300002)(229853002)(86362001)(6246003)(72206003)(66066001)(47776003)(2876002)(2906002)(8676002)(305945005)(6116002)(8936002)(3846002)(478600001)(7416002)(5001870100001);DIR:OUT;SFP:1102;SCL:1;SRVR:BN7PR13MB2243;H:usculsndmail01v.am.sony.com;FPR:;SPF:PermError;LANG:en;PTR:mail.sonyusa.com,mail01.sonyusa.com;A:1;MX:1;
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: c1454419-0867-4073-064a-08d6f8d58275
+X-Microsoft-Antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600148)(711020)(4605104)(1401327)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7193020);SRVR:BN7PR13MB2243;
+X-MS-TrafficTypeDiagnostic: BN7PR13MB2243:
+X-Microsoft-Antispam-PRVS: <BN7PR13MB22438D9473BE2EEEF8A92D2AFDE00@BN7PR13MB2243.namprd13.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-Forefront-PRVS: 007814487B
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam-Message-Info: vI60t5fXbt9uz+uCqVbG9MmP3/PgGK0u6+earQ8NovAWVsIBPqx+jgbJZEun5FODrwGY+R3kRqHrq2QJVmcD83cHs2ksMLbJFG/evFm0yzNoutrZfwcDugPjpS1QSt8PnnoCQ4B1A5ogXwzA0QvnIKni16OeniNZdyr4X526JGwTYdRnFasUkC6XDrXXmBAmbev6J1YkXuWOeC3P8KulNdIZTkV1YXU/YO38Y15Y0u51zBhEop01nStQkfVg090HnrNwmZT6RZwqhp/21BkAuFbXH4Q++i3JtBo5/6r38t3j5TKml13R8gwp/1ro+7dvGskHjCHrQBAExuTct9fO0xBRVzh7UUIm4m6k2FtaJ7jCN8Yu/zYJcGjv+Ygonzutk49PTQ8mF0V8xIM0EkPzKXQ8F5Zq4fikADAji1anUFE=
+X-OriginatorOrg: sony.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Jun 2019 18:55:21.1676
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: c1454419-0867-4073-064a-08d6f8d58275
+X-MS-Exchange-CrossTenant-Id: 66c65d8a-9158-4521-a2d8-664963db48e4
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=66c65d8a-9158-4521-a2d8-664963db48e4;Ip=[160.33.194.228];Helo=[usculsndmail01v.am.sony.com]
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN7PR13MB2243
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 78778071092e - Linux 4.19.55
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 78778071092e - Linux 4.19.55
-
-
-We grabbed the b62a342d166f commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  tracing-silence-gcc-9-array-bounds-warning.patch
-  objtool-support-per-function-rodata-sections.patch
-  gcc-9-silence-address-of-packed-member-warning.patch
-  ovl-support-the-fs_ioc_fs-sg-etxattr-ioctls.patch
-  ovl-fix-wrong-flags-check-in-fs_ioc_fs-sg-etxattr-io.patch
-  ovl-make-i_ino-consistent-with-st_ino-in-more-cases.patch
-  ovl-detect-overlapping-layers.patch
-  ovl-don-t-fail-with-disconnected-lower-nfs.patch
-  ovl-fix-bogus-wmaybe-unitialized-warning.patch
-  s390-jump_label-use-jdd-constraint-on-gcc9.patch
-  s390-ap-rework-assembler-functions-to-use-unions-for.patch
-  mmc-sdhci-sdhci-pci-o2micro-correctly-set-bus-width-when-tuning.patch
-  mmc-core-api-to-temporarily-disable-retuning-for-sdio-crc-errors.patch
-  mmc-core-add-sdio_retune_hold_now-and-sdio_retune_release.patch
-  mmc-core-prevent-processing-sdio-irqs-when-the-card-is-suspended.patch
-  scsi-ufs-avoid-runtime-suspend-possibly-being-blocked-forever.patch
-  usb-chipidea-udc-workaround-for-endpoint-conflict-issue.patch
-  xhci-detect-usb-3.2-capable-host-controllers-correctly.patch
-  usb-xhci-don-t-try-to-recover-an-endpoint-if-port-is-in-error-state.patch
-  ib-hfi1-validate-fault-injection-opcode-user-input.patch
-  ib-hfi1-silence-txreq-allocation-warnings.patch
-  iio-temperature-mlx90632-relax-the-compatibility-check.patch
-  input-synaptics-enable-smbus-on-thinkpad-e480-and-e580.patch
-  input-uinput-add-compat-ioctl-number-translation-for-ui_-_ff_upload.patch
-  input-silead-add-mssl0017-to-acpi_device_id.patch
-  apparmor-fix-profile_mediates-for-untrusted-input.patch
-  apparmor-enforce-nullbyte-at-end-of-tag-string.patch
-  brcmfmac-sdio-disable-auto-tuning-around-commands-expected-to-fail.patch
-  brcmfmac-sdio-don-t-tune-while-the-card-is-off.patch
-  arc-fix-build-warnings.patch
-  dmaengine-dw-axi-dmac-fix-null-dereference-when-poin.patch
-  dmaengine-sprd-fix-block-length-overflow.patch
-  arc-plat-hsdk-add-missing-multicast-filter-bins-numb.patch
-  arc-plat-hsdk-add-missing-fifo-size-entry-in-gmac-no.patch
-  fpga-dfl-afu-pass-the-correct-device-to-dma_mapping_.patch
-  fpga-dfl-add-lockdep-classes-for-pdata-lock.patch
-  parport-fix-mem-leak-in-parport_register_dev_model.patch
-  parisc-fix-compiler-warnings-in-float-emulation-code.patch
-  ib-rdmavt-fix-alloc_qpn-warn_on.patch
-  ib-hfi1-insure-freeze_work-work_struct-is-canceled-o.patch
-  ib-qib-hfi1-rdmavt-correct-ibv_devinfo-max_mr-value.patch
-  ib-hfi1-validate-page-aligned-for-a-given-virtual-ad.patch
-  mips-uprobes-remove-set-but-not-used-variable-epc.patch
-  xtensa-fix-section-mismatch-between-memblock_reserve.patch
-  kselftest-cgroup-fix-unexpected-testing-failure-on-t.patch
-  kselftest-cgroup-fix-unexpected-testing-failure-on-t.patch
-  kselftest-cgroup-fix-incorrect-test_core-skip.patch
-  selftests-vm-install-test_vmalloc.sh-for-run_vmtests.patch
-  net-dsa-mv88e6xxx-avoid-error-message-on-remove-from.patch
-  net-hns-fix-loopback-test-failed-at-copper-ports.patch
-  mdesc-fix-a-missing-check-bug-in-get_vdev_port_node_.patch
-  sparc-perf-fix-updated-event-period-in-response-to-p.patch
-  net-ethernet-mediatek-use-hw_feature-to-judge-if-hwl.patch
-  net-ethernet-mediatek-use-net_ip_align-to-judge-if-h.patch
-  drm-arm-mali-dp-add-a-loop-around-the-second-set-cva.patch
-  drm-arm-hdlcd-actually-validate-crtc-modes.patch
-  drm-arm-hdlcd-allow-a-bit-of-clock-tolerance.patch
-  nvmet-fix-data_len-to-0-for-bdev-backed-write_zeroes.patch
-  scripts-checkstack.pl-fix-arm64-wrong-or-unknown-arc.patch
-  scsi-ufs-check-that-space-was-properly-alloced-in-co.patch
-  scsi-smartpqi-unlock-on-error-in-pqi_submit_raid_req.patch
-  net-ipvlan-fix-ipvlan-device-tso-disabled-while-neti.patch
-  s390-qeth-fix-vlan-attribute-in-bridge_hostnotify-ud.patch
-  hwmon-core-add-thermal-sensors-only-if-dev-of_node-i.patch
-  hwmon-pmbus-core-treat-parameters-as-paged-if-on-mul.patch
-  arm64-silence-gcc-warnings-about-arch-abi-drift.patch
-  nvme-fix-u32-overflow-in-the-number-of-namespace-lis.patch
-  btrfs-start-readahead-also-in-seed-devices.patch
-  can-xilinx_can-use-correct-bittiming_const-for-can-fd-core.patch
-  can-flexcan-fix-timeout-when-set-small-bitrate.patch
-  can-purge-socket-error-queue-on-sock-destruct.patch
-  riscv-mm-synchronize-mmu-after-pte-change.patch
-  powerpc-bpf-use-unsigned-division-instruction-for-64-bit-operations.patch
-  arm-imx-cpuidle-imx6sx-restrict-the-sw2iso-increase-to-i.mx6sx.patch
-  arm-dts-dra76x-update-mmc2_hs200_manual1-iodelay-values.patch
-  arm-dts-am57xx-idk-remove-support-for-voltage-switching-for-sd-card.patch
-  arm64-sve-uapi-asm-ptrace.h-should-not-depend-on-uapi-linux-prctl.h.patch
-  arm64-ssbd-explicitly-depend-on-linux-prctl.h.patch
-  drm-vmwgfx-use-the-backdoor-port-if-the-hb-port-is-not-available.patch
-  staging-erofs-add-requirements-field-in-superblock.patch
-  bluetooth-align-minimum-encryption-key-size-for-le-and-br-edr-connections.patch
-  bluetooth-fix-regression-with-minimum-encryption-key-size-alignment.patch
-  smb3-retry-on-status_insufficient_resources-instead-of-failing-write.patch
-  cfg80211-fix-memory-leak-of-wiphy-device-name.patch
-  mac80211-drop-robust-management-frames-from-unknown-ta.patch
-  nl-mac-80211-allow-4addr-ap-operation-on-crypto-controlled-devices.patch
-  mac80211-handle-deauthentication-disassociation-from-tdls-peer.patch
-  nl80211-fix-station_info-pertid-memory-leak.patch
-  mac80211-do-not-use-stack-memory-with-scatterlist-for-gmac.patch
-  x86-resctrl-don-t-stop-walking-closids-when-a-locksetup-group-is-found.patch
-  powerpc-mm-64s-hash-reallocate-context-ids-on-fork.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-869f94a883c34dbf799f6c9917b52b971c307ff9.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-869f94a883c34dbf799f6c9917b52b971c307ff9.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-869f94a883c34dbf799f6c9917b52b971c307ff9.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-869f94a883c34dbf799f6c9917b52b971c307ff9.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-869f94a883c34dbf799f6c9917b52b971c307ff9.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-869f94a883c34dbf799f6c9917b52b971c307ff9.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-869f94a883c34dbf799f6c9917b52b971c307ff9.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-869f94a883c34dbf799f6c9917b52b971c307ff9.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ Ethernet drivers sanity [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ tuned: tune-processes-through-perf [11]
-       🚧 ✅ storage: SCSI VPD [12]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [13]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [13]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ Ethernet drivers sanity [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ tuned: tune-processes-through-perf [11]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [13]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ LTP: openposix test suite [4]
-       ✅ Ethernet drivers sanity [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ tuned: tune-processes-through-perf [11]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ Ethernet drivers sanity [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ tuned: tune-processes-through-perf [11]
-       🚧 ✅ storage: SCSI VPD [12]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [13]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBWZXJvbmlrYSBLYWJhdG92YSAN
+Cj4gDQo+IC0tLS0tIE9yaWdpbmFsIE1lc3NhZ2UgLS0tLS0NCj4gPiBGcm9tOiAiR3VpbGxhdW1l
+IFR1Y2tlciIgDQo+ID4NCj4gPiBIaSBWZXJvbmlrYSwNCj4gPg0KPiA+IE9uIFR1ZSwgTWF5IDIx
+LCAyMDE5IGF0IDM6NTUgUE0gVmVyb25pa2EgS2FiYXRvdmENCj4gPHZrYWJhdG92QHJlZGhhdC5j
+b20+DQo+ID4gd3JvdGU6DQo+ID4NCj4gDQo+IEkgYWdyZWUgdGhhdCB0aGlzIHRvcGljIGlzIGlt
+cG9ydGFudCAoYW5kIEkgYmVsaWV2ZSBzb21lIG90aGVyIENLSSBwZW9wbGUNCj4gbWFkZSB0aGF0
+IGNsZWFyIGFzIHdlbGwpIHNvIEkgYWRkZWQgaXQgdG8gdGhlIGFnZW5kYSB0b3BpY3MuIFRoZSBs
+aXN0IG9mDQo+IHRob3NlIGlzIGdldHRpbmcgbG9uZyBzbyB3ZSdkIGRlZmluaXRlbHkgbmVlZCB0
+byBjdXJhdGUgaXQgcHJvcGVybHkgc29vbg0KPiBidXQgSSdsbCBtYWtlIHN1cmUgdGhpcyBzdGF5
+cyB0aGVyZS4NCg0KSSBhZ3JlZSB0aGF0IEd1aWxsYXVtZSdzIHRvcGljIHdvdWxkIGJlIGdvb2Qg
+dG8gZGlzY3Vzcy4NCg0KSXMgdGhlIGRyYWZ0IGFnZW5kYSBvbmxpbmUgYW55d2hlcmU/DQogLS0g
+VGltDQoNCg==
