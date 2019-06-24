@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F254F50868
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A37C1507F4
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730875AbfFXKRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:17:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54660 "EHLO mail.kernel.org"
+        id S1730027AbfFXKGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:06:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728562AbfFXKRF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:17:05 -0400
+        id S1729423AbfFXKGE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:06:04 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 418BB2089F;
-        Mon, 24 Jun 2019 10:17:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6A12208E3;
+        Mon, 24 Jun 2019 10:06:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371424;
-        bh=CRSruYZNYZEsKMB0PpnlbwDxJmP7qjeeKQInSfEmv5U=;
+        s=default; t=1561370763;
+        bh=8J2ek7vj1Ztw0cwOVrjW589wi/e/fWDGfafVoe4r+Zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UT0WPI+eFvZQyADi8wVRAxmfDFmQRVt4532lpzB923mDmvxzybx9IyT0/xsApOGkk
-         XzGr3HzdVHQ1A5kDkd9C6C6puYzsLVjgUSEw3db0GHzopSccfMxACmD2a5vmbD/m8V
-         IkYXMf1BjdXDCf6fLGzqx54VvdMGmLh3bQluFW4A=
+        b=cSmGjZs7kzLGqIQ6RATf54nmqgamuQY+jExBBN1fWA7AjPyQfX1XhUuHB341o7XlU
+         huxHf9i5x6vVv4JqGxuMaDKbOGKm34DiBMMo5HAgXQyGhezb8pIurPWIiV+H5W4O6i
+         fWxjabBVin4Dc0HkfpdfMYlvcMitFVUjZha7pKmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
-        <sebastien.szymanski@armadeus.com>, Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.1 098/121] ARM: imx: cpuidle-imx6sx: Restrict the SW2ISO increase to i.MX6SX
-Date:   Mon, 24 Jun 2019 17:57:10 +0800
-Message-Id: <20190624092325.745004450@linuxfoundation.org>
+        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@intel.com>
+Subject: [PATCH 4.19 81/90] Bluetooth: Align minimum encryption key size for LE and BR/EDR connections
+Date:   Mon, 24 Jun 2019 17:57:11 +0800
+Message-Id: <20190624092319.233578744@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Marcel Holtmann <marcel@holtmann.org>
 
-commit b25af2ff7c07bd19af74e3f64ff82e2880d13d81 upstream.
+commit d5bb334a8e171b262e48f378bd2096c0ea458265 upstream.
 
-Since commit 1e434b703248 ("ARM: imx: update the cpu power up timing
-setting on i.mx6sx") some characters loss is noticed on i.MX6ULL UART
-as reported by Christoph Niedermaier.
+The minimum encryption key size for LE connections is 56 bits and to
+align LE with BR/EDR, enforce 56 bits of minimum encryption key size for
+BR/EDR connections as well.
 
-The intention of such commit was to increase the SW2ISO field for i.MX6SX
-only, but since cpuidle-imx6sx is also used on i.MX6UL/i.MX6ULL this caused
-unintended side effects on other SoCs.
-
-Fix this problem by keeping the original SW2ISO value for i.MX6UL/i.MX6ULL
-and only increase SW2ISO in the i.MX6SX case.
-
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
 Cc: stable@vger.kernel.org
-Fixes: 1e434b703248 ("ARM: imx: update the cpu power up timing setting on i.mx6sx")
-Reported-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Tested-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
-Tested-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-imx/cpuidle-imx6sx.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/bluetooth/hci_core.h |    3 +++
+ net/bluetooth/hci_conn.c         |    8 ++++++++
+ 2 files changed, 11 insertions(+)
 
---- a/arch/arm/mach-imx/cpuidle-imx6sx.c
-+++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
-@@ -15,6 +15,7 @@
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -182,6 +182,9 @@ struct adv_info {
  
- #include "common.h"
- #include "cpuidle.h"
-+#include "hardware.h"
+ #define HCI_MAX_SHORT_NAME_LENGTH	10
  
- static int imx6sx_idle_finish(unsigned long val)
- {
-@@ -110,7 +111,7 @@ int __init imx6sx_cpuidle_init(void)
- 	 * except for power up sw2iso which need to be
- 	 * larger than LDO ramp up time.
- 	 */
--	imx_gpc_set_arm_power_up_timing(0xf, 1);
-+	imx_gpc_set_arm_power_up_timing(cpu_is_imx6sx() ? 0xf : 0x2, 1);
- 	imx_gpc_set_arm_power_down_timing(1, 1);
++/* Min encryption key size to match with SMP */
++#define HCI_MIN_ENC_KEY_SIZE		7
++
+ /* Default LE RPA expiry time, 15 minutes */
+ #define HCI_DEFAULT_RPA_TIMEOUT		(15 * 60)
  
- 	return cpuidle_register(&imx6sx_cpuidle_driver, NULL);
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -1276,6 +1276,14 @@ int hci_conn_check_link_mode(struct hci_
+ 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
+ 		return 0;
+ 
++	/* The minimum encryption key size needs to be enforced by the
++	 * host stack before establishing any L2CAP connections. The
++	 * specification in theory allows a minimum of 1, but to align
++	 * BR/EDR and LE transports, a minimum of 7 is chosen.
++	 */
++	if (conn->enc_key_size < HCI_MIN_ENC_KEY_SIZE)
++		return 0;
++
+ 	return 1;
+ }
+ 
 
 
