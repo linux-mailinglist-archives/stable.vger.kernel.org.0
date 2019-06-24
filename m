@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C6E2508C9
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:23:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38B4E5072C
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729842AbfFXKVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:21:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
+        id S1729474AbfFXKFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:05:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727525AbfFXKVh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:21:37 -0400
+        id S1729849AbfFXKFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:01 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 429B620645;
-        Mon, 24 Jun 2019 10:21:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BF57205ED;
+        Mon, 24 Jun 2019 10:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371696;
-        bh=auMCal2LoCfpgKRPytluCTINv39Soo4TNSQ4RmUdg4c=;
+        s=default; t=1561370700;
+        bh=9ykm63z15zp473jDZU4n8PDwcq4XFKrkWMWhtYDOEbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5izVy5F90M9pdtDShbt6Dnwc8AK5uefB287sp2U6RSGPdsqNinS/+G/qDwF4YxcZ
-         6s/GmdbZdGRsK0aBgH0b6t2xMluk0HvTGQzWT1bnYBCnKjfad6v8n0DqgTObfzhztV
-         lzQXLReCmz9GufIFxVvRCArUiJoyv6zMxjqZudvY=
+        b=cxsbnbThI0OqyBsyJfgGeGO2SimlT3gA/Xo25yFTEYLxVXab7zfMopA4tEPnN+eBJ
+         9BTvFKS7sJidZH4NKFVvmyf5ntPFFUgCX6rrCKWx60hxt+5NJT5cVrr/lPxMzL+bM0
+         yMo8H3LEPWFuDCNELy88ZvCnHVFvMCj1tQsoDClc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Don Brace <don.brace@microsemi.com>,
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bean Huo <beanhuo@micron.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 078/121] scsi: smartpqi: unlock on error in pqi_submit_raid_request_synchronous()
+Subject: [PATCH 4.19 60/90] scsi: ufs: Check that space was properly alloced in copy_query_response
 Date:   Mon, 24 Jun 2019 17:56:50 +0800
-Message-Id: <20190624092324.865190248@linuxfoundation.org>
+Message-Id: <20190624092318.074966155@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cc8f52609bb4177febade24d11713e20c0893b0a ]
+[ Upstream commit 1c90836f70f9a8ef7b7ad9e1fdd8961903e6ced6 ]
 
-We need to drop the "ctrl_info->sync_request_sem" lock before returning.
+struct ufs_dev_cmd is the main container that supports device management
+commands. In the case of a read descriptor request, we assume that the
+proper space was allocated in dev_cmd to hold the returning descriptor.
 
-Fixes: 6c223761eb54 ("smartpqi: initial commit of Microsemi smartpqi driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Don Brace <don.brace@microsemi.com>
+This is no longer true, as there are flows that doesn't use dev_cmd for
+device management requests, and was wrong in the first place.
+
+Fixes: d44a5f98bb49 (ufs: query descriptor API)
+Signed-off-by: Avri Altman <avri.altman@wdc.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Acked-by: Bean Huo <beanhuo@micron.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_init.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index 531824afba5f..392695b4691a 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -4044,8 +4044,10 @@ static int pqi_submit_raid_request_synchronous(struct pqi_ctrl_info *ctrl_info,
- 				return -ETIMEDOUT;
- 			msecs_blocked =
- 				jiffies_to_msecs(jiffies - start_jiffies);
--			if (msecs_blocked >= timeout_msecs)
--				return -ETIMEDOUT;
-+			if (msecs_blocked >= timeout_msecs) {
-+				rc = -ETIMEDOUT;
-+				goto out;
-+			}
- 			timeout_msecs -= msecs_blocked;
- 		}
- 	}
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 3183fa8c5857..b8b59cfeacd1 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1914,7 +1914,8 @@ int ufshcd_copy_query_response(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ 	memcpy(&query_res->upiu_res, &lrbp->ucd_rsp_ptr->qr, QUERY_OSF_SIZE);
+ 
+ 	/* Get the descriptor */
+-	if (lrbp->ucd_rsp_ptr->qr.opcode == UPIU_QUERY_OPCODE_READ_DESC) {
++	if (hba->dev_cmd.query.descriptor &&
++	    lrbp->ucd_rsp_ptr->qr.opcode == UPIU_QUERY_OPCODE_READ_DESC) {
+ 		u8 *descp = (u8 *)lrbp->ucd_rsp_ptr +
+ 				GENERAL_UPIU_REQUEST_SIZE;
+ 		u16 resp_len;
 -- 
 2.20.1
 
