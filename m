@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8DA55064C
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 11:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E802F506FB
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726716AbfFXJ5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:57:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55934 "EHLO mail.kernel.org"
+        id S1729531AbfFXKDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:03:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726453AbfFXJ5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:57:45 -0400
+        id S1729524AbfFXKDI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:03:08 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A64E0205ED;
-        Mon, 24 Jun 2019 09:57:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6FBD205ED;
+        Mon, 24 Jun 2019 10:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370264;
-        bh=79Z6yu1NECFO17rSLe4/LFTXyANXKsb8vRPaV4ZpytA=;
+        s=default; t=1561370588;
+        bh=9/5h1e+gmgiTzTUkmMFI0omFz26ZyuJlOy3B/+hi3l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VsEmh8hFFJAsuBlKuDSubA0HS1AVJuyeOWkF1GpTMHA4OY0P05buY2U5nb4LZcp5V
-         XppnANaemFOp7b72K+COnyjW7XneEZcyDK/mg3liEkuI7cWWRumc3eDyN1xlmi84zJ
-         0h7VdQS10Mgks9JJn2om767OSwHdrve/c7xH1Bc4=
+        b=IKOScsI8qu+xdPFGckjG7+0AyK1i2k8bNdMymLK7oB5l90J1pucJRfy1rrBNQssRu
+         GM/Z8aEeG/oyzJ5nh4p6/YuOqNlHZbZ+HHDDxTj+DcyUUXhwHxzRTpBfCin9F4htQT
+         sgY/uZBPHNcHuhgVyUV2TqvQ6ifv83V09weKYZEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 01/51] tracing: Silence GCC 9 array bounds warning
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 29/90] brcmfmac: sdio: Dont tune while the card is off
 Date:   Mon, 24 Jun 2019 17:56:19 +0800
-Message-Id: <20190624092306.061938404@linuxfoundation.org>
+Message-Id: <20190624092316.147286844@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,103 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 0c97bf863efce63d6ab7971dad811601e6171d2f upstream.
+commit 65dade6044079a5c206fd1803642ff420061417a upstream.
 
-Starting with GCC 9, -Warray-bounds detects cases when memset is called
-starting on a member of a struct but the size to be cleared ends up
-writing over further members.
+When Broadcom SDIO cards are idled they go to sleep and a whole
+separate subsystem takes over their SDIO communication.  This is the
+Always-On-Subsystem (AOS) and it can't handle tuning requests.
 
-Such a call happens in the trace code to clear, at once, all members
-after and including `seq` on struct trace_iterator:
+Specifically, as tested on rk3288-veyron-minnie (which reports having
+BCM4354/1 in dmesg), if I force a retune in brcmf_sdio_kso_control()
+when "on = 1" (aka we're transition from sleep to wake) by whacking:
+  bus->sdiodev->func1->card->host->need_retune = 1
+...then I can often see tuning fail.  In this case dw_mmc reports "All
+phases bad!").  Note that I don't get 100% failure, presumably because
+sometimes the card itself has already transitioned away from the AOS
+itself by the time we try to wake it up.  If I force retuning when "on
+= 0" (AKA force retuning right before sending the command to go to
+sleep) then retuning is always OK.
 
-    In function 'memset',
-        inlined from 'ftrace_dump' at kernel/trace/trace.c:8914:3:
-    ./include/linux/string.h:344:9: warning: '__builtin_memset' offset
-    [8505, 8560] from the object at 'iter' is out of the bounds of
-    referenced subobject 'seq' with type 'struct trace_seq' at offset
-    4368 [-Warray-bounds]
-      344 |  return __builtin_memset(p, c, size);
-          |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTE: we need _both_ this patch and the patch to avoid triggering
+tuning due to CRC errors in the sleep/wake transition, AKA ("brcmfmac:
+sdio: Disable auto-tuning around commands expected to fail").  Though
+both patches handle issues with Broadcom's AOS, the problems are
+distinct:
+1. We want to defer (but not ignore) asynchronous (like
+   timer-requested) tuning requests till the card is awake.  However,
+   we want to ignore CRC errors during the transition, we don't want
+   to queue deferred tuning request.
+2. You could imagine that the AOS could implement retuning but we
+   could still get errors while transitioning in and out of the AOS.
+   Similarly you could imagine a seamless transition into and out of
+   the AOS (with no CRC errors) even if the AOS couldn't handle
+   tuning.
 
-In order to avoid GCC complaining about it, we compute the address
-ourselves by adding the offsetof distance instead of referring
-directly to the member.
+ALSO NOTE: presumably there is never a desperate need to retune in
+order to wake up the card, since doing so is impossible.  Luckily the
+only way the card can get into sleep state is if we had a good enough
+tuning to send it the command to put it into sleep, so presumably that
+"good enough" tuning is enough to wake us up, at least with a few
+retries.
 
-Since there are two places doing this clear (trace.c and trace_kdb.c),
-take the chance to move the workaround into a single place in
-the internal header.
-
-Link: http://lkml.kernel.org/r/20190523124535.GA12931@gmail.com
-
-Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-[ Removed unnecessary parenthesis around "iter" ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: stable@vger.kernel.org #v4.18+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Acked-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace.c     |    6 +-----
- kernel/trace/trace.h     |   18 ++++++++++++++++++
- kernel/trace/trace_kdb.c |    6 +-----
- 3 files changed, 20 insertions(+), 10 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -8249,12 +8249,8 @@ void ftrace_dump(enum ftrace_dump_mode o
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -669,6 +669,10 @@ brcmf_sdio_kso_control(struct brcmf_sdio
  
- 		cnt++;
+ 	sdio_retune_crc_disable(bus->sdiodev->func1);
  
--		/* reset all but tr, trace, and overruns */
--		memset(&iter.seq, 0,
--		       sizeof(struct trace_iterator) -
--		       offsetof(struct trace_iterator, seq));
-+		trace_iterator_reset(&iter);
- 		iter.iter_flags |= TRACE_FILE_LAT_FMT;
--		iter.pos = -1;
- 
- 		if (trace_find_next_entry_inc(&iter) != NULL) {
- 			int ret;
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -1871,4 +1871,22 @@ static inline int tracing_alloc_snapshot
- 
- extern struct trace_iterator *tracepoint_print_iter;
- 
-+/*
-+ * Reset the state of the trace_iterator so that it can read consumed data.
-+ * Normally, the trace_iterator is used for reading the data when it is not
-+ * consumed, and must retain state.
-+ */
-+static __always_inline void trace_iterator_reset(struct trace_iterator *iter)
-+{
-+	const size_t offset = offsetof(struct trace_iterator, seq);
++	/* Cannot re-tune if device is asleep; defer till we're awake */
++	if (on)
++		sdio_retune_hold_now(bus->sdiodev->func1);
 +
-+	/*
-+	 * Keep gcc from complaining about overwriting more than just one
-+	 * member in the structure.
-+	 */
-+	memset((char *)iter + offset, 0, sizeof(struct trace_iterator) - offset);
+ 	wr_val = (on << SBSDIO_FUNC1_SLEEPCSR_KSO_SHIFT);
+ 	/* 1st KSO write goes to AOS wake up core if device is asleep  */
+ 	brcmf_sdiod_writeb(bus->sdiodev, SBSDIO_FUNC1_SLEEPCSR, wr_val, &err);
+@@ -721,6 +725,9 @@ brcmf_sdio_kso_control(struct brcmf_sdio
+ 	if (try_cnt > MAX_KSO_ATTEMPTS)
+ 		brcmf_err("max tries: rd_val=0x%x err=%d\n", rd_val, err);
+ 
++	if (on)
++		sdio_retune_release(bus->sdiodev->func1);
 +
-+	iter->pos = -1;
-+}
-+
- #endif /* _LINUX_KERNEL_TRACE_H */
---- a/kernel/trace/trace_kdb.c
-+++ b/kernel/trace/trace_kdb.c
-@@ -41,12 +41,8 @@ static void ftrace_dump_buf(int skip_lin
+ 	sdio_retune_crc_enable(bus->sdiodev->func1);
  
- 	kdb_printf("Dumping ftrace buffer:\n");
- 
--	/* reset all but tr, trace, and overruns */
--	memset(&iter.seq, 0,
--		   sizeof(struct trace_iterator) -
--		   offsetof(struct trace_iterator, seq));
-+	trace_iterator_reset(&iter);
- 	iter.iter_flags |= TRACE_FILE_LAT_FMT;
--	iter.pos = -1;
- 
- 	if (cpu_file == RING_BUFFER_ALL_CPUS) {
- 		for_each_tracing_cpu(cpu) {
+ 	return err;
 
 
