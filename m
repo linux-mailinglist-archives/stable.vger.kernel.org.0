@@ -2,82 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3549450BE8
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 15:24:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E9250CC6
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 15:55:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731056AbfFXNYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 09:24:33 -0400
-Received: from smtp.codeaurora.org ([198.145.29.96]:40024 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730966AbfFXNYd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 09:24:33 -0400
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id C575B6016D; Mon, 24 Jun 2019 13:24:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1561382673;
-        bh=8MHij29pe/7eRAAOBieB16owB57jEIC81rmAHsrQgOk=;
-        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
-        b=b9arqfhPvdzFy6lvqAaWUYAmaEmSO2gq5nYURv7SBFus2KbTvE5ZF8IXemTafe7GJ
-         USZKfqryluZx6Pg+eWOi8tpZYK9wkuQk5uc5ujIxus6QZpU3glZMzBiXpYyyjHp0dq
-         /XQVk+dsU1FLClhTTEsg42VtWAwUKGIu8ZQ3smyo=
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        pdx-caf-mail.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_INVALID,DKIM_SIGNED,MISSING_DATE,MISSING_MID,SPF_NONE autolearn=no
-        autolearn_force=no version=3.4.0
-Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: kvalo@smtp.codeaurora.org)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 1B3496016D;
-        Mon, 24 Jun 2019 13:24:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1561382670;
-        bh=8MHij29pe/7eRAAOBieB16owB57jEIC81rmAHsrQgOk=;
-        h=Subject:From:In-Reply-To:References:To:Cc:From;
-        b=YF+AEbHPS2/qiBwlX7D2W9S3ypjZtY/V8UJR9CkpmmZ7Or5QNjps/z+xWQoLlEFku
-         knMhe4qUmDLUwtF0pvVPPbKxu+OtSh7apYsVkafWQS12jQZOaZvRIM+/gt9d25MKYb
-         8iexjjPD2GxGHiN6v5FWFC80/k70s/KeXyzTg3oc=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 1B3496016D
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
-Content-Type: text/plain; charset="utf-8"
+        id S1728734AbfFXNzM convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 24 Jun 2019 09:55:12 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:40270 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727893AbfFXNzM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 09:55:12 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-154-zyOnqJgCNBeziOcEpui8zg-1; Mon, 24 Jun 2019 14:55:08 +0100
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Mon, 24 Jun 2019 14:55:08 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Mon, 24 Jun 2019 14:55:08 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Reinette Chatre' <reinette.chatre@intel.com>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "fenghua.yu@intel.com" <fenghua.yu@intel.com>,
+        "bp@alien8.de" <bp@alien8.de>,
+        "tony.luck@intel.com" <tony.luck@intel.com>
+CC:     "mingo@redhat.com" <mingo@redhat.com>,
+        "hpa@zytor.com" <hpa@zytor.com>, "x86@kernel.org" <x86@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] x86/resctrl: Prevent possible overrun during bitmap
+ operations
+Thread-Topic: [PATCH] x86/resctrl: Prevent possible overrun during bitmap
+ operations
+Thread-Index: AQHVJt2gKCUy1MDNR0eTZZQcuzstIqaq2mhQ
+Date:   Mon, 24 Jun 2019 13:55:07 +0000
+Message-ID: <2b15f4ce814a425c8278e910289398c1@AcuMS.aculab.com>
+References: <58c9b6081fd9bf599af0dfc01a6fdd335768efef.1560975645.git.reinette.chatre@intel.com>
+In-Reply-To: <58c9b6081fd9bf599af0dfc01a6fdd335768efef.1560975645.git.reinette.chatre@intel.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH] iwlwifi: add support for hr1 RF ID
-From:   Kalle Valo <kvalo@codeaurora.org>
-In-Reply-To: <20190620084623.12014-1-luca@coelho.fi>
-References: <20190620084623.12014-1-luca@coelho.fi>
-To:     Luca Coelho <luca@coelho.fi>
-Cc:     linux-wireless@vger.kernel.org, Oren Givon <oren.givon@intel.com>,
-        stable@vger.kernel.org, Luciano Coelho <luciano.coelho@intel.com>
-User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
-Message-Id: <20190624132432.C575B6016D@smtp.codeaurora.org>
-Date:   Mon, 24 Jun 2019 13:24:31 +0000 (UTC)
+X-MC-Unique: zyOnqJgCNBeziOcEpui8zg-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Luca Coelho <luca@coelho.fi> wrote:
-
-> From: Oren Givon <oren.givon@intel.com>
+From: Reinette Chatre
+> Sent: 19 June 2019 21:27
 > 
-> The 22000 series FW that was meant to be used with hr is
-> also the FW that is used for hr1 and has a different RF ID.
-> Add support to load the hr FW when hr1 RF ID is detected.
-> 
-> Cc: stable@vger.kernel.org # 5.1+
-> Signed-off-by: Oren Givon <oren.givon@intel.com>
-> Signed-off-by: Luciano Coelho <luciano.coelho@intel.com>
+> While the DOC at the beginning of lib/bitmap.c explicitly states that
+> "The number of valid bits in a given bitmap does _not_ need to be an
+> exact multiple of BITS_PER_LONG.", some of the bitmap operations do
+> indeed access BITS_PER_LONG portions of the provided bitmap no matter
+> the size of the provided bitmap. For example, if find_first_bit()
+> is provided with an 8 bit bitmap the operation will access
+> BITS_PER_LONG bits from the provided bitmap. While the operation
+> ensures that these extra bits do not affect the result, the memory
+> is still accessed.
 
-Patch applied to wireless-drivers.git, thanks.
+I suspect that comment also needs correcting.
+On BE systems you really do need to have a array of longs.
 
-498d3eb5bfbb iwlwifi: add support for hr1 RF ID
+	David
 
--- 
-https://patchwork.kernel.org/patch/11006135/
-
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
