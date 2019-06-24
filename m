@@ -2,91 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26AA851CE4
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 23:15:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21D9E51D03
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 23:22:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbfFXVPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 17:15:52 -0400
-Received: from mail-eopbgr790124.outbound.protection.outlook.com ([40.107.79.124]:6066
-        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726009AbfFXVPw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 17:15:52 -0400
+        id S1727022AbfFXVWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 17:22:05 -0400
+Received: from mail-wm1-f47.google.com ([209.85.128.47]:35257 "EHLO
+        mail-wm1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726331AbfFXVWF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 17:22:05 -0400
+Received: by mail-wm1-f47.google.com with SMTP id c6so769348wml.0
+        for <stable@vger.kernel.org>; Mon, 24 Jun 2019 14:22:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=wavesemi.onmicrosoft.com; s=selector1-wavesemi-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Dfwf3TF+lS/iR+X2mq4ahhgzHkVR/U+ePaJeYMDxZFc=;
- b=gsJ66+3zPefERI39m9thM2dOAtLyVY4a6QqJOwppJIzFGmZcrwdoqxzV4+2maOKYceaq1E25Pq/TJaBUUWm308pMh80oaTW0hwv1Bc7nSxaNNVDRF9kby1o8FZH8k+NpiGb52YH6/09ivaXBsMC59947m7i3Int5a+4zwm5Kkms=
-Received: from MWHPR2201MB1277.namprd22.prod.outlook.com (10.172.60.12) by
- MWHPR2201MB1760.namprd22.prod.outlook.com (10.164.206.163) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2008.13; Mon, 24 Jun 2019 21:15:49 +0000
-Received: from MWHPR2201MB1277.namprd22.prod.outlook.com
- ([fe80::6975:b632:c85b:9e40]) by MWHPR2201MB1277.namprd22.prod.outlook.com
- ([fe80::6975:b632:c85b:9e40%2]) with mapi id 15.20.2008.014; Mon, 24 Jun 2019
- 21:15:49 +0000
-From:   Paul Burton <paul.burton@mips.com>
-To:     Dmitry Korotin <dkorotin@wavecomp.com>
-CC:     Paul Burton <pburton@wavecomp.com>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Dmitry Korotin <dkorotin@wavecomp.com>,
-        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>
-Subject: Re: [PATCH] Added missing EHB in mtc0 -> mfc0 sequence.
-Thread-Topic: [PATCH] Added missing EHB in mtc0 -> mfc0 sequence.
-Thread-Index: AQHVKr/IJ/I3WfJb9EWmSHJfQfE2CKarTn0A
-Date:   Mon, 24 Jun 2019 21:15:49 +0000
-Message-ID: <MWHPR2201MB1277CA4A6C1D2DC01E395489C1E00@MWHPR2201MB1277.namprd22.prod.outlook.com>
-References: <CY4PR22MB0245F6CD97467AAB12E437A5AFE00@CY4PR22MB0245.namprd22.prod.outlook.com>
-In-Reply-To: <CY4PR22MB0245F6CD97467AAB12E437A5AFE00@CY4PR22MB0245.namprd22.prod.outlook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: BY5PR04CA0007.namprd04.prod.outlook.com
- (2603:10b6:a03:1d0::17) To MWHPR2201MB1277.namprd22.prod.outlook.com
- (2603:10b6:301:18::12)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=pburton@wavecomp.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [12.94.197.246]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: cbea753c-f986-4736-494b-08d6f8e9219f
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:MWHPR2201MB1760;
-x-ms-traffictypediagnostic: MWHPR2201MB1760:
-x-microsoft-antispam-prvs: <MWHPR2201MB1760DD39AB516879B08B8DD7C1E00@MWHPR2201MB1760.namprd22.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-forefront-prvs: 007814487B
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(346002)(39840400004)(136003)(366004)(376002)(396003)(189003)(199004)(486006)(53936002)(7736002)(68736007)(76176011)(386003)(66066001)(25786009)(450100002)(4326008)(186003)(305945005)(42882007)(316002)(256004)(74316002)(6506007)(99286004)(54906003)(476003)(52116002)(11346002)(446003)(44832011)(7696005)(26005)(8676002)(102836004)(6116002)(3846002)(9686003)(71190400001)(71200400001)(14454004)(5660300002)(229853002)(6862004)(8936002)(52536014)(4744005)(6436002)(64756008)(66556008)(33656002)(66446008)(66476007)(6246003)(73956011)(2906002)(55016002)(478600001)(66946007)(81166006)(81156014);DIR:OUT;SFP:1102;SCL:1;SRVR:MWHPR2201MB1760;H:MWHPR2201MB1277.namprd22.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: wavecomp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: uOnH0nwfNR6+SDRs41VjlsUrJ/fqsiEuY7p4yUmbe26FGEKtkvnzhzRORFi5QeoWi4wg2Xm+dd+hfWgAgzZpgSpAKLFI08wm4q9oRetCXxaso1BFj1gNqtx76u1+yXl3XH51o04YhdbQPGN7i8dwyeZVga8M8rXLtsE/gUoQwzqlENZsyyG0b+qPEXJBZsKAsLM90NFXeE7b4vXGnt0Hzy0KT8ZUDkHYTePKjlSjVfi5tgMXbEW+SSvq84UeyHtn8DVMBZiBMCPEnSSOCWJj9JnbD2YaDrxAZ/7QSdNGKqzbdZhtCBOpgpVDNPEkwxb14fNV0DMfA+RiKDdmxGYsiFLaZ28Qmh8iT4+F+r7h5BOVBJm1HgBm18eX0wCW/ijnc0fk9V7Zx0wl6gcIqXb3ObzrymtO7K6dLo2Sh9803qA=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tws9qiY5N/ZhY40MqCOTTppVMM9kBWmKVDNw3G1Npzc=;
+        b=gTjG2BJoVwvO7nPV27f9OHo+1BJiMrYH7IV3LVcBlVtl1RPL70nlGgq3WyhNgBAGe1
+         d+m9qM6GsVqgB3eyc3i8wIwzNGKK3/CS0jH+UfCx2LusdymiyB1RtCEPg8fjCP7zAlWd
+         FWCcXfHrfEw2qILQCcsragfGocAzv1dEzkHDpGVc7mmsOlsnU99Ue+u+CCIn/ok3E2ra
+         J7EVYUaJ0jb00thbXX2wbj3TqfG6EuWF/JcrJJFr1LwcVfGC+j/CBa3wRSUy0js7D3KD
+         JAunBbg2p49VhiIcrWqO3PQ0ETxCWg4oWgAaBt5eD8xSzuszUlxY4ieKfb6AUkgqVFBd
+         NZPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tws9qiY5N/ZhY40MqCOTTppVMM9kBWmKVDNw3G1Npzc=;
+        b=OfjH0ialM1/qmhadTdsAWdyC3JXXCY6mz5UAzYNG2+2rPcRlip+FfAW3ELYAsaugjn
+         8AUYYDEBFag7Slir85Yeq3yOuZPq0I//hb/M5EgzD76kYb4+9QOmgIwV6l8XT/XkJPyB
+         VeEZmJxUi+y56YtAUS8UfsI1550p7q4ZfNVtZI7CXcRBg9TTS+gR7xc1H8M2AFy9kvUl
+         ksAHQcJFdBHCnbdspr8luByAwkUvMQHt3oP/pSZ+/A9KniH/VWf5wh2UUxWSlPZnRXXk
+         5gGrmOYbf3CtdGgW9smiOo1yO30j2/TxcFzO+EQrsWniq/UegbyGP7hdMN8WQ1al8jsH
+         ZuFg==
+X-Gm-Message-State: APjAAAWfw7WlwBl2XkXPiNI8OQ+oY23xDSKscdKdXMj8cvJsp+izhZ9U
+        jfhMB1VWtzeIzy3OT0r6QO6Neyr2F+fu3g==
+X-Google-Smtp-Source: APXvYqxuwZ0Y9Q16LnXO2+InrM611sbYtuYSsi5Y7aTNrF0nF2Mj49yjNIDRZf7x63SVQY/HUzZDvA==
+X-Received: by 2002:a1c:c145:: with SMTP id r66mr17020984wmf.139.1561411323074;
+        Mon, 24 Jun 2019 14:22:03 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id f190sm586082wmg.13.2019.06.24.14.22.02
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 24 Jun 2019 14:22:02 -0700 (PDT)
+Message-ID: <5d113efa.1c69fb81.511a6.394e@mx.google.com>
+Date:   Mon, 24 Jun 2019 14:22:02 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-X-OriginatorOrg: mips.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cbea753c-f986-4736-494b-08d6f8e9219f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Jun 2019 21:15:49.7451
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 463607d3-1db3-40a0-8a29-970c56230104
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: pburton@wavecomp.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR2201MB1760
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.1.14-122-g815c105311e8
+X-Kernelci-Branch: linux-5.1.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.1.y boot: 144 boots: 1 failed,
+ 136 passed with 7 offline (v5.1.14-122-g815c105311e8)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGVsbG8sDQoNCkRtaXRyeSBLb3JvdGluIHdyb3RlOg0KPiBBZGRlZCBtaXNzaW5nIEVIQiAoRXhl
-Y3V0aW9uIEhhemFyZCBCYXJyaWVyKSBpbiBtdGMwIC0+IG1mYzAgc2VxdWVuY2UuDQo+IFdpdGhv
-dXQgdGhpcyBleGVjdXRpb24gaGF6YXJkIGJhcnJpZXIgaXQncyBwb3NzaWJsZSBmb3IgdGhlIHZh
-bHVlIHJlYWQNCj4gYmFjayBmcm9tIHRoZSBLU2NyYXRjaCByZWdpc3RlciB0byBiZSB0aGUgdmFs
-dWUgZnJvbSBiZWZvcmUgdGhlIG10YzAuDQo+IA0KPiBSZXByb2R1Y2lhYmxlIG9uIFA1NjAwICYg
-UDY2MDAuDQo+IA0KPiBNaXBzIGRvY3VtZW50YXRpb24gVm9sdW1lIElJSSAocmV2IDYuMDMpIHRh
-YmxlIDguMS4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IERtaXRyeSBLb3JvdGluIDxka29yb3RpbkB3
-YXZlY29tcC5jb20+DQoNCkFwcGxpZWQgdG8gbWlwcy1maXhlcy4NCg0KVGhhbmtzLA0KICAgIFBh
-dWwNCg0KWyBUaGlzIG1lc3NhZ2Ugd2FzIGF1dG8tZ2VuZXJhdGVkOyBpZiB5b3UgYmVsaWV2ZSBh
-bnl0aGluZyBpcyBpbmNvcnJlY3QNCiAgdGhlbiBwbGVhc2UgZW1haWwgcGF1bC5idXJ0b25AbWlw
-cy5jb20gdG8gcmVwb3J0IGl0LiBdDQo=
+stable-rc/linux-5.1.y boot: 144 boots: 1 failed, 136 passed with 7 offline =
+(v5.1.14-122-g815c105311e8)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.1.y/kernel/v5.1.14-122-g815c105311e8/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
+/kernel/v5.1.14-122-g815c105311e8/
+
+Tree: stable-rc
+Branch: linux-5.1.y
+Git Describe: v5.1.14-122-g815c105311e8
+Git Commit: 815c105311e8cdba0f84293235f6f043152808cd
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 81 unique boards, 25 SoC families, 16 builds out of 209
+
+Boot Failure Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            bcm4708-smartrg-sr400ac: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
