@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1636850700
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E54495082B
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729547AbfFXKDT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:03:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34566 "EHLO mail.kernel.org"
+        id S1728996AbfFXKDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:03:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729524AbfFXKDO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:03:14 -0400
+        id S1728730AbfFXKDt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:03:49 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01CC0205ED;
-        Mon, 24 Jun 2019 10:03:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D012208E3;
+        Mon, 24 Jun 2019 10:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370593;
-        bh=CpjiAQxxGhskeVbGZi9ELuGE30tiEiIXdWgK6Pov1Gc=;
+        s=default; t=1561370628;
+        bh=TGBsQJwB/9SZ4dCxM9rwwKRyxINEMNBpivPmqFGJXCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0uG5DQa6L8n2RGuELqicuXeaJWUNrnCkDyYDIYYK2xkgX51hXw/3k86cSUxKrYN/
-         BSdauBL0fFzEwSbZ4ai4gXorP9P1Kd8W1wMPPI7dBO/VKuvEm8g4aOshfuz1g07quK
-         Leh+YGpGTlFwGoz87hkUSU2J4KFfROedqQrCPuJ8=
+        b=Tups/nlvmHyd5UX6sCP3yD478I1G1u5ljnk9maHiCCc6wGLDuebhW2e9YQx+giHUO
+         35lhDtROw+A7IwMaqcb9co2UEeLAnOGUTTP7aJj6MNmUH3LZdhMJwRLZpMlENAMqao
+         cUAbTJ3MoTuFzkG7D4n69q/8zyeS21qfnQUafA+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Eric Long <eric.long@unisoc.com>,
+        Baolin Wang <baolin.wang@linaro.org>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 31/90] dmaengine: dw-axi-dmac: fix null dereference when pointer first is null
-Date:   Mon, 24 Jun 2019 17:56:21 +0800
-Message-Id: <20190624092316.334690590@linuxfoundation.org>
+Subject: [PATCH 4.19 32/90] dmaengine: sprd: Fix block length overflow
+Date:   Mon, 24 Jun 2019 17:56:22 +0800
+Message-Id: <20190624092316.417766707@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
 References: <20190624092313.788773607@linuxfoundation.org>
@@ -43,37 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0788611c9a0925c607de536b2449de5ed98ef8df ]
+[ Upstream commit 89d03b3c126d683f7b2cd5b07178493993d12448 ]
 
-In the unlikely event that axi_desc_get returns a null desc in the
-very first iteration of the while-loop the error exit path ends
-up calling axi_desc_put on a null pointer 'first' and this causes
-a null pointer dereference.  Fix this by adding a null check on
-pointer 'first' before calling axi_desc_put.
+The maximum value of block length is 0xffff, so if the configured transfer length
+is more than 0xffff, that will cause block length overflow to lead a configuration
+error.
 
-Addresses-Coverity: ("Explicit null dereference")
-Fixes: 1fe20f1b8454 ("dmaengine: Introduce DW AXI DMAC driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Thus we can set block length as the maximum burst length to avoid this issue, since
+the maximum burst length will not be a big value which is more than 0xffff.
+
+Signed-off-by: Eric Long <eric.long@unisoc.com>
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/dma/sprd-dma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-index c4eb55e3011c..c05ef7f1d7b6 100644
---- a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-+++ b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-@@ -512,7 +512,8 @@ dma_chan_prep_dma_memcpy(struct dma_chan *dchan, dma_addr_t dst_adr,
- 	return vchan_tx_prep(&chan->vc, &first->vd, flags);
+diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
+index 55df0d41355b..1ed1c7efa288 100644
+--- a/drivers/dma/sprd-dma.c
++++ b/drivers/dma/sprd-dma.c
+@@ -663,7 +663,7 @@ static int sprd_dma_fill_desc(struct dma_chan *chan,
+ 	temp |= slave_cfg->src_maxburst & SPRD_DMA_FRG_LEN_MASK;
+ 	hw->frg_len = temp;
  
- err_desc_get:
--	axi_desc_put(first);
-+	if (first)
-+		axi_desc_put(first);
- 	return NULL;
- }
+-	hw->blk_len = len & SPRD_DMA_BLK_LEN_MASK;
++	hw->blk_len = slave_cfg->src_maxburst & SPRD_DMA_BLK_LEN_MASK;
+ 	hw->trsc_len = len & SPRD_DMA_TRSC_LEN_MASK;
  
+ 	temp = (dst_step & SPRD_DMA_TRSF_STEP_MASK) << SPRD_DMA_DEST_TRSF_STEP_OFFSET;
 -- 
 2.20.1
 
