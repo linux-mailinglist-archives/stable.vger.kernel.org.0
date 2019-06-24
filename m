@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84CC250853
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86B3950801
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728467AbfFXKQe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:16:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54060 "EHLO mail.kernel.org"
+        id S1729958AbfFXKMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:12:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730754AbfFXKQd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:16:33 -0400
+        id S1728067AbfFXKF3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:29 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 168E92089F;
-        Mon, 24 Jun 2019 10:16:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B87F1208E3;
+        Mon, 24 Jun 2019 10:05:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371392;
-        bh=u9ikIP5L99GRe36W5rzHf05qB7Fpqvh4EkLSJK7oRMA=;
+        s=default; t=1561370728;
+        bh=J5xjZ0JdK0UapEOr+jfVUnHqFAm4TWfgo/4Ge+VZ7Qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yMltW8/8pBn5VOmrVBpAqO9VRdgMogGH4Skqr/tYOwgYwHgNlUfbzI8bhBwhLgiHJ
-         yyqwKwIPzL089/tF5YBPdnRqtUOpHdI55KJg0f1bfkxV3kyyNAv67kwMmU+QG5PwzN
-         TWO/IdsBWgkJvJguadlRdvRQMfjD2kO78hVtB/b8=
+        b=wzuf7iCPpiHfII103pBXhlW+2cbveJiOBW2+pefn81njAwFbm28RZ28DPreBt5qnR
+         gh1UkZLbb/UG3kngNyAJXYsoitqjZHpnC6FCgh6pSO1LBVA/4s54uvH2O+bawSxsyb
+         1bRANB3XGyfJNP8JGHRuuGMujExq2HyDFxmkUGds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Martin <Dave.Martin@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 087/121] arm64: Silence gcc warnings about arch ABI drift
+        stable@vger.kernel.org,
+        Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>,
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 69/90] can: xilinx_can: use correct bittiming_const for CAN FD core
 Date:   Mon, 24 Jun 2019 17:56:59 +0800
-Message-Id: <20190624092325.272683883@linuxfoundation.org>
+Message-Id: <20190624092318.556365935@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ebcc5928c5d925b1c8d968d9c89cdb0d0186db17 ]
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-Since GCC 9, the compiler warns about evolution of the
-platform-specific ABI, in particular relating for the marshaling of
-certain structures involving bitfields.
+commit 904044dd8fff43e289c11a2f90fa532e946a1d8b upstream.
 
-The kernel is a standalone binary, and of course nobody would be
-so stupid as to expose structs containing bitfields as function
-arguments in ABI.  (Passing a pointer to such a struct, however
-inadvisable, should be unaffected by this change.  perf and various
-drivers rely on that.)
+Commit 9e5f1b273e6a ("can: xilinx_can: add support for Xilinx CAN FD
+core") added a new can_bittiming_const structure for CAN FD cores that
+support larger values for tseg1, tseg2, and sjw than previous Xilinx CAN
+cores, but the commit did not actually take that into use.
 
-So these warnings do more harm than good: turn them off.
+Fix that.
 
-We may miss warnings about future ABI drift, but that's too bad.
-Future ABI breaks of this class will have to be debugged and fixed
-the traditional way unless the compiler evolves finer-grained
-diagnostics.
+Tested with CAN FD core on a ZynqMP board.
 
-Signed-off-by: Dave Martin <Dave.Martin@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9e5f1b273e6a ("can: xilinx_can: add support for Xilinx CAN FD core")
+Reported-by: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/can/xilinx_can.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-index b025304bde46..8fbd583b18e1 100644
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -51,6 +51,7 @@ endif
- 
- KBUILD_CFLAGS	+= -mgeneral-regs-only $(lseinstr) $(brokengasinst)
- KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
-+KBUILD_CFLAGS	+= -Wno-psabi
- KBUILD_AFLAGS	+= $(lseinstr) $(brokengasinst)
- 
- KBUILD_CFLAGS	+= $(call cc-option,-mabi=lp64)
--- 
-2.20.1
-
+--- a/drivers/net/can/xilinx_can.c
++++ b/drivers/net/can/xilinx_can.c
+@@ -1424,7 +1424,7 @@ static const struct xcan_devtype_data xc
+ 		 XCAN_FLAG_RXMNF |
+ 		 XCAN_FLAG_TX_MAILBOXES |
+ 		 XCAN_FLAG_RX_FIFO_MULTI,
+-	.bittiming_const = &xcan_bittiming_const,
++	.bittiming_const = &xcan_bittiming_const_canfd,
+ 	.btr_ts2_shift = XCAN_BTR_TS2_SHIFT_CANFD,
+ 	.btr_sjw_shift = XCAN_BTR_SJW_SHIFT_CANFD,
+ 	.bus_clk_name = "s_axi_aclk",
 
 
