@@ -2,88 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EA7D50B2B
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 14:54:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2993750B8B
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 15:12:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728197AbfFXMyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 08:54:21 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:41589 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726740AbfFXMyU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 08:54:20 -0400
-Received: by mail-lj1-f195.google.com with SMTP id 205so3709497ljj.8;
-        Mon, 24 Jun 2019 05:54:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=M1JNblMWL1UJydhDaOs1aVCdSHO2vHTNXrcJ9XfhOto=;
-        b=AF5vIQ5Hupi4FNbYV2kGV4xOfPM3ulb1rRfQmWbQr5Ro3xoofZZge6mAwUVep7f04h
-         /9FnvWP2O/GiGuxuwAZJhBpJA5eCAYuWnE6JM1h9Mydqpx3uq2jO4H2Q/EhATGLw99rr
-         /evcrL2KspOCo2UH1DdmLLcq+cxtf/djSMri+5kZ8VQBwzLSkNSq+xeKjTyqOZdiXfxc
-         r7o3AvgfaaVBwj1Ewen5q35C2XNx35g5Z0w02AsEl4AKF3ApiuaxkR3CZP6OicvK6W0d
-         2mJj38Ma8R9/lqAYOF7uVILk7S17rUzrizWUxPtSHJeoO9fFXPVN2JW2YOEjFiRE9GIJ
-         q9gA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=M1JNblMWL1UJydhDaOs1aVCdSHO2vHTNXrcJ9XfhOto=;
-        b=k0Ckf6fhWCxjwQ+yHPQU2IWPoRn23kYbXVpDM0PNI8oxff0DH8OTk0HTTXAxdS2MMG
-         wZ+u3KtOOocM7l/HVJxOu1CA+HtGd0VY12+1wui9dJOe4i14jsIDifwhtp6zpW3REegv
-         XKSwEf1L1sedJTmO6wGpRB+iPhfE9jDgFp5RK5NivK7Utu8gQLJi1xqjuy46YJ0vLhxW
-         oKhWFn/IBqtuCuQojsCzg4O8qN+QVfr8LfIswf90nwQQ2ctYuzX8GEbFBVgv6GpNC2ux
-         c47Wds28JMkuIwcxgdQXnC1tL9cJfVAMdFlvzjFJ4MCYili3GfBP0Nmf5sqQMxW9ufBN
-         +rXw==
-X-Gm-Message-State: APjAAAUkZbs0mtGWAoHUwPLbiKn+Uex1WofVWeNI856X1z4/buXpfDZs
-        R0mDUDbRljIx1CESGTj3yKO0yRNR7rJkM8/clVg=
-X-Google-Smtp-Source: APXvYqx12fSqGEeTpRklsnlLBWi1B3OZsYNSLqkKkR4XEAv5A7APelVbsgnk/wQ5UP1qlBs2AcU4EovI5OPGe+uwOqM=
-X-Received: by 2002:a2e:7d03:: with SMTP id y3mr34782350ljc.240.1561380858632;
- Mon, 24 Jun 2019 05:54:18 -0700 (PDT)
+        id S1728865AbfFXNMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 09:12:38 -0400
+Received: from mail-eopbgr50046.outbound.protection.outlook.com ([40.107.5.46]:16288
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727065AbfFXNMi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 09:12:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bJKNsiWuopGsFiwJtfSmHwT6t9upZDeCWjBmCmeA7XQ=;
+ b=Z1jEVJMZeA2aVFeQjyVX7/o4DJ+7JCvRf4WB7j5DitZp9Eec4o34k6ZMPdBc8DRs9251E7fBsr40IgTR+/qGaLd5Ce2yN5fUuin90BVN/A4n61Dlhc8rIJpghdvWQbcEo+NvAKhD6BjynMtbuzDfvbufD3a3XZFwNSOsl4cwFyg=
+Received: from VI1PR05MB4141.eurprd05.prod.outlook.com (10.171.182.144) by
+ VI1PR05MB5662.eurprd05.prod.outlook.com (20.178.120.212) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2008.16; Mon, 24 Jun 2019 13:12:30 +0000
+Received: from VI1PR05MB4141.eurprd05.prod.outlook.com
+ ([fe80::f5d8:df9:731:682e]) by VI1PR05MB4141.eurprd05.prod.outlook.com
+ ([fe80::f5d8:df9:731:682e%5]) with mapi id 15.20.2008.014; Mon, 24 Jun 2019
+ 13:12:30 +0000
+From:   Jason Gunthorpe <jgg@mellanox.com>
+To:     Ajay Kaher <akaher@vmware.com>
+CC:     "aarcange@redhat.com" <aarcange@redhat.com>,
+        "jannh@google.com" <jannh@google.com>,
+        "oleg@redhat.com" <oleg@redhat.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "rppt@linux.ibm.com" <rppt@linux.ibm.com>,
+        "mhocko@suse.com" <mhocko@suse.com>,
+        "jglisse@redhat.com" <jglisse@redhat.com>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "mike.kravetz@oracle.com" <mike.kravetz@oracle.com>,
+        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        "riandrews@android.com" <riandrews@android.com>,
+        "arve@android.com" <arve@android.com>,
+        Yishai Hadas <yishaih@mellanox.com>,
+        "dledford@redhat.com" <dledford@redhat.com>,
+        "sean.hefty@intel.com" <sean.hefty@intel.com>,
+        "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
+        Matan Barak <matanb@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>,
+        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "srivatsab@vmware.com" <srivatsab@vmware.com>,
+        "amakhalov@vmware.com" <amakhalov@vmware.com>
+Subject: Re: [PATCH v4 2/3][v4.9.y] coredump: fix race condition between
+ mmget_not_zero()/get_task_mm() and core dumping
+Thread-Topic: [PATCH v4 2/3][v4.9.y] coredump: fix race condition between
+ mmget_not_zero()/get_task_mm() and core dumping
+Thread-Index: AQHVKo0oRBGkKYxOxkqZ7SBtAl/moqaqx9UA
+Date:   Mon, 24 Jun 2019 13:12:30 +0000
+Message-ID: <20190624131226.GA7418@mellanox.com>
+References: <1561410186-3919-1-git-send-email-akaher@vmware.com>
+ <1561410186-3919-2-git-send-email-akaher@vmware.com>
+In-Reply-To: <1561410186-3919-2-git-send-email-akaher@vmware.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: PR2P264CA0011.FRAP264.PROD.OUTLOOK.COM (2603:10a6:101::23)
+ To VI1PR05MB4141.eurprd05.prod.outlook.com (2603:10a6:803:4d::16)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=jgg@mellanox.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [66.187.232.66]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 1279592d-f3e3-4d7c-f79c-08d6f8a59cb2
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:VI1PR05MB5662;
+x-ms-traffictypediagnostic: VI1PR05MB5662:
+x-ld-processed: a652971c-7d2e-4d9b-a6a4-d149256f461b,ExtAddr
+x-microsoft-antispam-prvs: <VI1PR05MB5662688FC277DCA3E4A171D3CFE00@VI1PR05MB5662.eurprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:407;
+x-forefront-prvs: 007814487B
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(39860400002)(376002)(346002)(136003)(396003)(366004)(199004)(189003)(5660300002)(478600001)(6506007)(53936002)(33656002)(2616005)(6486002)(81156014)(86362001)(14444005)(3846002)(256004)(8676002)(81166006)(7736002)(229853002)(2906002)(446003)(66446008)(11346002)(68736007)(6916009)(486006)(66556008)(66476007)(36756003)(71190400001)(71200400001)(476003)(73956011)(99286004)(64756008)(66946007)(54906003)(76176011)(6512007)(102836004)(1076003)(4744005)(52116002)(386003)(25786009)(6116002)(6246003)(6436002)(316002)(66066001)(14454004)(4326008)(7416002)(8936002)(186003)(26005)(305945005);DIR:OUT;SFP:1101;SCL:1;SRVR:VI1PR05MB5662;H:VI1PR05MB4141.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: mellanox.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: 40jUzpU9CguJn2eIvgacEOcIi2CYrA0fIWmsrZEo49I+3EgVJp2pRrgkltjExJd0cjLBr/ZjZlNwxkj3odOMuDp291oxCEbrf3qoTyS3t50EwIjNffVdqGTeH6SCwGNP75qu35Wfr9Fgt5LrVmv2KNlC0hj671ZjeDtCZGFuGl7uZoYiJsrZdi4d6ionXc5Hiw4AyN1GqbfMpsRhTIk04KKLL4BQOMw0SERrzFPOOZ3ElIE3NiCP6fv0/k+bGED0ir5nSBe1nGavp8idteCEzizj2yiReEGiw+Jv1jpp3+eI21DhvKqarSVs8wjJQAGdjWFsi/LMX1xvw6PCN8mBZivSW/3TKHejjD7JWQl00Jp9rHUnCy4wwss0fSFbTacnV6ybN+BzydI38iRxeDsA2x+8r0/iw5rWc1H41b2zd7M=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <626B17CC09D07E449465C19358AB7DB5@eurprd05.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20190621082306.34415-1-yibin.gong@nxp.com>
-In-Reply-To: <20190621082306.34415-1-yibin.gong@nxp.com>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Mon, 24 Jun 2019 09:54:40 -0300
-Message-ID: <CAOMZO5B+uXF=1WTPsA-9LrmtTF0Q0s7Fipwtd1nkWSgr3ec25w@mail.gmail.com>
-Subject: Re: [PATCH v2] dmaengine: imx-sdma: remove BD_INTR for channel0
-To:     Robin Gong <yibin.gong@nxp.com>
-Cc:     Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Vinod <vkoul@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sven Van Asbroeck <thesven73@gmail.com>,
-        Michael Olbrich <m.olbrich@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        stable <stable@vger.kernel.org>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
-        <linux-arm-kernel@lists.infradead.org>, dmaengine@vger.kernel.org,
-        Sascha Hauer <kernel@pengutronix.de>
-Content-Type: text/plain; charset="UTF-8"
+X-OriginatorOrg: Mellanox.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1279592d-f3e3-4d7c-f79c-08d6f8a59cb2
+X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Jun 2019 13:12:30.5998
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: jgg@mellanox.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR05MB5662
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Robin,
+On Tue, Jun 25, 2019 at 02:33:04AM +0530, Ajay Kaher wrote:
+> This patch is the extension of following upstream commit to fix
+> the race condition between get_task_mm() and core dumping
+> for IB->mlx4 and IB->mlx5 drivers:
+>=20
+> commit 04f5866e41fb ("coredump: fix race condition between
+> mmget_not_zero()/get_task_mm() and core dumping")'
+>=20
+> Thanks to Jason for pointing this.
+>=20
+> Signed-off-by: Ajay Kaher <akaher@vmware.com>
+> ---
+>  drivers/infiniband/hw/mlx4/main.c | 4 +++-
+>  drivers/infiniband/hw/mlx5/main.c | 3 +++
+>  2 files changed, 6 insertions(+), 1 deletion(-)
 
-On Fri, Jun 21, 2019 at 5:21 AM <yibin.gong@nxp.com> wrote:
->
-> From: Robin Gong <yibin.gong@nxp.com>
->
-> It is possible for an irq triggered by channel0 to be received later
-> after clks are disabled once firmware loaded during sdma probe. If
-> that happens then clearing them by writing to SDMA_H_INTR won't work
-> and the kernel will hang processing infinite interrupts. Actually,
-> don't need interrupt triggered on channel0 since it's pollling
-> SDMA_H_STATSTOP to know channel0 done rather than interrupt in
-> current code, just clear BD_INTR to disable channel0 interrupt to
-> avoid the above case.
-> This issue was brought by commit 1d069bfa3c78 ("dmaengine: imx-sdma:
-> ack channel 0 IRQ in the interrupt handler") which didn't take care
-> the above case.
->
-> Fixes: 1d069bfa3c78 ("dmaengine: imx-sdma: ack channel 0 IRQ in the interrupt handler")
-> Cc: stable@vger.kernel.org #5.0+
+Looks OK
 
-This 5.0 notation does not look correct, as 1d069bfa3c78 was introduced in 4.10.
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+
+Thanks
+Jason
