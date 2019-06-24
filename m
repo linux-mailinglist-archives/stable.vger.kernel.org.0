@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D82E5064E
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 11:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C86A5507B2
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728380AbfFXJ5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56004 "EHLO mail.kernel.org"
+        id S1730575AbfFXKJB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:09:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726453AbfFXJ5r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:57:47 -0400
+        id S1730572AbfFXKJA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:09:00 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54949208CA;
-        Mon, 24 Jun 2019 09:57:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 822B1205C9;
+        Mon, 24 Jun 2019 10:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370266;
-        bh=ZDcPbPhpv7QesIOP6V8A3EIB5GehUV5YQtLVz9w1g38=;
+        s=default; t=1561370940;
+        bh=OO5fToault7/iuM9p/Pfv6WWw4iMDInMVV1/WwyLUew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0JCLZg8JnTuLcW6rO0GvILwvAfmzaXROraATpwkXrRH+ZO+D4NDvpOhpNpZ975Xim
-         CJE6u6AoLTxfb67DS2IEN0ll9RzhQLNzZHJEdj1CXunis8gnScEDe7m0MlKm7AmXFq
-         2pNq30Cbst3UsviCAjEPrxOuseCSc9ZpVvDg8QdY=
+        b=rcYxwUTPCq7fMw5Z+dsllLbIKFLWKvp+WjU/9bS8SximcnXhoAJnxTS5AOrbhMpAI
+         dU9kuSxFok+M6tUvaeY7pIBj2E1meWRKg/0IK/ejr/e0/ITfJT1NPXeo+vfWIj+RX1
+         EiwYWKNLbIsCwi0xwNDcZ5L4t0oF3xbTg0JR7yDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
-        Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.14 10/51] Input: uinput - add compat ioctl number translation for UI_*_FF_UPLOAD
-Date:   Mon, 24 Jun 2019 17:56:28 +0800
-Message-Id: <20190624092307.611971368@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Shi <alex.shi@linux.alibaba.com>,
+        Shuah Khan <shuah@kernel.org>, Roman Gushchin <guro@fb.com>,
+        Tejun Heo <tj@kernel.org>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Jay Kamat <jgkamat@fb.com>, linux-kselftest@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 057/121] kselftest/cgroup: fix unexpected testing failure on test_memcontrol
+Date:   Mon, 24 Jun 2019 17:56:29 +0800
+Message-Id: <20190624092323.608430796@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
+[ Upstream commit f6131f28057d4fd8922599339e701a2504e0f23d ]
 
-commit 7c7da40da1640ce6814dab1e8031b44e19e5a3f6 upstream.
+The cgroup testing relies on the root cgroup's subtree_control setting,
+If the 'memory' controller isn't set, all test cases will be failed
+as following:
 
-In the case of compat syscall ioctl numbers for UI_BEGIN_FF_UPLOAD and
-UI_END_FF_UPLOAD need to be adjusted before being passed on
-uinput_ioctl_handler() since code built with -m32 will be passing
-slightly different values. Extend the code already covering
-UI_SET_PHYS to cover UI_BEGIN_FF_UPLOAD and UI_END_FF_UPLOAD as well.
+$ sudo ./test_memcontrol
+not ok 1 test_memcg_subtree_control
+not ok 2 test_memcg_current
+ok 3 # skip test_memcg_min
+not ok 4 test_memcg_low
+not ok 5 test_memcg_high
+not ok 6 test_memcg_max
+not ok 7 test_memcg_oom_events
+ok 8 # skip test_memcg_swap_max
+not ok 9 test_memcg_sock
+not ok 10 test_memcg_oom_group_leaf_events
+not ok 11 test_memcg_oom_group_parent_events
+not ok 12 test_memcg_oom_group_score_events
 
-Reported-by: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To correct this unexpected failure, this patch write the 'memory' to
+subtree_control of root to get a right result.
 
+Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Jay Kamat <jgkamat@fb.com>
+Cc: linux-kselftest@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/uinput.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ tools/testing/selftests/cgroup/test_memcontrol.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -1012,13 +1012,31 @@ static long uinput_ioctl(struct file *fi
+diff --git a/tools/testing/selftests/cgroup/test_memcontrol.c b/tools/testing/selftests/cgroup/test_memcontrol.c
+index 6f339882a6ca..c19a97dd02d4 100644
+--- a/tools/testing/selftests/cgroup/test_memcontrol.c
++++ b/tools/testing/selftests/cgroup/test_memcontrol.c
+@@ -1205,6 +1205,10 @@ int main(int argc, char **argv)
+ 	if (cg_read_strstr(root, "cgroup.controllers", "memory"))
+ 		ksft_exit_skip("memory controller isn't available\n");
  
- #ifdef CONFIG_COMPAT
- 
--#define UI_SET_PHYS_COMPAT	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
-+/*
-+ * These IOCTLs change their size and thus their numbers between
-+ * 32 and 64 bits.
-+ */
-+#define UI_SET_PHYS_COMPAT		\
-+	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
-+#define UI_BEGIN_FF_UPLOAD_COMPAT	\
-+	_IOWR(UINPUT_IOCTL_BASE, 200, struct uinput_ff_upload_compat)
-+#define UI_END_FF_UPLOAD_COMPAT		\
-+	_IOW(UINPUT_IOCTL_BASE, 201, struct uinput_ff_upload_compat)
- 
- static long uinput_compat_ioctl(struct file *file,
- 				unsigned int cmd, unsigned long arg)
- {
--	if (cmd == UI_SET_PHYS_COMPAT)
-+	switch (cmd) {
-+	case UI_SET_PHYS_COMPAT:
- 		cmd = UI_SET_PHYS;
-+		break;
-+	case UI_BEGIN_FF_UPLOAD_COMPAT:
-+		cmd = UI_BEGIN_FF_UPLOAD;
-+		break;
-+	case UI_END_FF_UPLOAD_COMPAT:
-+		cmd = UI_END_FF_UPLOAD;
-+		break;
-+	}
- 
- 	return uinput_ioctl_handler(file, cmd, arg, compat_ptr(arg));
- }
++	if (cg_read_strstr(root, "cgroup.subtree_control", "memory"))
++		if (cg_write(root, "cgroup.subtree_control", "+memory"))
++			ksft_exit_skip("Failed to set memory controller\n");
++
+ 	for (i = 0; i < ARRAY_SIZE(tests); i++) {
+ 		switch (tests[i].fn(root)) {
+ 		case KSFT_PASS:
+-- 
+2.20.1
+
 
 
