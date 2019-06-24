@@ -2,154 +2,256 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF05450154
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 07:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6807A501C2
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 08:01:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726223AbfFXFq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 01:46:56 -0400
-Received: from mx2.suse.de ([195.135.220.15]:58880 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725782AbfFXFqz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 01:46:55 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id C8667AD76;
-        Mon, 24 Jun 2019 05:46:53 +0000 (UTC)
-Subject: Re: [PATCH] mm: fix setting the high and low watermarks
-To:     Bharath Vedartham <linux.bhar@gmail.com>
-Cc:     Alan Jenkins <alan.christopher.jenkins@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20190621114325.711-1-alan.christopher.jenkins@gmail.com>
- <3d15b808-b7cd-7379-a6a9-d3cf04b7dcec@suse.cz>
- <20190621140717.GA28387@bharath12345-Inspiron-5559>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Openpgp: preference=signencrypt
-Autocrypt: addr=vbabka@suse.cz; prefer-encrypt=mutual; keydata=
- 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
-Message-ID: <c997fb4d-c064-4faf-f40b-1fda064681b1@suse.cz>
-Date:   Mon, 24 Jun 2019 07:46:53 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.1
+        id S1726323AbfFXGBJ convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 24 Jun 2019 02:01:09 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:53704 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725782AbfFXGBJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 02:01:09 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 80DAB3087931
+        for <stable@vger.kernel.org>; Mon, 24 Jun 2019 06:01:08 +0000 (UTC)
+Received: from [172.54.210.214] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1EBB45D9C5;
+        Mon, 24 Jun 2019 06:01:06 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-In-Reply-To: <20190621140717.GA28387@bharath12345-Inspiron-5559>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.521BC5E059.SPV8IYJBD6@redhat.com>
+X-Gitlab-Pipeline-ID: 13082
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Mon, 24 Jun 2019 06:01:08 +0000 (UTC)
+Date:   Mon, 24 Jun 2019 02:01:09 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/21/19 4:07 PM, Bharath Vedartham wrote:
-> Do you think this could cause a race condition between
-> __setup_per_zone_wmarks and pgdat_watermark_boosted which checks whether
-> the watermark_boost of each zone is non-zero? pgdat_watermark_boosted is
-> not called with a zone lock.
-> Here is a probable case scenario:
-> watermarks are boosted in steal_suitable_fallback(which happens under a
-> zone lock). After that kswapd is woken up by
-> wakeup_kswapd(zone,0,0,zone_idx(zone)) in rmqueue without holding a
-> zone lock. Lets say someone modified min_kfree_bytes, this would lead to
-> all the zone->watermark_boost being set to 0. This may cause
-> pgdat_watermark_boosted to return false, which would not wakeup kswapd
-> as intended by boosting the watermark. This behaviour is similar to waking up kswapd for a
-> balanced node.
+Hello,
 
-Not waking up kswapd shouldn't cause a significant trouble.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-> Also if kswapd was woken up successfully because of watermarks being
-> boosted. In balance_pgdat, we use nr_boost_reclaim to count number of
-> pages to reclaim because of boosting. nr_boost_reclaim is calculated as:
-> nr_boost_reclaim = 0;
-> for (i = 0; i <= classzone_idx; i++) {
-> 	zone = pgdat->node_zones + i;
-> 	if (!managed_zone(zone))
-> 		continue;
-> 
-> 	nr_boost_reclaim += zone->watermark_boost;
-> 	zone_boosts[i] = zone->watermark_boost;
-> }
-> boosted = nr_boost_reclaim;
-> 
-> This is not under a zone_lock. This could lead to nr_boost_reclaim to
-> be 0 if min_kfree_bytes is set to 0. Which would wake up kcompactd
-> without reclaiming memory.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 78778071092e - Linux 4.19.55
 
-Setting min_kfree_bytes to 0 is asking for problems regardless of this
-check. Much more trouble than waking up kcompactd spuriously, which is
-just a few wasted cpu cycles.
+The results of these automated tests are provided below.
 
-> kcompactd compaction might be spurious if the if the memory reclaim step is not happening?
-> 
-> Any thoughts?
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-Unless the races cause either some data corruption, or e.g. spurious
-allocation failures, I don't think they are worth adding new spinlock
-sections.
 
-Thanks,
-Vlastimil
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
->>  		spin_unlock_irqrestore(&zone->lock, flags);
->>
-> 
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 78778071092e - Linux 4.19.55
+
+
+We grabbed the 320db32b25ea commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  tracing-silence-gcc-9-array-bounds-warning.patch
+  objtool-support-per-function-rodata-sections.patch
+  gcc-9-silence-address-of-packed-member-warning.patch
+  ovl-support-the-fs_ioc_fs-sg-etxattr-ioctls.patch
+  ovl-fix-wrong-flags-check-in-fs_ioc_fs-sg-etxattr-io.patch
+  ovl-make-i_ino-consistent-with-st_ino-in-more-cases.patch
+  ovl-detect-overlapping-layers.patch
+  ovl-don-t-fail-with-disconnected-lower-nfs.patch
+  ovl-fix-bogus-wmaybe-unitialized-warning.patch
+  s390-jump_label-use-jdd-constraint-on-gcc9.patch
+  s390-ap-rework-assembler-functions-to-use-unions-for.patch
+  mmc-sdhci-sdhci-pci-o2micro-correctly-set-bus-width-when-tuning.patch
+  mmc-core-api-to-temporarily-disable-retuning-for-sdio-crc-errors.patch
+  mmc-core-add-sdio_retune_hold_now-and-sdio_retune_release.patch
+  mmc-core-prevent-processing-sdio-irqs-when-the-card-is-suspended.patch
+  scsi-ufs-avoid-runtime-suspend-possibly-being-blocked-forever.patch
+  usb-chipidea-udc-workaround-for-endpoint-conflict-issue.patch
+  xhci-detect-usb-3.2-capable-host-controllers-correctly.patch
+  usb-xhci-don-t-try-to-recover-an-endpoint-if-port-is-in-error-state.patch
+  ib-hfi1-validate-fault-injection-opcode-user-input.patch
+  ib-hfi1-silence-txreq-allocation-warnings.patch
+  iio-temperature-mlx90632-relax-the-compatibility-check.patch
+  input-synaptics-enable-smbus-on-thinkpad-e480-and-e580.patch
+  input-uinput-add-compat-ioctl-number-translation-for-ui_-_ff_upload.patch
+  input-silead-add-mssl0017-to-acpi_device_id.patch
+  apparmor-fix-profile_mediates-for-untrusted-input.patch
+  apparmor-enforce-nullbyte-at-end-of-tag-string.patch
+  brcmfmac-sdio-disable-auto-tuning-around-commands-expected-to-fail.patch
+  brcmfmac-sdio-don-t-tune-while-the-card-is-off.patch
+  arc-fix-build-warnings.patch
+  dmaengine-dw-axi-dmac-fix-null-dereference-when-poin.patch
+  dmaengine-sprd-fix-block-length-overflow.patch
+  arc-plat-hsdk-add-missing-multicast-filter-bins-numb.patch
+  arc-plat-hsdk-add-missing-fifo-size-entry-in-gmac-no.patch
+  fpga-dfl-afu-pass-the-correct-device-to-dma_mapping_.patch
+  fpga-dfl-add-lockdep-classes-for-pdata-lock.patch
+  parport-fix-mem-leak-in-parport_register_dev_model.patch
+  parisc-fix-compiler-warnings-in-float-emulation-code.patch
+  ib-rdmavt-fix-alloc_qpn-warn_on.patch
+  ib-hfi1-insure-freeze_work-work_struct-is-canceled-o.patch
+  ib-qib-hfi1-rdmavt-correct-ibv_devinfo-max_mr-value.patch
+  ib-hfi1-validate-page-aligned-for-a-given-virtual-ad.patch
+  mips-uprobes-remove-set-but-not-used-variable-epc.patch
+  xtensa-fix-section-mismatch-between-memblock_reserve.patch
+  kselftest-cgroup-fix-unexpected-testing-failure-on-t.patch
+  kselftest-cgroup-fix-unexpected-testing-failure-on-t.patch
+  kselftest-cgroup-fix-incorrect-test_core-skip.patch
+  selftests-vm-install-test_vmalloc.sh-for-run_vmtests.patch
+  net-dsa-mv88e6xxx-avoid-error-message-on-remove-from.patch
+  net-hns-fix-loopback-test-failed-at-copper-ports.patch
+  mdesc-fix-a-missing-check-bug-in-get_vdev_port_node_.patch
+  sparc-perf-fix-updated-event-period-in-response-to-p.patch
+  net-ethernet-mediatek-use-hw_feature-to-judge-if-hwl.patch
+  net-ethernet-mediatek-use-net_ip_align-to-judge-if-h.patch
+  drm-arm-mali-dp-add-a-loop-around-the-second-set-cva.patch
+  drm-arm-hdlcd-actually-validate-crtc-modes.patch
+  drm-arm-hdlcd-allow-a-bit-of-clock-tolerance.patch
+  nvmet-fix-data_len-to-0-for-bdev-backed-write_zeroes.patch
+  scripts-checkstack.pl-fix-arm64-wrong-or-unknown-arc.patch
+  scsi-ufs-check-that-space-was-properly-alloced-in-co.patch
+  scsi-smartpqi-unlock-on-error-in-pqi_submit_raid_req.patch
+  net-ipvlan-fix-ipvlan-device-tso-disabled-while-neti.patch
+  s390-qeth-fix-vlan-attribute-in-bridge_hostnotify-ud.patch
+  hwmon-core-add-thermal-sensors-only-if-dev-of_node-i.patch
+  hwmon-pmbus-core-treat-parameters-as-paged-if-on-mul.patch
+  arm64-silence-gcc-warnings-about-arch-abi-drift.patch
+  nvme-fix-u32-overflow-in-the-number-of-namespace-lis.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-f521877164270443a1ac5c86a510da6d41091863.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-f521877164270443a1ac5c86a510da6d41091863.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-f521877164270443a1ac5c86a510da6d41091863.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-f521877164270443a1ac5c86a510da6d41091863.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-f521877164270443a1ac5c86a510da6d41091863.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-f521877164270443a1ac5c86a510da6d41091863.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-f521877164270443a1ac5c86a510da6d41091863.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-f521877164270443a1ac5c86a510da6d41091863.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+
+    ⚡ Internal infrastructure issues prevented one or more tests from running
+    on this architecture. This is not the fault of the kernel that was tested.
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ LTP: openposix test suite [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ tuned: tune-processes-through-perf [10]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ LTP: openposix test suite [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       🚧 ✅ tuned: tune-processes-through-perf [10]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ LTP: openposix test suite [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ tuned: tune-processes-through-perf [10]
+       🚧 ✅ storage: SCSI VPD [12]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
