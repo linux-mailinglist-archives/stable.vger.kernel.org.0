@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8BCA50702
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB1AC507C5
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728781AbfFXKD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34340 "EHLO mail.kernel.org"
+        id S1730322AbfFXKJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:09:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729501AbfFXKDD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:03:03 -0400
+        id S1730451AbfFXKI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:08:26 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41969205ED;
-        Mon, 24 Jun 2019 10:03:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32F04208E3;
+        Mon, 24 Jun 2019 10:08:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370582;
-        bh=n9x9Eb4z4CC4l3c7Nba6QN2m62zKHw0k2+ln8QZSuw0=;
+        s=default; t=1561370905;
+        bh=PK5p3ubr2f7HEy1uQTdhqt6uPKqR9XbpAmjOTvdzJsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxcHWqDl4oXe4tosXFgdPYXBXlb3lP72WfvuQAQ97c5WXCteNFxyM+PGJZHF7wMLc
-         yXzmgsK4K2fS5X8EIc1gonQdGoAzshlOI4vUFdtB1lwF1yDQLj3yDBPWYhubqrq8Gk
-         7NoXDUCa+JThf+DcH35nZxO6NOh/b43mZJyqWnsY=
+        b=eqLHZVELu5nCYt1ytQZxfqW2IFadQY6x9z6lO8rOdIT1PSNkgd4YPoUhKYlTq6VqI
+         P6FDuixNmqhuYlyVCLjkYsZDnrMbLEwD6GTKJoJBBsAa0kFLYHhbVAiB6C3ogYHKSx
+         fMGyn+3ef4aZ/gvdV623lrxVtBqirRJEiyAMs5aQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 4.19 27/90] apparmor: enforce nullbyte at end of tag string
+        stable@vger.kernel.org, Scott Wood <swood@redhat.com>,
+        Wu Hao <hao.wu@intel.com>, Moritz Fischer <mdf@kernel.org>,
+        Alan Tull <atull@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 045/121] fpga: dfl: afu: Pass the correct device to dma_mapping_error()
 Date:   Mon, 24 Jun 2019 17:56:17 +0800
-Message-Id: <20190624092315.965604081@linuxfoundation.org>
+Message-Id: <20190624092323.088891683@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+[ Upstream commit 13069847a475b60069918dc9971f5adb42811ce3 ]
 
-commit 8404d7a674c49278607d19726e0acc0cae299357 upstream.
+dma_mapping_error() was being called on a different device struct than
+what was passed to map/unmap.  Besides rendering the error checking
+ineffective, it caused a debug splat with CONFIG_DMA_API_DEBUG.
 
-A packed AppArmor policy contains null-terminated tag strings that are read
-by unpack_nameX(). However, unpack_nameX() uses string functions on them
-without ensuring that they are actually null-terminated, potentially
-leading to out-of-bounds accesses.
-
-Make sure that the tag string is null-terminated before passing it to
-strcmp().
-
-Cc: stable@vger.kernel.org
-Fixes: 736ec752d95e ("AppArmor: policy routines for loading and unpacking policy")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Signed-off-by: Scott Wood <swood@redhat.com>
+Acked-by: Wu Hao <hao.wu@intel.com>
+Acked-by: Moritz Fischer <mdf@kernel.org>
+Acked-by: Alan Tull <atull@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/policy_unpack.c |    2 +-
+ drivers/fpga/dfl-afu-dma-region.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/apparmor/policy_unpack.c
-+++ b/security/apparmor/policy_unpack.c
-@@ -276,7 +276,7 @@ static bool unpack_nameX(struct aa_ext *
- 		char *tag = NULL;
- 		size_t size = unpack_u16_chunk(e, &tag);
- 		/* if a name is specified it must match. otherwise skip tag */
--		if (name && (!size || strcmp(name, tag)))
-+		if (name && (!size || tag[size-1] != '\0' || strcmp(name, tag)))
- 			goto fail;
- 	} else if (name) {
- 		/* if a name is specified and there is no name tag fail */
+diff --git a/drivers/fpga/dfl-afu-dma-region.c b/drivers/fpga/dfl-afu-dma-region.c
+index e18a786fc943..cd68002ac097 100644
+--- a/drivers/fpga/dfl-afu-dma-region.c
++++ b/drivers/fpga/dfl-afu-dma-region.c
+@@ -399,7 +399,7 @@ int afu_dma_map_region(struct dfl_feature_platform_data *pdata,
+ 				    region->pages[0], 0,
+ 				    region->length,
+ 				    DMA_BIDIRECTIONAL);
+-	if (dma_mapping_error(&pdata->dev->dev, region->iova)) {
++	if (dma_mapping_error(dfl_fpga_pdata_to_parent(pdata), region->iova)) {
+ 		dev_err(&pdata->dev->dev, "failed to map for dma\n");
+ 		ret = -EFAULT;
+ 		goto unpin_pages;
+-- 
+2.20.1
+
 
 
