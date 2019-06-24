@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 887605076B
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 710A05076D
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729777AbfFXKG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:06:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39376 "EHLO mail.kernel.org"
+        id S1728783AbfFXKHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:07:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728783AbfFXKG5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:06:57 -0400
+        id S1730231AbfFXKHA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:07:00 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7E41208E3;
-        Mon, 24 Jun 2019 10:06:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FD72208E3;
+        Mon, 24 Jun 2019 10:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370817;
-        bh=Cqsztwgw6cyqd/Wc2ilgeyQMFKLpUd9BF6QBomPX2H4=;
+        s=default; t=1561370819;
+        bh=x9xZl6yC252+YAjdmdXwcc8dd6i6py5IJ2lgNuFN2e8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EUZKiTpP5jiVc5bpEfCr1u2N/khulHfaH5PH66qBGqhaP7O9GLUW5I+yzKIhnnw/K
-         uu+RLdvVpufeZDC/9Q/l/a+qvAbnu5XCH7xDeFRKy8BLUhsxUjOQByUIruH7vcwRn6
-         Q+QaMjlhj1cP77vULhukPAOGIXQUlPCOPfQXuuqs=
+        b=zzUEXIrJekdKoDyA3qYzcOBsvEvjh4uIHDOboavT7x4w9IV0wK7HDC6GHJ4uVWLNR
+         ERl1baDSQtgU4mS7dT8bv8CRb/TzGpWXXeBY7glghHbtjoqF1tumrjP+JKmbaljFbZ
+         UMXfh1ACdlaw+RaAG1wNwaeDWcTcOIlzTyYYr9oA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rapolu Chiranjeevi <chiranjeevi.rapolu@intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.1 012/121] usb: xhci: Dont try to recover an endpoint if port is in error state.
-Date:   Mon, 24 Jun 2019 17:55:44 +0800
-Message-Id: <20190624092321.278695736@linuxfoundation.org>
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>
+Subject: [PATCH 5.1 013/121] cifs: add spinlock for the openFileList to cifsInodeInfo
+Date:   Mon, 24 Jun 2019 17:55:45 +0800
+Message-Id: <20190624092321.322715737@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
 References: <20190624092320.652599624@linuxfoundation.org>
@@ -44,118 +44,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit b8c3b718087bf7c3c8e388eb1f72ac1108a4926e upstream.
+commit 487317c99477d00f22370625d53be3239febabbe upstream.
 
-A USB3 device needs to be reset and re-enumarated if the port it
-connects to goes to a error state, with link state inactive.
+We can not depend on the tcon->open_file_lock here since in multiuser mode
+we may have the same file/inode open via multiple different tcons.
 
-There is no use in trying to recover failed transactions by resetting
-endpoints at this stage. Tests show that in rare cases, after multiple
-endpoint resets of a roothub port the whole host controller might stop
-completely.
+The current code is race prone and will crash if one user deletes a file
+at the same time a different user opens/create the file.
 
-Several retries to recover from transaction error can happen as
-it can take a long time before the hub thread discovers the USB3
-port error and inactive link.
+To avoid this we need to have a spinlock attached to the inode and not the tcon.
 
-We can't reliably detect the port error from slot or endpoint context
-due to a limitation in xhci, see xhci specs section 4.8.3:
-"There are several cases where the EP State field in the Output
-Endpoint Context may not reflect the current state of an endpoint"
-and
-"Software should maintain an accurate value for EP State, by tracking it
-with an internal variable that is driven by Events and Doorbell accesses"
+RHBZ:  1580165
 
-Same appears to be true for slot state.
-
-set a flag to the corresponding slot if a USB3 roothub port link goes
-inactive to prevent both queueing new URBs and resetting endpoints.
-
-Reported-by: Rapolu Chiranjeevi <chiranjeevi.rapolu@intel.com>
-Tested-by: Rapolu Chiranjeevi <chiranjeevi.rapolu@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-ring.c |   15 ++++++++++++++-
- drivers/usb/host/xhci.c      |    5 +++++
- drivers/usb/host/xhci.h      |    9 +++++++++
- 3 files changed, 28 insertions(+), 1 deletion(-)
+ fs/cifs/cifsfs.c   |    1 +
+ fs/cifs/cifsglob.h |    5 +++++
+ fs/cifs/file.c     |    8 ++++++--
+ 3 files changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -1608,8 +1608,13 @@ static void handle_port_status(struct xh
- 		usb_hcd_resume_root_hub(hcd);
- 	}
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -303,6 +303,7 @@ cifs_alloc_inode(struct super_block *sb)
+ 	cifs_inode->uniqueid = 0;
+ 	cifs_inode->createtime = 0;
+ 	cifs_inode->epoch = 0;
++	spin_lock_init(&cifs_inode->open_file_lock);
+ 	generate_random_uuid(cifs_inode->lease_key);
  
--	if (hcd->speed >= HCD_USB3 && (portsc & PORT_PLS_MASK) == XDEV_INACTIVE)
-+	if (hcd->speed >= HCD_USB3 &&
-+	    (portsc & PORT_PLS_MASK) == XDEV_INACTIVE) {
-+		slot_id = xhci_find_slot_id_by_port(hcd, xhci, hcd_portnum + 1);
-+		if (slot_id && xhci->devs[slot_id])
-+			xhci->devs[slot_id]->flags |= VDEV_PORT_ERROR;
- 		bus_state->port_remote_wakeup &= ~(1 << hcd_portnum);
-+	}
+ 	/*
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -1357,6 +1357,7 @@ struct cifsInodeInfo {
+ 	struct rw_semaphore lock_sem;	/* protect the fields above */
+ 	/* BB add in lists for dirty pages i.e. write caching info for oplock */
+ 	struct list_head openFileList;
++	spinlock_t	open_file_lock;	/* protects openFileList */
+ 	__u32 cifsAttrs; /* e.g. DOS archive bit, sparse, compressed, system */
+ 	unsigned int oplock;		/* oplock/lease level we have */
+ 	unsigned int epoch;		/* used to track lease state changes */
+@@ -1760,10 +1761,14 @@ require use of the stronger protocol */
+  *  tcp_ses_lock protects:
+  *	list operations on tcp and SMB session lists
+  *  tcon->open_file_lock protects the list of open files hanging off the tcon
++ *  inode->open_file_lock protects the openFileList hanging off the inode
+  *  cfile->file_info_lock protects counters and fields in cifs file struct
+  *  f_owner.lock protects certain per file struct operations
+  *  mapping->page_lock protects certain per page operations
+  *
++ *  Note that the cifs_tcon.open_file_lock should be taken before
++ *  not after the cifsInodeInfo.open_file_lock
++ *
+  *  Semaphores
+  *  ----------
+  *  sesSem     operations on smb session
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -338,10 +338,12 @@ cifs_new_fileinfo(struct cifs_fid *fid,
+ 	atomic_inc(&tcon->num_local_opens);
  
- 	if ((portsc & PORT_PLC) && (portsc & PORT_PLS_MASK) == XDEV_RESUME) {
- 		xhci_dbg(xhci, "port resume event for port %d\n", port_id);
-@@ -1797,6 +1802,14 @@ static void xhci_cleanup_halted_endpoint
- {
- 	struct xhci_virt_ep *ep = &xhci->devs[slot_id]->eps[ep_index];
- 	struct xhci_command *command;
-+
-+	/*
-+	 * Avoid resetting endpoint if link is inactive. Can cause host hang.
-+	 * Device will be reset soon to recover the link so don't do anything
-+	 */
-+	if (xhci->devs[slot_id]->flags & VDEV_PORT_ERROR)
-+		return;
-+
- 	command = xhci_alloc_command(xhci, false, GFP_ATOMIC);
- 	if (!command)
- 		return;
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1442,6 +1442,10 @@ static int xhci_urb_enqueue(struct usb_h
- 			xhci_dbg(xhci, "urb submitted during PCI suspend\n");
- 		return -ESHUTDOWN;
- 	}
-+	if (xhci->devs[slot_id]->flags & VDEV_PORT_ERROR) {
-+		xhci_dbg(xhci, "Can't queue urb, port error, link inactive\n");
-+		return -ENODEV;
-+	}
+ 	/* if readable file instance put first in list*/
++	spin_lock(&cinode->open_file_lock);
+ 	if (file->f_mode & FMODE_READ)
+ 		list_add(&cfile->flist, &cinode->openFileList);
+ 	else
+ 		list_add_tail(&cfile->flist, &cinode->openFileList);
++	spin_unlock(&cinode->open_file_lock);
+ 	spin_unlock(&tcon->open_file_lock);
  
- 	if (usb_endpoint_xfer_isoc(&urb->ep->desc))
- 		num_tds = urb->number_of_packets;
-@@ -3724,6 +3728,7 @@ static int xhci_discover_or_reset_device
- 	}
- 	/* If necessary, update the number of active TTs on this root port */
- 	xhci_update_tt_active_eps(xhci, virt_dev, old_active_eps);
-+	virt_dev->flags = 0;
- 	ret = 0;
+ 	if (fid->purge_cache)
+@@ -413,7 +415,9 @@ void _cifsFileInfo_put(struct cifsFileIn
+ 	cifs_add_pending_open_locked(&fid, cifs_file->tlink, &open);
  
- command_cleanup:
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1010,6 +1010,15 @@ struct xhci_virt_device {
- 	u8				real_port;
- 	struct xhci_interval_bw_table	*bw_table;
- 	struct xhci_tt_bw_info		*tt_info;
-+	/*
-+	 * flags for state tracking based on events and issued commands.
-+	 * Software can not rely on states from output contexts because of
-+	 * latency between events and xHC updating output context values.
-+	 * See xhci 1.1 section 4.8.3 for more details
-+	 */
-+	unsigned long			flags;
-+#define VDEV_PORT_ERROR			BIT(0) /* Port error, link inactive */
-+
- 	/* The current max exit latency for the enabled USB3 link states. */
- 	u16				current_mel;
- 	/* Used for the debugfs interfaces. */
+ 	/* remove it from the lists */
++	spin_lock(&cifsi->open_file_lock);
+ 	list_del(&cifs_file->flist);
++	spin_unlock(&cifsi->open_file_lock);
+ 	list_del(&cifs_file->tlist);
+ 	atomic_dec(&tcon->num_local_opens);
+ 
+@@ -1950,9 +1954,9 @@ refind_writable:
+ 			return 0;
+ 		}
+ 
+-		spin_lock(&tcon->open_file_lock);
++		spin_lock(&cifs_inode->open_file_lock);
+ 		list_move_tail(&inv_file->flist, &cifs_inode->openFileList);
+-		spin_unlock(&tcon->open_file_lock);
++		spin_unlock(&cifs_inode->open_file_lock);
+ 		cifsFileInfo_put(inv_file);
+ 		++refind;
+ 		inv_file = NULL;
 
 
