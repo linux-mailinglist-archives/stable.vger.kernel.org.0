@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 591DD50760
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF4150874
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730104AbfFXKGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:06:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38706 "EHLO mail.kernel.org"
+        id S1730945AbfFXKRW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:17:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730123AbfFXKGb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:06:31 -0400
+        id S1730937AbfFXKRV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:17:21 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC1272145D;
-        Mon, 24 Jun 2019 10:06:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DB822089F;
+        Mon, 24 Jun 2019 10:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370790;
-        bh=lboz67gfjqTkNmYwfDdk7GOXes25CUDfRX6XNlkjwkA=;
+        s=default; t=1561371441;
+        bh=ywxrxoFTOsh/Ojn1ACIcc0LeWwbqwSqBK72Jfd6p7i0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uV7KPdoshHoLch/dz0qPJFSQtKgQM95kk18TUWnjOJXJfvrlk7kLLpYoYXG0J0H30
-         0CjkHADufIzFsbcnvBrQ1ZUvG//ksXnYoUVipCbSa51hNxiPr6EeXnv+XorgXoYsb4
-         b6WPeSnUIBHKgJbkztoihuXqsrVWCAYOD+AYmrL4=
+        b=fCV/wNUOAEZkxt1yrN7igJPViS8kgJPab414heSqI5ja88Exw9j6HHtBif8D/Kiq3
+         KUWG9Cfs8RPKtmAlHi2C5aqdEBIpiU0mLNPj5JUlE3ZG2U/2KW48FbktI7pAl3OSlh
+         VFc9iRTTg3J71XDEvOWiby9pMq3Mjpdv6+PmdFwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 85/90] mac80211: drop robust management frames from unknown TA
+        stable@vger.kernel.org, Anisse Astier <aastier@freebox.fr>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 5.1 103/121] arm64: ssbd: explicitly depend on <linux/prctl.h>
 Date:   Mon, 24 Jun 2019 17:57:15 +0800
-Message-Id: <20190624092319.468650239@linuxfoundation.org>
+Message-Id: <20190624092325.971109924@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Anisse Astier <aastier@freebox.fr>
 
-commit 588f7d39b3592a36fb7702ae3b8bdd9be4621e2f upstream.
+commit adeaa21a4b6954e878f3f7d1c5659ed9c1fe567a upstream.
 
-When receiving a robust management frame, drop it if we don't have
-rx->sta since then we don't have a security association and thus
-couldn't possibly validate the frame.
+Fix ssbd.c which depends implicitly on asm/ptrace.h including
+linux/prctl.h (through for example linux/compat.h, then linux/time.h,
+linux/seqlock.h, linux/spinlock.h and linux/irqflags.h), and uses
+PR_SPEC* defines.
 
+This is an issue since we'll soon be removing the include from
+asm/ptrace.h.
+
+Fixes: 9cdc0108baa8 ("arm64: ssbd: Add prctl interface for per-thread mitigation")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Anisse Astier <aastier@freebox.fr>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/rx.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/kernel/ssbd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -3752,6 +3752,8 @@ static bool ieee80211_accept_frame(struc
- 	case NL80211_IFTYPE_STATION:
- 		if (!bssid && !sdata->u.mgd.use_4addr)
- 			return false;
-+		if (ieee80211_is_robust_mgmt_frame(skb) && !rx->sta)
-+			return false;
- 		if (multicast)
- 			return true;
- 		return ether_addr_equal(sdata->vif.addr, hdr->addr1);
+--- a/arch/arm64/kernel/ssbd.c
++++ b/arch/arm64/kernel/ssbd.c
+@@ -5,6 +5,7 @@
+ 
+ #include <linux/compat.h>
+ #include <linux/errno.h>
++#include <linux/prctl.h>
+ #include <linux/sched.h>
+ #include <linux/sched/task_stack.h>
+ #include <linux/thread_info.h>
 
 
