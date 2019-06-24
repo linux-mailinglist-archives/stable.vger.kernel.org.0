@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C90E15078F
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E76F0507D0
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730009AbfFXKIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:08:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
+        id S1729072AbfFXKKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:10:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730385AbfFXKH7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:07:59 -0400
+        id S1730015AbfFXKIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:08:02 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41AF1205C9;
-        Mon, 24 Jun 2019 10:07:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09227205C9;
+        Mon, 24 Jun 2019 10:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370878;
-        bh=L1T2MkkeIFA8NIvLd4nNQys+neonGjNiK4USvJQoEm8=;
+        s=default; t=1561370881;
+        bh=AdM6+pPzjybjfnZGgbahedXVNFsGmlcHWNK+ynDfvEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3rmhKCASJXh04LOCVDuq3h4dqXH+Jc1EbimKY4eSt56XXe8Sv/fCsRCrqI0zalCE
-         lNBRNy70EFn+GLppfxtZGByDdsMu37cKXWgn0VQiYxPTqBwzTVtn+3RLlBfmKL7dk7
-         tpBnFESaqrJ80uy+6zqFfgKpY+OZlSuZf34X2LfU=
+        b=ux10n0V1EQhVvxzuSsZ5g8pWwUbSD9rMmN95vXxES3aOfXRWT2bH3ZbiQpvXtCuCl
+         SrNXAsdwFsnE886k9KzhVE7vn0+V5oB6yPc3E/gH5qUdiG3zPfBTKUmjq/OE5j8LZS
+         3YoUeJ6z/mJKNgfxvivt73x1RQGGU8eVH5qu1n0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, jjian zhou <jjian.zhou@mediatek.com>,
-        Chaotian Jing <chaotian.jing@mediatek.com>,
-        Yong Mao <yong.mao@mediatek.com>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.1 005/121] mmc: mediatek: fix SDIO IRQ detection issue
-Date:   Mon, 24 Jun 2019 17:55:37 +0800
-Message-Id: <20190624092320.925025681@linuxfoundation.org>
+Subject: [PATCH 5.1 006/121] mmc: core: API to temporarily disable retuning for SDIO CRC errors
+Date:   Mon, 24 Jun 2019 17:55:38 +0800
+Message-Id: <20190624092320.973414712@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
 References: <20190624092320.652599624@linuxfoundation.org>
@@ -45,35 +45,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: jjian zhou <jjian.zhou@mediatek.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 20314ce30af197963b0c239f0952db6aaef73f99 upstream.
+commit 0a55f4ab9678413a01e740c86e9367ba0c612b36 upstream.
 
-If cmd19 timeout or response crcerr occurs during execute_tuning(),
-it need invoke msdc_reset_hw(). Otherwise SDIO IRQ can't be detected.
+Normally when the MMC core sees an "-EILSEQ" error returned by a host
+controller then it will trigger a retuning of the card.  This is
+generally a good idea.
 
-Signed-off-by: jjian zhou <jjian.zhou@mediatek.com>
-Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
-Signed-off-by: Yong Mao <yong.mao@mediatek.com>
-Fixes: 5215b2e952f3 ("mmc: mediatek: Add MMC_CAP_SDIO_IRQ support")
-Cc: stable@vger.kernel.org
+However, if a command is expected to sometimes cause transfer errors
+then these transfer errors shouldn't cause a re-tuning.  This
+re-tuning will be a needless waste of time.  One example case where a
+transfer is expected to cause errors is when transitioning between
+idle (sometimes referred to as "sleep" in Broadcom code) and active
+state on certain Broadcom WiFi SDIO cards.  Specifically if the card
+was already transitioning between states when the command was sent it
+could cause an error on the SDIO bus.
+
+Let's add an API that the SDIO function drivers can call that will
+temporarily disable the auto-tuning functionality.  Then we can add a
+call to this in the Broadcom WiFi driver and any other driver that
+might have similar needs.
+
+NOTE: this makes the assumption that the card is already tuned well
+enough that it's OK to disable the auto-retuning during one of these
+error-prone situations.  Presumably the driver code performing the
+error-prone transfer knows how to recover / retry from errors.  ...and
+after we can get back to a state where transfers are no longer
+error-prone then we can enable the auto-retuning again.  If we truly
+find ourselves in a case where the card needs to be retuned sometimes
+to handle one of these error-prone transfers then we can always try a
+few transfers first without auto-retuning and then re-try with
+auto-retuning if the first few fail.
+
+Without this change on rk3288-veyron-minnie I periodically see this in
+the logs of a machine just sitting there idle:
+  dwmmc_rockchip ff0d0000.dwmmc: Successfully tuned phase to XYZ
+
+Cc: stable@vger.kernel.org #v4.18+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/mtk-sd.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/core/core.c       |    5 +++--
+ drivers/mmc/core/sdio_io.c    |   37 +++++++++++++++++++++++++++++++++++++
+ include/linux/mmc/host.h      |    1 +
+ include/linux/mmc/sdio_func.h |    3 +++
+ 4 files changed, 44 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -1003,6 +1003,8 @@ static void msdc_request_done(struct msd
- 	msdc_track_cmd_data(host, mrq->cmd, mrq->data);
- 	if (mrq->data)
- 		msdc_unprepare_data(host, mrq);
-+	if (host->error)
-+		msdc_reset_hw(host);
- 	mmc_request_done(host->mmc, mrq);
- }
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -144,8 +144,9 @@ void mmc_request_done(struct mmc_host *h
+ 	int err = cmd->error;
  
+ 	/* Flag re-tuning needed on CRC errors */
+-	if ((cmd->opcode != MMC_SEND_TUNING_BLOCK &&
+-	    cmd->opcode != MMC_SEND_TUNING_BLOCK_HS200) &&
++	if (cmd->opcode != MMC_SEND_TUNING_BLOCK &&
++	    cmd->opcode != MMC_SEND_TUNING_BLOCK_HS200 &&
++	    !host->retune_crc_disable &&
+ 	    (err == -EILSEQ || (mrq->sbc && mrq->sbc->error == -EILSEQ) ||
+ 	    (mrq->data && mrq->data->error == -EILSEQ) ||
+ 	    (mrq->stop && mrq->stop->error == -EILSEQ)))
+--- a/drivers/mmc/core/sdio_io.c
++++ b/drivers/mmc/core/sdio_io.c
+@@ -738,3 +738,40 @@ int sdio_set_host_pm_flags(struct sdio_f
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(sdio_set_host_pm_flags);
++
++/**
++ *	sdio_retune_crc_disable - temporarily disable retuning on CRC errors
++ *	@func: SDIO function attached to host
++ *
++ *	If the SDIO card is known to be in a state where it might produce
++ *	CRC errors on the bus in response to commands (like if we know it is
++ *	transitioning between power states), an SDIO function driver can
++ *	call this function to temporarily disable the SD/MMC core behavior of
++ *	triggering an automatic retuning.
++ *
++ *	This function should be called while the host is claimed and the host
++ *	should remain claimed until sdio_retune_crc_enable() is called.
++ *	Specifically, the expected sequence of calls is:
++ *	- sdio_claim_host()
++ *	- sdio_retune_crc_disable()
++ *	- some number of calls like sdio_writeb() and sdio_readb()
++ *	- sdio_retune_crc_enable()
++ *	- sdio_release_host()
++ */
++void sdio_retune_crc_disable(struct sdio_func *func)
++{
++	func->card->host->retune_crc_disable = true;
++}
++EXPORT_SYMBOL_GPL(sdio_retune_crc_disable);
++
++/**
++ *	sdio_retune_crc_enable - re-enable retuning on CRC errors
++ *	@func: SDIO function attached to host
++ *
++ *	This is the compement to sdio_retune_crc_disable().
++ */
++void sdio_retune_crc_enable(struct sdio_func *func)
++{
++	func->card->host->retune_crc_disable = false;
++}
++EXPORT_SYMBOL_GPL(sdio_retune_crc_enable);
+--- a/include/linux/mmc/host.h
++++ b/include/linux/mmc/host.h
+@@ -398,6 +398,7 @@ struct mmc_host {
+ 	unsigned int		retune_now:1;	/* do re-tuning at next req */
+ 	unsigned int		retune_paused:1; /* re-tuning is temporarily disabled */
+ 	unsigned int		use_blk_mq:1;	/* use blk-mq */
++	unsigned int		retune_crc_disable:1; /* don't trigger retune upon crc */
+ 
+ 	int			rescan_disable;	/* disable card detection */
+ 	int			rescan_entered;	/* used with nonremovable devices */
+--- a/include/linux/mmc/sdio_func.h
++++ b/include/linux/mmc/sdio_func.h
+@@ -159,4 +159,7 @@ extern void sdio_f0_writeb(struct sdio_f
+ extern mmc_pm_flag_t sdio_get_host_pm_caps(struct sdio_func *func);
+ extern int sdio_set_host_pm_flags(struct sdio_func *func, mmc_pm_flag_t flags);
+ 
++extern void sdio_retune_crc_disable(struct sdio_func *func);
++extern void sdio_retune_crc_enable(struct sdio_func *func);
++
+ #endif /* LINUX_MMC_SDIO_FUNC_H */
 
 
