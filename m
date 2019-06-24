@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 180F450800
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63D8550855
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729177AbfFXKFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:05:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37480 "EHLO mail.kernel.org"
+        id S1730763AbfFXKQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:16:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729799AbfFXKFc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:05:32 -0400
+        id S1730759AbfFXKQf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:16:35 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ED8421473;
-        Mon, 24 Jun 2019 10:05:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C96F721473;
+        Mon, 24 Jun 2019 10:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370731;
-        bh=BnKe2Vzp/DnR05sQo+fFICmAFN43Hbabh+9cFbkNPF0=;
+        s=default; t=1561371395;
+        bh=ZoUvg6Cuj0gLOckE2E1pb8pVmMdC6IXEbv+tF/XOAV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r0yZl9iHpJiiYCplwxm3ygYPAIm3ybFYbKYG164OHCAKnEa+Dma5+focvmVpp3iwG
-         I77FNqkyr3a8h3SINUyRhQOxs3tzDMNNLgjfnLTlScd2isSlukJsbvtOaTHB3+TrSI
-         keOa/kkPrfccvMBKzgw46te4kdhZx+38VRbf5R8Y=
+        b=fw+LhZGKx+1GB6Th3Zjyra0OgWQNqdTwEbqimPd5LCnajMQPLpfAaM2Xj1umuzarp
+         67NpV8ib+33pjCG3BlaP9LS/nddAjqJdKGlqpcviu1srZjbz5xunZjQUqwrafti03S
+         JDdIKeURdtXRdBqbtmJCRbLrN75dVb2G/afyKuLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 70/90] can: flexcan: fix timeout when set small bitrate
+        stable@vger.kernel.org, Jaesoo Lee <jalee@purestorage.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 088/121] nvme: Fix u32 overflow in the number of namespace list calculation
 Date:   Mon, 24 Jun 2019 17:57:00 +0800
-Message-Id: <20190624092318.619100282@linuxfoundation.org>
+Message-Id: <20190624092325.313690600@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+[ Upstream commit c8e8c77b3bdbade6e26e8e76595f141ede12b692 ]
 
-commit 247e5356a709eb49a0d95ff2a7f07dac05c8252c upstream.
+The Number of Namespaces (nn) field in the identify controller data structure is
+defined as u32 and the maximum allowed value in NVMe specification is
+0xFFFFFFFEUL. This change fixes the possible overflow of the DIV_ROUND_UP()
+operation used in nvme_scan_ns_list() by casting the nn to u64.
 
-Current we can meet timeout issue when setting a small bitrate like
-10000 as follows on i.MX6UL EVK board (ipg clock = 66MHZ, per clock =
-30MHZ):
-
-| root@imx6ul7d:~# ip link set can0 up type can bitrate 10000
-
-A link change request failed with some changes committed already.
-Interface can0 may have been left with an inconsistent configuration,
-please check.
-
-| RTNETLINK answers: Connection timed out
-
-It is caused by calling of flexcan_chip_unfreeze() timeout.
-
-Originally the code is using usleep_range(10, 20) for unfreeze
-operation, but the patch (8badd65 can: flexcan: avoid calling
-usleep_range from interrupt context) changed it into udelay(10) which is
-only a half delay of before, there're also some other delay changes.
-
-After double to FLEXCAN_TIMEOUT_US to 100 can fix the issue.
-
-Meanwhile, Rasmus Villemoes reported that even with a timeout of 100,
-flexcan_probe() fails on the MPC8309, which requires a value of at least
-140 to work reliably. 250 works for everyone.
-
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jaesoo Lee <jalee@purestorage.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/flexcan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -165,7 +165,7 @@
- #define FLEXCAN_MB_CNT_LENGTH(x)	(((x) & 0xf) << 16)
- #define FLEXCAN_MB_CNT_TIMESTAMP(x)	((x) & 0xffff)
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 35d2202ee2fd..3a390b2c7540 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3397,7 +3397,8 @@ static int nvme_scan_ns_list(struct nvme_ctrl *ctrl, unsigned nn)
+ {
+ 	struct nvme_ns *ns;
+ 	__le32 *ns_list;
+-	unsigned i, j, nsid, prev = 0, num_lists = DIV_ROUND_UP(nn, 1024);
++	unsigned i, j, nsid, prev = 0;
++	unsigned num_lists = DIV_ROUND_UP_ULL((u64)nn, 1024);
+ 	int ret = 0;
  
--#define FLEXCAN_TIMEOUT_US		(50)
-+#define FLEXCAN_TIMEOUT_US		(250)
- 
- /* FLEXCAN hardware feature flags
-  *
+ 	ns_list = kzalloc(NVME_IDENTIFY_DATA_SIZE, GFP_KERNEL);
+-- 
+2.20.1
+
 
 
