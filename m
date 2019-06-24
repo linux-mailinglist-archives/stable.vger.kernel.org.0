@@ -2,228 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE6C04FE96
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 03:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4961A500D7
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 06:52:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726339AbfFXBrR convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 23 Jun 2019 21:47:17 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:41344 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726320AbfFXBrR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 23 Jun 2019 21:47:17 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id AF3EA3082A8D
-        for <stable@vger.kernel.org>; Sun, 23 Jun 2019 22:11:57 +0000 (UTC)
-Received: from [172.54.210.214] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 58FB05D720;
-        Sun, 23 Jun 2019 22:11:55 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1727022AbfFXEwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 00:52:24 -0400
+Received: from mail-yb1-f196.google.com ([209.85.219.196]:36999 "EHLO
+        mail-yb1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726343AbfFXEwY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 00:52:24 -0400
+Received: by mail-yb1-f196.google.com with SMTP id 189so5231986ybh.4;
+        Sun, 23 Jun 2019 21:52:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=WxIiZU+7r8Cu/qKtSFv+Ru1JRgd24V/4BLiVHwftvOw=;
+        b=JUs0OICD2tB/RSrD6/PCjhwWDQeuWK5E6fITecldhUdBXV+uuhxXSovFjI6g18Hfnt
+         Ni6tz4Fp6HF6OaY3NVyfjvzhwnm4o6fkDNzYnuJnnE2VD13I06ARouZAdSvmlNEjeLkM
+         9Bnogv3p9JLTNO4C/eAGVLFghNgAEVOicG7xAi9VT1lHRxWeZnVoaLeFaZwuy3IE80kd
+         a2YRxIbK0Sj3DddZSjd1/Vz/OUeQecssJi+C+I+0AreTq77FFGM6bbUR6nSM+xHlLoB1
+         PyFB5Ltvfb2JZ+GbN/UiJfAkw+EiK2GdYpxuKjChndLBt5vwNrlCyZNFci5350MBQW9I
+         6mlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=WxIiZU+7r8Cu/qKtSFv+Ru1JRgd24V/4BLiVHwftvOw=;
+        b=Hw5lSjqv1RolqXEqYSKjEvBOElvaWl4/up2WkzHf7x0OhMoOZcgQHbqAxDG1V6l7PD
+         4qo6xe2CFmpgMdcoPpoFzl5QJP1SNVqIPoEINUxSGVLUDqepcUkYqKS8VaHdvAveLCYQ
+         O0C9QAFUbDFtnGVi4EtaNL0W9NmzDj2ksOAEbea4Gv5mapnNGyI15y+FLEn/O/hmimu7
+         FZgER67KZEdQOoL75xcjMbZllfDiJ1U2tAz7u/zEyVadcowLn5EctPO1ThiYgYO8h8lN
+         mLiQywqbGTFibyyhBuTgzCYOiK9edYN0MhDRIHCJn2zjLjVAXjWAJMXPLqqMZxlw3uDt
+         Ek9A==
+X-Gm-Message-State: APjAAAXAbMpOk99pXeKsH3f3jnEmNzubrDbBBslYRQ9KXYyMuDV1mJZw
+        WEnMfGMQjdTqddlB0Y/xj789sP3d5g0B0dnHOmM=
+X-Google-Smtp-Source: APXvYqwP6eLeklvT+YewIEHkGrS7r2UZ39+abhFXurFtn2myMvZbDWLcSpDN7Cxp+GhwZLgJ7M3Ry1U33rq1eu4IUDQ=
+X-Received: by 2002:a25:744b:: with SMTP id p72mr2669029ybc.439.1561351943407;
+ Sun, 23 Jun 2019 21:52:23 -0700 (PDT)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.9B8C7D397D.BFU0DJK80L@redhat.com>
-X-Gitlab-Pipeline-ID: 13079
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Sun, 23 Jun 2019 22:11:57 +0000 (UTC)
-Date:   Sun, 23 Jun 2019 21:47:17 -0400
+References: <1560073529193139@kroah.com> <CAOQ4uxiTrsOs3KWOxedZicXNMJJharmWo=TDXDnxSC1XMNVKBg@mail.gmail.com>
+ <CAOQ4uxiTTuOESvZ2Y5cSebqKs+qeU3q6ZMReBDro0Qv7aRBhpw@mail.gmail.com>
+ <20190623010345.GJ2226@sasha-vm> <20190623202916.GA10957@kroah.com> <20190624003409.GO2226@sasha-vm>
+In-Reply-To: <20190624003409.GO2226@sasha-vm>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Mon, 24 Jun 2019 07:52:11 +0300
+Message-ID: <CAOQ4uxiz5CkGojr5yquUd__TS_eae+ZapqyGaojiOUGniFPMsg@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] ovl: support the FS_IOC_FS[SG]ETXATTR
+ ioctls" failed to apply to 5.1-stable tree
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        stable <stable@vger.kernel.org>,
+        overlayfs <linux-unionfs@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Mon, Jun 24, 2019 at 3:34 AM Sasha Levin <sashal@kernel.org> wrote:
+>
+> On Sun, Jun 23, 2019 at 10:29:16PM +0200, Greg KH wrote:
+> >On Sat, Jun 22, 2019 at 09:03:45PM -0400, Sasha Levin wrote:
+> >> On Fri, Jun 21, 2019 at 11:15:47AM +0300, Amir Goldstein wrote:
+> >> > On Thu, Jun 13, 2019 at 11:49 AM Amir Goldstein <amir73il@gmail.com> wrote:
+> >> > >
+> >> > > On Sun, Jun 9, 2019 at 12:45 PM <gregkh@linuxfoundation.org> wrote:
+> >> > > >
+> >> > > >
+> >> > > > The patch below does not apply to the 5.1-stable tree.
+> >> > > > If someone wants it applied there, or to any other stable or longterm
+> >> > > > tree, then please email the backport, including the original git commit
+> >> > > > id to <stable@vger.kernel.org>.
+> >> > > >
+> >> > > > thanks,
+> >> > > >
+> >> > > > greg k-h
+> >> > > >
+> >> > >
+> >> > > FYI, the failure to apply this patch would be resolved after you
+> >> > > picked up "ovl: check the capability before cred overridden" for
+> >> > > stable, please hold off from taking this patch just yet, because
+> >> > > it has a bug, whose fix wasn't picked upstream yet.
+> >> > >
+> >> >
+> >> > Greg,
+> >> >
+> >> > Please apply these patches to stable 4.19.
+> >> > They fix a docker regression (project quotas feature).
+> >> >
+> >> > b21d9c435f93 ovl: support the FS_IOC_FS[SG]ETXATTR ioctls
+> >> > 941d935ac763 ovl: fix wrong flags check in FS_IOC_FS[SG]ETXATTR ioctls
+> >> >
+> >> > They apply cleanly and tested on v4.19.53.
+> >>
+> >> I've queued these for 4.19.
+> >>
+> >> > While at it, I also tested that the following patches apply cleanly and solve
+> >> > relevant issues on v4.19.53, but they are not clear stable candidates.
+> >> >
+> >> > 1) /proc/locks shows incorrect ino. Only reported by xfstests (so far):
+> >> > 6dde1e42f497 ovl: make i_ino consistent with st_ino in more cases
+> >>
+> >> And this.
+> >>
+> >> > 2) Fix output of `modinfo overlay`:
+> >> > 253e74833911 ovl: fix typo in MODULE_PARM_DESC
+> >>
+> >> But not this one. Maybe we should be including these in stable trees
+> >> since the risk factor is low and it fixes something user-visible, but
+> >> our current rules object this this kind of patches so I've left it out.
+> >>
+> >> > 3) Disallow bogus layer combinations.
+> >> > syzbot has started to produce repros that create bogus layer combinations.
+> >> > So far it has only been able to reproduce a WARN_ON, which has already
+> >> > been fixed in stable, by  acf3062a7e1c ("ovl: relax WARN_ON()..."), but
+> >> > other real bugs could be lurking if those setups are allowed.
+> >> > We decided to detect and error on these setups on mount, to stop syzbot
+> >> > (and attackers) from trying to attack overlayfs this way.
+> >> > To stop syzbot from mutating this class of repros on stable kernel you
+> >> > MAY apply these 3 patches, but in any case, I would wait a while to see
+> >> > if more bugs are reported on master.
+> >> > Although this solves a problem dating before 4.19, I have no plans
+> >> > of backporting these patches further back.
+> >> >
+> >> > 146d62e5a586 ovl: detect overlapping layers
+> >> > 9179c21dc6ed ovl: don't fail with disconnected lower NFS
+> >> > 1dac6f5b0ed2 ovl: fix bogus -Wmaybe-unitialized warning
+> >>
+> >> I've queued these 3 for 4.19.
+> >
+> >What about the ones that are needed for 5.1?
+>
+> Ah yes, I haven't realized that the syzkaller ones are needed for 5.1.
+> I'll queue them up.
+>
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+I don't think syzkaller ones are more relevant to 5.1 then the rest of
+the patches applied to 4.19. If anything, its the other way around.
+According to syzbot dashboard, it is being run on LTS kernels, not on
+latest stable.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 78778071092e - Linux 4.19.55
+Please forgive me if my language caused confusion, when I said
+"please apply to 4.19" I meant 4.19+.
 
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 78778071092e - Linux 4.19.55
-
-
-We grabbed the 483120eae6cc commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  tracing-silence-gcc-9-array-bounds-warning.patch
-  objtool-support-per-function-rodata-sections.patch
-  gcc-9-silence-address-of-packed-member-warning.patch
-  ovl-support-the-fs_ioc_fs-sg-etxattr-ioctls.patch
-  ovl-fix-wrong-flags-check-in-fs_ioc_fs-sg-etxattr-io.patch
-  ovl-make-i_ino-consistent-with-st_ino-in-more-cases.patch
-  ovl-detect-overlapping-layers.patch
-  ovl-don-t-fail-with-disconnected-lower-nfs.patch
-  ovl-fix-bogus-wmaybe-unitialized-warning.patch
-  s390-jump_label-use-jdd-constraint-on-gcc9.patch
-  s390-ap-rework-assembler-functions-to-use-unions-for.patch
-  mmc-sdhci-sdhci-pci-o2micro-correctly-set-bus-width-when-tuning.patch
-  mmc-core-api-to-temporarily-disable-retuning-for-sdio-crc-errors.patch
-  mmc-core-add-sdio_retune_hold_now-and-sdio_retune_release.patch
-  mmc-core-prevent-processing-sdio-irqs-when-the-card-is-suspended.patch
-  scsi-ufs-avoid-runtime-suspend-possibly-being-blocked-forever.patch
-  usb-chipidea-udc-workaround-for-endpoint-conflict-issue.patch
-  xhci-detect-usb-3.2-capable-host-controllers-correctly.patch
-  usb-xhci-don-t-try-to-recover-an-endpoint-if-port-is-in-error-state.patch
-  ib-hfi1-validate-fault-injection-opcode-user-input.patch
-  ib-hfi1-silence-txreq-allocation-warnings.patch
-  iio-temperature-mlx90632-relax-the-compatibility-check.patch
-  input-synaptics-enable-smbus-on-thinkpad-e480-and-e580.patch
-  input-uinput-add-compat-ioctl-number-translation-for-ui_-_ff_upload.patch
-  input-silead-add-mssl0017-to-acpi_device_id.patch
-  apparmor-fix-profile_mediates-for-untrusted-input.patch
-  apparmor-enforce-nullbyte-at-end-of-tag-string.patch
-  brcmfmac-sdio-disable-auto-tuning-around-commands-expected-to-fail.patch
-  brcmfmac-sdio-don-t-tune-while-the-card-is-off.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-812c16650dff847896ac023a7897daddd863a3b6.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-812c16650dff847896ac023a7897daddd863a3b6.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-812c16650dff847896ac023a7897daddd863a3b6.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-812c16650dff847896ac023a7897daddd863a3b6.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-812c16650dff847896ac023a7897daddd863a3b6.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-812c16650dff847896ac023a7897daddd863a3b6.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-812c16650dff847896ac023a7897daddd863a3b6.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-812c16650dff847896ac023a7897daddd863a3b6.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ LTP: openposix test suite [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-       🚧 ✅ storage: SCSI VPD [11]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ LTP: openposix test suite [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ LTP: openposix test suite [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ LTP: openposix test suite [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-       🚧 ✅ storage: SCSI VPD [11]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+Thanks,
+Amir.
