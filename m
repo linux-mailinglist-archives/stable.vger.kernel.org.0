@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0449750690
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9B7B50865
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729216AbfFXJ7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:59:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58710 "EHLO mail.kernel.org"
+        id S1730824AbfFXKRA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:17:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728691AbfFXJ7c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:32 -0400
+        id S1729631AbfFXKRA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:17:00 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EA702133F;
-        Mon, 24 Jun 2019 09:59:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDAC6205C9;
+        Mon, 24 Jun 2019 10:16:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370371;
-        bh=79I+/VFeSOMcQP+6yxURlClwg3VGjBMUbowfO0tWwTA=;
+        s=default; t=1561371419;
+        bh=tsibFGeCM9kozJlvLSct5i3Ff8kYIeVStbM5u+Zsugk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HY1DhiuDdIEogV2mYkgsMSauqabQeQ6WQEcE6g+Hn2hJdBCOOcBHj1oHQaXykLSYC
-         +reLfifHpFdUMVEoibWDQqj3tV4XkVt1cHADbh1a8FpiwIbtXjrdXPjcCqCtxmOWMe
-         tUgseHYici5ugHTfWMRBSzCYS/Xm3CPXdRENog5U=
+        b=rRPqB0n0pQd1J7od2DZhHu0r+760h2ayiLWDkyxw9SLIaoVWdA7E1IXPAlFlOMxUZ
+         j07B7tdvd8QVaUhDtasBEv7G64PXDaJjQKOKoAVJt2wM2cCIz7o8nAJgEQ6geOwLsc
+         7xb3igBR/Puu+VcxLn7U/CIuXGitv4lOdg0nEM/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 49/51] mac80211: drop robust management frames from unknown TA
-Date:   Mon, 24 Jun 2019 17:57:07 +0800
-Message-Id: <20190624092311.417513652@linuxfoundation.org>
+        stable@vger.kernel.org, ShihPo Hung <shihpo.hung@sifive.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@sifive.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH 5.1 096/121] riscv: mm: synchronize MMU after pte change
+Date:   Mon, 24 Jun 2019 17:57:08 +0800
+Message-Id: <20190624092325.659180675@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: ShihPo Hung <shihpo.hung@sifive.com>
 
-commit 588f7d39b3592a36fb7702ae3b8bdd9be4621e2f upstream.
+commit bf587caae305ae3b4393077fb22c98478ee55755 upstream.
 
-When receiving a robust management frame, drop it if we don't have
-rx->sta since then we don't have a security association and thus
-couldn't possibly validate the frame.
+Because RISC-V compliant implementations can cache invalid entries
+in TLB, an SFENCE.VMA is necessary after changes to the page table.
+This patch adds an SFENCE.vma for the vmalloc_fault path.
 
+Signed-off-by: ShihPo Hung <shihpo.hung@sifive.com>
+[paul.walmsley@sifive.com: reversed tab->whitespace conversion,
+ wrapped comment lines]
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@sifive.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: linux-riscv@lists.infradead.org
 Cc: stable@vger.kernel.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/rx.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/riscv/mm/fault.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -3589,6 +3589,8 @@ static bool ieee80211_accept_frame(struc
- 	case NL80211_IFTYPE_STATION:
- 		if (!bssid && !sdata->u.mgd.use_4addr)
- 			return false;
-+		if (ieee80211_is_robust_mgmt_frame(skb) && !rx->sta)
-+			return false;
- 		if (multicast)
- 			return true;
- 		return ether_addr_equal(sdata->vif.addr, hdr->addr1);
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -29,6 +29,7 @@
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/ptrace.h>
++#include <asm/tlbflush.h>
+ 
+ /*
+  * This routine handles page faults.  It determines the address and the
+@@ -281,6 +282,18 @@ vmalloc_fault:
+ 		pte_k = pte_offset_kernel(pmd_k, addr);
+ 		if (!pte_present(*pte_k))
+ 			goto no_context;
++
++		/*
++		 * The kernel assumes that TLBs don't cache invalid
++		 * entries, but in RISC-V, SFENCE.VMA specifies an
++		 * ordering constraint, not a cache flush; it is
++		 * necessary even after writing invalid entries.
++		 * Relying on flush_tlb_fix_spurious_fault would
++		 * suffice, but the extra traps reduce
++		 * performance. So, eagerly SFENCE.VMA.
++		 */
++		local_flush_tlb_page(addr);
++
+ 		return;
+ 	}
+ }
 
 
