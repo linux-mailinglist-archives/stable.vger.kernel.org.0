@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39EEC506BC
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAAFF507EE
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728958AbfFXJ60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:58:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56954 "EHLO mail.kernel.org"
+        id S1729489AbfFXKGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:06:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728975AbfFXJ6Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:58:25 -0400
+        id S1730065AbfFXKGR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:06:17 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B66D5208CA;
-        Mon, 24 Jun 2019 09:58:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EEE8208E3;
+        Mon, 24 Jun 2019 10:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370304;
-        bh=iYtyVYN0qQk+nnWvLFrLp0Tx0AtoUE2TyWiogBWVQ54=;
+        s=default; t=1561370776;
+        bh=B9GUuf1SLyExYTmkrwyLfOKmn2kWX9csUu3/dVUz+gc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rozWlK9yP0WnArYbrT5oMVf2mNZBdadz4wtqJJMdKNZ47OfSzaQqLQEdCsRzu31yW
-         dlyHjnZ3BcjQimL4cYF5HPbo7SMsDS3jWILpqfd5t27h+ZW6kTMFfCTm4dgz0yuor7
-         46vwTYd3rLe3cVss+wsrM5z0bx+bkI5WFdtCGYbQ=
+        b=TtyiRAgqhf+mxWnwxTQvpe9C0Bqb8dM1XVbd5kqULRwarpUQw79dqsCPtGlqZ6RUZ
+         VjfkmVm4Iy3VK71+3ZPROdsbiL4HIogk3gOZ2bw28iC/EPwa6YCGGOu49VpVHGpdu9
+         mRxwHTItSWIdTpkGmOFYrISFMilRVb9lJOfxZZUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
+        stable@vger.kernel.org, Young Xiao <92siuyang@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 23/51] net: dsa: mv88e6xxx: avoid error message on remove from VLAN 0
-Date:   Mon, 24 Jun 2019 17:56:41 +0800
-Message-Id: <20190624092309.005776678@linuxfoundation.org>
+Subject: [PATCH 4.19 52/90] sparc: perf: fix updated event period in response to PERF_EVENT_IOC_PERIOD
+Date:   Mon, 24 Jun 2019 17:56:42 +0800
+Message-Id: <20190624092317.591627603@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 62394708f3e01c9f2be6be74eb6305bae1ed924f ]
+[ Upstream commit 56cd0aefa475079e9613085b14a0f05037518fed ]
 
-When non-bridged, non-vlan'ed mv88e6xxx port is moving down, error
-message is logged:
+The PERF_EVENT_IOC_PERIOD ioctl command can be used to change the
+sample period of a running perf_event. Consequently, when calculating
+the next event period, the new period will only be considered after the
+previous one has overflowed.
 
-failed to kill vid 0081/0 for device eth_cu_1000_4
+This patch changes the calculation of the remaining event ticks so that
+they are offset if the period has changed.
 
-This is caused by call from __vlan_vid_del() with vin set to zero, over
-call chain this results into _mv88e6xxx_port_vlan_del() called with
-vid=0, and mv88e6xxx_vtu_get() called from there returns -EINVAL.
+See commit 3581fe0ef37c ("ARM: 7556/1: perf: fix updated event period in
+response to PERF_EVENT_IOC_PERIOD") for details.
 
-On symmetric path moving port up, call goes through
-mv88e6xxx_port_vlan_prepare() that calls mv88e6xxx_port_check_hw_vlan()
-that returns -EOPNOTSUPP for zero vid.
-
-This patch changes mv88e6xxx_vtu_get() to also return -EOPNOTSUPP for
-zero vid, then this error code is explicitly cleared in
-dsa_slave_vlan_rx_kill_vid() and error message is no longer logged.
-
-Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
+Signed-off-by: Young Xiao <92siuyang@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/sparc/kernel/perf_event.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 172b13012e10..086603de1859 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -1075,7 +1075,7 @@ static int mv88e6xxx_vtu_get(struct mv88e6xxx_chip *chip, u16 vid,
- 	int err;
+diff --git a/arch/sparc/kernel/perf_event.c b/arch/sparc/kernel/perf_event.c
+index 67b3e6b3ce5d..1ad5911f62b4 100644
+--- a/arch/sparc/kernel/perf_event.c
++++ b/arch/sparc/kernel/perf_event.c
+@@ -891,6 +891,10 @@ static int sparc_perf_event_set_period(struct perf_event *event,
+ 	s64 period = hwc->sample_period;
+ 	int ret = 0;
  
- 	if (!vid)
--		return -EINVAL;
-+		return -EOPNOTSUPP;
- 
- 	entry->vid = vid - 1;
- 	entry->valid = false;
++	/* The period may have been changed by PERF_EVENT_IOC_PERIOD */
++	if (unlikely(period != hwc->last_period))
++		left = period - (hwc->last_period - left);
++
+ 	if (unlikely(left <= -period)) {
+ 		left = period;
+ 		local64_set(&hwc->period_left, left);
 -- 
 2.20.1
 
