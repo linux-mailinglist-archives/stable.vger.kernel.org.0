@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8A0B50779
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B98950789
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730292AbfFXKHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:07:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39780 "EHLO mail.kernel.org"
+        id S1730364AbfFXKHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:07:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730289AbfFXKHT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:07:19 -0400
+        id S1730359AbfFXKHs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:07:48 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B96782089F;
-        Mon, 24 Jun 2019 10:07:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F3BA20644;
+        Mon, 24 Jun 2019 10:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370838;
-        bh=vZY1sdaiS/R0D2sdp0wenPN2tIfc4eqi6KlHN8c41bY=;
+        s=default; t=1561370867;
+        bh=k1UeBPaMg9crGnvIX9XG0jozyYs+NYomN/H3UaM7mo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X3FZ8jYhucJIoJ57xxHP4ugaXLGWcg5JE8u8qUVijKnkxZjXxT0T+A5qOYrXJjAWT
-         fvjk2BaTBosUYYPdESdjHggk1oCqX2XOXHFRDr9R2WdeklkGBnellmF7MHB3vbe0sr
-         cWm2vNAD5C3SvU6Xff33ls1xviGd9ax+zJLzqTfA=
+        b=sgKnEw4jwhrs66XvYA04HnAM8W2/nUfcUhkrqDlyDGwMBF0cXoyR4Zb2WLsARDLOw
+         +P2z2Y3jzj9501iAXw1hZBScsKJ2fsTRzINdmceaGBrXxqLulcMWN51SnHEAQlgi7d
+         TVJxI/NCu4y8MHv/M81IOpGvyTbk1V+7LCAq27Yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.1 002/121] mmc: sdhci: sdhci-pci-o2micro: Correctly set bus width when tuning
-Date:   Mon, 24 Jun 2019 17:55:34 +0800
-Message-Id: <20190624092320.788914733@linuxfoundation.org>
+Subject: [PATCH 5.1 003/121] mmc: sdhi: disallow HS400 for M3-W ES1.2, RZ/G2M, and V3H
+Date:   Mon, 24 Jun 2019 17:55:35 +0800
+Message-Id: <20190624092320.828212800@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
 References: <20190624092320.652599624@linuxfoundation.org>
@@ -44,49 +48,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raul E Rangel <rrangel@chromium.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 0f7b79a44e7d7dd3ef1f59758c1a341f217ff5e5 upstream.
+commit 97bf85b6ec9e6597ce81c79b26a28f7918fc4eaf upstream.
 
-The O2Micro controller only supports tuning at 4-bits. So the host driver
-needs to change the bus width while tuning and then set it back when done.
+Our HW engineers informed us that HS400 is not working on these SoC
+revisions.
 
-There was a bug in the original implementation in that mmc->ios.bus_width
-also wasn't updated. Thus setting the incorrect blocksize in
-sdhci_send_tuning which results in a tuning failure.
-
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-Fixes: 0086fc217d5d7 ("mmc: sdhci: Add support for O2 hardware tuning")
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 0f4e2054c971 ("mmc: renesas_sdhi: disable HS400 on H3 ES1.x and M3-W ES1.[012]")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 Cc: stable@vger.kernel.org
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-pci-o2micro.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/mmc/host/renesas_sdhi_core.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/sdhci-pci-o2micro.c
-+++ b/drivers/mmc/host/sdhci-pci-o2micro.c
-@@ -124,6 +124,7 @@ static int sdhci_o2_execute_tuning(struc
- 	 */
- 	if (mmc->ios.bus_width == MMC_BUS_WIDTH_8) {
- 		current_bus_width = mmc->ios.bus_width;
-+		mmc->ios.bus_width = MMC_BUS_WIDTH_4;
- 		sdhci_set_bus_width(host, MMC_BUS_WIDTH_4);
- 	}
+--- a/drivers/mmc/host/renesas_sdhi_core.c
++++ b/drivers/mmc/host/renesas_sdhi_core.c
+@@ -620,11 +620,16 @@ static const struct renesas_sdhi_quirks
+ 	.hs400_4taps = true,
+ };
  
-@@ -135,8 +136,10 @@ static int sdhci_o2_execute_tuning(struc
++static const struct renesas_sdhi_quirks sdhi_quirks_nohs400 = {
++	.hs400_disabled = true,
++};
++
+ static const struct soc_device_attribute sdhi_quirks_match[]  = {
+ 	{ .soc_id = "r8a7795", .revision = "ES1.*", .data = &sdhi_quirks_h3_m3w_es1 },
+ 	{ .soc_id = "r8a7795", .revision = "ES2.0", .data = &sdhi_quirks_h3_es2 },
+-	{ .soc_id = "r8a7796", .revision = "ES1.0", .data = &sdhi_quirks_h3_m3w_es1 },
+-	{ .soc_id = "r8a7796", .revision = "ES1.1", .data = &sdhi_quirks_h3_m3w_es1 },
++	{ .soc_id = "r8a7796", .revision = "ES1.[012]", .data = &sdhi_quirks_h3_m3w_es1 },
++	{ .soc_id = "r8a774a1", .revision = "ES1.[012]", .data = &sdhi_quirks_h3_m3w_es1 },
++	{ .soc_id = "r8a77980", .data = &sdhi_quirks_nohs400 },
+ 	{ /* Sentinel. */ },
+ };
  
- 	sdhci_end_tuning(host);
- 
--	if (current_bus_width == MMC_BUS_WIDTH_8)
-+	if (current_bus_width == MMC_BUS_WIDTH_8) {
-+		mmc->ios.bus_width = MMC_BUS_WIDTH_8;
- 		sdhci_set_bus_width(host, current_bus_width);
-+	}
- 
- 	host->flags &= ~SDHCI_HS400_TUNING;
- 	return 0;
 
 
