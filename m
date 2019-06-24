@@ -2,299 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE87A50685
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65351507C6
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729185AbfFXJ7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:59:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58270 "EHLO mail.kernel.org"
+        id S1729216AbfFXKJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:09:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729182AbfFXJ7Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:16 -0400
+        id S1730094AbfFXKI3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:08:29 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34404208CA;
-        Mon, 24 Jun 2019 09:59:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2C942089F;
+        Mon, 24 Jun 2019 10:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370355;
-        bh=4BalYveyIrSeu2ARQNdldDjPUeWBl9/8p5PG4CUaff4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=A40zROWfaJZ1BpJXofB2hWEXf7yBxS2/wNo3bnLupyJP4Wo980/3kCw1AzCXfAs7G
-         c0qhvaAsdu8vCMR5xsnpGoVrbKRWRlzE4VANpFAvvMqhwIuptYR/wVEQruLxHBLSq9
-         HVTazwiOKaQf3nCC1mnzGQtYd2kw+KFPkP29rExA=
+        s=default; t=1561370908;
+        bh=DUwqH+/ubzq+5HkIGseqDORTwNfFLHLhqFjVM+tSMuw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=cn4TWxove+ePEl8IbrE7r6loKSHlohVPxeDSzD+tfdqAzTu73frlK8+ezwoVu9SAx
+         TutNTCDgP4fYE3khM+HhJu9DhkNZohtEw+wgUMntfeNUwAg1jl0ssQQY0M+YydPEi+
+         aU12fjCWh3Ugp5la/dxjC8vjYEDLCbpBqH+YF+vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.14 00/51] 4.14.130-stable review
+        stable@vger.kernel.org, Scott Wood <swood@redhat.com>,
+        Wu Hao <hao.wu@intel.com>, Alan Tull <atull@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 046/121] fpga: dfl: Add lockdep classes for pdata->lock
 Date:   Mon, 24 Jun 2019 17:56:18 +0800
-Message-Id: <20190624092305.919204959@linuxfoundation.org>
+Message-Id: <20190624092323.131145799@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-MIME-Version: 1.0
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.130-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.130-rc1
-X-KernelTest-Deadline: 2019-06-26T09:23+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.130 release.
-There are 51 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+[ Upstream commit dfe3de8d397bf878b31864d4e489d41118ec475f ]
 
-Responses should be made by Wed 26 Jun 2019 09:22:03 AM UTC.
-Anything received after that time might be too late.
+struct dfl_feature_platform_data (and it's mutex) is used
+by both fme and port devices, and when lockdep is enabled it
+complains about nesting between these locks.  Tell lockdep about
+the difference so it can track each class separately.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.130-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+Here's the lockdep complaint:
+[  409.680668] WARNING: possible recursive locking detected
+[  409.685983] 5.1.0-rc3.fpga+ #1 Tainted: G            E
+[  409.691469] --------------------------------------------
+[  409.696779] fpgaconf/9348 is trying to acquire lock:
+[  409.701746] 00000000a443fe2e (&pdata->lock){+.+.}, at: port_enable_set+0x24/0x60 [dfl_afu]
+[  409.710006]
+[  409.710006] but task is already holding lock:
+[  409.715837] 0000000063b78782 (&pdata->lock){+.+.}, at: fme_pr_ioctl+0x21d/0x330 [dfl_fme]
+[  409.724012]
+[  409.724012] other info that might help us debug this:
+[  409.730535]  Possible unsafe locking scenario:
+[  409.730535]
+[  409.736457]        CPU0
+[  409.738910]        ----
+[  409.741360]   lock(&pdata->lock);
+[  409.744679]   lock(&pdata->lock);
+[  409.747999]
+[  409.747999]  *** DEADLOCK ***
+[  409.747999]
+[  409.753920]  May be due to missing lock nesting notation
+[  409.753920]
+[  409.760704] 4 locks held by fpgaconf/9348:
+[  409.764805]  #0: 0000000063b78782 (&pdata->lock){+.+.}, at: fme_pr_ioctl+0x21d/0x330 [dfl_fme]
+[  409.773408]  #1: 00000000213c8a66 (&region->mutex){+.+.}, at: fpga_region_program_fpga+0x24/0x200 [fpga_region]
+[  409.783489]  #2: 00000000fe63afb9 (&mgr->ref_mutex){+.+.}, at: fpga_mgr_lock+0x15/0x40 [fpga_mgr]
+[  409.792354]  #3: 000000000b2285c5 (&bridge->mutex){+.+.}, at: __fpga_bridge_get+0x26/0xa0 [fpga_bridge]
+[  409.801740]
+[  409.801740] stack backtrace:
+[  409.806102] CPU: 45 PID: 9348 Comm: fpgaconf Kdump: loaded Tainted: G            E     5.1.0-rc3.fpga+ #1
+[  409.815658] Hardware name: Intel Corporation S2600BT/S2600BT, BIOS SE5C620.86B.01.00.0763.022420181017 02/24/2018
+[  409.825911] Call Trace:
+[  409.828369]  dump_stack+0x5e/0x8b
+[  409.831686]  __lock_acquire+0xf3d/0x10e0
+[  409.835612]  ? find_held_lock+0x3c/0xa0
+[  409.839451]  lock_acquire+0xbc/0x1d0
+[  409.843030]  ? port_enable_set+0x24/0x60 [dfl_afu]
+[  409.847823]  ? port_enable_set+0x24/0x60 [dfl_afu]
+[  409.852616]  __mutex_lock+0x86/0x970
+[  409.856195]  ? port_enable_set+0x24/0x60 [dfl_afu]
+[  409.860989]  ? port_enable_set+0x24/0x60 [dfl_afu]
+[  409.865777]  ? __mutex_unlock_slowpath+0x4b/0x290
+[  409.870486]  port_enable_set+0x24/0x60 [dfl_afu]
+[  409.875106]  fpga_bridges_disable+0x36/0x50 [fpga_bridge]
+[  409.880502]  fpga_region_program_fpga+0xea/0x200 [fpga_region]
+[  409.886338]  fme_pr_ioctl+0x13e/0x330 [dfl_fme]
+[  409.890870]  fme_ioctl+0x66/0xe0 [dfl_fme]
+[  409.894973]  do_vfs_ioctl+0xa9/0x720
+[  409.898548]  ? lockdep_hardirqs_on+0xf0/0x1a0
+[  409.902907]  ksys_ioctl+0x60/0x90
+[  409.906225]  __x64_sys_ioctl+0x16/0x20
+[  409.909981]  do_syscall_64+0x5a/0x220
+[  409.913644]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[  409.918698] RIP: 0033:0x7f9d31b9b8d7
+[  409.922276] Code: 44 00 00 48 8b 05 b9 15 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 89 15 2d 00 f7 d8 64 89 01 48
+[  409.941020] RSP: 002b:00007ffe4cae0d68 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
+[  409.948588] RAX: ffffffffffffffda RBX: 00007f9d32ade6a0 RCX: 00007f9d31b9b8d7
+[  409.955719] RDX: 00007ffe4cae0df0 RSI: 000000000000b680 RDI: 0000000000000003
+[  409.962852] RBP: 0000000000000003 R08: 00007f9d2b70a177 R09: 00007ffe4cae0e40
+[  409.969984] R10: 00007ffe4cae0160 R11: 0000000000000202 R12: 00007ffe4cae0df0
+[  409.977115] R13: 000000000000b680 R14: 0000000000000000 R15: 00007ffe4cae0f60
 
-thanks,
+Signed-off-by: Scott Wood <swood@redhat.com>
+Acked-by: Wu Hao <hao.wu@intel.com>
+Acked-by: Alan Tull <atull@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/fpga/dfl.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-greg k-h
+diff --git a/drivers/fpga/dfl.c b/drivers/fpga/dfl.c
+index 2c09e502e721..c25217cde5ca 100644
+--- a/drivers/fpga/dfl.c
++++ b/drivers/fpga/dfl.c
+@@ -40,6 +40,13 @@ enum dfl_fpga_devt_type {
+ 	DFL_FPGA_DEVT_MAX,
+ };
+ 
++static struct lock_class_key dfl_pdata_keys[DFL_ID_MAX];
++
++static const char *dfl_pdata_key_strings[DFL_ID_MAX] = {
++	"dfl-fme-pdata",
++	"dfl-port-pdata",
++};
++
+ /**
+  * dfl_dev_info - dfl feature device information.
+  * @name: name string of the feature platform device.
+@@ -443,11 +450,16 @@ static int build_info_commit_dev(struct build_feature_devs_info *binfo)
+ 	struct platform_device *fdev = binfo->feature_dev;
+ 	struct dfl_feature_platform_data *pdata;
+ 	struct dfl_feature_info *finfo, *p;
++	enum dfl_id_type type;
+ 	int ret, index = 0;
+ 
+ 	if (!fdev)
+ 		return 0;
+ 
++	type = feature_dev_id_type(fdev);
++	if (WARN_ON_ONCE(type >= DFL_ID_MAX))
++		return -EINVAL;
++
+ 	/*
+ 	 * we do not need to care for the memory which is associated with
+ 	 * the platform device. After calling platform_device_unregister(),
+@@ -463,6 +475,8 @@ static int build_info_commit_dev(struct build_feature_devs_info *binfo)
+ 	pdata->num = binfo->feature_num;
+ 	pdata->dfl_cdev = binfo->cdev;
+ 	mutex_init(&pdata->lock);
++	lockdep_set_class_and_name(&pdata->lock, &dfl_pdata_keys[type],
++				   dfl_pdata_key_strings[type]);
+ 
+ 	/*
+ 	 * the count should be initialized to 0 to make sure
+@@ -497,7 +511,7 @@ static int build_info_commit_dev(struct build_feature_devs_info *binfo)
+ 
+ 	ret = platform_device_add(binfo->feature_dev);
+ 	if (!ret) {
+-		if (feature_dev_id_type(binfo->feature_dev) == PORT_ID)
++		if (type == PORT_ID)
+ 			dfl_fpga_cdev_add_port_dev(binfo->cdev,
+ 						   binfo->feature_dev);
+ 		else
+-- 
+2.20.1
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.130-rc1
-
-Jouni Malinen <j@w1.fi>
-    mac80211: Do not use stack memory with scatterlist for GMAC
-
-Yu Wang <yyuwang@codeaurora.org>
-    mac80211: handle deauthentication/disassociation from TDLS peer
-
-Johannes Berg <johannes.berg@intel.com>
-    mac80211: drop robust management frames from unknown TA
-
-Eric Biggers <ebiggers@google.com>
-    cfg80211: fix memory leak of wiphy device name
-
-Steve French <stfrench@microsoft.com>
-    SMB3: retry on STATUS_INSUFFICIENT_RESOURCES instead of failing write
-
-Marcel Holtmann <marcel@holtmann.org>
-    Bluetooth: Fix regression with minimum encryption key size alignment
-
-Marcel Holtmann <marcel@holtmann.org>
-    Bluetooth: Align minimum encryption key size for LE and BR/EDR connections
-
-Faiz Abbas <faiz_abbas@ti.com>
-    ARM: dts: am57xx-idk: Remove support for voltage switching for SD card
-
-Fabio Estevam <festevam@gmail.com>
-    ARM: imx: cpuidle-imx6sx: Restrict the SW2ISO increase to i.MX6SX
-
-Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-    powerpc/bpf: use unsigned division instruction for 64-bit operations
-
-Willem de Bruijn <willemb@google.com>
-    can: purge socket error queue on sock destruct
-
-Joakim Zhang <qiangqing.zhang@nxp.com>
-    can: flexcan: fix timeout when set small bitrate
-
-Naohiro Aota <naohiro.aota@wdc.com>
-    btrfs: start readahead also in seed devices
-
-Jaesoo Lee <jalee@purestorage.com>
-    nvme: Fix u32 overflow in the number of namespace list calculation
-
-Robert Hancock <hancock@sedsystems.ca>
-    hwmon: (pmbus/core) Treat parameters as paged if on multiple pages
-
-Eduardo Valentin <eduval@amazon.com>
-    hwmon: (core) add thermal sensors only if dev->of_node is present
-
-Alexandra Winter <wintera@linux.ibm.com>
-    s390/qeth: fix VLAN attribute in bridge_hostnotify udev event
-
-Miaohe Lin <linmiaohe@huawei.com>
-    net: ipvlan: Fix ipvlan device tso disabled while NETIF_F_IP_CSUM is set
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    scsi: smartpqi: unlock on error in pqi_submit_raid_request_synchronous()
-
-Avri Altman <avri.altman@wdc.com>
-    scsi: ufs: Check that space was properly alloced in copy_query_response
-
-George G. Davis <george_davis@mentor.com>
-    scripts/checkstack.pl: Fix arm64 wrong or unknown architecture
-
-Robin Murphy <robin.murphy@arm.com>
-    drm/arm/hdlcd: Allow a bit of clock tolerance
-
-Robin Murphy <robin.murphy@arm.com>
-    drm/arm/hdlcd: Actually validate CRTC modes
-
-Sean Wang <sean.wang@mediatek.com>
-    net: ethernet: mediatek: Use NET_IP_ALIGN to judge if HW RX_2BYTE_OFFSET is enabled
-
-Sean Wang <sean.wang@mediatek.com>
-    net: ethernet: mediatek: Use hw_feature to judge if HWLRO is supported
-
-Young Xiao <92siuyang@gmail.com>
-    sparc: perf: fix updated event period in response to PERF_EVENT_IOC_PERIOD
-
-Gen Zhang <blackgod016574@gmail.com>
-    mdesc: fix a missing-check bug in get_vdev_port_node_info()
-
-Yonglong Liu <liuyonglong@huawei.com>
-    net: hns: Fix loopback test failed at copper ports
-
-Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-    net: dsa: mv88e6xxx: avoid error message on remove from VLAN 0
-
-Guenter Roeck <linux@roeck-us.net>
-    xtensa: Fix section mismatch between memblock_reserve and mem_reserve
-
-YueHaibing <yuehaibing@huawei.com>
-    MIPS: uprobes: remove set but not used variable 'epc'
-
-Kamenee Arumugam <kamenee.arumugam@intel.com>
-    IB/hfi1: Validate page aligned for a given virtual address
-
-Mike Marciniszyn <mike.marciniszyn@intel.com>
-    IB/{qib, hfi1, rdmavt}: Correct ibv_devinfo max_mr value
-
-Mike Marciniszyn <mike.marciniszyn@intel.com>
-    IB/hfi1: Insure freeze_work work_struct is canceled on shutdown
-
-Mike Marciniszyn <mike.marciniszyn@intel.com>
-    IB/rdmavt: Fix alloc_qpn() WARN_ON()
-
-Helge Deller <deller@gmx.de>
-    parisc: Fix compiler warnings in float emulation code
-
-YueHaibing <yuehaibing@huawei.com>
-    parport: Fix mem leak in parport_register_dev_model
-
-Jose Abreu <joabreu@synopsys.com>
-    ARC: [plat-hsdk]: Add missing FIFO size entry in GMAC node
-
-Jose Abreu <joabreu@synopsys.com>
-    ARC: [plat-hsdk]: Add missing multicast filter bins number to GMAC node
-
-Vineet Gupta <vgupta@synopsys.com>
-    ARC: fix build warnings
-
-Jann Horn <jannh@google.com>
-    apparmor: enforce nullbyte at end of tag string
-
-Andrey Smirnov <andrew.smirnov@gmail.com>
-    Input: uinput - add compat ioctl number translation for UI_*_FF_UPLOAD
-
-Alexander Mikhaylenko <exalm7659@gmail.com>
-    Input: synaptics - enable SMBus on ThinkPad E480 and E580
-
-Mike Marciniszyn <mike.marciniszyn@intel.com>
-    IB/hfi1: Silence txreq allocation warnings
-
-Peter Chen <peter.chen@nxp.com>
-    usb: chipidea: udc: workaround for endpoint conflict issue
-
-Stanley Chu <stanley.chu@mediatek.com>
-    scsi: ufs: Avoid runtime suspend possibly being blocked forever
-
-Ulf Hansson <ulf.hansson@linaro.org>
-    mmc: core: Prevent processing SDIO IRQs when the card is suspended
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: phy: broadcom: Use strlcpy() for ethtool::get_strings
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    gcc-9: silence 'address-of-packed-member' warning
-
-Allan Xavier <allan.x.xavier@oracle.com>
-    objtool: Support per-function rodata sections
-
-Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-    tracing: Silence GCC 9 array bounds warning
-
-
--------------
-
-Diffstat:
-
- Makefile                                         |  6 ++--
- arch/arc/boot/dts/hsdk.dts                       |  4 +++
- arch/arc/include/asm/cmpxchg.h                   | 14 ++++++---
- arch/arc/mm/tlb.c                                | 13 ++++----
- arch/arm/boot/dts/am57xx-idk-common.dtsi         |  1 +
- arch/arm/mach-imx/cpuidle-imx6sx.c               |  3 +-
- arch/mips/kernel/uprobes.c                       |  3 --
- arch/parisc/math-emu/cnv_float.h                 |  8 ++---
- arch/powerpc/include/asm/ppc-opcode.h            |  1 +
- arch/powerpc/net/bpf_jit.h                       |  2 +-
- arch/powerpc/net/bpf_jit_comp64.c                |  8 ++---
- arch/sparc/kernel/mdesc.c                        |  2 ++
- arch/sparc/kernel/perf_event.c                   |  4 +++
- arch/xtensa/kernel/setup.c                       |  3 +-
- drivers/gpu/drm/arm/hdlcd_crtc.c                 | 14 ++++-----
- drivers/hwmon/hwmon.c                            |  2 +-
- drivers/hwmon/pmbus/pmbus_core.c                 | 34 ++++++++++++++++++---
- drivers/infiniband/hw/hfi1/chip.c                |  1 +
- drivers/infiniband/hw/hfi1/user_exp_rcv.c        |  3 ++
- drivers/infiniband/hw/hfi1/verbs.c               |  2 --
- drivers/infiniband/hw/hfi1/verbs_txreq.c         |  2 +-
- drivers/infiniband/hw/hfi1/verbs_txreq.h         |  3 +-
- drivers/infiniband/hw/qib/qib_verbs.c            |  2 --
- drivers/infiniband/sw/rdmavt/mr.c                |  2 ++
- drivers/infiniband/sw/rdmavt/qp.c                |  3 +-
- drivers/input/misc/uinput.c                      | 22 ++++++++++++--
- drivers/input/mouse/synaptics.c                  |  2 ++
- drivers/mmc/core/sdio.c                          | 13 +++++++-
- drivers/mmc/core/sdio_irq.c                      |  4 +++
- drivers/net/can/flexcan.c                        |  2 +-
- drivers/net/dsa/mv88e6xxx/chip.c                 |  2 +-
- drivers/net/ethernet/hisilicon/hns/hns_ethtool.c |  4 +++
- drivers/net/ethernet/mediatek/mtk_eth_soc.c      | 15 +++++-----
- drivers/net/ipvlan/ipvlan_main.c                 |  2 +-
- drivers/net/phy/bcm-phy-lib.c                    |  4 +--
- drivers/nvme/host/core.c                         |  3 +-
- drivers/parport/share.c                          |  2 ++
- drivers/s390/net/qeth_l2_main.c                  |  2 +-
- drivers/scsi/smartpqi/smartpqi_init.c            |  6 ++--
- drivers/scsi/ufs/ufshcd-pltfrm.c                 | 11 +++----
- drivers/scsi/ufs/ufshcd.c                        |  3 +-
- drivers/usb/chipidea/udc.c                       | 20 +++++++++++++
- fs/btrfs/reada.c                                 |  5 ++++
- fs/cifs/smb2maperror.c                           |  2 +-
- include/net/bluetooth/hci_core.h                 |  3 ++
- kernel/trace/trace.c                             |  6 +---
- kernel/trace/trace.h                             | 18 +++++++++++
- kernel/trace/trace_kdb.c                         |  6 +---
- net/bluetooth/hci_conn.c                         | 10 ++++++-
- net/bluetooth/l2cap_core.c                       | 33 ++++++++++++++++----
- net/can/af_can.c                                 |  1 +
- net/mac80211/ieee80211_i.h                       |  3 ++
- net/mac80211/mlme.c                              | 12 +++++++-
- net/mac80211/rx.c                                |  2 ++
- net/mac80211/tdls.c                              | 23 ++++++++++++++
- net/mac80211/wpa.c                               |  7 ++++-
- net/wireless/core.c                              |  2 +-
- scripts/checkstack.pl                            |  2 +-
- security/apparmor/policy_unpack.c                |  2 +-
- tools/objtool/check.c                            | 38 ++++++++++++++++++++----
- tools/objtool/check.h                            |  4 +--
- tools/objtool/elf.c                              |  1 +
- tools/objtool/elf.h                              |  3 +-
- 63 files changed, 337 insertions(+), 103 deletions(-)
 
 
