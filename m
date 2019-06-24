@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98F905080B
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E444350897
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729300AbfFXKNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:13:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37116 "EHLO mail.kernel.org"
+        id S1728677AbfFXKPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:15:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729849AbfFXKFP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:05:15 -0400
+        id S1729706AbfFXKPm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:15:42 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA32520848;
-        Mon, 24 Jun 2019 10:05:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6456A2089F;
+        Mon, 24 Jun 2019 10:15:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370714;
-        bh=J9Hue6YfvcDTPTSK7iPUAfw6PKHk/04g+wdvgzhrqRE=;
+        s=default; t=1561371341;
+        bh=6OdPh8UvNgFw9kAu6ULVURDzR2ajJLVxWU0NRDBdpe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUwGzD5qTwDVo4SJyh1Vo6B92OPG9JHsQX7VKCrdzcS68dwrMSC82wMq178RJ0s5F
-         cak8yoAZY3u6DIY3ACvBG+owPH7fq0FoRo7nKMEbGZBgLHSY/j6EFzKTeXgRVyrirq
-         zaJNSvVU56teDUPXT+xt8x/60hUPYyGi+k3p8fRU=
+        b=K/QllV4T15nfPeq9EY5tYSi16iLAylaiJY1d6mSaDTaD+9wIYSQUEddMbVVqEdkGY
+         zRabsYg1U52ipTsaCbZazBtfQHYCdOtsabNh2V+Ljj7GjW0XvkW+Fu/tTG4YvSpKp8
+         PyfVTBSkKbYFAuP/wXTHk8oVgkU4HyTzHHPsovXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Shi <alex.shi@linux.alibaba.com>,
-        Shuah Khan <shuah@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Roman Gushchin <guro@fb.com>, Claudio Zumbo <claudioz@fb.com>,
-        Claudio <claudiozumbo@gmail.com>,
-        linux-kselftest@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Young Xiao <92siuyang@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 47/90] kselftest/cgroup: fix incorrect test_core skip
-Date:   Mon, 24 Jun 2019 17:56:37 +0800
-Message-Id: <20190624092317.331693028@linuxfoundation.org>
+Subject: [PATCH 5.1 066/121] sparc: perf: fix updated event period in response to PERF_EVENT_IOC_PERIOD
+Date:   Mon, 24 Jun 2019 17:56:38 +0800
+Message-Id: <20190624092324.192490402@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,47 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f97f3f8839eb9de5843066d80819884f7722c8c5 ]
+[ Upstream commit 56cd0aefa475079e9613085b14a0f05037518fed ]
 
-The test_core will skip the
-test_cgcore_no_internal_process_constraint_on_threads test case if the
-'cpu' controller missing in root's subtree_control. In fact we need to
-set the 'cpu' in subtree_control, to make the testing meaningful.
+The PERF_EVENT_IOC_PERIOD ioctl command can be used to change the
+sample period of a running perf_event. Consequently, when calculating
+the next event period, the new period will only be considered after the
+previous one has overflowed.
 
-./test_core
-...
-ok 4 # skip test_cgcore_no_internal_process_constraint_on_threads
-...
+This patch changes the calculation of the remaining event ticks so that
+they are offset if the period has changed.
 
-Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Claudio Zumbo <claudioz@fb.com>
-Cc: Claudio <claudiozumbo@gmail.com>
-Cc: linux-kselftest@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+See commit 3581fe0ef37c ("ARM: 7556/1: perf: fix updated event period in
+response to PERF_EVENT_IOC_PERIOD") for details.
+
+Signed-off-by: Young Xiao <92siuyang@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/cgroup/test_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/sparc/kernel/perf_event.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/testing/selftests/cgroup/test_core.c b/tools/testing/selftests/cgroup/test_core.c
-index d78f1c5366d3..79053a4f4783 100644
---- a/tools/testing/selftests/cgroup/test_core.c
-+++ b/tools/testing/selftests/cgroup/test_core.c
-@@ -198,7 +198,7 @@ static int test_cgcore_no_internal_process_constraint_on_threads(const char *roo
- 	char *parent = NULL, *child = NULL;
+diff --git a/arch/sparc/kernel/perf_event.c b/arch/sparc/kernel/perf_event.c
+index 6de7c684c29f..a58ae9c42803 100644
+--- a/arch/sparc/kernel/perf_event.c
++++ b/arch/sparc/kernel/perf_event.c
+@@ -891,6 +891,10 @@ static int sparc_perf_event_set_period(struct perf_event *event,
+ 	s64 period = hwc->sample_period;
+ 	int ret = 0;
  
- 	if (cg_read_strstr(root, "cgroup.controllers", "cpu") ||
--	    cg_read_strstr(root, "cgroup.subtree_control", "cpu")) {
-+	    cg_write(root, "cgroup.subtree_control", "+cpu")) {
- 		ret = KSFT_SKIP;
- 		goto cleanup;
- 	}
++	/* The period may have been changed by PERF_EVENT_IOC_PERIOD */
++	if (unlikely(period != hwc->last_period))
++		left = period - (hwc->last_period - left);
++
+ 	if (unlikely(left <= -period)) {
+ 		left = period;
+ 		local64_set(&hwc->period_left, left);
 -- 
 2.20.1
 
