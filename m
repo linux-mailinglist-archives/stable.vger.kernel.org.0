@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A77506F6
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 393AD507CA
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729229AbfFXKDA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:03:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34222 "EHLO mail.kernel.org"
+        id S1730384AbfFXKKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:10:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728729AbfFXKC6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:02:58 -0400
+        id S1730063AbfFXKIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:08:23 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7046213F2;
-        Mon, 24 Jun 2019 10:02:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AADD2063F;
+        Mon, 24 Jun 2019 10:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370577;
-        bh=Y3HZqlrrfBVEzvWn6PBI17JimTEKz0cPbi6GIz8VNz8=;
+        s=default; t=1561370903;
+        bh=S5Ih/cw815bVGp1ee991/jgGq5ib6H35gmUvCouQTgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tr4Qz0Hvrar4SQWBd1v61bNhdCrzuzsA+cS4NIxEK12nbc5ceDYr0Fkh9l8aCxd3N
-         0eWQUlf68zR7grJ02LAfBRhAeDr3912Swmuuy7MO22FgRTa4MHHa2TzOsuWJLIs2Ze
-         jjOn6s26dcN7dGrh/pYnwN6kvJ9/FX1HBJxihELs=
+        b=FMlmajK6jcTOEQWZpijbabRzAGJ1Z34PPfbx23dTJPLLY+LHREPn6pJwlUtNIqKEv
+         xFxxMIwsqdOtBah+o9s2euDEFCYF4uEzyTIpdnVHxi132TpEZ/Ii43l65RUNb/bA72
+         NDaFzMKMDJGI7sOKhljZco5WV5YWgFt7r1picObA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 4.19 26/90] apparmor: fix PROFILE_MEDIATES for untrusted input
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Alan Tull <atull@kernel.org>, Moritz Fischer <mdf@kernel.org>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        linux-fpga@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 044/121] fpga: stratix10-soc: fix use-after-free on s10_init()
 Date:   Mon, 24 Jun 2019 17:56:16 +0800
-Message-Id: <20190624092315.880299660@linuxfoundation.org>
+Message-Id: <20190624092323.034944246@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+[ Upstream commit f5dd87326fefe42a4b1a4b1a1a695060c33a88d6 ]
 
-commit 23375b13f98c5464c2b4d15f983cc062940f1f4e upstream.
+The refcount of fw_np has already been decreased by of_find_matching_node()
+so it shouldn't be used anymore.
+This patch adds an of_node_get() before of_find_matching_node() to avoid
+the use-after-free problem.
 
-While commit 11c236b89d7c2 ("apparmor: add a default null dfa") ensure
-every profile has a policy.dfa it does not resize the policy.start[]
-to have entries for every possible start value. Which means
-PROFILE_MEDIATES is not safe to use on untrusted input. Unforunately
-commit b9590ad4c4f2 ("apparmor: remove POLICY_MEDIATES_SAFE") did not
-take into account the start value usage.
-
-The input string in profile_query_cb() is user controlled and is not
-properly checked to be within the limited start[] entries, even worse
-it can't be as userspace policy is allowed to make us of entries types
-the kernel does not know about. This mean usespace can currently cause
-the kernel to access memory up to 240 entries beyond the start array
-bounds.
-
-Cc: stable@vger.kernel.org
-Fixes: b9590ad4c4f2 ("apparmor: remove POLICY_MEDIATES_SAFE")
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Fixes: e7eef1d7633a ("fpga: add intel stratix10 soc fpga manager driver")
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Alan Tull <atull@kernel.org>
+Cc: Moritz Fischer <mdf@kernel.org>
+Cc: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Cc: linux-fpga@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Reviewed-by: Moritz Fischer <mdf@kernel.org>
+Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Acked-by: Alan Tull <atull@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/include/policy.h |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/fpga/stratix10-soc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/security/apparmor/include/policy.h
-+++ b/security/apparmor/include/policy.h
-@@ -214,7 +214,16 @@ static inline struct aa_profile *aa_get_
- 	return labels_profile(aa_get_newest_label(&p->label));
- }
+diff --git a/drivers/fpga/stratix10-soc.c b/drivers/fpga/stratix10-soc.c
+index 13851b3d1c56..215d33789c74 100644
+--- a/drivers/fpga/stratix10-soc.c
++++ b/drivers/fpga/stratix10-soc.c
+@@ -507,12 +507,16 @@ static int __init s10_init(void)
+ 	if (!fw_np)
+ 		return -ENODEV;
  
--#define PROFILE_MEDIATES(P, T)  ((P)->policy.start[(unsigned char) (T)])
-+static inline unsigned int PROFILE_MEDIATES(struct aa_profile *profile,
-+					    unsigned char class)
-+{
-+	if (class <= AA_CLASS_LAST)
-+		return profile->policy.start[class];
-+	else
-+		return aa_dfa_match_len(profile->policy.dfa,
-+					profile->policy.start[0], &class, 1);
-+}
-+
- static inline unsigned int PROFILE_MEDIATES_AF(struct aa_profile *profile,
- 					       u16 AF) {
- 	unsigned int state = PROFILE_MEDIATES(profile, AA_CLASS_NET);
++	of_node_get(fw_np);
+ 	np = of_find_matching_node(fw_np, s10_of_match);
+-	if (!np)
++	if (!np) {
++		of_node_put(fw_np);
+ 		return -ENODEV;
++	}
+ 
+ 	of_node_put(np);
+ 	ret = of_platform_populate(fw_np, s10_of_match, NULL, NULL);
++	of_node_put(fw_np);
+ 	if (ret)
+ 		return ret;
+ 
+-- 
+2.20.1
+
 
 
