@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8104507A8
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 461EE5067B
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730528AbfFXKIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:08:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42654 "EHLO mail.kernel.org"
+        id S1729130AbfFXJ7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:59:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730167AbfFXKIs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:08:48 -0400
+        id S1728801AbfFXJ7F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:59:05 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BF77205C9;
-        Mon, 24 Jun 2019 10:08:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AE72213F2;
+        Mon, 24 Jun 2019 09:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370926;
-        bh=2TP3r5xznyJnJfnmlmOMCaIIiMp7BmAFP6fZzIgNNA0=;
+        s=default; t=1561370344;
+        bh=fOvlLthS1MK46WfcNPVYkleqoAPilf+fyWhHYHhB55U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=of3T9shRz3RVy5xBvgxJqDWnrjX9ixW4dqXEG7/WAhMbmV+VzWlop+aLy4uyCEns9
-         EMoCTp4fFPm2AMp3oAAi7yoSykMGYlZycCHDqizgobXzn5pmptAC0ZsUzFbLbQfggJ
-         HUOfBvEZdBgdetObfZTA//ZlTjaZaoIYnrLcNraU=
+        b=R4pi3mOC88qo+4taDKupbK+WDQBRhZKvWW++MPp+zpUNJvnjSLi4S99cqgUalkx1r
+         hksX1sscnvifCVWysvmR75ryPA3L6K7uqv5ojYfWzNAHV43ZBccvstAS8IZw3TiCeZ
+         LkuP+l7YdNVFV/wm9vKJi1C/uwPDEv87zk1YetlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Collier <josh.d.collier@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 052/121] IB/{qib, hfi1, rdmavt}: Correct ibv_devinfo max_mr value
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 06/51] scsi: ufs: Avoid runtime suspend possibly being blocked forever
 Date:   Mon, 24 Jun 2019 17:56:24 +0800
-Message-Id: <20190624092323.392296360@linuxfoundation.org>
+Message-Id: <20190624092306.788339647@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 35164f5259a47ea756fa1deb3e463ac2a4f10dc9 ]
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-The command 'ibv_devinfo -v' reports 0 for max_mr.
+commit 24e2e7a19f7e4b83d0d5189040d997bce3596473 upstream.
 
-Fix by assigning the query values after the mr lkey_table has been built
-rather than early on in the driver.
+UFS runtime suspend can be triggered after pm_runtime_enable() is invoked
+in ufshcd_pltfrm_init(). However if the first runtime suspend is triggered
+before binding ufs_hba structure to ufs device structure via
+platform_set_drvdata(), then UFS runtime suspend will be no longer
+triggered in the future because its dev->power.runtime_error was set in the
+first triggering and does not have any chance to be cleared.
 
-Fixes: 7b1e2099adc8 ("IB/rdmavt: Move memory registration into rdmavt")
-Reviewed-by: Josh Collier <josh.d.collier@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To be more clear, dev->power.runtime_error is set if hba is NULL in
+ufshcd_runtime_suspend() which returns -EINVAL to rpm_callback() where
+dev->power.runtime_error is set as -EINVAL. In this case, any future
+rpm_suspend() for UFS device fails because rpm_check_suspend_allowed()
+fails due to non-zero
+dev->power.runtime_error.
+
+To resolve this issue, make sure the first UFS runtime suspend get valid
+"hba" in ufshcd_runtime_suspend(): Enable UFS runtime PM only after hba is
+successfully bound to UFS device structure.
+
+Fixes: 62694735ca95 ([SCSI] ufs: Add runtime PM support for UFS host controller driver)
+Cc: stable@vger.kernel.org
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/infiniband/hw/hfi1/verbs.c    | 2 --
- drivers/infiniband/hw/qib/qib_verbs.c | 2 --
- drivers/infiniband/sw/rdmavt/mr.c     | 2 ++
- 3 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/scsi/ufs/ufshcd-pltfrm.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/verbs.c b/drivers/infiniband/hw/hfi1/verbs.c
-index 55a56b3d7f83..ea68eeba3f22 100644
---- a/drivers/infiniband/hw/hfi1/verbs.c
-+++ b/drivers/infiniband/hw/hfi1/verbs.c
-@@ -1355,8 +1355,6 @@ static void hfi1_fill_device_attr(struct hfi1_devdata *dd)
- 	rdi->dparms.props.max_cq = hfi1_max_cqs;
- 	rdi->dparms.props.max_ah = hfi1_max_ahs;
- 	rdi->dparms.props.max_cqe = hfi1_max_cqes;
--	rdi->dparms.props.max_mr = rdi->lkey_table.max;
--	rdi->dparms.props.max_fmr = rdi->lkey_table.max;
- 	rdi->dparms.props.max_map_per_fmr = 32767;
- 	rdi->dparms.props.max_pd = hfi1_max_pds;
- 	rdi->dparms.props.max_qp_rd_atom = HFI1_MAX_RDMA_ATOMIC;
-diff --git a/drivers/infiniband/hw/qib/qib_verbs.c b/drivers/infiniband/hw/qib/qib_verbs.c
-index 5ff32d32c61c..2c4e569ce438 100644
---- a/drivers/infiniband/hw/qib/qib_verbs.c
-+++ b/drivers/infiniband/hw/qib/qib_verbs.c
-@@ -1459,8 +1459,6 @@ static void qib_fill_device_attr(struct qib_devdata *dd)
- 	rdi->dparms.props.max_cq = ib_qib_max_cqs;
- 	rdi->dparms.props.max_cqe = ib_qib_max_cqes;
- 	rdi->dparms.props.max_ah = ib_qib_max_ahs;
--	rdi->dparms.props.max_mr = rdi->lkey_table.max;
--	rdi->dparms.props.max_fmr = rdi->lkey_table.max;
- 	rdi->dparms.props.max_map_per_fmr = 32767;
- 	rdi->dparms.props.max_qp_rd_atom = QIB_MAX_RDMA_ATOMIC;
- 	rdi->dparms.props.max_qp_init_rd_atom = 255;
-diff --git a/drivers/infiniband/sw/rdmavt/mr.c b/drivers/infiniband/sw/rdmavt/mr.c
-index 0bb6e39dd03a..b04d2173e3f4 100644
---- a/drivers/infiniband/sw/rdmavt/mr.c
-+++ b/drivers/infiniband/sw/rdmavt/mr.c
-@@ -96,6 +96,8 @@ int rvt_driver_mr_init(struct rvt_dev_info *rdi)
- 	for (i = 0; i < rdi->lkey_table.max; i++)
- 		RCU_INIT_POINTER(rdi->lkey_table.table[i], NULL);
+--- a/drivers/scsi/ufs/ufshcd-pltfrm.c
++++ b/drivers/scsi/ufs/ufshcd-pltfrm.c
+@@ -340,24 +340,21 @@ int ufshcd_pltfrm_init(struct platform_d
+ 		goto dealloc_host;
+ 	}
  
-+	rdi->dparms.props.max_mr = rdi->lkey_table.max;
-+	rdi->dparms.props.max_fmr = rdi->lkey_table.max;
+-	pm_runtime_set_active(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
+-
+ 	ufshcd_init_lanes_per_dir(hba);
+ 
+ 	err = ufshcd_init(hba, mmio_base, irq);
+ 	if (err) {
+ 		dev_err(dev, "Initialization failed\n");
+-		goto out_disable_rpm;
++		goto dealloc_host;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, hba);
+ 
++	pm_runtime_set_active(&pdev->dev);
++	pm_runtime_enable(&pdev->dev);
++
  	return 0;
- }
  
--- 
-2.20.1
-
+-out_disable_rpm:
+-	pm_runtime_disable(&pdev->dev);
+-	pm_runtime_set_suspended(&pdev->dev);
+ dealloc_host:
+ 	ufshcd_dealloc_host(hba);
+ out:
 
 
