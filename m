@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E73F250729
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D5995087E
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729443AbfFXKE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:04:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36566 "EHLO mail.kernel.org"
+        id S1728789AbfFXKRj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:17:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729762AbfFXKEs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:04:48 -0400
+        id S1730986AbfFXKRc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:17:32 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02AB5205ED;
-        Mon, 24 Jun 2019 10:04:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B55B20645;
+        Mon, 24 Jun 2019 10:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370687;
-        bh=ux5ZLLyQLAvQ2u7HPasXsmocZYrBXqREkPVyN9c0Wps=;
+        s=default; t=1561371451;
+        bh=V2Etn4INr6GcwTyBxsWmtv+MQN/BvWi/3PnSnsAwPRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wH62Kbg+EvdDSW7NCFGLKe+QXfB+qmH/7IAWqJvD3K7nQfjhZLFAmzcBkMbM3wu1I
-         MRScdQeF38X8Bx4pVXCjXXNFHMm9JzzADLjjZH+f/SSu2M1c5qIKfpeHeQ1tRcgZ4z
-         WIHJTex7omC1jBHjvIGK4MR/tv/18LlPbpy5k8r8=
+        b=h3/WzoPYtOVd+WtZh+eTfo/JKrNpjaMBtztkZOKS19UukW5zX0csu/uSybG3f+Lvl
+         HWUSMEbtGFqWM8XigkO9TdcZply6fVHcGcH/YAyPO/hzKwLFoxJIYIdcU/eqOuq44a
+         JkS6MvWxLnVnIbimv/ZyrKRqNHiCwPxDhTUTPgPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen He <wen.he_1@nxp.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
+        stable@vger.kernel.org, Trevor Bourget <tgb.kernel@gmail.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 55/90] drm/arm/mali-dp: Add a loop around the second set CVAL and try 5 times
-Date:   Mon, 24 Jun 2019 17:56:45 +0800
-Message-Id: <20190624092317.745033085@linuxfoundation.org>
+Subject: [PATCH 5.1 074/121] kbuild: tar-pkg: enable communication with jobserver
+Date:   Mon, 24 Jun 2019 17:56:46 +0800
+Message-Id: <20190624092324.685149388@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6a88e0c14813d00f8520d0e16cd4136c6cf8b4d4 ]
+[ Upstream commit a6e0487709ded7cd1ba0c390d9771e5cb76a8453 ]
 
-This patch trying to fix monitor freeze issue caused by drm error
-'flip_done timed out' on LS1028A platform. this set try is make a loop
-around the second setting CVAL and try like 5 times before giveing up.
+The buildtar script might want to invoke a make, so tell the parent
+make to pass the jobserver token pipe to the subcommand by prefixing
+the command with a +.
 
-Signed-off-by: Wen He <wen.he_1@nxp.com>
-Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+This addresses the issue seen here:
+
+  /bin/sh ../scripts/package/buildtar tar-pkg
+  make[3]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+
+See https://www.gnu.org/software/make/manual/html_node/Job-Slots.html
+for more information.
+
+Signed-off-by: Trevor Bourget <tgb.kernel@gmail.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/arm/malidp_drv.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ scripts/package/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/arm/malidp_drv.c b/drivers/gpu/drm/arm/malidp_drv.c
-index 94d6dabec2dc..1ab511e33243 100644
---- a/drivers/gpu/drm/arm/malidp_drv.c
-+++ b/drivers/gpu/drm/arm/malidp_drv.c
-@@ -190,6 +190,7 @@ static void malidp_atomic_commit_hw_done(struct drm_atomic_state *state)
- {
- 	struct drm_device *drm = state->dev;
- 	struct malidp_drm *malidp = drm->dev_private;
-+	int loop = 5;
+diff --git a/scripts/package/Makefile b/scripts/package/Makefile
+index 2c6de21e5152..fd854439de0f 100644
+--- a/scripts/package/Makefile
++++ b/scripts/package/Makefile
+@@ -103,7 +103,7 @@ clean-dirs += $(objtree)/snap/
+ # ---------------------------------------------------------------------------
+ tar%pkg: FORCE
+ 	$(MAKE) -f $(srctree)/Makefile
+-	$(CONFIG_SHELL) $(srctree)/scripts/package/buildtar $@
++	+$(CONFIG_SHELL) $(srctree)/scripts/package/buildtar $@
  
- 	malidp->event = malidp->crtc.state->event;
- 	malidp->crtc.state->event = NULL;
-@@ -204,8 +205,18 @@ static void malidp_atomic_commit_hw_done(struct drm_atomic_state *state)
- 			drm_crtc_vblank_get(&malidp->crtc);
+ clean-dirs += $(objtree)/tar-install/
  
- 		/* only set config_valid if the CRTC is enabled */
--		if (malidp_set_and_wait_config_valid(drm) < 0)
-+		if (malidp_set_and_wait_config_valid(drm) < 0) {
-+			/*
-+			 * make a loop around the second CVAL setting and
-+			 * try 5 times before giving up.
-+			 */
-+			while (loop--) {
-+				if (!malidp_set_and_wait_config_valid(drm))
-+					break;
-+			}
- 			DRM_DEBUG_DRIVER("timed out waiting for updated configuration\n");
-+		}
-+
- 	} else if (malidp->event) {
- 		/* CRTC inactive means vblank IRQ is disabled, send event directly */
- 		spin_lock_irq(&drm->event_lock);
 -- 
 2.20.1
 
