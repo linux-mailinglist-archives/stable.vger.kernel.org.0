@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E31D9506E2
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E834E50782
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729378AbfFXKC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:02:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33570 "EHLO mail.kernel.org"
+        id S1730325AbfFXKHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:07:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729372AbfFXKCZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:02:25 -0400
+        id S1729814AbfFXKHf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:07:35 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72EE3208E4;
-        Mon, 24 Jun 2019 10:02:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0728205C9;
+        Mon, 24 Jun 2019 10:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370544;
-        bh=1SKhh12LS84tpsXfKN2vWKpB6nAz91sJg50C3dxaYsY=;
+        s=default; t=1561370854;
+        bh=d/cT9knU3Q7SoiUiMZRHfIV+IRBC2ybsYASLgBI09oI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GuQfmggL2u0FkDZ4gh1r7znLqUXxdQNeXnY1qFd8eZUBt6GVc0/W4/KRdOh187ERQ
-         if6G8IrAZ5wdc4ZvPUFJwFMmoTAvkeHCPTuDfBB5XKMDSZta/lflLxJAvKRLMGZMz7
-         LIJPrkW1n29cfaC5ST8MqqO5SQjCburshWvyOlXs=
+        b=DGyL/7v3s8G3K7qJwgCQ6I0wuuGIuaOM8tqXilH3wRB7YK2aaIe+07xq9HkY1KWD9
+         x3F8IYfHKT/nOgihGtvIyXFwrVJ3Fa/ppdxCvhD0FGGqe7VDx1C9s2TI8etl7v2z+k
+         VAhIzqQRB514btzY000OM7/tqhGdAzQvGD9wUS+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/90] ovl: make i_ino consistent with st_ino in more cases
-Date:   Mon, 24 Jun 2019 17:55:56 +0800
-Message-Id: <20190624092314.401598163@linuxfoundation.org>
+        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 5.1 025/121] apparmor: fix PROFILE_MEDIATES for untrusted input
+Date:   Mon, 24 Jun 2019 17:55:57 +0800
+Message-Id: <20190624092321.992568736@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6dde1e42f497b2d4e22466f23019016775607947 ]
+From: John Johansen <john.johansen@canonical.com>
 
-Relax the condition that overlayfs supports nfs export, to require
-that i_ino is consistent with st_ino/d_ino.
+commit 23375b13f98c5464c2b4d15f983cc062940f1f4e upstream.
 
-It is enough to require that st_ino and d_ino are consistent.
+While commit 11c236b89d7c2 ("apparmor: add a default null dfa") ensure
+every profile has a policy.dfa it does not resize the policy.start[]
+to have entries for every possible start value. Which means
+PROFILE_MEDIATES is not safe to use on untrusted input. Unforunately
+commit b9590ad4c4f2 ("apparmor: remove POLICY_MEDIATES_SAFE") did not
+take into account the start value usage.
 
-This fixes the failure of xfstest generic/504, due to mismatch of
-st_ino to inode number in the output of /proc/locks.
+The input string in profile_query_cb() is user controlled and is not
+properly checked to be within the limited start[] entries, even worse
+it can't be as userspace policy is allowed to make us of entries types
+the kernel does not know about. This mean usespace can currently cause
+the kernel to access memory up to 240 entries beyond the start array
+bounds.
 
-Fixes: 12574a9f4c9c ("ovl: consistent i_ino for non-samefs with xino")
-Cc: <stable@vger.kernel.org> # v4.19
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: b9590ad4c4f2 ("apparmor: remove POLICY_MEDIATES_SAFE")
+Signed-off-by: John Johansen <john.johansen@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/overlayfs/inode.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ security/apparmor/include/policy.h |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
-index b48273e846ad..373ccff9880c 100644
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -553,15 +553,15 @@ static void ovl_fill_inode(struct inode *inode, umode_t mode, dev_t rdev,
- 	int xinobits = ovl_xino_bits(inode->i_sb);
+--- a/security/apparmor/include/policy.h
++++ b/security/apparmor/include/policy.h
+@@ -217,7 +217,16 @@ static inline struct aa_profile *aa_get_
+ 	return labels_profile(aa_get_newest_label(&p->label));
+ }
  
- 	/*
--	 * When NFS export is enabled and d_ino is consistent with st_ino
--	 * (samefs or i_ino has enough bits to encode layer), set the same
--	 * value used for d_ino to i_ino, because nfsd readdirplus compares
--	 * d_ino values to i_ino values of child entries. When called from
-+	 * When d_ino is consistent with st_ino (samefs or i_ino has enough
-+	 * bits to encode layer), set the same value used for st_ino to i_ino,
-+	 * so inode number exposed via /proc/locks and a like will be
-+	 * consistent with d_ino and st_ino values. An i_ino value inconsistent
-+	 * with d_ino also causes nfsd readdirplus to fail.  When called from
- 	 * ovl_new_inode(), ino arg is 0, so i_ino will be updated to real
- 	 * upper inode i_ino on ovl_inode_init() or ovl_inode_update().
- 	 */
--	if (inode->i_sb->s_export_op &&
--	    (ovl_same_sb(inode->i_sb) || xinobits)) {
-+	if (ovl_same_sb(inode->i_sb) || xinobits) {
- 		inode->i_ino = ino;
- 		if (xinobits && fsid && !(ino >> (64 - xinobits)))
- 			inode->i_ino |= (unsigned long)fsid << (64 - xinobits);
--- 
-2.20.1
-
+-#define PROFILE_MEDIATES(P, T)  ((P)->policy.start[(unsigned char) (T)])
++static inline unsigned int PROFILE_MEDIATES(struct aa_profile *profile,
++					    unsigned char class)
++{
++	if (class <= AA_CLASS_LAST)
++		return profile->policy.start[class];
++	else
++		return aa_dfa_match_len(profile->policy.dfa,
++					profile->policy.start[0], &class, 1);
++}
++
+ static inline unsigned int PROFILE_MEDIATES_AF(struct aa_profile *profile,
+ 					       u16 AF) {
+ 	unsigned int state = PROFILE_MEDIATES(profile, AA_CLASS_NET);
 
 
