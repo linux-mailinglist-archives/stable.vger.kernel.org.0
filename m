@@ -2,98 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64DAB5189A
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 18:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A35A528A0
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 11:54:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727089AbfFXQ0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 12:26:55 -0400
-Received: from mga07.intel.com ([134.134.136.100]:12112 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726393AbfFXQ0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 12:26:55 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 24 Jun 2019 09:26:55 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,412,1557212400"; 
-   d="scan'208";a="155204162"
-Received: from sedona.ch.intel.com ([10.2.136.157])
-  by orsmga008.jf.intel.com with ESMTP; 24 Jun 2019 09:26:54 -0700
-Received: from awfm-01.aw.intel.com (awfm-01.aw.intel.com [10.228.212.213])
-        by sedona.ch.intel.com (8.14.3/8.14.3/Standard MailSET/Hub) with ESMTP id x5OGQsPE053509;
-        Mon, 24 Jun 2019 09:26:54 -0700
-Received: from awfm-01.aw.intel.com (localhost [127.0.0.1])
-        by awfm-01.aw.intel.com (8.14.7/8.14.7) with ESMTP id x5OGQNTP184378;
-        Mon, 24 Jun 2019 12:26:24 -0400
-Subject: [PATCH] IB/hfi1: Avoid hardlockup with flushlist_lock
-To:     stable@vger.kernel.org
-From:   Mike Marciniszyn <mike.marciniszyn@intel.com>
-Cc:     linux-rdma@vger.kernel.org, stable-commits@vger.kernel.org
-Date:   Mon, 24 Jun 2019 12:26:23 -0400
-Message-ID: <20190624162623.184356.72785.stgit@awfm-01.aw.intel.com>
-User-Agent: StGit/0.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S1729854AbfFYJyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 05:54:04 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:37080 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729742AbfFYJyC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 05:54:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
+        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
+        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
+        List-Archive; bh=8m3+YNIeEGA6ffd5VMQOwZiPt5lmGTpYXOpEEm+49Nc=; b=RBv91j8uZMaT
+        eik1TbTD9fFjSxcaMMzinuRiPBfWxG4Gkyed+FBlEZ44QMkVCbpQi2hWkV75Y+gIA3Y/mu2CbiNtu
+        /A7Ok2sN68BpIngAYFjGsQjsJHXnqiUvImdoW5e7DjpiOF2a1O2DRoU/VCfrTWiMbS67IEHZVkx22
+        fYE8k=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=finisterre.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hfi9G-0004mb-Ik; Tue, 25 Jun 2019 09:53:58 +0000
+Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
+        id 6D18144005B; Mon, 24 Jun 2019 17:32:14 +0100 (BST)
+From:   Mark Brown <broonie@kernel.org>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     alsa-devel@alsa-project.org, Liam Girdwood <lgirdwood@gmail.com>,
+        stable@vger.kernel.org
+Subject: Applied "ASoC: core: Adapt for debugfs API change" to the asoc tree
+In-Reply-To: <20190621113357.8264-1-broonie@kernel.org>
+X-Patchwork-Hint: ignore
+Message-Id: <20190624163214.6D18144005B@finisterre.sirena.org.uk>
+Date:   Mon, 24 Jun 2019 17:32:14 +0100 (BST)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit cf131a81967583ae737df6383a0893b9fee75b4e upstream.
+The patch
 
-Heavy contention of the sde flushlist_lock can cause hard lockups at
-extreme scale when the flushing logic is under stress.
+   ASoC: core: Adapt for debugfs API change
 
-Mitigate by replacing the item at a time copy to the local list with
-an O(1) list_splice_init() and using the high priority work queue to
-do the flushes.
+has been applied to the asoc tree at
 
-Ported to linux-4.19.y.
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-5.2
 
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
+
+From c2c928c93173f220955030e8440517b87ec7df92 Mon Sep 17 00:00:00 2001
+From: Mark Brown <broonie@kernel.org>
+Date: Fri, 21 Jun 2019 12:33:56 +0100
+Subject: [PATCH] ASoC: core: Adapt for debugfs API change
+
+Back in ff9fb72bc07705c (debugfs: return error values, not NULL) the
+debugfs APIs were changed to return error pointers rather than NULL
+pointers on error, breaking the error checking in ASoC. Update the
+code to use IS_ERR() and log the codes that are returned as part of
+the error messages.
+
+Fixes: ff9fb72bc07705c (debugfs: return error values, not NULL)
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/sdma.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ sound/soc/soc-core.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
-index 88e326d..d648a41 100644
---- a/drivers/infiniband/hw/hfi1/sdma.c
-+++ b/drivers/infiniband/hw/hfi1/sdma.c
-@@ -410,10 +410,7 @@ static void sdma_flush(struct sdma_engine *sde)
- 	sdma_flush_descq(sde);
- 	spin_lock_irqsave(&sde->flushlist_lock, flags);
- 	/* copy flush list */
--	list_for_each_entry_safe(txp, txp_next, &sde->flushlist, list) {
--		list_del_init(&txp->list);
--		list_add_tail(&txp->list, &flushlist);
--	}
-+	list_splice_init(&sde->flushlist, &flushlist);
- 	spin_unlock_irqrestore(&sde->flushlist_lock, flags);
- 	/* flush from flush list */
- 	list_for_each_entry_safe(txp, txp_next, &flushlist, list)
-@@ -2426,7 +2423,7 @@ int sdma_send_txreq(struct sdma_engine *sde,
- 		wait->tx_count++;
- 		wait->count += tx->num_desc;
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 9138fcb15cd3..6aeba0d66ec5 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -158,9 +158,10 @@ static void soc_init_component_debugfs(struct snd_soc_component *component)
+ 				component->card->debugfs_card_root);
  	}
--	schedule_work(&sde->flush_worker);
-+	queue_work_on(sde->cpu, system_highpri_wq, &sde->flush_worker);
- 	ret = -ECOMM;
- 	goto unlock;
- nodesc:
-@@ -2526,7 +2523,7 @@ int sdma_send_txlist(struct sdma_engine *sde, struct iowait *wait,
- 		}
+ 
+-	if (!component->debugfs_root) {
++	if (IS_ERR(component->debugfs_root)) {
+ 		dev_warn(component->dev,
+-			"ASoC: Failed to create component debugfs directory\n");
++			"ASoC: Failed to create component debugfs directory: %ld\n",
++			PTR_ERR(component->debugfs_root));
+ 		return;
  	}
- 	spin_unlock(&sde->flushlist_lock);
--	schedule_work(&sde->flush_worker);
-+	queue_work_on(sde->cpu, system_highpri_wq, &sde->flush_worker);
- 	ret = -ECOMM;
- 	goto update_tail;
- nodesc:
+ 
+@@ -212,18 +213,21 @@ static void soc_init_card_debugfs(struct snd_soc_card *card)
+ 
+ 	card->debugfs_card_root = debugfs_create_dir(card->name,
+ 						     snd_soc_debugfs_root);
+-	if (!card->debugfs_card_root) {
++	if (IS_ERR(card->debugfs_card_root)) {
+ 		dev_warn(card->dev,
+-			 "ASoC: Failed to create card debugfs directory\n");
++			 "ASoC: Failed to create card debugfs directory: %ld\n",
++			 PTR_ERR(card->debugfs_card_root));
++		card->debugfs_card_root = NULL;
+ 		return;
+ 	}
+ 
+ 	card->debugfs_pop_time = debugfs_create_u32("dapm_pop_time", 0644,
+ 						    card->debugfs_card_root,
+ 						    &card->pop_time);
+-	if (!card->debugfs_pop_time)
++	if (IS_ERR(card->debugfs_pop_time))
+ 		dev_warn(card->dev,
+-			 "ASoC: Failed to create pop time debugfs file\n");
++			 "ASoC: Failed to create pop time debugfs file: %ld\n",
++			 PTR_ERR(card->debugfs_pop_time));
+ }
+ 
+ static void soc_cleanup_card_debugfs(struct snd_soc_card *card)
+-- 
+2.20.1
 
