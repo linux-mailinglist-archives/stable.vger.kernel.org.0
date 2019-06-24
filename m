@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C8D250738
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DB50507FF
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729956AbfFXKFh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:05:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37600 "EHLO mail.kernel.org"
+        id S1730484AbfFXKMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:12:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729799AbfFXKFh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:05:37 -0400
+        id S1729958AbfFXKFj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:39 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D01F121473;
-        Mon, 24 Jun 2019 10:05:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 730AF208E3;
+        Mon, 24 Jun 2019 10:05:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370736;
-        bh=tsibFGeCM9kozJlvLSct5i3Ff8kYIeVStbM5u+Zsugk=;
+        s=default; t=1561370738;
+        bh=QDjTKqNf3EIR6YyWhK76alWgvcTeu4rye7sa5YTk2RA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2e/ypiZo03yVTnrT69Z5asUZiwkwXZKhsm15dLWTQ0+ONYQuKLqVDct7985HTPm7b
-         SMY27DoEdRFbmEHIM/N6QZx2xnoMA9U3IDQLh66cGHKb3jFBz89mf4EK728Xz+yA+m
-         S8FsjPQsQy3p4magk17fvgtN6Xe4wBK2pVSiL2Gg=
+        b=gGupMQrooLU34Vgz+7LDIuAoXBwJDq1n3I2ybRQnoK+iXPuR7LJ98cu71a5tf/rJx
+         O113cEp2z/t1APaUZHEJ8kNlQsLwaoPt/UPbYLa+e5h81OuSfM55fAWr5hbkPKj3vw
+         XNYIQRWMrTYRpburgEPld408B704nE4FmsXGZeR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ShihPo Hung <shihpo.hung@sifive.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@sifive.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH 4.19 72/90] riscv: mm: synchronize MMU after pte change
-Date:   Mon, 24 Jun 2019 17:57:02 +0800
-Message-Id: <20190624092318.729317368@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 4.19 73/90] powerpc/bpf: use unsigned division instruction for 64-bit operations
+Date:   Mon, 24 Jun 2019 17:57:03 +0800
+Message-Id: <20190624092318.795077804@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
 References: <20190624092313.788773607@linuxfoundation.org>
@@ -46,57 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ShihPo Hung <shihpo.hung@sifive.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit bf587caae305ae3b4393077fb22c98478ee55755 upstream.
+commit 758f2046ea040773ae8ea7f72dd3bbd8fa984501 upstream.
 
-Because RISC-V compliant implementations can cache invalid entries
-in TLB, an SFENCE.VMA is necessary after changes to the page table.
-This patch adds an SFENCE.vma for the vmalloc_fault path.
+BPF_ALU64 div/mod operations are currently using signed division, unlike
+BPF_ALU32 operations. Fix the same. DIV64 and MOD64 overflow tests pass
+with this fix.
 
-Signed-off-by: ShihPo Hung <shihpo.hung@sifive.com>
-[paul.walmsley@sifive.com: reversed tab->whitespace conversion,
- wrapped comment lines]
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@sifive.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: linux-riscv@lists.infradead.org
-Cc: stable@vger.kernel.org
+Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
+Cc: stable@vger.kernel.org # v4.8+
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/riscv/mm/fault.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/powerpc/include/asm/ppc-opcode.h |    1 +
+ arch/powerpc/net/bpf_jit.h            |    2 +-
+ arch/powerpc/net/bpf_jit_comp64.c     |    8 ++++----
+ 3 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/arch/riscv/mm/fault.c
-+++ b/arch/riscv/mm/fault.c
-@@ -29,6 +29,7 @@
- 
- #include <asm/pgalloc.h>
- #include <asm/ptrace.h>
-+#include <asm/tlbflush.h>
- 
- /*
-  * This routine handles page faults.  It determines the address and the
-@@ -281,6 +282,18 @@ vmalloc_fault:
- 		pte_k = pte_offset_kernel(pmd_k, addr);
- 		if (!pte_present(*pte_k))
- 			goto no_context;
-+
-+		/*
-+		 * The kernel assumes that TLBs don't cache invalid
-+		 * entries, but in RISC-V, SFENCE.VMA specifies an
-+		 * ordering constraint, not a cache flush; it is
-+		 * necessary even after writing invalid entries.
-+		 * Relying on flush_tlb_fix_spurious_fault would
-+		 * suffice, but the extra traps reduce
-+		 * performance. So, eagerly SFENCE.VMA.
-+		 */
-+		local_flush_tlb_page(addr);
-+
- 		return;
- 	}
- }
+--- a/arch/powerpc/include/asm/ppc-opcode.h
++++ b/arch/powerpc/include/asm/ppc-opcode.h
+@@ -336,6 +336,7 @@
+ #define PPC_INST_MULLI			0x1c000000
+ #define PPC_INST_DIVWU			0x7c000396
+ #define PPC_INST_DIVD			0x7c0003d2
++#define PPC_INST_DIVDU			0x7c000392
+ #define PPC_INST_RLWINM			0x54000000
+ #define PPC_INST_RLWIMI			0x50000000
+ #define PPC_INST_RLDICL			0x78000000
+--- a/arch/powerpc/net/bpf_jit.h
++++ b/arch/powerpc/net/bpf_jit.h
+@@ -116,7 +116,7 @@
+ 				     ___PPC_RA(a) | IMM_L(i))
+ #define PPC_DIVWU(d, a, b)	EMIT(PPC_INST_DIVWU | ___PPC_RT(d) |	      \
+ 				     ___PPC_RA(a) | ___PPC_RB(b))
+-#define PPC_DIVD(d, a, b)	EMIT(PPC_INST_DIVD | ___PPC_RT(d) |	      \
++#define PPC_DIVDU(d, a, b)	EMIT(PPC_INST_DIVDU | ___PPC_RT(d) |	      \
+ 				     ___PPC_RA(a) | ___PPC_RB(b))
+ #define PPC_AND(d, a, b)	EMIT(PPC_INST_AND | ___PPC_RA(d) |	      \
+ 				     ___PPC_RS(a) | ___PPC_RB(b))
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -372,12 +372,12 @@ static int bpf_jit_build_body(struct bpf
+ 		case BPF_ALU64 | BPF_DIV | BPF_X: /* dst /= src */
+ 		case BPF_ALU64 | BPF_MOD | BPF_X: /* dst %= src */
+ 			if (BPF_OP(code) == BPF_MOD) {
+-				PPC_DIVD(b2p[TMP_REG_1], dst_reg, src_reg);
++				PPC_DIVDU(b2p[TMP_REG_1], dst_reg, src_reg);
+ 				PPC_MULD(b2p[TMP_REG_1], src_reg,
+ 						b2p[TMP_REG_1]);
+ 				PPC_SUB(dst_reg, dst_reg, b2p[TMP_REG_1]);
+ 			} else
+-				PPC_DIVD(dst_reg, dst_reg, src_reg);
++				PPC_DIVDU(dst_reg, dst_reg, src_reg);
+ 			break;
+ 		case BPF_ALU | BPF_MOD | BPF_K: /* (u32) dst %= (u32) imm */
+ 		case BPF_ALU | BPF_DIV | BPF_K: /* (u32) dst /= (u32) imm */
+@@ -405,7 +405,7 @@ static int bpf_jit_build_body(struct bpf
+ 				break;
+ 			case BPF_ALU64:
+ 				if (BPF_OP(code) == BPF_MOD) {
+-					PPC_DIVD(b2p[TMP_REG_2], dst_reg,
++					PPC_DIVDU(b2p[TMP_REG_2], dst_reg,
+ 							b2p[TMP_REG_1]);
+ 					PPC_MULD(b2p[TMP_REG_1],
+ 							b2p[TMP_REG_1],
+@@ -413,7 +413,7 @@ static int bpf_jit_build_body(struct bpf
+ 					PPC_SUB(dst_reg, dst_reg,
+ 							b2p[TMP_REG_1]);
+ 				} else
+-					PPC_DIVD(dst_reg, dst_reg,
++					PPC_DIVDU(dst_reg, dst_reg,
+ 							b2p[TMP_REG_1]);
+ 				break;
+ 			}
 
 
