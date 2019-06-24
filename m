@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59CE750898
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98F905080B
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729871AbfFXKPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:15:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52144 "EHLO mail.kernel.org"
+        id S1729300AbfFXKNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:13:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730379AbfFXKOo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:14:44 -0400
+        id S1729849AbfFXKFP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:15 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CEC9205C9;
-        Mon, 24 Jun 2019 10:14:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA32520848;
+        Mon, 24 Jun 2019 10:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371284;
-        bh=B8haucdH0Bac5XxjC19HYszcAgma7sNI2LLJyXDiMss=;
+        s=default; t=1561370714;
+        bh=J9Hue6YfvcDTPTSK7iPUAfw6PKHk/04g+wdvgzhrqRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=esuQWnoSLb11kZY7VkZljHEGPv5sVZd5YZKAnYE7jXmbtTKBh98fj3QZaqJ7lduG1
-         DMVvkIQLRIzH0p0tL0NaAoTsDupfHvIUrxAFKMfDFJ1oo6NtTbkvM5J7crntMjl2yZ
-         R6cZ/PIB3hkoU8j9sE1PyWmIczwLmSdxc7akCTek=
+        b=BUwGzD5qTwDVo4SJyh1Vo6B92OPG9JHsQX7VKCrdzcS68dwrMSC82wMq178RJ0s5F
+         cak8yoAZY3u6DIY3ACvBG+owPH7fq0FoRo7nKMEbGZBgLHSY/j6EFzKTeXgRVyrirq
+         zaJNSvVU56teDUPXT+xt8x/60hUPYyGi+k3p8fRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gen Zhang <blackgod016574@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alex Shi <alex.shi@linux.alibaba.com>,
+        Shuah Khan <shuah@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Roman Gushchin <guro@fb.com>, Claudio Zumbo <claudioz@fb.com>,
+        Claudio <claudiozumbo@gmail.com>,
+        linux-kselftest@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 065/121] mdesc: fix a missing-check bug in get_vdev_port_node_info()
+Subject: [PATCH 4.19 47/90] kselftest/cgroup: fix incorrect test_core skip
 Date:   Mon, 24 Jun 2019 17:56:37 +0800
-Message-Id: <20190624092324.129228105@linuxfoundation.org>
+Message-Id: <20190624092317.331693028@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 80caf43549e7e41a695c6d1e11066286538b336f ]
+[ Upstream commit f97f3f8839eb9de5843066d80819884f7722c8c5 ]
 
-In get_vdev_port_node_info(), 'node_info->vdev_port.name' is allcoated
-by kstrdup_const(), and it returns NULL when fails. So
-'node_info->vdev_port.name' should be checked.
+The test_core will skip the
+test_cgcore_no_internal_process_constraint_on_threads test case if the
+'cpu' controller missing in root's subtree_control. In fact we need to
+set the 'cpu' in subtree_control, to make the testing meaningful.
 
-Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+./test_core
+...
+ok 4 # skip test_cgcore_no_internal_process_constraint_on_threads
+...
+
+Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Claudio Zumbo <claudioz@fb.com>
+Cc: Claudio <claudiozumbo@gmail.com>
+Cc: linux-kselftest@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/kernel/mdesc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/cgroup/test_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/sparc/kernel/mdesc.c b/arch/sparc/kernel/mdesc.c
-index 9a26b442f820..8e645ddac58e 100644
---- a/arch/sparc/kernel/mdesc.c
-+++ b/arch/sparc/kernel/mdesc.c
-@@ -356,6 +356,8 @@ static int get_vdev_port_node_info(struct mdesc_handle *md, u64 node,
+diff --git a/tools/testing/selftests/cgroup/test_core.c b/tools/testing/selftests/cgroup/test_core.c
+index d78f1c5366d3..79053a4f4783 100644
+--- a/tools/testing/selftests/cgroup/test_core.c
++++ b/tools/testing/selftests/cgroup/test_core.c
+@@ -198,7 +198,7 @@ static int test_cgcore_no_internal_process_constraint_on_threads(const char *roo
+ 	char *parent = NULL, *child = NULL;
  
- 	node_info->vdev_port.id = *idp;
- 	node_info->vdev_port.name = kstrdup_const(name, GFP_KERNEL);
-+	if (!node_info->vdev_port.name)
-+		return -1;
- 	node_info->vdev_port.parent_cfg_hdl = *parent_cfg_hdlp;
- 
- 	return 0;
+ 	if (cg_read_strstr(root, "cgroup.controllers", "cpu") ||
+-	    cg_read_strstr(root, "cgroup.subtree_control", "cpu")) {
++	    cg_write(root, "cgroup.subtree_control", "+cpu")) {
+ 		ret = KSFT_SKIP;
+ 		goto cleanup;
+ 	}
 -- 
 2.20.1
 
