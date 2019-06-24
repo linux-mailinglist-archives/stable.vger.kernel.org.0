@@ -2,102 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F05E51008
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 17:12:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 328E85103A
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 17:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728172AbfFXPMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 11:12:21 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:44248 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730580AbfFXPMV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 11:12:21 -0400
-Received: by mail-io1-f67.google.com with SMTP id s7so120615iob.11
-        for <stable@vger.kernel.org>; Mon, 24 Jun 2019 08:12:21 -0700 (PDT)
+        id S1727877AbfFXPYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 11:24:02 -0400
+Received: from mail-wr1-f42.google.com ([209.85.221.42]:42717 "EHLO
+        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727406AbfFXPYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 11:24:02 -0400
+Received: by mail-wr1-f42.google.com with SMTP id x17so14343535wrl.9
+        for <stable@vger.kernel.org>; Mon, 24 Jun 2019 08:24:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=i6RP5sEIUQVe7K2Xxca+vDWdrwxXZnb7gXo4fjhFOrI=;
-        b=jvgv4lXqQaoTaUCCgSqFt7dA1UG8exJvGDZ8+KtKxJ/F1Y3nXoRjm3mDxBFqek2yPa
-         6+vxZZK7y20j65gwxGP1TZgLx/GKaAMRMeotexYhGiKkgr37FscTGeHpnWfkup4MQBr7
-         kVxvBPx8VMwMyBZCYCSMzStUhOKfpSYUOOQNP1hG5P9YNsNt6Hqx3aziwKkU0BVMlqW5
-         XwuM0TSzS42G1XJIYxd1+xd1q7vW9P7SovoLT4e4ilPznQYjhpoSBkE7NXsIzj1AHE0l
-         W1m+hPlUxfwPUS1qbPsmfFXhOaK94yklTADYhpuaQtZALjOAMeIsSx6O8N77qkEgoEW0
-         dCVw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3k/9ttyeiY3kX//P+0wekSb9hiL/xE651wpr0JfFC/M=;
+        b=eGtcBq8Thlp49oz+xsUXGQgn7I9M3wwBUZzQHX2otyfe0RvVPOVcxzIqOn4jUB37c5
+         Y6C9Vsxeg4mTFrkka36B6a1mHR9XYM+dImwvlJ3Dn6UFgVxEHPtjoz5m3NgaFIDlP1Ou
+         8lAdbKd40caMN/KqwBaPY0Yz3BJvSTxiqPREcNu3jGKHp0ksCPZDSfQ1Fwrynic3srrN
+         cbRn4RH4jk64it5hpEcBpe7ilZDlJRbUDRWvOuDzlLAOq/e+uVnzMaW85ff3co/r7LcT
+         i0yYeYtFONveoj6BirF5+M9iQ7GBvoWmU8z2zPFEyIn+1JM7one9qljhM4f8Ga5VlJ1G
+         2MTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=i6RP5sEIUQVe7K2Xxca+vDWdrwxXZnb7gXo4fjhFOrI=;
-        b=lRnFYmQFZdp4YR2OviT4N1KNvzAhdc2K4KxU8Q4nUR89UbZc+zaz/CsGvzXQVQlnXP
-         U/Wuo2snxFMq8PUCfkl2L7Xut9dxBzIB95d/y1/Dn+a9TXmqKK/AZgjJPeCWqWw1XLnQ
-         4FnO/eYQGHOdjYwr8/unxZNYttaPs/Me+6UqnaD/OqM/eY6SNIIw7WiehCRiiqSqK2ko
-         2MiRCxke/CtSDJYXa4YtRpRXKU5fQW99cITM/AeYNmq3lfZ2OzE40qTqaHsyKFImqM1H
-         jCkFrdNUtDo3A7GkuPNQ+Q3nshQJXtrGfjpa0dwiKvpObRZqvqubTFHWInkdl5dDQfQq
-         U59Q==
-X-Gm-Message-State: APjAAAVRIUPMTmtSI/FGk81hU5+r4KGNRPh1nFCVcrNmF3QD5n+CDizx
-        3Lf/PQlaGGQJ6OGROtntozAQ+g==
-X-Google-Smtp-Source: APXvYqxhCdDitnoCJq15metdrBXJXKIUUa7soKbJdiR2x1Uo/Def9XZLDCqSPhNc0JhCX6SVb8UL6w==
-X-Received: by 2002:a02:2a8f:: with SMTP id w137mr127594244jaw.50.1561389140370;
-        Mon, 24 Jun 2019 08:12:20 -0700 (PDT)
-Received: from google.com ([2620:15c:183:200:855f:8919:84a7:4794])
-        by smtp.gmail.com with ESMTPSA id f17sm25760614ioc.2.2019.06.24.08.12.19
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 24 Jun 2019 08:12:19 -0700 (PDT)
-Date:   Mon, 24 Jun 2019 09:12:17 -0600
-From:   Ross Zwisler <zwisler@google.com>
-To:     kbuild test robot <lkp@intel.com>
-Cc:     Ross Zwisler <zwisler@chromium.org>, kbuild-all@01.org,
-        linux-kernel@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        Jan Kara <jack@suse.com>, linux-ext4@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-        Fletcher Woodruff <fletcherw@google.com>,
-        Justin TerAvest <teravest@google.com>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] ext4: use jbd2_inode dirty range scoping
-Message-ID: <20190624151217.GA249955@google.com>
-References: <20190620151839.195506-4-zwisler@google.com>
- <201906240244.12r4nktI%lkp@intel.com>
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3k/9ttyeiY3kX//P+0wekSb9hiL/xE651wpr0JfFC/M=;
+        b=FtL8/RRcFuZ/CPP8kNydRyAi6n4sdSi62/+HCqzVG9dxJLd+hrzK/7BlEcJmIloU/U
+         dzo/mS6ezQx5y6oQlN4rcXj5reSM/x+SRCTYOCCH9OsGMXFpJVC7TT0Co/YOItHPu56/
+         lsYKADg/aaIwMhh3OmKiv9OsfIf6iIoHXwuxaApN0+SA4lvq4yzXaVQvXNC4dU4BwIfS
+         2L3Tz/Lo9YMKu/qN5BQJn06OJylSz1TdPHpGhG8z+hUP2W3f+nmKK+EqXnPuvhfYq763
+         IaJfOgIKEY9Xh2t8HXBm4oFfmD3GA+zJZNQkqCiQXCPXyrzvTZDKG03Y9qdDtBurZ9AD
+         /Amw==
+X-Gm-Message-State: APjAAAWr4jNIlZdNRq3+he3qzexui8yq5bi5pKM68BeTWz3qrijluewa
+        hnSQcQ8n9Z9EDw0Aq3DQCCFKPKED+Cl6GA==
+X-Google-Smtp-Source: APXvYqy2rkDD2PAwTFqf1cmeeeg5YgBv0/ffES0ExHeyVclPtesFnmdM4GbY5azEpyS8CS7M+poYuQ==
+X-Received: by 2002:adf:9bd3:: with SMTP id e19mr32544361wrc.38.1561389840631;
+        Mon, 24 Jun 2019 08:24:00 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id z19sm10540986wmi.7.2019.06.24.08.23.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 24 Jun 2019 08:23:59 -0700 (PDT)
+Message-ID: <5d10eb0f.1c69fb81.23005.8c2b@mx.google.com>
+Date:   Mon, 24 Jun 2019 08:23:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <201906240244.12r4nktI%lkp@intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.129-52-g57f3c9aebc30
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 116 boots: 0 failed,
+ 109 passed with 7 offline (v4.14.129-52-g57f3c9aebc30)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 24, 2019 at 02:54:49AM +0800, kbuild test robot wrote:
-> Hi Ross,
-> 
-> Thank you for the patch! Yet something to improve:
-> 
-> [auto build test ERROR on linus/master]
-> [also build test ERROR on v5.2-rc6 next-20190621]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-> 
-> url:    https://github.com/0day-ci/linux/commits/Ross-Zwisler/mm-add-filemap_fdatawait_range_keep_errors/20190623-181603
-> config: x86_64-rhel-7.6 (attached as .config)
-> compiler: gcc-7 (Debian 7.3.0-1) 7.3.0
-> reproduce:
->         # save the attached .config to linux build tree
->         make ARCH=x86_64 
-> 
-> If you fix the issue, kindly add following tag
-> Reported-by: kbuild test robot <lkp@intel.com>
-> 
-> All errors (new ones prefixed by >>):
-> 
-> >> ERROR: "jbd2_journal_inode_ranged_wait" [fs/ext4/ext4.ko] undefined!
-> >> ERROR: "jbd2_journal_inode_ranged_write" [fs/ext4/ext4.ko] undefined!
+stable-rc/linux-4.14.y boot: 116 boots: 0 failed, 109 passed with 7 offline=
+ (v4.14.129-52-g57f3c9aebc30)
 
-Yep, this is caused by the lack of EXPORT_SYMBOL() calls for these two new
-jbd2 functions.  Ted also pointed this out and fixed this up when he was
-committing:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.129-52-g57f3c9aebc30/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.129-52-g57f3c9aebc30/
 
-https://patchwork.kernel.org/patch/11007139/#22717091
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.129-52-g57f3c9aebc30
+Git Commit: 57f3c9aebc308dc826ec1191e750fc853e79fb3a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 62 unique boards, 23 SoC families, 14 builds out of 201
 
-Thank you for the report!
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
