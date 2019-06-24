@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F272506DD
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A97D50778
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729082AbfFXKCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:02:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33266 "EHLO mail.kernel.org"
+        id S1729608AbfFXKHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:07:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727284AbfFXKCM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:02:12 -0400
+        id S1730287AbfFXKHQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:07:16 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10A072146F;
-        Mon, 24 Jun 2019 10:02:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C707212F5;
+        Mon, 24 Jun 2019 10:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370531;
-        bh=plZOkWaLb4yy5BvUkpSJ/NwGDi97Ob4vcXUWQKp9oBk=;
+        s=default; t=1561370835;
+        bh=RrDzfyGthtF5raNEydbiuzy84TWzT8OuuZw9M17TTDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nVmf+DgRrS80lvELxEXOMQXLL8FXWOc7K9UG+zShHIidJLwCROIbPW+AF/C6gBLla
-         8ifXyktGhMBH5jvmd4R9jur64WAVwChhMVOv/Vwtp1Aufebv7RtmNSmz7ORmzmWkS5
-         jJHmRBJXbobIWWtC5cBLVRcmXpVVIm/WqW3aRE7M=
+        b=sLlpvReeTJBFVvrn+nOQbalJaE2oJH+9huXotYE64Q3mYVL+/KhPI8vptppNKGQ7I
+         md3+zIyA1Iv4XUmOWTOByLj+CWxMgl9fj555++TmFuKU72ZA+SVA+vX4HqNOUz8c3W
+         qURZBLEsezrHu1mEoyj6pjYD3GqkJqam7qZdOHsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 01/90] tracing: Silence GCC 9 array bounds warning
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Doug Ledford <dledford@redhat.com>
+Subject: [PATCH 5.1 019/121] IB/hfi1: Silence txreq allocation warnings
 Date:   Mon, 24 Jun 2019 17:55:51 +0800
-Message-Id: <20190624092313.930230995@linuxfoundation.org>
+Message-Id: <20190624092321.599851341@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,103 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-commit 0c97bf863efce63d6ab7971dad811601e6171d2f upstream.
+commit 3230f4a8d44e4a0bb7afea814b280b5129521f52 upstream.
 
-Starting with GCC 9, -Warray-bounds detects cases when memset is called
-starting on a member of a struct but the size to be cleared ends up
-writing over further members.
+The following warning can happen when a memory shortage
+occurs during txreq allocation:
 
-Such a call happens in the trace code to clear, at once, all members
-after and including `seq` on struct trace_iterator:
+[10220.939246] SLUB: Unable to allocate memory on node -1, gfp=0xa20(GFP_ATOMIC)
+[10220.939246] Hardware name: Intel Corporation S2600WT2R/S2600WT2R, BIOS SE5C610.86B.01.01.0018.C4.072020161249 07/20/2016
+[10220.939247]   cache: mnt_cache, object size: 384, buffer size: 384, default order: 2, min order: 0
+[10220.939260] Workqueue: hfi0_0 _hfi1_do_send [hfi1]
+[10220.939261]   node 0: slabs: 1026568, objs: 43115856, free: 0
+[10220.939262] Call Trace:
+[10220.939262]   node 1: slabs: 820872, objs: 34476624, free: 0
+[10220.939263]  dump_stack+0x5a/0x73
+[10220.939265]  warn_alloc+0x103/0x190
+[10220.939267]  ? wake_all_kswapds+0x54/0x8b
+[10220.939268]  __alloc_pages_slowpath+0x86c/0xa2e
+[10220.939270]  ? __alloc_pages_nodemask+0x2fe/0x320
+[10220.939271]  __alloc_pages_nodemask+0x2fe/0x320
+[10220.939273]  new_slab+0x475/0x550
+[10220.939275]  ___slab_alloc+0x36c/0x520
+[10220.939287]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939299]  ? __get_txreq+0x54/0x160 [hfi1]
+[10220.939310]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939312]  __slab_alloc+0x40/0x61
+[10220.939323]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939325]  kmem_cache_alloc+0x181/0x1b0
+[10220.939336]  hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939348]  ? hfi1_verbs_send_dma+0x386/0xa10 [hfi1]
+[10220.939359]  ? find_prev_entry+0xb0/0xb0 [hfi1]
+[10220.939371]  hfi1_do_send+0x1d9/0x3f0 [hfi1]
+[10220.939372]  process_one_work+0x171/0x380
+[10220.939374]  worker_thread+0x49/0x3f0
+[10220.939375]  kthread+0xf8/0x130
+[10220.939377]  ? max_active_store+0x80/0x80
+[10220.939378]  ? kthread_bind+0x10/0x10
+[10220.939379]  ret_from_fork+0x35/0x40
+[10220.939381] SLUB: Unable to allocate memory on node -1, gfp=0xa20(GFP_ATOMIC)
 
-    In function 'memset',
-        inlined from 'ftrace_dump' at kernel/trace/trace.c:8914:3:
-    ./include/linux/string.h:344:9: warning: '__builtin_memset' offset
-    [8505, 8560] from the object at 'iter' is out of the bounds of
-    referenced subobject 'seq' with type 'struct trace_seq' at offset
-    4368 [-Warray-bounds]
-      344 |  return __builtin_memset(p, c, size);
-          |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The shortage is handled properly so the message isn't needed. Silence by
+adding the no warn option to the slab allocation.
 
-In order to avoid GCC complaining about it, we compute the address
-ourselves by adding the offsetof distance instead of referring
-directly to the member.
-
-Since there are two places doing this clear (trace.c and trace_kdb.c),
-take the chance to move the workaround into a single place in
-the internal header.
-
-Link: http://lkml.kernel.org/r/20190523124535.GA12931@gmail.com
-
-Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-[ Removed unnecessary parenthesis around "iter" ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 45842abbb292 ("staging/rdma/hfi1: move txreq header code")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace.c     |    6 +-----
- kernel/trace/trace.h     |   18 ++++++++++++++++++
- kernel/trace/trace_kdb.c |    6 +-----
- 3 files changed, 20 insertions(+), 10 deletions(-)
+ drivers/infiniband/hw/hfi1/verbs_txreq.c |    2 +-
+ drivers/infiniband/hw/hfi1/verbs_txreq.h |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -8351,12 +8351,8 @@ void ftrace_dump(enum ftrace_dump_mode o
+--- a/drivers/infiniband/hw/hfi1/verbs_txreq.c
++++ b/drivers/infiniband/hw/hfi1/verbs_txreq.c
+@@ -100,7 +100,7 @@ struct verbs_txreq *__get_txreq(struct h
+ 	if (ib_rvt_state_ops[qp->state] & RVT_PROCESS_RECV_OK) {
+ 		struct hfi1_qp_priv *priv;
  
- 		cnt++;
+-		tx = kmem_cache_alloc(dev->verbs_txreq_cache, GFP_ATOMIC);
++		tx = kmem_cache_alloc(dev->verbs_txreq_cache, VERBS_TXREQ_GFP);
+ 		if (tx)
+ 			goto out;
+ 		priv = qp->priv;
+--- a/drivers/infiniband/hw/hfi1/verbs_txreq.h
++++ b/drivers/infiniband/hw/hfi1/verbs_txreq.h
+@@ -72,6 +72,7 @@ struct hfi1_ibdev;
+ struct verbs_txreq *__get_txreq(struct hfi1_ibdev *dev,
+ 				struct rvt_qp *qp);
  
--		/* reset all but tr, trace, and overruns */
--		memset(&iter.seq, 0,
--		       sizeof(struct trace_iterator) -
--		       offsetof(struct trace_iterator, seq));
-+		trace_iterator_reset(&iter);
- 		iter.iter_flags |= TRACE_FILE_LAT_FMT;
--		iter.pos = -1;
++#define VERBS_TXREQ_GFP (GFP_ATOMIC | __GFP_NOWARN)
+ static inline struct verbs_txreq *get_txreq(struct hfi1_ibdev *dev,
+ 					    struct rvt_qp *qp)
+ 	__must_hold(&qp->slock)
+@@ -79,7 +80,7 @@ static inline struct verbs_txreq *get_tx
+ 	struct verbs_txreq *tx;
+ 	struct hfi1_qp_priv *priv = qp->priv;
  
- 		if (trace_find_next_entry_inc(&iter) != NULL) {
- 			int ret;
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -1895,4 +1895,22 @@ static inline void tracer_hardirqs_off(u
- 
- extern struct trace_iterator *tracepoint_print_iter;
- 
-+/*
-+ * Reset the state of the trace_iterator so that it can read consumed data.
-+ * Normally, the trace_iterator is used for reading the data when it is not
-+ * consumed, and must retain state.
-+ */
-+static __always_inline void trace_iterator_reset(struct trace_iterator *iter)
-+{
-+	const size_t offset = offsetof(struct trace_iterator, seq);
-+
-+	/*
-+	 * Keep gcc from complaining about overwriting more than just one
-+	 * member in the structure.
-+	 */
-+	memset((char *)iter + offset, 0, sizeof(struct trace_iterator) - offset);
-+
-+	iter->pos = -1;
-+}
-+
- #endif /* _LINUX_KERNEL_TRACE_H */
---- a/kernel/trace/trace_kdb.c
-+++ b/kernel/trace/trace_kdb.c
-@@ -41,12 +41,8 @@ static void ftrace_dump_buf(int skip_lin
- 
- 	kdb_printf("Dumping ftrace buffer:\n");
- 
--	/* reset all but tr, trace, and overruns */
--	memset(&iter.seq, 0,
--		   sizeof(struct trace_iterator) -
--		   offsetof(struct trace_iterator, seq));
-+	trace_iterator_reset(&iter);
- 	iter.iter_flags |= TRACE_FILE_LAT_FMT;
--	iter.pos = -1;
- 
- 	if (cpu_file == RING_BUFFER_ALL_CPUS) {
- 		for_each_tracing_cpu(cpu) {
+-	tx = kmem_cache_alloc(dev->verbs_txreq_cache, GFP_ATOMIC);
++	tx = kmem_cache_alloc(dev->verbs_txreq_cache, VERBS_TXREQ_GFP);
+ 	if (unlikely(!tx)) {
+ 		/* call slow path to get the lock */
+ 		tx = __get_txreq(dev, qp);
 
 
