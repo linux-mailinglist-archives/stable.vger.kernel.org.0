@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE8BB506BB
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFBED508CA
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:23:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728993AbfFXJ63 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:58:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57030 "EHLO mail.kernel.org"
+        id S1727722AbfFXKVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:21:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728988AbfFXJ61 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:58:27 -0400
+        id S1727525AbfFXKVn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:21:43 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E12F2133F;
-        Mon, 24 Jun 2019 09:58:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A938A20645;
+        Mon, 24 Jun 2019 10:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370307;
-        bh=nE/1FQTySd98J+zFhzWiW+xhzSYcp2gbPb9bmQWUo2o=;
+        s=default; t=1561371702;
+        bh=bD9YaJqBlzl1KE7+ecKFBN9ZNPFXK3KxohStnliNm60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ba02AmYmCY6OQOrYFkomkecXNIK3EOqh7rRO6D0U1NAu5Kfw+bP9rZe1GCpwFmpgy
-         MVzwS32QjtJ0nqbuCCEpUCM/4+xrwwbT0oHDQLJR7zMv8Sg4UamcVPpg98TTtpZ+YY
-         fiedLsZsF+uosA6N09VI66/e3y46ZBytXtBT2M88=
+        b=cK4nLNRpFig/SrmIREvUXfevaopa8Rhg5qLROSeEUmhGS802jXyOuhD95rHi969VC
+         dxrMGUMU/5RoS6WfHq+QtDYWfzYaIr0bpPbYo4l9E5MBnW1Ce1KY0XHhGaEQbO+Mu1
+         ArWRExiFSbJz0A8DXXpIyCXtddozghRltfwhIRIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Wen He <wen.he_1@nxp.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/51] net: hns: Fix loopback test failed at copper ports
+Subject: [PATCH 5.1 070/121] drm/arm/mali-dp: Add a loop around the second set CVAL and try 5 times
 Date:   Mon, 24 Jun 2019 17:56:42 +0800
-Message-Id: <20190624092309.199330544@linuxfoundation.org>
+Message-Id: <20190624092324.454603668@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2e1f164861e500f4e068a9d909bbd3fcc7841483 ]
+[ Upstream commit 6a88e0c14813d00f8520d0e16cd4136c6cf8b4d4 ]
 
-When doing a loopback test at copper ports, the serdes loopback
-and the phy loopback will fail, because of the adjust link had
-not finished, and phy not ready.
+This patch trying to fix monitor freeze issue caused by drm error
+'flip_done timed out' on LS1028A platform. this set try is make a loop
+around the second setting CVAL and try like 5 times before giveing up.
 
-Adds sleep between adjust link and test process to fix it.
-
-Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Wen He <wen.he_1@nxp.com>
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns/hns_ethtool.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/arm/malidp_drv.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c b/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
-index 14df03f60e05..523d52fbaafe 100644
---- a/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
-@@ -338,6 +338,7 @@ static int __lb_setup(struct net_device *ndev,
- static int __lb_up(struct net_device *ndev,
- 		   enum hnae_loop loop_mode)
+diff --git a/drivers/gpu/drm/arm/malidp_drv.c b/drivers/gpu/drm/arm/malidp_drv.c
+index ab50ad06e271..64da56f4b0cf 100644
+--- a/drivers/gpu/drm/arm/malidp_drv.c
++++ b/drivers/gpu/drm/arm/malidp_drv.c
+@@ -192,6 +192,7 @@ static void malidp_atomic_commit_hw_done(struct drm_atomic_state *state)
  {
-+#define NIC_LB_TEST_WAIT_PHY_LINK_TIME 300
- 	struct hns_nic_priv *priv = netdev_priv(ndev);
- 	struct hnae_handle *h = priv->ae_handle;
- 	int speed, duplex;
-@@ -364,6 +365,9 @@ static int __lb_up(struct net_device *ndev,
+ 	struct drm_device *drm = state->dev;
+ 	struct malidp_drm *malidp = drm->dev_private;
++	int loop = 5;
  
- 	h->dev->ops->adjust_link(h, speed, duplex);
+ 	malidp->event = malidp->crtc.state->event;
+ 	malidp->crtc.state->event = NULL;
+@@ -206,8 +207,18 @@ static void malidp_atomic_commit_hw_done(struct drm_atomic_state *state)
+ 			drm_crtc_vblank_get(&malidp->crtc);
  
-+	/* wait adjust link done and phy ready */
-+	msleep(NIC_LB_TEST_WAIT_PHY_LINK_TIME);
+ 		/* only set config_valid if the CRTC is enabled */
+-		if (malidp_set_and_wait_config_valid(drm) < 0)
++		if (malidp_set_and_wait_config_valid(drm) < 0) {
++			/*
++			 * make a loop around the second CVAL setting and
++			 * try 5 times before giving up.
++			 */
++			while (loop--) {
++				if (!malidp_set_and_wait_config_valid(drm))
++					break;
++			}
+ 			DRM_DEBUG_DRIVER("timed out waiting for updated configuration\n");
++		}
 +
- 	return 0;
- }
- 
+ 	} else if (malidp->event) {
+ 		/* CRTC inactive means vblank IRQ is disabled, send event directly */
+ 		spin_lock_irq(&drm->event_lock);
 -- 
 2.20.1
 
