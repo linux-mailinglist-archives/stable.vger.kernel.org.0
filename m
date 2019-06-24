@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B05F506C4
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ACC35081E
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728577AbfFXJ6L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:58:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56466 "EHLO mail.kernel.org"
+        id S1728369AbfFXKNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:13:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727730AbfFXJ6G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:58:06 -0400
+        id S1729927AbfFXKNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:13:34 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26BF92133F;
-        Mon, 24 Jun 2019 09:58:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC1CD208E3;
+        Mon, 24 Jun 2019 10:13:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370285;
-        bh=bEHHrYkQbw1vBG4lqYRQmMIy7a27mNWZcIwa2xrVEWo=;
+        s=default; t=1561371213;
+        bh=/HOzZ3tUCI58Vzm6Y/06mjVC11/HSZIq3LWJHbOOqJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uNFraNmhTHiuYWeKe+SgzcmGQwgIpLyr/Uk8q76fOSJ6ECWI2C/fcUSRtRkzCFYfH
-         gzDZtGXvckLdzGcdmlur6K21gOR7SQ8EqkkehpeGRD1+G19h9UNu0oGd+8pcw3CNiY
-         SptkJe/6lTq35dpBUTD78tH2qPPYFDYUeio22YyA=
+        b=fDwtgCPF5Sa2dRLAWAnS+yD/0L0GNJy7O9c5RtSTGhwSJ97njRe9exxcPXOsn7rCr
+         4lZNj1Fotc//qan3kGLnZr+1zPilthqKS2PAHfZkaTXlxZAodYVfUga2RaG9dLCjOp
+         IsufxfZk74PQvVujGxkMyJVdJtU4JgAkWFTdIU1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org,
+        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 17/51] IB/rdmavt: Fix alloc_qpn() WARN_ON()
+Subject: [PATCH 5.1 063/121] net: dsa: mv88e6xxx: avoid error message on remove from VLAN 0
 Date:   Mon, 24 Jun 2019 17:56:35 +0800
-Message-Id: <20190624092308.275443094@linuxfoundation.org>
+Message-Id: <20190624092323.999051754@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2abae62a26a265129b364d8c1ef3be55e2c01309 ]
+[ Upstream commit 62394708f3e01c9f2be6be74eb6305bae1ed924f ]
 
-The qpn allocation logic has a WARN_ON() that intends to detect the use of
-an index that will introduce bits in the lower order bits of the QOS bits
-in the QPN.
+When non-bridged, non-vlan'ed mv88e6xxx port is moving down, error
+message is logged:
 
-Unfortunately, it has the following bugs:
-- it misfires when wrapping QPN allocation for non-QOS
-- it doesn't correctly detect low order QOS bits (despite the comment)
+failed to kill vid 0081/0 for device eth_cu_1000_4
 
-The WARN_ON() should not be applied to non-QOS (qos_shift == 1).
+This is caused by call from __vlan_vid_del() with vin set to zero, over
+call chain this results into _mv88e6xxx_port_vlan_del() called with
+vid=0, and mv88e6xxx_vtu_get() called from there returns -EINVAL.
 
-Additionally, it SHOULD test the qpn bits per the table below:
+On symmetric path moving port up, call goes through
+mv88e6xxx_port_vlan_prepare() that calls mv88e6xxx_port_check_hw_vlan()
+that returns -EOPNOTSUPP for zero vid.
 
-2 data VLs:   [qp7, qp6, qp5, qp4, qp3, qp2, qp1] ^
-              [  0,   0,   0,   0,   0,   0, sc0],  qp bit 1 always 0*
-3-4 data VLs: [qp7, qp6, qp5, qp4, qp3, qp2, qp1] ^
-              [  0,   0,   0,   0,   0, sc1, sc0], qp bits [21] always 0
-5-8 data VLs: [qp7, qp6, qp5, qp4, qp3, qp2, qp1] ^
-              [  0,   0,   0,   0, sc2, sc1, sc0] qp bits [321] always 0
+This patch changes mv88e6xxx_vtu_get() to also return -EOPNOTSUPP for
+zero vid, then this error code is explicitly cleared in
+dsa_slave_vlan_rx_kill_vid() and error message is no longer logged.
 
-Fix by qualifying the warning for qos_shift > 1 and producing the correct
-mask to insure the above bits are zero without generating a superfluous
-warning.
-
-Fixes: 501edc42446e ("IB/rdmavt: Correct warning during QPN allocation")
-Reviewed-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rdmavt/qp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/dsa/mv88e6xxx/chip.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rdmavt/qp.c b/drivers/infiniband/sw/rdmavt/qp.c
-index 22df09ae809e..b0309876f4bb 100644
---- a/drivers/infiniband/sw/rdmavt/qp.c
-+++ b/drivers/infiniband/sw/rdmavt/qp.c
-@@ -412,7 +412,8 @@ static int alloc_qpn(struct rvt_dev_info *rdi, struct rvt_qpn_table *qpt,
- 			offset = qpt->incr | ((offset & 1) ^ 1);
- 		}
- 		/* there can be no set bits in low-order QoS bits */
--		WARN_ON(offset & (BIT(rdi->dparms.qos_shift) - 1));
-+		WARN_ON(rdi->dparms.qos_shift > 1 &&
-+			offset & ((BIT(rdi->dparms.qos_shift - 1) - 1) << 1));
- 		qpn = mk_qpn(qpt, map, offset);
- 	}
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 720f1dde2c2d..ae750ab9a4d7 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -1517,7 +1517,7 @@ static int mv88e6xxx_vtu_get(struct mv88e6xxx_chip *chip, u16 vid,
+ 	int err;
  
+ 	if (!vid)
+-		return -EINVAL;
++		return -EOPNOTSUPP;
+ 
+ 	entry->vid = vid - 1;
+ 	entry->valid = false;
 -- 
 2.20.1
 
