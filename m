@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D77A507D3
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A325081B
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729878AbfFXKKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:10:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40438 "EHLO mail.kernel.org"
+        id S1729683AbfFXKEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:04:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729805AbfFXKHq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:07:46 -0400
+        id S1728831AbfFXKE3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:04:29 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3848205C9;
-        Mon, 24 Jun 2019 10:07:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D5DD205ED;
+        Mon, 24 Jun 2019 10:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370865;
-        bh=waqXTwaY0VCyUvlzzqZ5JTTN5lmFWcixD7uBoIJW5wo=;
+        s=default; t=1561370668;
+        bh=eXUgI4O6QoYCbIFoByqbhrudnIe63+NDqbKQVSLvN9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R1dmkRY1Su7IwMtOehX0cAD0OV9vBFNvDhEwGvZmuIe3XTXDH7f9kM5xYwIkrry2V
-         N7posF6Gmuq0e2DuNyZqEl2N/2lF3JTr+8Q501vQJQdouNtarmYnzvnhrEwr+iw0jz
-         niki+ov1LOuE95UEPomLivBgpu+34Vn4HMqdVNtw=
+        b=W6XFVAGORZCru+NBlnUUMwFYNGjvLoG0t5XnfdqpfmwCXDGJJKy3Y4fSKEZtevac3
+         RXwqBFvJRGu5Yj4oo+JadOah9StJJMbNuFhEzKWL3LtvJFP9e+MMXGnfj3yHM198J+
+         h3btbXnr0BGX3zBb09+V363piCii6u9Cz4U4wRZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
         Adrian Hunter <adrian.hunter@intel.com>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.1 029/121] brcmfmac: sdio: Disable auto-tuning around commands expected to fail
-Date:   Mon, 24 Jun 2019 17:56:01 +0800
-Message-Id: <20190624092322.322523215@linuxfoundation.org>
+Subject: [PATCH 4.19 12/90] mmc: sdhci: sdhci-pci-o2micro: Correctly set bus width when tuning
+Date:   Mon, 24 Jun 2019 17:56:02 +0800
+Message-Id: <20190624092314.811321051@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Raul E Rangel <rrangel@chromium.org>
 
-commit 2de0b42da263c97d330d276f5ccf7c4470e3324f upstream.
+commit 0f7b79a44e7d7dd3ef1f59758c1a341f217ff5e5 upstream.
 
-There are certain cases, notably when transitioning between sleep and
-active state, when Broadcom SDIO WiFi cards will produce errors on the
-SDIO bus.  This is evident from the source code where you can see that
-we try commands in a loop until we either get success or we've tried
-too many times.  The comment in the code reinforces this by saying
-"just one write attempt may fail"
+The O2Micro controller only supports tuning at 4-bits. So the host driver
+needs to change the bus width while tuning and then set it back when done.
 
-Unfortunately these failures sometimes end up causing an "-EILSEQ"
-back to the core which triggers a retuning of the SDIO card and that
-blocks all traffic to the card until it's done.
+There was a bug in the original implementation in that mmc->ios.bus_width
+also wasn't updated. Thus setting the incorrect blocksize in
+sdhci_send_tuning which results in a tuning failure.
 
-Let's disable retuning around the commands we expect might fail.
-
-Cc: stable@vger.kernel.org #v4.18+
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Fixes: 0086fc217d5d7 ("mmc: sdhci: Add support for O2 hardware tuning")
 Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Acked-by: Kalle Valo <kvalo@codeaurora.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/mmc/host/sdhci-pci-o2micro.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-@@ -676,6 +676,8 @@ brcmf_sdio_kso_control(struct brcmf_sdio
+--- a/drivers/mmc/host/sdhci-pci-o2micro.c
++++ b/drivers/mmc/host/sdhci-pci-o2micro.c
+@@ -117,6 +117,7 @@ static int sdhci_o2_execute_tuning(struc
+ 	 */
+ 	if (mmc->ios.bus_width == MMC_BUS_WIDTH_8) {
+ 		current_bus_width = mmc->ios.bus_width;
++		mmc->ios.bus_width = MMC_BUS_WIDTH_4;
+ 		sdhci_set_bus_width(host, MMC_BUS_WIDTH_4);
+ 	}
  
- 	brcmf_dbg(TRACE, "Enter: on=%d\n", on);
+@@ -128,8 +129,10 @@ static int sdhci_o2_execute_tuning(struc
  
-+	sdio_retune_crc_disable(bus->sdiodev->func1);
-+
- 	wr_val = (on << SBSDIO_FUNC1_SLEEPCSR_KSO_SHIFT);
- 	/* 1st KSO write goes to AOS wake up core if device is asleep  */
- 	brcmf_sdiod_writeb(bus->sdiodev, SBSDIO_FUNC1_SLEEPCSR, wr_val, &err);
-@@ -736,6 +738,8 @@ brcmf_sdio_kso_control(struct brcmf_sdio
- 	if (try_cnt > MAX_KSO_ATTEMPTS)
- 		brcmf_err("max tries: rd_val=0x%x err=%d\n", rd_val, err);
+ 	sdhci_end_tuning(host);
  
-+	sdio_retune_crc_enable(bus->sdiodev->func1);
-+
- 	return err;
- }
+-	if (current_bus_width == MMC_BUS_WIDTH_8)
++	if (current_bus_width == MMC_BUS_WIDTH_8) {
++		mmc->ios.bus_width = MMC_BUS_WIDTH_8;
+ 		sdhci_set_bus_width(host, current_bus_width);
++	}
  
+ 	host->flags &= ~SDHCI_HS400_TUNING;
+ 	return 0;
 
 
