@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EC9B5073F
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A427350742
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729831AbfFXKF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:05:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
+        id S1728939AbfFXKGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:06:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729819AbfFXKF6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:05:58 -0400
+        id S1729403AbfFXKGB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:06:01 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57E90212F5;
-        Mon, 24 Jun 2019 10:05:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0370C212F5;
+        Mon, 24 Jun 2019 10:05:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370757;
-        bh=0soxVsViu3xx6+L+4kDR+OCTU6k4+MLhJZC68ctLQYo=;
+        s=default; t=1561370760;
+        bh=OQps3H3ljcKHdkYTP3akozmibnMzVqfCH4EZLVabmbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xxwCx/yh0qSiS5EfeCAFMk2ShcqlAIIMHIcJbqS8KVZzRM0lBMLEynaT2q/+hz/tM
-         pCeABD2MQaaIPC+GFfAzliR72rrrhf2NxrB/oXUke+NTJGswzb4UgahCxcYvx0hEZF
-         SydwYXygCEEkZOa01+RqW2UfJOtc/iRHFEDOg8zI=
+        b=jmp27kTv1RlcRhxf7Q/JdqryTPQ0mk+j6T95yWfBS0S7Glv6wFt/Y4VxL80n83y8F
+         NFg5heK8Nw0vHHKrYHRQotG8QG0b4O5rBFp4JkHUig/jLp7UT/4Cvb1ySJbD+A93lF
+         DXUXxNrXCBYKd76y4JmQ8DzCwOdgn0BtGPEzNPg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
-        Deepak Rawat <drawat@vmware.com>
-Subject: [PATCH 4.19 79/90] drm/vmwgfx: Use the backdoor port if the HB port is not available
-Date:   Mon, 24 Jun 2019 17:57:09 +0800
-Message-Id: <20190624092319.123052565@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Gao Xiang <gaoxiang25@huawei.com>
+Subject: [PATCH 4.19 80/90] staging: erofs: add requirements field in superblock
+Date:   Mon, 24 Jun 2019 17:57:10 +0800
+Message-Id: <20190624092319.173827456@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
 References: <20190624092313.788773607@linuxfoundation.org>
@@ -43,221 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hellstrom <thellstrom@vmware.com>
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-commit cc0ba0d8624f210995924bb57a8b181ce8976606 upstream.
+commit 5efe5137f05bbb4688890620934538c005e7d1d6 upstream.
 
-The HB port may not be available for various reasons. Either it has been
-disabled by a config option or by the hypervisor for other reasons.
-In that case, make sure we have a backup plan and use the backdoor port
-instead with a performance penalty.
+There are some backward incompatible features pending
+for months, mainly due to on-disk format expensions.
 
-Cc: stable@vger.kernel.org
-Fixes: 89da76fde68d ("drm/vmwgfx: Add VMWare host messaging capability")
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Reviewed-by: Deepak Rawat <drawat@vmware.com>
+However, we should ensure that it cannot be mounted with
+old kernels. Otherwise, it will causes unexpected behaviors.
+
+Fixes: ba2b77a82022 ("staging: erofs: add super block operations")
+Cc: <stable@vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c |  146 ++++++++++++++++++++++++++++--------
- 1 file changed, 117 insertions(+), 29 deletions(-)
+ drivers/staging/erofs/erofs_fs.h |   13 ++++++++++---
+ drivers/staging/erofs/internal.h |    2 ++
+ drivers/staging/erofs/super.c    |   19 +++++++++++++++++++
+ 3 files changed, 31 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-@@ -136,6 +136,114 @@ static int vmw_close_channel(struct rpc_
- 	return 0;
+--- a/drivers/staging/erofs/erofs_fs.h
++++ b/drivers/staging/erofs/erofs_fs.h
+@@ -17,10 +17,16 @@
+ #define EROFS_SUPER_MAGIC_V1    0xE0F5E1E2
+ #define EROFS_SUPER_OFFSET      1024
+ 
++/*
++ * Any bits that aren't in EROFS_ALL_REQUIREMENTS should be
++ * incompatible with this kernel version.
++ */
++#define EROFS_ALL_REQUIREMENTS  0
++
+ struct erofs_super_block {
+ /*  0 */__le32 magic;           /* in the little endian */
+ /*  4 */__le32 checksum;        /* crc32c(super_block) */
+-/*  8 */__le32 features;
++/*  8 */__le32 features;        /* (aka. feature_compat) */
+ /* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
+ /* 13 */__u8 reserved;
+ 
+@@ -34,9 +40,10 @@ struct erofs_super_block {
+ /* 44 */__le32 xattr_blkaddr;
+ /* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
+ /* 64 */__u8 volume_name[16];   /* volume name */
++/* 80 */__le32 requirements;    /* (aka. feature_incompat) */
+ 
+-/* 80 */__u8 reserved2[48];     /* 128 bytes */
+-} __packed;
++/* 84 */__u8 reserved2[44];
++} __packed;                     /* 128 bytes */
+ 
+ #define __EROFS_BIT(_prefix, _cur, _pre)	enum {	\
+ 	_prefix ## _cur ## _BIT = _prefix ## _pre ## _BIT + \
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -111,6 +111,8 @@ struct erofs_sb_info {
+ 
+ 	u8 uuid[16];                    /* 128-bit uuid for volume */
+ 	u8 volume_name[16];             /* volume name */
++	u32 requirements;
++
+ 	char *dev_name;
+ 
+ 	unsigned int mount_opt;
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -75,6 +75,22 @@ static void destroy_inode(struct inode *
+ 	call_rcu(&inode->i_rcu, i_callback);
  }
  
-+/**
-+ * vmw_port_hb_out - Send the message payload either through the
-+ * high-bandwidth port if available, or through the backdoor otherwise.
-+ * @channel: The rpc channel.
-+ * @msg: NULL-terminated message.
-+ * @hb: Whether the high-bandwidth port is available.
-+ *
-+ * Return: The port status.
-+ */
-+static unsigned long vmw_port_hb_out(struct rpc_channel *channel,
-+				     const char *msg, bool hb)
++static bool check_layout_compatibility(struct super_block *sb,
++				       struct erofs_super_block *layout)
 +{
-+	unsigned long si, di, eax, ebx, ecx, edx;
-+	unsigned long msg_len = strlen(msg);
++	const unsigned int requirements = le32_to_cpu(layout->requirements);
 +
-+	if (hb) {
-+		unsigned long bp = channel->cookie_high;
++	EROFS_SB(sb)->requirements = requirements;
 +
-+		si = (uintptr_t) msg;
-+		di = channel->cookie_low;
-+
-+		VMW_PORT_HB_OUT(
-+			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
-+			msg_len, si, di,
-+			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
-+			VMW_HYPERVISOR_MAGIC, bp,
-+			eax, ebx, ecx, edx, si, di);
-+
-+		return ebx;
++	/* check if current kernel meets all mandatory requirements */
++	if (requirements & (~EROFS_ALL_REQUIREMENTS)) {
++		errln("unidentified requirements %x, please upgrade kernel version",
++		      requirements & ~EROFS_ALL_REQUIREMENTS);
++		return false;
 +	}
-+
-+	/* HB port not available. Send the message 4 bytes at a time. */
-+	ecx = MESSAGE_STATUS_SUCCESS << 16;
-+	while (msg_len && (HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS)) {
-+		unsigned int bytes = min_t(size_t, msg_len, 4);
-+		unsigned long word = 0;
-+
-+		memcpy(&word, msg, bytes);
-+		msg_len -= bytes;
-+		msg += bytes;
-+		si = channel->cookie_high;
-+		di = channel->cookie_low;
-+
-+		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_SENDPAYLOAD << 16),
-+			 word, si, di,
-+			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
-+			 VMW_HYPERVISOR_MAGIC,
-+			 eax, ebx, ecx, edx, si, di);
-+	}
-+
-+	return ecx;
++	return true;
 +}
 +
-+/**
-+ * vmw_port_hb_in - Receive the message payload either through the
-+ * high-bandwidth port if available, or through the backdoor otherwise.
-+ * @channel: The rpc channel.
-+ * @reply: Pointer to buffer holding reply.
-+ * @reply_len: Length of the reply.
-+ * @hb: Whether the high-bandwidth port is available.
-+ *
-+ * Return: The port status.
-+ */
-+static unsigned long vmw_port_hb_in(struct rpc_channel *channel, char *reply,
-+				    unsigned long reply_len, bool hb)
-+{
-+	unsigned long si, di, eax, ebx, ecx, edx;
-+
-+	if (hb) {
-+		unsigned long bp = channel->cookie_low;
-+
-+		si = channel->cookie_high;
-+		di = (uintptr_t) reply;
-+
-+		VMW_PORT_HB_IN(
-+			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
-+			reply_len, si, di,
-+			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
-+			VMW_HYPERVISOR_MAGIC, bp,
-+			eax, ebx, ecx, edx, si, di);
-+
-+		return ebx;
-+	}
-+
-+	/* HB port not available. Retrieve the message 4 bytes at a time. */
-+	ecx = MESSAGE_STATUS_SUCCESS << 16;
-+	while (reply_len) {
-+		unsigned int bytes = min_t(unsigned long, reply_len, 4);
-+
-+		si = channel->cookie_high;
-+		di = channel->cookie_low;
-+
-+		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_RECVPAYLOAD << 16),
-+			 MESSAGE_STATUS_SUCCESS, si, di,
-+			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
-+			 VMW_HYPERVISOR_MAGIC,
-+			 eax, ebx, ecx, edx, si, di);
-+
-+		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0)
-+			break;
-+
-+		memcpy(reply, &ebx, bytes);
-+		reply_len -= bytes;
-+		reply += bytes;
-+	}
-+
-+	return ecx;
-+}
- 
- 
- /**
-@@ -148,11 +256,10 @@ static int vmw_close_channel(struct rpc_
-  */
- static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
+ static int superblock_read(struct super_block *sb)
  {
--	unsigned long eax, ebx, ecx, edx, si, di, bp;
-+	unsigned long eax, ebx, ecx, edx, si, di;
- 	size_t msg_len = strlen(msg);
- 	int retries = 0;
+ 	struct erofs_sb_info *sbi;
+@@ -108,6 +124,9 @@ static int superblock_read(struct super_
+ 		goto out;
+ 	}
  
--
- 	while (retries < RETRIES) {
- 		retries++;
- 
-@@ -166,23 +273,14 @@ static int vmw_send_msg(struct rpc_chann
- 			VMW_HYPERVISOR_MAGIC,
- 			eax, ebx, ecx, edx, si, di);
- 
--		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
--		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
--			/* Expected success + high-bandwidth. Give up. */
-+		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
-+			/* Expected success. Give up. */
- 			return -EINVAL;
- 		}
- 
- 		/* Send msg */
--		si  = (uintptr_t) msg;
--		di  = channel->cookie_low;
--		bp  = channel->cookie_high;
--
--		VMW_PORT_HB_OUT(
--			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
--			msg_len, si, di,
--			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
--			VMW_HYPERVISOR_MAGIC, bp,
--			eax, ebx, ecx, edx, si, di);
-+		ebx = vmw_port_hb_out(channel, msg,
-+				      !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
- 
- 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) != 0) {
- 			return 0;
-@@ -211,7 +309,7 @@ STACK_FRAME_NON_STANDARD(vmw_send_msg);
- static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 			size_t *msg_len)
- {
--	unsigned long eax, ebx, ecx, edx, si, di, bp;
-+	unsigned long eax, ebx, ecx, edx, si, di;
- 	char *reply;
- 	size_t reply_len;
- 	int retries = 0;
-@@ -233,8 +331,7 @@ static int vmw_recv_msg(struct rpc_chann
- 			VMW_HYPERVISOR_MAGIC,
- 			eax, ebx, ecx, edx, si, di);
- 
--		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
--		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
-+		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			DRM_ERROR("Failed to get reply size for host message.\n");
- 			return -EINVAL;
- 		}
-@@ -252,17 +349,8 @@ static int vmw_recv_msg(struct rpc_chann
- 
- 
- 		/* Receive buffer */
--		si  = channel->cookie_high;
--		di  = (uintptr_t) reply;
--		bp  = channel->cookie_low;
--
--		VMW_PORT_HB_IN(
--			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
--			reply_len, si, di,
--			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
--			VMW_HYPERVISOR_MAGIC, bp,
--			eax, ebx, ecx, edx, si, di);
--
-+		ebx = vmw_port_hb_in(channel, reply, reply_len,
-+				     !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
- 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
- 
++	if (!check_layout_compatibility(sb, layout))
++		goto out;
++
+ 	sbi->blocks = le32_to_cpu(layout->blocks);
+ 	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
+ #ifdef CONFIG_EROFS_FS_XATTR
 
 
