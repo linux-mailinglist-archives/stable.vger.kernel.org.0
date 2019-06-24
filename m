@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30DD55067D
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8CF75082D
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729134AbfFXJ7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:59:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57950 "EHLO mail.kernel.org"
+        id S1729587AbfFXKDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:03:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729120AbfFXJ7C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:02 -0400
+        id S1729570AbfFXKDy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:03:54 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E7AB205ED;
-        Mon, 24 Jun 2019 09:59:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80E3C208E3;
+        Mon, 24 Jun 2019 10:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370342;
-        bh=JLVeObjHjzNKx1lln9DG18Z8xT0aOW4ZUEfxrfdGs3Q=;
+        s=default; t=1561370634;
+        bh=wccXvejUM8tStnCnkBWeBJuealgTjoD8m0JC6Et+CAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GjrDDwEdYBiiUqJcGF3XMFRjIo3rJn8kIRyNSpp6Y5CSWTruAbdK6EbY8Y11I45d0
-         jrDItPkNsDK07iSoXrbtzKJn3noim3xxd2ZxrZx4/3mNiB7zIbbIxLzzXEmbofenf+
-         T3cOuRDe7cvHSiWP+0Dg1MSIlQDAJYMYjjgn64o4=
+        b=Da9kDXzaNLfkVj6J4mYh0fYjbITnF/zl6r7q7mv+fdTT7tuJrqoUTbInTWEY02NGF
+         J0znzMw/2XMF2WFOaqFFwq3LwPAT7yzxT8AcixAPoH2OrGOTjmLiax21T8wZnTjXHG
+         0eShzZSVzlapYN6J4eWlTWTqQH+rcNzNMz9inZkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 05/51] mmc: core: Prevent processing SDIO IRQs when the card is suspended
-Date:   Mon, 24 Jun 2019 17:56:23 +0800
-Message-Id: <20190624092306.562108995@linuxfoundation.org>
+        stable@vger.kernel.org, Joao Pinto <jpinto@synopsys.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Alexey Brodkin <abrodkin@synopsys.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 34/90] ARC: [plat-hsdk]: Add missing FIFO size entry in GMAC node
+Date:   Mon, 24 Jun 2019 17:56:24 +0800
+Message-Id: <20190624092316.543669276@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +49,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+[ Upstream commit 4c70850aeb2e40016722cd1abd43c679666d3ca0 ]
 
-commit 83293386bc95cf5e9f0c0175794455835bd1cb4a upstream.
+Add the binding for RX/TX fifo size of GMAC node.
 
-Processing of SDIO IRQs must obviously be prevented while the card is
-system suspended, otherwise we may end up trying to communicate with an
-uninitialized SDIO card.
-
-Reports throughout the years shows that this is not only a theoretical
-problem, but a real issue. So, let's finally fix this problem, by keeping
-track of the state for the card and bail out before processing the SDIO
-IRQ, in case the card is suspended.
-
-Cc: stable@vger.kernel.org
-Reported-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Joao Pinto <jpinto@synopsys.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Tested-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Acked-by: Alexey Brodkin <abrodkin@synopsys.com>
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sdio.c     |   13 ++++++++++++-
- drivers/mmc/core/sdio_irq.c |    4 ++++
- 2 files changed, 16 insertions(+), 1 deletion(-)
+ arch/arc/boot/dts/hsdk.dts | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/mmc/core/sdio.c
-+++ b/drivers/mmc/core/sdio.c
-@@ -907,6 +907,10 @@ static int mmc_sdio_pre_suspend(struct m
-  */
- static int mmc_sdio_suspend(struct mmc_host *host)
- {
-+	/* Prevent processing of SDIO IRQs in suspended state. */
-+	mmc_card_set_suspended(host->card);
-+	cancel_delayed_work_sync(&host->sdio_irq_work);
+diff --git a/arch/arc/boot/dts/hsdk.dts b/arch/arc/boot/dts/hsdk.dts
+index f67f614ccb0e..d131c54acd3e 100644
+--- a/arch/arc/boot/dts/hsdk.dts
++++ b/arch/arc/boot/dts/hsdk.dts
+@@ -184,6 +184,9 @@
+ 			mac-address = [00 00 00 00 00 00]; /* Filled in by U-Boot */
+ 			dma-coherent;
+ 
++			tx-fifo-depth = <4096>;
++			rx-fifo-depth = <4096>;
 +
- 	mmc_claim_host(host);
- 
- 	if (mmc_card_keep_power(host) && mmc_card_wake_sdio_irq(host))
-@@ -962,13 +966,20 @@ static int mmc_sdio_resume(struct mmc_ho
- 		err = sdio_enable_4bit_bus(host->card);
- 	}
- 
--	if (!err && host->sdio_irqs) {
-+	if (err)
-+		goto out;
-+
-+	/* Allow SDIO IRQs to be processed again. */
-+	mmc_card_clr_suspended(host->card);
-+
-+	if (host->sdio_irqs) {
- 		if (!(host->caps2 & MMC_CAP2_SDIO_IRQ_NOTHREAD))
- 			wake_up_process(host->sdio_irq_thread);
- 		else if (host->caps & MMC_CAP_SDIO_IRQ)
- 			host->ops->enable_sdio_irq(host, 1);
- 	}
- 
-+out:
- 	mmc_release_host(host);
- 
- 	host->pm_flags &= ~MMC_PM_KEEP_POWER;
---- a/drivers/mmc/core/sdio_irq.c
-+++ b/drivers/mmc/core/sdio_irq.c
-@@ -38,6 +38,10 @@ static int process_sdio_pending_irqs(str
- 	unsigned char pending;
- 	struct sdio_func *func;
- 
-+	/* Don't process SDIO IRQs if the card is suspended. */
-+	if (mmc_card_suspended(card))
-+		return 0;
-+
- 	/*
- 	 * Optimization, if there is only 1 function interrupt registered
- 	 * and we know an IRQ was signaled then call irq handler directly.
+ 			mdio {
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-- 
+2.20.1
+
 
 
