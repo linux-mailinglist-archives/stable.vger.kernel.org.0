@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BBBA507F6
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68F4F50869
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730008AbfFXKFx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:05:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37970 "EHLO mail.kernel.org"
+        id S1730872AbfFXKRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:17:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728846AbfFXKFx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:05:53 -0400
+        id S1730840AbfFXKQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:16:57 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D11D32145D;
-        Mon, 24 Jun 2019 10:05:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A4E120645;
+        Mon, 24 Jun 2019 10:16:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370752;
-        bh=J3lk6Rg+8MdhODyh01OhUMDKDNclpoK0P14pEu19wDc=;
+        s=default; t=1561371416;
+        bh=sLCeOjCrzZWFX3mgX9qYm4q7YOx5AuqolYxd8ZsyC4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ej6siDs5ms4gJ0R5tFjBZpR9fTcz7JP8V3LsqQTnjLcwcZ4uy7r5j1VGh6fsJ55Sr
-         ikFEJbxep1L5hbyhbMrn0SGVAXKlScfBLAusi5t6uzdECFwUijZzpYE51/RiRK/7IX
-         20OF1zoT+QPBQ2/4ZXLQDICT5jxobQG4HTE3pEIs=
+        b=jtKCFtaqhzMWShFyMYmC8lodbPYW3S4qKPJ0IxLyzyKlnZo8Jye7If0E5q/gRHjLs
+         U9dsLE8yFERA3XOaaBaCTuld6ZeBHlglveTD6rXTO+7IEVVS+mXcjvKae00zIqnzMy
+         EvJTWdK6MyZYo2BoZOZrRLspuTr8CAxTi8sdHyf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Martin <Dave.Martin@arm.com>,
-        Anisse Astier <aastier@freebox.fr>,
-        Will Deacon <will.deacon@arm.com>
-Subject: [PATCH 4.19 77/90] arm64/sve: <uapi/asm/ptrace.h> should not depend on <uapi/linux/prctl.h>
+        stable@vger.kernel.org,
+        syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com,
+        Willem de Bruijn <willemb@google.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.1 095/121] can: purge socket error queue on sock destruct
 Date:   Mon, 24 Jun 2019 17:57:07 +0800
-Message-Id: <20190624092319.002811331@linuxfoundation.org>
+Message-Id: <20190624092325.617532146@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anisse Astier <aastier@freebox.fr>
+From: Willem de Bruijn <willemb@google.com>
 
-commit 35341ca0614ab13e1ef34ad4f29a39e15ef31fa8 upstream.
+commit fd704bd5ee749d560e86c4f1fd2ef486d8abf7cf upstream.
 
-Pulling linux/prctl.h into asm/ptrace.h in the arm64 UAPI headers causes
-userspace build issues for any program (e.g. strace and qemu) that
-includes both <sys/prctl.h> and <linux/ptrace.h> when using musl libc:
+CAN supports software tx timestamps as of the below commit. Purge
+any queued timestamp packets on socket destroy.
 
-  | error: redefinition of 'struct prctl_mm_map'
-  |  struct prctl_mm_map {
-
-See https://github.com/foundriesio/meta-lmp/commit/6d4a106e191b5d79c41b9ac78fd321316d3013c0
-for a public example of people working around this issue.
-
-Although it's a bit grotty, fix this breakage by duplicating the prctl
-constant definitions. Since these are part of the kernel ABI, they
-cannot be changed in future and so it's not the end of the world to have
-them open-coded.
-
-Fixes: 43d4da2c45b2 ("arm64/sve: ptrace and ELF coredump support")
-Cc: stable@vger.kernel.org
-Acked-by: Dave Martin <Dave.Martin@arm.com>
-Signed-off-by: Anisse Astier <aastier@freebox.fr>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Fixes: 51f31cabe3ce ("ip: support for TX timestamps on UDP and RAW sockets")
+Reported-by: syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/uapi/asm/ptrace.h |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/can/af_can.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/include/uapi/asm/ptrace.h
-+++ b/arch/arm64/include/uapi/asm/ptrace.h
-@@ -64,8 +64,6 @@
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -105,6 +105,7 @@ EXPORT_SYMBOL(can_ioctl);
+ static void can_sock_destruct(struct sock *sk)
+ {
+ 	skb_queue_purge(&sk->sk_receive_queue);
++	skb_queue_purge(&sk->sk_error_queue);
+ }
  
- #ifndef __ASSEMBLY__
- 
--#include <linux/prctl.h>
--
- /*
-  * User structures for general purpose, floating point and debug registers.
-  */
-@@ -112,10 +110,10 @@ struct user_sve_header {
- 
- /*
-  * Common SVE_PT_* flags:
-- * These must be kept in sync with prctl interface in <linux/ptrace.h>
-+ * These must be kept in sync with prctl interface in <linux/prctl.h>
-  */
--#define SVE_PT_VL_INHERIT		(PR_SVE_VL_INHERIT >> 16)
--#define SVE_PT_VL_ONEXEC		(PR_SVE_SET_VL_ONEXEC >> 16)
-+#define SVE_PT_VL_INHERIT		((1 << 17) /* PR_SVE_VL_INHERIT */ >> 16)
-+#define SVE_PT_VL_ONEXEC		((1 << 18) /* PR_SVE_SET_VL_ONEXEC */ >> 16)
- 
- 
- /*
+ static const struct can_proto *can_get_proto(int protocol)
 
 
