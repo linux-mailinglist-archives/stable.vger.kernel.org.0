@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF9665087A
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A335074F
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730460AbfFXKRb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:17:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55146 "EHLO mail.kernel.org"
+        id S1730154AbfFXKGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:06:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729416AbfFXKRa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:17:30 -0400
+        id S1730147AbfFXKGj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:06:39 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 821C02133F;
-        Mon, 24 Jun 2019 10:17:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C586D2146F;
+        Mon, 24 Jun 2019 10:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371449;
-        bh=0soxVsViu3xx6+L+4kDR+OCTU6k4+MLhJZC68ctLQYo=;
+        s=default; t=1561370798;
+        bh=0UShVwJkVQmYqGoIXL46mVMoloO+EmCe9/+uzLfXZDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MRJyaFZI56fyBg/NXCpmVDlNYB3+qKkJhGqtYk0nImrUAYFbdU64JpHZVjTQ1SHuI
-         BOo1dqkOE+g6HJqHXFj2D/M4JIE4g+jM7cKpiQki0WTCv1VeisxExbGHN1KeC/ZnyC
-         s8DWfcEbkDOSN8I5Ew1Qgs1vSuQGZsSUeLFQHwLc=
+        b=I+pFKUVUhjalcZf9uOgEnfvuel87nqipVCmoLCabxcRss6wjG3OfiDs1IGR7Z0T3Y
+         61iF1r+OWwjq8GirpVw9x6pPvCWE2yMqLOtdNWnD1tgnAHCQRCtzcAabv5I/ovFEzk
+         hja69o+o+PWloIZtgAK4dFOlWUvzK43Rhkr7aj0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
-        Deepak Rawat <drawat@vmware.com>
-Subject: [PATCH 5.1 106/121] drm/vmwgfx: Use the backdoor port if the HB port is not available
+        stable@vger.kernel.org, Andy Strohman <andy@uplevelsystems.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 88/90] nl80211: fix station_info pertid memory leak
 Date:   Mon, 24 Jun 2019 17:57:18 +0800
-Message-Id: <20190624092326.112737327@linuxfoundation.org>
+Message-Id: <20190624092319.649008473@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,221 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hellstrom <thellstrom@vmware.com>
+From: Andy Strohman <andrew@andrewstrohman.com>
 
-commit cc0ba0d8624f210995924bb57a8b181ce8976606 upstream.
+commit f77bf4863dc2218362f4227d56af4a5f3f08830c upstream.
 
-The HB port may not be available for various reasons. Either it has been
-disabled by a config option or by the hypervisor for other reasons.
-In that case, make sure we have a backup plan and use the backdoor port
-instead with a performance penalty.
+When dumping stations, memory allocated for station_info's
+pertid member will leak if the nl80211 header cannot be added to
+the sk_buff due to insufficient tail room.
+
+I noticed this leak in the kmalloc-2048 cache.
 
 Cc: stable@vger.kernel.org
-Fixes: 89da76fde68d ("drm/vmwgfx: Add VMWare host messaging capability")
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Reviewed-by: Deepak Rawat <drawat@vmware.com>
+Fixes: 8689c051a201 ("cfg80211: dynamically allocate per-tid stats for station info")
+Signed-off-by: Andy Strohman <andy@uplevelsystems.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_msg.c |  146 ++++++++++++++++++++++++++++--------
- 1 file changed, 117 insertions(+), 29 deletions(-)
+ net/wireless/nl80211.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
-@@ -136,6 +136,114 @@ static int vmw_close_channel(struct rpc_
- 	return 0;
- }
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -4611,8 +4611,10 @@ static int nl80211_send_station(struct s
+ 	struct nlattr *sinfoattr, *bss_param;
  
-+/**
-+ * vmw_port_hb_out - Send the message payload either through the
-+ * high-bandwidth port if available, or through the backdoor otherwise.
-+ * @channel: The rpc channel.
-+ * @msg: NULL-terminated message.
-+ * @hb: Whether the high-bandwidth port is available.
-+ *
-+ * Return: The port status.
-+ */
-+static unsigned long vmw_port_hb_out(struct rpc_channel *channel,
-+				     const char *msg, bool hb)
-+{
-+	unsigned long si, di, eax, ebx, ecx, edx;
-+	unsigned long msg_len = strlen(msg);
-+
-+	if (hb) {
-+		unsigned long bp = channel->cookie_high;
-+
-+		si = (uintptr_t) msg;
-+		di = channel->cookie_low;
-+
-+		VMW_PORT_HB_OUT(
-+			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
-+			msg_len, si, di,
-+			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
-+			VMW_HYPERVISOR_MAGIC, bp,
-+			eax, ebx, ecx, edx, si, di);
-+
-+		return ebx;
+ 	hdr = nl80211hdr_put(msg, portid, seq, flags, cmd);
+-	if (!hdr)
++	if (!hdr) {
++		cfg80211_sinfo_release_content(sinfo);
+ 		return -1;
 +	}
-+
-+	/* HB port not available. Send the message 4 bytes at a time. */
-+	ecx = MESSAGE_STATUS_SUCCESS << 16;
-+	while (msg_len && (HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS)) {
-+		unsigned int bytes = min_t(size_t, msg_len, 4);
-+		unsigned long word = 0;
-+
-+		memcpy(&word, msg, bytes);
-+		msg_len -= bytes;
-+		msg += bytes;
-+		si = channel->cookie_high;
-+		di = channel->cookie_low;
-+
-+		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_SENDPAYLOAD << 16),
-+			 word, si, di,
-+			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
-+			 VMW_HYPERVISOR_MAGIC,
-+			 eax, ebx, ecx, edx, si, di);
-+	}
-+
-+	return ecx;
-+}
-+
-+/**
-+ * vmw_port_hb_in - Receive the message payload either through the
-+ * high-bandwidth port if available, or through the backdoor otherwise.
-+ * @channel: The rpc channel.
-+ * @reply: Pointer to buffer holding reply.
-+ * @reply_len: Length of the reply.
-+ * @hb: Whether the high-bandwidth port is available.
-+ *
-+ * Return: The port status.
-+ */
-+static unsigned long vmw_port_hb_in(struct rpc_channel *channel, char *reply,
-+				    unsigned long reply_len, bool hb)
-+{
-+	unsigned long si, di, eax, ebx, ecx, edx;
-+
-+	if (hb) {
-+		unsigned long bp = channel->cookie_low;
-+
-+		si = channel->cookie_high;
-+		di = (uintptr_t) reply;
-+
-+		VMW_PORT_HB_IN(
-+			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
-+			reply_len, si, di,
-+			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
-+			VMW_HYPERVISOR_MAGIC, bp,
-+			eax, ebx, ecx, edx, si, di);
-+
-+		return ebx;
-+	}
-+
-+	/* HB port not available. Retrieve the message 4 bytes at a time. */
-+	ecx = MESSAGE_STATUS_SUCCESS << 16;
-+	while (reply_len) {
-+		unsigned int bytes = min_t(unsigned long, reply_len, 4);
-+
-+		si = channel->cookie_high;
-+		di = channel->cookie_low;
-+
-+		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_RECVPAYLOAD << 16),
-+			 MESSAGE_STATUS_SUCCESS, si, di,
-+			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
-+			 VMW_HYPERVISOR_MAGIC,
-+			 eax, ebx, ecx, edx, si, di);
-+
-+		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0)
-+			break;
-+
-+		memcpy(reply, &ebx, bytes);
-+		reply_len -= bytes;
-+		reply += bytes;
-+	}
-+
-+	return ecx;
-+}
  
- 
- /**
-@@ -148,11 +256,10 @@ static int vmw_close_channel(struct rpc_
-  */
- static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
- {
--	unsigned long eax, ebx, ecx, edx, si, di, bp;
-+	unsigned long eax, ebx, ecx, edx, si, di;
- 	size_t msg_len = strlen(msg);
- 	int retries = 0;
- 
--
- 	while (retries < RETRIES) {
- 		retries++;
- 
-@@ -166,23 +273,14 @@ static int vmw_send_msg(struct rpc_chann
- 			VMW_HYPERVISOR_MAGIC,
- 			eax, ebx, ecx, edx, si, di);
- 
--		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
--		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
--			/* Expected success + high-bandwidth. Give up. */
-+		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
-+			/* Expected success. Give up. */
- 			return -EINVAL;
- 		}
- 
- 		/* Send msg */
--		si  = (uintptr_t) msg;
--		di  = channel->cookie_low;
--		bp  = channel->cookie_high;
--
--		VMW_PORT_HB_OUT(
--			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
--			msg_len, si, di,
--			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
--			VMW_HYPERVISOR_MAGIC, bp,
--			eax, ebx, ecx, edx, si, di);
-+		ebx = vmw_port_hb_out(channel, msg,
-+				      !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
- 
- 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) != 0) {
- 			return 0;
-@@ -211,7 +309,7 @@ STACK_FRAME_NON_STANDARD(vmw_send_msg);
- static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
- 			size_t *msg_len)
- {
--	unsigned long eax, ebx, ecx, edx, si, di, bp;
-+	unsigned long eax, ebx, ecx, edx, si, di;
- 	char *reply;
- 	size_t reply_len;
- 	int retries = 0;
-@@ -233,8 +331,7 @@ static int vmw_recv_msg(struct rpc_chann
- 			VMW_HYPERVISOR_MAGIC,
- 			eax, ebx, ecx, edx, si, di);
- 
--		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
--		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
-+		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			DRM_ERROR("Failed to get reply size for host message.\n");
- 			return -EINVAL;
- 		}
-@@ -252,17 +349,8 @@ static int vmw_recv_msg(struct rpc_chann
- 
- 
- 		/* Receive buffer */
--		si  = channel->cookie_high;
--		di  = (uintptr_t) reply;
--		bp  = channel->cookie_low;
--
--		VMW_PORT_HB_IN(
--			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
--			reply_len, si, di,
--			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
--			VMW_HYPERVISOR_MAGIC, bp,
--			eax, ebx, ecx, edx, si, di);
--
-+		ebx = vmw_port_hb_in(channel, reply, reply_len,
-+				     !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
- 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) == 0) {
- 			kfree(reply);
- 
+ 	if (nla_put_u32(msg, NL80211_ATTR_IFINDEX, dev->ifindex) ||
+ 	    nla_put(msg, NL80211_ATTR_MAC, ETH_ALEN, mac_addr) ||
 
 
