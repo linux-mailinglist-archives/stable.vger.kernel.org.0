@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7EEC50730
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D2BD50698
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729902AbfFXKFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:05:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37248 "EHLO mail.kernel.org"
+        id S1728434AbfFXJ7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:59:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728981AbfFXKFU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:05:20 -0400
+        id S1729258AbfFXJ7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:59:42 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60F61208E3;
-        Mon, 24 Jun 2019 10:05:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9C6A21707;
+        Mon, 24 Jun 2019 09:59:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370719;
-        bh=JnnPt4jzV+wGPPsHcZgFqR7TkJCurgQAYoVCh5BMDfg=;
+        s=default; t=1561370382;
+        bh=SroNtNBSHwyo2gYVUKqPXgaMziChHnyAc0Rq/AajKXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2qp3pl9jfm0pXPEc4TWrBQFfeMxs13dA26KcQsNcxgcKDsiCqbCp+0DSnLZjVgfZx
-         71z9GXNZXV1DPf4dYHOu47j4JjgGduj3AM267TccjYOS9dlyndingUTHToJTJcQEZR
-         zcB/Wp4HdShSQycTP39AcbFOPLw3cG1cTt0gGh7Y=
+        b=Av4uQnWVPdna4XQAQB9MygQNGtn5ryAoUqOtwqw9FLQziaX02KrLIfNLq2CyCfjM7
+         MDS0BgDaBoDdKUbOter5wdZiMDpgzzPdUmyI5TEUtDaBvxBE0aPlus0VVdp9IQkpH8
+         TZ4/gF+MSN6iV5qhMzcCqY42WKkwng1BTAB5l0r0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Martin <Dave.Martin@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
+        stable@vger.kernel.org, Jaesoo Lee <jalee@purestorage.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 66/90] arm64: Silence gcc warnings about arch ABI drift
+Subject: [PATCH 4.14 38/51] nvme: Fix u32 overflow in the number of namespace list calculation
 Date:   Mon, 24 Jun 2019 17:56:56 +0800
-Message-Id: <20190624092318.394884410@linuxfoundation.org>
+Message-Id: <20190624092310.525280784@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ebcc5928c5d925b1c8d968d9c89cdb0d0186db17 ]
+[ Upstream commit c8e8c77b3bdbade6e26e8e76595f141ede12b692 ]
 
-Since GCC 9, the compiler warns about evolution of the
-platform-specific ABI, in particular relating for the marshaling of
-certain structures involving bitfields.
+The Number of Namespaces (nn) field in the identify controller data structure is
+defined as u32 and the maximum allowed value in NVMe specification is
+0xFFFFFFFEUL. This change fixes the possible overflow of the DIV_ROUND_UP()
+operation used in nvme_scan_ns_list() by casting the nn to u64.
 
-The kernel is a standalone binary, and of course nobody would be
-so stupid as to expose structs containing bitfields as function
-arguments in ABI.  (Passing a pointer to such a struct, however
-inadvisable, should be unaffected by this change.  perf and various
-drivers rely on that.)
-
-So these warnings do more harm than good: turn them off.
-
-We may miss warnings about future ABI drift, but that's too bad.
-Future ABI breaks of this class will have to be debugged and fixed
-the traditional way unless the compiler evolves finer-grained
-diagnostics.
-
-Signed-off-by: Dave Martin <Dave.Martin@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Jaesoo Lee <jalee@purestorage.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvme/host/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-index 35649ee8ad56..c12ff63265a9 100644
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -51,6 +51,7 @@ endif
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index d98ffb1ce629..768ac752a6e3 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2477,7 +2477,8 @@ static int nvme_scan_ns_list(struct nvme_ctrl *ctrl, unsigned nn)
+ {
+ 	struct nvme_ns *ns;
+ 	__le32 *ns_list;
+-	unsigned i, j, nsid, prev = 0, num_lists = DIV_ROUND_UP(nn, 1024);
++	unsigned i, j, nsid, prev = 0;
++	unsigned num_lists = DIV_ROUND_UP_ULL((u64)nn, 1024);
+ 	int ret = 0;
  
- KBUILD_CFLAGS	+= -mgeneral-regs-only $(lseinstr) $(brokengasinst)
- KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
-+KBUILD_CFLAGS	+= -Wno-psabi
- KBUILD_AFLAGS	+= $(lseinstr) $(brokengasinst)
- 
- KBUILD_CFLAGS	+= $(call cc-option,-mabi=lp64)
+ 	ns_list = kzalloc(0x1000, GFP_KERNEL);
 -- 
 2.20.1
 
