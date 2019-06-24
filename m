@@ -2,84 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 895E451C31
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 22:21:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F9351C8D
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 22:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730440AbfFXUVx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 16:21:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48892 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726393AbfFXUVw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 16:21:52 -0400
-Received: from localhost (unknown [167.220.24.221])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6755E20645;
-        Mon, 24 Jun 2019 20:21:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561407711;
-        bh=/rV1TlvYuXOK2sFci2/p6W21rW/APz4/kUsj3EobUV4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2VPaEOiYLx/B1U7xl+3URPJW/PCnea+Hoo4lmR8kq/6n244//CX5FcosNOr1Dj3oq
-         kZ/WOwKR+mt0aTbDmzXkGDY61uNn7Pw8n0E1ZmPY1FmKSwRlrgS69rOqWLgsC9nNQT
-         I7qwRnBg2lc/TFX9Q7IzCpvfO5IQUktLdI8ucdSE=
-Date:   Mon, 24 Jun 2019 16:21:50 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Ajay Kaher <akaher@vmware.com>
-Cc:     aarcange@redhat.com, jannh@google.com, oleg@redhat.com,
-        peterx@redhat.com, rppt@linux.ibm.com, jgg@mellanox.com,
-        mhocko@suse.com, jglisse@redhat.com, akpm@linux-foundation.org,
-        mike.kravetz@oracle.com, viro@zeniv.linux.org.uk,
-        riandrews@android.com, arve@android.com, yishaih@mellanox.com,
-        dledford@redhat.com, sean.hefty@intel.com,
-        hal.rosenstock@gmail.com, matanb@mellanox.com, leonro@mellanox.com,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-        devel@driverdev.osuosl.org, linux-rdma@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        srivatsab@vmware.com, amakhalov@vmware.com
-Subject: Re: [PATCH v4 0/3] [v4.9.y] coredump: fix race condition between
- mmget_not_zero()/get_task_mm() and core dumping
-Message-ID: <20190624202150.GC3881@sasha-vm>
-References: <1561410186-3919-1-git-send-email-akaher@vmware.com>
- <1561410186-3919-4-git-send-email-akaher@vmware.com>
+        id S1731992AbfFXUkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 16:40:14 -0400
+Received: from mail-wr1-f51.google.com ([209.85.221.51]:41148 "EHLO
+        mail-wr1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726920AbfFXUkO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 16:40:14 -0400
+Received: by mail-wr1-f51.google.com with SMTP id c2so15314448wrm.8
+        for <stable@vger.kernel.org>; Mon, 24 Jun 2019 13:40:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=CDemPgeWLZ8b5bYf1dhXjQPFMRBAjDYxgkrIzZyEjrU=;
+        b=ZfsJeEYELcA+buigsFauruRdhUU06k/eZBZUIe1s4bVl6lxq3X6rwBGn+EvV2OEKn9
+         DznuAS6UF+i+Tdp6cgVs2NVvDhIGTlz3Zl9xq4LmqtWxkwlLhpVVSLbFcgCqxEXTwX0B
+         3LqwAJpD4uwRRiThf+2z9UA4g/0o5Zb2JmRMP4yGgSmOyhtx6BG6M2wW7pUkCenZ2lrK
+         vc2KmJTs6gAKmW9lpgFtTNKetu+ZwbzJTOdSdAQdvp0q8wLX74zL4dNwmBTQLSTtefvM
+         sd+uNPt9CXIyBgK8OfelfZj4WFheRA9T1ztZTwSQKDk/5zMDfiX07RuJZfnqADGaSMuZ
+         tU8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=CDemPgeWLZ8b5bYf1dhXjQPFMRBAjDYxgkrIzZyEjrU=;
+        b=MiUtdeNQU4ouDlvoaxItCyM6W5ARLGnE0f0lDg/eg/3U7Qt69dOf8RqE6YQYE0Q+6d
+         QyYOrMqa8Wypso/B5R7JY0ToqaejLQnLxiuGnuO4b0CKZAAuBz26UtIkJ0dO+yTEgWpM
+         nl6cv1wQa6KzVVyNt5AZLUDUQkIqGNNyTzbFJr6EFoPhf6/yL9xLaeZn5DEXZa73l2yi
+         aaJUDMGSFPkDP++iIqspFZugIQsTF8aHe2zt5Ieq8LWlm4wizlfyAYSMvSSFNAfD16lf
+         Vh/P2EeCC/pWYxcaw43URuf/L+GuLyNM9AzuG3R6TP1GAAqk5EKeHMVG1K3Z1Um0LEAl
+         tdqg==
+X-Gm-Message-State: APjAAAX6xfEVg9qdDfmMy/0zrZFO4qFsK15xoP+IYIoG+J3HbHQdbVMK
+        rBKu6JPJacoUUSzw9scoNDOwxVYB/wBybQ==
+X-Google-Smtp-Source: APXvYqyIc39/LYMI8YcLzKCQzqmdCgGIFlraV2yXkG92ewYSzaRPpcKkIHNBdNAGSm118Vnj+itEvg==
+X-Received: by 2002:a5d:4484:: with SMTP id j4mr34314371wrq.143.1561408812130;
+        Mon, 24 Jun 2019 13:40:12 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y6sm425851wmd.16.2019.06.24.13.40.10
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 24 Jun 2019 13:40:11 -0700 (PDT)
+Message-ID: <5d11352b.1c69fb81.a90a1.281c@mx.google.com>
+Date:   Mon, 24 Jun 2019 13:40:11 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <1561410186-3919-4-git-send-email-akaher@vmware.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.55-92-gd8e5ade617e9
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 136 boots: 1 failed,
+ 127 passed with 7 offline, 1 untried/unknown (v4.19.55-92-gd8e5ade617e9)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 25, 2019 at 02:33:06AM +0530, Ajay Kaher wrote:
->coredump: fix race condition between mmget_not_zero()/get_task_mm()
->and core dumping
->
->[PATCH v4 1/3]:
->Backporting of commit 04f5866e41fb70690e28397487d8bd8eea7d712a upstream.
->
->[PATCH v4 2/3]:
->Extension of commit 04f5866e41fb to fix the race condition between
->get_task_mm() and core dumping for IB->mlx4 and IB->mlx5 drivers.
->
->[PATCH v4 3/3]
->Backporting of commit 59ea6d06cfa9247b586a695c21f94afa7183af74 upstream.
->
->[diff from v3]:
->- added [PATCH v4 3/3]
+stable-rc/linux-4.19.y boot: 136 boots: 1 failed, 127 passed with 7 offline=
+, 1 untried/unknown (v4.19.55-92-gd8e5ade617e9)
 
-Why do all the patches have the same subject line?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.55-92-gd8e5ade617e9/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.55-92-gd8e5ade617e9/
 
-I guess it's correct for the first one, but can you explain what's up
-with #2 and #3?
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.55-92-gd8e5ade617e9
+Git Commit: d8e5ade617e917a499d5d59b24e19e71f80886a8
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 75 unique boards, 25 SoC families, 16 builds out of 206
 
-If the second one isn't upstream, please explain in detail why not and
-how 4.9 differs from upstream so that it requires a custom backport.
+Boot Regressions Detected:
 
-The third one just looks like a different patch altogether with a wrong
-subject line?
+arm64:
 
---
-Thanks,
-Sasha
+    defconfig:
+        gcc-8:
+          meson-gxl-s905x-khadas-vim:
+              lab-baylibre: new failure (last pass: v4.19.55-91-gc491b02eb0=
+3a)
+
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s905x-khadas-vim: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
