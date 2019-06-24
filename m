@@ -2,122 +2,298 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 653835092D
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:47:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D2F50993
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 13:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728117AbfFXKrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:47:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37572 "EHLO mail.kernel.org"
+        id S1728657AbfFXLQ1 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 24 Jun 2019 07:16:27 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:55486 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726960AbfFXKrg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:47:36 -0400
-Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1727953AbfFXLQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 07:16:27 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2847820820
-        for <stable@vger.kernel.org>; Mon, 24 Jun 2019 10:47:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561373255;
-        bh=7cuNQF3ObRp0MQbyQAXGhrWlucgpmPnL6gf7i1+hGZ0=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=eEZTpLU6voW4XKsiRi771k1hVcO4Ci41Wzf4O8qFBPxETV7a/uFmvlmhlLIwp1kMc
-         XeBATn6pXH1FGNPSuMHdYLZRY8CzLvEHV096NmYi8dXtqtHefCffCnXK0nzGkI9m/A
-         yPgteTPqcj5MbB1AssU1tyxlwe3bYMYvrdybuwzY=
-Received: by mail-lj1-f173.google.com with SMTP id 131so12135809ljf.4
-        for <stable@vger.kernel.org>; Mon, 24 Jun 2019 03:47:35 -0700 (PDT)
-X-Gm-Message-State: APjAAAV0WZYp00ypRVjlfa7eqxdQp1adxwXF6zGWVXSUv+r8Rk4enEeb
-        c6j6gAHvD20ePcv8SGkOGosA9vKN/2SHB+LaAvY=
-X-Google-Smtp-Source: APXvYqwF6kbkvEAbrp9y3VfgKQWbWKmKlqO4YS+CAd1mTMcxXCJK6jaVMzMeWPpqZQyxbYQibRyq7w8iWGpBFk4zsOc=
-X-Received: by 2002:a2e:124b:: with SMTP id t72mr72699794lje.143.1561373253468;
- Mon, 24 Jun 2019 03:47:33 -0700 (PDT)
+        by mx1.redhat.com (Postfix) with ESMTPS id E294AC0546D3
+        for <stable@vger.kernel.org>; Mon, 24 Jun 2019 11:16:26 +0000 (UTC)
+Received: from [172.54.210.214] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 645745D717;
+        Mon, 24 Jun 2019 11:16:24 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-References: <1560948159-21926-1-git-send-email-krzk@kernel.org>
- <20190622181347.3BFC52070B@mail.kernel.org> <CAJKOXPeZH+jiXxsm_cpWsfuju=vhAd2GDoj_aH811pv17C6YOQ@mail.gmail.com>
- <20190624101129.GQ2226@sasha-vm> <CAJKOXPdCyhE8FDjc_XFkqPTPK-7k8bhnu5WEg+EOebaC3O6K+g@mail.gmail.com>
-In-Reply-To: <CAJKOXPdCyhE8FDjc_XFkqPTPK-7k8bhnu5WEg+EOebaC3O6K+g@mail.gmail.com>
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-Date:   Mon, 24 Jun 2019 12:47:22 +0200
-X-Gmail-Original-Message-ID: <CAJKOXPeBeeTQrp1ZYPTtc3Y8faUpmroqW0Ljh=NMgtpxJR-DPw@mail.gmail.com>
-Message-ID: <CAJKOXPeBeeTQrp1ZYPTtc3Y8faUpmroqW0Ljh=NMgtpxJR-DPw@mail.gmail.com>
-Subject: Re: [PATCH] regulator: s2mps11: Fix ERR_PTR dereference on GPIO
- lookup failure
-To:     Sasha Levin <sashal@kernel.org>, Mark Brown <broonie@kernel.org>
-Cc:     Sangbeom Kim <sbkim73@samsung.com>,
-        Georg Waibel <georg.waibel@sensor-technik.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.66554EF100.HO9HC6FEBK@redhat.com>
+X-Gitlab-Pipeline-ID: 13106
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Mon, 24 Jun 2019 11:16:26 +0000 (UTC)
+Date:   Mon, 24 Jun 2019 07:16:27 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
- On Mon, 24 Jun 2019 at 12:41, Krzysztof Kozlowski <krzk@kernel.org> wrote:
->
-> On Mon, 24 Jun 2019 at 12:11, Sasha Levin <sashal@kernel.org> wrote:
-> >
-> > On Mon, Jun 24, 2019 at 09:01:27AM +0200, Krzysztof Kozlowski wrote:
-> > >On Sat, 22 Jun 2019 at 20:13, Sasha Levin <sashal@kernel.org> wrote:
-> > >>
-> > >> Hi,
-> > >>
-> > >> [This is an automated email]
-> > >>
-> > >> This commit has been processed because it contains a "Fixes:" tag,
-> > >> fixing commit: 1c984942f0a4 regulator: s2mps11: Pass descriptor instead of GPIO number.
-> > >>
-> > >> The bot has tested the following trees: v5.1.12, v4.19.53.
-> > >>
-> > >> v5.1.12: Build OK!
-> > >> v4.19.53: Failed to apply! Possible dependencies:
-> > >>     Unable to calculate
-> > >>
-> > >>
-> > >> How should we proceed with this patch?
-> > >
-> > >The commit mentioned in fixes tag (1c984942f0a4) came in
-> > >v5.0-rc1/v5.0. Why do you try to port it to v4.19?
-> >
-> > This is an interesting one! Usually when something like this happens, it
-> > means that the "fixed" commit was backported to stable, but as you
-> > pointed out, it was not.
-> >
-> > My scripts have logic to try and detect these backports, and it appears
-> > that there's a commit with an identical subject line in the 4.19 tree,
-> > so at this point there are two commits with identical subject lines in
-> > Linus's tree:
-> >
-> > 1c984942f0a4 regulator: s2mps11: Pass descriptor instead of GPIO number
-> > 0369e02b75e6 regulator: s2mps11: Pass descriptor instead of GPIO number
-> >
-> > Which can be confusing for humans too :)
->
-> +CC Mark Brown,
->
-> Ugh, I see more of commits from this patchset getting to mainline
-> twice.  One branch goes to Linus via
-> 79f20778fb228ae372cd7602745382fd4543ef31 Merge tag 'regulator-v4.21'
-> of git://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator
-> which is based on v4.20-rc1
->
-> The other commits gets there via:
-> 68cc38ff33f38424d0456f9a1ecfec4683226a7e Merge tag 'regulator-v4.18'
-> of git://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator
-> which is before (gets into v4.18-rc1).
->
-> But how the latter can be applied again if it is based on something
-> already containing these commits... I am so confused...
->
-> Anyway the Fixes needs to be corrected to contain both (also
-> 0369e02b75e6) and should be backported to v4.19... I'll see if I have
-> spare time to make a backport.
+Hello,
 
-Ah, I see now revert of the first commit
-37fa23dbccbd97663acc085bd79246f427e603a1 (regulator: s2mps11: Fix boot
-on Odroid XU3). Actually git diff points that there was no effective
-change in the s2mps11 regulator.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-Since the revert got into v4.18, then v4.19 is safe and there is no
-need for backport.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 78778071092e - Linux 4.19.55
 
-Best regards,
-Krzysztof
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 78778071092e - Linux 4.19.55
+
+
+We grabbed the 2181cfaabcc1 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  tracing-silence-gcc-9-array-bounds-warning.patch
+  objtool-support-per-function-rodata-sections.patch
+  gcc-9-silence-address-of-packed-member-warning.patch
+  ovl-support-the-fs_ioc_fs-sg-etxattr-ioctls.patch
+  ovl-fix-wrong-flags-check-in-fs_ioc_fs-sg-etxattr-io.patch
+  ovl-make-i_ino-consistent-with-st_ino-in-more-cases.patch
+  ovl-detect-overlapping-layers.patch
+  ovl-don-t-fail-with-disconnected-lower-nfs.patch
+  ovl-fix-bogus-wmaybe-unitialized-warning.patch
+  s390-jump_label-use-jdd-constraint-on-gcc9.patch
+  s390-ap-rework-assembler-functions-to-use-unions-for.patch
+  mmc-sdhci-sdhci-pci-o2micro-correctly-set-bus-width-when-tuning.patch
+  mmc-core-api-to-temporarily-disable-retuning-for-sdio-crc-errors.patch
+  mmc-core-add-sdio_retune_hold_now-and-sdio_retune_release.patch
+  mmc-core-prevent-processing-sdio-irqs-when-the-card-is-suspended.patch
+  scsi-ufs-avoid-runtime-suspend-possibly-being-blocked-forever.patch
+  usb-chipidea-udc-workaround-for-endpoint-conflict-issue.patch
+  xhci-detect-usb-3.2-capable-host-controllers-correctly.patch
+  usb-xhci-don-t-try-to-recover-an-endpoint-if-port-is-in-error-state.patch
+  ib-hfi1-validate-fault-injection-opcode-user-input.patch
+  ib-hfi1-silence-txreq-allocation-warnings.patch
+  iio-temperature-mlx90632-relax-the-compatibility-check.patch
+  input-synaptics-enable-smbus-on-thinkpad-e480-and-e580.patch
+  input-uinput-add-compat-ioctl-number-translation-for-ui_-_ff_upload.patch
+  input-silead-add-mssl0017-to-acpi_device_id.patch
+  apparmor-fix-profile_mediates-for-untrusted-input.patch
+  apparmor-enforce-nullbyte-at-end-of-tag-string.patch
+  brcmfmac-sdio-disable-auto-tuning-around-commands-expected-to-fail.patch
+  brcmfmac-sdio-don-t-tune-while-the-card-is-off.patch
+  arc-fix-build-warnings.patch
+  dmaengine-dw-axi-dmac-fix-null-dereference-when-poin.patch
+  dmaengine-sprd-fix-block-length-overflow.patch
+  arc-plat-hsdk-add-missing-multicast-filter-bins-numb.patch
+  arc-plat-hsdk-add-missing-fifo-size-entry-in-gmac-no.patch
+  fpga-dfl-afu-pass-the-correct-device-to-dma_mapping_.patch
+  fpga-dfl-add-lockdep-classes-for-pdata-lock.patch
+  parport-fix-mem-leak-in-parport_register_dev_model.patch
+  parisc-fix-compiler-warnings-in-float-emulation-code.patch
+  ib-rdmavt-fix-alloc_qpn-warn_on.patch
+  ib-hfi1-insure-freeze_work-work_struct-is-canceled-o.patch
+  ib-qib-hfi1-rdmavt-correct-ibv_devinfo-max_mr-value.patch
+  ib-hfi1-validate-page-aligned-for-a-given-virtual-ad.patch
+  mips-uprobes-remove-set-but-not-used-variable-epc.patch
+  xtensa-fix-section-mismatch-between-memblock_reserve.patch
+  kselftest-cgroup-fix-unexpected-testing-failure-on-t.patch
+  kselftest-cgroup-fix-unexpected-testing-failure-on-t.patch
+  kselftest-cgroup-fix-incorrect-test_core-skip.patch
+  selftests-vm-install-test_vmalloc.sh-for-run_vmtests.patch
+  net-dsa-mv88e6xxx-avoid-error-message-on-remove-from.patch
+  net-hns-fix-loopback-test-failed-at-copper-ports.patch
+  mdesc-fix-a-missing-check-bug-in-get_vdev_port_node_.patch
+  sparc-perf-fix-updated-event-period-in-response-to-p.patch
+  net-ethernet-mediatek-use-hw_feature-to-judge-if-hwl.patch
+  net-ethernet-mediatek-use-net_ip_align-to-judge-if-h.patch
+  drm-arm-mali-dp-add-a-loop-around-the-second-set-cva.patch
+  drm-arm-hdlcd-actually-validate-crtc-modes.patch
+  drm-arm-hdlcd-allow-a-bit-of-clock-tolerance.patch
+  nvmet-fix-data_len-to-0-for-bdev-backed-write_zeroes.patch
+  scripts-checkstack.pl-fix-arm64-wrong-or-unknown-arc.patch
+  scsi-ufs-check-that-space-was-properly-alloced-in-co.patch
+  scsi-smartpqi-unlock-on-error-in-pqi_submit_raid_req.patch
+  net-ipvlan-fix-ipvlan-device-tso-disabled-while-neti.patch
+  s390-qeth-fix-vlan-attribute-in-bridge_hostnotify-ud.patch
+  hwmon-core-add-thermal-sensors-only-if-dev-of_node-i.patch
+  hwmon-pmbus-core-treat-parameters-as-paged-if-on-mul.patch
+  arm64-silence-gcc-warnings-about-arch-abi-drift.patch
+  nvme-fix-u32-overflow-in-the-number-of-namespace-lis.patch
+  btrfs-start-readahead-also-in-seed-devices.patch
+  can-xilinx_can-use-correct-bittiming_const-for-can-fd-core.patch
+  can-flexcan-fix-timeout-when-set-small-bitrate.patch
+  can-purge-socket-error-queue-on-sock-destruct.patch
+  riscv-mm-synchronize-mmu-after-pte-change.patch
+  powerpc-bpf-use-unsigned-division-instruction-for-64-bit-operations.patch
+  arm-imx-cpuidle-imx6sx-restrict-the-sw2iso-increase-to-i.mx6sx.patch
+  arm-dts-dra76x-update-mmc2_hs200_manual1-iodelay-values.patch
+  arm-dts-am57xx-idk-remove-support-for-voltage-switching-for-sd-card.patch
+  arm64-sve-uapi-asm-ptrace.h-should-not-depend-on-uapi-linux-prctl.h.patch
+  arm64-ssbd-explicitly-depend-on-linux-prctl.h.patch
+  drm-vmwgfx-use-the-backdoor-port-if-the-hb-port-is-not-available.patch
+  staging-erofs-add-requirements-field-in-superblock.patch
+  bluetooth-align-minimum-encryption-key-size-for-le-and-br-edr-connections.patch
+  bluetooth-fix-regression-with-minimum-encryption-key-size-alignment.patch
+  smb3-retry-on-status_insufficient_resources-instead-of-failing-write.patch
+  cfg80211-fix-memory-leak-of-wiphy-device-name.patch
+  mac80211-drop-robust-management-frames-from-unknown-ta.patch
+  nl-mac-80211-allow-4addr-ap-operation-on-crypto-controlled-devices.patch
+  mac80211-handle-deauthentication-disassociation-from-tdls-peer.patch
+  nl80211-fix-station_info-pertid-memory-leak.patch
+  mac80211-do-not-use-stack-memory-with-scatterlist-for-gmac.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-995d57a61236bbae5b7a45920a75aae64c653f21.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-995d57a61236bbae5b7a45920a75aae64c653f21.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-995d57a61236bbae5b7a45920a75aae64c653f21.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-995d57a61236bbae5b7a45920a75aae64c653f21.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-995d57a61236bbae5b7a45920a75aae64c653f21.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-995d57a61236bbae5b7a45920a75aae64c653f21.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-995d57a61236bbae5b7a45920a75aae64c653f21.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-995d57a61236bbae5b7a45920a75aae64c653f21.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ LTP: openposix test suite [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+       🚧 ✅ storage: SCSI VPD [12]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [13]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ LTP: openposix test suite [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [13]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ LTP: openposix test suite [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [13]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [13]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ LTP: openposix test suite [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+       🚧 ✅ storage: SCSI VPD [12]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
