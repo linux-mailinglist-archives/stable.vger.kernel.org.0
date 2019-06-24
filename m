@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3542C507F3
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F80150870
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730042AbfFXKGH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:06:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38208 "EHLO mail.kernel.org"
+        id S1730051AbfFXKRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:17:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730038AbfFXKGH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:06:07 -0400
+        id S1730892AbfFXKRQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:17:16 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 776AF208E3;
-        Mon, 24 Jun 2019 10:06:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22855205C9;
+        Mon, 24 Jun 2019 10:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370765;
-        bh=85Qat+uLgkdXkm5ajbXJT6yXkXNjzM1k5wk2FV0uvbI=;
+        s=default; t=1561371435;
+        bh=eNchQqzVh7+iy2vqenaB8YiRNViboiJaue4XOW0p4FA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F2BaHKtqn22Z4d9wi4NllwyTSCj7MQEqgwp/sOK3dKYEYeYHSJnXZXp3mDNPrMHnn
-         A9kaSC3XfbJrA/TMuvSBBtboXaQbTuTmBHyIXKssGbnBdvYt3Pm7bgs1BEs/V7F8AA
-         P+CTbcPgZJePPKj6ANlMJlgNoOR5atLsvcNGbh30=
+        b=LveVfHB9KC3JwX+Ew4QL9KGVNbBQiKNi9s6S+XwLfm0/wFsHZr4l1w/B3g1ZJiMCh
+         BT4Lz2CAwJc6JG83+SX4W5SVBs3EMnYAgSgpfE/SlxxVYQED/jT8cgUp1zvVIedkgF
+         SR5Rbm8AHIg8omgYLfzsGQwgGyOScFL59Cw+ktrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 82/90] Bluetooth: Fix regression with minimum encryption key size alignment
-Date:   Mon, 24 Jun 2019 17:57:12 +0800
-Message-Id: <20190624092319.296342984@linuxfoundation.org>
+        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.1 101/121] ARM: dts: am57xx-idk: Remove support for voltage switching for SD card
+Date:   Mon, 24 Jun 2019 17:57:13 +0800
+Message-Id: <20190624092325.884521134@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,148 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Holtmann <marcel@holtmann.org>
+From: Faiz Abbas <faiz_abbas@ti.com>
 
-commit 693cd8ce3f882524a5d06f7800dd8492411877b3 upstream.
+commit 88a748419b84187fd1da05637b8e5928b04a1e06 upstream.
 
-When trying to align the minimum encryption key size requirement for
-Bluetooth connections, it turns out doing this in a central location in
-the HCI connection handling code is not possible.
+If UHS speed modes are enabled, a compatible SD card switches down to
+1.8V during enumeration. If after this a software reboot/crash takes
+place and on-chip ROM tries to enumerate the SD card, the difference in
+IO voltages (host @ 3.3V and card @ 1.8V) may end up damaging the card.
 
-Original Bluetooth version up to 2.0 used a security model where the
-L2CAP service would enforce authentication and encryption.  Starting
-with Bluetooth 2.1 and Secure Simple Pairing that model has changed into
-that the connection initiator is responsible for providing an encrypted
-ACL link before any L2CAP communication can happen.
+The fix for this is to have support for power cycling the card in
+hardware (with a PORz/soft-reset line causing a power cycle of the
+card). Since am571x-, am572x- and am574x-idk don't have this
+capability, disable voltage switching for these boards.
 
-Now connecting Bluetooth 2.1 or later devices with Bluetooth 2.0 and
-before devices are causing a regression.  The encryption key size check
-needs to be moved out of the HCI connection handling into the L2CAP
-channel setup.
+The major effect of this is that the maximum supported speed
+mode is now high speed(50 MHz) down from SDR104(200 MHz).
 
-To achieve this, the current check inside hci_conn_security() has been
-moved into l2cap_check_enc_key_size() helper function and then called
-from four decisions point inside L2CAP to cover all combinations of
-Secure Simple Pairing enabled devices and device using legacy pairing
-and legacy service security model.
-
-Fixes: d5bb334a8e17 ("Bluetooth: Align minimum encryption key size for LE and BR/EDR connections")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203643
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/hci_conn.c   |   18 +++++++++---------
- net/bluetooth/l2cap_core.c |   33 ++++++++++++++++++++++++++++-----
- 2 files changed, 37 insertions(+), 14 deletions(-)
+ arch/arm/boot/dts/am57xx-idk-common.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1276,14 +1276,6 @@ int hci_conn_check_link_mode(struct hci_
- 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
- 		return 0;
+--- a/arch/arm/boot/dts/am57xx-idk-common.dtsi
++++ b/arch/arm/boot/dts/am57xx-idk-common.dtsi
+@@ -420,6 +420,7 @@
+ 	vqmmc-supply = <&ldo1_reg>;
+ 	bus-width = <4>;
+ 	cd-gpios = <&gpio6 27 GPIO_ACTIVE_LOW>; /* gpio 219 */
++	no-1-8-v;
+ };
  
--	/* The minimum encryption key size needs to be enforced by the
--	 * host stack before establishing any L2CAP connections. The
--	 * specification in theory allows a minimum of 1, but to align
--	 * BR/EDR and LE transports, a minimum of 7 is chosen.
--	 */
--	if (conn->enc_key_size < HCI_MIN_ENC_KEY_SIZE)
--		return 0;
--
- 	return 1;
- }
- 
-@@ -1400,8 +1392,16 @@ auth:
- 		return 0;
- 
- encrypt:
--	if (test_bit(HCI_CONN_ENCRYPT, &conn->flags))
-+	if (test_bit(HCI_CONN_ENCRYPT, &conn->flags)) {
-+		/* Ensure that the encryption key size has been read,
-+		 * otherwise stall the upper layer responses.
-+		 */
-+		if (!conn->enc_key_size)
-+			return 0;
-+
-+		/* Nothing else needed, all requirements are met */
- 		return 1;
-+	}
- 
- 	hci_conn_encrypt(conn);
- 	return 0;
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1340,6 +1340,21 @@ static void l2cap_request_info(struct l2
- 		       sizeof(req), &req);
- }
- 
-+static bool l2cap_check_enc_key_size(struct hci_conn *hcon)
-+{
-+	/* The minimum encryption key size needs to be enforced by the
-+	 * host stack before establishing any L2CAP connections. The
-+	 * specification in theory allows a minimum of 1, but to align
-+	 * BR/EDR and LE transports, a minimum of 7 is chosen.
-+	 *
-+	 * This check might also be called for unencrypted connections
-+	 * that have no key size requirements. Ensure that the link is
-+	 * actually encrypted before enforcing a key size.
-+	 */
-+	return (!test_bit(HCI_CONN_ENCRYPT, &hcon->flags) ||
-+		hcon->enc_key_size > HCI_MIN_ENC_KEY_SIZE);
-+}
-+
- static void l2cap_do_start(struct l2cap_chan *chan)
- {
- 	struct l2cap_conn *conn = chan->conn;
-@@ -1357,9 +1372,14 @@ static void l2cap_do_start(struct l2cap_
- 	if (!(conn->info_state & L2CAP_INFO_FEAT_MASK_REQ_DONE))
- 		return;
- 
--	if (l2cap_chan_check_security(chan, true) &&
--	    __l2cap_no_conn_pending(chan))
-+	if (!l2cap_chan_check_security(chan, true) ||
-+	    !__l2cap_no_conn_pending(chan))
-+		return;
-+
-+	if (l2cap_check_enc_key_size(conn->hcon))
- 		l2cap_start_connection(chan);
-+	else
-+		__set_chan_timer(chan, L2CAP_DISC_TIMEOUT);
- }
- 
- static inline int l2cap_mode_supported(__u8 mode, __u32 feat_mask)
-@@ -1438,7 +1458,10 @@ static void l2cap_conn_start(struct l2ca
- 				continue;
- 			}
- 
--			l2cap_start_connection(chan);
-+			if (l2cap_check_enc_key_size(conn->hcon))
-+				l2cap_start_connection(chan);
-+			else
-+				l2cap_chan_close(chan, ECONNREFUSED);
- 
- 		} else if (chan->state == BT_CONNECT2) {
- 			struct l2cap_conn_rsp rsp;
-@@ -7455,7 +7478,7 @@ static void l2cap_security_cfm(struct hc
- 		}
- 
- 		if (chan->state == BT_CONNECT) {
--			if (!status)
-+			if (!status && l2cap_check_enc_key_size(hcon))
- 				l2cap_start_connection(chan);
- 			else
- 				__set_chan_timer(chan, L2CAP_DISC_TIMEOUT);
-@@ -7464,7 +7487,7 @@ static void l2cap_security_cfm(struct hc
- 			struct l2cap_conn_rsp rsp;
- 			__u16 res, stat;
- 
--			if (!status) {
-+			if (!status && l2cap_check_enc_key_size(hcon)) {
- 				if (test_bit(FLAG_DEFER_SETUP, &chan->flags)) {
- 					res = L2CAP_CR_PEND;
- 					stat = L2CAP_CS_AUTHOR_PEND;
+ &mmc2 {
 
 
