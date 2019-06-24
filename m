@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89D265083C
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BFA35082A
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729877AbfFXKPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:15:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52968 "EHLO mail.kernel.org"
+        id S1729413AbfFXKCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:02:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729747AbfFXKPj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:15:39 -0400
+        id S1729407AbfFXKCg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:02:36 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B79DF205ED;
-        Mon, 24 Jun 2019 10:15:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24416213F2;
+        Mon, 24 Jun 2019 10:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371339;
-        bh=Qp5rodsvKjiXWqJYgjTqfZKFaoCWh2/UkvopTy/m54k=;
+        s=default; t=1561370555;
+        bh=thTpi9PNfAcGCFlW1lMEAJawxqzpp0uS7r3uAR2VxWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hcR/rxSQUjWK9HmVBRFGEd95kawziO4fVY1wWCc1vmbfjTYsjlSD0y7KrSDtjFA7j
-         r9iKlHTp1BEPcl7yjqDc1OKVXwlOopa9uxkCoqtx3hSKf4VoXqg99+oVyQOHv6Qfi+
-         khrnQ/opivMVRc0pxh/XIY1HaUAk1lJRHjk5+H80=
+        b=ICRkzlBcmFm5LT9bXdzgZlDGcFRCwWBJrDoBgj+cSA48sUkvDoz8gDRVaZzZp8Bsm
+         Q4ViBGjVrlA275C3wC34SZyN6ttEJ8qgptST2M/7iCWTh5acCjZXVCnaBT7vU/C6it
+         ArXnMs2HQtGs3gOZU2k6TB3/VHcoRppHQcBJGNH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 035/121] dmaengine: mediatek-cqdma: sleeping in atomic context
-Date:   Mon, 24 Jun 2019 17:56:07 +0800
-Message-Id: <20190624092322.613626713@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 18/90] xhci: detect USB 3.2 capable host controllers correctly
+Date:   Mon, 24 Jun 2019 17:56:08 +0800
+Message-Id: <20190624092315.210468511@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 069b3c4214f27b130d0642f32438560db30f452e ]
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-The mtk_cqdma_poll_engine_done() function takes a true/false parameter
-where true means it's called from atomic context.  There are a couple
-places where it was set to false but it's actually in atomic context
-so it should be true.
+commit ddd57980a0fde30f7b5d14b888a2cc84d01610e8 upstream.
 
-All the callers for mtk_cqdma_hard_reset() are holding a spin_lock and
-in mtk_cqdma_free_chan_resources() we take a spin_lock before calling
-the mtk_cqdma_poll_engine_done() function.
+USB 3.2 capability in a host can be detected from the
+xHCI Supported Protocol Capability major and minor revision fields.
 
-Fixes: b1f01e48df5a ("dmaengine: mediatek: Add MediaTek Command-Queue DMA controller for MT6765 SoC")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If major is 0x3 and minor 0x20 then the host is USB 3.2 capable.
+
+For USB 3.2 capable hosts set the root hub lane count to 2.
+
+The Major Revision and Minor Revision fields contain a BCD version number.
+The value of the Major Revision field is JJh and the value of the Minor
+Revision field is MNh for version JJ.M.N, where JJ = major revision number,
+M - minor version number, N = sub-minor version number,
+e.g. version 3.1 is represented with a value of 0310h.
+
+Also fix the extra whitespace printed out when announcing regular
+SuperSpeed hosts.
+
+Cc: <stable@vger.kernel.org> # v4.18+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/dma/mediatek/mtk-cqdma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci.c |   20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/dma/mediatek/mtk-cqdma.c b/drivers/dma/mediatek/mtk-cqdma.c
-index 814853842e29..723b11c190b3 100644
---- a/drivers/dma/mediatek/mtk-cqdma.c
-+++ b/drivers/dma/mediatek/mtk-cqdma.c
-@@ -225,7 +225,7 @@ static int mtk_cqdma_hard_reset(struct mtk_cqdma_pchan *pc)
- 	mtk_dma_set(pc, MTK_CQDMA_RESET, MTK_CQDMA_HARD_RST_BIT);
- 	mtk_dma_clr(pc, MTK_CQDMA_RESET, MTK_CQDMA_HARD_RST_BIT);
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -5030,16 +5030,26 @@ int xhci_gen_setup(struct usb_hcd *hcd,
+ 	} else {
+ 		/*
+ 		 * Some 3.1 hosts return sbrn 0x30, use xhci supported protocol
+-		 * minor revision instead of sbrn
++		 * minor revision instead of sbrn. Minor revision is a two digit
++		 * BCD containing minor and sub-minor numbers, only show minor.
+ 		 */
+-		minor_rev = xhci->usb3_rhub.min_rev;
+-		if (minor_rev) {
++		minor_rev = xhci->usb3_rhub.min_rev / 0x10;
++
++		switch (minor_rev) {
++		case 2:
++			hcd->speed = HCD_USB32;
++			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
++			hcd->self.root_hub->rx_lanes = 2;
++			hcd->self.root_hub->tx_lanes = 2;
++			break;
++		case 1:
+ 			hcd->speed = HCD_USB31;
+ 			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
++			break;
+ 		}
+-		xhci_info(xhci, "Host supports USB 3.%x %s SuperSpeed\n",
++		xhci_info(xhci, "Host supports USB 3.%x %sSuperSpeed\n",
+ 			  minor_rev,
+-			  minor_rev ? "Enhanced" : "");
++			  minor_rev ? "Enhanced " : "");
  
--	return mtk_cqdma_poll_engine_done(pc, false);
-+	return mtk_cqdma_poll_engine_done(pc, true);
- }
- 
- static void mtk_cqdma_start(struct mtk_cqdma_pchan *pc,
-@@ -671,7 +671,7 @@ static void mtk_cqdma_free_chan_resources(struct dma_chan *c)
- 		mtk_dma_set(cvc->pc, MTK_CQDMA_FLUSH, MTK_CQDMA_FLUSH_BIT);
- 
- 		/* wait for the completion of flush operation */
--		if (mtk_cqdma_poll_engine_done(cvc->pc, false) < 0)
-+		if (mtk_cqdma_poll_engine_done(cvc->pc, true) < 0)
- 			dev_err(cqdma2dev(to_cqdma_dev(c)), "cqdma flush timeout\n");
- 
- 		/* clear the flush bit and interrupt flag */
--- 
-2.20.1
-
+ 		xhci->usb3_rhub.hcd = hcd;
+ 		/* xHCI private pointer was set in xhci_pci_probe for the second
 
 
