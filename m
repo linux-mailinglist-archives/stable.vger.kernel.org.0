@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B4315067F
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32375507A9
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728719AbfFXJ7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:59:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58086 "EHLO mail.kernel.org"
+        id S1730540AbfFXKIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:08:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729142AbfFXJ7I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:08 -0400
+        id S1730177AbfFXKIu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:08:50 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3C7C205ED;
-        Mon, 24 Jun 2019 09:59:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF31A2089F;
+        Mon, 24 Jun 2019 10:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370347;
-        bh=qXek9NlD9YpYj23LAjZenJPNQcKpQX0cgv2PSGiZ628=;
+        s=default; t=1561370929;
+        bh=jIlfMerZzWk/pZXDKx+h7+Fdu6ct/+sUeYQ0rQ9U/ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bmAQxdg2H0LGTY1Cl1K6gFWrW7C5yErHJWYSHXMW6yz11NGZpWmQqeFAnTLfBKzS4
-         bxg9WXZKEfV+OJQDdnURuf+NcjbrHerhqtt5Dar4yNTeOWjVs1T2NL7AzVkXPdg2MJ
-         UOFgo0RyVQ2var2NxAJd9+3TFXNCyCL6/26AmxXU=
+        b=hlpEIVD6s13S8Pcz8QCdGsN7UAExAJAV09LiOvkF4K4DIU61C+GQsg1lK6p77k0dW
+         WFRvUzYRR5ZrfbEXlrhzcBcfRDsR+t1fsBwPdtU3DOpIottvdYkFUWke5/qXceCpQa
+         aiItkwjBH3DlaF6hjd7o6SDUgZYDiDDcKHwLbKqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Jun Li <jun.li@nxp.com>, Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.14 07/51] usb: chipidea: udc: workaround for endpoint conflict issue
+        stable@vger.kernel.org,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        Kamenee Arumugam <kamenee.arumugam@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 053/121] IB/hfi1: Validate page aligned for a given virtual address
 Date:   Mon, 24 Jun 2019 17:56:25 +0800
-Message-Id: <20190624092307.055776437@linuxfoundation.org>
+Message-Id: <20190624092323.432996036@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+[ Upstream commit 97736f36dbebf2cda2799db3b54717ba5b388255 ]
 
-commit c19dffc0a9511a7d7493ec21019aefd97e9a111b upstream.
+User applications can register memory regions for TID buffers that are not
+aligned on page boundaries. Hfi1 is expected to pin those pages in memory
+and cache the pages with mmu_rb. The rb tree will fail to insert pages
+that are not aligned correctly.
 
-An endpoint conflict occurs when the USB is working in device mode
-during an isochronous communication. When the endpointA IN direction
-is an isochronous IN endpoint, and the host sends an IN token to
-endpointA on another device, then the OUT transaction may be missed
-regardless the OUT endpoint number. Generally, this occurs when the
-device is connected to the host through a hub and other devices are
-connected to the same hub.
+Validate whether a given virtual address is page aligned before pinning.
 
-The affected OUT endpoint can be either control, bulk, isochronous, or
-an interrupt endpoint. After the OUT endpoint is primed, if an IN token
-to the same endpoint number on another device is received, then the OUT
-endpoint may be unprimed (cannot be detected by software), which causes
-this endpoint to no longer respond to the host OUT token, and thus, no
-corresponding interrupt occurs.
-
-There is no good workaround for this issue, the only thing the software
-could do is numbering isochronous IN from the highest endpoint since we
-have observed most of device number endpoint from the lowest.
-
-Cc: <stable@vger.kernel.org> #v3.14+
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Jun Li <jun.li@nxp.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 7e7a436ecb6e ("staging/hfi1: Add TID entry program function body")
+Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Signed-off-by: Kamenee Arumugam <kamenee.arumugam@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/udc.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/chipidea/udc.c
-+++ b/drivers/usb/chipidea/udc.c
-@@ -1620,6 +1620,25 @@ static int ci_udc_pullup(struct usb_gadg
- static int ci_udc_start(struct usb_gadget *gadget,
- 			 struct usb_gadget_driver *driver);
- static int ci_udc_stop(struct usb_gadget *gadget);
-+
-+/* Match ISOC IN from the highest endpoint */
-+static struct usb_ep *ci_udc_match_ep(struct usb_gadget *gadget,
-+			      struct usb_endpoint_descriptor *desc,
-+			      struct usb_ss_ep_comp_descriptor *comp_desc)
-+{
-+	struct ci_hdrc *ci = container_of(gadget, struct ci_hdrc, gadget);
-+	struct usb_ep *ep;
-+
-+	if (usb_endpoint_xfer_isoc(desc) && usb_endpoint_dir_in(desc)) {
-+		list_for_each_entry_reverse(ep, &ci->gadget.ep_list, ep_list) {
-+			if (ep->caps.dir_in && !ep->claimed)
-+				return ep;
-+		}
-+	}
-+
-+	return NULL;
-+}
-+
- /**
-  * Device operations part of the API to the USB controller hardware,
-  * which don't involve endpoints (or i/o)
-@@ -1633,6 +1652,7 @@ static const struct usb_gadget_ops usb_g
- 	.vbus_draw	= ci_udc_vbus_draw,
- 	.udc_start	= ci_udc_start,
- 	.udc_stop	= ci_udc_stop,
-+	.match_ep 	= ci_udc_match_ep,
- };
+diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+index 0cd71ce7cc71..3592a9ec155e 100644
+--- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
++++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+@@ -324,6 +324,9 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+ 	u32 *tidlist = NULL;
+ 	struct tid_user_buf *tidbuf;
  
- static int init_eps(struct ci_hdrc *ci)
++	if (!PAGE_ALIGNED(tinfo->vaddr))
++		return -EINVAL;
++
+ 	tidbuf = kzalloc(sizeof(*tidbuf), GFP_KERNEL);
+ 	if (!tidbuf)
+ 		return -ENOMEM;
+-- 
+2.20.1
+
 
 
