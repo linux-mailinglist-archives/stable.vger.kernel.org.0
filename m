@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38B4E5072C
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9296C50673
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729474AbfFXKFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:05:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36854 "EHLO mail.kernel.org"
+        id S1728386AbfFXJ6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:58:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729849AbfFXKFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:05:01 -0400
+        id S1728381AbfFXJ6v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:58:51 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BF57205ED;
-        Mon, 24 Jun 2019 10:05:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EB32205ED;
+        Mon, 24 Jun 2019 09:58:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370700;
-        bh=9ykm63z15zp473jDZU4n8PDwcq4XFKrkWMWhtYDOEbc=;
+        s=default; t=1561370331;
+        bh=Yz79+7sAzSjLRMrf7ysgedIqRniCgvKmbIzFtZu3ulo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cxsbnbThI0OqyBsyJfgGeGO2SimlT3gA/Xo25yFTEYLxVXab7zfMopA4tEPnN+eBJ
-         9BTvFKS7sJidZH4NKFVvmyf5ntPFFUgCX6rrCKWx60hxt+5NJT5cVrr/lPxMzL+bM0
-         yMo8H3LEPWFuDCNELy88ZvCnHVFvMCj1tQsoDClc=
+        b=yDUo5E1ThCv7zcbjoUi62BGWF6o9yBorTr3wsdseCdYdblHbDcrvPIFv2EjQtRY6l
+         UM/xVKQMDNR/7+k59Y4i4znseloz0ZP/AIIrQad9A1HQoKCq66cz2GQbVPKX5z6ZRQ
+         EQDnh4lxGFTKh/XjzEIg5979z9ZoxSzCy7mDzbd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bean Huo <beanhuo@micron.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 60/90] scsi: ufs: Check that space was properly alloced in copy_query_response
+Subject: [PATCH 4.14 32/51] scsi: ufs: Check that space was properly alloced in copy_query_response
 Date:   Mon, 24 Jun 2019 17:56:50 +0800
-Message-Id: <20190624092318.074966155@linuxfoundation.org>
+Message-Id: <20190624092310.033425650@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,10 +66,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 3183fa8c5857..b8b59cfeacd1 100644
+index d8f0a1ccd9b1..60c9184bad3b 100644
 --- a/drivers/scsi/ufs/ufshcd.c
 +++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1914,7 +1914,8 @@ int ufshcd_copy_query_response(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+@@ -1788,7 +1788,8 @@ int ufshcd_copy_query_response(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
  	memcpy(&query_res->upiu_res, &lrbp->ucd_rsp_ptr->qr, QUERY_OSF_SIZE);
  
  	/* Get the descriptor */
