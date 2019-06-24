@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0611E5086F
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3542C507F3
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729384AbfFXKRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:17:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54836 "EHLO mail.kernel.org"
+        id S1730042AbfFXKGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:06:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730912AbfFXKRO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:17:14 -0400
+        id S1730038AbfFXKGH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:06:07 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C745208E4;
-        Mon, 24 Jun 2019 10:17:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 776AF208E3;
+        Mon, 24 Jun 2019 10:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371432;
-        bh=VUru6ZPh216BdAHCYLYH+RFIWY6SIvlGVpx5BvcCHi4=;
+        s=default; t=1561370765;
+        bh=85Qat+uLgkdXkm5ajbXJT6yXkXNjzM1k5wk2FV0uvbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=doNGUMQGvxp7F87sdbELoQ7AN8wWzKSM3c1p+njPFpnhH2ZOu1Q2BAFGP4xGPb7dg
-         KiaYHgtVbdNogUQGY5/34Z71po2YeCpFT1avYFp6/ISgulyc/YgpUq/+LuZJJoqQID
-         RpNSqbLn/lsTYqA9ZQwsCyzyXbDNqpSJqvSGdMAk=
+        b=F2BaHKtqn22Z4d9wi4NllwyTSCj7MQEqgwp/sOK3dKYEYeYHSJnXZXp3mDNPrMHnn
+         A9kaSC3XfbJrA/TMuvSBBtboXaQbTuTmBHyIXKssGbnBdvYt3Pm7bgs1BEs/V7F8AA
+         P+CTbcPgZJePPKj6ANlMJlgNoOR5atLsvcNGbh30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.1 100/121] ARM: dts: dra76x: Update MMC2_HS200_MANUAL1 iodelay values
+        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 82/90] Bluetooth: Fix regression with minimum encryption key size alignment
 Date:   Mon, 24 Jun 2019 17:57:12 +0800
-Message-Id: <20190624092325.835268215@linuxfoundation.org>
+Message-Id: <20190624092319.296342984@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +43,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faiz Abbas <faiz_abbas@ti.com>
+From: Marcel Holtmann <marcel@holtmann.org>
 
-commit c3c0b70cd3f801bded7a548198ee1c9851a0ca82 upstream.
+commit 693cd8ce3f882524a5d06f7800dd8492411877b3 upstream.
 
-Update the MMC2_HS200_MANUAL1 iodelay values to match with the latest
-dra76x data manual[1]. The new iodelay values will have better marginality
-and should prevent issues in corner cases.
+When trying to align the minimum encryption key size requirement for
+Bluetooth connections, it turns out doing this in a central location in
+the HCI connection handling code is not possible.
 
-Also this particular pinctrl-array is using spaces instead of tabs for
-spacing between the values and the comments. Fix this as well.
+Original Bluetooth version up to 2.0 used a security model where the
+L2CAP service would enforce authentication and encryption.  Starting
+with Bluetooth 2.1 and Secure Simple Pairing that model has changed into
+that the connection initiator is responsible for providing an encrypted
+ACL link before any L2CAP communication can happen.
 
-[1] http://www.ti.com/lit/ds/symlink/dra76p.pdf
+Now connecting Bluetooth 2.1 or later devices with Bluetooth 2.0 and
+before devices are causing a regression.  The encryption key size check
+needs to be moved out of the HCI connection handling into the L2CAP
+channel setup.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
-[tony@atomide.com: updated description with a bit more info]
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+To achieve this, the current check inside hci_conn_security() has been
+moved into l2cap_check_enc_key_size() helper function and then called
+from four decisions point inside L2CAP to cover all combinations of
+Secure Simple Pairing enabled devices and device using legacy pairing
+and legacy service security model.
+
+Fixes: d5bb334a8e17 ("Bluetooth: Align minimum encryption key size for LE and BR/EDR connections")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203643
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/dra76x-mmc-iodelay.dtsi |   40 +++++++++++++++---------------
- 1 file changed, 20 insertions(+), 20 deletions(-)
+ net/bluetooth/hci_conn.c   |   18 +++++++++---------
+ net/bluetooth/l2cap_core.c |   33 ++++++++++++++++++++++++++++-----
+ 2 files changed, 37 insertions(+), 14 deletions(-)
 
---- a/arch/arm/boot/dts/dra76x-mmc-iodelay.dtsi
-+++ b/arch/arm/boot/dts/dra76x-mmc-iodelay.dtsi
-@@ -22,7 +22,7 @@
-  *
-  * Datamanual Revisions:
-  *
-- * DRA76x Silicon Revision 1.0: SPRS993A, Revised July 2017
-+ * DRA76x Silicon Revision 1.0: SPRS993E, Revised December 2018
-  *
-  */
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -1276,14 +1276,6 @@ int hci_conn_check_link_mode(struct hci_
+ 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
+ 		return 0;
  
-@@ -169,25 +169,25 @@
- 	/* Corresponds to MMC2_HS200_MANUAL1 in datamanual */
- 	mmc2_iodelay_hs200_conf: mmc2_iodelay_hs200_conf {
- 		pinctrl-pin-array = <
--			0x190 A_DELAY_PS(384) G_DELAY_PS(0)       /* CFG_GPMC_A19_OEN */
--			0x194 A_DELAY_PS(0) G_DELAY_PS(174)       /* CFG_GPMC_A19_OUT */
--			0x1a8 A_DELAY_PS(410) G_DELAY_PS(0)       /* CFG_GPMC_A20_OEN */
--			0x1ac A_DELAY_PS(85) G_DELAY_PS(0)        /* CFG_GPMC_A20_OUT */
--			0x1b4 A_DELAY_PS(468) G_DELAY_PS(0)       /* CFG_GPMC_A21_OEN */
--			0x1b8 A_DELAY_PS(139) G_DELAY_PS(0)       /* CFG_GPMC_A21_OUT */
--			0x1c0 A_DELAY_PS(676) G_DELAY_PS(0)       /* CFG_GPMC_A22_OEN */
--			0x1c4 A_DELAY_PS(69) G_DELAY_PS(0)        /* CFG_GPMC_A22_OUT */
--			0x1d0 A_DELAY_PS(1062) G_DELAY_PS(154)	  /* CFG_GPMC_A23_OUT */
--			0x1d8 A_DELAY_PS(640) G_DELAY_PS(0)       /* CFG_GPMC_A24_OEN */
--			0x1dc A_DELAY_PS(0) G_DELAY_PS(0)         /* CFG_GPMC_A24_OUT */
--			0x1e4 A_DELAY_PS(356) G_DELAY_PS(0)       /* CFG_GPMC_A25_OEN */
--			0x1e8 A_DELAY_PS(0) G_DELAY_PS(0)         /* CFG_GPMC_A25_OUT */
--			0x1f0 A_DELAY_PS(579) G_DELAY_PS(0)       /* CFG_GPMC_A26_OEN */
--			0x1f4 A_DELAY_PS(0) G_DELAY_PS(0)         /* CFG_GPMC_A26_OUT */
--			0x1fc A_DELAY_PS(435) G_DELAY_PS(0)       /* CFG_GPMC_A27_OEN */
--			0x200 A_DELAY_PS(36) G_DELAY_PS(0)        /* CFG_GPMC_A27_OUT */
--			0x364 A_DELAY_PS(759) G_DELAY_PS(0)       /* CFG_GPMC_CS1_OEN */
--			0x368 A_DELAY_PS(72) G_DELAY_PS(0)        /* CFG_GPMC_CS1_OUT */
-+			0x190 A_DELAY_PS(384) G_DELAY_PS(0)	/* CFG_GPMC_A19_OEN */
-+			0x194 A_DELAY_PS(350) G_DELAY_PS(174)	/* CFG_GPMC_A19_OUT */
-+			0x1a8 A_DELAY_PS(410) G_DELAY_PS(0)	/* CFG_GPMC_A20_OEN */
-+			0x1ac A_DELAY_PS(335) G_DELAY_PS(0)	/* CFG_GPMC_A20_OUT */
-+			0x1b4 A_DELAY_PS(468) G_DELAY_PS(0)	/* CFG_GPMC_A21_OEN */
-+			0x1b8 A_DELAY_PS(339) G_DELAY_PS(0)	/* CFG_GPMC_A21_OUT */
-+			0x1c0 A_DELAY_PS(676) G_DELAY_PS(0)	/* CFG_GPMC_A22_OEN */
-+			0x1c4 A_DELAY_PS(219) G_DELAY_PS(0)	/* CFG_GPMC_A22_OUT */
-+			0x1d0 A_DELAY_PS(1062) G_DELAY_PS(154)	/* CFG_GPMC_A23_OUT */
-+			0x1d8 A_DELAY_PS(640) G_DELAY_PS(0)	/* CFG_GPMC_A24_OEN */
-+			0x1dc A_DELAY_PS(150) G_DELAY_PS(0)	/* CFG_GPMC_A24_OUT */
-+			0x1e4 A_DELAY_PS(356) G_DELAY_PS(0)	/* CFG_GPMC_A25_OEN */
-+			0x1e8 A_DELAY_PS(150) G_DELAY_PS(0)	/* CFG_GPMC_A25_OUT */
-+			0x1f0 A_DELAY_PS(579) G_DELAY_PS(0)	/* CFG_GPMC_A26_OEN */
-+			0x1f4 A_DELAY_PS(200) G_DELAY_PS(0)	/* CFG_GPMC_A26_OUT */
-+			0x1fc A_DELAY_PS(435) G_DELAY_PS(0)	/* CFG_GPMC_A27_OEN */
-+			0x200 A_DELAY_PS(236) G_DELAY_PS(0)	/* CFG_GPMC_A27_OUT */
-+			0x364 A_DELAY_PS(759) G_DELAY_PS(0)	/* CFG_GPMC_CS1_OEN */
-+			0x368 A_DELAY_PS(372) G_DELAY_PS(0)	/* CFG_GPMC_CS1_OUT */
- 	      >;
- 	};
+-	/* The minimum encryption key size needs to be enforced by the
+-	 * host stack before establishing any L2CAP connections. The
+-	 * specification in theory allows a minimum of 1, but to align
+-	 * BR/EDR and LE transports, a minimum of 7 is chosen.
+-	 */
+-	if (conn->enc_key_size < HCI_MIN_ENC_KEY_SIZE)
+-		return 0;
+-
+ 	return 1;
+ }
  
+@@ -1400,8 +1392,16 @@ auth:
+ 		return 0;
+ 
+ encrypt:
+-	if (test_bit(HCI_CONN_ENCRYPT, &conn->flags))
++	if (test_bit(HCI_CONN_ENCRYPT, &conn->flags)) {
++		/* Ensure that the encryption key size has been read,
++		 * otherwise stall the upper layer responses.
++		 */
++		if (!conn->enc_key_size)
++			return 0;
++
++		/* Nothing else needed, all requirements are met */
+ 		return 1;
++	}
+ 
+ 	hci_conn_encrypt(conn);
+ 	return 0;
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -1340,6 +1340,21 @@ static void l2cap_request_info(struct l2
+ 		       sizeof(req), &req);
+ }
+ 
++static bool l2cap_check_enc_key_size(struct hci_conn *hcon)
++{
++	/* The minimum encryption key size needs to be enforced by the
++	 * host stack before establishing any L2CAP connections. The
++	 * specification in theory allows a minimum of 1, but to align
++	 * BR/EDR and LE transports, a minimum of 7 is chosen.
++	 *
++	 * This check might also be called for unencrypted connections
++	 * that have no key size requirements. Ensure that the link is
++	 * actually encrypted before enforcing a key size.
++	 */
++	return (!test_bit(HCI_CONN_ENCRYPT, &hcon->flags) ||
++		hcon->enc_key_size > HCI_MIN_ENC_KEY_SIZE);
++}
++
+ static void l2cap_do_start(struct l2cap_chan *chan)
+ {
+ 	struct l2cap_conn *conn = chan->conn;
+@@ -1357,9 +1372,14 @@ static void l2cap_do_start(struct l2cap_
+ 	if (!(conn->info_state & L2CAP_INFO_FEAT_MASK_REQ_DONE))
+ 		return;
+ 
+-	if (l2cap_chan_check_security(chan, true) &&
+-	    __l2cap_no_conn_pending(chan))
++	if (!l2cap_chan_check_security(chan, true) ||
++	    !__l2cap_no_conn_pending(chan))
++		return;
++
++	if (l2cap_check_enc_key_size(conn->hcon))
+ 		l2cap_start_connection(chan);
++	else
++		__set_chan_timer(chan, L2CAP_DISC_TIMEOUT);
+ }
+ 
+ static inline int l2cap_mode_supported(__u8 mode, __u32 feat_mask)
+@@ -1438,7 +1458,10 @@ static void l2cap_conn_start(struct l2ca
+ 				continue;
+ 			}
+ 
+-			l2cap_start_connection(chan);
++			if (l2cap_check_enc_key_size(conn->hcon))
++				l2cap_start_connection(chan);
++			else
++				l2cap_chan_close(chan, ECONNREFUSED);
+ 
+ 		} else if (chan->state == BT_CONNECT2) {
+ 			struct l2cap_conn_rsp rsp;
+@@ -7455,7 +7478,7 @@ static void l2cap_security_cfm(struct hc
+ 		}
+ 
+ 		if (chan->state == BT_CONNECT) {
+-			if (!status)
++			if (!status && l2cap_check_enc_key_size(hcon))
+ 				l2cap_start_connection(chan);
+ 			else
+ 				__set_chan_timer(chan, L2CAP_DISC_TIMEOUT);
+@@ -7464,7 +7487,7 @@ static void l2cap_security_cfm(struct hc
+ 			struct l2cap_conn_rsp rsp;
+ 			__u16 res, stat;
+ 
+-			if (!status) {
++			if (!status && l2cap_check_enc_key_size(hcon)) {
+ 				if (test_bit(FLAG_DEFER_SETUP, &chan->flags)) {
+ 					res = L2CAP_CR_PEND;
+ 					stat = L2CAP_CS_AUTHOR_PEND;
 
 
