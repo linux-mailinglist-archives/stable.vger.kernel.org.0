@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A10DA50726
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE46506B1
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729021AbfFXKEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:04:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36626 "EHLO mail.kernel.org"
+        id S1728651AbfFXJ6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:58:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729788AbfFXKEu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:04:50 -0400
+        id S1729055AbfFXJ6l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:58:41 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EE86208E3;
-        Mon, 24 Jun 2019 10:04:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D03282133F;
+        Mon, 24 Jun 2019 09:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370690;
-        bh=Ib6SgRLFYBubhoJcoft5hs76eSLfNuvv/9iVhQw7T98=;
+        s=default; t=1561370320;
+        bh=GojfBNqMKITgPki3u0hexU7f7xe5o+EXlKwf4BahSRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WF5aU8++VHR46K+PWKrsIjxDxAUs0jUHsT9+dVkp4hn7aHajLD+CpHrXuKsPsFO6T
-         LuDnzYB8ax7/ZzVgZRmaWpF7eTxlLeUDyjeNA7rSZivcO05O82HlgfcsBdU+ris9qB
-         hnuqKH7pfrdie4deNoEqGSpIUQs5VadNrFpn70Q0=
+        b=0yERKt8gCY1yX+G2nfIRhbtLHu8mKpftyS+crV+Z3BBUixvyFVF3gMhp+pKaNjyRc
+         TtPTQ9+xZmKVlY3QWy+Lj7xAppTimiiFtzuQN9fBQSgzgnbPpAT3rnVlKB4Xqzjn5k
+         KQ95bSSZlUTW3X1/kDAwK25SC6v5gRChJ+pdRW0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
         Liviu Dudau <liviu.dudau@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/90] drm/arm/hdlcd: Actually validate CRTC modes
-Date:   Mon, 24 Jun 2019 17:56:46 +0800
-Message-Id: <20190624092317.810284350@linuxfoundation.org>
+Subject: [PATCH 4.14 29/51] drm/arm/hdlcd: Actually validate CRTC modes
+Date:   Mon, 24 Jun 2019 17:56:47 +0800
+Message-Id: <20190624092309.724893444@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,7 +62,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/gpu/drm/arm/hdlcd_crtc.c b/drivers/gpu/drm/arm/hdlcd_crtc.c
-index e4d67b70244d..d5c1a0b1f01a 100644
+index 72b22b805412..4a108660cc8f 100644
 --- a/drivers/gpu/drm/arm/hdlcd_crtc.c
 +++ b/drivers/gpu/drm/arm/hdlcd_crtc.c
 @@ -186,20 +186,19 @@ static void hdlcd_crtc_atomic_disable(struct drm_crtc *crtc,
