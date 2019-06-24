@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57B67506E7
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89D265083C
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729384AbfFXKCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:02:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33776 "EHLO mail.kernel.org"
+        id S1729877AbfFXKPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:15:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728656AbfFXKCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:02:33 -0400
+        id S1729747AbfFXKPj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:15:39 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6946F20848;
-        Mon, 24 Jun 2019 10:02:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B79DF205ED;
+        Mon, 24 Jun 2019 10:15:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370552;
-        bh=zK/2m3vIdbnCyxfHRSFwOxu839hS2Og+FGZFOvRJtp8=;
+        s=default; t=1561371339;
+        bh=Qp5rodsvKjiXWqJYgjTqfZKFaoCWh2/UkvopTy/m54k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aset2YVG/7lPbWXSCYGHVvZDNMSTqxSGNHbhrwa8w5DpToUC2cKVne2PCcRk2vKz6
-         tp2aErgk/hD459l7Q/EinGNOLnT1YKrwJwHdKb6AAHj0cBQwRLYGNzow/R/+V1HbcA
-         oSGQ6xkPlH6PKIKM4CeUmaDgSiFtdNnvNO2pLOdc=
+        b=hcR/rxSQUjWK9HmVBRFGEd95kawziO4fVY1wWCc1vmbfjTYsjlSD0y7KrSDtjFA7j
+         r9iKlHTp1BEPcl7yjqDc1OKVXwlOopa9uxkCoqtx3hSKf4VoXqg99+oVyQOHv6Qfi+
+         khrnQ/opivMVRc0pxh/XIY1HaUAk1lJRHjk5+H80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Jun Li <jun.li@nxp.com>, Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.19 17/90] usb: chipidea: udc: workaround for endpoint conflict issue
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 035/121] dmaengine: mediatek-cqdma: sleeping in atomic context
 Date:   Mon, 24 Jun 2019 17:56:07 +0800
-Message-Id: <20190624092315.141038123@linuxfoundation.org>
+Message-Id: <20190624092322.613626713@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+[ Upstream commit 069b3c4214f27b130d0642f32438560db30f452e ]
 
-commit c19dffc0a9511a7d7493ec21019aefd97e9a111b upstream.
+The mtk_cqdma_poll_engine_done() function takes a true/false parameter
+where true means it's called from atomic context.  There are a couple
+places where it was set to false but it's actually in atomic context
+so it should be true.
 
-An endpoint conflict occurs when the USB is working in device mode
-during an isochronous communication. When the endpointA IN direction
-is an isochronous IN endpoint, and the host sends an IN token to
-endpointA on another device, then the OUT transaction may be missed
-regardless the OUT endpoint number. Generally, this occurs when the
-device is connected to the host through a hub and other devices are
-connected to the same hub.
+All the callers for mtk_cqdma_hard_reset() are holding a spin_lock and
+in mtk_cqdma_free_chan_resources() we take a spin_lock before calling
+the mtk_cqdma_poll_engine_done() function.
 
-The affected OUT endpoint can be either control, bulk, isochronous, or
-an interrupt endpoint. After the OUT endpoint is primed, if an IN token
-to the same endpoint number on another device is received, then the OUT
-endpoint may be unprimed (cannot be detected by software), which causes
-this endpoint to no longer respond to the host OUT token, and thus, no
-corresponding interrupt occurs.
-
-There is no good workaround for this issue, the only thing the software
-could do is numbering isochronous IN from the highest endpoint since we
-have observed most of device number endpoint from the lowest.
-
-Cc: <stable@vger.kernel.org> #v3.14+
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Jun Li <jun.li@nxp.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: b1f01e48df5a ("dmaengine: mediatek: Add MediaTek Command-Queue DMA controller for MT6765 SoC")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/udc.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/dma/mediatek/mtk-cqdma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/chipidea/udc.c
-+++ b/drivers/usb/chipidea/udc.c
-@@ -1621,6 +1621,25 @@ static int ci_udc_pullup(struct usb_gadg
- static int ci_udc_start(struct usb_gadget *gadget,
- 			 struct usb_gadget_driver *driver);
- static int ci_udc_stop(struct usb_gadget *gadget);
-+
-+/* Match ISOC IN from the highest endpoint */
-+static struct usb_ep *ci_udc_match_ep(struct usb_gadget *gadget,
-+			      struct usb_endpoint_descriptor *desc,
-+			      struct usb_ss_ep_comp_descriptor *comp_desc)
-+{
-+	struct ci_hdrc *ci = container_of(gadget, struct ci_hdrc, gadget);
-+	struct usb_ep *ep;
-+
-+	if (usb_endpoint_xfer_isoc(desc) && usb_endpoint_dir_in(desc)) {
-+		list_for_each_entry_reverse(ep, &ci->gadget.ep_list, ep_list) {
-+			if (ep->caps.dir_in && !ep->claimed)
-+				return ep;
-+		}
-+	}
-+
-+	return NULL;
-+}
-+
- /**
-  * Device operations part of the API to the USB controller hardware,
-  * which don't involve endpoints (or i/o)
-@@ -1634,6 +1653,7 @@ static const struct usb_gadget_ops usb_g
- 	.vbus_draw	= ci_udc_vbus_draw,
- 	.udc_start	= ci_udc_start,
- 	.udc_stop	= ci_udc_stop,
-+	.match_ep 	= ci_udc_match_ep,
- };
+diff --git a/drivers/dma/mediatek/mtk-cqdma.c b/drivers/dma/mediatek/mtk-cqdma.c
+index 814853842e29..723b11c190b3 100644
+--- a/drivers/dma/mediatek/mtk-cqdma.c
++++ b/drivers/dma/mediatek/mtk-cqdma.c
+@@ -225,7 +225,7 @@ static int mtk_cqdma_hard_reset(struct mtk_cqdma_pchan *pc)
+ 	mtk_dma_set(pc, MTK_CQDMA_RESET, MTK_CQDMA_HARD_RST_BIT);
+ 	mtk_dma_clr(pc, MTK_CQDMA_RESET, MTK_CQDMA_HARD_RST_BIT);
  
- static int init_eps(struct ci_hdrc *ci)
+-	return mtk_cqdma_poll_engine_done(pc, false);
++	return mtk_cqdma_poll_engine_done(pc, true);
+ }
+ 
+ static void mtk_cqdma_start(struct mtk_cqdma_pchan *pc,
+@@ -671,7 +671,7 @@ static void mtk_cqdma_free_chan_resources(struct dma_chan *c)
+ 		mtk_dma_set(cvc->pc, MTK_CQDMA_FLUSH, MTK_CQDMA_FLUSH_BIT);
+ 
+ 		/* wait for the completion of flush operation */
+-		if (mtk_cqdma_poll_engine_done(cvc->pc, false) < 0)
++		if (mtk_cqdma_poll_engine_done(cvc->pc, true) < 0)
+ 			dev_err(cqdma2dev(to_cqdma_dev(c)), "cqdma flush timeout\n");
+ 
+ 		/* clear the flush bit and interrupt flag */
+-- 
+2.20.1
+
 
 
