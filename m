@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB14650765
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E4D950872
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729382AbfFXKGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:06:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39162 "EHLO mail.kernel.org"
+        id S1729879AbfFXKRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:17:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730183AbfFXKGr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:06:47 -0400
+        id S1730926AbfFXKRT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:17:19 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F04702146F;
-        Mon, 24 Jun 2019 10:06:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFD15205C9;
+        Mon, 24 Jun 2019 10:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370806;
-        bh=xyJEaPk2HfCS8hpn/PaP8yA5GZREaLpcCzt+2lcENIs=;
+        s=default; t=1561371438;
+        bh=s5a9uuW1oRpZyOUMrHNb36epUClYyXDFss5hfro8qpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WkJy+Ui7A9DSCLlaa4c+id1r3GhoqR51y5KOeK8pQC2dax0X7dqy/x8IIi2E5h1nT
-         /y8ojuIOIIaKrY34K4OlSPR7IuQWraW4769+GgRY+gAFBUjQvgdsqhB1VFKZ3LIN7K
-         Q3SXtfAwPcZaF5v42IoLuI5oBEbiFPstKSyJilCk=
+        b=1vUXopQ056/h59cEV1IXUmHtAvsXl7gxeBFVav9Cthp/DuGdoknDJEJrS6zfz9ygn
+         GdhjnJh0u5KE28oceT/0yquDV4LSEeUTtY+/k+X+3wG9hgA9/4qSRASkLeSFNZFCOq
+         uHIRc64xnQvYmyfY86xU8SrGJrUF2o0yZyX6/aTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>
-Subject: [PATCH 4.19 83/90] SMB3: retry on STATUS_INSUFFICIENT_RESOURCES instead of failing write
-Date:   Mon, 24 Jun 2019 17:57:13 +0800
-Message-Id: <20190624092319.358356765@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Martin <Dave.Martin@arm.com>,
+        Anisse Astier <aastier@freebox.fr>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 5.1 102/121] arm64/sve: <uapi/asm/ptrace.h> should not depend on <uapi/linux/prctl.h>
+Date:   Mon, 24 Jun 2019 17:57:14 +0800
+Message-Id: <20190624092325.925302207@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Anisse Astier <aastier@freebox.fr>
 
-commit 8d526d62db907e786fd88948c75d1833d82bd80e upstream.
+commit 35341ca0614ab13e1ef34ad4f29a39e15ef31fa8 upstream.
 
-Some servers such as Windows 10 will return STATUS_INSUFFICIENT_RESOURCES
-as the number of simultaneous SMB3 requests grows (even though the client
-has sufficient credits).  Return EAGAIN on STATUS_INSUFFICIENT_RESOURCES
-so that we can retry writes which fail with this status code.
+Pulling linux/prctl.h into asm/ptrace.h in the arm64 UAPI headers causes
+userspace build issues for any program (e.g. strace and qemu) that
+includes both <sys/prctl.h> and <linux/ptrace.h> when using musl libc:
 
-This (for example) fixes large file copies to Windows 10 on fast networks.
+  | error: redefinition of 'struct prctl_mm_map'
+  |  struct prctl_mm_map {
 
-Signed-off-by: Steve French <stfrench@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+See https://github.com/foundriesio/meta-lmp/commit/6d4a106e191b5d79c41b9ac78fd321316d3013c0
+for a public example of people working around this issue.
+
+Although it's a bit grotty, fix this breakage by duplicating the prctl
+constant definitions. Since these are part of the kernel ABI, they
+cannot be changed in future and so it's not the end of the world to have
+them open-coded.
+
+Fixes: 43d4da2c45b2 ("arm64/sve: ptrace and ELF coredump support")
+Cc: stable@vger.kernel.org
+Acked-by: Dave Martin <Dave.Martin@arm.com>
+Signed-off-by: Anisse Astier <aastier@freebox.fr>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2maperror.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/uapi/asm/ptrace.h |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/fs/cifs/smb2maperror.c
-+++ b/fs/cifs/smb2maperror.c
-@@ -457,7 +457,7 @@ static const struct status_to_posix_erro
- 	{STATUS_FILE_INVALID, -EIO, "STATUS_FILE_INVALID"},
- 	{STATUS_ALLOTTED_SPACE_EXCEEDED, -EIO,
- 	"STATUS_ALLOTTED_SPACE_EXCEEDED"},
--	{STATUS_INSUFFICIENT_RESOURCES, -EREMOTEIO,
-+	{STATUS_INSUFFICIENT_RESOURCES, -EAGAIN,
- 				"STATUS_INSUFFICIENT_RESOURCES"},
- 	{STATUS_DFS_EXIT_PATH_FOUND, -EIO, "STATUS_DFS_EXIT_PATH_FOUND"},
- 	{STATUS_DEVICE_DATA_ERROR, -EIO, "STATUS_DEVICE_DATA_ERROR"},
+--- a/arch/arm64/include/uapi/asm/ptrace.h
++++ b/arch/arm64/include/uapi/asm/ptrace.h
+@@ -65,8 +65,6 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
+-#include <linux/prctl.h>
+-
+ /*
+  * User structures for general purpose, floating point and debug registers.
+  */
+@@ -113,10 +111,10 @@ struct user_sve_header {
+ 
+ /*
+  * Common SVE_PT_* flags:
+- * These must be kept in sync with prctl interface in <linux/ptrace.h>
++ * These must be kept in sync with prctl interface in <linux/prctl.h>
+  */
+-#define SVE_PT_VL_INHERIT		(PR_SVE_VL_INHERIT >> 16)
+-#define SVE_PT_VL_ONEXEC		(PR_SVE_SET_VL_ONEXEC >> 16)
++#define SVE_PT_VL_INHERIT		((1 << 17) /* PR_SVE_VL_INHERIT */ >> 16)
++#define SVE_PT_VL_ONEXEC		((1 << 18) /* PR_SVE_SET_VL_ONEXEC */ >> 16)
+ 
+ 
+ /*
 
 
