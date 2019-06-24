@@ -2,124 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F9351C8D
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 22:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D170151C9B
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 22:53:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731992AbfFXUkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 16:40:14 -0400
-Received: from mail-wr1-f51.google.com ([209.85.221.51]:41148 "EHLO
-        mail-wr1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726920AbfFXUkO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 16:40:14 -0400
-Received: by mail-wr1-f51.google.com with SMTP id c2so15314448wrm.8
-        for <stable@vger.kernel.org>; Mon, 24 Jun 2019 13:40:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=CDemPgeWLZ8b5bYf1dhXjQPFMRBAjDYxgkrIzZyEjrU=;
-        b=ZfsJeEYELcA+buigsFauruRdhUU06k/eZBZUIe1s4bVl6lxq3X6rwBGn+EvV2OEKn9
-         DznuAS6UF+i+Tdp6cgVs2NVvDhIGTlz3Zl9xq4LmqtWxkwlLhpVVSLbFcgCqxEXTwX0B
-         3LqwAJpD4uwRRiThf+2z9UA4g/0o5Zb2JmRMP4yGgSmOyhtx6BG6M2wW7pUkCenZ2lrK
-         vc2KmJTs6gAKmW9lpgFtTNKetu+ZwbzJTOdSdAQdvp0q8wLX74zL4dNwmBTQLSTtefvM
-         sd+uNPt9CXIyBgK8OfelfZj4WFheRA9T1ztZTwSQKDk/5zMDfiX07RuJZfnqADGaSMuZ
-         tU8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=CDemPgeWLZ8b5bYf1dhXjQPFMRBAjDYxgkrIzZyEjrU=;
-        b=MiUtdeNQU4ouDlvoaxItCyM6W5ARLGnE0f0lDg/eg/3U7Qt69dOf8RqE6YQYE0Q+6d
-         QyYOrMqa8Wypso/B5R7JY0ToqaejLQnLxiuGnuO4b0CKZAAuBz26UtIkJ0dO+yTEgWpM
-         nl6cv1wQa6KzVVyNt5AZLUDUQkIqGNNyTzbFJr6EFoPhf6/yL9xLaeZn5DEXZa73l2yi
-         aaJUDMGSFPkDP++iIqspFZugIQsTF8aHe2zt5Ieq8LWlm4wizlfyAYSMvSSFNAfD16lf
-         Vh/P2EeCC/pWYxcaw43URuf/L+GuLyNM9AzuG3R6TP1GAAqk5EKeHMVG1K3Z1Um0LEAl
-         tdqg==
-X-Gm-Message-State: APjAAAX6xfEVg9qdDfmMy/0zrZFO4qFsK15xoP+IYIoG+J3HbHQdbVMK
-        rBKu6JPJacoUUSzw9scoNDOwxVYB/wBybQ==
-X-Google-Smtp-Source: APXvYqyIc39/LYMI8YcLzKCQzqmdCgGIFlraV2yXkG92ewYSzaRPpcKkIHNBdNAGSm118Vnj+itEvg==
-X-Received: by 2002:a5d:4484:: with SMTP id j4mr34314371wrq.143.1561408812130;
-        Mon, 24 Jun 2019 13:40:12 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id y6sm425851wmd.16.2019.06.24.13.40.10
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 24 Jun 2019 13:40:11 -0700 (PDT)
-Message-ID: <5d11352b.1c69fb81.a90a1.281c@mx.google.com>
-Date:   Mon, 24 Jun 2019 13:40:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.55-92-gd8e5ade617e9
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y boot: 136 boots: 1 failed,
- 127 passed with 7 offline, 1 untried/unknown (v4.19.55-92-gd8e5ade617e9)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1731382AbfFXUw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 16:52:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59562 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729160AbfFXUw7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 16:52:59 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD6F920656;
+        Mon, 24 Jun 2019 20:52:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1561409578;
+        bh=o19eShi1knbmT8O45mGE53p0LYuy/aHppkIalsxT6Ug=;
+        h=Date:From:To:Subject:From;
+        b=JQ4cCfFhrxUcUveBRI/PJgptslH96+P2AcK7nzNqGt1WthcmFO6CYD20Ih8VRSV1L
+         /phuWxpGQWt/1vIDR9BJsp1wgKqkcULSPhax/NzYXwRM/1tJ8VkRC9NKK/YcblyY/P
+         6WM6GIo0gk15mNSm3sQXmj+2ToOYoelzQ9cX26XE=
+Date:   Mon, 24 Jun 2019 13:52:58 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        keescook@chromium.org, ddavenport@chromium.org
+Subject:  +
+ bug-fix-cut-here-for-warn_on-for-__warn_taint-architectures.patch added to
+ -mm tree
+Message-ID: <20190624205258.48saV%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 136 boots: 1 failed, 127 passed with 7 offline=
-, 1 untried/unknown (v4.19.55-92-gd8e5ade617e9)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.55-92-gd8e5ade617e9/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.55-92-gd8e5ade617e9/
+The patch titled
+     Subject: include/asm-generic/bug.h: fix "cut here" for WARN_ON for __WARN_TAINT architectures
+has been added to the -mm tree.  Its filename is
+     bug-fix-cut-here-for-warn_on-for-__warn_taint-architectures.patch
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.55-92-gd8e5ade617e9
-Git Commit: d8e5ade617e917a499d5d59b24e19e71f80886a8
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 75 unique boards, 25 SoC families, 16 builds out of 206
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/bug-fix-cut-here-for-warn_on-for-__warn_taint-architectures.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/bug-fix-cut-here-for-warn_on-for-__warn_taint-architectures.patch
 
-Boot Regressions Detected:
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-arm64:
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-    defconfig:
-        gcc-8:
-          meson-gxl-s905x-khadas-vim:
-              lab-baylibre: new failure (last pass: v4.19.55-91-gc491b02eb0=
-3a)
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Boot Failure Detected:
+------------------------------------------------------
+From: Drew Davenport <ddavenport@chromium.org>
+Subject: include/asm-generic/bug.h: fix "cut here" for WARN_ON for __WARN_TAINT architectures
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxl-s905x-khadas-vim: 1 failed lab
+For architectures using __WARN_TAINT, the WARN_ON macro did not print out
+the "cut here" string.  The other WARN_XXX macros would print "cut here"
+inside __warn_printk, which is not called for WARN_ON since it doesn't
+have a message to print.
 
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
+Link: http://lkml.kernel.org/r/20190624154831.163888-1-ddavenport@chromium.org
+Fixes: a7bed27af194 ("bug: fix "cut here" location for __WARN_TAINT architectures")
+Signed-off-by: Drew Davenport <ddavenport@chromium.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Tested-by: Kees Cook <keescook@chromium.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ include/asm-generic/bug.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/include/asm-generic/bug.h~bug-fix-cut-here-for-warn_on-for-__warn_taint-architectures
++++ a/include/asm-generic/bug.h
+@@ -104,8 +104,10 @@ extern void warn_slowpath_null(const cha
+ 	warn_slowpath_fmt_taint(__FILE__, __LINE__, taint, arg)
+ #else
+ extern __printf(1, 2) void __warn_printk(const char *fmt, ...);
+-#define __WARN()		__WARN_TAINT(TAINT_WARN)
+-#define __WARN_printf(arg...)	do { __warn_printk(arg); __WARN(); } while (0)
++#define __WARN() do { \
++	printk(KERN_WARNING CUT_HERE); __WARN_TAINT(TAINT_WARN); \
++} while (0)
++#define __WARN_printf(arg...)	__WARN_printf_taint(TAINT_WARN, arg)
+ #define __WARN_printf_taint(taint, arg...)				\
+ 	do { __warn_printk(arg); __WARN_TAINT(taint); } while (0)
+ #endif
+_
+
+Patches currently in -mm which might be from ddavenport@chromium.org are
+
+bug-fix-cut-here-for-warn_on-for-__warn_taint-architectures.patch
+
