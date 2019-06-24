@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 582A55079F
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 935A25066F
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730472AbfFXKIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:08:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42250 "EHLO mail.kernel.org"
+        id S1729055AbfFXJ6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:58:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730467AbfFXKIe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:08:34 -0400
+        id S1729073AbfFXJ6n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:58:43 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D51A205C9;
-        Mon, 24 Jun 2019 10:08:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D4FC214C6;
+        Mon, 24 Jun 2019 09:58:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370913;
-        bh=d37ICMBKvoimNiAqVg+adZ7Qd5e54zOXaNlzOgph3Rw=;
+        s=default; t=1561370323;
+        bh=wZqc0efwhTt7a7sN79w0xtLc1GDzGFBGZY5PRH6sqH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VrKhmAKFW3xKZqUKp1ITmbKk5azM+mBeN88tjl+G/1vNZGY3Gf1/TVr6+zuTc/lzS
-         It2Xj/PJptbJrHoIBjBTgZid0Ur6OJywBAzArgTbnmEqfasVe5KwMJA2Q2Nd/Kf0+G
-         F9GtBYIJxtWgU8/AfZtTX7Csdt4bOS/5VF6BSV9I=
+        b=F/UB31RoM8prKAvW47m7DZuiuTKeEMyh/Ju9COhaDVH5ewWdCAbgIKsiDESY9Tksg
+         mGjHMAlUCSElJBW4UDe2B0WkzSb8k0EO8HRXmrJCK72lqSASxc7JQy3F3JGe/f2uGL
+         mo2IwcztTT2yiLMkeWhjBgNVVzcrv/PXWkVbfOGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 048/121] parisc: Fix compiler warnings in float emulation code
-Date:   Mon, 24 Jun 2019 17:56:20 +0800
-Message-Id: <20190624092323.217985926@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 03/51] gcc-9: silence address-of-packed-member warning
+Date:   Mon, 24 Jun 2019 17:56:21 +0800
+Message-Id: <20190624092306.319099559@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6b98d9134e14f5ef4bcf64b27eedf484ed19a1ec ]
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-Avoid such compiler warnings:
-arch/parisc/math-emu/cnv_float.h:71:27: warning: ‘<<’ in boolean context, did you mean ‘<’ ? [-Wint-in-bool-context]
-     ((Dintp1(dint_valueA) << 33 - SGL_EXP_LENGTH) || Dintp2(dint_valueB))
-arch/parisc/math-emu/fcnvxf.c:257:6: note: in expansion of macro ‘Dint_isinexact_to_sgl’
-  if (Dint_isinexact_to_sgl(srcp1,srcp2)) {
+commit 6f303d60534c46aa1a239f29c321f95c83dda748 upstream.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We already did this for clang, but now gcc has that warning too.  Yes,
+yes, the address may be unaligned.  And that's kind of the point.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/parisc/math-emu/cnv_float.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/parisc/math-emu/cnv_float.h b/arch/parisc/math-emu/cnv_float.h
-index 933423fa5144..b0db61188a61 100644
---- a/arch/parisc/math-emu/cnv_float.h
-+++ b/arch/parisc/math-emu/cnv_float.h
-@@ -60,19 +60,19 @@
-     ((exponent < (SGL_P - 1)) ?				\
-      (Sall(sgl_value) << (SGL_EXP_LENGTH + 1 + exponent)) : FALSE)
+--- a/Makefile
++++ b/Makefile
+@@ -650,6 +650,7 @@ KBUILD_CFLAGS	+= $(call cc-disable-warni
+ KBUILD_CFLAGS	+= $(call cc-disable-warning, format-truncation)
+ KBUILD_CFLAGS	+= $(call cc-disable-warning, format-overflow)
+ KBUILD_CFLAGS	+= $(call cc-disable-warning, int-in-bool-context)
++KBUILD_CFLAGS	+= $(call cc-disable-warning, address-of-packed-member)
+ KBUILD_CFLAGS	+= $(call cc-disable-warning, attribute-alias)
  
--#define Int_isinexact_to_sgl(int_value)	(int_value << 33 - SGL_EXP_LENGTH)
-+#define Int_isinexact_to_sgl(int_value)	((int_value << 33 - SGL_EXP_LENGTH) != 0)
- 
- #define Sgl_roundnearest_from_int(int_value,sgl_value)			\
-     if (int_value & 1<<(SGL_EXP_LENGTH - 2))   /* round bit */		\
--    	if ((int_value << 34 - SGL_EXP_LENGTH) || Slow(sgl_value))	\
-+	if (((int_value << 34 - SGL_EXP_LENGTH) != 0) || Slow(sgl_value)) \
- 		Sall(sgl_value)++
- 
- #define Dint_isinexact_to_sgl(dint_valueA,dint_valueB)		\
--    ((Dintp1(dint_valueA) << 33 - SGL_EXP_LENGTH) || Dintp2(dint_valueB))
-+    (((Dintp1(dint_valueA) << 33 - SGL_EXP_LENGTH) != 0) || Dintp2(dint_valueB))
- 
- #define Sgl_roundnearest_from_dint(dint_valueA,dint_valueB,sgl_value)	\
-     if (Dintp1(dint_valueA) & 1<<(SGL_EXP_LENGTH - 2)) 			\
--    	if ((Dintp1(dint_valueA) << 34 - SGL_EXP_LENGTH) ||		\
-+	if (((Dintp1(dint_valueA) << 34 - SGL_EXP_LENGTH) != 0) ||	\
-     	Dintp2(dint_valueB) || Slow(sgl_value)) Sall(sgl_value)++
- 
- #define Dint_isinexact_to_dbl(dint_value) 	\
--- 
-2.20.1
-
+ ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+@@ -716,7 +717,6 @@ ifeq ($(cc-name),clang)
+ KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
+ KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
+ KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
+-KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
+ # Quiet clang warning: comparison of unsigned expression < 0 is always false
+ KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
+ # CLANG uses a _MergedGlobals as optimization, but this breaks modpost, as the
 
 
