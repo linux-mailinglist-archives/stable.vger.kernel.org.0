@@ -2,68 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF6EE4FEC4
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 03:56:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA4034FEB9
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 03:52:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726328AbfFXB4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jun 2019 21:56:38 -0400
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:44382 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726304AbfFXB4h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jun 2019 21:56:37 -0400
-Received: by mail-qk1-f196.google.com with SMTP id p144so8579179qke.11
-        for <stable@vger.kernel.org>; Sun, 23 Jun 2019 18:56:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=nmvQd+ZLEES8JBjtako+LZ5IFOMVEC8STU24G37/IuE=;
-        b=f+YAO55TlmC25FmoX+lX7ZuiLOTxF9ghxZ/mmfKCQgOt9g4Sa+wFNqXOeFuw1IiBLT
-         UNXySucYSydLSQPE5e+ElvotX8bpcdjtFhB2AslcaZe8nqX/2tkJ5GMM+F974vrdQbPp
-         19trCplfJhCtcCYTBzB1oy25TGNZnMBrOskY5yQUxSimPWkIhSovn0iWhd1cqsrrLoDh
-         1K0Cj3zRnRQTs2tJIEN5nz6fUaRd/nq7qMS6FdT+JnMHgW7kP+ztm1W6M8wcXx9Rrx/C
-         AyZNqwrazeRFW2DA/KEu1PvfpGtsCLPuLXsV2KhrO6P6wRuHdQKdzHtR5iMqZTTcNV0S
-         0+JQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=nmvQd+ZLEES8JBjtako+LZ5IFOMVEC8STU24G37/IuE=;
-        b=tJCtFX7+WQvHemvpsaBpEThT3V39+kE6D3p9mNusqhwk76LklBj1IA2p6ZOlRSgE3J
-         6lfSFGAf6ZZWSUv9p85T7yql+MV95+WBzis6/8eobJQfJ1bfXp4fvLhvXgqCXw7GXiVN
-         NRze1yxIbg/oCwCkN3fzFp4F0k/VrNuAFpkaKergmRhTQTy5+EZaFnsbNEdtyY1kxzh5
-         dwoXtVzLpAl74DlbdU5gitKPIi8kJ4HTf+JuFF3mnomzBlGkr8ybd6i5dNlYsc0dlWsI
-         g89IfE3YIUAfyXpwVubLcapmd83jEc2bcJ4NXkdjaDXVNwkKxZ/m3QtZ8FJ7EHfWjQaL
-         Hs4A==
-X-Gm-Message-State: APjAAAUhYzZtHaKbbNM0v/0m+8aOHUFOX2LAWehupQMZjiFxQMCD7x/F
-        Ma2Qqx0YZPOBOFBW7TtRSoscjWyJ36jx7e21yw4=
-X-Google-Smtp-Source: APXvYqysjmsEghHUtZlsz7yfKa+9YtB/9ldhI+56fao2OQLO6HWwjQ1ZT08SorufeiryJ7Kymt7pkuY+dQFb51udnUY=
-X-Received: by 2002:a37:9a96:: with SMTP id c144mr13958006qke.468.1561334992821;
- Sun, 23 Jun 2019 17:09:52 -0700 (PDT)
+        id S1726393AbfFXBwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jun 2019 21:52:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36824 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726676AbfFXBw0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 23 Jun 2019 21:52:26 -0400
+Received: from localhost (mobile-107-77-172-83.mobile.att.net [107.77.172.83])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D34821743;
+        Mon, 24 Jun 2019 00:34:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1561336450;
+        bh=VtozKRRBbN6xpJq7vE+tn78FR7minNWSZmx8W+M/+1E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Vqm33N/1TFJhe5RoGVPhtiG0rk/DFmiZZUsydqhpJpbrNwDFvIj1hUZXoGdXIgzcD
+         wMoKlM/IOBs7FuFrKG0Cs4MXfxux2WGmqXt5L72RbGqX8mYELoZHEVeCKU8BxKfuY1
+         Wft8PlChh/M24lX4X8xqBTHqMbcwWa2YcTVsuJzg=
+Date:   Sun, 23 Jun 2019 20:34:09 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        stable <stable@vger.kernel.org>,
+        overlayfs <linux-unionfs@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] ovl: support the FS_IOC_FS[SG]ETXATTR
+ ioctls" failed to apply to 5.1-stable tree
+Message-ID: <20190624003409.GO2226@sasha-vm>
+References: <1560073529193139@kroah.com>
+ <CAOQ4uxiTrsOs3KWOxedZicXNMJJharmWo=TDXDnxSC1XMNVKBg@mail.gmail.com>
+ <CAOQ4uxiTTuOESvZ2Y5cSebqKs+qeU3q6ZMReBDro0Qv7aRBhpw@mail.gmail.com>
+ <20190623010345.GJ2226@sasha-vm>
+ <20190623202916.GA10957@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:ac8:231d:0:0:0:0:0 with HTTP; Sun, 23 Jun 2019 17:09:52
- -0700 (PDT)
-Reply-To: umarbelloumar92@gmail.com
-From:   Umar Bello <bolomichel01@gmail.com>
-Date:   Sun, 23 Jun 2019 17:09:52 -0700
-Message-ID: <CAHCN0emReBHiY9nxJZdwVB0sS-3PKkzo6wez8itAvrDiaHxauQ@mail.gmail.com>
-Subject: Dear friend
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190623202916.GA10957@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
+On Sun, Jun 23, 2019 at 10:29:16PM +0200, Greg KH wrote:
+>On Sat, Jun 22, 2019 at 09:03:45PM -0400, Sasha Levin wrote:
+>> On Fri, Jun 21, 2019 at 11:15:47AM +0300, Amir Goldstein wrote:
+>> > On Thu, Jun 13, 2019 at 11:49 AM Amir Goldstein <amir73il@gmail.com> wrote:
+>> > >
+>> > > On Sun, Jun 9, 2019 at 12:45 PM <gregkh@linuxfoundation.org> wrote:
+>> > > >
+>> > > >
+>> > > > The patch below does not apply to the 5.1-stable tree.
+>> > > > If someone wants it applied there, or to any other stable or longterm
+>> > > > tree, then please email the backport, including the original git commit
+>> > > > id to <stable@vger.kernel.org>.
+>> > > >
+>> > > > thanks,
+>> > > >
+>> > > > greg k-h
+>> > > >
+>> > >
+>> > > FYI, the failure to apply this patch would be resolved after you
+>> > > picked up "ovl: check the capability before cred overridden" for
+>> > > stable, please hold off from taking this patch just yet, because
+>> > > it has a bug, whose fix wasn't picked upstream yet.
+>> > >
+>> >
+>> > Greg,
+>> >
+>> > Please apply these patches to stable 4.19.
+>> > They fix a docker regression (project quotas feature).
+>> >
+>> > b21d9c435f93 ovl: support the FS_IOC_FS[SG]ETXATTR ioctls
+>> > 941d935ac763 ovl: fix wrong flags check in FS_IOC_FS[SG]ETXATTR ioctls
+>> >
+>> > They apply cleanly and tested on v4.19.53.
+>>
+>> I've queued these for 4.19.
+>>
+>> > While at it, I also tested that the following patches apply cleanly and solve
+>> > relevant issues on v4.19.53, but they are not clear stable candidates.
+>> >
+>> > 1) /proc/locks shows incorrect ino. Only reported by xfstests (so far):
+>> > 6dde1e42f497 ovl: make i_ino consistent with st_ino in more cases
+>>
+>> And this.
+>>
+>> > 2) Fix output of `modinfo overlay`:
+>> > 253e74833911 ovl: fix typo in MODULE_PARM_DESC
+>>
+>> But not this one. Maybe we should be including these in stable trees
+>> since the risk factor is low and it fixes something user-visible, but
+>> our current rules object this this kind of patches so I've left it out.
+>>
+>> > 3) Disallow bogus layer combinations.
+>> > syzbot has started to produce repros that create bogus layer combinations.
+>> > So far it has only been able to reproduce a WARN_ON, which has already
+>> > been fixed in stable, by  acf3062a7e1c ("ovl: relax WARN_ON()..."), but
+>> > other real bugs could be lurking if those setups are allowed.
+>> > We decided to detect and error on these setups on mount, to stop syzbot
+>> > (and attackers) from trying to attack overlayfs this way.
+>> > To stop syzbot from mutating this class of repros on stable kernel you
+>> > MAY apply these 3 patches, but in any case, I would wait a while to see
+>> > if more bugs are reported on master.
+>> > Although this solves a problem dating before 4.19, I have no plans
+>> > of backporting these patches further back.
+>> >
+>> > 146d62e5a586 ovl: detect overlapping layers
+>> > 9179c21dc6ed ovl: don't fail with disconnected lower NFS
+>> > 1dac6f5b0ed2 ovl: fix bogus -Wmaybe-unitialized warning
+>>
+>> I've queued these 3 for 4.19.
+>
+>What about the ones that are needed for 5.1?
 
+Ah yes, I haven't realized that the syzkaller ones are needed for 5.1.
+I'll queue them up.
 
-Dear friend
-I am contacting you on a business deal of $17.5 Million US Dollars,
-ready for transfer into your account
-if we make this claim, we will share it 60%/40%.
-100% risk free and it will be legally backed up with government
-approved If you are interested reply for more details.
-
-Best regards,
-Umar Bello
- +226 68874958
+--
+Thanks,
+Sasha
