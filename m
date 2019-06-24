@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B501F5069F
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84CC250853
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729330AbfFXJ7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:59:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59272 "EHLO mail.kernel.org"
+        id S1728467AbfFXKQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:16:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729299AbfFXJ7v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:51 -0400
+        id S1730754AbfFXKQd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:16:33 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E370C213F2;
-        Mon, 24 Jun 2019 09:59:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 168E92089F;
+        Mon, 24 Jun 2019 10:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370390;
-        bh=sLCeOjCrzZWFX3mgX9qYm4q7YOx5AuqolYxd8ZsyC4k=;
+        s=default; t=1561371392;
+        bh=u9ikIP5L99GRe36W5rzHf05qB7Fpqvh4EkLSJK7oRMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hieOBxde6RWPLbZEvyfV0LscjK8WkTKbE6o6yXg0kWs6CX1nBuY7Y1GDyqHk30run
-         yuxVod13kPCqOkb6L1r33CH+F27xjIdMbsIvN6GZ8E3N8fMnbKl2K4epBNElFhMQXV
-         7uCbFbT3ykF5YJuEE05+XrFe/Wl7fSxgWyZ/VQFM=
+        b=yMltW8/8pBn5VOmrVBpAqO9VRdgMogGH4Skqr/tYOwgYwHgNlUfbzI8bhBwhLgiHJ
+         yyqwKwIPzL089/tF5YBPdnRqtUOpHdI55KJg0f1bfkxV3kyyNAv67kwMmU+QG5PwzN
+         TWO/IdsBWgkJvJguadlRdvRQMfjD2kO78hVtB/b8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com,
-        Willem de Bruijn <willemb@google.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.14 41/51] can: purge socket error queue on sock destruct
+        stable@vger.kernel.org, Dave Martin <Dave.Martin@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 087/121] arm64: Silence gcc warnings about arch ABI drift
 Date:   Mon, 24 Jun 2019 17:56:59 +0800
-Message-Id: <20190624092310.785286474@linuxfoundation.org>
+Message-Id: <20190624092325.272683883@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+[ Upstream commit ebcc5928c5d925b1c8d968d9c89cdb0d0186db17 ]
 
-commit fd704bd5ee749d560e86c4f1fd2ef486d8abf7cf upstream.
+Since GCC 9, the compiler warns about evolution of the
+platform-specific ABI, in particular relating for the marshaling of
+certain structures involving bitfields.
 
-CAN supports software tx timestamps as of the below commit. Purge
-any queued timestamp packets on socket destroy.
+The kernel is a standalone binary, and of course nobody would be
+so stupid as to expose structs containing bitfields as function
+arguments in ABI.  (Passing a pointer to such a struct, however
+inadvisable, should be unaffected by this change.  perf and various
+drivers rely on that.)
 
-Fixes: 51f31cabe3ce ("ip: support for TX timestamps on UDP and RAW sockets")
-Reported-by: syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So these warnings do more harm than good: turn them off.
 
+We may miss warnings about future ABI drift, but that's too bad.
+Future ABI breaks of this class will have to be debugged and fixed
+the traditional way unless the compiler evolves finer-grained
+diagnostics.
+
+Signed-off-by: Dave Martin <Dave.Martin@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/af_can.c |    1 +
+ arch/arm64/Makefile | 1 +
  1 file changed, 1 insertion(+)
 
---- a/net/can/af_can.c
-+++ b/net/can/af_can.c
-@@ -105,6 +105,7 @@ EXPORT_SYMBOL(can_ioctl);
- static void can_sock_destruct(struct sock *sk)
- {
- 	skb_queue_purge(&sk->sk_receive_queue);
-+	skb_queue_purge(&sk->sk_error_queue);
- }
+diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
+index b025304bde46..8fbd583b18e1 100644
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -51,6 +51,7 @@ endif
  
- static const struct can_proto *can_get_proto(int protocol)
+ KBUILD_CFLAGS	+= -mgeneral-regs-only $(lseinstr) $(brokengasinst)
+ KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
++KBUILD_CFLAGS	+= -Wno-psabi
+ KBUILD_AFLAGS	+= $(lseinstr) $(brokengasinst)
+ 
+ KBUILD_CFLAGS	+= $(call cc-option,-mabi=lp64)
+-- 
+2.20.1
+
 
 
