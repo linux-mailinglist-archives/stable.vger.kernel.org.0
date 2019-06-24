@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1287950829
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A38F50781
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729351AbfFXKCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:02:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33526 "EHLO mail.kernel.org"
+        id S1730323AbfFXKHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:07:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729326AbfFXKCX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:02:23 -0400
+        id S1729947AbfFXKHc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:07:32 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA8AF2146E;
-        Mon, 24 Jun 2019 10:02:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B59C208E3;
+        Mon, 24 Jun 2019 10:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370542;
-        bh=/KiQPSqgnA+uU5cBwuXizkixVy1P5Z7IFHizo0NUjmU=;
+        s=default; t=1561370851;
+        bh=lPFa3FZ2IJL5Jre6SYhyJDYntvwt2w0C2DFyXpPrB7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M97Xk7o1dUK8Fw8RnOSX7bauF+iKZ1toEpi17Ug0bTOJNz0hhtpxeHzkxM+JL9p3X
-         5STHBUKaqC65BuA8vYpq1Bead9sWggCKFLNKzkZqR9zo9b7HRqJNSyEm+h6dLrY/Sv
-         T7a8wxFVTKoDyWoMeupo/8k26z57ynqXLP16emzA=
+        b=IH+m/lFdNBBkW8tAom72+rFHUwIDYAywqUBucZfExYZL3ILev8ujBIEORvLkcQYo9
+         U8F9IHBPhzl58TN7qhbOJGKnqaakmK1VgIyslb0ewyR6c40h5O5qB/Y3ZVnVVwIbkf
+         ilkHN3MPn8XphHAi2rsrImkwhg1Uu2OkxcpM1o7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/90] ovl: fix wrong flags check in FS_IOC_FS[SG]ETXATTR ioctls
-Date:   Mon, 24 Jun 2019 17:55:55 +0800
-Message-Id: <20190624092314.323719589@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Smith <danct12@disroot.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.1 024/121] Input: silead - add MSSL0017 to acpi_device_id
+Date:   Mon, 24 Jun 2019 17:55:56 +0800
+Message-Id: <20190624092321.922852625@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,152 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 941d935ac7636911a3fd8fa80e758e52b0b11e20 ]
+From: Daniel Smith <danct12@disroot.org>
 
-The ioctl argument was parsed as the wrong type.
+commit 0e658060e5fc50dc282885dc424a94b5d95547e5 upstream.
 
-Fixes: b21d9c435f93 ("ovl: support the FS_IOC_FS[SG]ETXATTR ioctls")
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+On Chuwi Hi10 Plus, the Silead device id is MSSL0017.
+
+Signed-off-by: Daniel Smith <danct12@disroot.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/overlayfs/file.c | 91 ++++++++++++++++++++++++++++++++-------------
- 1 file changed, 65 insertions(+), 26 deletions(-)
+ drivers/input/touchscreen/silead.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
-index 749532fd51d7..0bd276e4ccbe 100644
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -409,37 +409,16 @@ static long ovl_real_ioctl(struct file *file, unsigned int cmd,
- 	return ret;
- }
- 
--static unsigned int ovl_get_inode_flags(struct inode *inode)
--{
--	unsigned int flags = READ_ONCE(inode->i_flags);
--	unsigned int ovl_iflags = 0;
--
--	if (flags & S_SYNC)
--		ovl_iflags |= FS_SYNC_FL;
--	if (flags & S_APPEND)
--		ovl_iflags |= FS_APPEND_FL;
--	if (flags & S_IMMUTABLE)
--		ovl_iflags |= FS_IMMUTABLE_FL;
--	if (flags & S_NOATIME)
--		ovl_iflags |= FS_NOATIME_FL;
--
--	return ovl_iflags;
--}
--
- static long ovl_ioctl_set_flags(struct file *file, unsigned int cmd,
--				unsigned long arg)
-+				unsigned long arg, unsigned int iflags)
- {
- 	long ret;
- 	struct inode *inode = file_inode(file);
--	unsigned int flags;
--	unsigned int old_flags;
-+	unsigned int old_iflags;
- 
- 	if (!inode_owner_or_capable(inode))
- 		return -EACCES;
- 
--	if (get_user(flags, (int __user *) arg))
--		return -EFAULT;
--
- 	ret = mnt_want_write_file(file);
- 	if (ret)
- 		return ret;
-@@ -448,8 +427,8 @@ static long ovl_ioctl_set_flags(struct file *file, unsigned int cmd,
- 
- 	/* Check the capability before cred override */
- 	ret = -EPERM;
--	old_flags = ovl_get_inode_flags(inode);
--	if (((flags ^ old_flags) & (FS_APPEND_FL | FS_IMMUTABLE_FL)) &&
-+	old_iflags = READ_ONCE(inode->i_flags);
-+	if (((iflags ^ old_iflags) & (S_APPEND | S_IMMUTABLE)) &&
- 	    !capable(CAP_LINUX_IMMUTABLE))
- 		goto unlock;
- 
-@@ -469,6 +448,63 @@ static long ovl_ioctl_set_flags(struct file *file, unsigned int cmd,
- 
- }
- 
-+static unsigned int ovl_fsflags_to_iflags(unsigned int flags)
-+{
-+	unsigned int iflags = 0;
-+
-+	if (flags & FS_SYNC_FL)
-+		iflags |= S_SYNC;
-+	if (flags & FS_APPEND_FL)
-+		iflags |= S_APPEND;
-+	if (flags & FS_IMMUTABLE_FL)
-+		iflags |= S_IMMUTABLE;
-+	if (flags & FS_NOATIME_FL)
-+		iflags |= S_NOATIME;
-+
-+	return iflags;
-+}
-+
-+static long ovl_ioctl_set_fsflags(struct file *file, unsigned int cmd,
-+				  unsigned long arg)
-+{
-+	unsigned int flags;
-+
-+	if (get_user(flags, (int __user *) arg))
-+		return -EFAULT;
-+
-+	return ovl_ioctl_set_flags(file, cmd, arg,
-+				   ovl_fsflags_to_iflags(flags));
-+}
-+
-+static unsigned int ovl_fsxflags_to_iflags(unsigned int xflags)
-+{
-+	unsigned int iflags = 0;
-+
-+	if (xflags & FS_XFLAG_SYNC)
-+		iflags |= S_SYNC;
-+	if (xflags & FS_XFLAG_APPEND)
-+		iflags |= S_APPEND;
-+	if (xflags & FS_XFLAG_IMMUTABLE)
-+		iflags |= S_IMMUTABLE;
-+	if (xflags & FS_XFLAG_NOATIME)
-+		iflags |= S_NOATIME;
-+
-+	return iflags;
-+}
-+
-+static long ovl_ioctl_set_fsxflags(struct file *file, unsigned int cmd,
-+				   unsigned long arg)
-+{
-+	struct fsxattr fa;
-+
-+	memset(&fa, 0, sizeof(fa));
-+	if (copy_from_user(&fa, (void __user *) arg, sizeof(fa)))
-+		return -EFAULT;
-+
-+	return ovl_ioctl_set_flags(file, cmd, arg,
-+				   ovl_fsxflags_to_iflags(fa.fsx_xflags));
-+}
-+
- static long ovl_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- {
- 	long ret;
-@@ -480,8 +516,11 @@ static long ovl_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		break;
- 
- 	case FS_IOC_SETFLAGS:
-+		ret = ovl_ioctl_set_fsflags(file, cmd, arg);
-+		break;
-+
- 	case FS_IOC_FSSETXATTR:
--		ret = ovl_ioctl_set_flags(file, cmd, arg);
-+		ret = ovl_ioctl_set_fsxflags(file, cmd, arg);
- 		break;
- 
- 	default:
--- 
-2.20.1
-
+--- a/drivers/input/touchscreen/silead.c
++++ b/drivers/input/touchscreen/silead.c
+@@ -617,6 +617,7 @@ static const struct acpi_device_id silea
+ 	{ "MSSL1680", 0 },
+ 	{ "MSSL0001", 0 },
+ 	{ "MSSL0002", 0 },
++	{ "MSSL0017", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(acpi, silead_ts_acpi_match);
 
 
