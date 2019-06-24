@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B14FE507B4
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8DE050710
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730238AbfFXKJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:09:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42864 "EHLO mail.kernel.org"
+        id S1729616AbfFXKEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:04:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730564AbfFXKIz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:08:55 -0400
+        id S1729626AbfFXKEH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:04:07 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CCB3205C9;
-        Mon, 24 Jun 2019 10:08:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A256721537;
+        Mon, 24 Jun 2019 10:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370934;
-        bh=vRC8nGd9BZ6q8TZ5jkEnycT++YcDV6a94y6g05XjZcE=;
+        s=default; t=1561370647;
+        bh=d37ICMBKvoimNiAqVg+adZ7Qd5e54zOXaNlzOgph3Rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cq647VavDFH6J8NuY3Vg9F2fJksDqwVwuoijRamGa8QtMFFTw4FzVOzlojBe1rLmX
-         H0HLiRBj1OxqKAOwSNA0gwDSKdJGdNnxoYr7E//rm9sr+mcc4vPwnUn0ZIzx4KIwUi
-         BHaD0JHqL93ubb9/t5Jy0e5mrTSzpkSJIF4DfaP4=
+        b=QEDSP2vq0RxmgArWXKx423bBsUV4ZSjuPpqoZQ7F05BVjwwtP4jUkCjUPLT55xp6Y
+         exFR7UmweYorB/IC78SmPLtTWFKjPbtL0Vz2Qg3gjnZdZs2hEeXSw+HFwxGT6vQWyw
+         M1o6VUhLq6zICxvpjPdYeJcLAsRMABP9YJEaRXhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 055/121] crypto: hmac - fix memory leak in hmac_init_tfm()
-Date:   Mon, 24 Jun 2019 17:56:27 +0800
-Message-Id: <20190624092323.522420091@linuxfoundation.org>
+Subject: [PATCH 4.19 38/90] parisc: Fix compiler warnings in float emulation code
+Date:   Mon, 24 Jun 2019 17:56:28 +0800
+Message-Id: <20190624092316.796169695@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7829a0c1cb9c80debfb4fdb49b4d90019f2ea1ac ]
+[ Upstream commit 6b98d9134e14f5ef4bcf64b27eedf484ed19a1ec ]
 
-When I added the sanity check of 'descsize', I missed that the child
-hash tfm needs to be freed if the sanity check fails.  Of course this
-should never happen, hence the use of WARN_ON(), but it should be fixed.
+Avoid such compiler warnings:
+arch/parisc/math-emu/cnv_float.h:71:27: warning: ‘<<’ in boolean context, did you mean ‘<’ ? [-Wint-in-bool-context]
+     ((Dintp1(dint_valueA) << 33 - SGL_EXP_LENGTH) || Dintp2(dint_valueB))
+arch/parisc/math-emu/fcnvxf.c:257:6: note: in expansion of macro ‘Dint_isinexact_to_sgl’
+  if (Dint_isinexact_to_sgl(srcp1,srcp2)) {
 
-Fixes: e1354400b25d ("crypto: hash - fix incorrect HASH_MAX_DESCSIZE")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/hmac.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/parisc/math-emu/cnv_float.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/crypto/hmac.c b/crypto/hmac.c
-index 4b8c8ee8f15c..c623778b36ba 100644
---- a/crypto/hmac.c
-+++ b/crypto/hmac.c
-@@ -168,8 +168,10 @@ static int hmac_init_tfm(struct crypto_tfm *tfm)
+diff --git a/arch/parisc/math-emu/cnv_float.h b/arch/parisc/math-emu/cnv_float.h
+index 933423fa5144..b0db61188a61 100644
+--- a/arch/parisc/math-emu/cnv_float.h
++++ b/arch/parisc/math-emu/cnv_float.h
+@@ -60,19 +60,19 @@
+     ((exponent < (SGL_P - 1)) ?				\
+      (Sall(sgl_value) << (SGL_EXP_LENGTH + 1 + exponent)) : FALSE)
  
- 	parent->descsize = sizeof(struct shash_desc) +
- 			   crypto_shash_descsize(hash);
--	if (WARN_ON(parent->descsize > HASH_MAX_DESCSIZE))
-+	if (WARN_ON(parent->descsize > HASH_MAX_DESCSIZE)) {
-+		crypto_free_shash(hash);
- 		return -EINVAL;
-+	}
+-#define Int_isinexact_to_sgl(int_value)	(int_value << 33 - SGL_EXP_LENGTH)
++#define Int_isinexact_to_sgl(int_value)	((int_value << 33 - SGL_EXP_LENGTH) != 0)
  
- 	ctx->hash = hash;
- 	return 0;
+ #define Sgl_roundnearest_from_int(int_value,sgl_value)			\
+     if (int_value & 1<<(SGL_EXP_LENGTH - 2))   /* round bit */		\
+-    	if ((int_value << 34 - SGL_EXP_LENGTH) || Slow(sgl_value))	\
++	if (((int_value << 34 - SGL_EXP_LENGTH) != 0) || Slow(sgl_value)) \
+ 		Sall(sgl_value)++
+ 
+ #define Dint_isinexact_to_sgl(dint_valueA,dint_valueB)		\
+-    ((Dintp1(dint_valueA) << 33 - SGL_EXP_LENGTH) || Dintp2(dint_valueB))
++    (((Dintp1(dint_valueA) << 33 - SGL_EXP_LENGTH) != 0) || Dintp2(dint_valueB))
+ 
+ #define Sgl_roundnearest_from_dint(dint_valueA,dint_valueB,sgl_value)	\
+     if (Dintp1(dint_valueA) & 1<<(SGL_EXP_LENGTH - 2)) 			\
+-    	if ((Dintp1(dint_valueA) << 34 - SGL_EXP_LENGTH) ||		\
++	if (((Dintp1(dint_valueA) << 34 - SGL_EXP_LENGTH) != 0) ||	\
+     	Dintp2(dint_valueB) || Slow(sgl_value)) Sall(sgl_value)++
+ 
+ #define Dint_isinexact_to_dbl(dint_value) 	\
 -- 
 2.20.1
 
