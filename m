@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 790ED507A3
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB1F75067A
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730490AbfFXKIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:08:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42476 "EHLO mail.kernel.org"
+        id S1728779AbfFXJ7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:59:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730117AbfFXKIj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:08:39 -0400
+        id S1729106AbfFXJ67 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:58:59 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CC97205C9;
-        Mon, 24 Jun 2019 10:08:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1118214C6;
+        Mon, 24 Jun 2019 09:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370918;
-        bh=qb+qcaHSrHlJXAR8Vf66Py3T3iA5GpCBCPiviglifFE=;
+        s=default; t=1561370339;
+        bh=aOrGG1cBOahIihJ05bmyAadfSEbi8NCeOcF5KGQ0zE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+Zy+KBfSJuzL+75ksa+UV9Mk83iMwa1E/Zolejq1eMpzZ3bKkMdK9sz/jtQNr7IN
-         YrxDNV3kCGMP2DdDZatSIY7P5F/My6G1AiMTkKSOOl7wflno877QQxlLEGcsQf1isD
-         eM6Vx7Gs4cq8gCO8i6LfbN/ZYsqbRH/g+crevE/k=
+        b=PeH04u/v0Rz1kfjjIVVx+cepQiMCtPVUgv4TpjUyWc+ypXVL14f+LMexOyuxFfl8E
+         jqnZxZOehH+Xt+BX2SurdRWyUY9K55zRSuE+be9/0zVIAOanjleApsfLLZWkNfL8ly
+         /hnXrJksMWqZi/YTMsNhaZU2LhsYGOfy3NQCZ4mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 050/121] IB/rdmavt: Fix alloc_qpn() WARN_ON()
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 04/51] net: phy: broadcom: Use strlcpy() for ethtool::get_strings
 Date:   Mon, 24 Jun 2019 17:56:22 +0800
-Message-Id: <20190624092323.305090738@linuxfoundation.org>
+Message-Id: <20190624092306.418859848@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2abae62a26a265129b364d8c1ef3be55e2c01309 ]
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-The qpn allocation logic has a WARN_ON() that intends to detect the use of
-an index that will introduce bits in the lower order bits of the QOS bits
-in the QPN.
+commit 8a17eefa235f73b60c0ca7d397d2e4f66f85f413 upstream.
 
-Unfortunately, it has the following bugs:
-- it misfires when wrapping QPN allocation for non-QOS
-- it doesn't correctly detect low order QOS bits (despite the comment)
+Our statistics strings are allocated at initialization without being
+bound to a specific size, yet, we would copy ETH_GSTRING_LEN bytes using
+memcpy() which would create out of bounds accesses, this was flagged by
+KASAN. Replace this with strlcpy() to make sure we are bound the source
+buffer size and we also always NUL-terminate strings.
 
-The WARN_ON() should not be applied to non-QOS (qos_shift == 1).
+Fixes: 820ee17b8d3b ("net: phy: broadcom: Add support code for reading PHY counters")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Additionally, it SHOULD test the qpn bits per the table below:
-
-2 data VLs:   [qp7, qp6, qp5, qp4, qp3, qp2, qp1] ^
-              [  0,   0,   0,   0,   0,   0, sc0],  qp bit 1 always 0*
-3-4 data VLs: [qp7, qp6, qp5, qp4, qp3, qp2, qp1] ^
-              [  0,   0,   0,   0,   0, sc1, sc0], qp bits [21] always 0
-5-8 data VLs: [qp7, qp6, qp5, qp4, qp3, qp2, qp1] ^
-              [  0,   0,   0,   0, sc2, sc1, sc0] qp bits [321] always 0
-
-Fix by qualifying the warning for qos_shift > 1 and producing the correct
-mask to insure the above bits are zero without generating a superfluous
-warning.
-
-Fixes: 501edc42446e ("IB/rdmavt: Correct warning during QPN allocation")
-Reviewed-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rdmavt/qp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/phy/bcm-phy-lib.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rdmavt/qp.c b/drivers/infiniband/sw/rdmavt/qp.c
-index a34b9a2a32b6..a77436ee5ff7 100644
---- a/drivers/infiniband/sw/rdmavt/qp.c
-+++ b/drivers/infiniband/sw/rdmavt/qp.c
-@@ -594,7 +594,8 @@ static int alloc_qpn(struct rvt_dev_info *rdi, struct rvt_qpn_table *qpt,
- 			offset = qpt->incr | ((offset & 1) ^ 1);
- 		}
- 		/* there can be no set bits in low-order QoS bits */
--		WARN_ON(offset & (BIT(rdi->dparms.qos_shift) - 1));
-+		WARN_ON(rdi->dparms.qos_shift > 1 &&
-+			offset & ((BIT(rdi->dparms.qos_shift - 1) - 1) << 1));
- 		qpn = mk_qpn(qpt, map, offset);
- 	}
+--- a/drivers/net/phy/bcm-phy-lib.c
++++ b/drivers/net/phy/bcm-phy-lib.c
+@@ -341,8 +341,8 @@ void bcm_phy_get_strings(struct phy_devi
+ 	unsigned int i;
  
--- 
-2.20.1
-
+ 	for (i = 0; i < ARRAY_SIZE(bcm_phy_hw_stats); i++)
+-		memcpy(data + i * ETH_GSTRING_LEN,
+-		       bcm_phy_hw_stats[i].string, ETH_GSTRING_LEN);
++		strlcpy(data + i * ETH_GSTRING_LEN,
++			bcm_phy_hw_stats[i].string, ETH_GSTRING_LEN);
+ }
+ EXPORT_SYMBOL_GPL(bcm_phy_get_strings);
+ 
 
 
