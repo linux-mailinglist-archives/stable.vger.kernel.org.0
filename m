@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 393AD507CA
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8BCA50702
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730384AbfFXKKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:10:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41814 "EHLO mail.kernel.org"
+        id S1728781AbfFXKD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:03:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730063AbfFXKIX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:08:23 -0400
+        id S1729501AbfFXKDD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:03:03 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AADD2063F;
-        Mon, 24 Jun 2019 10:08:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41969205ED;
+        Mon, 24 Jun 2019 10:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370903;
-        bh=S5Ih/cw815bVGp1ee991/jgGq5ib6H35gmUvCouQTgc=;
+        s=default; t=1561370582;
+        bh=n9x9Eb4z4CC4l3c7Nba6QN2m62zKHw0k2+ln8QZSuw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FMlmajK6jcTOEQWZpijbabRzAGJ1Z34PPfbx23dTJPLLY+LHREPn6pJwlUtNIqKEv
-         xFxxMIwsqdOtBah+o9s2euDEFCYF4uEzyTIpdnVHxi132TpEZ/Ii43l65RUNb/bA72
-         NDaFzMKMDJGI7sOKhljZco5WV5YWgFt7r1picObA=
+        b=FxcHWqDl4oXe4tosXFgdPYXBXlb3lP72WfvuQAQ97c5WXCteNFxyM+PGJZHF7wMLc
+         yXzmgsK4K2fS5X8EIc1gonQdGoAzshlOI4vUFdtB1lwF1yDQLj3yDBPWYhubqrq8Gk
+         7NoXDUCa+JThf+DcH35nZxO6NOh/b43mZJyqWnsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Alan Tull <atull@kernel.org>, Moritz Fischer <mdf@kernel.org>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        linux-fpga@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 044/121] fpga: stratix10-soc: fix use-after-free on s10_init()
-Date:   Mon, 24 Jun 2019 17:56:16 +0800
-Message-Id: <20190624092323.034944246@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 4.19 27/90] apparmor: enforce nullbyte at end of tag string
+Date:   Mon, 24 Jun 2019 17:56:17 +0800
+Message-Id: <20190624092315.965604081@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f5dd87326fefe42a4b1a4b1a1a695060c33a88d6 ]
+From: Jann Horn <jannh@google.com>
 
-The refcount of fw_np has already been decreased by of_find_matching_node()
-so it shouldn't be used anymore.
-This patch adds an of_node_get() before of_find_matching_node() to avoid
-the use-after-free problem.
+commit 8404d7a674c49278607d19726e0acc0cae299357 upstream.
 
-Fixes: e7eef1d7633a ("fpga: add intel stratix10 soc fpga manager driver")
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Alan Tull <atull@kernel.org>
-Cc: Moritz Fischer <mdf@kernel.org>
-Cc: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Cc: linux-fpga@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Reviewed-by: Moritz Fischer <mdf@kernel.org>
-Reviewed-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Acked-by: Alan Tull <atull@kernel.org>
+A packed AppArmor policy contains null-terminated tag strings that are read
+by unpack_nameX(). However, unpack_nameX() uses string functions on them
+without ensuring that they are actually null-terminated, potentially
+leading to out-of-bounds accesses.
+
+Make sure that the tag string is null-terminated before passing it to
+strcmp().
+
+Cc: stable@vger.kernel.org
+Fixes: 736ec752d95e ("AppArmor: policy routines for loading and unpacking policy")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/fpga/stratix10-soc.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ security/apparmor/policy_unpack.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/fpga/stratix10-soc.c b/drivers/fpga/stratix10-soc.c
-index 13851b3d1c56..215d33789c74 100644
---- a/drivers/fpga/stratix10-soc.c
-+++ b/drivers/fpga/stratix10-soc.c
-@@ -507,12 +507,16 @@ static int __init s10_init(void)
- 	if (!fw_np)
- 		return -ENODEV;
- 
-+	of_node_get(fw_np);
- 	np = of_find_matching_node(fw_np, s10_of_match);
--	if (!np)
-+	if (!np) {
-+		of_node_put(fw_np);
- 		return -ENODEV;
-+	}
- 
- 	of_node_put(np);
- 	ret = of_platform_populate(fw_np, s10_of_match, NULL, NULL);
-+	of_node_put(fw_np);
- 	if (ret)
- 		return ret;
- 
--- 
-2.20.1
-
+--- a/security/apparmor/policy_unpack.c
++++ b/security/apparmor/policy_unpack.c
+@@ -276,7 +276,7 @@ static bool unpack_nameX(struct aa_ext *
+ 		char *tag = NULL;
+ 		size_t size = unpack_u16_chunk(e, &tag);
+ 		/* if a name is specified it must match. otherwise skip tag */
+-		if (name && (!size || strcmp(name, tag)))
++		if (name && (!size || tag[size-1] != '\0' || strcmp(name, tag)))
+ 			goto fail;
+ 	} else if (name) {
+ 		/* if a name is specified and there is no name tag fail */
 
 
