@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A325081B
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03BEE5078B
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729683AbfFXKEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:04:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36032 "EHLO mail.kernel.org"
+        id S1730369AbfFXKHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:07:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728831AbfFXKE3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:04:29 -0400
+        id S1730366AbfFXKHv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:07:51 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D5DD205ED;
-        Mon, 24 Jun 2019 10:04:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B6E8205C9;
+        Mon, 24 Jun 2019 10:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370668;
-        bh=eXUgI4O6QoYCbIFoByqbhrudnIe63+NDqbKQVSLvN9A=;
+        s=default; t=1561370870;
+        bh=DUFMgnssTbGIMl+18y8NzDV0gu9yv0m/to1vbGlRUpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6XFVAGORZCru+NBlnUUMwFYNGjvLoG0t5XnfdqpfmwCXDGJJKy3Y4fSKEZtevac3
-         RXwqBFvJRGu5Yj4oo+JadOah9StJJMbNuFhEzKWL3LtvJFP9e+MMXGnfj3yHM198J+
-         h3btbXnr0BGX3zBb09+V363piCii6u9Cz4U4wRZM=
+        b=rZhfKS3Scp1N6zylS4XwD2lGMCQpbTIrzKNYnUFaOM9NNuEoQJv6QAM2cBm1gLO0d
+         JV9okF+HKjP9Io2zvdHoP3NNwt5xLrn9fIaKJj8ZWtgo9+KMM9ivza1Thia/7POSDQ
+         BsYa3bAVTfs3uoGxhfz0BnHxKwvmtgWUOqeVwEoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
         Adrian Hunter <adrian.hunter@intel.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 12/90] mmc: sdhci: sdhci-pci-o2micro: Correctly set bus width when tuning
+Subject: [PATCH 5.1 030/121] brcmfmac: sdio: Dont tune while the card is off
 Date:   Mon, 24 Jun 2019 17:56:02 +0800
-Message-Id: <20190624092314.811321051@linuxfoundation.org>
+Message-Id: <20190624092322.370827148@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raul E Rangel <rrangel@chromium.org>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 0f7b79a44e7d7dd3ef1f59758c1a341f217ff5e5 upstream.
+commit 65dade6044079a5c206fd1803642ff420061417a upstream.
 
-The O2Micro controller only supports tuning at 4-bits. So the host driver
-needs to change the bus width while tuning and then set it back when done.
+When Broadcom SDIO cards are idled they go to sleep and a whole
+separate subsystem takes over their SDIO communication.  This is the
+Always-On-Subsystem (AOS) and it can't handle tuning requests.
 
-There was a bug in the original implementation in that mmc->ios.bus_width
-also wasn't updated. Thus setting the incorrect blocksize in
-sdhci_send_tuning which results in a tuning failure.
+Specifically, as tested on rk3288-veyron-minnie (which reports having
+BCM4354/1 in dmesg), if I force a retune in brcmf_sdio_kso_control()
+when "on = 1" (aka we're transition from sleep to wake) by whacking:
+  bus->sdiodev->func1->card->host->need_retune = 1
+...then I can often see tuning fail.  In this case dw_mmc reports "All
+phases bad!").  Note that I don't get 100% failure, presumably because
+sometimes the card itself has already transitioned away from the AOS
+itself by the time we try to wake it up.  If I force retuning when "on
+= 0" (AKA force retuning right before sending the command to go to
+sleep) then retuning is always OK.
 
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-Fixes: 0086fc217d5d7 ("mmc: sdhci: Add support for O2 hardware tuning")
+NOTE: we need _both_ this patch and the patch to avoid triggering
+tuning due to CRC errors in the sleep/wake transition, AKA ("brcmfmac:
+sdio: Disable auto-tuning around commands expected to fail").  Though
+both patches handle issues with Broadcom's AOS, the problems are
+distinct:
+1. We want to defer (but not ignore) asynchronous (like
+   timer-requested) tuning requests till the card is awake.  However,
+   we want to ignore CRC errors during the transition, we don't want
+   to queue deferred tuning request.
+2. You could imagine that the AOS could implement retuning but we
+   could still get errors while transitioning in and out of the AOS.
+   Similarly you could imagine a seamless transition into and out of
+   the AOS (with no CRC errors) even if the AOS couldn't handle
+   tuning.
+
+ALSO NOTE: presumably there is never a desperate need to retune in
+order to wake up the card, since doing so is impossible.  Luckily the
+only way the card can get into sleep state is if we had a good enough
+tuning to send it the command to put it into sleep, so presumably that
+"good enough" tuning is enough to wake us up, at least with a few
+retries.
+
+Cc: stable@vger.kernel.org #v4.18+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
 Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Acked-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-pci-o2micro.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/mmc/host/sdhci-pci-o2micro.c
-+++ b/drivers/mmc/host/sdhci-pci-o2micro.c
-@@ -117,6 +117,7 @@ static int sdhci_o2_execute_tuning(struc
- 	 */
- 	if (mmc->ios.bus_width == MMC_BUS_WIDTH_8) {
- 		current_bus_width = mmc->ios.bus_width;
-+		mmc->ios.bus_width = MMC_BUS_WIDTH_4;
- 		sdhci_set_bus_width(host, MMC_BUS_WIDTH_4);
- 	}
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -678,6 +678,10 @@ brcmf_sdio_kso_control(struct brcmf_sdio
  
-@@ -128,8 +129,10 @@ static int sdhci_o2_execute_tuning(struc
+ 	sdio_retune_crc_disable(bus->sdiodev->func1);
  
- 	sdhci_end_tuning(host);
++	/* Cannot re-tune if device is asleep; defer till we're awake */
++	if (on)
++		sdio_retune_hold_now(bus->sdiodev->func1);
++
+ 	wr_val = (on << SBSDIO_FUNC1_SLEEPCSR_KSO_SHIFT);
+ 	/* 1st KSO write goes to AOS wake up core if device is asleep  */
+ 	brcmf_sdiod_writeb(bus->sdiodev, SBSDIO_FUNC1_SLEEPCSR, wr_val, &err);
+@@ -738,6 +742,9 @@ brcmf_sdio_kso_control(struct brcmf_sdio
+ 	if (try_cnt > MAX_KSO_ATTEMPTS)
+ 		brcmf_err("max tries: rd_val=0x%x err=%d\n", rd_val, err);
  
--	if (current_bus_width == MMC_BUS_WIDTH_8)
-+	if (current_bus_width == MMC_BUS_WIDTH_8) {
-+		mmc->ios.bus_width = MMC_BUS_WIDTH_8;
- 		sdhci_set_bus_width(host, current_bus_width);
-+	}
++	if (on)
++		sdio_retune_release(bus->sdiodev->func1);
++
+ 	sdio_retune_crc_enable(bus->sdiodev->func1);
  
- 	host->flags &= ~SDHCI_HS400_TUNING;
- 	return 0;
+ 	return err;
 
 
