@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE70950890
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59AAB506EE
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730450AbfFXKP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:15:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53398 "EHLO mail.kernel.org"
+        id S1729148AbfFXKCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:02:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730025AbfFXKP6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:15:58 -0400
+        id S1728591AbfFXKCq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:02:46 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65D5E205ED;
-        Mon, 24 Jun 2019 10:15:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59D40208E4;
+        Mon, 24 Jun 2019 10:02:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371357;
-        bh=IxxckGWoavSWiTFLS3AgZL5hr8r6rQT8m7x02K4Eoho=;
+        s=default; t=1561370563;
+        bh=RrDzfyGthtF5raNEydbiuzy84TWzT8OuuZw9M17TTDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Ed3i8j6fgN3jAQYlorn3+Shj/KAqZ7wvaAo3+d3FO0YP5nFsxuajWyVur4P62dcb
-         HolS6/P5Kg2wMr7rNjnbFM1mtQsTYVFOUxtwa0Pi+R/5JpCbg9J440VX+LwDXog/KY
-         Y/XyDHcRNEoCAqrRZ5qlGl+wLrGm0tQ1FVnvt6KI=
+        b=oLyRQTfXVQlZy8Oc/IeoJ4Lb29frRRdOPP0MwsrnDapYr4Q4syuRzsniGMPITEasf
+         PhMqmAQffkTJY/Me9YLcNnbKg0NQI4bxoxIS+6/6TDibw5fSuo3qQgP/HK2rScDa5A
+         Vo8Zn/6pywOsq1h8tEurf9+tVkYH7Kr0H7MJSWL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Long <eric.long@unisoc.com>,
-        Baolin Wang <baolin.wang@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 038/121] dmaengine: sprd: Fix the incorrect start for 2-stage destination channels
-Date:   Mon, 24 Jun 2019 17:56:10 +0800
-Message-Id: <20190624092322.752085308@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Doug Ledford <dledford@redhat.com>
+Subject: [PATCH 4.19 21/90] IB/hfi1: Silence txreq allocation warnings
+Date:   Mon, 24 Jun 2019 17:56:11 +0800
+Message-Id: <20190624092315.445290966@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3d626a97f0303e9c30d063434b749de3f0f91fb5 ]
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-The 2-stage destination channel will be triggered by source channel
-automatically, which means we should not trigger it by software request.
+commit 3230f4a8d44e4a0bb7afea814b280b5129521f52 upstream.
 
-Signed-off-by: Eric Long <eric.long@unisoc.com>
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The following warning can happen when a memory shortage
+occurs during txreq allocation:
+
+[10220.939246] SLUB: Unable to allocate memory on node -1, gfp=0xa20(GFP_ATOMIC)
+[10220.939246] Hardware name: Intel Corporation S2600WT2R/S2600WT2R, BIOS SE5C610.86B.01.01.0018.C4.072020161249 07/20/2016
+[10220.939247]   cache: mnt_cache, object size: 384, buffer size: 384, default order: 2, min order: 0
+[10220.939260] Workqueue: hfi0_0 _hfi1_do_send [hfi1]
+[10220.939261]   node 0: slabs: 1026568, objs: 43115856, free: 0
+[10220.939262] Call Trace:
+[10220.939262]   node 1: slabs: 820872, objs: 34476624, free: 0
+[10220.939263]  dump_stack+0x5a/0x73
+[10220.939265]  warn_alloc+0x103/0x190
+[10220.939267]  ? wake_all_kswapds+0x54/0x8b
+[10220.939268]  __alloc_pages_slowpath+0x86c/0xa2e
+[10220.939270]  ? __alloc_pages_nodemask+0x2fe/0x320
+[10220.939271]  __alloc_pages_nodemask+0x2fe/0x320
+[10220.939273]  new_slab+0x475/0x550
+[10220.939275]  ___slab_alloc+0x36c/0x520
+[10220.939287]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939299]  ? __get_txreq+0x54/0x160 [hfi1]
+[10220.939310]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939312]  __slab_alloc+0x40/0x61
+[10220.939323]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939325]  kmem_cache_alloc+0x181/0x1b0
+[10220.939336]  hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939348]  ? hfi1_verbs_send_dma+0x386/0xa10 [hfi1]
+[10220.939359]  ? find_prev_entry+0xb0/0xb0 [hfi1]
+[10220.939371]  hfi1_do_send+0x1d9/0x3f0 [hfi1]
+[10220.939372]  process_one_work+0x171/0x380
+[10220.939374]  worker_thread+0x49/0x3f0
+[10220.939375]  kthread+0xf8/0x130
+[10220.939377]  ? max_active_store+0x80/0x80
+[10220.939378]  ? kthread_bind+0x10/0x10
+[10220.939379]  ret_from_fork+0x35/0x40
+[10220.939381] SLUB: Unable to allocate memory on node -1, gfp=0xa20(GFP_ATOMIC)
+
+The shortage is handled properly so the message isn't needed. Silence by
+adding the no warn option to the slab allocation.
+
+Fixes: 45842abbb292 ("staging/rdma/hfi1: move txreq header code")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Doug Ledford <dledford@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/dma/sprd-dma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/verbs_txreq.c |    2 +-
+ drivers/infiniband/hw/hfi1/verbs_txreq.h |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
-index 431e289d59a5..0f92e60529d1 100644
---- a/drivers/dma/sprd-dma.c
-+++ b/drivers/dma/sprd-dma.c
-@@ -510,7 +510,9 @@ static void sprd_dma_start(struct sprd_dma_chn *schan)
- 	sprd_dma_set_uid(schan);
- 	sprd_dma_enable_chn(schan);
+--- a/drivers/infiniband/hw/hfi1/verbs_txreq.c
++++ b/drivers/infiniband/hw/hfi1/verbs_txreq.c
+@@ -100,7 +100,7 @@ struct verbs_txreq *__get_txreq(struct h
+ 	if (ib_rvt_state_ops[qp->state] & RVT_PROCESS_RECV_OK) {
+ 		struct hfi1_qp_priv *priv;
  
--	if (schan->dev_id == SPRD_DMA_SOFTWARE_UID)
-+	if (schan->dev_id == SPRD_DMA_SOFTWARE_UID &&
-+	    schan->chn_mode != SPRD_DMA_DST_CHN0 &&
-+	    schan->chn_mode != SPRD_DMA_DST_CHN1)
- 		sprd_dma_soft_request(schan);
- }
+-		tx = kmem_cache_alloc(dev->verbs_txreq_cache, GFP_ATOMIC);
++		tx = kmem_cache_alloc(dev->verbs_txreq_cache, VERBS_TXREQ_GFP);
+ 		if (tx)
+ 			goto out;
+ 		priv = qp->priv;
+--- a/drivers/infiniband/hw/hfi1/verbs_txreq.h
++++ b/drivers/infiniband/hw/hfi1/verbs_txreq.h
+@@ -72,6 +72,7 @@ struct hfi1_ibdev;
+ struct verbs_txreq *__get_txreq(struct hfi1_ibdev *dev,
+ 				struct rvt_qp *qp);
  
--- 
-2.20.1
-
++#define VERBS_TXREQ_GFP (GFP_ATOMIC | __GFP_NOWARN)
+ static inline struct verbs_txreq *get_txreq(struct hfi1_ibdev *dev,
+ 					    struct rvt_qp *qp)
+ 	__must_hold(&qp->slock)
+@@ -79,7 +80,7 @@ static inline struct verbs_txreq *get_tx
+ 	struct verbs_txreq *tx;
+ 	struct hfi1_qp_priv *priv = qp->priv;
+ 
+-	tx = kmem_cache_alloc(dev->verbs_txreq_cache, GFP_ATOMIC);
++	tx = kmem_cache_alloc(dev->verbs_txreq_cache, VERBS_TXREQ_GFP);
+ 	if (unlikely(!tx)) {
+ 		/* call slow path to get the lock */
+ 		tx = __get_txreq(dev, qp);
 
 
