@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A548550851
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B501F5069F
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730748AbfFXKQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:16:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54012 "EHLO mail.kernel.org"
+        id S1729330AbfFXJ7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:59:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730745AbfFXKQa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:16:30 -0400
+        id S1729299AbfFXJ7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:59:51 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A25B205ED;
-        Mon, 24 Jun 2019 10:16:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E370C213F2;
+        Mon, 24 Jun 2019 09:59:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371389;
-        bh=R3kte9HSML48BOOzKcfTRnplU35ZZNXwoKZwq5oQrNY=;
+        s=default; t=1561370390;
+        bh=sLCeOjCrzZWFX3mgX9qYm4q7YOx5AuqolYxd8ZsyC4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SDoljyoUSr9fk5S89fSIpDA/BYr/C2njJtJ+BdKMQ0+L5NIp9uI/ptNkocCBXH1bV
-         dX2HEb4PQSWiccUHmiqxbYGLB0rLiio/7xSBJe4aatGgqompAxX+yOyA6Iyo2pGDCs
-         dL0Jwdmx7F9fosNmuOnI9ZVCiOr8HeAcE5bF16jU=
+        b=hieOBxde6RWPLbZEvyfV0LscjK8WkTKbE6o6yXg0kWs6CX1nBuY7Y1GDyqHk30run
+         yuxVod13kPCqOkb6L1r33CH+F27xjIdMbsIvN6GZ8E3N8fMnbKl2K4epBNElFhMQXV
+         7uCbFbT3ykF5YJuEE05+XrFe/Wl7fSxgWyZ/VQFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <hancock@sedsystems.ca>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 086/121] hwmon: (pmbus/core) Treat parameters as paged if on multiple pages
-Date:   Mon, 24 Jun 2019 17:56:58 +0800
-Message-Id: <20190624092325.227711362@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com,
+        Willem de Bruijn <willemb@google.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.14 41/51] can: purge socket error queue on sock destruct
+Date:   Mon, 24 Jun 2019 17:56:59 +0800
+Message-Id: <20190624092310.785286474@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,101 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4a60570dce658e3f8885bbcf852430b99f65aca5 ]
+From: Willem de Bruijn <willemb@google.com>
 
-Some chips have attributes which exist on more than one page but the
-attribute is not presently marked as paged. This causes the attributes
-to be generated with the same label, which makes it impossible for
-userspace to tell them apart.
+commit fd704bd5ee749d560e86c4f1fd2ef486d8abf7cf upstream.
 
-Marking all such attributes as paged would result in the page suffix
-being added regardless of whether they were present on more than one
-page or not, which might break existing setups. Therefore, we add a
-second check which treats the attribute as paged, even if not marked as
-such, if it is present on multiple pages.
+CAN supports software tx timestamps as of the below commit. Purge
+any queued timestamp packets on socket destroy.
 
-Fixes: b4ce237b7f7d ("hwmon: (pmbus) Introduce infrastructure to detect sensors and limit registers")
-Signed-off-by: Robert Hancock <hancock@sedsystems.ca>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 51f31cabe3ce ("ip: support for TX timestamps on UDP and RAW sockets")
+Reported-by: syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hwmon/pmbus/pmbus_core.c | 34 ++++++++++++++++++++++++++++----
- 1 file changed, 30 insertions(+), 4 deletions(-)
+ net/can/af_can.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
-index 2e2b5851139c..cd24b375df1e 100644
---- a/drivers/hwmon/pmbus/pmbus_core.c
-+++ b/drivers/hwmon/pmbus/pmbus_core.c
-@@ -1230,7 +1230,8 @@ static int pmbus_add_sensor_attrs_one(struct i2c_client *client,
- 				      const struct pmbus_driver_info *info,
- 				      const char *name,
- 				      int index, int page,
--				      const struct pmbus_sensor_attr *attr)
-+				      const struct pmbus_sensor_attr *attr,
-+				      bool paged)
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -105,6 +105,7 @@ EXPORT_SYMBOL(can_ioctl);
+ static void can_sock_destruct(struct sock *sk)
  {
- 	struct pmbus_sensor *base;
- 	bool upper = !!(attr->gbit & 0xff00);	/* need to check STATUS_WORD */
-@@ -1238,7 +1239,7 @@ static int pmbus_add_sensor_attrs_one(struct i2c_client *client,
- 
- 	if (attr->label) {
- 		ret = pmbus_add_label(data, name, index, attr->label,
--				      attr->paged ? page + 1 : 0);
-+				      paged ? page + 1 : 0);
- 		if (ret)
- 			return ret;
- 	}
-@@ -1271,6 +1272,30 @@ static int pmbus_add_sensor_attrs_one(struct i2c_client *client,
- 	return 0;
+ 	skb_queue_purge(&sk->sk_receive_queue);
++	skb_queue_purge(&sk->sk_error_queue);
  }
  
-+static bool pmbus_sensor_is_paged(const struct pmbus_driver_info *info,
-+				  const struct pmbus_sensor_attr *attr)
-+{
-+	int p;
-+
-+	if (attr->paged)
-+		return true;
-+
-+	/*
-+	 * Some attributes may be present on more than one page despite
-+	 * not being marked with the paged attribute. If that is the case,
-+	 * then treat the sensor as being paged and add the page suffix to the
-+	 * attribute name.
-+	 * We don't just add the paged attribute to all such attributes, in
-+	 * order to maintain the un-suffixed labels in the case where the
-+	 * attribute is only on page 0.
-+	 */
-+	for (p = 1; p < info->pages; p++) {
-+		if (info->func[p] & attr->func)
-+			return true;
-+	}
-+	return false;
-+}
-+
- static int pmbus_add_sensor_attrs(struct i2c_client *client,
- 				  struct pmbus_data *data,
- 				  const char *name,
-@@ -1284,14 +1309,15 @@ static int pmbus_add_sensor_attrs(struct i2c_client *client,
- 	index = 1;
- 	for (i = 0; i < nattrs; i++) {
- 		int page, pages;
-+		bool paged = pmbus_sensor_is_paged(info, attrs);
- 
--		pages = attrs->paged ? info->pages : 1;
-+		pages = paged ? info->pages : 1;
- 		for (page = 0; page < pages; page++) {
- 			if (!(info->func[page] & attrs->func))
- 				continue;
- 			ret = pmbus_add_sensor_attrs_one(client, data, info,
- 							 name, index, page,
--							 attrs);
-+							 attrs, paged);
- 			if (ret)
- 				return ret;
- 			index++;
--- 
-2.20.1
-
+ static const struct can_proto *can_get_proto(int protocol)
 
 
