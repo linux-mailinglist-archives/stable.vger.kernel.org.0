@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 612F6506A7
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E258750692
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727843AbfFXKAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:00:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58768 "EHLO mail.kernel.org"
+        id S1728654AbfFXJ7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:59:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728620AbfFXJ7f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:35 -0400
+        id S1728691AbfFXJ7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:59:38 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6CA02146F;
-        Mon, 24 Jun 2019 09:59:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 787E5214C6;
+        Mon, 24 Jun 2019 09:59:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370374;
-        bh=Owqbj2H+u1qefjgnGqlAEbY8nwPaQN5M1XZLbuJd03A=;
+        s=default; t=1561370376;
+        bh=tLVZwVgEy3INWT+QDUG63JAAvvmORHsEoFCuqJI91d8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bLHSqFOSlAETTRJqTf6tyP1JayxJdS3SnWx1vb3qvJboN8NYrmx8gTIOYcVGKKSge
-         LjXwuC8eXkeZbjI0Th2Ia/ZEFuJagfGpmzvsuqJjfoUngGt58fsespTVT9GqZf9Mmd
-         UMJE/uOOx+BFoTnwMFJCUbz3xF0rgLA+nBPvZN3U=
+        b=oKyvls+G7wcnqIaBFC9e/IbzhuJwl2TNOwXCvLlWqKL/ok9EAWQU44R7v31eS+Ibe
+         55it9LzBTpNl6HVgXkVCkJEamMGseYFzgNHO18Q4fFCUgKyGzJXfEltsv0hnVDfgMk
+         8cQSpGr8agaoXEghbcaboeGzaXG8wlsKLnshtnNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Wang <yyuwang@codeaurora.org>,
+        stable@vger.kernel.org, Jouni Malinen <j@w1.fi>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 50/51] mac80211: handle deauthentication/disassociation from TDLS peer
-Date:   Mon, 24 Jun 2019 17:57:08 +0800
-Message-Id: <20190624092311.499360810@linuxfoundation.org>
+Subject: [PATCH 4.14 51/51] mac80211: Do not use stack memory with scatterlist for GMAC
+Date:   Mon, 24 Jun 2019 17:57:09 +0800
+Message-Id: <20190624092311.567774680@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
 References: <20190624092305.919204959@linuxfoundation.org>
@@ -43,117 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Wang <yyuwang@codeaurora.org>
+From: Jouni Malinen <j@w1.fi>
 
-commit 79c92ca42b5a3e0ea172ea2ce8df8e125af237da upstream.
+commit a71fd9dac23613d96ba3c05619a8ef4fd6cdf9b9 upstream.
 
-When receiving a deauthentication/disassociation frame from a TDLS
-peer, a station should not disconnect the current AP, but only
-disable the current TDLS link if it's enabled.
+ieee80211_aes_gmac() uses the mic argument directly in sg_set_buf() and
+that does not allow use of stack memory (e.g., BUG_ON() is hit in
+sg_set_buf() with CONFIG_DEBUG_SG). BIP GMAC TX side is fine for this
+since it can use the skb data buffer, but the RX side was using a stack
+variable for deriving the local MIC value to compare against the
+received one.
 
-Without this change, a TDLS issue can be reproduced by following the
-steps as below:
+Fix this by allocating heap memory for the mic buffer.
 
-1. STA-1 and STA-2 are connected to AP, bidirection traffic is running
-   between STA-1 and STA-2.
-2. Set up TDLS link between STA-1 and STA-2, stay for a while, then
-   teardown TDLS link.
-3. Repeat step #2 and monitor the connection between STA and AP.
-
-During the test, one STA may send a deauthentication/disassociation
-frame to another, after TDLS teardown, with reason code 6/7, which
-means: Class 2/3 frame received from nonassociated STA.
-
-On receive this frame, the receiver STA will disconnect the current
-AP and then reconnect. It's not a expected behavior, purpose of this
-frame should be disabling the TDLS link, not the link with AP.
+This was found with hwsim test case ap_cipher_bip_gmac_128 hitting that
+BUG_ON() and kernel panic.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Yu Wang <yyuwang@codeaurora.org>
+Signed-off-by: Jouni Malinen <j@w1.fi>
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/ieee80211_i.h |    3 +++
- net/mac80211/mlme.c        |   12 +++++++++++-
- net/mac80211/tdls.c        |   23 +++++++++++++++++++++++
- 3 files changed, 37 insertions(+), 1 deletion(-)
+ net/mac80211/wpa.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -2150,6 +2150,9 @@ void ieee80211_tdls_cancel_channel_switc
- 					  const u8 *addr);
- void ieee80211_teardown_tdls_peers(struct ieee80211_sub_if_data *sdata);
- void ieee80211_tdls_chsw_work(struct work_struct *wk);
-+void ieee80211_tdls_handle_disconnect(struct ieee80211_sub_if_data *sdata,
-+				      const u8 *peer, u16 reason);
-+const char *ieee80211_get_reason_code_string(u16 reason_code);
+--- a/net/mac80211/wpa.c
++++ b/net/mac80211/wpa.c
+@@ -1169,7 +1169,7 @@ ieee80211_crypto_aes_gmac_decrypt(struct
+ 	struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
+ 	struct ieee80211_key *key = rx->key;
+ 	struct ieee80211_mmie_16 *mmie;
+-	u8 aad[GMAC_AAD_LEN], mic[GMAC_MIC_LEN], ipn[6], nonce[GMAC_NONCE_LEN];
++	u8 aad[GMAC_AAD_LEN], *mic, ipn[6], nonce[GMAC_NONCE_LEN];
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
  
- extern const struct ethtool_ops ieee80211_ethtool_ops;
+ 	if (!ieee80211_is_mgmt(hdr->frame_control))
+@@ -1200,13 +1200,18 @@ ieee80211_crypto_aes_gmac_decrypt(struct
+ 		memcpy(nonce, hdr->addr2, ETH_ALEN);
+ 		memcpy(nonce + ETH_ALEN, ipn, 6);
  
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -2744,7 +2744,7 @@ static void ieee80211_rx_mgmt_auth(struc
- #define case_WLAN(type) \
- 	case WLAN_REASON_##type: return #type
- 
--static const char *ieee80211_get_reason_code_string(u16 reason_code)
-+const char *ieee80211_get_reason_code_string(u16 reason_code)
- {
- 	switch (reason_code) {
- 	case_WLAN(UNSPECIFIED);
-@@ -2809,6 +2809,11 @@ static void ieee80211_rx_mgmt_deauth(str
- 	if (len < 24 + 2)
- 		return;
- 
-+	if (!ether_addr_equal(mgmt->bssid, mgmt->sa)) {
-+		ieee80211_tdls_handle_disconnect(sdata, mgmt->sa, reason_code);
-+		return;
-+	}
-+
- 	if (ifmgd->associated &&
- 	    ether_addr_equal(mgmt->bssid, ifmgd->associated->bssid)) {
- 		const u8 *bssid = ifmgd->associated->bssid;
-@@ -2858,6 +2863,11 @@ static void ieee80211_rx_mgmt_disassoc(s
- 
- 	reason_code = le16_to_cpu(mgmt->u.disassoc.reason_code);
- 
-+	if (!ether_addr_equal(mgmt->bssid, mgmt->sa)) {
-+		ieee80211_tdls_handle_disconnect(sdata, mgmt->sa, reason_code);
-+		return;
-+	}
-+
- 	sdata_info(sdata, "disassociated from %pM (Reason: %u=%s)\n",
- 		   mgmt->sa, reason_code,
- 		   ieee80211_get_reason_code_string(reason_code));
---- a/net/mac80211/tdls.c
-+++ b/net/mac80211/tdls.c
-@@ -1988,3 +1988,26 @@ void ieee80211_tdls_chsw_work(struct wor
++		mic = kmalloc(GMAC_MIC_LEN, GFP_ATOMIC);
++		if (!mic)
++			return RX_DROP_UNUSABLE;
+ 		if (ieee80211_aes_gmac(key->u.aes_gmac.tfm, aad, nonce,
+ 				       skb->data + 24, skb->len - 24,
+ 				       mic) < 0 ||
+ 		    crypto_memneq(mic, mmie->mic, sizeof(mmie->mic))) {
+ 			key->u.aes_gmac.icverrors++;
++			kfree(mic);
+ 			return RX_DROP_UNUSABLE;
+ 		}
++		kfree(mic);
  	}
- 	rtnl_unlock();
- }
-+
-+void ieee80211_tdls_handle_disconnect(struct ieee80211_sub_if_data *sdata,
-+				      const u8 *peer, u16 reason)
-+{
-+	struct ieee80211_sta *sta;
-+
-+	rcu_read_lock();
-+	sta = ieee80211_find_sta(&sdata->vif, peer);
-+	if (!sta || !sta->tdls) {
-+		rcu_read_unlock();
-+		return;
-+	}
-+	rcu_read_unlock();
-+
-+	tdls_dbg(sdata, "disconnected from TDLS peer %pM (Reason: %u=%s)\n",
-+		 peer, reason,
-+		 ieee80211_get_reason_code_string(reason));
-+
-+	ieee80211_tdls_oper_request(&sdata->vif, peer,
-+				    NL80211_TDLS_TEARDOWN,
-+				    WLAN_REASON_TDLS_TEARDOWN_UNREACHABLE,
-+				    GFP_ATOMIC);
-+}
+ 
+ 	memcpy(key->u.aes_gmac.rx_pn, ipn, 6);
 
 
