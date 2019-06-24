@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0FB8506A1
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C721506A3
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729316AbfFXJ7y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:59:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59316 "EHLO mail.kernel.org"
+        id S1729339AbfFXJ75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:59:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729339AbfFXJ7x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:53 -0400
+        id S1729342AbfFXJ74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:59:56 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DA2A2146F;
-        Mon, 24 Jun 2019 09:59:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46AF1213F2;
+        Mon, 24 Jun 2019 09:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370393;
-        bh=98fHu+/xpXzCmO0NS//9f9neHSEPdnivLgGq94cWuBw=;
+        s=default; t=1561370395;
+        bh=o9feKfxPZvibdB5icEli4TLI3ch2T7CbYL+KrybYP9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cKBSyOVDpcn1mJoDeHCn761gzNpBglcTzZxyJXgYTD+RDCzwCugMvPFCuC+xecFJH
-         khkjno/0Jc59iS9BTO9WSNLTY3mhC2O34AZ8lh4a3MjvImYkemSrwWhcErF8ga3jyN
-         z7LQuybKJGxLYS61DmImXtJ9505DIxnhJbFa5xdg=
+        b=IWf/VnGzt6UUoQEDhJdCjwDTIfo0k9wEitcjAxUpP2SrZUYUabsiS/wj/gEJK5UJV
+         My+VXzHW0E7dBIlnKVBJclrrtTrx0Mw4RgQfoYxi5EF4wwkKxWJFHkeMWW+As6SA1Z
+         cLbsNTp1hmHL1qs69c54q8Ng64NlQ0LxnqyFdqeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 4.14 42/51] powerpc/bpf: use unsigned division instruction for 64-bit operations
-Date:   Mon, 24 Jun 2019 17:57:00 +0800
-Message-Id: <20190624092310.844040207@linuxfoundation.org>
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
+        <sebastien.szymanski@armadeus.com>, Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.14 43/51] ARM: imx: cpuidle-imx6sx: Restrict the SW2ISO increase to i.MX6SX
+Date:   Mon, 24 Jun 2019 17:57:01 +0800
+Message-Id: <20190624092310.942090089@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
 References: <20190624092305.919204959@linuxfoundation.org>
@@ -44,81 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit 758f2046ea040773ae8ea7f72dd3bbd8fa984501 upstream.
+commit b25af2ff7c07bd19af74e3f64ff82e2880d13d81 upstream.
 
-BPF_ALU64 div/mod operations are currently using signed division, unlike
-BPF_ALU32 operations. Fix the same. DIV64 and MOD64 overflow tests pass
-with this fix.
+Since commit 1e434b703248 ("ARM: imx: update the cpu power up timing
+setting on i.mx6sx") some characters loss is noticed on i.MX6ULL UART
+as reported by Christoph Niedermaier.
 
-Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
-Cc: stable@vger.kernel.org # v4.8+
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+The intention of such commit was to increase the SW2ISO field for i.MX6SX
+only, but since cpuidle-imx6sx is also used on i.MX6UL/i.MX6ULL this caused
+unintended side effects on other SoCs.
+
+Fix this problem by keeping the original SW2ISO value for i.MX6UL/i.MX6ULL
+and only increase SW2ISO in the i.MX6SX case.
+
+Cc: stable@vger.kernel.org
+Fixes: 1e434b703248 ("ARM: imx: update the cpu power up timing setting on i.mx6sx")
+Reported-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Tested-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
+Tested-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/ppc-opcode.h |    1 +
- arch/powerpc/net/bpf_jit.h            |    2 +-
- arch/powerpc/net/bpf_jit_comp64.c     |    8 ++++----
- 3 files changed, 6 insertions(+), 5 deletions(-)
+ arch/arm/mach-imx/cpuidle-imx6sx.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/include/asm/ppc-opcode.h
-+++ b/arch/powerpc/include/asm/ppc-opcode.h
-@@ -324,6 +324,7 @@
- #define PPC_INST_MULLI			0x1c000000
- #define PPC_INST_DIVWU			0x7c000396
- #define PPC_INST_DIVD			0x7c0003d2
-+#define PPC_INST_DIVDU			0x7c000392
- #define PPC_INST_RLWINM			0x54000000
- #define PPC_INST_RLWIMI			0x50000000
- #define PPC_INST_RLDICL			0x78000000
---- a/arch/powerpc/net/bpf_jit.h
-+++ b/arch/powerpc/net/bpf_jit.h
-@@ -116,7 +116,7 @@
- 				     ___PPC_RA(a) | IMM_L(i))
- #define PPC_DIVWU(d, a, b)	EMIT(PPC_INST_DIVWU | ___PPC_RT(d) |	      \
- 				     ___PPC_RA(a) | ___PPC_RB(b))
--#define PPC_DIVD(d, a, b)	EMIT(PPC_INST_DIVD | ___PPC_RT(d) |	      \
-+#define PPC_DIVDU(d, a, b)	EMIT(PPC_INST_DIVDU | ___PPC_RT(d) |	      \
- 				     ___PPC_RA(a) | ___PPC_RB(b))
- #define PPC_AND(d, a, b)	EMIT(PPC_INST_AND | ___PPC_RA(d) |	      \
- 				     ___PPC_RS(a) | ___PPC_RB(b))
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -415,12 +415,12 @@ static int bpf_jit_build_body(struct bpf
- 			PPC_LI(b2p[BPF_REG_0], 0);
- 			PPC_JMP(exit_addr);
- 			if (BPF_OP(code) == BPF_MOD) {
--				PPC_DIVD(b2p[TMP_REG_1], dst_reg, src_reg);
-+				PPC_DIVDU(b2p[TMP_REG_1], dst_reg, src_reg);
- 				PPC_MULD(b2p[TMP_REG_1], src_reg,
- 						b2p[TMP_REG_1]);
- 				PPC_SUB(dst_reg, dst_reg, b2p[TMP_REG_1]);
- 			} else
--				PPC_DIVD(dst_reg, dst_reg, src_reg);
-+				PPC_DIVDU(dst_reg, dst_reg, src_reg);
- 			break;
- 		case BPF_ALU | BPF_MOD | BPF_K: /* (u32) dst %= (u32) imm */
- 		case BPF_ALU | BPF_DIV | BPF_K: /* (u32) dst /= (u32) imm */
-@@ -448,7 +448,7 @@ static int bpf_jit_build_body(struct bpf
- 				break;
- 			case BPF_ALU64:
- 				if (BPF_OP(code) == BPF_MOD) {
--					PPC_DIVD(b2p[TMP_REG_2], dst_reg,
-+					PPC_DIVDU(b2p[TMP_REG_2], dst_reg,
- 							b2p[TMP_REG_1]);
- 					PPC_MULD(b2p[TMP_REG_1],
- 							b2p[TMP_REG_1],
-@@ -456,7 +456,7 @@ static int bpf_jit_build_body(struct bpf
- 					PPC_SUB(dst_reg, dst_reg,
- 							b2p[TMP_REG_1]);
- 				} else
--					PPC_DIVD(dst_reg, dst_reg,
-+					PPC_DIVDU(dst_reg, dst_reg,
- 							b2p[TMP_REG_1]);
- 				break;
- 			}
+--- a/arch/arm/mach-imx/cpuidle-imx6sx.c
++++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
+@@ -15,6 +15,7 @@
+ 
+ #include "common.h"
+ #include "cpuidle.h"
++#include "hardware.h"
+ 
+ static int imx6sx_idle_finish(unsigned long val)
+ {
+@@ -108,7 +109,7 @@ int __init imx6sx_cpuidle_init(void)
+ 	 * except for power up sw2iso which need to be
+ 	 * larger than LDO ramp up time.
+ 	 */
+-	imx_gpc_set_arm_power_up_timing(0xf, 1);
++	imx_gpc_set_arm_power_up_timing(cpu_is_imx6sx() ? 0xf : 0x2, 1);
+ 	imx_gpc_set_arm_power_down_timing(1, 1);
+ 
+ 	return cpuidle_register(&imx6sx_cpuidle_driver, NULL);
 
 
