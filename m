@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2768C5069A
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2B5650734
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729258AbfFXJ7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:59:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59086 "EHLO mail.kernel.org"
+        id S1729550AbfFXKF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:05:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729263AbfFXJ7p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:45 -0400
+        id S1729921AbfFXKF0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:26 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86F23205ED;
-        Mon, 24 Jun 2019 09:59:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04E33208E3;
+        Mon, 24 Jun 2019 10:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370385;
-        bh=rmZhShVbSyi1ZR/CTwHwPw4v+qk5JBg4Vmc46R0vNs4=;
+        s=default; t=1561370725;
+        bh=eBOPclAZ8mS+XH4bfLm+2ME/n8GaAMKlpxOiRgILpy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MnkSmBhWKegeE6V7d7A6VAxmucQCkVqeg72on9jbQYDoR6F+XFdlL0TKqCWLp3r2O
-         xVUPeo2EW1iwPO+1PZ7U/Cne6JMvEJu+ZLiWRsZDuqQzLPCA3O68b4fncpVcdcxJKF
-         gBW/it+9MFZfRfbjPoxgcAiqT5Fuhd9aIKKCF9oQ=
+        b=Li9Nx4Bn+Tw79sHggwGJLa9o0LPGubM7xBsRqDU4PaQAkif48trye/VP9/pMiXwIn
+         jPLQAM9Uo2EmB9xEJQN2eATz3IaNGF613nHpy1reunzzF78j/hxtNzNVA4NmVndME8
+         sssDkBSH06TDqDC+PIicB5266zraJKhZL+pAOWHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
         Naohiro Aota <naohiro.aota@wdc.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 39/51] btrfs: start readahead also in seed devices
-Date:   Mon, 24 Jun 2019 17:56:57 +0800
-Message-Id: <20190624092310.601848981@linuxfoundation.org>
+Subject: [PATCH 4.19 68/90] btrfs: start readahead also in seed devices
+Date:   Mon, 24 Jun 2019 17:56:58 +0800
+Message-Id: <20190624092318.500006081@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,7 +69,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/btrfs/reada.c
 +++ b/fs/btrfs/reada.c
-@@ -759,6 +759,7 @@ static void __reada_start_machine(struct
+@@ -745,6 +745,7 @@ static void __reada_start_machine(struct
  	u64 total = 0;
  	int i;
  
@@ -77,7 +77,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	do {
  		enqueued = 0;
  		mutex_lock(&fs_devices->device_list_mutex);
-@@ -770,6 +771,10 @@ static void __reada_start_machine(struct
+@@ -756,6 +757,10 @@ static void __reada_start_machine(struct
  		mutex_unlock(&fs_devices->device_list_mutex);
  		total += enqueued;
  	} while (enqueued && total < 10000);
