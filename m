@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A0275085F
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 303B55068C
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730489AbfFXKQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:16:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54418 "EHLO mail.kernel.org"
+        id S1728671AbfFXJ71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:59:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730812AbfFXKQw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:16:52 -0400
+        id S1728307AbfFXJ71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:59:27 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E57E32089F;
-        Mon, 24 Jun 2019 10:16:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF65A21743;
+        Mon, 24 Jun 2019 09:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371411;
-        bh=iij1meYte0WHz2U2A83FqefBIDwkigj8yIeBCh4EbG4=;
+        s=default; t=1561370366;
+        bh=6g+BXHLJZ+tzue6Mqf2BwDRwE3tkWzWC/AvmyVLte5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myf/f+xEf8NEvlgMMN4e32DZghZXBrlf8t2JThhKZ+yUaYeHuFe+rDAQ6UWJRpFrA
-         ifpHno0KCcxt5lKsS+Kc+l5DLKkj2Sj1MBMnDOKV//lNSeFKlT99QwWTAU1smg9as6
-         0jnpairRKLErnNapvPho5Mu+O3QDrpjq6YFZKZuo=
+        b=ASWTey1ov78jZo8FAQ4FpxSFZB/aS5VUtE5/RPZBUz99gx/zeh4KMzk6GAzK5+SMZ
+         kCZboJE4iIU1gg+cHupwP7V0S8e0JM3fd5DsY3/M30/Uw9fsktUTIxQrwc7IXLX8KW
+         Oib8ZZHWeOa38t7jhsaE+rRD8M4mp3KwuSLTgPcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.1 093/121] can: xilinx_can: use correct bittiming_const for CAN FD core
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>
+Subject: [PATCH 4.14 47/51] SMB3: retry on STATUS_INSUFFICIENT_RESOURCES instead of failing write
 Date:   Mon, 24 Jun 2019 17:57:05 +0800
-Message-Id: <20190624092325.534361171@linuxfoundation.org>
+Message-Id: <20190624092311.273502308@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Steve French <stfrench@microsoft.com>
 
-commit 904044dd8fff43e289c11a2f90fa532e946a1d8b upstream.
+commit 8d526d62db907e786fd88948c75d1833d82bd80e upstream.
 
-Commit 9e5f1b273e6a ("can: xilinx_can: add support for Xilinx CAN FD
-core") added a new can_bittiming_const structure for CAN FD cores that
-support larger values for tseg1, tseg2, and sjw than previous Xilinx CAN
-cores, but the commit did not actually take that into use.
+Some servers such as Windows 10 will return STATUS_INSUFFICIENT_RESOURCES
+as the number of simultaneous SMB3 requests grows (even though the client
+has sufficient credits).  Return EAGAIN on STATUS_INSUFFICIENT_RESOURCES
+so that we can retry writes which fail with this status code.
 
-Fix that.
+This (for example) fixes large file copies to Windows 10 on fast networks.
 
-Tested with CAN FD core on a ZynqMP board.
-
-Fixes: 9e5f1b273e6a ("can: xilinx_can: add support for Xilinx CAN FD core")
-Reported-by: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Cc: Michal Simek <michal.simek@xilinx.com>
-Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/xilinx_can.c |    2 +-
+ fs/cifs/smb2maperror.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/can/xilinx_can.c
-+++ b/drivers/net/can/xilinx_can.c
-@@ -1443,7 +1443,7 @@ static const struct xcan_devtype_data xc
- 		 XCAN_FLAG_RXMNF |
- 		 XCAN_FLAG_TX_MAILBOXES |
- 		 XCAN_FLAG_RX_FIFO_MULTI,
--	.bittiming_const = &xcan_bittiming_const,
-+	.bittiming_const = &xcan_bittiming_const_canfd,
- 	.btr_ts2_shift = XCAN_BTR_TS2_SHIFT_CANFD,
- 	.btr_sjw_shift = XCAN_BTR_SJW_SHIFT_CANFD,
- 	.bus_clk_name = "s_axi_aclk",
+--- a/fs/cifs/smb2maperror.c
++++ b/fs/cifs/smb2maperror.c
+@@ -456,7 +456,7 @@ static const struct status_to_posix_erro
+ 	{STATUS_FILE_INVALID, -EIO, "STATUS_FILE_INVALID"},
+ 	{STATUS_ALLOTTED_SPACE_EXCEEDED, -EIO,
+ 	"STATUS_ALLOTTED_SPACE_EXCEEDED"},
+-	{STATUS_INSUFFICIENT_RESOURCES, -EREMOTEIO,
++	{STATUS_INSUFFICIENT_RESOURCES, -EAGAIN,
+ 				"STATUS_INSUFFICIENT_RESOURCES"},
+ 	{STATUS_DFS_EXIT_PATH_FOUND, -EIO, "STATUS_DFS_EXIT_PATH_FOUND"},
+ 	{STATUS_DEVICE_DATA_ERROR, -EIO, "STATUS_DEVICE_DATA_ERROR"},
 
 
