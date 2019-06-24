@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5A4E5069D
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A548550851
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728425AbfFXJ7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:59:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59190 "EHLO mail.kernel.org"
+        id S1730748AbfFXKQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:16:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729284AbfFXJ7s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:48 -0400
+        id S1730745AbfFXKQa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:16:30 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48B06205ED;
-        Mon, 24 Jun 2019 09:59:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A25B205ED;
+        Mon, 24 Jun 2019 10:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370387;
-        bh=YESTF+djnPXlhFHCOy0pYzKxfYTjxk33iochzxG71zY=;
+        s=default; t=1561371389;
+        bh=R3kte9HSML48BOOzKcfTRnplU35ZZNXwoKZwq5oQrNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vvHK/3l3T3hRObjPwjKGm80bW6OIzSxCYyamNvFrVnzcL62PJYYgtJa3A/xMBz/Dn
-         tq/HvFXJ0yOSBZb8NiTZqIT1MFpfUG84J98ekFpL8cDeH64BfNhzwW80cIWsML5cxB
-         bTYiZnmjU7nlGk20QS0JcwGVKWEVoriRcx5blUiQ=
+        b=SDoljyoUSr9fk5S89fSIpDA/BYr/C2njJtJ+BdKMQ0+L5NIp9uI/ptNkocCBXH1bV
+         dX2HEb4PQSWiccUHmiqxbYGLB0rLiio/7xSBJe4aatGgqompAxX+yOyA6Iyo2pGDCs
+         dL0Jwdmx7F9fosNmuOnI9ZVCiOr8HeAcE5bF16jU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.14 40/51] can: flexcan: fix timeout when set small bitrate
+        stable@vger.kernel.org, Robert Hancock <hancock@sedsystems.ca>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 086/121] hwmon: (pmbus/core) Treat parameters as paged if on multiple pages
 Date:   Mon, 24 Jun 2019 17:56:58 +0800
-Message-Id: <20190624092310.686118575@linuxfoundation.org>
+Message-Id: <20190624092325.227711362@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+[ Upstream commit 4a60570dce658e3f8885bbcf852430b99f65aca5 ]
 
-commit 247e5356a709eb49a0d95ff2a7f07dac05c8252c upstream.
+Some chips have attributes which exist on more than one page but the
+attribute is not presently marked as paged. This causes the attributes
+to be generated with the same label, which makes it impossible for
+userspace to tell them apart.
 
-Current we can meet timeout issue when setting a small bitrate like
-10000 as follows on i.MX6UL EVK board (ipg clock = 66MHZ, per clock =
-30MHZ):
+Marking all such attributes as paged would result in the page suffix
+being added regardless of whether they were present on more than one
+page or not, which might break existing setups. Therefore, we add a
+second check which treats the attribute as paged, even if not marked as
+such, if it is present on multiple pages.
 
-| root@imx6ul7d:~# ip link set can0 up type can bitrate 10000
-
-A link change request failed with some changes committed already.
-Interface can0 may have been left with an inconsistent configuration,
-please check.
-
-| RTNETLINK answers: Connection timed out
-
-It is caused by calling of flexcan_chip_unfreeze() timeout.
-
-Originally the code is using usleep_range(10, 20) for unfreeze
-operation, but the patch (8badd65 can: flexcan: avoid calling
-usleep_range from interrupt context) changed it into udelay(10) which is
-only a half delay of before, there're also some other delay changes.
-
-After double to FLEXCAN_TIMEOUT_US to 100 can fix the issue.
-
-Meanwhile, Rasmus Villemoes reported that even with a timeout of 100,
-flexcan_probe() fails on the MPC8309, which requires a value of at least
-140 to work reliably. 250 works for everyone.
-
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: b4ce237b7f7d ("hwmon: (pmbus) Introduce infrastructure to detect sensors and limit registers")
+Signed-off-by: Robert Hancock <hancock@sedsystems.ca>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/flexcan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/pmbus/pmbus_core.c | 34 ++++++++++++++++++++++++++++----
+ 1 file changed, 30 insertions(+), 4 deletions(-)
 
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -177,7 +177,7 @@
- #define FLEXCAN_MB_CNT_LENGTH(x)	(((x) & 0xf) << 16)
- #define FLEXCAN_MB_CNT_TIMESTAMP(x)	((x) & 0xffff)
+diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
+index 2e2b5851139c..cd24b375df1e 100644
+--- a/drivers/hwmon/pmbus/pmbus_core.c
++++ b/drivers/hwmon/pmbus/pmbus_core.c
+@@ -1230,7 +1230,8 @@ static int pmbus_add_sensor_attrs_one(struct i2c_client *client,
+ 				      const struct pmbus_driver_info *info,
+ 				      const char *name,
+ 				      int index, int page,
+-				      const struct pmbus_sensor_attr *attr)
++				      const struct pmbus_sensor_attr *attr,
++				      bool paged)
+ {
+ 	struct pmbus_sensor *base;
+ 	bool upper = !!(attr->gbit & 0xff00);	/* need to check STATUS_WORD */
+@@ -1238,7 +1239,7 @@ static int pmbus_add_sensor_attrs_one(struct i2c_client *client,
  
--#define FLEXCAN_TIMEOUT_US		(50)
-+#define FLEXCAN_TIMEOUT_US		(250)
+ 	if (attr->label) {
+ 		ret = pmbus_add_label(data, name, index, attr->label,
+-				      attr->paged ? page + 1 : 0);
++				      paged ? page + 1 : 0);
+ 		if (ret)
+ 			return ret;
+ 	}
+@@ -1271,6 +1272,30 @@ static int pmbus_add_sensor_attrs_one(struct i2c_client *client,
+ 	return 0;
+ }
  
- /* FLEXCAN hardware feature flags
-  *
++static bool pmbus_sensor_is_paged(const struct pmbus_driver_info *info,
++				  const struct pmbus_sensor_attr *attr)
++{
++	int p;
++
++	if (attr->paged)
++		return true;
++
++	/*
++	 * Some attributes may be present on more than one page despite
++	 * not being marked with the paged attribute. If that is the case,
++	 * then treat the sensor as being paged and add the page suffix to the
++	 * attribute name.
++	 * We don't just add the paged attribute to all such attributes, in
++	 * order to maintain the un-suffixed labels in the case where the
++	 * attribute is only on page 0.
++	 */
++	for (p = 1; p < info->pages; p++) {
++		if (info->func[p] & attr->func)
++			return true;
++	}
++	return false;
++}
++
+ static int pmbus_add_sensor_attrs(struct i2c_client *client,
+ 				  struct pmbus_data *data,
+ 				  const char *name,
+@@ -1284,14 +1309,15 @@ static int pmbus_add_sensor_attrs(struct i2c_client *client,
+ 	index = 1;
+ 	for (i = 0; i < nattrs; i++) {
+ 		int page, pages;
++		bool paged = pmbus_sensor_is_paged(info, attrs);
+ 
+-		pages = attrs->paged ? info->pages : 1;
++		pages = paged ? info->pages : 1;
+ 		for (page = 0; page < pages; page++) {
+ 			if (!(info->func[page] & attrs->func))
+ 				continue;
+ 			ret = pmbus_add_sensor_attrs_one(client, data, info,
+ 							 name, index, page,
+-							 attrs);
++							 attrs, paged);
+ 			if (ret)
+ 				return ret;
+ 			index++;
+-- 
+2.20.1
+
 
 
