@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B7B50865
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75351507F8
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730824AbfFXKRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:17:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54558 "EHLO mail.kernel.org"
+        id S1730310AbfFXKM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:12:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729631AbfFXKRA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:17:00 -0400
+        id S1730014AbfFXKFz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:55 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDAC6205C9;
-        Mon, 24 Jun 2019 10:16:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A02E42146F;
+        Mon, 24 Jun 2019 10:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371419;
-        bh=tsibFGeCM9kozJlvLSct5i3Ff8kYIeVStbM5u+Zsugk=;
+        s=default; t=1561370755;
+        bh=SREwUm8J1kTp+qb9RpDj1Ff57Rw1vxR+PlbiFITmhdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRPqB0n0pQd1J7od2DZhHu0r+760h2ayiLWDkyxw9SLIaoVWdA7E1IXPAlFlOMxUZ
-         j07B7tdvd8QVaUhDtasBEv7G64PXDaJjQKOKoAVJt2wM2cCIz7o8nAJgEQ6geOwLsc
-         7xb3igBR/Puu+VcxLn7U/CIuXGitv4lOdg0nEM/s=
+        b=Wb0k19n8HkUdayeccepnIUOLQUxW8riA2y0MWV6rw4dKkTZwd84UF7AjEQvTvHriN
+         mDpvIUhKowEnZc3oCEBR6xY6udl9KaqxbvqdZJhg672OUEZT5btqylvRJ8xu6NdMlf
+         nKDkgr6T4/WeLox6glFhqJbTLo7ei2QY2s3FnO5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ShihPo Hung <shihpo.hung@sifive.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@sifive.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH 5.1 096/121] riscv: mm: synchronize MMU after pte change
+        stable@vger.kernel.org, Anisse Astier <aastier@freebox.fr>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 4.19 78/90] arm64: ssbd: explicitly depend on <linux/prctl.h>
 Date:   Mon, 24 Jun 2019 17:57:08 +0800
-Message-Id: <20190624092325.659180675@linuxfoundation.org>
+Message-Id: <20190624092319.067481327@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ShihPo Hung <shihpo.hung@sifive.com>
+From: Anisse Astier <aastier@freebox.fr>
 
-commit bf587caae305ae3b4393077fb22c98478ee55755 upstream.
+commit adeaa21a4b6954e878f3f7d1c5659ed9c1fe567a upstream.
 
-Because RISC-V compliant implementations can cache invalid entries
-in TLB, an SFENCE.VMA is necessary after changes to the page table.
-This patch adds an SFENCE.vma for the vmalloc_fault path.
+Fix ssbd.c which depends implicitly on asm/ptrace.h including
+linux/prctl.h (through for example linux/compat.h, then linux/time.h,
+linux/seqlock.h, linux/spinlock.h and linux/irqflags.h), and uses
+PR_SPEC* defines.
 
-Signed-off-by: ShihPo Hung <shihpo.hung@sifive.com>
-[paul.walmsley@sifive.com: reversed tab->whitespace conversion,
- wrapped comment lines]
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@sifive.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: linux-riscv@lists.infradead.org
+This is an issue since we'll soon be removing the include from
+asm/ptrace.h.
+
+Fixes: 9cdc0108baa8 ("arm64: ssbd: Add prctl interface for per-thread mitigation")
 Cc: stable@vger.kernel.org
+Signed-off-by: Anisse Astier <aastier@freebox.fr>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/riscv/mm/fault.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/arm64/kernel/ssbd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/riscv/mm/fault.c
-+++ b/arch/riscv/mm/fault.c
-@@ -29,6 +29,7 @@
+--- a/arch/arm64/kernel/ssbd.c
++++ b/arch/arm64/kernel/ssbd.c
+@@ -4,6 +4,7 @@
+  */
  
- #include <asm/pgalloc.h>
- #include <asm/ptrace.h>
-+#include <asm/tlbflush.h>
+ #include <linux/errno.h>
++#include <linux/prctl.h>
+ #include <linux/sched.h>
+ #include <linux/thread_info.h>
  
- /*
-  * This routine handles page faults.  It determines the address and the
-@@ -281,6 +282,18 @@ vmalloc_fault:
- 		pte_k = pte_offset_kernel(pmd_k, addr);
- 		if (!pte_present(*pte_k))
- 			goto no_context;
-+
-+		/*
-+		 * The kernel assumes that TLBs don't cache invalid
-+		 * entries, but in RISC-V, SFENCE.VMA specifies an
-+		 * ordering constraint, not a cache flush; it is
-+		 * necessary even after writing invalid entries.
-+		 * Relying on flush_tlb_fix_spurious_fault would
-+		 * suffice, but the extra traps reduce
-+		 * performance. So, eagerly SFENCE.VMA.
-+		 */
-+		local_flush_tlb_page(addr);
-+
- 		return;
- 	}
- }
 
 
