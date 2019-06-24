@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ABE4507BB
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B67506E7
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729828AbfFXKJb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:09:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42616 "EHLO mail.kernel.org"
+        id S1729384AbfFXKCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:02:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730501AbfFXKIo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:08:44 -0400
+        id S1728656AbfFXKCd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:02:33 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2187205C9;
-        Mon, 24 Jun 2019 10:08:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6946F20848;
+        Mon, 24 Jun 2019 10:02:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370924;
-        bh=JsOn5zvNdjseQUSp5vTdE8wd2jG/9/FXfBMmaHfHcIA=;
+        s=default; t=1561370552;
+        bh=zK/2m3vIdbnCyxfHRSFwOxu839hS2Og+FGZFOvRJtp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zakNhxFgMQjxw4GoIBEXMhwEt3CR+i/hjHERZSohtLpAgOgYPgeo1PZEYNjJUHMmO
-         BVJ+JvuA+bWB9bkyrwnIo9JyDOxIfmKOFy8WjzU8clHhKDCT1v7oJ2m7WaJEPObImo
-         fjZOUhB1D2EBztHk5AeDN3wA3/sngVvnTHj/7e28=
+        b=Aset2YVG/7lPbWXSCYGHVvZDNMSTqxSGNHbhrwa8w5DpToUC2cKVne2PCcRk2vKz6
+         tp2aErgk/hD459l7Q/EinGNOLnT1YKrwJwHdKb6AAHj0cBQwRLYGNzow/R/+V1HbcA
+         oSGQ6xkPlH6PKIKM4CeUmaDgSiFtdNnvNO2pLOdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 034/121] dmaengine: dw-axi-dmac: fix null dereference when pointer first is null
-Date:   Mon, 24 Jun 2019 17:56:06 +0800
-Message-Id: <20190624092322.564239225@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Jun Li <jun.li@nxp.com>, Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.19 17/90] usb: chipidea: udc: workaround for endpoint conflict issue
+Date:   Mon, 24 Jun 2019 17:56:07 +0800
+Message-Id: <20190624092315.141038123@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0788611c9a0925c607de536b2449de5ed98ef8df ]
+From: Peter Chen <peter.chen@nxp.com>
 
-In the unlikely event that axi_desc_get returns a null desc in the
-very first iteration of the while-loop the error exit path ends
-up calling axi_desc_put on a null pointer 'first' and this causes
-a null pointer dereference.  Fix this by adding a null check on
-pointer 'first' before calling axi_desc_put.
+commit c19dffc0a9511a7d7493ec21019aefd97e9a111b upstream.
 
-Addresses-Coverity: ("Explicit null dereference")
-Fixes: 1fe20f1b8454 ("dmaengine: Introduce DW AXI DMAC driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+An endpoint conflict occurs when the USB is working in device mode
+during an isochronous communication. When the endpointA IN direction
+is an isochronous IN endpoint, and the host sends an IN token to
+endpointA on another device, then the OUT transaction may be missed
+regardless the OUT endpoint number. Generally, this occurs when the
+device is connected to the host through a hub and other devices are
+connected to the same hub.
+
+The affected OUT endpoint can be either control, bulk, isochronous, or
+an interrupt endpoint. After the OUT endpoint is primed, if an IN token
+to the same endpoint number on another device is received, then the OUT
+endpoint may be unprimed (cannot be detected by software), which causes
+this endpoint to no longer respond to the host OUT token, and thus, no
+corresponding interrupt occurs.
+
+There is no good workaround for this issue, the only thing the software
+could do is numbering isochronous IN from the highest endpoint since we
+have observed most of device number endpoint from the lowest.
+
+Cc: <stable@vger.kernel.org> #v3.14+
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: Jun Li <jun.li@nxp.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/chipidea/udc.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-index b2ac1d2c5b86..a1ce307c502f 100644
---- a/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-+++ b/drivers/dma/dw-axi-dmac/dw-axi-dmac-platform.c
-@@ -512,7 +512,8 @@ dma_chan_prep_dma_memcpy(struct dma_chan *dchan, dma_addr_t dst_adr,
- 	return vchan_tx_prep(&chan->vc, &first->vd, flags);
+--- a/drivers/usb/chipidea/udc.c
++++ b/drivers/usb/chipidea/udc.c
+@@ -1621,6 +1621,25 @@ static int ci_udc_pullup(struct usb_gadg
+ static int ci_udc_start(struct usb_gadget *gadget,
+ 			 struct usb_gadget_driver *driver);
+ static int ci_udc_stop(struct usb_gadget *gadget);
++
++/* Match ISOC IN from the highest endpoint */
++static struct usb_ep *ci_udc_match_ep(struct usb_gadget *gadget,
++			      struct usb_endpoint_descriptor *desc,
++			      struct usb_ss_ep_comp_descriptor *comp_desc)
++{
++	struct ci_hdrc *ci = container_of(gadget, struct ci_hdrc, gadget);
++	struct usb_ep *ep;
++
++	if (usb_endpoint_xfer_isoc(desc) && usb_endpoint_dir_in(desc)) {
++		list_for_each_entry_reverse(ep, &ci->gadget.ep_list, ep_list) {
++			if (ep->caps.dir_in && !ep->claimed)
++				return ep;
++		}
++	}
++
++	return NULL;
++}
++
+ /**
+  * Device operations part of the API to the USB controller hardware,
+  * which don't involve endpoints (or i/o)
+@@ -1634,6 +1653,7 @@ static const struct usb_gadget_ops usb_g
+ 	.vbus_draw	= ci_udc_vbus_draw,
+ 	.udc_start	= ci_udc_start,
+ 	.udc_stop	= ci_udc_stop,
++	.match_ep 	= ci_udc_match_ep,
+ };
  
- err_desc_get:
--	axi_desc_put(first);
-+	if (first)
-+		axi_desc_put(first);
- 	return NULL;
- }
- 
--- 
-2.20.1
-
+ static int init_eps(struct ci_hdrc *ci)
 
 
