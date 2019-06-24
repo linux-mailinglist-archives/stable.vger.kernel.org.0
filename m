@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D673F50889
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:19:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 302D550849
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728818AbfFXKSY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:18:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53696 "EHLO mail.kernel.org"
+        id S1729060AbfFXKQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:16:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729957AbfFXKQO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:16:14 -0400
+        id S1730228AbfFXKQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:16:17 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7769D20645;
-        Mon, 24 Jun 2019 10:16:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2861C205C9;
+        Mon, 24 Jun 2019 10:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371374;
-        bh=dCYuUHsFqV7uKyvtqq6FlM4P/lhE4gHZNSKblgjLo6E=;
+        s=default; t=1561371376;
+        bh=KrAKWW5IpsGHd1sDRLiz0BAsr+MVpsf80lL8mL0hDLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eMhDN5zzabyzv860nUqicoAPkO7ofjvIn0jqlWHZHvLh71yBBXfK0CObmD+QISFfT
-         2PTWb2dcW8FcLDP28ixdgxhFlAdUoshs7RusjsMWTbOL1iqpw0tIZHOzgcyFWVnlOC
-         B+Hu+arcuRlGrAZa8wfrSk5zkOq7uFW/rREEad2I=
+        b=A82ehgmCwz/Eux2ovLwS4d7KIXF1EXzyW2hr68N4FQnmeuZsZxbO8W8I80ozJoBdv
+         ffqf6w4MldkacDHK3yn44M1QUUk1+9bRY9P2pKw76DwpQb5qOixICv6ogEDoBc/DVE
+         Ie6slJj8/nDq8rs/HASxmdiMre9v2h+FW3bK3Cgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org, Christian Brauner <christian@brauner.io>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 080/121] udmabuf: actually unmap the scatterlist
-Date:   Mon, 24 Jun 2019 17:56:52 +0800
-Message-Id: <20190624092324.958730722@linuxfoundation.org>
+Subject: [PATCH 5.1 081/121] tests: fix pidfd-test compilation
+Date:   Mon, 24 Jun 2019 17:56:53 +0800
+Message-Id: <20190624092324.997360765@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
 References: <20190624092320.652599624@linuxfoundation.org>
@@ -44,32 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 283f1e383e91d96fe652fad549537ae15cf31d60 ]
+[ Upstream commit 1fcd0eb356ad56c4e405f06e31dd9fde2109d5ab ]
 
-unmap_udmabuf fails to actually unmap the scatterlist, leaving dangling
-mappings around.
+Define __NR_pidfd_send_signal if it isn't to prevent a potential
+compilation error.
 
-Fixes: fbb0de795078 ("Add udmabuf misc device")
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Link: http://patchwork.freedesktop.org/patch/msgid/20190604202331.17482-1-l.stach@pengutronix.de
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+To make pidfd-test compile on all arches, irrespective of whether
+or not syscall numbers are assigned, define the syscall number to -1.
+If it isn't defined this will cause the kernel to return -ENOSYS.
+
+Fixes: 575a0ae9744d ("selftests: add tests for pidfd_send_signal()")
+Signed-off-by: Christian Brauner <christian@brauner.io>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/udmabuf.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/pidfd/pidfd_test.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/dma-buf/udmabuf.c b/drivers/dma-buf/udmabuf.c
-index cd57747286f2..9635897458a0 100644
---- a/drivers/dma-buf/udmabuf.c
-+++ b/drivers/dma-buf/udmabuf.c
-@@ -77,6 +77,7 @@ static void unmap_udmabuf(struct dma_buf_attachment *at,
- 			  struct sg_table *sg,
- 			  enum dma_data_direction direction)
+diff --git a/tools/testing/selftests/pidfd/pidfd_test.c b/tools/testing/selftests/pidfd/pidfd_test.c
+index d59378a93782..20323f55613a 100644
+--- a/tools/testing/selftests/pidfd/pidfd_test.c
++++ b/tools/testing/selftests/pidfd/pidfd_test.c
+@@ -16,6 +16,10 @@
+ 
+ #include "../kselftest.h"
+ 
++#ifndef __NR_pidfd_send_signal
++#define __NR_pidfd_send_signal -1
++#endif
++
+ static inline int sys_pidfd_send_signal(int pidfd, int sig, siginfo_t *info,
+ 					unsigned int flags)
  {
-+	dma_unmap_sg(at->dev, sg->sgl, sg->nents, direction);
- 	sg_free_table(sg);
- 	kfree(sg);
- }
 -- 
 2.20.1
 
