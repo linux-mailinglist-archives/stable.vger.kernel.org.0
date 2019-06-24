@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD5F950861
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:18:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BBBA507F6
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730830AbfFXKQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:16:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54492 "EHLO mail.kernel.org"
+        id S1730008AbfFXKFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:05:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730824AbfFXKQz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:16:55 -0400
+        id S1728846AbfFXKFx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:53 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8513F205C9;
-        Mon, 24 Jun 2019 10:16:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D11D32145D;
+        Mon, 24 Jun 2019 10:05:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561371414;
-        bh=aRhkgb5S/u+8oZ/KpUkEYewDKFzT6/mr7blE20Y2cvg=;
+        s=default; t=1561370752;
+        bh=J3lk6Rg+8MdhODyh01OhUMDKDNclpoK0P14pEu19wDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VLi20MqGP2vdnDLpbiIcizM1J1YEiaB12qR64ewTKKS7rdg2W4OHYrkLyOAQ7bgW1
-         6Rq9umkCvHLAtpqlfJlStGxo/LNdtna27sQFeVufdQBID+ObpvAN8FcHRgL608/8kj
-         vftyVcFWH9wXxZDCdtFf+weJjkroeHRKcrK3VBz0=
+        b=ej6siDs5ms4gJ0R5tFjBZpR9fTcz7JP8V3LsqQTnjLcwcZ4uy7r5j1VGh6fsJ55Sr
+         ikFEJbxep1L5hbyhbMrn0SGVAXKlScfBLAusi5t6uzdECFwUijZzpYE51/RiRK/7IX
+         20OF1zoT+QPBQ2/4ZXLQDICT5jxobQG4HTE3pEIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.1 094/121] can: flexcan: fix timeout when set small bitrate
-Date:   Mon, 24 Jun 2019 17:57:06 +0800
-Message-Id: <20190624092325.579672385@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Martin <Dave.Martin@arm.com>,
+        Anisse Astier <aastier@freebox.fr>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 4.19 77/90] arm64/sve: <uapi/asm/ptrace.h> should not depend on <uapi/linux/prctl.h>
+Date:   Mon, 24 Jun 2019 17:57:07 +0800
+Message-Id: <20190624092319.002811331@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: Anisse Astier <aastier@freebox.fr>
 
-commit 247e5356a709eb49a0d95ff2a7f07dac05c8252c upstream.
+commit 35341ca0614ab13e1ef34ad4f29a39e15ef31fa8 upstream.
 
-Current we can meet timeout issue when setting a small bitrate like
-10000 as follows on i.MX6UL EVK board (ipg clock = 66MHZ, per clock =
-30MHZ):
+Pulling linux/prctl.h into asm/ptrace.h in the arm64 UAPI headers causes
+userspace build issues for any program (e.g. strace and qemu) that
+includes both <sys/prctl.h> and <linux/ptrace.h> when using musl libc:
 
-| root@imx6ul7d:~# ip link set can0 up type can bitrate 10000
+  | error: redefinition of 'struct prctl_mm_map'
+  |  struct prctl_mm_map {
 
-A link change request failed with some changes committed already.
-Interface can0 may have been left with an inconsistent configuration,
-please check.
+See https://github.com/foundriesio/meta-lmp/commit/6d4a106e191b5d79c41b9ac78fd321316d3013c0
+for a public example of people working around this issue.
 
-| RTNETLINK answers: Connection timed out
+Although it's a bit grotty, fix this breakage by duplicating the prctl
+constant definitions. Since these are part of the kernel ABI, they
+cannot be changed in future and so it's not the end of the world to have
+them open-coded.
 
-It is caused by calling of flexcan_chip_unfreeze() timeout.
-
-Originally the code is using usleep_range(10, 20) for unfreeze
-operation, but the patch (8badd65 can: flexcan: avoid calling
-usleep_range from interrupt context) changed it into udelay(10) which is
-only a half delay of before, there're also some other delay changes.
-
-After double to FLEXCAN_TIMEOUT_US to 100 can fix the issue.
-
-Meanwhile, Rasmus Villemoes reported that even with a timeout of 100,
-flexcan_probe() fails on the MPC8309, which requires a value of at least
-140 to work reliably. 250 works for everyone.
-
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 43d4da2c45b2 ("arm64/sve: ptrace and ELF coredump support")
+Cc: stable@vger.kernel.org
+Acked-by: Dave Martin <Dave.Martin@arm.com>
+Signed-off-by: Anisse Astier <aastier@freebox.fr>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/flexcan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/uapi/asm/ptrace.h |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -166,7 +166,7 @@
- #define FLEXCAN_MB_CNT_LENGTH(x)	(((x) & 0xf) << 16)
- #define FLEXCAN_MB_CNT_TIMESTAMP(x)	((x) & 0xffff)
+--- a/arch/arm64/include/uapi/asm/ptrace.h
++++ b/arch/arm64/include/uapi/asm/ptrace.h
+@@ -64,8 +64,6 @@
  
--#define FLEXCAN_TIMEOUT_US		(50)
-+#define FLEXCAN_TIMEOUT_US		(250)
+ #ifndef __ASSEMBLY__
  
- /* FLEXCAN hardware feature flags
-  *
+-#include <linux/prctl.h>
+-
+ /*
+  * User structures for general purpose, floating point and debug registers.
+  */
+@@ -112,10 +110,10 @@ struct user_sve_header {
+ 
+ /*
+  * Common SVE_PT_* flags:
+- * These must be kept in sync with prctl interface in <linux/ptrace.h>
++ * These must be kept in sync with prctl interface in <linux/prctl.h>
+  */
+-#define SVE_PT_VL_INHERIT		(PR_SVE_VL_INHERIT >> 16)
+-#define SVE_PT_VL_ONEXEC		(PR_SVE_SET_VL_ONEXEC >> 16)
++#define SVE_PT_VL_INHERIT		((1 << 17) /* PR_SVE_VL_INHERIT */ >> 16)
++#define SVE_PT_VL_ONEXEC		((1 << 18) /* PR_SVE_SET_VL_ONEXEC */ >> 16)
+ 
+ 
+ /*
 
 
