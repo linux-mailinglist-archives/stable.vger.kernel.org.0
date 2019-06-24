@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C721506A3
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E81DE50737
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729339AbfFXJ75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:59:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59392 "EHLO mail.kernel.org"
+        id S1729952AbfFXKFh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:05:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729342AbfFXJ74 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:56 -0400
+        id S1729944AbfFXKFe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:34 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46AF1213F2;
-        Mon, 24 Jun 2019 09:59:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3ADF1208E3;
+        Mon, 24 Jun 2019 10:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370395;
-        bh=o9feKfxPZvibdB5icEli4TLI3ch2T7CbYL+KrybYP9I=;
+        s=default; t=1561370733;
+        bh=sLCeOjCrzZWFX3mgX9qYm4q7YOx5AuqolYxd8ZsyC4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IWf/VnGzt6UUoQEDhJdCjwDTIfo0k9wEitcjAxUpP2SrZUYUabsiS/wj/gEJK5UJV
-         My+VXzHW0E7dBIlnKVBJclrrtTrx0Mw4RgQfoYxi5EF4wwkKxWJFHkeMWW+As6SA1Z
-         cLbsNTp1hmHL1qs69c54q8Ng64NlQ0LxnqyFdqeU=
+        b=EwPM7zXE7xlEZ779FYdOEBlFshbMmDWAaZuo7a93YBxQAdYwbunYKyYokI8mejLBf
+         vDU1dKh2PGZQrEK7K1FXmzATXrNUrEdQ+NsMs9PDNsN4aB3E7AeQcTPv2zFriIO+9g
+         CdjBwkCVUCP+1X1+FPs/8yoMxL0ipLU4a82mp3Fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
-        <sebastien.szymanski@armadeus.com>, Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 4.14 43/51] ARM: imx: cpuidle-imx6sx: Restrict the SW2ISO increase to i.MX6SX
+        syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com,
+        Willem de Bruijn <willemb@google.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 71/90] can: purge socket error queue on sock destruct
 Date:   Mon, 24 Jun 2019 17:57:01 +0800
-Message-Id: <20190624092310.942090089@linuxfoundation.org>
+Message-Id: <20190624092318.678635319@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Willem de Bruijn <willemb@google.com>
 
-commit b25af2ff7c07bd19af74e3f64ff82e2880d13d81 upstream.
+commit fd704bd5ee749d560e86c4f1fd2ef486d8abf7cf upstream.
 
-Since commit 1e434b703248 ("ARM: imx: update the cpu power up timing
-setting on i.mx6sx") some characters loss is noticed on i.MX6ULL UART
-as reported by Christoph Niedermaier.
+CAN supports software tx timestamps as of the below commit. Purge
+any queued timestamp packets on socket destroy.
 
-The intention of such commit was to increase the SW2ISO field for i.MX6SX
-only, but since cpuidle-imx6sx is also used on i.MX6UL/i.MX6ULL this caused
-unintended side effects on other SoCs.
-
-Fix this problem by keeping the original SW2ISO value for i.MX6UL/i.MX6ULL
-and only increase SW2ISO in the i.MX6SX case.
-
-Cc: stable@vger.kernel.org
-Fixes: 1e434b703248 ("ARM: imx: update the cpu power up timing setting on i.mx6sx")
-Reported-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Tested-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
-Tested-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 51f31cabe3ce ("ip: support for TX timestamps on UDP and RAW sockets")
+Reported-by: syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-imx/cpuidle-imx6sx.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/can/af_can.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm/mach-imx/cpuidle-imx6sx.c
-+++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
-@@ -15,6 +15,7 @@
- 
- #include "common.h"
- #include "cpuidle.h"
-+#include "hardware.h"
- 
- static int imx6sx_idle_finish(unsigned long val)
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -105,6 +105,7 @@ EXPORT_SYMBOL(can_ioctl);
+ static void can_sock_destruct(struct sock *sk)
  {
-@@ -108,7 +109,7 @@ int __init imx6sx_cpuidle_init(void)
- 	 * except for power up sw2iso which need to be
- 	 * larger than LDO ramp up time.
- 	 */
--	imx_gpc_set_arm_power_up_timing(0xf, 1);
-+	imx_gpc_set_arm_power_up_timing(cpu_is_imx6sx() ? 0xf : 0x2, 1);
- 	imx_gpc_set_arm_power_down_timing(1, 1);
+ 	skb_queue_purge(&sk->sk_receive_queue);
++	skb_queue_purge(&sk->sk_error_queue);
+ }
  
- 	return cpuidle_register(&imx6sx_cpuidle_driver, NULL);
+ static const struct can_proto *can_get_proto(int protocol)
 
 
