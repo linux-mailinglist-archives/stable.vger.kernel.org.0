@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BF4950688
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C8645080F
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728560AbfFXJ7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:59:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58352 "EHLO mail.kernel.org"
+        id S1729841AbfFXKFN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:05:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728673AbfFXJ7T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:19 -0400
+        id S1729791AbfFXKFM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:05:12 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB27F21655;
-        Mon, 24 Jun 2019 09:59:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33540205ED;
+        Mon, 24 Jun 2019 10:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370358;
-        bh=lQIVZkQGmXcK1EaMH+3xunD5I8bRDu8RrN8phKF5kMY=;
+        s=default; t=1561370711;
+        bh=HTLPW14FV82/Pk42KIxwqTEOtpQcj/hntKth0Q7kJOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wGec/v7ZQBWWeZW/RzMVGa+dZu6Ui4oygYNC0KjciBD8ag/FOSZ/AZubXskvpOFyc
-         Da7dbJVQJIxqY0lf8p9Aq5mM4/SLbcUCN8yQgxmBHAV+kulCzgTEnjYPZZ3JVmK2TD
-         A0/CaL+EAzJoTwLeqpNHYdAWvEtyyVQVLo+d5JHk=
+        b=ySkq3WfM9MuU1Grv8u8HZHDV4AjlY39Lm20iFKDJHGjhlOtOM9eZChi/FBD67auWR
+         aDV60dPHIKQt8/2fc/fOlb3KNIrn1SjZje/mnc9Z3EpFFZeWEkt77tEVZoBHpde9iJ
+         XjXsaqDTdb1FqQwjad6dBRY/12v/F9mJLhyjacvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Guenter Roeck <linux@roeck-us.net>,
         linux-hwmon@vger.kernel.org, Eduardo Valentin <eduval@amazon.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/51] hwmon: (core) add thermal sensors only if dev->of_node is present
+Subject: [PATCH 4.19 64/90] hwmon: (core) add thermal sensors only if dev->of_node is present
 Date:   Mon, 24 Jun 2019 17:56:54 +0800
-Message-Id: <20190624092310.342420987@linuxfoundation.org>
+Message-Id: <20190624092318.284925383@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
-References: <20190624092305.919204959@linuxfoundation.org>
+In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092313.788773607@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -87,10 +87,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
-index c9790e2c3440..7b53065e9882 100644
+index fcdbac4a56e3..6b3559f58b67 100644
 --- a/drivers/hwmon/hwmon.c
 +++ b/drivers/hwmon/hwmon.c
-@@ -608,7 +608,7 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
+@@ -619,7 +619,7 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
  	if (err)
  		goto free_hwmon;
  
