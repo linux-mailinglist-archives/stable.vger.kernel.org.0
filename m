@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A90507BD
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30DD55067D
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730059AbfFXKJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:09:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42536 "EHLO mail.kernel.org"
+        id S1729134AbfFXJ7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:59:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730489AbfFXKIm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:08:42 -0400
+        id S1729120AbfFXJ7C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:59:02 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0782A2089F;
-        Mon, 24 Jun 2019 10:08:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E7AB205ED;
+        Mon, 24 Jun 2019 09:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370921;
-        bh=FqfyOE32pGG0nTN2uey/6HiKT1i752OzCJIa1JzZZJM=;
+        s=default; t=1561370342;
+        bh=JLVeObjHjzNKx1lln9DG18Z8xT0aOW4ZUEfxrfdGs3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PusuoNYsjL9oKhXYSb6hJc1r05w6hbCDX/wbezzDLoK0FBy/iC1vXDL8i9kSQOa/A
-         U8VCyQcfHoAkQpY9nWlrOfEaWpGCXarBXu5PHZaZNkkcqGR20O4R3dhaatiT5FF2x2
-         +4OnWwrXHr7pgZ43ecdRfedSzgiklIQX1PUdMoVE=
+        b=GjrDDwEdYBiiUqJcGF3XMFRjIo3rJn8kIRyNSpp6Y5CSWTruAbdK6EbY8Y11I45d0
+         jrDItPkNsDK07iSoXrbtzKJn3noim3xxd2ZxrZx4/3mNiB7zIbbIxLzzXEmbofenf+
+         T3cOuRDe7cvHSiWP+0Dg1MSIlQDAJYMYjjgn64o4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 051/121] IB/hfi1: Insure freeze_work work_struct is canceled on shutdown
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.14 05/51] mmc: core: Prevent processing SDIO IRQs when the card is suspended
 Date:   Mon, 24 Jun 2019 17:56:23 +0800
-Message-Id: <20190624092323.346979705@linuxfoundation.org>
+Message-Id: <20190624092306.562108995@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
-References: <20190624092320.652599624@linuxfoundation.org>
+In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
+References: <20190624092305.919204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,38 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6d517353c70bb0818b691ca003afdcb5ee5ea44e ]
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-By code inspection, the freeze_work is never canceled.
+commit 83293386bc95cf5e9f0c0175794455835bd1cb4a upstream.
 
-Fix by adding a cancel_work_sync in the shutdown path to insure it is no
-longer running.
+Processing of SDIO IRQs must obviously be prevented while the card is
+system suspended, otherwise we may end up trying to communicate with an
+uninitialized SDIO card.
 
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reports throughout the years shows that this is not only a theoretical
+problem, but a real issue. So, let's finally fix this problem, by keeping
+track of the state for the card and bail out before processing the SDIO
+IRQ, in case the card is suspended.
+
+Cc: stable@vger.kernel.org
+Reported-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/infiniband/hw/hfi1/chip.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/core/sdio.c     |   13 ++++++++++++-
+ drivers/mmc/core/sdio_irq.c |    4 ++++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/chip.c b/drivers/infiniband/hw/hfi1/chip.c
-index e02d9a739e9c..597f2f02f3a8 100644
---- a/drivers/infiniband/hw/hfi1/chip.c
-+++ b/drivers/infiniband/hw/hfi1/chip.c
-@@ -9848,6 +9848,7 @@ void hfi1_quiet_serdes(struct hfi1_pportdata *ppd)
+--- a/drivers/mmc/core/sdio.c
++++ b/drivers/mmc/core/sdio.c
+@@ -907,6 +907,10 @@ static int mmc_sdio_pre_suspend(struct m
+  */
+ static int mmc_sdio_suspend(struct mmc_host *host)
+ {
++	/* Prevent processing of SDIO IRQs in suspended state. */
++	mmc_card_set_suspended(host->card);
++	cancel_delayed_work_sync(&host->sdio_irq_work);
++
+ 	mmc_claim_host(host);
  
- 	/* disable the port */
- 	clear_rcvctrl(dd, RCV_CTRL_RCV_PORT_ENABLE_SMASK);
-+	cancel_work_sync(&ppd->freeze_work);
- }
+ 	if (mmc_card_keep_power(host) && mmc_card_wake_sdio_irq(host))
+@@ -962,13 +966,20 @@ static int mmc_sdio_resume(struct mmc_ho
+ 		err = sdio_enable_4bit_bus(host->card);
+ 	}
  
- static inline int init_cpu_counters(struct hfi1_devdata *dd)
--- 
-2.20.1
-
+-	if (!err && host->sdio_irqs) {
++	if (err)
++		goto out;
++
++	/* Allow SDIO IRQs to be processed again. */
++	mmc_card_clr_suspended(host->card);
++
++	if (host->sdio_irqs) {
+ 		if (!(host->caps2 & MMC_CAP2_SDIO_IRQ_NOTHREAD))
+ 			wake_up_process(host->sdio_irq_thread);
+ 		else if (host->caps & MMC_CAP_SDIO_IRQ)
+ 			host->ops->enable_sdio_irq(host, 1);
+ 	}
+ 
++out:
+ 	mmc_release_host(host);
+ 
+ 	host->pm_flags &= ~MMC_PM_KEEP_POWER;
+--- a/drivers/mmc/core/sdio_irq.c
++++ b/drivers/mmc/core/sdio_irq.c
+@@ -38,6 +38,10 @@ static int process_sdio_pending_irqs(str
+ 	unsigned char pending;
+ 	struct sdio_func *func;
+ 
++	/* Don't process SDIO IRQs if the card is suspended. */
++	if (mmc_card_suspended(card))
++		return 0;
++
+ 	/*
+ 	 * Optimization, if there is only 1 function interrupt registered
+ 	 * and we know an IRQ was signaled then call irq handler directly.
 
 
