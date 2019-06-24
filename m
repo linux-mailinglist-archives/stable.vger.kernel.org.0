@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 461EE5067B
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B4315067F
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:01:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729130AbfFXJ7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 05:59:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58016 "EHLO mail.kernel.org"
+        id S1728719AbfFXJ7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 05:59:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728801AbfFXJ7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 05:59:05 -0400
+        id S1729142AbfFXJ7I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 05:59:08 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AE72213F2;
-        Mon, 24 Jun 2019 09:59:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3C7C205ED;
+        Mon, 24 Jun 2019 09:59:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370344;
-        bh=fOvlLthS1MK46WfcNPVYkleqoAPilf+fyWhHYHhB55U=;
+        s=default; t=1561370347;
+        bh=qXek9NlD9YpYj23LAjZenJPNQcKpQX0cgv2PSGiZ628=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4pi3mOC88qo+4taDKupbK+WDQBRhZKvWW++MPp+zpUNJvnjSLi4S99cqgUalkx1r
-         hksX1sscnvifCVWysvmR75ryPA3L6K7uqv5ojYfWzNAHV43ZBccvstAS8IZw3TiCeZ
-         LkuP+l7YdNVFV/wm9vKJi1C/uwPDEv87zk1YetlU=
+        b=bmAQxdg2H0LGTY1Cl1K6gFWrW7C5yErHJWYSHXMW6yz11NGZpWmQqeFAnTLfBKzS4
+         bxg9WXZKEfV+OJQDdnURuf+NcjbrHerhqtt5Dar4yNTeOWjVs1T2NL7AzVkXPdg2MJ
+         UOFgo0RyVQ2var2NxAJd9+3TFXNCyCL6/26AmxXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 06/51] scsi: ufs: Avoid runtime suspend possibly being blocked forever
-Date:   Mon, 24 Jun 2019 17:56:24 +0800
-Message-Id: <20190624092306.788339647@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Jun Li <jun.li@nxp.com>, Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.14 07/51] usb: chipidea: udc: workaround for endpoint conflict issue
+Date:   Mon, 24 Jun 2019 17:56:25 +0800
+Message-Id: <20190624092307.055776437@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092305.919204959@linuxfoundation.org>
 References: <20190624092305.919204959@linuxfoundation.org>
@@ -44,69 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley Chu <stanley.chu@mediatek.com>
+From: Peter Chen <peter.chen@nxp.com>
 
-commit 24e2e7a19f7e4b83d0d5189040d997bce3596473 upstream.
+commit c19dffc0a9511a7d7493ec21019aefd97e9a111b upstream.
 
-UFS runtime suspend can be triggered after pm_runtime_enable() is invoked
-in ufshcd_pltfrm_init(). However if the first runtime suspend is triggered
-before binding ufs_hba structure to ufs device structure via
-platform_set_drvdata(), then UFS runtime suspend will be no longer
-triggered in the future because its dev->power.runtime_error was set in the
-first triggering and does not have any chance to be cleared.
+An endpoint conflict occurs when the USB is working in device mode
+during an isochronous communication. When the endpointA IN direction
+is an isochronous IN endpoint, and the host sends an IN token to
+endpointA on another device, then the OUT transaction may be missed
+regardless the OUT endpoint number. Generally, this occurs when the
+device is connected to the host through a hub and other devices are
+connected to the same hub.
 
-To be more clear, dev->power.runtime_error is set if hba is NULL in
-ufshcd_runtime_suspend() which returns -EINVAL to rpm_callback() where
-dev->power.runtime_error is set as -EINVAL. In this case, any future
-rpm_suspend() for UFS device fails because rpm_check_suspend_allowed()
-fails due to non-zero
-dev->power.runtime_error.
+The affected OUT endpoint can be either control, bulk, isochronous, or
+an interrupt endpoint. After the OUT endpoint is primed, if an IN token
+to the same endpoint number on another device is received, then the OUT
+endpoint may be unprimed (cannot be detected by software), which causes
+this endpoint to no longer respond to the host OUT token, and thus, no
+corresponding interrupt occurs.
 
-To resolve this issue, make sure the first UFS runtime suspend get valid
-"hba" in ufshcd_runtime_suspend(): Enable UFS runtime PM only after hba is
-successfully bound to UFS device structure.
+There is no good workaround for this issue, the only thing the software
+could do is numbering isochronous IN from the highest endpoint since we
+have observed most of device number endpoint from the lowest.
 
-Fixes: 62694735ca95 ([SCSI] ufs: Add runtime PM support for UFS host controller driver)
-Cc: stable@vger.kernel.org
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: <stable@vger.kernel.org> #v3.14+
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: Jun Li <jun.li@nxp.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/ufs/ufshcd-pltfrm.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/usb/chipidea/udc.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/drivers/scsi/ufs/ufshcd-pltfrm.c
-+++ b/drivers/scsi/ufs/ufshcd-pltfrm.c
-@@ -340,24 +340,21 @@ int ufshcd_pltfrm_init(struct platform_d
- 		goto dealloc_host;
- 	}
- 
--	pm_runtime_set_active(&pdev->dev);
--	pm_runtime_enable(&pdev->dev);
--
- 	ufshcd_init_lanes_per_dir(hba);
- 
- 	err = ufshcd_init(hba, mmio_base, irq);
- 	if (err) {
- 		dev_err(dev, "Initialization failed\n");
--		goto out_disable_rpm;
-+		goto dealloc_host;
- 	}
- 
- 	platform_set_drvdata(pdev, hba);
- 
-+	pm_runtime_set_active(&pdev->dev);
-+	pm_runtime_enable(&pdev->dev);
+--- a/drivers/usb/chipidea/udc.c
++++ b/drivers/usb/chipidea/udc.c
+@@ -1620,6 +1620,25 @@ static int ci_udc_pullup(struct usb_gadg
+ static int ci_udc_start(struct usb_gadget *gadget,
+ 			 struct usb_gadget_driver *driver);
+ static int ci_udc_stop(struct usb_gadget *gadget);
 +
- 	return 0;
++/* Match ISOC IN from the highest endpoint */
++static struct usb_ep *ci_udc_match_ep(struct usb_gadget *gadget,
++			      struct usb_endpoint_descriptor *desc,
++			      struct usb_ss_ep_comp_descriptor *comp_desc)
++{
++	struct ci_hdrc *ci = container_of(gadget, struct ci_hdrc, gadget);
++	struct usb_ep *ep;
++
++	if (usb_endpoint_xfer_isoc(desc) && usb_endpoint_dir_in(desc)) {
++		list_for_each_entry_reverse(ep, &ci->gadget.ep_list, ep_list) {
++			if (ep->caps.dir_in && !ep->claimed)
++				return ep;
++		}
++	}
++
++	return NULL;
++}
++
+ /**
+  * Device operations part of the API to the USB controller hardware,
+  * which don't involve endpoints (or i/o)
+@@ -1633,6 +1652,7 @@ static const struct usb_gadget_ops usb_g
+ 	.vbus_draw	= ci_udc_vbus_draw,
+ 	.udc_start	= ci_udc_start,
+ 	.udc_stop	= ci_udc_stop,
++	.match_ep 	= ci_udc_match_ep,
+ };
  
--out_disable_rpm:
--	pm_runtime_disable(&pdev->dev);
--	pm_runtime_set_suspended(&pdev->dev);
- dealloc_host:
- 	ufshcd_dealloc_host(hba);
- out:
+ static int init_eps(struct ci_hdrc *ci)
 
 
