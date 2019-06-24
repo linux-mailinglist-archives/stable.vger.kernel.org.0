@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41A335074F
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80CA7508B9
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730154AbfFXKGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38944 "EHLO mail.kernel.org"
+        id S1731115AbfFXKWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:22:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730147AbfFXKGj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:06:39 -0400
+        id S1731112AbfFXKWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:22:23 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C586D2146F;
-        Mon, 24 Jun 2019 10:06:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7C2620645;
+        Mon, 24 Jun 2019 10:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370798;
-        bh=0UShVwJkVQmYqGoIXL46mVMoloO+EmCe9/+uzLfXZDQ=;
+        s=default; t=1561371742;
+        bh=RX7MLUApaT4+8PU8oDqfpy7H8E4VhA3vs1vfH6SmPaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+pFKUVUhjalcZf9uOgEnfvuel87nqipVCmoLCabxcRss6wjG3OfiDs1IGR7Z0T3Y
-         61iF1r+OWwjq8GirpVw9x6pPvCWE2yMqLOtdNWnD1tgnAHCQRCtzcAabv5I/ovFEzk
-         hja69o+o+PWloIZtgAK4dFOlWUvzK43Rhkr7aj0w=
+        b=V70GXWzaKfKfhoyxL9IhJeiJY0TaG/JXNPrexqThHyaudZ64dNiI/s0F2TMUjX80W
+         u9bvidH6Tz2Ii7Ep3fKihrhMK4EbGahPp1rYEKtxn6kJV99/OwfKIDMAkYBjnSfHGK
+         StvKRR8FCNh+2/v6SOI9cLMp2hsjyLHaWOUGJ9rQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Strohman <andy@uplevelsystems.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 88/90] nl80211: fix station_info pertid memory leak
-Date:   Mon, 24 Jun 2019 17:57:18 +0800
-Message-Id: <20190624092319.649008473@linuxfoundation.org>
+        stable@vger.kernel.org, Blubberbub@protonmail.com,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Imre Deak <imre.deak@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.1 107/121] drm/i915: Dont clobber M/N values during fastset check
+Date:   Mon, 24 Jun 2019 17:57:19 +0800
+Message-Id: <20190624092326.157730257@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
-References: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +47,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Strohman <andrew@andrewstrohman.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit f77bf4863dc2218362f4227d56af4a5f3f08830c upstream.
+commit 475df5d0f3eb2d031e4505f84d8fba75baaf2e80 upstream.
 
-When dumping stations, memory allocated for station_info's
-pertid member will leak if the nl80211 header cannot be added to
-the sk_buff due to insufficient tail room.
+We're now calling intel_pipe_config_compare(..., true) uncoditionally
+which means we're always going clobber the calculated M/N values with
+the old values if the fuzzy M/N check passes. That causes problems
+because the fuzzy check allows for a huge difference in the values.
 
-I noticed this leak in the kmalloc-2048 cache.
+I'm actually tempted to just make the M/N checks exact, but that might
+prevent fastboot from kicking in when people want it. So for now let's
+overwrite the computed values with the old values only if decide to skip
+the modeset.
+
+v2: Copy has_drrs along with M/N M2/N2 values
 
 Cc: stable@vger.kernel.org
-Fixes: 8689c051a201 ("cfg80211: dynamically allocate per-tid stats for station info")
-Signed-off-by: Andy Strohman <andy@uplevelsystems.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: Blubberbub@protonmail.com
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Blubberbub@protonmail.com
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110782
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110675
+Fixes: d19f958db23c ("drm/i915: Enable fastset for non-boot modesets.")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190612172423.25231-1-ville.syrjala@linux.intel.com
+Reviewed-by: Imre Deak <imre.deak@intel.com>
+(cherry picked from commit f0521558a2a89d58a08745e225025d338572e60a)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190619120929.4057-1-ville.syrjala@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/nl80211.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/intel_display.c |   38 ++++++++++++++++++++++++++---------
+ 1 file changed, 29 insertions(+), 9 deletions(-)
 
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -4611,8 +4611,10 @@ static int nl80211_send_station(struct s
- 	struct nlattr *sinfoattr, *bss_param;
+--- a/drivers/gpu/drm/i915/intel_display.c
++++ b/drivers/gpu/drm/i915/intel_display.c
+@@ -11820,9 +11820,6 @@ intel_compare_link_m_n(const struct inte
+ 			      m2_n2->gmch_m, m2_n2->gmch_n, !adjust) &&
+ 	    intel_compare_m_n(m_n->link_m, m_n->link_n,
+ 			      m2_n2->link_m, m2_n2->link_n, !adjust)) {
+-		if (adjust)
+-			*m2_n2 = *m_n;
+-
+ 		return true;
+ 	}
  
- 	hdr = nl80211hdr_put(msg, portid, seq, flags, cmd);
--	if (!hdr)
-+	if (!hdr) {
-+		cfg80211_sinfo_release_content(sinfo);
- 		return -1;
-+	}
+@@ -12855,6 +12852,33 @@ static int calc_watermark_data(struct in
+ 	return 0;
+ }
  
- 	if (nla_put_u32(msg, NL80211_ATTR_IFINDEX, dev->ifindex) ||
- 	    nla_put(msg, NL80211_ATTR_MAC, ETH_ALEN, mac_addr) ||
++static void intel_crtc_check_fastset(struct intel_crtc_state *old_crtc_state,
++				     struct intel_crtc_state *new_crtc_state)
++{
++	struct drm_i915_private *dev_priv =
++		to_i915(new_crtc_state->base.crtc->dev);
++
++	if (!intel_pipe_config_compare(dev_priv, old_crtc_state,
++				       new_crtc_state, true))
++		return;
++
++	new_crtc_state->base.mode_changed = false;
++	new_crtc_state->update_pipe = true;
++
++	/*
++	 * If we're not doing the full modeset we want to
++	 * keep the current M/N values as they may be
++	 * sufficiently different to the computed values
++	 * to cause problems.
++	 *
++	 * FIXME: should really copy more fuzzy state here
++	 */
++	new_crtc_state->fdi_m_n = old_crtc_state->fdi_m_n;
++	new_crtc_state->dp_m_n = old_crtc_state->dp_m_n;
++	new_crtc_state->dp_m2_n2 = old_crtc_state->dp_m2_n2;
++	new_crtc_state->has_drrs = old_crtc_state->has_drrs;
++}
++
+ /**
+  * intel_atomic_check - validate state object
+  * @dev: drm device
+@@ -12903,12 +12927,8 @@ static int intel_atomic_check(struct drm
+ 			return ret;
+ 		}
+ 
+-		if (intel_pipe_config_compare(dev_priv,
+-					to_intel_crtc_state(old_crtc_state),
+-					pipe_config, true)) {
+-			crtc_state->mode_changed = false;
+-			pipe_config->update_pipe = true;
+-		}
++		intel_crtc_check_fastset(to_intel_crtc_state(old_crtc_state),
++					 pipe_config);
+ 
+ 		if (needs_modeset(crtc_state))
+ 			any_ms = true;
 
 
