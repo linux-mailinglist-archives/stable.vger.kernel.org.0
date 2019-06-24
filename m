@@ -2,91 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C9DE5179A
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 17:49:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90046517BF
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 17:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730698AbfFXPt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 11:49:27 -0400
-Received: from mail-io1-f65.google.com ([209.85.166.65]:47048 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730679AbfFXPt1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 11:49:27 -0400
-Received: by mail-io1-f65.google.com with SMTP id i10so1142808iol.13
-        for <stable@vger.kernel.org>; Mon, 24 Jun 2019 08:49:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/CTIq1HdIxzxdpehMHCyy5IUFBPpAMudQ6zK1OgHCE8=;
-        b=mKbcgRcwaHfrmZlxeA0cp7rLPXj7KAz0taPq2RCAEY9dTbYu+m7Bqlcnjx0x2wxzO1
-         hQFRn2R0epb3WFRFm9pBlFnV7SDgroUwVwrH7t2MiJY5+rPplaQ1I+cyIt+jiMpnEl0b
-         hpn+m+KDi++MTk8bCIhDdWp7IpwKwoJtC4kw4=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/CTIq1HdIxzxdpehMHCyy5IUFBPpAMudQ6zK1OgHCE8=;
-        b=t1qTzxGG+XfWlSK4ICbWTyhat4mQg777E8VYqPzfiG4g+ptBeIl2Md2oAu3IuETTAK
-         CfcAbDtcFfcqjUlM1Hn6uDdImtXScuQlTmXg0YVPSYXAddVnSsa8ly1VdDCvz77dQYKq
-         S2Q/lPLdUoTpQc2zGlD74rVcDAX9AETX5n28VOnKJb4cqOoj0wPh6+hoXnzyIyoHGN0H
-         EoDQCMBHwWKyUCfemWOXBI/bDPl6Vbs3DQrU9ZvcvrvCJ7YxIlne+8F5sqI11nPT9vx6
-         +GqUxPdwhAMfDNE9anB6b6xjSN32Ek5Ijd4pxE46fXhsHipsIENLgif0z+J/b58IUBjd
-         +6NQ==
-X-Gm-Message-State: APjAAAUdmmvvMdRsKYs3DYOyeXE02HGtTOZtot7KuiACWvVzmfXp8jCu
-        JaeIvr/oJSDEPQZWwlC9p/COcw==
-X-Google-Smtp-Source: APXvYqyj2BYPx36CSXPCjdMUcwuByrZDPIhDJZ4u3mAYSUH4vCpEfQWiZiLMm6TnQhUkJpCR8ANa1Q==
-X-Received: by 2002:a6b:6f0e:: with SMTP id k14mr3667985ioc.257.1561391367034;
-        Mon, 24 Jun 2019 08:49:27 -0700 (PDT)
-Received: from ddavenport4.bld.corp.google.com ([2620:15c:183:0:92f:a80a:519d:f777])
-        by smtp.gmail.com with ESMTPSA id y20sm9740693ion.77.2019.06.24.08.49.26
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 24 Jun 2019 08:49:26 -0700 (PDT)
-From:   Drew Davenport <ddavenport@chromium.org>
-To:     akpm@linux-foundation.org
-Cc:     keescook@chromium.org, linux-kernel@vger.kernel.org,
-        Drew Davenport <ddavenport@chromium.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] bug: Fix "cut here" for WARN_ON for __WARN_TAINT architectures
-Date:   Mon, 24 Jun 2019 09:48:31 -0600
-Message-Id: <20190624154831.163888-1-ddavenport@chromium.org>
-X-Mailer: git-send-email 2.20.1
+        id S1731213AbfFXP4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 11:56:05 -0400
+Received: from mga12.intel.com ([192.55.52.136]:22822 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728725AbfFXP4F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 11:56:05 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 24 Jun 2019 08:56:04 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,412,1557212400"; 
+   d="scan'208";a="166368600"
+Received: from sedona.ch.intel.com ([10.2.136.157])
+  by orsmga006.jf.intel.com with ESMTP; 24 Jun 2019 08:56:04 -0700
+Received: from awfm-01.aw.intel.com (awfm-01.aw.intel.com [10.228.212.213])
+        by sedona.ch.intel.com (8.14.3/8.14.3/Standard MailSET/Hub) with ESMTP id x5OFu3Ma046180;
+        Mon, 24 Jun 2019 08:56:03 -0700
+Received: from awfm-01.aw.intel.com (localhost [127.0.0.1])
+        by awfm-01.aw.intel.com (8.14.7/8.14.7) with ESMTP id x5OFu20w134604;
+        Mon, 24 Jun 2019 11:56:02 -0400
+Subject: [PATCH] IB/hfi1: Avoid hardlockup with flushlist_lock
+To:     stable@vger.kernel.org
+From:   Mike Marciniszyn <mike.marciniszyn@intel.com>
+Cc:     linux-rdma@vger.kernel.org, stable-commits@vger.kernel.org
+Date:   Mon, 24 Jun 2019 11:56:02 -0400
+Message-ID: <20190624155601.134582.32938.stgit@awfm-01.aw.intel.com>
+User-Agent: StGit/0.16
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For architectures using __WARN_TAINT, the WARN_ON macro did not
-print out the "cut here" string. The other WARN_XXX macros would
-print "cut here" inside __warn_printk, which is not called for
-WARN_ON since it doesn't have a message to print.
+commit cf131a81967583ae737df6383a0893b9fee75b4e upstream.
 
-Fixes: a7bed27af194 ("bug: fix "cut here" location for __WARN_TAINT architectures")
-Cc: stable@vger.kernel.org
+Heavy contention of the sde flushlist_lock can cause hard lockups at
+extreme scale when the flushing logic is under stress.
 
-Signed-off-by: Drew Davenport <ddavenport@chromium.org>
+Mitigate by replacing the item at a time copy to the local list with
+an O(1) list_splice_init() and using the high priority work queue to
+do the flushes.
+
+Ported to linux-4.9.y.
+
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 ---
- include/asm-generic/bug.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/hfi1/sdma.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/include/asm-generic/bug.h b/include/asm-generic/bug.h
-index c21ff2712803..79feb1a3081b 100644
---- a/include/asm-generic/bug.h
-+++ b/include/asm-generic/bug.h
-@@ -94,8 +94,10 @@ extern void warn_slowpath_null(const char *file, const int line);
- 	warn_slowpath_fmt_taint(__FILE__, __LINE__, taint, arg)
- #else
- extern __printf(1, 2) void __warn_printk(const char *fmt, ...);
--#define __WARN()		__WARN_TAINT(TAINT_WARN)
--#define __WARN_printf(arg...)	do { __warn_printk(arg); __WARN(); } while (0)
-+#define __WARN() do { \
-+	printk(KERN_WARNING CUT_HERE); __WARN_TAINT(TAINT_WARN); \
-+} while (0)
-+#define __WARN_printf(arg...)	__WARN_printf_taint(TAINT_WARN, arg)
- #define __WARN_printf_taint(taint, arg...)				\
- 	do { __warn_printk(arg); __WARN_TAINT(taint); } while (0)
- #endif
--- 
-2.20.1
+diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
+index 9cbe52d..76e63c8 100644
+--- a/drivers/infiniband/hw/hfi1/sdma.c
++++ b/drivers/infiniband/hw/hfi1/sdma.c
+@@ -410,10 +410,7 @@ static void sdma_flush(struct sdma_engine *sde)
+ 	sdma_flush_descq(sde);
+ 	spin_lock_irqsave(&sde->flushlist_lock, flags);
+ 	/* copy flush list */
+-	list_for_each_entry_safe(txp, txp_next, &sde->flushlist, list) {
+-		list_del_init(&txp->list);
+-		list_add_tail(&txp->list, &flushlist);
+-	}
++	list_splice_init(&sde->flushlist, &flushlist);
+ 	spin_unlock_irqrestore(&sde->flushlist_lock, flags);
+ 	/* flush from flush list */
+ 	list_for_each_entry_safe(txp, txp_next, &flushlist, list)
+@@ -2406,7 +2403,7 @@ int sdma_send_txreq(struct sdma_engine *sde,
+ 		wait->tx_count++;
+ 		wait->count += tx->num_desc;
+ 	}
+-	schedule_work(&sde->flush_worker);
++	queue_work_on(sde->cpu, system_highpri_wq, &sde->flush_worker);
+ 	ret = -ECOMM;
+ 	goto unlock;
+ nodesc:
+@@ -2504,7 +2501,7 @@ int sdma_send_txlist(struct sdma_engine *sde, struct iowait *wait,
+ 		}
+ 	}
+ 	spin_unlock(&sde->flushlist_lock);
+-	schedule_work(&sde->flush_worker);
++	queue_work_on(sde->cpu, system_highpri_wq, &sde->flush_worker);
+ 	ret = -ECOMM;
+ 	goto update_tail;
+ nodesc:
 
