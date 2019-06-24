@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5FD550704
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E59BC506F4
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728838AbfFXKDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:03:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34132 "EHLO mail.kernel.org"
+        id S1729448AbfFXKCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:02:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729202AbfFXKCw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:02:52 -0400
+        id S1729479AbfFXKCz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:02:55 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78FD0205ED;
-        Mon, 24 Jun 2019 10:02:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E652212F5;
+        Mon, 24 Jun 2019 10:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370571;
-        bh=hJ4L5RuYPxc94/K1BgdZzHGyztCi/po+0Lvxp83P6pw=;
+        s=default; t=1561370574;
+        bh=Y30VzVqRXuj3EzenoEznsQ/OHxiai93FNLZhsQqxhoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1GN3lm+XBjDiZUgUvZ2NZ8nE2tZroRvu1FWYtXqBz18vPjt2lEVSOTMsQbcpk/6k
-         yBkH2T034X6Lqxop/7S0NzA1d4nsJr8mBcGppg1a3+qQk5axt+2GEXzuTp97dIk6On
-         UO9QDRfafUexvd+66FPFtqlSK1rhcFds3rihqSaA=
+        b=Qbyzh72U6j3sbBivptl/ZQAnzAqHaeJJPzP0CyAvCeoThBtafCS5Tlrrzn+NoVSuX
+         E+XPlb3iOi5+orvfX919/W9mgXOI+ZOWRnUy72C7QfDbMz6xLPOukDrO7WfaT3GO7v
+         65lkossP4fRI2txbtJkdl/CBn4QgRkr3U7B5Xc6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
-        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        stable@vger.kernel.org, Daniel Smith <danct12@disroot.org>,
+        Hans de Goede <hdegoede@redhat.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 24/90] Input: uinput - add compat ioctl number translation for UI_*_FF_UPLOAD
-Date:   Mon, 24 Jun 2019 17:56:14 +0800
-Message-Id: <20190624092315.708000564@linuxfoundation.org>
+Subject: [PATCH 4.19 25/90] Input: silead - add MSSL0017 to acpi_device_id
+Date:   Mon, 24 Jun 2019 17:56:15 +0800
+Message-Id: <20190624092315.792567321@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
 References: <20190624092313.788773607@linuxfoundation.org>
@@ -45,61 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
+From: Daniel Smith <danct12@disroot.org>
 
-commit 7c7da40da1640ce6814dab1e8031b44e19e5a3f6 upstream.
+commit 0e658060e5fc50dc282885dc424a94b5d95547e5 upstream.
 
-In the case of compat syscall ioctl numbers for UI_BEGIN_FF_UPLOAD and
-UI_END_FF_UPLOAD need to be adjusted before being passed on
-uinput_ioctl_handler() since code built with -m32 will be passing
-slightly different values. Extend the code already covering
-UI_SET_PHYS to cover UI_BEGIN_FF_UPLOAD and UI_END_FF_UPLOAD as well.
+On Chuwi Hi10 Plus, the Silead device id is MSSL0017.
 
-Reported-by: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Signed-off-by: Daniel Smith <danct12@disroot.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/misc/uinput.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/silead.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -1051,13 +1051,31 @@ static long uinput_ioctl(struct file *fi
- 
- #ifdef CONFIG_COMPAT
- 
--#define UI_SET_PHYS_COMPAT	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
-+/*
-+ * These IOCTLs change their size and thus their numbers between
-+ * 32 and 64 bits.
-+ */
-+#define UI_SET_PHYS_COMPAT		\
-+	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
-+#define UI_BEGIN_FF_UPLOAD_COMPAT	\
-+	_IOWR(UINPUT_IOCTL_BASE, 200, struct uinput_ff_upload_compat)
-+#define UI_END_FF_UPLOAD_COMPAT		\
-+	_IOW(UINPUT_IOCTL_BASE, 201, struct uinput_ff_upload_compat)
- 
- static long uinput_compat_ioctl(struct file *file,
- 				unsigned int cmd, unsigned long arg)
- {
--	if (cmd == UI_SET_PHYS_COMPAT)
-+	switch (cmd) {
-+	case UI_SET_PHYS_COMPAT:
- 		cmd = UI_SET_PHYS;
-+		break;
-+	case UI_BEGIN_FF_UPLOAD_COMPAT:
-+		cmd = UI_BEGIN_FF_UPLOAD;
-+		break;
-+	case UI_END_FF_UPLOAD_COMPAT:
-+		cmd = UI_END_FF_UPLOAD;
-+		break;
-+	}
- 
- 	return uinput_ioctl_handler(file, cmd, arg, compat_ptr(arg));
- }
+--- a/drivers/input/touchscreen/silead.c
++++ b/drivers/input/touchscreen/silead.c
+@@ -604,6 +604,7 @@ static const struct acpi_device_id silea
+ 	{ "MSSL1680", 0 },
+ 	{ "MSSL0001", 0 },
+ 	{ "MSSL0002", 0 },
++	{ "MSSL0017", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(acpi, silead_ts_acpi_match);
 
 
