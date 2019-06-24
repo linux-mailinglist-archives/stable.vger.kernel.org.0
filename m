@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5C95507DB
-	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:13:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9A050769
+	for <lists+stable@lfdr.de>; Mon, 24 Jun 2019 12:12:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729965AbfFXKLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 06:11:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39288 "EHLO mail.kernel.org"
+        id S1729404AbfFXKG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 06:06:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730183AbfFXKGw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 06:06:52 -0400
+        id S1729777AbfFXKGz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 06:06:55 -0400
 Received: from localhost (f4.8f.5177.ip4.static.sl-reverse.com [119.81.143.244])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EF20214DA;
-        Mon, 24 Jun 2019 10:06:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEB23208E3;
+        Mon, 24 Jun 2019 10:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561370811;
-        bh=36Uks9N0n+g+dl+fWGwq7q+BLR2zuL27kYpLylCMGSc=;
+        s=default; t=1561370814;
+        bh=98xwHsstZrM34rlzeo3ta4SSHIeaWrCcpHnO3+wo7GM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QCI46K0wPPGpq9K12T9WkPSsF5CMcFE8vPpmw3zW5r6xsv1gS21A5DRafEeUmDw0z
-         VvX5yYzAnpcqDgBqbQi12KGEbNtA65mml6c9Aaeqe9YkwQjS1nOy2boQzbq8MhEtx+
-         XDSPrgVvkhxW4d5/AroXaqLS7IaNaZMZnuvBDOjs=
+        b=QrJB6Zs9vtjxOKvbJKGkCAOv160Em1gV4Fwkrc625CktnvTaiBQnLS4Q1XKJMdX9k
+         JnHKfca1USHXA7krissCYdaFLBoBgS1h/CCU4ENVppo+BJQai3UKUxctGX0aO0ZRvX
+         Vgr/70N19N1BdpNiEFSRgL0No3wTuFzV3vZLUK8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Jun Li <jun.li@nxp.com>, Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 5.1 010/121] usb: chipidea: udc: workaround for endpoint conflict issue
-Date:   Mon, 24 Jun 2019 17:55:42 +0800
-Message-Id: <20190624092321.172344958@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.1 011/121] xhci: detect USB 3.2 capable host controllers correctly
+Date:   Mon, 24 Jun 2019 17:55:43 +0800
+Message-Id: <20190624092321.220227761@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
 References: <20190624092320.652599624@linuxfoundation.org>
@@ -44,76 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit c19dffc0a9511a7d7493ec21019aefd97e9a111b upstream.
+commit ddd57980a0fde30f7b5d14b888a2cc84d01610e8 upstream.
 
-An endpoint conflict occurs when the USB is working in device mode
-during an isochronous communication. When the endpointA IN direction
-is an isochronous IN endpoint, and the host sends an IN token to
-endpointA on another device, then the OUT transaction may be missed
-regardless the OUT endpoint number. Generally, this occurs when the
-device is connected to the host through a hub and other devices are
-connected to the same hub.
+USB 3.2 capability in a host can be detected from the
+xHCI Supported Protocol Capability major and minor revision fields.
 
-The affected OUT endpoint can be either control, bulk, isochronous, or
-an interrupt endpoint. After the OUT endpoint is primed, if an IN token
-to the same endpoint number on another device is received, then the OUT
-endpoint may be unprimed (cannot be detected by software), which causes
-this endpoint to no longer respond to the host OUT token, and thus, no
-corresponding interrupt occurs.
+If major is 0x3 and minor 0x20 then the host is USB 3.2 capable.
 
-There is no good workaround for this issue, the only thing the software
-could do is numbering isochronous IN from the highest endpoint since we
-have observed most of device number endpoint from the lowest.
+For USB 3.2 capable hosts set the root hub lane count to 2.
 
-Cc: <stable@vger.kernel.org> #v3.14+
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Jun Li <jun.li@nxp.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
+The Major Revision and Minor Revision fields contain a BCD version number.
+The value of the Major Revision field is JJh and the value of the Minor
+Revision field is MNh for version JJ.M.N, where JJ = major revision number,
+M - minor version number, N = sub-minor version number,
+e.g. version 3.1 is represented with a value of 0310h.
+
+Also fix the extra whitespace printed out when announcing regular
+SuperSpeed hosts.
+
+Cc: <stable@vger.kernel.org> # v4.18+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/chipidea/udc.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/usb/host/xhci.c |   20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/chipidea/udc.c
-+++ b/drivers/usb/chipidea/udc.c
-@@ -1622,6 +1622,25 @@ static int ci_udc_pullup(struct usb_gadg
- static int ci_udc_start(struct usb_gadget *gadget,
- 			 struct usb_gadget_driver *driver);
- static int ci_udc_stop(struct usb_gadget *gadget);
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -5029,16 +5029,26 @@ int xhci_gen_setup(struct usb_hcd *hcd,
+ 	} else {
+ 		/*
+ 		 * Some 3.1 hosts return sbrn 0x30, use xhci supported protocol
+-		 * minor revision instead of sbrn
++		 * minor revision instead of sbrn. Minor revision is a two digit
++		 * BCD containing minor and sub-minor numbers, only show minor.
+ 		 */
+-		minor_rev = xhci->usb3_rhub.min_rev;
+-		if (minor_rev) {
++		minor_rev = xhci->usb3_rhub.min_rev / 0x10;
 +
-+/* Match ISOC IN from the highest endpoint */
-+static struct usb_ep *ci_udc_match_ep(struct usb_gadget *gadget,
-+			      struct usb_endpoint_descriptor *desc,
-+			      struct usb_ss_ep_comp_descriptor *comp_desc)
-+{
-+	struct ci_hdrc *ci = container_of(gadget, struct ci_hdrc, gadget);
-+	struct usb_ep *ep;
-+
-+	if (usb_endpoint_xfer_isoc(desc) && usb_endpoint_dir_in(desc)) {
-+		list_for_each_entry_reverse(ep, &ci->gadget.ep_list, ep_list) {
-+			if (ep->caps.dir_in && !ep->claimed)
-+				return ep;
-+		}
-+	}
-+
-+	return NULL;
-+}
-+
- /**
-  * Device operations part of the API to the USB controller hardware,
-  * which don't involve endpoints (or i/o)
-@@ -1635,6 +1654,7 @@ static const struct usb_gadget_ops usb_g
- 	.vbus_draw	= ci_udc_vbus_draw,
- 	.udc_start	= ci_udc_start,
- 	.udc_stop	= ci_udc_stop,
-+	.match_ep 	= ci_udc_match_ep,
- };
++		switch (minor_rev) {
++		case 2:
++			hcd->speed = HCD_USB32;
++			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
++			hcd->self.root_hub->rx_lanes = 2;
++			hcd->self.root_hub->tx_lanes = 2;
++			break;
++		case 1:
+ 			hcd->speed = HCD_USB31;
+ 			hcd->self.root_hub->speed = USB_SPEED_SUPER_PLUS;
++			break;
+ 		}
+-		xhci_info(xhci, "Host supports USB 3.%x %s SuperSpeed\n",
++		xhci_info(xhci, "Host supports USB 3.%x %sSuperSpeed\n",
+ 			  minor_rev,
+-			  minor_rev ? "Enhanced" : "");
++			  minor_rev ? "Enhanced " : "");
  
- static int init_eps(struct ci_hdrc *ci)
+ 		xhci->usb3_rhub.hcd = hcd;
+ 		/* xHCI private pointer was set in xhci_pci_probe for the second
 
 
