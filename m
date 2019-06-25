@@ -2,89 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEE935530D
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 17:16:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F394F553AB
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 17:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731938AbfFYPQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 11:16:16 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:39619 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730505AbfFYPQQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 11:16:16 -0400
-Received: by mail-wr1-f68.google.com with SMTP id x4so18318789wrt.6
-        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 08:16:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=JJ65PYSwq9lHbap5+/eYVEe6uBbmNNIS8cKuG+4aQHM=;
-        b=ksJu/lYM5QnmLSPoluMTTQ/cRukJmIwktRNyGqrTaY8uKdSyPKM/jut3sVcnj0Tmg0
-         DnfK/chEnLFtZdjJS956/3EWm5SzHKDhS1UbhcA3sD3BlxJihPZC1bMYQXDWbRhRanUp
-         ujrecaXEJCukCWUei7CBPwk8ltCtCE8rNbKaLsdwPXBk6TZXe5NyY+zbz3HsnvyyseFj
-         xD5c9zeMa0bv2T0ySY0AEOEB7dYek8fV8xNMGLcKouZOu3mtYDmKaZrdbyBd2WxrNJfN
-         bWAk/hZNI9gjFaav3pHFluT/VzVMHUUQ2t5qnXO4khDGV0I1gZebTv0CUjrPkFXHbOJP
-         1Jyw==
+        id S1727082AbfFYPpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 11:45:05 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:36566 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727572AbfFYPpE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 11:45:04 -0400
+Received: by mail-wm1-f67.google.com with SMTP id u8so3477342wmm.1
+        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 08:45:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=JJ65PYSwq9lHbap5+/eYVEe6uBbmNNIS8cKuG+4aQHM=;
-        b=iEk3d2sNCdxEySEqbplVY4Ky6LwpRkVR6eqYL9bN/4WcuHVKgKD9wTdcNNz9zuF0Vv
-         mR5cVYhdPnA08HYiBzC8r3LeAP8yzdJzsBPv0sICoq+UwgPCpsfwWZGb5ZVx9vI2AxKr
-         /iOXsqcyZaLKcd9JCSPR6FptJnzw4p9nqhASpopSMK3UBMy14rJr5f60AWuKDW8mHXMs
-         5ZUWUvIea8ipC72UPWND+DXwYDpflQkHjcftNHNB7wCx/oxblB6odcsJZbOlh6iUQHWM
-         VjP0OgCVpYJy9VtUe8RwwpBlMIOPDa+LCar8cK8Bd3X1lUOqSf+5orO34yh7u2fgdWRj
-         4FQw==
-X-Gm-Message-State: APjAAAXpXqprYnUrWkCOPUzBoUmWX88Wg2EbGu7mR5Gp59yLCGomGf2t
-        ZrrDJLILN0KHkeDSXP20byfYMQ==
-X-Google-Smtp-Source: APXvYqxcAJrcmpvr7/K/LFeB9QoRDG9hoW/+Wh0dvHT93oYnsjvEnWP3OfC0MlMmKOgGg6wJ4n/yag==
-X-Received: by 2002:a05:6000:112:: with SMTP id o18mr29440105wrx.153.1561475774684;
-        Tue, 25 Jun 2019 08:16:14 -0700 (PDT)
-Received: from debian-brgl.home ([2a01:cb1d:af:5b00:6d6c:8493:1ab5:dad7])
-        by smtp.gmail.com with ESMTPSA id t1sm18456995wra.74.2019.06.25.08.16.13
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 25 Jun 2019 08:16:14 -0700 (PDT)
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-To:     Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] ARM: davinci: da830-evm: fix GPIO lookup for OHCI
-Date:   Tue, 25 Jun 2019 17:16:12 +0200
-Message-Id: <20190625151612.6204-1-brgl@bgdev.pl>
-X-Mailer: git-send-email 2.21.0
+        bh=aRO1W46ROJMS0ZRgbEt/JW4/hpRyhoBHX+I5SlHhkhE=;
+        b=L4NP5HZuY7gpem+oC1aA61zsXYbGEKjKOKjMHgqWCn1IP4F2kKbdQX7TaiwUaaQlt6
+         EHa2IMsi8WiA/f+sf6feyV1Y3HGban8r+BVnhEbQk1RBfo4N/5vEhFmggZQqXJLVmETj
+         rTfA8fot2z80DZ/ZMyBFMBtCNyvaEc0nYFZQImFnUy5VqG8k47A1yRymiMO/oAms/X21
+         xJ5JsgbgykEyPbGMA2+57kDyx7kFXX7o4F2iPJjgJQcyeD3/EAczkUYRaWMIIXqqIvNT
+         dbkjJbflKu2oojfh4LvaL20EcY1/kkHB4OuPESTJthp3ivDoLgj1Nu1K8tsiJ2tUylK1
+         Gocw==
+X-Gm-Message-State: APjAAAWegbFemmD2Gh5kAt8S2gRpUlQpNImIxOgUk3xTs2FbF21RDCC/
+        Pn7Pcq8aXDYqnp/aOlDEbmJeGxe4M+U=
+X-Google-Smtp-Source: APXvYqwjFb3HsTti/fYEh6c7y9Iz08eehzg5jSc6TfpUL1Ogvgk4N8X4MsCMgdQ5WK/vamie/w36WQ==
+X-Received: by 2002:a7b:cd9a:: with SMTP id y26mr21292947wmj.44.1561477502524;
+        Tue, 25 Jun 2019 08:45:02 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:61c1:6d8f:e2c4:2d5c? ([2001:b07:6468:f312:61c1:6d8f:e2c4:2d5c])
+        by smtp.gmail.com with ESMTPSA id h84sm3332070wmf.43.2019.06.25.08.45.01
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Tue, 25 Jun 2019 08:45:02 -0700 (PDT)
+Subject: Re: [PATCH 1/1] kvm/speculation: Allow KVM guests to use SSBD even if
+ host does not
+To:     Alejandro Jimenez <alejandro.j.jimenez@oracle.com>,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        rkrcmar@redhat.com
+Cc:     x86@kernel.org, kvm@vger.kernel.org,
+        stable <stable@vger.kernel.org>
+References: <1560187210-11054-1-git-send-email-alejandro.j.jimenez@oracle.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <1c9d4047-e54c-8d4b-13b1-020864f2f5bf@redhat.com>
+Date:   Tue, 25 Jun 2019 17:45:01 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1560187210-11054-1-git-send-email-alejandro.j.jimenez@oracle.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On 10/06/19 19:20, Alejandro Jimenez wrote:
+> The bits set in x86_spec_ctrl_mask are used to calculate the
+> guest's value of SPEC_CTRL that is written to the MSR before
+> VMENTRY, and control which mitigations the guest can enable.
+> In the case of SSBD, unless the host has enabled SSBD always
+> on mode (by passing "spec_store_bypass_disable=on" in the
+> kernel parameters), the SSBD bit is not set in the mask and
+> the guest can not properly enable the SSBD always on
+> mitigation mode.
+> 
+> This is confirmed by running the SSBD PoC on a guest using
+> the SSBD always on mitigation mode (booted with kernel
+> parameter "spec_store_bypass_disable=on"), and verifying
+> that the guest is vulnerable unless the host is also using
+> SSBD always on mode. In addition, the guest OS incorrectly
+> reports the SSB vulnerability as mitigated.
+> 
+> Always set the SSBD bit in x86_spec_ctrl_mask when the host
+> CPU supports it, allowing the guest to use SSBD whether or
+> not the host has chosen to enable the mitigation in any of
+> its modes.
+> 
+> Signed-off-by: Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
+> Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
+> Cc: stable@vger.kernel.org
 
-The fixed regulator driver doesn't specify any con_id for gpio lookup
-so it must be NULL in the table entry.
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Fixes: 274e4c336192 ("ARM: davinci: da830-evm: add a fixed regulator for ohci-da8xx")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- arch/arm/mach-davinci/board-da830-evm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/arm/mach-davinci/board-da830-evm.c b/arch/arm/mach-davinci/board-da830-evm.c
-index 51a892702e27..aba10a2bc6b9 100644
---- a/arch/arm/mach-davinci/board-da830-evm.c
-+++ b/arch/arm/mach-davinci/board-da830-evm.c
-@@ -88,7 +88,7 @@ static struct gpiod_lookup_table da830_evm_usb_oc_gpio_lookup = {
- static struct gpiod_lookup_table da830_evm_usb_vbus_gpio_lookup = {
- 	.dev_id		= "reg-fixed-voltage.0",
- 	.table = {
--		GPIO_LOOKUP("davinci_gpio", ON_BD_USB_DRV, "vbus", 0),
-+		GPIO_LOOKUP("davinci_gpio", ON_BD_USB_DRV, NULL, 0),
- 		{ }
- 	},
- };
--- 
-2.21.0
+> ---
+>  arch/x86/kernel/cpu/bugs.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+> index 03b4cc0..66ca906 100644
+> --- a/arch/x86/kernel/cpu/bugs.c
+> +++ b/arch/x86/kernel/cpu/bugs.c
+> @@ -836,6 +836,16 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
+>  	}
+>  
+>  	/*
+> +	 * If SSBD is controlled by the SPEC_CTRL MSR, then set the proper
+> +	 * bit in the mask to allow guests to use the mitigation even in the
+> +	 * case where the host does not enable it.
+> +	 */
+> +	if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
+> +	    static_cpu_has(X86_FEATURE_AMD_SSBD)) {
+> +		x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
+> +	}
+> +
+> +	/*
+>  	 * We have three CPU feature flags that are in play here:
+>  	 *  - X86_BUG_SPEC_STORE_BYPASS - CPU is susceptible.
+>  	 *  - X86_FEATURE_SSBD - CPU is able to turn off speculative store bypass
+> @@ -852,7 +862,6 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
+>  			x86_amd_ssb_disable();
+>  		} else {
+>  			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
+> -			x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
+>  			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
+>  		}
+>  	}
+> 
 
