@@ -2,108 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47300528E4
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 12:01:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44548528E6
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 12:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729133AbfFYKBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 06:01:45 -0400
-Received: from mail-wr1-f50.google.com ([209.85.221.50]:39635 "EHLO
-        mail-wr1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726421AbfFYKBp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 06:01:45 -0400
-Received: by mail-wr1-f50.google.com with SMTP id x4so17122978wrt.6
-        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 03:01:44 -0700 (PDT)
+        id S1731799AbfFYKBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 06:01:53 -0400
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:39464 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726421AbfFYKBx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 06:01:53 -0400
+Received: by mail-oi1-f195.google.com with SMTP id m202so12041805oig.6
+        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 03:01:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=byrwc7tJxXt1Mj66FktGpXsxWBGdDFER0Gmo5pRuhCA=;
-        b=2Q5LtaVDvTVpd0ZS9dXdWvZOikSFjWKW1/WDj3zCFk9XK11zFER/ExPyt3jIaDqSGG
-         VL1z/7Jd6heysxYJN4dOO2M1h08MtgaOe9nWfp7WQWrAqMeqTvBLlmhbmlIhwhC1BusM
-         B1DZVbsBYc94gcJB6O29Nj5AiwK40y00t9Tk21ox2omf79oHLdhpEbo2CrzTk6gdd44Q
-         c/5EgnKM3YqCxcyQwxsE/bb4oe0FB/Z6c8szjBo/6jUDMGvkIxcEbV28Po8o05ApwS1G
-         pBT7X045MC+HJst0xjyrbJAQX90W2TcRRH33r4Km2wXYNcIVzTykVfJ1GS0hShDeoUSq
-         r5rA==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=+bllI+uhX4ifvIS1PickYrW1huvdTbgr8Lv09pVb6FU=;
+        b=tyMsOr0aJ/4gkqPkK+AX2EVtzAwu3Ko69NtuKPGk60ewRa/3vLPLdcQ6Uq6/7MlO0a
+         B9lfY1AxfFCbKHzzP0CiIlwk2//Xg1ePOge5MV+jvZ/oc3hQ1TCU7fxGNx92Z6TilbSB
+         lrJSB0JfcoAeRgtgX1at/lRgL4GgRxbJM3HzrG2kAvarNNI6SVWiXwAEAfUuIIPc0BGw
+         04in0QU4GO0pI0Oa7OuAIYlt1iv/Tcc3jEFK0CeJY4c3kQi9UpNLoUnAfo4jAt+wEBXJ
+         SA4DuPc8tTwlcgebmPxvCAapmd07GOXxtqutMKUiOmZHPfyHSc1XJDm1LBJfdGQfeO0q
+         njrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=byrwc7tJxXt1Mj66FktGpXsxWBGdDFER0Gmo5pRuhCA=;
-        b=Sk2OHgRMyf9gjfxj9TcBSNDtZCZPoj4P9HeERx+PfaD8GpH1JWABHvEXIJ/A5bTCvx
-         qDa6keMdjyS7IrAxuvvnv+JZGEAzytbByTsEEEV1iDQMCtJQX2FItdKoKNtaztCQMRMY
-         8bVz6bDy4TwyOvZm2X1X/SVCi8zm+IA/JsTGOhwHXMAFFhEf0byFTiRognpxwRJ07NVA
-         yBsXzxmwIzTTj3Ff6PiC0mg/3hUMTxM24qsXqcpdVNbaxTdcc4nJGQ4JHjfQB5i9NZ1V
-         gjkBFG0gv2gJmNO/L2NDNDTb0tyeULMx1K4KFK84BzjALpxuZoFc4BNg+yBl+TSFZSp9
-         VTvg==
-X-Gm-Message-State: APjAAAWp8K3gyNyBN3rQW1ljNXeCj/7fZNOyC93t4azGeqMnrvAA8u3D
-        Eij3l2QymFRO8O4my1BCdYIIRGz0Am8fog==
-X-Google-Smtp-Source: APXvYqyhtB9R+yy8w4F8JTK2O2x1zcKexX7afRmN4SJQw5gm0NesWYx7PrghP3vPGxPsF0qhkKx8Ew==
-X-Received: by 2002:adf:ea92:: with SMTP id s18mr36113154wrm.257.1561456903432;
-        Tue, 25 Jun 2019 03:01:43 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o20sm40848998wrh.8.2019.06.25.03.01.42
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 25 Jun 2019 03:01:42 -0700 (PDT)
-Message-ID: <5d11f106.1c69fb81.cef30.7079@mx.google.com>
-Date:   Tue, 25 Jun 2019 03:01:42 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=+bllI+uhX4ifvIS1PickYrW1huvdTbgr8Lv09pVb6FU=;
+        b=mutO8guFl6PcyDJO37Ej7UgNesy2dP/VEdakcAffnm9SIGnoXj9wWLlwTDt3Z/udYj
+         KwkJDqhJTI9uzOCvMz3PmsEvbKiNTbywpFAFOxxSoTUpZMCLZc4Qlr12Pb5qlnfefeDd
+         i4LATy0yfKWStVTj+xwni+UiEqEA5XLeu7l1ThKn7Ad8VcvJ/pF94GVa2LdusBl9H5J5
+         2svh3QzOwhDSzE34b0UjBtCBWxHBQ2etuomfeY/9jhn9q6iuuN5e5T2sw0bLshHFZpcv
+         y83EJ/+zdwit+IlC12E43sX/YQb5yhiVQQRyIwUQ+KgbNqIEGIchEJ8x7imwlB28imQG
+         IoCw==
+X-Gm-Message-State: APjAAAXDc3oqP7QqagdHpZ+SFgG7Kns78bC2Ygi69yVKTp7UGmMgAzFh
+        4MD12FnmfnLXzKszzBpSQFhCP2rOmUro2rPFki4=
+X-Google-Smtp-Source: APXvYqySV6ZGsVLTf3XAyogaclUJZYVR6gjuUl7D41cXuyYt4Sr6WYAnCdg2ltBcgEzmf/uqhYnmUb7dKi8QE4xZeHU=
+X-Received: by 2002:aca:4e89:: with SMTP id c131mr13978517oib.57.1561456912548;
+ Tue, 25 Jun 2019 03:01:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.130
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y boot: 129 boots: 2 failed,
- 127 passed (v4.14.130)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:a9d:644b:0:0:0:0:0 with HTTP; Tue, 25 Jun 2019 03:01:52
+ -0700 (PDT)
+Reply-To: arnettdavid2030@gmail.com
+From:   "Sgt,Arnett David" <helenakarisman718@gmail.com>
+Date:   Tue, 25 Jun 2019 14:31:52 +0430
+Message-ID: <CAJufen3+GgbAKWLCEdBp=GzxPqi6UdHYD_zysVf48J9-zzZi3A@mail.gmail.com>
+Subject: Assist Request From You
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 129 boots: 2 failed, 127 passed (v4.14.130)
+-- 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.130/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.130/
+Accept my greetings to you
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.130
-Git Commit: bc2bccef19ee4353d759a12950088b968b5c6618
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 24 SoC families, 15 builds out of 201
+Assist Request From You
 
-Boot Regressions Detected:
+I am 28 years old single an orphan my parents died when I am five
+years old nobody to help me,I send you my business proposal with tears
+and sorrow,Please let this not be a surprised message to you because I
+decided to contact you on this magnitude and lucrative transaction for
+our present and future survival in life. Moreover, I have laid all the
+solemn trust in you before i decided to disclose this successful and
+confidential transaction to you.
 
-arm:
+I am  Arnett David ,I hope all is well with you? I am female soldier
+working as United Nations peace keeping troop in Afghanistan on war
+against terrorism. I have in my possession the sum of $3.5million USD
+Which I made here in Afghanistan 2014,I deposited this money with a
+Red Cross agent. I want you to stand as my beneficiary and receive the
+fund And keep it safe so that as soon as am through with my mission
+here in Afghanistan.
 
-    multi_v7_defconfig:
-        gcc-8:
-          sun7i-a20-bananapi:
-              lab-baylibre-seattle: new failure (last pass: v4.14.129-52-g5=
-7f3c9aebc30)
+You will assist me to invest it in a good profitable Venture or you
+keep it for me until I arrive your country, I will give You 40% of the
+total money for your assistance after you have receive The money.
+Please reply back to me via my private email address
+(arnettdavid2030@gmail.com ) if you are willing to work with me so
+that I can send you the information where the money is been deposited,
+your urgent reply is needed  so i can send you more details.
 
-    sunxi_defconfig:
-        gcc-8:
-          sun7i-a20-bananapi:
-              lab-baylibre-seattle: new failure (last pass: v4.14.129-52-g5=
-7f3c9aebc30)
-
-Boot Failures Detected:
-
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
-
-    multi_v7_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+Thank Yours
+Sgt,Arnett David
