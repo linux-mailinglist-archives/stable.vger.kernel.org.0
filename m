@@ -2,82 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC1AD52844
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 11:41:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72DA25288F
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 11:48:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727124AbfFYJlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 05:41:37 -0400
-Received: from mail-wm1-f47.google.com ([209.85.128.47]:37315 "EHLO
-        mail-wm1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726557AbfFYJlh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 05:41:37 -0400
-Received: by mail-wm1-f47.google.com with SMTP id f17so2237154wme.2
-        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 02:41:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lZv8KAbp55RM40m6DNY8pmaw09T8ySbR9phfkpUXa0Q=;
-        b=ABIqcdIKJohMrWw878g/I8CWRTE2GRshHbHkrx8O6o9VBu5kY4WU1jZV8I/ju7aBnC
-         oKFpNbbdcmBF55G6swBdaGEhRJi/cI0uNqVeWgyeLwXColZ78IEUXsRncdUeflVjoCrZ
-         xYZnuYyGb92VzG6BUpIck0POwXKgMI1BHi8uHz45fcR+2PVeZ5yn9a2/cWUxHurr/KvU
-         nYEFPWHdV5dWG1OGmpoc8hev3vVKTzBxXLKuSomc6b6pfCOPn9/Renh0qnIzeBcl2kx4
-         6CuD8LZJYiOyQuDHzdZMFR6FF2AemSP7l3px2036JCT7YRLJV+4FrF2uC/iPnChrCVXt
-         HDHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lZv8KAbp55RM40m6DNY8pmaw09T8ySbR9phfkpUXa0Q=;
-        b=nIKMxhf0myuAPbaBx7gdak9PAKlUVjmjRDHmVzQ0swmbViyRV/4PCrh1U0iMzZeb7q
-         +iJv+WLix0nOqVVMkRP6uTeLvlGNuHfUcCh3z+JwyRxyCD55YfIZZlz7lIeTufKkQVrF
-         f6NjhwDKqxTn4BxXLTbCfJ68dIYW6eB7Lsg1QLYcTyd6qQMq8/xH8A2y9eYgCU7TYoPP
-         08d2RuheXPr0rKu1fqG7GKvu2fy+unnUgvoImS6EEAcDMTeX/pt6C6VEvLazwqKA/OSh
-         8EE1T1onsFaFRnjddz2Z7ApXbgXT8noPK0jqqwiOJPmfF1MP8ylaGvDOXH9HLpuBk43O
-         FNCw==
-X-Gm-Message-State: APjAAAXvt95TYMIEFoNeg9wcrGHODmx8yYi+BW+IZ/93UmTJviDcJM83
-        bQUYHzn/qfSIJFMh0FKZPv6mmz5cIzjXww==
-X-Google-Smtp-Source: APXvYqzAN9e2L87BQdEmm0jdbW5znFc7JNXK7brH9xv3NSw+JOfge1CWwUxvldPSUqwxtrM5BVYbig==
-X-Received: by 2002:a1c:e108:: with SMTP id y8mr18727931wmg.65.1561455695421;
-        Tue, 25 Jun 2019 02:41:35 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id y17sm22298207wrg.18.2019.06.25.02.41.34
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 25 Jun 2019 02:41:35 -0700 (PDT)
-Message-ID: <5d11ec4f.1c69fb81.b385c.b414@mx.google.com>
-Date:   Tue, 25 Jun 2019 02:41:35 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727017AbfFYJsi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 05:48:38 -0400
+Received: from mga17.intel.com ([192.55.52.151]:19506 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726927AbfFYJsi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 05:48:38 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Jun 2019 02:48:38 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,415,1557212400"; 
+   d="scan'208";a="166626086"
+Received: from gaia.fi.intel.com ([10.237.72.169])
+  by orsmga006.jf.intel.com with ESMTP; 25 Jun 2019 02:48:36 -0700
+Received: by gaia.fi.intel.com (Postfix, from userid 1000)
+        id 032BA5C1EB3; Tue, 25 Jun 2019 12:48:22 +0300 (EEST)
+From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     Kenneth Graunke <kenneth@whitecape.org>, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH] drm/i915: Disable SAMPLER_STATE prefetching on all Gen11 steppings.
+In-Reply-To: <20190625090655.19220-1-chris@chris-wilson.co.uk>
+References: <20190625070829.25277-1-kenneth@whitecape.org> <20190625090655.19220-1-chris@chris-wilson.co.uk>
+Date:   Tue, 25 Jun 2019 12:48:22 +0300
+Message-ID: <87ef3i572x.fsf@gaia.fi.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.1.15
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-5.1.y boot: 81 boots: 0 failed,
- 80 passed with 1 untried/unknown (v5.1.15)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.1.y boot: 81 boots: 0 failed, 80 passed with 1 untried/unkno=
-wn (v5.1.15)
+Chris Wilson <chris@chris-wilson.co.uk> writes:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-1.y/kernel/v5.1.15/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.1.y/ke=
-rnel/v5.1.15/
+> From: Kenneth Graunke <kenneth@whitecape.org>
+>
+> The Demand Prefetch workaround (binding table prefetching) only applies
+> to Icelake A0/B0.  But the Sampler Prefetch workaround needs to be
+> applied to all Gen11 steppings, according to a programming note in the
+> SARCHKMD documentation.
+>
+> Using the Intel Gallium driver, I have seen intermittent failures in
+> the dEQP-GLES31.functional.copy_image.non_compressed.* tests.  After
+> applying this workaround, the tests reliably pass.
+>
+> v2: Remove the overlap with a pre-production w/a
+>
+> BSpec: 9663
+> Signed-off-by: Kenneth Graunke <kenneth@whitecape.org>
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: stable@vger.kernel.org
 
-Tree: stable
-Branch: linux-5.1.y
-Git Describe: v5.1.15
-Git Commit: f0fae702de30331a8ce913cdb87ac0bdf990d85f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 42 unique boards, 17 SoC families, 12 builds out of 209
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
 
----
-For more info write to <info@kernelci.org>
+> ---
+>  drivers/gpu/drm/i915/gt/intel_workarounds.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+> index c70445adfb02..993804d09517 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+> @@ -1252,8 +1252,12 @@ rcs_engine_wa_init(struct intel_engine_cs *engine, struct i915_wa_list *wal)
+>  		if (IS_ICL_REVID(i915, ICL_REVID_A0, ICL_REVID_B0))
+>  			wa_write_or(wal,
+>  				    GEN7_SARCHKMD,
+> -				    GEN7_DISABLE_DEMAND_PREFETCH |
+> -				    GEN7_DISABLE_SAMPLER_PREFETCH);
+> +				    GEN7_DISABLE_DEMAND_PREFETCH);
+> +
+> +		/* Wa_1606682166:icl */
+> +		wa_write_or(wal,
+> +			    GEN7_SARCHKMD,
+> +			    GEN7_DISABLE_SAMPLER_PREFETCH);
+>  	}
+>  
+>  	if (IS_GEN_RANGE(i915, 9, 11)) {
+> -- 
+> 2.20.1
+>
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
