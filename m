@@ -2,64 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84A8651FCC
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 02:15:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77E8F51FD3
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 02:17:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730080AbfFYAO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 20:14:57 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:35400 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729202AbfFYAO4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 20:14:56 -0400
-Received: by mail-pf1-f195.google.com with SMTP id d126so8432518pfd.2;
-        Mon, 24 Jun 2019 17:14:55 -0700 (PDT)
+        id S1727408AbfFYAPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 20:15:43 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:43035 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727174AbfFYAPn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 20:15:43 -0400
+Received: by mail-pf1-f196.google.com with SMTP id i189so8412227pfg.10;
+        Mon, 24 Jun 2019 17:15:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=xN6gcDovCiA+43T8KtnAGd5MrtIeIvCobe6Sye7XCPQ=;
-        b=TT6Ee6KZQdqlSZrXq7Pq2yeotp2LcXxmie06Xi0bBWdoPOkQZb8FhE0SE8ZLEIN2xa
-         ASC0TvOs6Kvpqy7KTt9GjRWuLH27jPH14iOG7nKJ58klDnczeGQ7uyd4lRK9QJHL82Hb
-         sKBmaUBnzf4gsx0feUL7oNsDeQ1Twh1eZCyTGzVJ+M85ol+yGVBztyuHbujiCiNypYhw
-         hZuHsQLU6z9gc8aJfeVdZ9s0ee1nCcGZh8F18+Bbd8IaRuHP7SXchP+J//qfAf5BiCzf
-         P/gDW7FO4Ay7EF8Q/t7Mac0Je163f9OMqFouYtQXdMdy76e0dwiylUg628ULQQC2E3y3
-         SKMg==
+        bh=EU8WFDmhHgtaBQ2SUJhJWTVAXwevn93OKXGEhrS/B44=;
+        b=mHhGT9F1POSxJjgSSQrVWYtDWRfeB5ve9eOpiY/LBNsI6+oLuSglTITPKt06Hjv8p6
+         pQ66GBvZctpsYhDFYG3MCsP7/bH0GJ9qAQDGOZUJrLui6F8h/2AtWsJieNyiJFXiOH2N
+         XB6wmS+DS8j5L9DCvUfyccPiGbJ6MZa+PHMXPeiF4pGx1+ttTvlmZeKnPuPLrC5izVxI
+         pP2OKpt8j5t3fdbewzG0/Glnhuj++U2bKobFTtXBeaRnICO5ZfGHQamtcMWtW5zuNNB2
+         g3dtEjt1HW/b/Sra+0NngEIytar0RyWXzxR6fszSZFSXMbGW+TB3ej8AfAAuHSqRmEzq
+         //3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
          :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=xN6gcDovCiA+43T8KtnAGd5MrtIeIvCobe6Sye7XCPQ=;
-        b=dYrI+4nz0vP7W7ko0XcIlDjtMQfjSF6spzPxNjQU9qbVxvV6J/9+oiO0H4/x2q4Cgv
-         PYqgqpz6rG81PdSZ2bfZf/nm2VPYGnor2Ke6eme63Q7dM+YzY+O0KhRIy5CSXyx/fWEL
-         CfddovMahsAyA1P9AcgUx7dXc2OA8G2TSbEu0T10D7O1RMVuK0ZFoQd1CsbVN9LCZJy3
-         hSDjoLLHkxbJU/+30uHGw/UTAJIsBb2k2tEM0/Mmr/2BREE458M5YAQiVwi8Eedx9cJ/
-         IL4pSKgVckLb8o1g1dw6Nr99mh5ZAShJB0Xk2yQWLXqsbl3L+SPgpztH7T8jGw27FSaI
-         fATA==
-X-Gm-Message-State: APjAAAWfWtYoAxDv8y6cLVViL3p6d5KBWFmnmXLhBgxkgKY2x4qzBSat
-        XHkFQwJQmDfL8Y5Xau0d6zZ7yLZr
-X-Google-Smtp-Source: APXvYqxQb3oCt+Ol4W6ofuBsljRoToTTJRZC+scaQ9964KbN/N+1cKSBR0Ko55TRnLhzmFIZecyVzg==
-X-Received: by 2002:a17:90a:32c7:: with SMTP id l65mr15964832pjb.1.1561421694786;
-        Mon, 24 Jun 2019 17:14:54 -0700 (PDT)
+        bh=EU8WFDmhHgtaBQ2SUJhJWTVAXwevn93OKXGEhrS/B44=;
+        b=r5xakB+0hXE4L1ukJNiXd/yw+1BPkacx69OdSUDbkgZigL8FiE4EtqUBb//DMTBGvA
+         n4/Y/W7y8vclZSSUKEmhfVQgq25YlHtpv8Q1rJZC/9vfIGCso41eL0Z78a+HFk2i0rf3
+         +cJSkgedace1jy52IQiwMKs8JPBC25On2cXAZ2+rNpppx2MbIl306vVI7jvQV56QtEV5
+         0G5GwHJ3hV89QWIgPNr984T5tmIQQBmUTHtnFT/GuqT4/xIggOQQEu0uhMhpz24mJ/Vw
+         +RRhDdpOh4uMkcZCNQWfCvBHf5f8E08nFSOG27hxi+st8HvQC2nKmPAcyUO5H7IowvRI
+         mICw==
+X-Gm-Message-State: APjAAAWHDEvoUw0tZ5GNIq6EaDm5850v7RWi3jb2NMC6pXdgYNwJgtmB
+        5jbGeAbdFHOnLviDfWgYqvwrwjhZ
+X-Google-Smtp-Source: APXvYqw35rmzEA/jxzulA7c+cANRY6Ozz8Oa+7HibJBBNaeJJm4eyOeTaGjkl0/0Y+BOQtQ/nlvXDg==
+X-Received: by 2002:a17:90a:206a:: with SMTP id n97mr28150047pjc.10.1561421742982;
+        Mon, 24 Jun 2019 17:15:42 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id s129sm12859194pfb.186.2019.06.24.17.14.53
+        by smtp.gmail.com with ESMTPSA id k3sm11548789pgo.81.2019.06.24.17.15.41
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 24 Jun 2019 17:14:53 -0700 (PDT)
-Subject: Re: [PATCH 4.19 00/90] 4.19.56-stable review
+        Mon, 24 Jun 2019 17:15:42 -0700 (PDT)
+Subject: Re: [PATCH 5.1 000/121] 5.1.15-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-References: <20190624092313.788773607@linuxfoundation.org>
+References: <20190624092320.652599624@linuxfoundation.org>
 From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <76fe752e-834c-335f-aac3-64e7bc2ab92a@roeck-us.net>
-Date:   Mon, 24 Jun 2019 17:14:52 -0700
+Message-ID: <cce74c67-5844-a60e-8fbc-9ebb29bef826@roeck-us.net>
+Date:   Mon, 24 Jun 2019 17:15:41 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.1
 MIME-Version: 1.0
-In-Reply-To: <20190624092313.788773607@linuxfoundation.org>
+In-Reply-To: <20190624092320.652599624@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -69,8 +69,8 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 6/24/19 2:55 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.56 release.
-> There are 90 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.1.15 release.
+> There are 121 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -78,10 +78,10 @@ On 6/24/19 2:55 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 
-For v4.19.55-92-gd8e5ade617e9:
+For v5.1.14-122-g815c105311e8:
 
 Build results:
-	total: 156 pass: 156 fail: 0
+	total: 159 pass: 159 fail: 0
 Qemu test results:
 	total: 364 pass: 364 fail: 0
 
