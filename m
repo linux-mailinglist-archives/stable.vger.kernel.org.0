@@ -2,175 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 142CF55644
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 19:48:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56B3855680
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 19:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730884AbfFYRsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 13:48:24 -0400
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:42922 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732681AbfFYRsY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 13:48:24 -0400
-Received: by mail-ed1-f67.google.com with SMTP id z25so28340078edq.9
-        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 10:48:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=VCVcHSR4atmpqHJM5ACHhJUqIbZv+lRbv1agzqzhhqo=;
-        b=iT8Ck+R95NyNhM27UXJRdQmCLDcoXUZGoSpVdfLnhEeJx9mmq4eR5eynmacrsd4XEh
-         swzvM4JbltB+VOCWZx0RAQM8pKJjuj0vs3QC1XBTRiTgShWlkhgp1q2rJR9OppxEKiPC
-         sB471ohNZnsm4b73+btIXCxqRJOwy/P4QK1pkcg7N6evUm4A8dpjQd3aTVWXnLS6N+A2
-         l5Y2BSXCwMh41tfbIl1bHxf2Bd+HINT+NmhI6LWO36qdwkxMOlZl9xZwyXAOPitjjYkS
-         BewgnaNY/8zEP3w7BYcShHSu1ONrw45xfYlrEWPpaeusk/uoq5Rv8iCoGlm/GRYMxkif
-         WKEg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=VCVcHSR4atmpqHJM5ACHhJUqIbZv+lRbv1agzqzhhqo=;
-        b=EkPEoBGWEuyNxmD4iawvICgcg2qbunUexHe/qmMyPtI9OrioGTEAKSgfa/NW05zRHq
-         xRNpt/czo6H20ia9/c9ayWyZo2t1istOUgpJfzJqMdioUJaaAZDxuR+N3AwPMMjpNxvj
-         rKp+VLYxrejY/0tqf/Kk2ZeS+WasoxFAYTqfv/pbVLr4JyJjLUo7odtjy6cgHnjBOues
-         35oH2/vzpI4gyhC/KppU1I9XTz3cJjViahhjFzLb8dun55RIsB4Je/Q/KOG8/bCiAY8a
-         /CVNMygdJaSirt+XAdg+/72RoYJhuKnAJeW6ebfMg7tQo5dOG5t4PLBUu8TdwrXjE8U8
-         8oMQ==
-X-Gm-Message-State: APjAAAX9eJ0ctwtTe/fREDQ57FU9X1Li9YDaMdthbTGMNaRNk5lCImxi
-        gI9LbcueILk06VFH3JhauDU=
-X-Google-Smtp-Source: APXvYqzkVsBWUlO6OQPVblkZfpK4FGJHEfOlOK5bhvPp0zDL6jyj4dkjIfm/K/T9BLrzSg6zag4tfA==
-X-Received: by 2002:a50:9729:: with SMTP id c38mr150463777edb.283.1561484901981;
-        Tue, 25 Jun 2019 10:48:21 -0700 (PDT)
-Received: from localhost.localdomain ([2a01:4f9:2b:2b15::2])
-        by smtp.gmail.com with ESMTPSA id s27sm5006453eda.36.2019.06.25.10.48.20
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 25 Jun 2019 10:48:21 -0700 (PDT)
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Qian Cai <cai@lca.pw>, Dave Martin <Dave.Martin@arm.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Will Deacon <will.deacon@arm.com>
-Subject: [PATCH 4.19 and 5.1] arm64: Don't unconditionally add -Wno-psabi to KBUILD_CFLAGS
-Date:   Tue, 25 Jun 2019 10:45:13 -0700
-Message-Id: <20190625174512.117846-1-natechancellor@gmail.com>
-X-Mailer: git-send-email 2.22.0
+        id S1728044AbfFYR71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 13:59:27 -0400
+Received: from userp2120.oracle.com ([156.151.31.85]:40180 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726447AbfFYR71 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 13:59:27 -0400
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5PHwdNI155650;
+        Tue, 25 Jun 2019 17:58:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2018-07-02;
+ bh=sgxyqaAPqaNsuffA1Qkzp8ASmBO8M5ibEKPcciwr5ms=;
+ b=MivfJdCswvzPmAOZzO95vs0RjL9d/Mh1KanrrkM9WHHmVWABQ8dPTzLBZupQPNPnGLMp
+ 5oY0TqTtynb6Z5mv8w+B5i9ahEAGU5JVtJe4OTjLxa7UiyXpby1XlUD0tXQ338EQOnQn
+ x52Q3gchsglV0ejB0lFyFx/fi8cs5eywMiI6oJO8WXvM43r5iYNSl2BSIfmNfRcdIFuY
+ meiwHOxaU4WyxuMyZRVuhfris4hqnGd4SFcT0eLaCEFtpF00XI8YHxzkYDw5S6aSVUTu
+ 1qVnbWJd5ACQokBL9sd7DKra02JGfHRmN6WgxuQlsRzJC0DJrcgYlsDCxVrPpD9/qi4t RA== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by userp2120.oracle.com with ESMTP id 2t9cyqdwby-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 Jun 2019 17:58:39 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5PHwHK5129508;
+        Tue, 25 Jun 2019 17:58:35 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by userp3030.oracle.com with ESMTP id 2t99f413we-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 Jun 2019 17:58:35 +0000
+Received: from abhmp0005.oracle.com (abhmp0005.oracle.com [141.146.116.11])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x5PHwWcm022239;
+        Tue, 25 Jun 2019 17:58:33 GMT
+Received: from [10.39.221.199] (/10.39.221.199)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 25 Jun 2019 10:58:32 -0700
+Subject: Re: [PATCH 1/1] kvm/speculation: Allow KVM guests to use SSBD even if
+ host does not
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Cc:     mingo@redhat.com, bp@alien8.de, rkrcmar@redhat.com, x86@kernel.org,
+        kvm@vger.kernel.org, stable <stable@vger.kernel.org>
+References: <1560187210-11054-1-git-send-email-alejandro.j.jimenez@oracle.com>
+ <1c9d4047-e54c-8d4b-13b1-020864f2f5bf@redhat.com>
+ <alpine.DEB.2.21.1906251750140.32342@nanos.tec.linutronix.de>
+From:   Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
+Organization: Oracle Corporation
+Message-ID: <56fa2729-52a7-3994-5f7c-bc308da7d710@oracle.com>
+Date:   Tue, 25 Jun 2019 13:58:30 -0400
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Patchwork-Bot: notify
+In-Reply-To: <alpine.DEB.2.21.1906251750140.32342@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9299 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1906250136
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9299 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1906250136
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit fa63da2ab046b885a7f70291aafc4e8ce015429b upstream.
 
-This is a GCC only option, which warns about ABI changes within GCC, so
-unconditionally adding it breaks Clang with tons of:
 
-warning: unknown warning option '-Wno-psabi' [-Wunknown-warning-option]
+On 6/25/2019 12:05 PM, Thomas Gleixner wrote:
+> On Tue, 25 Jun 2019, Paolo Bonzini wrote:
+>> On 10/06/19 19:20, Alejandro Jimenez wrote:
+> Btw, the proper prefix is: x86/speculation: Allow guests ....
+I'll correct it on the next iteration of the patch.
 
-and link time failures:
+>>> diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+>>> index 03b4cc0..66ca906 100644
+>>> --- a/arch/x86/kernel/cpu/bugs.c
+>>> +++ b/arch/x86/kernel/cpu/bugs.c
+>>> @@ -836,6 +836,16 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
+>>>   	}
+>>>   
+>>>   	/*
+>>> +	 * If SSBD is controlled by the SPEC_CTRL MSR, then set the proper
+>>> +	 * bit in the mask to allow guests to use the mitigation even in the
+>>> +	 * case where the host does not enable it.
+>>> +	 */
+>>> +	if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
+>>> +	    static_cpu_has(X86_FEATURE_AMD_SSBD)) {
+>>> +		x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
+> Well, yes. But that also allows the guest to turn off SSBD if the host has
+> it disabled globally. So this needs to be conditional depending on the host
+> mode. It affects two places:
+>
+>    1) If the host has it globally disabled then the mask needs to be clear.
+>
+>    2) If the host has it specifically disabled for the VCPU thread, then it
+>       shouldn't be allowed to be cleared by the guest either.
+I see the argument that the host must be able to enforce its security 
+policies on the guests running on it. The guest OS would still be 
+'lying' by reporting that is running with the mitigation turned off, but 
+I suppose this is preferable to overriding the host's security policy.
 
-ld.lld: error: undefined symbol: __efistub___stack_chk_guard
->>> referenced by arm-stub.c:73
-(/home/nathan/cbl/linux/drivers/firmware/efi/libstub/arm-stub.c:73)
->>>               arm-stub.stub.o:(__efistub_install_memreserve_table)
-in archive ./drivers/firmware/efi/libstub/lib.a
+I think that even with that approach there is still an unsolved problem, 
+as I believe guests are allowed to write directly to SPEC_CTRL MSR 
+without causing a VMEXIT, which bypasses the host masking entirely.� 
+e.g. a guest using IBRS writes frequently to SPEC_CTRL, and could turn 
+off SSBD on the VPCU while is running after the first non-zero write to 
+the MSR. Do you agree?
 
-These failures come from the lack of -fno-stack-protector, which is
-added via cc-option in drivers/firmware/efi/libstub/Makefile. When an
-unknown flag is added to KBUILD_CFLAGS, clang will noisily warn that it
-is ignoring the option like above, unlike gcc, who will just error.
+Thank you for the feedback,
+Alejandro
 
-$ echo "int main() { return 0; }" > tmp.c
-
-$ clang -Wno-psabi tmp.c; echo $?
-warning: unknown warning option '-Wno-psabi' [-Wunknown-warning-option]
-1 warning generated.
-0
-
-$ gcc -Wsometimes-uninitialized tmp.c; echo $?
-gcc: error: unrecognized command line option
-‘-Wsometimes-uninitialized’; did you mean ‘-Wmaybe-uninitialized’?
-1
-
-For cc-option to work properly with clang and behave like gcc, -Werror
-is needed, which was done in commit c3f0d0bc5b01 ("kbuild, LLVMLinux:
-Add -Werror to cc-option to support clang").
-
-$ clang -Werror -Wno-psabi tmp.c; echo $?
-error: unknown warning option '-Wno-psabi'
-[-Werror,-Wunknown-warning-option]
-1
-
-As a consequence of this, when an unknown flag is unconditionally added
-to KBUILD_CFLAGS, it will cause cc-option to always fail and those flags
-will never get added:
-
-$ clang -Werror -Wno-psabi -fno-stack-protector tmp.c; echo $?
-error: unknown warning option '-Wno-psabi'
-[-Werror,-Wunknown-warning-option]
-1
-
-This can be seen when compiling the whole kernel as some warnings that
-are normally disabled (see below) show up. The full list of flags
-missing from drivers/firmware/efi/libstub are the following (gathered
-from diffing .arm64-stub.o.cmd):
-
--fno-delete-null-pointer-checks
--Wno-address-of-packed-member
--Wframe-larger-than=2048
--Wno-unused-const-variable
--fno-strict-overflow
--fno-merge-all-constants
--fno-stack-check
--Werror=date-time
--Werror=incompatible-pointer-types
--ffreestanding
--fno-stack-protector
-
-Use cc-disable-warning so that it gets disabled for GCC and does nothing
-for Clang.
-
-Fixes: ebcc5928c5d9 ("arm64: Silence gcc warnings about arch ABI drift")
-Link: https://github.com/ClangBuiltLinux/linux/issues/511
-Reported-by: Qian Cai <cai@lca.pw>
-Acked-by: Dave Martin <Dave.Martin@arm.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
----
-
-Hi Greg and Sasha,
-
-Please apply this to 4.19 and 5.1, as the Fixes commit breaks clang on arm64.
-
-https://travis-ci.com/ClangBuiltLinux/continuous-integration/jobs/210718446
-
-Sorry for not catching the review email with the patch that this fixes,
-I had hoped that the fixes tag would be enough since the other patch
-wasn't marked for stable.
-
- arch/arm64/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-index c12ff63265a9..5d8787f0ca5f 100644
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -51,7 +51,7 @@ endif
- 
- KBUILD_CFLAGS	+= -mgeneral-regs-only $(lseinstr) $(brokengasinst)
- KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
--KBUILD_CFLAGS	+= -Wno-psabi
-+KBUILD_CFLAGS	+= $(call cc-disable-warning, psabi)
- KBUILD_AFLAGS	+= $(lseinstr) $(brokengasinst)
- 
- KBUILD_CFLAGS	+= $(call cc-option,-mabi=lp64)
--- 
-2.22.0
+>
+> Thanks,
+>
+> 	tglx
+>
+>
+>
 
