@@ -2,78 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CFDC54C9E
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 12:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B36D554CA2
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 12:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbfFYKp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 06:45:27 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:59204 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726521AbfFYKp1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 06:45:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=Sender:Content-Transfer-Encoding:
-        Content-Type:MIME-Version:Message-Id:Date:Subject:Cc:To:From:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=sUS/Rj3HoIchY4p0FVb8gSZ1mGDuL0t8MHtwKYpLND8=; b=AxajUndzjjUXCSMPUV5JMzMlN
-        2H+BpoB4+g5wRdeG9R3PEP0yRCVzGsihgSiyDfOeh/ZfX7Q0cRtoWGo9IKC2d0EuXL+j9AAsik/rQ
-        j0VCuXVIt9Trl5nfKLFPB9R4vYuv8DZkboQ3dciDUXFBDqe9pHe9KcJJM2tQj3NIacBnBDeaNaLaW
-        U5SH777lUw/QWlKAERYpXlOFZkt6jcRY+sAZHK47uhBnOqNETm8p05qcsHnd73fFgRPIcEqccE6W1
-        5wCpD334d7OwdlM8NieXxoCbW0PsYqMkqSVAcf+yIItjd3z4rLWc9ReacrmxwvwmBtZRPXklaXMtK
-        CeERhQA2Q==;
-Received: from 177.205.71.220.dynamic.adsl.gvt.net.br ([177.205.71.220] helo=bombadil.infradead.org)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1hfix5-00057S-9f; Tue, 25 Jun 2019 10:45:27 +0000
-Received: from mchehab by bombadil.infradead.org with local (Exim 4.92)
-        (envelope-from <mchehab@bombadil.infradead.org>)
-        id 1hfix2-0006dZ-7X; Tue, 25 Jun 2019 07:45:24 -0300
-From:   Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-To:     Linux Media Mailing List <linux-media@vger.kernel.org>
-Cc:     Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@infradead.org>,
-        =?UTF-8?q?Ari=20Kohtam=C3=A4ki?= <ari.kohtamaki@gmail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] media: stv0297: fix frequency range limit
-Date:   Tue, 25 Jun 2019 07:45:20 -0300
-Message-Id: <75d72b7851d00297d8bb37e0064d1a109bd0d483.1561459518.git.mchehab+samsung@kernel.org>
-X-Mailer: git-send-email 2.21.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1726668AbfFYKqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 06:46:25 -0400
+Received: from mout.web.de ([212.227.15.4]:40021 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726521AbfFYKqY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 06:46:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1561459526;
+        bh=jg0LNFsCwDmqXuZh9IGxLcaasuGMXo9WkaIpQDF3y/A=;
+        h=X-UI-Sender-Class:Date:From:Subject:To:CC:In-Reply-To;
+        b=VJhNwqUxb0kzahw31C4IToRfsvI0o7P9m93tzY2VZit14pHh+3MMPPSZ6w32Dl3wc
+         t8LYeooXufVGoTFTYW4rfom7Wwozcnw8kypOhTo0uiF++cj3/ZnJrzFZQDJEZN5F5K
+         4Kwj3v055M2rw3OoBNcP3RLdp6hjnt83sGGht4Fc=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from debian ([85.71.157.74]) by smtp.web.de (mrweb002
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 0M2us2-1iXxzs0Tos-00seXr; Tue, 25
+ Jun 2019 12:45:26 +0200
+Date:   Tue, 25 Jun 2019 12:45:24 +0200
+Message-Id: <87mui6djuj.fsf@debian>
+From:   Jiri Palecek <jpalecek@web.de>
+Subject: [PATCH] KVM: x86/mmu: Allocate PAE root array when using SVM's 32-bit
+ NPT
+To:     stable@vger.kernel.org
+CC:     Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <1561321670157164@kroah.com>
+X-Provags-ID: V03:K1:1y6XoTj4Vgoe7h9Os0KjfBvSjT40hPau6CZwWOlVZlQhWvvyFoK
+ HsUJrEQ+SY+Ylapa8jbK34KE1TYIHE4fYa0A1o1EyOp5yOBKALM/uwMn+H8mB3SQAp8vPvd
+ L3HHtegqfVGSetIUpV1DrC9HKRZ9RKeW0YMi4vpmeRmg4k1JRu0U135nvuc7Neb/lTRTcCz
+ Rr2LXsbUZm5ZdCYH2wRqQ==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:OLindXxU994=:Mhg8vw0g8VXdmhHSTbwn3w
+ F3EFmFWPKA2St4JKpRQjETkzkgNs7m0jzVoJNTm8mGvwsuWEM+1IQZfodHa07S7Cg4r3CU1lP
+ usFDiAWT5/APpYt5b9vDgpXWbbIzX/qvzFUX1J6q01RjDWzyO4XbTacBcCi1szOS3Q6ai+C5D
+ +SBEWzn5ItDC9mFk2Csgw9mUZ2xfmjMAStK0vzWMRU2DeITacDgq+33pTC28S7P5Kq2o7Q4yU
+ iiLv5K0tmHk6du+Iky8Aa5Z2g1idiVcDl8fYfGA1bp3PcacHtmBPXY2YiIHI2Bh33woEQMzZs
+ 78llDjqdkxdd+557RytNRMeMCcmEWyBUDVN/Mv3CVKWJofajazjfjh09yLJSgk3YXQoloOzll
+ FzWLu46o1lu8+MywSoJKeRA1YzOpfCX12fgURrglNE4agQ+R7cZpDdhIZlB7tsdRSSDIhMEyb
+ 28kCblWxJOkVEA4ZyFWPSPxc+uD1f0cOia4MazJVA7V4SYGxC1VmZhv5+ih1cBXfnYkz2gfOg
+ G4hI1nLAYq2xhMQ7aViMJTZ6ssIRyNWSzsgbd+4eJjRgLVg3dUkahjKSXyvnKKLyplWDKP9b0
+ wtse+wnYsIVdWzJaEq/71DqbRU/e29qQNCLM+PJUGbLPZDHR9n6oOOJiIK2pHKK6d/sxtoLyo
+ LkGoNK0/A0scQ/7F/q2tiHx91qpPmDj3cIIsSffZJPSKSBZa8SpOVdlFeg2Tp8s2SJs4YWNan
+ L1aV4fJX4/8jeBkRTuYw+SL0BwzJI5WX6/lQGZiptgO142jfd5FPnJDJKPJjKvTswuRYbiLo9
+ cZdewTksCFW9tVBWzF2EUPpLFzuPtbO4K9iSCdZuGo34KW7Q0fJsT+pSntezUrkchWozeHMvI
+ +wiOauvtdjUIdsKBBfM3AmZQ6P9OBxBaRib4htgQFxfUoiGKBCAldj0ojBZvV93TENkor4ncN
+ vehiUEqgApC6bHxlZdFo9uhKJ5S0ciL0=
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There was a typo at the lower frequency limit for a DVB-C
-card, causing the driver to fail while tuning channels at the
-VHF range.
+Original commit id b6b80c78 ported to stable/linux-4.19.y.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=202083
+SVM's Nested Page Tables (NPT) reuses x86 paging for the host-controlled
+page walk.  For 32-bit KVM, this means PAE paging is used even when TDP
+is enabled, i.e. the PAE root array needs to be allocated.
 
-Fixes: f1b1eabff0eb ("media: dvb: represent min/max/step/tolerance freqs in Hz")
-Reported-by: Ari Kohtamäki <ari.kohtamaki@gmail.com>
+Fixes: ee6268ba3a68 ("KVM: x86: Skip pae_root shadow allocation if tdp ena=
+bled")
 Cc: stable@vger.kernel.org
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
----
- drivers/media/dvb-frontends/stv0297.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reported-by: Jiri Palecek <jpalecek@web.de>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+=2D--
+ arch/x86/kvm/mmu.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/dvb-frontends/stv0297.c b/drivers/media/dvb-frontends/stv0297.c
-index dac396c95a59..6d5962d5697a 100644
---- a/drivers/media/dvb-frontends/stv0297.c
-+++ b/drivers/media/dvb-frontends/stv0297.c
-@@ -682,7 +682,7 @@ static const struct dvb_frontend_ops stv0297_ops = {
- 	.delsys = { SYS_DVBC_ANNEX_A },
- 	.info = {
- 		 .name = "ST STV0297 DVB-C",
--		 .frequency_min_hz = 470 * MHz,
-+		 .frequency_min_hz = 47 * MHz,
- 		 .frequency_max_hz = 862 * MHz,
- 		 .frequency_stepsize_hz = 62500,
- 		 .symbol_rate_min = 870000,
--- 
-2.21.0
+diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
+index 779ed52047d1..e0f982e35c96 100644
+=2D-- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -5386,7 +5386,16 @@ static int alloc_mmu_pages(struct kvm_vcpu *vcpu)
+ 	struct page *page;
+ 	int i;
+
+-	if (tdp_enabled)
++	/*
++	 * When using PAE paging, the four PDPTEs are treated as 'root' pages,
++	 * while the PDP table is a per-vCPU construct that's allocated at MMU
++	 * creation.  When emulating 32-bit mode, cr3 is only 32 bits even on
++	 * x86_64.  Therefore we need to allocate the PDP table in the first
++	 * 4GB of memory, which happens to fit the DMA32 zone.  Except for
++	 * SVM's 32-bit NPT support, TDP paging doesn't use PAE paging and can
++	 * skip allocating the PDP table.
++	 */
++	if (tdp_enabled && kvm_x86_ops->get_tdp_level(vcpu) > PT32E_ROOT_LEVEL)
+ 		return 0;
+
+ 	/*
+=2D-
+2.20.1
 
