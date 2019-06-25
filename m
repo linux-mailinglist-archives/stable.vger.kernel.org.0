@@ -2,57 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14724552C8
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 17:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEE935530D
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 17:16:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730880AbfFYPDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 11:03:07 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:42028 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730607AbfFYPDH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 11:03:07 -0400
-Received: by mail-lj1-f196.google.com with SMTP id t28so16598210lje.9
-        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 08:03:05 -0700 (PDT)
+        id S1731938AbfFYPQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 11:16:16 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:39619 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730505AbfFYPQQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 11:16:16 -0400
+Received: by mail-wr1-f68.google.com with SMTP id x4so18318789wrt.6
+        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 08:16:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=VEJqd8vw1tqME5/P/9D+yMLddjUO3hTeyu6Qp0gvo8qj2JnFXcrM13heSWtJV6ShwT
-         kh2XC3SXQxvDZdasSn7ohZ2n6BfeT3UTHIEwUjgSpbTONhOIrMRNcfVrYqeBCYCPj2DI
-         aKrz24sLC73UydSEMPfGJ8eAASqZHbuz2w17SRGjcnq3gImCdY2x+DiuPIV+L3+BdQns
-         VTeQ6aIB5yezz1kZQmua3bVo7ipUpHwmr0ncchc6P3yiQHFlSeYryQ2e7Ku+cd0yx4NJ
-         dEsAwQBp1sVMPT4PHup6cwdPxp1pGoRdoqSbvNsjB7inmtItiKdfIVuEQwFxADJ7fTOO
-         PehA==
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JJ65PYSwq9lHbap5+/eYVEe6uBbmNNIS8cKuG+4aQHM=;
+        b=ksJu/lYM5QnmLSPoluMTTQ/cRukJmIwktRNyGqrTaY8uKdSyPKM/jut3sVcnj0Tmg0
+         DnfK/chEnLFtZdjJS956/3EWm5SzHKDhS1UbhcA3sD3BlxJihPZC1bMYQXDWbRhRanUp
+         ujrecaXEJCukCWUei7CBPwk8ltCtCE8rNbKaLsdwPXBk6TZXe5NyY+zbz3HsnvyyseFj
+         xD5c9zeMa0bv2T0ySY0AEOEB7dYek8fV8xNMGLcKouZOu3mtYDmKaZrdbyBd2WxrNJfN
+         bWAk/hZNI9gjFaav3pHFluT/VzVMHUUQ2t5qnXO4khDGV0I1gZebTv0CUjrPkFXHbOJP
+         1Jyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=uFLUQ6EnHZKc1o9qtmHqUHH35Y3Vxl5A+IbIQI3JikAO/x0VcPMIJrYqUlen91XKwa
-         loLb66cGNXzzYpHyk++qT2npEN7TmFtWLy16amc5MRsp4HCXgxrXyGX1U4Dg4CX0uYQl
-         Y2OayAybDtQrvJW6NMw0u3KEVy9mwvXyEmCQHgxm1lsjNe+U1hwX0PzCQN+5qkb1A8n7
-         BIb1GvJR0IqbSEDI1wOUICeaqDdjSzhmQly7P+N5WtUg0ej/NerKrDfx/Pgir/Sf1Sh/
-         J9kjF8pQWRrVu22SPdTN/CXT+nnLy7GSwDbvnMju6iEzTWdW8qQ1I3im6/iRuraclhse
-         CehQ==
-X-Gm-Message-State: APjAAAWbobFmHvo0hT5qIeEleFF8sybBE8djzzOd5a0KckBoTrOr3VKT
-        xfnHf9tuKWABK+VlsuLvTlxnowOkABnp6ZHQ1SA=
-X-Google-Smtp-Source: APXvYqxZzuQNX7J5K62rrYYy44QJXcFjYEQh+VSjzt5l99XxoVAzqnHp1T2xtvpqRHzU/OXmAx676iu2bozNszxGSok=
-X-Received: by 2002:a2e:9701:: with SMTP id r1mr1707800lji.12.1561474985260;
- Tue, 25 Jun 2019 08:03:05 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JJ65PYSwq9lHbap5+/eYVEe6uBbmNNIS8cKuG+4aQHM=;
+        b=iEk3d2sNCdxEySEqbplVY4Ky6LwpRkVR6eqYL9bN/4WcuHVKgKD9wTdcNNz9zuF0Vv
+         mR5cVYhdPnA08HYiBzC8r3LeAP8yzdJzsBPv0sICoq+UwgPCpsfwWZGb5ZVx9vI2AxKr
+         /iOXsqcyZaLKcd9JCSPR6FptJnzw4p9nqhASpopSMK3UBMy14rJr5f60AWuKDW8mHXMs
+         5ZUWUvIea8ipC72UPWND+DXwYDpflQkHjcftNHNB7wCx/oxblB6odcsJZbOlh6iUQHWM
+         VjP0OgCVpYJy9VtUe8RwwpBlMIOPDa+LCar8cK8Bd3X1lUOqSf+5orO34yh7u2fgdWRj
+         4FQw==
+X-Gm-Message-State: APjAAAXpXqprYnUrWkCOPUzBoUmWX88Wg2EbGu7mR5Gp59yLCGomGf2t
+        ZrrDJLILN0KHkeDSXP20byfYMQ==
+X-Google-Smtp-Source: APXvYqxcAJrcmpvr7/K/LFeB9QoRDG9hoW/+Wh0dvHT93oYnsjvEnWP3OfC0MlMmKOgGg6wJ4n/yag==
+X-Received: by 2002:a05:6000:112:: with SMTP id o18mr29440105wrx.153.1561475774684;
+        Tue, 25 Jun 2019 08:16:14 -0700 (PDT)
+Received: from debian-brgl.home ([2a01:cb1d:af:5b00:6d6c:8493:1ab5:dad7])
+        by smtp.gmail.com with ESMTPSA id t1sm18456995wra.74.2019.06.25.08.16.13
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 25 Jun 2019 08:16:14 -0700 (PDT)
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+To:     Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] ARM: davinci: da830-evm: fix GPIO lookup for OHCI
+Date:   Tue, 25 Jun 2019 17:16:12 +0200
+Message-Id: <20190625151612.6204-1-brgl@bgdev.pl>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Received: by 2002:a2e:7d10:0:0:0:0:0 with HTTP; Tue, 25 Jun 2019 08:03:04
- -0700 (PDT)
-Reply-To: info.orabank.tg@mail.com
-From:   ORA-BANK TOGO <chike.udem@gmail.com>
-Date:   Tue, 25 Jun 2019 15:03:04 +0000
-Message-ID: <CANOrLmh66Eq=TmzbY327k+0uPU6pi_L=LeHjVU7bM2HRJdtn6g@mail.gmail.com>
-Subject: Dear Beneficiary,Did you received our bank dated mail to you
- regarding your inheritance compensation funds release to you this year??
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+
+The fixed regulator driver doesn't specify any con_id for gpio lookup
+so it must be NULL in the table entry.
+
+Fixes: 274e4c336192 ("ARM: davinci: da830-evm: add a fixed regulator for ohci-da8xx")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ arch/arm/mach-davinci/board-da830-evm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-davinci/board-da830-evm.c b/arch/arm/mach-davinci/board-da830-evm.c
+index 51a892702e27..aba10a2bc6b9 100644
+--- a/arch/arm/mach-davinci/board-da830-evm.c
++++ b/arch/arm/mach-davinci/board-da830-evm.c
+@@ -88,7 +88,7 @@ static struct gpiod_lookup_table da830_evm_usb_oc_gpio_lookup = {
+ static struct gpiod_lookup_table da830_evm_usb_vbus_gpio_lookup = {
+ 	.dev_id		= "reg-fixed-voltage.0",
+ 	.table = {
+-		GPIO_LOOKUP("davinci_gpio", ON_BD_USB_DRV, "vbus", 0),
++		GPIO_LOOKUP("davinci_gpio", ON_BD_USB_DRV, NULL, 0),
+ 		{ }
+ 	},
+ };
+-- 
+2.21.0
 
