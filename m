@@ -2,74 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6396152160
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 05:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E670F52031
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 03:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbfFYDxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 23:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35652 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726833AbfFYDxa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jun 2019 23:53:30 -0400
-Received: from localhost (unknown [116.226.249.212])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B33620665;
-        Tue, 25 Jun 2019 03:53:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561434810;
-        bh=SG26bYO56Ct0AuXTeKnwt8cQd353Qwg1893NFtQKAzw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0lffZ4z7QLh0fmRjOSbk0r0NLUV/FXL3S45N/S3wb7FI9oW4XY09GOvRvxL1vVdQ6
-         qh4NkYdTCIWhyKJKLnyQpCg+gJOpT0D6HMafm1WCVrfUnHfuEKLNuldPjlh5twZfVX
-         XVS2rAlCmvgJVqg4bx7TkBrOd7Z0BvXKZqi286hQ=
-Date:   Tue, 25 Jun 2019 08:51:30 +0800
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jiunn Chang <c0d1n61at3@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.1 000/121] 5.1.15-stable review
-Message-ID: <20190625005130.GA8909@kroah.com>
-References: <20190624092320.652599624@linuxfoundation.org>
- <20190624175215.s5gtvatc3gqqeact@rYz3n>
+        id S1728340AbfFYBAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jun 2019 21:00:52 -0400
+Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:45179 "EHLO
+        smtp2207-205.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729336AbfFYBAw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 21:00:52 -0400
+X-Alimail-AntiSpam: AC=CONTINUE;BC=0.08014652|-1;CH=green;DM=CONTINUE|CONTINUE|true|0.238094-0.0170177-0.744888;FP=0|0|0|0|0|-1|-1|-1;HT=e01l01425;MF=liaoweixiong@allwinnertech.com;NM=1;PH=DS;RN=14;RT=14;SR=0;TI=SMTPD_---.Epjbx14_1561424445;
+Received: from 172.16.10.102(mailfrom:liaoweixiong@allwinnertech.com fp:SMTPD_---.Epjbx14_1561424445)
+          by smtp.aliyun-inc.com(10.147.42.135);
+          Tue, 25 Jun 2019 09:00:46 +0800
+Subject: Re: [RESEND PATCH v2] mtd: spinand: read return badly if the last
+ page has bitflips
+To:     Schrempf Frieder <frieder.schrempf@kontron.de>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        Frieder Schrempf <frieder.schrempf@exceet.de>,
+        Peter Pan <peterpandong@micron.com>,
+        Chuanhong Guo <gch981213@gmail.com>
+Cc:     "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <1561378534-26119-1-git-send-email-liaoweixiong@allwinnertech.com>
+ <f86e6750-6b4f-daf7-3f0c-1c5e63b5b95d@kontron.de>
+From:   liaoweixiong <liaoweixiong@allwinnertech.com>
+Message-ID: <049081eb-355e-6671-310c-3083cbdb0abc@allwinnertech.com>
+Date:   Tue, 25 Jun 2019 09:00:54 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190624175215.s5gtvatc3gqqeact@rYz3n>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <f86e6750-6b4f-daf7-3f0c-1c5e63b5b95d@kontron.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 24, 2019 at 12:52:16PM -0500, Jiunn Chang wrote:
-> On Mon, Jun 24, 2019 at 05:55:32PM +0800, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.1.15 release.
-> > There are 121 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Wed 26 Jun 2019 09:22:03 AM UTC.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.15-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> > -------------
-> 
-> Hello,
-> 
-> Compiled and booted fine.  No regressions on x86_64.
+Um.. I am sorry. It is the first time for me to resend patch.
+I will send this patch again with correct tags.
 
-Great, thanks for letting me know!
+On 2019/6/24 PM10:47, Schrempf Frieder wrote:
+> On 24.06.19 14:15, liaoweixiong wrote:
+>> In case of the last page containing bitflips (ret > 0),
+>> spinand_mtd_read() will return that number of bitflips for the last
+>> page. But to me it looks like it should instead return max_bitflips like
+>> it does when the last page read returns with 0.
+>>
+>> Signed-off-by: liaoweixiong <liaoweixiong@allwinnertech.com>
+>> Acked-by: Boris Brezillon <boris.brezillon@collabora.com>
+>> Acked-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+> 
+> Why did you change our Reviewed-by tags to Acked-by tags?
+> 
+>> Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
+>> ---
+>>   drivers/mtd/nand/spi/core.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
+>> index 556bfdb..6b9388d 100644
+>> --- a/drivers/mtd/nand/spi/core.c
+>> +++ b/drivers/mtd/nand/spi/core.c
+>> @@ -511,12 +511,12 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
+>>   		if (ret == -EBADMSG) {
+>>   			ecc_failed = true;
+>>   			mtd->ecc_stats.failed++;
+>> -			ret = 0;
+>>   		} else {
+>>   			mtd->ecc_stats.corrected += ret;
+>>   			max_bitflips = max_t(unsigned int, max_bitflips, ret);
+>>   		}
+>>   
+>> +		ret = 0;
+>>   		ops->retlen += iter.req.datalen;
+>>   		ops->oobretlen += iter.req.ooblen;
+>>   	}
 
-greg k-h
+-- 
+liaoweixiong
