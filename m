@@ -2,74 +2,300 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D37352038
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 03:02:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B235207F
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 03:58:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727843AbfFYBCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jun 2019 21:02:38 -0400
-Received: from smtp2207-205.mail.aliyun.com ([121.197.207.205]:37321 "EHLO
-        smtp2207-205.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727648AbfFYBCi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jun 2019 21:02:38 -0400
-X-Alimail-AntiSpam: AC=CONTINUE;BC=0.09668445|-1;CH=green;DM=CONTINUE|CONTINUE|true|0.121591-0.0103769-0.868032;FP=17101942903001009341|1|1|11|0|-1|-1|-1;HT=e02c03292;MF=liaoweixiong@allwinnertech.com;NM=1;PH=DS;RN=15;RT=15;SR=0;TI=SMTPD_---.EpjhFci_1561424547;
-Received: from PC-liaoweixiong.allwinnertech.com(mailfrom:liaoweixiong@allwinnertech.com fp:SMTPD_---.EpjhFci_1561424547)
-          by smtp.aliyun-inc.com(10.147.40.44);
-          Tue, 25 Jun 2019 09:02:33 +0800
-From:   liaoweixiong <liaoweixiong@allwinnertech.com>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Brian Norris <computersforpeace@gmail.com>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Boris Brezillon <bbrezillon@kernel.org>,
-        Frieder Schrempf <frieder.schrempf@exceet.de>,
-        Peter Pan <peterpandong@micron.com>,
-        Chuanhong Guo <gch981213@gmail.com>,
-        Schrempf Frieder <frieder.schrempf@kontron.De>
-Cc:     linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        liaoweixiong <liaoweixiong@allwinnertech.com>
-Subject: [RESEND PATCH v2] mtd: spinand: read return badly if the last page has bitflips
-Date:   Tue, 25 Jun 2019 09:02:29 +0800
-Message-Id: <1561424549-784-1-git-send-email-liaoweixiong@allwinnertech.com>
-X-Mailer: git-send-email 1.9.1
+        id S1730133AbfFYB6M convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 24 Jun 2019 21:58:12 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:41226 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729894AbfFYB6M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jun 2019 21:58:12 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 9ADFCC18B2CF
+        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 01:58:11 +0000 (UTC)
+Received: from [172.54.90.237] (cpt-1046.paas.prod.upshift.rdu2.redhat.com [10.0.19.73])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1B557600D1;
+        Tue, 25 Jun 2019 01:58:09 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.1FEE421022.TQD9HU45ZQ@redhat.com>
+X-Gitlab-Pipeline-ID: 13167
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Tue, 25 Jun 2019 01:58:11 +0000 (UTC)
+Date:   Mon, 24 Jun 2019 21:58:12 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In case of the last page containing bitflips (ret > 0),
-spinand_mtd_read() will return that number of bitflips for the last
-page. But to me it looks like it should instead return max_bitflips like
-it does when the last page read returns with 0.
+Hello,
 
-Signed-off-by: liaoweixiong <liaoweixiong@allwinnertech.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
----
- drivers/mtd/nand/spi/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
-index 556bfdb..6b9388d 100644
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -511,12 +511,12 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
- 		if (ret == -EBADMSG) {
- 			ecc_failed = true;
- 			mtd->ecc_stats.failed++;
--			ret = 0;
- 		} else {
- 			mtd->ecc_stats.corrected += ret;
- 			max_bitflips = max_t(unsigned int, max_bitflips, ret);
- 		}
- 
-+		ret = 0;
- 		ops->retlen += iter.req.datalen;
- 		ops->oobretlen += iter.req.ooblen;
- 	}
--- 
-1.9.1
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 78778071092e - Linux 4.19.55
 
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 78778071092e - Linux 4.19.55
+
+
+We grabbed the 6a904a97c13f commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  tracing-silence-gcc-9-array-bounds-warning.patch
+  objtool-support-per-function-rodata-sections.patch
+  gcc-9-silence-address-of-packed-member-warning.patch
+  ovl-support-the-fs_ioc_fs-sg-etxattr-ioctls.patch
+  ovl-fix-wrong-flags-check-in-fs_ioc_fs-sg-etxattr-io.patch
+  ovl-make-i_ino-consistent-with-st_ino-in-more-cases.patch
+  ovl-detect-overlapping-layers.patch
+  ovl-don-t-fail-with-disconnected-lower-nfs.patch
+  ovl-fix-bogus-wmaybe-unitialized-warning.patch
+  s390-jump_label-use-jdd-constraint-on-gcc9.patch
+  s390-ap-rework-assembler-functions-to-use-unions-for.patch
+  mmc-sdhci-sdhci-pci-o2micro-correctly-set-bus-width-when-tuning.patch
+  mmc-core-api-to-temporarily-disable-retuning-for-sdio-crc-errors.patch
+  mmc-core-add-sdio_retune_hold_now-and-sdio_retune_release.patch
+  mmc-core-prevent-processing-sdio-irqs-when-the-card-is-suspended.patch
+  scsi-ufs-avoid-runtime-suspend-possibly-being-blocked-forever.patch
+  usb-chipidea-udc-workaround-for-endpoint-conflict-issue.patch
+  xhci-detect-usb-3.2-capable-host-controllers-correctly.patch
+  usb-xhci-don-t-try-to-recover-an-endpoint-if-port-is-in-error-state.patch
+  ib-hfi1-validate-fault-injection-opcode-user-input.patch
+  ib-hfi1-silence-txreq-allocation-warnings.patch
+  iio-temperature-mlx90632-relax-the-compatibility-check.patch
+  input-synaptics-enable-smbus-on-thinkpad-e480-and-e580.patch
+  input-uinput-add-compat-ioctl-number-translation-for-ui_-_ff_upload.patch
+  input-silead-add-mssl0017-to-acpi_device_id.patch
+  apparmor-fix-profile_mediates-for-untrusted-input.patch
+  apparmor-enforce-nullbyte-at-end-of-tag-string.patch
+  brcmfmac-sdio-disable-auto-tuning-around-commands-expected-to-fail.patch
+  brcmfmac-sdio-don-t-tune-while-the-card-is-off.patch
+  arc-fix-build-warnings.patch
+  dmaengine-dw-axi-dmac-fix-null-dereference-when-poin.patch
+  dmaengine-sprd-fix-block-length-overflow.patch
+  arc-plat-hsdk-add-missing-multicast-filter-bins-numb.patch
+  arc-plat-hsdk-add-missing-fifo-size-entry-in-gmac-no.patch
+  fpga-dfl-afu-pass-the-correct-device-to-dma_mapping_.patch
+  fpga-dfl-add-lockdep-classes-for-pdata-lock.patch
+  parport-fix-mem-leak-in-parport_register_dev_model.patch
+  parisc-fix-compiler-warnings-in-float-emulation-code.patch
+  ib-rdmavt-fix-alloc_qpn-warn_on.patch
+  ib-hfi1-insure-freeze_work-work_struct-is-canceled-o.patch
+  ib-qib-hfi1-rdmavt-correct-ibv_devinfo-max_mr-value.patch
+  ib-hfi1-validate-page-aligned-for-a-given-virtual-ad.patch
+  mips-uprobes-remove-set-but-not-used-variable-epc.patch
+  xtensa-fix-section-mismatch-between-memblock_reserve.patch
+  kselftest-cgroup-fix-unexpected-testing-failure-on-t.patch
+  kselftest-cgroup-fix-unexpected-testing-failure-on-t.patch
+  kselftest-cgroup-fix-incorrect-test_core-skip.patch
+  selftests-vm-install-test_vmalloc.sh-for-run_vmtests.patch
+  net-dsa-mv88e6xxx-avoid-error-message-on-remove-from.patch
+  net-hns-fix-loopback-test-failed-at-copper-ports.patch
+  mdesc-fix-a-missing-check-bug-in-get_vdev_port_node_.patch
+  sparc-perf-fix-updated-event-period-in-response-to-p.patch
+  net-ethernet-mediatek-use-hw_feature-to-judge-if-hwl.patch
+  net-ethernet-mediatek-use-net_ip_align-to-judge-if-h.patch
+  drm-arm-mali-dp-add-a-loop-around-the-second-set-cva.patch
+  drm-arm-hdlcd-actually-validate-crtc-modes.patch
+  drm-arm-hdlcd-allow-a-bit-of-clock-tolerance.patch
+  nvmet-fix-data_len-to-0-for-bdev-backed-write_zeroes.patch
+  scripts-checkstack.pl-fix-arm64-wrong-or-unknown-arc.patch
+  scsi-ufs-check-that-space-was-properly-alloced-in-co.patch
+  scsi-smartpqi-unlock-on-error-in-pqi_submit_raid_req.patch
+  net-ipvlan-fix-ipvlan-device-tso-disabled-while-neti.patch
+  s390-qeth-fix-vlan-attribute-in-bridge_hostnotify-ud.patch
+  hwmon-core-add-thermal-sensors-only-if-dev-of_node-i.patch
+  hwmon-pmbus-core-treat-parameters-as-paged-if-on-mul.patch
+  arm64-silence-gcc-warnings-about-arch-abi-drift.patch
+  nvme-fix-u32-overflow-in-the-number-of-namespace-lis.patch
+  btrfs-start-readahead-also-in-seed-devices.patch
+  can-xilinx_can-use-correct-bittiming_const-for-can-fd-core.patch
+  can-flexcan-fix-timeout-when-set-small-bitrate.patch
+  can-purge-socket-error-queue-on-sock-destruct.patch
+  riscv-mm-synchronize-mmu-after-pte-change.patch
+  powerpc-bpf-use-unsigned-division-instruction-for-64-bit-operations.patch
+  arm-imx-cpuidle-imx6sx-restrict-the-sw2iso-increase-to-i.mx6sx.patch
+  arm-dts-dra76x-update-mmc2_hs200_manual1-iodelay-values.patch
+  arm-dts-am57xx-idk-remove-support-for-voltage-switching-for-sd-card.patch
+  arm64-sve-uapi-asm-ptrace.h-should-not-depend-on-uapi-linux-prctl.h.patch
+  arm64-ssbd-explicitly-depend-on-linux-prctl.h.patch
+  drm-vmwgfx-use-the-backdoor-port-if-the-hb-port-is-not-available.patch
+  staging-erofs-add-requirements-field-in-superblock.patch
+  bluetooth-align-minimum-encryption-key-size-for-le-and-br-edr-connections.patch
+  bluetooth-fix-regression-with-minimum-encryption-key-size-alignment.patch
+  smb3-retry-on-status_insufficient_resources-instead-of-failing-write.patch
+  cfg80211-fix-memory-leak-of-wiphy-device-name.patch
+  mac80211-drop-robust-management-frames-from-unknown-ta.patch
+  nl-mac-80211-allow-4addr-ap-operation-on-crypto-controlled-devices.patch
+  mac80211-handle-deauthentication-disassociation-from-tdls-peer.patch
+  nl80211-fix-station_info-pertid-memory-leak.patch
+  mac80211-do-not-use-stack-memory-with-scatterlist-for-gmac.patch
+  x86-resctrl-don-t-stop-walking-closids-when-a-locksetup-group-is-found.patch
+  powerpc-mm-64s-hash-reallocate-context-ids-on-fork.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-60fb3e99b8b1cf6652377b725d2c16b3a93b62f6.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-60fb3e99b8b1cf6652377b725d2c16b3a93b62f6.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-60fb3e99b8b1cf6652377b725d2c16b3a93b62f6.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-60fb3e99b8b1cf6652377b725d2c16b3a93b62f6.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-60fb3e99b8b1cf6652377b725d2c16b3a93b62f6.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-60fb3e99b8b1cf6652377b725d2c16b3a93b62f6.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-60fb3e99b8b1cf6652377b725d2c16b3a93b62f6.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-60fb3e99b8b1cf6652377b725d2c16b3a93b62f6.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ LTP: openposix test suite [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+       🚧 ✅ storage: SCSI VPD [12]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [13]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [13]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ LTP: openposix test suite [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ LTP: openposix test suite [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [13]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [13]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ LTP: openposix test suite [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+       🚧 ✅ storage: SCSI VPD [12]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
