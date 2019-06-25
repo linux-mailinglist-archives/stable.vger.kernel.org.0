@@ -2,99 +2,246 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B36D554CA2
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 12:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5751954DD7
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 13:38:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726668AbfFYKqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 06:46:25 -0400
-Received: from mout.web.de ([212.227.15.4]:40021 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726521AbfFYKqY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 06:46:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
-        s=dbaedf251592; t=1561459526;
-        bh=jg0LNFsCwDmqXuZh9IGxLcaasuGMXo9WkaIpQDF3y/A=;
-        h=X-UI-Sender-Class:Date:From:Subject:To:CC:In-Reply-To;
-        b=VJhNwqUxb0kzahw31C4IToRfsvI0o7P9m93tzY2VZit14pHh+3MMPPSZ6w32Dl3wc
-         t8LYeooXufVGoTFTYW4rfom7Wwozcnw8kypOhTo0uiF++cj3/ZnJrzFZQDJEZN5F5K
-         4Kwj3v055M2rw3OoBNcP3RLdp6hjnt83sGGht4Fc=
-X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
-Received: from debian ([85.71.157.74]) by smtp.web.de (mrweb002
- [213.165.67.108]) with ESMTPSA (Nemesis) id 0M2us2-1iXxzs0Tos-00seXr; Tue, 25
- Jun 2019 12:45:26 +0200
-Date:   Tue, 25 Jun 2019 12:45:24 +0200
-Message-Id: <87mui6djuj.fsf@debian>
-From:   Jiri Palecek <jpalecek@web.de>
-Subject: [PATCH] KVM: x86/mmu: Allocate PAE root array when using SVM's 32-bit
- NPT
+        id S1730852AbfFYLiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 07:38:17 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:41913 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728703AbfFYLiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 07:38:17 -0400
+Received: by mail-pl1-f194.google.com with SMTP id m7so8678478pls.8
+        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 04:38:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:from:to:references:cc:openpgp:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to;
+        bh=9p4JkdBE9qVDMcTaYkHXREwifpXxXYFblaoj1KajjrA=;
+        b=lfPvyYRDw9fLyIB61VCJKjBhF//VWlSE+jAHWkxXYkdiMkIl/+z7OZmt7NM1krime9
+         GG0McsJHWy5kdcXvVypvZ3TdMu53KhvWDgltxGWoOY9MeFzEfclkvx5XB82XNQgFlVcK
+         +4pFL9vyzEUP+a4hBgBaqFVUNkHCBpe4+ZHQzygLfC7BWZmb33vkzObmX9BryJ1FNR42
+         yb9KIkz/Fil7m0bcnAenk/rOxboRpwu1UNP77BI5l7ntdKOYrEXs65XWiCYx38dj+a0V
+         UF6Z+FIWveoDx+TbYTbIos9l1XRV2/6OU0rPZs18i9C3qN5kMNHDBsxLv2scqsGXC2rA
+         1n6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:references:cc:openpgp:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to;
+        bh=9p4JkdBE9qVDMcTaYkHXREwifpXxXYFblaoj1KajjrA=;
+        b=pHQ4TwZk6k17PVMHbeyNS2gI/2B5/oWTTRuiMhJhmZVl791vlXFTymKWCnS9kk/Vfb
+         bTHyO1HPGwDCbhh2eTgS+utBsEvP/g9BBKm/q2VmdByfJDHkmDqts1E21w7dcLdmnIQG
+         AO2fzZAQlUaAG2Lwfu4INVO/GvNReHbnLy1s5VWJQY5PfC5nAeCZzgAl+/iLTJtZiDte
+         yiKsYlHzYaFZQxSGGgJ6bD+Hg4wenLP2ZO77wmgdXri5WkvjLYDjN4JcWCODoepV7zRx
+         k8hbXJ3OxS81sQMjhhZv+v96uzspNSPXEKQNYabDetQ6fyU7TSi/n/DDy0g1CEWCMOMm
+         gyqA==
+X-Gm-Message-State: APjAAAWsM7KGWHgm+McoKyUEpNS3740wrKPrDJGMBMQt+xnjbicdKCrO
+        MWbx4VB+r4rvnhqANfacy9A=
+X-Google-Smtp-Source: APXvYqzn87tauv7vpoSYgbBpY0lUUv5dMwQihd3GHE7c7OpabE+eFBtA7H+6yPzgxxSXP8WuNucqlA==
+X-Received: by 2002:a17:902:bc83:: with SMTP id bb3mr134001038plb.56.1561462696370;
+        Tue, 25 Jun 2019 04:38:16 -0700 (PDT)
+Received: from [10.21.10.6] ([103.231.90.173])
+        by smtp.gmail.com with ESMTPSA id x23sm20717881pfo.112.2019.06.25.04.38.11
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 25 Jun 2019 04:38:15 -0700 (PDT)
+Subject: Re: [gregkh@linuxfoundation.org: Re: Failed to checksum on tarball
+ latest kernel 5.1.15]
+From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
 To:     stable@vger.kernel.org
-CC:     Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <1561321670157164@kroah.com>
-X-Provags-ID: V03:K1:1y6XoTj4Vgoe7h9Os0KjfBvSjT40hPau6CZwWOlVZlQhWvvyFoK
- HsUJrEQ+SY+Ylapa8jbK34KE1TYIHE4fYa0A1o1EyOp5yOBKALM/uwMn+H8mB3SQAp8vPvd
- L3HHtegqfVGSetIUpV1DrC9HKRZ9RKeW0YMi4vpmeRmg4k1JRu0U135nvuc7Neb/lTRTcCz
- Rr2LXsbUZm5ZdCYH2wRqQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:OLindXxU994=:Mhg8vw0g8VXdmhHSTbwn3w
- F3EFmFWPKA2St4JKpRQjETkzkgNs7m0jzVoJNTm8mGvwsuWEM+1IQZfodHa07S7Cg4r3CU1lP
- usFDiAWT5/APpYt5b9vDgpXWbbIzX/qvzFUX1J6q01RjDWzyO4XbTacBcCi1szOS3Q6ai+C5D
- +SBEWzn5ItDC9mFk2Csgw9mUZ2xfmjMAStK0vzWMRU2DeITacDgq+33pTC28S7P5Kq2o7Q4yU
- iiLv5K0tmHk6du+Iky8Aa5Z2g1idiVcDl8fYfGA1bp3PcacHtmBPXY2YiIHI2Bh33woEQMzZs
- 78llDjqdkxdd+557RytNRMeMCcmEWyBUDVN/Mv3CVKWJofajazjfjh09yLJSgk3YXQoloOzll
- FzWLu46o1lu8+MywSoJKeRA1YzOpfCX12fgURrglNE4agQ+R7cZpDdhIZlB7tsdRSSDIhMEyb
- 28kCblWxJOkVEA4ZyFWPSPxc+uD1f0cOia4MazJVA7V4SYGxC1VmZhv5+ih1cBXfnYkz2gfOg
- G4hI1nLAYq2xhMQ7aViMJTZ6ssIRyNWSzsgbd+4eJjRgLVg3dUkahjKSXyvnKKLyplWDKP9b0
- wtse+wnYsIVdWzJaEq/71DqbRU/e29qQNCLM+PJUGbLPZDHR9n6oOOJiIK2pHKK6d/sxtoLyo
- LkGoNK0/A0scQ/7F/q2tiHx91qpPmDj3cIIsSffZJPSKSBZa8SpOVdlFeg2Tp8s2SJs4YWNan
- L1aV4fJX4/8jeBkRTuYw+SL0BwzJI5WX6/lQGZiptgO142jfd5FPnJDJKPJjKvTswuRYbiLo9
- cZdewTksCFW9tVBWzF2EUPpLFzuPtbO4K9iSCdZuGo34KW7Q0fJsT+pSntezUrkchWozeHMvI
- +wiOauvtdjUIdsKBBfM3AmZQ6P9OBxBaRib4htgQFxfUoiGKBCAldj0ojBZvV93TENkor4ncN
- vehiUEqgApC6bHxlZdFo9uhKJ5S0ciL0=
-Content-Transfer-Encoding: quoted-printable
+References: <20190625091259.GC3789@Slackware>
+Cc:     gregkh@linuxfoundation.org
+Openpgp: preference=signencrypt
+Autocrypt: addr=unixbhaskar@gmail.com; prefer-encrypt=mutual; keydata=
+ mQENBFdtMWUBCADcg5hz3Ry1hucVfzBbltx5vlAFi/LAj1BhWnq2lCbrbBehMRJgZjXIvHwa
+ 6IfNRqBDbq40soT1atmVX4gzZx4Nzspdmj/J2JjoHbPqo8tadNpKN4DkXuWI68S4JQabyDce
+ /87VOnlnmAprN8RyrE+g4HmahqXs4b3HsDpsVDhiwc7BgqQJLcP/CJrnIPXNObAG5IZWWaex
+ P+KuiN3ddspAS+yRwYqSd+5Mp2kY2HTT1Pphttq2AZUYK804KtEQ24MN9V75P9rjBgqUoa2B
+ 9RskgB3x5B7KWwVjXIjSiolI23eM5xIZoZ1r0P+YU+HWmodKQ2vid/o4USu45JdLGSoLABEB
+ AAG0Q0JoYXNrYXIgQ2hvd2RodXJ5IChNdXNpbmdfd2l0aF9HTlUvTGludXghISkgPHVuaXhi
+ aGFza2FyQGdtYWlsLmNvbT6JATcEEwEIACEFAldtMWUCGwMFCwkIBwIGFQgJCgsCBBYCAwEC
+ HgECF4AACgkQsjqdtxFLKRWOIAgArUlozmvzTjTJsofSJtGncqYw2ynk1TjBbs9XEpiXvAIR
+ 0M6gXNOYfwaiYLA6QlSO1rYhyQdT+KKq2FUwXQG8DFKDRD2Ps+ta9LDR+m4yWBke7CoPeLGn
+ V+/cUn7FSH+qtOBxNnWv6jTnoy8f3s0peNBi+iK++DmIyZhCVRwY67h0vtIYXcE4p1RhlU8N
+ Sgkh1FfQMkrDej2y9kE/nV65OL6aWt3ldM73oGzhVC9SMKvyTiRnkUMGlDzaQUjt/jECgDZw
+ o/YkQcVTqVJV61QOQt+oepf8ACRbUZ6qlQJ9HjPfiyYiJxCq/mkSIYi4ikuMYAefRl23BKVt
+ 8eJQc6ZqGbkBDQRXbTFlAQgAuCGQ+5n6DPyyTcYDK272sutcaqEchOrsrQ8Yy2AIV/6ol+l5
+ idAAPvcB8gBkCamHHWuTILXnLSttpOuzJC0+0anzUkG/swMXNm90a8eff3uO560ipZ2HjGkN
+ MCcP9kO4UiMNNoj0DdcAnBkgSiELcEHmlvQ6TyxrztUWhQZV0LUlnlekr+YKlDjsNC8C86mr
+ hI+/l1iNb0ZpOzvQj/0QJt5rM4S+WmpWjG7AHFZQ8IDCqDWveYFrJeQplYoij4OoZDJ017zI
+ NJpoOTODTzT17lD56pAlhP56WjP3nvb11PPF16y/yi3lCJct5XhLv/5bjTAH/fGLgwuOb4ZE
+ F2UP+wARAQABiQEfBBgBCAAJBQJXbTFlAhsMAAoJELI6nbcRSykVIs4H/RQyi4w5zqugSyKh
+ 5b1z1F7ow/QgfUZg/ZRMm5K0gM+jUwrmSN2g5K2UYp0+L3bCJ8HMbEB9GL4ffKZOT91obfNU
+ 97nAcV4+g+biQlusLPKlw4q8eVWtoqJB1HdrrUMtxd4T0fUrw2SozkZznRbZb5ovytt/dlVj
+ ZXp3ockdcTQHp54jpPDVYVtyk8L+gFJGJ6asWJtoN05FxVb08CJ/mZJRHOsCWZWjXLIWZ5ml
+ jySL/S62rS3YykbOM1mfuHzz0uDDSRLiuM2FjMg/9+fV5WYb+kwymLir+ruNoE/Lv8ubwYFp
+ D5IZdyIz6OapumFfxps7uqDzJhIFiwaPHW7I0Io=
+Message-ID: <ce8aa23f-6b75-ca9e-a250-ee0dd9ede005@gmail.com>
+Date:   Tue, 25 Jun 2019 17:07:54 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
+MIME-Version: 1.0
+In-Reply-To: <20190625091259.GC3789@Slackware>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="euxI92GzpxBpDFmaEMD5wFuTNhdiHWwvN"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Original commit id b6b80c78 ported to stable/linux-4.19.y.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--euxI92GzpxBpDFmaEMD5wFuTNhdiHWwvN
+Content-Type: multipart/mixed; boundary="wCRYPqSr06ruhgFYGS5SXWUo3U7zUpaPS";
+ protected-headers="v1"
+From: Bhaskar Chowdhury <unixbhaskar@gmail.com>
+To: stable@vger.kernel.org
+Cc: gregkh@linuxfoundation.org
+Message-ID: <ce8aa23f-6b75-ca9e-a250-ee0dd9ede005@gmail.com>
+Subject: Re: [gregkh@linuxfoundation.org: Re: Failed to checksum on tarball
+ latest kernel 5.1.15]
+References: <20190625091259.GC3789@Slackware>
+In-Reply-To: <20190625091259.GC3789@Slackware>
 
-SVM's Nested Page Tables (NPT) reuses x86 paging for the host-controlled
-page walk.  For 32-bit KVM, this means PAE paging is used even when TDP
-is enabled, i.e. the PAE root array needs to be allocated.
+--wCRYPqSr06ruhgFYGS5SXWUo3U7zUpaPS
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: base64
+Content-Language: en-US
 
-Fixes: ee6268ba3a68 ("KVM: x86: Skip pae_root shadow allocation if tdp ena=
-bled")
-Cc: stable@vger.kernel.org
-Reported-by: Jiri Palecek <jpalecek@web.de>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-=2D--
- arch/x86/kvm/mmu.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+SXQgc2VlbXMgZml4ZWQgbm93IC4uLgoKRG93bmxvYWRpbmcgdGhlIGNoZWNrc3VtcyBmaWxl
+IGZvciBsaW51eC01LjEuMTUKVmVyaWZ5aW5nIHRoZSBjaGVja3N1bXMgZmlsZQpncGd2OiBT
+aWduYXR1cmUgbWFkZSBUdWUgMjUgSnVuIDIwMTkgMDk6MTY6MDQgQU0gSVNUCmdwZ3Y6oKCg
+oKCgoKCgoKCgoKCgIHVzaW5nIFJTQSBrZXkgNjMyRDNBMDY1ODlEQTZCMQpncGd2OiBHb29k
+IHNpZ25hdHVyZSBmcm9tICJLZXJuZWwub3JnIGNoZWNrc3VtIGF1dG9zaWduZXIKPGF1dG9z
+aWduZXJAa2VybmVsLm9yZz4iCgpEb3dubG9hZGluZyB0aGUgc2lnbmF0dXJlIGZpbGUgZm9y
+IGxpbnV4LTUuMS4xNQpEb3dubG9hZGluZyB0aGUgWFogdGFyYmFsbCBmb3IgbGludXgtNS4x
+LjE1CqAgJSBUb3RhbKCgoCAlIFJlY2VpdmVkICUgWGZlcmSgIEF2ZXJhZ2UgU3BlZWSgoCBU
+aW1loKCgIFRpbWWgoKCgIFRpbWWgCkN1cnJlbnQKoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
+oKCgoKCgoKAgRGxvYWSgIFVwbG9hZKCgIFRvdGFsoKAgU3BlbnSgoKAgTGVmdKAKU3BlZWQK
+MTAwoCAxMDFNoCAxMDCgIDEwMU2goKAgMKCgoKAgMKCgIDMwMGugoKCgoCAwoCAwOjA1OjQ0
+oCAwOjA1OjQ0Ci0tOi0tOi0toCA1NjJrClZlcmlmeWluZyBjaGVja3N1bSBvbiBsaW51eC01
+LjEuMTUudGFyLnh6CmxpbnV4LTUuMS4xNS50YXIueHo6IE9LCgpWZXJpZnlpbmcgZGV2ZWxv
+cGVyIHNpZ25hdHVyZSBvbiB0aGUgdGFyYmFsbApncGd2OiBTaWduYXR1cmUgbWFkZSBUdWUg
+MjUgSnVuIDIwMTkgMDk6MDU6NDggQU0gSVNUCmdwZ3Y6oKCgoKCgoKCgoKCgoKCgIHVzaW5n
+IFJTQSBrZXkgNjQ3RjI4NjU0ODk0RTNCRDQ1NzE5OUJFMzhEQkJEQzg2MDkyNjkzRQpncGd2
+OiBHb29kIHNpZ25hdHVyZSBmcm9tICJHcmVnIEtyb2FoLUhhcnRtYW4gPGdyZWdraEBsaW51
+eGZvdW5kYXRpb24ub3JnPiIKZ3BndjqgoKCgoKCgoKCgoKCgoKCgIGFrYSAiR3JlZyBLcm9h
+aC1IYXJ0bWFuIChMaW51eCBrZXJuZWwgc3RhYmxlCnJlbGVhc2Ugc2lnbmluZyBrZXkpIDxn
+cmVnQGtyb2FoLmNvbT4iCmdwZ3Y6oKCgoKCgoKCgoKCgoKCgoCBha2EgIkdyZWcgS3JvYWgt
+SGFydG1hbiA8Z3JlZ2toQGtlcm5lbC5vcmc+IgoKU3VjY2Vzc2Z1bGx5IGRvd25sb2FkZWQg
+YW5kIHZlcmlmaWVkCi9ob21lL2JoYXNrYXIvRG93bmxvYWRzL2xpbnV4LTUuMS4xNS50YXIu
+eHoKCk9uIDYvMjUvMTkgMjo0MiBQTSwgQmhhc2thciBDaG93ZGh1cnkgd3JvdGU6Cj4KPiBQ
+bGVhc2UgbG9vayBpbi4gVGhpcyBpcyBoYXBwZW5pbmcgYXQgbGVhc3QgdHdvIGRpZmZlcmVu
+dCBkaXN0cm9zIEkKPiB0cmllZC4uLmhlcmUgaXMgYW5vdGhlciBvbmUgOgo+Cj4gYmhhc2th
+ckBTbGFja3dhcmVfMTQ6MTI6MjhfVHVlIEp1biAyNTp+Pgo+IEFkbV9zY3JpcHRzL3NlY3Vy
+ZV9rZXJuZWxfdGFyYmFsbCA1LjEuMTUKPiBVc2luZwo+IFRNUERJUj0vaG9tZS9iaGFza2Fy
+L0Rvd25sb2Fkcy9saW51eC10YXJiYWxsLXZlcmlmeS4zNlNIcUcudW50cnVzdGVkCj4gTWFr
+aW5nIHN1cmUgd2UgaGF2ZSBhbGwgdGhlIG5lY2Vzc2FyeSBrZXlzCj4gcHVioKAgcnNhNDA5
+NiAyMDEzLTAxLTI0IFtTQ10KPiCgoKCgIEI4ODY4QzgwQkE2MkExRkZGQUY1RkRBOTYzMkQz
+QTA2NTg5REE2QjEKPiCgoKCgIHVpZKCgoKCgoKCgoKAgWyB1bmtub3duXSBLZXJuZWwub3Jn
+IGNoZWNrc3VtIGF1dG9zaWduZXIKPiA8YXV0b3NpZ25lckBrZXJuZWwub3JnPgo+Cj4goKCg
+oCBwdWKgoCByc2E0MDk2IDIwMTEtMDktMjMgW1NDXQo+IKCgoKCgoKCgoKAgNjQ3RjI4NjU0
+ODk0RTNCRDQ1NzE5OUJFMzhEQkJEQzg2MDkyNjkzRQo+IKCgoKCgoKCgoKAgdWlkoKCgoKCg
+oKCgoCBbIHVua25vd25dIEdyZWcgS3JvYWgtSGFydG1hbgo+IDxncmVna2hAbGludXhmb3Vu
+ZGF0aW9uLm9yZz4KPiCgoKCgoKCgoKCgIHVpZKCgoKCgoKCgoKAgWyB1bmtub3duXSBHcmVn
+IEtyb2FoLUhhcnRtYW4gKExpbnV4IGtlcm5lbAo+IHN0YWJsZSByZWxlYXNlIHNpZ25pbmcg
+a2V5KSA8Z3JlZ0Brcm9haC5jb20+Cj4goKCgoKCgoKCgoCB1aWSgoKCgoKCgoKCgIFsgdW5r
+bm93bl0gR3JlZyBLcm9haC1IYXJ0bWFuCj4gPGdyZWdraEBrZXJuZWwub3JnPgo+IKCgoKCg
+oKCgoKAgc3VioKAgcnNhNDA5NiAyMDExLTA5LTIzIFtFXQo+Cj4goKCgoKCgoKCgoCBwdWKg
+oCByc2EyMDQ4IDIwMTEtMDktMjAgW1NDXQo+IKCgoKCgoKCgoKCgoKCgoKAgQUJBRjExQzY1
+QTI5NzBCMTMwQUJFM0M0NzlCRTNFNDMwMDQxMTg4Ngo+IKCgoKCgoKCgoKCgoKCgoKAgdWlk
+oKCgoKCgoKCgoCBbIHVua25vd25dIExpbnVzIFRvcnZhbGRzCj4gPHRvcnZhbGRzQGtlcm5l
+bC5vcmc+Cj4goKCgoKCgoKCgoKCgoKCgoCB1aWSgoKCgoKCgoKCgIFsgdW5rbm93bl0gTGlu
+dXMgVG9ydmFsZHMKPiA8dG9ydmFsZHNAbGludXgtZm91bmRhdGlvbi5vcmc+Cj4goKCgoKCg
+oKCgoKCgoKCgoCBzdWKgoCByc2EyMDQ4IDIwMTEtMDktMjAgW0VdCj4KPiCgoKCgoKCgoKCg
+oKCgoKCgIERvd25sb2FkaW5nIHRoZSBjaGVja3N1bXMgZmlsZSBmb3IgbGludXgtNS4xLjE1
+Cj4goKCgoKCgoKCgoKCgoKCgoCBWZXJpZnlpbmcgdGhlIGNoZWNrc3VtcyBmaWxlCj4goKCg
+oKCgoKCgoKCgoKCgoCBncGd2OiBTaWduYXR1cmUgbWFkZSBTYXQgMjIgSnVuIDIwMTkgMDM6
+MDE6MjEgUE0gSVNUCj4goKCgoKCgoKCgoKCgoKCgoCBncGd2OqCgoKCgoKCgoKCgoKCgoCB1
+c2luZyBSU0Ega2V5IDYzMkQzQTA2NTg5REE2QjEKPiCgoKCgoKCgoKCgoKCgoKCgIGdwZ3Y6
+IEdvb2Qgc2lnbmF0dXJlIGZyb20gIktlcm5lbC5vcmcgY2hlY2tzdW0KPiBhdXRvc2lnbmVy
+IDxhdXRvc2lnbmVyQGtlcm5lbC5vcmc+Igo+Cj4goKCgoKCgoKCgoKCgoKCgoCBEb3dubG9h
+ZGluZyB0aGUgc2lnbmF0dXJlIGZpbGUgZm9yIGxpbnV4LTUuMS4xNQo+IKCgoKCgoKCgoKCg
+oKCgoKAgRG93bmxvYWRpbmcgdGhlIFhaIHRhcmJhbGwgZm9yIGxpbnV4LTUuMS4xNQo+IKCg
+oKCgoKCgoKCgoKCgoKCgoCAlIFRvdGFsoKCgICUgUmVjZWl2ZWQgJSBYZmVyZKAgQXZlcmFn
+ZSBTcGVlZKCgCj4gVGltZaCgoCBUaW1loKCgoCBUaW1loCBDdXJyZW50Cj4goKCgoKCgoKCg
+oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgIERsb2FkoCBVcGxv
+YWSgoAo+IFRvdGFsoKAgU3BlbnSgoKAgTGVmdKAgU3BlZWQKPiCgoKCgoKCgoKCgoKCgoKCg
+oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKAgMTAwoCAxMDFNoCAxMDCgCj4g
+MTAxTaCgoCAwoKCgoCAwoKAgMjcwa6CgoKCgIDCgIDA6MDY6MjOgIDA6MDY6MjMgLS06LS06
+LS2gIDMyOGsKPiCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
+oKCgoKCgoKAgVmVyaWZ5aW5nIGNoZWNrc3VtCj4gb24gbGludXgtNS4xLjE1LnRhci54ego+
+IKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoAo+
+IC91c3IvYmluL3NoYTI1NnN1bToKPiAvaG9tZS9iaGFza2FyL0Rvd25sb2Fkcy9saW51eC10
+YXJiYWxsLXZlcmlmeS4zNlNIcUcudW50cnVzdGVkL3NoYTI1NnN1bXMudHh0Ogo+IG5vIHBy
+b3Blcmx5IGZvcm1hdHRlZCBTSEEyNTYgY2hlY2tzdW0gbGluZXMgZm91bmQKPiCgoKCgoKCg
+oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKAgRkFJTEVEIHRv
+IHZlcmlmeQo+IHRoZSBkb3dubG9hZGVkIHRhcmJhbGwgY2hlY2tzdW0KPgo+Cj4gLS0tLS0g
+Rm9yd2FyZGVkIG1lc3NhZ2UgZnJvbSBHcmVnIEtIIDxncmVna2hAbGludXhmb3VuZGF0aW9u
+Lm9yZz4gLS0tLS0KPgo+IERhdGU6IFR1ZSwgMjUgSnVuIDIwMTkgMTQ6NTk6MzggKzA4MDAK
+PiBGcm9tOiBHcmVnIEtIIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz4KPiBUbzogQmhh
+c2thciBDaG93ZGh1cnkgPHVuaXhiaGFza2FyQGdtYWlsLmNvbT4KPiBTdWJqZWN0OiBSZTog
+RmFpbGVkIHRvIGNoZWNrc3VtIG9uIHRhcmJhbGwgbGF0ZXN0IGtlcm5lbCA1LjEuMTUKPiBV
+c2VyLUFnZW50OiBNdXR0LzEuMTIuMSAoMjAxOS0wNi0xNSkKPgo+IE9uIFR1ZSwgSnVuIDI1
+LCAyMDE5IGF0IDA5OjQ2OjUzQU0gKzA1MzAsIEJoYXNrYXIgQ2hvd2RodXJ5IHdyb3RlOgo+
+PiBJIGdvdCB0aGlzIDoKPj4KPj4gQ2hlY2sgdGhlIGxhdGVzdCBzdGFibGUga2VybmVsIHZl
+cnNpb24gZnJvbSBrZXJuZWwub3JnCj4+Cj4+IDUuMS4xNSBHZXQgdGhlIGtlcm5lbCBmcm9t
+IGtlcm5lbC5vcmcgYW5kIHRoaXMgZm9yIHRoZSAqc3RhYmxlKiBrZXJuZWwKPj4KPj4KPj4g
+VXNpbmcKPj4gVE1QRElSPS9ob21lL2JoYXNrYXIvbGF0ZXN0X2tlcm5lbF9idWlsZF9HZW50
+b29fMjAxOS0wNi0yNS9saW51eC10YXJiYWxsLXZlcmlmeS5Yd2JVTmoudW50cnVzdGVkCj4+
+IE1ha2luZyBzdXJlIHdlIGhhdmUgYWxsIHRoZSBuZWNlc3Nhcnkga2V5cwo+PiBncGc6IFdB
+Uk5JTkc6IHVuc2FmZSBvd25lcnNoaXAgb24gaG9tZWRpciAnL2hvbWUvYmhhc2thci8uZ251
+cGcnCj4+IHB1YqCgIHJzYTQwOTYgMjAxMy0wMS0yNCBbU0NdCj4+IKCgoKAgQjg4NjhDODBC
+QTYyQTFGRkZBRjVGREE5NjMyRDNBMDY1ODlEQTZCMQo+PiB1aWSgoKCgoKCgoKCgIFsgdW5r
+bm93bl0gS2VybmVsLm9yZyBjaGVja3N1bSBhdXRvc2lnbmVyCj4+IDxhdXRvc2lnbmVyQGtl
+cm5lbC5vcmc+Cj4+Cj4+IHB1YqCgIHJzYTQwOTYgMjAxMS0wOS0yMyBbU0NdCj4+IKCgoKAg
+NjQ3RjI4NjU0ODk0RTNCRDQ1NzE5OUJFMzhEQkJEQzg2MDkyNjkzRQo+PiB1aWSgoKCgoKCg
+oKCgIFsgdW5rbm93bl0gR3JlZyBLcm9haC1IYXJ0bWFuIDxncmVna2hAbGludXhmb3VuZGF0
+aW9uLm9yZz4KPj4gdWlkoKCgoKCgoKCgoCBbIHVua25vd25dIEdyZWcgS3JvYWgtSGFydG1h
+biAoTGludXgga2VybmVsIHN0YWJsZQo+PiByZWxlYXNlIHNpZ25pbmcga2V5KSA8Z3JlZ0Br
+cm9haC5jb20+Cj4+IHVpZKCgoKCgoKCgoKAgWyB1bmtub3duXSBHcmVnIEtyb2FoLUhhcnRt
+YW4gPGdyZWdraEBrZXJuZWwub3JnPgo+PiBzdWKgoCByc2E0MDk2IDIwMTEtMDktMjMgW0Vd
+Cj4+Cj4+IHB1YqCgIHJzYTIwNDggMjAxMS0wOS0yMCBbU0NdCj4+IKCgoKAgQUJBRjExQzY1
+QTI5NzBCMTMwQUJFM0M0NzlCRTNFNDMwMDQxMTg4Ngo+PiB1aWSgoKCgoKCgoKCgIFsgdW5r
+bm93bl0gTGludXMgVG9ydmFsZHMgPHRvcnZhbGRzQGtlcm5lbC5vcmc+Cj4+IHVpZKCgoKCg
+oKCgoKAgWyB1bmtub3duXSBMaW51cyBUb3J2YWxkcyA8dG9ydmFsZHNAbGludXgtZm91bmRh
+dGlvbi5vcmc+Cj4+IHN1YqCgIHJzYTIwNDggMjAxMS0wOS0yMCBbRV0KPj4KPj4gRG93bmxv
+YWRpbmcgdGhlIGNoZWNrc3VtcyBmaWxlIGZvciBsaW51eC01LjEuMTUKPj4gVmVyaWZ5aW5n
+IHRoZSBjaGVja3N1bXMgZmlsZQo+PiBncGd2OiBTaWduYXR1cmUgbWFkZSBTYXQgSnVuIDIy
+IDE1OjAxOjIxIDIwMTkgSVNUCj4+IGdwZ3Y6oKCgoKCgoKCgoKCgoKCgIHVzaW5nIFJTQSBr
+ZXkgNjMyRDNBMDY1ODlEQTZCMQo+PiBncGd2OiBHb29kIHNpZ25hdHVyZSBmcm9tICJLZXJu
+ZWwub3JnIGNoZWNrc3VtIGF1dG9zaWduZXIKPj4gPGF1dG9zaWduZXJAa2VybmVsLm9yZz4i
+Cj4+Cj4+IERvd25sb2FkaW5nIHRoZSBzaWduYXR1cmUgZmlsZSBmb3IgbGludXgtNS4xLjE1
+Cj4+IERvd25sb2FkaW5nIHRoZSBYWiB0YXJiYWxsIGZvciBsaW51eC01LjEuMTUKPj4goCUg
+VG90YWygoKAgJSBSZWNlaXZlZCAlIFhmZXJkoCBBdmVyYWdlIFNwZWVkoKAgVGltZaCgoCBU
+aW1loKCgoAo+PiBUaW1loCBDdXJyZW50Cj4+IKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
+oKCgoKAgRGxvYWSgIFVwbG9hZKCgIFRvdGFsoKAgU3BlbnSgoKAKPj4gTGVmdKAgU3BlZWQK
+Pj4gMTAwoCAxMDFNoCAxMDCgIDEwMU2goKAgMKCgoKAgMKAgODIzN2ugoKCgoCAwoCAwOjAw
+OjEyoCAwOjAwOjEyCj4+IC0tOi0tOi0tIDgzNDJrCj4+IFZlcmlmeWluZyBjaGVja3N1bSBv
+biBsaW51eC01LjEuMTUudGFyLnh6Cj4+IC91c3IvYmluL3NoYTI1NnN1bToKPj4gL2hvbWUv
+Ymhhc2thci9sYXRlc3Rfa2VybmVsX2J1aWxkX0dlbnRvb18yMDE5LTA2LTI1L2xpbnV4LXRh
+cmJhbGwtdmVyaWZ5Llh3YlVOai51bnRydXN0ZWQvc2hhMjU2c3Vtcy50eHQ6Cj4+IG5vIHBy
+b3Blcmx5IGZvcm1hdHRlZCBTSEEyNTYgY2hlY2tzdW0gbGluZXMgZm91bmQKPj4gRkFJTEVE
+IHRvIHZlcmlmeSB0aGUgZG93bmxvYWRlZCB0YXJiYWxsIGNoZWNrc3VtCj4+Cj4+Cj4KPiBM
+b29rcyBsaWtlIGEgZGlzdHJvIHByb2JsZW0sIHJpZ2h0Pwo+Cj4gLS0tLS0gRW5kIGZvcndh
+cmRlZCBtZXNzYWdlIC0tLS0tCg==
 
-diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-index 779ed52047d1..e0f982e35c96 100644
-=2D-- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -5386,7 +5386,16 @@ static int alloc_mmu_pages(struct kvm_vcpu *vcpu)
- 	struct page *page;
- 	int i;
+--wCRYPqSr06ruhgFYGS5SXWUo3U7zUpaPS--
 
--	if (tdp_enabled)
-+	/*
-+	 * When using PAE paging, the four PDPTEs are treated as 'root' pages,
-+	 * while the PDP table is a per-vCPU construct that's allocated at MMU
-+	 * creation.  When emulating 32-bit mode, cr3 is only 32 bits even on
-+	 * x86_64.  Therefore we need to allocate the PDP table in the first
-+	 * 4GB of memory, which happens to fit the DMA32 zone.  Except for
-+	 * SVM's 32-bit NPT support, TDP paging doesn't use PAE paging and can
-+	 * skip allocating the PDP table.
-+	 */
-+	if (tdp_enabled && kvm_x86_ops->get_tdp_level(vcpu) > PT32E_ROOT_LEVEL)
- 		return 0;
+--euxI92GzpxBpDFmaEMD5wFuTNhdiHWwvN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
- 	/*
-=2D-
-2.20.1
+-----BEGIN PGP SIGNATURE-----
 
+iQEzBAEBCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAl0SB5sACgkQsjqdtxFL
+KRUD+QgA17IdJUb8jUjG+d9RrKKNiL1jc76wAVuOeZxiyzG3mVY2ZGxO6I8YoT1P
+/x5XCL9GN+3bgym5AqKUqxmwiWtFtkqxjD5G1/Q0mKaYY4M2bJyRWQlm8z9Teylz
+rs525lTC2hm5cDAKOxXPizK6iT+FZbWjqxjz+wHobZCy2Hg5IzR+ynC24U7ZbUdO
+MLJHz9AePUp/OezpwAIbxmq+S0csh8+jR0mX10INxp3z4/viy9Po4j1txSYcVj4N
+TLaBX9zrwbYy3qDils8wg5HOgrJ5E1fwrza4CUJ2BL8So/P8tz4QWPZ6GDvj02SO
+8Aj0bXSQlpHACOzQbhcHamD9pNAzOQ==
+=SoK8
+-----END PGP SIGNATURE-----
+
+--euxI92GzpxBpDFmaEMD5wFuTNhdiHWwvN--
