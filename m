@@ -2,92 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 148595551A
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 18:49:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5535B555C2
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 19:19:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728706AbfFYQt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 12:49:26 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:39011 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726691AbfFYQtZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 12:49:25 -0400
-Received: by mail-wm1-f68.google.com with SMTP id z23so3668399wma.4
-        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 09:49:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=BpBEtYSgqrBi7j4SiCT1m6YSPtNFJxDP5oog1k2Dp/E=;
-        b=eDnM5SmroyDBRGWomt4zm7VTbV4K8ugQm9G7mQkVjtkKKrgpPXvluSKc0vRgU+BNb1
-         VpUb13atGzKgtE48uLL+hhQvMBm9nrkO/hshQUUBPnbzeI7eO2oFXOu/PfLFTvmUSWv+
-         x7u4OqYLiuvEApl5clWFxy/edonhHNOkVcoa6DL6GKCw3W95w+/vY9iMBQZEbF4R2QRS
-         lLKqTq8JHXN2kSAZndjbq6Wix02hiVIb2mJT5MSoSkAUY3hR43RXrZcC4LYzVLDMMY5A
-         1zedhzJ1Y2ZuXVSUI//I5AgEyxzZ5K9tcypa/cdU1QDNyLXJkXuoQLX+foMyOZZwbDMF
-         CA5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=BpBEtYSgqrBi7j4SiCT1m6YSPtNFJxDP5oog1k2Dp/E=;
-        b=sIxJxRkP+6eAPEqHH2L4v4NNnzSr9gFSoY+4/HQqmLeghZhmDGbJBwZe6VeC6dqpGI
-         MTpyjUw46B3SDLr+L/+hP5YixqJc/N0dRHLDBxcfldKpJJHuK0ombRi8h5EIhD/3REDU
-         2+GVC6YrQiR5g5tuOmklL3mz3IwXqOX6LMxPd2odlqRMzum9FBNBDBXS+saDLYpc5FU/
-         fCkUETPQwOJGXB5vJpdP9NuugrzKnYR//jI0Try8AuBgSD3wKl+E2Rq/OCjPsPTW+ftE
-         bOOrH7pJRdmD9juM3wO/MYNdI4OJ5f+5hOTTmve6A5CkM4ONWnddMEn1qIOa3q1stbrY
-         P81g==
-X-Gm-Message-State: APjAAAU2oZRcpJYPJOF6zqsYwkbNojYmgfVBJakhQji0nRE+n+QdKvd3
-        PtWYJEIT2BlNzmWbX6PTt4Jjcw==
-X-Google-Smtp-Source: APXvYqyVBBSlo04QiVVJZul9HxR3AfR32ezyhijOC6RrdMyx1+Q4KkR7gbPOK8c8SM4hhdG5xjAAig==
-X-Received: by 2002:a1c:23c4:: with SMTP id j187mr20851213wmj.176.1561481363562;
-        Tue, 25 Jun 2019 09:49:23 -0700 (PDT)
-Received: from debian-brgl.home ([2a01:cb1d:af:5b00:6d6c:8493:1ab5:dad7])
-        by smtp.gmail.com with ESMTPSA id h14sm3078652wro.30.2019.06.25.09.49.22
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 25 Jun 2019 09:49:23 -0700 (PDT)
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-To:     Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/2] ARM: davinci: omapl138-hawk: add missing regulator constraints for OHCI
-Date:   Tue, 25 Jun 2019 18:49:15 +0200
-Message-Id: <20190625164915.30242-2-brgl@bgdev.pl>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190625164915.30242-1-brgl@bgdev.pl>
-References: <20190625164915.30242-1-brgl@bgdev.pl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1729987AbfFYRTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 13:19:55 -0400
+Received: from mx0a-00190b01.pphosted.com ([67.231.149.131]:16680 "EHLO
+        mx0a-00190b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726774AbfFYRTz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 13:19:55 -0400
+Received: from pps.filterd (m0050093.ppops.net [127.0.0.1])
+        by m0050093.ppops.net-00190b01. (8.16.0.27/8.16.0.27) with SMTP id x5PHH6PQ024368;
+        Tue, 25 Jun 2019 18:19:52 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=from : to : cc :
+ subject : date : message-id; s=jan2016.eng;
+ bh=kKjkrTY4WuWGjQ0J1P94ThgbZCYFLwD3acDVoMvHEoc=;
+ b=CtvsI3fF2+eZ1G0Q4uV1BtaOKOadSfNOOmcthMwHJ5VkfAIR1BRpxumTg15tR3Xciq7L
+ FZfJVJRTD6IbEM83unReQ8Z9MI5PCHJ4dUda/ihFPaD0XCJBfAFYcpQB8iGG/ekhO2kV
+ GCTMTwt3c8IGBT+XsC9sELnPGT/J3W4sN7Cy3BDN6UbIeKNIKnSmUS9BmNjD4MA+Xrq9
+ GHmrDy+o4rVj6lL3b+J+X4v+K1eH7OGI5wNtDzWYICxdPET1lM39aufcnCjk1+CYZq4n
+ bOFvvylHoV8Aezaj2n/80acd+Yfdb18vKj2GPd3Htgymgz8Mk6b91ogXftlnsYfsbIof 0g== 
+Received: from prod-mail-ppoint2 (prod-mail-ppoint2.akamai.com [184.51.33.19] (may be forged))
+        by m0050093.ppops.net-00190b01. with ESMTP id 2tba3vtw5w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 Jun 2019 18:19:51 +0100
+Received: from pps.filterd (prod-mail-ppoint2.akamai.com [127.0.0.1])
+        by prod-mail-ppoint2.akamai.com (8.16.0.27/8.16.0.27) with SMTP id x5PHHS5l030315;
+        Tue, 25 Jun 2019 13:19:50 -0400
+Received: from prod-mail-relay11.akamai.com ([172.27.118.250])
+        by prod-mail-ppoint2.akamai.com with ESMTP id 2t9fnwj3mx-1;
+        Tue, 25 Jun 2019 13:19:50 -0400
+Received: from bos-lpwg1 (bos-lpwg1.kendall.corp.akamai.com [172.29.171.203])
+        by prod-mail-relay11.akamai.com (Postfix) with ESMTP id 01CE31FC6E;
+        Tue, 25 Jun 2019 17:19:50 +0000 (GMT)
+Received: from johunt by bos-lpwg1 with local (Exim 4.86_2)
+        (envelope-from <johunt@akamai.com>)
+        id 1hfp6o-0007sz-SZ; Tue, 25 Jun 2019 13:19:54 -0400
+From:   Josh Hunt <johunt@akamai.com>
+To:     gregkh@linuxfoundation.org, edumazet@google.com
+Cc:     stable@vger.kernel.org, jbaron@akamai.com,
+        Josh Hunt <johunt@akamai.com>
+Subject: [PATCH 4.14] tcp: refine memory limit test in tcp_fragment()
+Date:   Tue, 25 Jun 2019 13:19:37 -0400
+Message-Id: <1561483177-30254-1-git-send-email-johunt@akamai.com>
+X-Mailer: git-send-email 2.7.4
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-25_12:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=819
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1906250130
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-25_12:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=871 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1906250130
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Backport of dad3a9314ac95dedc007bc7dacacb396ea10e376:
 
-We need to enable status changes for the fixed power supply for the USB
-controller.
+tcp_fragment() might be called for skbs in the write queue.
 
-Fixes: 1d272894ec4f ("ARM: davinci: omapl138-hawk: add a fixed regulator for ohci-da8xx")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Memory limits might have been exceeded because tcp_sendmsg() only
+checks limits at full skb (64KB) boundaries.
+
+Therefore, we need to make sure tcp_fragment() wont punish applications
+that might have setup very low SO_SNDBUF values.
+
+Backport notes:
+Initial version used tcp_queue type which is not present in older kernels,
+so added a new arg to tcp_fragment() to determine whether this is a
+retransmit or not.
+
+Fixes: 9daf226ff926 ("tcp: tcp_fragment() should apply sane memory limits")
+Signed-off-by: Josh Hunt <johunt@akamai.com>
+Reviewed-by: Jason Baron <jbaron@akamai.com>
 ---
- arch/arm/mach-davinci/board-omapl138-hawk.c | 3 +++
- 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/mach-davinci/board-omapl138-hawk.c b/arch/arm/mach-davinci/board-omapl138-hawk.c
-index db177a6a7e48..5390a8630cf0 100644
---- a/arch/arm/mach-davinci/board-omapl138-hawk.c
-+++ b/arch/arm/mach-davinci/board-omapl138-hawk.c
-@@ -306,6 +306,9 @@ static struct regulator_consumer_supply hawk_usb_supplies[] = {
- static struct regulator_init_data hawk_usb_vbus_data = {
- 	.consumer_supplies	= hawk_usb_supplies,
- 	.num_consumer_supplies	= ARRAY_SIZE(hawk_usb_supplies),
-+	.constraints    = {
-+		.valid_ops_mask = REGULATOR_CHANGE_STATUS,
-+	},
- };
+Eric/Greg - This applies on top of v4.14.130. I did not see anything come
+through for the older (<4.19) stable kernels yet. Without this change
+Christoph Paasch's packetrill script (https://lore.kernel.org/netdev/CALMXkpYVRxgeqarp4gnmX7GqYh1sWOAt6UaRFqYBOaaNFfZ5sw@mail.gmail.com/)
+will fail on 4.14 stable kernels, but passes with this change.
+
+ include/net/tcp.h     |  3 ++-
+ net/ipv4/tcp_input.c  |  4 ++--
+ net/ipv4/tcp_output.c | 16 ++++++++--------
+ 3 files changed, 12 insertions(+), 11 deletions(-)
+
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 1179ef4f0768..9d69fefa365c 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -554,7 +554,8 @@ void tcp_xmit_retransmit_queue(struct sock *);
+ void tcp_simple_retransmit(struct sock *);
+ void tcp_enter_recovery(struct sock *sk, bool ece_ack);
+ int tcp_trim_head(struct sock *, struct sk_buff *, u32);
+-int tcp_fragment(struct sock *, struct sk_buff *, u32, unsigned int, gfp_t);
++int tcp_fragment(struct sock *, struct sk_buff *, u32, unsigned int, gfp_t,
++		 bool retrans);
  
- static struct fixed_voltage_config hawk_usb_vbus = {
+ void tcp_send_probe0(struct sock *);
+ void tcp_send_partial(struct sock *);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 8e080f3b75bd..0fd629587104 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -1202,7 +1202,7 @@ static int tcp_match_skb_to_sack(struct sock *sk, struct sk_buff *skb,
+ 		if (pkt_len >= skb->len && !in_sack)
+ 			return 0;
+ 
+-		err = tcp_fragment(sk, skb, pkt_len, mss, GFP_ATOMIC);
++		err = tcp_fragment(sk, skb, pkt_len, mss, GFP_ATOMIC, true);
+ 		if (err < 0)
+ 			return err;
+ 	}
+@@ -2266,7 +2266,7 @@ static void tcp_mark_head_lost(struct sock *sk, int packets, int mark_head)
+ 			/* If needed, chop off the prefix to mark as lost. */
+ 			lost = (packets - oldcnt) * mss;
+ 			if (lost < skb->len &&
+-			    tcp_fragment(sk, skb, lost, mss, GFP_ATOMIC) < 0)
++			    tcp_fragment(sk, skb, lost, mss, GFP_ATOMIC, true) < 0)
+ 				break;
+ 			cnt = packets;
+ 		}
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index a8772e11dc1c..ca14770dd7ba 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1259,7 +1259,7 @@ static void tcp_skb_fragment_eor(struct sk_buff *skb, struct sk_buff *skb2)
+  * Remember, these are still headerless SKBs at this point.
+  */
+ int tcp_fragment(struct sock *sk, struct sk_buff *skb, u32 len,
+-		 unsigned int mss_now, gfp_t gfp)
++		 unsigned int mss_now, gfp_t gfp, bool retrans)
+ {
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct sk_buff *buff;
+@@ -1274,7 +1274,7 @@ int tcp_fragment(struct sock *sk, struct sk_buff *skb, u32 len,
+ 	if (nsize < 0)
+ 		nsize = 0;
+ 
+-	if (unlikely((sk->sk_wmem_queued >> 1) > sk->sk_sndbuf)) {
++	if (unlikely((sk->sk_wmem_queued >> 1) > sk->sk_sndbuf && retrans)) {
+ 		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPWQUEUETOOBIG);
+ 		return -ENOMEM;
+ 	}
+@@ -1834,7 +1834,7 @@ static bool tcp_snd_wnd_test(const struct tcp_sock *tp,
+  * packet has never been sent out before (and thus is not cloned).
+  */
+ static int tso_fragment(struct sock *sk, struct sk_buff *skb, unsigned int len,
+-			unsigned int mss_now, gfp_t gfp)
++			unsigned int mss_now, gfp_t gfp, bool retrans)
+ {
+ 	struct sk_buff *buff;
+ 	int nlen = skb->len - len;
+@@ -1842,7 +1842,7 @@ static int tso_fragment(struct sock *sk, struct sk_buff *skb, unsigned int len,
+ 
+ 	/* All of a TSO frame must be composed of paged data.  */
+ 	if (skb->len != skb->data_len)
+-		return tcp_fragment(sk, skb, len, mss_now, gfp);
++		return tcp_fragment(sk, skb, len, mss_now, gfp, retrans);
+ 
+ 	buff = sk_stream_alloc_skb(sk, 0, gfp, true);
+ 	if (unlikely(!buff))
+@@ -2361,7 +2361,7 @@ static bool tcp_write_xmit(struct sock *sk, unsigned int mss_now, int nonagle,
+ 						    nonagle);
+ 
+ 		if (skb->len > limit &&
+-		    unlikely(tso_fragment(sk, skb, limit, mss_now, gfp)))
++		    unlikely(tso_fragment(sk, skb, limit, mss_now, gfp, false)))
+ 			break;
+ 
+ 		if (test_bit(TCP_TSQ_DEFERRED, &sk->sk_tsq_flags))
+@@ -2514,7 +2514,7 @@ void tcp_send_loss_probe(struct sock *sk)
+ 
+ 	if ((pcount > 1) && (skb->len > (pcount - 1) * mss)) {
+ 		if (unlikely(tcp_fragment(sk, skb, (pcount - 1) * mss, mss,
+-					  GFP_ATOMIC)))
++					  GFP_ATOMIC, true)))
+ 			goto rearm_timer;
+ 		skb = tcp_write_queue_next(sk, skb);
+ 	}
+@@ -2874,7 +2874,7 @@ int __tcp_retransmit_skb(struct sock *sk, struct sk_buff *skb, int segs)
+ 
+ 	len = cur_mss * segs;
+ 	if (skb->len > len) {
+-		if (tcp_fragment(sk, skb, len, cur_mss, GFP_ATOMIC))
++		if (tcp_fragment(sk, skb, len, cur_mss, GFP_ATOMIC, true))
+ 			return -ENOMEM; /* We'll try again later. */
+ 	} else {
+ 		if (skb_unclone(skb, GFP_ATOMIC))
+@@ -3696,7 +3696,7 @@ int tcp_write_wakeup(struct sock *sk, int mib)
+ 		    skb->len > mss) {
+ 			seg_size = min(seg_size, mss);
+ 			TCP_SKB_CB(skb)->tcp_flags |= TCPHDR_PSH;
+-			if (tcp_fragment(sk, skb, seg_size, mss, GFP_ATOMIC))
++			if (tcp_fragment(sk, skb, seg_size, mss, GFP_ATOMIC, false))
+ 				return -1;
+ 		} else if (!tcp_skb_pcount(skb))
+ 			tcp_set_skb_tso_segs(skb, mss);
 -- 
-2.21.0
+2.7.4
 
