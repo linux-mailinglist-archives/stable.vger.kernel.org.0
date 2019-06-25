@@ -2,100 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D66F55AF0
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 00:19:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEECD55B43
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 00:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726360AbfFYWTM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 18:19:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59294 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725782AbfFYWTM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 18:19:12 -0400
-Received: from localhost (unknown [116.247.127.123])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 134F82086D;
-        Tue, 25 Jun 2019 22:19:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561501151;
-        bh=deD41QlBISMSsDZLAuAmfAJys8abDd3FhF8Afoi0BZc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Y/t1GgM8oUjlkPNRXnYCG9Shssu6jEYN6oIhqvrBQI7/Ida9sCdvhTnpSZtLUCIaC
-         TQ0nuF5W7JzpD31vdJT7RcK3uXzXeFAAX6H3FN3Czft2qOk+vPqr8eCceFtU5/TM2o
-         oFZgJg1iJZ8N8v144urIRgD4HqSOvfIrzwQWyJKE=
-Date:   Wed, 26 Jun 2019 06:18:21 +0800
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Josh Hunt <johunt@akamai.com>
-Cc:     Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        stable@vger.kernel.org, jbaron@akamai.com
-Subject: Re: [PATCH 4.14] tcp: refine memory limit test in tcp_fragment()
-Message-ID: <20190625221821.GA17994@kroah.com>
-References: <1561483177-30254-1-git-send-email-johunt@akamai.com>
- <20190625202626.GD7898@sasha-vm>
- <4c6d6697-b629-243c-824b-8080ee1e1635@akamai.com>
+        id S1725914AbfFYWdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 18:33:45 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:40425 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726179AbfFYWdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 18:33:42 -0400
+Received: by mail-pf1-f196.google.com with SMTP id p184so148267pfp.7
+        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 15:33:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=JT1Dg+Da84rmyT0HimXlivWp8rkXdkjd2YjQgSg5q78=;
+        b=g0YgCWmWyWoOk8i0P51O+hzfezQLPWB35vHuYvI92qYbh/90WoDAhhrmkhKiKU7HnL
+         u67taUAMYO/RuifJsYFWe87jOy6YD4Kg78lUjB9KOPOh18LgI6x3hyfkJLXuyGg5gKLw
+         BS8wVHY3pMPdA24g4TL+k1Xx7Gi9DriOMFX1btp6Di7Ltrc8xT/aw2c4ZiM15gx6NlAO
+         seDd1BYMelbsEw+WoH4yNpNXTfE7MlrXO7BuKB2QG5Lsh5tBybIA70LrQU79Nmu74W8Q
+         zlSTHA3/yBtQv7jRnkmy6Oio2hdBzm/JWrRtXbiTuJ5lBvNvyqvRgY/gKiAXGtcj0Lew
+         GY3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=JT1Dg+Da84rmyT0HimXlivWp8rkXdkjd2YjQgSg5q78=;
+        b=fAv5dxtx8LOt9USCG+9IUHTK66ABLO2xxOfU+D0wki3enT8W/5eIsTgfobfNNX1piT
+         6TlSWJaMk9cMFy9bmuuSvKZR8YojUCU5V8aTwZ5h8QI6PfCy9ekD57/jFHAJ0F8wFuC+
+         DOwnCZSIlaWBXcA6lAzZGzKdWYm2G1OWkK4MHWUBfpzj7xA/jq0iee2VBSoXlNj2YS7t
+         FMKsiBGNbIPUS9XjdLKraDg1TRnfVF2rt1lmdd5Gf8QOZCtmt13ZX0+VvLxDkYfwxn4t
+         XDkjKT8oug77rV/WGZT8fcJphviQTeAmyAXaclo9IPI65WEmULblzSRNmohiDocrqW0z
+         XcaA==
+X-Gm-Message-State: APjAAAVHulSTHUySIscZFk/wtth6sOLHSKAH1i0Y79JMwUOJnE2jqo7g
+        ApJ3p/KPq6fXnCCu2On2z4vwlA==
+X-Google-Smtp-Source: APXvYqyKtzqaJPagQIzaNMbJft8gYiPTJ/62A6mnD2mpmhx2FUd/IX5Bn3rvFBc7HFZmTo52Uib8rw==
+X-Received: by 2002:a17:90a:db08:: with SMTP id g8mr251900pjv.39.1561502020992;
+        Tue, 25 Jun 2019 15:33:40 -0700 (PDT)
+Received: from google.com ([2620:15c:201:2:765b:31cb:30c4:166])
+        by smtp.gmail.com with ESMTPSA id v138sm17334627pfc.15.2019.06.25.15.33.39
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 25 Jun 2019 15:33:40 -0700 (PDT)
+Date:   Tue, 25 Jun 2019 15:33:35 -0700
+From:   Eric Biggers <ebiggers@google.com>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+7fddca22578bc67c3fe4@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: Re: [PATCH 4.19 84/90] cfg80211: fix memory leak of wiphy device name
+Message-ID: <20190625223335.GB218319@google.com>
+References: <20190624092313.788773607@linuxfoundation.org>
+ <20190624092319.410368076@linuxfoundation.org>
+ <20190625215135.GA32248@amd>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4c6d6697-b629-243c-824b-8080ee1e1635@akamai.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190625215135.GA32248@amd>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 25, 2019 at 01:29:35PM -0700, Josh Hunt wrote:
-> On 6/25/19 1:26 PM, Sasha Levin wrote:
-> > On Tue, Jun 25, 2019 at 01:19:37PM -0400, Josh Hunt wrote:
-> > > Backport of dad3a9314ac95dedc007bc7dacacb396ea10e376:
-> > 
-> > You probably meant b6653b3629e5b88202be3c9abc44713973f5c4b4 here.
+On Tue, Jun 25, 2019 at 11:51:36PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> I wasn't sure if I should reference the upstream commit or stable commit.
-
-The upstream commit please.
-
-> dad3a9314 is the version of the commit from linux-4.14.y. There may be a
-> similar issue with the Fixes tag below since that also references the 4.14
-> vers of the change.
-> 
+> > From: Eric Biggers <ebiggers@google.com>
 > > 
-> > > tcp_fragment() might be called for skbs in the write queue.
-> > > 
-> > > Memory limits might have been exceeded because tcp_sendmsg() only
-> > > checks limits at full skb (64KB) boundaries.
-> > > 
-> > > Therefore, we need to make sure tcp_fragment() wont punish applications
-> > > that might have setup very low SO_SNDBUF values.
-> > > 
-> > > Backport notes:
-> > > Initial version used tcp_queue type which is not present in older
-> > > kernels,
-> > > so added a new arg to tcp_fragment() to determine whether this is a
-> > > retransmit or not.
-> > > 
-> > > Fixes: 9daf226ff926 ("tcp: tcp_fragment() should apply sane memory
-> > > limits")
-> > > Signed-off-by: Josh Hunt <johunt@akamai.com>
-> > > Reviewed-by: Jason Baron <jbaron@akamai.com>
-> > > ---
-> > > 
-> > > Eric/Greg - This applies on top of v4.14.130. I did not see anything come
-> > > through for the older (<4.19) stable kernels yet. Without this change
-> > > Christoph Paasch's packetrill script (https://lore.kernel.org/netdev/CALMXkpYVRxgeqarp4gnmX7GqYh1sWOAt6UaRFqYBOaaNFfZ5sw@mail.gmail.com/)
-> > > 
-> > > will fail on 4.14 stable kernels, but passes with this change.
+> > commit 4f488fbca2a86cc7714a128952eead92cac279ab upstream.
 > > 
-> > Eric, it would be great if you could Ack this, it's very different from
-> > your original patch.
+> > In wiphy_new_nm(), if an error occurs after dev_set_name() and
+> > device_initialize() have already been called, it's necessary to call
+> > put_device() (via wiphy_free()) to avoid a memory leak.
+> ....
+> > --- a/net/wireless/core.c
+> > +++ b/net/wireless/core.c
+> > @@ -498,7 +498,7 @@ use_default_name:
+> >  				   &rdev->rfkill_ops, rdev);
+> >  
+> >  	if (!rdev->rfkill) {
+> > -		kfree(rdev);
+> > +		wiphy_free(&rdev->wiphy);
+> >  		return NULL;
+> >  	}
 > 
-> Yes, that would be great.
+> Is kfree(rdev) still neccessary?
+> drivers/net/wireless/marvell/libertas/cfg.c seems to suggest so.
+> 
 
-I would prefer if this looks a bit more like the upstream fix, perhaps a
-backport of the function that added the "direction" of the packet first,
-and then Eric's patch?  As it is, this patch adds a different parameter
-to the function than what is in Linus's tree, and I bet will cause
-problems at some later point in time.
+No, because it's freed by:
 
-thanks,
+    wiphy_free()
+        => put_device()
+            => wiphy_dev_release()
+                => cfg80211_dev_free()
+		    => kfree(rdev)
 
-greg k-h
+drivers/net/wireless/marvell/libertas/cfg.c is different because there the
+struct wiphy is separately allocated from the struct wireless_dev that's being
+freed afterwards.
+
+- Eric
