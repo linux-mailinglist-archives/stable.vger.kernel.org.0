@@ -2,121 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F394F553AB
-	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 17:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A923F553B2
+	for <lists+stable@lfdr.de>; Tue, 25 Jun 2019 17:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727082AbfFYPpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 11:45:05 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:36566 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727572AbfFYPpE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 11:45:04 -0400
-Received: by mail-wm1-f67.google.com with SMTP id u8so3477342wmm.1
-        for <stable@vger.kernel.org>; Tue, 25 Jun 2019 08:45:03 -0700 (PDT)
+        id S1730817AbfFYPqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 11:46:08 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:44487 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727572AbfFYPqI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 11:46:08 -0400
+Received: by mail-lf1-f65.google.com with SMTP id r15so12950443lfm.11;
+        Tue, 25 Jun 2019 08:46:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=5HkYvt7vqYcoplSqjUO7R3ulPIH/lqglCxToVLLxHq0=;
+        b=qXtq11GckrDcJCHDDEgthhpG8mHYmTpXpzctewOXeUwZmzUo0b5ZeAtMwVAfPHhIPT
+         3RhfwsBrNQETw2uzvpCbSc8dG/ITMshgLL9OzsWB5XOnH1VuBhB1eJF709b3TLytZa66
+         iPZ6oUBRjQ47hp3xXYtwKt8NpfCcGF3sPAHVG6KRSOSsrYYx/5qUxulw8KdpvUSSNZ6j
+         wxuwby4vZz9pG3VaHAkPbhhkzSoLLFtCq/7AA0gftSopUeZpN5J3cYWU7xqUlQBj2TsE
+         sWo6eQY/SLn3t/XWBGW9SmsuLqBCzeFuVIqOzL9A+qq68NVNOowGczMSJrmpmUYAm2p8
+         RLHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=aRO1W46ROJMS0ZRgbEt/JW4/hpRyhoBHX+I5SlHhkhE=;
-        b=L4NP5HZuY7gpem+oC1aA61zsXYbGEKjKOKjMHgqWCn1IP4F2kKbdQX7TaiwUaaQlt6
-         EHa2IMsi8WiA/f+sf6feyV1Y3HGban8r+BVnhEbQk1RBfo4N/5vEhFmggZQqXJLVmETj
-         rTfA8fot2z80DZ/ZMyBFMBtCNyvaEc0nYFZQImFnUy5VqG8k47A1yRymiMO/oAms/X21
-         xJ5JsgbgykEyPbGMA2+57kDyx7kFXX7o4F2iPJjgJQcyeD3/EAczkUYRaWMIIXqqIvNT
-         dbkjJbflKu2oojfh4LvaL20EcY1/kkHB4OuPESTJthp3ivDoLgj1Nu1K8tsiJ2tUylK1
-         Gocw==
-X-Gm-Message-State: APjAAAWegbFemmD2Gh5kAt8S2gRpUlQpNImIxOgUk3xTs2FbF21RDCC/
-        Pn7Pcq8aXDYqnp/aOlDEbmJeGxe4M+U=
-X-Google-Smtp-Source: APXvYqwjFb3HsTti/fYEh6c7y9Iz08eehzg5jSc6TfpUL1Ogvgk4N8X4MsCMgdQ5WK/vamie/w36WQ==
-X-Received: by 2002:a7b:cd9a:: with SMTP id y26mr21292947wmj.44.1561477502524;
-        Tue, 25 Jun 2019 08:45:02 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:61c1:6d8f:e2c4:2d5c? ([2001:b07:6468:f312:61c1:6d8f:e2c4:2d5c])
-        by smtp.gmail.com with ESMTPSA id h84sm3332070wmf.43.2019.06.25.08.45.01
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Tue, 25 Jun 2019 08:45:02 -0700 (PDT)
-Subject: Re: [PATCH 1/1] kvm/speculation: Allow KVM guests to use SSBD even if
- host does not
-To:     Alejandro Jimenez <alejandro.j.jimenez@oracle.com>,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        rkrcmar@redhat.com
-Cc:     x86@kernel.org, kvm@vger.kernel.org,
-        stable <stable@vger.kernel.org>
-References: <1560187210-11054-1-git-send-email-alejandro.j.jimenez@oracle.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <1c9d4047-e54c-8d4b-13b1-020864f2f5bf@redhat.com>
-Date:   Tue, 25 Jun 2019 17:45:01 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=5HkYvt7vqYcoplSqjUO7R3ulPIH/lqglCxToVLLxHq0=;
+        b=RImzWAmk85hJDcS1JoVRUHJZsED/dm/ANwRrs0ZmC3wQwRNkrX5kzi+3zNSW+Ym3fY
+         2TabmsQABekY508UA6/WlZACtnDjHsVfgnYlyh7JlPI+kQAdqlfM2aCcPACQfUM4NCO3
+         lPBWYfIjaRZbrBEzPePaddb+n1JpZKuwhxTJ8uGy0N5kWY4Nj1krJcwTcyEQZbWqxlqL
+         6gm8sXToCbozozXxsUuNDrcBxt2+IytEF6Uepm5HoDURNqhmy973Dx2+heZ8MeQvzB4N
+         QDfE/DVUjiP3w2b+lSEZBb/1BFmutYJDFt3RfsoVnTMlsQhv9injIw25YmUvbno9sb0y
+         t+Ew==
+X-Gm-Message-State: APjAAAUvHn6RMLmycI9CtS0Y+fw8se2C4p1BFcyj/0CY2lTpAJ9++X+A
+        qPx+7ArbDpYx6lz/lMfImfP7hIYHc0LD3WOJ4UA=
+X-Google-Smtp-Source: APXvYqzVkv3ISEpy81fk9GqWVELv6LncGBQA618cty6rXyn6Ym+TyTksnqIcZ4ZJkwyOgbRhI2GPWbZy/JzI4c4/Nq0=
+X-Received: by 2002:ac2:5a5e:: with SMTP id r30mr16968201lfn.12.1561477566289;
+ Tue, 25 Jun 2019 08:46:06 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1560187210-11054-1-git-send-email-alejandro.j.jimenez@oracle.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20190621082306.34415-1-yibin.gong@nxp.com> <CAOMZO5B+uXF=1WTPsA-9LrmtTF0Q0s7Fipwtd1nkWSgr3ec25w@mail.gmail.com>
+ <VE1PR04MB6638D58DED0D7092D8FCE93589E30@VE1PR04MB6638.eurprd04.prod.outlook.com>
+In-Reply-To: <VE1PR04MB6638D58DED0D7092D8FCE93589E30@VE1PR04MB6638.eurprd04.prod.outlook.com>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Tue, 25 Jun 2019 12:45:54 -0300
+Message-ID: <CAOMZO5AUnDJ_Wz3sWFDv4hZ-vAwO4_ioTW=5FUNDwFS7zBRJOg@mail.gmail.com>
+Subject: Re: [PATCH v2] dmaengine: imx-sdma: remove BD_INTR for channel0
+To:     Robin Gong <yibin.gong@nxp.com>
+Cc:     Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Vinod <vkoul@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sven Van Asbroeck <thesven73@gmail.com>,
+        Michael Olbrich <m.olbrich@pengutronix.de>,
+        dl-linux-imx <linux-imx@nxp.com>,
+        stable <stable@vger.kernel.org>,
+        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "dmaengine@vger.kernel.org" <dmaengine@vger.kernel.org>,
+        Sascha Hauer <kernel@pengutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/06/19 19:20, Alejandro Jimenez wrote:
-> The bits set in x86_spec_ctrl_mask are used to calculate the
-> guest's value of SPEC_CTRL that is written to the MSR before
-> VMENTRY, and control which mitigations the guest can enable.
-> In the case of SSBD, unless the host has enabled SSBD always
-> on mode (by passing "spec_store_bypass_disable=on" in the
-> kernel parameters), the SSBD bit is not set in the mask and
-> the guest can not properly enable the SSBD always on
-> mitigation mode.
-> 
-> This is confirmed by running the SSBD PoC on a guest using
-> the SSBD always on mitigation mode (booted with kernel
-> parameter "spec_store_bypass_disable=on"), and verifying
-> that the guest is vulnerable unless the host is also using
-> SSBD always on mode. In addition, the guest OS incorrectly
-> reports the SSB vulnerability as mitigated.
-> 
-> Always set the SSBD bit in x86_spec_ctrl_mask when the host
-> CPU supports it, allowing the guest to use SSBD whether or
-> not the host has chosen to enable the mitigation in any of
-> its modes.
-> 
-> Signed-off-by: Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
-> Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
-> Cc: stable@vger.kernel.org
+Hi Robin,
 
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+On Tue, Jun 25, 2019 at 4:36 AM Robin Gong <yibin.gong@nxp.com> wrote:
 
-> ---
->  arch/x86/kernel/cpu/bugs.c | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-> index 03b4cc0..66ca906 100644
-> --- a/arch/x86/kernel/cpu/bugs.c
-> +++ b/arch/x86/kernel/cpu/bugs.c
-> @@ -836,6 +836,16 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
->  	}
->  
->  	/*
-> +	 * If SSBD is controlled by the SPEC_CTRL MSR, then set the proper
-> +	 * bit in the mask to allow guests to use the mitigation even in the
-> +	 * case where the host does not enable it.
-> +	 */
-> +	if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
-> +	    static_cpu_has(X86_FEATURE_AMD_SSBD)) {
-> +		x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
-> +	}
-> +
-> +	/*
->  	 * We have three CPU feature flags that are in play here:
->  	 *  - X86_BUG_SPEC_STORE_BYPASS - CPU is susceptible.
->  	 *  - X86_FEATURE_SSBD - CPU is able to turn off speculative store bypass
-> @@ -852,7 +862,6 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
->  			x86_amd_ssb_disable();
->  		} else {
->  			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
-> -			x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
->  			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
->  		}
->  	}
-> 
+> Yes, although Sven only met this issue after v4.19, this potential issue should be there.
+> But 1d069bfa3c78 seems merged from v4.7 instead?
 
+Yes, you could simply do:
+
+Fixes: 1d069bfa3c78 ("dmaengine: imx-sdma: ack channel 0 IRQ in the
+interrupt handler")
+Cc: stable@vger.kernel.org
+
+And it will get applied to all relevant stable trees.
+
+Thanks
