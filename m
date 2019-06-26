@@ -2,69 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B20AD55D76
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 03:29:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E52C55F62
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:04:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726287AbfFZB2y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 21:28:54 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:31822 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726037AbfFZB2x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jun 2019 21:28:53 -0400
-X-UUID: de3f41ae6cfc40ff8934e19b86aaf6f9-20190626
-X-UUID: de3f41ae6cfc40ff8934e19b86aaf6f9-20190626
-Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw02.mediatek.com
-        (envelope-from <weiyi.lu@mediatek.com>)
-        (mhqrelay.mediatek.com ESMTP with TLS)
-        with ESMTP id 1273559969; Wed, 26 Jun 2019 09:28:48 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Wed, 26 Jun 2019 09:28:47 +0800
-Received: from [172.21.77.4] (172.21.77.4) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Wed, 26 Jun 2019 09:28:47 +0800
-Message-ID: <1561512527.24282.13.camel@mtksdaap41>
-Subject: Re: [PATCH v2] clk: mediatek: mt8183: Register 13MHz clock earlier
- for clocksource
-From:   Weiyi Lu <weiyi.lu@mediatek.com>
-To:     Stephen Boyd <sboyd@kernel.org>
-CC:     Matthias Brugger <matthias.bgg@gmail.com>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Rob Herring <robh@kernel.org>,
-        James Liao <jamesjj.liao@mediatek.com>,
-        Fan Chen <fan.chen@mediatek.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-clk@vger.kernel.org>,
-        <srv_heupstream@mediatek.com>, <stable@vger.kernel.org>,
-        Dehui Sun <dehui.sun@mediatek.com>
-Date:   Wed, 26 Jun 2019 09:28:47 +0800
-In-Reply-To: <20190625221512.B691620883@mail.kernel.org>
-References: <1560132969-1960-1-git-send-email-weiyi.lu@mediatek.com>
-         <20190625221512.B691620883@mail.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.10.4-0ubuntu2 
+        id S1726369AbfFZDEv convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 25 Jun 2019 23:04:51 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:37240 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726077AbfFZDEv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:04:51 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 874F01556B
+        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 03:04:50 +0000 (UTC)
+Received: from [172.54.58.4] (cpt-1026.paas.prod.upshift.rdu2.redhat.com [10.0.19.53])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id EAC776085B;
+        Wed, 26 Jun 2019 03:04:47 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-MTK:  N
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.CCD7416AD4.E8UX3D9VRS@redhat.com>
+X-Gitlab-Pipeline-ID: 13249
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Wed, 26 Jun 2019 03:04:50 +0000 (UTC)
+Date:   Tue, 25 Jun 2019 23:04:51 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2019-06-25 at 15:15 -0700, Stephen Boyd wrote:
-> Quoting Weiyi Lu (2019-06-09 19:16:09)
-> > The 13MHz clock should be registered before clocksource driver is
-> > initialized. Use CLK_OF_DECLARE_DRIVER() to guarantee.
-> > 
-> > Signed-off-by: Weiyi Lu <weiyi.lu@mediatek.com>
-> 
-> Do you have a Fixes: tag in mind? Otherwise, the patch looks OK to me.
+Hello,
 
-Yes, Fixes: acddfc2c261b ("clk: mediatek: Add MT8183 clock support")
-but I forgot to have it in the commit message. Thanks for reminding.
-I'll update a V3 patch with Fixes tag. Many thanks. 
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-> 
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: f0fae702de30 - Linux 5.1.15
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
 
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: f0fae702de30 - Linux 5.1.15
+
+
+We grabbed the 3773c1b5b5c3 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  arm64-don-t-unconditionally-add-wno-psabi-to-kbuild_cflags.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-72d5e60809943043a39b694e0c762f10a68b1847.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-72d5e60809943043a39b694e0c762f10a68b1847.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-72d5e60809943043a39b694e0c762f10a68b1847.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-72d5e60809943043a39b694e0c762f10a68b1847.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-72d5e60809943043a39b694e0c762f10a68b1847.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-72d5e60809943043a39b694e0c762f10a68b1847.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-72d5e60809943043a39b694e0c762f10a68b1847.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-72d5e60809943043a39b694e0c762f10a68b1847.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       🚧 ✅ tuned: tune-processes-through-perf [7]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [8]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       🚧 ✅ tuned: tune-processes-through-perf [7]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [8]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       🚧 ✅ tuned: tune-processes-through-perf [7]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [8]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       🚧 ✅ tuned: tune-processes-through-perf [7]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [8]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
