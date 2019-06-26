@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 911155608A
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92D6655FC9
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:42:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726369AbfFZDmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:42:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52950 "EHLO mail.kernel.org"
+        id S1727034AbfFZDmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:42:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727005AbfFZDmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:42:11 -0400
+        id S1727017AbfFZDmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:42:14 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C25E120659;
-        Wed, 26 Jun 2019 03:42:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AA2820883;
+        Wed, 26 Jun 2019 03:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520530;
-        bh=X6ugMEhZDja6XzrBb7A9ISvommG0GTtircnpMsfkH/w=;
+        s=default; t=1561520534;
+        bh=6/ZiWJSBebSawAlMN7MsDgFghpEKqtHXbZ70zuy5nDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vH+qB9C51QL9KVbVepFcaYhAzGJbgNAcHZ3869RL9liOYlWnnk9PQQnm4MMAM9Q6D
-         gUeRQV2rtEc4Pk6IOSaZZveuAhVTrBMotpbHrIsPcluc0e2I8MdmZEjsa+b7iCbSdT
-         CE/f/BTXrDDTgp8ADHo2y3Va7M9/OZZR7LbTWkLU=
+        b=COf40SBjO/L2oDrxr4BmHkV6av2Z1y7TJcwTpsdswpyfWgi1e2obfb7iue9Ulixjn
+         noM/AvE4X3erdJmXUP9gfqvC/zDC4lplXF7/H/4fCw0l3i9qnLXKhfNaa6sjd3bgAB
+         S9AH0BdVggfW74H02SXiJwTYAV0FMB5/340HsxxE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Marcus Cooper <codekipper@gmail.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 20/51] ASoC: max98090: remove 24-bit format support if RJ is 0
-Date:   Tue, 25 Jun 2019 23:40:36 -0400
-Message-Id: <20190626034117.23247-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 21/51] ASoC: sun4i-i2s: Fix sun8i tx channel offset mask
+Date:   Tue, 25 Jun 2019 23:40:37 -0400
+Message-Id: <20190626034117.23247-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 References: <20190626034117.23247-1-sashal@kernel.org>
@@ -43,56 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+From: Marcus Cooper <codekipper@gmail.com>
 
-[ Upstream commit 5628c8979642a076f91ee86c3bae5ad251639af0 ]
+[ Upstream commit 7e46169a5f35762f335898a75d1b8a242f2ae0f5 ]
 
-The supported formats are S16_LE and S24_LE now. However, by datasheet
-of max98090, S24_LE is only supported when it is in the right justified
-mode. We should remove 24-bit format if it is not in that mode to avoid
-triggering error.
+Although not causing any noticeable issues, the mask for the
+channel offset is covering too many bits.
 
-Signed-off-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+Signed-off-by: Marcus Cooper <codekipper@gmail.com>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98090.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ sound/soc/sunxi/sun4i-i2s.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
-index 7619ea31ab50..ada8c25e643d 100644
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -1909,6 +1909,21 @@ static int max98090_configure_dmic(struct max98090_priv *max98090,
- 	return 0;
- }
+diff --git a/sound/soc/sunxi/sun4i-i2s.c b/sound/soc/sunxi/sun4i-i2s.c
+index d5ec1a20499d..8162e107e50b 100644
+--- a/sound/soc/sunxi/sun4i-i2s.c
++++ b/sound/soc/sunxi/sun4i-i2s.c
+@@ -110,7 +110,7 @@
  
-+static int max98090_dai_startup(struct snd_pcm_substream *substream,
-+				struct snd_soc_dai *dai)
-+{
-+	struct snd_soc_component *component = dai->component;
-+	struct max98090_priv *max98090 = snd_soc_component_get_drvdata(component);
-+	unsigned int fmt = max98090->dai_fmt;
-+
-+	/* Remove 24-bit format support if it is not in right justified mode. */
-+	if ((fmt & SND_SOC_DAIFMT_FORMAT_MASK) != SND_SOC_DAIFMT_RIGHT_J) {
-+		substream->runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
-+		snd_pcm_hw_constraint_msbits(substream->runtime, 0, 16, 16);
-+	}
-+	return 0;
-+}
-+
- static int max98090_dai_hw_params(struct snd_pcm_substream *substream,
- 				   struct snd_pcm_hw_params *params,
- 				   struct snd_soc_dai *dai)
-@@ -2316,6 +2331,7 @@ EXPORT_SYMBOL_GPL(max98090_mic_detect);
- #define MAX98090_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE)
- 
- static const struct snd_soc_dai_ops max98090_dai_ops = {
-+	.startup = max98090_dai_startup,
- 	.set_sysclk = max98090_dai_set_sysclk,
- 	.set_fmt = max98090_dai_set_fmt,
- 	.set_tdm_slot = max98090_set_tdm_slot,
+ #define SUN8I_I2S_TX_CHAN_MAP_REG	0x44
+ #define SUN8I_I2S_TX_CHAN_SEL_REG	0x34
+-#define SUN8I_I2S_TX_CHAN_OFFSET_MASK		GENMASK(13, 11)
++#define SUN8I_I2S_TX_CHAN_OFFSET_MASK		GENMASK(13, 12)
+ #define SUN8I_I2S_TX_CHAN_OFFSET(offset)	(offset << 12)
+ #define SUN8I_I2S_TX_CHAN_EN_MASK		GENMASK(11, 4)
+ #define SUN8I_I2S_TX_CHAN_EN(num_chan)		(((1 << num_chan) - 1) << 4)
 -- 
 2.20.1
 
