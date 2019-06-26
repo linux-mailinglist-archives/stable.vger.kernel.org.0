@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 792DB5607D
+	by mail.lfdr.de (Postfix) with ESMTP id F29645607E
 	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726697AbfFZDl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:41:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51706 "EHLO mail.kernel.org"
+        id S1726077AbfFZDl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:41:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726077AbfFZDl0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:41:26 -0400
+        id S1726695AbfFZDl2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:41:28 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5BF720659;
-        Wed, 26 Jun 2019 03:41:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 378622146E;
+        Wed, 26 Jun 2019 03:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520485;
-        bh=Lu7uDFtiuRev8qFmJoBxVGwqx6CD6SYxWfAJXfHMVA8=;
+        s=default; t=1561520487;
+        bh=2nXvnWy/pEcwckiMBbIBHScHP1PnX86MrzkbMvwCjX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bBC5AEeVJGWdaUQ0UHxDAHI9rsmvL3XaqAZepJVsMRCMJKaHCXnyNMhnga648+3Km
-         vWUxoLZfFJken1LfM9XK0eWkqadRdsyjUE0N7SSjWstn3PBF1ULFSazluLF36vaBcL
-         gIY3E+U2Qq9rSTyuffMCHQMEJw3kA7Tm+MSgx8Zw=
+        b=YPoz5BhEU4I/QnEgkYC2d4GYnR8KjRbRZ/gyEJwN8YYGfT8/k881q0qFxui4Iv6Ov
+         b1N6WFWslpbIneMiNMs0/AQWytVY6VfTmIFxqBuo9Wu2WyXB67kyNuuQLlwLuaykv5
+         V/fBi8L3ZI5Llq92f5+aNo9HSvtaqL48zCK8uCzY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Viorel Suman <viorel.suman@nxp.com>,
-        Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Libin Yang <libin.yang@intel.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 03/51] ASoC: ak4458: add return value for ak4458_probe
-Date:   Tue, 25 Jun 2019 23:40:19 -0400
-Message-Id: <20190626034117.23247-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 04/51] ASoC: soc-pcm: BE dai needs prepare when pause release after resume
+Date:   Tue, 25 Jun 2019 23:40:20 -0400
+Message-Id: <20190626034117.23247-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 References: <20190626034117.23247-1-sashal@kernel.org>
@@ -44,65 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viorel Suman <viorel.suman@nxp.com>
+From: Libin Yang <libin.yang@intel.com>
 
-[ Upstream commit a8dee20d792432740509237943700fbcfc230bad ]
+[ Upstream commit 5087a8f17df868601cd7568299e91c28086d2b45 ]
 
-AK4458 is probed successfully even if AK4458 is not present - this
-is caused by probe function returning no error on i2c access failure.
-Return an error on probe if i2c access has failed.
+If playback/capture is paused and system enters S3, after system returns
+from suspend, BE dai needs to call prepare() callback when playback/capture
+is released from pause if RESUME_INFO flag is not set.
 
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Signed-off-by: Viorel Suman <viorel.suman@nxp.com>
+Currently, the dpcm_be_dai_prepare() function will block calling prepare()
+if the pcm is in SND_SOC_DPCM_STATE_PAUSED state. This will cause the
+following test case fail if the pcm uses BE:
+
+playback -> pause -> S3 suspend -> S3 resume -> pause release
+
+The playback may exit abnormally when pause is released because the BE dai
+prepare() is not called.
+
+This patch allows dpcm_be_dai_prepare() to call dai prepare() callback in
+SND_SOC_DPCM_STATE_PAUSED state.
+
+Signed-off-by: Libin Yang <libin.yang@intel.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/ak4458.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ sound/soc/soc-pcm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/ak4458.c b/sound/soc/codecs/ak4458.c
-index eab7c76cfcd9..4c5c3ec92609 100644
---- a/sound/soc/codecs/ak4458.c
-+++ b/sound/soc/codecs/ak4458.c
-@@ -536,9 +536,10 @@ static void ak4458_power_on(struct ak4458_priv *ak4458)
- 	}
- }
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index be80a12fba27..2a3aacec8057 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -2469,7 +2469,8 @@ int dpcm_be_dai_prepare(struct snd_soc_pcm_runtime *fe, int stream)
  
--static void ak4458_init(struct snd_soc_component *component)
-+static int ak4458_init(struct snd_soc_component *component)
- {
- 	struct ak4458_priv *ak4458 = snd_soc_component_get_drvdata(component);
-+	int ret;
+ 		if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_HW_PARAMS) &&
+ 		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP) &&
+-		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND))
++		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND) &&
++		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
+ 			continue;
  
- 	/* External Mute ON */
- 	if (ak4458->mute_gpiod)
-@@ -546,21 +547,21 @@ static void ak4458_init(struct snd_soc_component *component)
- 
- 	ak4458_power_on(ak4458);
- 
--	snd_soc_component_update_bits(component, AK4458_00_CONTROL1,
-+	ret = snd_soc_component_update_bits(component, AK4458_00_CONTROL1,
- 			    0x80, 0x80);   /* ACKS bit = 1; 10000000 */
-+	if (ret < 0)
-+		return ret;
- 
--	ak4458_rstn_control(component, 1);
-+	return ak4458_rstn_control(component, 1);
- }
- 
- static int ak4458_probe(struct snd_soc_component *component)
- {
- 	struct ak4458_priv *ak4458 = snd_soc_component_get_drvdata(component);
- 
--	ak4458_init(component);
--
- 	ak4458->fs = 48000;
- 
--	return 0;
-+	return ak4458_init(component);
- }
- 
- static void ak4458_remove(struct snd_soc_component *component)
+ 		dev_dbg(be->dev, "ASoC: prepare BE %s\n",
 -- 
 2.20.1
 
