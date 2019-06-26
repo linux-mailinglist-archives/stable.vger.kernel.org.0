@@ -2,88 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8292F564D2
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 10:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10CBD564D4
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 10:45:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726239AbfFZIpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 04:45:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37860 "EHLO mail.kernel.org"
+        id S1727009AbfFZIpq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 04:45:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726695AbfFZIpm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 04:45:42 -0400
+        id S1727005AbfFZIpq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 04:45:46 -0400
 Received: from localhost (unknown [116.247.127.123])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9E1320B7C;
-        Wed, 26 Jun 2019 08:45:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E255A208E3;
+        Wed, 26 Jun 2019 08:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561538741;
-        bh=kno8bvQvi1MLeTP7GxSeJfqducLcm5OuvaJtblvlWyU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ATZkx9XkFK4PgNeLjqn5OxpjuaqleNhcrOfDatHsafbhlgOj2xvknqXoWqDEYIpZP
-         J2Rll0CyzHMeMzTKZWXBdzFVXbIs1paDljL+l8eo6Y+4N8oGcjfWSEdveJEpdZnXf1
-         NKJTuH7BmGrsNX1mfo4IQkigOQVU5fU4UJ/Jj4yg=
+        s=default; t=1561538745;
+        bh=3JwA4yrbPtdlyNARL29BOmB3wlnDHGk5OrcLu1cofeE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=mX5IaQ8WV8tgLKgMXQxdD6QpzMGQJwS96K3g5BuvFcQyiouDkNkROn99DKLL3Uv6K
+         pi54D889rWMH7mumsRXQK7NzeW7rDAnqc3Av3ECPAeercO7hvLnT231E/uLQo2Vtms
+         lX/sT0RWPa86xBCmENu27RE4DFoaaJXt+LiTkr80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.9 0/1] 4.9.184-stable review
-Date:   Wed, 26 Jun 2019 16:45:12 +0800
-Message-Id: <20190626083606.302057200@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Christoph Paasch <cpaasch@apple.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 1/1] tcp: refine memory limit test in tcp_fragment()
+Date:   Wed, 26 Jun 2019 16:45:13 +0800
+Message-Id: <20190626083606.407433249@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-MIME-Version: 1.0
+In-Reply-To: <20190626083606.302057200@linuxfoundation.org>
+References: <20190626083606.302057200@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.184-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.184-rc1
-X-KernelTest-Deadline: 2019-06-28T08:36+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.184 release.
-There are 1 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Eric Dumazet <edumazet@google.com>
 
-Responses should be made by Fri 28 Jun 2019 08:35:42 AM UTC.
-Anything received after that time might be too late.
+commit b6653b3629e5b88202be3c9abc44713973f5c4b4 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.184-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+tcp_fragment() might be called for skbs in the write queue.
 
-thanks,
+Memory limits might have been exceeded because tcp_sendmsg() only
+checks limits at full skb (64KB) boundaries.
 
-greg k-h
+Therefore, we need to make sure tcp_fragment() wont punish applications
+that might have setup very low SO_SNDBUF values.
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: f070ef2ac667 ("tcp: tcp_fragment() should apply sane memory limits")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Christoph Paasch <cpaasch@apple.com>
+Tested-by: Christoph Paasch <cpaasch@apple.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.184-rc1
+---
+ net/ipv4/tcp_output.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Eric Dumazet <edumazet@google.com>
-    tcp: refine memory limit test in tcp_fragment()
-
-
--------------
-
-Diffstat:
-
- Makefile              | 4 ++--
- net/ipv4/tcp_output.c | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1185,7 +1185,7 @@ int tcp_fragment(struct sock *sk, struct
+ 	if (nsize < 0)
+ 		nsize = 0;
+ 
+-	if (unlikely((sk->sk_wmem_queued >> 1) > sk->sk_sndbuf)) {
++	if (unlikely((sk->sk_wmem_queued >> 1) > sk->sk_sndbuf + 0x20000)) {
+ 		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPWQUEUETOOBIG);
+ 		return -ENOMEM;
+ 	}
 
 
