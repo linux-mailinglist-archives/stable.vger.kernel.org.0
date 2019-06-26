@@ -2,109 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 677A756AA7
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 15:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB6DC56ADE
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 15:39:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727258AbfFZNee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 09:34:34 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:33934 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726484AbfFZNee (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jun 2019 09:34:34 -0400
-Received: by mail-wr1-f65.google.com with SMTP id k11so2805312wrl.1
-        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 06:34:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lQ+kH+8OcyY0c8JYG72kvfeQsmfca58t7L4uorcaVGM=;
-        b=NQd3VWLOrNreUf/55J5EOMv550b47xcBqAdZemrvku9rzIzi3Ba2itJIyNgm0qXdvZ
-         xTXhp7sjujhhLjSMqvJTdmHfhCysQhO4xzsT/g3TqiT0fsMgu2XzBskqxRyoZ9mjQ8ch
-         Qek1oUw0sSFtrXZLAtl7/6r6QUWfHZVBEcxksL/xPcE5d7Vgw1iZs6X2wSRTDKYHPzpP
-         QaEMlLQP8VTGjWDhsudcxZXiuyc7UrJG4BCZ82Wz653RsCnRfGLB94ejb1+vsMJ6/ouN
-         O24p0QFzwmdeM2HDF6SF8WWBoBOk7YRQare/kNRUs56SNd9VO8Dd/Fn5E3mUaYnnGE/W
-         t1qA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lQ+kH+8OcyY0c8JYG72kvfeQsmfca58t7L4uorcaVGM=;
-        b=DnvNOfE5P/mb3MUvhToPq91gKDF9c0hUngmSuXrfhBvDkK96cbVTaQLd4vD5hfjSsp
-         L9EtLQJccosMKZKya7C5J1Z15kwN5BKvl1RDDwakeyNeT2ief6ymPHP8wazmu4KGrTJ7
-         6L+XrkbG06961+G1deP8WHiaAPk+4U8Jg1d0vZlrYZusZP+HB82Z0tEAILaXlrlHsq9B
-         bTcO5exjDviRFSsF2Dr+XMqR+13VEb7xJPZRJrMJ53AJ/IPyb/oqSzq046FSWEMx+5CY
-         KUEgtiyziF1JUNKJcVm1FFxCG7jRsSFlnnn5UJr24fYBg4m/FGTHbiGgyx9BCOHFf/Cc
-         sTog==
-X-Gm-Message-State: APjAAAUA82ujJXZKx8u8oQAaZAMGkduv4twoZNUXkmJxz0m4qiXAdqZg
-        0rIFVWOOsaCvjMI11sQ1eQoYxPVxq1Bk3w==
-X-Google-Smtp-Source: APXvYqz7llAbM3D8LwPY32d0VS8H4G8yMo8sNSLXPKRrFe8PeCcmE1WmpX7mMN1MPswx62eeUdwOQw==
-X-Received: by 2002:a5d:4849:: with SMTP id n9mr3691843wrs.139.1561556072521;
-        Wed, 26 Jun 2019 06:34:32 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o20sm50225768wrh.8.2019.06.26.06.34.31
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 26 Jun 2019 06:34:32 -0700 (PDT)
-Message-ID: <5d137468.1c69fb81.cef30.9b00@mx.google.com>
-Date:   Wed, 26 Jun 2019 06:34:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727579AbfFZNj5 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 26 Jun 2019 09:39:57 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:48128 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726484AbfFZNj4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 09:39:56 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 575C63086204;
+        Wed, 26 Jun 2019 13:39:56 +0000 (UTC)
+Received: from warthog.procyon.org.uk (ovpn-120-57.rdu2.redhat.com [10.10.120.57])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E299160852;
+        Wed, 26 Jun 2019 13:39:54 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+To:     torvalds@linux-foundation.org
+cc:     dhowells@redhat.com, iwienand@redhat.com,
+        linux-afs@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [GIT PULL] AFS fixes
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.130-2-g2f84eb215456
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y boot: 129 boots: 2 failed,
- 127 passed (v4.14.130-2-g2f84eb215456)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <11570.1561556393.1@warthog.procyon.org.uk>
+Content-Transfer-Encoding: 8BIT
+Date:   Wed, 26 Jun 2019 14:39:53 +0100
+Message-ID: <11571.1561556393@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Wed, 26 Jun 2019 13:39:56 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 129 boots: 2 failed, 127 passed (v4.14.130-2-g=
-2f84eb215456)
+Hi Linus,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.130-2-g2f84eb215456/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.130-2-g2f84eb215456/
+Could you pull this please?
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.130-2-g2f84eb215456
-Git Commit: 2f84eb215456bfd772fc0d9efc8446a66a3faa1b
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 24 SoC families, 15 builds out of 201
+There are four patches:
 
-Boot Regressions Detected:
+ (1) Fix the printing of the "vnode modified" warning to exclude checks on
+     files for which we don't have a callback promise from the server (and
+     so don't expect the server to tell us when it changes).
 
-arm:
+     Without this, for every file or directory for which we still have an
+     in-core inode that gets changed on the server, we may get a message
+     logged when we next look at it.  This can happen in bulk if, for
+     instance, someone does "vos release" to update a R/O volume from a R/W
+     volume and a whole set of files are all changed together.
 
-    multi_v7_defconfig:
-        gcc-8:
-          sun7i-a20-bananapi:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.14.1=
-29-52-g57f3c9aebc30 - first fail: v4.14.130)
+     We only really want to log a message if the file changed and the
+     server didn't tell us about it or we failed to track the state
+     internally.
 
-    sunxi_defconfig:
-        gcc-8:
-          sun7i-a20-bananapi:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.14.1=
-29-52-g57f3c9aebc30 - first fail: v4.14.130)
+ (2) Fix accidental corruption of either afs_vlserver struct objects or the
+     the following memory locations (which could hold anything).  The issue
+     is caused by a union that points to two different structs in struct
+     afs_call (to save space in the struct).  The call cleanup code assumes
+     that it can simply call the cleanup for one of those structs if not
+     NULL - when it might be actually pointing to the other struct.
 
-Boot Failures Detected:
+     This means that every Volume Location RPC op is going to corrupt
+     something.
 
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
+ (3) Fix an uninitialised spinlock.  This isn't too bad, it just causes a
+     one-off warning if lockdep is enabled when "vos release" is called,
+     but the spinlock still behaves correctly.
 
-    multi_v7_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
+ (4) Fix the setting of i_block in the inode.  This causes du, for example,
+     to produce incorrect results, but otherwise should not be dangerous to
+     the kernel.
+
+The in-kernel AFS client has been undergoing testing on opendev.org on one
+of their mirror machines.  They are using AFS to hold data that is then
+served via apache, and Ian Wienand had reported seeing oopses, spontaneous
+machine reboots and updates to volumes going missing.  This patch series
+appears to have fixed the problem, very probably due to patch (2), but it's
+not 100% certain.
+
+Reviewed-by: Jeffrey Altman <jaltman@auristor.com>
+Tested-by: Marc Dionne <marc.dionne@auristor.com>
+Tested-by: Ian Wienand <iwienand@redhat.com>
 
 ---
-For more info write to <info@kernelci.org>
+The following changes since commit a188339ca5a396acc588e5851ed7e19f66b0ebd9:
+
+  Linux 5.2-rc1 (2019-05-19 15:47:09 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git tags/afs-fixes-20190620
+
+for you to fetch changes up to 2cd42d19cffa0ec3dfb57b1b3e1a07a9bf4ed80a:
+
+  afs: Fix setting of i_blocks (2019-06-20 18:12:02 +0100)
+
+----------------------------------------------------------------
+AFS fixes
+
+----------------------------------------------------------------
+David Howells (4):
+      afs: Fix over zealous "vnode modified" warnings
+      afs: Fix vlserver record corruption
+      afs: Fix uninitialised spinlock afs_volume::cb_break_lock
+      afs: Fix setting of i_blocks
+
+ fs/afs/callback.c |  4 ++--
+ fs/afs/inode.c    | 31 +++++++++++++++++++------------
+ fs/afs/internal.h |  8 +++-----
+ fs/afs/volume.c   |  1 +
+ 4 files changed, 25 insertions(+), 19 deletions(-)
