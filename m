@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8CF756014
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B6F1560CB
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726954AbfFZDpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:45:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56374 "EHLO mail.kernel.org"
+        id S1727009AbfFZDsT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:48:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726793AbfFZDpB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:45:01 -0400
+        id S1726846AbfFZDpD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:45:03 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-98.mobile.att.net [107.77.172.98])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C94320659;
-        Wed, 26 Jun 2019 03:44:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D2382168B;
+        Wed, 26 Jun 2019 03:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520700;
-        bh=S6uv1RYVLfn2mCdAlui76MSgMxclMbcjRbl0OXKwVtY=;
+        s=default; t=1561520702;
+        bh=r/+x84xmVgP3tUuGIYUhEEQM1OkCLYphoCekfLtFOWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sl0ruOfLohfpmBcI7wO0cPN5GyK8I95XvInQSVl4KUVd2ybPXW5LIwP6FdRBc7Q3m
-         S38BZh3L1oI4PhLkuTvXDLRbWWDKE2ZjWQIuD3PsEzuKdZslNbyO+dM87B97AOLoiq
-         7h6n760I/BZVufIjCpEFjC4GzQKuLNf9FgIwykgA=
+        b=yxqVPm5nwnr+yptrk3z/OUWGCAqLVsGD2SQMozkRo45ceR644Lv94xTRGtMzPDRS9
+         zsemezFcRiNfRFpigERJKGXBMDkkSWoDQq9zYRAZIHXVPrhaRUQCTSJD17fIIh5lsV
+         RW9snedXU8BkBO8U3h5q+vUUUqx64sswGJO9TQT0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     swkhack <swkhack@gmail.com>, Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.19 31/34] mm/mlock.c: change count_mm_mlocked_page_nr return type
-Date:   Tue, 25 Jun 2019 23:43:32 -0400
-Message-Id: <20190626034335.23767-31-sashal@kernel.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 32/34] tracing: avoid build warning with HAVE_NOP_MCOUNT
+Date:   Tue, 25 Jun 2019 23:43:33 -0400
+Message-Id: <20190626034335.23767-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034335.23767-1-sashal@kernel.org>
 References: <20190626034335.23767-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,45 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: swkhack <swkhack@gmail.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 0874bb49bb21bf24deda853e8bf61b8325e24bcb ]
+[ Upstream commit cbdaeaf050b730ea02e9ab4ff844ce54d85dbe1d ]
 
-On a 64-bit machine the value of "vma->vm_end - vma->vm_start" may be
-negative when using 32 bit ints and the "count >> PAGE_SHIFT"'s result
-will be wrong.  So change the local variable and return value to
-unsigned long to fix the problem.
+Selecting HAVE_NOP_MCOUNT enables -mnop-mcount (if gcc supports it)
+and sets CC_USING_NOP_MCOUNT. Reuse __is_defined (which is suitable for
+testing CC_USING_* defines) to avoid conditional compilation and fix
+the following gcc 9 warning on s390:
 
-Link: http://lkml.kernel.org/r/20190513023701.83056-1-swkhack@gmail.com
-Fixes: 0cf2f6f6dc60 ("mm: mlock: check against vma for actual mlock() size")
-Signed-off-by: swkhack <swkhack@gmail.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+kernel/trace/ftrace.c:2514:1: warning: ‘ftrace_code_disable’ defined
+but not used [-Wunused-function]
+
+Link: http://lkml.kernel.org/r/patch.git-1a82d13f33ac.your-ad-here.call-01559732716-ext-6629@work.hours
+
+Fixes: 2f4df0017baed ("tracing: Add -mcount-nop option support")
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mlock.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/trace/ftrace.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/mm/mlock.c b/mm/mlock.c
-index 41cc47e28ad6..0ab8250af1f8 100644
---- a/mm/mlock.c
-+++ b/mm/mlock.c
-@@ -636,11 +636,11 @@ static int apply_vma_lock_flags(unsigned long start, size_t len,
-  * is also counted.
-  * Return value: previously mlocked page counts
-  */
--static int count_mm_mlocked_page_nr(struct mm_struct *mm,
-+static unsigned long count_mm_mlocked_page_nr(struct mm_struct *mm,
- 		unsigned long start, size_t len)
- {
- 	struct vm_area_struct *vma;
--	int count = 0;
-+	unsigned long count = 0;
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 1688782f3dfb..90348b343460 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -2952,14 +2952,13 @@ static int ftrace_update_code(struct module *mod, struct ftrace_page *new_pgs)
+ 			p = &pg->records[i];
+ 			p->flags = rec_flags;
  
- 	if (mm == NULL)
- 		mm = current->mm;
+-#ifndef CC_USING_NOP_MCOUNT
+ 			/*
+ 			 * Do the initial record conversion from mcount jump
+ 			 * to the NOP instructions.
+ 			 */
+-			if (!ftrace_code_disable(mod, p))
++			if (!__is_defined(CC_USING_NOP_MCOUNT) &&
++			    !ftrace_code_disable(mod, p))
+ 				break;
+-#endif
+ 
+ 			update_cnt++;
+ 		}
 -- 
 2.20.1
 
