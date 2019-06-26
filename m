@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC86560A1
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC0F6560E5
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726896AbfFZDnU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:43:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54508 "EHLO mail.kernel.org"
+        id S1726642AbfFZDt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:49:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727289AbfFZDnS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:43:18 -0400
+        id S1727295AbfFZDnW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:43:22 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C988F20659;
-        Wed, 26 Jun 2019 03:43:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0AE5205ED;
+        Wed, 26 Jun 2019 03:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520598;
-        bh=nmVqm5LCFkN57JcvZZ3jWRa4TbV2CnF7sjsDTG8/21g=;
+        s=default; t=1561520601;
+        bh=d1+WP5N9McYnrs0TI4Boiqy40Gwh4H9/yG46Qc8deqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oj3KhlkTDOL0SVQQZacBz9WkB7BPKTbaqBnuvXFQ7uAJLPHgG/PlrUnUowFxeXCAP
-         d9Sk0HUBa0nlUWJjt+DTkxorCPO5mRTe2M8LE4E2CGp/A57H8OfJ6kVNijYqd7+Szj
-         T0ihNz78K1g3kdPBR7qH3RbEPFSEcQUwK268yK8k=
+        b=PGZxK0IOaJfeGa5/cSdz/f2gI0S2nEtobBSg0reAmrdxbY3h93libLk2Ok8znyK/i
+         +LXSbnJHi4UfJPyM2aQ57BFzUX/RPY1wEoSD5eGeFqcThO3pAFj4n6NqY69FCTtAle
+         cybtqBbF7Ag/82ONOUdLuvVG4UwKhSy3pq/K2CF8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 44/51] i2c: pca-platform: Fix GPIO lookup code
-Date:   Tue, 25 Jun 2019 23:41:00 -0400
-Message-Id: <20190626034117.23247-44-sashal@kernel.org>
+Cc:     Will Deacon <will.deacon@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 45/51] arm64: tlbflush: Ensure start/end of address range are aligned to stride
+Date:   Tue, 25 Jun 2019 23:41:01 -0400
+Message-Id: <20190626034117.23247-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 References: <20190626034117.23247-1-sashal@kernel.org>
@@ -44,50 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Will Deacon <will.deacon@arm.com>
 
-[ Upstream commit a0cac264a86fbf4d6cb201fbbb73c1d335e3248a ]
+[ Upstream commit 01d57485fcdb9f9101a10a18e32d5f8b023cab86 ]
 
-The devm_gpiod_request_gpiod() call will add "-gpios" to
-any passed connection ID before looking it up.
+Since commit 3d65b6bbc01e ("arm64: tlbi: Set MAX_TLBI_OPS to
+PTRS_PER_PTE"), we resort to per-ASID invalidation when attempting to
+perform more than PTRS_PER_PTE invalidation instructions in a single
+call to __flush_tlb_range(). Whilst this is beneficial, the mmu_gather
+code does not ensure that the end address of the range is rounded-up
+to the stride when freeing intermediate page tables in pXX_free_tlb(),
+which defeats our range checking.
 
-I do not think the reset GPIO on this platform is named
-"reset-gpios-gpios" but rather "reset-gpios" in the device
-tree, so fix this up so that we get a proper reset GPIO
-handle.
+Align the bounds passed into __flush_tlb_range().
 
-Also drop the inclusion of the legacy GPIO header.
-
-Fixes: 0e8ce93bdceb ("i2c: pca-platform: add devicetree awareness")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Reported-by: Hanjun Guo <guohanjun@huawei.com>
+Tested-by: Hanjun Guo <guohanjun@huawei.com>
+Reviewed-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-pca-platform.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm64/include/asm/tlbflush.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-index de3fe6e828cb..f50afa8e3cba 100644
---- a/drivers/i2c/busses/i2c-pca-platform.c
-+++ b/drivers/i2c/busses/i2c-pca-platform.c
-@@ -21,7 +21,6 @@
- #include <linux/platform_device.h>
- #include <linux/i2c-algo-pca.h>
- #include <linux/platform_data/i2c-pca-platform.h>
--#include <linux/gpio.h>
- #include <linux/gpio/consumer.h>
- #include <linux/io.h>
- #include <linux/of.h>
-@@ -173,7 +172,7 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 	i2c->adap.dev.parent = &pdev->dev;
- 	i2c->adap.dev.of_node = np;
+diff --git a/arch/arm64/include/asm/tlbflush.h b/arch/arm64/include/asm/tlbflush.h
+index 3a1870228946..dff8f9ea5754 100644
+--- a/arch/arm64/include/asm/tlbflush.h
++++ b/arch/arm64/include/asm/tlbflush.h
+@@ -195,6 +195,9 @@ static inline void __flush_tlb_range(struct vm_area_struct *vma,
+ 	unsigned long asid = ASID(vma->vm_mm);
+ 	unsigned long addr;
  
--	i2c->gpio = devm_gpiod_get_optional(&pdev->dev, "reset-gpios", GPIOD_OUT_LOW);
-+	i2c->gpio = devm_gpiod_get_optional(&pdev->dev, "reset", GPIOD_OUT_LOW);
- 	if (IS_ERR(i2c->gpio))
- 		return PTR_ERR(i2c->gpio);
- 
++	start = round_down(start, stride);
++	end = round_up(end, stride);
++
+ 	if ((end - start) >= (MAX_TLBI_OPS * stride)) {
+ 		flush_tlb_mm(vma->vm_mm);
+ 		return;
 -- 
 2.20.1
 
