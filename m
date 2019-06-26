@@ -2,88 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0835956B45
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 15:51:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4C9656B7F
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 16:04:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728009AbfFZNve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 09:51:34 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:42115 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727589AbfFZNvd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jun 2019 09:51:33 -0400
-Received: by mail-wr1-f67.google.com with SMTP id x17so2822812wrl.9
-        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 06:51:32 -0700 (PDT)
+        id S1726131AbfFZOEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 10:04:21 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:50686 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725958AbfFZOEV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jun 2019 10:04:21 -0400
+Received: by mail-wm1-f66.google.com with SMTP id c66so2257071wmf.0
+        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 07:04:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=lQ+kH+8OcyY0c8JYG72kvfeQsmfca58t7L4uorcaVGM=;
-        b=AZdX9lcI5pjztVWxh656eaPnCtDHPZIem9X1kHLHfQTwUBsdYtK5oOQI27PKLVQBAG
-         tGieFaS3NaXfIKUVngX/yG7F/MsF1abmxcDVGjGl8LtqM4Ft4xNanGFiOHur+L4fMzni
-         4SIBrex/1DpF4X2ieQFR18ORpZDkUZZ4/jJG51g1n8a2DCXWxXWBNEUO445g+xvQxG3r
-         ZYGKpOSi3j251UPTv+4v3y99LtOniPLV79FBnhV0kgk+vLzFe/lBc68p0GIGg+MC3MDK
-         /Yi0ArFLRfUh9HOjNNsOgtueVIVs3NDhdJ2k97FNPxB1vvF8xcCGiI8tD9XmwbeSlfTc
-         coYg==
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=KAA7L26aqSLCBAG9Xoq6ttW+odbPkhhHG+H1ROISMHs=;
+        b=G7idYn2M0hnN//aXmaOwfU0RqWw0g7aQOcfi8OoBld5JgHJe6c8CCMYQq7qOyZoduq
+         TQ9qoXGijcICOmCO8EOurpJxwJUHPfP0GaXJHkg/MorwR4WdA4U2cBbWZEa1Nzn0Hy0w
+         guhuZegeynal+t5RcNpergYxSef5uxqvrIda4yC8ehDLw4YfQO/5ZX/vCXOVKKcg2Q/v
+         jOvQ/9wCETYj3jXIb1LhO09yrqh2hJFvUxVhwIAGNZupxSP0NS4k/Zynm9uaVf8zJRd3
+         BxnxIlKkvkzgP5kua/7P+rX06+tswRtP9sc8NzNVw396siANzM0okeCEJnbrs6y1DvO5
+         3S5A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=lQ+kH+8OcyY0c8JYG72kvfeQsmfca58t7L4uorcaVGM=;
-        b=UxVAFCSF+vosj0iOCKjas0AevceK0WnUjHJBjKJSXSNXBvwbBnwSrYmeI1KFT037Qy
-         E/9+I41cZsr9O1ewGOG7AK5iuFfZlql2H18F6DzS26cPaMAmOQ4oDooSAYTbUGQ9gcum
-         5Ivu/PqTAoTg0PYRFlALkRCf3Q0LbTcs1cTGjgld+Fq9yQCT6nItX0VwBofOSO5LaBhA
-         kbZJJE6184Zm2Fen023i1E+zwOs7uoFHhCEpbJBzmk4pSzgfjQgcC0FFAk86WO6g5Td/
-         AYYxj1EhiLzjqTFl1LpJ6S4Gt6n4Z3ub9Dto8Sj1Q6BkraKk0q8Wh4htxi6YTPv41on1
-         MOTQ==
-X-Gm-Message-State: APjAAAUwfXIiVLDDqfYxvdsPYz9gnJwLGYNaAmVR955n69nbY7IlhNH5
-        QvYnpgbXGU3Bm98M/OtLhkfAzQ==
-X-Google-Smtp-Source: APXvYqyBmr+Lzsm4/mh9XTKT8ZZbwyUyCiiwkdjHz6yVHf2At2LeK/udBwT33alRB5RzAif+CCgxqA==
-X-Received: by 2002:adf:d081:: with SMTP id y1mr4067653wrh.34.1561557091538;
-        Wed, 26 Jun 2019 06:51:31 -0700 (PDT)
+         :content-transfer-encoding:subject:to:from;
+        bh=KAA7L26aqSLCBAG9Xoq6ttW+odbPkhhHG+H1ROISMHs=;
+        b=i94Y01HVfC7ejYrv6lx/Rh4qOjb1AOKXAviVYJIDKjarQbIXabwaUWQVuQ0TlmlVli
+         5rwr9Nf0vqemJNojBdOQ19Gm+UmpMGGbEfYC6GHQZH6aYxgw1t0G4jZh5g/qbBiWNOhk
+         2+658u5YTi+8jrkddVHS/oomrCUquxIUlrp50HUwEoKDt1xIHzoari0hNuFmzE0TKLAv
+         +KncA/8+tp0ZB+1z7B53mVGfWRIFFMCewOpy5VwQJtThDIvk9RT/fgAikwR0RdAcq14L
+         ylEQMbAsO08XMLPWxaTGFJdHddIfy1K0CTjsWdyc0swuP0SVM1tCdddzTFLbtddX+iJS
+         1+Vg==
+X-Gm-Message-State: APjAAAVeVnV4AOtokpBUlWv16UTEWhIV1KcuDRvvd1jtRVYPD6sDe9et
+        bYKYYFUNx1Q6lG1YwT2d5YD3Q7iz42HBcQ==
+X-Google-Smtp-Source: APXvYqw1j487b8sOOpAC3OLeIL/VjyGwLLD2SCebL3O+JsXcPBr/P1r0+PoW4lljpwrn8G8eCGX8sA==
+X-Received: by 2002:a05:600c:da:: with SMTP id u26mr2804134wmm.108.1561557858824;
+        Wed, 26 Jun 2019 07:04:18 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id h21sm2991135wmb.47.2019.06.26.06.51.30
+        by smtp.gmail.com with ESMTPSA id c4sm18329868wrt.86.2019.06.26.07.04.16
+        for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 26 Jun 2019 06:51:30 -0700 (PDT)
-Message-ID: <5d137862.1c69fb81.609f3.fa81@mx.google.com>
-Date:   Wed, 26 Jun 2019 06:51:30 -0700 (PDT)
+        Wed, 26 Jun 2019 07:04:17 -0700 (PDT)
+Message-ID: <5d137b61.1c69fb81.8867.4c31@mx.google.com>
+Date:   Wed, 26 Jun 2019 07:04:17 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.130-2-g2f84eb215456
-X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.9.183-2-g493abc5bd149
+X-Kernelci-Branch: linux-4.9.y
 X-Kernelci-Tree: stable-rc
-In-Reply-To: <20190626083606.248422423@linuxfoundation.org>
-References: <20190626083606.248422423@linuxfoundation.org>
-Subject: Re: [PATCH 4.14 0/1] 4.14.131-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
+Subject: stable-rc/linux-4.9.y boot: 112 boots: 2 failed,
+ 110 passed (v4.9.183-2-g493abc5bd149)
+To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 129 boots: 2 failed, 127 passed (v4.14.130-2-g=
-2f84eb215456)
+stable-rc/linux-4.9.y boot: 112 boots: 2 failed, 110 passed (v4.9.183-2-g49=
+3abc5bd149)
 
 Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.130-2-g2f84eb215456/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.130-2-g2f84eb215456/
+-4.9.y/kernel/v4.9.183-2-g493abc5bd149/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.183-2-g493abc5bd149/
 
 Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.130-2-g2f84eb215456
-Git Commit: 2f84eb215456bfd772fc0d9efc8446a66a3faa1b
+Branch: linux-4.9.y
+Git Describe: v4.9.183-2-g493abc5bd149
+Git Commit: 493abc5bd1493261577ac0c23c94c9ca7ab7b435
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Tested: 68 unique boards, 24 SoC families, 15 builds out of 201
+Tested: 54 unique boards, 23 SoC families, 15 builds out of 197
 
 Boot Regressions Detected:
 
@@ -92,14 +86,14 @@ arm:
     multi_v7_defconfig:
         gcc-8:
           sun7i-a20-bananapi:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.14.1=
-29-52-g57f3c9aebc30 - first fail: v4.14.130)
+              lab-baylibre-seattle: new failure (last pass: v4.9.183-36-gc4=
+0261803d2e)
 
     sunxi_defconfig:
         gcc-8:
           sun7i-a20-bananapi:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.14.1=
-29-52-g57f3c9aebc30 - first fail: v4.14.130)
+              lab-baylibre-seattle: new failure (last pass: v4.9.183-36-gc4=
+0261803d2e)
 
 Boot Failures Detected:
 
