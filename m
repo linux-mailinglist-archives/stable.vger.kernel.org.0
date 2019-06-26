@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 028C955FE2
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:44:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC8FE5609C
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727237AbfFZDnE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:43:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54130 "EHLO mail.kernel.org"
+        id S1727254AbfFZDnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:43:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727232AbfFZDnD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:43:03 -0400
+        id S1726791AbfFZDnJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:43:09 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 768F4216E3;
-        Wed, 26 Jun 2019 03:43:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31F01216F4;
+        Wed, 26 Jun 2019 03:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520582;
-        bh=xjOj61j8dRKenT4sBMAUHgMw5sjHvxeGq/Du6LnwnSk=;
+        s=default; t=1561520588;
+        bh=uNU5+LCbl+Sctf4PzfdDZalh2Mm1BcPdFuY7lUuapUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQwoz8MLt4hfJYY2jgTlsw3hHT0vPHA5swl2Ui3cBENL3K3qYUWM0MmLlOpDlJZoj
-         ct9xtnophgKzkin+Q/yZO9uGwNj1aSQxawEA3+dtA5CLwddspC0UOrDbnGB3hy53KH
-         uCLNO8aVdTYux4Z+dtsc9k9R962VfHClH/RZjF04=
+        b=RVoAubHT605nX+YTDWGRHjalWysGVhIJ2nONjp7BZAGzU4Mym5ol9I2SlHQfZZvoW
+         l2nrwHU9SzeUCJ3AfwxPqUHHeOr+vrpLKtTWLmNtgyknBBta9uI5hOLPnRvGh/dEuR
+         z9zCRY1OMsmg9Y5p8fNXTv9dHdVFf9hlkf+5h89o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        "kernelci . org bot" <bot@kernelci.org>,
+Cc:     Alex Levin <levinale@chromium.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 38/51] ASoC: core: Fix deadlock in snd_soc_instantiate_card()
-Date:   Tue, 25 Jun 2019 23:40:54 -0400
-Message-Id: <20190626034117.23247-38-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 39/51] ASoC: Intel: sst: fix kmalloc call with wrong flags
+Date:   Tue, 25 Jun 2019 23:40:55 -0400
+Message-Id: <20190626034117.23247-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 References: <20190626034117.23247-1-sashal@kernel.org>
@@ -44,58 +43,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+From: Alex Levin <levinale@chromium.org>
 
-[ Upstream commit 495f926c68ddb905a7a0192963096138c6a934e1 ]
+[ Upstream commit 3da428ff2aa5a5191ba2f1630eea75f03242f3f2 ]
 
-Move the client_mutex lock to snd_soc_unbind_card() before
-removing link components. This prevents the deadlock
-in the error path in snd_soc_instantiate_card().
+When calling kmalloc with GFP_KERNEL in case CONFIG_SLOB is unset,
+kmem_cache_alloc_trace is called.
 
-Fixes: 34ac3c3eb8 (ASoC: core: lock client_mutex while removing
-link components)
-Reported-by: kernelci.org bot <bot@kernelci.org>
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+In case CONFIG_TRACING is set, kmem_cache_alloc_trace will ball
+slab_alloc, which will call slab_pre_alloc_hook which might_sleep_if.
+
+The context in which it is called in this case, the
+intel_sst_interrupt_mrfld, calling a sleeping kmalloc generates a BUG():
+
+Fixes: 972b0d456e64 ("ASoC: Intel: remove GFP_ATOMIC, use GFP_KERNEL")
+
+[   20.250671] BUG: sleeping function called from invalid context at mm/slab.h:422
+[   20.250683] in_atomic(): 1, irqs_disabled(): 1, pid: 1791, name: Chrome_IOThread
+[   20.250690] CPU: 0 PID: 1791 Comm: Chrome_IOThread Tainted: G        W         4.19.43 #61
+[   20.250693] Hardware name: GOOGLE Kefka, BIOS Google_Kefka.7287.337.0 03/02/2017
+[   20.250697] Call Trace:
+[   20.250704]  <IRQ>
+[   20.250716]  dump_stack+0x7e/0xc3
+[   20.250725]  ___might_sleep+0x12a/0x140
+[   20.250731]  kmem_cache_alloc_trace+0x53/0x1c5
+[   20.250736]  ? update_cfs_rq_load_avg+0x17e/0x1aa
+[   20.250740]  ? cpu_load_update+0x6c/0xc2
+[   20.250746]  sst_create_ipc_msg+0x2d/0x88
+[   20.250752]  intel_sst_interrupt_mrfld+0x12a/0x22c
+[   20.250758]  __handle_irq_event_percpu+0x133/0x228
+[   20.250764]  handle_irq_event_percpu+0x35/0x7a
+[   20.250768]  handle_irq_event+0x36/0x55
+[   20.250773]  handle_fasteoi_irq+0xab/0x16c
+[   20.250779]  handle_irq+0xd9/0x11e
+[   20.250785]  do_IRQ+0x54/0xe0
+[   20.250791]  common_interrupt+0xf/0xf
+[   20.250795]  </IRQ>
+[   20.250800] RIP: 0010:__lru_cache_add+0x4e/0xad
+[   20.250806] Code: 00 01 48 c7 c7 b8 df 01 00 65 48 03 3c 25 28 f1 00 00 48 8b 48 08 48 89 ca 48 ff ca f6 c1 01 48 0f 44 d0 f0 ff 42 34 0f b6 0f <89> ca fe c2 88 17 48 89 44 cf 08 80 fa 0f 74 0e 48 8b 08 66 85 c9
+[   20.250809] RSP: 0000:ffffa568810bfd98 EFLAGS: 00000202 ORIG_RAX: ffffffffffffffd6
+[   20.250814] RAX: ffffd3b904eb1940 RBX: ffffd3b904eb1940 RCX: 0000000000000004
+[   20.250817] RDX: ffffd3b904eb1940 RSI: ffffa10ee5c47450 RDI: ffffa10efba1dfb8
+[   20.250821] RBP: ffffa568810bfda8 R08: ffffa10ef9c741c1 R09: dead000000000100
+[   20.250824] R10: 0000000000000000 R11: 0000000000000000 R12: ffffa10ee8d52a40
+[   20.250827] R13: ffffa10ee8d52000 R14: ffffa10ee5c47450 R15: 800000013ac65067
+[   20.250835]  lru_cache_add_active_or_unevictable+0x4e/0xb8
+[   20.250841]  handle_mm_fault+0xd98/0x10c4
+[   20.250848]  __do_page_fault+0x235/0x42d
+[   20.250853]  ? page_fault+0x8/0x30
+[   20.250858]  do_page_fault+0x3d/0x17a
+[   20.250862]  ? page_fault+0x8/0x30
+[   20.250866]  page_fault+0x1e/0x30
+[   20.250872] RIP: 0033:0x7962fdea9304
+[   20.250875] Code: 0f 11 4c 17 f0 c3 48 3b 15 f1 26 31 00 0f 83 e2 00 00 00 48 39 f7 72 0f 74 12 4c 8d 0c 16 4c 39 cf 0f 82 63 01 00 00 48 89 d1 <f3> a4 c3 80 fa 08 73 12 80 fa 04 73 1e 80 fa 01 77 26 72 05 0f b6
+[   20.250879] RSP: 002b:00007962f4db5468 EFLAGS: 00010206
+[   20.250883] RAX: 00003c8cc9d47008 RBX: 0000000000000000 RCX: 0000000000001b48
+[   20.250886] RDX: 0000000000002b40 RSI: 00003c8cc9551000 RDI: 00003c8cc9d48000
+[   20.250890] RBP: 00007962f4db5820 R08: 0000000000000000 R09: 00003c8cc9552b48
+[   20.250893] R10: 0000562dd1064d30 R11: 00003c8cc825b908 R12: 00003c8cc966d3c0
+[   20.250896] R13: 00003c8cc9e280c0 R14: 0000000000000000 R15: 0000000000000000
+
+Signed-off-by: Alex Levin <levinale@chromium.org>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 4 ++--
+ sound/soc/intel/atom/sst/sst_pvt.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 9df3bdeb5c47..c010cc864cf3 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -1008,14 +1008,12 @@ static void soc_remove_link_components(struct snd_soc_card *card,
- 	struct snd_soc_component *component;
- 	struct snd_soc_rtdcom_list *rtdcom;
+diff --git a/sound/soc/intel/atom/sst/sst_pvt.c b/sound/soc/intel/atom/sst/sst_pvt.c
+index 00a37a09dc9b..dba0ca07ebf9 100644
+--- a/sound/soc/intel/atom/sst/sst_pvt.c
++++ b/sound/soc/intel/atom/sst/sst_pvt.c
+@@ -166,11 +166,11 @@ int sst_create_ipc_msg(struct ipc_post **arg, bool large)
+ {
+ 	struct ipc_post *msg;
  
--	mutex_lock(&client_mutex);
- 	for_each_rtdcom(rtd, rtdcom) {
- 		component = rtdcom->component;
- 
- 		if (component->driver->remove_order == order)
- 			soc_remove_component(component);
- 	}
--	mutex_unlock(&client_mutex);
- }
- 
- static void soc_remove_dai_links(struct snd_soc_card *card)
-@@ -2836,12 +2834,14 @@ static void snd_soc_unbind_card(struct snd_soc_card *card, bool unregister)
- 		snd_soc_dapm_shutdown(card);
- 		snd_soc_flush_all_delayed_work(card);
- 
-+		mutex_lock(&client_mutex);
- 		/* remove all components used by DAI links on this card */
- 		for_each_comp_order(order) {
- 			for_each_card_rtds(card, rtd) {
- 				soc_remove_link_components(card, rtd, order);
- 			}
- 		}
-+		mutex_unlock(&client_mutex);
- 
- 		soc_cleanup_card_resources(card);
- 		if (!unregister)
+-	msg = kzalloc(sizeof(*msg), GFP_KERNEL);
++	msg = kzalloc(sizeof(*msg), GFP_ATOMIC);
+ 	if (!msg)
+ 		return -ENOMEM;
+ 	if (large) {
+-		msg->mailbox_data = kzalloc(SST_MAILBOX_SIZE, GFP_KERNEL);
++		msg->mailbox_data = kzalloc(SST_MAILBOX_SIZE, GFP_ATOMIC);
+ 		if (!msg->mailbox_data) {
+ 			kfree(msg);
+ 			return -ENOMEM;
 -- 
 2.20.1
 
