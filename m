@@ -2,197 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD5795674B
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 12:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61F7056780
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 13:23:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726131AbfFZK7F convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 26 Jun 2019 06:59:05 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:41630 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726104AbfFZK7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 06:59:05 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id C09B07FDCA
-        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 10:59:04 +0000 (UTC)
-Received: from [172.54.58.4] (cpt-1026.paas.prod.upshift.rdu2.redhat.com [10.0.19.53])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3F34A100194A;
-        Wed, 26 Jun 2019 10:59:02 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1727188AbfFZLXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 07:23:04 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:46044 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726242AbfFZLXE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jun 2019 07:23:04 -0400
+Received: by mail-wr1-f66.google.com with SMTP id f9so2253889wre.12
+        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 04:23:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=fjQc1qNIdZfNF/NDujWvCMQ2yfBiCYxY24N/zNlf1Sc=;
+        b=T6rUTC/K+RDBOgNT3TjfcZJkObZzwHEXF9J+vJXx7A6MFsKwW4H1FxCIh+q3ysF9J9
+         mnJ2Y+tM08xr3CYQjoOiznaCohSD8+sBXB1F17deD6p3oxIQGEA3AycMHfMZoCivIEkN
+         aAo6C8vnG4AYk4U/hShNKDeBuedMvqtG1hUs+jrUlrXxKvmFH/NN/oF+95rm5sLV314B
+         16/UXt9xRj1vm8Fk9+iNZAu9rV21AscWsNjpgruVKEM4okFdlaaM8Qn2l2LFJNKDIZbB
+         idDxyEwekYdxjYc743Usk0jeHK1RUY+y502n5JC+QXWv8eqBs7Lh+ewCVGCwo7AWPT6A
+         mkVQ==
+X-Gm-Message-State: APjAAAUlz2El9a80PjdjOZtTRdXlFlt46Rp9DICV9GxfN8fgSygRIIjs
+        5uLHSSe4o3VTvhIMItH37DXADA==
+X-Google-Smtp-Source: APXvYqxzPVbgC2v5Z5f684Hw679jGU5eIVWc5gw7gHAtuDitqWREZ2c9Yv7LwO07wFwWn8EJzrI8QQ==
+X-Received: by 2002:adf:c654:: with SMTP id u20mr3435135wrg.271.1561548182090;
+        Wed, 26 Jun 2019 04:23:02 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:61c1:6d8f:e2c4:2d5c? ([2001:b07:6468:f312:61c1:6d8f:e2c4:2d5c])
+        by smtp.gmail.com with ESMTPSA id a7sm17956545wrs.94.2019.06.26.04.23.00
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Wed, 26 Jun 2019 04:23:01 -0700 (PDT)
+Subject: Re: [PATCH 1/1] kvm/speculation: Allow KVM guests to use SSBD even if
+ host does not
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
+Cc:     mingo@redhat.com, Borislav Petkov <bp@alien8.de>,
+        rkrcmar@redhat.com, x86@kernel.org, kvm@vger.kernel.org,
+        stable <stable@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Jon Masters <jcm@redhat.com>
+References: <1560187210-11054-1-git-send-email-alejandro.j.jimenez@oracle.com>
+ <1c9d4047-e54c-8d4b-13b1-020864f2f5bf@redhat.com>
+ <alpine.DEB.2.21.1906251750140.32342@nanos.tec.linutronix.de>
+ <56fa2729-52a7-3994-5f7c-bc308da7d710@oracle.com>
+ <alpine.DEB.2.21.1906252019460.32342@nanos.tec.linutronix.de>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <b6c2ac14-d647-0fa2-f19d-88944c63c37a@redhat.com>
+Date:   Wed, 26 Jun 2019 13:23:00 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.9507B83390.MZ5KWR3W00@redhat.com>
-X-Gitlab-Pipeline-ID: 13260
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Wed, 26 Jun 2019 10:59:04 +0000 (UTC)
-Date:   Wed, 26 Jun 2019 06:59:05 -0400
+In-Reply-To: <alpine.DEB.2.21.1906252019460.32342@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On 25/06/19 20:22, Thomas Gleixner wrote:
+>> I think that even with that approach there is still an unsolved problem, as I
+>> believe guests are allowed to write directly to SPEC_CTRL MSR without causing
+>> a VMEXIT, which bypasses the host masking entirely.� e.g. a guest using IBRS
+>> writes frequently to SPEC_CTRL, and could turn off SSBD on the VPCU while is
+>> running after the first non-zero write to the MSR. Do you agree?
+> Indeed. Of course that was a decision we made _before_ all the other fancy
+> things came around. Looks like we have to reopen that discussion.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+It's not just that, it's a decision that was made because otherwise
+performance is absolutely horrible (like 4-5x slower syscalls if the
+guest is using IBRS).
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: aec3002d07fd - Linux 4.19.56
+I think it's better to leave the guest in control of SSBD even if it's
+globally disabled.  The harm cannot escape the guest and in particular
+it cannot escape to the sibling hyperthread.
 
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: aec3002d07fd - Linux 4.19.56
-
-
-We grabbed the 75a33cedea47 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  perf-ui-helpline-use-strlcpy-as-a-shorter-form-of-strncpy-explicit-set-nul.patch
-  perf-help-remove-needless-use-of-strncpy.patch
-  perf-header-fix-unchecked-usage-of-strncpy.patch
-  arm64-don-t-unconditionally-add-wno-psabi-to-kbuild_cflags.patch
-  revert-x86-uaccess-ftrace-fix-ftrace_likely_update-v.patch
-  ib-hfi1-close-psm-sdma_progress-sleep-window.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-e3c96ba0e9c54400082ac4392a685bd662857f46.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-e3c96ba0e9c54400082ac4392a685bd662857f46.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-e3c96ba0e9c54400082ac4392a685bd662857f46.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-e3c96ba0e9c54400082ac4392a685bd662857f46.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-e3c96ba0e9c54400082ac4392a685bd662857f46.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-e3c96ba0e9c54400082ac4392a685bd662857f46.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-e3c96ba0e9c54400082ac4392a685bd662857f46.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-e3c96ba0e9c54400082ac4392a685bd662857f46.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ tuned: tune-processes-through-perf [9]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+Paolo
