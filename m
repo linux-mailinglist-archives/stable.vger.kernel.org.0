@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 237C5560B7
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DFD7560B9
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727584AbfFZDoc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:44:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55890 "EHLO mail.kernel.org"
+        id S1726989AbfFZDoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:44:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726907AbfFZDoc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:44:32 -0400
+        id S1727589AbfFZDod (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:44:33 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-98.mobile.att.net [107.77.172.98])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8630420659;
-        Wed, 26 Jun 2019 03:44:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7F49205ED;
+        Wed, 26 Jun 2019 03:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520671;
-        bh=MPRfLOQ78hjLqogfhFdAgFJlEob2kBJlBUS3vqVz0o0=;
+        s=default; t=1561520672;
+        bh=ZqvzL5QRBqlyvstiXKL/63rBGS2MmAum0563vuhRjJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Upnwbeqznw/8UMA7BHWseZsKolfKFYTC76mhcG/7jhBaOG0tWuKBBSPsiAwQJXkjA
-         DKpO4KvIctCn9BcAKnXbOmwjRdvYBg3ypB5bDPKHnKVqmxp9RDpJctoG8IFN/q2RZT
-         cR+io2HAG0x0ETgbTvYBSTADJX76/MWFClPlmLiM=
+        b=ZEMw154++EfymUlqaCyxRA8C7FeCitjZLn4LYAF5qj5ywKmj4/JVv3NH/4Fw/EdPW
+         NFlvzMvb4VZM+PEfLGu8yTH+iN5Chwkgr4+jlaQfKa8WqUnCJxWmKZEfLGcygSE2EK
+         NJXurjoNN8v3l7heXgeTv8pTpwawsEaCjXOsWomk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Don Brace <don.brace@microsemi.com>,
-        Bader Ali - Saleh <bader.alisaleh@microsemi.com>,
-        Scott Teel <scott.teel@microsemi.com>,
-        Matt Perricone <matt.perricone@microsemi.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, esc.storagedev@microsemi.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 21/34] scsi: hpsa: correct ioaccel2 chaining
-Date:   Tue, 25 Jun 2019 23:43:22 -0400
-Message-Id: <20190626034335.23767-21-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Jurgen Kramer <gtmkramer@xs4all.nl>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 22/34] drm: panel-orientation-quirks: Add quirk for GPD pocket2
+Date:   Tue, 25 Jun 2019 23:43:23 -0400
+Message-Id: <20190626034335.23767-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034335.23767-1-sashal@kernel.org>
 References: <20190626034335.23767-1-sashal@kernel.org>
@@ -47,64 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Don Brace <don.brace@microsemi.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 625d7d3518875c4d303c652a198feaa13d9f52d9 ]
+[ Upstream commit 15abc7110a77555d3bf72aaef46d1557db0a4ac5 ]
 
-- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_LAST_SG for
-  the last s/g element.
+GPD has done it again, make a nice device (good), use way too generic
+DMI strings (bad) and use a portrait screen rotated 90 degrees (ugly).
 
-- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_CHAIN when
-  chaining.
+Because of the too generic DMI strings this entry is also doing bios-date
+matching, so the gpd_pocket2 data struct may very well need to be updated
+with some extra bios-dates in the future.
 
-Reviewed-by: Bader Ali - Saleh <bader.alisaleh@microsemi.com>
-Reviewed-by: Scott Teel <scott.teel@microsemi.com>
-Reviewed-by: Matt Perricone <matt.perricone@microsemi.com>
-Signed-off-by: Don Brace <don.brace@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Changes in v2:
+-Add one more known BIOS date to the list of BIOS dates
+
+Cc: Jurgen Kramer <gtmkramer@xs4all.nl>
+Reported-by: Jurgen Kramer <gtmkramer@xs4all.nl>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190524125759.14131-1-hdegoede@redhat.com
+(cherry picked from commit 6dab9102dd7b144e5723915438e0d6c473018cd0)
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c     | 7 ++++++-
- drivers/scsi/hpsa_cmd.h | 1 +
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index c120929d4ffe..c43eccdea65d 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -4923,7 +4923,7 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
- 			curr_sg->reserved[0] = 0;
- 			curr_sg->reserved[1] = 0;
- 			curr_sg->reserved[2] = 0;
--			curr_sg->chain_indicator = 0x80;
-+			curr_sg->chain_indicator = IOACCEL2_CHAIN;
- 
- 			curr_sg = h->ioaccel2_cmd_sg_list[c->cmdindex];
- 		}
-@@ -4940,6 +4940,11 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
- 			curr_sg++;
- 		}
- 
-+		/*
-+		 * Set the last s/g element bit
-+		 */
-+		(curr_sg - 1)->chain_indicator = IOACCEL2_LAST_SG;
-+
- 		switch (cmd->sc_data_direction) {
- 		case DMA_TO_DEVICE:
- 			cp->direction &= ~IOACCEL2_DIRECTION_MASK;
-diff --git a/drivers/scsi/hpsa_cmd.h b/drivers/scsi/hpsa_cmd.h
-index 21a726e2eec6..f6afca4b2319 100644
---- a/drivers/scsi/hpsa_cmd.h
-+++ b/drivers/scsi/hpsa_cmd.h
-@@ -517,6 +517,7 @@ struct ioaccel2_sg_element {
- 	u8 reserved[3];
- 	u8 chain_indicator;
- #define IOACCEL2_CHAIN 0x80
-+#define IOACCEL2_LAST_SG 0x40
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index ee4a5e1221f1..088363675940 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -50,6 +50,14 @@ static const struct drm_dmi_panel_orientation_data gpd_pocket = {
+ 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
  };
  
- /*
++static const struct drm_dmi_panel_orientation_data gpd_pocket2 = {
++	.width = 1200,
++	.height = 1920,
++	.bios_dates = (const char * const []){ "06/28/2018", "08/28/2018",
++		"12/07/2018", NULL },
++	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
++};
++
+ static const struct drm_dmi_panel_orientation_data gpd_win = {
+ 	.width = 720,
+ 	.height = 1280,
+@@ -98,6 +106,14 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Default string"),
+ 		},
+ 		.driver_data = (void *)&gpd_pocket,
++	}, {	/* GPD Pocket 2 (generic strings, also match on bios date) */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Default string"),
++		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Default string"),
++		  DMI_EXACT_MATCH(DMI_BOARD_NAME, "Default string"),
++		},
++		.driver_data = (void *)&gpd_pocket2,
+ 	}, {	/* GPD Win (same note on DMI match as GPD Pocket) */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
 -- 
 2.20.1
 
