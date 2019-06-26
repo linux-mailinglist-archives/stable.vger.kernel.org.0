@@ -2,109 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9103956053
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:47:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44960561AA
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 07:19:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727673AbfFZDqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:46:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58856 "EHLO mail.kernel.org"
+        id S1725536AbfFZFTZ convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 26 Jun 2019 01:19:25 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:50726 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727377AbfFZDqy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:46:54 -0400
-Received: from sasha-vm.mshome.net (mobile-107-77-172-90.mobile.att.net [107.77.172.90])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1725379AbfFZFTZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 01:19:25 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00CCB20659;
-        Wed, 26 Jun 2019 03:46:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520813;
-        bh=xAO+47BYi6CocDTGfQCyEFzZYu+zG+pRn6MsY7FyQXo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZ6XMGYBemlHQRA4gtVJi8YuRYN+GiDtx0dIfqsWQn2e3NxM6bxS0VVh94wn37Msm
-         Ot9Idv4h1KSzb+j2rLLwpwE5RuL2y8Up85tYcgTtJ2ElnUcvEm3Nw2tayd1LNmvpsp
-         nDD/6BhWmCIHWd984Nsu4mw7zaEmO4dJ8gdHrb3c=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Don Brace <don.brace@microsemi.com>,
-        Bader Ali - Saleh <bader.alisaleh@microsemi.com>,
-        Scott Teel <scott.teel@microsemi.com>,
-        Matt Perricone <matt.perricone@microsemi.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, esc.storagedev@microsemi.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 6/6] scsi: hpsa: correct ioaccel2 chaining
-Date:   Tue, 25 Jun 2019 23:46:37 -0400
-Message-Id: <20190626034637.24515-6-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190626034637.24515-1-sashal@kernel.org>
-References: <20190626034637.24515-1-sashal@kernel.org>
+        by mx1.redhat.com (Postfix) with ESMTPS id 8C4493082E25
+        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 05:19:24 +0000 (UTC)
+Received: from [172.54.58.4] (cpt-1026.paas.prod.upshift.rdu2.redhat.com [10.0.19.53])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B84CD10018F9;
+        Wed, 26 Jun 2019 05:19:20 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.0F1E566CD3.XAH3CH2DWX@redhat.com>
+X-Gitlab-Pipeline-ID: 13255
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Wed, 26 Jun 2019 05:19:24 +0000 (UTC)
+Date:   Wed, 26 Jun 2019 01:19:25 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Don Brace <don.brace@microsemi.com>
+Hello,
 
-[ Upstream commit 625d7d3518875c4d303c652a198feaa13d9f52d9 ]
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_LAST_SG for
-  the last s/g element.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: f0fae702de30 - Linux 5.1.15
 
-- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_CHAIN when
-  chaining.
+The results of these automated tests are provided below.
 
-Reviewed-by: Bader Ali - Saleh <bader.alisaleh@microsemi.com>
-Reviewed-by: Scott Teel <scott.teel@microsemi.com>
-Reviewed-by: Matt Perricone <matt.perricone@microsemi.com>
-Signed-off-by: Don Brace <don.brace@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/scsi/hpsa.c     | 7 ++++++-
- drivers/scsi/hpsa_cmd.h | 1 +
- 2 files changed, 7 insertions(+), 1 deletion(-)
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index 910b795fc5eb..e0952882e132 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -4562,7 +4562,7 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
- 			curr_sg->reserved[0] = 0;
- 			curr_sg->reserved[1] = 0;
- 			curr_sg->reserved[2] = 0;
--			curr_sg->chain_indicator = 0x80;
-+			curr_sg->chain_indicator = IOACCEL2_CHAIN;
- 
- 			curr_sg = h->ioaccel2_cmd_sg_list[c->cmdindex];
- 		}
-@@ -4579,6 +4579,11 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
- 			curr_sg++;
- 		}
- 
-+		/*
-+		 * Set the last s/g element bit
-+		 */
-+		(curr_sg - 1)->chain_indicator = IOACCEL2_LAST_SG;
-+
- 		switch (cmd->sc_data_direction) {
- 		case DMA_TO_DEVICE:
- 			cp->direction &= ~IOACCEL2_DIRECTION_MASK;
-diff --git a/drivers/scsi/hpsa_cmd.h b/drivers/scsi/hpsa_cmd.h
-index 26488e2a7f02..7ffde12d57d4 100644
---- a/drivers/scsi/hpsa_cmd.h
-+++ b/drivers/scsi/hpsa_cmd.h
-@@ -513,6 +513,7 @@ struct ioaccel2_sg_element {
- 	u8 reserved[3];
- 	u8 chain_indicator;
- #define IOACCEL2_CHAIN 0x80
-+#define IOACCEL2_LAST_SG 0x40
- };
- 
- /*
--- 
-2.20.1
 
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: f0fae702de30 - Linux 5.1.15
+
+
+We grabbed the ffeb0c6282fa commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  arm64-don-t-unconditionally-add-wno-psabi-to-kbuild_cflags.patch
+  revert-x86-uaccess-ftrace-fix-ftrace_likely_update-v.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-c7769e28ff33dc018a5c6b67dc5bbacc5a969e6c.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-c7769e28ff33dc018a5c6b67dc5bbacc5a969e6c.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-c7769e28ff33dc018a5c6b67dc5bbacc5a969e6c.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-c7769e28ff33dc018a5c6b67dc5bbacc5a969e6c.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-c7769e28ff33dc018a5c6b67dc5bbacc5a969e6c.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-c7769e28ff33dc018a5c6b67dc5bbacc5a969e6c.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-c7769e28ff33dc018a5c6b67dc5bbacc5a969e6c.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-c7769e28ff33dc018a5c6b67dc5bbacc5a969e6c.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ Usex - version 1.9-29 [7]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [9]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ Usex - version 1.9-29 [7]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [9]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [9]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [9]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ Usex - version 1.9-29 [7]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
