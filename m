@@ -2,82 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61F7056780
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 13:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9342A5679B
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 13:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727188AbfFZLXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 07:23:04 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:46044 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726242AbfFZLXE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jun 2019 07:23:04 -0400
-Received: by mail-wr1-f66.google.com with SMTP id f9so2253889wre.12
-        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 04:23:02 -0700 (PDT)
+        id S1726131AbfFZL3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 07:29:53 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:34985 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726104AbfFZL3x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jun 2019 07:29:53 -0400
+Received: by mail-io1-f68.google.com with SMTP id m24so966020ioo.2
+        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 04:29:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=gFMVIe7NOJxKZGgJT7rWYmaSfb7XYTdm46vTeWYUguM=;
+        b=MSJPGnFPeeBR11+PMYhYFpnQFcMAyqErtz6NSeOM5KQAC48fz+b9UwkaT4pXGkbiAb
+         iR5f71mK9kKttoJ1B+qSQrP51XUQrB3kl3BwTkeJ/7B4K1Zd2ioRkQnjBQ17yW5ytKkz
+         pg0C5s58nQ00xRJzoremV/1Cl5cDWmmxW197vxhM6AhQnlcEwC53eYtsi6Y4hLNRXd+4
+         0cC8w9+gYmYEewYbQFI9SIDDCiUt2FNRwgttH+lPtBWHWPUKjofi0x7OnBOjXCfRjfnN
+         +6agtCeiV0EGEfNHHpHssZDtIcG+Cc52MlS+ds51WrXxQSEOij0DNz/uqBd9zQNkpUCZ
+         ql2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=fjQc1qNIdZfNF/NDujWvCMQ2yfBiCYxY24N/zNlf1Sc=;
-        b=T6rUTC/K+RDBOgNT3TjfcZJkObZzwHEXF9J+vJXx7A6MFsKwW4H1FxCIh+q3ysF9J9
-         mnJ2Y+tM08xr3CYQjoOiznaCohSD8+sBXB1F17deD6p3oxIQGEA3AycMHfMZoCivIEkN
-         aAo6C8vnG4AYk4U/hShNKDeBuedMvqtG1hUs+jrUlrXxKvmFH/NN/oF+95rm5sLV314B
-         16/UXt9xRj1vm8Fk9+iNZAu9rV21AscWsNjpgruVKEM4okFdlaaM8Qn2l2LFJNKDIZbB
-         idDxyEwekYdxjYc743Usk0jeHK1RUY+y502n5JC+QXWv8eqBs7Lh+ewCVGCwo7AWPT6A
-         mkVQ==
-X-Gm-Message-State: APjAAAUlz2El9a80PjdjOZtTRdXlFlt46Rp9DICV9GxfN8fgSygRIIjs
-        5uLHSSe4o3VTvhIMItH37DXADA==
-X-Google-Smtp-Source: APXvYqxzPVbgC2v5Z5f684Hw679jGU5eIVWc5gw7gHAtuDitqWREZ2c9Yv7LwO07wFwWn8EJzrI8QQ==
-X-Received: by 2002:adf:c654:: with SMTP id u20mr3435135wrg.271.1561548182090;
-        Wed, 26 Jun 2019 04:23:02 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:61c1:6d8f:e2c4:2d5c? ([2001:b07:6468:f312:61c1:6d8f:e2c4:2d5c])
-        by smtp.gmail.com with ESMTPSA id a7sm17956545wrs.94.2019.06.26.04.23.00
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Wed, 26 Jun 2019 04:23:01 -0700 (PDT)
-Subject: Re: [PATCH 1/1] kvm/speculation: Allow KVM guests to use SSBD even if
- host does not
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
-Cc:     mingo@redhat.com, Borislav Petkov <bp@alien8.de>,
-        rkrcmar@redhat.com, x86@kernel.org, kvm@vger.kernel.org,
-        stable <stable@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Jon Masters <jcm@redhat.com>
-References: <1560187210-11054-1-git-send-email-alejandro.j.jimenez@oracle.com>
- <1c9d4047-e54c-8d4b-13b1-020864f2f5bf@redhat.com>
- <alpine.DEB.2.21.1906251750140.32342@nanos.tec.linutronix.de>
- <56fa2729-52a7-3994-5f7c-bc308da7d710@oracle.com>
- <alpine.DEB.2.21.1906252019460.32342@nanos.tec.linutronix.de>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <b6c2ac14-d647-0fa2-f19d-88944c63c37a@redhat.com>
-Date:   Wed, 26 Jun 2019 13:23:00 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        h=x-gm-message-state:mime-version:reply-to:in-reply-to:references
+         :from:date:message-id:subject:to:content-transfer-encoding;
+        bh=gFMVIe7NOJxKZGgJT7rWYmaSfb7XYTdm46vTeWYUguM=;
+        b=HOSKabcaSpi7W+AquRhKIgzg0Ju+6Jm1ESMmQq4/30QLGkFx9SueJJ7jEbCN7EamyM
+         D+vCorweuOX0FpDvUs8q10dTtSXZY7X51A4ruC+pcekNVH2v4JJ5djIrRe0uhOsU+33O
+         UelyVHUpg3v//PPfivTLAogWtNWeeA0AuileL5/7+F8Z10A1HbQN3JfYSoumReWm4OcQ
+         4LNUUk2XnnRTuGlARzbIXIQynPuyD8hnHDMyuK+b32Zb0gvR1cZ2siei0iwrf/zzf0OO
+         Vugzc8wFyCsLlgwFNOWKCrIdtd8SX2GaWH4EE6X7BBJl3ae3QWY9kurQ8QlGSC1Xx3gX
+         TNLA==
+X-Gm-Message-State: APjAAAWo7be5seoO2ibtt/1T008CySoGzyKykhN7wTYu1mVgfsrkydR0
+        1xftHVRLpti90hkpd+QoAPVC/NiKZuO0ABTVzQc=
+X-Google-Smtp-Source: APXvYqyAFgrA33vGVpf3WvHzHfaWLey+aMJDP1g3kc44f8ZP9FKTVkr6u6Q29iKtPSa0OZtlq5W6m/eZxsU5i+zNBWU=
+X-Received: by 2002:a6b:2bcd:: with SMTP id r196mr4490556ior.73.1561548592903;
+ Wed, 26 Jun 2019 04:29:52 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <alpine.DEB.2.21.1906252019460.32342@nanos.tec.linutronix.de>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a5d:8cc1:0:0:0:0:0 with HTTP; Wed, 26 Jun 2019 04:29:52
+ -0700 (PDT)
+Reply-To: alvessarment57@gmail.com
+In-Reply-To: <CAJrA_CxZkkV8kQqb6Da4afnZNF-saiLCi1wtoLg__RL5kD4WhQ@mail.gmail.com>
+References: <CAJrA_CxZkkV8kQqb6Da4afnZNF-saiLCi1wtoLg__RL5kD4WhQ@mail.gmail.com>
+From:   Alves Sarment <alvessarmento9@gmail.com>
+Date:   Wed, 26 Jun 2019 12:29:52 +0100
+Message-ID: <CAJrA_Cyq=ZaBKMrDH9RQ73V75B54F_g5yhR0mALiH4YxHBtVgQ@mail.gmail.com>
+Subject: REPLY
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25/06/19 20:22, Thomas Gleixner wrote:
->> I think that even with that approach there is still an unsolved problem, as I
->> believe guests are allowed to write directly to SPEC_CTRL MSR without causing
->> a VMEXIT, which bypasses the host masking entirely.  e.g. a guest using IBRS
->> writes frequently to SPEC_CTRL, and could turn off SSBD on the VPCU while is
->> running after the first non-zero write to the MSR. Do you agree?
-> Indeed. Of course that was a decision we made _before_ all the other fancy
-> things came around. Looks like we have to reopen that discussion.
-
-It's not just that, it's a decision that was made because otherwise
-performance is absolutely horrible (like 4-5x slower syscalls if the
-guest is using IBRS).
-
-I think it's better to leave the guest in control of SSBD even if it's
-globally disabled.  The harm cannot escape the guest and in particular
-it cannot escape to the sibling hyperthread.
-
-Paolo
+SGVsbG8sIGdvb2QgZGF5LCBuaWNlIHRvIG1lZXQgeW91LCBwbGVhc2UgY291bGQgeW91IHdyaXRl
+IGJhY2sgdG8gbWU/DQpJIGhhdmUgc29tZXRoaW5nIHZlcnkgaW1wb3J0YW50IHRvIGRpc2N1c3Mg
+d2l0aCB5b3UuDQosLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCws
+LCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCws
+LCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwNCg0K0JfQtNGA0LDQstGB0YLQstGD0LnRgtC1LCDR
+hdC+0YDQvtGI0LXQs9C+INC00L3Rjywg0L/RgNC40Y/RgtC90L4g0L/QvtC30L3QsNC60L7QvNC4
+0YLRjNGB0Y8sINC/0L7QttCw0LvRg9C50YHRgtCwLCDQvdC1DQrQvNC+0LPQu9C4INCx0Ysg0LLR
+iyDQvdCw0L/QuNGB0LDRgtGMINC80L3QtT8g0KMg0LzQtdC90Y8g0LXRgdGC0Ywg0LrQvtC1LdGH
+0YLQviDQvtGH0LXQvdGMINCy0LDQttC90L7QtSwg0YfRgtC+0LHRiw0K0L7QsdGB0YPQtNC40YLR
+jCDRgSDQstCw0LzQuC4NCg==
