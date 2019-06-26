@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02AA256098
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D1175609B
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727221AbfFZDnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:43:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54010 "EHLO mail.kernel.org"
+        id S1726768AbfFZDnC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:43:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726736AbfFZDm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:42:58 -0400
+        id S1727188AbfFZDnA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:43:00 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C92C21655;
-        Wed, 26 Jun 2019 03:42:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2D77208CB;
+        Wed, 26 Jun 2019 03:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520577;
-        bh=l4wRp0ciZsdiP8bdq+krdoTNEqZRrCAe8x8ByEs1JDA=;
+        s=default; t=1561520579;
+        bh=DAH6MgEyx7njo0iZ7bmJhEsqVy8xFE4LtQ6zVjlE2Ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MsEO1GsDeK7aGxCPC/nqo31EXl+JeSukNeQD+PKE88kVUZrnlgA8ifaH9fZhu6ySS
-         r1KkBQ/OCgzhm0tN71vSFRUwSLh1WKyrL3jrPzvsfPdXCwA/vu8A95kOHI8Vk2qviV
-         ExQrauKHSne3NEfmTP1r8XdjBpYWgimhiEyjp+8Q=
+        b=Xn+cjEmYSjXQsfvdSEqVv/dz2aprjPLjOZ+tGvD0QzpGm/jfCWdcegyQ/ZTcG5ynZ
+         Vo9kT6IflIL8isyO927yM/a9EijkXR3ag37AqDwiMchT1a5GwWqaCdC0xOK1gvrHI3
+         JjVQoC3glPJR9dQAW8yaMnOfdsl5/p/p45OT53s8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 35/51] gpio: pca953x: hack to fix 24 bit gpio expanders
-Date:   Tue, 25 Jun 2019 23:40:51 -0400
-Message-Id: <20190626034117.23247-35-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Jurgen Kramer <gtmkramer@xs4all.nl>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.1 36/51] drm: panel-orientation-quirks: Add quirk for GPD pocket2
+Date:   Tue, 25 Jun 2019 23:40:52 -0400
+Message-Id: <20190626034117.23247-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 References: <20190626034117.23247-1-sashal@kernel.org>
@@ -43,56 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 3b00691cc46a4089368a008b30655a8343411715 ]
+[ Upstream commit 15abc7110a77555d3bf72aaef46d1557db0a4ac5 ]
 
-24 bit expanders use REG_ADDR_AI in combination with register addressing. This
-conflicts with regmap which takes this bit as part of the register number,
-i.e. a second cache entry is defined for accessed with REG_ADDR_AI being
-set although on the chip it is the same register as with REG_ADDR_AI being
-cleared.
+GPD has done it again, make a nice device (good), use way too generic
+DMI strings (bad) and use a portrait screen rotated 90 degrees (ugly).
 
-The problem was introduced by
+Because of the too generic DMI strings this entry is also doing bios-date
+matching, so the gpd_pocket2 data struct may very well need to be updated
+with some extra bios-dates in the future.
 
-	commit b32cecb46bdc ("gpio: pca953x: Extract the register address mangling to single function")
+Changes in v2:
+-Add one more known BIOS date to the list of BIOS dates
 
-but only became visible by
-
-	commit 8b9f9d4dc511 ("regmap: verify if register is writeable before writing operations")
-
-because before, the regmap size was effectively ignored and
-pca953x_writeable_register() did know to ignore REG_ADDR_AI. Still, there
-were two separate cache entries created.
-
-Since the use of REG_ADDR_AI seems to be static we can work around this
-issue by simply increasing the size of the regmap to cover the "virtual"
-registers with REG_ADDR_AI being set. This only means that half of the
-regmap buffer will be unused.
-
-Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
-Suggested-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Jurgen Kramer <gtmkramer@xs4all.nl>
+Reported-by: Jurgen Kramer <gtmkramer@xs4all.nl>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190524125759.14131-1-hdegoede@redhat.com
+(cherry picked from commit 6dab9102dd7b144e5723915438e0d6c473018cd0)
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-pca953x.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
-index 7e76830b3368..b6f10e56dfa0 100644
---- a/drivers/gpio/gpio-pca953x.c
-+++ b/drivers/gpio/gpio-pca953x.c
-@@ -306,7 +306,8 @@ static const struct regmap_config pca953x_i2c_regmap = {
- 	.volatile_reg = pca953x_volatile_register,
- 
- 	.cache_type = REGCACHE_RBTREE,
--	.max_register = 0x7f,
-+	/* REVISIT: should be 0x7f but some 24 bit chips use REG_ADDR_AI */
-+	.max_register = 0xff,
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index 52e445bb1aa5..019f148d5a78 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -50,6 +50,14 @@ static const struct drm_dmi_panel_orientation_data gpd_pocket = {
+ 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
  };
  
- static u8 pca953x_recalc_addr(struct pca953x_chip *chip, int reg, int off,
++static const struct drm_dmi_panel_orientation_data gpd_pocket2 = {
++	.width = 1200,
++	.height = 1920,
++	.bios_dates = (const char * const []){ "06/28/2018", "08/28/2018",
++		"12/07/2018", NULL },
++	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
++};
++
+ static const struct drm_dmi_panel_orientation_data gpd_win = {
+ 	.width = 720,
+ 	.height = 1280,
+@@ -106,6 +114,14 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Default string"),
+ 		},
+ 		.driver_data = (void *)&gpd_pocket,
++	}, {	/* GPD Pocket 2 (generic strings, also match on bios date) */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Default string"),
++		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Default string"),
++		  DMI_EXACT_MATCH(DMI_BOARD_NAME, "Default string"),
++		},
++		.driver_data = (void *)&gpd_pocket2,
+ 	}, {	/* GPD Win (same note on DMI match as GPD Pocket) */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
 -- 
 2.20.1
 
