@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B6F1560CB
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E2C556017
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727009AbfFZDsT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:48:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56450 "EHLO mail.kernel.org"
+        id S1727257AbfFZDpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:45:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726846AbfFZDpD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:45:03 -0400
+        id S1726793AbfFZDpF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:45:05 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-98.mobile.att.net [107.77.172.98])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D2382168B;
-        Wed, 26 Jun 2019 03:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD6B121726;
+        Wed, 26 Jun 2019 03:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520702;
-        bh=r/+x84xmVgP3tUuGIYUhEEQM1OkCLYphoCekfLtFOWg=;
+        s=default; t=1561520704;
+        bh=Zfyei3Jz1x85a+uZGge/JOp/+dhiIg57DVivvgOSfdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yxqVPm5nwnr+yptrk3z/OUWGCAqLVsGD2SQMozkRo45ceR644Lv94xTRGtMzPDRS9
-         zsemezFcRiNfRFpigERJKGXBMDkkSWoDQq9zYRAZIHXVPrhaRUQCTSJD17fIIh5lsV
-         RW9snedXU8BkBO8U3h5q+vUUUqx64sswGJO9TQT0=
+        b=cgi2hk2OdG+TlOECTfmFs0oIJ2jVoN8rbySUtYU2fnm5C5IasFyC5+wBnqZY7mXKb
+         aWYmP7ScBYuB4nmthnAOngHzXKER1QcWB/Ug2jNChJ0M24MSqy7s31s3BP3EWTh3Xz
+         61RY4NU1vqyoML2Dy+uHWd3/EId3hWyhazQLigYs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Johannes Erdfelt <johannes@erdfelt.com>,
+        Jessica Yu <jeyu@kernel.org>, Petr Mladek <pmladek@suse.com>,
+        Miroslav Benes <mbenes@suse.cz>,
         Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 32/34] tracing: avoid build warning with HAVE_NOP_MCOUNT
-Date:   Tue, 25 Jun 2019 23:43:33 -0400
-Message-Id: <20190626034335.23767-32-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, live-patching@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 33/34] module: Fix livepatch/ftrace module text permissions race
+Date:   Tue, 25 Jun 2019 23:43:34 -0400
+Message-Id: <20190626034335.23767-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034335.23767-1-sashal@kernel.org>
 References: <20190626034335.23767-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,49 +46,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit cbdaeaf050b730ea02e9ab4ff844ce54d85dbe1d ]
+[ Upstream commit 9f255b632bf12c4dd7fc31caee89aa991ef75176 ]
 
-Selecting HAVE_NOP_MCOUNT enables -mnop-mcount (if gcc supports it)
-and sets CC_USING_NOP_MCOUNT. Reuse __is_defined (which is suitable for
-testing CC_USING_* defines) to avoid conditional compilation and fix
-the following gcc 9 warning on s390:
+It's possible for livepatch and ftrace to be toggling a module's text
+permissions at the same time, resulting in the following panic:
 
-kernel/trace/ftrace.c:2514:1: warning: ‘ftrace_code_disable’ defined
-but not used [-Wunused-function]
+  BUG: unable to handle page fault for address: ffffffffc005b1d9
+  #PF: supervisor write access in kernel mode
+  #PF: error_code(0x0003) - permissions violation
+  PGD 3ea0c067 P4D 3ea0c067 PUD 3ea0e067 PMD 3cc13067 PTE 3b8a1061
+  Oops: 0003 [#1] PREEMPT SMP PTI
+  CPU: 1 PID: 453 Comm: insmod Tainted: G           O  K   5.2.0-rc1-a188339ca5 #1
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-20181126_142135-anatol 04/01/2014
+  RIP: 0010:apply_relocate_add+0xbe/0x14c
+  Code: fa 0b 74 21 48 83 fa 18 74 38 48 83 fa 0a 75 40 eb 08 48 83 38 00 74 33 eb 53 83 38 00 75 4e 89 08 89 c8 eb 0a 83 38 00 75 43 <89> 08 48 63 c1 48 39 c8 74 2e eb 48 83 38 00 75 32 48 29 c1 89 08
+  RSP: 0018:ffffb223c00dbb10 EFLAGS: 00010246
+  RAX: ffffffffc005b1d9 RBX: 0000000000000000 RCX: ffffffff8b200060
+  RDX: 000000000000000b RSI: 0000004b0000000b RDI: ffff96bdfcd33000
+  RBP: ffffb223c00dbb38 R08: ffffffffc005d040 R09: ffffffffc005c1f0
+  R10: ffff96bdfcd33c40 R11: ffff96bdfcd33b80 R12: 0000000000000018
+  R13: ffffffffc005c1f0 R14: ffffffffc005e708 R15: ffffffff8b2fbc74
+  FS:  00007f5f447beba8(0000) GS:ffff96bdff900000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffffffffc005b1d9 CR3: 000000003cedc002 CR4: 0000000000360ea0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   klp_init_object_loaded+0x10f/0x219
+   ? preempt_latency_start+0x21/0x57
+   klp_enable_patch+0x662/0x809
+   ? virt_to_head_page+0x3a/0x3c
+   ? kfree+0x8c/0x126
+   patch_init+0x2ed/0x1000 [livepatch_test02]
+   ? 0xffffffffc0060000
+   do_one_initcall+0x9f/0x1c5
+   ? kmem_cache_alloc_trace+0xc4/0xd4
+   ? do_init_module+0x27/0x210
+   do_init_module+0x5f/0x210
+   load_module+0x1c41/0x2290
+   ? fsnotify_path+0x3b/0x42
+   ? strstarts+0x2b/0x2b
+   ? kernel_read+0x58/0x65
+   __do_sys_finit_module+0x9f/0xc3
+   ? __do_sys_finit_module+0x9f/0xc3
+   __x64_sys_finit_module+0x1a/0x1c
+   do_syscall_64+0x52/0x61
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Link: http://lkml.kernel.org/r/patch.git-1a82d13f33ac.your-ad-here.call-01559732716-ext-6629@work.hours
+The above panic occurs when loading two modules at the same time with
+ftrace enabled, where at least one of the modules is a livepatch module:
 
-Fixes: 2f4df0017baed ("tracing: Add -mcount-nop option support")
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+CPU0					CPU1
+klp_enable_patch()
+  klp_init_object_loaded()
+    module_disable_ro()
+    					ftrace_module_enable()
+					  ftrace_arch_code_modify_post_process()
+				    	    set_all_modules_text_ro()
+      klp_write_object_relocations()
+        apply_relocate_add()
+	  *patches read-only code* - BOOM
+
+A similar race exists when toggling ftrace while loading a livepatch
+module.
+
+Fix it by ensuring that the livepatch and ftrace code patching
+operations -- and their respective permissions changes -- are protected
+by the text_mutex.
+
+Link: http://lkml.kernel.org/r/ab43d56ab909469ac5d2520c5d944ad6d4abd476.1560474114.git.jpoimboe@redhat.com
+
+Reported-by: Johannes Erdfelt <johannes@erdfelt.com>
+Fixes: 444d13ff10fb ("modules: add ro_after_init support")
+Acked-by: Jessica Yu <jeyu@kernel.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ kernel/livepatch/core.c |  6 ++++++
+ kernel/trace/ftrace.c   | 10 +++++++++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
+diff --git a/kernel/livepatch/core.c b/kernel/livepatch/core.c
+index 5b77a7314e01..722c27c40e5b 100644
+--- a/kernel/livepatch/core.c
++++ b/kernel/livepatch/core.c
+@@ -30,6 +30,7 @@
+ #include <linux/elf.h>
+ #include <linux/moduleloader.h>
+ #include <linux/completion.h>
++#include <linux/memory.h>
+ #include <asm/cacheflush.h>
+ #include "core.h"
+ #include "patch.h"
+@@ -708,16 +709,21 @@ static int klp_init_object_loaded(struct klp_patch *patch,
+ 	struct klp_func *func;
+ 	int ret;
+ 
++	mutex_lock(&text_mutex);
++
+ 	module_disable_ro(patch->mod);
+ 	ret = klp_write_object_relocations(patch->mod, obj);
+ 	if (ret) {
+ 		module_enable_ro(patch->mod, true);
++		mutex_unlock(&text_mutex);
+ 		return ret;
+ 	}
+ 
+ 	arch_klp_init_object_loaded(patch, obj);
+ 	module_enable_ro(patch->mod, true);
+ 
++	mutex_unlock(&text_mutex);
++
+ 	klp_for_each_func(obj, func) {
+ 		ret = klp_find_object_symbol(obj->name, func->old_name,
+ 					     func->old_sympos,
 diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 1688782f3dfb..90348b343460 100644
+index 90348b343460..50ba14591996 100644
 --- a/kernel/trace/ftrace.c
 +++ b/kernel/trace/ftrace.c
-@@ -2952,14 +2952,13 @@ static int ftrace_update_code(struct module *mod, struct ftrace_page *new_pgs)
- 			p = &pg->records[i];
- 			p->flags = rec_flags;
+@@ -35,6 +35,7 @@
+ #include <linux/hash.h>
+ #include <linux/rcupdate.h>
+ #include <linux/kprobes.h>
++#include <linux/memory.h>
  
--#ifndef CC_USING_NOP_MCOUNT
- 			/*
- 			 * Do the initial record conversion from mcount jump
- 			 * to the NOP instructions.
- 			 */
--			if (!ftrace_code_disable(mod, p))
-+			if (!__is_defined(CC_USING_NOP_MCOUNT) &&
-+			    !ftrace_code_disable(mod, p))
- 				break;
--#endif
+ #include <trace/events/sched.h>
  
- 			update_cnt++;
- 		}
+@@ -2627,10 +2628,12 @@ static void ftrace_run_update_code(int command)
+ {
+ 	int ret;
+ 
++	mutex_lock(&text_mutex);
++
+ 	ret = ftrace_arch_code_modify_prepare();
+ 	FTRACE_WARN_ON(ret);
+ 	if (ret)
+-		return;
++		goto out_unlock;
+ 
+ 	/*
+ 	 * By default we use stop_machine() to modify the code.
+@@ -2642,6 +2645,9 @@ static void ftrace_run_update_code(int command)
+ 
+ 	ret = ftrace_arch_code_modify_post_process();
+ 	FTRACE_WARN_ON(ret);
++
++out_unlock:
++	mutex_unlock(&text_mutex);
+ }
+ 
+ static void ftrace_run_modify_code(struct ftrace_ops *ops, int command,
+@@ -5762,6 +5768,7 @@ void ftrace_module_enable(struct module *mod)
+ 	struct ftrace_page *pg;
+ 
+ 	mutex_lock(&ftrace_lock);
++	mutex_lock(&text_mutex);
+ 
+ 	if (ftrace_disabled)
+ 		goto out_unlock;
+@@ -5823,6 +5830,7 @@ void ftrace_module_enable(struct module *mod)
+ 		ftrace_arch_code_modify_post_process();
+ 
+  out_unlock:
++	mutex_unlock(&text_mutex);
+ 	mutex_unlock(&ftrace_lock);
+ 
+ 	process_cached_mods(mod->name);
 -- 
 2.20.1
 
