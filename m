@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8724056097
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02AA256098
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727172AbfFZDmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:42:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53920 "EHLO mail.kernel.org"
+        id S1727221AbfFZDnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:43:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727188AbfFZDmx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:42:53 -0400
+        id S1726736AbfFZDm6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:42:58 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18FD7214DA;
-        Wed, 26 Jun 2019 03:42:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C92C21655;
+        Wed, 26 Jun 2019 03:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520572;
-        bh=LR8F7yn4wUognNWRSSpe7/9BwwZsdeFhYyFPkkkiHG0=;
+        s=default; t=1561520577;
+        bh=l4wRp0ciZsdiP8bdq+krdoTNEqZRrCAe8x8ByEs1JDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bdECyq5+xkk6rKW5u9BPukPX57iRw/C2HWWm0dvI8eIf8A3YUlV+UpqoSCg4reVn2
-         3tgMsw3HI+/uHJXamS5ypRLOcKGtPuGTVYX5Y2CU5DyzdbZAQcKfgAW82HptJ63NYU
-         j7nq+TtPX6fL9DM28HHTR9is2zUNKs859kv1slG0=
+        b=MsEO1GsDeK7aGxCPC/nqo31EXl+JeSukNeQD+PKE88kVUZrnlgA8ifaH9fZhu6ySS
+         r1KkBQ/OCgzhm0tN71vSFRUwSLh1WKyrL3jrPzvsfPdXCwA/vu8A95kOHI8Vk2qviV
+         ExQrauKHSne3NEfmTP1r8XdjBpYWgimhiEyjp+8Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Don Brace <don.brace@microsemi.com>,
-        Bader Ali - Saleh <bader.alisaleh@microsemi.com>,
-        Scott Teel <scott.teel@microsemi.com>,
-        Matt Perricone <matt.perricone@microsemi.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, esc.storagedev@microsemi.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 34/51] scsi: hpsa: correct ioaccel2 chaining
-Date:   Tue, 25 Jun 2019 23:40:50 -0400
-Message-Id: <20190626034117.23247-34-sashal@kernel.org>
+Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 35/51] gpio: pca953x: hack to fix 24 bit gpio expanders
+Date:   Tue, 25 Jun 2019 23:40:51 -0400
+Message-Id: <20190626034117.23247-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 References: <20190626034117.23247-1-sashal@kernel.org>
@@ -47,64 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Don Brace <don.brace@microsemi.com>
+From: "H. Nikolaus Schaller" <hns@goldelico.com>
 
-[ Upstream commit 625d7d3518875c4d303c652a198feaa13d9f52d9 ]
+[ Upstream commit 3b00691cc46a4089368a008b30655a8343411715 ]
 
-- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_LAST_SG for
-  the last s/g element.
+24 bit expanders use REG_ADDR_AI in combination with register addressing. This
+conflicts with regmap which takes this bit as part of the register number,
+i.e. a second cache entry is defined for accessed with REG_ADDR_AI being
+set although on the chip it is the same register as with REG_ADDR_AI being
+cleared.
 
-- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_CHAIN when
-  chaining.
+The problem was introduced by
 
-Reviewed-by: Bader Ali - Saleh <bader.alisaleh@microsemi.com>
-Reviewed-by: Scott Teel <scott.teel@microsemi.com>
-Reviewed-by: Matt Perricone <matt.perricone@microsemi.com>
-Signed-off-by: Don Brace <don.brace@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+	commit b32cecb46bdc ("gpio: pca953x: Extract the register address mangling to single function")
+
+but only became visible by
+
+	commit 8b9f9d4dc511 ("regmap: verify if register is writeable before writing operations")
+
+because before, the regmap size was effectively ignored and
+pca953x_writeable_register() did know to ignore REG_ADDR_AI. Still, there
+were two separate cache entries created.
+
+Since the use of REG_ADDR_AI seems to be static we can work around this
+issue by simply increasing the size of the regmap to cover the "virtual"
+registers with REG_ADDR_AI being set. This only means that half of the
+regmap buffer will be unused.
+
+Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
+Suggested-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c     | 7 ++++++-
- drivers/scsi/hpsa_cmd.h | 1 +
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-pca953x.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index f044e7d10d63..2d181e5e65ff 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -4925,7 +4925,7 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
- 			curr_sg->reserved[0] = 0;
- 			curr_sg->reserved[1] = 0;
- 			curr_sg->reserved[2] = 0;
--			curr_sg->chain_indicator = 0x80;
-+			curr_sg->chain_indicator = IOACCEL2_CHAIN;
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index 7e76830b3368..b6f10e56dfa0 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -306,7 +306,8 @@ static const struct regmap_config pca953x_i2c_regmap = {
+ 	.volatile_reg = pca953x_volatile_register,
  
- 			curr_sg = h->ioaccel2_cmd_sg_list[c->cmdindex];
- 		}
-@@ -4942,6 +4942,11 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
- 			curr_sg++;
- 		}
- 
-+		/*
-+		 * Set the last s/g element bit
-+		 */
-+		(curr_sg - 1)->chain_indicator = IOACCEL2_LAST_SG;
-+
- 		switch (cmd->sc_data_direction) {
- 		case DMA_TO_DEVICE:
- 			cp->direction &= ~IOACCEL2_DIRECTION_MASK;
-diff --git a/drivers/scsi/hpsa_cmd.h b/drivers/scsi/hpsa_cmd.h
-index 21a726e2eec6..f6afca4b2319 100644
---- a/drivers/scsi/hpsa_cmd.h
-+++ b/drivers/scsi/hpsa_cmd.h
-@@ -517,6 +517,7 @@ struct ioaccel2_sg_element {
- 	u8 reserved[3];
- 	u8 chain_indicator;
- #define IOACCEL2_CHAIN 0x80
-+#define IOACCEL2_LAST_SG 0x40
+ 	.cache_type = REGCACHE_RBTREE,
+-	.max_register = 0x7f,
++	/* REVISIT: should be 0x7f but some 24 bit chips use REG_ADDR_AI */
++	.max_register = 0xff,
  };
  
- /*
+ static u8 pca953x_recalc_addr(struct pca953x_chip *chip, int reg, int off,
 -- 
 2.20.1
 
