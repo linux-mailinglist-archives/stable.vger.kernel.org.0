@@ -2,99 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DC6156816
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 13:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAE995693E
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 14:33:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726329AbfFZL5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 07:57:49 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:47188 "EHLO mx1.redhat.com"
+        id S1726948AbfFZMdU convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 26 Jun 2019 08:33:20 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:43512 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726157AbfFZL5s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 07:57:48 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        id S1726131AbfFZMdU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 08:33:20 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 4A2A3C057F30;
-        Wed, 26 Jun 2019 11:57:41 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 103EA60BF3;
-        Wed, 26 Jun 2019 11:57:41 +0000 (UTC)
-Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id BB01E1806B0F;
-        Wed, 26 Jun 2019 11:57:36 +0000 (UTC)
-Date:   Wed, 26 Jun 2019 07:57:35 -0400 (EDT)
-From:   Veronika Kabatova <vkabatov@redhat.com>
-To:     Tim Bird <Tim.Bird@sony.com>
-Cc:     guillaume tucker <guillaume.tucker@gmail.com>, kernelci@groups.io,
-        automated-testing@yoctoproject.org, info@kernelci.org,
-        syzkaller@googlegroups.com, lkp@lists.01.org,
-        stable@vger.kernel.org, labbott@redhat.com, eslobodo@redhat.com,
-        cki-project@redhat.com
-Message-ID: <1255835260.27213560.1561550255907.JavaMail.zimbra@redhat.com>
-In-Reply-To: <ECADFF3FD767C149AD96A924E7EA6EAF977399CD@USCULXMSG01.am.sony.com>
-References: <1204558561.21265703.1558449611621.JavaMail.zimbra@redhat.com> <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com> <CAH1_8nAx-1+uqOwAOCfGbqdWzgWD1-oikAfoVBqw4qPcu8v4fw@mail.gmail.com> <1759213455.26229412.1561047112464.JavaMail.zimbra@redhat.com> <ECADFF3FD767C149AD96A924E7EA6EAF977399CD@USCULXMSG01.am.sony.com>
-Subject: Re: CKI hackfest @Plumbers invite
+        by mx1.redhat.com (Postfix) with ESMTPS id A6CBA3082E46
+        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 12:33:19 +0000 (UTC)
+Received: from [172.54.58.4] (cpt-1026.paas.prod.upshift.rdu2.redhat.com [10.0.19.53])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 47A366012E;
+        Wed, 26 Jun 2019 12:33:16 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.40.205.201, 10.4.195.7]
-Thread-Topic: CKI hackfest @Plumbers invite
-Thread-Index: AQHVJ37SWv4qmkd5dESo8sS6Z+b53aak+c4AgAYyvSDWWRoavA==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Wed, 26 Jun 2019 11:57:48 +0000 (UTC)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.7338133AE9.POSFWLI6UX@redhat.com>
+X-Gitlab-Pipeline-ID: 13262
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Wed, 26 Jun 2019 12:33:19 +0000 (UTC)
+Date:   Wed, 26 Jun 2019 08:33:20 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
+
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
+
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: aec3002d07fd - Linux 4.19.56
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
 
------ Original Message -----
-> From: "Tim Bird" <Tim.Bird@sony.com>
-> To: vkabatov@redhat.com, "guillaume tucker" <guillaume.tucker@gmail.com>
-> Cc: kernelci@groups.io, automated-testing@yoctoproject.org, info@kernelci.org, syzkaller@googlegroups.com,
-> lkp@lists.01.org, stable@vger.kernel.org, labbott@redhat.com, eslobodo@redhat.com, cki-project@redhat.com
-> Sent: Monday, June 24, 2019 8:55:12 PM
-> Subject: RE: CKI hackfest @Plumbers invite
-> 
-> > -----Original Message-----
-> > From: Veronika Kabatova
-> > 
-> > ----- Original Message -----
-> > > From: "Guillaume Tucker"
-> > >
-> > > Hi Veronika,
-> > >
-> > > On Tue, May 21, 2019 at 3:55 PM Veronika Kabatova
-> > <vkabatov@redhat.com>
-> > > wrote:
-> > >
-> > 
-> > I agree that this topic is important (and I believe some other CKI people
-> > made that clear as well) so I added it to the agenda topics. The list of
-> > those is getting long so we'd definitely need to curate it properly soon
-> > but I'll make sure this stays there.
-> 
-> I agree that Guillaume's topic would be good to discuss.
-> 
-> Is the draft agenda online anywhere?
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-I sent the draft with the original invite so you can check that out. Since
-then, we added a few new topics to the list:
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-- Test definition standardization (from you)
-- Onboarding new tests to run (versioning, unification of test locations
-  etc.)
-- Open testing philosophy (from Guillaume)
+Merge testing
+-------------
 
-We'll try our best to cover all mentioned topics during the hackfest but
-haven't started working on the schedule yet. We'll send it out before the
-hackfest and likely will publish it on cki-project.org as well.
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: aec3002d07fd - Linux 4.19.56
 
 
-Veronika
+We grabbed the 84cec654560a commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  perf-ui-helpline-use-strlcpy-as-a-shorter-form-of-strncpy-explicit-set-nul.patch
+  perf-help-remove-needless-use-of-strncpy.patch
+  perf-header-fix-unchecked-usage-of-strncpy.patch
+  arm64-don-t-unconditionally-add-wno-psabi-to-kbuild_cflags.patch
+  revert-x86-uaccess-ftrace-fix-ftrace_likely_update-v.patch
+  ib-hfi1-close-psm-sdma_progress-sleep-window.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-9fec5ddfeb7917cfc93e3e585b6e93b17eb0a8a0.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-9fec5ddfeb7917cfc93e3e585b6e93b17eb0a8a0.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-9fec5ddfeb7917cfc93e3e585b6e93b17eb0a8a0.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-9fec5ddfeb7917cfc93e3e585b6e93b17eb0a8a0.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-9fec5ddfeb7917cfc93e3e585b6e93b17eb0a8a0.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-9fec5ddfeb7917cfc93e3e585b6e93b17eb0a8a0.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-9fec5ddfeb7917cfc93e3e585b6e93b17eb0a8a0.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-9fec5ddfeb7917cfc93e3e585b6e93b17eb0a8a0.tar.gz
 
 
->  -- Tim
-> 
-> 
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ Usex - version 1.9-29 [7]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [9]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [9]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ Usex - version 1.9-29 [7]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [9]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ LTP: openposix test suite [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ Usex - version 1.9-29 [7]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [9]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
