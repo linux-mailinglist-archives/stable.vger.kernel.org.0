@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 466A156066
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:48:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C24CC5602A
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727276AbfFZDpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:45:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57508 "EHLO mail.kernel.org"
+        id S1727834AbfFZDpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:45:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727163AbfFZDpt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:45:49 -0400
+        id S1726672AbfFZDpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:45:51 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B86A6216E3;
-        Wed, 26 Jun 2019 03:45:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F213920659;
+        Wed, 26 Jun 2019 03:45:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520748;
-        bh=NC0Nour7rmEOz1JnhkIaZafBUKJxVBxTFvqtGjl9Cdk=;
+        s=default; t=1561520749;
+        bh=hwCKJ4IR9Dhpm4c14OdzVDxfAACXnR9cVrjsM+or/KY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XLQ4MnrtvmQhb4xkg95bdajAmW6PS+p8TelfX65nIxJi6PdkeC8gjOOAHQBIkaL3L
-         4I/D+K/Ys8fChHXfBS+N8zHZJpEHyu8ooVQSXdhCFr/RG+CxyML4y+3Lzcahag1q7u
-         x7qs3F4AEmq2LETjYBlJ2pz/Wjw9gMQvbCMQMXYI=
+        b=Zr4apaz0XQpoyMKOUH3BaspsiWm9ARQnLSlKrUU3/eGXEMQPpr0z9DKl7TWecWRfv
+         4qUW310psk7nG7Op3CQ48orU9dOruAQ5r6KnPqZpLT4VnQ0W7R9Gauqj4jesSS8LM7
+         Bab/kYktT505JU4zBexsRX5o+iUjQqBsDwXRn5dg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Don Brace <don.brace@microsemi.com>,
-        Bader Ali - Saleh <bader.alisaleh@microsemi.com>,
-        Scott Teel <scott.teel@microsemi.com>,
-        Matt Perricone <matt.perricone@microsemi.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, esc.storagedev@microsemi.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 15/21] scsi: hpsa: correct ioaccel2 chaining
-Date:   Tue, 25 Jun 2019 23:45:00 -0400
-Message-Id: <20190626034506.24125-15-sashal@kernel.org>
+Cc:     Vadim Pasternak <vadimp@mellanox.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 16/21] platform/x86: mlx-platform: Fix parent device in i2c-mux-reg device registration
+Date:   Tue, 25 Jun 2019 23:45:01 -0400
+Message-Id: <20190626034506.24125-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034506.24125-1-sashal@kernel.org>
 References: <20190626034506.24125-1-sashal@kernel.org>
@@ -47,64 +44,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Don Brace <don.brace@microsemi.com>
+From: Vadim Pasternak <vadimp@mellanox.com>
 
-[ Upstream commit 625d7d3518875c4d303c652a198feaa13d9f52d9 ]
+[ Upstream commit 160da20b254dd4bfc5828f12c208fa831ad4be6c ]
 
-- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_LAST_SG for
-  the last s/g element.
+Fix the issue found while running kernel with the option
+CONFIG_DEBUG_TEST_DRIVER_REMOVE.
+Driver 'mlx-platform' registers 'i2c_mlxcpld' device and then registers
+few underlying 'i2c-mux-reg' devices:
+	priv->pdev_i2c = platform_device_register_simple("i2c_mlxcpld", nr,
+							 NULL, 0);
+	...
+	for (i = 0; i < ARRAY_SIZE(mlxplat_mux_data); i++) {
+		priv->pdev_mux[i] = platform_device_register_resndata(
+						&mlxplat_dev->dev,
+						"i2c-mux-reg", i, NULL,
+						0, &mlxplat_mux_data[i],
+						sizeof(mlxplat_mux_data[i]));
 
-- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_CHAIN when
-  chaining.
+But actual parent of "i2c-mux-reg" device is priv->pdev_i2c->dev and
+not mlxplat_dev->dev.
+Patch fixes parent device parameter in a call to
+platform_device_register_resndata() for "i2c-mux-reg".
 
-Reviewed-by: Bader Ali - Saleh <bader.alisaleh@microsemi.com>
-Reviewed-by: Scott Teel <scott.teel@microsemi.com>
-Reviewed-by: Matt Perricone <matt.perricone@microsemi.com>
-Signed-off-by: Don Brace <don.brace@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+It solves the race during initialization flow while 'i2c_mlxcpld.1' is
+removing after probe, while 'i2c-mux-reg.0' is still in probing flow:
+'i2c_mlxcpld.1'	flow:	probe -> remove -> probe.
+'i2c-mux-reg.0'	flow:		  probe -> ...
+
+[   12:621096] Registering platform device 'i2c_mlxcpld.1'. Parent at platform
+[   12:621117] device: 'i2c_mlxcpld.1': device_add
+[   12:621155] bus: 'platform': add device i2c_mlxcpld.1
+[   12:621384] Registering platform device 'i2c-mux-reg.0'. Parent at mlxplat
+[   12:621395] device: 'i2c-mux-reg.0': device_add
+[   12:621425] bus: 'platform': add device i2c-mux-reg.0
+[   12:621806] Registering platform device 'i2c-mux-reg.1'. Parent at mlxplat
+[   12:621828] device: 'i2c-mux-reg.1': device_add
+[   12:621892] bus: 'platform': add device i2c-mux-reg.1
+[   12:621906] bus: 'platform': add driver i2c_mlxcpld
+[   12:621996] bus: 'platform': driver_probe_device: matched device i2c_mlxcpld.1 with driver i2c_mlxcpld
+[   12:622003] bus: 'platform': really_probe: probing driver i2c_mlxcpld with device i2c_mlxcpld.1
+[   12:622100] i2c_mlxcpld i2c_mlxcpld.1: no default pinctrl state
+[   12:622293] device: 'i2c-1': device_add
+[   12:627280] bus: 'i2c': add device i2c-1
+[   12:627692] device: 'i2c-1': device_add
+[   12.629639] bus: 'platform': add driver i2c-mux-reg
+[   12.629718] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.0 with driver i2c-mux-reg
+[   12.629723] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.0
+[   12.629818] i2c-mux-reg i2c-mux-reg.0: no default pinctrl state
+[   12.629981] platform i2c-mux-reg.0: Driver i2c-mux-reg requests probe deferral
+[   12.629986] platform i2c-mux-reg.0: Added to deferred list
+[   12.629992] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.1 with driver i2c-mux-reg
+[   12.629997] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.1
+[   12.630091] i2c-mux-reg i2c-mux-reg.1: no default pinctrl state
+[   12.630247] platform i2c-mux-reg.1: Driver i2c-mux-reg requests probe deferral
+[   12.630252] platform i2c-mux-reg.1: Added to deferred list
+[   12.640892] devices_kset: Moving i2c-mux-reg.0 to end of list
+[   12.640900] platform i2c-mux-reg.0: Retrying from deferred list
+[   12.640911] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.0 with driver i2c-mux-reg
+[   12.640919] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.0
+[   12.640999] i2c-mux-reg i2c-mux-reg.0: no default pinctrl state
+[   12.641177] platform i2c-mux-reg.0: Driver i2c-mux-reg requests probe deferral
+[   12.641187] platform i2c-mux-reg.0: Added to deferred list
+[   12.641198] devices_kset: Moving i2c-mux-reg.1 to end of list
+[   12.641219] platform i2c-mux-reg.1: Retrying from deferred list
+[   12.641237] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.1 with driver i2c-mux-reg
+[   12.641247] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.1
+[   12.641331] i2c-mux-reg i2c-mux-reg.1: no default pinctrl state
+[   12.641465] platform i2c-mux-reg.1: Driver i2c-mux-reg requests probe deferral
+[   12.641469] platform i2c-mux-reg.1: Added to deferred list
+[   12.646427] device: 'i2c-1': device_add
+[   12.646647] bus: 'i2c': add device i2c-1
+[   12.647104] device: 'i2c-1': device_add
+[   12.669231] devices_kset: Moving i2c-mux-reg.0 to end of list
+[   12.669240] platform i2c-mux-reg.0: Retrying from deferred list
+[   12.669258] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.0 with driver i2c-mux-reg
+[   12.669263] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.0
+[   12.669343] i2c-mux-reg i2c-mux-reg.0: no default pinctrl state
+[   12.669585] device: 'i2c-2': device_add
+[   12.669795] bus: 'i2c': add device i2c-2
+[   12.670201] device: 'i2c-2': device_add
+[   12.671427] i2c i2c-1: Added multiplexed i2c bus 2
+[   12.671514] device: 'i2c-3': device_add
+[   12.671724] bus: 'i2c': add device i2c-3
+[   12.672136] device: 'i2c-3': device_add
+[   12.673378] i2c i2c-1: Added multiplexed i2c bus 3
+[   12.673472] device: 'i2c-4': device_add
+[   12.673676] bus: 'i2c': add device i2c-4
+[   12.674060] device: 'i2c-4': device_add
+[   12.675861] i2c i2c-1: Added multiplexed i2c bus 4
+[   12.675941] device: 'i2c-5': device_add
+[   12.676150] bus: 'i2c': add device i2c-5
+[   12.676550] device: 'i2c-5': device_add
+[   12.678103] i2c i2c-1: Added multiplexed i2c bus 5
+[   12.678193] device: 'i2c-6': device_add
+[   12.678395] bus: 'i2c': add device i2c-6
+[   12.678774] device: 'i2c-6': device_add
+[   12.679969] i2c i2c-1: Added multiplexed i2c bus 6
+[   12.680065] device: 'i2c-7': device_add
+[   12.680275] bus: 'i2c': add device i2c-7
+[   12.680913] device: 'i2c-7': device_add
+[   12.682506] i2c i2c-1: Added multiplexed i2c bus 7
+[   12.682600] device: 'i2c-8': device_add
+[   12.682808] bus: 'i2c': add device i2c-8
+[   12.683189] device: 'i2c-8': device_add
+[   12.683907] device: 'i2c-1': device_unregister
+[   12.683945] device: 'i2c-1': device_unregister
+[   12.684387] device: 'i2c-1': device_create_release
+[   12.684536] bus: 'i2c': remove device i2c-1
+[   12.686019] i2c i2c-8: Failed to create compatibility class link
+[   12.686086] ------------[ cut here ]------------
+[   12.686087] can't create symlink to mux device
+[   12.686224] Workqueue: events deferred_probe_work_func
+[   12.686135] WARNING: CPU: 7 PID: 436 at drivers/i2c/i2c-mux.c:416 i2c_mux_add_adapter+0x729/0x7d0 [i2c_mux]
+[   12.686232] RIP: 0010:i2c_mux_add_adapter+0x729/0x7d0 [i2c_mux]
+[   0x190/0x190 [i2c_mux]
+[   12.686300]  ? i2c_mux_alloc+0xac/0x110 [i2c_mux]
+[   12.686306]  ? i2c_mux_reg_set+0x200/0x200 [i2c_mux_reg]
+[   12.686313]  i2c_mux_reg_probe+0x22c/0x731 [i2c_mux_reg]
+[   12.686322]  ? i2c_mux_reg_deselect+0x60/0x60 [i2c_mux_reg]
+[   12.686346]  platform_drv_probe+0xa8/0x110
+[   12.686351]  really_probe+0x185/0x720
+[   12.686358]  driver_probe_device+0xdf/0x1f0
+...
+[   12.686522] i2c i2c-1: Added multiplexed i2c bus 8
+[   12.686621] device: 'i2c-9': device_add
+[   12.686626] kobject_add_internal failed for i2c-9 (error: -2 parent: i2c-1)
+[   12.694729] i2c-core: adapter 'i2c-1-mux (chan_id 8)': can't register device (-2)
+[   12.705726] i2c i2c-1: failed to add mux-adapter 8 as bus 9 (error=-2)
+[   12.714494] device: 'i2c-8': device_unregister
+[   12.714537] device: 'i2c-8': device_unregister
+
+Fixes: 6613d18e9038 ("platform/x86: mlx-platform: Move module from arch/x86")
+Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hpsa.c     | 7 ++++++-
- drivers/scsi/hpsa_cmd.h | 1 +
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/platform/x86/mlx-platform.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index 5b4b7f9be2d7..6d520e8945f7 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -4800,7 +4800,7 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
- 			curr_sg->reserved[0] = 0;
- 			curr_sg->reserved[1] = 0;
- 			curr_sg->reserved[2] = 0;
--			curr_sg->chain_indicator = 0x80;
-+			curr_sg->chain_indicator = IOACCEL2_CHAIN;
+diff --git a/drivers/platform/x86/mlx-platform.c b/drivers/platform/x86/mlx-platform.c
+index 4f3de2a8c4df..9aced80f31a2 100644
+--- a/drivers/platform/x86/mlx-platform.c
++++ b/drivers/platform/x86/mlx-platform.c
+@@ -318,7 +318,7 @@ static int __init mlxplat_init(void)
  
- 			curr_sg = h->ioaccel2_cmd_sg_list[c->cmdindex];
- 		}
-@@ -4817,6 +4817,11 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
- 			curr_sg++;
- 		}
- 
-+		/*
-+		 * Set the last s/g element bit
-+		 */
-+		(curr_sg - 1)->chain_indicator = IOACCEL2_LAST_SG;
-+
- 		switch (cmd->sc_data_direction) {
- 		case DMA_TO_DEVICE:
- 			cp->direction &= ~IOACCEL2_DIRECTION_MASK;
-diff --git a/drivers/scsi/hpsa_cmd.h b/drivers/scsi/hpsa_cmd.h
-index 078afe448115..ecf15344b55d 100644
---- a/drivers/scsi/hpsa_cmd.h
-+++ b/drivers/scsi/hpsa_cmd.h
-@@ -516,6 +516,7 @@ struct ioaccel2_sg_element {
- 	u8 reserved[3];
- 	u8 chain_indicator;
- #define IOACCEL2_CHAIN 0x80
-+#define IOACCEL2_LAST_SG 0x40
- };
- 
- /*
+ 	for (i = 0; i < ARRAY_SIZE(mlxplat_mux_data); i++) {
+ 		priv->pdev_mux[i] = platform_device_register_resndata(
+-						&mlxplat_dev->dev,
++						&priv->pdev_i2c->dev,
+ 						"i2c-mux-reg", i, NULL,
+ 						0, &mlxplat_mux_data[i],
+ 						sizeof(mlxplat_mux_data[i]));
 -- 
 2.20.1
 
