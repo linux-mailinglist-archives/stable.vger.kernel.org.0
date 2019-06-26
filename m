@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC8FE5609C
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32BBD5609F
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727254AbfFZDnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:43:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54286 "EHLO mail.kernel.org"
+        id S1727266AbfFZDnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:43:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726791AbfFZDnJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:43:09 -0400
+        id S1727259AbfFZDnK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:43:10 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31F01216F4;
-        Wed, 26 Jun 2019 03:43:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5E48216E3;
+        Wed, 26 Jun 2019 03:43:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520588;
-        bh=uNU5+LCbl+Sctf4PzfdDZalh2Mm1BcPdFuY7lUuapUg=;
+        s=default; t=1561520590;
+        bh=hj9KGbkr4AqICPcOaWd8LGYkgMnOsDSZM4G15WuTWFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVoAubHT605nX+YTDWGRHjalWysGVhIJ2nONjp7BZAGzU4Mym5ol9I2SlHQfZZvoW
-         l2nrwHU9SzeUCJ3AfwxPqUHHeOr+vrpLKtTWLmNtgyknBBta9uI5hOLPnRvGh/dEuR
-         z9zCRY1OMsmg9Y5p8fNXTv9dHdVFf9hlkf+5h89o=
+        b=Sqk8UGj8DD5xuGjgD4umAgMMSndgQUyJy9qyT7SNjLu6r5o0/Q/r7zgzKMy8ex+IR
+         dcJdDTuBo95Fhbq9Q2EP5X3XWTw4PDEYYTsCnOazcfAXnlUp7db5DVWLtnYNpF7ftm
+         y+H4AHeQJKytzX33p0zC0rB+Er+5EMMLnHIUSNSo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Levin <levinale@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 39/51] ASoC: Intel: sst: fix kmalloc call with wrong flags
-Date:   Tue, 25 Jun 2019 23:40:55 -0400
-Message-Id: <20190626034117.23247-39-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        acpi4asus-user@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 40/51] platform/x86: asus-wmi: Only Tell EC the OS will handle display hotkeys from asus_nb_wmi
+Date:   Tue, 25 Jun 2019 23:40:56 -0400
+Message-Id: <20190626034117.23247-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 References: <20190626034117.23247-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,91 +47,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Levin <levinale@chromium.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 3da428ff2aa5a5191ba2f1630eea75f03242f3f2 ]
+[ Upstream commit 401fee8195d401b2b94dee57383f627050724d5b ]
 
-When calling kmalloc with GFP_KERNEL in case CONFIG_SLOB is unset,
-kmem_cache_alloc_trace is called.
+Commit 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will
+handle the display off hotkey") causes the backlight to be permanently off
+on various EeePC laptop models using the eeepc-wmi driver (Asus EeePC
+1015BX, Asus EeePC 1025C).
 
-In case CONFIG_TRACING is set, kmem_cache_alloc_trace will ball
-slab_alloc, which will call slab_pre_alloc_hook which might_sleep_if.
+The asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL) call added
+by that commit is made conditional in this commit and only enabled in
+the quirk_entry structs in the asus-nb-wmi driver fixing the broken
+display / backlight on various EeePC laptop models.
 
-The context in which it is called in this case, the
-intel_sst_interrupt_mrfld, calling a sleeping kmalloc generates a BUG():
-
-Fixes: 972b0d456e64 ("ASoC: Intel: remove GFP_ATOMIC, use GFP_KERNEL")
-
-[   20.250671] BUG: sleeping function called from invalid context at mm/slab.h:422
-[   20.250683] in_atomic(): 1, irqs_disabled(): 1, pid: 1791, name: Chrome_IOThread
-[   20.250690] CPU: 0 PID: 1791 Comm: Chrome_IOThread Tainted: G        W         4.19.43 #61
-[   20.250693] Hardware name: GOOGLE Kefka, BIOS Google_Kefka.7287.337.0 03/02/2017
-[   20.250697] Call Trace:
-[   20.250704]  <IRQ>
-[   20.250716]  dump_stack+0x7e/0xc3
-[   20.250725]  ___might_sleep+0x12a/0x140
-[   20.250731]  kmem_cache_alloc_trace+0x53/0x1c5
-[   20.250736]  ? update_cfs_rq_load_avg+0x17e/0x1aa
-[   20.250740]  ? cpu_load_update+0x6c/0xc2
-[   20.250746]  sst_create_ipc_msg+0x2d/0x88
-[   20.250752]  intel_sst_interrupt_mrfld+0x12a/0x22c
-[   20.250758]  __handle_irq_event_percpu+0x133/0x228
-[   20.250764]  handle_irq_event_percpu+0x35/0x7a
-[   20.250768]  handle_irq_event+0x36/0x55
-[   20.250773]  handle_fasteoi_irq+0xab/0x16c
-[   20.250779]  handle_irq+0xd9/0x11e
-[   20.250785]  do_IRQ+0x54/0xe0
-[   20.250791]  common_interrupt+0xf/0xf
-[   20.250795]  </IRQ>
-[   20.250800] RIP: 0010:__lru_cache_add+0x4e/0xad
-[   20.250806] Code: 00 01 48 c7 c7 b8 df 01 00 65 48 03 3c 25 28 f1 00 00 48 8b 48 08 48 89 ca 48 ff ca f6 c1 01 48 0f 44 d0 f0 ff 42 34 0f b6 0f <89> ca fe c2 88 17 48 89 44 cf 08 80 fa 0f 74 0e 48 8b 08 66 85 c9
-[   20.250809] RSP: 0000:ffffa568810bfd98 EFLAGS: 00000202 ORIG_RAX: ffffffffffffffd6
-[   20.250814] RAX: ffffd3b904eb1940 RBX: ffffd3b904eb1940 RCX: 0000000000000004
-[   20.250817] RDX: ffffd3b904eb1940 RSI: ffffa10ee5c47450 RDI: ffffa10efba1dfb8
-[   20.250821] RBP: ffffa568810bfda8 R08: ffffa10ef9c741c1 R09: dead000000000100
-[   20.250824] R10: 0000000000000000 R11: 0000000000000000 R12: ffffa10ee8d52a40
-[   20.250827] R13: ffffa10ee8d52000 R14: ffffa10ee5c47450 R15: 800000013ac65067
-[   20.250835]  lru_cache_add_active_or_unevictable+0x4e/0xb8
-[   20.250841]  handle_mm_fault+0xd98/0x10c4
-[   20.250848]  __do_page_fault+0x235/0x42d
-[   20.250853]  ? page_fault+0x8/0x30
-[   20.250858]  do_page_fault+0x3d/0x17a
-[   20.250862]  ? page_fault+0x8/0x30
-[   20.250866]  page_fault+0x1e/0x30
-[   20.250872] RIP: 0033:0x7962fdea9304
-[   20.250875] Code: 0f 11 4c 17 f0 c3 48 3b 15 f1 26 31 00 0f 83 e2 00 00 00 48 39 f7 72 0f 74 12 4c 8d 0c 16 4c 39 cf 0f 82 63 01 00 00 48 89 d1 <f3> a4 c3 80 fa 08 73 12 80 fa 04 73 1e 80 fa 01 77 26 72 05 0f b6
-[   20.250879] RSP: 002b:00007962f4db5468 EFLAGS: 00010206
-[   20.250883] RAX: 00003c8cc9d47008 RBX: 0000000000000000 RCX: 0000000000001b48
-[   20.250886] RDX: 0000000000002b40 RSI: 00003c8cc9551000 RDI: 00003c8cc9d48000
-[   20.250890] RBP: 00007962f4db5820 R08: 0000000000000000 R09: 00003c8cc9552b48
-[   20.250893] R10: 0000562dd1064d30 R11: 00003c8cc825b908 R12: 00003c8cc966d3c0
-[   20.250896] R13: 00003c8cc9e280c0 R14: 0000000000000000 R15: 0000000000000000
-
-Signed-off-by: Alex Levin <levinale@chromium.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: João Paulo Rechi Vita <jprvita@endlessm.com>
+Fixes: 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will handle the display off hotkey")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/atom/sst/sst_pvt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/platform/x86/asus-nb-wmi.c | 8 ++++++++
+ drivers/platform/x86/asus-wmi.c    | 2 +-
+ drivers/platform/x86/asus-wmi.h    | 1 +
+ 3 files changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/atom/sst/sst_pvt.c b/sound/soc/intel/atom/sst/sst_pvt.c
-index 00a37a09dc9b..dba0ca07ebf9 100644
---- a/sound/soc/intel/atom/sst/sst_pvt.c
-+++ b/sound/soc/intel/atom/sst/sst_pvt.c
-@@ -166,11 +166,11 @@ int sst_create_ipc_msg(struct ipc_post **arg, bool large)
- {
- 	struct ipc_post *msg;
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index b6f2ff95c3ed..59f3a37a44d7 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -78,10 +78,12 @@ static bool asus_q500a_i8042_filter(unsigned char data, unsigned char str,
  
--	msg = kzalloc(sizeof(*msg), GFP_KERNEL);
-+	msg = kzalloc(sizeof(*msg), GFP_ATOMIC);
- 	if (!msg)
- 		return -ENOMEM;
- 	if (large) {
--		msg->mailbox_data = kzalloc(SST_MAILBOX_SIZE, GFP_KERNEL);
-+		msg->mailbox_data = kzalloc(SST_MAILBOX_SIZE, GFP_ATOMIC);
- 		if (!msg->mailbox_data) {
- 			kfree(msg);
- 			return -ENOMEM;
+ static struct quirk_entry quirk_asus_unknown = {
+ 	.wapf = 0,
++	.wmi_backlight_set_devstate = true,
+ };
+ 
+ static struct quirk_entry quirk_asus_q500a = {
+ 	.i8042_filter = asus_q500a_i8042_filter,
++	.wmi_backlight_set_devstate = true,
+ };
+ 
+ /*
+@@ -92,26 +94,32 @@ static struct quirk_entry quirk_asus_q500a = {
+ static struct quirk_entry quirk_asus_x55u = {
+ 	.wapf = 4,
+ 	.wmi_backlight_power = true,
++	.wmi_backlight_set_devstate = true,
+ 	.no_display_toggle = true,
+ };
+ 
+ static struct quirk_entry quirk_asus_wapf4 = {
+ 	.wapf = 4,
++	.wmi_backlight_set_devstate = true,
+ };
+ 
+ static struct quirk_entry quirk_asus_x200ca = {
+ 	.wapf = 2,
++	.wmi_backlight_set_devstate = true,
+ };
+ 
+ static struct quirk_entry quirk_asus_ux303ub = {
+ 	.wmi_backlight_native = true,
++	.wmi_backlight_set_devstate = true,
+ };
+ 
+ static struct quirk_entry quirk_asus_x550lb = {
++	.wmi_backlight_set_devstate = true,
+ 	.xusb2pr = 0x01D9,
+ };
+ 
+ static struct quirk_entry quirk_asus_forceals = {
++	.wmi_backlight_set_devstate = true,
+ 	.wmi_force_als_set = true,
+ };
+ 
+diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
+index ee1fa93708ec..a66e99500c12 100644
+--- a/drivers/platform/x86/asus-wmi.c
++++ b/drivers/platform/x86/asus-wmi.c
+@@ -2131,7 +2131,7 @@ static int asus_wmi_add(struct platform_device *pdev)
+ 		err = asus_wmi_backlight_init(asus);
+ 		if (err && err != -ENODEV)
+ 			goto fail_backlight;
+-	} else
++	} else if (asus->driver->quirks->wmi_backlight_set_devstate)
+ 		err = asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL);
+ 
+ 	status = wmi_install_notify_handler(asus->driver->event_guid,
+diff --git a/drivers/platform/x86/asus-wmi.h b/drivers/platform/x86/asus-wmi.h
+index 6c1311f4b04d..57a79bddb286 100644
+--- a/drivers/platform/x86/asus-wmi.h
++++ b/drivers/platform/x86/asus-wmi.h
+@@ -44,6 +44,7 @@ struct quirk_entry {
+ 	bool store_backlight_power;
+ 	bool wmi_backlight_power;
+ 	bool wmi_backlight_native;
++	bool wmi_backlight_set_devstate;
+ 	bool wmi_force_als_set;
+ 	int wapf;
+ 	/*
 -- 
 2.20.1
 
