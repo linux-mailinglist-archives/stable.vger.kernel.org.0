@@ -2,161 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE2F569FE
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 15:07:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3306456A0E
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 15:10:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726484AbfFZNHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 09:07:12 -0400
-Received: from relmlor1.renesas.com ([210.160.252.171]:20322 "EHLO
-        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726157AbfFZNHM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jun 2019 09:07:12 -0400
-X-IronPort-AV: E=Sophos;i="5.62,419,1554735600"; 
-   d="scan'208";a="19770037"
-Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
-  by relmlie5.idc.renesas.com with ESMTP; 26 Jun 2019 22:07:09 +0900
-Received: from localhost.localdomain (unknown [10.166.17.210])
-        by relmlir6.idc.renesas.com (Postfix) with ESMTP id 0357041145A0;
-        Wed, 26 Jun 2019 22:07:09 +0900 (JST)
-From:   Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-To:     gregkh@linuxfoundation.org
-Cc:     linux-usb@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        "# v4 . 1+" <stable@vger.kernel.org>
-Subject: [PATCH] usb: renesas_usbhs: add a workaround for a race condition of workqueue
-Date:   Wed, 26 Jun 2019 22:06:33 +0900
-Message-Id: <1561554393-6027-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
-X-Mailer: git-send-email 2.7.4
+        id S1726104AbfFZNKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 09:10:39 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:38360 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726462AbfFZNKj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jun 2019 09:10:39 -0400
+Received: by mail-wr1-f67.google.com with SMTP id d18so2678451wrs.5
+        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 06:10:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=bqOWDaCNsHrE1herZzAPunVmKg4cRAUoaCX+z3T2sAM=;
+        b=IVISbzicSr/piVLQTHOK9pgw2FnJj0/r2HSKgh93ZYI777BoSL0PxxqSR1vi1hDPoM
+         xzys/P514Re8FoIl4plah3RCervayPjnbQ3ZxYFimlVIXZ1UD8QHfZtg1idbqQj6Cfnu
+         sM8ylAcbqVdg3QJwuwCNTWglvlBBohh3ysXTXy8vUbxiZSMq5nig5jslBNBvTdeRjprO
+         xnG9U2Xbi15ewt0G4A2PiA1tMqibfX+Akv82N0i5Or3J9hnDbAEhl4pfWbw+BGYWt1bB
+         0fD5ukoE37TG7EKYET95H0U2Ok6Zyp/E/Uv0Kb2e/H7bZJhzkLLN+RaYfdhJgeBkuuKC
+         BQag==
+X-Gm-Message-State: APjAAAVuAO47ubjM39OMXvW3dp1brdWm4aZHCCvf8lU92YACZNxomjL0
+        TX2DlULUFsqR7xEIgTLaaqMfZQ==
+X-Google-Smtp-Source: APXvYqy/cMPC8Av1yrbGtbve00ZFb/ieRgkL6SpMCmxq4C9XvGvgJpuLHhPLGFVuptpZ/fVy4FDH8w==
+X-Received: by 2002:adf:fa4c:: with SMTP id y12mr3606968wrr.282.1561554637009;
+        Wed, 26 Jun 2019 06:10:37 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:e88d:856c:e081:f67d? ([2001:b07:6468:f312:e88d:856c:e081:f67d])
+        by smtp.gmail.com with ESMTPSA id d7sm4766497wrx.37.2019.06.26.06.10.35
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Wed, 26 Jun 2019 06:10:36 -0700 (PDT)
+Subject: Re: [PATCH 1/1] kvm/speculation: Allow KVM guests to use SSBD even if
+ host does not
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     Alejandro Jimenez <alejandro.j.jimenez@oracle.com>,
+        mingo@redhat.com, Borislav Petkov <bp@alien8.de>,
+        rkrcmar@redhat.com, x86@kernel.org, kvm@vger.kernel.org,
+        stable <stable@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Jon Masters <jcm@redhat.com>
+References: <1560187210-11054-1-git-send-email-alejandro.j.jimenez@oracle.com>
+ <1c9d4047-e54c-8d4b-13b1-020864f2f5bf@redhat.com>
+ <alpine.DEB.2.21.1906251750140.32342@nanos.tec.linutronix.de>
+ <56fa2729-52a7-3994-5f7c-bc308da7d710@oracle.com>
+ <alpine.DEB.2.21.1906252019460.32342@nanos.tec.linutronix.de>
+ <b6c2ac14-d647-0fa2-f19d-88944c63c37a@redhat.com>
+ <alpine.DEB.2.21.1906261440570.32342@nanos.tec.linutronix.de>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <f258b10f-dae3-7cf4-5a0c-47fe067065b4@redhat.com>
+Date:   Wed, 26 Jun 2019 15:10:35 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
+MIME-Version: 1.0
+In-Reply-To: <alpine.DEB.2.21.1906261440570.32342@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The old commit 6e4b74e4690d ("usb: renesas: fix scheduling in atomic
-context bug") fixed an atomic issue by using workqueue for the shdmac
-dmaengine driver. However, this has a potential race condition issue
-between the work pending and usbhsg_ep_free_request() in gadget mode.
-When usbhsg_ep_free_request() is called while pending the queue,
-since the work_struct will be freed and then the work handler is
-called, kernel panic happens on process_one_work().
+On 26/06/19 14:41, Thomas Gleixner wrote:
+>> I think it's better to leave the guest in control of SSBD even if it's
+>> globally disabled.  The harm cannot escape the guest and in particular
+>> it cannot escape to the sibling hyperthread.
+>
+> SSB allows guest to guest attacks IIRC
 
-To fix the issue, if we could call cancel_work_sync() at somewhere
-before the free request, it could be easy. However,
-the usbhsg_ep_free_request() is called on atomic (e.g. f_ncm driver
-calls free request via gether_disconnect()).
+SSB requires something like
 
-For now, almost all users are having "USB-DMAC" and the DMAengine
-driver can be used on atomic. So, this patch adds a workaround for
-a race condition to call the DMAengine APIs without the workqueue.
+   p = &foo;
+   ...
+   p = &bar;
+   q = *p;
 
-This means we still have TODO on shdmac environment (SH7724), but
-since it doesn't have SMP, the race condition might not happen.
+where "p = &foo;" is executed from one privilege domain and the others
+are executed by another process or privilege domain.  Unless two guests
+share memory, it is not possible to use it for guest-to-guest attacks.
 
-Fixes: ab330cf3888d ("usb: renesas_usbhs: add support for USB-DMAC")
-Cc: <stable@vger.kernel.org> # v4.1+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
----
- This patch is based on Greg's usb.git / usb-linus branch.
-
- I have no idea why this issue doesn't happen on previous kernel versions
- though, but this issue happens on v5.2-rc6 + g_ncm + R-Car H3. So,
- if possible, I'd like to apply this patch on v5.2-stable.
-
- drivers/usb/renesas_usbhs/fifo.c | 34 ++++++++++++++++++++++------------
- 1 file changed, 22 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/usb/renesas_usbhs/fifo.c b/drivers/usb/renesas_usbhs/fifo.c
-index 39fa2fc..6036cba 100644
---- a/drivers/usb/renesas_usbhs/fifo.c
-+++ b/drivers/usb/renesas_usbhs/fifo.c
-@@ -802,9 +802,8 @@ static int __usbhsf_dma_map_ctrl(struct usbhs_pkt *pkt, int map)
- }
- 
- static void usbhsf_dma_complete(void *arg);
--static void xfer_work(struct work_struct *work)
-+static void usbhsf_dma_xfer_preparing(struct usbhs_pkt *pkt)
- {
--	struct usbhs_pkt *pkt = container_of(work, struct usbhs_pkt, work);
- 	struct usbhs_pipe *pipe = pkt->pipe;
- 	struct usbhs_fifo *fifo;
- 	struct usbhs_priv *priv = usbhs_pipe_to_priv(pipe);
-@@ -812,12 +811,10 @@ static void xfer_work(struct work_struct *work)
- 	struct dma_chan *chan;
- 	struct device *dev = usbhs_priv_to_dev(priv);
- 	enum dma_transfer_direction dir;
--	unsigned long flags;
- 
--	usbhs_lock(priv, flags);
- 	fifo = usbhs_pipe_to_fifo(pipe);
- 	if (!fifo)
--		goto xfer_work_end;
-+		return;
- 
- 	chan = usbhsf_dma_chan_get(fifo, pkt);
- 	dir = usbhs_pipe_is_dir_in(pipe) ? DMA_DEV_TO_MEM : DMA_MEM_TO_DEV;
-@@ -826,7 +823,7 @@ static void xfer_work(struct work_struct *work)
- 					pkt->trans, dir,
- 					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
- 	if (!desc)
--		goto xfer_work_end;
-+		return;
- 
- 	desc->callback		= usbhsf_dma_complete;
- 	desc->callback_param	= pipe;
-@@ -834,7 +831,7 @@ static void xfer_work(struct work_struct *work)
- 	pkt->cookie = dmaengine_submit(desc);
- 	if (pkt->cookie < 0) {
- 		dev_err(dev, "Failed to submit dma descriptor\n");
--		goto xfer_work_end;
-+		return;
- 	}
- 
- 	dev_dbg(dev, "  %s %d (%d/ %d)\n",
-@@ -845,8 +842,17 @@ static void xfer_work(struct work_struct *work)
- 	dma_async_issue_pending(chan);
- 	usbhsf_dma_start(pipe, fifo);
- 	usbhs_pipe_enable(pipe);
-+}
-+
-+static void xfer_work(struct work_struct *work)
-+{
-+	struct usbhs_pkt *pkt = container_of(work, struct usbhs_pkt, work);
-+	struct usbhs_pipe *pipe = pkt->pipe;
-+	struct usbhs_priv *priv = usbhs_pipe_to_priv(pipe);
-+	unsigned long flags;
- 
--xfer_work_end:
-+	usbhs_lock(priv, flags);
-+	usbhsf_dma_xfer_preparing(pkt);
- 	usbhs_unlock(priv, flags);
- }
- 
-@@ -899,8 +905,13 @@ static int usbhsf_dma_prepare_push(struct usbhs_pkt *pkt, int *is_done)
- 	pkt->trans = len;
- 
- 	usbhsf_tx_irq_ctrl(pipe, 0);
--	INIT_WORK(&pkt->work, xfer_work);
--	schedule_work(&pkt->work);
-+	/* FIXME: Workaound for usb dmac that driver can be used in atomic */
-+	if (usbhs_get_dparam(priv, has_usb_dmac)) {
-+		usbhsf_dma_xfer_preparing(pkt);
-+	} else {
-+		INIT_WORK(&pkt->work, xfer_work);
-+		schedule_work(&pkt->work);
-+	}
- 
- 	return 0;
- 
-@@ -1006,8 +1017,7 @@ static int usbhsf_dma_prepare_pop_with_usb_dmac(struct usbhs_pkt *pkt,
- 
- 	pkt->trans = pkt->length;
- 
--	INIT_WORK(&pkt->work, xfer_work);
--	schedule_work(&pkt->work);
-+	usbhsf_dma_xfer_preparing(pkt);
- 
- 	return 0;
- 
--- 
-2.7.4
-
+Paolo
