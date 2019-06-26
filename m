@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A85656046
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:47:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 079CB56049
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:47:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727601AbfFZDqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:46:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58392 "EHLO mail.kernel.org"
+        id S1727634AbfFZDql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:46:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727001AbfFZDqh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:46:37 -0400
-Received: from sasha-vm.mshome.net (mobile-107-77-172-82.mobile.att.net [107.77.172.82])
+        id S1727001AbfFZDqk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:46:40 -0400
+Received: from sasha-vm.mshome.net (mobile-107-77-172-90.mobile.att.net [107.77.172.90])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20FF7208CB;
-        Wed, 26 Jun 2019 03:46:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D829E208CB;
+        Wed, 26 Jun 2019 03:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520796;
-        bh=6dWU0dNv9cYf+yPMs3W3XUy0ihTiE85lp1iKoVZoxn0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MjTBTwPXskrnUj7eqa3LdcHIaQRzIHGii9RFD/cg5l19l4WqC1hpOj8gbYUJZC0vK
-         u93ZCujT4smTzV8SKGtlUBzyo7QqhzXZKWsXzZltDjN9YEZ0G4KENvMhVi352IqLiU
-         qlFqtyjQcV4dLOqbfl4eyYqpBhC1KTFdmJh8Vggc=
+        s=default; t=1561520799;
+        bh=pSs8O96Ibkt2hV6ubcEOT594/fFAqp7rvY7rMUtSgyQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=bGTWY2qnKyrbL4u10iTsPvgrlN2Lyf3jz4L7lqUzEALKHSCye3Ify04p4hM9+hQkZ
+         Swaq9h86gBjn8umjIG3h6v8Z/JG6UgvZZBc9pLQY3uUCPqJdjwUCJpibA/D+x5RYBT
+         KbGEMeVb5RmjcpQTKMnbIiwXIt+XNYRFft+9bVV4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     swkhack <swkhack@gmail.com>, Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.9 11/11] mm/mlock.c: change count_mm_mlocked_page_nr return type
-Date:   Tue, 25 Jun 2019 23:46:01 -0400
-Message-Id: <20190626034602.24367-11-sashal@kernel.org>
+Cc:     Matt Flax <flatmax@flatmax.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 1/6] ASoC : cs4265 : readable register too low
+Date:   Tue, 25 Jun 2019 23:46:32 -0400
+Message-Id: <20190626034637.24515-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190626034602.24367-1-sashal@kernel.org>
-References: <20190626034602.24367-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,45 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: swkhack <swkhack@gmail.com>
+From: Matt Flax <flatmax@flatmax.org>
 
-[ Upstream commit 0874bb49bb21bf24deda853e8bf61b8325e24bcb ]
+[ Upstream commit f3df05c805983427319eddc2411a2105ee1757cf ]
 
-On a 64-bit machine the value of "vma->vm_end - vma->vm_start" may be
-negative when using 32 bit ints and the "count >> PAGE_SHIFT"'s result
-will be wrong.  So change the local variable and return value to
-unsigned long to fix the problem.
+The cs4265_readable_register function stopped short of the maximum
+register.
 
-Link: http://lkml.kernel.org/r/20190513023701.83056-1-swkhack@gmail.com
-Fixes: 0cf2f6f6dc60 ("mm: mlock: check against vma for actual mlock() size")
-Signed-off-by: swkhack <swkhack@gmail.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+An example bug is taken from :
+https://github.com/Audio-Injector/Ultra/issues/25
+
+Where alsactl store fails with :
+Cannot read control '2,0,0,C Data Buffer,0': Input/output error
+
+This patch fixes the bug by setting the cs4265 to have readable
+registers up to the maximum hardware register CS4265_MAX_REGISTER.
+
+Signed-off-by: Matt Flax <flatmax@flatmax.org>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mlock.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/cs4265.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/mlock.c b/mm/mlock.c
-index f0505692a5f4..3e7fe404bfb8 100644
---- a/mm/mlock.c
-+++ b/mm/mlock.c
-@@ -630,11 +630,11 @@ static int apply_vma_lock_flags(unsigned long start, size_t len,
-  * is also counted.
-  * Return value: previously mlocked page counts
-  */
--static int count_mm_mlocked_page_nr(struct mm_struct *mm,
-+static unsigned long count_mm_mlocked_page_nr(struct mm_struct *mm,
- 		unsigned long start, size_t len)
+diff --git a/sound/soc/codecs/cs4265.c b/sound/soc/codecs/cs4265.c
+index 93b02be3a90e..6edec2387861 100644
+--- a/sound/soc/codecs/cs4265.c
++++ b/sound/soc/codecs/cs4265.c
+@@ -60,7 +60,7 @@ static const struct reg_default cs4265_reg_defaults[] = {
+ static bool cs4265_readable_register(struct device *dev, unsigned int reg)
  {
- 	struct vm_area_struct *vma;
--	int count = 0;
-+	unsigned long count = 0;
- 
- 	if (mm == NULL)
- 		mm = current->mm;
+ 	switch (reg) {
+-	case CS4265_CHIP_ID ... CS4265_SPDIF_CTL2:
++	case CS4265_CHIP_ID ... CS4265_MAX_REGISTER:
+ 		return true;
+ 	default:
+ 		return false;
 -- 
 2.20.1
 
