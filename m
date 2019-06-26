@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B082456044
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:47:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A85656046
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:47:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727998AbfFZDqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:46:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58318 "EHLO mail.kernel.org"
+        id S1727601AbfFZDqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:46:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727996AbfFZDqd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:46:33 -0400
+        id S1727001AbfFZDqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:46:37 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-82.mobile.att.net [107.77.172.82])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FEC7205ED;
-        Wed, 26 Jun 2019 03:46:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20FF7208CB;
+        Wed, 26 Jun 2019 03:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520793;
-        bh=edmvCwK8alwyuGXoqpprKN4J75yS+eHXIiQBadR0H/g=;
+        s=default; t=1561520796;
+        bh=6dWU0dNv9cYf+yPMs3W3XUy0ihTiE85lp1iKoVZoxn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C9CS461L/AV6PpMWrzXNtjF6loTCY4vWENFZ7bNPu4cYMFUaFQPmv7Irhu+un3nN8
-         cUQjnVkDDM0Pq5qrtk9HW3uJ6hYwLmapCYN560gTi8dxnKMFZHMcLlBWIWJs53pBee
-         D+QWsYWsodL1mpnNKKaOpvXiKuAur1/8+bzKCFeI=
+        b=MjTBTwPXskrnUj7eqa3LdcHIaQRzIHGii9RFD/cg5l19l4WqC1hpOj8gbYUJZC0vK
+         u93ZCujT4smTzV8SKGtlUBzyo7QqhzXZKWsXzZltDjN9YEZ0G4KENvMhVi352IqLiU
+         qlFqtyjQcV4dLOqbfl4eyYqpBhC1KTFdmJh8Vggc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manuel Traut <manut@linutronix.de>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+Cc:     swkhack <swkhack@gmail.com>, Michal Hocko <mhocko@suse.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 10/11] scripts/decode_stacktrace.sh: prefix addr2line with $CROSS_COMPILE
-Date:   Tue, 25 Jun 2019 23:46:00 -0400
-Message-Id: <20190626034602.24367-10-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.9 11/11] mm/mlock.c: change count_mm_mlocked_page_nr return type
+Date:   Tue, 25 Jun 2019 23:46:01 -0400
+Message-Id: <20190626034602.24367-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034602.24367-1-sashal@kernel.org>
 References: <20190626034602.24367-1-sashal@kernel.org>
@@ -45,48 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manuel Traut <manut@linutronix.de>
+From: swkhack <swkhack@gmail.com>
 
-[ Upstream commit c04e32e911653442fc834be6e92e072aeebe01a1 ]
+[ Upstream commit 0874bb49bb21bf24deda853e8bf61b8325e24bcb ]
 
-At least for ARM64 kernels compiled with the crosstoolchain from
-Debian/stretch or with the toolchain from kernel.org the line number is
-not decoded correctly by 'decode_stacktrace.sh':
+On a 64-bit machine the value of "vma->vm_end - vma->vm_start" may be
+negative when using 32 bit ints and the "count >> PAGE_SHIFT"'s result
+will be wrong.  So change the local variable and return value to
+unsigned long to fix the problem.
 
-  $ echo "[  136.513051]  f1+0x0/0xc [kcrash]" | \
-    CROSS_COMPILE=/opt/gcc-8.1.0-nolibc/aarch64-linux/bin/aarch64-linux- \
-   ./scripts/decode_stacktrace.sh /scratch/linux-arm64/vmlinux \
-                                  /scratch/linux-arm64 \
-                                  /nfs/debian/lib/modules/4.20.0-devel
-  [  136.513051] f1 (/linux/drivers/staging/kcrash/kcrash.c:68) kcrash
-
-If addr2line from the toolchain is used the decoded line number is correct:
-
-  [  136.513051] f1 (/linux/drivers/staging/kcrash/kcrash.c:57) kcrash
-
-Link: http://lkml.kernel.org/r/20190527083425.3763-1-manut@linutronix.de
-Signed-off-by: Manuel Traut <manut@linutronix.de>
-Acked-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Link: http://lkml.kernel.org/r/20190513023701.83056-1-swkhack@gmail.com
+Fixes: 0cf2f6f6dc60 ("mm: mlock: check against vma for actual mlock() size")
+Signed-off-by: swkhack <swkhack@gmail.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/decode_stacktrace.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/mlock.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/decode_stacktrace.sh b/scripts/decode_stacktrace.sh
-index edde8250195c..381acfc4c59d 100755
---- a/scripts/decode_stacktrace.sh
-+++ b/scripts/decode_stacktrace.sh
-@@ -65,7 +65,7 @@ parse_symbol() {
- 	if [[ "${cache[$module,$address]+isset}" == "isset" ]]; then
- 		local code=${cache[$module,$address]}
- 	else
--		local code=$(addr2line -i -e "$objfile" "$address")
-+		local code=$(${CROSS_COMPILE}addr2line -i -e "$objfile" "$address")
- 		cache[$module,$address]=$code
- 	fi
+diff --git a/mm/mlock.c b/mm/mlock.c
+index f0505692a5f4..3e7fe404bfb8 100644
+--- a/mm/mlock.c
++++ b/mm/mlock.c
+@@ -630,11 +630,11 @@ static int apply_vma_lock_flags(unsigned long start, size_t len,
+  * is also counted.
+  * Return value: previously mlocked page counts
+  */
+-static int count_mm_mlocked_page_nr(struct mm_struct *mm,
++static unsigned long count_mm_mlocked_page_nr(struct mm_struct *mm,
+ 		unsigned long start, size_t len)
+ {
+ 	struct vm_area_struct *vma;
+-	int count = 0;
++	unsigned long count = 0;
  
+ 	if (mm == NULL)
+ 		mm = current->mm;
 -- 
 2.20.1
 
