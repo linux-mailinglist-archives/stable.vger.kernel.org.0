@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C3CF55FC2
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:42:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21FF656089
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726957AbfFZDl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:41:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52620 "EHLO mail.kernel.org"
+        id S1726387AbfFZDmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:42:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726574AbfFZDl7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:41:59 -0400
+        id S1726960AbfFZDmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:42:00 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC3CE216FD;
-        Wed, 26 Jun 2019 03:41:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B29320659;
+        Wed, 26 Jun 2019 03:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520518;
-        bh=0T6x30Mb7rcEkAoYggXrp5pmG6ocNITkX5Dryxz2IyQ=;
+        s=default; t=1561520519;
+        bh=HRhRYnyHVM87LoR0ih2Jci+FMYcGNLH438ugNRmuhsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hqNgzF21gYwkcQbLGssTPjF8mTYdjfMEDekWUj6X0lX1P+l+9+j8YQ7NNxMzyecQ4
-         GZCo0pmEyYJ6XIdV1np2+skbzSJJLnoh5sAZtZZ1OjkOZ1U1psTHoXktnXMeTQmSUS
-         XZWpHGfGFE31Da2GQ3K5weaKbwHOW1GfO34gbWfQ=
+        b=qnWAYgcMqqGtymkAV1pm+wwJdalxFv3HdMepvGBqXbB+iCBKJATbbwiBHir2xH+FT
+         UDHAD8MzYcADcMmIYtAW7qz5NMnLP9CLXtHN5kDtR1zo9t7NbJrQrVqL45vOn6QbSB
+         ie87QM2ffLCEyUP3v4ZjZ+esH+D+xh3AkKhQe/MY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hsin-Yi Wang <hsinyi@chromium.org>, CK Hu <ck.hu@mediatek.com>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.1 17/51] drm/mediatek: call drm_atomic_helper_shutdown() when unbinding driver
-Date:   Tue, 25 Jun 2019 23:40:33 -0400
-Message-Id: <20190626034117.23247-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 18/51] drm/mediatek: clear num_pipes when unbind driver
+Date:   Tue, 25 Jun 2019 23:40:34 -0400
+Message-Id: <20190626034117.23247-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 References: <20190626034117.23247-1-sashal@kernel.org>
@@ -45,9 +45,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hsin-Yi Wang <hsinyi@chromium.org>
 
-[ Upstream commit cf49b24ffa62766f8f04cd1c4cf17b75d29b240a ]
+[ Upstream commit a4cd1d2b016d5d043ab2c4b9c4ec50a5805f5396 ]
 
-shutdown all CRTC when unbinding drm driver.
+num_pipes is used for mutex created in mtk_drm_crtc_create(). If we
+don't clear num_pipes count, when rebinding driver, the count will
+be accumulated. From mtk_disp_mutex_get(), there can only be at most
+10 mutex id. Clear this number so it starts from 0 in every rebind.
 
 Fixes: 119f5173628a ("drm/mediatek: Add DRM Driver for Mediatek SoC MT8173.")
 Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
@@ -58,17 +61,17 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-index e7362bdafa82..8718d123ccaa 100644
+index 8718d123ccaa..bbfe3a464aea 100644
 --- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
 +++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-@@ -311,6 +311,7 @@ static int mtk_drm_kms_init(struct drm_device *drm)
- static void mtk_drm_kms_deinit(struct drm_device *drm)
- {
- 	drm_kms_helper_poll_fini(drm);
-+	drm_atomic_helper_shutdown(drm);
+@@ -400,6 +400,7 @@ static void mtk_drm_unbind(struct device *dev)
+ 	drm_dev_unregister(private->drm);
+ 	mtk_drm_kms_deinit(private->drm);
+ 	drm_dev_put(private->drm);
++	private->num_pipes = 0;
+ 	private->drm = NULL;
+ }
  
- 	component_unbind_all(drm->dev, drm);
- 	drm_mode_config_cleanup(drm);
 -- 
 2.20.1
 
