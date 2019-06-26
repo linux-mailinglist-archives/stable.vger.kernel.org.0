@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBEF4560ED
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D63156085
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726898AbfFZDut (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:50:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52220 "EHLO mail.kernel.org"
+        id S1726892AbfFZDlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:41:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726819AbfFZDln (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:41:43 -0400
+        id S1726880AbfFZDlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:41:45 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFF8E2146E;
-        Wed, 26 Jun 2019 03:41:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6362F2168B;
+        Wed, 26 Jun 2019 03:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520502;
-        bh=trAJRYMsW7mYtFLtD9y9stdKjKGvaJ2zZufxV8nukII=;
+        s=default; t=1561520504;
+        bh=rhVLW5hBkjFRb9VPCj9+agroOiXlytsEqAo5ZrqBteM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kwGjzGsyXAaUemVjnRcuCvWCi27D99VUR29wO80XNgdeUutlwIi1mu6+j6n6wsh8t
-         nPglkifVcOryUJba9V1d1z5/817/PuCOYZhH9qAshXfw6jpCEDfpG0WSj3GuYGegJF
-         +EvHtNmmN5Ltm7ZddjFh4Blpep0zT/uneUxgIZTk=
+        b=HyHiRFwfQcYeSZJf5ZKGvWQrTk0IzbbfjLgKDxXeGGrGv6h61Uz6gNZPvoXsOni7d
+         SDV9s7kDnNfxU1QrtSHm/7GwZdEVnQTU79Lq3VaZv3c3oOCnHvNHdqQaMZeZ5JDjZg
+         Lnsl4v8LABC3AY5HTcTb7YpMGyAmggJ4LRJ4XUdI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Georgii Staroselskii <georgii.staroselskii@emlid.com>,
-        Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 11/51] ASoC: sun4i-codec: fix first delay on Speaker
-Date:   Tue, 25 Jun 2019 23:40:27 -0400
-Message-Id: <20190626034117.23247-11-sashal@kernel.org>
+Cc:     =?UTF-8?q?B=C5=82a=C5=BCej=20Szczygie=C5=82?= <spaz16@wp.pl>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 12/51] HID: a4tech: fix horizontal scrolling
+Date:   Tue, 25 Jun 2019 23:40:28 -0400
+Message-Id: <20190626034117.23247-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 References: <20190626034117.23247-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,55 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Georgii Staroselskii <georgii.staroselskii@emlid.com>
+From: Błażej Szczygieł <spaz16@wp.pl>
 
-[ Upstream commit 1f2675f6655838aaf910f911fd0abc821e3ff3df ]
+[ Upstream commit abf82e8f7e9af40a49e3d905187c662a43c96c8f ]
 
-Allwinner DAC seems to have a delay in the Speaker audio routing. When
-playing a sound for the first time, the sound gets chopped. On a second
-play the sound is played correctly. After some time (~5s) the issue gets
-back.
+Since recent high resolution scrolling changes the A4Tech driver must
+check for the "REL_WHEEL_HI_RES" usage code.
 
-This commit seems to be fixing the same issue as bf14da7 but
-for another codepath.
-
-This is the DTS that was used to debug the problem.
-
-&codec {
-        allwinner,pa-gpios = <&r_pio 0 11 GPIO_ACTIVE_HIGH>; /* PL11 */
-        allwinner,audio-routing =
-                "Speaker", "LINEOUT";
-
-        status = "okay";
-}
-
-Signed-off-by: Georgii Staroselskii <georgii.staroselskii@emlid.com>
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=203369
+Fixes: 2dc702c991e3774af9d7ce410eef410ca9e2357e ("HID: input: use the Resolution Multiplier for high-resolution scrolling")
+Signed-off-by: Błażej Szczygieł <spaz16@wp.pl>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sunxi/sun4i-codec.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/hid/hid-a4tech.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/sunxi/sun4i-codec.c b/sound/soc/sunxi/sun4i-codec.c
-index 15d08e343b47..28d2f7713f8d 100644
---- a/sound/soc/sunxi/sun4i-codec.c
-+++ b/sound/soc/sunxi/sun4i-codec.c
-@@ -1329,6 +1329,15 @@ static int sun4i_codec_spk_event(struct snd_soc_dapm_widget *w,
- 	gpiod_set_value_cansleep(scodec->gpio_pa,
- 				 !!SND_SOC_DAPM_EVENT_ON(event));
+diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
+index 9428ea7cdf8a..c3a6ce3613fe 100644
+--- a/drivers/hid/hid-a4tech.c
++++ b/drivers/hid/hid-a4tech.c
+@@ -38,8 +38,10 @@ static int a4_input_mapped(struct hid_device *hdev, struct hid_input *hi,
+ {
+ 	struct a4tech_sc *a4 = hid_get_drvdata(hdev);
  
-+	if (SND_SOC_DAPM_EVENT_ON(event)) {
-+		/*
-+		 * Need a delay to wait for DAC to push the data. 700ms seems
-+		 * to be the best compromise not to feel this delay while
-+		 * playing a sound.
-+		 */
-+		msleep(700);
+-	if (usage->type == EV_REL && usage->code == REL_WHEEL)
++	if (usage->type == EV_REL && usage->code == REL_WHEEL_HI_RES) {
+ 		set_bit(REL_HWHEEL, *bit);
++		set_bit(REL_HWHEEL_HI_RES, *bit);
 +	}
-+
- 	return 0;
- }
+ 
+ 	if ((a4->quirks & A4_2WHEEL_MOUSE_HACK_7) && usage->hid == 0x00090007)
+ 		return -1;
+@@ -60,7 +62,7 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 	input = field->hidinput->input;
+ 
+ 	if (a4->quirks & A4_2WHEEL_MOUSE_HACK_B8) {
+-		if (usage->type == EV_REL && usage->code == REL_WHEEL) {
++		if (usage->type == EV_REL && usage->code == REL_WHEEL_HI_RES) {
+ 			a4->delayed_value = value;
+ 			return 1;
+ 		}
+@@ -68,6 +70,8 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 		if (usage->hid == 0x000100b8) {
+ 			input_event(input, EV_REL, value ? REL_HWHEEL :
+ 					REL_WHEEL, a4->delayed_value);
++			input_event(input, EV_REL, value ? REL_HWHEEL_HI_RES :
++					REL_WHEEL_HI_RES, a4->delayed_value * 120);
+ 			return 1;
+ 		}
+ 	}
+@@ -77,8 +81,9 @@ static int a4_event(struct hid_device *hdev, struct hid_field *field,
+ 		return 1;
+ 	}
+ 
+-	if (usage->code == REL_WHEEL && a4->hw_wheel) {
++	if (usage->code == REL_WHEEL_HI_RES && a4->hw_wheel) {
+ 		input_event(input, usage->type, REL_HWHEEL, value);
++		input_event(input, usage->type, REL_HWHEEL_HI_RES, value * 120);
+ 		return 1;
+ 	}
  
 -- 
 2.20.1
