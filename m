@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5EDA560D9
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:53:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E538355FF2
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:44:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727187AbfFZDt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:49:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54992 "EHLO mail.kernel.org"
+        id S1727394AbfFZDnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:43:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726946AbfFZDnn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:43:43 -0400
+        id S1726969AbfFZDnp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:43:45 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-98.mobile.att.net [107.77.172.98])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E1692168B;
-        Wed, 26 Jun 2019 03:43:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37142205ED;
+        Wed, 26 Jun 2019 03:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520622;
-        bh=nnYynSGCi1MppCPfkSoj0fluPqsuvCwVVUsXQlsA094=;
+        s=default; t=1561520625;
+        bh=Lq68lLSaxopG34QtHV1LpCBzP7UEp0cuXx7y+JYFfKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RvYZHmBvnrRAYoeaPM8uGQpboec74K1oiPzhiZInPpMOMUEUUMUk9zG+jFGEyOQBM
-         rPRCy22/5cpJ0oOI01a8ZLrVqNPJ4UmZsk6sVoDjwUdqQSHXv00uQiTtUjDpGc2W4o
-         hQC11T4UMQUdW0wgslrv0bSUmKBP9xyxhP0r2uiU=
+        b=Io/qCXzrRl1W4XJ9lMOmCgluEQc/zMA5dhFezvd5ksgpxhh25JkQwZcziRwapO6LV
+         Kq0yGMvoQ40Anb4pPVt5mLZf2wEDyf9LrDcFEfe19TBrKmiKx80FImoaDES6VVX1L8
+         ILl0hM6aIqgrHE03P4vT60MN5iovVoEiycX0qB70=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Libin Yang <libin.yang@intel.com>, Mark Brown <broonie@kernel.org>,
+Cc:     Viorel Suman <viorel.suman@nxp.com>,
+        Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 03/34] ASoC: soc-pcm: BE dai needs prepare when pause release after resume
-Date:   Tue, 25 Jun 2019 23:43:04 -0400
-Message-Id: <20190626034335.23767-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 04/34] ASoC: ak4458: rstn_control - return a non-zero on error only
+Date:   Tue, 25 Jun 2019 23:43:05 -0400
+Message-Id: <20190626034335.23767-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034335.23767-1-sashal@kernel.org>
 References: <20190626034335.23767-1-sashal@kernel.org>
@@ -42,47 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Libin Yang <libin.yang@intel.com>
+From: Viorel Suman <viorel.suman@nxp.com>
 
-[ Upstream commit 5087a8f17df868601cd7568299e91c28086d2b45 ]
+[ Upstream commit 176a11834b65ec35e3b7a953f87fb9cc41309497 ]
 
-If playback/capture is paused and system enters S3, after system returns
-from suspend, BE dai needs to call prepare() callback when playback/capture
-is released from pause if RESUME_INFO flag is not set.
+snd_soc_component_update_bits() may return 1 if operation
+was successful and the value of the register changed.
+Return a non-zero in ak4458_rstn_control for an error only.
 
-Currently, the dpcm_be_dai_prepare() function will block calling prepare()
-if the pcm is in SND_SOC_DPCM_STATE_PAUSED state. This will cause the
-following test case fail if the pcm uses BE:
-
-playback -> pause -> S3 suspend -> S3 resume -> pause release
-
-The playback may exit abnormally when pause is released because the BE dai
-prepare() is not called.
-
-This patch allows dpcm_be_dai_prepare() to call dai prepare() callback in
-SND_SOC_DPCM_STATE_PAUSED state.
-
-Signed-off-by: Libin Yang <libin.yang@intel.com>
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Signed-off-by: Viorel Suman <viorel.suman@nxp.com>
+Reviewed-by: Daniel Baluta <daniel.baluta@nxp.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/codecs/ak4458.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 33060af18b5a..6566c8831a96 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -2451,7 +2451,8 @@ int dpcm_be_dai_prepare(struct snd_soc_pcm_runtime *fe, int stream)
+diff --git a/sound/soc/codecs/ak4458.c b/sound/soc/codecs/ak4458.c
+index 58b6ca1de993..3bd57c02e6fd 100644
+--- a/sound/soc/codecs/ak4458.c
++++ b/sound/soc/codecs/ak4458.c
+@@ -272,7 +272,10 @@ static int ak4458_rstn_control(struct snd_soc_component *component, int bit)
+ 					  AK4458_00_CONTROL1,
+ 					  AK4458_RSTN_MASK,
+ 					  0x0);
+-	return ret;
++	if (ret < 0)
++		return ret;
++
++	return 0;
+ }
  
- 		if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_HW_PARAMS) &&
- 		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP) &&
--		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND))
-+		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND) &&
-+		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
- 			continue;
- 
- 		dev_dbg(be->dev, "ASoC: prepare BE %s\n",
+ static int ak4458_hw_params(struct snd_pcm_substream *substream,
 -- 
 2.20.1
 
