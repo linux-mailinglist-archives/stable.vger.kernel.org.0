@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5840E56083
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CB1D55FB9
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726777AbfFZDlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52008 "EHLO mail.kernel.org"
+        id S1726845AbfFZDlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:41:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726819AbfFZDlg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:41:36 -0400
+        id S1726819AbfFZDlj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:41:39 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A8DB20659;
-        Wed, 26 Jun 2019 03:41:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F35F920659;
+        Wed, 26 Jun 2019 03:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520496;
-        bh=64UJjzoav9k81dLAz9IOwIUtcWqMXJ6obF0e8kbJoHA=;
+        s=default; t=1561520498;
+        bh=zBEPaQqOj3fGcLAaqSuufXrZfsGV2qN2uatpayqbZSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcXJy16xEfFAuU2UqNHz2mASdQ4aBI+aAs30PNp+iC2Cp5w5bUt59u2POHi62nzKk
-         aau0YgzNgGgms1Wl3+ZsQTN0bhZEIL3fG0KWPtB4bSLY9F6gmChEd+lNmLgeG52Yue
-         P5F9QTtm264vtD62UHK3m+SB+GKo4E2OkPHuGqxo=
+        b=L94tbbewMH46tmZ3rMBTEslETwZ8lNcVAmaQFJ/BeLY2jFWw0I2hkwMBzbvRkEFN/
+         M7pwZVTSUdDnqpcc/o40lLl5QBHnsva4DtzWf9CvlUzF9sMZPOFVlrymPn6XMhaRFc
+         iAYlgohaMqJBoQaQ1SW86DHZi9z8br7lcI8+Qysw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 08/51] ASoC: core: lock client_mutex while removing link components
-Date:   Tue, 25 Jun 2019 23:40:24 -0400
-Message-Id: <20190626034117.23247-8-sashal@kernel.org>
+Cc:     Dave Jiang <dave.jiang@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.1 09/51] iommu/vt-d: Fix lock inversion between iommu->lock and device_domain_lock
+Date:   Tue, 25 Jun 2019 23:40:25 -0400
+Message-Id: <20190626034117.23247-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 References: <20190626034117.23247-1-sashal@kernel.org>
@@ -43,41 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit 34ac3c3eb8f0c07252ceddf0a22dd240e5c91ccb ]
+[ Upstream commit 7560cc3ca7d9d11555f80c830544e463fcdb28b8 ]
 
-Removing link components results in topology unloading. So,
-acquire the client_mutex before removing components in
-soc_remove_link_components. This will prevent the lockdep warning
-seen when dai links are removed during topology removal.
+Lockdep debug reported lock inversion related with the iommu code
+caused by dmar_insert_one_dev_info() grabbing the iommu->lock and
+the device_domain_lock out of order versus the code path in
+iommu_flush_dev_iotlb(). Expanding the scope of the iommu->lock and
+reversing the order of lock acquisition fixes the issue.
 
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[   76.238180] dsa_bus wq0.0: dsa wq wq0.0 disabled
+[   76.248706]
+[   76.250486] ========================================================
+[   76.257113] WARNING: possible irq lock inversion dependency detected
+[   76.263736] 5.1.0-rc5+ #162 Not tainted
+[   76.267854] --------------------------------------------------------
+[   76.274485] systemd-journal/521 just changed the state of lock:
+[   76.280685] 0000000055b330f5 (device_domain_lock){..-.}, at: iommu_flush_dev_iotlb.part.63+0x29/0x90
+[   76.290099] but this lock took another, SOFTIRQ-unsafe lock in the past:
+[   76.297093]  (&(&iommu->lock)->rlock){+.+.}
+[   76.297094]
+[   76.297094]
+[   76.297094] and interrupts could create inverse lock ordering between them.
+[   76.297094]
+[   76.314257]
+[   76.314257] other info that might help us debug this:
+[   76.321448]  Possible interrupt unsafe locking scenario:
+[   76.321448]
+[   76.328907]        CPU0                    CPU1
+[   76.333777]        ----                    ----
+[   76.338642]   lock(&(&iommu->lock)->rlock);
+[   76.343165]                                local_irq_disable();
+[   76.349422]                                lock(device_domain_lock);
+[   76.356116]                                lock(&(&iommu->lock)->rlock);
+[   76.363154]   <Interrupt>
+[   76.366134]     lock(device_domain_lock);
+[   76.370548]
+[   76.370548]  *** DEADLOCK ***
+
+Fixes: 745f2586e78e ("iommu/vt-d: Simplify function get_domain_for_dev()")
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iommu/intel-iommu.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index a7b4fab92f26..a4668a788ed5 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -1008,12 +1008,14 @@ static void soc_remove_link_components(struct snd_soc_card *card,
- 	struct snd_soc_component *component;
- 	struct snd_soc_rtdcom_list *rtdcom;
- 
-+	mutex_lock(&client_mutex);
- 	for_each_rtdcom(rtd, rtdcom) {
- 		component = rtdcom->component;
- 
- 		if (component->driver->remove_order == order)
- 			soc_remove_component(component);
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 0feb3f70da16..c82d5f1bd306 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -2509,6 +2509,7 @@ static struct dmar_domain *dmar_insert_one_dev_info(struct intel_iommu *iommu,
+ 		}
  	}
-+	mutex_unlock(&client_mutex);
- }
  
- static void soc_remove_dai_links(struct snd_soc_card *card)
++	spin_lock(&iommu->lock);
+ 	spin_lock_irqsave(&device_domain_lock, flags);
+ 	if (dev)
+ 		found = find_domain(dev);
+@@ -2524,17 +2525,16 @@ static struct dmar_domain *dmar_insert_one_dev_info(struct intel_iommu *iommu,
+ 
+ 	if (found) {
+ 		spin_unlock_irqrestore(&device_domain_lock, flags);
++		spin_unlock(&iommu->lock);
+ 		free_devinfo_mem(info);
+ 		/* Caller must free the original domain */
+ 		return found;
+ 	}
+ 
+-	spin_lock(&iommu->lock);
+ 	ret = domain_attach_iommu(domain, iommu);
+-	spin_unlock(&iommu->lock);
+-
+ 	if (ret) {
+ 		spin_unlock_irqrestore(&device_domain_lock, flags);
++		spin_unlock(&iommu->lock);
+ 		free_devinfo_mem(info);
+ 		return NULL;
+ 	}
+@@ -2544,6 +2544,7 @@ static struct dmar_domain *dmar_insert_one_dev_info(struct intel_iommu *iommu,
+ 	if (dev)
+ 		dev->archdata.iommu = info;
+ 	spin_unlock_irqrestore(&device_domain_lock, flags);
++	spin_unlock(&iommu->lock);
+ 
+ 	/* PASID table is mandatory for a PCI device in scalable mode. */
+ 	if (dev && dev_is_pci(dev) && sm_supported(iommu)) {
 -- 
 2.20.1
 
