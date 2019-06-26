@@ -2,150 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AEAD5649F
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 10:30:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 502ED564D0
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 10:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726042AbfFZIaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 04:30:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59010 "EHLO mail.kernel.org"
+        id S1726077AbfFZIpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 04:45:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725954AbfFZIaK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 04:30:10 -0400
+        id S1725379AbfFZIpi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 04:45:38 -0400
 Received: from localhost (unknown [116.247.127.123])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E3FD20663;
-        Wed, 26 Jun 2019 08:30:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EBFC20663;
+        Wed, 26 Jun 2019 08:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561537806;
-        bh=tpb3VXIb8UGhuIQq5b+Be59M+/NHchGUHTOJBu2ig1M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VY42fwMNhZXE5HnZxRUkQm1fiU1vi2RiGnpuZQ7fPrBtuW5/5Klo5ZSjzDzOOOgV6
-         XnYvnJPfWTIp028qmnlrgkaSDQ4U0rXamjD/QMSOZvlTFnnI11tU8PQJqXmELrt94m
-         tjTwWr/BgZvIM17sRUg7iglrQhuUhMP1LU9eCE6U=
-Date:   Wed, 26 Jun 2019 16:29:53 +0800
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Josh Hunt <johunt@akamai.com>
-Cc:     Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        stable@vger.kernel.org, jbaron@akamai.com
-Subject: Re: [PATCH 4.14] tcp: refine memory limit test in tcp_fragment()
-Message-ID: <20190626082953.GA10789@kroah.com>
-References: <1561483177-30254-1-git-send-email-johunt@akamai.com>
- <20190625202626.GD7898@sasha-vm>
- <4c6d6697-b629-243c-824b-8080ee1e1635@akamai.com>
- <20190625221821.GA17994@kroah.com>
- <7282e627-edd6-51cb-ad9d-d9f34b2e9628@akamai.com>
- <20190626004846.GA21530@kroah.com>
+        s=default; t=1561538737;
+        bh=jvsZqjEQnASdRxZOr3zO9LWRe/Px8twmY6fib3BKxVw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=mBZg3DinbEV2ocovpkySsP0MS+Prmzo2SgUL2iQznltoVocJWxqJ6cNfE/UQ0trQL
+         6YHvl7XXP0KWpiEu6xEWGViJsBwvH1teSgPWZSMrP7G7xVCIa/QyLFDfOByFmQtAp2
+         srUjeS0svWpdKgFkarlR21jsxqx60yppeVQxvDR4=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.4 0/1] 4.4.184-stable review
+Date:   Wed, 26 Jun 2019 16:45:04 +0800
+Message-Id: <20190626083604.894288021@linuxfoundation.org>
+X-Mailer: git-send-email 2.22.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190626004846.GA21530@kroah.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.184-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.184-rc1
+X-KernelTest-Deadline: 2019-06-28T08:36+00:00
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 26, 2019 at 08:48:46AM +0800, Greg KH wrote:
-> On Tue, Jun 25, 2019 at 03:49:33PM -0700, Josh Hunt wrote:
-> > On 6/25/19 3:18 PM, Greg KH wrote:
-> > > On Tue, Jun 25, 2019 at 01:29:35PM -0700, Josh Hunt wrote:
-> > > > On 6/25/19 1:26 PM, Sasha Levin wrote:
-> > > > > On Tue, Jun 25, 2019 at 01:19:37PM -0400, Josh Hunt wrote:
-> > > > > > Backport of dad3a9314ac95dedc007bc7dacacb396ea10e376:
-> > > > > 
-> > > > > You probably meant b6653b3629e5b88202be3c9abc44713973f5c4b4 here.
-> > > > 
-> > > > I wasn't sure if I should reference the upstream commit or stable commit.
-> > > 
-> > > The upstream commit please.
-> > 
-> > Thanks. I'll fix for next version.
-> > 
-> > > 
-> > > > dad3a9314 is the version of the commit from linux-4.14.y. There may be a
-> > > > similar issue with the Fixes tag below since that also references the 4.14
-> > > > vers of the change.
-> > > > 
-> > > > > 
-> > > > > > tcp_fragment() might be called for skbs in the write queue.
-> > > > > > 
-> > > > > > Memory limits might have been exceeded because tcp_sendmsg() only
-> > > > > > checks limits at full skb (64KB) boundaries.
-> > > > > > 
-> > > > > > Therefore, we need to make sure tcp_fragment() wont punish applications
-> > > > > > that might have setup very low SO_SNDBUF values.
-> > > > > > 
-> > > > > > Backport notes:
-> > > > > > Initial version used tcp_queue type which is not present in older
-> > > > > > kernels,
-> > > > > > so added a new arg to tcp_fragment() to determine whether this is a
-> > > > > > retransmit or not.
-> > > > > > 
-> > > > > > Fixes: 9daf226ff926 ("tcp: tcp_fragment() should apply sane memory
-> > > > > > limits")
-> > > > > > Signed-off-by: Josh Hunt <johunt@akamai.com>
-> > > > > > Reviewed-by: Jason Baron <jbaron@akamai.com>
-> > > > > > ---
-> > > > > > 
-> > > > > > Eric/Greg - This applies on top of v4.14.130. I did not see anything come
-> > > > > > through for the older (<4.19) stable kernels yet. Without this change
-> > > > > > Christoph Paasch's packetrill script (https://lore.kernel.org/netdev/CALMXkpYVRxgeqarp4gnmX7GqYh1sWOAt6UaRFqYBOaaNFfZ5sw@mail.gmail.com/)
-> > > > > > 
-> > > > > > will fail on 4.14 stable kernels, but passes with this change.
-> > > > > 
-> > > > > Eric, it would be great if you could Ack this, it's very different from
-> > > > > your original patch.
-> > > > 
-> > > > Yes, that would be great.
-> > > 
-> > > I would prefer if this looks a bit more like the upstream fix, perhaps a
-> > > backport of the function that added the "direction" of the packet first,
-> > > and then Eric's patch?  As it is, this patch adds a different parameter
-> > > to the function than what is in Linus's tree, and I bet will cause
-> > > problems at some later point in time.
-> > 
-> > The commit which introduced the fn arguments is part of a much larger change
-> > that created a separate rb-tree for the retransmit queue:
-> > 
-> > commit 75c119afe14f74b4dd967d75ed9f57ab6c0ef045
-> > Author: Eric Dumazet <edumazet@google.com>
-> > Date:   Thu Oct 5 22:21:27 2017 -0700
-> > 
-> >     tcp: implement rb-tree based retransmit queue
-> > 
-> > I can backport the portion of this change which basically does this:
-> > 
-> > +enum tcp_queue {
-> > +       TCP_FRAG_IN_WRITE_QUEUE,
-> > +       TCP_FRAG_IN_RTX_QUEUE,
-> > +};
-> > +int tcp_fragment(struct sock *sk, enum tcp_queue tcp_queue,
-> > +                struct sk_buff *skb, u32 len,
-> > +                unsigned int mss_now, gfp_t gfp);
-> > 
-> > and the corresponding call-sites of tcp_fragment(). If we do that then
-> > Eric's fix (b6653b3629e5b88202be3c9abc44713973f5c4b4) should apply cleanly
-> > on top of linux-4.14.y. I'm happy to do that if you'd rather go that route.
-> 
-> Yes, that is what I was thinking of, thanks.  You expressed it much
-> better than I could have before my morning coffee :)
-> 
-> > If you want the full rb-tree change into 4.14 then I would defer that to
-> > Eric, but would argue that IMHO is probably too invasive of a change for a
-> > LTS kernel.
-> 
-> No, I don't think we should do that work for 4.14.
-> 
-> Also, your change would be suitable for backporting to the older stable
-> kernels that also need this (4.9.y and 4.4.y.)
+This is the start of the stable review cycle for the 4.4.184 release.
+There are 1 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Nevermind with this, in another email thread Eric provided a simpler
-patch which I have now just queued up to the stable kernel trees.
+Responses should be made by Fri 28 Jun 2019 08:35:42 AM UTC.
+Anything received after that time might be too late.
 
-I'll probably just do a quick round of review/releases now for this
-issue as people are hitting it already.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.184-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
 thanks,
 
 greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.184-rc1
+
+Eric Dumazet <edumazet@google.com>
+    tcp: refine memory limit test in tcp_fragment()
+
+
+-------------
+
+Diffstat:
+
+ Makefile              | 4 ++--
+ net/ipv4/tcp_output.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+
