@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BD2C560EC
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EFCE55FDC
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 05:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727131AbfFZDuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jun 2019 23:50:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53708 "EHLO mail.kernel.org"
+        id S1726681AbfFZDms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jun 2019 23:42:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727158AbfFZDmp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jun 2019 23:42:45 -0400
+        id S1727168AbfFZDmq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 Jun 2019 23:42:46 -0400
 Received: from sasha-vm.mshome.net (mobile-107-77-172-74.mobile.att.net [107.77.172.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0EAC205ED;
-        Wed, 26 Jun 2019 03:42:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B0E72147A;
+        Wed, 26 Jun 2019 03:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561520564;
-        bh=AarvZG2NZ422+D4FObF+VfCAtcqlVfY3f9aW0cHglZ8=;
+        s=default; t=1561520565;
+        bh=oEKTGtKAmDrp8J0H+rxtRfGHW5GodEDDpVgWvfDwCe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EqUJ9GEaAabHGvakQgZngp2sMeqR0X3sHPALu0je+UcIBqOlMWWsKc1+G7Zox3S1w
-         zH7C/wQyCQCTaGh5crwGJx/1pZlHydUJUvQH6Lh5xfuzqcRQ5bw9N4JhidxQ2QnGfU
-         pF8B4q2mZt7CRn4HHCKIvLXAjEG6O2pKooRbm/34=
+        b=nYhNeNv2Rhoeg083igXz5RhnQ+tt3rxBft9ANYMK/m7u7kil8fdisQOiRPxWRTE55
+         ajxL9OloUNkSRqftjcGdHFlnXO3ft0bv7VC5M2aVj/AwNluvwbLzmJh5PzA9wgFFYD
+         qII1TJKfDLKaYVfoANyn5d7Nh/OHjya8NRF0GSpk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+Cc:     Tzung-Bi Shih <tzungbi@google.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 30/51] ASoC: Intel: cht_bsw_rt5672: fix kernel oops with platform_name override
-Date:   Tue, 25 Jun 2019 23:40:46 -0400
-Message-Id: <20190626034117.23247-30-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 31/51] ASoC: core: move DAI pre-links initiation to snd_soc_instantiate_card
+Date:   Tue, 25 Jun 2019 23:40:47 -0400
+Message-Id: <20190626034117.23247-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 References: <20190626034117.23247-1-sashal@kernel.org>
@@ -43,42 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit 9bbc799318a34061703f2a980e2b6df7fc6760f0 ]
+[ Upstream commit 70fc53734e71ce51f46dfcfd1a1c319e1cfe080c ]
 
-The platform override code uses devm_ functions to allocate memory for
-the new name but the card device is not initialized. Fix by moving the
-init earlier.
+Kernel crashes when an ASoC component rebinding.
 
-Fixes: f403906da05cd ("ASoC: Intel: cht_bsw_rt5672: platform name fixup support")
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+The dai_link->platforms has been reset to NULL by soc_cleanup_platform()
+in soc_cleanup_card_resources() when un-registering component.  However,
+it has no chance to re-allocate the dai_link->platforms when registering
+the component again.
+
+Move the DAI pre-links initiation from snd_soc_register_card() to
+snd_soc_instantiate_card() to make sure all DAI pre-links get initiated
+when component rebinding.
+
+As an example, by using the following commands:
+- echo -n max98357a > /sys/bus/platform/drivers/max98357a/unbind
+- echo -n max98357a > /sys/bus/platform/drivers/max98357a/bind
+
+Got the error message:
+"Unable to handle kernel NULL pointer dereference at virtual address".
+
+The call trace:
+snd_soc_is_matching_component+0x30/0x6c
+soc_bind_dai_link+0x16c/0x240
+snd_soc_bind_card+0x1e4/0xb10
+snd_soc_add_component+0x270/0x300
+snd_soc_register_component+0x54/0x6c
+
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/cht_bsw_rt5672.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-core.c | 27 ++++++++++-----------------
+ 1 file changed, 10 insertions(+), 17 deletions(-)
 
-diff --git a/sound/soc/intel/boards/cht_bsw_rt5672.c b/sound/soc/intel/boards/cht_bsw_rt5672.c
-index 3d5a2b3a06f0..87ce3857376d 100644
---- a/sound/soc/intel/boards/cht_bsw_rt5672.c
-+++ b/sound/soc/intel/boards/cht_bsw_rt5672.c
-@@ -425,6 +425,7 @@ static int snd_cht_mc_probe(struct platform_device *pdev)
- 	}
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index a4668a788ed5..9df3bdeb5c47 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -2069,6 +2069,16 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
+ 	int ret, i, order;
  
- 	/* override plaform name, if required */
-+	snd_soc_card_cht.dev = &pdev->dev;
- 	platform_name = mach->mach_params.platform;
+ 	mutex_lock(&client_mutex);
++	for_each_card_prelinks(card, i, dai_link) {
++		ret = soc_init_dai_link(card, dai_link);
++		if (ret) {
++			soc_cleanup_platform(card);
++			dev_err(card->dev, "ASoC: failed to init link %s: %d\n",
++				dai_link->name, ret);
++			mutex_unlock(&client_mutex);
++			return ret;
++		}
++	}
+ 	mutex_lock_nested(&card->mutex, SND_SOC_CARD_CLASS_INIT);
  
- 	ret_val = snd_soc_fixup_dai_links_platform_name(&snd_soc_card_cht,
-@@ -442,7 +443,6 @@ static int snd_cht_mc_probe(struct platform_device *pdev)
- 	snd_soc_card_set_drvdata(&snd_soc_card_cht, drv);
+ 	card->dapm.bias_level = SND_SOC_BIAS_OFF;
+@@ -2793,26 +2803,9 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
+  */
+ int snd_soc_register_card(struct snd_soc_card *card)
+ {
+-	int i, ret;
+-	struct snd_soc_dai_link *link;
+-
+ 	if (!card->name || !card->dev)
+ 		return -EINVAL;
  
- 	/* register the soc card */
--	snd_soc_card_cht.dev = &pdev->dev;
- 	ret_val = devm_snd_soc_register_card(&pdev->dev, &snd_soc_card_cht);
- 	if (ret_val) {
- 		dev_err(&pdev->dev,
+-	mutex_lock(&client_mutex);
+-	for_each_card_prelinks(card, i, link) {
+-
+-		ret = soc_init_dai_link(card, link);
+-		if (ret) {
+-			soc_cleanup_platform(card);
+-			dev_err(card->dev, "ASoC: failed to init link %s\n",
+-				link->name);
+-			mutex_unlock(&client_mutex);
+-			return ret;
+-		}
+-	}
+-	mutex_unlock(&client_mutex);
+-
+ 	dev_set_drvdata(card->dev, card);
+ 
+ 	snd_soc_initialize_card_lists(card);
 -- 
 2.20.1
 
