@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6880C56A39
-	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 15:18:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9692B56A4D
+	for <lists+stable@lfdr.de>; Wed, 26 Jun 2019 15:23:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726984AbfFZNSw convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 26 Jun 2019 09:18:52 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:36296 "EHLO mx1.redhat.com"
+        id S1726984AbfFZNXZ convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 26 Jun 2019 09:23:25 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:56320 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726599AbfFZNSw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 09:18:52 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        id S1726157AbfFZNXY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 09:23:24 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id A3EE419CF7B
-        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 13:18:51 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 634CB308FF00
+        for <stable@vger.kernel.org>; Wed, 26 Jun 2019 13:23:24 +0000 (UTC)
 Received: from [172.54.58.4] (cpt-1026.paas.prod.upshift.rdu2.redhat.com [10.0.19.53])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id CD07F5C205;
-        Wed, 26 Jun 2019 13:18:48 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1BED819739;
+        Wed, 26 Jun 2019 13:23:21 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.1.16-rc1-c152bcb.cki
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 4.19.57-rc1-ba8d1b7.cki
  (stable)
-Message-ID: <cki.30E29258A8.W8GSHILN8N@redhat.com>
-X-Gitlab-Pipeline-ID: 13264
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Wed, 26 Jun 2019 13:18:51 +0000 (UTC)
-Date:   Wed, 26 Jun 2019 09:18:52 -0400
+Message-ID: <cki.C49BB8386D.981YLTIMLD@redhat.com>
+X-Gitlab-Pipeline-ID: 13265
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Wed, 26 Jun 2019 13:23:24 +0000 (UTC)
+Date:   Wed, 26 Jun 2019 09:23:24 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -41,7 +41,7 @@ Hello,
 We ran automated tests on a recent commit from this kernel tree:
 
        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: c152bcbd620b - Linux 5.1.16-rc1
+            Commit: ba8d1b75298c - Linux 4.19.57-rc1
 
 The results of these automated tests are provided below.
 
@@ -68,23 +68,23 @@ We compiled the kernel for 4 architectures:
 
   aarch64:
     build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-c152bcbd620b0ed02448a2b1d198feadebe58374.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-c152bcbd620b0ed02448a2b1d198feadebe58374.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-ba8d1b75298c25449b5958a0b763d9b88fe1981e.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-ba8d1b75298c25449b5958a0b763d9b88fe1981e.tar.gz
 
   ppc64le:
     build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-c152bcbd620b0ed02448a2b1d198feadebe58374.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-c152bcbd620b0ed02448a2b1d198feadebe58374.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-ba8d1b75298c25449b5958a0b763d9b88fe1981e.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-ba8d1b75298c25449b5958a0b763d9b88fe1981e.tar.gz
 
   s390x:
     build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-c152bcbd620b0ed02448a2b1d198feadebe58374.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-c152bcbd620b0ed02448a2b1d198feadebe58374.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-ba8d1b75298c25449b5958a0b763d9b88fe1981e.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-ba8d1b75298c25449b5958a0b763d9b88fe1981e.tar.gz
 
   x86_64:
     build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-c152bcbd620b0ed02448a2b1d198feadebe58374.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-c152bcbd620b0ed02448a2b1d198feadebe58374.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-ba8d1b75298c25449b5958a0b763d9b88fe1981e.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-ba8d1b75298c25449b5958a0b763d9b88fe1981e.tar.gz
 
 
 Hardware testing
@@ -135,6 +135,12 @@ We booted each kernel and ran the following tests:
   ppc64le:
     Host 1:
        ✅ Boot test [0]
+       ✅ xfstests: ext4 [1]
+       ✅ xfstests: xfs [1]
+       ✅ selinux-policy: serge-testsuite [2]
+
+    Host 2:
+       ✅ Boot test [0]
        ✅ LTP lite [3]
        ✅ Loopdev Sanity [4]
        ✅ Memory function: memfd_create [5]
@@ -162,15 +168,13 @@ We booted each kernel and ran the following tests:
        🚧 ✅ storage: software RAID testing [28]
        🚧 ✅ Libhugetlbfs - version 2.2.1 [29]
 
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [1]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
 
   s390x:
     Host 1:
+       ✅ Boot test [0]
+       ✅ kdump: sysrq-c [30]
+
+    Host 2:
        ✅ Boot test [0]
        ✅ LTP lite [3]
        ✅ Loopdev Sanity [4]
@@ -198,27 +202,13 @@ We booted each kernel and ran the following tests:
        🚧 ✅ tuned: tune-processes-through-perf [26]
        🚧 ✅ storage: software RAID testing [28]
 
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [2]
-
     Host 3:
        ✅ Boot test [0]
-       ✅ kdump: sysrq-c [30]
+       ✅ selinux-policy: serge-testsuite [2]
 
 
   x86_64:
     Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [1]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ kdump: sysrq-c [30]
-
-    Host 3:
        ✅ Boot test [0]
        ✅ LTP lite [3]
        ✅ Loopdev Sanity [4]
@@ -249,6 +239,16 @@ We booted each kernel and ran the following tests:
        🚧 ✅ storage: SCSI VPD [27]
        🚧 ✅ storage: software RAID testing [28]
        🚧 ✅ Libhugetlbfs - version 2.2.1 [29]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ xfstests: ext4 [1]
+       ✅ xfstests: xfs [1]
+       ✅ selinux-policy: serge-testsuite [2]
+
+    Host 3:
+       ✅ Boot test [0]
+       ✅ kdump: sysrq-c [30]
 
 
   Test source:
