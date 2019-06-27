@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94AEF576FD
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EE4F576FF
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729712AbfF0Am0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:42:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46246 "EHLO mail.kernel.org"
+        id S1729720AbfF0Am3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:42:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727524AbfF0AmZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:42:25 -0400
+        id S1729722AbfF0Am3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:42:29 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1F9921883;
-        Thu, 27 Jun 2019 00:42:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CBEE205ED;
+        Thu, 27 Jun 2019 00:42:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561596144;
-        bh=JaYyVc6kmvJ/E94/JPIGEcZAKmF3YzUOeI2OXslNRIE=;
+        s=default; t=1561596148;
+        bh=eLmJ0MunBZrCkh4WprqPh2eUFcE7ufq0sKoh+UC+SDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MBDuLcEiggMMf5RhtDzKBqLOdduc9InMBLJAaTPeS1jKFL3rmKByZGLfb8jyR6VRV
-         uyONJOxfrkMEyx1UeswtT8PvjTcZRoL35IUITW2+T3tHTp1G/TALyGbQMNRUHlxbtT
-         Xl0i0yIshXIOLCE3HLCnHjnUiLKS5jr5i8FA6Rfs=
+        b=tzX2Q701IziX0jfnD05ADcwu4sExYdlFoja+EewY0jSeEDisP2MUINEfIakbMqQiV
+         HkqOgnlVHQseBtiiVvZEQ9VtyZxsbpXmjXqEpXl3lUuwsHXM+bl+0Fted5ssvQpvHK
+         hB+5SAqVHhy8AqIEF2VaLLsjAPO+12PdgHHM21ls=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 18/21] md: fix for divide error in status_resync
-Date:   Wed, 26 Jun 2019 20:41:18 -0400
-Message-Id: <20190627004122.21671-18-sashal@kernel.org>
+Cc:     "Mauro S. M. Rodrigues" <maurosr@linux.vnet.ibm.com>,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 19/21] bnx2x: Check if transceiver implements DDM before access
+Date:   Wed, 26 Jun 2019 20:41:19 -0400
+Message-Id: <20190627004122.21671-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627004122.21671-1-sashal@kernel.org>
 References: <20190627004122.21671-1-sashal@kernel.org>
@@ -43,90 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>
+From: "Mauro S. M. Rodrigues" <maurosr@linux.vnet.ibm.com>
 
-[ Upstream commit 9642fa73d073527b0cbc337cc17a47d545d82cd2 ]
+[ Upstream commit cf18cecca911c0db96b868072665347efe6df46f ]
 
-Stopping external metadata arrays during resync/recovery causes
-retries, loop of interrupting and starting reconstruction, until it
-hit at good moment to stop completely. While these retries
-curr_mark_cnt can be small- especially on HDD drives, so subtraction
-result can be smaller than 0. However it is casted to uint without
-checking. As a result of it the status bar in /proc/mdstat while stopping
-is strange (it jumps between 0% and 99%).
+Some transceivers may comply with SFF-8472 even though they do not
+implement the Digital Diagnostic Monitoring (DDM) interface described in
+the spec. The existence of such area is specified by the 6th bit of byte
+92, set to 1 if implemented.
 
-The real problem occurs here after commit 72deb455b5ec ("block: remove
-CONFIG_LBDAF"). Sector_div() macro has been changed, now the
-divisor is casted to uint32. For db = -8 the divisior(db/32-1) becomes 0.
+Currently, without checking this bit, bnx2x fails trying to read sfp
+module's EEPROM with the follow message:
 
-Check if db value can be really counted and replace these macro by
-div64_u64() inline.
+ethtool -m enP5p1s0f1
+Cannot get Module EEPROM data: Input/output error
 
-Signed-off-by: Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Because it fails to read the additional 256 bytes in which it is assumed
+to exist the DDM data.
+
+This issue was noticed using a Mellanox Passive DAC PN 01FT738. The EEPROM
+data was confirmed by Mellanox as correct and similar to other Passive
+DACs from other manufacturers.
+
+Signed-off-by: Mauro S. M. Rodrigues <maurosr@linux.vnet.ibm.com>
+Acked-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 36 ++++++++++++++++++++++--------------
- 1 file changed, 22 insertions(+), 14 deletions(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c | 3 ++-
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.h    | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 21698eb671d7..765a16dab2e5 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -7296,9 +7296,9 @@ static void status_unused(struct seq_file *seq)
- static int status_resync(struct seq_file *seq, struct mddev *mddev)
- {
- 	sector_t max_sectors, resync, res;
--	unsigned long dt, db;
--	sector_t rt;
--	int scale;
-+	unsigned long dt, db = 0;
-+	sector_t rt, curr_mark_cnt, resync_mark_cnt;
-+	int scale, recovery_active;
- 	unsigned int per_milli;
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
+index 8aecd8ef6542..15a0850e6bde 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
+@@ -1562,7 +1562,8 @@ static int bnx2x_get_module_info(struct net_device *dev,
+ 	}
  
- 	if (test_bit(MD_RECOVERY_SYNC, &mddev->recovery) ||
-@@ -7368,22 +7368,30 @@ static int status_resync(struct seq_file *seq, struct mddev *mddev)
- 	 * db: blocks written from mark until now
- 	 * rt: remaining time
- 	 *
--	 * rt is a sector_t, so could be 32bit or 64bit.
--	 * So we divide before multiply in case it is 32bit and close
--	 * to the limit.
--	 * We scale the divisor (db) by 32 to avoid losing precision
--	 * near the end of resync when the number of remaining sectors
--	 * is close to 'db'.
--	 * We then divide rt by 32 after multiplying by db to compensate.
--	 * The '+1' avoids division by zero if db is very small.
-+	 * rt is a sector_t, which is always 64bit now. We are keeping
-+	 * the original algorithm, but it is not really necessary.
-+	 *
-+	 * Original algorithm:
-+	 *   So we divide before multiply in case it is 32bit and close
-+	 *   to the limit.
-+	 *   We scale the divisor (db) by 32 to avoid losing precision
-+	 *   near the end of resync when the number of remaining sectors
-+	 *   is close to 'db'.
-+	 *   We then divide rt by 32 after multiplying by db to compensate.
-+	 *   The '+1' avoids division by zero if db is very small.
- 	 */
- 	dt = ((jiffies - mddev->resync_mark) / HZ);
- 	if (!dt) dt++;
--	db = (mddev->curr_mark_cnt - atomic_read(&mddev->recovery_active))
--		- mddev->resync_mark_cnt;
-+
-+	curr_mark_cnt = mddev->curr_mark_cnt;
-+	recovery_active = atomic_read(&mddev->recovery_active);
-+	resync_mark_cnt = mddev->resync_mark_cnt;
-+
-+	if (curr_mark_cnt >= (recovery_active + resync_mark_cnt))
-+		db = curr_mark_cnt - (recovery_active + resync_mark_cnt);
- 
- 	rt = max_sectors - resync;    /* number of remaining sectors */
--	sector_div(rt, db/32+1);
-+	rt = div64_u64(rt, db/32+1);
- 	rt *= dt;
- 	rt >>= 5;
+ 	if (!sff8472_comp ||
+-	    (diag_type & SFP_EEPROM_DIAG_ADDR_CHANGE_REQ)) {
++	    (diag_type & SFP_EEPROM_DIAG_ADDR_CHANGE_REQ) ||
++	    !(diag_type & SFP_EEPROM_DDM_IMPLEMENTED)) {
+ 		modinfo->type = ETH_MODULE_SFF_8079;
+ 		modinfo->eeprom_len = ETH_MODULE_SFF_8079_LEN;
+ 	} else {
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.h b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.h
+index b7d251108c19..7115f5025664 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.h
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.h
+@@ -62,6 +62,7 @@
+ #define SFP_EEPROM_DIAG_TYPE_ADDR		0x5c
+ #define SFP_EEPROM_DIAG_TYPE_SIZE		1
+ #define SFP_EEPROM_DIAG_ADDR_CHANGE_REQ		(1<<2)
++#define SFP_EEPROM_DDM_IMPLEMENTED		(1<<6)
+ #define SFP_EEPROM_SFF_8472_COMP_ADDR		0x5e
+ #define SFP_EEPROM_SFF_8472_COMP_SIZE		1
  
 -- 
 2.20.1
