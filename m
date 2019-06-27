@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0376A58C04
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 22:52:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC7F558C06
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 22:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726443AbfF0Uws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jun 2019 16:52:48 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:36519 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726465AbfF0Uwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jun 2019 16:52:47 -0400
-Received: by mail-pg1-f194.google.com with SMTP id c13so1552660pgg.3
-        for <stable@vger.kernel.org>; Thu, 27 Jun 2019 13:52:47 -0700 (PDT)
+        id S1726502AbfF0Uwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jun 2019 16:52:49 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:46967 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726465AbfF0Uwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jun 2019 16:52:49 -0400
+Received: by mail-pf1-f196.google.com with SMTP id 81so1796565pfy.13
+        for <stable@vger.kernel.org>; Thu, 27 Jun 2019 13:52:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=XDEati5AnmeIwG/gbfDq9Iz0JoFW4jKO9V1cvoJDwbs=;
-        b=zj0cwyUJjc4490ScZRzBvv+fzHqbH+UoOGU6jOcMpp/NPafDKPGu0mfwwyGL4NSL8I
-         aMuqyYlFFw9hV/Tss88XvbIqvsWoMbtRYuVkVP4a9rizV4aFKNqFOlvcBzfSxY3xN9ju
-         ZTwyS0G/f1RnzSE9HsvPDQqJ1rJONC2miE/fcQbIfSkeLp8su0LErsR0MyIx0L1MT1AG
-         c4yPv868SisEcCj0GjZXCdDrsh3uMv6BL5bkm+ysWAsuHWt0FGxkx83qr5i/E5AMhCsD
-         DDE0VqI9oDz8T6cm6Anj3W+1CKy+btKOSUMnEPyRlkMBNO+Zk4cEU3Q5pNPWgCaRul+C
-         FRew==
+        bh=4Ag3DptOQlKFvwhPzNLWrHIQu/RujtBlVJPxwQgjUZ4=;
+        b=xHiJhrSX+JSre8rOd6Cct+h18tuOFNpJtHqH//2drv/WJrQ6DlvS6OjN+XkAzsSJ7p
+         5PGrfaHh8wCqeYYjfEkBEyoMNJv9B2jxgxogc8EE5RgIoDIweZHyEUI6gQjx7oNCB33d
+         BRxXXO1g6O8f9BZu9HY400wvD7gnICKH88EKc4tLwdhBfBGXqTGbPNjEvl2jzw8fhYZQ
+         /OCY8sLnUW6bsKHR/pgTJwJGLXMUu2MkuHeSG0XygFeBU7INB584rv6oPHJH5hsjNu32
+         zec75NOMp0HZM9oEmfWX2KCFQAYgAXO5A9eGXCOT2pokFSMya5iYtzOCkmro7ugBtjnU
+         5zrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=XDEati5AnmeIwG/gbfDq9Iz0JoFW4jKO9V1cvoJDwbs=;
-        b=rj4YMngOLjqECP7I2lxkMgpt0K4GX18JFvbXPi7Pd3HPu+uTvwFoojq0Df3r6iSKlE
-         uKAhvGPbyF518Ne6H8actiwm/lIKFhvWtl8gLw3XBTAmVdLibLUafE3gX1Rxoap6J47m
-         iTjkaMXcFOoyC4IpR5SrrJ54VIARJhjEKV1EXgjdfXc0re2bMK+y/d7gS8S7Scg4WjFE
-         xzPoQM00JfVc4CJm1up+hKrGNNEPv2vxAUgiuO9Qk9l9lLP/eFzsRqUC/iUpxbqgDGN8
-         4Z1N4BILKY+VH7l8JWbW30hll1kyoHPxwLr+m1meLu1QzegRsoWJhcRIoo9YDECYL0pG
-         pChg==
-X-Gm-Message-State: APjAAAXpCYfYfkVU2mXPin8ZERZmPSdHDhqPtSd6FX7PnntASmEAVwYl
-        fNs3ZUGMTU+zo1gKl15/D4/HzVglGlk=
-X-Google-Smtp-Source: APXvYqw2DIFNltOk0pMfuDdIDROXrYNXCaXcRvY6zoErZhyNm0BDHfPoUZrYtANNsXav9qIru1U82g==
-X-Received: by 2002:a17:90a:2228:: with SMTP id c37mr8570819pje.9.1561668766064;
-        Thu, 27 Jun 2019 13:52:46 -0700 (PDT)
+        bh=4Ag3DptOQlKFvwhPzNLWrHIQu/RujtBlVJPxwQgjUZ4=;
+        b=Ya9ezQ1suARJ5B5+IsLFucEg/HeUdxxedXClB30iL/ELKtv6kMJCZ1lVGM5hTETou6
+         SleaybuRyOEDmIhStVCiO3d1IN9HRQwA5eNFfxO46pRD8quDFBN1h8Iyx05l5vRRvsqM
+         xg5Q49JeUqJq77BmyKTy8ySZgwAVA+zaQME4AA0CtM5INhy/cNu7UYWSe4q1DaaXZgYO
+         HdHqDPfzGg8TJNJmsTuj37N8DFE52nzYlDgl3oURlaHRvoZA6Q5tTV8NZkmN+QENi1tF
+         HMpyBGAvGT0nOKvJ2fSk+VFVUK1FlJWnqqPeyNdveMH36PdebenQFB6TYXQgr6lu5UCU
+         M0yw==
+X-Gm-Message-State: APjAAAUpYIF9r4uqpy/XRkE8n2IAjJhMcsC2Yyf8Sb3s1txh52vSq3Rj
+        vimtnxixzWUPEs/2SJbO8+FKfZPdbPI=
+X-Google-Smtp-Source: APXvYqwFzFzc5WG5FDPcHRdqb2AaRR84Y9E3us/OjEIh46TdQGH18lAYeE49opbpuX3HCTe4z8EjjA==
+X-Received: by 2002:a17:90a:270f:: with SMTP id o15mr8423034pje.56.1561668767538;
+        Thu, 27 Jun 2019 13:52:47 -0700 (PDT)
 Received: from localhost.localdomain ([2601:1c2:680:1319:692:26ff:feda:3a81])
-        by smtp.gmail.com with ESMTPSA id 2sm3674083pff.174.2019.06.27.13.52.44
+        by smtp.gmail.com with ESMTPSA id 2sm3674083pff.174.2019.06.27.13.52.46
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Thu, 27 Jun 2019 13:52:45 -0700 (PDT)
+        Thu, 27 Jun 2019 13:52:46 -0700 (PDT)
 From:   John Stultz <john.stultz@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Felipe Balbi <felipe.balbi@linux.intel.com>,
@@ -50,9 +50,9 @@ Cc:     Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sam Protsenko <semen.protsenko@linaro.org>,
         Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org,
         John Stultz <john.stultz@linaro.org>
-Subject: [PATCH 4.19.y 1/9] usb: dwc3: gadget: combine unaligned and zero flags
-Date:   Thu, 27 Jun 2019 20:52:32 +0000
-Message-Id: <20190627205240.38366-2-john.stultz@linaro.org>
+Subject: [PATCH 4.19.y 2/9] usb: dwc3: gadget: track number of TRBs per request
+Date:   Thu, 27 Jun 2019 20:52:33 +0000
+Message-Id: <20190627205240.38366-3-john.stultz@linaro.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190627205240.38366-1-john.stultz@linaro.org>
 References: <20190627205240.38366-1-john.stultz@linaro.org>
@@ -63,12 +63,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Felipe Balbi <felipe.balbi@linux.intel.com>
 
-commit 1a22ec643580626f439c8583edafdcc73798f2fb upstream
+commit 09fe1f8d7e2f461275b1cdd832f2cfa5e9be346d upstream
 
-Both flags are used for the same purpose in dwc3: appending an extra
-TRB at the end to deal with controller requirements. By combining both
-flags into one, we make it clear that the situation is the same and
-that they should be treated equally.
+This will help us remove the wait_event() from our ->dequeue().
 
 Cc: Fei Yang <fei.yang@intel.com>
 Cc: Sam Protsenko <semen.protsenko@linaro.org>
@@ -76,117 +73,79 @@ Cc: Felipe Balbi <balbi@kernel.org>
 Cc: linux-usb@vger.kernel.org
 Cc: stable@vger.kernel.org # 4.19.y
 Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
-(cherry picked from commit 1a22ec643580626f439c8583edafdcc73798f2fb)
+(cherry picked from commit 09fe1f8d7e2f461275b1cdd832f2cfa5e9be346d)
 Signed-off-by: John Stultz <john.stultz@linaro.org>
 ---
- drivers/usb/dwc3/core.h   |  7 +++----
- drivers/usb/dwc3/gadget.c | 18 +++++++++---------
- 2 files changed, 12 insertions(+), 13 deletions(-)
+ drivers/usb/dwc3/core.h   | 3 +++
+ drivers/usb/dwc3/gadget.c | 6 ++++++
+ 2 files changed, 9 insertions(+)
 
 diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index 5bfb62533e0f..4872cba8699b 100644
+index 4872cba8699b..0de78cb29f2c 100644
 --- a/drivers/usb/dwc3/core.h
 +++ b/drivers/usb/dwc3/core.h
-@@ -847,11 +847,11 @@ struct dwc3_hwparams {
+@@ -847,6 +847,7 @@ struct dwc3_hwparams {
   * @epnum: endpoint number to which this request refers
   * @trb: pointer to struct dwc3_trb
   * @trb_dma: DMA address of @trb
-- * @unaligned: true for OUT endpoints with length not divisible by maxp
-+ * @needs_extra_trb: true when request needs one extra TRB (either due to ZLP
-+ *	or unaligned OUT)
++ * @num_trbs: number of TRBs used by this request
+  * @needs_extra_trb: true when request needs one extra TRB (either due to ZLP
+  *	or unaligned OUT)
   * @direction: IN or OUT direction flag
-  * @mapped: true when request has been dma-mapped
-  * @started: request is started
-- * @zero: wants a ZLP
-  */
- struct dwc3_request {
- 	struct usb_request	request;
-@@ -867,11 +867,10 @@ struct dwc3_request {
+@@ -867,6 +868,8 @@ struct dwc3_request {
  	struct dwc3_trb		*trb;
  	dma_addr_t		trb_dma;
  
--	unsigned		unaligned:1;
-+	unsigned		needs_extra_trb:1;
++	unsigned		num_trbs;
++
+ 	unsigned		needs_extra_trb:1;
  	unsigned		direction:1;
  	unsigned		mapped:1;
- 	unsigned		started:1;
--	unsigned		zero:1;
- };
- 
- /*
 diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 65ba1038b111..4894fed1441c 100644
+index 4894fed1441c..019643a6ce9d 100644
 --- a/drivers/usb/dwc3/gadget.c
 +++ b/drivers/usb/dwc3/gadget.c
-@@ -1070,7 +1070,7 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
- 			struct dwc3	*dwc = dep->dwc;
- 			struct dwc3_trb	*trb;
+@@ -1043,6 +1043,8 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
+ 		req->trb_dma = dwc3_trb_dma_offset(dep, trb);
+ 	}
  
--			req->unaligned = true;
-+			req->needs_extra_trb = true;
- 
- 			/* prepare normal TRB */
- 			dwc3_prepare_one_trb(dep, req, true, i);
-@@ -1114,7 +1114,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
- 		struct dwc3	*dwc = dep->dwc;
- 		struct dwc3_trb	*trb;
- 
--		req->unaligned = true;
-+		req->needs_extra_trb = true;
- 
- 		/* prepare normal TRB */
- 		dwc3_prepare_one_trb(dep, req, true, 0);
-@@ -1130,7 +1130,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
- 		struct dwc3	*dwc = dep->dwc;
- 		struct dwc3_trb	*trb;
- 
--		req->zero = true;
-+		req->needs_extra_trb = true;
- 
- 		/* prepare normal TRB */
- 		dwc3_prepare_one_trb(dep, req, true, 0);
-@@ -1412,7 +1412,7 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
- 					dwc3_ep_inc_deq(dep);
- 				}
- 
--				if (r->unaligned || r->zero) {
-+				if (r->needs_extra_trb) {
- 					trb = r->trb + r->num_pending_sgs + 1;
- 					trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
- 					dwc3_ep_inc_deq(dep);
-@@ -1423,7 +1423,7 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
- 				trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
- 				dwc3_ep_inc_deq(dep);
- 
--				if (r->unaligned || r->zero) {
-+				if (r->needs_extra_trb) {
- 					trb = r->trb + 1;
- 					trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
- 					dwc3_ep_inc_deq(dep);
-@@ -2252,7 +2252,8 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
- 	 * with one TRB pending in the ring. We need to manually clear HWO bit
- 	 * from that TRB.
- 	 */
--	if ((req->zero || req->unaligned) && !(trb->ctrl & DWC3_TRB_CTRL_CHN)) {
++	req->num_trbs++;
 +
-+	if (req->needs_extra_trb && !(trb->ctrl & DWC3_TRB_CTRL_CHN)) {
- 		trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
- 		return 1;
- 	}
-@@ -2329,11 +2330,10 @@ static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
- 		ret = dwc3_gadget_ep_reclaim_trb_linear(dep, req, event,
- 				status);
+ 	__dwc3_prepare_one_trb(dep, trb, dma, length, chain, node,
+ 			stream_id, short_not_ok, no_interrupt);
+ }
+@@ -1077,6 +1079,7 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
  
--	if (req->unaligned || req->zero) {
-+	if (req->needs_extra_trb) {
- 		ret = dwc3_gadget_ep_reclaim_trb_linear(dep, req, event,
- 				status);
--		req->unaligned = false;
--		req->zero = false;
-+		req->needs_extra_trb = false;
- 	}
+ 			/* Now prepare one extra TRB to align transfer size */
+ 			trb = &dep->trb_pool[dep->trb_enqueue];
++			req->num_trbs++;
+ 			__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr,
+ 					maxp - rem, false, 1,
+ 					req->request.stream_id,
+@@ -1121,6 +1124,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
  
- 	req->request.actual = req->request.length - req->remaining;
+ 		/* Now prepare one extra TRB to align transfer size */
+ 		trb = &dep->trb_pool[dep->trb_enqueue];
++		req->num_trbs++;
+ 		__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, maxp - rem,
+ 				false, 1, req->request.stream_id,
+ 				req->request.short_not_ok,
+@@ -1137,6 +1141,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
+ 
+ 		/* Now prepare one extra TRB to handle ZLP */
+ 		trb = &dep->trb_pool[dep->trb_enqueue];
++		req->num_trbs++;
+ 		__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, 0,
+ 				false, 1, req->request.stream_id,
+ 				req->request.short_not_ok,
+@@ -2233,6 +2238,7 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
+ 	dwc3_ep_inc_deq(dep);
+ 
+ 	trace_dwc3_complete_trb(dep, trb);
++	req->num_trbs--;
+ 
+ 	/*
+ 	 * If we're in the middle of series of chained TRBs and we
 -- 
 2.17.1
 
