@@ -2,109 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA409586BE
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 18:13:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4FE587BB
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 18:54:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726472AbfF0QNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jun 2019 12:13:01 -0400
-Received: from mail-yb1-f180.google.com ([209.85.219.180]:44922 "EHLO
-        mail-yb1-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726445AbfF0QNA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jun 2019 12:13:00 -0400
-Received: by mail-yb1-f180.google.com with SMTP id j15so1834144ybh.11;
-        Thu, 27 Jun 2019 09:13:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=svVGasx9FtsXEe0EJ0V55z0RqDtnu6EmPDKIV7VV/tg=;
-        b=iEWeBbTigq5jpeJO4fQylTrqZJdnOVcDW01UBqvJI7E/SdLENcyaDx7xvQbJSG9vsj
-         0dHUg0Wvmlz78j5jOIexmVMSUWF+3Dg13SU2GXMSQQ5QKg7JYGiaY4AETS6pj+yO94ss
-         HW60QQFlv4pAJsX9JNh/NwRO0xSHNNEr4NgJcgXXA9dRNL3bZsRP5LY+dm4Or6oqHAo3
-         Wr2chgQkUe7z84NteF2ROUCCyf5qekOBX7gJs+pJYIhUKvxsHqyRYB0QVU4uY8ksqpPO
-         gLNOzTrJIRuU/ke+bG2stdwGM86S5hkmbSmqTLI9CWZyG5FYQar4QSbWXbYaBuTiqgcH
-         C/yQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=svVGasx9FtsXEe0EJ0V55z0RqDtnu6EmPDKIV7VV/tg=;
-        b=mIlBOEXgjDlwJZd2wDepyJAjl5wChhS90a9DAHW/vGUais5e/9J6EW6/PKKNR3wuO/
-         0XDxgKlDALbM93caPlP9Cz8FjaXah3poKSd4d6cGO/AudWOH3oMOCm0t5uR62u38ObrV
-         hMWhqBV8PhWBcNUTr/tsfIEEoQJunmhnwpvksZOGTp8lzNyT7x1kzHYkN8loXZ/+fOxo
-         RuCogKmEW2wIAjrBzVLN84zBPXMR6MPCPdFOHn0bv3APLcBKesVijZVoAuDPutgqaMHJ
-         nkotS/FoTW40xFgSrYb0mxT0bW6pP1l3n7e0m387SCXeYp6oKDL8iVP6iOU3RDgTAyuw
-         0pkQ==
-X-Gm-Message-State: APjAAAW6ENzTL121SK1yWyj3ew/rky11wmatouzsJ5HBV8U9GQYdwtvU
-        8kUGLq6V9TQA7vJlZNsVeXXKCUr70CrHqo0KqDI=
-X-Google-Smtp-Source: APXvYqwiOdsBk1CVbq1MeFVR1MLe3OT53WRx+DygeNzAvFdPM3Z/AUlHuIKG9zv5UiYiy/l/WbkxuhO3OQouO9z0UYY=
-X-Received: by 2002:a25:744b:: with SMTP id p72mr3199675ybc.439.1561651979742;
- Thu, 27 Jun 2019 09:12:59 -0700 (PDT)
+        id S1726498AbfF0Qym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jun 2019 12:54:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45988 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726405AbfF0Qym (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Jun 2019 12:54:42 -0400
+Received: from localhost (unknown [89.205.136.226])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 014B920659;
+        Thu, 27 Jun 2019 16:54:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1561654481;
+        bh=eOCvuSsg8vkTcA/VnvHXMe5Kq6abpSfsP8OULmvRAZE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gw++Ehdarhu/KbbQqV/AOh1ffduzBpez1WuMh8SeazD2C5TfUGUtmmWMFU8SdVYQ7
+         NdXeONuS8Ke0tRaWrNa7QcOWxt9+2pkYorCebahW4r356uGu4St9Ue4mRWFr+UqgCG
+         H4Y66wlwSW+ezD0vldsS34/XLU+KENdgNO6BM8Tc=
+Date:   Fri, 28 Jun 2019 00:54:33 +0800
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        linux-tegra <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.4 0/1] 4.4.184-stable review
+Message-ID: <20190627165433.GC9855@kroah.com>
+References: <20190626083604.894288021@linuxfoundation.org>
+ <217e73e4-7777-558c-186f-c94658447ae0@nvidia.com>
 MIME-Version: 1.0
-References: <155009104740.32028.193157199378698979.stgit@magnolia> <20190213205804.GE32253@magnolia>
-In-Reply-To: <20190213205804.GE32253@magnolia>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Thu, 27 Jun 2019 19:12:48 +0300
-Message-ID: <CAOQ4uximAfJjNdunY2xK_1DwC2G7v31XWbv64AdO9nYdExUsVw@mail.gmail.com>
-Subject: [STABLE 4.19] fixes for xfs memory and fs corruption
-To:     "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        linux-xfs <linux-xfs@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <217e73e4-7777-558c-186f-c94658447ae0@nvidia.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Darrick,
+On Thu, Jun 27, 2019 at 09:36:55AM +0100, Jon Hunter wrote:
+> 
+> On 26/06/2019 09:45, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.4.184 release.
+> > There are 1 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Fri 28 Jun 2019 08:35:42 AM UTC.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.184-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> All tests are passing for Tegra ...
+> 
+> Test results for stable-v4.4:
+>     6 builds:	6 pass, 0 fail
+>     12 boots:	12 pass, 0 fail
+>     19 tests:	19 pass, 0 fail
+> 
+> Linux version:	4.4.184-rc1-g5f1824292521
+> Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+>                 tegra30-cardhu-a04
+> 
 
-Can I have your blessing on the choice of these upstream commits
-as stable candidates?
-I did not observe any xfstests regressions when testing v4.19.55
-with these patches applied.
+Thanks for testing all of these and letting me know.
 
-Sasha,
-
-Can you run these patches though your xfstests setup?
-They fix nasty bugs.
-
-Make sure to update xfsprogs to very latest, because
-generic/530 used to blow up (OOM) my test machine...
-
->
-> The first patch fixes a memory corruption that syzkaller found in the
-> attr listent code;
-
-3b50086f0c0d xfs: don't overflow xattr listent buffer
-
-> see "generic: posix acl extended attribute memory
-> corruption test" for the relevant regression test.
-
-Fixed generic/529
-
->
-> Patches 2 fixes problems found in XFS's unlinked inode recovery code
-> that were unearthed by some new testcases.  We're logging nlink==1 temp
-> files on the iunlinked list (and then the vfs sets nlink to 0 without
-> telling us) which means that we leak them in recovery if we crash
-> immediately after the committing the creation of the temp file.
->
-> Patch 3 fixes the problem that ifree during recovery can expand the
-> finobt but we need to force the ifree code to reserve blocks for the
-> transaction because perag reservations aren't set up yet.
-
-e1f6ca113815 xfs: rename m_inotbt_nores to m_finobt_nores
-15a268d9f263 xfs: reserve blocks for ifree transaction during log recovery
-c4a6bf7f6cc7 xfs: don't ever put nlink > 0 inodes on the unlinked list
-
->
-> See "[PATCH v2 2/2] generic: check the behavior of programs opening a
-> lot of O_TMPFILE files" for the regression test.
->
-
-Fixes generic/530
-
-Thanks,
-Amir.
+greg k-h
