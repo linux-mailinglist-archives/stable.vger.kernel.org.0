@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CF2A577E5
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:51:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82473577E8
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727505AbfF0Aen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:34:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38972 "EHLO mail.kernel.org"
+        id S1728113AbfF0Aeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:34:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728113AbfF0Aem (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:34:42 -0400
+        id S1728123AbfF0Aeo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:34:44 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EDD92184B;
-        Thu, 27 Jun 2019 00:34:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D57F2183F;
+        Thu, 27 Jun 2019 00:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595681;
-        bh=O0ULjoFzCNvZzXuW9GRqTXu/TYfN84Zp6g+9mIEnPNE=;
+        s=default; t=1561595684;
+        bh=7He2H5il0KlxV7ZS8vcK7Wju/7mKDKB3JcGAcJMylYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uQ+veMiCv2CNdGUElw8IUrjpKyELQByVsj50ff3eAOo/XhZl0mDywPKnsWW1gs+cH
-         xfPzFnziegwHU8JPyHOJyC5I5HwOQ9QmXmB0K0Mxt/rXwLKTrRVXeXVwGhAPZcb0Fv
-         HX4OUGED34OjsfIHs8LkiA4Swg9vvHnfgGkl1EF0=
+        b=U9WyjAie4qHBX3aqiuhNMHsJOxxqHQdnSnriI4VDxV03Ll4aGWXN+KJKr0zbcyFex
+         EkLgouuD++QYk0WJbfntuvI3njOx/kxoANKSznS/g6EugnLbHtMknKhk8eQg+GRUdt
+         28UyDN5sjPZIQByaVeY+dUdnpTuQTaanzmgskGb4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 77/95] block: fix page leak when merging to same page
-Date:   Wed, 26 Jun 2019 20:30:02 -0400
-Message-Id: <20190627003021.19867-77-sashal@kernel.org>
+Cc:     Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 78/95] IB/hfi1: Create inline to get extended headers
+Date:   Wed, 26 Jun 2019 20:30:03 -0400
+Message-Id: <20190627003021.19867-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627003021.19867-1-sashal@kernel.org>
 References: <20190627003021.19867-1-sashal@kernel.org>
@@ -44,60 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-[ Upstream commit 4569180495600ac59f5cd27f67242a6cb51254f3 ]
+[ Upstream commit 9755f72496664eec70bc804104118b5797b6bf63 ]
 
-When multiple iovecs reference the same page, each get_user_page call
-will add a reference to the page.  But once we've created the bio that
-information gets lost and only a single reference will be dropped after
-I/O completion.  Use the same_page information returned from
-__bio_try_merge_page to drop additional references to pages that were
-already present in the bio.
+This paves the way for another patch that reacts to a
+flush sdma completion for RC.
 
-Based on a patch from Ming Lei.
-
-Link: https://lkml.org/lkml/2019/4/23/64
-Fixes: 576ed913 ("block: use bio_add_page in bio_iov_iter_get_pages")
-Reported-by: David Gibson <david@gibson.dropbear.id.au>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 81cd3891f021 ("IB/hfi1: Add support for 16B Management Packets")
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/hfi1/hfi.h | 31 +++++++++++++++++++++++++++++++
+ drivers/infiniband/hw/hfi1/rc.c  | 21 +--------------------
+ 2 files changed, 32 insertions(+), 20 deletions(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index a3c80a6c1fe5..80a25c245109 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -884,6 +884,7 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
- 	unsigned short entries_left = bio->bi_max_vecs - bio->bi_vcnt;
- 	struct bio_vec *bv = bio->bi_io_vec + bio->bi_vcnt;
- 	struct page **pages = (struct page **)bv;
-+	bool same_page = false;
- 	ssize_t size, left;
- 	unsigned len, i;
- 	size_t offset;
-@@ -904,8 +905,15 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
- 		struct page *page = pages[i];
+diff --git a/drivers/infiniband/hw/hfi1/hfi.h b/drivers/infiniband/hw/hfi1/hfi.h
+index 048b5d73ba39..d85b16a3aaaf 100644
+--- a/drivers/infiniband/hw/hfi1/hfi.h
++++ b/drivers/infiniband/hw/hfi1/hfi.h
+@@ -539,6 +539,37 @@ static inline void hfi1_16B_set_qpn(struct opa_16b_mgmt *mgmt,
+ 	mgmt->src_qpn = cpu_to_be32(src_qp & OPA_16B_MGMT_QPN_MASK);
+ }
  
- 		len = min_t(size_t, PAGE_SIZE - offset, left);
--		if (WARN_ON_ONCE(bio_add_page(bio, page, len, offset) != len))
--			return -EINVAL;
++/**
++ * hfi1_get_rc_ohdr - get extended header
++ * @opah - the opaheader
++ */
++static inline struct ib_other_headers *
++hfi1_get_rc_ohdr(struct hfi1_opa_header *opah)
++{
++	struct ib_other_headers *ohdr;
++	struct ib_header *hdr = NULL;
++	struct hfi1_16b_header *hdr_16b = NULL;
 +
-+		if (__bio_try_merge_page(bio, page, len, offset, &same_page)) {
-+			if (same_page)
-+				put_page(page);
-+		} else {
-+			if (WARN_ON_ONCE(bio_full(bio)))
-+                                return -EINVAL;
-+			__bio_add_page(bio, page, len, offset);
-+		}
- 		offset = 0;
- 	}
++	/* Find out where the BTH is */
++	if (opah->hdr_type == HFI1_PKT_TYPE_9B) {
++		hdr = &opah->ibh;
++		if (ib_get_lnh(hdr) == HFI1_LRH_BTH)
++			ohdr = &hdr->u.oth;
++		else
++			ohdr = &hdr->u.l.oth;
++	} else {
++		u8 l4;
++
++		hdr_16b = &opah->opah;
++		l4  = hfi1_16B_get_l4(hdr_16b);
++		if (l4 == OPA_16B_L4_IB_LOCAL)
++			ohdr = &hdr_16b->u.oth;
++		else
++			ohdr = &hdr_16b->u.l.oth;
++	}
++	return ohdr;
++}
++
+ struct rvt_sge_state;
  
+ /*
+diff --git a/drivers/infiniband/hw/hfi1/rc.c b/drivers/infiniband/hw/hfi1/rc.c
+index 5991211d72bd..82f101878e33 100644
+--- a/drivers/infiniband/hw/hfi1/rc.c
++++ b/drivers/infiniband/hw/hfi1/rc.c
+@@ -1711,8 +1711,6 @@ void hfi1_rc_send_complete(struct rvt_qp *qp, struct hfi1_opa_header *opah)
+ 	struct ib_other_headers *ohdr;
+ 	struct hfi1_qp_priv *priv = qp->priv;
+ 	struct rvt_swqe *wqe;
+-	struct ib_header *hdr = NULL;
+-	struct hfi1_16b_header *hdr_16b = NULL;
+ 	u32 opcode, head, tail;
+ 	u32 psn;
+ 	struct tid_rdma_request *req;
+@@ -1721,24 +1719,7 @@ void hfi1_rc_send_complete(struct rvt_qp *qp, struct hfi1_opa_header *opah)
+ 	if (!(ib_rvt_state_ops[qp->state] & RVT_SEND_OR_FLUSH_OR_RECV_OK))
+ 		return;
+ 
+-	/* Find out where the BTH is */
+-	if (priv->hdr_type == HFI1_PKT_TYPE_9B) {
+-		hdr = &opah->ibh;
+-		if (ib_get_lnh(hdr) == HFI1_LRH_BTH)
+-			ohdr = &hdr->u.oth;
+-		else
+-			ohdr = &hdr->u.l.oth;
+-	} else {
+-		u8 l4;
+-
+-		hdr_16b = &opah->opah;
+-		l4  = hfi1_16B_get_l4(hdr_16b);
+-		if (l4 == OPA_16B_L4_IB_LOCAL)
+-			ohdr = &hdr_16b->u.oth;
+-		else
+-			ohdr = &hdr_16b->u.l.oth;
+-	}
+-
++	ohdr = hfi1_get_rc_ohdr(opah);
+ 	opcode = ib_bth_get_opcode(ohdr);
+ 	if ((opcode >= OP(RDMA_READ_RESPONSE_FIRST) &&
+ 	     opcode <= OP(ATOMIC_ACKNOWLEDGE)) ||
 -- 
 2.20.1
 
