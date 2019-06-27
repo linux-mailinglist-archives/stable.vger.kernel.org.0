@@ -2,197 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B382657A7D
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 06:12:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 380D157AC1
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 06:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726663AbfF0EM3 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 27 Jun 2019 00:12:29 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:60330 "EHLO mx1.redhat.com"
+        id S1727179AbfF0EpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jun 2019 00:45:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725385AbfF0EM3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Jun 2019 00:12:29 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727124AbfF0EpN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 Jun 2019 00:45:13 -0400
+Received: from localhost (c-67-180-165-146.hsd1.ca.comcast.net [67.180.165.146])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id E5C1BC057F3B
-        for <stable@vger.kernel.org>; Thu, 27 Jun 2019 04:12:28 +0000 (UTC)
-Received: from [172.54.58.4] (cpt-1026.paas.prod.upshift.rdu2.redhat.com [10.0.19.53])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5F04D5C1A1;
-        Thu, 27 Jun 2019 04:12:26 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AC1021855;
+        Thu, 27 Jun 2019 04:45:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1561610712;
+        bh=K5SUY54SELZy1+lViKPOPr+FMJUSCP3gUFGFg03T6N8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=VcAQbH78K3Q74ErLQKjNUikUSjDpjyRSUPz1TDnnl5xy5zK1TDA53Pageqwq/mjf2
+         kxa3bPlibB3B5DpHEs3RDfxs+aBW8hjS7XigMTp4u7tA70CpVo7JlDBKFKkF+k83Qa
+         9bORDvXcvy5/k/6Bba+OFLfWx5/CVLA2NCDIX2W0=
+From:   Andy Lutomirski <luto@kernel.org>
+To:     x86@kernel.org
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Florian Weimer <fweimer@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
+        Borislav Petkov <bp@alien8.de>,
+        Kernel Hardening <kernel-hardening@lists.openwall.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH v2 1/8] x86/vsyscall: Remove the vsyscall=native documentation
+Date:   Wed, 26 Jun 2019 21:45:02 -0700
+Message-Id: <d77c7105eb4c57c1a95a95b6a5b8ba194a18e764.1561610354.git.luto@kernel.org>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <cover.1561610354.git.luto@kernel.org>
+References: <cover.1561610354.git.luto@kernel.org>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.1286EE5D4E.09P7W43BQY@redhat.com>
-X-Gitlab-Pipeline-ID: 13319
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Thu, 27 Jun 2019 04:12:28 +0000 (UTC)
-Date:   Thu, 27 Jun 2019 00:12:29 -0400
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+The vsyscall=native feature is gone -- remove the docs.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Fixes: 076ca272a14c ("x86/vsyscall/64: Drop "native" vsyscalls")
+Cc: stable@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+---
+ Documentation/admin-guide/kernel-parameters.txt | 6 ------
+ 1 file changed, 6 deletions(-)
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: aec3002d07fd - Linux 4.19.56
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 138f6664b2e2..0082d1e56999 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -5102,12 +5102,6 @@
+ 			emulate     [default] Vsyscalls turn into traps and are
+ 			            emulated reasonably safely.
+ 
+-			native      Vsyscalls are native syscall instructions.
+-			            This is a little bit faster than trapping
+-			            and makes a few dynamic recompilers work
+-			            better than they would in emulation mode.
+-			            It also makes exploits much easier to write.
+-
+ 			none        Vsyscalls don't work at all.  This makes
+ 			            them quite hard to use for exploits but
+ 			            might break your system.
+-- 
+2.21.0
 
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: aec3002d07fd - Linux 4.19.56
-
-
-We grabbed the 4bfc2073a838 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  perf-ui-helpline-use-strlcpy-as-a-shorter-form-of-strncpy-explicit-set-nul.patch
-  perf-help-remove-needless-use-of-strncpy.patch
-  perf-header-fix-unchecked-usage-of-strncpy.patch
-  arm64-don-t-unconditionally-add-wno-psabi-to-kbuild_cflags.patch
-  revert-x86-uaccess-ftrace-fix-ftrace_likely_update-v.patch
-  ib-hfi1-close-psm-sdma_progress-sleep-window.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-f4af3e6d716de89c91cf11e6e5bb31ab936a67b2.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-f4af3e6d716de89c91cf11e6e5bb31ab936a67b2.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-f4af3e6d716de89c91cf11e6e5bb31ab936a67b2.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-f4af3e6d716de89c91cf11e6e5bb31ab936a67b2.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-f4af3e6d716de89c91cf11e6e5bb31ab936a67b2.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-f4af3e6d716de89c91cf11e6e5bb31ab936a67b2.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-f4af3e6d716de89c91cf11e6e5bb31ab936a67b2.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-f4af3e6d716de89c91cf11e6e5bb31ab936a67b2.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ AMTU (Abstract Machine Test Utility) [2]
-       ✅ LTP: openposix test suite [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ Usex - version 1.9-29 [7]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [9]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ AMTU (Abstract Machine Test Utility) [2]
-       ✅ LTP: openposix test suite [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ Usex - version 1.9-29 [7]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [9]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [9]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ LTP: openposix test suite [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ AMTU (Abstract Machine Test Utility) [2]
-       ✅ LTP: openposix test suite [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ Usex - version 1.9-29 [7]
-       🚧 ✅ tuned: tune-processes-through-perf [8]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [9]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
