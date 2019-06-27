@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1545157906
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 03:44:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD70357928
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 03:54:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726867AbfF0Boy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 21:44:54 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:54680 "EHLO mx1.redhat.com"
+        id S1727053AbfF0By2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 21:54:28 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:56656 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726677AbfF0Boy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 21:44:54 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        id S1727010AbfF0By1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 21:54:27 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id E4C1730860A5;
-        Thu, 27 Jun 2019 01:44:53 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0280B20260;
+        Thu, 27 Jun 2019 01:54:27 +0000 (UTC)
 Received: from test1135.test.redhat.com (vpn2-54-99.bne.redhat.com [10.64.54.99])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 44CAF5D719;
-        Thu, 27 Jun 2019 01:44:53 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 56AB460BE5;
+        Thu, 27 Jun 2019 01:54:26 +0000 (UTC)
 From:   Ronnie Sahlberg <lsahlber@redhat.com>
 To:     linux-cifs <linux-cifs@vger.kernel.org>
 Cc:     Steve French <smfrench@gmail.com>, Stable <stable@vger.kernel.org>,
         Ronnie Sahlberg <lsahlber@redhat.com>
 Subject: [PATCH] cifs: fix crash for querying symlinks stored as reparse-points
-Date:   Thu, 27 Jun 2019 11:44:31 +1000
-Message-Id: <20190627014431.12685-1-lsahlber@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Thu, 27 Jun 2019 01:44:53 +0000 (UTC)
+Date:   Thu, 27 Jun 2019 11:54:18 +1000
+Message-Id: <20190627015418.19474-1-lsahlber@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Thu, 27 Jun 2019 01:54:27 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -53,15 +53,15 @@ to .get_link()
 CC: Stable <stable@vger.kernel.org>
 Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
 ---
- fs/cifs/smb2ops.c | 60 ++++++++++++++++++++++++++++++++++++++++++++++++++++---
- fs/cifs/smb2pdu.h | 14 ++++++++++++-
- 2 files changed, 70 insertions(+), 4 deletions(-)
+ fs/cifs/smb2ops.c | 55 ++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ fs/cifs/smb2pdu.h | 14 +++++++++++++-
+ 2 files changed, 65 insertions(+), 4 deletions(-)
 
 diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index e921e6511728..69feb8c27dea 100644
+index e921e6511728..50a8dc8fb00c 100644
 --- a/fs/cifs/smb2ops.c
 +++ b/fs/cifs/smb2ops.c
-@@ -2385,6 +2385,46 @@ smb2_get_dfs_refer(const unsigned int xid, struct cifs_ses *ses,
+@@ -2385,6 +2385,41 @@ smb2_get_dfs_refer(const unsigned int xid, struct cifs_ses *ses,
  	kfree(dfs_rsp);
  	return rc;
  }
@@ -76,12 +76,7 @@ index e921e6511728..69feb8c27dea 100644
 +
 +	/* We only handle Symbolic Link : MS-FSCC 2.1.2.4 */
 +	if (!(le32_to_cpu(symlink_buf->ReparseTag) & 0x80000000)) {
-+		cifs_dbg(VFS, "srv returned invalid sublink buffer\n");
-+		return -EIO;
-+	}
-+
-+	if (!(le32_to_cpu(symlink_buf->Flags) & SYMLINK_FLAG_RELATIVE)) {
-+		cifs_dbg(VFS, "srv returned absolute symlink\n");
++		cifs_dbg(VFS, "srv returned invalid symlink buffer\n");
 +		return -EIO;
 +	}
 +
@@ -108,7 +103,7 @@ index e921e6511728..69feb8c27dea 100644
  #define SMB2_SYMLINK_STRUCT_SIZE \
  	(sizeof(struct smb2_err_rsp) - 1 + sizeof(struct smb2_symlink_err_rsp))
  
-@@ -2414,11 +2454,13 @@ smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
+@@ -2414,11 +2449,13 @@ smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
  	struct kvec close_iov[1];
  	struct smb2_create_rsp *create_rsp;
  	struct smb2_ioctl_rsp *ioctl_rsp;
@@ -123,7 +118,7 @@ index e921e6511728..69feb8c27dea 100644
  	if (smb3_encryption_required(tcon))
  		flags |= CIFS_TRANSFORM_REQ;
  
-@@ -2496,7 +2538,7 @@ smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
+@@ -2496,7 +2533,7 @@ smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
  	if ((rc == 0) && (is_reparse_point)) {
  		/* See MS-FSCC 2.3.23 */
  
@@ -132,7 +127,7 @@ index e921e6511728..69feb8c27dea 100644
  		plen = le32_to_cpu(ioctl_rsp->OutputCount);
  
  		if (plen + le32_to_cpu(ioctl_rsp->OutputOffset) >
-@@ -2506,7 +2548,19 @@ smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
+@@ -2506,7 +2543,19 @@ smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
  			goto querty_exit;
  		}
  
