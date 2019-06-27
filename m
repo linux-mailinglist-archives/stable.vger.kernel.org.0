@@ -2,78 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A78745754A
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E48D757586
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:30:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726681AbfF0AMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:12:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56042 "EHLO mail.kernel.org"
+        id S1726677AbfF0AaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:30:03 -0400
+Received: from mga12.intel.com ([192.55.52.136]:1257 "EHLO mga12.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726385AbfF0AMd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:12:33 -0400
-Received: from localhost (unknown [116.247.127.123])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA0DB216E3;
-        Thu, 27 Jun 2019 00:12:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561594352;
-        bh=Osk+WBlid/WqtKaFRPzG0N2NFL3AjvaggN3s5qEAK0k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=c8nVkfrYBLnr3Op6Kwmiifi2LKPP4yRdhElZEIT1vlVVvsbnoDJ2jIJs9XK6fkOrO
-         aFpDfsTNm4tFe5DrMP5ZQVzOQkc0YMVWuYafp5+x37ZaOxxBR0OM0C6LUbfqcSvEdp
-         nq8za9NVGNuuXPzn8ZI9cqSxi6Jc545NK+fMsngM=
-Date:   Thu, 27 Jun 2019 08:12:25 +0800
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 4.14 0/1] 4.14.131-stable review
-Message-ID: <20190627001225.GF527@kroah.com>
-References: <20190626083606.248422423@linuxfoundation.org>
- <CA+G9fYuaw+eZsGn=cOUWObmf4ZupjBd4U=w34s9k730O+dZjwg@mail.gmail.com>
+        id S1726669AbfF0AaC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:30:02 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Jun 2019 17:30:02 -0700
+X-IronPort-AV: E=Sophos;i="5.63,421,1557212400"; 
+   d="scan'208";a="152848892"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 26 Jun 2019 17:30:02 -0700
+Subject: [PATCH] filesystem-dax: Disable PMD support
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     linux-nvdimm@lists.01.org
+Cc:     Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org, Robert Barror <robert.barror@intel.com>,
+        Seema Pandit <seema.pandit@intel.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Wed, 26 Jun 2019 17:15:45 -0700
+Message-ID: <156159454541.2964018.7466991316059381921.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-2-gc94f
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYuaw+eZsGn=cOUWObmf4ZupjBd4U=w34s9k730O+dZjwg@mail.gmail.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 26, 2019 at 08:15:07PM +0530, Naresh Kamboju wrote:
-> On Wed, 26 Jun 2019 at 14:15, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 4.14.131 release.
-> > There are 1 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Fri 28 Jun 2019 08:35:42 AM UTC.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.131-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+Ever since the conversion of DAX to the Xarray a RocksDB benchmark has
+been encountering intermittent lockups. The backtraces always include
+the filesystem-DAX PMD path, multi-order entries have been a source of
+bugs in the past, and disabling the PMD path allows a test that fails in
+minutes to run for an hour.
 
-Great, thanks for testing all of these and letting me know.
+The regression has been bisected to "dax: Convert page fault handlers to
+XArray", but little progress has been made on the root cause debug.
+Unless / until root cause can be identified mark CONFIG_FS_DAX_PMD
+broken to preclude intermittent lockups. Reverting the Xarray conversion
+also works, but that change is too big to backport. The implementation
+is committed to Xarray at this point.
 
-greg k-h
+Link: https://lore.kernel.org/linux-fsdevel/CAPcyv4hwHpX-MkUEqxwdTj7wCCZCN4RV-L4jsnuwLGyL_UEG4A@mail.gmail.com/
+Fixes: b15cd800682f ("dax: Convert page fault handlers to XArray")
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>
+Reported-by: Robert Barror <robert.barror@intel.com>
+Reported-by: Seema Pandit <seema.pandit@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+ fs/Kconfig |    3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/fs/Kconfig b/fs/Kconfig
+index f1046cf6ad85..85eecd0d4c5d 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -66,6 +66,9 @@ config FS_DAX_PMD
+ 	depends on FS_DAX
+ 	depends on ZONE_DEVICE
+ 	depends on TRANSPARENT_HUGEPAGE
++	# intermittent lockups since commit b15cd800682f "dax: Convert
++	# page fault handlers to XArray"
++	depends on BROKEN
+ 
+ # Selected by DAX drivers that do not expect filesystem DAX to support
+ # get_user_pages() of DAX mappings. I.e. "limited" indicates no support
+
