@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B21E657790
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:48:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A7AD577B2
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:49:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728516AbfF0AjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:39:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43492 "EHLO mail.kernel.org"
+        id S1728286AbfF0ArM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:47:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729067AbfF0AjQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:39:16 -0400
+        id S1728550AbfF0AjT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:39:19 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 333E621882;
-        Thu, 27 Jun 2019 00:39:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41A5521852;
+        Thu, 27 Jun 2019 00:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595955;
-        bh=g5ONFjRf9THI8f6AlcdxfoRRB6Ticf5wHSm5ZKcwvuU=;
+        s=default; t=1561595958;
+        bh=8pwM7VI4kWmWnickxe40KpU86OVmTEuR9qmIxbEyugY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bX8ncvpPLwvFpdIbKhKSqRbw6VFPsIqI1NiunYtoVkNQEtVuEgYDMlDiVftLtu8ER
-         r6v+WJHXPg57cioqwLjZRZTSM7vZ+zdVbkzYOftAOJ1MUqslTDG5qKz4tK2tfZ6Q+e
-         9+pifMSfNGwZ6uJ0pmNai7HF47tKiY4fgwKeIuFs=
+        b=zgiFaVyiYocnaDEBu2y16o4l3w8OaQaS3nTQh+C41h7HIQ46ibBOBR7hCrB9ldlxP
+         Egek1To73RW4L4ZgcbLAfTHzSIJEHC3YXBMNidONPm0IRQmNTjb6UfmgeDLWb64LFm
+         aXhj1JtZBgQpr45cdCezBMICGNGTioO/qRKdCObs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 58/60] net: dsa: mv88e6xxx: fix shift of FID bits in mv88e6185_g1_vtu_loadpurge()
-Date:   Wed, 26 Jun 2019 20:36:13 -0400
-Message-Id: <20190627003616.20767-58-sashal@kernel.org>
+Cc:     Benjamin Coddington <bcodding@redhat.com>,
+        Trond Myklebust <trondmy@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 59/60] NFS4: Only set creation opendata if O_CREAT
+Date:   Wed, 26 Jun 2019 20:36:14 -0400
+Message-Id: <20190627003616.20767-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627003616.20767-1-sashal@kernel.org>
 References: <20190627003616.20767-1-sashal@kernel.org>
@@ -43,34 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-[ Upstream commit 48620e341659f6e4b978ec229f6944dabe6df709 ]
+[ Upstream commit 909105199a682cb09c500acd443d34b182846c9c ]
 
-The comment is correct, but the code ends up moving the bits four
-places too far, into the VTUOp field.
+We can end up in nfs4_opendata_alloc during task exit, in which case
+current->fs has already been cleaned up.  This leads to a crash in
+current_umask().
 
-Fixes: 11ea809f1a74 (net: dsa: mv88e6xxx: support 256 databases)
-Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by only setting creation opendata if we are actually doing an open
+with O_CREAT.  We can drop the check for NULL nfs4_open_createattrs, since
+O_CREAT will never be set for the recovery path.
+
+Suggested-by: Trond Myklebust <trondmy@hammerspace.com>
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/global1_vtu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/global1_vtu.c b/drivers/net/dsa/mv88e6xxx/global1_vtu.c
-index 058326924f3e..7a6667e0b9f9 100644
---- a/drivers/net/dsa/mv88e6xxx/global1_vtu.c
-+++ b/drivers/net/dsa/mv88e6xxx/global1_vtu.c
-@@ -419,7 +419,7 @@ int mv88e6185_g1_vtu_loadpurge(struct mv88e6xxx_chip *chip,
- 		 * VTU DBNum[7:4] are located in VTU Operation 11:8
- 		 */
- 		op |= entry->fid & 0x000f;
--		op |= (entry->fid & 0x00f0) << 8;
-+		op |= (entry->fid & 0x00f0) << 4;
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 53cf8599a46e..1de855e0ae61 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1243,10 +1243,20 @@ static struct nfs4_opendata *nfs4_opendata_alloc(struct dentry *dentry,
+ 	atomic_inc(&sp->so_count);
+ 	p->o_arg.open_flags = flags;
+ 	p->o_arg.fmode = fmode & (FMODE_READ|FMODE_WRITE);
+-	p->o_arg.umask = current_umask();
+ 	p->o_arg.claim = nfs4_map_atomic_open_claim(server, claim);
+ 	p->o_arg.share_access = nfs4_map_atomic_open_share(server,
+ 			fmode, flags);
++	if (flags & O_CREAT) {
++		p->o_arg.umask = current_umask();
++		p->o_arg.label = nfs4_label_copy(p->a_label, label);
++		if (c->sattr != NULL && c->sattr->ia_valid != 0) {
++			p->o_arg.u.attrs = &p->attrs;
++			memcpy(&p->attrs, c->sattr, sizeof(p->attrs));
++
++			memcpy(p->o_arg.u.verifier.data, c->verf,
++					sizeof(p->o_arg.u.verifier.data));
++		}
++	}
+ 	/* don't put an ACCESS op in OPEN compound if O_EXCL, because ACCESS
+ 	 * will return permission denied for all bits until close */
+ 	if (!(flags & O_EXCL)) {
+@@ -1270,7 +1280,6 @@ static struct nfs4_opendata *nfs4_opendata_alloc(struct dentry *dentry,
+ 	p->o_arg.server = server;
+ 	p->o_arg.bitmask = nfs4_bitmask(server, label);
+ 	p->o_arg.open_bitmap = &nfs4_fattr_bitmap[0];
+-	p->o_arg.label = nfs4_label_copy(p->a_label, label);
+ 	switch (p->o_arg.claim) {
+ 	case NFS4_OPEN_CLAIM_NULL:
+ 	case NFS4_OPEN_CLAIM_DELEGATE_CUR:
+@@ -1283,13 +1292,6 @@ static struct nfs4_opendata *nfs4_opendata_alloc(struct dentry *dentry,
+ 	case NFS4_OPEN_CLAIM_DELEG_PREV_FH:
+ 		p->o_arg.fh = NFS_FH(d_inode(dentry));
  	}
- 
- 	return mv88e6xxx_g1_vtu_op(chip, op);
+-	if (c != NULL && c->sattr != NULL && c->sattr->ia_valid != 0) {
+-		p->o_arg.u.attrs = &p->attrs;
+-		memcpy(&p->attrs, c->sattr, sizeof(p->attrs));
+-
+-		memcpy(p->o_arg.u.verifier.data, c->verf,
+-				sizeof(p->o_arg.u.verifier.data));
+-	}
+ 	p->c_arg.fh = &p->o_res.fh;
+ 	p->c_arg.stateid = &p->o_res.stateid;
+ 	p->c_arg.seqid = p->o_arg.seqid;
 -- 
 2.20.1
 
