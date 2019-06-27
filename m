@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CFE75772C
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0800D5772E
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727709AbfF0AnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:43:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47282 "EHLO mail.kernel.org"
+        id S1729881AbfF0An2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:43:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728157AbfF0AnW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:43:22 -0400
+        id S1728157AbfF0An0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:43:26 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90993208E3;
-        Thu, 27 Jun 2019 00:43:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B0EB214DA;
+        Thu, 27 Jun 2019 00:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561596201;
-        bh=2wN7/1FQiDeEJB5U0GsbdSu1agyTJhKVmOXHkz+gbqo=;
+        s=default; t=1561596205;
+        bh=338pd3QSDASsWHFiLUFucSAPLiwrZoCoKMKn677QCdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eeDlJKPQnpNGC3UMUaEFaJJV92yw0hWa4jFul51+X8dIL2oX3rZqNwlqKWBtx0a0G
-         rCboPdW0q990ol+SSp8yWa7EMprqXzR4m0Qp8At0oZEA/nHKFcYgQeAuYLFlFUZJNy
-         8YjVnwJJ29qadwDCmSDXM0478J7q9bOIENyBBRsk=
+        b=Z2z9pDMI3Row8o3T8HWzCnF3ROd9+zt8K3GL5pM9vIH7y34XXFfOHc4SuQI/vNNC3
+         X73h5M+Hg/Ejs0xqXR+eu+C5iuIHoQLdJCr+owFvs0DOv8WZFMEldFbsO1ALthxLh1
+         GKaEmUywnPWKQ5PGtyNow5R98oAWRlKadtZF84iQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sekhar Nori <nsekhar@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 10/12] ARM: davinci: da8xx: specify dma_coherent_mask for lcdc
-Date:   Wed, 26 Jun 2019 20:42:32 -0400
-Message-Id: <20190627004236.21909-10-sashal@kernel.org>
+Cc:     Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 11/12] md: fix for divide error in status_resync
+Date:   Wed, 26 Jun 2019 20:42:33 -0400
+Message-Id: <20190627004236.21909-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627004236.21909-1-sashal@kernel.org>
 References: <20190627004236.21909-1-sashal@kernel.org>
@@ -42,66 +43,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>
 
-[ Upstream commit 68f2515bb31a664ba3e2bc1eb78dd9f529b10067 ]
+[ Upstream commit 9642fa73d073527b0cbc337cc17a47d545d82cd2 ]
 
-The lcdc device is missing the dma_coherent_mask definition causing the
-following warning on da850-evm:
+Stopping external metadata arrays during resync/recovery causes
+retries, loop of interrupting and starting reconstruction, until it
+hit at good moment to stop completely. While these retries
+curr_mark_cnt can be small- especially on HDD drives, so subtraction
+result can be smaller than 0. However it is casted to uint without
+checking. As a result of it the status bar in /proc/mdstat while stopping
+is strange (it jumps between 0% and 99%).
 
-da8xx_lcdc da8xx_lcdc.0: found Sharp_LK043T1DG01 panel
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 1 at kernel/dma/mapping.c:247 dma_alloc_attrs+0xc8/0x110
-Modules linked in:
-CPU: 0 PID: 1 Comm: swapper Not tainted 5.2.0-rc3-00077-g16d72dd4891f #18
-Hardware name: DaVinci DA850/OMAP-L138/AM18x EVM
-[<c000fce8>] (unwind_backtrace) from [<c000d900>] (show_stack+0x10/0x14)
-[<c000d900>] (show_stack) from [<c001a4f8>] (__warn+0xec/0x114)
-[<c001a4f8>] (__warn) from [<c001a634>] (warn_slowpath_null+0x3c/0x48)
-[<c001a634>] (warn_slowpath_null) from [<c0065860>] (dma_alloc_attrs+0xc8/0x110)
-[<c0065860>] (dma_alloc_attrs) from [<c02820f8>] (fb_probe+0x228/0x5a8)
-[<c02820f8>] (fb_probe) from [<c02d3e9c>] (platform_drv_probe+0x48/0x9c)
-[<c02d3e9c>] (platform_drv_probe) from [<c02d221c>] (really_probe+0x1d8/0x2d4)
-[<c02d221c>] (really_probe) from [<c02d2474>] (driver_probe_device+0x5c/0x168)
-[<c02d2474>] (driver_probe_device) from [<c02d2728>] (device_driver_attach+0x58/0x60)
-[<c02d2728>] (device_driver_attach) from [<c02d27b0>] (__driver_attach+0x80/0xbc)
-[<c02d27b0>] (__driver_attach) from [<c02d047c>] (bus_for_each_dev+0x64/0xb4)
-[<c02d047c>] (bus_for_each_dev) from [<c02d1590>] (bus_add_driver+0xe4/0x1d8)
-[<c02d1590>] (bus_add_driver) from [<c02d301c>] (driver_register+0x78/0x10c)
-[<c02d301c>] (driver_register) from [<c000a5c0>] (do_one_initcall+0x48/0x1bc)
-[<c000a5c0>] (do_one_initcall) from [<c05cae6c>] (kernel_init_freeable+0x10c/0x1d8)
-[<c05cae6c>] (kernel_init_freeable) from [<c048a000>] (kernel_init+0x8/0xf4)
-[<c048a000>] (kernel_init) from [<c00090e0>] (ret_from_fork+0x14/0x34)
-Exception stack(0xc6837fb0 to 0xc6837ff8)
-7fa0:                                     00000000 00000000 00000000 00000000
-7fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-7fe0: 00000000 00000000 00000000 00000000 00000013 00000000
----[ end trace 8a8073511be81dd2 ]---
+The real problem occurs here after commit 72deb455b5ec ("block: remove
+CONFIG_LBDAF"). Sector_div() macro has been changed, now the
+divisor is casted to uint32. For db = -8 the divisior(db/32-1) becomes 0.
 
-Add a 32-bit mask to the platform device's definition.
+Check if db value can be really counted and replace these macro by
+div64_u64() inline.
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-
-Signed-off-by: Sekhar Nori <nsekhar@ti.com>
+Signed-off-by: Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-davinci/devices-da8xx.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/md/md.c | 36 ++++++++++++++++++++++--------------
+ 1 file changed, 22 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arm/mach-davinci/devices-da8xx.c b/arch/arm/mach-davinci/devices-da8xx.c
-index 78d325f3245a..4728d0974849 100644
---- a/arch/arm/mach-davinci/devices-da8xx.c
-+++ b/arch/arm/mach-davinci/devices-da8xx.c
-@@ -660,6 +660,9 @@ static struct platform_device da8xx_lcdc_device = {
- 	.id		= 0,
- 	.num_resources	= ARRAY_SIZE(da8xx_lcdc_resources),
- 	.resource	= da8xx_lcdc_resources,
-+	.dev		= {
-+		.coherent_dma_mask	= DMA_BIT_MASK(32),
-+	}
- };
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index f71cca28ddda..067af77bb729 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -7226,9 +7226,9 @@ static void status_unused(struct seq_file *seq)
+ static int status_resync(struct seq_file *seq, struct mddev *mddev)
+ {
+ 	sector_t max_sectors, resync, res;
+-	unsigned long dt, db;
+-	sector_t rt;
+-	int scale;
++	unsigned long dt, db = 0;
++	sector_t rt, curr_mark_cnt, resync_mark_cnt;
++	int scale, recovery_active;
+ 	unsigned int per_milli;
  
- int __init da8xx_register_lcdc(struct da8xx_lcdc_platform_data *pdata)
+ 	if (test_bit(MD_RECOVERY_SYNC, &mddev->recovery) ||
+@@ -7298,22 +7298,30 @@ static int status_resync(struct seq_file *seq, struct mddev *mddev)
+ 	 * db: blocks written from mark until now
+ 	 * rt: remaining time
+ 	 *
+-	 * rt is a sector_t, so could be 32bit or 64bit.
+-	 * So we divide before multiply in case it is 32bit and close
+-	 * to the limit.
+-	 * We scale the divisor (db) by 32 to avoid losing precision
+-	 * near the end of resync when the number of remaining sectors
+-	 * is close to 'db'.
+-	 * We then divide rt by 32 after multiplying by db to compensate.
+-	 * The '+1' avoids division by zero if db is very small.
++	 * rt is a sector_t, which is always 64bit now. We are keeping
++	 * the original algorithm, but it is not really necessary.
++	 *
++	 * Original algorithm:
++	 *   So we divide before multiply in case it is 32bit and close
++	 *   to the limit.
++	 *   We scale the divisor (db) by 32 to avoid losing precision
++	 *   near the end of resync when the number of remaining sectors
++	 *   is close to 'db'.
++	 *   We then divide rt by 32 after multiplying by db to compensate.
++	 *   The '+1' avoids division by zero if db is very small.
+ 	 */
+ 	dt = ((jiffies - mddev->resync_mark) / HZ);
+ 	if (!dt) dt++;
+-	db = (mddev->curr_mark_cnt - atomic_read(&mddev->recovery_active))
+-		- mddev->resync_mark_cnt;
++
++	curr_mark_cnt = mddev->curr_mark_cnt;
++	recovery_active = atomic_read(&mddev->recovery_active);
++	resync_mark_cnt = mddev->resync_mark_cnt;
++
++	if (curr_mark_cnt >= (recovery_active + resync_mark_cnt))
++		db = curr_mark_cnt - (recovery_active + resync_mark_cnt);
+ 
+ 	rt = max_sectors - resync;    /* number of remaining sectors */
+-	sector_div(rt, db/32+1);
++	rt = div64_u64(rt, db/32+1);
+ 	rt *= dt;
+ 	rt >>= 5;
+ 
 -- 
 2.20.1
 
