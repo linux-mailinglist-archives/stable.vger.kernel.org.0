@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00DEA57795
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4FC657683
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729101AbfF0Ajb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:39:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43676 "EHLO mail.kernel.org"
+        id S1729115AbfF0Ajf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:39:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728015AbfF0Aja (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:39:30 -0400
+        id S1728015AbfF0Aje (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:39:34 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F5E321855;
-        Thu, 27 Jun 2019 00:39:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 330BB2187F;
+        Thu, 27 Jun 2019 00:39:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595970;
-        bh=5vWSUOJZW6dON1b+ST2qbB6dOYIstTDHaIvdu7LwJS8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=sx7lO4BCQAbgxi92e1ZHAohtA3Ng4BNNvZfn+3minLbE3iC7Z49nq9CWdM3XSRm5P
-         rNPl9dELuVku2X7STf3vrhY57mKLEcMA0kHBLg4denBSprB16V534OjueVHFMmaIKt
-         IdlIU7bhn7oywETpHqJXJH3qQsIfwc4V5gCCzqBE=
+        s=default; t=1561595973;
+        bh=yO4X+tkatb6ouNmpPwbj6DIRyc/jJnTsov6Jg1xCx9Y=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=B80IADQnH3DRfn+RXhhp23krsNTjCPPFYu25zSH483pHU8Y221bNqDTVC+E0HXFEk
+         p/fzPWCb5+l1DlpMBzt8d6N1Ukva4rYaDgIvLTAXvcpWsrk8MylQEQTG9McPKCszKT
+         5QVsz/Us+h/o9aKLvo/nEqkxrnRcy4j+jnwaW2Kw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aaron Ma <aaron.ma@canonical.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 01/35] Input: elantech - enable middle button support on 2 ThinkPads
-Date:   Wed, 26 Jun 2019 20:38:49 -0400
-Message-Id: <20190627003925.21330-1-sashal@kernel.org>
+Cc:     Chang-Hsien Tsai <luke.tw@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 02/35] samples, bpf: fix to change the buffer size for read()
+Date:   Wed, 26 Jun 2019 20:38:50 -0400
+Message-Id: <20190627003925.21330-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190627003925.21330-1-sashal@kernel.org>
+References: <20190627003925.21330-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,32 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Ma <aaron.ma@canonical.com>
+From: Chang-Hsien Tsai <luke.tw@gmail.com>
 
-[ Upstream commit aa440de3058a3ef530851f9ef373fbb5f694dbc3 ]
+[ Upstream commit f7c2d64bac1be2ff32f8e4f500c6e5429c1003e0 ]
 
-Adding 2 new touchpad PNPIDs to enable middle button support.
+If the trace for read is larger than 4096, the return
+value sz will be 4096. This results in off-by-one error
+on buf:
 
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+    static char buf[4096];
+    ssize_t sz;
+
+    sz = read(trace_fd, buf, sizeof(buf));
+    if (sz > 0) {
+        buf[sz] = 0;
+        puts(buf);
+    }
+
+Signed-off-by: Chang-Hsien Tsai <luke.tw@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/elantech.c | 2 ++
- 1 file changed, 2 insertions(+)
+ samples/bpf/bpf_load.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index fda33fc3ffcc..ab4888d043f0 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1191,6 +1191,8 @@ static const char * const middle_button_pnp_ids[] = {
- 	"LEN2132", /* ThinkPad P52 */
- 	"LEN2133", /* ThinkPad P72 w/ NFC */
- 	"LEN2134", /* ThinkPad P72 */
-+	"LEN0407",
-+	"LEN0408",
- 	NULL
- };
+diff --git a/samples/bpf/bpf_load.c b/samples/bpf/bpf_load.c
+index 2325d7ad76df..e8e8b756dc52 100644
+--- a/samples/bpf/bpf_load.c
++++ b/samples/bpf/bpf_load.c
+@@ -613,7 +613,7 @@ void read_trace_pipe(void)
+ 		static char buf[4096];
+ 		ssize_t sz;
  
+-		sz = read(trace_fd, buf, sizeof(buf));
++		sz = read(trace_fd, buf, sizeof(buf) - 1);
+ 		if (sz > 0) {
+ 			buf[sz] = 0;
+ 			puts(buf);
 -- 
 2.20.1
 
