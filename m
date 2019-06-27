@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB123578BD
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9DF0578BF
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727103AbfF0AbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:31:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34636 "EHLO mail.kernel.org"
+        id S1727121AbfF0AbV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:31:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726795AbfF0AbS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:31:18 -0400
+        id S1727114AbfF0AbV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:31:21 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17BCE21738;
-        Thu, 27 Jun 2019 00:31:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7990E2083B;
+        Thu, 27 Jun 2019 00:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595477;
-        bh=wju1VQaqHnm5zBJ1TvSZIaWmUjFeiL7flKoyuWh5R7Q=;
+        s=default; t=1561595480;
+        bh=IVgFt8rK3b1MZCmGZ5RcOq/MjbjXoMgW/pq9jSmSysA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mxyZeqIUBTK85TGTDbpOcd5mWhIda1Pv1Jct6jYsOCYL8NsO7WyCPccJV7Of3mEGf
-         lTnJDVnn+J2bvyh2azaM9NoUtPjawujuE0/yOOAaBCA0xXx1L9z2XbkzO0YlJ2Tjno
-         fzUCiEC2BRroE6iFLz+iJ1bNcfCEegjRE8YAm4pI=
+        b=udrw3l06bRp+L8hBG/9eKEsspRi7AtglZU7pS4b/KSth6DlMN1aYoB0K33QWsR1O6
+         f/p5VBJypz0Lg4kWVZIM8IwijC7Ahb/rvSwO2a4Ek0rkM2rHuHjLzQ2qFsWJM+nEKO
+         LQ9zn0OVPrSs2v6M+vy04OobgOxqZZ7RNHCkulkk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Crt Mori <cmo@melexis.com>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 18/95] iio: temperature: mlx90632 Relax the compatibility check
-Date:   Wed, 26 Jun 2019 20:29:03 -0400
-Message-Id: <20190627003021.19867-18-sashal@kernel.org>
+Cc:     Thomas Pedersen <thomas@eero.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 19/95] mac80211: mesh: fix RCU warning
+Date:   Wed, 26 Jun 2019 20:29:04 -0400
+Message-Id: <20190627003021.19867-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627003021.19867-1-sashal@kernel.org>
 References: <20190627003021.19867-1-sashal@kernel.org>
@@ -43,58 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Crt Mori <cmo@melexis.com>
+From: Thomas Pedersen <thomas@eero.com>
 
-[ Upstream commit 389fc70b60f534d679aea9a3f05146040ce20d77 ]
+[ Upstream commit 551842446ed695641a00782cd118cbb064a416a1 ]
 
-Register EE_VERSION contains mixture of calibration information and DSP
-version. So far, because calibrations were definite, the driver
-compatibility depended on whole contents, but in the newer production
-process the calibration part changes. Because of that, value in EE_VERSION
-will be changed and to avoid that calibration value is same as DSP version
-the MSB in calibration part was fixed to 1.
-That means existing calibrations (medical and consumer) will now have
-hex values (bits 8 to 15) of 83 and 84 respectively. Driver compatibility
-should be based only on DSP version part of the EE_VERSION (bits 0 to 7)
-register.
+ifmsh->csa is an RCU-protected pointer. The writer context
+in ieee80211_mesh_finish_csa() is already mutually
+exclusive with wdev->sdata.mtx, but the RCU checker did
+not know this. Use rcu_dereference_protected() to avoid a
+warning.
 
-Signed-off-by: Crt Mori <cmo@melexis.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+fixes the following warning:
+
+[   12.519089] =============================
+[   12.520042] WARNING: suspicious RCU usage
+[   12.520652] 5.1.0-rc7-wt+ #16 Tainted: G        W
+[   12.521409] -----------------------------
+[   12.521972] net/mac80211/mesh.c:1223 suspicious rcu_dereference_check() usage!
+[   12.522928] other info that might help us debug this:
+[   12.523984] rcu_scheduler_active = 2, debug_locks = 1
+[   12.524855] 5 locks held by kworker/u8:2/152:
+[   12.525438]  #0: 00000000057be08c ((wq_completion)phy0){+.+.}, at: process_one_work+0x1a2/0x620
+[   12.526607]  #1: 0000000059c6b07a ((work_completion)(&sdata->csa_finalize_work)){+.+.}, at: process_one_work+0x1a2/0x620
+[   12.528001]  #2: 00000000f184ba7d (&wdev->mtx){+.+.}, at: ieee80211_csa_finalize_work+0x2f/0x90
+[   12.529116]  #3: 00000000831a1f54 (&local->mtx){+.+.}, at: ieee80211_csa_finalize_work+0x47/0x90
+[   12.530233]  #4: 00000000fd06f988 (&local->chanctx_mtx){+.+.}, at: ieee80211_csa_finalize_work+0x51/0x90
+
+Signed-off-by: Thomas Pedersen <thomas@eero.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/temperature/mlx90632.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ net/mac80211/mesh.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/temperature/mlx90632.c b/drivers/iio/temperature/mlx90632.c
-index be03be719efe..eaca6ba06864 100644
---- a/drivers/iio/temperature/mlx90632.c
-+++ b/drivers/iio/temperature/mlx90632.c
-@@ -81,6 +81,8 @@
- /* Magic constants */
- #define MLX90632_ID_MEDICAL	0x0105 /* EEPROM DSPv5 Medical device id */
- #define MLX90632_ID_CONSUMER	0x0205 /* EEPROM DSPv5 Consumer device id */
-+#define MLX90632_DSP_VERSION	5 /* DSP version */
-+#define MLX90632_DSP_MASK	GENMASK(7, 0) /* DSP version in EE_VERSION */
- #define MLX90632_RESET_CMD	0x0006 /* Reset sensor (address or global) */
- #define MLX90632_REF_12		12LL /**< ResCtrlRef value of Ch 1 or Ch 2 */
- #define MLX90632_REF_3		12LL /**< ResCtrlRef value of Channel 3 */
-@@ -667,10 +669,13 @@ static int mlx90632_probe(struct i2c_client *client,
- 	} else if (read == MLX90632_ID_CONSUMER) {
- 		dev_dbg(&client->dev,
- 			"Detected Consumer EEPROM calibration %x\n", read);
-+	} else if ((read & MLX90632_DSP_MASK) == MLX90632_DSP_VERSION) {
-+		dev_dbg(&client->dev,
-+			"Detected Unknown EEPROM calibration %x\n", read);	
- 	} else {
- 		dev_err(&client->dev,
--			"EEPROM version mismatch %x (expected %x or %x)\n",
--			read, MLX90632_ID_CONSUMER, MLX90632_ID_MEDICAL);
-+			"Wrong DSP version %x (expected %x)\n",
-+			read, MLX90632_DSP_VERSION);
- 		return -EPROTONOSUPPORT;
- 	}
+diff --git a/net/mac80211/mesh.c b/net/mac80211/mesh.c
+index 766e5e5bab8a..d5aba5029cb0 100644
+--- a/net/mac80211/mesh.c
++++ b/net/mac80211/mesh.c
+@@ -1220,7 +1220,8 @@ int ieee80211_mesh_finish_csa(struct ieee80211_sub_if_data *sdata)
+ 	ifmsh->chsw_ttl = 0;
  
+ 	/* Remove the CSA and MCSP elements from the beacon */
+-	tmp_csa_settings = rcu_dereference(ifmsh->csa);
++	tmp_csa_settings = rcu_dereference_protected(ifmsh->csa,
++					    lockdep_is_held(&sdata->wdev.mtx));
+ 	RCU_INIT_POINTER(ifmsh->csa, NULL);
+ 	if (tmp_csa_settings)
+ 		kfree_rcu(tmp_csa_settings, rcu_head);
+@@ -1242,6 +1243,8 @@ int ieee80211_mesh_csa_beacon(struct ieee80211_sub_if_data *sdata,
+ 	struct mesh_csa_settings *tmp_csa_settings;
+ 	int ret = 0;
+ 
++	lockdep_assert_held(&sdata->wdev.mtx);
++
+ 	tmp_csa_settings = kmalloc(sizeof(*tmp_csa_settings),
+ 				   GFP_ATOMIC);
+ 	if (!tmp_csa_settings)
 -- 
 2.20.1
 
