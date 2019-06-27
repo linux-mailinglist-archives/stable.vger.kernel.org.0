@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B4DA5762B
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 332ED57622
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:36:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727073AbfF0Afm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:35:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39832 "EHLO mail.kernel.org"
+        id S1727769AbfF0Af0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:35:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728279AbfF0AfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:35:23 -0400
+        id S1728257AbfF0Af0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:35:26 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17B2A217F9;
-        Thu, 27 Jun 2019 00:35:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63E40217F4;
+        Thu, 27 Jun 2019 00:35:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595722;
-        bh=g5ONFjRf9THI8f6AlcdxfoRRB6Ticf5wHSm5ZKcwvuU=;
+        s=default; t=1561595725;
+        bh=fpOF9X+K6MX51S2lgAmlVhrDgGS7QuhMNiVq3/Zuy0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nPUbzcmnmVAAUYKPdWOhFyIrN9d5BXamDyRU7iU4jzId/CgxQxOMpzja2AXeNp0fd
-         84tPbfcb+G0r27T+UIgnIk6L96aJm2jTN7pyp73yuvQJBLpy50ApttSzgZLbZshJz0
-         KKNpVvqJY+1SxWrf67kj7Kiyf8vvZXx2cpbvfZ7g=
+        b=PnMtstHAOnK/+cYq3j/SygXW6dTPlCktQVE/4TRnwFzA1IQE/u00bggRs+ttYmiQ7
+         c55GIMHbAe+zBaJLhtkB6h2YcNOOTG19ydgWKxoiD+lHqtBJeD+GObNonx4CV5OOvY
+         jYQp+OZu7/K65vijQtfgmCtxAPNjQypIhk5Jg1Xc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 92/95] net: dsa: mv88e6xxx: fix shift of FID bits in mv88e6185_g1_vtu_loadpurge()
-Date:   Wed, 26 Jun 2019 20:30:17 -0400
-Message-Id: <20190627003021.19867-92-sashal@kernel.org>
+Cc:     Andrew Jones <drjones@redhat.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Sasha Levin <sashal@kernel.org>, kvmarm@lists.cs.columbia.edu
+Subject: [PATCH AUTOSEL 5.1 93/95] KVM: arm/arm64: Fix emulated ptimer irq injection
+Date:   Wed, 26 Jun 2019 20:30:18 -0400
+Message-Id: <20190627003021.19867-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627003021.19867-1-sashal@kernel.org>
 References: <20190627003021.19867-1-sashal@kernel.org>
@@ -43,34 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+From: Andrew Jones <drjones@redhat.com>
 
-[ Upstream commit 48620e341659f6e4b978ec229f6944dabe6df709 ]
+[ Upstream commit e4e5a865e9a9e8e47ac1959b629e9f3ae3b062f2 ]
 
-The comment is correct, but the code ends up moving the bits four
-places too far, into the VTUOp field.
+The emulated ptimer needs to track the level changes, otherwise the
+the interrupt will never get deasserted, resulting in the guest getting
+stuck in an interrupt storm if it enables ptimer interrupts. This was
+found with kvm-unit-tests; the ptimer tests hung as soon as interrupts
+were enabled. Typical Linux guests don't have a problem as they prefer
+using the virtual timer.
 
-Fixes: 11ea809f1a74 (net: dsa: mv88e6xxx: support 256 databases)
-Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: bee038a674875 ("KVM: arm/arm64: Rework the timer code to use a timer_map")
+Signed-off-by: Andrew Jones <drjones@redhat.com>
+[Simplified the patch to res we only care about emulated timers here]
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/global1_vtu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ virt/kvm/arm/arch_timer.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/global1_vtu.c b/drivers/net/dsa/mv88e6xxx/global1_vtu.c
-index 058326924f3e..7a6667e0b9f9 100644
---- a/drivers/net/dsa/mv88e6xxx/global1_vtu.c
-+++ b/drivers/net/dsa/mv88e6xxx/global1_vtu.c
-@@ -419,7 +419,7 @@ int mv88e6185_g1_vtu_loadpurge(struct mv88e6xxx_chip *chip,
- 		 * VTU DBNum[7:4] are located in VTU Operation 11:8
- 		 */
- 		op |= entry->fid & 0x000f;
--		op |= (entry->fid & 0x00f0) << 8;
-+		op |= (entry->fid & 0x00f0) << 4;
+diff --git a/virt/kvm/arm/arch_timer.c b/virt/kvm/arm/arch_timer.c
+index 7fc272ecae16..1b1c449ceaf4 100644
+--- a/virt/kvm/arm/arch_timer.c
++++ b/virt/kvm/arm/arch_timer.c
+@@ -321,14 +321,15 @@ static void kvm_timer_update_irq(struct kvm_vcpu *vcpu, bool new_level,
+ 	}
+ }
+ 
++/* Only called for a fully emulated timer */
+ static void timer_emulate(struct arch_timer_context *ctx)
+ {
+ 	bool should_fire = kvm_timer_should_fire(ctx);
+ 
+ 	trace_kvm_timer_emulate(ctx, should_fire);
+ 
+-	if (should_fire) {
+-		kvm_timer_update_irq(ctx->vcpu, true, ctx);
++	if (should_fire != ctx->irq.level) {
++		kvm_timer_update_irq(ctx->vcpu, should_fire, ctx);
+ 		return;
  	}
  
- 	return mv88e6xxx_g1_vtu_op(chip, op);
 -- 
 2.20.1
 
