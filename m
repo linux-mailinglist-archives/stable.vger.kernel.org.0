@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 337BA575A7
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:31:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07734578BB
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:55:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727088AbfF0AbO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:31:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34546 "EHLO mail.kernel.org"
+        id S1727106AbfF0AbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:31:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726795AbfF0AbN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:31:13 -0400
+        id S1727094AbfF0AbQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:31:16 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46C7A2083B;
-        Thu, 27 Jun 2019 00:31:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B21B1216E3;
+        Thu, 27 Jun 2019 00:31:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595473;
-        bh=rRmk4vQCs0ryL3VDEzKs8V5C/4jSw57lrGEjsl2sxgU=;
+        s=default; t=1561595475;
+        bh=izG3SCuNQy/aSYFelT4kpyUT0lPwO5iH4uBJMSPnCdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bhrShYD+xeCIXo/CTNovEiO1MgdW066hH7tjpLMtQzWiEcHn9hijNJEA6crfhvbHc
-         0/9aXRhaP6lO5W1mK1QNzs22uI3cc6wxlGNDELZCoacArNFceL0M4PAvzKNUsCetTM
-         r6jn4A3oBzw9rx+G9+xYo6YLOwB0vMVz5upu7/qM=
+        b=m7V7HEbC8hcb1yw94wUpZQBl9RLsW5GUT0uvmBBVt4jGhqhS5Yo5FfripmYgJq7xC
+         5iZElix+p+XAgK1NMCgUo0qb5eErDKy8iw2bJ1X14kpEH4ggqAj7NUSzOXpW+R4h0J
+         98OFsYZatjdg3xnYx/MlQLdOx6yov2/Nt29MrIY0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Melissa Wen <melissa.srw@gmail.com>,
+Cc:     Lorenzo Bianconi <lorenzo@kernel.org>, Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org,
-        devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.1 16/95] staging:iio:ad7150: fix threshold mode config bit
-Date:   Wed, 26 Jun 2019 20:29:01 -0400
-Message-Id: <20190627003021.19867-16-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 17/95] iio: imu: st_lsm6dsx: fix PM support for st_lsm6dsx i2c controller
+Date:   Wed, 26 Jun 2019 20:29:02 -0400
+Message-Id: <20190627003021.19867-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627003021.19867-1-sashal@kernel.org>
 References: <20190627003021.19867-1-sashal@kernel.org>
@@ -44,78 +43,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Melissa Wen <melissa.srw@gmail.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit df4d737ee4d7205aaa6275158aeebff87fd14488 ]
+[ Upstream commit bce0d57db388cdb1c1931d0aa7d31c77b590e0f0 ]
 
-According to the AD7150 configuration register description, bit 7 assumes
-value 1 when the threshold mode is fixed and 0 when it is adaptive,
-however, the operation that identifies this mode was considering the
-opposite values.
+Properly suspend/resume i2c slaves connected to st_lsm6dsx master
+controller if the CPU goes in suspended state
 
-This patch renames the boolean variable to describe it correctly and
-properly replaces it in the places where it is used.
-
-Fixes: 531efd6aa0991 ("staging:iio:adc:ad7150: chan_spec conv + i2c_smbus commands + drop unused poweroff timeout control.")
-Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
+Fixes: c91c1c844ebd ("imu: st_lsm6dsx: add i2c embedded controller support")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/iio/cdc/ad7150.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h      |  2 ++
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 25 +++++++++++++-------
+ 2 files changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/iio/cdc/ad7150.c b/drivers/staging/iio/cdc/ad7150.c
-index 24f74ce60f80..14596aa7eaf1 100644
---- a/drivers/staging/iio/cdc/ad7150.c
-+++ b/drivers/staging/iio/cdc/ad7150.c
-@@ -6,6 +6,7 @@
-  * Licensed under the GPL-2 or later.
-  */
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
+index d1d8d07a0714..83425b7b580c 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
+@@ -265,6 +265,7 @@ struct st_lsm6dsx_sensor {
+  * @conf_lock: Mutex to prevent concurrent FIFO configuration update.
+  * @page_lock: Mutex to prevent concurrent memory page configuration.
+  * @fifo_mode: FIFO operating mode supported by the device.
++ * @suspend_mask: Suspended sensor bitmask.
+  * @enable_mask: Enabled sensor bitmask.
+  * @ts_sip: Total number of timestamp samples in a given pattern.
+  * @sip: Total number of samples (acc/gyro/ts) in a given pattern.
+@@ -282,6 +283,7 @@ struct st_lsm6dsx_hw {
+ 	struct mutex page_lock;
  
-+#include <linux/bitfield.h>
- #include <linux/interrupt.h>
- #include <linux/device.h>
- #include <linux/kernel.h>
-@@ -131,7 +132,7 @@ static int ad7150_read_event_config(struct iio_dev *indio_dev,
+ 	enum st_lsm6dsx_fifo_mode fifo_mode;
++	u8 suspend_mask;
+ 	u8 enable_mask;
+ 	u8 ts_sip;
+ 	u8 sip;
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+index 12e29dda9b98..96986d84e418 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+@@ -1023,8 +1023,6 @@ static int __maybe_unused st_lsm6dsx_suspend(struct device *dev)
  {
- 	int ret;
- 	u8 threshtype;
--	bool adaptive;
-+	bool thrfixed;
- 	struct ad7150_chip_info *chip = iio_priv(indio_dev);
+ 	struct st_lsm6dsx_hw *hw = dev_get_drvdata(dev);
+ 	struct st_lsm6dsx_sensor *sensor;
+-	const struct st_lsm6dsx_reg *reg;
+-	unsigned int data;
+ 	int i, err = 0;
  
- 	ret = i2c_smbus_read_byte_data(chip->client, AD7150_CFG);
-@@ -139,21 +140,23 @@ static int ad7150_read_event_config(struct iio_dev *indio_dev,
- 		return ret;
+ 	for (i = 0; i < ST_LSM6DSX_ID_MAX; i++) {
+@@ -1035,12 +1033,16 @@ static int __maybe_unused st_lsm6dsx_suspend(struct device *dev)
+ 		if (!(hw->enable_mask & BIT(sensor->id)))
+ 			continue;
  
- 	threshtype = (ret >> 5) & 0x03;
--	adaptive = !!(ret & 0x80);
+-		reg = &st_lsm6dsx_odr_table[sensor->id].reg;
+-		data = ST_LSM6DSX_SHIFT_VAL(0, reg->mask);
+-		err = st_lsm6dsx_update_bits_locked(hw, reg->addr, reg->mask,
+-						    data);
++		if (sensor->id == ST_LSM6DSX_ID_EXT0 ||
++		    sensor->id == ST_LSM6DSX_ID_EXT1 ||
++		    sensor->id == ST_LSM6DSX_ID_EXT2)
++			err = st_lsm6dsx_shub_set_enable(sensor, false);
++		else
++			err = st_lsm6dsx_sensor_set_enable(sensor, false);
+ 		if (err < 0)
+ 			return err;
 +
-+	/*check if threshold mode is fixed or adaptive*/
-+	thrfixed = FIELD_GET(AD7150_CFG_FIX, ret);
- 
- 	switch (type) {
- 	case IIO_EV_TYPE_MAG_ADAPTIVE:
- 		if (dir == IIO_EV_DIR_RISING)
--			return adaptive && (threshtype == 0x1);
--		return adaptive && (threshtype == 0x0);
-+			return !thrfixed && (threshtype == 0x1);
-+		return !thrfixed && (threshtype == 0x0);
- 	case IIO_EV_TYPE_THRESH_ADAPTIVE:
- 		if (dir == IIO_EV_DIR_RISING)
--			return adaptive && (threshtype == 0x3);
--		return adaptive && (threshtype == 0x2);
-+			return !thrfixed && (threshtype == 0x3);
-+		return !thrfixed && (threshtype == 0x2);
- 	case IIO_EV_TYPE_THRESH:
- 		if (dir == IIO_EV_DIR_RISING)
--			return !adaptive && (threshtype == 0x1);
--		return !adaptive && (threshtype == 0x0);
-+			return thrfixed && (threshtype == 0x1);
-+		return thrfixed && (threshtype == 0x0);
- 	default:
- 		break;
++		hw->suspend_mask |= BIT(sensor->id);
  	}
+ 
+ 	if (hw->fifo_mode != ST_LSM6DSX_FIFO_BYPASS)
+@@ -1060,12 +1062,19 @@ static int __maybe_unused st_lsm6dsx_resume(struct device *dev)
+ 			continue;
+ 
+ 		sensor = iio_priv(hw->iio_devs[i]);
+-		if (!(hw->enable_mask & BIT(sensor->id)))
++		if (!(hw->suspend_mask & BIT(sensor->id)))
+ 			continue;
+ 
+-		err = st_lsm6dsx_set_odr(sensor, sensor->odr);
++		if (sensor->id == ST_LSM6DSX_ID_EXT0 ||
++		    sensor->id == ST_LSM6DSX_ID_EXT1 ||
++		    sensor->id == ST_LSM6DSX_ID_EXT2)
++			err = st_lsm6dsx_shub_set_enable(sensor, true);
++		else
++			err = st_lsm6dsx_sensor_set_enable(sensor, true);
+ 		if (err < 0)
+ 			return err;
++
++		hw->suspend_mask &= ~BIT(sensor->id);
+ 	}
+ 
+ 	if (hw->enable_mask)
 -- 
 2.20.1
 
