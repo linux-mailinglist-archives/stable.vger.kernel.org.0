@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 118095761B
+	by mail.lfdr.de (Postfix) with ESMTP id EC8115761D
 	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:36:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727729AbfF0AfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:35:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39714 "EHLO mail.kernel.org"
+        id S1728276AbfF0AfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:35:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728252AbfF0AfQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:35:16 -0400
+        id S1728257AbfF0AfS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:35:18 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65B11217F9;
-        Thu, 27 Jun 2019 00:35:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4699F217F4;
+        Thu, 27 Jun 2019 00:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595715;
-        bh=2Rg3rhytNCFIIBZMHw/pfbljMPMzG/fPxvGHuncYIXo=;
+        s=default; t=1561595717;
+        bh=SQ9IR5Fk2JhjIsoB4sJRIflWq9VbQg4x2q3LL2zkuz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fLG1jwMFV5ZclKx/FPHSgVzfRBekjLbVDcNkaTOLhZ4G7XwGUa2rL63SXuQYPKWc0
-         50W7KjzIcbYl0AAWjMr7XyD3xicJx+rjss3SDFZYMhUvzWfaDSQ4anFvAOmSJHWf0J
-         wQt31Qx8628U6IaigXknggYyWEnni/2u1k4zDqfo=
+        b=iESBHwIW0DxR6Zo80ZGJSeNlDWA64tZDF+7nga3Hv+NbMD4Vi++zy3jqmw8dkmObe
+         Ml9VcSoqAXPSoz/O1kPu/45xhUoEwwvX65urYNssDBFG0WBwu5lc/AJmpQLVpbEN5E
+         AEuDgW9TNV3sB4MJUZmRKPhsDGbuAlk/iqnRKdYI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.1 89/95] powerpc: enable a 30-bit ZONE_DMA for 32-bit pmac
-Date:   Wed, 26 Jun 2019 20:30:14 -0400
-Message-Id: <20190627003021.19867-89-sashal@kernel.org>
+Cc:     yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 90/95] quota: fix a problem about transfer quota
+Date:   Wed, 26 Jun 2019 20:30:15 -0400
+Message-Id: <20190627003021.19867-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627003021.19867-1-sashal@kernel.org>
 References: <20190627003021.19867-1-sashal@kernel.org>
@@ -45,73 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: yangerkun <yangerkun@huawei.com>
 
-[ Upstream commit 9739ab7eda459f0669ec9807e0d9be5020bab88c ]
+[ Upstream commit c6d9c35d16f1bafd3fec64b865e569e48cbcb514 ]
 
-With the strict dma mask checking introduced with the switch to
-the generic DMA direct code common wifi chips on 32-bit powerbooks
-stopped working.  Add a 30-bit ZONE_DMA to the 32-bit pmac builds
-to allow them to reliably allocate dma coherent memory.
+Run below script as root, dquot_add_space will return -EDQUOT since
+__dquot_transfer call dquot_add_space with flags=0, and dquot_add_space
+think it's a preallocation. Fix it by set flags as DQUOT_SPACE_WARN.
 
-Fixes: 65a21b71f948 ("powerpc/dma: remove dma_nommu_dma_supported")
-Reported-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
-Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
-Tested-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+mkfs.ext4 -O quota,project /dev/vdb
+mount -o prjquota /dev/vdb /mnt
+setquota -P 23 1 1 0 0 /dev/vdb
+dd if=/dev/zero of=/mnt/test-file bs=4K count=1
+chattr -p 23 test-file
+
+Fixes: 7b9ca4c61bc2 ("quota: Reduce contention on dq_data_lock")
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/page.h         | 7 +++++++
- arch/powerpc/mm/mem.c                   | 3 ++-
- arch/powerpc/platforms/powermac/Kconfig | 1 +
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ fs/quota/dquot.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/page.h b/arch/powerpc/include/asm/page.h
-index ed870468ef6f..d408711d09fb 100644
---- a/arch/powerpc/include/asm/page.h
-+++ b/arch/powerpc/include/asm/page.h
-@@ -330,6 +330,13 @@ struct vm_area_struct;
- #endif /* __ASSEMBLY__ */
- #include <asm/slice.h>
- 
-+/*
-+ * Allow 30-bit DMA for very limited Broadcom wifi chips on many powerbooks.
-+ */
-+#ifdef CONFIG_PPC32
-+#define ARCH_ZONE_DMA_BITS 30
-+#else
- #define ARCH_ZONE_DMA_BITS 31
-+#endif
- 
- #endif /* _ASM_POWERPC_PAGE_H */
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index f6787f90e158..b98ce400a889 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -255,7 +255,8 @@ void __init paging_init(void)
- 	       (long int)((top_of_ram - total_ram) >> 20));
- 
- #ifdef CONFIG_ZONE_DMA
--	max_zone_pfns[ZONE_DMA]	= min(max_low_pfn, 0x7fffffffUL >> PAGE_SHIFT);
-+	max_zone_pfns[ZONE_DMA]	= min(max_low_pfn,
-+			((1UL << ARCH_ZONE_DMA_BITS) - 1) >> PAGE_SHIFT);
- #endif
- 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
- #ifdef CONFIG_HIGHMEM
-diff --git a/arch/powerpc/platforms/powermac/Kconfig b/arch/powerpc/platforms/powermac/Kconfig
-index f834a19ed772..c02d8c503b29 100644
---- a/arch/powerpc/platforms/powermac/Kconfig
-+++ b/arch/powerpc/platforms/powermac/Kconfig
-@@ -7,6 +7,7 @@ config PPC_PMAC
- 	select PPC_INDIRECT_PCI if PPC32
- 	select PPC_MPC106 if PPC32
- 	select PPC_NATIVE
-+	select ZONE_DMA if PPC32
- 	default y
- 
- config PPC_PMAC64
+diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
+index fc20e06c56ba..dd1783ea7003 100644
+--- a/fs/quota/dquot.c
++++ b/fs/quota/dquot.c
+@@ -1993,8 +1993,8 @@ int __dquot_transfer(struct inode *inode, struct dquot **transfer_to)
+ 				       &warn_to[cnt]);
+ 		if (ret)
+ 			goto over_quota;
+-		ret = dquot_add_space(transfer_to[cnt], cur_space, rsv_space, 0,
+-				      &warn_to[cnt]);
++		ret = dquot_add_space(transfer_to[cnt], cur_space, rsv_space,
++				      DQUOT_SPACE_WARN, &warn_to[cnt]);
+ 		if (ret) {
+ 			spin_lock(&transfer_to[cnt]->dq_dqb_lock);
+ 			dquot_decr_inodes(transfer_to[cnt], inode_usage);
 -- 
 2.20.1
 
