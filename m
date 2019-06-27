@@ -2,80 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 100F1586A6
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 18:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA409586BE
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 18:13:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726445AbfF0QG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jun 2019 12:06:29 -0400
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:45352 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726425AbfF0QG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jun 2019 12:06:29 -0400
-Received: by mail-oi1-f195.google.com with SMTP id m206so1955230oib.12
-        for <stable@vger.kernel.org>; Thu, 27 Jun 2019 09:06:28 -0700 (PDT)
+        id S1726472AbfF0QNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jun 2019 12:13:01 -0400
+Received: from mail-yb1-f180.google.com ([209.85.219.180]:44922 "EHLO
+        mail-yb1-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726445AbfF0QNA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jun 2019 12:13:00 -0400
+Received: by mail-yb1-f180.google.com with SMTP id j15so1834144ybh.11;
+        Thu, 27 Jun 2019 09:13:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=aWIMvxomigHpjWeHK43P8bQp7hskbPyoEW4qUC++xwQ=;
-        b=vp6g94SZAEhogB8+kASBrS83edW6InCqKko2xuhZZT36olRb9uNCLMVjLyfI6OQkYT
-         8otOEjJ/wDda0iFu+AgKq5gR4ZQdNDsgl1cId5NnnL1iJ/GvZXT6HuisMcGOClqUlIDC
-         FjGSCO8bQLXY3sOuHvTq/VDGJlZgYzKRP7eKLh/seOIB2ogk0e13lnG4EjwF37n71ps/
-         zar5oshbh8IZ1AxD5brAYSbwVO6BQCN0DWQqcd2Fb8iQvPW8X62BL2WBnTS1MxzZQhxg
-         ei8ENh0k8ProSrH8xiIDZSOUsBqFhCE5qcGcZDbva8PLP4urG/BUAIMh00/WAaoWm7Us
-         XyXw==
+        bh=svVGasx9FtsXEe0EJ0V55z0RqDtnu6EmPDKIV7VV/tg=;
+        b=iEWeBbTigq5jpeJO4fQylTrqZJdnOVcDW01UBqvJI7E/SdLENcyaDx7xvQbJSG9vsj
+         0dHUg0Wvmlz78j5jOIexmVMSUWF+3Dg13SU2GXMSQQ5QKg7JYGiaY4AETS6pj+yO94ss
+         HW60QQFlv4pAJsX9JNh/NwRO0xSHNNEr4NgJcgXXA9dRNL3bZsRP5LY+dm4Or6oqHAo3
+         Wr2chgQkUe7z84NteF2ROUCCyf5qekOBX7gJs+pJYIhUKvxsHqyRYB0QVU4uY8ksqpPO
+         gLNOzTrJIRuU/ke+bG2stdwGM86S5hkmbSmqTLI9CWZyG5FYQar4QSbWXbYaBuTiqgcH
+         C/yQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=aWIMvxomigHpjWeHK43P8bQp7hskbPyoEW4qUC++xwQ=;
-        b=MSIjQf05cqc2n15D0oCbnxsLyZ8yZ3qYFX04QQrkZFcG/ic4dEWJfqyfjadNbKsJs7
-         jSigYEbKc38jRel1k4zn1YxqTPPeyFrjx2wuwfTSDlMNNkmcZyunyYdcgDTONN67drSM
-         qMr09NdKGoTGEsySGFuLRxpvXUGheNqUKukxoEB2nF1lmVRXyGwVCo15j/174Po4cONG
-         TbAWlrrdWYZ+UXpQCiR6OED1OWhhWyJfXdV8Wr9nk/EGg6d3KadUAaPkam9oMA6KhARW
-         PAsE5eBdz8rSQVod39jPXGR9ZAGTSJoDcgJWMfvFa8v0QtobgPq+8b+A8nUacXVJKDAO
-         H7nw==
-X-Gm-Message-State: APjAAAUy08ugAmvmpMzS7cDFBz1tQVSd3DMJaV7uJq9E5gnOyqdHh5AP
-        kJF6ZU8IbugJ7EHLmXqszUa0+yrGRI38TxNIwryc2g==
-X-Google-Smtp-Source: APXvYqxTBH4M/fPCrgDrZ+VdGZm5oRMIwhu+eQ9E/gvhgkhPtescyRRgvt8+s9jNs39vk0crvfXTrVskZyRmmvNYxVA=
-X-Received: by 2002:aca:fc50:: with SMTP id a77mr2695751oii.0.1561651588356;
- Thu, 27 Jun 2019 09:06:28 -0700 (PDT)
+        bh=svVGasx9FtsXEe0EJ0V55z0RqDtnu6EmPDKIV7VV/tg=;
+        b=mIlBOEXgjDlwJZd2wDepyJAjl5wChhS90a9DAHW/vGUais5e/9J6EW6/PKKNR3wuO/
+         0XDxgKlDALbM93caPlP9Cz8FjaXah3poKSd4d6cGO/AudWOH3oMOCm0t5uR62u38ObrV
+         hMWhqBV8PhWBcNUTr/tsfIEEoQJunmhnwpvksZOGTp8lzNyT7x1kzHYkN8loXZ/+fOxo
+         RuCogKmEW2wIAjrBzVLN84zBPXMR6MPCPdFOHn0bv3APLcBKesVijZVoAuDPutgqaMHJ
+         nkotS/FoTW40xFgSrYb0mxT0bW6pP1l3n7e0m387SCXeYp6oKDL8iVP6iOU3RDgTAyuw
+         0pkQ==
+X-Gm-Message-State: APjAAAW6ENzTL121SK1yWyj3ew/rky11wmatouzsJ5HBV8U9GQYdwtvU
+        8kUGLq6V9TQA7vJlZNsVeXXKCUr70CrHqo0KqDI=
+X-Google-Smtp-Source: APXvYqwiOdsBk1CVbq1MeFVR1MLe3OT53WRx+DygeNzAvFdPM3Z/AUlHuIKG9zv5UiYiy/l/WbkxuhO3OQouO9z0UYY=
+X-Received: by 2002:a25:744b:: with SMTP id p72mr3199675ybc.439.1561651979742;
+ Thu, 27 Jun 2019 09:12:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <156159454541.2964018.7466991316059381921.stgit@dwillia2-desk3.amr.corp.intel.com>
- <20190627123415.GA4286@bombadil.infradead.org>
-In-Reply-To: <20190627123415.GA4286@bombadil.infradead.org>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Thu, 27 Jun 2019 09:06:17 -0700
-Message-ID: <CAPcyv4jQP-SFJGor-Q3VCRQ0xwt3MuVpH2qHx2wzyRA88DGQww@mail.gmail.com>
-Subject: Re: [PATCH] filesystem-dax: Disable PMD support
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     linux-nvdimm <linux-nvdimm@lists.01.org>, Jan Kara <jack@suse.cz>,
-        stable <stable@vger.kernel.org>,
-        Robert Barror <robert.barror@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <155009104740.32028.193157199378698979.stgit@magnolia> <20190213205804.GE32253@magnolia>
+In-Reply-To: <20190213205804.GE32253@magnolia>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Thu, 27 Jun 2019 19:12:48 +0300
+Message-ID: <CAOQ4uximAfJjNdunY2xK_1DwC2G7v31XWbv64AdO9nYdExUsVw@mail.gmail.com>
+Subject: [STABLE 4.19] fixes for xfs memory and fs corruption
+To:     "Darrick J. Wong" <darrick.wong@oracle.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        linux-xfs <linux-xfs@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 27, 2019 at 5:34 AM Matthew Wilcox <willy@infradead.org> wrote:
->
-> On Wed, Jun 26, 2019 at 05:15:45PM -0700, Dan Williams wrote:
-> > Ever since the conversion of DAX to the Xarray a RocksDB benchmark has
-> > been encountering intermittent lockups. The backtraces always include
-> > the filesystem-DAX PMD path, multi-order entries have been a source of
-> > bugs in the past, and disabling the PMD path allows a test that fails in
-> > minutes to run for an hour.
->
-> On May 4th, I asked you:
->
-> Since this is provoked by a fatal signal, it must have something to do
-> with a killable or interruptible sleep.  There's only one of those in the
-> DAX code; fatal_signal_pending() in dax_iomap_actor().  Does rocksdb do
-> I/O with write() or through a writable mmap()?  I'd like to know before
-> I chase too far down this fault tree analysis.
+Darrick,
 
-RocksDB in this case is using write() for writes and mmap() for reads.
+Can I have your blessing on the choice of these upstream commits
+as stable candidates?
+I did not observe any xfstests regressions when testing v4.19.55
+with these patches applied.
+
+Sasha,
+
+Can you run these patches though your xfstests setup?
+They fix nasty bugs.
+
+Make sure to update xfsprogs to very latest, because
+generic/530 used to blow up (OOM) my test machine...
+
+>
+> The first patch fixes a memory corruption that syzkaller found in the
+> attr listent code;
+
+3b50086f0c0d xfs: don't overflow xattr listent buffer
+
+> see "generic: posix acl extended attribute memory
+> corruption test" for the relevant regression test.
+
+Fixed generic/529
+
+>
+> Patches 2 fixes problems found in XFS's unlinked inode recovery code
+> that were unearthed by some new testcases.  We're logging nlink==1 temp
+> files on the iunlinked list (and then the vfs sets nlink to 0 without
+> telling us) which means that we leak them in recovery if we crash
+> immediately after the committing the creation of the temp file.
+>
+> Patch 3 fixes the problem that ifree during recovery can expand the
+> finobt but we need to force the ifree code to reserve blocks for the
+> transaction because perag reservations aren't set up yet.
+
+e1f6ca113815 xfs: rename m_inotbt_nores to m_finobt_nores
+15a268d9f263 xfs: reserve blocks for ifree transaction during log recovery
+c4a6bf7f6cc7 xfs: don't ever put nlink > 0 inodes on the unlinked list
+
+>
+> See "[PATCH v2 2/2] generic: check the behavior of programs opening a
+> lot of O_TMPFILE files" for the regression test.
+>
+
+Fixes generic/530
+
+Thanks,
+Amir.
