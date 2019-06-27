@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A7AD577B2
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:49:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A79B57792
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728286AbfF0ArM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:47:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43554 "EHLO mail.kernel.org"
+        id S1728585AbfF0AjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:39:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728550AbfF0AjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:39:19 -0400
+        id S1728199AbfF0AjW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:39:22 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41A5521852;
-        Thu, 27 Jun 2019 00:39:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5515921855;
+        Thu, 27 Jun 2019 00:39:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595958;
-        bh=8pwM7VI4kWmWnickxe40KpU86OVmTEuR9qmIxbEyugY=;
+        s=default; t=1561595961;
+        bh=yso73BmTMDqJZ5UXPhwZnb/Q5o9FgmQEh5o4fbZC4Mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zgiFaVyiYocnaDEBu2y16o4l3w8OaQaS3nTQh+C41h7HIQ46ibBOBR7hCrB9ldlxP
-         Egek1To73RW4L4ZgcbLAfTHzSIJEHC3YXBMNidONPm0IRQmNTjb6UfmgeDLWb64LFm
-         aXhj1JtZBgQpr45cdCezBMICGNGTioO/qRKdCObs=
+        b=EUtqSXaYK/qCpJL1iq8CEqMs9KrHvm97Uc3baz2Xcg3kIgagbcF4M6dIN994Xc+w/
+         S2WMT9F0Uf0iGKPFpTlYAv6IEsrdlbMHW0qyJF4lriEsFcGZGfEW93TRSentCRGSNF
+         uNxGt4sCuoJ5y3Rxxj5q2EVALTPoQ8IPHe47K5HU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Coddington <bcodding@redhat.com>,
-        Trond Myklebust <trondmy@hammerspace.com>,
+Cc:     Lin Yi <teroincn@163.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 59/60] NFS4: Only set creation opendata if O_CREAT
-Date:   Wed, 26 Jun 2019 20:36:14 -0400
-Message-Id: <20190627003616.20767-59-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 60/60] net :sunrpc :clnt :Fix xps refcount imbalance on the error path
+Date:   Wed, 26 Jun 2019 20:36:15 -0400
+Message-Id: <20190627003616.20767-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627003616.20767-1-sashal@kernel.org>
 References: <20190627003616.20767-1-sashal@kernel.org>
@@ -44,74 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Lin Yi <teroincn@163.com>
 
-[ Upstream commit 909105199a682cb09c500acd443d34b182846c9c ]
+[ Upstream commit b96226148491505318228ac52624956bd98f9e0c ]
 
-We can end up in nfs4_opendata_alloc during task exit, in which case
-current->fs has already been cleaned up.  This leads to a crash in
-current_umask().
+rpc_clnt_add_xprt take a reference to struct rpc_xprt_switch, but forget
+to release it before return, may lead to a memory leak.
 
-Fix this by only setting creation opendata if we are actually doing an open
-with O_CREAT.  We can drop the check for NULL nfs4_open_createattrs, since
-O_CREAT will never be set for the recovery path.
-
-Suggested-by: Trond Myklebust <trondmy@hammerspace.com>
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Lin Yi <teroincn@163.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ net/sunrpc/clnt.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 53cf8599a46e..1de855e0ae61 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1243,10 +1243,20 @@ static struct nfs4_opendata *nfs4_opendata_alloc(struct dentry *dentry,
- 	atomic_inc(&sp->so_count);
- 	p->o_arg.open_flags = flags;
- 	p->o_arg.fmode = fmode & (FMODE_READ|FMODE_WRITE);
--	p->o_arg.umask = current_umask();
- 	p->o_arg.claim = nfs4_map_atomic_open_claim(server, claim);
- 	p->o_arg.share_access = nfs4_map_atomic_open_share(server,
- 			fmode, flags);
-+	if (flags & O_CREAT) {
-+		p->o_arg.umask = current_umask();
-+		p->o_arg.label = nfs4_label_copy(p->a_label, label);
-+		if (c->sattr != NULL && c->sattr->ia_valid != 0) {
-+			p->o_arg.u.attrs = &p->attrs;
-+			memcpy(&p->attrs, c->sattr, sizeof(p->attrs));
-+
-+			memcpy(p->o_arg.u.verifier.data, c->verf,
-+					sizeof(p->o_arg.u.verifier.data));
-+		}
-+	}
- 	/* don't put an ACCESS op in OPEN compound if O_EXCL, because ACCESS
- 	 * will return permission denied for all bits until close */
- 	if (!(flags & O_EXCL)) {
-@@ -1270,7 +1280,6 @@ static struct nfs4_opendata *nfs4_opendata_alloc(struct dentry *dentry,
- 	p->o_arg.server = server;
- 	p->o_arg.bitmask = nfs4_bitmask(server, label);
- 	p->o_arg.open_bitmap = &nfs4_fattr_bitmap[0];
--	p->o_arg.label = nfs4_label_copy(p->a_label, label);
- 	switch (p->o_arg.claim) {
- 	case NFS4_OPEN_CLAIM_NULL:
- 	case NFS4_OPEN_CLAIM_DELEGATE_CUR:
-@@ -1283,13 +1292,6 @@ static struct nfs4_opendata *nfs4_opendata_alloc(struct dentry *dentry,
- 	case NFS4_OPEN_CLAIM_DELEG_PREV_FH:
- 		p->o_arg.fh = NFS_FH(d_inode(dentry));
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index 1fc812ba9871..d568076cd573 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -2714,6 +2714,7 @@ int rpc_clnt_add_xprt(struct rpc_clnt *clnt,
+ 	xprt = xprt_iter_xprt(&clnt->cl_xpi);
+ 	if (xps == NULL || xprt == NULL) {
+ 		rcu_read_unlock();
++		xprt_switch_put(xps);
+ 		return -EAGAIN;
  	}
--	if (c != NULL && c->sattr != NULL && c->sattr->ia_valid != 0) {
--		p->o_arg.u.attrs = &p->attrs;
--		memcpy(&p->attrs, c->sattr, sizeof(p->attrs));
--
--		memcpy(p->o_arg.u.verifier.data, c->verf,
--				sizeof(p->o_arg.u.verifier.data));
--	}
- 	p->c_arg.fh = &p->o_res.fh;
- 	p->c_arg.stateid = &p->o_res.stateid;
- 	p->c_arg.seqid = p->o_arg.seqid;
+ 	resvport = xprt->resvport;
 -- 
 2.20.1
 
