@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBAD057757
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:46:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0BBE57755
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728295AbfF0Aka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:40:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44436 "EHLO mail.kernel.org"
+        id S1728336AbfF0Akd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:40:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729343AbfF0Ak3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:40:29 -0400
+        id S1727273AbfF0Akc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:40:32 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 158A621855;
-        Thu, 27 Jun 2019 00:40:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F52C21883;
+        Thu, 27 Jun 2019 00:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561596027;
-        bh=+ZN2H1Rhb2nLG7GYH4zcFDSdXLZMZUmax+jn/se6dp4=;
+        s=default; t=1561596031;
+        bh=zv5ArkQNzKVhkr4KOuXcuxsIBaZHqAmilWoFbD4Feso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F8rLymC1voCubgjjSe6GfohXY2pq6MoRFmkcv1KcxOVBlBPFM2dN6APiqQbxONx9Q
-         54vtcSik55G8+XtWptqAJYUz/R08UArVHs3X0kKiZUNHnC9IBTsbcVD0x0BP4bB9YA
-         cQI4dT7lAu4iFov604S4T15fMRE/xstdtzzFskcE=
+        b=fnBxhBfQkrfrjCzPlt3uxCwepLBJ4FGEu731B4eFBvUkTAaHQZwQXNBMWLrPhqZdw
+         +l6Wvc1/oeixDGZCQz9ziNhTXHuYyBpqlbeJblfR4wiCI8EKgqrF7CmBPA+neUCnEI
+         u1Iil2XMfyW4WwGUdZIu7m3gjSSKKGzqJfTd7Ud0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Teresa Remmet <t.remmet@phytec.de>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 18/35] ARM: dts: am335x phytec boards: Fix cd-gpios active level
-Date:   Wed, 26 Jun 2019 20:39:06 -0400
-Message-Id: <20190627003925.21330-18-sashal@kernel.org>
+Cc:     Anson Huang <anson.huang@nxp.com>,
+        Anson Huang <Anson.Huang@nxp.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 19/35] Input: imx_keypad - make sure keyboard can always wake up system
+Date:   Wed, 26 Jun 2019 20:39:07 -0400
+Message-Id: <20190627003925.21330-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627003925.21330-1-sashal@kernel.org>
 References: <20190627003925.21330-1-sashal@kernel.org>
@@ -44,47 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Teresa Remmet <t.remmet@phytec.de>
+From: Anson Huang <anson.huang@nxp.com>
 
-[ Upstream commit 8a0098c05a272c9a68f6885e09755755b612459c ]
+[ Upstream commit ce9a53eb3dbca89e7ad86673d94ab886e9bea704 ]
 
-Active level of the mmc1 cd gpio needs to be low instead of high.
-Fix PCM-953 and phyBOARD-WEGA.
+There are several scenarios that keyboard can NOT wake up system
+from suspend, e.g., if a keyboard is depressed between system
+device suspend phase and device noirq suspend phase, the keyboard
+ISR will be called and both keyboard depress and release interrupts
+will be disabled, then keyboard will no longer be able to wake up
+system. Another scenario would be, if a keyboard is kept depressed,
+and then system goes into suspend, the expected behavior would be
+when keyboard is released, system will be waked up, but current
+implementation can NOT achieve that, because both depress and release
+interrupts are disabled in ISR, and the event check is still in
+progress.
 
-Signed-off-by: Teresa Remmet <t.remmet@phytec.de>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+To fix these issues, need to make sure keyboard's depress or release
+interrupt is enabled after noirq device suspend phase, this patch
+moves the suspend/resume callback to noirq suspend/resume phase, and
+enable the corresponding interrupt according to current keyboard status.
+
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am335x-pcm-953.dtsi | 2 +-
- arch/arm/boot/dts/am335x-wega.dtsi    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/keyboard/imx_keypad.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am335x-pcm-953.dtsi b/arch/arm/boot/dts/am335x-pcm-953.dtsi
-index 1ec8e0d80191..572fbd254690 100644
---- a/arch/arm/boot/dts/am335x-pcm-953.dtsi
-+++ b/arch/arm/boot/dts/am335x-pcm-953.dtsi
-@@ -197,7 +197,7 @@
- 	bus-width = <4>;
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&mmc1_pins>;
--	cd-gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
-+	cd-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
- 	status = "okay";
- };
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index 2165f3dd328b..842c0235471d 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -530,11 +530,12 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 	return 0;
+ }
  
-diff --git a/arch/arm/boot/dts/am335x-wega.dtsi b/arch/arm/boot/dts/am335x-wega.dtsi
-index 8ce541739b24..83e4fe595e37 100644
---- a/arch/arm/boot/dts/am335x-wega.dtsi
-+++ b/arch/arm/boot/dts/am335x-wega.dtsi
-@@ -157,7 +157,7 @@
- 	bus-width = <4>;
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&mmc1_pins>;
--	cd-gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
-+	cd-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
- 	status = "okay";
- };
+-static int __maybe_unused imx_kbd_suspend(struct device *dev)
++static int __maybe_unused imx_kbd_noirq_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
+ 	struct input_dev *input_dev = kbd->input_dev;
++	unsigned short reg_val = readw(kbd->mmio_base + KPSR);
  
+ 	/* imx kbd can wake up system even clock is disabled */
+ 	mutex_lock(&input_dev->mutex);
+@@ -544,13 +545,20 @@ static int __maybe_unused imx_kbd_suspend(struct device *dev)
+ 
+ 	mutex_unlock(&input_dev->mutex);
+ 
+-	if (device_may_wakeup(&pdev->dev))
++	if (device_may_wakeup(&pdev->dev)) {
++		if (reg_val & KBD_STAT_KPKD)
++			reg_val |= KBD_STAT_KRIE;
++		if (reg_val & KBD_STAT_KPKR)
++			reg_val |= KBD_STAT_KDIE;
++		writew(reg_val, kbd->mmio_base + KPSR);
++
+ 		enable_irq_wake(kbd->irq);
++	}
+ 
+ 	return 0;
+ }
+ 
+-static int __maybe_unused imx_kbd_resume(struct device *dev)
++static int __maybe_unused imx_kbd_noirq_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
+@@ -574,7 +582,9 @@ static int __maybe_unused imx_kbd_resume(struct device *dev)
+ 	return ret;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
++static const struct dev_pm_ops imx_kbd_pm_ops = {
++	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(imx_kbd_noirq_suspend, imx_kbd_noirq_resume)
++};
+ 
+ static struct platform_driver imx_keypad_driver = {
+ 	.driver		= {
 -- 
 2.20.1
 
