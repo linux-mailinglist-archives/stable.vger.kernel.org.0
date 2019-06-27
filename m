@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 315C357849
+	by mail.lfdr.de (Postfix) with ESMTP id 9F4565784A
 	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:52:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727849AbfF0Adp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:33:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37682 "EHLO mail.kernel.org"
+        id S1726909AbfF0Adt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:33:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726906AbfF0Ado (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:33:44 -0400
+        id S1726906AbfF0Ads (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:33:48 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6958920659;
-        Thu, 27 Jun 2019 00:33:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 298952187F;
+        Thu, 27 Jun 2019 00:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595623;
-        bh=u7QqRGXpxqS0z/U4t34C5o/WpIMl8knMCDPRxkx9ZnE=;
+        s=default; t=1561595628;
+        bh=IoHyqeC7XkY7YJNY90CEg5MecHzmrnu75WvPamc1rNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wuIhrrDhKrhvBMdUlDwTFrfTuJUtFCbJaT/owYhWBkCRYMWa0Fgn3VjdyJwPwnr1Z
-         cMypKIBppnSSf1bD4WH6skh+yId7hiV4yOH7T+OqTnILJSyg6sjNhyd0eGuNicuHER
-         sQrguyCOZczAw5D1kxV+mipisuR7J1okc7uTm99I=
+        b=tnJGRXFJ11Axog/i4IDG+SOmKuKN4whasNrlFrV+p4qQzRYWaQPm0vWLOuSvauIG2
+         RrCit0PdsCTcXw4Y4CUScWbWtZLns1bOlzNGsBbVhFWAw4PvMRYwgP0GypyUdsyIPk
+         xs9SExmjYPCbDGv2TuAACvqpHU8EwNtp4pfLSSeo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 58/95] bpf: fix div64 overflow tests to properly detect errors
-Date:   Wed, 26 Jun 2019 20:29:43 -0400
-Message-Id: <20190627003021.19867-58-sashal@kernel.org>
+Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sekhar Nori <nsekhar@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 59/95] ARM: davinci: da850-evm: call regulator_has_full_constraints()
+Date:   Wed, 26 Jun 2019 20:29:44 -0400
+Message-Id: <20190627003021.19867-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627003021.19867-1-sashal@kernel.org>
 References: <20190627003021.19867-1-sashal@kernel.org>
@@ -45,53 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-[ Upstream commit 3e0682695199bad51dd898fe064d1564637ff77a ]
+[ Upstream commit 0c0c9b5753cd04601b17de09da1ed2885a3b42fe ]
 
-If the result of the division is LLONG_MIN, current tests do not detect
-the error since the return value is truncated to a 32-bit value and ends
-up being 0.
+The BB expander at 0x21 i2c bus 1 fails to probe on da850-evm because
+the board doesn't set has_full_constraints to true in the regulator
+API.
 
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Call regulator_has_full_constraints() at the end of board registration
+just like we do in da850-lcdk and da830-evm.
+
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Sekhar Nori <nsekhar@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../testing/selftests/bpf/verifier/div_overflow.c  | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ arch/arm/mach-davinci/board-da850-evm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/verifier/div_overflow.c b/tools/testing/selftests/bpf/verifier/div_overflow.c
-index bd3f38dbe796..acab4f00819f 100644
---- a/tools/testing/selftests/bpf/verifier/div_overflow.c
-+++ b/tools/testing/selftests/bpf/verifier/div_overflow.c
-@@ -29,8 +29,11 @@
- 	"DIV64 overflow, check 1",
- 	.insns = {
- 	BPF_MOV64_IMM(BPF_REG_1, -1),
--	BPF_LD_IMM64(BPF_REG_0, LLONG_MIN),
--	BPF_ALU64_REG(BPF_DIV, BPF_REG_0, BPF_REG_1),
-+	BPF_LD_IMM64(BPF_REG_2, LLONG_MIN),
-+	BPF_ALU64_REG(BPF_DIV, BPF_REG_2, BPF_REG_1),
-+	BPF_MOV32_IMM(BPF_REG_0, 0),
-+	BPF_JMP_REG(BPF_JEQ, BPF_REG_0, BPF_REG_2, 1),
-+	BPF_MOV32_IMM(BPF_REG_0, 1),
- 	BPF_EXIT_INSN(),
- 	},
- 	.prog_type = BPF_PROG_TYPE_SCHED_CLS,
-@@ -40,8 +43,11 @@
- {
- 	"DIV64 overflow, check 2",
- 	.insns = {
--	BPF_LD_IMM64(BPF_REG_0, LLONG_MIN),
--	BPF_ALU64_IMM(BPF_DIV, BPF_REG_0, -1),
-+	BPF_LD_IMM64(BPF_REG_1, LLONG_MIN),
-+	BPF_ALU64_IMM(BPF_DIV, BPF_REG_1, -1),
-+	BPF_MOV32_IMM(BPF_REG_0, 0),
-+	BPF_JMP_REG(BPF_JEQ, BPF_REG_0, BPF_REG_1, 1),
-+	BPF_MOV32_IMM(BPF_REG_0, 1),
- 	BPF_EXIT_INSN(),
- 	},
- 	.prog_type = BPF_PROG_TYPE_SCHED_CLS,
+diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
+index 1fdc9283a8c5..2450936b91d0 100644
+--- a/arch/arm/mach-davinci/board-da850-evm.c
++++ b/arch/arm/mach-davinci/board-da850-evm.c
+@@ -1479,6 +1479,8 @@ static __init void da850_evm_init(void)
+ 	if (ret)
+ 		pr_warn("%s: dsp/rproc registration failed: %d\n",
+ 			__func__, ret);
++
++	regulator_has_full_constraints();
+ }
+ 
+ #ifdef CONFIG_SERIAL_8250_CONSOLE
 -- 
 2.20.1
 
