@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71E495783F
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:52:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6479A57841
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727774AbfF0Adb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:33:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37470 "EHLO mail.kernel.org"
+        id S1727794AbfF0Ade (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:33:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727237AbfF0Ada (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:33:30 -0400
+        id S1727790AbfF0Add (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:33:33 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94DE020815;
-        Thu, 27 Jun 2019 00:33:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECB8020659;
+        Thu, 27 Jun 2019 00:33:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595609;
-        bh=Z+shlkBQ8wdolk7PdrDWnw2HVrwoukW1lc4Rr9oYFNM=;
+        s=default; t=1561595613;
+        bh=sdYQlT/QR9qnfUppoL510UcXK/iyml6oU8cQwuy/eP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yI3VQ3i/7+Fp7SyqLBPM53mXMPkR4vaX/pU3UZy6YrgiRLlQFjYzl6eK0RJoeqUgb
-         YaVjSk6AZfvrwqQCIhlSdmTHrHgZlTyPDS8Fzu2idjBvJRQZpbCB0v1cGG5CUIOTAT
-         yVvCSUyyLqiaNCzIVMFLpeMQ1uAPpeYXZMXx6+gc=
+        b=pUjOgsYfnxXxe+N4WVraMulu3OHOXn8kBEQ71Yqe7a7YcQF0ArK+ixMMz+INt2649
+         629bPD1DvCQOl1u9+HTHwFNOaKYASPDUtpmauEzE0cf+5Jh6CeKK3PNDm4r4TrlzXe
+         x+An0xr4EJ+hi34ggaya77JfQMZP/UiygF+eKIlc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ilya Maximets <i.maximets@samsung.com>,
-        Jonathan Lemon <jonathan.lemon@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, xdp-newbies@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 54/95] xdp: check device pointer before clearing
-Date:   Wed, 26 Jun 2019 20:29:39 -0400
-Message-Id: <20190627003021.19867-54-sashal@kernel.org>
+Cc:     Dave Martin <Dave.Martin@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Sasha Levin <sashal@kernel.org>, kvmarm@lists.cs.columbia.edu
+Subject: [PATCH AUTOSEL 5.1 55/95] KVM: arm/arm64: vgic: Fix kvm_device leak in vgic_its_destroy
+Date:   Wed, 26 Jun 2019 20:29:40 -0400
+Message-Id: <20190627003021.19867-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627003021.19867-1-sashal@kernel.org>
 References: <20190627003021.19867-1-sashal@kernel.org>
@@ -45,50 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Maximets <i.maximets@samsung.com>
+From: Dave Martin <Dave.Martin@arm.com>
 
-[ Upstream commit 01d76b5317003e019ace561a9b775f51aafdfdc4 ]
+[ Upstream commit 4729ec8c1e1145234aeeebad5d96d77f4ccbb00a ]
 
-We should not call 'ndo_bpf()' or 'dev_put()' with NULL argument.
+kvm_device->destroy() seems to be supposed to free its kvm_device
+struct, but vgic_its_destroy() is not currently doing this,
+resulting in a memory leak, resulting in kmemleak reports such as
+the following:
 
-Fixes: c9b47cc1fabc ("xsk: fix bug when trying to use both copy and zero-copy on one queue id")
-Signed-off-by: Ilya Maximets <i.maximets@samsung.com>
-Acked-by: Jonathan Lemon <jonathan.lemon@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+unreferenced object 0xffff800aeddfe280 (size 128):
+  comm "qemu-system-aar", pid 13799, jiffies 4299827317 (age 1569.844s)
+  [...]
+  backtrace:
+    [<00000000a08b80e2>] kmem_cache_alloc+0x178/0x208
+    [<00000000dcad2bd3>] kvm_vm_ioctl+0x350/0xbc0
+
+Fix it.
+
+Cc: Andre Przywara <andre.przywara@arm.com>
+Fixes: 1085fdc68c60 ("KVM: arm64: vgic-its: Introduce new KVM ITS device")
+Signed-off-by: Dave Martin <Dave.Martin@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xdp_umem.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ virt/kvm/arm/vgic/vgic-its.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/xdp/xdp_umem.c b/net/xdp/xdp_umem.c
-index 989e52386c35..2f7e2c33a812 100644
---- a/net/xdp/xdp_umem.c
-+++ b/net/xdp/xdp_umem.c
-@@ -143,6 +143,9 @@ static void xdp_umem_clear_dev(struct xdp_umem *umem)
- 	struct netdev_bpf bpf;
- 	int err;
+diff --git a/virt/kvm/arm/vgic/vgic-its.c b/virt/kvm/arm/vgic/vgic-its.c
+index 44ceaccb18cf..8c9fe831bce4 100644
+--- a/virt/kvm/arm/vgic/vgic-its.c
++++ b/virt/kvm/arm/vgic/vgic-its.c
+@@ -1734,6 +1734,7 @@ static void vgic_its_destroy(struct kvm_device *kvm_dev)
  
-+	if (!umem->dev)
-+		return;
-+
- 	if (umem->zc) {
- 		bpf.command = XDP_SETUP_XSK_UMEM;
- 		bpf.xsk.umem = NULL;
-@@ -156,11 +159,9 @@ static void xdp_umem_clear_dev(struct xdp_umem *umem)
- 			WARN(1, "failed to disable umem!\n");
- 	}
+ 	mutex_unlock(&its->its_lock);
+ 	kfree(its);
++	kfree(kvm_dev);/* alloc by kvm_ioctl_create_device, free by .destroy */
+ }
  
--	if (umem->dev) {
--		rtnl_lock();
--		xdp_clear_umem_at_qid(umem->dev, umem->queue_id);
--		rtnl_unlock();
--	}
-+	rtnl_lock();
-+	xdp_clear_umem_at_qid(umem->dev, umem->queue_id);
-+	rtnl_unlock();
- 
- 	if (umem->zc) {
- 		dev_put(umem->dev);
+ static int vgic_its_has_attr_regs(struct kvm_device *dev,
 -- 
 2.20.1
 
