@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4438E57634
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:37:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AF0057636
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:37:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726865AbfF0AgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40742 "EHLO mail.kernel.org"
+        id S1728030AbfF0Ag3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:36:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726799AbfF0AgV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:36:21 -0400
+        id S1727153AbfF0AgY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:36:24 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 864E9217F4;
-        Thu, 27 Jun 2019 00:36:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9599217F4;
+        Thu, 27 Jun 2019 00:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595780;
-        bh=GNN0sR4e16+0nWy1iWP+tAoGWftpGYQrJW02a8FU0ZM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=YCVxxbKFebNXTj8jsQ8BlVB0amCsEcEDcUjBu1Ltjj8tcVYrELN63tHMmFrj1XLAf
-         ZL4wU9ujYT7j0Pz40i1QqhjSZ2mTl3INDzlFdpW59BpAcVjPF6G4PZDGVgZMJzPbSG
-         opW/wrKUkEiV9G21fcTe6mxFBDzQzAgat2k62ie4=
+        s=default; t=1561595784;
+        bh=rmZIhleNuh6lMVcv/6wYDZ+Aea04s6m61y6E95rWa/c=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=KnWtKyz2qqLkunsn/XNOYBu7Am4sIu7gLHkpiKeUL3TCe4xwza1N1McqmlwoQWeVS
+         os1geH2nVgLlu4fhZoSsJAo0PqJyVKNRhFutZWsJejBt8k5F7XCGSRxL8x3EWtmMiO
+         xyS7APJgJINUKXsr3p5bZBZJaESo+4PlNAKX3puo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 01/60] soc: brcmstb: Fix error path for unsupported CPUs
-Date:   Wed, 26 Jun 2019 20:35:16 -0400
-Message-Id: <20190627003616.20767-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 02/60] soc: bcm: brcmstb: biuctrl: Register writes require a barrier
+Date:   Wed, 26 Jun 2019 20:35:17 -0400
+Message-Id: <20190627003616.20767-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190627003616.20767-1-sashal@kernel.org>
+References: <20190627003616.20767-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,36 +44,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 490cad5a3ad6ef0bfd3168a5063140b982f3b22a ]
+[ Upstream commit 6b23af0783a54efb348f0bd781b7850636023dbb ]
 
-In case setup_hifcpubiuctrl_regs() returns an error, because of e.g:
-an unsupported CPU type, just catch that error and return instead of
-blindly continuing with the initialization. This fixes a NULL pointer
-de-reference with the code continuing without having a proper array of
-registers to use.
+The BIUCTRL register writes require that a data barrier be inserted
+after comitting the write to the register for the block to latch in the
+recently written values. Reads have no such requirement and are not
+changed.
 
-Fixes: 22f7a9116eba ("soc: brcmstb: Correct CPU_CREDIT_REG offset for Brahma-B53 CPUs")
+Fixes: 34642650e5bc ("soc: Move brcmstb to bcm/brcmstb")
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/bcm/brcmstb/biuctrl.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/soc/bcm/brcmstb/biuctrl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/soc/bcm/brcmstb/biuctrl.c b/drivers/soc/bcm/brcmstb/biuctrl.c
-index 6d89ebf13b8a..c16273b31b94 100644
+index c16273b31b94..20b63bee5b09 100644
 --- a/drivers/soc/bcm/brcmstb/biuctrl.c
 +++ b/drivers/soc/bcm/brcmstb/biuctrl.c
-@@ -246,7 +246,9 @@ static int __init brcmstb_biuctrl_init(void)
- 	if (!np)
- 		return 0;
+@@ -56,7 +56,7 @@ static inline void cbc_writel(u32 val, int reg)
+ 	if (offset == -1)
+ 		return;
  
--	setup_hifcpubiuctrl_regs(np);
-+	ret = setup_hifcpubiuctrl_regs(np);
-+	if (ret)
-+		return ret;
+-	writel_relaxed(val,  cpubiuctrl_base + offset);
++	writel(val, cpubiuctrl_base + offset);
+ }
  
- 	ret = mcp_write_pairing_set();
- 	if (ret) {
+ enum cpubiuctrl_regs {
 -- 
 2.20.1
 
