@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5006D577BB
-	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:49:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 671895765F
+	for <lists+stable@lfdr.de>; Thu, 27 Jun 2019 02:39:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728196AbfF0AiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jun 2019 20:38:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42496 "EHLO mail.kernel.org"
+        id S1728771AbfF0AiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jun 2019 20:38:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728771AbfF0AiJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jun 2019 20:38:09 -0400
+        id S1728774AbfF0AiN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jun 2019 20:38:13 -0400
 Received: from sasha-vm.mshome.net (unknown [107.242.116.147])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7140218B0;
-        Thu, 27 Jun 2019 00:38:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3D09205ED;
+        Thu, 27 Jun 2019 00:38:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561595888;
-        bh=E7PzcVy8LhBy4PCslOZhLM5aHxfMwUVr1qRxT1NRg9A=;
+        s=default; t=1561595892;
+        bh=RW+MRZJg+CdVI0ewhpI2ISq/6rndCSzc0fPAmL+QtS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0Gd6UY68ZgZ/vvHPzvhvaNGD4LTtKloT/95OqEeyjoZQ6KCM4eIiIDQyaEOq8Vro
-         zBr5jD5SQFT0ijQPN3hMongUQ4a7NbKvF06PabtoYQOU0pZauiOkQatU2Me7k/N1R5
-         x8GLP8U+qiOg1xAkRhs1U8+mey5vxSNAhzl3Xy+I=
+        b=hQLaqau8HvuxhAdpvhCJERt2m12C+p7Ek1Dl8BJmhFOxhcwNVpHCHXCIOEkRNaQYI
+         EOc4t9fjk9jZk8PLvXLnaRD4zfKwq9vo7dESvXlza7vXRn1Q4N1tbl/uXaDicQgdFa
+         tiXaPjORZ2grETMsMsWBlR45OZrhQxdvXrBxHYi4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anson Huang <anson.huang@nxp.com>,
-        Anson Huang <Anson.Huang@nxp.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 35/60] Input: imx_keypad - make sure keyboard can always wake up system
-Date:   Wed, 26 Jun 2019 20:35:50 -0400
-Message-Id: <20190627003616.20767-35-sashal@kernel.org>
+Cc:     Dave Martin <Dave.Martin@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Sasha Levin <sashal@kernel.org>, kvmarm@lists.cs.columbia.edu
+Subject: [PATCH AUTOSEL 4.19 36/60] KVM: arm/arm64: vgic: Fix kvm_device leak in vgic_its_destroy
+Date:   Wed, 26 Jun 2019 20:35:51 -0400
+Message-Id: <20190627003616.20767-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190627003616.20767-1-sashal@kernel.org>
 References: <20190627003616.20767-1-sashal@kernel.org>
@@ -44,86 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <anson.huang@nxp.com>
+From: Dave Martin <Dave.Martin@arm.com>
 
-[ Upstream commit ce9a53eb3dbca89e7ad86673d94ab886e9bea704 ]
+[ Upstream commit 4729ec8c1e1145234aeeebad5d96d77f4ccbb00a ]
 
-There are several scenarios that keyboard can NOT wake up system
-from suspend, e.g., if a keyboard is depressed between system
-device suspend phase and device noirq suspend phase, the keyboard
-ISR will be called and both keyboard depress and release interrupts
-will be disabled, then keyboard will no longer be able to wake up
-system. Another scenario would be, if a keyboard is kept depressed,
-and then system goes into suspend, the expected behavior would be
-when keyboard is released, system will be waked up, but current
-implementation can NOT achieve that, because both depress and release
-interrupts are disabled in ISR, and the event check is still in
-progress.
+kvm_device->destroy() seems to be supposed to free its kvm_device
+struct, but vgic_its_destroy() is not currently doing this,
+resulting in a memory leak, resulting in kmemleak reports such as
+the following:
 
-To fix these issues, need to make sure keyboard's depress or release
-interrupt is enabled after noirq device suspend phase, this patch
-moves the suspend/resume callback to noirq suspend/resume phase, and
-enable the corresponding interrupt according to current keyboard status.
+unreferenced object 0xffff800aeddfe280 (size 128):
+  comm "qemu-system-aar", pid 13799, jiffies 4299827317 (age 1569.844s)
+  [...]
+  backtrace:
+    [<00000000a08b80e2>] kmem_cache_alloc+0x178/0x208
+    [<00000000dcad2bd3>] kvm_vm_ioctl+0x350/0xbc0
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fix it.
+
+Cc: Andre Przywara <andre.przywara@arm.com>
+Fixes: 1085fdc68c60 ("KVM: arm64: vgic-its: Introduce new KVM ITS device")
+Signed-off-by: Dave Martin <Dave.Martin@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/imx_keypad.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ virt/kvm/arm/vgic/vgic-its.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index 539cb670de41..ae9c51cc85f9 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -526,11 +526,12 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 	return 0;
+diff --git a/virt/kvm/arm/vgic/vgic-its.c b/virt/kvm/arm/vgic/vgic-its.c
+index 621bb004067e..0dbe332eb343 100644
+--- a/virt/kvm/arm/vgic/vgic-its.c
++++ b/virt/kvm/arm/vgic/vgic-its.c
+@@ -1750,6 +1750,7 @@ static void vgic_its_destroy(struct kvm_device *kvm_dev)
+ 
+ 	mutex_unlock(&its->its_lock);
+ 	kfree(its);
++	kfree(kvm_dev);/* alloc by kvm_ioctl_create_device, free by .destroy */
  }
  
--static int __maybe_unused imx_kbd_suspend(struct device *dev)
-+static int __maybe_unused imx_kbd_noirq_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
- 	struct input_dev *input_dev = kbd->input_dev;
-+	unsigned short reg_val = readw(kbd->mmio_base + KPSR);
- 
- 	/* imx kbd can wake up system even clock is disabled */
- 	mutex_lock(&input_dev->mutex);
-@@ -540,13 +541,20 @@ static int __maybe_unused imx_kbd_suspend(struct device *dev)
- 
- 	mutex_unlock(&input_dev->mutex);
- 
--	if (device_may_wakeup(&pdev->dev))
-+	if (device_may_wakeup(&pdev->dev)) {
-+		if (reg_val & KBD_STAT_KPKD)
-+			reg_val |= KBD_STAT_KRIE;
-+		if (reg_val & KBD_STAT_KPKR)
-+			reg_val |= KBD_STAT_KDIE;
-+		writew(reg_val, kbd->mmio_base + KPSR);
-+
- 		enable_irq_wake(kbd->irq);
-+	}
- 
- 	return 0;
- }
- 
--static int __maybe_unused imx_kbd_resume(struct device *dev)
-+static int __maybe_unused imx_kbd_noirq_resume(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
-@@ -570,7 +578,9 @@ static int __maybe_unused imx_kbd_resume(struct device *dev)
- 	return ret;
- }
- 
--static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
-+static const struct dev_pm_ops imx_kbd_pm_ops = {
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(imx_kbd_noirq_suspend, imx_kbd_noirq_resume)
-+};
- 
- static struct platform_driver imx_keypad_driver = {
- 	.driver		= {
+ int vgic_its_has_attr_regs(struct kvm_device *dev,
 -- 
 2.20.1
 
