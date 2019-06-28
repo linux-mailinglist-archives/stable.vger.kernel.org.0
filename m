@@ -2,147 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B201594BC
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 09:23:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC8FC59DB1
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 16:26:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727247AbfF1HXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 03:23:18 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:34275 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727220AbfF1HXP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 03:23:15 -0400
-X-UUID: c38864b4810846c69f48c68396d2c7d4-20190628
-X-UUID: c38864b4810846c69f48c68396d2c7d4-20190628
-Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw02.mediatek.com
-        (envelope-from <weiyi.lu@mediatek.com>)
-        (mhqrelay.mediatek.com ESMTP with TLS)
-        with ESMTP id 416449884; Fri, 28 Jun 2019 15:22:52 +0800
-Received: from mtkcas09.mediatek.inc (172.21.101.178) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Fri, 28 Jun 2019 15:22:50 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas09.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Fri, 28 Jun 2019 15:22:50 +0800
-From:   Weiyi Lu <weiyi.lu@mediatek.com>
-To:     Nicolas Boichat <drinkcat@chromium.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>
-CC:     James Liao <jamesjj.liao@mediatek.com>,
-        Fan Chen <fan.chen@mediatek.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-clk@vger.kernel.org>,
-        <srv_heupstream@mediatek.com>, <stable@vger.kernel.org>,
-        Weiyi Lu <weiyi.lu@mediatek.com>,
-        Dehui Sun <dehui.sun@mediatek.com>
-Subject: [PATCH v3] clk: mediatek: mt8183: Register 13MHz clock earlier for clocksource
-Date:   Fri, 28 Jun 2019 15:22:34 +0800
-Message-ID: <1561706554-27770-1-git-send-email-weiyi.lu@mediatek.com>
-X-Mailer: git-send-email 1.8.1.1.dirty
-MIME-Version: 1.0
+        id S1726669AbfF1O0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 10:26:30 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:42643 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726657AbfF1O0a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 10:26:30 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id D88B321448;
+        Fri, 28 Jun 2019 10:26:28 -0400 (EDT)
+Received: from imap5 ([10.202.2.55])
+  by compute1.internal (MEProxy); Fri, 28 Jun 2019 10:26:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
+         h=mime-version:message-id:in-reply-to:references:date:from:to
+        :cc:subject:content-type; s=fm1; bh=Ow1/fltrpvTqI++jLPkstJ3FxDDY
+        PwyEP957qyWFDh4=; b=UVDpVvs6GLi5e0VoR1u7gIaFmvwgLSrs0G2GqR4/WVMO
+        NshtNHpG+yIXHfo3yjEFzYxAdVqeQ5g6ku39Zif/rAfcShsA35GuhsgJD2yk3vxs
+        1/Eqk00nBDhNVHOX0l6vYo2W/+zr3tV7wvgbPFM9+eKxtvhP58RBJvEoAwMRYgZn
+        g0LXuOxFAs5Q8cNzHnfQKNsfqT4V4K2R4sMVO8sXG9AJ3ol/QK55a3XiHX6tNNPz
+        +5eeHOWoTWugBRlF3df00t49YzQC4XcKzVxRcWgtkhGdkDb2av6Wa03jXbmgxBqm
+        uAgSDnEVp8L0fC1DTBUCYbKLKtBT8UOzsINwNPiMkw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Ow1/fl
+        trpvTqI++jLPkstJ3FxDDYPwyEP957qyWFDh4=; b=FbjhzHQGm6hoB9SIy1e61A
+        XbsRZNCWnhK9M+IAICxy7g0oNearM1k/rVdqo3+9qQmhrpSVUBkjAo2BD2STPrFR
+        xkZIhzKfY52W+A9LstCbEX7dZjgFrmjBADOKgioY6PUIJVICoWkGjCMmpzbh5ilL
+        VtxqnL1JW+pWlk4ea9RXyDigLw3HjTutfco28/U6s5xXa/LRfxqtlGC57W4Rkatj
+        54ssf5qIuA1BBkzyfb3QSpMe1PsBlUohxHjWR6SLUZkh6tUaUFrmntP88cUqLRGM
+        WmGQUqvidbQxVuY7fJv+A4vnk6G1kSh9bST5LFiBNWJ0dd6c6sljaUtiw7z1LGQg
+        ==
+X-ME-Sender: <xms:kyMWXdh8U_bbD7064HIGVUWpDK5_COuDUgBdS7_MJE-rojCpplSAxQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrvddtgdejkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfgjfhffhffvufgtsehttdertderreejnecuhfhrohhmpedfvfgrkhgr
+    shhhihcuufgrkhgrmhhothhofdcuoehoqdhtrghkrghshhhisehsrghkrghmohgttghhih
+    drjhhpqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecurfgrrhgrmhepmhgrihhl
+    fhhrohhmpehoqdhtrghkrghshhhisehsrghkrghmohgttghhihdrjhhpnecuvehluhhsth
+    gvrhfuihiivgeptd
+X-ME-Proxy: <xmx:kyMWXSLx7YpI5GBplDRlydoIxYhekV_6wvdJsKBDJSMHaWwsxHfhBw>
+    <xmx:kyMWXdVE7wHWaHlRkVQI9Z4HrgDae5PW2d4M_vlvFnWEn2vj63Bk4A>
+    <xmx:kyMWXWVEdXiuTHgeRApz_UFeq9Vqwkc7YlGVlbq5WkdARX2yiWrS5w>
+    <xmx:lCMWXX-lAHoiMharWCJ6Qkp9yJzBs84_lvq1FMGLXpZpTAiX7oVW1A>
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 2E89B5C009B; Fri, 28 Jun 2019 10:26:27 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.1.6-731-g19d3b16-fmstable-20190627v1
+Mime-Version: 1.0
+Message-Id: <bd65234a-9963-4e25-938f-1e79b053c4e1@www.fastmail.com>
+In-Reply-To: <s5ho92i6qhi.wl-tiwai@suse.de>
+References: <20190628052158.27693-1-o-takashi@sakamocchi.jp>
+ <s5ho92i6qhi.wl-tiwai@suse.de>
+Date:   Fri, 28 Jun 2019 16:34:00 +0900
+From:   "Takashi Sakamoto" <o-takashi@sakamocchi.jp>
+To:     "Takashi Iwai" <tiwai@suse.de>
+Cc:     "Clemens Ladisch" <clemens@ladisch.de>,
+        alsa-devel@alsa-project.org, stable@vger.kernel.org
+Subject: =?UTF-8?Q?Re:_[PATCH]_ALSA:_firewire-lib/fireworks:_fix_miss_detection_o?=
+ =?UTF-8?Q?f_received_MIDI_messages?=
 Content-Type: text/plain
-X-MTK:  N
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The 13MHz clock should be registered before clocksource driver is
-initialized. Use CLK_OF_DECLARE_DRIVER() to guarantee.
+Hi,
 
-Fixes: acddfc2c261b ("clk: mediatek: Add MT8183 clock support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Weiyi Lu <weiyi.lu@mediatek.com>
----
- drivers/clk/mediatek/clk-mt8183.c | 46 +++++++++++++++++++++++++++++----------
- 1 file changed, 34 insertions(+), 12 deletions(-)
+On Fri, Jun 28, 2019, at 17:53, Takashi Iwai wrote:
+> On Fri, 28 Jun 2019 07:21:58 +0200,
+> Takashi Sakamoto wrote:
+> > 
+> > In IEC 61883-6, 8 MIDI data streams are multiplexed into single
+> > MIDI conformant data channel. The index of stream is calculated by
+> > modulo 8 of the value of data block counter.
+> > 
+> > In fireworks, the value of data block counter in CIP header has a quirk
+> > with firmware version v5.0.0, v5.7.3 and v5.8.0. This brings ALSA
+> > IEC 61883-1/6 packet streaming engine to miss detection of MIDI
+> > messages.
+> > 
+> > This commit fixes the miss detection to modify the value of data block
+> > counter for the modulo calculation.
+> > 
+> > For maintainers, this bug exists since a commit 18f5ed365d3f ("ALSA:
+> > fireworks/firewire-lib: add support for recent firmware quirk") in Linux
+> > kernel v4.2. There're many changes since the commit.  This fix can be
+> > backported to Linux kernel v4.4 or later. I tagged a base commit to the
+> > backport for your convenience.
+> > 
+> > Fixes: df075feefbd3 ("ALSA: firewire-lib: complete AM824 data block processing layer")
+> > Cc: <stable@vger.kernel.org> # v4.4+
+> > Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+> 
+> This doesn't seem applicable to the latest 5.2-rc tree due to your
+> recent refactoring.  Could you resubmit the fix for 5.2?  I'll resolve
+> the merge conflict in my side.
 
-diff --git a/drivers/clk/mediatek/clk-mt8183.c b/drivers/clk/mediatek/clk-mt8183.c
-index 9d86510..bc01611 100644
---- a/drivers/clk/mediatek/clk-mt8183.c
-+++ b/drivers/clk/mediatek/clk-mt8183.c
-@@ -25,9 +25,11 @@
- 	FIXED_CLK(CLK_TOP_UNIVP_192M, "univpll_192m", "univpll", 192000000),
- };
- 
-+static const struct mtk_fixed_factor top_early_divs[] = {
-+	FACTOR(CLK_TOP_CLK13M, "clk13m", "clk26m", 1, 2),
-+};
-+
- static const struct mtk_fixed_factor top_divs[] = {
--	FACTOR(CLK_TOP_CLK13M, "clk13m", "clk26m", 1,
--		2),
- 	FACTOR(CLK_TOP_F26M_CK_D2, "csw_f26m_ck_d2", "clk26m", 1,
- 		2),
- 	FACTOR(CLK_TOP_SYSPLL_CK, "syspll_ck", "mainpll", 1,
-@@ -1167,37 +1169,57 @@ static int clk_mt8183_apmixed_probe(struct platform_device *pdev)
- 	return of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
- }
- 
-+static struct clk_onecell_data *top_clk_data;
-+
-+static void clk_mt8183_top_init_early(struct device_node *node)
-+{
-+	int i;
-+
-+	top_clk_data = mtk_alloc_clk_data(CLK_TOP_NR_CLK);
-+
-+	for (i = 0; i < CLK_TOP_NR_CLK; i++)
-+		top_clk_data->clks[i] = ERR_PTR(-EPROBE_DEFER);
-+
-+	mtk_clk_register_factors(top_early_divs, ARRAY_SIZE(top_early_divs),
-+			top_clk_data);
-+
-+	of_clk_add_provider(node, of_clk_src_onecell_get, top_clk_data);
-+}
-+
-+CLK_OF_DECLARE_DRIVER(mt8183_topckgen, "mediatek,mt8183-topckgen",
-+			clk_mt8183_top_init_early);
-+
- static int clk_mt8183_top_probe(struct platform_device *pdev)
- {
- 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	void __iomem *base;
--	struct clk_onecell_data *clk_data;
- 	struct device_node *node = pdev->dev.of_node;
- 
- 	base = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(base))
- 		return PTR_ERR(base);
- 
--	clk_data = mtk_alloc_clk_data(CLK_TOP_NR_CLK);
--
- 	mtk_clk_register_fixed_clks(top_fixed_clks, ARRAY_SIZE(top_fixed_clks),
--		clk_data);
-+		top_clk_data);
-+
-+	mtk_clk_register_factors(top_early_divs, ARRAY_SIZE(top_early_divs),
-+		top_clk_data);
- 
--	mtk_clk_register_factors(top_divs, ARRAY_SIZE(top_divs), clk_data);
-+	mtk_clk_register_factors(top_divs, ARRAY_SIZE(top_divs), top_clk_data);
- 
- 	mtk_clk_register_muxes(top_muxes, ARRAY_SIZE(top_muxes),
--		node, &mt8183_clk_lock, clk_data);
-+		node, &mt8183_clk_lock, top_clk_data);
- 
- 	mtk_clk_register_composites(top_aud_muxes, ARRAY_SIZE(top_aud_muxes),
--		base, &mt8183_clk_lock, clk_data);
-+		base, &mt8183_clk_lock, top_clk_data);
- 
- 	mtk_clk_register_composites(top_aud_divs, ARRAY_SIZE(top_aud_divs),
--		base, &mt8183_clk_lock, clk_data);
-+		base, &mt8183_clk_lock, top_clk_data);
- 
- 	mtk_clk_register_gates(node, top_clks, ARRAY_SIZE(top_clks),
--		clk_data);
-+		top_clk_data);
- 
--	return of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
-+	return of_clk_add_provider(node, of_clk_src_onecell_get, top_clk_data);
- }
- 
- static int clk_mt8183_infra_probe(struct platform_device *pdev)
--- 
-1.8.1.1.dirty
+Mmm. Do you actually encounter any conflict when applying this patch to
+your v5.2 tree?
 
+This patch includes changes for `sound/firewire/amdtp-am824.c`. On the other
+hand, my recent work is mainly for `sound/firewire/amdtp-stream.c`. Actually,
+the last change for `amdtp-am824.c` was done 2017-10-25.
+https://git.kernel.org/pub/scm/linux/kernel/git/tiwai/sound.git/log/sound/firewire/amdtp-am824.c?h=for-linus
+
+
+Thanks
+
+
+Takashi Sakamoto
