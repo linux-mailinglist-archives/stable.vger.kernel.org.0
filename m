@@ -2,92 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B05E59D92
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 16:14:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C29075A7CC
+	for <lists+stable@lfdr.de>; Sat, 29 Jun 2019 01:56:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726712AbfF1OOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 10:14:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60950 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726616AbfF1OOf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Jun 2019 10:14:35 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24206208E3;
-        Fri, 28 Jun 2019 14:14:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561731274;
-        bh=hefLPdEcOKchEjgV2gdWc85+Zibje5sd/6U4PZNZnJI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1yoxf46J5yK5R3nFcE9FcmHoQpH43hM27S7/4KuQHWf/5l2oI/2GwuDE+oAYO3Os5
-         lmhtAuTa+OGH5RZOgEW7RP4o52e6PUHx+Jgxc6S1opjBodFF25TYytz0iGTB1BYOVI
-         leDQpRx+jAa2RYL1Nz5IYZw6TIsI6zcoupPbL49g=
-Date:   Fri, 28 Jun 2019 10:14:33 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Kristian Evensen <kristian.evensen@gmail.com>
-Cc:     stable <stable@vger.kernel.org>,
-        =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
-Subject: Re: [PATCH] qmi_wwan: Fix out-of-bounds read
-Message-ID: <20190628141433.GF11506@sasha-vm>
-References: <20190627100105.11517-1-kristian.evensen@gmail.com>
- <CAKfDRXhHWCxKK6gDciar5eQg9Ojv4+0C7tgaSOmQFFGLCL9gqw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAKfDRXhHWCxKK6gDciar5eQg9Ojv4+0C7tgaSOmQFFGLCL9gqw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1726672AbfF1X4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 19:56:44 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:59335 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726643AbfF1X4o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 19:56:44 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 1AE1D21FC1;
+        Fri, 28 Jun 2019 19:56:41 -0400 (EDT)
+Received: from imap5 ([10.202.2.55])
+  by compute1.internal (MEProxy); Fri, 28 Jun 2019 19:56:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
+         h=mime-version:message-id:in-reply-to:references:date:from:to
+        :cc:subject:content-type:content-transfer-encoding; s=fm1; bh=Oa
+        DVBcKJfCsMzRWtHv3C09/Abj/G6upXMBKiCQzcAKQ=; b=Jp1A+Cfid2vh2CYlsJ
+        OJbYxjYzY9fiLYs3JNd5JMj3xeV1dnl+l25z1aZE+NL3KQ2b5XsBnT0+qcdagjXQ
+        G4REtKO1nrRGjT14Iub67JdusVlkcJC4/ApmG718Pr+bkJUK6gPQM/jgMvHxbMlE
+        WPaij12UNJf133u0ZROYRupjBr37S1ZP8Y2qosH7xtfThUdaSCCBumgALehighaB
+        Nu17jbOTD59o3fY3YBg//6xxj8B7P1FBNyoLFBrc7vrJweERngdstFmilO2IUip3
+        3TOHwXrCbnSb9c2BXygB+d//QjAefhhwcbc9z6BeaFQRX/Sgy1EM0cJWFB0egyeq
+        X3ew==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=OaDVBcKJfCsMzRWtHv3C09/Abj/G6upXMBKiCQzcA
+        KQ=; b=SvnKLpQcUNxgpfbo+UJZqavhrEzu984NWIvXJi3N7El1PekCxgaKxQ9Gc
+        cfmAPqdTeaN1LCZzTw+PmJpueH6eo/gcKR1nkWIL3ci/OALwLKZawXAqHGpslQ47
+        164YV7GjOYq6rcNDO0oGAEL768enZZnkdSFeAcycYERfpXACSD4Nx6Fy53uHAdRs
+        0Na7FLpzNc+l5V4UnUq9k21uGq4SfNdxr/E0AW9mypWXvsMQOS/d5wfcLnAmFTgX
+        eDsfgQzN+hW4GIjWPlzXhEbwVINOoyvnwrN/k0J7ZxX6pfO1k2aiqxAf2IzjdAY3
+        199b/ZMrDSOi3+UnQ8JcZoWVjOkGw==
+X-ME-Sender: <xms:OKkWXd8VyNi6xZVvoNclCH-0wr5PUXry1QPXyt5HzknYbOk5sssl7A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrvddugddvkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfgjfhffhffvufgtgfesthhqredtreerjeenucfhrhhomhepfdfvrghk
+    rghshhhiucfurghkrghmohhtohdfuceoohdqthgrkhgrshhhihesshgrkhgrmhhotggthh
+    hirdhjpheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfrrghrrghmpehmrghi
+    lhhfrhhomhepohdqthgrkhgrshhhihesshgrkhgrmhhotggthhhirdhjphenucevlhhush
+    htvghrufhiiigvpedt
+X-ME-Proxy: <xmx:OKkWXeCWFl66T3c9Lqlb6r95v--ANyCDrJdCLivlQzH_EoemXKJ-3Q>
+    <xmx:OKkWXdyGqsBItckj0Bwm_LZwdKiFW81WTJW-KyiNiFJFPAxGaLjU2Q>
+    <xmx:OKkWXTSzKDG6llV3arB_oHmkBwAJ23dW7WeV2mx7v3x6vRiAtnZXDg>
+    <xmx:OakWXVsABz8H975Si-h8ynGysYoTJT70gTTYk73P3-D2dYlMaRc4BQ>
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 15E2D5C0099; Fri, 28 Jun 2019 19:56:40 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.1.6-731-g19d3b16-fmstable-20190627v1
+Mime-Version: 1.0
+Message-Id: <14b3cbbc-3ea2-4037-9174-24bbf0ecd6e2@www.fastmail.com>
+In-Reply-To: <s5h1rzd7m0b.wl-tiwai@suse.de>
+References: <20190628052158.27693-1-o-takashi@sakamocchi.jp>
+ <s5ho92i6qhi.wl-tiwai@suse.de>
+ <bd65234a-9963-4e25-938f-1e79b053c4e1@www.fastmail.com>
+ <s5h1rzd7m0b.wl-tiwai@suse.de>
+Date:   Fri, 28 Jun 2019 23:56:33 +0900
+From:   "Takashi Sakamoto" <o-takashi@sakamocchi.jp>
+To:     "Takashi Iwai" <tiwai@suse.de>
+Cc:     "Clemens Ladisch" <clemens@ladisch.de>,
+        alsa-devel@alsa-project.org, stable@vger.kernel.org
+Subject: =?UTF-8?Q?Re:_[PATCH]_ALSA:_firewire-lib/fireworks:_fix_miss_detection_o?=
+ =?UTF-8?Q?f_received_MIDI_messages?=
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 28, 2019 at 06:14:33AM +0200, Kristian Evensen wrote:
->Hi,
->
->On Thu, Jun 27, 2019 at 12:01 PM Kristian Evensen
-><kristian.evensen@gmail.com> wrote:
->>
->> commit 904d88d743b0c94092c5117955eab695df8109e8 upstream.
->>
->> The syzbot reported
->>
->>  Call Trace:
->>   __dump_stack lib/dump_stack.c:77 [inline]
->>   dump_stack+0xca/0x13e lib/dump_stack.c:113
->>   print_address_description+0x67/0x231 mm/kasan/report.c:188
->>   __kasan_report.cold+0x1a/0x32 mm/kasan/report.c:317
->>   kasan_report+0xe/0x20 mm/kasan/common.c:614
->>   qmi_wwan_probe+0x342/0x360 drivers/net/usb/qmi_wwan.c:1417
->>   usb_probe_interface+0x305/0x7a0 drivers/usb/core/driver.c:361
->>   really_probe+0x281/0x660 drivers/base/dd.c:509
->>   driver_probe_device+0x104/0x210 drivers/base/dd.c:670
->>   __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:777
->>   bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
->>
->> Caused by too many confusing indirections and casts.
->> id->driver_info is a pointer stored in a long.  We want the
->> pointer here, not the address of it.
->>
->> Thanks-to: Hillf Danton <hdanton@sina.com>
->> Reported-by: syzbot+b68605d7fadd21510de1@syzkaller.appspotmail.com
->> Cc: Kristian Evensen <kristian.evensen@gmail.com>
->> Fixes: e4bf63482c30 ("qmi_wwan: Add quirk for Quectel dynamic config")
->> Signed-off-by: Bjørn Mork <bjorn@mork.no>
->>
->> [Upstream commit did not apply because I shuffled two lines in the
->> backport. The fixes tag for 4.14 is 3a6a5107ceb3.]
->>
->> Signed-off-by: Kristian Evensen <kristian.evensen@gmail.com>
->> ---
->
->I see now that I forgot to set the correct prefix for the patch. The
->prefix should be PATCH 4.14. Sorry about that. Please let me know if I
->should resubmit.
+Hi,
 
-I've also queued the upstream fix to 5.1 and 4.19.
+On Sat, Jun 29, 2019, at 00:44, Takashi Iwai wrote:
+> On Fri, 28 Jun 2019 09:34:00 +0200,
+> Takashi Sakamoto wrote:
+> >=20
+> > Hi,
+> >=20
+> > On Fri, Jun 28, 2019, at 17:53, Takashi Iwai wrote:
+> > > On Fri, 28 Jun 2019 07:21:58 +0200,
+> > > Takashi Sakamoto wrote:
+> > > >=20
+> > > > In IEC 61883-6, 8 MIDI data streams are multiplexed into single
+> > > > MIDI conformant data channel. The index of stream is calculated =
+by
+> > > > modulo 8 of the value of data block counter.
+> > > >=20
+> > > > In fireworks, the value of data block counter in CIP header has =
+a quirk
+> > > > with firmware version v5.0.0, v5.7.3 and v5.8.0. This brings ALS=
+A
+> > > > IEC 61883-1/6 packet streaming engine to miss detection of MIDI
+> > > > messages.
+> > > >=20
+> > > > This commit fixes the miss detection to modify the value of data=
+ block
+> > > > counter for the modulo calculation.
+> > > >=20
+> > > > For maintainers, this bug exists since a commit 18f5ed365d3f ("A=
+LSA:
+> > > > fireworks/firewire-lib: add support for recent firmware quirk") =
+in Linux
+> > > > kernel v4.2. There're many changes since the commit.  This fix c=
+an be
+> > > > backported to Linux kernel v4.4 or later. I tagged a base commit=
+ to the
+> > > > backport for your convenience.
+> > > >=20
+> > > > Fixes: df075feefbd3 ("ALSA: firewire-lib: complete AM824 data bl=
+ock processing layer")
+> > > > Cc: <stable@vger.kernel.org> # v4.4+
+> > > > Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+> > >=20
+> > > This doesn't seem applicable to the latest 5.2-rc tree due to your=
 
---
-Thanks,
-Sasha
+> > > recent refactoring.  Could you resubmit the fix for 5.2?  I'll res=
+olve
+> > > the merge conflict in my side.
+> >=20
+> > Mmm. Do you actually encounter any conflict when applying this patch=
+ to
+> > your v5.2 tree?
+> >=20
+> > This patch includes changes for `sound/firewire/amdtp-am824.c`. On t=
+he other
+> > hand, my recent work is mainly for `sound/firewire/amdtp-stream.c`. =
+Actually,
+> > the last change for `amdtp-am824.c` was done 2017-10-25.
+> > https://git.kernel.org/pub/scm/linux/kernel/git/tiwai/sound.git/log/=
+sound/firewire/amdtp-am824.c?h=3Dfor-linus
+>=20
+> It's not about file conflicts but the compilation fails after the
+> patch.
+> sound/firewire/amdtp-am824.c: In function =E2=80=98read_midi_messages=E2=
+=80=99:
+> sound/firewire/amdtp-am824.c:324:16: error: =E2=80=98struct amdtp_stre=
+am=E2=80=99 has=20
+> no member named =E2=80=98ctx_data=E2=80=99
+>    port =3D (8 - s->ctx_data.tx.first_dbc + s->data_block_counter + f)=
+ %=20
+> 8;
+>                 ^~
+
+Oops, now I got it... I just checked its application but should have had=
+
+compile test with old trees.
+
+But I'm in short vacation. The revised patch will be posted next Monday,=
+
+sorry.
+
+
+Thanks
+
+Takashi Sakamoto
