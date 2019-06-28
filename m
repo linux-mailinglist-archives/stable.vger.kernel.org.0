@@ -2,106 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C3459357
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 07:22:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A917593D4
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 07:54:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726482AbfF1FWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 01:22:05 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:44005 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726240AbfF1FWF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 01:22:05 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 51D6721111;
-        Fri, 28 Jun 2019 01:22:04 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 28 Jun 2019 01:22:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
-         h=from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm1; bh=9uHbDy+yscQcQ9si3v6fybcJcZ
-        oszIfrJ/wKIKt3L5A=; b=XYZfq4XmRbn9uY7fFd73NGF1UJ6t7cX2LWeX7sVae4
-        wq8ehNPcZ5cjIimlRl6lmunR+QtAUsVAQDDOvmNJu5Pkh1S7rRWlScu1JHcF7E2G
-        I57eY0XnzA5vyt3GHpkbJBQ8Er6S9eCJMVzJ9tPT0+q/2HyoDMknpde3ujuV2XXi
-        HcPW4PWdugujw5359bM0sbZho4mwtLRJ7EonBljjpeeyr2O/k+g8R924Pp7T31Lz
-        WAfdPdqlHD4pWq04HD4IHoT4bDb6D6EwQWkzNoX5icCic13dhOMM3vx7Trhwhprp
-        LOcxAQuf7sXkUY3qcfGFo0U58jjT14i7HSTmC9umYHLg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9uHbDy+yscQcQ9si3
-        v6fybcJcZoszIfrJ/wKIKt3L5A=; b=i4teDIJhHJ8efm3U7K077V3lHwzV1IoTz
-        UzKwl3g5V6G6scim31YbNk/Y4/fLeUPk1asyo6K5NifNdlXo/WHS7bCEldTch1qX
-        iEBWMbyVi0AmMLaliHddwgI+sC0eKNNlEwtMxwuOMAbCxdqPUlLHjdr6qx7ieCyt
-        ykR6OqgCXJOjQoRwNjttBSs172geXA2UnBci+zB/Z85H9TM9kCoxFBmuh2D9ULDR
-        iBhjLyVfxDVRvTEucHfnVDf8BYFv8bACpBTVGU2b78IBgwtMXMrla4Ca1e/s3agP
-        lMOYzFrLJAaWrcHE8ScdE8Xk/8svfApEMS+RZw3wbeT7a4GSU96Yw==
-X-ME-Sender: <xms:-6MVXWdN7QJE64n8ktEXMj5JlliWhu5oV4VdwwwfjYy39KuwMDa6lA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrudelgdelhecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertd
-    dtnecuhfhrohhmpefvrghkrghshhhiucfurghkrghmohhtohcuoehoqdhtrghkrghshhhi
-    sehsrghkrghmohgttghhihdrjhhpqeenucfkphepudegrdefrdejhedrudekudenucfrrg
-    hrrghmpehmrghilhhfrhhomhepohdqthgrkhgrshhhihesshgrkhgrmhhotggthhhirdhj
-    phenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:-6MVXVeIhy5itQyao3MC9YYCpy5UkaoikWCwc1c7vd03CBbOpSOgUQ>
-    <xmx:-6MVXZPW-o6iUVImsSMTQT40XEtxMXN-UpdPnny8FRpVRNUz7CsYAg>
-    <xmx:-6MVXcJkYrtqJ474UFxx8W1Fs99OMKavdE0OzmWvRjIwwj1K9FBBTQ>
-    <xmx:_KMVXaL8xAA6tQISqPY7aVkPfC2Oo20oa9lmrqy1HQYAx19Qlgdvhw>
-Received: from workstation.flets-east.jp (ae075181.dynamic.ppp.asahi-net.or.jp [14.3.75.181])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D35A080063;
-        Fri, 28 Jun 2019 01:22:01 -0400 (EDT)
-From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
-To:     clemens@ladisch.de, tiwai@suse.de
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-Subject: [PATCH] ALSA: firewire-lib/fireworks: fix miss detection of received MIDI messages
-Date:   Fri, 28 Jun 2019 14:21:58 +0900
-Message-Id: <20190628052158.27693-1-o-takashi@sakamocchi.jp>
-X-Mailer: git-send-email 2.20.1
+        id S1726816AbfF1FyU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 01:54:20 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:53208 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726616AbfF1FyU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 01:54:20 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 83E75607B9; Fri, 28 Jun 2019 05:54:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1561701259;
+        bh=x9RisAVUfvk62Lv/TAzoribJc0J8BQpLPnAwsNTP0lI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=R1oGPaVL68JZopMaDRpR84+NtuC9kmK5W1WaGjm45kwNviMIbKRzkkS8Rd7CmR6g0
+         yzHfUmG2qp0WnMR6dohvCjhqE8BPafWzNFpzwcYMjvYnQCUhZmM7IYr9++wIiD8OyD
+         iQey9vUdNNoq/VdQ3kpmu+4uKN6sNUPjjcK0D5Ec=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from jackp-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+        (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: jackp@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 853C9607C3;
+        Fri, 28 Jun 2019 05:54:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1561701258;
+        bh=x9RisAVUfvk62Lv/TAzoribJc0J8BQpLPnAwsNTP0lI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=o+gGUTqs6hqZ8a6zvemY0qG+QBWrHHtauKP9nLFJrOP1WP3Cyvbb9GY2yKREeBmvL
+         Ah3dtBEwsm0F8pItBZk7Nzh6pxN7bfaz4XgEQHboB43VfWkRertYdl2cbVcC9EVmAz
+         jthIzXb7/PZHo40RLiD6czVNWE8+aoPHoF4HFKMU=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 853C9607C3
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=jackp@codeaurora.org
+Date:   Thu, 27 Jun 2019 22:54:14 -0700
+From:   Jack Pham <jackp@codeaurora.org>
+To:     John Stultz <john.stultz@linaro.org>
+Cc:     stable@vger.kernel.org, Fei Yang <fei.yang@intel.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org
+Subject: Re: [PATCH 4.19.y 8/9] Revert "usb: dwc3: gadget: Clear
+ req->needs_extra_trb flag on cleanup"
+Message-ID: <20190628055414.GA3380@jackp-linux.qualcomm.com>
+References: <20190627205240.38366-1-john.stultz@linaro.org>
+ <20190627205240.38366-9-john.stultz@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190627205240.38366-9-john.stultz@linaro.org>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In IEC 61883-6, 8 MIDI data streams are multiplexed into single
-MIDI conformant data channel. The index of stream is calculated by
-modulo 8 of the value of data block counter.
+Hi John,
 
-In fireworks, the value of data block counter in CIP header has a quirk
-with firmware version v5.0.0, v5.7.3 and v5.8.0. This brings ALSA
-IEC 61883-1/6 packet streaming engine to miss detection of MIDI
-messages.
+On Thu, Jun 27, 2019 at 08:52:39PM +0000, John Stultz wrote:
+> This reverts commit 25ad17d692ad54c3c33b2a31e5ce2a82e38de14e,
+> as with other patches backported to -stable, we can now apply
+> the actual upstream commit that matches this.
+> 
+> Cc: Fei Yang <fei.yang@intel.com>
+> Cc: Sam Protsenko <semen.protsenko@linaro.org>
+> Cc: Felipe Balbi <balbi@kernel.org>
+> Cc: linux-usb@vger.kernel.org
+> Cc: stable@vger.kernel.org # 4.19.y
+> Signed-off-by: John Stultz <john.stultz@linaro.org>
+> ---
+>  drivers/usb/dwc3/gadget.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+> index 879f652c5580..843586f20572 100644
+> --- a/drivers/usb/dwc3/gadget.c
+> +++ b/drivers/usb/dwc3/gadget.c
+> @@ -177,8 +177,6 @@ static void dwc3_gadget_del_and_unmap_request(struct dwc3_ep *dep,
+>  	req->started = false;
+>  	list_del(&req->list);
+>  	req->remaining = 0;
+> -	req->unaligned = false;
+> -	req->zero = false;
 
-This commit fixes the miss detection to modify the value of data block
-counter for the modulo calculation.
+Given that these structure members are removed in Patch 1/9, wouldn't
+having these lines remain until this revert patch present compilation
+errors when applying the patches in this series individually?
 
-For maintainers, this bug exists since a commit 18f5ed365d3f ("ALSA:
-fireworks/firewire-lib: add support for recent firmware quirk") in Linux
-kernel v4.2. There're many changes since the commit.  This fix can be
-backported to Linux kernel v4.4 or later. I tagged a base commit to the
-backport for your convenience.
+For bisectability would it be better to fix-up Patch 1 to also convert
+these two flags to req->needs_extra_trb in one shot? Alternatively you
+could sandwich Patch 1 between Patch 8 & 9.
 
-Fixes: df075feefbd3 ("ALSA: firewire-lib: complete AM824 data block processing layer")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
----
- sound/firewire/amdtp-am824.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/sound/firewire/amdtp-am824.c b/sound/firewire/amdtp-am824.c
-index 7019a2143581..623d014c0e7e 100644
---- a/sound/firewire/amdtp-am824.c
-+++ b/sound/firewire/amdtp-am824.c
-@@ -321,7 +321,7 @@ static void read_midi_messages(struct amdtp_stream *s,
- 	u8 *b;
- 
- 	for (f = 0; f < frames; f++) {
--		port = (s->data_block_counter + f) % 8;
-+		port = (8 - s->ctx_data.tx.first_dbc + s->data_block_counter + f) % 8;
- 		b = (u8 *)&buffer[p->midi_position];
- 
- 		len = b[0] - 0x80;
+Thanks,
+Jack
 -- 
-2.20.1
-
+The Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
