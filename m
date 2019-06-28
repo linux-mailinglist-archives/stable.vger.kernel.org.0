@@ -2,223 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C25065A680
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 23:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A0015A6A7
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 23:59:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726673AbfF1Vm0 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 28 Jun 2019 17:42:26 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:51768 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726536AbfF1Vm0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Jun 2019 17:42:26 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 13D533082131
-        for <stable@vger.kernel.org>; Fri, 28 Jun 2019 21:42:26 +0000 (UTC)
-Received: from [172.54.58.4] (cpt-1026.paas.prod.upshift.rdu2.redhat.com [10.0.19.53])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8DDD95D71B;
-        Fri, 28 Jun 2019 21:42:23 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1726557AbfF1V73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 17:59:29 -0400
+Received: from mail-eopbgr800045.outbound.protection.outlook.com ([40.107.80.45]:55968
+        "EHLO NAM03-DM3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726537AbfF1V73 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Jun 2019 17:59:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=amdcloud.onmicrosoft.com; s=selector1-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yNws9qrzj9SfSTMUPblXo4+WxKzyxDlQTpUdCQrEFps=;
+ b=MKGjpsS62GpQAKrRakQfXyrGEHAxNGK/0iJS0Z3yfMr5JLjBr1XVjYO8ZiPBv0Y4eGfM3GfFQMj4a2U5RMFDmpHXgvBjUpg5Z4/9WjhYy2UKEjbDCZ9TjCRPSFcGPO5IZIix3rlcFDd7eD0Zsv7n/1o9OW6XHA5MB/45FIZ06Sc=
+Received: from CY4PR12MB1798.namprd12.prod.outlook.com (10.175.59.9) by
+ CY4PR12MB1285.namprd12.prod.outlook.com (10.168.167.150) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2032.17; Fri, 28 Jun 2019 21:59:20 +0000
+Received: from CY4PR12MB1798.namprd12.prod.outlook.com
+ ([fe80::38d5:5f22:2510:9e44]) by CY4PR12MB1798.namprd12.prod.outlook.com
+ ([fe80::38d5:5f22:2510:9e44%9]) with mapi id 15.20.2008.019; Fri, 28 Jun 2019
+ 21:59:20 +0000
+From:   "Phillips, Kim" <kim.phillips@amd.com>
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Phillips, Kim" <kim.phillips@amd.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, Martin Liska <mliska@suse.cz>,
+        "Suthikulpanit, Suravee" <Suravee.Suthikulpanit@amd.com>,
+        "Natarajan, Janakarajan" <Janakarajan.Natarajan@amd.com>,
+        "Hook, Gary" <Gary.Hook@amd.com>, Pu Wen <puwen@hygon.cn>,
+        Stephane Eranian <eranian@google.com>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        "x86@kernel.org" <x86@kernel.org>
+Subject: [PATCH 1/2 RESEND3] perf/x86/amd/uncore: Do not set ThreadMask and
+ SliceMask for non-L3 PMCs
+Thread-Topic: [PATCH 1/2 RESEND3] perf/x86/amd/uncore: Do not set ThreadMask
+ and SliceMask for non-L3 PMCs
+Thread-Index: AQHVLfy8rktZfr6s2kKTZOiVCdKwUA==
+Date:   Fri, 28 Jun 2019 21:59:20 +0000
+Message-ID: <20190628215906.4276-1-kim.phillips@amd.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: SN1PR12CA0053.namprd12.prod.outlook.com
+ (2603:10b6:802:20::24) To CY4PR12MB1798.namprd12.prod.outlook.com
+ (2603:10b6:903:11a::9)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=kim.phillips@amd.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-mailer: git-send-email 2.22.0
+x-originating-ip: [165.204.77.1]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 0f50765d-2ed2-4e71-7792-08d6fc13df2f
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:CY4PR12MB1285;
+x-ms-traffictypediagnostic: CY4PR12MB1285:
+x-microsoft-antispam-prvs: <CY4PR12MB128509CA9A88D17B08DF949487FC0@CY4PR12MB1285.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:6790;
+x-forefront-prvs: 00826B6158
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(136003)(396003)(366004)(376002)(39860400002)(346002)(199004)(189003)(2906002)(110136005)(486006)(71190400001)(8936002)(186003)(71200400001)(25786009)(68736007)(7736002)(3846002)(45080400002)(81166006)(81156014)(6116002)(305945005)(5660300002)(7416002)(66476007)(64756008)(66556008)(99286004)(86362001)(8676002)(50226002)(1076003)(26005)(14454004)(316002)(36756003)(478600001)(66446008)(66946007)(14444005)(6512007)(256004)(73956011)(102836004)(4326008)(476003)(66066001)(386003)(6436002)(6506007)(52116002)(6486002)(2616005)(53936002)(54906003);DIR:OUT;SFP:1101;SCL:1;SRVR:CY4PR12MB1285;H:CY4PR12MB1798.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: amd.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: EFsiWkUcenNiXTGVvEudfCWi49hiezQFClxjAbhdj7rIg39NbziV5aj+aNm8Q719xP28N/ghKKgjnOmRnsnAQfpjF5m0jY/ovikaGLQ26Y35JPh7XYaSjzy74XkCuB354SGDpwMuWSxcKixDMJMhWEd3f2PGWQmE/OVcTGEHDZtVo6YlFrzgSAxSfOEgT6/hux9RB6dM5aRkHCUeDWeQ0ZiWGzfnEYMHUczqPMOGGtV1NmJ3eICDSp9NrttlYarPCUfT/5kao2MaScFPsqMYwMECNmIKVVibBjvzR/rXTKMnQFMtlDZxOzUSu2I+x/PYft9Luiya7yzJx0lSWF8weUp+R87YHrHQIp+XKdYlX4FY1KCgLcK1OLIUWDJi2C+19mfTN0xFpt7aZPcc5PKsuRQww7I7MIp6zjRvRdr1FQA=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <574048C5DD2DF841A1EE743DC603461E@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.A570B75581.TUM5KVW2Y6@redhat.com>
-X-Gitlab-Pipeline-ID: 13493
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Fri, 28 Jun 2019 21:42:26 +0000 (UTC)
-Date:   Fri, 28 Jun 2019 17:42:26 -0400
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0f50765d-2ed2-4e71-7792-08d6fc13df2f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Jun 2019 21:59:20.1034
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: kphillips@amd.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1285
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+From: Kim Phillips <kim.phillips@amd.com>
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Commit d7cbbe49a930 ("perf/x86/amd/uncore: Set ThreadMask and SliceMask
+for L3 Cache perf events") enables L3 PMC events for all threads and
+slices by writing 1s in ChL3PmcCfg (L3 PMC PERF_CTL) register fields.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: aec3002d07fd - Linux 4.19.56
+Those bitfields overlap with high order event select bits in the Data
+Fabric PMC control register, however.
 
-The results of these automated tests are provided below.
+So when a user requests raw Data Fabric events (-e amd_df/event=3D0xYYY/),
+the two highest order bits get inadvertently set, changing the counter
+select to events that don't exist, and for which no counts are read.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+This patch changes the logic to write the L3 masks only when dealing
+with L3 PMC counters.
 
+AMD Family 16h and below Northbridge (NB) counters were not affected.
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Cc: <stable@vger.kernel.org> # v4.19+
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Martin Liska <mliska@suse.cz>
+Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
+Cc: Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
+Cc: Gary Hook <Gary.Hook@amd.com>
+Cc: Pu Wen <puwen@hygon.cn>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: x86@kernel.org
+Fixes: d7cbbe49a930 ("perf/x86/amd/uncore: Set ThreadMask and SliceMask for=
+ L3 Cache perf events")
+---
+RESEND3: file sent with header:
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+	Content-Type: text/plain; charset=3D"us-ascii"
 
-Merge testing
--------------
+to work around a bug in the Microsoft Outlook SMTP servers.
 
-We cloned this repository and checked out the following commit:
+ arch/x86/events/amd/uncore.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: aec3002d07fd - Linux 4.19.56
+diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
+index 85e6984c560b..c2c4ae5fbbfc 100644
+--- a/arch/x86/events/amd/uncore.c
++++ b/arch/x86/events/amd/uncore.c
+@@ -206,7 +206,7 @@ static int amd_uncore_event_init(struct perf_event *eve=
+nt)
+ 	 * SliceMask and ThreadMask need to be set for certain L3 events in
+ 	 * Family 17h. For other events, the two fields do not affect the count.
+ 	 */
+-	if (l3_mask)
++	if (l3_mask && is_llc_event(event))
+ 		hwc->config |=3D (AMD64_L3_SLICE_MASK | AMD64_L3_THREAD_MASK);
+=20
+ 	if (event->cpu < 0)
+--=20
+2.22.0
 
-
-We grabbed the a2db7fe46607 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  perf-ui-helpline-use-strlcpy-as-a-shorter-form-of-strncpy-explicit-set-nul.patch
-  perf-help-remove-needless-use-of-strncpy.patch
-  perf-header-fix-unchecked-usage-of-strncpy.patch
-  arm64-don-t-unconditionally-add-wno-psabi-to-kbuild_cflags.patch
-  revert-x86-uaccess-ftrace-fix-ftrace_likely_update-v.patch
-  ib-hfi1-close-psm-sdma_progress-sleep-window.patch
-  9p-xen-fix-check-for-xenbus_read-error-in-front_prob.patch
-  9p-use-a-slab-for-allocating-requests.patch
-  9p-embed-fcall-in-req-to-round-down-buffer-allocs.patch
-  9p-add-a-per-client-fcall-kmem_cache.patch
-  9p-rename-p9_free_req-function.patch
-  9p-add-refcount-to-p9_req_t.patch
-  9p-rdma-do-not-disconnect-on-down_interruptible-eaga.patch
-  9p-rename-req-to-rreq-in-trans_fd.patch
-  9p-acl-fix-uninitialized-iattr-access.patch
-  9p-rdma-remove-useless-check-in-cm_event_handler.patch
-  9p-p9dirent_read-check-network-provided-name-length.patch
-  9p-potential-null-dereference.patch
-  9p-trans_fd-abort-p9_read_work-if-req-status-changed.patch
-  9p-trans_fd-put-worker-reqs-on-destroy.patch
-  net-9p-include-trans_common.h-to-fix-missing-prototy.patch
-  qmi_wwan-fix-out-of-bounds-read.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-ad59f8017ea6b2db74439c50dd6cf6a57eff1c2b.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-ad59f8017ea6b2db74439c50dd6cf6a57eff1c2b.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-ad59f8017ea6b2db74439c50dd6cf6a57eff1c2b.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-ad59f8017ea6b2db74439c50dd6cf6a57eff1c2b.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-ad59f8017ea6b2db74439c50dd6cf6a57eff1c2b.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-ad59f8017ea6b2db74439c50dd6cf6a57eff1c2b.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-ad59f8017ea6b2db74439c50dd6cf6a57eff1c2b.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-ad59f8017ea6b2db74439c50dd6cf6a57eff1c2b.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [11]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
