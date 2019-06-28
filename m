@@ -2,70 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20BAE5A474
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 20:46:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 721EF5A4C3
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 21:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726722AbfF1Sqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 14:46:42 -0400
-Received: from outgoing-stata.csail.mit.edu ([128.30.2.210]:48233 "EHLO
-        outgoing-stata.csail.mit.edu" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726620AbfF1Sqm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 14:46:42 -0400
-Received: from [4.30.142.84] (helo=[127.0.1.1])
-        by outgoing-stata.csail.mit.edu with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.82)
-        (envelope-from <srivatsa@csail.mit.edu>)
-        id 1hgvtR-000TAw-D0; Fri, 28 Jun 2019 14:46:41 -0400
-Subject: [4.4.y PATCH 4/4] ipv6_sockglue: Fix a missing-check bug in
- ip6_ra_control()
-From:   "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Cc:     Gen Zhang <blackgod016574@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>, akaher@vmware.com,
-        srinidhir@vmware.com, bvikas@vmware.com, amakhalov@vmware.com,
-        srivatsab@vmware.com, srivatsa@csail.mit.edu
-Date:   Fri, 28 Jun 2019 11:46:39 -0700
-Message-ID: <156174759237.35226.3149379455468172585.stgit@srivatsa-ubuntu>
-In-Reply-To: <156174751125.35226.7600381640894671668.stgit@srivatsa-ubuntu>
-References: <156174751125.35226.7600381640894671668.stgit@srivatsa-ubuntu>
-User-Agent: StGit/0.18
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S1726646AbfF1TGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 15:06:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36112 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726565AbfF1TGl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Jun 2019 15:06:41 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73DC220828;
+        Fri, 28 Jun 2019 19:06:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1561748800;
+        bh=OJBbFXxsapHmqXnNPYWLphBT6YHjmM6QXxeqdERoVjg=;
+        h=Date:From:To:Subject:From;
+        b=ihY1uffN2B3Z3Japf1SQ8ErA0cGJS8iqZb4m3oJ+0ox2+AZ72gPQ27Jyp1XVpGN30
+         NnxJ3Bffo7TjhfH2AUV8fVnK6m1qkNScDh2N5oPqRbY67WvT+PQ8xhuzlZ66giYGoo
+         xStmkczojYUJDrAxj8Kk6e1Ftsiu8UbaXdr0kiI0=
+Date:   Fri, 28 Jun 2019 12:06:40 -0700
+From:   akpm@linux-foundation.org
+To:     adobriyan@gmail.com, akpm@linux-foundation.org, jlu@pengutronix.de,
+        john.ogness@linutronix.de, luto@kernel.org,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 02/15] fs/proc/array.c: allow reporting eip/esp
+ for all coredumping threads
+Message-ID: <20190628190640.PuAK-SGHn%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gen Zhang <blackgod016574@gmail.com>
+From: John Ogness <john.ogness@linutronix.de>
+Subject: fs/proc/array.c: allow reporting eip/esp for all coredumping threads
 
-commit 95baa60a0da80a0143e3ddd4d3725758b4513825 upstream.
+0a1eb2d474ed ("fs/proc: Stop reporting eip and esp in /proc/PID/stat")
+stopped reporting eip/esp and fd7d56270b52 ("fs/proc: Report eip/esp in
+/prod/PID/stat for coredumping") reintroduced the feature to fix a
+regression with userspace core dump handlers (such as minicoredumper).
 
-In function ip6_ra_control(), the pointer new_ra is allocated a memory
-space via kmalloc(). And it is used in the following codes. However,
-when there is a memory allocation error, kmalloc() fails. Thus null
-pointer dereference may happen. And it will cause the kernel to crash.
-Therefore, we should check the return value and handle the error.
+Because PF_DUMPCORE is only set for the primary thread, this didn't fix
+the original problem for secondary threads.  Allow reporting the eip/esp
+for all threads by checking for PF_EXITING as well.  This is set for all
+the other threads when they are killed.  coredump_wait() waits for all the
+tasks to become inactive before proceeding to invoke a core dumper.
 
-Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+Link: http://lkml.kernel.org/r/87y32p7i7a.fsf@linutronix.de
+Link: http://lkml.kernel.org/r/20190522161614.628-1-jlu@pengutronix.de
+Fixes: fd7d56270b526ca3 ("fs/proc: Report eip/esp in /prod/PID/stat for coredumping")
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reported-by: Jan Luebbe <jlu@pengutronix.de>
+Tested-by: Jan Luebbe <jlu@pengutronix.de>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- net/ipv6/ipv6_sockglue.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/proc/array.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
-index 7126375..06a11ba 100644
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -67,6 +67,8 @@ int ip6_ra_control(struct sock *sk, int sel)
- 		return -ENOPROTOOPT;
- 
- 	new_ra = (sel >= 0) ? kmalloc(sizeof(*new_ra), GFP_KERNEL) : NULL;
-+	if (sel >= 0 && !new_ra)
-+		return -ENOMEM;
- 
- 	write_lock_bh(&ip6_ra_lock);
- 	for (rap = &ip6_ra_chain; (ra = *rap) != NULL; rap = &ra->next) {
-
+--- a/fs/proc/array.c~fs-proc-allow-reporting-eip-esp-for-all-coredumping-threads
++++ a/fs/proc/array.c
+@@ -462,7 +462,7 @@ static int do_task_stat(struct seq_file
+ 		 * a program is not able to use ptrace(2) in that case. It is
+ 		 * safe because the task has stopped executing permanently.
+ 		 */
+-		if (permitted && (task->flags & PF_DUMPCORE)) {
++		if (permitted && (task->flags & (PF_EXITING|PF_DUMPCORE))) {
+ 			if (try_get_task_stack(task)) {
+ 				eip = KSTK_EIP(task);
+ 				esp = KSTK_ESP(task);
+_
