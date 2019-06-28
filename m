@@ -2,101 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 262EE5A470
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 20:46:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F1D95A472
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 20:46:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726671AbfF1SqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 14:46:02 -0400
-Received: from outgoing-stata.csail.mit.edu ([128.30.2.210]:48204 "EHLO
+        id S1726720AbfF1SqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 14:46:22 -0400
+Received: from outgoing-stata.csail.mit.edu ([128.30.2.210]:48214 "EHLO
         outgoing-stata.csail.mit.edu" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726620AbfF1SqC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 14:46:02 -0400
+        by vger.kernel.org with ESMTP id S1726620AbfF1SqW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 14:46:22 -0400
 Received: from [4.30.142.84] (helo=[127.0.1.1])
         by outgoing-stata.csail.mit.edu with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
         (Exim 4.82)
         (envelope-from <srivatsa@csail.mit.edu>)
-        id 1hgvsl-000T1c-MM; Fri, 28 Jun 2019 14:45:59 -0400
-Subject: [4.4.y PATCH 1/4] ovl: modify ovl_permission() to do checks on two
- inodes
+        id 1hgvsy-000T22-58; Fri, 28 Jun 2019 14:46:12 -0400
+Subject: [4.4.y PATCH 2/4] KVM: X86: Fix scan ioapic
+ use-before-initialization
 From:   "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
 To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Cc:     Vivek Goyal <vgoyal@redhat.com>,
-        Miklos Szeredi <mszeredi@redhat.com>, akaher@vmware.com,
+Cc:     Wei Wu <ww9210@gmail.com>, Paolo Bonzini <pbonzini@redhat.com>,
+        Radim =?utf-8?b?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Wei Wu <ww9210@gmail.com>, Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, akaher@vmware.com,
         srinidhir@vmware.com, bvikas@vmware.com, amakhalov@vmware.com,
         srivatsab@vmware.com, srivatsa@csail.mit.edu
-Date:   Fri, 28 Jun 2019 11:45:58 -0700
-Message-ID: <156174754838.35226.13171581960350534112.stgit@srivatsa-ubuntu>
+Date:   Fri, 28 Jun 2019 11:46:10 -0700
+Message-ID: <156174756503.35226.12218857048001680955.stgit@srivatsa-ubuntu>
 In-Reply-To: <156174751125.35226.7600381640894671668.stgit@srivatsa-ubuntu>
 References: <156174751125.35226.7600381640894671668.stgit@srivatsa-ubuntu>
 User-Agent: StGit/0.18
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vivek Goyal <vgoyal@redhat.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-commit c0ca3d70e8d3cf81e2255a217f7ca402f5ed0862 upstream.
+commit e97f852fd4561e77721bb9a4e0ea9d98305b1e93 upstream.
 
-Right now ovl_permission() calls __inode_permission(realinode), to do
-permission checks on real inode and no checks are done on overlay inode.
+Reported by syzkaller:
 
-Modify it to do checks both on overlay inode as well as underlying inode.
-Checks on overlay inode will be done with the creds of calling task while
-checks on underlying inode will be done with the creds of mounter.
+ BUG: unable to handle kernel NULL pointer dereference at 00000000000001c8
+ PGD 80000003ec4da067 P4D 80000003ec4da067 PUD 3f7bfa067 PMD 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 7 PID: 5059 Comm: debug Tainted: G           OE     4.19.0-rc5 #16
+ RIP: 0010:__lock_acquire+0x1a6/0x1990
+ Call Trace:
+  lock_acquire+0xdb/0x210
+  _raw_spin_lock+0x38/0x70
+  kvm_ioapic_scan_entry+0x3e/0x110 [kvm]
+  vcpu_enter_guest+0x167e/0x1910 [kvm]
+  kvm_arch_vcpu_ioctl_run+0x35c/0x610 [kvm]
+  kvm_vcpu_ioctl+0x3e9/0x6d0 [kvm]
+  do_vfs_ioctl+0xa5/0x690
+  ksys_ioctl+0x6d/0x80
+  __x64_sys_ioctl+0x1a/0x20
+  do_syscall_64+0x83/0x6e0
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-[ Srivatsa: 4.4.y backport:
-  - Skipped the hunk modifying non-existent function ovl_get_acl()
-  - Adjusted the error path
-  - Included linux/cred.h to get prototype for revert_creds() ]
+The reason is that the testcase writes hyperv synic HV_X64_MSR_SINT6 msr
+and triggers scan ioapic logic to load synic vectors into EOI exit bitmap.
+However, irqchip is not initialized by this simple testcase, ioapic/apic
+objects should not be accessed.
+This can be triggered by the following program:
+
+    #define _GNU_SOURCE
+
+    #include <endian.h>
+    #include <stdint.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <sys/syscall.h>
+    #include <sys/types.h>
+    #include <unistd.h>
+
+    uint64_t r[3] = {0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff};
+
+    int main(void)
+    {
+    	syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
+    	long res = 0;
+    	memcpy((void*)0x20000040, "/dev/kvm", 9);
+    	res = syscall(__NR_openat, 0xffffffffffffff9c, 0x20000040, 0, 0);
+    	if (res != -1)
+    		r[0] = res;
+    	res = syscall(__NR_ioctl, r[0], 0xae01, 0);
+    	if (res != -1)
+    		r[1] = res;
+    	res = syscall(__NR_ioctl, r[1], 0xae41, 0);
+    	if (res != -1)
+    		r[2] = res;
+    	memcpy(
+    			(void*)0x20000080,
+    			"\x01\x00\x00\x00\x00\x5b\x61\xbb\x96\x00\x00\x40\x00\x00\x00\x00\x01\x00"
+    			"\x08\x00\x00\x00\x00\x00\x0b\x77\xd1\x78\x4d\xd8\x3a\xed\xb1\x5c\x2e\x43"
+    			"\xaa\x43\x39\xd6\xff\xf5\xf0\xa8\x98\xf2\x3e\x37\x29\x89\xde\x88\xc6\x33"
+    			"\xfc\x2a\xdb\xb7\xe1\x4c\xac\x28\x61\x7b\x9c\xa9\xbc\x0d\xa0\x63\xfe\xfe"
+    			"\xe8\x75\xde\xdd\x19\x38\xdc\x34\xf5\xec\x05\xfd\xeb\x5d\xed\x2e\xaf\x22"
+    			"\xfa\xab\xb7\xe4\x42\x67\xd0\xaf\x06\x1c\x6a\x35\x67\x10\x55\xcb",
+    			106);
+    	syscall(__NR_ioctl, r[2], 0x4008ae89, 0x20000080);
+    	syscall(__NR_ioctl, r[2], 0xae80, 0);
+    	return 0;
+    }
+
+This patch fixes it by bailing out scan ioapic if ioapic is not initialized in
+kernel.
+
+Reported-by: Wei Wu <ww9210@gmail.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Radim Krčmář <rkrcmar@redhat.com>
+Cc: Wei Wu <ww9210@gmail.com>
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[ Srivatsa: Adjusted the context for 4.4.y ]
 Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
 ---
 
- fs/overlayfs/inode.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/x86/kvm/x86.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
-index 985a4cd..9aff817 100644
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -9,6 +9,7 @@
- 
- #include <linux/fs.h>
- #include <linux/slab.h>
-+#include <linux/cred.h>
- #include <linux/xattr.h>
- #include "overlayfs.h"
- 
-@@ -91,6 +92,7 @@ int ovl_permission(struct inode *inode, int mask)
- 	struct ovl_entry *oe;
- 	struct dentry *alias = NULL;
- 	struct inode *realinode;
-+	const struct cred *old_cred;
- 	struct dentry *realdentry;
- 	bool is_upper;
- 	int err;
-@@ -143,7 +145,18 @@ int ovl_permission(struct inode *inode, int mask)
- 			goto out_dput;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 516d8b1..e1f1851 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6409,7 +6409,8 @@ static void vcpu_scan_ioapic(struct kvm_vcpu *vcpu)
+ 		kvm_scan_ioapic_routes(vcpu, vcpu->arch.eoi_exit_bitmap);
+ 	else {
+ 		kvm_x86_ops->sync_pir_to_irr(vcpu);
+-		kvm_ioapic_scan_entry(vcpu, vcpu->arch.eoi_exit_bitmap);
++		if (ioapic_in_kernel(vcpu->kvm))
++			kvm_ioapic_scan_entry(vcpu, vcpu->arch.eoi_exit_bitmap);
  	}
- 
-+	/*
-+	 * Check overlay inode with the creds of task and underlying inode
-+	 * with creds of mounter
-+	 */
-+	err = generic_permission(inode, mask);
-+	if (err)
-+		goto out_dput;
-+
-+	old_cred = ovl_override_creds(inode->i_sb);
- 	err = __inode_permission(realinode, mask);
-+	revert_creds(old_cred);
-+
- out_dput:
- 	dput(alias);
- 	return err;
+ 	kvm_x86_ops->load_eoi_exitmap(vcpu);
+ }
 
