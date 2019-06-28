@@ -2,105 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A917593D4
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 07:54:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B201594BC
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 09:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726816AbfF1FyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 01:54:20 -0400
-Received: from smtp.codeaurora.org ([198.145.29.96]:53208 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726616AbfF1FyU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 01:54:20 -0400
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id 83E75607B9; Fri, 28 Jun 2019 05:54:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1561701259;
-        bh=x9RisAVUfvk62Lv/TAzoribJc0J8BQpLPnAwsNTP0lI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R1oGPaVL68JZopMaDRpR84+NtuC9kmK5W1WaGjm45kwNviMIbKRzkkS8Rd7CmR6g0
-         yzHfUmG2qp0WnMR6dohvCjhqE8BPafWzNFpzwcYMjvYnQCUhZmM7IYr9++wIiD8OyD
-         iQey9vUdNNoq/VdQ3kpmu+4uKN6sNUPjjcK0D5Ec=
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        pdx-caf-mail.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
-        version=3.4.0
-Received: from jackp-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-        (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: jackp@smtp.codeaurora.org)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 853C9607C3;
-        Fri, 28 Jun 2019 05:54:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1561701258;
-        bh=x9RisAVUfvk62Lv/TAzoribJc0J8BQpLPnAwsNTP0lI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=o+gGUTqs6hqZ8a6zvemY0qG+QBWrHHtauKP9nLFJrOP1WP3Cyvbb9GY2yKREeBmvL
-         Ah3dtBEwsm0F8pItBZk7Nzh6pxN7bfaz4XgEQHboB43VfWkRertYdl2cbVcC9EVmAz
-         jthIzXb7/PZHo40RLiD6czVNWE8+aoPHoF4HFKMU=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 853C9607C3
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=jackp@codeaurora.org
-Date:   Thu, 27 Jun 2019 22:54:14 -0700
-From:   Jack Pham <jackp@codeaurora.org>
-To:     John Stultz <john.stultz@linaro.org>
-Cc:     stable@vger.kernel.org, Fei Yang <fei.yang@intel.com>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org
-Subject: Re: [PATCH 4.19.y 8/9] Revert "usb: dwc3: gadget: Clear
- req->needs_extra_trb flag on cleanup"
-Message-ID: <20190628055414.GA3380@jackp-linux.qualcomm.com>
-References: <20190627205240.38366-1-john.stultz@linaro.org>
- <20190627205240.38366-9-john.stultz@linaro.org>
+        id S1727247AbfF1HXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 03:23:18 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:34275 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727220AbfF1HXP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 03:23:15 -0400
+X-UUID: c38864b4810846c69f48c68396d2c7d4-20190628
+X-UUID: c38864b4810846c69f48c68396d2c7d4-20190628
+Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw02.mediatek.com
+        (envelope-from <weiyi.lu@mediatek.com>)
+        (mhqrelay.mediatek.com ESMTP with TLS)
+        with ESMTP id 416449884; Fri, 28 Jun 2019 15:22:52 +0800
+Received: from mtkcas09.mediatek.inc (172.21.101.178) by
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Fri, 28 Jun 2019 15:22:50 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas09.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
+ Transport; Fri, 28 Jun 2019 15:22:50 +0800
+From:   Weiyi Lu <weiyi.lu@mediatek.com>
+To:     Nicolas Boichat <drinkcat@chromium.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>
+CC:     James Liao <jamesjj.liao@mediatek.com>,
+        Fan Chen <fan.chen@mediatek.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>, <linux-clk@vger.kernel.org>,
+        <srv_heupstream@mediatek.com>, <stable@vger.kernel.org>,
+        Weiyi Lu <weiyi.lu@mediatek.com>,
+        Dehui Sun <dehui.sun@mediatek.com>
+Subject: [PATCH v3] clk: mediatek: mt8183: Register 13MHz clock earlier for clocksource
+Date:   Fri, 28 Jun 2019 15:22:34 +0800
+Message-ID: <1561706554-27770-1-git-send-email-weiyi.lu@mediatek.com>
+X-Mailer: git-send-email 1.8.1.1.dirty
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190627205240.38366-9-john.stultz@linaro.org>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Type: text/plain
+X-MTK:  N
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi John,
+The 13MHz clock should be registered before clocksource driver is
+initialized. Use CLK_OF_DECLARE_DRIVER() to guarantee.
 
-On Thu, Jun 27, 2019 at 08:52:39PM +0000, John Stultz wrote:
-> This reverts commit 25ad17d692ad54c3c33b2a31e5ce2a82e38de14e,
-> as with other patches backported to -stable, we can now apply
-> the actual upstream commit that matches this.
-> 
-> Cc: Fei Yang <fei.yang@intel.com>
-> Cc: Sam Protsenko <semen.protsenko@linaro.org>
-> Cc: Felipe Balbi <balbi@kernel.org>
-> Cc: linux-usb@vger.kernel.org
-> Cc: stable@vger.kernel.org # 4.19.y
-> Signed-off-by: John Stultz <john.stultz@linaro.org>
-> ---
->  drivers/usb/dwc3/gadget.c | 2 --
->  1 file changed, 2 deletions(-)
-> 
-> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-> index 879f652c5580..843586f20572 100644
-> --- a/drivers/usb/dwc3/gadget.c
-> +++ b/drivers/usb/dwc3/gadget.c
-> @@ -177,8 +177,6 @@ static void dwc3_gadget_del_and_unmap_request(struct dwc3_ep *dep,
->  	req->started = false;
->  	list_del(&req->list);
->  	req->remaining = 0;
-> -	req->unaligned = false;
-> -	req->zero = false;
+Fixes: acddfc2c261b ("clk: mediatek: Add MT8183 clock support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Weiyi Lu <weiyi.lu@mediatek.com>
+---
+ drivers/clk/mediatek/clk-mt8183.c | 46 +++++++++++++++++++++++++++++----------
+ 1 file changed, 34 insertions(+), 12 deletions(-)
 
-Given that these structure members are removed in Patch 1/9, wouldn't
-having these lines remain until this revert patch present compilation
-errors when applying the patches in this series individually?
-
-For bisectability would it be better to fix-up Patch 1 to also convert
-these two flags to req->needs_extra_trb in one shot? Alternatively you
-could sandwich Patch 1 between Patch 8 & 9.
-
-Thanks,
-Jack
+diff --git a/drivers/clk/mediatek/clk-mt8183.c b/drivers/clk/mediatek/clk-mt8183.c
+index 9d86510..bc01611 100644
+--- a/drivers/clk/mediatek/clk-mt8183.c
++++ b/drivers/clk/mediatek/clk-mt8183.c
+@@ -25,9 +25,11 @@
+ 	FIXED_CLK(CLK_TOP_UNIVP_192M, "univpll_192m", "univpll", 192000000),
+ };
+ 
++static const struct mtk_fixed_factor top_early_divs[] = {
++	FACTOR(CLK_TOP_CLK13M, "clk13m", "clk26m", 1, 2),
++};
++
+ static const struct mtk_fixed_factor top_divs[] = {
+-	FACTOR(CLK_TOP_CLK13M, "clk13m", "clk26m", 1,
+-		2),
+ 	FACTOR(CLK_TOP_F26M_CK_D2, "csw_f26m_ck_d2", "clk26m", 1,
+ 		2),
+ 	FACTOR(CLK_TOP_SYSPLL_CK, "syspll_ck", "mainpll", 1,
+@@ -1167,37 +1169,57 @@ static int clk_mt8183_apmixed_probe(struct platform_device *pdev)
+ 	return of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
+ }
+ 
++static struct clk_onecell_data *top_clk_data;
++
++static void clk_mt8183_top_init_early(struct device_node *node)
++{
++	int i;
++
++	top_clk_data = mtk_alloc_clk_data(CLK_TOP_NR_CLK);
++
++	for (i = 0; i < CLK_TOP_NR_CLK; i++)
++		top_clk_data->clks[i] = ERR_PTR(-EPROBE_DEFER);
++
++	mtk_clk_register_factors(top_early_divs, ARRAY_SIZE(top_early_divs),
++			top_clk_data);
++
++	of_clk_add_provider(node, of_clk_src_onecell_get, top_clk_data);
++}
++
++CLK_OF_DECLARE_DRIVER(mt8183_topckgen, "mediatek,mt8183-topckgen",
++			clk_mt8183_top_init_early);
++
+ static int clk_mt8183_top_probe(struct platform_device *pdev)
+ {
+ 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	void __iomem *base;
+-	struct clk_onecell_data *clk_data;
+ 	struct device_node *node = pdev->dev.of_node;
+ 
+ 	base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
+ 
+-	clk_data = mtk_alloc_clk_data(CLK_TOP_NR_CLK);
+-
+ 	mtk_clk_register_fixed_clks(top_fixed_clks, ARRAY_SIZE(top_fixed_clks),
+-		clk_data);
++		top_clk_data);
++
++	mtk_clk_register_factors(top_early_divs, ARRAY_SIZE(top_early_divs),
++		top_clk_data);
+ 
+-	mtk_clk_register_factors(top_divs, ARRAY_SIZE(top_divs), clk_data);
++	mtk_clk_register_factors(top_divs, ARRAY_SIZE(top_divs), top_clk_data);
+ 
+ 	mtk_clk_register_muxes(top_muxes, ARRAY_SIZE(top_muxes),
+-		node, &mt8183_clk_lock, clk_data);
++		node, &mt8183_clk_lock, top_clk_data);
+ 
+ 	mtk_clk_register_composites(top_aud_muxes, ARRAY_SIZE(top_aud_muxes),
+-		base, &mt8183_clk_lock, clk_data);
++		base, &mt8183_clk_lock, top_clk_data);
+ 
+ 	mtk_clk_register_composites(top_aud_divs, ARRAY_SIZE(top_aud_divs),
+-		base, &mt8183_clk_lock, clk_data);
++		base, &mt8183_clk_lock, top_clk_data);
+ 
+ 	mtk_clk_register_gates(node, top_clks, ARRAY_SIZE(top_clks),
+-		clk_data);
++		top_clk_data);
+ 
+-	return of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
++	return of_clk_add_provider(node, of_clk_src_onecell_get, top_clk_data);
+ }
+ 
+ static int clk_mt8183_infra_probe(struct platform_device *pdev)
 -- 
-The Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-a Linux Foundation Collaborative Project
+1.8.1.1.dirty
+
