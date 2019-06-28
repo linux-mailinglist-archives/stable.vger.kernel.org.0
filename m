@@ -2,120 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA21859832
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 12:10:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B966859841
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 12:18:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726583AbfF1KKp convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 28 Jun 2019 06:10:45 -0400
-Received: from mga03.intel.com ([134.134.136.65]:11926 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726484AbfF1KKo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Jun 2019 06:10:44 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Jun 2019 03:10:43 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,427,1557212400"; 
-   d="scan'208";a="162927359"
-Received: from fmsmsx104.amr.corp.intel.com ([10.18.124.202])
-  by fmsmga008.fm.intel.com with ESMTP; 28 Jun 2019 03:10:42 -0700
-Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
- fmsmsx104.amr.corp.intel.com (10.18.124.202) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Fri, 28 Jun 2019 03:10:42 -0700
-Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Fri, 28 Jun 2019 03:10:42 -0700
-Received: from bgsmsx151.gar.corp.intel.com (10.224.48.42) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.1713.5
- via Frontend Transport; Fri, 28 Jun 2019 03:10:41 -0700
-Received: from bgsmsx104.gar.corp.intel.com ([169.254.5.212]) by
- BGSMSX151.gar.corp.intel.com ([169.254.3.51]) with mapi id 14.03.0439.000;
- Fri, 28 Jun 2019 15:40:39 +0530
-From:   "Gopal, Saranya" <saranya.gopal@intel.com>
-To:     John Stultz <john.stultz@linaro.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     "Yang, Fei" <fei.yang@intel.com>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
-Subject: RE: [PATCH 4.19.y 0/9] Fix scheduling while atomic in
- dwc3_gadget_ep_dequeue
-Thread-Topic: [PATCH 4.19.y 0/9] Fix scheduling while atomic in
- dwc3_gadget_ep_dequeue
-Thread-Index: AQHVLSpO0CxIfX1Aak+sMa9/czroQ6aw1kFg
-Date:   Fri, 28 Jun 2019 10:10:38 +0000
-Message-ID: <C672AA6DAAC36042A98BAD0B0B25BDA94CC59E46@BGSMSX104.gar.corp.intel.com>
-References: <20190627205240.38366-1-john.stultz@linaro.org>
-In-Reply-To: <20190627205240.38366-1-john.stultz@linaro.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.0.600.7
-dlp-reaction: no-action
-x-ctpclassification: CTP_NT
-x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiNmQ2MjI3ZjctZTMyNi00YWEzLThkN2MtNTAyMzdlNDUxNWE1IiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiTjMzUWhhOHptdmFNQzdUVjBzTnhoTXhUeTBIdDZwVU5YZFFna1gxa0x5Rld5NmZCcm1JTUZYOFMxOHcrQVdDZCJ9
-x-originating-ip: [10.223.10.10]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S1726519AbfF1KSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 06:18:14 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:42430 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726502AbfF1KSO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 06:18:14 -0400
+Received: by mail-lj1-f193.google.com with SMTP id t28so5416361lje.9
+        for <stable@vger.kernel.org>; Fri, 28 Jun 2019 03:18:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=cI/QL9iFVJPYS/RXsOJlVyjYcvn7v6cU3O6ni3DD6Jc=;
+        b=SWPLePha3qaC6EfpLVMjGIhqM3wdnIEeUdxp77hQ4l9Coxh0vmxar7J+/1uTOIRxca
+         W8t41IbQ4vmosjiE4pf+BucVtKvbpZKLEa6+1i8i8ok3bf2JMAaebuiRiFAHdSJYIjv6
+         F0Gi2L1JDqgQhAlx6KkFZeNmO0Qm9zp8etTqYk0XmW4G7m/0G0ZrSFdfkCdvmnChCmAu
+         QH2lbV/S2hDB4AyOyvRLO7f0FhPpy0jbsLXcjnrpK7r5s855AaQ76T45/uGCfzB+WR7f
+         AQ8GDBbgN9SnA2uVKVeOiRceM3+Rtm7ejnhKZE2odFD/ndHcVTm5+vfbQMhU9VY1wrcE
+         YQAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=cI/QL9iFVJPYS/RXsOJlVyjYcvn7v6cU3O6ni3DD6Jc=;
+        b=ciK30gQClqvXQZqviqqI3j3Ah1DpHz76ORWf48xUSIUth4GQRS+NX/ruTMD7pvQBnd
+         AM14nX2XfeWRAKwa+1HHCgWTGaKKDp2O+ZbwrP2thHgkT/ucrkv0BRWx+EqO8XVtJ1N3
+         Mqk0hXI3z152pDo2kmVzdA/36wULxQZh501F/7duVGVR1tfwTni1ax9dFUcGpgVpcKtn
+         yUsK7GDRv20s0MwL+kSw3sXBvuU7sM176RCg6Br3rz6XnnU+8LN9jjz1prVZDAVYWDeM
+         JeX+y9stOmdUjQOpDusBJJTCQC2SaO2QlWSvWpdpWune9z/iYtqSBCyooQQtQH9steAA
+         aFPA==
+X-Gm-Message-State: APjAAAV+x78zrrQkETBZHpozf+qP8vnDID5T4oNhi3485E9WJyXelZEd
+        M44liuWNMrC3pWvZKxi+60G8hK/0GDVV4sLkF2s=
+X-Google-Smtp-Source: APXvYqx3n6kixnn3LOeV1NzekNGx2fnN+8WTHK/HBTs7p7B78KPBnyKzsQk8t7cApTne2fTkk4zImJkh3ScVubtAXLo=
+X-Received: by 2002:a2e:89ca:: with SMTP id c10mr5739694ljk.106.1561717092692;
+ Fri, 28 Jun 2019 03:18:12 -0700 (PDT)
 MIME-Version: 1.0
+Received: by 2002:a2e:611a:0:0:0:0:0 with HTTP; Fri, 28 Jun 2019 03:18:11
+ -0700 (PDT)
+Reply-To: mrtapioka_lirnalaboso@outlook.fr
+From:   "Mr.Tapioka_Lirnalaboso" <misstapiokalornalaboso55@gmail.com>
+Date:   Fri, 28 Jun 2019 12:18:11 +0200
+Message-ID: <CADAi5xwJ-hpVLLkjsZYFMoKSULbsz3U+y4XTFX_9cfuDpUyjYA@mail.gmail.com>
+Subject: very very urgent
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> With recent changes in AOSP, adb is using asynchronous io, which
-> causes the following crash usually on a reboot:
-> 
-> [  184.278302] BUG: scheduling while atomic: ksoftirqd/0/9/0x00000104
-> [  184.284617] Modules linked in: wl18xx wlcore snd_soc_hdmi_codec
-> wlcore_sdio tcpci_rt1711h tcpci tcpm typec adv7511 cec dwc3 phy_hi3660_usb3
-> snd_soc_simple_card snd_soc_a
-> [  184.316034] Preemption disabled at:
-> [  184.316072] [<ffffff8008081de4>] __do_softirq+0x64/0x398
-> [  184.324953] CPU: 0 PID: 9 Comm: ksoftirqd/0 Tainted: G S                4.19.43-
-> 00669-g8e4970572c43-dirty #356
-> [  184.334963] Hardware name: HiKey960 (DT)
-> [  184.338892] Call trace:
-> [  184.341352]  dump_backtrace+0x0/0x158
-> [  184.345025]  show_stack+0x14/0x20
-> [  184.348355]  dump_stack+0x80/0xa4
-> [  184.351685]  __schedule_bug+0x6c/0xc0
-> [  184.355363]  __schedule+0x64c/0x978
-> [  184.358863]  schedule+0x2c/0x90
-> [  184.362053]  dwc3_gadget_ep_dequeue+0x274/0x388 [dwc3]
+Dear Friend,
 
+I Mr Taptoka Lornalaboso, Head of operation  at Bank of Africa. I want
+you to know that the amount of $ 18.5 million will be
+transferred to your name as a  foreign partner.
 
-> This happens as usb_ep_dequeue can be called in interrupt
-> context, and dwc3_gadget_ep_dequeue() then calls
-> wait_event_lock_irq() which can sleep.
-> 
-> Upstream kernels are not affected due to the change
-> fec9095bdef4 ("dwc3: gadget: remove wait_end_transfer") which
-> removes the wait_even_lock_irq code. Unfortunately that change
-> has a number of dependencies, which I'm submitting here.
-> 
-> Also, to match upstream, in this series I've reverted one
-> change that was backported to -stable, to replace it with the
-> cherry-picked upstream commit (as the dependencies are now
-> there)
-> 
-> This issue also affects 4.14,4.9 and I believe 4.4 kernels,
-> however I don't know how to best backport this functionality
-> that far back. Help from the maintainers would be very much
-> appreciated!
-> 
-> Feedback and comments would be welcome!
-> 
-> thanks
-> -john
+I need your help to get this fund to be transfer out from here to your
+account, and we  share at a ratio of 50% for me,
+while50% is for you in any assistance that you may require  to give
+during the transferring process of this fund into
+your account. You will receive  this amount by bank transfer.
 
-I confirm that this patch series fixes crash seen on reboot.
-Considering that many Android platforms use 4.19 stable kernel with latest AOSP codebase, it would be really helpful if these patches are merged to 4.19 stable.
+Please send your full name and your directly phone numbers, and
+address, and I will  details you about this transaction.
+You have to contact me through my private e-mail at
+(mrtapioka_lirnalaboso@outlook.fr)
+Your prompt reply will be highly appreciated.
 
-Thanks,
-Saranya
+Sincerely,
+CONTACTS ME THROUGH MY INFORMATION
+African Development Bank.(ADB).BF
+
+Contact: E-Mail :(mrtapioka_lirnalaboso@outlook.fr)
+Mr TAPIOKA LORNALABOSO.
