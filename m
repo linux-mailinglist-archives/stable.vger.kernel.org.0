@@ -2,110 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1820A5A73D
-	for <lists+stable@lfdr.de>; Sat, 29 Jun 2019 00:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F2535A740
+	for <lists+stable@lfdr.de>; Sat, 29 Jun 2019 00:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726695AbfF1W6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 18:58:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33060 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726563AbfF1W6F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Jun 2019 18:58:05 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 184872086D;
-        Fri, 28 Jun 2019 22:58:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561762684;
-        bh=DZUscUNbxaI+uslyptrcYGtHY9gmsQXG8HQh9v7cFKc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vncCx9NC68t+4xDDVkcuTGQQVnz3+ljuFihJbYIRxpxeFCpia6ghnyBh2w+LUpLQ5
-         U3NOrVGLTmzpqI1hH1qDq77i0FKzbMvorp/kIH4sCt0A3LDS7Dw9QIYA+imBOv22TJ
-         QPQOKSO1iuzl1n/qkESkwEjv9nKjWLBkJJvYLcAQ=
-Date:   Fri, 28 Jun 2019 18:58:03 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     John Stultz <john.stultz@linaro.org>
-Cc:     stable@vger.kernel.org, Fei Yang <fei.yang@intel.com>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Jack Pham <jackp@codeaurora.org>, linux-usb@vger.kernel.org
-Subject: Re: [PATCH 4.19.y v2 0/9] Fix scheduling while atomic in
- dwc3_gadget_ep_dequeue
-Message-ID: <20190628225803.GK11506@sasha-vm>
-References: <20190628182413.33225-1-john.stultz@linaro.org>
+        id S1726846AbfF1W7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 18:59:06 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:44732 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726752AbfF1W7F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 18:59:05 -0400
+Received: by mail-lf1-f65.google.com with SMTP id r15so4942242lfm.11
+        for <stable@vger.kernel.org>; Fri, 28 Jun 2019 15:59:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=5hxr737kZawIDdGnBRfezwRYZfPo+N/0q3w7Fxi9l4A=;
+        b=VF6Qdhuv7A1bSXPlb3IW1+FrjzPu/5kLqJR8Bz3t4QYSsRmFGPpUKtjDK+76denozn
+         16FGNec6EkruICXjbpFZ9+3J36uau6xjWzLCfmQ1pkX2GY6gfKFgHUUoAsIpsrM4gUfb
+         2J1/qNcGNldERB23rgLKXTx1gg+Ws1OyBf04k=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=5hxr737kZawIDdGnBRfezwRYZfPo+N/0q3w7Fxi9l4A=;
+        b=hB6XUlk5dpx3QuBkDD4E94+CzKu4JiQFZDM0hjkJ1+OmpI/ttNR2LjkDkhCvd4w/VB
+         MkQzMeRRTSizuM4Y1PLLp6/cKq9jL5oBpPdVsD2AWjtj1yE3w/vgVhwJZYH1ZbK4BQz5
+         ArVjapMsg01erCyXvYFh4V5aXUOwSoyArGH31cLWiiWIoZQw8YAMtZjqBesyDYHQCt25
+         3qMIP24jmHNLmfd7jdzfsaZkTUVxq3kXmWaGdrlvjoOTAavvDIj/YKF81yECs0ndywDZ
+         Zcu+vv5h961Rlb+kOa7qsEaDkg5ZFivpx31qC5EYwKuq5/zKyXTE8BzI8GZr+i8TSHHz
+         a7hA==
+X-Gm-Message-State: APjAAAWlV1eRDRWN0N99oYsbnseh2w4wNlLhWk7N6S/Eh6alS9fQcnO6
+        Dezn6hbCauA6oW5NF3/PRd5R5LVNNx0=
+X-Google-Smtp-Source: APXvYqzhOiM3Z+weeanPaZ6UNoqu4Kx+pY3wCNp637eMu91B8jIA21kapDzZRvc4JOEFS8mSm5A4RQ==
+X-Received: by 2002:a19:4017:: with SMTP id n23mr6585830lfa.112.1561762742267;
+        Fri, 28 Jun 2019 15:59:02 -0700 (PDT)
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com. [209.85.208.172])
+        by smtp.gmail.com with ESMTPSA id y18sm1107123ljh.1.2019.06.28.15.59.01
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Fri, 28 Jun 2019 15:59:02 -0700 (PDT)
+Received: by mail-lj1-f172.google.com with SMTP id v24so7463737ljg.13
+        for <stable@vger.kernel.org>; Fri, 28 Jun 2019 15:59:01 -0700 (PDT)
+X-Received: by 2002:a2e:9758:: with SMTP id f24mr7644626ljj.58.1561762740673;
+ Fri, 28 Jun 2019 15:59:00 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190628182413.33225-1-john.stultz@linaro.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190627003616.20767-1-sashal@kernel.org> <20190627003616.20767-14-sashal@kernel.org>
+In-Reply-To: <20190627003616.20767-14-sashal@kernel.org>
+From:   Brian Norris <briannorris@chromium.org>
+Date:   Fri, 28 Jun 2019 15:58:49 -0700
+X-Gmail-Original-Message-ID: <CA+ASDXPyGECiq9gZmFj8TU6Gmt2epQtuBqnGqRWad79DJT589w@mail.gmail.com>
+Message-ID: <CA+ASDXPyGECiq9gZmFj8TU6Gmt2epQtuBqnGqRWad79DJT589w@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.19 14/60] mwifiex: Abort at too short BSS
+ descriptor element
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Linux Kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Takashi Iwai <tiwai@suse.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        "<netdev@vger.kernel.org>" <netdev@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 28, 2019 at 06:24:04PM +0000, John Stultz wrote:
->With recent changes in AOSP, adb is using asynchronous io, which
->causes the following crash usually on a reboot:
+On Wed, Jun 26, 2019 at 5:49 PM Sasha Levin <sashal@kernel.org> wrote:
 >
->[  184.278302] BUG: scheduling while atomic: ksoftirqd/0/9/0x00000104
->[  184.284617] Modules linked in: wl18xx wlcore snd_soc_hdmi_codec wlcore_sdio tcpci_rt1711h tcpci tcpm typec adv7511 cec dwc3 phy_hi3660_usb3 snd_soc_simple_card snd_soc_a
->[  184.316034] Preemption disabled at:
->[  184.316072] [<ffffff8008081de4>] __do_softirq+0x64/0x398
->[  184.324953] CPU: 0 PID: 9 Comm: ksoftirqd/0 Tainted: G S                4.19.43-00669-g8e4970572c43-dirty #356
->[  184.334963] Hardware name: HiKey960 (DT)
->[  184.338892] Call trace:
->[  184.341352]  dump_backtrace+0x0/0x158
->[  184.345025]  show_stack+0x14/0x20
->[  184.348355]  dump_stack+0x80/0xa4
->[  184.351685]  __schedule_bug+0x6c/0xc0
->[  184.355363]  __schedule+0x64c/0x978
->[  184.358863]  schedule+0x2c/0x90
->[  184.362053]  dwc3_gadget_ep_dequeue+0x274/0x388 [dwc3]
->[  184.367210]  usb_ep_dequeue+0x24/0xf8
->[  184.370884]  ffs_aio_cancel+0x3c/0x80
->[  184.374561]  free_ioctx_users+0x40/0x148
->[  184.378500]  percpu_ref_switch_to_atomic_rcu+0x180/0x1c0
->[  184.383830]  rcu_process_callbacks+0x24c/0x5d8
->[  184.388283]  __do_softirq+0x13c/0x398
->[  184.391959]  run_ksoftirqd+0x3c/0x48
->[  184.395549]  smpboot_thread_fn+0x220/0x288
->[  184.399660]  kthread+0x12c/0x130
->[  184.402901]  ret_from_fork+0x10/0x1c
+> From: Takashi Iwai <tiwai@suse.de>
 >
+> [ Upstream commit 685c9b7750bfacd6fc1db50d86579980593b7869 ]
 >
->This happens as usb_ep_dequeue can be called in interrupt
->context, and dwc3_gadget_ep_dequeue() then calls
->wait_event_lock_irq() which can sleep.
+> Currently mwifiex_update_bss_desc_with_ie() implicitly assumes that
+> the source descriptor entries contain the enough size for each type
+> and performs copying without checking the source size.  This may lead
+> to read over boundary.
 >
->Upstream kernels are not affected due to the change
->fec9095bdef4 ("dwc3: gadget: remove wait_end_transfer") which
->removes the wait_even_lock_irq code. Unfortunately that change
->has a number of dependencies, which I'm submitting here.
+> Fix this by putting the source size check in appropriate places.
 >
->Also, to match upstream, in this series I've reverted one
->change that was backported to -stable, to replace it with the
->cherry-picked upstream commit (as the dependencies are now
->there)
->
->This issue also affects 4.14,4.9 and I believe 4.4 kernels,
->however I don't know how to best backport this functionality
->that far back. Help from the maintainers would be very much
->appreciated!
->
->
->New in v2:
->* Reordered the patchset to put the revert patch first, which
->  avoids any bisection build issues. (Thanks to Jack Pham for
->  the suggestion!)
->
->
->Feedback and comments would be welcome!
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-I've queued it up for 4.19.
+For the record, this fixup is still aiming for 5.2, correcting some
+potential mistakes in this patch:
 
-Is it the case that for older kernels the dependency list is too long?
+63d7ef36103d mwifiex: Don't abort on small, spec-compliant vendor IEs
 
---
-Thanks,
-Sasha
+So you might want to hold off a bit, and grab them both.
+
+Brian
