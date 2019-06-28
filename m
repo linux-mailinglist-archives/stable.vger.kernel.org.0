@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CF4C59D88
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 16:11:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B05E59D92
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 16:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726691AbfF1OL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 10:11:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59616 "EHLO mail.kernel.org"
+        id S1726712AbfF1OOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 10:14:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726657AbfF1OL0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Jun 2019 10:11:26 -0400
+        id S1726616AbfF1OOf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Jun 2019 10:14:35 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 505E8208E3;
-        Fri, 28 Jun 2019 14:11:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24206208E3;
+        Fri, 28 Jun 2019 14:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561731085;
-        bh=oCdjswagAHobZ63isHTznuUFBTZdnoCTi6w01PJYl34=;
+        s=default; t=1561731274;
+        bh=hefLPdEcOKchEjgV2gdWc85+Zibje5sd/6U4PZNZnJI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RY7fx0ksb+ZyuqSmfw6eq13pMpdkgzBscRQ5B1n9yMItpYvIQfIBd8teTqASKEOR7
-         PlSNDfylgSn0A9QkGfQXP5ylUk0bGH1DvzQWvXtF1P8APdHO1n68bovpdNXnO6e4nb
-         MseQ75verriuBJNKjlk9p4h56gdU1jt740Yj44CQ=
-Date:   Fri, 28 Jun 2019 10:11:24 -0400
+        b=1yoxf46J5yK5R3nFcE9FcmHoQpH43hM27S7/4KuQHWf/5l2oI/2GwuDE+oAYO3Os5
+         lmhtAuTa+OGH5RZOgEW7RP4o52e6PUHx+Jgxc6S1opjBodFF25TYytz0iGTB1BYOVI
+         leDQpRx+jAa2RYL1Nz5IYZw6TIsI6zcoupPbL49g=
+Date:   Fri, 28 Jun 2019 10:14:33 -0400
 From:   Sasha Levin <sashal@kernel.org>
 To:     Kristian Evensen <kristian.evensen@gmail.com>
 Cc:     stable <stable@vger.kernel.org>,
         =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
 Subject: Re: [PATCH] qmi_wwan: Fix out-of-bounds read
-Message-ID: <20190628141124.GE11506@sasha-vm>
+Message-ID: <20190628141433.GF11506@sasha-vm>
 References: <20190627100105.11517-1-kristian.evensen@gmail.com>
  <CAKfDRXhHWCxKK6gDciar5eQg9Ojv4+0C7tgaSOmQFFGLCL9gqw@mail.gmail.com>
 MIME-Version: 1.0
@@ -86,7 +86,7 @@ On Fri, Jun 28, 2019 at 06:14:33AM +0200, Kristian Evensen wrote:
 >prefix should be PATCH 4.14. Sorry about that. Please let me know if I
 >should resubmit.
 
-I've queued it for 4.14, thank you.
+I've also queued the upstream fix to 5.1 and 4.19.
 
 --
 Thanks,
