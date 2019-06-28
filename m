@@ -2,131 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FCE6597C5
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 11:41:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA21859832
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 12:10:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726571AbfF1JlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 05:41:24 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:44265 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726484AbfF1JlY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 05:41:24 -0400
-Received: by mail-ot1-f65.google.com with SMTP id b7so5320750otl.11
-        for <stable@vger.kernel.org>; Fri, 28 Jun 2019 02:41:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=XRrEHx1uSB4yPDMUO/oxdWMhDCh65upcSfQGta3Ewhc=;
-        b=Zyflk2jOVA4YyaZ24XP+l4S4Ys3pUX063Hs5TE0c2u+Z4Mlfgf6N93cfCcCDnw+ftt
-         0qcpx0IEzM7HQM0rM0Jo60lPJkxhKkNtMaZQZwj+HaEWRKHDbLJFXzkMWzzrBIfnfR34
-         Vcy9qak80ZQl+1fZgjGxvVvBIpzW3VRz0LvqdD3PCBGeK1HTLccmj2EwgR5tLOSzfiWY
-         xeG83SJhse+T53UDv2UJTPrjpErfvrvdgWwxRlq3Q4HkELse+WSNjAIPwbBppvcjcNH8
-         Vp+Y6XnC63N7lIj+CvPRmaSUZ6z0gxeubf3lP8Sgpn4lIoXH0u5lzWKuqr1wnDTdrHdm
-         ojNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=XRrEHx1uSB4yPDMUO/oxdWMhDCh65upcSfQGta3Ewhc=;
-        b=qqHtEd+IVkM6tkuHNKF8BYxIsiU7lJCvK0gna0nxMa8LlIf4F6bnuv11pmsnqAa/1F
-         JPhdQ2CSBGJru7EsojmA8zzzI+DvqJWIcq8zVOSmMv+8pOQWt9aebyBT6U+MaRMZYYaY
-         oimNMDplTPaLWoJCLI+iajvsepwiIzUY21BFYnqcjb8VGnIy3NWDLM2c4Iv6B2JFFXCu
-         wCg07BChqBJm0INWje5nkeykNRdtPeqFu/B3lpdmZ0c9ud3EQG7lZP4zwQm3wZnM4ymK
-         VXjZ5ynJ3J9YtF2IbKUE1PfgVA7C4PowIOLnPxNudKCoSwRBAiGPDMWEMKG5zs7iQL6A
-         sDNg==
-X-Gm-Message-State: APjAAAUa/LuF3DWLKhNU4goXlEZonsS78C4gB3UWC5/NMLrrjN0ZvF5G
-        lUF90NMHxO5vvDxbB897KhviEQ==
-X-Google-Smtp-Source: APXvYqwbRmrDo7JZCH0qYUilB3Mr/tXlyAb2uuVOlGfumRJaR5DgDIt7c6RQOFKoLbf/3fXY1Ojr7w==
-X-Received: by 2002:a9d:578c:: with SMTP id q12mr6906502oth.240.1561714883269;
-        Fri, 28 Jun 2019 02:41:23 -0700 (PDT)
-Received: from leoy-ThinkPad-X240s (li964-79.members.linode.com. [45.33.10.79])
-        by smtp.gmail.com with ESMTPSA id m21sm568570otl.70.2019.06.28.02.41.20
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 28 Jun 2019 02:41:22 -0700 (PDT)
-Date:   Fri, 28 Jun 2019 17:41:16 +0800
-From:   Leo Yan <leo.yan@linaro.org>
-To:     Andrew Murray <andrew.murray@arm.com>
-Cc:     Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        coresight@lists.linaro.org, Sudeep Holla <sudeep.holla@arm.com>,
-        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Mike Leach <mike.leach@linaro.org>
-Subject: Re: [PATCH v2 2/5] coresight: etm4x: use explicit barriers on
- enable/disable
-Message-ID: <20190628094116.GF32370@leoy-ThinkPad-X240s>
-References: <20190627083525.37463-1-andrew.murray@arm.com>
- <20190627083525.37463-3-andrew.murray@arm.com>
- <20190628024529.GC20296@leoy-ThinkPad-X240s>
- <20190628083523.GG34530@e119886-lin.cambridge.arm.com>
- <20190628085154.GD32370@leoy-ThinkPad-X240s>
- <20190628090013.GI34530@e119886-lin.cambridge.arm.com>
+        id S1726583AbfF1KKp convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 28 Jun 2019 06:10:45 -0400
+Received: from mga03.intel.com ([134.134.136.65]:11926 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726484AbfF1KKo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Jun 2019 06:10:44 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Jun 2019 03:10:43 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,427,1557212400"; 
+   d="scan'208";a="162927359"
+Received: from fmsmsx104.amr.corp.intel.com ([10.18.124.202])
+  by fmsmga008.fm.intel.com with ESMTP; 28 Jun 2019 03:10:42 -0700
+Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
+ fmsmsx104.amr.corp.intel.com (10.18.124.202) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Fri, 28 Jun 2019 03:10:42 -0700
+Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Fri, 28 Jun 2019 03:10:42 -0700
+Received: from bgsmsx151.gar.corp.intel.com (10.224.48.42) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.1713.5
+ via Frontend Transport; Fri, 28 Jun 2019 03:10:41 -0700
+Received: from bgsmsx104.gar.corp.intel.com ([169.254.5.212]) by
+ BGSMSX151.gar.corp.intel.com ([169.254.3.51]) with mapi id 14.03.0439.000;
+ Fri, 28 Jun 2019 15:40:39 +0530
+From:   "Gopal, Saranya" <saranya.gopal@intel.com>
+To:     John Stultz <john.stultz@linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     "Yang, Fei" <fei.yang@intel.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Felipe Balbi <balbi@kernel.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+Subject: RE: [PATCH 4.19.y 0/9] Fix scheduling while atomic in
+ dwc3_gadget_ep_dequeue
+Thread-Topic: [PATCH 4.19.y 0/9] Fix scheduling while atomic in
+ dwc3_gadget_ep_dequeue
+Thread-Index: AQHVLSpO0CxIfX1Aak+sMa9/czroQ6aw1kFg
+Date:   Fri, 28 Jun 2019 10:10:38 +0000
+Message-ID: <C672AA6DAAC36042A98BAD0B0B25BDA94CC59E46@BGSMSX104.gar.corp.intel.com>
+References: <20190627205240.38366-1-john.stultz@linaro.org>
+In-Reply-To: <20190627205240.38366-1-john.stultz@linaro.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.0.600.7
+dlp-reaction: no-action
+x-ctpclassification: CTP_NT
+x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiNmQ2MjI3ZjctZTMyNi00YWEzLThkN2MtNTAyMzdlNDUxNWE1IiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiTjMzUWhhOHptdmFNQzdUVjBzTnhoTXhUeTBIdDZwVU5YZFFna1gxa0x5Rld5NmZCcm1JTUZYOFMxOHcrQVdDZCJ9
+x-originating-ip: [10.223.10.10]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190628090013.GI34530@e119886-lin.cambridge.arm.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Andrew,
-
-On Fri, Jun 28, 2019 at 10:00:14AM +0100, Andrew Murray wrote:
-> On Fri, Jun 28, 2019 at 04:51:54PM +0800, Leo Yan wrote:
-> > Hi Andrew,
-> > 
-> > On Fri, Jun 28, 2019 at 09:35:24AM +0100, Andrew Murray wrote:
-> > 
-> > [...]
-> > 
-> > > > > @@ -454,7 +458,8 @@ static void etm4_disable_hw(void *info)
-> > > > >  	control &= ~0x1;
-> > > > >  
-> > > > >  	/* make sure everything completes before disabling */
-> > > > > -	mb();
-> > > > > +	/* As recommended by 7.3.77 of ARM IHI 0064D */
-> > > > > +	dsb(sy);
-> > > > 
-> > > > Here the old code should be right, mb() is the same thing with
-> > > > dsb(sy).
-> > > > 
-> > > > So we don't need to change at here?
-> > > 
-> > > Correct - on arm64 there is no difference between mb and dsb(sy) so no
-> > > functional change on this hunk.
-> > > 
-> > > In repsonse to Suzuki's feedback on this patch, I've updated the commit
-> > > message to describe why I've made this change, as follows:
-> > >      
-> > > "On armv8 the mb macro is defined as dsb(sy) - Given that the etm4x is
-> > > only used on armv8 let's directly use dsb(sy) instead of mb(). This
-> > > removes some ambiguity and makes it easier to correlate the code with
-> > > the TRM."
-> > > 
-> > > Does that make sense?
-> > 
-> > On reason for preferring to use mb() rather than dsb(sy) is for
-> > compatibility cross different architectures (armv7, armv8, and
-> > so on ...).  Seems to me mb() is a general API and transparent for
-> > architecture's difference.
-> > 
-> > dsb(sy) is quite dependent on specific Arm architecture, e.g. some old
-> > Arm architecures might don't support dsb(sy); and we are not sure later
-> > it will change for new architectures.
+> With recent changes in AOSP, adb is using asynchronous io, which
+> causes the following crash usually on a reboot:
 > 
-> Yes but please note that the KConfig for this driver depends on ARM64.
+> [  184.278302] BUG: scheduling while atomic: ksoftirqd/0/9/0x00000104
+> [  184.284617] Modules linked in: wl18xx wlcore snd_soc_hdmi_codec
+> wlcore_sdio tcpci_rt1711h tcpci tcpm typec adv7511 cec dwc3 phy_hi3660_usb3
+> snd_soc_simple_card snd_soc_a
+> [  184.316034] Preemption disabled at:
+> [  184.316072] [<ffffff8008081de4>] __do_softirq+0x64/0x398
+> [  184.324953] CPU: 0 PID: 9 Comm: ksoftirqd/0 Tainted: G S                4.19.43-
+> 00669-g8e4970572c43-dirty #356
+> [  184.334963] Hardware name: HiKey960 (DT)
+> [  184.338892] Call trace:
+> [  184.341352]  dump_backtrace+0x0/0x158
+> [  184.345025]  show_stack+0x14/0x20
+> [  184.348355]  dump_stack+0x80/0xa4
+> [  184.351685]  __schedule_bug+0x6c/0xc0
+> [  184.355363]  __schedule+0x64c/0x978
+> [  184.358863]  schedule+0x2c/0x90
+> [  184.362053]  dwc3_gadget_ep_dequeue+0x274/0x388 [dwc3]
 
-Understood your point.
 
-I am a bit suspect it's right thing to always set dependency on ARM64
-for ETMv4 driver.  The reason is Armv8 CPU can also run with aarch32
-mode in EL1.
+> This happens as usb_ep_dequeue can be called in interrupt
+> context, and dwc3_gadget_ep_dequeue() then calls
+> wait_event_lock_irq() which can sleep.
+> 
+> Upstream kernels are not affected due to the change
+> fec9095bdef4 ("dwc3: gadget: remove wait_end_transfer") which
+> removes the wait_even_lock_irq code. Unfortunately that change
+> has a number of dependencies, which I'm submitting here.
+> 
+> Also, to match upstream, in this series I've reverted one
+> change that was backported to -stable, to replace it with the
+> cherry-picked upstream commit (as the dependencies are now
+> there)
+> 
+> This issue also affects 4.14,4.9 and I believe 4.4 kernels,
+> however I don't know how to best backport this functionality
+> that far back. Help from the maintainers would be very much
+> appreciated!
+> 
+> Feedback and comments would be welcome!
+> 
+> thanks
+> -john
 
-If we let ETMv4 driver to support both aarch32 and aarch64, then we
-will see dsb(sy) might break building for some old Arm arches.
+I confirm that this patch series fixes crash seen on reboot.
+Considering that many Android platforms use 4.19 stable kernel with latest AOSP codebase, it would be really helpful if these patches are merged to 4.19 stable.
 
 Thanks,
-Leo Yan
+Saranya
