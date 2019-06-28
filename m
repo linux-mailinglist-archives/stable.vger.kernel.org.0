@@ -2,113 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0B4359158
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 04:41:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D58625916F
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 04:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727048AbfF1Cju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jun 2019 22:39:50 -0400
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:33043 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727040AbfF1Cju (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jun 2019 22:39:50 -0400
-Received: by mail-ot1-f66.google.com with SMTP id q20so4486518otl.0
-        for <stable@vger.kernel.org>; Thu, 27 Jun 2019 19:39:49 -0700 (PDT)
+        id S1726500AbfF1Cpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jun 2019 22:45:39 -0400
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:35018 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726476AbfF1Cpi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jun 2019 22:45:38 -0400
+Received: by mail-oi1-f193.google.com with SMTP id a127so3173235oii.2
+        for <stable@vger.kernel.org>; Thu, 27 Jun 2019 19:45:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=i+w5fn2Y32/L39vIbDWdR2CfVz49VqoI4F4CB/r+uKs=;
-        b=2BroReMxSyl7fumvZHFYCsXog9so/PwacI6uZo45fszzwoTUhDjTDVIC3dmDgkvhjI
-         1vPIrM+hSnKeAwrkzbGzAjTEPTTgmqOwCVSZQUdIDrvAxKA2cMV8Dr6GunOjfoKKRYiR
-         i8n913ea5p94gaxe2NpjIpJwUJ2qhzkQ+wHLtf//YGUdDQeqhjuL7sHzp6EjAr//ec01
-         XTKGHBCDcdPjUSb8oFPiQDfaUdsVI1ufjKYoVyP6pZsvPych6kooqkVWEaGAH73GpfeW
-         Q64A9UAnw0STfqhTNC283nlq9ZOnnmCyzDAjw3roZzNRDyNGYbLpCBliRHdGmg3LI7kY
-         Wv/w==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=PMKZ8BEHKvEYdxNcG4BmGK541+ZJ0zqQanPAbjMM/80=;
+        b=d+NvPoVQLAcSwFaypnYtbksDd4NeutRV0QFkGivUk8+1RIoDVBfvXTKXHMnKX5ACMg
+         SSABdjUbVVqcIy6QgYQVE3BHBhp4WJCoQecMvjaDW7+JWDS+678zjU0FkbRvKhh0xuZj
+         WiQ/BOirHtW4sj7HZC+prOsT7vZDKsadxBxH5Hq/sT55KWk1iHYw30yE9FWM5sAJquR4
+         HUBVK1PANQGGAYjUyHa4NXq/fIY9b4UeJG5MhkYkJV9SJ7gTfqZDCU4WNWhuteXUtDwY
+         XLEBsXPF75cYOSvRDGkLEE7qYAerv1M5CNiA4l0U7lf0Z+gmqKB9FwgP2BEiPS9i605o
+         WXEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=i+w5fn2Y32/L39vIbDWdR2CfVz49VqoI4F4CB/r+uKs=;
-        b=PX7bzwPsgKgnkmbJvvooSGGOcbFGS5Y3btjXmMmz8r4fjo1k+zPqsv9/+YU2TaPIFs
-         Ty9kLJgWe2jCC+clZDR6beyRnApPj8YdqYQPlsosBxu823WMo1UgG+ddS/n4x6OoWUZX
-         bEqgCf8/rXNasPKNt01GGa468nPDyiH0+PllvvdnJGYdYSoavp8jEtp+n1fVBhwA+m5R
-         +y7wyWeNPzkv5qTgL4NDejvJNbUE0rpYYW85NBl7zKOTPbaVLY2Ocw1AanEjln6NCkt2
-         MTbAwynapE197//7ivKL+05Hf+5Lzi0wppW+NEEDttCETmNZ3yqD17w3Vnj+i70v1W42
-         UGBg==
-X-Gm-Message-State: APjAAAXNMQlIoDRuY+byRJ2EwIpDWCx2GyURksBemtI1IudvDCYhUdsv
-        VCQyxQHDKW0p+zSN7QHsgfuIXc3cxZSGdHBIwnSPPg==
-X-Google-Smtp-Source: APXvYqwSf5cu88/vylJhhX2x15ji/SfzGkHLqjJ94ZW0+LXDsKMlI1/GoQT5qpbwxtU93udva3CYg32AyPTcsoNMv3U=
-X-Received: by 2002:a9d:7b48:: with SMTP id f8mr5967248oto.207.1561689589382;
- Thu, 27 Jun 2019 19:39:49 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=PMKZ8BEHKvEYdxNcG4BmGK541+ZJ0zqQanPAbjMM/80=;
+        b=nux6P3/u10/JRMuOYCO+rS/nUe6t8DsL0V6KnlJ/i7MfvbAov/1wRfZoA9OVDvJ3K2
+         LlzUd5/eSdiXvGDiCS6VrZFAFRI/cqHDEGoLQDk/2evGzWvFvFg5w7Sq+v1rExBn1oA4
+         S5j8W7+urRZVz8VJH38z1lcBwu5ZL1rwjuMV80ndjmLeOuXbF2XDRBnQvDdrXzoOlTNi
+         GklTS3IM9LTXAVOLuPy/MD8Gmryi210R1IKbD/sQTMmNkAhPPKHVGkLb2UmcrM2WK7qm
+         OuWxbmzO5zClaiHt1zH4Luqx879ifpjtZ19x+SUIIzCnTrEbxxSw3UvN2DElNBKg3g9c
+         VfEw==
+X-Gm-Message-State: APjAAAV0P45sPq143rkTIfTfC6mr343QABRXewPiDsCpNmmxvyg9Ya2J
+        3efxzQyreQuBiAZwKdeuQjdBmA==
+X-Google-Smtp-Source: APXvYqyaI8LbpjqN2Z+o/n9LADwl2AElxmchikVcZ7H9wSMGZMuKlk0AhN20VWhwhEutViRPfwDLQA==
+X-Received: by 2002:aca:a896:: with SMTP id r144mr367546oie.105.1561689937963;
+        Thu, 27 Jun 2019 19:45:37 -0700 (PDT)
+Received: from leoy-ThinkPad-X240s (li964-79.members.linode.com. [45.33.10.79])
+        by smtp.gmail.com with ESMTPSA id f39sm432863otb.57.2019.06.27.19.45.33
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 27 Jun 2019 19:45:36 -0700 (PDT)
+Date:   Fri, 28 Jun 2019 10:45:29 +0800
+From:   Leo Yan <leo.yan@linaro.org>
+To:     Andrew Murray <andrew.murray@arm.com>
+Cc:     Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        coresight@lists.linaro.org, Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Mike Leach <mike.leach@linaro.org>
+Subject: Re: [PATCH v2 2/5] coresight: etm4x: use explicit barriers on
+ enable/disable
+Message-ID: <20190628024529.GC20296@leoy-ThinkPad-X240s>
+References: <20190627083525.37463-1-andrew.murray@arm.com>
+ <20190627083525.37463-3-andrew.murray@arm.com>
 MIME-Version: 1.0
-References: <156159454541.2964018.7466991316059381921.stgit@dwillia2-desk3.amr.corp.intel.com>
- <20190627123415.GA4286@bombadil.infradead.org> <CAPcyv4jQP-SFJGor-Q3VCRQ0xwt3MuVpH2qHx2wzyRA88DGQww@mail.gmail.com>
- <CAPcyv4jjqooboxivY=AsfEPhCvxdwU66GpwE9vM+cqrZWvtX3g@mail.gmail.com>
- <CAPcyv4h6HgNE38RF5TxO3C268ZvrxgcPNrPWOt94MnO5gP_pjw@mail.gmail.com>
- <CAPcyv4gwd1_VHk_MfHeNSxyH+N1=aatj9WkKXqYNPkSXe4bFDg@mail.gmail.com> <20190627195948.GB4286@bombadil.infradead.org>
-In-Reply-To: <20190627195948.GB4286@bombadil.infradead.org>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Thu, 27 Jun 2019 19:39:37 -0700
-Message-ID: <CAPcyv4iB3f1hDdCsw=Cy234dP-RXpxGyXDoTwEU8nt5qUDEVQg@mail.gmail.com>
-Subject: Re: [PATCH] filesystem-dax: Disable PMD support
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     linux-nvdimm <linux-nvdimm@lists.01.org>, Jan Kara <jack@suse.cz>,
-        stable <stable@vger.kernel.org>,
-        Robert Barror <robert.barror@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190627083525.37463-3-andrew.murray@arm.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 27, 2019 at 12:59 PM Matthew Wilcox <willy@infradead.org> wrote:
->
-> On Thu, Jun 27, 2019 at 12:09:29PM -0700, Dan Williams wrote:
-> > > This bug feels like we failed to unlock, or unlocked the wrong entry
-> > > and this hunk in the bisected commit looks suspect to me. Why do we
-> > > still need to drop the lock now that the radix_tree_preload() calls
-> > > are gone?
-> >
-> > Nevermind, unmapp_mapping_pages() takes a sleeping lock, but then I
-> > wonder why we don't restart the lookup like the old implementation.
->
-> We have the entry locked:
->
->                 /*
->                  * Make sure 'entry' remains valid while we drop
->                  * the i_pages lock.
->                  */
->                 dax_lock_entry(xas, entry);
->
->                 /*
->                  * Besides huge zero pages the only other thing that gets
->                  * downgraded are empty entries which don't need to be
->                  * unmapped.
->                  */
->                 if (dax_is_zero_entry(entry)) {
->                         xas_unlock_irq(xas);
->                         unmap_mapping_pages(mapping,
->                                         xas->xa_index & ~PG_PMD_COLOUR,
->                                         PG_PMD_NR, false);
->                         xas_reset(xas);
->                         xas_lock_irq(xas);
->                 }
->
-> If something can remove a locked entry, then that would seem like the
-> real bug.  Might be worth inserting a lookup there to make sure that it
-> hasn't happened, I suppose?
+Hi Andrew,
 
-Nope, added a check, we do in fact get the same locked entry back
-after dropping the lock.
+On Thu, Jun 27, 2019 at 09:35:22AM +0100, Andrew Murray wrote:
+> Synchronization is recommended before disabling the trace registers
+> to prevent any start or stop points being speculative at the point
+> of disabling the unit (section 7.3.77 of ARM IHI 0064D).
+> 
+> Synchronization is also recommended after programming the trace
+> registers to ensure all updates are committed prior to normal code
+> resuming (section 4.3.7 of ARM IHI 0064D).
+> 
+> Let's ensure these syncronization points are present in the code
+> and clearly commented.
+> 
+> Note that we could rely on the barriers in CS_LOCK and
+> coresight_disclaim_device_unlocked or the context switch to user
+> space - however coresight may be of use in the kernel.
+> 
+> Signed-off-by: Andrew Murray <andrew.murray@arm.com>
+> CC: stable@vger.kernel.org
+> ---
+>  drivers/hwtracing/coresight/coresight-etm4x.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
+> index c89190d464ab..68e8e3954cef 100644
+> --- a/drivers/hwtracing/coresight/coresight-etm4x.c
+> +++ b/drivers/hwtracing/coresight/coresight-etm4x.c
+> @@ -188,6 +188,10 @@ static int etm4_enable_hw(struct etmv4_drvdata *drvdata)
+>  		dev_err(etm_dev,
+>  			"timeout while waiting for Idle Trace Status\n");
+>  
+> +	/* As recommended by 4.3.7 of ARM IHI 0064D */
+> +	dsb(sy);
+> +	isb();
+> +
 
-The deadlock revolves around the mmap_sem. One thread holds it for
-read and then gets stuck indefinitely in get_unlocked_entry(). Once
-that happens another rocksdb thread tries to mmap and gets stuck
-trying to take the mmap_sem for write. Then all new readers, including
-ps and top that try to access a remote vma, then get queued behind
-that write.
+I read the spec, it recommends to use dsb/isb after accessing trace
+unit, so here I think dsb(sy) is the most safe way.
 
-It could also be the case that we're missing a wake up.
+arm64 defines barrier in arch/arm64/include/asm/barrier.h:
+
+  #define mb()            dsb(sy)
+
+so here I suggest to use barriers:
+
+  mb();
+  isb();
+
+I wrongly assumed that mb() is for dmb operations, but actually it's
+defined for dsb operation.  So we should use it and this is a common
+function between arm64 and arm.
+
+>  done:
+>  	CS_LOCK(drvdata->base);
+>  
+> @@ -454,7 +458,8 @@ static void etm4_disable_hw(void *info)
+>  	control &= ~0x1;
+>  
+>  	/* make sure everything completes before disabling */
+> -	mb();
+> +	/* As recommended by 7.3.77 of ARM IHI 0064D */
+> +	dsb(sy);
+
+Here the old code should be right, mb() is the same thing with
+dsb(sy).
+
+So we don't need to change at here?
+
+Thanks,
+Leo Yan
+
+>  	isb();
+>  	writel_relaxed(control, drvdata->base + TRCPRGCTLR);
+>  
+> -- 
+> 2.21.0
+> 
+> _______________________________________________
+> CoreSight mailing list
+> CoreSight@lists.linaro.org
+> https://lists.linaro.org/mailman/listinfo/coresight
