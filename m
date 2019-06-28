@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2CE75A376
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 20:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 744105A378
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 20:24:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726693AbfF1SY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 14:24:27 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:40341 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726738AbfF1SY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 14:24:27 -0400
-Received: by mail-pf1-f196.google.com with SMTP id p184so3393553pfp.7
-        for <stable@vger.kernel.org>; Fri, 28 Jun 2019 11:24:26 -0700 (PDT)
+        id S1726738AbfF1SY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 14:24:29 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:37807 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726750AbfF1SY2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 14:24:28 -0400
+Received: by mail-pg1-f193.google.com with SMTP id g15so1049634pgi.4
+        for <stable@vger.kernel.org>; Fri, 28 Jun 2019 11:24:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=lT3fxv5LATFR+LwgNYhFFmzfdH8/UFjXtWib2WTIrbM=;
-        b=NSJevXZYgKbgf3gTOSY6ABPd6HIDrATAwaVAkJtHmyEV+e1XC44yrZTYnWrwylUFk6
-         vjzp/7EFBH8eQF7ClX1CCZG5sZq3ssBVu2XmAqafeeVifGN7hJ105CaRnuTf2P2tvw8H
-         xeBaE0EnK0n1OZYWH6JB3NNg0V5tw2/cNNt3ry5kEo80Gdh7xA7bKCQn52WITt0KIN7J
-         J6qXD1je1YFbfeATZU5suXDkrPwsOud2ZQFmluHjfzS3PjT36LETox1fcI2adhcUg6S7
-         2iFyUdgUwEKMoM4+lypKEa/fynWRv3vRD2Cqk8leOXknbx92ap/uFbIHwtNe/STBBBDi
-         yRow==
+        bh=DDZGKZ3w7wUwrEm8FX1ASPwXOimJmyPEnuezYoXx+I8=;
+        b=CFr4YuFAJ4CxD6EpGmjrwbV8ZIDMplHe16uLlYTmXLMT/n8sVa1kkkDZspxOIo7N4Y
+         iwHYu38lElMkN+RfwzTsUxMoed7bGFFRCOZGWXlCB22crZeKZ+8FrV9hwzyiI9vZTLlI
+         rzzeHEMdgj3VQckfWLa+a88HPnC5E1Suwv7H0SKFUfLxw7hyUO97PHn2tyCcGUrK8Q0u
+         d6erI+z85f3CcHZQyLYs6YsF459KLnDFEP7hTdtKgvJY9j1tsTd7H2VXnDkM3OAd9Vag
+         ht6sy4mXJpGFRKIZ3tT9/SL+r9gEmXwS7lu8bPw2ue7+O6uSPxX9PGa5ttRXn6kQbX4e
+         qSIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=lT3fxv5LATFR+LwgNYhFFmzfdH8/UFjXtWib2WTIrbM=;
-        b=NYVrMk6GDN2MnFfzGULPYHZJr2lwGn3WBBqOTbG7fuJgm00HMkXl5VhlOR6Z26Z9Wj
-         wfL3dZ2FZjLJ+xBJdlH1U+MpD1qornpq65x7ZhKkGx8h9Zwq2d7LJK9bbeq63cf/pXVO
-         0Hdw00sE0ugxMTtcO+MuXIziHvvEdhrZktr9teA/+LwBX6ceH2woXV/nULcTNLuQwr3y
-         OLuCg0LLu9Dlcs3dsUuHYg1ltXCMkEEJmz9N3gYDbneNQLYqtvevdinx+zRpf5dGiXJC
-         Wk+Fab3kx5SC83lR4mr0ggB0b4dXKPv00nmRHnU4rBAnC8zhjRcTx4YwGyctHaeTT+c4
-         G86A==
-X-Gm-Message-State: APjAAAUhmPc+wIQsGKcSpCDiq2tF6UUJYuKCMcY4VCvOfUA2ksuhir9p
-        DjfljBf+Bg/LuWLhDVzycXOO7ji4zyk=
-X-Google-Smtp-Source: APXvYqxFBgbJKazoH14+J2IhpQeuPNTxNOQwuSXCkvYIBIZNSudfMZQPcQIomrsNlyGq7MiTx2OEYQ==
-X-Received: by 2002:a17:90a:ad86:: with SMTP id s6mr14952881pjq.42.1561746265909;
-        Fri, 28 Jun 2019 11:24:25 -0700 (PDT)
+        bh=DDZGKZ3w7wUwrEm8FX1ASPwXOimJmyPEnuezYoXx+I8=;
+        b=CZ6cu9KHO++h59FT/W2TAylBWrmvl3Vl0nmA2cXCFqfLo7/UjEGrbT/12y8h6r8K3e
+         SckBK1t4UnkaUggAD7EcHEf7PKA8Q73S44Gz0Ws9nYVNWi3CPHsSX91LLubWu/6lF1wp
+         Z1/7Hec6FijsMIl4lMrkFsVXpGpitzUMC9fw0o18e+EjTGHSmqS92Ij+c8ri9myuBQQ2
+         B6uD7Yejc0LbNb+/LrBBTw+/4KqWX5X7xuw+H+CZGBJyrFepw9mco49/E2RgXtl3jdbj
+         50nMVu2npWy1PPvPsv5VyhO9kGre4ldvuUI4bXeRYX1TMhIeM1z3INdLB4V9/lidilKO
+         qOdg==
+X-Gm-Message-State: APjAAAVLsf1JduhGFznxV2z951QiAZUtBFIm6xWngbKStKLV7nBbA4LP
+        8wu4A4OHtoXJgIyg1iS/QMujuhQOGio=
+X-Google-Smtp-Source: APXvYqx3g7h5vvxkXrT1Ioc3tfWK+hwMhoc+6Gew5Hk0v0/fv3t0WaflZUIIz+aQTaGKOOsB4v7dRQ==
+X-Received: by 2002:a17:90a:a489:: with SMTP id z9mr4530868pjp.24.1561746267725;
+        Fri, 28 Jun 2019 11:24:27 -0700 (PDT)
 Received: from localhost.localdomain ([2601:1c2:680:1319:692:26ff:feda:3a81])
-        by smtp.gmail.com with ESMTPSA id s15sm2916223pfd.183.2019.06.28.11.24.24
+        by smtp.gmail.com with ESMTPSA id s15sm2916223pfd.183.2019.06.28.11.24.25
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Fri, 28 Jun 2019 11:24:25 -0700 (PDT)
+        Fri, 28 Jun 2019 11:24:26 -0700 (PDT)
 From:   John Stultz <john.stultz@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Felipe Balbi <felipe.balbi@linux.intel.com>,
@@ -50,9 +50,9 @@ Cc:     Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sam Protsenko <semen.protsenko@linaro.org>,
         Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org,
         John Stultz <john.stultz@linaro.org>
-Subject: [PATCH 4.19.y v2 5/9] usb: dwc3: gadget: extract dwc3_gadget_ep_skip_trbs()
-Date:   Fri, 28 Jun 2019 18:24:09 +0000
-Message-Id: <20190628182413.33225-6-john.stultz@linaro.org>
+Subject: [PATCH 4.19.y v2 6/9] usb: dwc3: gadget: introduce cancelled_list
+Date:   Fri, 28 Jun 2019 18:24:10 +0000
+Message-Id: <20190628182413.33225-7-john.stultz@linaro.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190628182413.33225-1-john.stultz@linaro.org>
 References: <20190628182413.33225-1-john.stultz@linaro.org>
@@ -63,11 +63,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Felipe Balbi <felipe.balbi@linux.intel.com>
 
-commit 7746a8dfb3f9c91b3a0b63a1d5c2664410e6498d upstream
+commit d5443bbf5fc8f8389cce146b1fc2987cdd229d12 upstream
 
-Extract the logic for skipping over TRBs to its own function. This
-makes the code slightly more readable and makes it easier to move this
-call to its final resting place as a following patch.
+This list will host cancelled requests who still have TRBs being
+processed.
 
 Cc: Fei Yang <fei.yang@intel.com>
 Cc: Sam Protsenko <semen.protsenko@linaro.org>
@@ -75,100 +74,72 @@ Cc: Felipe Balbi <balbi@kernel.org>
 Cc: linux-usb@vger.kernel.org
 Cc: stable@vger.kernel.org # 4.19.y
 Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
-(cherry picked from commit 7746a8dfb3f9c91b3a0b63a1d5c2664410e6498d)
+(cherry picked from commit d5443bbf5fc8f8389cce146b1fc2987cdd229d12)
 Signed-off-by: John Stultz <john.stultz@linaro.org>
 ---
- drivers/usb/dwc3/gadget.c | 61 +++++++++++++++------------------------
- 1 file changed, 24 insertions(+), 37 deletions(-)
+ drivers/usb/dwc3/core.h   |  2 ++
+ drivers/usb/dwc3/gadget.c |  1 +
+ drivers/usb/dwc3/gadget.h | 15 +++++++++++++++
+ 3 files changed, 18 insertions(+)
 
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index 0de78cb29f2c..24f0b108b7f6 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -636,6 +636,7 @@ struct dwc3_event_buffer {
+ /**
+  * struct dwc3_ep - device side endpoint representation
+  * @endpoint: usb endpoint
++ * @cancelled_list: list of cancelled requests for this endpoint
+  * @pending_list: list of pending requests for this endpoint
+  * @started_list: list of started requests on this endpoint
+  * @wait_end_transfer: wait_queue_head_t for waiting on End Transfer complete
+@@ -659,6 +660,7 @@ struct dwc3_event_buffer {
+  */
+ struct dwc3_ep {
+ 	struct usb_ep		endpoint;
++	struct list_head	cancelled_list;
+ 	struct list_head	pending_list;
+ 	struct list_head	started_list;
+ 
 diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 4e08904890ed..46aa20b376cd 100644
+index 46aa20b376cd..c2169bc626c8 100644
 --- a/drivers/usb/dwc3/gadget.c
 +++ b/drivers/usb/dwc3/gadget.c
-@@ -1341,6 +1341,29 @@ static int dwc3_gadget_ep_queue(struct usb_ep *ep, struct usb_request *request,
- 	return ret;
+@@ -2144,6 +2144,7 @@ static int dwc3_gadget_init_endpoint(struct dwc3 *dwc, u8 epnum)
+ 
+ 	INIT_LIST_HEAD(&dep->pending_list);
+ 	INIT_LIST_HEAD(&dep->started_list);
++	INIT_LIST_HEAD(&dep->cancelled_list);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/usb/dwc3/gadget.h b/drivers/usb/dwc3/gadget.h
+index 2aacd1afd9ff..023a473648eb 100644
+--- a/drivers/usb/dwc3/gadget.h
++++ b/drivers/usb/dwc3/gadget.h
+@@ -79,6 +79,21 @@ static inline void dwc3_gadget_move_started_request(struct dwc3_request *req)
+ 	list_move_tail(&req->list, &dep->started_list);
  }
  
-+static void dwc3_gadget_ep_skip_trbs(struct dwc3_ep *dep, struct dwc3_request *req)
++/**
++ * dwc3_gadget_move_cancelled_request - move @req to the cancelled_list
++ * @req: the request to be moved
++ *
++ * Caller should take care of locking. This function will move @req from its
++ * current list to the endpoint's cancelled_list.
++ */
++static inline void dwc3_gadget_move_cancelled_request(struct dwc3_request *req)
 +{
-+	int i;
++	struct dwc3_ep		*dep = req->dep;
 +
-+	/*
-+	 * If request was already started, this means we had to
-+	 * stop the transfer. With that we also need to ignore
-+	 * all TRBs used by the request, however TRBs can only
-+	 * be modified after completion of END_TRANSFER
-+	 * command. So what we do here is that we wait for
-+	 * END_TRANSFER completion and only after that, we jump
-+	 * over TRBs by clearing HWO and incrementing dequeue
-+	 * pointer.
-+	 */
-+	for (i = 0; i < req->num_trbs; i++) {
-+		struct dwc3_trb *trb;
-+
-+		trb = req->trb + i;
-+		trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
-+		dwc3_ep_inc_deq(dep);
-+	}
++	req->started = false;
++	list_move_tail(&req->list, &dep->cancelled_list);
 +}
 +
- static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
- 		struct usb_request *request)
- {
-@@ -1368,38 +1391,8 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
- 				break;
- 		}
- 		if (r == req) {
--			int i;
--
- 			/* wait until it is processed */
- 			dwc3_stop_active_transfer(dep, true);
--
--			/*
--			 * If request was already started, this means we had to
--			 * stop the transfer. With that we also need to ignore
--			 * all TRBs used by the request, however TRBs can only
--			 * be modified after completion of END_TRANSFER
--			 * command. So what we do here is that we wait for
--			 * END_TRANSFER completion and only after that, we jump
--			 * over TRBs by clearing HWO and incrementing dequeue
--			 * pointer.
--			 *
--			 * Note that we have 2 possible types of transfers here:
--			 *
--			 * i) Linear buffer request
--			 * ii) SG-list based request
--			 *
--			 * SG-list based requests will have r->num_pending_sgs
--			 * set to a valid number (> 0). Linear requests,
--			 * normally use a single TRB.
--			 *
--			 * For each of these two cases, if r->unaligned flag is
--			 * set, one extra TRB has been used to align transfer
--			 * size to wMaxPacketSize.
--			 *
--			 * All of these cases need to be taken into
--			 * consideration so we don't mess up our TRB ring
--			 * pointers.
--			 */
- 			wait_event_lock_irq(dep->wait_end_transfer,
- 					!(dep->flags & DWC3_EP_END_TRANSFER_PENDING),
- 					dwc->lock);
-@@ -1407,13 +1400,7 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
- 			if (!r->trb)
- 				goto out0;
+ void dwc3_gadget_giveback(struct dwc3_ep *dep, struct dwc3_request *req,
+ 		int status);
  
--			for (i = 0; i < r->num_trbs; i++) {
--				struct dwc3_trb *trb;
--
--				trb = r->trb + i;
--				trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
--				dwc3_ep_inc_deq(dep);
--			}
-+			dwc3_gadget_ep_skip_trbs(dep, r);
- 			goto out1;
- 		}
- 		dev_err(dwc->dev, "request %pK was not queued to %s\n",
 -- 
 2.17.1
 
