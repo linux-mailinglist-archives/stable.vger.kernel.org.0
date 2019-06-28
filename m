@@ -2,72 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD7A85A171
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 18:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAF725A27C
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 19:34:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726618AbfF1QyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 12:54:19 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:38532 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726605AbfF1QyT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 12:54:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=4aCzK6AWV7v8l05GIE3EDguMtt1Ba9XnxuuiQ3Rlk3Q=; b=Z8w/Lg4IyFUwGyPbT6LlhpKWU
-        wUw/qfThpPpDK1EVkDTJ1UJiw38r1aWCtwbytMCtGAED4QvCWUMKs5Oh/6QO0Wybph75WFSCNiE4z
-        SSCY5E2KKmjqFf4YfC/RXkZbftMs0PDsnBkPp83MsdPmHC1whEcp4+szoDy/HcGbBBak06He3xVFX
-        Dv2t+nDoKM8qsnEYpPu09UUtlaDwdS+RkH8iyE0U10HWCA+u5ZYlH/WcMlbenvCowHplBHyZKDmM9
-        2YOpnvA7s/rZiLu/O8vCEzzqGKQwJz/jt4166JDneHDGirGpfGEMfS4Uo/xcZIJl7ErIdb9zvCDZq
-        /5Yxuz+9w==;
-Received: from willy by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
-        id 1hgu8f-0002TR-BH; Fri, 28 Jun 2019 16:54:17 +0000
-Date:   Fri, 28 Jun 2019 09:54:17 -0700
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     linux-nvdimm <linux-nvdimm@lists.01.org>, Jan Kara <jack@suse.cz>,
-        stable <stable@vger.kernel.org>,
-        Robert Barror <robert.barror@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] filesystem-dax: Disable PMD support
-Message-ID: <20190628165417.GD4286@bombadil.infradead.org>
-References: <156159454541.2964018.7466991316059381921.stgit@dwillia2-desk3.amr.corp.intel.com>
- <20190627123415.GA4286@bombadil.infradead.org>
- <CAPcyv4jQP-SFJGor-Q3VCRQ0xwt3MuVpH2qHx2wzyRA88DGQww@mail.gmail.com>
- <CAPcyv4jjqooboxivY=AsfEPhCvxdwU66GpwE9vM+cqrZWvtX3g@mail.gmail.com>
- <CAPcyv4h6HgNE38RF5TxO3C268ZvrxgcPNrPWOt94MnO5gP_pjw@mail.gmail.com>
- <CAPcyv4gwd1_VHk_MfHeNSxyH+N1=aatj9WkKXqYNPkSXe4bFDg@mail.gmail.com>
- <20190627195948.GB4286@bombadil.infradead.org>
- <CAPcyv4iB3f1hDdCsw=Cy234dP-RXpxGyXDoTwEU8nt5qUDEVQg@mail.gmail.com>
- <20190628163721.GC4286@bombadil.infradead.org>
- <CAPcyv4jeRwhYWnGw9RrfDA54RRa9LK4JPuF3zQ-av=HdRqCTJw@mail.gmail.com>
+        id S1726472AbfF1Rem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 13:34:42 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:32913 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726513AbfF1Rem (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 13:34:42 -0400
+Received: by mail-wr1-f65.google.com with SMTP id n9so7152634wru.0
+        for <stable@vger.kernel.org>; Fri, 28 Jun 2019 10:34:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=wfYsXjgMtSJMKRVcej6axjnBpa0bNSgyGbaA3V/sZW0=;
+        b=QL+daD/S/+WS/smsjeTHTw9ZQlYVxzs1Hk5IrT5MoLHHxjQ41/WsN9x5rSz4rDY8cq
+         bGs7JwpqrM9VhUGjWwn5AdA6O2FuhYND40p1hLKl9RN9eU1pMf2a9YXqVJsKKXjQ5fkM
+         SbVL+xlN3Jmu1cGTVZ3M/3H2z4NUS7sldsTH1yONdPed0mfjY5JukxMYzhksHSUPdFnw
+         CMIikWvPv1u0IEE/KSDTJEOHQrTaHyLQQTMvBuI+uDVJNaBk5D7CBu0UYTbr+4NIBm0p
+         HMatXjCaSvKgTVQRKqFj6Bu+TObQ4ahJ9esshlrJqKbmLdEWZzc8oi5MSSwWAH6eQgZ7
+         1XHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wfYsXjgMtSJMKRVcej6axjnBpa0bNSgyGbaA3V/sZW0=;
+        b=k4QtaXh/w29xkN2/hcueCwQgf50C7ICiXOe8lITTIP95PicproPaDu/aSw4/NiPA06
+         80zh21tKDUd/bdvnJ8PMvtQ/2ZmBXbLmU2p1xZubnKwL5w+6FnSxiqASXiSjIqDvWwpU
+         nOcg8Tt+J12HKXbD+1eBT/gmt+HqcgJv0ehSGWhf0nKUMECGNUN7/3aMLWCzdQkFbp/L
+         Hwy3+BEMxQ9hHV0OqbDSSO1rivh3BuLLo5WKow0JmobFPri5l9w3RqtcDs+6wmk3+8ds
+         mjQcXUcVDjy8Z5EL2BXVf5bedMo5gROznAcn4D1Mg/F+4A8WZP1GgAh+g9Ntm6MadPBh
+         TJFg==
+X-Gm-Message-State: APjAAAX/5xfU0gX3ng91lGo9kFdaTLrG8d3hlkjTCK7YBajXK8H4bgM5
+        i4PG/S/099e2mfIoAVHwYUqPHzA+uk3gu/5mvmyIMw==
+X-Google-Smtp-Source: APXvYqwIMk+3js1vyyzfs0+8+SEezw5y0QHn3rHvhObht78rWwNV0/WRBUzjVvVk8VSbC/m9LLKB7FyHHrzBYPwfAQE=
+X-Received: by 2002:adf:afe8:: with SMTP id y40mr8241222wrd.328.1561743279906;
+ Fri, 28 Jun 2019 10:34:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPcyv4jeRwhYWnGw9RrfDA54RRa9LK4JPuF3zQ-av=HdRqCTJw@mail.gmail.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+References: <20190627205240.38366-1-john.stultz@linaro.org>
+ <20190627205240.38366-9-john.stultz@linaro.org> <20190628055414.GA3380@jackp-linux.qualcomm.com>
+In-Reply-To: <20190628055414.GA3380@jackp-linux.qualcomm.com>
+From:   John Stultz <john.stultz@linaro.org>
+Date:   Fri, 28 Jun 2019 10:34:27 -0700
+Message-ID: <CALAqxLWop2uYWJSz3P8i+bqGqJD0v6mcYTjJ8szHma3qfkT5LA@mail.gmail.com>
+Subject: Re: [PATCH 4.19.y 8/9] Revert "usb: dwc3: gadget: Clear
+ req->needs_extra_trb flag on cleanup"
+To:     Jack Pham <jackp@codeaurora.org>
+Cc:     stable <stable@vger.kernel.org>, Fei Yang <fei.yang@intel.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Felipe Balbi <balbi@kernel.org>,
+        Linux USB List <linux-usb@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 28, 2019 at 09:39:01AM -0700, Dan Williams wrote:
-> On Fri, Jun 28, 2019 at 9:37 AM Matthew Wilcox <willy@infradead.org> wrote:
-> > That was the conclusion I came to; that one thread holding the mmap sem
-> > for read isn't being woken up when it should be.  Just need to find it ...
-> > obviously it's something to do with the PMD entries.
-> 
-> Can you explain to me one more time, yes I'm slow on the uptake on
-> this, the difference between xas_load() and xas_find_conflict() and
-> why it's ok for dax_lock_page() to use xas_load() while
-> grab_mapping_entry() uses xas_find_conflict()?
+On Thu, Jun 27, 2019 at 10:54 PM Jack Pham <jackp@codeaurora.org> wrote:
+> On Thu, Jun 27, 2019 at 08:52:39PM +0000, John Stultz wrote:
+> > diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+> > index 879f652c5580..843586f20572 100644
+> > --- a/drivers/usb/dwc3/gadget.c
+> > +++ b/drivers/usb/dwc3/gadget.c
+> > @@ -177,8 +177,6 @@ static void dwc3_gadget_del_and_unmap_request(struct dwc3_ep *dep,
+> >       req->started = false;
+> >       list_del(&req->list);
+> >       req->remaining = 0;
+> > -     req->unaligned = false;
+> > -     req->zero = false;
+>
+> Given that these structure members are removed in Patch 1/9, wouldn't
+> having these lines remain until this revert patch present compilation
+> errors when applying the patches in this series individually?
+>
+> For bisectability would it be better to fix-up Patch 1 to also convert
+> these two flags to req->needs_extra_trb in one shot? Alternatively you
+> could sandwich Patch 1 between Patch 8 & 9.
 
-When used with a non-zero 'order', xas_find_conflict() will return
-an entry whereas xas_load() might return a pointer to a node.
-dax_lock_page() always uses a zero order, so they would always do the
-same thing (xas_find_conflict() would be less efficient).
+Ah. Good point! I'll respin this.  Thanks for looking this over!
+
+thanks
+-john
