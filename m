@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A63ED59613
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 10:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1310359616
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 10:29:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726462AbfF1I3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 04:29:22 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:41215 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726431AbfF1I3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 04:29:21 -0400
-Received: by mail-io1-f67.google.com with SMTP id w25so10758028ioc.8;
-        Fri, 28 Jun 2019 01:29:21 -0700 (PDT)
+        id S1726647AbfF1I3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 04:29:24 -0400
+Received: from mail-io1-f66.google.com ([209.85.166.66]:34753 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726431AbfF1I3X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 04:29:23 -0400
+Received: by mail-io1-f66.google.com with SMTP id k8so10842488iot.1;
+        Fri, 28 Jun 2019 01:29:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:subject:from:in-reply-to:date:cc
          :content-transfer-encoding:message-id:references:to;
-        bh=29qZLe/ycWIjMlCCTOUGo9VV3OPNk26MXL4ayhclDzE=;
-        b=fppg3bEMvomKBqCuu5MbgltOVZzicIWbxIszalTiKpOukfh7yDamu9UIkwW90t5yrr
-         KS+nKl6mCjVB07ZezU5u2R1gYh1NYMouU26Gh67JgkcxT2PowQSnTGJEztYu4pq9BGlA
-         smau2cMrN1CwZoZ/Peqc5lToGcK03YawLY9dFD4q+eK5Ut9N4f32shmgft706Raaoonq
-         l787F12baTCgYT/V5AhQGFUPjFgqWeLxWLO/MOPR3Ps9UE3NKfW0/aq76sJ4Iw9eH1FY
-         o72fOltKv0iIw9tYxri03T6NVwfU2eQEqAK2o4GydeFNBzbx6xYwpuDpMXaNv7F9nQGx
-         c+Xw==
+        bh=lEUN5IUuOCOSnK+6+Wu6+QVLHr1nY2ulPTI4/a9L6YY=;
+        b=rZU3+JPxxchngzA1soqhb0hiWhtadkNNjWpFRkIhDxzciqOgD1BzGNaB/g81ys11r8
+         zEs35DFfn5OrWbYjZHfn4jTszTHqexUYwU8+K8SUfal4RfyCwpk37MGhZwMhZtwS+wxb
+         3+icYPYkdyoGYgaAEYESoHFcsO8CKnD753woHYbk5xbxbmQU/W6MzEloSL7zYLF1rp3r
+         /TfyNZIJn5A0sr5LfBhSz9xlQP1+Aarpxs7AuZWmywy9c/JNAlx1B/hdryxH4aKn0eLD
+         32jdR0qCqOGY/oxzklift1WxKn9hImoUpdDeynuziL5iCzam6YcBafMHFPyCFvnyg76e
+         wzKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
          :content-transfer-encoding:message-id:references:to;
-        bh=29qZLe/ycWIjMlCCTOUGo9VV3OPNk26MXL4ayhclDzE=;
-        b=VTFD265SzXkg7Y+Pnyui/Vh1nsX3onTILYkDRPQ33qd4CYI/MjawJG9Fm1dsErgHQr
-         YOeeHQfZl6NQHyqLrhH/N/gqG6Qqf5MAudeS2ZRU6+brLYV83X4Qe0eL0W6mGiQE4WQ8
-         1Yn26Q5vQtH4/hOwLcV1lWhTJJ2wRLTxLy+SD24qapfJslpAwYp4I4SDG2kYpFt9TC4y
-         EckOHokjS+415Vng9KRM6DmcPRCjTij82nQgg+/a+crMblZ/cOJsHRxaTjDkj1a18Fkk
-         TKW6cjUVYMwmA+k9vmWPnHHFh5egi61BB6AfYeaj3eATA5JkZUVeGLKW7HlNuQQ1+lRV
-         8eYw==
-X-Gm-Message-State: APjAAAVrykBMme0q9/r/BZCUVLr/W5dwK52iU033jv5FHOG/fn2pbPFY
-        nd4mKOrwVgOhQzKeRxnR6Pj+GRKzSwutgw==
-X-Google-Smtp-Source: APXvYqx397DfWi2rMOTvGEWYF2Dd1fSUebqX4QPfLoCsJxTRziJQHrYp+57KFN6LOx2O0EVy4qFzuQ==
-X-Received: by 2002:a5d:8f9a:: with SMTP id l26mr9577840iol.22.1561710561112;
-        Fri, 28 Jun 2019 01:29:21 -0700 (PDT)
+        bh=lEUN5IUuOCOSnK+6+Wu6+QVLHr1nY2ulPTI4/a9L6YY=;
+        b=TPAea5koGqfihmVb/DCXsf2N/OLl7hoE9ZE3layAlWtu4wi+CR2BUmx5Wz23uXtA5G
+         x9c3c8rb60bED2jgHxfGFz9O9iTNAYLF/ovtNlejp3UsUeKuWWryLLqTjsCLE3BYxIgX
+         gpQxLwrkXmaDHeJL01B6lcKOndDavj661YtomuwgcfkszuP7PxMzNw3+w5Z0RQN8CiDJ
+         vmzQaOLwjVVLW8v6Y097cBTK0sYFqJSS1McZxjtmseDQMAvb9ufeS4d5OQzJPWE46wI8
+         I2kebLLsoWBBOchWZmKFUt74IhQSYUjLtM1rpy1sfky32IbZXICr2k01HKy3vQijU9yq
+         Nsqw==
+X-Gm-Message-State: APjAAAX5pHQudJomKJ/Y7f/bSoTikLpmLvxDNwQdLceKgTNZoTcHpHLL
+        0JJwqhPEO1QFkZ1XlpjWeek=
+X-Google-Smtp-Source: APXvYqz5putxt1wdFBOPJ2PvEKnDU4Uu+E2Ka04oVw2UGUFv9pbEnJG54LhFEQk3Zwyjdz0xQnCOvw==
+X-Received: by 2002:a6b:bec7:: with SMTP id o190mr9087203iof.158.1561710562952;
+        Fri, 28 Jun 2019 01:29:22 -0700 (PDT)
 Received: from [192.168.1.8] (c-73-243-191-173.hsd1.co.comcast.net. [73.243.191.173])
-        by smtp.gmail.com with ESMTPSA id b3sm1313370iot.23.2019.06.28.01.29.19
+        by smtp.gmail.com with ESMTPSA id b3sm1313370iot.23.2019.06.28.01.29.21
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 28 Jun 2019 01:29:20 -0700 (PDT)
+        Fri, 28 Jun 2019 01:29:22 -0700 (PDT)
 Content-Type: text/plain;
         charset=us-ascii
 Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Subject: Re: [PATCH 4.4 0/1] 4.4.184-stable review
+Subject: Re: [PATCH 4.14 0/1] 4.14.131-stable review
 From:   Kelsey <skunberg.kelsey@gmail.com>
-In-Reply-To: <20190626083604.894288021@linuxfoundation.org>
-Date:   Fri, 28 Jun 2019 02:26:40 -0600
+In-Reply-To: <20190626083606.248422423@linuxfoundation.org>
+Date:   Fri, 28 Jun 2019 02:26:54 -0600
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, ben.hutchings@codethink.co.uk,
         lkft-triage@lists.linaro.org, stable@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <28E380A7-7D7D-49DC-B100-459F43C0FC01@gmail.com>
-References: <20190626083604.894288021@linuxfoundation.org>
+Message-Id: <525FE383-E164-41D8-8890-B79D78843DC9@gmail.com>
+References: <20190626083606.248422423@linuxfoundation.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 X-Mailer: Apple Mail (2.3445.104.11)
 Sender: stable-owner@vger.kernel.org
@@ -73,7 +73,7 @@ Kelsey
 > On Jun 26, 2019, at 2:45 AM, Greg Kroah-Hartman =
 <gregkh@linuxfoundation.org> wrote:
 >=20
-> This is the start of the stable review cycle for the 4.4.184 release.
+> This is the start of the stable review cycle for the 4.14.131 release.
 > There are 1 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, =
 please
@@ -84,12 +84,12 @@ please
 >=20
 > The whole patch series can be found in one patch at:
 > 	=
-https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.184-r=
-c1.gz
+https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.131-=
+rc1.gz
 > or in the git tree and branch at:
 > 	=
 git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git =
-linux-4.4.y
+linux-4.14.y
 > and the diffstat can be found below.
 >=20
 > thanks,
@@ -100,7 +100,7 @@ linux-4.4.y
 > Pseudo-Shortlog of commits:
 >=20
 > Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->    Linux 4.4.184-rc1
+>    Linux 4.14.131-rc1
 >=20
 > Eric Dumazet <edumazet@google.com>
 >    tcp: refine memory limit test in tcp_fragment()
