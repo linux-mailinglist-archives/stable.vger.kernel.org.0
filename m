@@ -2,79 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A93659A08
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 14:07:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E8159A0E
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 14:10:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726650AbfF1MH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 08:07:28 -0400
-Received: from mga01.intel.com ([192.55.52.88]:24669 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726524AbfF1MH1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Jun 2019 08:07:27 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Jun 2019 05:07:27 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,427,1557212400"; 
-   d="scan'208";a="153354899"
-Received: from akamins1-mobl.ger.corp.intel.com (HELO delly.ger.corp.intel.com) ([10.249.139.35])
-  by orsmga007.jf.intel.com with ESMTP; 28 Jun 2019 05:07:25 -0700
-From:   Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        Anuj Phogat <anuj.phogat@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH v7 3/3] drm/i915/icl: whitelist PS_(DEPTH|INVOCATION)_COUNT
-Date:   Fri, 28 Jun 2019 15:07:20 +0300
-Message-Id: <20190628120720.21682-4-lionel.g.landwerlin@intel.com>
-X-Mailer: git-send-email 2.21.0.392.gf8f6787159e
-In-Reply-To: <20190628120720.21682-1-lionel.g.landwerlin@intel.com>
-References: <20190628120720.21682-1-lionel.g.landwerlin@intel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726749AbfF1MKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 08:10:12 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:50168 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726564AbfF1MKM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 08:10:12 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 310D3606E1; Fri, 28 Jun 2019 12:10:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1561723811;
+        bh=IM0ROSdcJWhLOg7FCXzXiT+dphADA/BQMxzLdqyE4gI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Ribzsnv2aF/9i/B7bXu+14xOkRG10YQkY/ldJhblqja/UFtmbf8PxWaFppHZ59Muu
+         ATWN4CBESNwU/qixtNHpbm0mMNQgeOBrNIQNag/O8jGXvYq5XcXRnimbDN8mcanOI6
+         LDveRWrq/0h9TYl82ETex+srUu6BRznEy1+wfUCQ=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from srichara-linux.qualcomm.com (blr-c-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.19.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: sricharan@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id AB0066070D;
+        Fri, 28 Jun 2019 12:10:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1561723810;
+        bh=IM0ROSdcJWhLOg7FCXzXiT+dphADA/BQMxzLdqyE4gI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=D3YzX8aS3Ume7ylmpcOIg+TFPBPZGvS0u0pfcfUXLozP0OADlZ8tV4oiMaTs3S/HU
+         Na4/YK31FQW/aElURBQk5puXU5CP797RLEMb+5kHlf2f+EKnUnkb3+QkVyYazjT9Cn
+         0K+e05vjGcXa1ypvY9OUeapTSy/E/0LCds1QPcCY=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org AB0066070D
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=sricharan@codeaurora.org
+From:   Sricharan R <sricharan@codeaurora.org>
+To:     agross@kernel.org, david.brown@linaro.org,
+        dan.j.williams@intel.com, vkoul@kernel.org,
+        linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org,
+        linux-kernel@vger.kernel.org, srinivas.kandagatla@linaro.org
+Cc:     stable@vger.kernel.org, sricharan@codeaurora.org
+Subject: [PATCH] dmaengine: qcom: bam_dma: Fix completed descriptors count
+Date:   Fri, 28 Jun 2019 17:39:46 +0530
+Message-Id: <1561723786-22500-1-git-send-email-sricharan@codeaurora.org>
+X-Mailer: git-send-email 1.9.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The same tests failing on CFL+ platforms are also failing on ICL.
-Documentation doesn't list the
-WaAllowPMDepthAndInvocationCountAccessFromUMD workaround for ICL but
-applying it fixes the same tests as CFL.
+One space is left unused in circular FIFO to differentiate
+'full' and 'empty' cases. So take that in to account while
+counting for the descriptors completed.
 
-v2: Use only one whitelist entry (Lionel)
+Fixes the issue reported here,
+	https://lkml.org/lkml/2019/6/18/669
 
-Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Tested-by:  Anuj Phogat <anuj.phogat@gmail.com>
 Cc: stable@vger.kernel.org
+Reported-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Sricharan R <sricharan@codeaurora.org>
 ---
- drivers/gpu/drm/i915/gt/intel_workarounds.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/dma/qcom/bam_dma.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-index b117583e38bb..a908d829d6bd 100644
---- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
-+++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-@@ -1138,6 +1138,19 @@ static void icl_whitelist_build(struct intel_engine_cs *engine)
+diff --git a/drivers/dma/qcom/bam_dma.c b/drivers/dma/qcom/bam_dma.c
+index 4b43844..8e90a40 100644
+--- a/drivers/dma/qcom/bam_dma.c
++++ b/drivers/dma/qcom/bam_dma.c
+@@ -799,6 +799,9 @@ static u32 process_channel_irqs(struct bam_device *bdev)
+ 		/* Number of bytes available to read */
+ 		avail = CIRC_CNT(offset, bchan->head, MAX_DESCRIPTORS + 1);
  
- 		/* WaEnableStateCacheRedirectToCS:icl */
- 		whitelist_reg(w, GEN9_SLICE_COMMON_ECO_CHICKEN1);
++		if (offset < bchan->head)
++			avail--;
 +
-+		/*
-+		 * WaAllowPMDepthAndInvocationCountAccessFromUMD:icl
-+		 *
-+		 * This covers 4 register which are next to one another :
-+		 *   - PS_INVOCATION_COUNT
-+		 *   - PS_INVOCATION_COUNT_UDW
-+		 *   - PS_DEPTH_COUNT
-+		 *   - PS_DEPTH_COUNT_UDW
-+		 */
-+		whitelist_reg_ext(w, PS_INVOCATION_COUNT,
-+				  RING_FORCE_TO_NONPRIV_RD |
-+				  RING_FORCE_TO_NONPRIV_RANGE_4);
- 		break;
- 
- 	case VIDEO_DECODE_CLASS:
+ 		list_for_each_entry_safe(async_desc, tmp,
+ 					 &bchan->desc_list, desc_node) {
+ 			/* Not enough data to read */
 -- 
-2.21.0.392.gf8f6787159e
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
 
