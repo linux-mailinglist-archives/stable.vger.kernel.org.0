@@ -2,62 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E09C15A5FE
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 22:43:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79A455A5FA
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 22:37:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726498AbfF1UnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 16:43:19 -0400
-Received: from condef-06.nifty.com ([202.248.20.71]:64953 "EHLO
-        condef-06.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725783AbfF1UnT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 16:43:19 -0400
-X-Greylist: delayed 338 seconds by postgrey-1.27 at vger.kernel.org; Fri, 28 Jun 2019 16:43:18 EDT
-Received: from conwmuserg-02.nifty.com ([10.126.8.121])by condef-06.nifty.com with ESMTP id x5SKVmOX004023
-        for <stable@vger.kernel.org>; Sat, 29 Jun 2019 05:31:48 +0900
-Received: from aps-06 ([10.126.10.39])by conwmuserg-02.nifty.com with ESMTP id x5SKI2vq010146;
-        Sat, 29 Jun 2019 05:18:02 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conwmuserg-02.nifty.com x5SKI2vq010146
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1561753094;
-        bh=7lmmFOqiy9SxeKhCqrTOZY2GFCFZ6r1q+AxYkKJKwtY=;
-        h=Date:From:Reply-To:To:Subject:From;
-        b=S8v24DSCLOtlGNSxFFYW+bVokhkfpc1Ben2yWQOqzSjH0+q5n+nxNyJsan51m6plX
-         NoJHIeImF/3pWsgnjbrADlqBjgZLhW6QJv6n1UW1siDqaN8tSdwj/Jp0m6foKebTBi
-         gfy4fN57RT8kAjCnzGZwFjezR6qZAIx+sEf7iRLM0okP9ObzlTLdzCvOB8OJsbfixs
-         jN93DcATywPA7sPCnfvoUfWvlBsrBhS4wev4yGCvtU7pGClRv7Jf/NK2r2vRCJ4t76
-         bOdVClP8TeVvlD9aqaLE8ecRmSBosPI3RZvCmNrkVpEkaztZ4Yb59+7lVLcMtzvoll
-         9bJTQ8a2s7ciw==
-X-Nifty-SrcIP: [10.126.10.39]
-Message-ID: <1464425272.1341561753082865.annlorien3@writeme.com>
-Date:   Sat, 29 Jun 2019 05:18:02 +0900 (JST)
-From:   ANN-Lorien <annlorien3@writeme.com>
-Reply-To: annlorien@protonmail.com
-To:     annlorine@protonmail.com
-Subject:  Dear, please be my helper
+        id S1727148AbfF1Uht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 16:37:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58228 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727147AbfF1Uht (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Jun 2019 16:37:49 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C158F2086D;
+        Fri, 28 Jun 2019 20:37:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1561754269;
+        bh=9EXpoFnBbMdrxcl40ZXbwS9ICKS0sIKQS1CjVCKVsGc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XlbQ33nnYGsUm0saOo8jLWnWWADTqkE32DPzbH1LTgBOtTgyFe+oZEw30pJYHeqQS
+         2u5jtRZ7wDeFvGkBKBwVfIh5INWkqkwYu7aSFdglzwpVvNhDT4MSd8kfBBiKN4rXDS
+         Zr6POXQDahna6siYeguGvdEPDzLmVjqPPlYLQExA=
+Date:   Fri, 28 Jun 2019 16:37:47 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Tony Battersby <tonyb@cybernetics.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Andy Lutomirski <luto@amacapital.net>
+Subject: Re: Regression: cannot compile kernel 4.14 with old gcc
+Message-ID: <20190628203747.GH11506@sasha-vm>
+References: <54a67814-1c9a-14c9-3a7d-947b08369514@cybernetics.com>
+ <CAKwvOdncNyL27A8y0Cq-md1ub9r2RdzBcb7ZrmmmyqLBxKvSfQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: base64
-X-Priority: 3
-X-MSMail-Priority: Normal
-Organization: ANN-Lorien
-X-Mailer: @nifty Webmail
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAKwvOdncNyL27A8y0Cq-md1ub9r2RdzBcb7ZrmmmyqLBxKvSfQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQpHb2QgYmxlc3MgeW91IGRlYXIuDQpNeSBuYW1lIGlzIE1pc3MuIEFubiBMb3JpZW4gQ2xhdWRp
-YTsgSSBhbSAyMCB5ZWFycyBvbGQgZ2lybC4gUGxlYXNlIG15IGRlYXIsIEkgd2lsbCBuZWVkIHlv
-dXIgaGVscCBpbiB0aGUgZm9sbG93aW5nIHdheXMuDQoxKSBUbyBzdGFuZCBhcyBteSBmb3JlaWdu
-IHBhcnRuZXIvIGd1YXJkaWFuIHRvIGNsYWltIGFuZCB0cmFuc2ZlciB0aGUgc3VtIG9mIDIuIDEg
-QmlsbGlvbiBGcmFuYyBjZmEgd2hpY2ggaXMgc3VtIG9mICQzLiA1IG1pbGxpb24gZG9sbGFycy4g
-IEkgaW5oZXJpdGVkIHRoaXMgbW9uZXkgZnJvbSBteSBsYXRlIG1vdGhlciB3aG8gd2FzIGEgd2Vh
-bHRoeSBidXNpbmVzcyB3b21hbiBiZWZvcmUgc2hlIGRpZWQuIFByZXNlbnRseSB0aGUgbW9uZXkg
-aXMgaW4gdGhlIGJhbmsuDQoyKSBBZnRlciB0aGUgdHJhbnNmZXIsIHlvdSB3aWxsIGhlbHAgbWUg
-cmVsb2NhdGUgdG8geW91ciBjb3VudHJ5IGFuZCBzdGF5IHdpdGggeW91IGFuZCBjb250aW51ZSBt
-eSBlZHVjYXRpb24gb3ZlciB0aGVyZSwgYWxzbyB5b3Ugd2lsbCBoZWxwIG1lIHRvIGludmVzdCB0
-aGUgbW9uZXkgaW4gYW55IGx1Y3JhdGl2ZSBpbnZlc3RtZW50IHNvIHRoYXQgSSB3aWxsIG5vdCBz
-dWZmZXIgaW4gZnV0dXJlLg0KQWZ0ZXIgdGhlIHRyYW5zZmVyIHRvIHlvdXIgYWNjb3VudCwgSSB3
-aWxsIGJlIGhhcHB5IHRvIGNvbXBlbnNhdGUgeW91IHdpdGggMzAlIG9mIHRoZSBtb25leSBmb3Ig
-YWxsIHlvdXIgZWZmb3J0IGluIGhlbHBpbmcgbWUgb3V0LiANCkkgd2FpdCB0byBoZWFyIGZyb20g
-eW91Lg0KWW91cnMgZnJpZW5kDQpNcy4gQW5uIExvcmllbi4gIA0K
+On Fri, Jun 28, 2019 at 09:42:21AM -0700, Nick Desaulniers wrote:
+>On Fri, Jun 28, 2019 at 8:53 AM Tony Battersby <tonyb@cybernetics.com> wrote:
+>>
+>> Old versions of gcc cannot compile 4.14 since 4.14.113:
+>>
+>> ./include/asm-generic/fixmap.h:37: error: implicit declaration of function ‘__builtin_unreachable’
+>>
+>> The stable commit that caused the problem is 82017e26e515 ("compiler.h:
+>> update definition of unreachable()") (upstream commit fe0640eb30b7).
+>> Reverting the commit fixes the problem.
+>>
+>> Kernel 4.17 dropped support for older versions of gcc in upstream commit
+>> cafa0010cd51 ("Raise the minimum required gcc version to 4.6").  This
+>> was not backported to 4.14 since that would go against the stable kernel
+>> rules.
+>>
+>> Upstream commit 815f0ddb346c ("include/linux/compiler*.h: make
+>> compiler-*.h mutually exclusive") was a fix for cafa0010cd51.  This was
+>> not backported to 4.14.
+>>
+>> Upstream commit fe0640eb30b7 ("compiler.h: update definition of
+>> unreachable()") was a fix for 815f0ddb346c.  This is the commit that was
+>> backported to 4.14.  But it only fixed a problem introduced in the other
+>> commits, and without those commits, it ends up introducing a problem
+>> instead of fixing one.  So I recommend reverting that patch in 4.14,
+>> which will enable old gcc to compile 4.14 again.  If I understand
+>> correctly, I believe that clang will still be able to compile 4.14 with
+>> the patch reverted, although I haven't tried to compile with clang.
+>>
+>> The problematic commit is not present in 4.9.x, 4.4.x, 3.18.x, or 3.16.x.
+>
+>$ make CC=clang -j71 arch/x86/mm/fault.o
+>produces no objtool warning with upstream commit fe0640eb30b7 reverted.
+>
+>x86 defconfig w/ Clang also have no issue with that reverted on 4.14.y.
+>
+>Revert away.
+>
+>Greg, Sasha,
+>Do you need a patch file for that, or can you please push a
+>$ cd linux-stable
+>$ git checkout 4.14.y
+>$ git revert 82017e26e51596ee577171a33f357377ec6513b5
+
+You got it.
+
+>-- 
+>Thanks,
+>~Nick Desaulniers
