@@ -2,110 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE9DA5A2FF
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 20:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D72A5A343
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 20:14:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726688AbfF1SAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 14:00:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32832 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726443AbfF1SAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Jun 2019 14:00:19 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D458208C4;
-        Fri, 28 Jun 2019 18:00:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561744818;
-        bh=ZbCUpCndwcqFgTZ6WjmlIyORykKNaciTkj04SqJYyco=;
-        h=Date:From:To:Subject:From;
-        b=aN0W5PB25kORZ6IV7BoOWj88PAkqdyJNUr22h09W3hUlNEy+A9Qm6RVAbZTyi3p7P
-         kO3I64CUwfh0096sDYZnkab6E1DSVGsU3VIbCC0E5F3DxmEyERGbZq/r+lY7e9yuqq
-         irY+nKfRrT9SybvZ3e7bhvD7sHQ+XLTDjghosTWQ=
-Date:   Fri, 28 Jun 2019 11:00:17 -0700
-From:   akpm@linux-foundation.org
-To:     jerry.t.chen@intel.com, mhocko@kernel.org, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, n-horiguchi@ah.jp.nec.com,
-        osalvador@suse.de, qiuxu.zhuo@intel.com, stable@vger.kernel.org,
-        xishi.qiuxishi@alibaba-inc.com
-Subject:  [folded-merged]
- =?US-ASCII?Q?mm-hugetlb-soft-offline-dissolve=5Ffree=5Fhuge=5Fpage-retu?=
- =?US-ASCII?Q?rn-zero-on-pagehuge-v3.patch?= removed from -mm tree
-Message-ID: <20190628180017.LoaGDhueE%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726416AbfF1SOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 14:14:44 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:44350 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726056AbfF1SOo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 14:14:44 -0400
+Received: by mail-wr1-f65.google.com with SMTP id r16so5343392wrl.11
+        for <stable@vger.kernel.org>; Fri, 28 Jun 2019 11:14:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=0cnkDQbZpYRwQd96ngx4qAoaZ3lYPa92yT2sfzzvlI8=;
+        b=XwDtmRhAErV28ymeatsy9mbPyRbmUhbMtL4IxQFBX2esLP4L8Dg8DWEwrL5BpJDUt4
+         FHRVSXQ1ngsz97D33lJZp/5oSvvvJp3Xn3Xp+l3Oi3NFIYedPuJPE5XUsgA4yAFlOBZK
+         R61+sxOpWgg2nnLgORSYKvlsaGx/RJDmoN1aCeRDxGVr6Nsz8ZBc0JKYLWMx6DhH/oYm
+         8hwcJ2qt1U9LddwPOhjIpppT500w8NuYeTkrluLzzC9EWsDm/yVNdCna15DArgpfthsK
+         VrWPoJMdZkoT/ecFhNSgtI8sKXSdlzAt5YEHjAWCSXECby4juochBV6t/gP7+4gZybzO
+         VWmw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0cnkDQbZpYRwQd96ngx4qAoaZ3lYPa92yT2sfzzvlI8=;
+        b=J4r+oq3XvgG2YV3xYnyjkQHizaKbo56xLVoIhfeMd5ONN7AikEH1Iv8iECh3fw3r02
+         4NWtZOsFa/6lEHHimjEqk1IOpgdY01IpNV69/CQgwzM1CRxmJ2Wy3jt9Xot+rICxYh/o
+         Fr4FUOtZIqNq+YBBeJM8hij5g8HBEK8Yo86RB7lErI2eEGyS3pCIztVabRwQdVtmBkxU
+         1+u8NLKRPSTFKSnBKukUkAwF4Jz5RJ11gflmvL4vOZlNrlkThwBB1h2kqhZ30Ty0LVsP
+         9Ao5Kkk5O9iAHYAc9JjCQZ1GjzIU7NlghnQ54TMhImObfj1rNwwdkICUUCuerfUq9EaA
+         RrHA==
+X-Gm-Message-State: APjAAAVeDjZnJGTYdUFQzLM0Euc/0bxvcXmVcK6JIaCoDarR55Y1hS7I
+        Va6KBK1eXeK+8AijswZ2TjQ3vfeYsPYCRTa5X0TUFA==
+X-Google-Smtp-Source: APXvYqyPkk7Org4QWv5TFR0K0XoNu4JXCnOJoZS2v/LCBIqCN4kbi9bo5JAU+vf3rEyhsGCgeUEQE1wJJRMYIGip/88=
+X-Received: by 2002:adf:fe4e:: with SMTP id m14mr9497003wrs.21.1561745682146;
+ Fri, 28 Jun 2019 11:14:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20190627205240.38366-1-john.stultz@linaro.org> <C672AA6DAAC36042A98BAD0B0B25BDA94CC59E46@BGSMSX104.gar.corp.intel.com>
+In-Reply-To: <C672AA6DAAC36042A98BAD0B0B25BDA94CC59E46@BGSMSX104.gar.corp.intel.com>
+From:   John Stultz <john.stultz@linaro.org>
+Date:   Fri, 28 Jun 2019 11:14:31 -0700
+Message-ID: <CALAqxLXxbvgv6zeBPgE4n6opTJX_-pqEZ+hLB3pNMHZyBpCr8A@mail.gmail.com>
+Subject: Re: [PATCH 4.19.y 0/9] Fix scheduling while atomic in dwc3_gadget_ep_dequeue
+To:     "Gopal, Saranya" <saranya.gopal@intel.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Yang, Fei" <fei.yang@intel.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Felipe Balbi <balbi@kernel.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jun 28, 2019 at 3:10 AM Gopal, Saranya <saranya.gopal@intel.com> wrote:
+>
+> > With recent changes in AOSP, adb is using asynchronous io, which
+> > causes the following crash usually on a reboot:
+> >
+> > [  184.278302] BUG: scheduling while atomic: ksoftirqd/0/9/0x00000104
+> > [  184.284617] Modules linked in: wl18xx wlcore snd_soc_hdmi_codec
+> > wlcore_sdio tcpci_rt1711h tcpci tcpm typec adv7511 cec dwc3 phy_hi3660_usb3
+> > snd_soc_simple_card snd_soc_a
+> > [  184.316034] Preemption disabled at:
+> > [  184.316072] [<ffffff8008081de4>] __do_softirq+0x64/0x398
+> > [  184.324953] CPU: 0 PID: 9 Comm: ksoftirqd/0 Tainted: G S                4.19.43-
+> > 00669-g8e4970572c43-dirty #356
+> > [  184.334963] Hardware name: HiKey960 (DT)
+> > [  184.338892] Call trace:
+> > [  184.341352]  dump_backtrace+0x0/0x158
+> > [  184.345025]  show_stack+0x14/0x20
+> > [  184.348355]  dump_stack+0x80/0xa4
+> > [  184.351685]  __schedule_bug+0x6c/0xc0
+> > [  184.355363]  __schedule+0x64c/0x978
+> > [  184.358863]  schedule+0x2c/0x90
+> > [  184.362053]  dwc3_gadget_ep_dequeue+0x274/0x388 [dwc3]
+>
+>
+> > This happens as usb_ep_dequeue can be called in interrupt
+> > context, and dwc3_gadget_ep_dequeue() then calls
+> > wait_event_lock_irq() which can sleep.
+> >
+> > Upstream kernels are not affected due to the change
+> > fec9095bdef4 ("dwc3: gadget: remove wait_end_transfer") which
+> > removes the wait_even_lock_irq code. Unfortunately that change
+> > has a number of dependencies, which I'm submitting here.
+> >
+> > Also, to match upstream, in this series I've reverted one
+> > change that was backported to -stable, to replace it with the
+> > cherry-picked upstream commit (as the dependencies are now
+> > there)
+> >
+> > This issue also affects 4.14,4.9 and I believe 4.4 kernels,
+> > however I don't know how to best backport this functionality
+> > that far back. Help from the maintainers would be very much
+> > appreciated!
+> >
+> > Feedback and comments would be welcome!
+> >
+> > thanks
+> > -john
+>
+> I confirm that this patch series fixes crash seen on reboot.
+> Considering that many Android platforms use 4.19 stable kernel with latest AOSP codebase, it would be really helpful if these patches are merged to 4.19 stable.
+>
 
-The patch titled
-     Subject: mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge-v3
-has been removed from the -mm tree.  Its filename was
-     mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge-v3.patch
+Thanks so much for the testing! Do let me know if you come across any
+ideas on how to cleanly resolve this for 4.14/4.9/4.4!
 
-This patch was dropped because it was folded into mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge.patch
-
-------------------------------------------------------
-From: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Subject: mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge-v3
-
-- add PageHuge check in dissolve_free_huge_page() outside hugetlb_lock
-- update comment on dissolve_free_huge_page() about return value
-
-Link: http://lkml.kernel.org/r/1560761476-4651-3-git-send-email-n-horiguchi@ah.jp.nec.com
-Reported-by: Chen, Jerry T <jerry.t.chen@intel.com>
-Tested-by: Chen, Jerry T <jerry.t.chen@intel.com>
-Signed-off-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Fixes: 6bc9b56433b76 ("mm: fix race on soft-offlining")
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Xishi Qiu <xishi.qiuxishi@alibaba-inc.com>
-Cc: "Chen, Jerry T" <jerry.t.chen@intel.com>
-Cc: "Zhuo, Qiuxu" <qiuxu.zhuo@intel.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: <stable@vger.kernel.org>	[4.19+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
-
---- a/mm/hugetlb.c~mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge-v3
-+++ a/mm/hugetlb.c
-@@ -1510,14 +1510,22 @@ static int free_pool_huge_page(struct hs
- 
- /*
-  * Dissolve a given free hugepage into free buddy pages. This function does
-- * nothing for in-use (including surplus) hugepages. Returns -EBUSY if the
-- * dissolution fails because a give page is not a free hugepage, or because
-- * free hugepages are fully reserved.
-+ * nothing for in-use hugepages and non-hugepages.
-+ * This function returns values like below:
-+ *
-+ *  -EBUSY: failed to dissolved free hugepages or the hugepage is in-use
-+ *          (allocated or reserved.)
-+ *       0: successfully dissolved free hugepages or the page is not a
-+ *          hugepage (considered as already dissolved)
-  */
- int dissolve_free_huge_page(struct page *page)
- {
- 	int rc = -EBUSY;
- 
-+	/* Not to disrupt normal path by vainly holding hugetlb_lock */
-+	if (!PageHuge(page))
-+		return 0;
-+
- 	spin_lock(&hugetlb_lock);
- 	if (!PageHuge(page)) {
- 		rc = 0;
-_
-
-Patches currently in -mm which might be from n-horiguchi@ah.jp.nec.com are
-
-mm-soft-offline-return-ebusy-if-set_hwpoison_free_buddy_page-fails.patch
-mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge.patch
-
+thanks
+-john
