@@ -2,127 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B0059D7A
-	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 16:07:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CF4C59D88
+	for <lists+stable@lfdr.de>; Fri, 28 Jun 2019 16:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726617AbfF1OHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 10:07:25 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:37819 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726619AbfF1OHZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 10:07:25 -0400
-Received: by mail-wr1-f67.google.com with SMTP id v14so6453398wrr.4;
-        Fri, 28 Jun 2019 07:07:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/6jW6fB4qBM1ltEdu2ACDjRjsBmJdRc1AykbkyWaR7c=;
-        b=an187nEon/JK/g5ZzKOxXQnPuUnO9U6A/T2nqKVyK2NO4SElnkHUJeZ5gSBOl78AUA
-         JFWlQUG15flw/TVfg328lGdoWQFefyK8n77DGksSOK6CxZGQLLsUkICYJwpCXBYIbH3e
-         ll9F3vXxoLCyl87K4WzFMCCnULY5+vLnCMgwdw+7iBin0JOSH7NovQ1kQ4Q5Xj2owEhG
-         kT9NdI2p1PKRsL8IiBaO97kVpNZ42vwRKgg0ytHUo0ZS5jnZC6iGt6AXJ3LJ6pwsxMLt
-         nTNQleZcYjh8Ue5Lieb4iW9Men3bcAOu7qTNKsTSMhS4WkrEg3beAdykiU86wPcYhqlO
-         sz3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/6jW6fB4qBM1ltEdu2ACDjRjsBmJdRc1AykbkyWaR7c=;
-        b=tUkLlvt1EyEA93yOLYQ7m+p3Cuuat25XvhgP+RSpeg7KcGNrgfdrxeBEnWWZp7YMxT
-         S9078xkSaBkGM4tZN7CUWVHYxWlz3oFZ7l3dkwu2ypEy/w3t6EM8IGsqmUhNP+AbeYGB
-         5SDtSatjpNXbqPt8M43Li57B56jJ8hJwfrZ9EJdTg1ZBZp9wVrYm2pXGsugahfSxxLiz
-         b5XM3CdCU/PaAJdpLGc3jAgr0mNaZ2K2eHc71UhSDG+pDaEhaVMqP8Fh9hQfhIXl6Cc/
-         P6b2at+fnsfIPzi8jj+mMGm4it/FnGK7AjORg6DOMN/rKI1X92RALpM5cp0K4VVuydJm
-         ovZQ==
-X-Gm-Message-State: APjAAAU+2qPkxRTkgtSkrebKaS659kgXGmEKbPI1z1dsvgWh/EEZeplA
-        xzmOFj5lqGqyrvMbzmuiTrCsvH6gH6nYAuO0o9mUnuj6
-X-Google-Smtp-Source: APXvYqy5v+daBdSZiNMJysCVnYu4Yb3AFNKs9v26dcnm3gDIIeAbNl8J/Ofwl1JUddZkKKQjAVFjv8bzrn7FfNzgwgc=
-X-Received: by 2002:adf:dec3:: with SMTP id i3mr8017515wrn.74.1561730843076;
- Fri, 28 Jun 2019 07:07:23 -0700 (PDT)
+        id S1726691AbfF1OL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jun 2019 10:11:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59616 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726657AbfF1OL0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Jun 2019 10:11:26 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 505E8208E3;
+        Fri, 28 Jun 2019 14:11:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1561731085;
+        bh=oCdjswagAHobZ63isHTznuUFBTZdnoCTi6w01PJYl34=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RY7fx0ksb+ZyuqSmfw6eq13pMpdkgzBscRQ5B1n9yMItpYvIQfIBd8teTqASKEOR7
+         PlSNDfylgSn0A9QkGfQXP5ylUk0bGH1DvzQWvXtF1P8APdHO1n68bovpdNXnO6e4nb
+         MseQ75verriuBJNKjlk9p4h56gdU1jt740Yj44CQ=
+Date:   Fri, 28 Jun 2019 10:11:24 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Kristian Evensen <kristian.evensen@gmail.com>
+Cc:     stable <stable@vger.kernel.org>,
+        =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
+Subject: Re: [PATCH] qmi_wwan: Fix out-of-bounds read
+Message-ID: <20190628141124.GE11506@sasha-vm>
+References: <20190627100105.11517-1-kristian.evensen@gmail.com>
+ <CAKfDRXhHWCxKK6gDciar5eQg9Ojv4+0C7tgaSOmQFFGLCL9gqw@mail.gmail.com>
 MIME-Version: 1.0
-References: <20190620232127.25436-1-lyude@redhat.com>
-In-Reply-To: <20190620232127.25436-1-lyude@redhat.com>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Fri, 28 Jun 2019 10:07:11 -0400
-Message-ID: <CADnq5_ODsuKDRFyi5v5nOLmXCFnguaVYLXAn-Z2=bX6sK8DLsQ@mail.gmail.com>
-Subject: Re: [PATCH] drm/amdgpu: Don't skip display settings in hwmgr_resume()
-To:     Lyude Paul <lyude@redhat.com>
-Cc:     amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        "David (ChunMing) Zhou" <David1.Zhou@amd.com>,
-        David Airlie <airlied@linux.ie>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "for 3.8" <stable@vger.kernel.org>, Huang Rui <ray.huang@amd.com>,
-        Maling list - DRI developers 
-        <dri-devel@lists.freedesktop.org>, Daniel Vetter <daniel@ffwll.ch>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Likun Gao <Likun.Gao@amd.com>, Evan Quan <evan.quan@amd.com>,
-        Rex Zhu <rex.zhu@amd.com>,
-        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAKfDRXhHWCxKK6gDciar5eQg9Ojv4+0C7tgaSOmQFFGLCL9gqw@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 20, 2019 at 7:22 PM Lyude Paul <lyude@redhat.com> wrote:
+On Fri, Jun 28, 2019 at 06:14:33AM +0200, Kristian Evensen wrote:
+>Hi,
 >
-> I'm not entirely sure why this is, but for some reason:
+>On Thu, Jun 27, 2019 at 12:01 PM Kristian Evensen
+><kristian.evensen@gmail.com> wrote:
+>>
+>> commit 904d88d743b0c94092c5117955eab695df8109e8 upstream.
+>>
+>> The syzbot reported
+>>
+>>  Call Trace:
+>>   __dump_stack lib/dump_stack.c:77 [inline]
+>>   dump_stack+0xca/0x13e lib/dump_stack.c:113
+>>   print_address_description+0x67/0x231 mm/kasan/report.c:188
+>>   __kasan_report.cold+0x1a/0x32 mm/kasan/report.c:317
+>>   kasan_report+0xe/0x20 mm/kasan/common.c:614
+>>   qmi_wwan_probe+0x342/0x360 drivers/net/usb/qmi_wwan.c:1417
+>>   usb_probe_interface+0x305/0x7a0 drivers/usb/core/driver.c:361
+>>   really_probe+0x281/0x660 drivers/base/dd.c:509
+>>   driver_probe_device+0x104/0x210 drivers/base/dd.c:670
+>>   __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:777
+>>   bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
+>>
+>> Caused by too many confusing indirections and casts.
+>> id->driver_info is a pointer stored in a long.  We want the
+>> pointer here, not the address of it.
+>>
+>> Thanks-to: Hillf Danton <hdanton@sina.com>
+>> Reported-by: syzbot+b68605d7fadd21510de1@syzkaller.appspotmail.com
+>> Cc: Kristian Evensen <kristian.evensen@gmail.com>
+>> Fixes: e4bf63482c30 ("qmi_wwan: Add quirk for Quectel dynamic config")
+>> Signed-off-by: Bjørn Mork <bjorn@mork.no>
+>>
+>> [Upstream commit did not apply because I shuffled two lines in the
+>> backport. The fixes tag for 4.14 is 3a6a5107ceb3.]
+>>
+>> Signed-off-by: Kristian Evensen <kristian.evensen@gmail.com>
+>> ---
 >
-> 921935dc6404 ("drm/amd/powerplay: enforce display related settings only on needed")
->
-> Breaks runtime PM resume on the Radeon PRO WX 3100 (Lexa) in one the
-> pre-production laptops I have. The issue manifests as the following
-> messages in dmesg:
->
-> [drm] UVD and UVD ENC initialized successfully.
-> amdgpu 0000:3b:00.0: [drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring vce1 test failed (-110)
-> [drm:amdgpu_device_ip_resume_phase2 [amdgpu]] *ERROR* resume of IP block <vce_v3_0> failed -110
-> [drm:amdgpu_device_resume [amdgpu]] *ERROR* amdgpu_device_ip_resume failed (-110).
->
-> And happens after about 6-10 runtime PM suspend/resume cycles (sometimes
-> sooner, if you're lucky!). Unfortunately I can't seem to pin down
-> precisely which part in psm_adjust_power_state_dynamic that is causing
-> the issue, but not skipping the display setting setup seems to fix it.
-> Hopefully if there is a better fix for this, this patch will spark
-> discussion around it.
->
-> Fixes: 921935dc6404 ("drm/amd/powerplay: enforce display related settings only on needed")
-> Cc: Evan Quan <evan.quan@amd.com>
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: Huang Rui <ray.huang@amd.com>
-> Cc: Rex Zhu <Rex.Zhu@amd.com>
-> Cc: Likun Gao <Likun.Gao@amd.com>
-> Cc: <stable@vger.kernel.org> # v5.1+
-> Signed-off-by: Lyude Paul <lyude@redhat.com>
+>I see now that I forgot to set the correct prefix for the patch. The
+>prefix should be PATCH 4.14. Sorry about that. Please let me know if I
+>should resubmit.
 
-I've gone ahead and applied this.
+I've queued it for 4.14, thank you.
 
+--
 Thanks,
-
-Alex
-
-> ---
->  drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c
-> index 6cd6497c6fc2..0e1b2d930816 100644
-> --- a/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c
-> +++ b/drivers/gpu/drm/amd/powerplay/hwmgr/hwmgr.c
-> @@ -325,7 +325,7 @@ int hwmgr_resume(struct pp_hwmgr *hwmgr)
->         if (ret)
->                 return ret;
->
-> -       ret = psm_adjust_power_state_dynamic(hwmgr, true, NULL);
-> +       ret = psm_adjust_power_state_dynamic(hwmgr, false, NULL);
->
->         return ret;
->  }
-> --
-> 2.21.0
->
-> _______________________________________________
-> amd-gfx mailing list
-> amd-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/amd-gfx
+Sasha
