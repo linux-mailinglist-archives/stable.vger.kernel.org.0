@@ -2,89 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 043525A7F2
-	for <lists+stable@lfdr.de>; Sat, 29 Jun 2019 03:02:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C95975A7FE
+	for <lists+stable@lfdr.de>; Sat, 29 Jun 2019 03:17:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726711AbfF2BCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jun 2019 21:02:25 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:41846 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726643AbfF2BCZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jun 2019 21:02:25 -0400
-Received: by mail-pg1-f194.google.com with SMTP id q4so1829147pgj.8
-        for <stable@vger.kernel.org>; Fri, 28 Jun 2019 18:02:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=azV1r3kI2De1UK1aLNSrZEl+F3quwpOsTs6ORAV3f/U=;
-        b=exOxzW0mQUJI5jG9KbqHRNoEtMgv2Rk6OTpa4sq5AmInZp7kIDz5wW8eCeUZvUZQQ6
-         vAzkWqb4TUo8i75aF8JJ+6smTY97vkOp/nEJ9HRHdDU7cE7O2t1Uux8dl0W0U4vAqp4S
-         Sb9mTvaQMK60+HGFklKkt2Ma8/x7cydN+Q4SE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=azV1r3kI2De1UK1aLNSrZEl+F3quwpOsTs6ORAV3f/U=;
-        b=U0OUPjO/LdNhG9E496zeCSqOkcP79afvQ3ak0xu4enh9OisdbwYbX9LLO8GBwvEshT
-         oHy3kInS4jjvFAIr17mttS+6DBYxym1XZhoi+l/LnLHTHHiF2kM+2elqEp1CQ6nxIZTJ
-         Aq6+rp5LrnD8hDpOS1oEGujK49EToPPc40vVDZVarQRAGtRAi98dwN5YQYF4fqrNzUnr
-         iRXaCV/3bl2PKSDxDsTO2ojQZ+UmgEM9HdalSgD3GKl1TExh/VqSafhPLcNwy2P3hRc5
-         q7foxSwlXtfoztviQ1N9nOoDhAkAqO2AgNRMY3y25mz6TTLBQ4Wb6eydhfrBsIGeAGmp
-         HUfw==
-X-Gm-Message-State: APjAAAUM9eC+877nHUq3vCNip2BHk5trK5AtIdpiPhbSnxQhzqm8Hoev
-        5wo69WMs+lrufeOv3FxbBQd1GQ==
-X-Google-Smtp-Source: APXvYqzTmJqFv9iZ58G6kS5r6RDqAvDjBNIfFiKxg+4MA/CpalepPWTgL0XwhJu0nY0gTU8kXl8Hdw==
-X-Received: by 2002:a63:2326:: with SMTP id j38mr12264025pgj.134.1561770144267;
-        Fri, 28 Jun 2019 18:02:24 -0700 (PDT)
-Received: from dhcp-135-24-192-142.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id y11sm5400868pfb.119.2019.06.28.18.02.20
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 28 Jun 2019 18:02:22 -0700 (PDT)
-From:   Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
-To:     linux-scsi@vger.kernel.org, martin.petersen@oracle.com
-Cc:     kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
-        kiran-kumar.kasturi@broadcom.com, sankar.patra@broadcom.com,
-        sasikumar.pc@broadcom.com, chandrakanth.patil@broadcom.com,
-        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/4] megaraid_sas: Fix calculation of target ID
-Date:   Fri, 28 Jun 2019 18:02:12 -0700
-Message-Id: <1561770132-27408-1-git-send-email-shivasharan.srikanteshwara@broadcom.com>
-X-Mailer: git-send-email 2.4.3
+        id S1726729AbfF2BRq convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 28 Jun 2019 21:17:46 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:40898 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726723AbfF2BRp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Jun 2019 21:17:45 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 1D2B13082DDD
+        for <stable@vger.kernel.org>; Sat, 29 Jun 2019 01:17:45 +0000 (UTC)
+Received: from [172.54.58.4] (cpt-1026.paas.prod.upshift.rdu2.redhat.com [10.0.19.53])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9F096600C6;
+        Sat, 29 Jun 2019 01:17:42 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.03BC461614.U59X6WII2F@redhat.com>
+X-Gitlab-Pipeline-ID: 13496
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Sat, 29 Jun 2019 01:17:45 +0000 (UTC)
+Date:   Fri, 28 Jun 2019 21:17:45 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In megasas_get_target_prop(), driver is incorrectly calculating the
-target ID for devices with channel 1 and 3.
-Due to this, firmware will either fail the command (if there is no
-device with the target id sent from driver) or could return the
-properties for a target which was not intended.
-Devices could end up with the wrong queue depth due to this.
+Hello,
 
-Fix target id calculation for channel 1 and 3.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-Fixes: 96188a89cc6d ("scsi: megaraid_sas: NVME interface target prop added")
-Cc: stable@vger.kernel.org
-Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
----
- drivers/scsi/megaraid/megaraid_sas_base.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: aec3002d07fd - Linux 4.19.56
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index b4c0bbc..9321878 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -6558,7 +6558,8 @@ megasas_get_target_prop(struct megasas_instance *instance,
- 	int ret;
- 	struct megasas_cmd *cmd;
- 	struct megasas_dcmd_frame *dcmd;
--	u16 targetId = (sdev->channel % 2) + sdev->id;
-+	u16 targetId = ((sdev->channel % 2) * MEGASAS_MAX_DEV_PER_CHANNEL) +
-+			sdev->id;
- 
- 	cmd = megasas_get_cmd(instance);
- 
--- 
-2.9.5
+The results of these automated tests are provided below.
 
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: aec3002d07fd - Linux 4.19.56
+
+
+We grabbed the f0317bbbba39 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  perf-ui-helpline-use-strlcpy-as-a-shorter-form-of-strncpy-explicit-set-nul.patch
+  perf-help-remove-needless-use-of-strncpy.patch
+  perf-header-fix-unchecked-usage-of-strncpy.patch
+  arm64-don-t-unconditionally-add-wno-psabi-to-kbuild_cflags.patch
+  revert-x86-uaccess-ftrace-fix-ftrace_likely_update-v.patch
+  ib-hfi1-close-psm-sdma_progress-sleep-window.patch
+  9p-xen-fix-check-for-xenbus_read-error-in-front_prob.patch
+  9p-use-a-slab-for-allocating-requests.patch
+  9p-embed-fcall-in-req-to-round-down-buffer-allocs.patch
+  9p-add-a-per-client-fcall-kmem_cache.patch
+  9p-rename-p9_free_req-function.patch
+  9p-add-refcount-to-p9_req_t.patch
+  9p-rdma-do-not-disconnect-on-down_interruptible-eaga.patch
+  9p-rename-req-to-rreq-in-trans_fd.patch
+  9p-acl-fix-uninitialized-iattr-access.patch
+  9p-rdma-remove-useless-check-in-cm_event_handler.patch
+  9p-p9dirent_read-check-network-provided-name-length.patch
+  9p-potential-null-dereference.patch
+  9p-trans_fd-abort-p9_read_work-if-req-status-changed.patch
+  9p-trans_fd-put-worker-reqs-on-destroy.patch
+  net-9p-include-trans_common.h-to-fix-missing-prototy.patch
+  qmi_wwan-fix-out-of-bounds-read.patch
+  revert-usb-dwc3-gadget-clear-req-needs_extra_trb-fla.patch
+  usb-dwc3-gadget-combine-unaligned-and-zero-flags.patch
+  usb-dwc3-gadget-track-number-of-trbs-per-request.patch
+  usb-dwc3-gadget-use-num_trbs-when-skipping-trbs-on-d.patch
+  usb-dwc3-gadget-extract-dwc3_gadget_ep_skip_trbs.patch
+  usb-dwc3-gadget-introduce-cancelled_list.patch
+  usb-dwc3-gadget-move-requests-to-cancelled_list.patch
+  usb-dwc3-gadget-remove-wait_end_transfer.patch
+  usb-dwc3-gadget-clear-req-needs_extra_trb-flag-on-cl.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-d7677643767ff736b572828156cfeeff444beeb5.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-d7677643767ff736b572828156cfeeff444beeb5.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-d7677643767ff736b572828156cfeeff444beeb5.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-d7677643767ff736b572828156cfeeff444beeb5.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-d7677643767ff736b572828156cfeeff444beeb5.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-d7677643767ff736b572828156cfeeff444beeb5.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-d7677643767ff736b572828156cfeeff444beeb5.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-d7677643767ff736b572828156cfeeff444beeb5.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ LTP: openposix test suite [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ LTP: openposix test suite [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ LTP: openposix test suite [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ LTP: openposix test suite [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ Networking socket: fuzz [10]
+       🚧 ✅ tuned: tune-processes-through-perf [11]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
