@@ -2,115 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBA7C5AC65
-	for <lists+stable@lfdr.de>; Sat, 29 Jun 2019 18:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3D95AD29
+	for <lists+stable@lfdr.de>; Sat, 29 Jun 2019 21:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726859AbfF2QDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jun 2019 12:03:39 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:46874 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726837AbfF2QDj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jun 2019 12:03:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=qtT2pRYm5g6b3fRjkDJ4o2YrzEnuahVF7qIr55Bxvvg=; b=qHF1K8SUIw7JPjQ9WiiBa8liX
-        mKUdBsz1XW8hLrwqPD4mZ9s4UWYJ5NeDu+ZeK6Clz/m3Jf+L8ynyV93qurpvGRTJ42XBPI5c1bAiM
-        T5ZXLYR5p8EwoTj0GHatz0hbG7v8PLgIHlJZkomH666xAjKwjUi3eHJPG8kPIxcsceqWTrt3f6lc5
-        YvCnrzINRvDDQoco3QmrBv42WN0hIaYLR4D04yvKMAG43/Bq1hkBdDTZvkCrECMqyY4p33v8Wsqzy
-        TK0/XGMDJzQ0rYlyrYwDyU02D1DC0+bH08d4vfCMSzspEOS2q5GmKmz55NVxy5lTyIFmU6enSAIsm
-        bVFNyJBZA==;
-Received: from willy by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
-        id 1hhFpA-0005dg-VR; Sat, 29 Jun 2019 16:03:36 +0000
-Date:   Sat, 29 Jun 2019 09:03:36 -0700
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     linux-nvdimm <linux-nvdimm@lists.01.org>, Jan Kara <jack@suse.cz>,
-        stable <stable@vger.kernel.org>,
-        Robert Barror <robert.barror@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] filesystem-dax: Disable PMD support
-Message-ID: <20190629160336.GB1180@bombadil.infradead.org>
-References: <156159454541.2964018.7466991316059381921.stgit@dwillia2-desk3.amr.corp.intel.com>
- <20190627123415.GA4286@bombadil.infradead.org>
- <CAPcyv4jQP-SFJGor-Q3VCRQ0xwt3MuVpH2qHx2wzyRA88DGQww@mail.gmail.com>
- <CAPcyv4jjqooboxivY=AsfEPhCvxdwU66GpwE9vM+cqrZWvtX3g@mail.gmail.com>
- <CAPcyv4h6HgNE38RF5TxO3C268ZvrxgcPNrPWOt94MnO5gP_pjw@mail.gmail.com>
- <CAPcyv4gwd1_VHk_MfHeNSxyH+N1=aatj9WkKXqYNPkSXe4bFDg@mail.gmail.com>
- <20190627195948.GB4286@bombadil.infradead.org>
- <CAPcyv4iB3f1hDdCsw=Cy234dP-RXpxGyXDoTwEU8nt5qUDEVQg@mail.gmail.com>
+        id S1726908AbfF2TkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jun 2019 15:40:17 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:39923 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726901AbfF2TkR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jun 2019 15:40:17 -0400
+Received: by mail-lj1-f195.google.com with SMTP id v18so9155715ljh.6
+        for <stable@vger.kernel.org>; Sat, 29 Jun 2019 12:40:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mS7NbHPTU5zxr4PB5iLA0AQQQ8J8KIDuDHXph6+7nRY=;
+        b=r7fzzNndzw+JQWfEblTKgJKJ3f1P0oQ/C7EMW820UW6PQuJVregiW/+Mw46IyfOJhf
+         PBEMsiXHMdKqVlZbiHL3yH7UqeGTxfZIxaFBG04d8yRceKolcHRzrsSLhw8qDcuRadoK
+         Lirktcpv9D+VXXlcJSLuhvLKs16aMkh/g7iy1NfJa8E1vJ5mxJFgTdg0P0idqEtr7XXA
+         VRH2zNxipIZI788zDgmPfYad980obN/8dzp6q6gyKpoE8+JVpzGpebcm+gX9pe1+7VUn
+         H6O4lo8DGDRSH96An4WojknBQspoVDLS6Nl1c3wTy34sPUvhSNCh18vLOeI7WZe/9Um+
+         fTGg==
+X-Gm-Message-State: APjAAAUfj4+YyxfE3slQXSLdCQ8967CdpGTbxHb0ZWIibKtYMkGoj0KJ
+        0xwF1DH0a08oNoKQi4Fjcx4f4xCqIe+wnWd9hmwAhg==
+X-Google-Smtp-Source: APXvYqwN0+ksHHBiKjpUh37/8JcKiiuAy7OyftGGvM3hM04uAp6wt3EfoMhDs4ClkreVLwL1R8nV50KmaI9rDBaNVSo=
+X-Received: by 2002:a2e:3013:: with SMTP id w19mr9626540ljw.73.1561837215301;
+ Sat, 29 Jun 2019 12:40:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPcyv4iB3f1hDdCsw=Cy234dP-RXpxGyXDoTwEU8nt5qUDEVQg@mail.gmail.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+References: <CAGnkfhxxw9keiNj_Qm=2GBYpY38HAq28cOROMRqXfbqq8wNbWQ@mail.gmail.com>
+ <20190628225533.GJ11506@sasha-vm> <1560226F-F2C0-440D-9C58-D664DE3C7322@appneta.com>
+ <20190629074553.GA28708@kroah.com>
+In-Reply-To: <20190629074553.GA28708@kroah.com>
+From:   Matteo Croce <mcroce@redhat.com>
+Date:   Sat, 29 Jun 2019 21:39:39 +0200
+Message-ID: <CAGnkfhzmGbeQe7L55nEv575XyubWqCLz=7NQPpH+TajDkkDiXg@mail.gmail.com>
+Subject: Re: net: check before dereferencing netdev_ops during busy poll
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Josh Elsasser <jelsasser@appneta.com>,
+        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        netdev <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        David Miller <davem@davemloft.net>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 27, 2019 at 07:39:37PM -0700, Dan Williams wrote:
-> On Thu, Jun 27, 2019 at 12:59 PM Matthew Wilcox <willy@infradead.org> wrote:
+On Sat, Jun 29, 2019 at 9:45 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Fri, Jun 28, 2019 at 07:03:01PM -0700, Josh Elsasser wrote:
+> > On Jun 28, 2019, at 3:55 PM, Sasha Levin <sashal@kernel.org> wrote:
 > >
-> > On Thu, Jun 27, 2019 at 12:09:29PM -0700, Dan Williams wrote:
-> > > > This bug feels like we failed to unlock, or unlocked the wrong entry
-> > > > and this hunk in the bisected commit looks suspect to me. Why do we
-> > > > still need to drop the lock now that the radix_tree_preload() calls
-> > > > are gone?
-> > >
-> > > Nevermind, unmapp_mapping_pages() takes a sleeping lock, but then I
-> > > wonder why we don't restart the lookup like the old implementation.
+> > > What's the upstream commit id?
 > >
-> > We have the entry locked:
+> > The commit wasn't needed upstream, as I only sent the original patch after
+> > 79e7fff47b7b ("net: remove support for per driver ndo_busy_poll()") had
+> > made the fix unnecessary in Linus' tree.
 > >
-> >                 /*
-> >                  * Make sure 'entry' remains valid while we drop
-> >                  * the i_pages lock.
-> >                  */
-> >                 dax_lock_entry(xas, entry);
-> >
-> >                 /*
-> >                  * Besides huge zero pages the only other thing that gets
-> >                  * downgraded are empty entries which don't need to be
-> >                  * unmapped.
-> >                  */
-> >                 if (dax_is_zero_entry(entry)) {
-> >                         xas_unlock_irq(xas);
-> >                         unmap_mapping_pages(mapping,
-> >                                         xas->xa_index & ~PG_PMD_COLOUR,
-> >                                         PG_PMD_NR, false);
-> >                         xas_reset(xas);
-> >                         xas_lock_irq(xas);
-> >                 }
-> >
-> > If something can remove a locked entry, then that would seem like the
-> > real bug.  Might be worth inserting a lookup there to make sure that it
-> > hasn't happened, I suppose?
-> 
-> Nope, added a check, we do in fact get the same locked entry back
-> after dropping the lock.
-> 
-> The deadlock revolves around the mmap_sem. One thread holds it for
-> read and then gets stuck indefinitely in get_unlocked_entry(). Once
-> that happens another rocksdb thread tries to mmap and gets stuck
-> trying to take the mmap_sem for write. Then all new readers, including
-> ps and top that try to access a remote vma, then get queued behind
-> that write.
-> 
-> It could also be the case that we're missing a wake up.
+> > May've gotten lost in the shuffle due to my poor Fixes tags. The patch in
+> > question applied only on top of the 4.9 stable release at the time, but the
+> > actual NPE had been around in some form since 3.11 / 0602129286705 ("net: add
+> > low latency socket poll").
+>
+> Ok, can people then resend this and be very explicit as to why this is
+> needed only in a stable kernel tree and get reviews from people agreeing
+> that this really is the correct fix?
+>
+> thanks,
+>
+> greg k-h
 
-OK, I have a Theory.
+Hi Greg,
 
-get_unlocked_entry() doesn't check the size of the entry being waited for.
-So dax_iomap_pmd_fault() can end up sleeping waiting for a PTE entry,
-which is (a) foolish, because we know it's going to fall back, and (b)
-can lead to a missed wakeup because it's going to sleep waiting for
-the PMD entry to come unlocked.  Which it won't, unless there's a happy
-accident that happens to map to the same hash bucket.
+I think that David alredy reviewed the patch here:
 
-Let's see if I can steal some time this weekend to whip up a patch.
+https://lore.kernel.org/netdev/20180313.105115.682846171057663636.davem@davemloft.net/
+
+Anyway, I tested the patch and it fixes the panic, at least on my
+iwlwifi card, so:
+
+Tested-by: Matteo Croce <mcroce@redhat.com>
+
+Regards,
+-- 
+Matteo Croce
+per aspera ad upstream
