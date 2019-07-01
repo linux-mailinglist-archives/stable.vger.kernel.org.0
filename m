@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7427A5B551
-	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 08:50:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A19D05B552
+	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 08:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727007AbfGAGuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 02:50:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42908 "EHLO mail.kernel.org"
+        id S1727159AbfGAGu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 02:50:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725997AbfGAGuv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jul 2019 02:50:51 -0400
+        id S1725997AbfGAGu5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jul 2019 02:50:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C35F42145D;
-        Mon,  1 Jul 2019 06:50:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FB042145D;
+        Mon,  1 Jul 2019 06:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1561963851;
-        bh=7nzKvt+7B2XKfbu0nSHdubjTLdTTm4J0NU7lqjrzz34=;
+        s=default; t=1561963856;
+        bh=RdXzx1UY54ct2gXZFCJPrEettps9v0qmG+73CbmC8QE=;
         h=Subject:To:From:Date:From;
-        b=VmdwFyKpgVmHIomA4sX7jheXmeKaAaa/YRDOCfuSVXW08/5DHabKJKp2Hwo11CDRp
-         PqaAVwPFulYgWqG2xhkigpS40CvlAXLF3G9m2M3rWtJobyIADCTa2Hl3wuOk0rE/su
-         6H8xfc2xY4ivrjzTeyPrqiHzKTDlxGK4A0ZvdoqA=
-Subject: patch "staging: comedi: amplc_pci230: fix null pointer deref on interrupt" added to staging-testing
+        b=d5IwyvCULWhB+0q49Ro1GOxUEPyOwEIQOdU+RxGUbWH7KzEUs6F18JZiX9zh3prkj
+         9y85GcRpky0nF1I+6BesoKxdmABCRZw+Mx/pj7kGBDn1f2GwbyzTdwADNT6TXD3v6n
+         IZCHgIcfPAlQBWTfSv3MZo9AftXCwXovef5k5xSg=
+Subject: patch "staging: comedi: dt282x: fix a null pointer deref on interrupt" added to staging-testing
 To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Jul 2019 08:50:40 +0200
-Message-ID: <156196384019626@kroah.com>
+Date:   Mon, 01 Jul 2019 08:50:41 +0200
+Message-ID: <1561963841182249@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: comedi: amplc_pci230: fix null pointer deref on interrupt
+    staging: comedi: dt282x: fix a null pointer deref on interrupt
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,48 +55,53 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 7379e6baeddf580d01feca650ec1ad508b6ea8ee Mon Sep 17 00:00:00 2001
+From b8336be66dec06bef518030a0df9847122053ec5 Mon Sep 17 00:00:00 2001
 From: Ian Abbott <abbotti@mev.co.uk>
-Date: Wed, 26 Jun 2019 14:17:39 +0100
-Subject: staging: comedi: amplc_pci230: fix null pointer deref on interrupt
+Date: Wed, 26 Jun 2019 14:18:04 +0100
+Subject: staging: comedi: dt282x: fix a null pointer deref on interrupt
 
-The interrupt handler `pci230_interrupt()` causes a null pointer
-dereference for a PCI260 card.  There is no analog output subdevice for
-a PCI260.  The `dev->write_subdev` subdevice pointer and therefore the
-`s_ao` subdevice pointer variable will be `NULL` for a PCI260.  The
-following call near the end of the interrupt handler results in the null
-pointer dereference for a PCI260:
+The interrupt handler `dt282x_interrupt()` causes a null pointer
+dereference for those supported boards that have no analog output
+support.  For these boards, `dev->write_subdev` will be `NULL` and
+therefore the `s_ao` subdevice pointer variable will be `NULL`.  In that
+case, the following call near the end of the interrupt handler results
+in a null pointer dereference:
 
 	comedi_handle_events(dev, s_ao);
 
 Fix it by only calling the above function if `s_ao` is valid.
 
-Note that the other uses of `s_ao` in the calls
-`pci230_handle_ao_nofifo(dev, s_ao);` and `pci230_handle_ao_fifo(dev,
-s_ao);` will never be reached for a PCI260, so they are safe.
+(There are other uses of `s_ao` by the interrupt handler that may or may
+not be reached depending on values of hardware registers.  Trust that
+they are reliable for now.)
 
-Fixes: 39064f23284c ("staging: comedi: amplc_pci230: use comedi_handle_events()")
+Note:
+commit 4f6f009b204f ("staging: comedi: dt282x: use comedi_handle_events()")
+propagates an earlier error from
+commit f21c74fa4cfe ("staging: comedi: dt282x: use cfc_handle_events()").
+
+Fixes: 4f6f009b204f ("staging: comedi: dt282x: use comedi_handle_events()")
 Cc: <stable@vger.kernel.org> # v3.19+
 Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/amplc_pci230.c | 3 ++-
+ drivers/staging/comedi/drivers/dt282x.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/comedi/drivers/amplc_pci230.c b/drivers/staging/comedi/drivers/amplc_pci230.c
-index 65f60c2b702a..f7e673121864 100644
---- a/drivers/staging/comedi/drivers/amplc_pci230.c
-+++ b/drivers/staging/comedi/drivers/amplc_pci230.c
-@@ -2330,7 +2330,8 @@ static irqreturn_t pci230_interrupt(int irq, void *d)
- 	devpriv->intr_running = false;
- 	spin_unlock_irqrestore(&devpriv->isr_spinlock, irqflags);
- 
+diff --git a/drivers/staging/comedi/drivers/dt282x.c b/drivers/staging/comedi/drivers/dt282x.c
+index 3be927f1d3a9..e15e33ed94ae 100644
+--- a/drivers/staging/comedi/drivers/dt282x.c
++++ b/drivers/staging/comedi/drivers/dt282x.c
+@@ -557,7 +557,8 @@ static irqreturn_t dt282x_interrupt(int irq, void *d)
+ 	}
+ #endif
+ 	comedi_handle_events(dev, s);
 -	comedi_handle_events(dev, s_ao);
 +	if (s_ao)
 +		comedi_handle_events(dev, s_ao);
- 	comedi_handle_events(dev, s_ai);
  
- 	return IRQ_HANDLED;
+ 	return IRQ_RETVAL(handled);
+ }
 -- 
 2.22.0
 
