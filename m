@@ -2,111 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F125C071
-	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 17:40:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 122B35C0FA
+	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 18:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728537AbfGAPkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 11:40:42 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:51481 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727279AbfGAPkl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 11:40:41 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1BB4921650;
-        Mon,  1 Jul 2019 11:40:41 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 01 Jul 2019 11:40:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=rt4pQ9arKU1gW4UOxVi9M3zQ23t
-        v06dyxThOMzU2cS8=; b=MANOIRBq67ZHKYWjDh21sSH+TZ3oELGkohW3hBHIL7O
-        2I/F03kE6TGP6VTz551EOi5/+/JrBMy4vxrD+9+Z2mjYuTgOaSZUaJgPLbjBydxI
-        VmhhfYoiKCLhkt5MXKG8fknaYhBb+cnCmRNGgWwDBwOvbDE58EiTIEIYvddJ6SAH
-        Vy6eM9joVq3ofotZ0QnuyoB/bsEwxt+jgkG0BPUMxMqtovk6KR+XGCWdI6lZ7qoD
-        2GbF6gsMPGvmeF5ozUa5GZ+G9F5yCmfZbXBiL4aemO1QfG+x06M2+Tv4dy8qo3Cu
-        SRFMDfcB/46kMJ7ArTrPZVFSdjAGdpSUVE2h55xRvOQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=rt4pQ9
-        arKU1gW4UOxVi9M3zQ23tv06dyxThOMzU2cS8=; b=CCZKSMHWs3z9jHI/PU78Le
-        dWBPgWMq+5nwoMTy0MHWNUcmKXOjM0gIAuDofG5VuL8fp4EZl8jxUiRNtPNmQSgW
-        gT35bfMnP9Dfk5ajN6UZAHOcFYwLwegR9H6wedt5SvQCJ6VZuBqOOKdB6lvMtQmR
-        VgpAp9wd/ZSCntUuld2FplGEA3JuaG7U62pu0z6JVk0mvwUuSOizsC0D1MhzW8E6
-        MTqU1/Hw7pXkehwbz+4zN127ZEDJ5CaDf+fJU0f5CmZmR/k4uOxNMjgv814RJ3pw
-        BMhLUfuNKGnt4z7FB4vKVo1GPLjjXpizRxnePwxkDHZ+FZDKR52UTswvr0i3AKNQ
-        ==
-X-ME-Sender: <xms:dykaXTnysxB5_3Ng-1uJW0Szzw8OM848G0y0Jea0XNmpAjxL1oEIOg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrvdeigdelvdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
-    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:dykaXXMfKM1lBx8nMgQiPPx9fepam5EJNwx0OaUr0VoCz-WsNl_6yg>
-    <xmx:dykaXRh8Sx2y2stQ-iT0i8UqAFubS4VQZWpCsQ2F4KnXAF34GsYykA>
-    <xmx:dykaXZRGrrX365ZBy2TefDsrra-J_akSvC4S6M-Ngj1n7pXks0Tv4g>
-    <xmx:eSkaXYfPRt0IxWY48wS7UF2ahnvU7biWHWs4TLEu8hMFVDr45mrXmg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2692B80060;
-        Mon,  1 Jul 2019 11:40:39 -0400 (EDT)
-Date:   Mon, 1 Jul 2019 17:40:36 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Mark Jonas <mark.jonas@de.bosch.com>
-Cc:     stable@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>,
-        Kjetil Aamodt <kjetilaamodt@gmail.com>,
-        Wang Xin <xin.wang7@cn.bosch.com>,
-        Leo Ruan <tingquan.ruan@cn.bosch.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH 4.19] commit 9a9e295e7c5c0409c020088b0ae017e6c2b7df6e
- upstream.
-Message-ID: <20190701154036.GA7360@kroah.com>
-References: <20190626151416.10997-1-mark.jonas@de.bosch.com>
+        id S1727830AbfGAQSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 12:18:07 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:35758 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726863AbfGAQSH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 12:18:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=6L/tQQxfuMuPU6Ah9rMNBCpNvZISFMW8+8uGSmy7GjM=; b=p6FZEAfHJaN7A76fQOI5LTBiV
+        eIZtl8IFtuH2l8DTDHoGT6lt35leXxiKKuWD2fS0S0FfzFtyQD2Py9EyEN9VTfoVn0bX0fLUwV1Ss
+        MoiHOr09WM94NdI2xS04vWvuGfWhJjBi/QwyNLWCqdm6/85sbASswp/w3K/lJKs5D3QnI=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=finisterre.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hhz0E-0001iA-O7; Mon, 01 Jul 2019 16:18:02 +0000
+Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
+        id DBB63440046; Mon,  1 Jul 2019 17:18:01 +0100 (BST)
+Date:   Mon, 1 Jul 2019 17:18:01 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.1 07/51] ASoC: soc-dpm: fixup DAI active
+ unbalance
+Message-ID: <20190701161801.GD2793@sirena.org.uk>
+References: <20190626034117.23247-1-sashal@kernel.org>
+ <20190626034117.23247-7-sashal@kernel.org>
+ <20190626100315.GS5316@sirena.org.uk>
+ <20190627002059.GN7898@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="cQXOx3fnlpmgJsTP"
 Content-Disposition: inline
-In-Reply-To: <20190626151416.10997-1-mark.jonas@de.bosch.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190627002059.GN7898@sasha-vm>
+X-Cookie: This sentence no verb.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 26, 2019 at 05:14:16PM +0200, Mark Jonas wrote:
-> From: Wang Xin <xin.wang7@cn.bosch.com>
-> 
-> eeprom: at24: fix unexpected timeout under high load
-> 
-> Within at24_loop_until_timeout the timestamp used for timeout checking
-> is recorded after the I2C transfer and sleep_range(). Under high CPU
-> load either the execution time for I2C transfer or sleep_range() could
-> actually be larger than the timeout value. Worst case the I2C transfer
-> is only tried once because the loop will exit due to the timeout
-> although the EEPROM is now ready.
-> 
-> To fix this issue the timestamp is recorded at the beginning of each
-> iteration. That is, before I2C transfer and sleep. Then the timeout
-> is actually checked against the timestamp of the previous iteration.
-> This makes sure that even if the timeout is reached, there is still one
-> more chance to try the I2C transfer in case the EEPROM is ready.
-> 
-> Example:
-> 
-> If you have a system which combines high CPU load with repeated EEPROM
-> writes you will run into the following scenario.
-> 
->  - System makes a successful regmap_bulk_write() to EEPROM.
->  - System wants to perform another write to EEPROM but EEPROM is still
->    busy with the last write.
->  - Because of high CPU load the usleep_range() will sleep more than
->    25 ms (at24_write_timeout).
->  - Within the over-long sleeping the EEPROM finished the previous write
->    operation and is ready again.
->  - at24_loop_until_timeout() will detect timeout and won't try to write.
-> 
-> Cc: <stable@vger.kernel.org> # 4.19.x
 
-This and the 4.14.y version now queued up, thanks!
+--cQXOx3fnlpmgJsTP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-greg k-h
+On Wed, Jun 26, 2019 at 08:20:59PM -0400, Sasha Levin wrote:
+> On Wed, Jun 26, 2019 at 11:03:15AM +0100, Mark Brown wrote:
+> > On Tue, Jun 25, 2019 at 11:40:23PM -0400, Sasha Levin wrote:
+
+> > > [ Upstream commit f7c4842abfa1a219554a3ffd8c317e8fdd979bec ]
+
+> > > snd_soc_dai_link_event() is updating snd_soc_dai :: active,
+> > > but it is unbalance.
+> > > It counts up if it has startup callback.
+
+> > Are you *sure* this doesn't have dependencies?
+
+> The actual code seems to correspond with the issue described in the
+> commit message, so I'd think not.
+
+> I can remove this patch if you're not confident about it.
+
+I'm not entirely, no.
+
+--cQXOx3fnlpmgJsTP
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl0aMjkACgkQJNaLcl1U
+h9BuvAf/ZDm6L36jMsP1TA7VcGMotEV+DWVKIaD4g3xr08GBpdX4re+bvy57pciJ
+eH/zLnx2Ho9A8Dxx0uWbaKFtXrgnl5AB03DckfNhjPkTpfxnjhy8kBJNEyolkuQ0
+8TEpnSCnx99PNeqIkE9ihJFb8nFa3xY1xOfIX1Hj6tPdJX++lBp4oamtlBbkg0jY
+YQlgqvtyif3CqDZBi/FlDU9jOzPR29r/B3MbBuOxAZuCFFcdKVsofZKSlGEXtBbd
+UqoLUNC9EvLZGbyEwC0S6O+5u0trDoATIgtYwApjUtN9fgdQSliBBblA1ESoZDjk
+9HBf1LZw8Ej/e69eXBLsTDNmR2TfDA==
+=I5pz
+-----END PGP SIGNATURE-----
+
+--cQXOx3fnlpmgJsTP--
