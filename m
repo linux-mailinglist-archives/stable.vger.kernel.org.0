@@ -2,54 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8FB65C5F6
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 01:42:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 024E25C5FC
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 01:49:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726347AbfGAXms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 19:42:48 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:45289 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726362AbfGAXms (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 19:42:48 -0400
-Received: by mail-pl1-f196.google.com with SMTP id bi6so8107283plb.12
-        for <stable@vger.kernel.org>; Mon, 01 Jul 2019 16:42:47 -0700 (PDT)
+        id S1726362AbfGAXtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 19:49:53 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:33192 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726678AbfGAXtv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 19:49:51 -0400
+Received: by mail-pf1-f194.google.com with SMTP id x15so7320059pfq.0
+        for <stable@vger.kernel.org>; Mon, 01 Jul 2019 16:49:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=appneta.com; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=/1gFnr0TRR2O3FrkKYtrpBMih30lPMQm08/0jo878LU=;
-        b=RbaR1CGorAnHwg8FKM9bcyODEuwoYJP/M0w052lY2ZCB+nEFaFR9tGs0jADg2uSoJJ
-         1HDAEnAbsPVf5ue4PWcnvhegWZWUmmaTGqru+XueNMNBC7F3h/HO0ajjFRsLL+/cxNpJ
-         AJKYhJuiSaevSWnZsr0ivrbQNZqyRAKMD0plo=
+        bh=HUtQgswb3xQ3WOlcNU5RSVl6qVgTLnoNUqQDufVCLK8=;
+        b=cTOcMnfbwPu+d9AFojXbx5XQqonbLmyM68qZ/LRWbWMyQGI970Fsbokkr0Nr8ADLq/
+         4LBb/kbpN7YxavOhch1ZB2vom9DNtwAANgEOxU8lq142dEnHwtkPz6lSna0gYK9JcTkp
+         Ywa51xSnjIpUZ6ui3J0kOyPtN5YgKWMDeDRyw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=/1gFnr0TRR2O3FrkKYtrpBMih30lPMQm08/0jo878LU=;
-        b=i7aSgnxUCGtahU/x4hezH4Wcn5o3dgJo2I0i6JYWTiOPsBmLbBjuBEewc7CLXRy96C
-         N51I0femZzMkXEdKDhuny2b3XZ1bkiCncq8vD7Yg9tsx76pIk0dO623doC2eXoI4whMC
-         tKMswu27ohoIEY4IGop55L/l2adTmiei66ZgxouWGFKXgKs/5zLYDdnO6c2b2jCiRpzo
-         gWteViYv0HNc1mmdgi+fgPThwUVhC/OYl5i7EPgDY3JRIew8MpL5cM9eaMfJ2fXIKG0r
-         YkgyKzPX4k+y242PjPtHeDEX7+8zkzOPchqpBnJIooebqNwIt93f3FgS7aKk5LM3Fam0
-         +jPA==
-X-Gm-Message-State: APjAAAWsjCGXJV5Tygs80CT3/b9THavYJ8+00KC5HHKEP+/E/cywFQIu
-        LO3+UmHb5B+J3ZZjaXwY4Bv9ut1s9hQw
-X-Google-Smtp-Source: APXvYqyNSKz1gT/iRKaIQQquDe8Q0lrmObw5tu5nQIPPoUqKGuIs+8sMxeLq0U0tzq6Zz5/11Fu7/A==
-X-Received: by 2002:a17:902:b093:: with SMTP id p19mr30781404plr.141.1562024567104;
-        Mon, 01 Jul 2019 16:42:47 -0700 (PDT)
+        bh=HUtQgswb3xQ3WOlcNU5RSVl6qVgTLnoNUqQDufVCLK8=;
+        b=eYlosYeasU0gKDcsR2gvEI0OPhF6PauSU5s3/mXGkK6K3ZYqObZpNjsovjBMyLOQ/o
+         U+2J4OMNQpZeze0sl92v6B0BMBoYTEL5SW+srCa+lCQ4WKZQbgFn2SsnxwUHEZknlFZ6
+         yj4PWyg2blmZzfxBEMRxpb51n4gf/76eGwcTqUPnnR67+Qu13TEBzFznP+0RF0R7GHL4
+         FbFzafkxj9JkbumEmuAujZ4faLEwvuR13bCXIqxCU3nwrBYYRBBXYzTfCj/yicjyRBRs
+         NuR7VYwfQ5iRYSnuTpcJbh9NHPEMs4cz6ZvnHm8fxDHsYAvsn2cEB4tgWpehIo+yLXTQ
+         3qlQ==
+X-Gm-Message-State: APjAAAWapEQsE0zFaS3LzghxFmInHWEpTKJbdV6ul5fuzrTebthVHHQq
+        BP5G3od12fJSj7tGDKS+ckMJ1KDSzCuMkrg=
+X-Google-Smtp-Source: APXvYqy82MTCSBml1S7C/RmvcskOUTSKKrfHmTZsFpaXFzgDlvLpoVqfggRFxg0NTXA5MFMDUfIpNg==
+X-Received: by 2002:a65:534c:: with SMTP id w12mr15105808pgr.51.1562024990982;
+        Mon, 01 Jul 2019 16:49:50 -0700 (PDT)
 Received: from debian9-jae.jaalam.net (64-46-6-129.dyn.novuscom.net. [64.46.6.129])
-        by smtp.gmail.com with ESMTPSA id b36sm609336pjc.16.2019.07.01.16.42.45
+        by smtp.gmail.com with ESMTPSA id v138sm13583761pfc.15.2019.07.01.16.49.49
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Jul 2019 16:42:46 -0700 (PDT)
+        Mon, 01 Jul 2019 16:49:50 -0700 (PDT)
 From:   Josh Elsasser <jelsasser@appneta.com>
 To:     stable@vger.kernel.org
 Cc:     Josh Elsasser <jelsasser@appneta.com>, gregkh@linuxfoundation.org,
         netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Jiri Pirko <jiri@mellanox.com>,
+        Edward Cree <ecree@solarflare.com>,
         Eric Dumazet <edumazet@google.com>,
+        Alexander Duyck <alexander.h.duyck@intel.com>,
         Matteo Croce <mcroce@redhat.com>
-Subject: [PATCH RESEND 4.9.y] net: check before dereferencing netdev_ops during busy poll
-Date:   Mon,  1 Jul 2019 16:41:43 -0700
-Message-Id: <20190701234143.72631-1-jelsasser@appneta.com>
+Subject: [PATCH 4.4.y] net: check before dereferencing netdev_ops during busy poll
+Date:   Mon,  1 Jul 2019 16:48:47 -0700
+Message-Id: <20190701234847.73385-1-jelsasser@appneta.com>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -95,46 +98,32 @@ Commit 79e7fff47b7b ("net: remove support for per driver ndo_busy_poll()")
 indirectly fixed this upstream in linux-4.11 by removing the offending
 pointer usage. No other users of napi->dev touch its netdev_ops.
 
-Fixes: ce6aea93f751 ("net: network drivers no longer need to implement ndo_busy_poll()") # 4.9.y
+Fixes: 8b80cda536ea ("net: rename include/net/ll_poll.h to include/net/busy_poll.h") # 4.4.y
 Signed-off-by: Josh Elsasser <jelsasser@appneta.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Tested-by: Matteo Croce <mcroce@redhat.com>
 ---
 
-No changes since V2[1], resent as per discussiond on -stable[2]. I hope
-this is the correct way to send net fixes for older LTS releases, I'm
-going off of the latest netdev FAQ:
+This is a straightforward backport of the 4.9.y fix[1] for this crash, which doesn't
+apply to the older LTS releases. Only build-tested on 4.4.y, as I don't have access
+to wireless hardware and firmware that runs on older LTS kernels.
 
-   For earlier stable releases, each stable branch maintainer is supposed
-   to take care of them. If you find any patch is missing from an earlier
-   stable branch, please notify stable@vger.kernel.org with either a commit
-   ID or a formal patch backported, and CC Dave and other relevant networking
-   developers.
+[1]: https://lore.kernel.org/stable/20190701234143.72631-1-jelsasser@appneta.com/T/#u
 
-[1]: https://patchwork.ozlabs.org/patch/884986/
-[2]: https://lore.kernel.org/stable/CAGnkfhx3ykbEsW+=FtpMFWU=_Vnie7RpPYWpWqa1S1HPMXj9kw@mail.gmail.com/
+ include/net/busy_poll.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
- net/core/dev.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 4e10bae5e3da..f693afe608d7 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5083,7 +5083,10 @@ bool sk_busy_loop(struct sock *sk, int nonblock)
+diff --git a/include/net/busy_poll.h b/include/net/busy_poll.h
+index 1d67fb6b23a0..6d238506d49b 100644
+--- a/include/net/busy_poll.h
++++ b/include/net/busy_poll.h
+@@ -93,7 +93,7 @@ static inline bool sk_busy_loop(struct sock *sk, int nonblock)
  		goto out;
  
- 	/* Note: ndo_busy_poll method is optional in linux-4.5 */
--	busy_poll = napi->dev->netdev_ops->ndo_busy_poll;
-+	if (napi->dev->netdev_ops)
-+		busy_poll = napi->dev->netdev_ops->ndo_busy_poll;
-+	else
-+		busy_poll = NULL;
+ 	ops = napi->dev->netdev_ops;
+-	if (!ops->ndo_busy_poll)
++	if (!ops || !ops->ndo_busy_poll)
+ 		goto out;
  
  	do {
- 		rc = 0;
 -- 
 2.20.1
 
