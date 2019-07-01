@@ -2,89 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BADE5C25F
-	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 19:54:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BDCF5C292
+	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 20:04:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728756AbfGARy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 13:54:27 -0400
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:33950 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727700AbfGARy1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 13:54:27 -0400
-Received: by mail-oi1-f196.google.com with SMTP id l12so10680851oil.1;
-        Mon, 01 Jul 2019 10:54:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=cz+aP0Ec5W7R8dkKPE9rRkbojDWe1GP+xoyo98aB624=;
-        b=aXdwDTzLcSPbI2Lrr8dU7FM1m4VFK1T1c/k30ysqQbij/rr8UirpNLFPsmhhefWVww
-         EU2HLTeyyt0MxCJpyBAkP0jV7numoiQaVKUDKwMwaFn4ty/pkBbHzGiAWa+TVpZXRTiu
-         yyqFRaYaDA/IMLAkMq7GFIYr9ahiqb9X6ejDchJS1S7z87p8fTf6rNOO0Ry7zZtHGWGf
-         8xrWjfXPfSioLgNokSRXnJTaSW6hed2PDPOjs6Qf0NVIdFTGxzx5EV2YPV5Ec6Fvdrvr
-         PLA3TCqKau+kGLlfAY6Tsnjs3JLSFxnHq7bK/1L7Yu6vX0k/urwLFBceyeOOMUwTej/U
-         BfBQ==
+        id S1727074AbfGASEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 14:04:06 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:40163 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726658AbfGASEG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 14:04:06 -0400
+Received: by mail-lj1-f194.google.com with SMTP id a21so14151198ljh.7
+        for <stable@vger.kernel.org>; Mon, 01 Jul 2019 11:04:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=cz+aP0Ec5W7R8dkKPE9rRkbojDWe1GP+xoyo98aB624=;
-        b=eEyWmUA01zVqcS4i7SnpIsJuHzxepLENBv59JOjU1XTGYlg8akt/VLL6PBCNChRzmC
-         jN2AGceynwNl6WqqCJpNE5Vz57TJl8de/bsbJW+2WX2hFBqVvpgpR+x2of5Ae2LUXkeg
-         nUKBEYQsIqKaqQnzjj0Fze0AcmPm0ZTalMK2U6z4f2dIQZluE9XGI0wAneAFMfVWnQU0
-         JnUogYE+A3duXgNkDceR1aChKm7Pgrt8FSqnNZ4SHgrAsvak9qo+w5b2dvNXmqolyf6s
-         QaTGpni6cpBkoP0CLcb3ItcXQ3nfKrg3N76U8UolhkmJFScp2MGZEtJPt2VowpliTCbv
-         As5w==
-X-Gm-Message-State: APjAAAXAoORLfG0Fl/RWl4+g6Phv4yq4KG2NNEespOPiXEyL8HgV6eTY
-        5l2PVMt/ZUGAYVQBzH5JjPckauiBRFa6xJwGqqdX1w==
-X-Google-Smtp-Source: APXvYqyEauAoV4qo/po0ya18tTktkLvsFYl7paAkp55icsJikdBjZ8AIiKm0nhrTKHEu0ccb1YyGdzYFFMLFrU/XgLQ=
-X-Received: by 2002:a05:6808:3d6:: with SMTP id o22mr330425oie.140.1562003666003;
- Mon, 01 Jul 2019 10:54:26 -0700 (PDT)
+        bh=MjE0XPXG5+SObe6nqWe6b+FvEpLg7LFAzR1ek564VrQ=;
+        b=UtkUFwptAOH936c2uEpu66fHZAuBnVzH8K4qYL4ymu1Ahr/BuB2JG8sOaEx3PWaPLV
+         n51OG09Stv2o52/irURrTeak/DZdisKqfYeDL8e7Dap+8DIgLF9b2esMTcb5yPcJFAL7
+         HbeyWdO4SgLT1kgwA71FUfVd7I5uIVicfmJFdO2E83w7iuW6EqVILIoQi25uCO/V7M8h
+         Dr9khMrsclYCjWOYr1LdAfOoF1TmAU6hPUCABCBE5BLCMtlFY2RYiBcYOZfIQu55L6pZ
+         FaENLb69gPJHgr1T8+XMGmvjSLcYuycloI75vdI8Cz3KWO65uvMAf+2w5y8epY4Nd8yn
+         //JQ==
+X-Gm-Message-State: APjAAAUGATWqYsNsEFXGU0w6HXiz2N3zzuuD1Bu9wUI262ObYnXIiPrx
+        oont+Xo2rDmvAcgW1QzkB/jUQqbbmGhirayrgNgbIA==
+X-Google-Smtp-Source: APXvYqy5r5OT42DRG2NbZwsc835EZTVSfBwGNLB92WmyLwpvtAd32KmT+/XF0hM1qrPb8gWOqnkclNXq0AvolqMLUEE=
+X-Received: by 2002:a2e:9117:: with SMTP id m23mr1503697ljg.134.1562004244498;
+ Mon, 01 Jul 2019 11:04:04 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190620175022.29348-1-martin.blumenstingl@googlemail.com> <a7647aea-b3e6-b785-8476-1851f50beff1@synopsys.com>
-In-Reply-To: <a7647aea-b3e6-b785-8476-1851f50beff1@synopsys.com>
-From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Date:   Mon, 1 Jul 2019 19:54:15 +0200
-Message-ID: <CAFBinCDDyG_CxW+PB_OrUXfy-aDKSoewC2OyCfGh18N=omSgcQ@mail.gmail.com>
-Subject: Re: [PATCH] usb: dwc2: use a longer AHB idle timeout in dwc2_core_reset()
-To:     "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "felipe.balbi@linux.intel.com" <felipe.balbi@linux.intel.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc:     Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>
+References: <CAGnkfhxxw9keiNj_Qm=2GBYpY38HAq28cOROMRqXfbqq8wNbWQ@mail.gmail.com>
+ <20190628225533.GJ11506@sasha-vm> <1560226F-F2C0-440D-9C58-D664DE3C7322@appneta.com>
+ <20190629074553.GA28708@kroah.com> <CAGnkfhzmGbeQe7L55nEv575XyubWqCLz=7NQPpH+TajDkkDiXg@mail.gmail.com>
+ <20190701175241.GB9081@kroah.com>
+In-Reply-To: <20190701175241.GB9081@kroah.com>
+From:   Matteo Croce <mcroce@redhat.com>
+Date:   Mon, 1 Jul 2019 20:03:28 +0200
+Message-ID: <CAGnkfhx3ykbEsW+=FtpMFWU=_Vnie7RpPYWpWqa1S1HPMXj9kw@mail.gmail.com>
+Subject: Re: net: check before dereferencing netdev_ops during busy poll
+To:     Josh Elsasser <jelsasser@appneta.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        netdev <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        David Miller <davem@davemloft.net>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 24, 2019 at 7:41 AM Minas Harutyunyan
-<Minas.Harutyunyan@synopsys.com> wrote:
+On Mon, Jul 1, 2019 at 7:53 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On 6/20/2019 9:51 PM, Martin Blumenstingl wrote:
-> > Use a 10000us AHB idle timeout in dwc2_core_reset() and make it
-> > consistent with the other "wait for AHB master IDLE state" ocurrences.
+> On Sat, Jun 29, 2019 at 09:39:39PM +0200, Matteo Croce wrote:
+> > On Sat, Jun 29, 2019 at 9:45 AM Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > On Fri, Jun 28, 2019 at 07:03:01PM -0700, Josh Elsasser wrote:
+> > > > On Jun 28, 2019, at 3:55 PM, Sasha Levin <sashal@kernel.org> wrote:
+> > > >
+> > > > > What's the upstream commit id?
+> > > >
+> > > > The commit wasn't needed upstream, as I only sent the original patch after
+> > > > 79e7fff47b7b ("net: remove support for per driver ndo_busy_poll()") had
+> > > > made the fix unnecessary in Linus' tree.
+> > > >
+> > > > May've gotten lost in the shuffle due to my poor Fixes tags. The patch in
+> > > > question applied only on top of the 4.9 stable release at the time, but the
+> > > > actual NPE had been around in some form since 3.11 / 0602129286705 ("net: add
+> > > > low latency socket poll").
+> > >
+> > > Ok, can people then resend this and be very explicit as to why this is
+> > > needed only in a stable kernel tree and get reviews from people agreeing
+> > > that this really is the correct fix?
+> > >
+> > > thanks,
+> > >
+> > > greg k-h
 > >
-> > This fixes a problem for me where dwc2 would not want to initialize when
-> > updating to 4.19 on a MIPS Lantiq VRX200 SoC. dwc2 worked fine with
-> > 4.14.
-> > Testing on my board shows that it takes 180us until AHB master IDLE
-> > state is signalled. The very old vendor driver for this SoC (ifxhcd)
-> > used a 1 second timeout.
-> > Use the same timeout that is used everywhere when polling for
-> > GRSTCTL_AHBIDLE instead of using a timeout that "works for one board"
-> > (180us in my case) to have consistent behavior across the dwc2 driver.
+> > Hi Greg,
 > >
-> > Cc: linux-stable <stable@vger.kernel.org> # 4.19+
-> > Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-> > ---
+> > I think that David alredy reviewed the patch here:
+> >
+> > https://lore.kernel.org/netdev/20180313.105115.682846171057663636.davem@davemloft.net/
+> >
+> > Anyway, I tested the patch and it fixes the panic, at least on my
+> > iwlwifi card, so:
+> >
+> > Tested-by: Matteo Croce <mcroce@redhat.com>
 >
-> Acked-by: Minas Harutyunyan <hminas@synopsys.com>
-thank you for reviewing this!
+> Ok, but what can I do with this?  I need a real patch, in mail form,
+> that I can apply.  Not a web link to an email archive.
+>
+> You have read the stable kernel rules, right?  :)
+>
+> greg k-h
 
-is there any chance we can get this fix into Linux 5.3? I know that
-it's too late for 5.2 so I'm fine with skipping that.
+Understood.
 
+Josh, as you are the original author, can you please resend it to -stable?
+Feel free to add this tag:
 
-Martin
+Tested-by: Matteo Croce <mcroce@redhat.com>
+
+Regards,
+-- 
+Matteo Croce
+per aspera ad upstream
