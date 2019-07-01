@@ -2,107 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C95E5BDFE
-	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 16:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E9DA5BE19
+	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 16:23:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726863AbfGAOUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 10:20:17 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:43160 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729502AbfGAOUR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 10:20:17 -0400
-Received: by mail-io1-f67.google.com with SMTP id k20so2852214ios.10
-        for <stable@vger.kernel.org>; Mon, 01 Jul 2019 07:20:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=gY2k8VIohQ3ovxqeqDMTJ6ugNx1qArSvmGqVd7Pptw4=;
-        b=NDZmZNXBYjxdVurBwDt9g5WKl0ag//3VUaKT3FtinSCEP5Y94YcX/BINZsZ/Mu3tzi
-         ZSBAxmh2aZkjJfDljLD3Ov9tHbhxX0xpfe8LghnrwYd5yACyUn1fjcssgoswM+UfRz2w
-         pNzJjDgqUeXhutm+dYFFury6s38MOslCTgsNHRkUvW9258TEKv1i1fb+G/k3mzJjwC9w
-         lg4fnlg3a5ETWFvz3FqAiQdUF9RYhlcCPxocYHjc2Tcz5ZtY/6JsRhUSxVVHljPak9lO
-         JJABb2gemEOKBbob3AXWpoMzr5XSfC+HTj2lv5NFKWqaaDa6fe/t4eHyjrI/j8ywZAnG
-         68Rw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=gY2k8VIohQ3ovxqeqDMTJ6ugNx1qArSvmGqVd7Pptw4=;
-        b=Nw19WMMq+aCJU1C8v1C30k58Vq+/XE95SMXpi0Ig/xoj5WyCdwjrNINc5AYm0zCjtm
-         hXfwWs9Zj6KlBqq6fCMLgyqbdY/piVIbXOe04LFz2JAOFJYgR5Z04wMUTqMaqD6Gr6m7
-         2KtYvmgNFUafPQ90kEZX7xRZX6RbDLDiOfy27KvHnV/Z+Rug4/fC11vmwcgXbyrWevCZ
-         msDNxl19T6njpjBpEXALxntaPymaeoUhnrCPW97LtBp1+xXrJBzv5y1TijaawdCIAdo4
-         9g1M1O0GzGg+bT96ieWiz4275eipKNAwBl5cckBCzWzZCoLnjXBKk1yj0YfkXE9TmApw
-         8haw==
-X-Gm-Message-State: APjAAAW43BvOpsqhJbaTzK92Waln8+obS9FlGohM6ftGwegrHkTgALYb
-        IvGmlu5e8CVOhoqQDDydfsSJSq1EPDJ5vupp
-X-Google-Smtp-Source: APXvYqwSj4J+56s9p49bTmZyPQaGM1CAyE3LWgyIlQfGltnN7r1QlI1141Kni7B/XmjMjAjm5WgT7w==
-X-Received: by 2002:a02:cd83:: with SMTP id l3mr26548737jap.66.1561990815765;
-        Mon, 01 Jul 2019 07:20:15 -0700 (PDT)
-Received: from [192.168.1.158] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id x13sm9765649ioj.18.2019.07.01.07.20.14
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Jul 2019 07:20:14 -0700 (PDT)
-Subject: Re: [PATCH V2] block: fix .bi_size overflow
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     linux-block@vger.kernel.org,
-        Liu Yiding <liuyd.fnst@cn.fujitsu.com>,
-        kernel test robot <rong.a.chen@intel.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
-References: <20190701071446.22028-1-ming.lei@redhat.com>
- <8db73c5d-a0e2-00c9-59ab-64314097db26@kernel.dk>
- <bd45842a-e0fd-28a7-ac79-96f7cb9b66e4@kernel.dk>
-Message-ID: <8b8dc953-e663-e3d8-b991-9d8dba9270be@kernel.dk>
-Date:   Mon, 1 Jul 2019 08:20:13 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.1
+        id S1729559AbfGAOXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 10:23:12 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:43133 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727064AbfGAOXM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 10:23:12 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id E6ACD201E3;
+        Mon,  1 Jul 2019 10:23:10 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 01 Jul 2019 10:23:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
+         h=date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=H1pZkxGJxT7YEDKGRkgZyA111gn
+        1xcFQ7CDnOQ8M8OE=; b=eiJ5ldC9P5yOyQ8gOP4ZENf7SalJzJ9qxRt1JZVER/R
+        ZErg6ZDcqIf7Jk8Oaz+ZsE9tCFZi9Bm4zuODdwg3hCetNMqoFkLUD7AIsSVns+ez
+        d1E2BNtDUnrUmVrMROMLS0/vHrRTINZCyqzf7RJGMkqUxYoM+jVfqUT8bCzv1JKN
+        l959hYzwXRI2VOkseQeH6z7NeTa5+nFlr98Md4rAcaz2eM0UiabeBkbOy8iEtDtN
+        IjJvlhLePEZ1eobQmLaDifSfpKPRScb9IjE/mnhWS6vtrP35hfGq19fj6OG8VuNV
+        TSrlpt14JkDjF/cjEUP3TGRJkqKLb8cT1ScktB0liug==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=H1pZkx
+        GJxT7YEDKGRkgZyA111gn1xcFQ7CDnOQ8M8OE=; b=IG6z0MeHfn96dN0qdqneJi
+        tjOyECiBaGeRJoNTaayd0HnwadI2dkc0TvFt7SqI3swlK80POlsIdIpdW2k8zzPp
+        f/likBQ76elgGuK9JRegKGW8fd/qM/yFoU/bnb7Dp4tzjxJJo5pEweD75nONxNBx
+        ko3Ukh04r0UZfalRCHNPD44btdKWOZErA+eh8kjFnUEhV8PA81EupOe3Tbhamho7
+        /uTg8gw96ehircoEg0hFY3RV+ZFrQqH2oCBNb/gLBWs+sZWZMTa+BoCmz5an9k55
+        QFcZlXP1fPaVvKHqK86Ls5SWXLETQ/e8MXfPh5rSwrc6kg0NuUbbNuPaLHEy1WjQ
+        ==
+X-ME-Sender: <xms:TRcaXTQNzMJzeKD3x-xsHee8sD3MZH2XUkHRlLr0_TbHoJGyYocUgQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrvdeigdejiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefvrghkrghs
+    hhhiucfurghkrghmohhtohcuoehoqdhtrghkrghshhhisehsrghkrghmohgttghhihdrjh
+    hpqeenucfkphepudegrdefrdejhedrudekudenucfrrghrrghmpehmrghilhhfrhhomhep
+    ohdqthgrkhgrshhhihesshgrkhgrmhhotggthhhirdhjphenucevlhhushhtvghrufhiii
+    gvpedt
+X-ME-Proxy: <xmx:ThcaXUXuVSicVPVqAKINrzuUbjPiOm6TvRwn3YWTV3i9YKqClwxFMw>
+    <xmx:ThcaXfTBxI1UyD3yMxupCkIokY9CRnvTZcTWoBBXn_nkKzxp9WvJKQ>
+    <xmx:ThcaXSmbwwmVVpuJimsMtrWCcVKpbqzutZu7jQgXmN_6w3ohetFK8w>
+    <xmx:ThcaXeAqP3ThUyZYLk0zPvMALPfPBawiR2S93Rn6EjU7DAy_kTUszg>
+Received: from workstation (ae075181.dynamic.ppp.asahi-net.or.jp [14.3.75.181])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2514A38008C;
+        Mon,  1 Jul 2019 10:23:07 -0400 (EDT)
+Date:   Mon, 1 Jul 2019 23:23:05 +0900
+From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] ALSA: firewire-lib/fireworks: fix miss detection of
+ received MIDI messages
+Message-ID: <20190701142304.GA18769@workstation>
+Mail-Followup-To: Takashi Iwai <tiwai@suse.de>, clemens@ladisch.de,
+        alsa-devel@alsa-project.org, stable@vger.kernel.org
+References: <20190701105927.13998-1-o-takashi@sakamocchi.jp>
+ <s5hk1d16dw5.wl-tiwai@suse.de>
 MIME-Version: 1.0
-In-Reply-To: <bd45842a-e0fd-28a7-ac79-96f7cb9b66e4@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hk1d16dw5.wl-tiwai@suse.de>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/1/19 8:14 AM, Jens Axboe wrote:
-> On 7/1/19 8:05 AM, Jens Axboe wrote:
->> On 7/1/19 1:14 AM, Ming Lei wrote:
->>> 'bio->bi_iter.bi_size' is 'unsigned int', which at most hold 4G - 1
->>> bytes.
->>>
->>> Before 07173c3ec276 ("block: enable multipage bvecs"), one bio can
->>> include very limited pages, and usually at most 256, so the fs bio
->>> size won't be bigger than 1M bytes most of times.
->>>
->>> Since we support multi-page bvec, in theory one fs bio really can
->>> be added > 1M pages, especially in case of hugepage, or big writeback
->>> with too many dirty pages. Then there is chance in which .bi_size
->>> is overflowed.
->>>
->>> Fixes this issue by using bio_full() to check if the added segment may
->>> overflow .bi_size.
->>
->> Any objections to queuing this up for 5.3? It's not a new regression
->> this series.
+On Mon, Jul 01, 2019 at 04:14:02PM +0200, Takashi Iwai wrote:
+> On Mon, 01 Jul 2019 12:59:27 +0200,
+> Takashi Sakamoto wrote:
+> > 
+> > In IEC 61883-6, 8 MIDI data streams are multiplexed into single
+> > MIDI conformant data channel. The index of stream is calculated by
+> > modulo 8 of the value of data block counter.
+> > 
+> > In fireworks, the value of data block counter in CIP header has a quirk
+> > with firmware version v5.0.0, v5.7.3 and v5.8.0. This brings ALSA
+> > IEC 61883-1/6 packet streaming engine to miss detection of MIDI
+> > messages.
+> > 
+> > This commit fixes the miss detection to modify the value of data block
+> > counter for the modulo calculation.
+> > 
+> > For maintainers, this bug exists since a commit 18f5ed365d3f ("ALSA:
+> > fireworks/firewire-lib: add support for recent firmware quirk") in Linux
+> > kernel v4.2. There're many changes since the commit.  This fix can be
+> > backported to Linux kernel v4.4 or later. I tagged a base commit to the
+> > backport for your convenience.
+> > 
+> > Besides, my work for Linux kernel v5.3 brings heavy code refactoring and
+> > some structure members are renamed in 'sound/firewire/amdtp-stream.h'.
+> > The content of this patch brings conflict when merging -rc tree with
+> > this patch to the latest tree. I request maintainers to solve the
+> > conflict by replacing 'tx_first_dbc' with 'ctx_data.tx.first_dbc'.
+> > 
+> > Fixes: df075feefbd3 ("ALSA: firewire-lib: complete AM824 data block processing layer")
+> > Cc: <stable@vger.kernel.org> # v4.4+
+> > Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 > 
-> I took a closer look, and applied for 5.3 and removed the stable tag.
-> We'll need to apply your patch for stable, and I added an adapted
-> one for 5.3. I don't want a huge merge hassle because of this.
+> Thanks, applied.
 
-OK, so we still get conflicts with that, due to both the same page
-merge fix, and Christophs 5.3 changes.
+Thanks for your application, however I found my mistake in this patch.
+Would you please reset your application if possible?
 
-I ended up pulling in 5.2-rc6 in for-5.3/block, which resolves at
-least most of it, and kept the stable tag since now it's possible
-to backport without too much trouble.
+diff --git a/sound/firewire/amdtp-am824.c b/sound/firewire/amdtp-am824.c
+index 4210e5c6262e..4d677fcb4fc2 100644
+--- a/sound/firewire/amdtp-am824.c
++++ b/sound/firewire/amdtp-am824.c
+@@ -321,6 +321,7 @@ static void read_midi_messages(struct amdtp_stream *s,
+        u8 *b;
+ 
+        for (f = 0; f < frames; f++) {
++               port = (8 - s->tx_first_dbc + s->data_block_counter + f) % 8;
+                port = (s->data_block_counter + f) % 8;
+                b = (u8 *)&buffer[p->midi_position];
 
--- 
-Jens Axboe
+Just inserting the above line has no meaning itself...
+
+
+Thanks
+
+Takashi Sakamoto
 
