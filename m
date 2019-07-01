@@ -2,93 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 122B35C0FA
-	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 18:18:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04F655C118
+	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 18:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727830AbfGAQSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 12:18:07 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:35758 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726863AbfGAQSH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 12:18:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=6L/tQQxfuMuPU6Ah9rMNBCpNvZISFMW8+8uGSmy7GjM=; b=p6FZEAfHJaN7A76fQOI5LTBiV
-        eIZtl8IFtuH2l8DTDHoGT6lt35leXxiKKuWD2fS0S0FfzFtyQD2Py9EyEN9VTfoVn0bX0fLUwV1Ss
-        MoiHOr09WM94NdI2xS04vWvuGfWhJjBi/QwyNLWCqdm6/85sbASswp/w3K/lJKs5D3QnI=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=finisterre.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1hhz0E-0001iA-O7; Mon, 01 Jul 2019 16:18:02 +0000
-Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
-        id DBB63440046; Mon,  1 Jul 2019 17:18:01 +0100 (BST)
-Date:   Mon, 1 Jul 2019 17:18:01 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: Re: [PATCH AUTOSEL 5.1 07/51] ASoC: soc-dpm: fixup DAI active
- unbalance
-Message-ID: <20190701161801.GD2793@sirena.org.uk>
-References: <20190626034117.23247-1-sashal@kernel.org>
- <20190626034117.23247-7-sashal@kernel.org>
- <20190626100315.GS5316@sirena.org.uk>
- <20190627002059.GN7898@sasha-vm>
+        id S1727387AbfGAQ1V convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 1 Jul 2019 12:27:21 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:20444 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727263AbfGAQ1V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jul 2019 12:27:21 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id BEF823B72A
+        for <stable@vger.kernel.org>; Mon,  1 Jul 2019 16:27:20 +0000 (UTC)
+Received: from [172.54.126.116] (cpt-1022.paas.prod.upshift.rdu2.redhat.com [10.0.19.18])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CA3FE78416;
+        Mon,  1 Jul 2019 16:27:19 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="cQXOx3fnlpmgJsTP"
-Content-Disposition: inline
-In-Reply-To: <20190627002059.GN7898@sasha-vm>
-X-Cookie: This sentence no verb.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.BFCD8179DC.8JSFQPRAGO@redhat.com>
+X-Gitlab-Pipeline-ID: 13618
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Mon, 01 Jul 2019 16:27:20 +0000 (UTC)
+Date:   Mon, 1 Jul 2019 12:27:21 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
 
---cQXOx3fnlpmgJsTP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-On Wed, Jun 26, 2019 at 08:20:59PM -0400, Sasha Levin wrote:
-> On Wed, Jun 26, 2019 at 11:03:15AM +0100, Mark Brown wrote:
-> > On Tue, Jun 25, 2019 at 11:40:23PM -0400, Sasha Levin wrote:
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: f0fae702de30 - Linux 5.1.15
 
-> > > [ Upstream commit f7c4842abfa1a219554a3ffd8c317e8fdd979bec ]
+The results of these automated tests are provided below.
 
-> > > snd_soc_dai_link_event() is updating snd_soc_dai :: active,
-> > > but it is unbalance.
-> > > It counts up if it has startup callback.
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-> > Are you *sure* this doesn't have dependencies?
 
-> The actual code seems to correspond with the issue described in the
-> commit message, so I'd think not.
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-> I can remove this patch if you're not confident about it.
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-I'm not entirely, no.
+Merge testing
+-------------
 
---cQXOx3fnlpmgJsTP
-Content-Type: application/pgp-signature; name="signature.asc"
+We cloned this repository and checked out the following commit:
 
------BEGIN PGP SIGNATURE-----
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: f0fae702de30 - Linux 5.1.15
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl0aMjkACgkQJNaLcl1U
-h9BuvAf/ZDm6L36jMsP1TA7VcGMotEV+DWVKIaD4g3xr08GBpdX4re+bvy57pciJ
-eH/zLnx2Ho9A8Dxx0uWbaKFtXrgnl5AB03DckfNhjPkTpfxnjhy8kBJNEyolkuQ0
-8TEpnSCnx99PNeqIkE9ihJFb8nFa3xY1xOfIX1Hj6tPdJX++lBp4oamtlBbkg0jY
-YQlgqvtyif3CqDZBi/FlDU9jOzPR29r/B3MbBuOxAZuCFFcdKVsofZKSlGEXtBbd
-UqoLUNC9EvLZGbyEwC0S6O+5u0trDoATIgtYwApjUtN9fgdQSliBBblA1ESoZDjk
-9HBf1LZw8Ej/e69eXBLsTDNmR2TfDA==
-=I5pz
------END PGP SIGNATURE-----
 
---cQXOx3fnlpmgJsTP--
+We grabbed the a8a67be8daa7 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  arm64-don-t-unconditionally-add-wno-psabi-to-kbuild_cflags.patch
+  revert-x86-uaccess-ftrace-fix-ftrace_likely_update-v.patch
+  qmi_wwan-fix-out-of-bounds-read.patch
+  fs-proc-array.c-allow-reporting-eip-esp-for-all-coredumping-threads.patch
+  mm-mempolicy.c-fix-an-incorrect-rebind-node-in-mpol_rebind_nodemask.patch
+  fs-binfmt_flat.c-make-load_flat_shared_library-work.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-88086325f3949eaf74658916567aa2570b08b18a.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-88086325f3949eaf74658916567aa2570b08b18a.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-88086325f3949eaf74658916567aa2570b08b18a.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-88086325f3949eaf74658916567aa2570b08b18a.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-88086325f3949eaf74658916567aa2570b08b18a.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-88086325f3949eaf74658916567aa2570b08b18a.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-88086325f3949eaf74658916567aa2570b08b18a.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-88086325f3949eaf74658916567aa2570b08b18a.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ LTP: openposix test suite [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ Usex - version 1.9-29 [8]
+       🚧 ✅ tuned: tune-processes-through-perf [9]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ xfstests: xfs [10]
+       ✅ selinux-policy: serge-testsuite [11]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ xfstests: xfs [10]
+       ✅ selinux-policy: serge-testsuite [11]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ LTP: openposix test suite [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ Usex - version 1.9-29 [8]
+       🚧 ✅ tuned: tune-processes-through-perf [9]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ LTP: openposix test suite [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       🚧 ✅ tuned: tune-processes-through-perf [9]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ LTP: openposix test suite [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ Usex - version 1.9-29 [8]
+       🚧 ✅ tuned: tune-processes-through-perf [9]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ xfstests: xfs [10]
+       ✅ selinux-policy: serge-testsuite [11]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
