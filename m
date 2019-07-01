@@ -2,186 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B915BB91
-	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 14:34:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEA4E5BD94
+	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 16:05:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728004AbfGAMeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 08:34:15 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:39072 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727239AbfGAMeP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 08:34:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1561984453; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=GKdiybgHwDA7Rf/+crtL91g2jVq40fX1lbPYqcmDUIc=;
-        b=E0sGXP6Rjt92eLRONxsaEYEjWc2c1tVfvUHUUzoBY6FQC+6ALxc5rGcxzDCOIzAYXfZHCV
-        SXDwEiwzZdHvgXsDo2To51nqShAQpG+v5883uoYa4J2G4owqKydPZrgz1ErG/7ns3P7rdB
-        MlrykTmEQYkZjnjuIry0PZWm4VDkF1Y=
-Date:   Mon, 01 Jul 2019 14:34:07 +0200
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH] mtd: rawnand: ingenic: Fix ingenic_ecc dependency
-To:     Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     Richard Weinberger <richard@nod.at>, od@zcrc.me,
-        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>, stable@vger.kernel.org
-Message-Id: <1561984447.1999.0@crapouillou.net>
-In-Reply-To: <20190701142847.1c1ac4b1@xps13>
-References: <20190629012248.12447-1-paul@crapouillou.net>
-        <20190701142847.1c1ac4b1@xps13>
+        id S1727031AbfGAOFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 10:05:07 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:36412 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729296AbfGAOFG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 10:05:06 -0400
+Received: by mail-io1-f68.google.com with SMTP id h6so29128908ioh.3
+        for <stable@vger.kernel.org>; Mon, 01 Jul 2019 07:05:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=9IU9Vum1iEYXNFUQZJjTlbhqVVSUgpHJpWnEL+ydahk=;
+        b=zJSjcaNlk9MyLQy21nWTiY8jfylj+b2oHUfdD3gsHMqdUrDnNS8H0Qjd/1RxTRCofj
+         bU67WSUYf88+pyHStt0iUmfaB3OqQT2Do1CkVIWW3uLxLDV3gg3qy0aIFH+nrKS4j7Ln
+         4hPzI0zEjU0cUx0RhPZ4Zu/f9Ztj/uE9vkxOdwK6eFA5B10PtX65IvI2ztmg5577svSn
+         U9OXsWI+xAT5Dqe+xDWL/U52PzsOaADKukHP8yAtGuwSmL3QkQXpHOr9B0DaTweEYh6e
+         3WS6WnIVPs4vc4pDx9QiPZvWgcH7asKyLptIE45o6RnSx4nK1ZTEQUJ1rb7U6PYd2Qdt
+         NIPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=9IU9Vum1iEYXNFUQZJjTlbhqVVSUgpHJpWnEL+ydahk=;
+        b=IdFnndUymTIJYxwqthLBnrWGiXjQ98sKUGmMNPk++XEYDWNVUvQwSkaoOjMpsw/Fck
+         x8k6jvr8xWZXbF3l8BD88kcaS3GfkSTrwtxJ3Yt6fzsdrNtgk4XkkrbXyfMCA7JEs27U
+         smqpelh01AMxSPjba/m/ZZswzqrqHp8X+tsOo0M7IwD97LYG1C037XiBNCzW14Cn0ycs
+         /O+Gu49fwKu5ZLuMj3HXNABcJBpiiEQghk8bSpuuKMMO47q2FTIjuSYmoL+BSilttV2i
+         6ftG8reBZttabeCx16Vcxk/SHwJd9FAgwbn5mNBDhTrveOYVf1FMR+iKj3ZOea6B2i/+
+         6AyA==
+X-Gm-Message-State: APjAAAXD3wvptZoiMw1PtS0jNaGIsqG4WMdIf1Ev5vlF+xiB91KbzZhl
+        64cfYI5CM0Iyjt9l67hr1587/yhIppN3b+Tq
+X-Google-Smtp-Source: APXvYqzhrHY+sRdQ6KZLe3VL0lPbv09Q/COiAF3X6IakXifjdtvvYSO02UJsciHFjbggEaoQ8waVoQ==
+X-Received: by 2002:a6b:b843:: with SMTP id i64mr730492iof.81.1561989905288;
+        Mon, 01 Jul 2019 07:05:05 -0700 (PDT)
+Received: from [192.168.1.158] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id w23sm9787246iod.12.2019.07.01.07.05.02
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Jul 2019 07:05:03 -0700 (PDT)
+Subject: Re: [PATCH V2] block: fix .bi_size overflow
+To:     Ming Lei <ming.lei@redhat.com>
+Cc:     linux-block@vger.kernel.org,
+        Liu Yiding <liuyd.fnst@cn.fujitsu.com>,
+        kernel test robot <rong.a.chen@intel.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
+References: <20190701071446.22028-1-ming.lei@redhat.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <8db73c5d-a0e2-00c9-59ab-64314097db26@kernel.dk>
+Date:   Mon, 1 Jul 2019 08:05:01 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20190701071446.22028-1-ming.lei@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 7/1/19 1:14 AM, Ming Lei wrote:
+> 'bio->bi_iter.bi_size' is 'unsigned int', which at most hold 4G - 1
+> bytes.
+> 
+> Before 07173c3ec276 ("block: enable multipage bvecs"), one bio can
+> include very limited pages, and usually at most 256, so the fs bio
+> size won't be bigger than 1M bytes most of times.
+> 
+> Since we support multi-page bvec, in theory one fs bio really can
+> be added > 1M pages, especially in case of hugepage, or big writeback
+> with too many dirty pages. Then there is chance in which .bi_size
+> is overflowed.
+> 
+> Fixes this issue by using bio_full() to check if the added segment may
+> overflow .bi_size.
 
+Any objections to queuing this up for 5.3? It's not a new regression
+this series.
 
-Le lun. 1 juil. 2019 =E0 14:28, Miquel Raynal=20
-<miquel.raynal@bootlin.com> a =E9crit :
-> Hi Paul,
->=20
-> One question below.
->=20
-> Paul Cercueil <paul@crapouillou.net> wrote on Sat, 29 Jun 2019=20
-> 03:22:48
-> +0200:
->=20
->>  If MTD_NAND_JZ4780 is y and MTD_NAND_JZ4780_BCH is m,
->>  which select CONFIG_MTD_NAND_INGENIC_ECC to m, building fails:
->>=20
->>  drivers/mtd/nand/raw/ingenic/ingenic_nand.o: In function=20
->> `ingenic_nand_remove':
->>  ingenic_nand.c:(.text+0x177): undefined reference to=20
->> `ingenic_ecc_release'
->>  drivers/mtd/nand/raw/ingenic/ingenic_nand.o: In function=20
->> `ingenic_nand_ecc_correct':
->>  ingenic_nand.c:(.text+0x2ee): undefined reference to=20
->> `ingenic_ecc_correct'
->>=20
->>  To fix that, the ingenic_nand and ingenic_ecc modules have been=20
->> fused
->>  into one single module.
->>  - The ingenic_ecc.c code is now compiled in only if
->>    $(CONFIG_MTD_NAND_INGENIC_ECC) is set. This is now a boolean=20
->> instead
->>    of tristate.
->>  - To avoid changing the module name, the ingenic_nand.c file is=20
->> moved to
->>    ingenic_nand_drv.c. Then the module name is still ingenic_nand.
->>  - Since ingenic_ecc.c is no more a module, the module-specific=20
->> macros
->>    have been dropped, and the functions are no more exported for use=20
->> by
->>    the ingenic_nand driver.
->=20
-> I am fine with this approach.
->=20
->>=20
->>  Fixes: 15de8c6efd0e ("mtd: rawnand: ingenic: Separate top-level and=20
->> SoC specific code")
->>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  Reported-by: Arnd Bergmann <arnd@arndb.de>
->>  Reported-by: Hulk Robot <hulkci@huawei.com>
->>  Cc: YueHaibing <yuehaibing@huawei.com>
->>  Cc: stable@vger.kernel.org
->>  ---
->>   drivers/mtd/nand/raw/ingenic/Kconfig                     | 2 +-
->>   drivers/mtd/nand/raw/ingenic/Makefile                    | 4 +++-
->>   drivers/mtd/nand/raw/ingenic/ingenic_ecc.c               | 9=20
->> ---------
->>   .../raw/ingenic/{ingenic_nand.c =3D> ingenic_nand_drv.c}   | 0
->>   4 files changed, 4 insertions(+), 11 deletions(-)
->>   rename drivers/mtd/nand/raw/ingenic/{ingenic_nand.c =3D>=20
->> ingenic_nand_drv.c} (100%)
->>=20
->>  diff --git a/drivers/mtd/nand/raw/ingenic/Kconfig=20
->> b/drivers/mtd/nand/raw/ingenic/Kconfig
->>  index 19a96ce515c1..66b7cffdb0c2 100644
->>  --- a/drivers/mtd/nand/raw/ingenic/Kconfig
->>  +++ b/drivers/mtd/nand/raw/ingenic/Kconfig
->>  @@ -16,7 +16,7 @@ config MTD_NAND_JZ4780
->>   if MTD_NAND_JZ4780
->>=20
->>   config MTD_NAND_INGENIC_ECC
->>  -	tristate
->>  +	bool
->>=20
->>   config MTD_NAND_JZ4740_ECC
->>   	tristate "Hardware BCH support for JZ4740 SoC"
->>  diff --git a/drivers/mtd/nand/raw/ingenic/Makefile=20
->> b/drivers/mtd/nand/raw/ingenic/Makefile
->>  index 1ac4f455baea..b63d36889263 100644
->>  --- a/drivers/mtd/nand/raw/ingenic/Makefile
->>  +++ b/drivers/mtd/nand/raw/ingenic/Makefile
->>  @@ -2,7 +2,9 @@
->>   obj-$(CONFIG_MTD_NAND_JZ4740) +=3D jz4740_nand.o
->>   obj-$(CONFIG_MTD_NAND_JZ4780) +=3D ingenic_nand.o
->>=20
->>  -obj-$(CONFIG_MTD_NAND_INGENIC_ECC) +=3D ingenic_ecc.o
->>  +ingenic_nand-y +=3D ingenic_nand_drv.o
->>  +ingenic_nand-$(CONFIG_MTD_NAND_INGENIC_ECC) +=3D ingenic_ecc.o
->>  +
->>   obj-$(CONFIG_MTD_NAND_JZ4740_ECC) +=3D jz4740_ecc.o
->>   obj-$(CONFIG_MTD_NAND_JZ4725B_BCH) +=3D jz4725b_bch.o
->>   obj-$(CONFIG_MTD_NAND_JZ4780_BCH) +=3D jz4780_bch.o
->>  diff --git a/drivers/mtd/nand/raw/ingenic/ingenic_ecc.c=20
->> b/drivers/mtd/nand/raw/ingenic/ingenic_ecc.c
->>  index d3e085c5685a..c954189606f6 100644
->>  --- a/drivers/mtd/nand/raw/ingenic/ingenic_ecc.c
->>  +++ b/drivers/mtd/nand/raw/ingenic/ingenic_ecc.c
->>  @@ -30,7 +30,6 @@ int ingenic_ecc_calculate(struct ingenic_ecc *ecc,
->>   {
->>   	return ecc->ops->calculate(ecc, params, buf, ecc_code);
->>   }
->>  -EXPORT_SYMBOL(ingenic_ecc_calculate);
->>=20
->>   /**
->>    * ingenic_ecc_correct() - detect and correct bit errors
->>  @@ -51,7 +50,6 @@ int ingenic_ecc_correct(struct ingenic_ecc *ecc,
->>   {
->>   	return ecc->ops->correct(ecc, params, buf, ecc_code);
->>   }
->>  -EXPORT_SYMBOL(ingenic_ecc_correct);
->>=20
->>   /**
->>    * ingenic_ecc_get() - get the ECC controller device
->>  @@ -111,7 +109,6 @@ struct ingenic_ecc *of_ingenic_ecc_get(struct=20
->> device_node *of_node)
->>   	}
->>   	return ecc;
->>   }
->>  -EXPORT_SYMBOL(of_ingenic_ecc_get);
->>=20
->>   /**
->>    * ingenic_ecc_release() - release the ECC controller device
->>  @@ -122,7 +119,6 @@ void ingenic_ecc_release(struct ingenic_ecc=20
->> *ecc)
->>   	clk_disable_unprepare(ecc->clk);
->>   	put_device(ecc->dev);
->>   }
->>  -EXPORT_SYMBOL(ingenic_ecc_release);
->>=20
->>   int ingenic_ecc_probe(struct platform_device *pdev)
->>   {
->>  @@ -159,8 +155,3 @@ int ingenic_ecc_probe(struct platform_device=20
->> *pdev)
->>   	return 0;
->>   }
->>   EXPORT_SYMBOL(ingenic_ecc_probe);
->=20
-> Any reason to keep this one?
-
-This one is called from the three ECC drivers, which can be modules,
-so it still needs to be exported.
-
--Paul
-
-=
+-- 
+Jens Axboe
 
