@@ -2,203 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A38D25C5F0
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 01:36:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8FB65C5F6
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 01:42:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726908AbfGAXgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 19:36:39 -0400
-Received: from smtprelay-out1.synopsys.com ([198.182.47.102]:60016 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726866AbfGAXgi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 19:36:38 -0400
-Received: from mailhost.synopsys.com (dc2-mailhost2.synopsys.com [10.12.135.162])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 8AF7EC01C6;
-        Mon,  1 Jul 2019 23:36:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1562024197; bh=+WUkjo37UD0/qeRhfRnDAQj40ov+Z+tE7Yj66w6tdAg=;
-        h=From:To:CC:Subject:Date:References:From;
-        b=dtnmaqbTRR6kGPblOdVOfE7WQBaV5iM1mgBfyfG47y8oBp40wSXpzxYSxokANdUZz
-         VvrPoTPJCLzXySd3nUsHN+Pnf98W1ZGbh+yUQ4iG4RHmHmkp/fKrDEka1PHVKpHayQ
-         JB1hKYnjC0qP2za1L5jBTT/5SNtuhvFAuwUT1KBn6WI67MgsT24FldhiLUGBtXkyZ2
-         WgCFCMvQg4/aqWBI+smhudbo7VvbKZUABBoOyDhxoL+3oSjV4lq4alejAOQSACap3r
-         aLQUox9mocIoSyspcsEXgmSMtCjOGlEjvnttQ5YJ1d0H/7syRtEg1UYs6qGCT7Bcq/
-         FR2SncIaFdXEw==
-Received: from US01WXQAHTC1.internal.synopsys.com (us01wxqahtc1.internal.synopsys.com [10.12.238.230])
-        (using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPS id 0BB3FA009A;
-        Mon,  1 Jul 2019 23:36:36 +0000 (UTC)
-Received: from US01HYBRID2.internal.synopsys.com (10.15.246.24) by
- US01WXQAHTC1.internal.synopsys.com (10.12.238.230) with Microsoft SMTP Server
- (TLS) id 14.3.408.0; Mon, 1 Jul 2019 16:36:36 -0700
-Received: from NAM01-BN3-obe.outbound.protection.outlook.com (10.13.134.195)
- by mrs.synopsys.com (10.15.246.24) with Microsoft SMTP Server (TLS) id
- 14.3.408.0; Mon, 1 Jul 2019 16:36:36 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=testarcselector01; d=microsoft.com; cv=none;
- b=bIXG8nXKDZuF75ArRuXv+8uONpbu6/X9djOxjILGX+C58kCoVFDfxAG3bTFwp7w/Xz9hMYoNaFMG2U9iF/e1uND0AjwMRt+aDqU2/Kja/eqiYW0226ZgpVowY3aWRjUTjTfKBNJpP8pAcn1bUma2CiJ1hWvHSqy7CThgJcb2CUI=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=testarcselector01;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BPL9tATMYVF7Pp05uCiCUL1y2YaVObvN0svEJUoBaYU=;
- b=wcdqlNtjL6kgpUCPjEliuWA3agIbMmrz9jFKR2gmfcrTGu5vObsPX2yXZ1db3O0tEbWIr0p3pf0AHp5G9M+Do9geI/RMFYH6SOcH3PUVHTJwO6U6W2Z6TYW5amF37NNspLjYgCtKil6zZYDZnFZtSApPcvaj+TCmgLrKbn8epwE=
-ARC-Authentication-Results: i=1; test.office365.com
- 1;spf=none;dmarc=none;dkim=none;arc=none
+        id S1726347AbfGAXms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 19:42:48 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:45289 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726362AbfGAXms (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 19:42:48 -0400
+Received: by mail-pl1-f196.google.com with SMTP id bi6so8107283plb.12
+        for <stable@vger.kernel.org>; Mon, 01 Jul 2019 16:42:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=synopsys.onmicrosoft.com; s=selector1-synopsys-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BPL9tATMYVF7Pp05uCiCUL1y2YaVObvN0svEJUoBaYU=;
- b=Jb0LZCraFlDuTrCApC9YxvqpnuGtMlquC4YtDk3QEj+xCg/qI+jRqVyB1uKbVfBfj+BU9f3gNa12GOhg8eFbmOPPoZQQvcNF1rywVrNhJPIIbufdHtyKOyvXWlKnt5WQJ2KYCBvGtI3cDRAP20GVwQWo/QFpLLuYPLfK+ylRQS8=
-Received: from CY4PR1201MB0037.namprd12.prod.outlook.com (10.172.78.22) by
- CY4PR1201MB0117.namprd12.prod.outlook.com (10.174.53.9) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2008.16; Mon, 1 Jul 2019 23:36:34 +0000
-Received: from CY4PR1201MB0037.namprd12.prod.outlook.com
- ([fe80::f520:c8d1:43e6:5fc3]) by CY4PR1201MB0037.namprd12.prod.outlook.com
- ([fe80::f520:c8d1:43e6:5fc3%6]) with mapi id 15.20.2032.019; Mon, 1 Jul 2019
- 23:36:34 +0000
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-To:     John Stultz <john.stultz@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-CC:     stable <stable@vger.kernel.org>, Fei Yang <fei.yang@intel.com>,
-        "Sam Protsenko" <semen.protsenko@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Jack Pham <jackp@codeaurora.org>,
-        Linux USB List <linux-usb@vger.kernel.org>
-Subject: Re: [PATCH 4.19.y v2 0/9] Fix scheduling while atomic in
- dwc3_gadget_ep_dequeue
-Thread-Topic: [PATCH 4.19.y v2 0/9] Fix scheduling while atomic in
- dwc3_gadget_ep_dequeue
-Thread-Index: AQHVLd7CuQRa1B0Xck+F6olJkOIlJg==
-Date:   Mon, 1 Jul 2019 23:36:34 +0000
-Message-ID: <CY4PR1201MB003740D460297DCF1585B198AAF90@CY4PR1201MB0037.namprd12.prod.outlook.com>
-References: <20190628182413.33225-1-john.stultz@linaro.org>
- <20190628225803.GK11506@sasha-vm>
- <CALAqxLX002_9jqCVpZ9esd9xj=ikC4soYDbCKH4etmUDYUXvrQ@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=thinhn@synopsys.com; 
-x-originating-ip: [198.182.56.5]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: ab39c015-742b-42e6-310f-08d6fe7cf44f
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:CY4PR1201MB0117;
-x-ms-traffictypediagnostic: CY4PR1201MB0117:
-x-microsoft-antispam-prvs: <CY4PR1201MB0117A7618301877199E1821EAAF90@CY4PR1201MB0117.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
-x-forefront-prvs: 00851CA28B
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(346002)(376002)(366004)(39840400004)(136003)(396003)(199004)(189003)(25786009)(2906002)(6116002)(7696005)(486006)(74316002)(3846002)(45080400002)(73956011)(68736007)(102836004)(76176011)(66446008)(66946007)(66556008)(91956017)(110136005)(99286004)(76116006)(478600001)(66476007)(64756008)(53546011)(229853002)(316002)(6506007)(446003)(14454004)(5660300002)(86362001)(52536014)(476003)(305945005)(26005)(66066001)(54906003)(55016002)(9686003)(256004)(8936002)(81166006)(81156014)(6436002)(6246003)(71200400001)(14444005)(71190400001)(8676002)(53936002)(186003)(7736002)(33656002)(4326008);DIR:OUT;SFP:1102;SCL:1;SRVR:CY4PR1201MB0117;H:CY4PR1201MB0037.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: synopsys.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: 6vm2G9yS+ygE0XpI03ELbZ00C9e+PHbZRn/CG8W7LFesU9zbGqgl5EsZuH3kOHz1+w04VJwpolcxAOHbMtY0DaIoQPO62fsWvwt6yZn2DgGzWfWEpiVfDXzsFQzwE/9oLilCKDhg1118eX0aRdz86xX7ru+AeuFmHeZKPiXfs0fN7qusiutaEYv9yR2IR/CsZYsv7ymwWpTkGmj4yDK6NfcHyCj9o6fPnoyUJA8x5fl8X1thuPNNj4GOXWQO/Jj9A4heyNG2eS7LSpJzDp0XCHeC2Fw04DhpWBSeVVSIUcC78jHa7qp//8qcq68OjRGsQNT+ccVf6QczNUjYwBEZ8hRN++h1KEpYI93aubUECeytiMEASajnySyPHgrIfeYbRU235J4fbfksN848I3ZsyNhpIYfi2V83DSHM+pOXj8c=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        d=appneta.com; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/1gFnr0TRR2O3FrkKYtrpBMih30lPMQm08/0jo878LU=;
+        b=RbaR1CGorAnHwg8FKM9bcyODEuwoYJP/M0w052lY2ZCB+nEFaFR9tGs0jADg2uSoJJ
+         1HDAEnAbsPVf5ue4PWcnvhegWZWUmmaTGqru+XueNMNBC7F3h/HO0ajjFRsLL+/cxNpJ
+         AJKYhJuiSaevSWnZsr0ivrbQNZqyRAKMD0plo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/1gFnr0TRR2O3FrkKYtrpBMih30lPMQm08/0jo878LU=;
+        b=i7aSgnxUCGtahU/x4hezH4Wcn5o3dgJo2I0i6JYWTiOPsBmLbBjuBEewc7CLXRy96C
+         N51I0femZzMkXEdKDhuny2b3XZ1bkiCncq8vD7Yg9tsx76pIk0dO623doC2eXoI4whMC
+         tKMswu27ohoIEY4IGop55L/l2adTmiei66ZgxouWGFKXgKs/5zLYDdnO6c2b2jCiRpzo
+         gWteViYv0HNc1mmdgi+fgPThwUVhC/OYl5i7EPgDY3JRIew8MpL5cM9eaMfJ2fXIKG0r
+         YkgyKzPX4k+y242PjPtHeDEX7+8zkzOPchqpBnJIooebqNwIt93f3FgS7aKk5LM3Fam0
+         +jPA==
+X-Gm-Message-State: APjAAAWsjCGXJV5Tygs80CT3/b9THavYJ8+00KC5HHKEP+/E/cywFQIu
+        LO3+UmHb5B+J3ZZjaXwY4Bv9ut1s9hQw
+X-Google-Smtp-Source: APXvYqyNSKz1gT/iRKaIQQquDe8Q0lrmObw5tu5nQIPPoUqKGuIs+8sMxeLq0U0tzq6Zz5/11Fu7/A==
+X-Received: by 2002:a17:902:b093:: with SMTP id p19mr30781404plr.141.1562024567104;
+        Mon, 01 Jul 2019 16:42:47 -0700 (PDT)
+Received: from debian9-jae.jaalam.net (64-46-6-129.dyn.novuscom.net. [64.46.6.129])
+        by smtp.gmail.com with ESMTPSA id b36sm609336pjc.16.2019.07.01.16.42.45
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Jul 2019 16:42:46 -0700 (PDT)
+From:   Josh Elsasser <jelsasser@appneta.com>
+To:     stable@vger.kernel.org
+Cc:     Josh Elsasser <jelsasser@appneta.com>, gregkh@linuxfoundation.org,
+        netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Matteo Croce <mcroce@redhat.com>
+Subject: [PATCH RESEND 4.9.y] net: check before dereferencing netdev_ops during busy poll
+Date:   Mon,  1 Jul 2019 16:41:43 -0700
+Message-Id: <20190701234143.72631-1-jelsasser@appneta.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: ab39c015-742b-42e6-310f-08d6fe7cf44f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Jul 2019 23:36:34.5962
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: c33c9f88-1eb7-4099-9700-16013fd9e8aa
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: thinhn@synopsys.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR1201MB0117
-X-OriginatorOrg: synopsys.com
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,=0A=
-=0A=
-John Stultz wrote:=0A=
-> On Fri, Jun 28, 2019 at 3:58 PM Sasha Levin <sashal@kernel.org> wrote:=0A=
->> On Fri, Jun 28, 2019 at 06:24:04PM +0000, John Stultz wrote:=0A=
->>> With recent changes in AOSP, adb is using asynchronous io, which=0A=
->>> causes the following crash usually on a reboot:=0A=
->>>=0A=
->>> [  184.278302] BUG: scheduling while atomic: ksoftirqd/0/9/0x00000104=
-=0A=
->>> [  184.284617] Modules linked in: wl18xx wlcore snd_soc_hdmi_codec wlco=
-re_sdio tcpci_rt1711h tcpci tcpm typec adv7511 cec dwc3 phy_hi3660_usb3 snd=
-_soc_simple_card snd_soc_a=0A=
->>> [  184.316034] Preemption disabled at:=0A=
->>> [  184.316072] [<ffffff8008081de4>] __do_softirq+0x64/0x398=0A=
->>> [  184.324953] CPU: 0 PID: 9 Comm: ksoftirqd/0 Tainted: G S            =
-    4.19.43-00669-g8e4970572c43-dirty #356=0A=
->>> [  184.334963] Hardware name: HiKey960 (DT)=0A=
->>> [  184.338892] Call trace:=0A=
->>> [  184.341352]  dump_backtrace+0x0/0x158=0A=
->>> [  184.345025]  show_stack+0x14/0x20=0A=
->>> [  184.348355]  dump_stack+0x80/0xa4=0A=
->>> [  184.351685]  __schedule_bug+0x6c/0xc0=0A=
->>> [  184.355363]  __schedule+0x64c/0x978=0A=
->>> [  184.358863]  schedule+0x2c/0x90=0A=
->>> [  184.362053]  dwc3_gadget_ep_dequeue+0x274/0x388 [dwc3]=0A=
->>> [  184.367210]  usb_ep_dequeue+0x24/0xf8=0A=
->>> [  184.370884]  ffs_aio_cancel+0x3c/0x80=0A=
->>> [  184.374561]  free_ioctx_users+0x40/0x148=0A=
->>> [  184.378500]  percpu_ref_switch_to_atomic_rcu+0x180/0x1c0=0A=
->>> [  184.383830]  rcu_process_callbacks+0x24c/0x5d8=0A=
->>> [  184.388283]  __do_softirq+0x13c/0x398=0A=
->>> [  184.391959]  run_ksoftirqd+0x3c/0x48=0A=
->>> [  184.395549]  smpboot_thread_fn+0x220/0x288=0A=
->>> [  184.399660]  kthread+0x12c/0x130=0A=
->>> [  184.402901]  ret_from_fork+0x10/0x1c=0A=
->>>=0A=
->>>=0A=
->>> This happens as usb_ep_dequeue can be called in interrupt=0A=
->>> context, and dwc3_gadget_ep_dequeue() then calls=0A=
->>> wait_event_lock_irq() which can sleep.=0A=
->>>=0A=
->>> Upstream kernels are not affected due to the change=0A=
->>> fec9095bdef4 ("dwc3: gadget: remove wait_end_transfer") which=0A=
->>> removes the wait_even_lock_irq code. Unfortunately that change=0A=
->>> has a number of dependencies, which I'm submitting here.=0A=
->>>=0A=
->>> Also, to match upstream, in this series I've reverted one=0A=
->>> change that was backported to -stable, to replace it with the=0A=
->>> cherry-picked upstream commit (as the dependencies are now=0A=
->>> there)=0A=
->>>=0A=
->>> This issue also affects 4.14,4.9 and I believe 4.4 kernels,=0A=
->>> however I don't know how to best backport this functionality=0A=
->>> that far back. Help from the maintainers would be very much=0A=
->>> appreciated!=0A=
->>>=0A=
->>>=0A=
->>> New in v2:=0A=
->>> * Reordered the patchset to put the revert patch first, which=0A=
->>>  avoids any bisection build issues. (Thanks to Jack Pham for=0A=
->>>  the suggestion!)=0A=
->>>=0A=
->>>=0A=
->>> Feedback and comments would be welcome!=0A=
->> I've queued it up for 4.19.=0A=
->>=0A=
->> Is it the case that for older kernels the dependency list is too long?=
-=0A=
-> Yea. It gets ugly and I'm not enough of an expert on the driver to=0A=
-> feel comfortable knowing if I'm doing the right thing reworking this=0A=
-> stack onto an even older tree.=0A=
->=0A=
-> But I do see crashes on reboot w/ 4.14 and 4.9 (I and suspect 4.4 as=0A=
-> well), so I'll need to figure out something eventually.=0A=
->=0A=
->=0A=
-=0A=
-If you're backporting this series, then you also need to apply these=0A=
-fixes for this series:=0A=
-=0A=
-This fixes a race issue:=0A=
-c5353b225df9 ("usb: dwc3: gadget: don't enable interrupt when disabling=0A=
-endpoint")=0A=
-=0A=
-This fixes incorrect TRB skip:=0A=
-c7152763f02e ("usb: dwc3: Reset num_trbs after skipping")=0A=
-=0A=
-BR,=0A=
-Thinh=0A=
+init_dummy_netdev() leaves its netdev_ops pointer zeroed. This leads
+to a NULL pointer dereference when sk_busy_loop fires against an iwlwifi
+wireless adapter and checks napi->dev->netdev_ops->ndo_busy_poll.
+
+Avoid this by ensuring napi->dev->netdev_ops is valid before following
+the pointer, avoiding the following panic when busy polling on a dummy
+netdev:
+
+  BUG: unable to handle kernel NULL pointer dereference at 00000000000000c8
+  IP: [<ffffffff817b4b72>] sk_busy_loop+0x92/0x2f0
+  Call Trace:
+   [<ffffffff815a3134>] ? uart_write_room+0x74/0xf0
+   [<ffffffff817964a9>] sock_poll+0x99/0xa0
+   [<ffffffff81223142>] do_sys_poll+0x2e2/0x520
+   [<ffffffff8118d3fc>] ? get_page_from_freelist+0x3bc/0xa30
+   [<ffffffff810ada22>] ? update_curr+0x62/0x140
+   [<ffffffff811ea671>] ? __slab_free+0xa1/0x2a0
+   [<ffffffff811ea671>] ? __slab_free+0xa1/0x2a0
+   [<ffffffff8179dbb1>] ? skb_free_head+0x21/0x30
+   [<ffffffff81221bd0>] ? poll_initwait+0x50/0x50
+   [<ffffffff811eaa36>] ? kmem_cache_free+0x1c6/0x1e0
+   [<ffffffff815a4884>] ? uart_write+0x124/0x1d0
+   [<ffffffff810bd1cd>] ? remove_wait_queue+0x4d/0x60
+   [<ffffffff810bd224>] ? __wake_up+0x44/0x50
+   [<ffffffff81582731>] ? tty_write_unlock+0x31/0x40
+   [<ffffffff8158c5c6>] ? tty_ldisc_deref+0x16/0x20
+   [<ffffffff81584820>] ? tty_write+0x1e0/0x2f0
+   [<ffffffff81587e50>] ? process_echoes+0x80/0x80
+   [<ffffffff8120c17b>] ? __vfs_write+0x2b/0x130
+   [<ffffffff8120d09a>] ? vfs_write+0x15a/0x1a0
+   [<ffffffff81223455>] SyS_poll+0x75/0x100
+   [<ffffffff819a6524>] entry_SYSCALL_64_fastpath+0x24/0xcf
+
+Commit 79e7fff47b7b ("net: remove support for per driver ndo_busy_poll()")
+indirectly fixed this upstream in linux-4.11 by removing the offending
+pointer usage. No other users of napi->dev touch its netdev_ops.
+
+Fixes: ce6aea93f751 ("net: network drivers no longer need to implement ndo_busy_poll()") # 4.9.y
+Signed-off-by: Josh Elsasser <jelsasser@appneta.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Tested-by: Matteo Croce <mcroce@redhat.com>
+---
+
+No changes since V2[1], resent as per discussiond on -stable[2]. I hope
+this is the correct way to send net fixes for older LTS releases, I'm
+going off of the latest netdev FAQ:
+
+   For earlier stable releases, each stable branch maintainer is supposed
+   to take care of them. If you find any patch is missing from an earlier
+   stable branch, please notify stable@vger.kernel.org with either a commit
+   ID or a formal patch backported, and CC Dave and other relevant networking
+   developers.
+
+[1]: https://patchwork.ozlabs.org/patch/884986/
+[2]: https://lore.kernel.org/stable/CAGnkfhx3ykbEsW+=FtpMFWU=_Vnie7RpPYWpWqa1S1HPMXj9kw@mail.gmail.com/
+
+
+ net/core/dev.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 4e10bae5e3da..f693afe608d7 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5083,7 +5083,10 @@ bool sk_busy_loop(struct sock *sk, int nonblock)
+ 		goto out;
+ 
+ 	/* Note: ndo_busy_poll method is optional in linux-4.5 */
+-	busy_poll = napi->dev->netdev_ops->ndo_busy_poll;
++	if (napi->dev->netdev_ops)
++		busy_poll = napi->dev->netdev_ops->ndo_busy_poll;
++	else
++		busy_poll = NULL;
+ 
+ 	do {
+ 		rc = 0;
+-- 
+2.20.1
+
