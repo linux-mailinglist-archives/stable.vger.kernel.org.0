@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59E205C599
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 00:22:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9F785C59A
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 00:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726678AbfGAWW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 18:22:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53056 "EHLO mail.kernel.org"
+        id S1726686AbfGAWW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 18:22:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726339AbfGAWW4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jul 2019 18:22:56 -0400
+        id S1726339AbfGAWW6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jul 2019 18:22:58 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2184120B7C;
-        Mon,  1 Jul 2019 22:22:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4FA321841;
+        Mon,  1 Jul 2019 22:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562019775;
-        bh=2uDe/3GPU9b3WQKr6fDNYeikXyyK3b8Dtaso2WYgFd8=;
+        s=default; t=1562019778;
+        bh=rZTryKOBYmHl6TR3Akic5DjKPvn+cXc6hs96rbL3C9Q=;
         h=Date:From:To:Subject:From;
-        b=wIPUNoJa5UiKdz4O+DNhCpdYCqYxyJXudAMHehwcORGWxwWYlEOgLFZ0yEcotrK7s
-         mDjfHpol3ZJ/+EiZfloteNq3NVINwylhVH+ePZEHdckd+9+o5MM8h8LamW015xK+8w
-         vNTKL0N9XeNlNMf+oGG/zut34Pfl0nqeEOeoTvrg=
-Date:   Mon, 01 Jul 2019 15:22:54 -0700
+        b=Wud2nuO5fRQBpmkkFQnKYcuyZoYlJfdBqGpa26w4JPno5S6wvuawLS9Md2sL8quiK
+         X4Iqfsr/8iIWWh1LMZm3MDgBvq6O0JzA1l8CzzS+v1sD7Ow6Kqfhcr1eW1+zFBa//l
+         BqfDKMB1ZXyoRkUOHYVXqKRXdPn+o2oUIkspAiYc=
+Date:   Mon, 01 Jul 2019 15:22:57 -0700
 From:   akpm@linux-foundation.org
-To:     arnd@arndb.de, axboe@kernel.dk, dave@stgolabs.net,
-        David.Laight@ACULAB.COM, deepa.kernel@gmail.com, e@80x24.org,
-        ebiederm@xmission.com, jbaron@akamai.com,
-        mm-commits@vger.kernel.org, mtk.manpages@gmail.com,
-        oleg@redhat.com, stable@vger.kernel.org, tglx@linutronix.de,
-        viro@ZenIV.linux.org.uk
+To:     jerry.t.chen@intel.com, mhocko@kernel.org, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, n-horiguchi@ah.jp.nec.com,
+        osalvador@suse.de, qiuxu.zhuo@intel.com, stable@vger.kernel.org,
+        xishi.qiuxishi@alibaba-inc.com
 Subject:  [merged]
- signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask.patch
+ mm-soft-offline-return-ebusy-if-set_hwpoison_free_buddy_page-fails.patch
  removed from -mm tree
-Message-ID: <20190701222254.KZiv6pRVe%akpm@linux-foundation.org>
+Message-ID: <20190701222257.amRqqlicW%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -43,298 +41,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: signal: remove the wrong signal_pending() check in restore_user_sigmask()
+     Subject: mm: soft-offline: return -EBUSY if set_hwpoison_free_buddy_page() fails
 has been removed from the -mm tree.  Its filename was
-     signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask.patch
+     mm-soft-offline-return-ebusy-if-set_hwpoison_free_buddy_page-fails.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Oleg Nesterov <oleg@redhat.com>
-Subject: signal: remove the wrong signal_pending() check in restore_user_sigmask()
+From: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Subject: mm: soft-offline: return -EBUSY if set_hwpoison_free_buddy_page() fails
 
-This is the minimal fix for stable, I'll send cleanups later.
+The pass/fail of soft offline should be judged by checking whether the
+raw error page was finally contained or not (i.e.  the result of
+set_hwpoison_free_buddy_page()), but current code do not work like
+that.  It might lead us to misjudge the test result when
+set_hwpoison_free_buddy_page() fails.
 
-854a6ed56839a40f6b5 ("signal: Add restore_user_sigmask()") introduced the
-visible change which breaks user-space: a signal temporary unblocked by
-set_user_sigmask() can be delivered even if the caller returns success or
-timeout.
+Without this fix, there are cases where madvise(MADV_SOFT_OFFLINE) may
+not offline the original page and will not return an error.
 
-Change restore_user_sigmask() to accept the additional "interrupted"
-argument which should be used instead of signal_pending() check, and
-update the callers.
-
-Eric said:
-
-: For clarity.  I don't think this is required by posix, or fundamentally to
-: remove the races in select.  It is what linux has always done and we have
-: applications who care so I agree this fix is needed.
-: 
-: Further in any case where the semantic change that this patch rolls back
-: (aka where allowing a signal to be delivered and the select like call to
-: complete) would be advantage we can do as well if not better by using
-: signalfd.
-: 
-: Michael is there any chance we can get this guarantee of the linux
-: implementation of pselect and friends clearly documented.  The guarantee
-: that if the system call completes successfully we are guaranteed that no
-: signal that is unblocked by using sigmask will be delivered?
-
-Link: http://lkml.kernel.org/r/20190604134117.GA29963@redhat.com
-Fixes: 854a6ed56839a40f6b5d02a2962f48841482eec4 ("signal: Add restore_user_sigmask()")
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reported-by: Eric Wong <e@80x24.org>
-Tested-by: Eric Wong <e@80x24.org>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Michael Kerrisk <mtk.manpages@gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Jason Baron <jbaron@akamai.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Al Viro <viro@ZenIV.linux.org.uk>
-Cc: David Laight <David.Laight@ACULAB.COM>
-Cc: <stable@vger.kernel.org>	[5.0+]
+Link: http://lkml.kernel.org/r/1560154686-18497-2-git-send-email-n-horiguchi@ah.jp.nec.com
+Signed-off-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Fixes: 6bc9b56433b76 ("mm: fix race on soft-offlining")
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Xishi Qiu <xishi.qiuxishi@alibaba-inc.com>
+Cc: "Chen, Jerry T" <jerry.t.chen@intel.com>
+Cc: "Zhuo, Qiuxu" <qiuxu.zhuo@intel.com>
+Cc: <stable@vger.kernel.org>	[4.19+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/aio.c               |   28 ++++++++++++++++++++--------
- fs/eventpoll.c         |    4 ++--
- fs/io_uring.c          |    7 ++++---
- fs/select.c            |   18 ++++++------------
- include/linux/signal.h |    2 +-
- kernel/signal.c        |    5 +++--
- 6 files changed, 36 insertions(+), 28 deletions(-)
+ mm/memory-failure.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/aio.c~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
-+++ a/fs/aio.c
-@@ -2095,6 +2095,7 @@ SYSCALL_DEFINE6(io_pgetevents,
- 	struct __aio_sigset	ksig = { NULL, };
- 	sigset_t		ksigmask, sigsaved;
- 	struct timespec64	ts;
-+	bool interrupted;
- 	int ret;
- 
- 	if (timeout && unlikely(get_timespec64(&ts, timeout)))
-@@ -2108,8 +2109,10 @@ SYSCALL_DEFINE6(io_pgetevents,
- 		return ret;
- 
- 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
--	restore_user_sigmask(ksig.sigmask, &sigsaved);
--	if (signal_pending(current) && !ret)
-+
-+	interrupted = signal_pending(current);
-+	restore_user_sigmask(ksig.sigmask, &sigsaved, interrupted);
-+	if (interrupted && !ret)
- 		ret = -ERESTARTNOHAND;
- 
- 	return ret;
-@@ -2128,6 +2131,7 @@ SYSCALL_DEFINE6(io_pgetevents_time32,
- 	struct __aio_sigset	ksig = { NULL, };
- 	sigset_t		ksigmask, sigsaved;
- 	struct timespec64	ts;
-+	bool interrupted;
- 	int ret;
- 
- 	if (timeout && unlikely(get_old_timespec32(&ts, timeout)))
-@@ -2142,8 +2146,10 @@ SYSCALL_DEFINE6(io_pgetevents_time32,
- 		return ret;
- 
- 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
--	restore_user_sigmask(ksig.sigmask, &sigsaved);
--	if (signal_pending(current) && !ret)
-+
-+	interrupted = signal_pending(current);
-+	restore_user_sigmask(ksig.sigmask, &sigsaved, interrupted);
-+	if (interrupted && !ret)
- 		ret = -ERESTARTNOHAND;
- 
- 	return ret;
-@@ -2193,6 +2199,7 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
- 	struct __compat_aio_sigset ksig = { NULL, };
- 	sigset_t ksigmask, sigsaved;
- 	struct timespec64 t;
-+	bool interrupted;
- 	int ret;
- 
- 	if (timeout && get_old_timespec32(&t, timeout))
-@@ -2206,8 +2213,10 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
- 		return ret;
- 
- 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &t : NULL);
--	restore_user_sigmask(ksig.sigmask, &sigsaved);
--	if (signal_pending(current) && !ret)
-+
-+	interrupted = signal_pending(current);
-+	restore_user_sigmask(ksig.sigmask, &sigsaved, interrupted);
-+	if (interrupted && !ret)
- 		ret = -ERESTARTNOHAND;
- 
- 	return ret;
-@@ -2226,6 +2235,7 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents_tim
- 	struct __compat_aio_sigset ksig = { NULL, };
- 	sigset_t ksigmask, sigsaved;
- 	struct timespec64 t;
-+	bool interrupted;
- 	int ret;
- 
- 	if (timeout && get_timespec64(&t, timeout))
-@@ -2239,8 +2249,10 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents_tim
- 		return ret;
- 
- 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &t : NULL);
--	restore_user_sigmask(ksig.sigmask, &sigsaved);
--	if (signal_pending(current) && !ret)
-+
-+	interrupted = signal_pending(current);
-+	restore_user_sigmask(ksig.sigmask, &sigsaved, interrupted);
-+	if (interrupted && !ret)
- 		ret = -ERESTARTNOHAND;
- 
- 	return ret;
---- a/fs/eventpoll.c~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
-+++ a/fs/eventpoll.c
-@@ -2325,7 +2325,7 @@ SYSCALL_DEFINE6(epoll_pwait, int, epfd,
- 
- 	error = do_epoll_wait(epfd, events, maxevents, timeout);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
-+	restore_user_sigmask(sigmask, &sigsaved, error == -EINTR);
- 
- 	return error;
- }
-@@ -2350,7 +2350,7 @@ COMPAT_SYSCALL_DEFINE6(epoll_pwait, int,
- 
- 	err = do_epoll_wait(epfd, events, maxevents, timeout);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
-+	restore_user_sigmask(sigmask, &sigsaved, err == -EINTR);
- 
- 	return err;
- }
---- a/fs/io_uring.c~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
-+++ a/fs/io_uring.c
-@@ -2201,11 +2201,12 @@ static int io_cqring_wait(struct io_ring
+--- a/mm/memory-failure.c~mm-soft-offline-return-ebusy-if-set_hwpoison_free_buddy_page-fails
++++ a/mm/memory-failure.c
+@@ -1730,6 +1730,8 @@ static int soft_offline_huge_page(struct
+ 		if (!ret) {
+ 			if (set_hwpoison_free_buddy_page(page))
+ 				num_poisoned_pages_inc();
++			else
++				ret = -EBUSY;
+ 		}
  	}
- 
- 	ret = wait_event_interruptible(ctx->wait, io_cqring_events(ring) >= min_events);
--	if (ret == -ERESTARTSYS)
--		ret = -EINTR;
- 
- 	if (sig)
--		restore_user_sigmask(sig, &sigsaved);
-+		restore_user_sigmask(sig, &sigsaved, ret == -ERESTARTSYS);
-+
-+	if (ret == -ERESTARTSYS)
-+		ret = -EINTR;
- 
- 	return READ_ONCE(ring->r.head) == READ_ONCE(ring->r.tail) ? ret : 0;
- }
---- a/fs/select.c~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
-+++ a/fs/select.c
-@@ -758,10 +758,9 @@ static long do_pselect(int n, fd_set __u
- 		return ret;
- 
- 	ret = core_sys_select(n, inp, outp, exp, to);
-+	restore_user_sigmask(sigmask, &sigsaved, ret == -ERESTARTNOHAND);
- 	ret = poll_select_copy_remaining(&end_time, tsp, type, ret);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
--
  	return ret;
- }
- 
-@@ -1106,8 +1105,7 @@ SYSCALL_DEFINE5(ppoll, struct pollfd __u
- 
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
--
-+	restore_user_sigmask(sigmask, &sigsaved, ret == -EINTR);
- 	/* We can restart this syscall, usually */
- 	if (ret == -EINTR)
- 		ret = -ERESTARTNOHAND;
-@@ -1142,8 +1140,7 @@ SYSCALL_DEFINE5(ppoll_time32, struct pol
- 
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
--
-+	restore_user_sigmask(sigmask, &sigsaved, ret == -EINTR);
- 	/* We can restart this syscall, usually */
- 	if (ret == -EINTR)
- 		ret = -ERESTARTNOHAND;
-@@ -1350,10 +1347,9 @@ static long do_compat_pselect(int n, com
- 		return ret;
- 
- 	ret = compat_core_sys_select(n, inp, outp, exp, to);
-+	restore_user_sigmask(sigmask, &sigsaved, ret == -ERESTARTNOHAND);
- 	ret = poll_select_copy_remaining(&end_time, tsp, type, ret);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
--
- 	return ret;
- }
- 
-@@ -1425,8 +1421,7 @@ COMPAT_SYSCALL_DEFINE5(ppoll_time32, str
- 
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
--
-+	restore_user_sigmask(sigmask, &sigsaved, ret == -EINTR);
- 	/* We can restart this syscall, usually */
- 	if (ret == -EINTR)
- 		ret = -ERESTARTNOHAND;
-@@ -1461,8 +1456,7 @@ COMPAT_SYSCALL_DEFINE5(ppoll_time64, str
- 
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
--
-+	restore_user_sigmask(sigmask, &sigsaved, ret == -EINTR);
- 	/* We can restart this syscall, usually */
- 	if (ret == -EINTR)
- 		ret = -ERESTARTNOHAND;
---- a/include/linux/signal.h~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
-+++ a/include/linux/signal.h
-@@ -276,7 +276,7 @@ extern int sigprocmask(int, sigset_t *,
- extern int set_user_sigmask(const sigset_t __user *usigmask, sigset_t *set,
- 	sigset_t *oldset, size_t sigsetsize);
- extern void restore_user_sigmask(const void __user *usigmask,
--				 sigset_t *sigsaved);
-+				 sigset_t *sigsaved, bool interrupted);
- extern void set_current_blocked(sigset_t *);
- extern void __set_current_blocked(const sigset_t *);
- extern int show_unhandled_signals;
---- a/kernel/signal.c~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
-+++ a/kernel/signal.c
-@@ -2912,7 +2912,8 @@ EXPORT_SYMBOL(set_compat_user_sigmask);
-  * This is useful for syscalls such as ppoll, pselect, io_pgetevents and
-  * epoll_pwait where a new sigmask is passed in from userland for the syscalls.
-  */
--void restore_user_sigmask(const void __user *usigmask, sigset_t *sigsaved)
-+void restore_user_sigmask(const void __user *usigmask, sigset_t *sigsaved,
-+				bool interrupted)
- {
- 
- 	if (!usigmask)
-@@ -2922,7 +2923,7 @@ void restore_user_sigmask(const void __u
- 	 * Restoring sigmask here can lead to delivering signals that the above
- 	 * syscalls are intended to block because of the sigmask passed in.
- 	 */
--	if (signal_pending(current)) {
-+	if (interrupted) {
- 		current->saved_sigmask = *sigsaved;
- 		set_restore_sigmask();
- 		return;
 _
 
-Patches currently in -mm which might be from oleg@redhat.com are
+Patches currently in -mm which might be from n-horiguchi@ah.jp.nec.com are
 
-signal-simplify-set_user_sigmask-restore_user_sigmask.patch
-select-change-do_poll-to-return-erestartnohand-rather-than-eintr.patch
-select-shift-restore_saved_sigmask_unless-into-poll_select_copy_remaining.patch
-aio-simplify-read_events.patch
 
