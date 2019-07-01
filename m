@@ -2,82 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A6B55BAA3
-	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 13:27:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DCCC5BB7D
+	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 14:28:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727763AbfGAL1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 07:27:37 -0400
-Received: from nbd.name ([46.4.11.11]:40242 "EHLO nbd.name"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726652AbfGAL1h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jul 2019 07:27:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
-         s=20160729; h=Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=8xeQ8Ouu97Qg8BegnrjEEygtfPvTpW6Qo6/jKRbo+sM=; b=LVfpJzyovRUV1R30IH63mbqg0u
-        65d/MuBzKcsiMYJl6PQ73a3Hyteg+afEV9mv2aN1gSfPdlE+1nnv6UaCYtvyCM2bM15eRuASdCs5s
-        vHdwdlITFs+Unu/69ww9wGwzZ2uOEPoCdTe37pJ4jJQJUVS7VQYzAKRERlXP28TANUVA=;
-Received: from p54ae9425.dip0.t-ipconnect.de ([84.174.148.37] helo=maeck-3.local)
-        by ds12 with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <nbd@nbd.name>)
-        id 1hhuT9-00044o-Uu; Mon, 01 Jul 2019 13:27:36 +0200
-Received: by maeck-3.local (Postfix, from userid 501)
-        id 3D91260D3CE5; Mon,  1 Jul 2019 13:27:34 +0200 (CEST)
-From:   Felix Fietkau <nbd@nbd.name>
-To:     linux-wireless@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] mt76: round up length on mt76_wr_copy
-Date:   Mon,  1 Jul 2019 13:27:34 +0200
-Message-Id: <20190701112734.86552-1-nbd@nbd.name>
-X-Mailer: git-send-email 2.17.0
+        id S1728339AbfGAM2z convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 1 Jul 2019 08:28:55 -0400
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:45207 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728081AbfGAM2z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 08:28:55 -0400
+X-Originating-IP: 86.250.200.211
+Received: from xps13 (lfbn-1-17395-211.w86-250.abo.wanadoo.fr [86.250.200.211])
+        (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id C27BC24001A;
+        Mon,  1 Jul 2019 12:28:48 +0000 (UTC)
+Date:   Mon, 1 Jul 2019 14:28:47 +0200
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Richard Weinberger <richard@nod.at>, od@zcrc.me,
+        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] mtd: rawnand: ingenic: Fix ingenic_ecc dependency
+Message-ID: <20190701142847.1c1ac4b1@xps13>
+In-Reply-To: <20190629012248.12447-1-paul@crapouillou.net>
+References: <20190629012248.12447-1-paul@crapouillou.net>
+Organization: Bootlin
+X-Mailer: Claws Mail 3.17.1 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When beacon length is not a multiple of 4, the beacon could be sent with
-the last 1-3 bytes corrupted. The skb data is guaranteed to have enough
-room for reading beyond the end, because it is always followed by
-skb_shared_info, so rounding up is safe.
-All other callers of mt76_wr_copy have multiple-of-4 length already.
+Hi Paul,
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
----
- drivers/net/wireless/mediatek/mt76/mmio.c | 2 +-
- drivers/net/wireless/mediatek/mt76/usb.c  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+One question below.
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mmio.c b/drivers/net/wireless/mediatek/mt76/mmio.c
-index 38368d19aa6f..83c96a47914f 100644
---- a/drivers/net/wireless/mediatek/mt76/mmio.c
-+++ b/drivers/net/wireless/mediatek/mt76/mmio.c
-@@ -43,7 +43,7 @@ static u32 mt76_mmio_rmw(struct mt76_dev *dev, u32 offset, u32 mask, u32 val)
- static void mt76_mmio_copy(struct mt76_dev *dev, u32 offset, const void *data,
- 			   int len)
- {
--	__iowrite32_copy(dev->mmio.regs + offset, data, len >> 2);
-+	__iowrite32_copy(dev->mmio.regs + offset, data, DIV_ROUND_UP(len, 4));
- }
- 
- static int mt76_mmio_wr_rp(struct mt76_dev *dev, u32 base,
-diff --git a/drivers/net/wireless/mediatek/mt76/usb.c b/drivers/net/wireless/mediatek/mt76/usb.c
-index 61b27f3ec6e4..87ecbe290f99 100644
---- a/drivers/net/wireless/mediatek/mt76/usb.c
-+++ b/drivers/net/wireless/mediatek/mt76/usb.c
-@@ -164,7 +164,7 @@ static void mt76u_copy(struct mt76_dev *dev, u32 offset,
- 	int i, ret;
- 
- 	mutex_lock(&usb->usb_ctrl_mtx);
--	for (i = 0; i < (len / 4); i++) {
-+	for (i = 0; i < DIV_ROUND_UP(len, 4); i++) {
- 		put_unaligned_le32(val[i], usb->data);
- 		ret = __mt76u_vendor_request(dev, MT_VEND_MULTI_WRITE,
- 					     USB_DIR_OUT | USB_TYPE_VENDOR,
--- 
-2.17.0
+Paul Cercueil <paul@crapouillou.net> wrote on Sat, 29 Jun 2019 03:22:48
++0200:
 
+> If MTD_NAND_JZ4780 is y and MTD_NAND_JZ4780_BCH is m,
+> which select CONFIG_MTD_NAND_INGENIC_ECC to m, building fails:
+> 
+> drivers/mtd/nand/raw/ingenic/ingenic_nand.o: In function `ingenic_nand_remove':
+> ingenic_nand.c:(.text+0x177): undefined reference to `ingenic_ecc_release'
+> drivers/mtd/nand/raw/ingenic/ingenic_nand.o: In function `ingenic_nand_ecc_correct':
+> ingenic_nand.c:(.text+0x2ee): undefined reference to `ingenic_ecc_correct'
+> 
+> To fix that, the ingenic_nand and ingenic_ecc modules have been fused
+> into one single module.
+> - The ingenic_ecc.c code is now compiled in only if
+>   $(CONFIG_MTD_NAND_INGENIC_ECC) is set. This is now a boolean instead
+>   of tristate.
+> - To avoid changing the module name, the ingenic_nand.c file is moved to
+>   ingenic_nand_drv.c. Then the module name is still ingenic_nand.
+> - Since ingenic_ecc.c is no more a module, the module-specific macros
+>   have been dropped, and the functions are no more exported for use by
+>   the ingenic_nand driver.
+
+I am fine with this approach.
+
+> 
+> Fixes: 15de8c6efd0e ("mtd: rawnand: ingenic: Separate top-level and SoC specific code")
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> Reported-by: Arnd Bergmann <arnd@arndb.de>
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Cc: YueHaibing <yuehaibing@huawei.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/mtd/nand/raw/ingenic/Kconfig                     | 2 +-
+>  drivers/mtd/nand/raw/ingenic/Makefile                    | 4 +++-
+>  drivers/mtd/nand/raw/ingenic/ingenic_ecc.c               | 9 ---------
+>  .../raw/ingenic/{ingenic_nand.c => ingenic_nand_drv.c}   | 0
+>  4 files changed, 4 insertions(+), 11 deletions(-)
+>  rename drivers/mtd/nand/raw/ingenic/{ingenic_nand.c => ingenic_nand_drv.c} (100%)
+> 
+> diff --git a/drivers/mtd/nand/raw/ingenic/Kconfig b/drivers/mtd/nand/raw/ingenic/Kconfig
+> index 19a96ce515c1..66b7cffdb0c2 100644
+> --- a/drivers/mtd/nand/raw/ingenic/Kconfig
+> +++ b/drivers/mtd/nand/raw/ingenic/Kconfig
+> @@ -16,7 +16,7 @@ config MTD_NAND_JZ4780
+>  if MTD_NAND_JZ4780
+>  
+>  config MTD_NAND_INGENIC_ECC
+> -	tristate
+> +	bool
+>  
+>  config MTD_NAND_JZ4740_ECC
+>  	tristate "Hardware BCH support for JZ4740 SoC"
+> diff --git a/drivers/mtd/nand/raw/ingenic/Makefile b/drivers/mtd/nand/raw/ingenic/Makefile
+> index 1ac4f455baea..b63d36889263 100644
+> --- a/drivers/mtd/nand/raw/ingenic/Makefile
+> +++ b/drivers/mtd/nand/raw/ingenic/Makefile
+> @@ -2,7 +2,9 @@
+>  obj-$(CONFIG_MTD_NAND_JZ4740) += jz4740_nand.o
+>  obj-$(CONFIG_MTD_NAND_JZ4780) += ingenic_nand.o
+>  
+> -obj-$(CONFIG_MTD_NAND_INGENIC_ECC) += ingenic_ecc.o
+> +ingenic_nand-y += ingenic_nand_drv.o
+> +ingenic_nand-$(CONFIG_MTD_NAND_INGENIC_ECC) += ingenic_ecc.o
+> +
+>  obj-$(CONFIG_MTD_NAND_JZ4740_ECC) += jz4740_ecc.o
+>  obj-$(CONFIG_MTD_NAND_JZ4725B_BCH) += jz4725b_bch.o
+>  obj-$(CONFIG_MTD_NAND_JZ4780_BCH) += jz4780_bch.o
+> diff --git a/drivers/mtd/nand/raw/ingenic/ingenic_ecc.c b/drivers/mtd/nand/raw/ingenic/ingenic_ecc.c
+> index d3e085c5685a..c954189606f6 100644
+> --- a/drivers/mtd/nand/raw/ingenic/ingenic_ecc.c
+> +++ b/drivers/mtd/nand/raw/ingenic/ingenic_ecc.c
+> @@ -30,7 +30,6 @@ int ingenic_ecc_calculate(struct ingenic_ecc *ecc,
+>  {
+>  	return ecc->ops->calculate(ecc, params, buf, ecc_code);
+>  }
+> -EXPORT_SYMBOL(ingenic_ecc_calculate);
+>  
+>  /**
+>   * ingenic_ecc_correct() - detect and correct bit errors
+> @@ -51,7 +50,6 @@ int ingenic_ecc_correct(struct ingenic_ecc *ecc,
+>  {
+>  	return ecc->ops->correct(ecc, params, buf, ecc_code);
+>  }
+> -EXPORT_SYMBOL(ingenic_ecc_correct);
+>  
+>  /**
+>   * ingenic_ecc_get() - get the ECC controller device
+> @@ -111,7 +109,6 @@ struct ingenic_ecc *of_ingenic_ecc_get(struct device_node *of_node)
+>  	}
+>  	return ecc;
+>  }
+> -EXPORT_SYMBOL(of_ingenic_ecc_get);
+>  
+>  /**
+>   * ingenic_ecc_release() - release the ECC controller device
+> @@ -122,7 +119,6 @@ void ingenic_ecc_release(struct ingenic_ecc *ecc)
+>  	clk_disable_unprepare(ecc->clk);
+>  	put_device(ecc->dev);
+>  }
+> -EXPORT_SYMBOL(ingenic_ecc_release);
+>  
+>  int ingenic_ecc_probe(struct platform_device *pdev)
+>  {
+> @@ -159,8 +155,3 @@ int ingenic_ecc_probe(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  EXPORT_SYMBOL(ingenic_ecc_probe);
+
+Any reason to keep this one?
+
+Thanks,
+Miquèl
