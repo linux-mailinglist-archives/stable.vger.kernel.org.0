@@ -2,266 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFA975C589
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 00:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B2895C596
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 00:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726439AbfGAWNO convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 1 Jul 2019 18:13:14 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:47536 "EHLO mx1.redhat.com"
+        id S1726439AbfGAWWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 18:22:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726339AbfGAWNO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jul 2019 18:13:14 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726339AbfGAWWq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jul 2019 18:22:46 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 60883309265A
-        for <stable@vger.kernel.org>; Mon,  1 Jul 2019 22:13:13 +0000 (UTC)
-Received: from [172.54.126.116] (cpt-1022.paas.prod.upshift.rdu2.redhat.com [10.0.19.18])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id F1B847E578;
-        Mon,  1 Jul 2019 22:13:10 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.230A4C4316.Y9H6EI22PD@redhat.com>
-X-Gitlab-Pipeline-ID: 13763
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.43]); Mon, 01 Jul 2019 22:13:13 +0000 (UTC)
-Date:   Mon, 1 Jul 2019 18:13:14 -0400
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D97A2183F;
+        Mon,  1 Jul 2019 22:22:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1562019765;
+        bh=O4jxR60nqkk1kIaWeJlGk0ex6fD5pVss+d5o1sJvsGM=;
+        h=Date:From:To:Subject:From;
+        b=NuTHPFl9OCMCn3/3yA8CFsLVOs6jP11lukTfo7Rnq8DpVFNq1+5qIF8rmFOIqbAxQ
+         YwrJ4bpnO6rYKttczSUXc74kjkIDeAsp/U2llwrYEEyEbXug6oI2bZpyfFfixi98K4
+         F7JhZIkKcNOKjONfZI7KF8c1WKsAvlvzfcWUHk2s=
+Date:   Mon, 01 Jul 2019 15:22:45 -0700
+From:   akpm@linux-foundation.org
+To:     adobriyan@gmail.com, jlu@pengutronix.de, john.ogness@linutronix.de,
+        luto@kernel.org, mm-commits@vger.kernel.org, stable@vger.kernel.org
+Subject:  [merged]
+ fs-proc-allow-reporting-eip-esp-for-all-coredumping-threads.patch removed
+ from -mm tree
+Message-ID: <20190701222245.erojJQ8TM%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+The patch titled
+     Subject: fs/proc/array.c: allow reporting eip/esp for all coredumping threads
+has been removed from the -mm tree.  Its filename was
+     fs-proc-allow-reporting-eip-esp-for-all-coredumping-threads.patch
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: aec3002d07fd - Linux 4.19.56
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-The results of these automated tests are provided below.
+------------------------------------------------------
+From: John Ogness <john.ogness@linutronix.de>
+Subject: fs/proc/array.c: allow reporting eip/esp for all coredumping threads
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+0a1eb2d474ed ("fs/proc: Stop reporting eip and esp in /proc/PID/stat")
+stopped reporting eip/esp and fd7d56270b52 ("fs/proc: Report eip/esp in
+/prod/PID/stat for coredumping") reintroduced the feature to fix a
+regression with userspace core dump handlers (such as minicoredumper).
 
+Because PF_DUMPCORE is only set for the primary thread, this didn't fix
+the original problem for secondary threads.  Allow reporting the eip/esp
+for all threads by checking for PF_EXITING as well.  This is set for all
+the other threads when they are killed.  coredump_wait() waits for all the
+tasks to become inactive before proceeding to invoke a core dumper.
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+Link: http://lkml.kernel.org/r/87y32p7i7a.fsf@linutronix.de
+Link: http://lkml.kernel.org/r/20190522161614.628-1-jlu@pengutronix.de
+Fixes: fd7d56270b526ca3 ("fs/proc: Report eip/esp in /prod/PID/stat for coredumping")
+Signed-off-by: John Ogness <john.ogness@linutronix.de>
+Reported-by: Jan Luebbe <jlu@pengutronix.de>
+Tested-by: Jan Luebbe <jlu@pengutronix.de>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+ fs/proc/array.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Merge testing
--------------
+--- a/fs/proc/array.c~fs-proc-allow-reporting-eip-esp-for-all-coredumping-threads
++++ a/fs/proc/array.c
+@@ -462,7 +462,7 @@ static int do_task_stat(struct seq_file
+ 		 * a program is not able to use ptrace(2) in that case. It is
+ 		 * safe because the task has stopped executing permanently.
+ 		 */
+-		if (permitted && (task->flags & PF_DUMPCORE)) {
++		if (permitted && (task->flags & (PF_EXITING|PF_DUMPCORE))) {
+ 			if (try_get_task_stack(task)) {
+ 				eip = KSTK_EIP(task);
+ 				esp = KSTK_ESP(task);
+_
 
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: aec3002d07fd - Linux 4.19.56
-
-
-We grabbed the 1bbfce1e30fa commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  perf-ui-helpline-use-strlcpy-as-a-shorter-form-of-strncpy-explicit-set-nul.patch
-  perf-help-remove-needless-use-of-strncpy.patch
-  perf-header-fix-unchecked-usage-of-strncpy.patch
-  arm64-don-t-unconditionally-add-wno-psabi-to-kbuild_cflags.patch
-  revert-x86-uaccess-ftrace-fix-ftrace_likely_update-v.patch
-  ib-hfi1-close-psm-sdma_progress-sleep-window.patch
-  9p-xen-fix-check-for-xenbus_read-error-in-front_prob.patch
-  9p-use-a-slab-for-allocating-requests.patch
-  9p-embed-fcall-in-req-to-round-down-buffer-allocs.patch
-  9p-add-a-per-client-fcall-kmem_cache.patch
-  9p-rename-p9_free_req-function.patch
-  9p-add-refcount-to-p9_req_t.patch
-  9p-rdma-do-not-disconnect-on-down_interruptible-eaga.patch
-  9p-rename-req-to-rreq-in-trans_fd.patch
-  9p-acl-fix-uninitialized-iattr-access.patch
-  9p-rdma-remove-useless-check-in-cm_event_handler.patch
-  9p-p9dirent_read-check-network-provided-name-length.patch
-  9p-potential-null-dereference.patch
-  9p-trans_fd-abort-p9_read_work-if-req-status-changed.patch
-  9p-trans_fd-put-worker-reqs-on-destroy.patch
-  net-9p-include-trans_common.h-to-fix-missing-prototy.patch
-  qmi_wwan-fix-out-of-bounds-read.patch
-  revert-usb-dwc3-gadget-clear-req-needs_extra_trb-fla.patch
-  usb-dwc3-gadget-combine-unaligned-and-zero-flags.patch
-  usb-dwc3-gadget-track-number-of-trbs-per-request.patch
-  usb-dwc3-gadget-use-num_trbs-when-skipping-trbs-on-d.patch
-  usb-dwc3-gadget-extract-dwc3_gadget_ep_skip_trbs.patch
-  usb-dwc3-gadget-introduce-cancelled_list.patch
-  usb-dwc3-gadget-move-requests-to-cancelled_list.patch
-  usb-dwc3-gadget-remove-wait_end_transfer.patch
-  usb-dwc3-gadget-clear-req-needs_extra_trb-flag-on-cl.patch
-  fs-proc-array.c-allow-reporting-eip-esp-for-all-coredumping-threads.patch
-  mm-mempolicy.c-fix-an-incorrect-rebind-node-in-mpol_rebind_nodemask.patch
-  fs-binfmt_flat.c-make-load_flat_shared_library-work.patch
-  clk-socfpga-stratix10-fix-divider-entry-for-the-emac-clocks.patch
-  mm-soft-offline-return-ebusy-if-set_hwpoison_free_buddy_page-fails.patch
-  mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge.patch
-  mm-page_idle.c-fix-oops-because-end_pfn-is-larger-than-max_pfn.patch
-  dm-log-writes-make-sure-super-sector-log-updates-are-written-in-order.patch
-  scsi-vmw_pscsi-fix-use-after-free-in-pvscsi_queue_lck.patch
-  x86-speculation-allow-guests-to-use-ssbd-even-if-host-does-not.patch
-  x86-microcode-fix-the-microcode-load-on-cpu-hotplug-for-real.patch
-  x86-resctrl-prevent-possible-overrun-during-bitmap-operations.patch
-  kvm-x86-mmu-allocate-pae-root-array-when-using-svm-s-32-bit-npt.patch
-  nfs-flexfiles-use-the-correct-tcp-timeout-for-flexfiles-i-o.patch
-  cpu-speculation-warn-on-unsupported-mitigations-parameter.patch
-  sunrpc-clean-up-initialisation-of-the-struct-rpc_rqst.patch
-  irqchip-mips-gic-use-the-correct-local-interrupt-map-registers.patch
-  eeprom-at24-fix-unexpected-timeout-under-high-load.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-4439afb1ad221375d9a7d012ad3402729daa0853.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-4439afb1ad221375d9a7d012ad3402729daa0853.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-4439afb1ad221375d9a7d012ad3402729daa0853.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-4439afb1ad221375d9a7d012ad3402729daa0853.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-4439afb1ad221375d9a7d012ad3402729daa0853.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-4439afb1ad221375d9a7d012ad3402729daa0853.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-4439afb1ad221375d9a7d012ad3402729daa0853.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-4439afb1ad221375d9a7d012ad3402729daa0853.tar.gz
+Patches currently in -mm which might be from john.ogness@linutronix.de are
 
 
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-       🚧 ✅ storage: SCSI VPD [11]
-       🚧 ✅ storage: software RAID testing [12]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [13]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [14]
-       ✅ selinux-policy: serge-testsuite [15]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [14]
-       ✅ selinux-policy: serge-testsuite [15]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-       🚧 ✅ storage: software RAID testing [12]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [13]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [15]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-       🚧 ✅ storage: software RAID testing [12]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [14]
-       ✅ selinux-policy: serge-testsuite [15]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ tuned: tune-processes-through-perf [10]
-       🚧 ✅ storage: SCSI VPD [11]
-       🚧 ✅ storage: software RAID testing [12]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [13]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#vm/hugepage/libhugetlbfs
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
