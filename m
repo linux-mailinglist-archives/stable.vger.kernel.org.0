@@ -2,92 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEA4E5BD94
-	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 16:05:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2F2E5BD99
+	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 16:06:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727031AbfGAOFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 10:05:07 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:36412 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729296AbfGAOFG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 10:05:06 -0400
-Received: by mail-io1-f68.google.com with SMTP id h6so29128908ioh.3
-        for <stable@vger.kernel.org>; Mon, 01 Jul 2019 07:05:06 -0700 (PDT)
+        id S1729296AbfGAOGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 10:06:08 -0400
+Received: from mail-vk1-f196.google.com ([209.85.221.196]:38816 "EHLO
+        mail-vk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728821AbfGAOGH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 10:06:07 -0400
+Received: by mail-vk1-f196.google.com with SMTP id f68so2722866vkf.5
+        for <stable@vger.kernel.org>; Mon, 01 Jul 2019 07:06:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=9IU9Vum1iEYXNFUQZJjTlbhqVVSUgpHJpWnEL+ydahk=;
-        b=zJSjcaNlk9MyLQy21nWTiY8jfylj+b2oHUfdD3gsHMqdUrDnNS8H0Qjd/1RxTRCofj
-         bU67WSUYf88+pyHStt0iUmfaB3OqQT2Do1CkVIWW3uLxLDV3gg3qy0aIFH+nrKS4j7Ln
-         4hPzI0zEjU0cUx0RhPZ4Zu/f9Ztj/uE9vkxOdwK6eFA5B10PtX65IvI2ztmg5577svSn
-         U9OXsWI+xAT5Dqe+xDWL/U52PzsOaADKukHP8yAtGuwSmL3QkQXpHOr9B0DaTweEYh6e
-         3WS6WnIVPs4vc4pDx9QiPZvWgcH7asKyLptIE45o6RnSx4nK1ZTEQUJ1rb7U6PYd2Qdt
-         NIPw==
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=FmGHNpejQ29nIiQ+vBc6/ce+Q7SqcsDKzIUla6egsaM=;
+        b=jQcIAX7ovXCm2PAROddSKMKAfUcZRUl+wkj3yOBz8qY9MA5S/MdJL1xqmUqiVBbm3P
+         eYrlAuuSxt7X4RWrcbwvPt7girrjapOxm5VWXPIe1ccNpWFH5XZXal+c7oZsJBPNTqvw
+         ZR9+YgkyDjmC+3G+vNbplp5G8cxdvpEZJzWf+nI+FcK2Bd3OGkRlrl1gBkPwZNAl+npt
+         zJAe/TEWXi3IEtqSo6viN0mb0lTdcEFNU7MW0Xdw3+cm6dktFBzGQoK09wFYohLl/AGp
+         ArIa8FUjTKPmo27ZK+JAq3DdnZ1qW9Ec636VczdrDpesN9rBK9e6qnqTm75xk1A022VV
+         leow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=9IU9Vum1iEYXNFUQZJjTlbhqVVSUgpHJpWnEL+ydahk=;
-        b=IdFnndUymTIJYxwqthLBnrWGiXjQ98sKUGmMNPk++XEYDWNVUvQwSkaoOjMpsw/Fck
-         x8k6jvr8xWZXbF3l8BD88kcaS3GfkSTrwtxJ3Yt6fzsdrNtgk4XkkrbXyfMCA7JEs27U
-         smqpelh01AMxSPjba/m/ZZswzqrqHp8X+tsOo0M7IwD97LYG1C037XiBNCzW14Cn0ycs
-         /O+Gu49fwKu5ZLuMj3HXNABcJBpiiEQghk8bSpuuKMMO47q2FTIjuSYmoL+BSilttV2i
-         6ftG8reBZttabeCx16Vcxk/SHwJd9FAgwbn5mNBDhTrveOYVf1FMR+iKj3ZOea6B2i/+
-         6AyA==
-X-Gm-Message-State: APjAAAXD3wvptZoiMw1PtS0jNaGIsqG4WMdIf1Ev5vlF+xiB91KbzZhl
-        64cfYI5CM0Iyjt9l67hr1587/yhIppN3b+Tq
-X-Google-Smtp-Source: APXvYqzhrHY+sRdQ6KZLe3VL0lPbv09Q/COiAF3X6IakXifjdtvvYSO02UJsciHFjbggEaoQ8waVoQ==
-X-Received: by 2002:a6b:b843:: with SMTP id i64mr730492iof.81.1561989905288;
-        Mon, 01 Jul 2019 07:05:05 -0700 (PDT)
-Received: from [192.168.1.158] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id w23sm9787246iod.12.2019.07.01.07.05.02
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Jul 2019 07:05:03 -0700 (PDT)
-Subject: Re: [PATCH V2] block: fix .bi_size overflow
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     linux-block@vger.kernel.org,
-        Liu Yiding <liuyd.fnst@cn.fujitsu.com>,
-        kernel test robot <rong.a.chen@intel.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
-References: <20190701071446.22028-1-ming.lei@redhat.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <8db73c5d-a0e2-00c9-59ab-64314097db26@kernel.dk>
-Date:   Mon, 1 Jul 2019 08:05:01 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.1
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=FmGHNpejQ29nIiQ+vBc6/ce+Q7SqcsDKzIUla6egsaM=;
+        b=SbBoBK7/QeqTg2MvThTEiK2Tx9DY93ERSYEx6PjgXJ+QBiBmnJnau1wmEDpaiVdEMc
+         H6wUvfql3JzIdpUlQkp/XtpXlAugXgm2qP6iS1jZbKm9CSblaWo6AiHXn6h2y4CyrBon
+         YvYJzX1YTeGvTAaJhcPMxu4ELukG07Vu1HAd21ktkyVYVDkh5wg+odqcXMEytwaJ83vF
+         lHf2VCXctji3FrJ7ZIn6BLt7jAXbFStavu5J5EMx4BdnY5V6qKOq1XFCm6Vpv0+Zeud2
+         nr3+Nl8/t4ExUV6NMlNHcractLnomf6nKVUab67a9upAgac2hG1MriK+STAbumcpjv/D
+         f7DA==
+X-Gm-Message-State: APjAAAViwGDxxkvT5gSSGSzYS4FsjL0H8lrPCfiwokVUW+SpdSWbeOb9
+        H+ywIDOYQPh2LgtK0sIpC4Y9bBQeKiyIwBKet+Q=
+X-Google-Smtp-Source: APXvYqxjWfJZwz+bCdTsv9lyKPDeoHyJsQBHsiJd5hA87f0SaUvcAPteIXGI39oZIpuUR8Nd+Ta4oVBLYMPhn/LGF1g=
+X-Received: by 2002:a1f:ab04:: with SMTP id u4mr2637744vke.40.1561989967006;
+ Mon, 01 Jul 2019 07:06:07 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20190701071446.22028-1-ming.lei@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a67:2d56:0:0:0:0:0 with HTTP; Mon, 1 Jul 2019 07:06:06 -0700 (PDT)
+From:   serge amidal <amidalserge1@gmail.com>
+Date:   Mon, 1 Jul 2019 15:06:06 +0100
+Message-ID: <CA+1711h4dv+8p0RjMiZNJbESEzta2t5aUSqsvwTTMr9m6pGMng@mail.gmail.com>
+Subject: confiance
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/1/19 1:14 AM, Ming Lei wrote:
-> 'bio->bi_iter.bi_size' is 'unsigned int', which at most hold 4G - 1
-> bytes.
-> 
-> Before 07173c3ec276 ("block: enable multipage bvecs"), one bio can
-> include very limited pages, and usually at most 256, so the fs bio
-> size won't be bigger than 1M bytes most of times.
-> 
-> Since we support multi-page bvec, in theory one fs bio really can
-> be added > 1M pages, especially in case of hugepage, or big writeback
-> with too many dirty pages. Then there is chance in which .bi_size
-> is overflowed.
-> 
-> Fixes this issue by using bio_full() to check if the added segment may
-> overflow .bi_size.
-
-Any objections to queuing this up for 5.3? It's not a new regression
-this series.
-
--- 
-Jens Axboe
-
+Hello
+ I need your urgent assistance in the transfer of an abandoned funds
+on your account within 10-14 days if you are interested, respond to me
+with your information for more details. your name and surname:-. your
+country:-. your phone number. :- .
+ Please respond to this email address (sergeamidal@gmail.com)
+ Best regards Amidal
