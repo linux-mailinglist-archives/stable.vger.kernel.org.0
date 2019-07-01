@@ -2,116 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBCE95B756
-	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 10:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 445EF5B764
+	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 11:02:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727905AbfGAI6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 04:58:33 -0400
-Received: from foss.arm.com ([217.140.110.172]:57864 "EHLO foss.arm.com"
+        id S1728233AbfGAJCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 05:02:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728190AbfGAI6d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jul 2019 04:58:33 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8CAB92B;
-        Mon,  1 Jul 2019 01:58:32 -0700 (PDT)
-Received: from [10.1.196.93] (en101.cambridge.arm.com [10.1.196.93])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 698153F718;
-        Mon,  1 Jul 2019 01:58:31 -0700 (PDT)
-Subject: Re: [PATCH v2 2/5] coresight: etm4x: use explicit barriers on
- enable/disable
-To:     leo.yan@linaro.org, andrew.murray@arm.com
-Cc:     mathieu.poirier@linaro.org, alexander.shishkin@linux.intel.com,
-        coresight@lists.linaro.org, Sudeep.Holla@arm.com,
-        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        mike.leach@linaro.org
-References: <20190627083525.37463-1-andrew.murray@arm.com>
- <20190627083525.37463-3-andrew.murray@arm.com>
- <20190628024529.GC20296@leoy-ThinkPad-X240s>
- <20190628083523.GG34530@e119886-lin.cambridge.arm.com>
- <20190628085154.GD32370@leoy-ThinkPad-X240s>
- <20190628090013.GI34530@e119886-lin.cambridge.arm.com>
- <20190628094116.GF32370@leoy-ThinkPad-X240s>
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-Message-ID: <ff3c3659-930a-1572-588b-9cb040f38e4f@arm.com>
-Date:   Mon, 1 Jul 2019 09:58:29 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.1
+        id S1728196AbfGAJCK (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 1 Jul 2019 05:02:10 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C901217D9;
+        Mon,  1 Jul 2019 09:02:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1561971728;
+        bh=6NTdJ10c2XbenmGqAJoRMKr0iha2JG7ymgBHgQ29lkw=;
+        h=Subject:To:From:Date:From;
+        b=fBCtgmNRCRskq6DrNdIQah19gUw0diSICCbwtgpqb1BPZlPswX/Q+HwF/DhjVd3G5
+         4XFQWeFFAa2wbwHdbJ+zYEgl/Lq1FUGBF41DbzAV/Colbyz75HJ1PXGREL+4RjQu0q
+         BcHOb7HuYEbTS8yPjf567D+JvzK0XRwwfJpQI/T0=
+Subject: patch "iio: adc: stm32-adc: add missing vdda-supply" added to staging-testing
+To:     fabrice.gasnier@st.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 01 Jul 2019 10:59:57 +0200
+Message-ID: <1561971597188147@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190628094116.GF32370@leoy-ThinkPad-X240s>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Leo,
 
-On 28/06/2019 10:41, Leo Yan wrote:
-> Hi Andrew,
-> 
-> On Fri, Jun 28, 2019 at 10:00:14AM +0100, Andrew Murray wrote:
->> On Fri, Jun 28, 2019 at 04:51:54PM +0800, Leo Yan wrote:
->>> Hi Andrew,
->>>
->>> On Fri, Jun 28, 2019 at 09:35:24AM +0100, Andrew Murray wrote:
->>>
->>> [...]
->>>
->>>>>> @@ -454,7 +458,8 @@ static void etm4_disable_hw(void *info)
->>>>>>   	control &= ~0x1;
->>>>>>   
->>>>>>   	/* make sure everything completes before disabling */
->>>>>> -	mb();
->>>>>> +	/* As recommended by 7.3.77 of ARM IHI 0064D */
->>>>>> +	dsb(sy);
->>>>>
->>>>> Here the old code should be right, mb() is the same thing with
->>>>> dsb(sy).
->>>>>
->>>>> So we don't need to change at here?
->>>>
->>>> Correct - on arm64 there is no difference between mb and dsb(sy) so no
->>>> functional change on this hunk.
->>>>
->>>> In repsonse to Suzuki's feedback on this patch, I've updated the commit
->>>> message to describe why I've made this change, as follows:
->>>>       
->>>> "On armv8 the mb macro is defined as dsb(sy) - Given that the etm4x is
->>>> only used on armv8 let's directly use dsb(sy) instead of mb(). This
->>>> removes some ambiguity and makes it easier to correlate the code with
->>>> the TRM."
->>>>
->>>> Does that make sense?
->>>
->>> On reason for preferring to use mb() rather than dsb(sy) is for
->>> compatibility cross different architectures (armv7, armv8, and
->>> so on ...).  Seems to me mb() is a general API and transparent for
->>> architecture's difference.
->>>
->>> dsb(sy) is quite dependent on specific Arm architecture, e.g. some old
->>> Arm architecures might don't support dsb(sy); and we are not sure later
->>> it will change for new architectures.
->>
->> Yes but please note that the KConfig for this driver depends on ARM64.
-> 
-> Understood your point.
-> 
-> I am a bit suspect it's right thing to always set dependency on ARM64
-> for ETMv4 driver.  The reason is Armv8 CPU can also run with aarch32
-> mode in EL1.
-> 
-> If we let ETMv4 driver to support both aarch32 and aarch64, then we
-> will see dsb(sy) might break building for some old Arm arches.
+This is a note to let you know that I've just added the patch titled
 
-If we add support for ETMv4 on aarch32, I would recommend adding a "dsb"
-explicitly for aarch32 to make sure, it doesn't default to something else
-that the mb() may cover up as. There is no point in creating another level
-of indirection when the architecture is clear about it and the ETMv4 supporting
-architectures must implement "dsb". Had this been in a generic code, I would
-be happy to retain mb(). But this is specific to the ETMv4 driver and we know
-that dsb must be there.
+    iio: adc: stm32-adc: add missing vdda-supply
 
-Cheers
-Suzuki
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 7685010fca2ba0284f31fd1380df3cffc96d847e Mon Sep 17 00:00:00 2001
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
+Date: Wed, 19 Jun 2019 14:29:55 +0200
+Subject: iio: adc: stm32-adc: add missing vdda-supply
+
+Add missing vdda-supply, analog power supply, to STM32 ADC. When vdda is
+an independent supply, it needs to be properly turned on or off to supply
+the ADC.
+
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Fixes: 1add69880240 ("iio: adc: Add support for STM32 ADC core").
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+ drivers/iio/adc/stm32-adc-core.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
+index 2327ec18b40c..1f7ce5186dfc 100644
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -87,6 +87,7 @@ struct stm32_adc_priv_cfg {
+  * @domain:		irq domain reference
+  * @aclk:		clock reference for the analog circuitry
+  * @bclk:		bus clock common for all ADCs, depends on part used
++ * @vdda:		vdda analog supply reference
+  * @vref:		regulator reference
+  * @cfg:		compatible configuration data
+  * @common:		common data for all ADC instances
+@@ -97,6 +98,7 @@ struct stm32_adc_priv {
+ 	struct irq_domain		*domain;
+ 	struct clk			*aclk;
+ 	struct clk			*bclk;
++	struct regulator		*vdda;
+ 	struct regulator		*vref;
+ 	const struct stm32_adc_priv_cfg	*cfg;
+ 	struct stm32_adc_common		common;
+@@ -394,10 +396,16 @@ static int stm32_adc_core_hw_start(struct device *dev)
+ 	struct stm32_adc_priv *priv = to_stm32_adc_priv(common);
+ 	int ret;
+ 
++	ret = regulator_enable(priv->vdda);
++	if (ret < 0) {
++		dev_err(dev, "vdda enable failed %d\n", ret);
++		return ret;
++	}
++
+ 	ret = regulator_enable(priv->vref);
+ 	if (ret < 0) {
+ 		dev_err(dev, "vref enable failed\n");
+-		return ret;
++		goto err_vdda_disable;
+ 	}
+ 
+ 	if (priv->bclk) {
+@@ -425,6 +433,8 @@ static int stm32_adc_core_hw_start(struct device *dev)
+ 		clk_disable_unprepare(priv->bclk);
+ err_regulator_disable:
+ 	regulator_disable(priv->vref);
++err_vdda_disable:
++	regulator_disable(priv->vdda);
+ 
+ 	return ret;
+ }
+@@ -441,6 +451,7 @@ static void stm32_adc_core_hw_stop(struct device *dev)
+ 	if (priv->bclk)
+ 		clk_disable_unprepare(priv->bclk);
+ 	regulator_disable(priv->vref);
++	regulator_disable(priv->vdda);
+ }
+ 
+ static int stm32_adc_probe(struct platform_device *pdev)
+@@ -468,6 +479,14 @@ static int stm32_adc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(priv->common.base);
+ 	priv->common.phys_base = res->start;
+ 
++	priv->vdda = devm_regulator_get(&pdev->dev, "vdda");
++	if (IS_ERR(priv->vdda)) {
++		ret = PTR_ERR(priv->vdda);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "vdda get failed, %d\n", ret);
++		return ret;
++	}
++
+ 	priv->vref = devm_regulator_get(&pdev->dev, "vref");
+ 	if (IS_ERR(priv->vref)) {
+ 		ret = PTR_ERR(priv->vref);
+-- 
+2.22.0
+
+
