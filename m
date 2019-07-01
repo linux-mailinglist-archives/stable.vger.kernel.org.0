@@ -2,179 +2,253 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BAB25B59F
-	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 09:15:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 080B75B660
+	for <lists+stable@lfdr.de>; Mon,  1 Jul 2019 10:10:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727838AbfGAHPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 03:15:12 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:32778 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727173AbfGAHPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jul 2019 03:15:12 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 89BA3308A9BE;
-        Mon,  1 Jul 2019 07:15:11 +0000 (UTC)
-Received: from localhost (ovpn-8-25.pek2.redhat.com [10.72.8.25])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8C7CC1001B2E;
-        Mon,  1 Jul 2019 07:14:53 +0000 (UTC)
-From:   Ming Lei <ming.lei@redhat.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Liu Yiding <liuyd.fnst@cn.fujitsu.com>,
-        kernel test robot <rong.a.chen@intel.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
-Subject: [PATCH V2] block: fix .bi_size overflow
-Date:   Mon,  1 Jul 2019 15:14:46 +0800
-Message-Id: <20190701071446.22028-1-ming.lei@redhat.com>
+        id S1727775AbfGAIKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 04:10:43 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:34985 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727742AbfGAIKn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 04:10:43 -0400
+Received: by mail-pf1-f195.google.com with SMTP id d126so6176644pfd.2
+        for <stable@vger.kernel.org>; Mon, 01 Jul 2019 01:10:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :in-reply-to:user-agent;
+        bh=E/CZW9HTMtXTzsWNO626jk1uoh4yKNXGp5gpm1i8SNo=;
+        b=Y1Jl7Q3riwientCHluxuBavS3le3r8ZkQ6ZthBM24QSSsseeTqeNZmXcJEXfC9QeP8
+         l6bbotOduPtoFStTdwPBkP9o7qaDEjwmJ6Le1PbbVtSbBiZqF22uqzR5WevH/mqIxbXS
+         auNIogcG5elmi+eckCW5UoPAoVU7+6A7QfwDA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=E/CZW9HTMtXTzsWNO626jk1uoh4yKNXGp5gpm1i8SNo=;
+        b=NK/6h1zO0+GyL/Hb/CKgScpxbqFsOV3P7TP5v7oHCp5TuaAo+8S+lam0+DL+DKHOGn
+         plSyPm4LXpUlhLFH7J/R9CE/6Y9fbBcTItstB1y0ZSjqupaBJQ4M8c1IdwVPxBi7lspx
+         kKjdRu2jxhwOTjmGWO4FRDJM7uS7CzMPGI0hnkWPkLILBl5Zt1cYg1BiLD+pnBfLWbi3
+         AA25IFno2+cHOBRrHQ20JqJMPCDSJon1ZSgNdfw7siQPkGMPRus4jK/j3ZjqV8Wg/api
+         rmV5lZzhs5tZCVLG226a4Wxv/5NHUH/Bbjrw4IzWdnQPz2EW1g3NxbZg1NL2G/Hn9gYv
+         ii6Q==
+X-Gm-Message-State: APjAAAUsr+MEO6rwuuW/QZhYAjf4Jwc1mtsjxBePOLeyhESkWXHrsPOf
+        XiI6LWHPRatQNRXYbF5b2yxD
+X-Google-Smtp-Source: APXvYqw/mugHN9o8pQ1MjJFOIOtoYW8do+1rzm25p+7GQndefP86Q2v1wR+6xWqkKyU8+6gIl6y1tA==
+X-Received: by 2002:a63:dd53:: with SMTP id g19mr22552755pgj.3.1561968642410;
+        Mon, 01 Jul 2019 01:10:42 -0700 (PDT)
+Received: from google.com ([2401:fa00:1:b:d89e:cfa6:3c8:e61b])
+        by smtp.gmail.com with ESMTPSA id a16sm14383490pfd.68.2019.07.01.01.10.40
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Mon, 01 Jul 2019 01:10:41 -0700 (PDT)
+Date:   Mon, 1 Jul 2019 16:10:38 +0800
+From:   Kuo-Hsin Yang <vovoy@chromium.org>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Johannes Weiner <hannes@cmpxchg.org>
+Cc:     Minchan Kim <minchan@kernel.org>, Michal Hocko <mhocko@suse.com>,
+        Sonny Rao <sonnyrao@chromium.org>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: [PATCH] mm: vmscan: scan anonymous pages on file refaults
+Message-ID: <20190701081038.GA83398@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.41]); Mon, 01 Jul 2019 07:15:11 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190628111627.GA107040@google.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-'bio->bi_iter.bi_size' is 'unsigned int', which at most hold 4G - 1
-bytes.
+When file refaults are detected and there are many inactive file pages,
+the system never reclaim anonymous pages, the file pages are dropped
+aggressively when there are still a lot of cold anonymous pages and
+system thrashes.  This issue impacts the performance of applications
+with large executable, e.g. chrome.
 
-Before 07173c3ec276 ("block: enable multipage bvecs"), one bio can
-include very limited pages, and usually at most 256, so the fs bio
-size won't be bigger than 1M bytes most of times.
+With this patch, when file refault is detected, inactive_list_is_low()
+always returns true for file pages in get_scan_count() to enable
+scanning anonymous pages.
 
-Since we support multi-page bvec, in theory one fs bio really can
-be added > 1M pages, especially in case of hugepage, or big writeback
-with too many dirty pages. Then there is chance in which .bi_size
-is overflowed.
+The problem can be reproduced by the following test program.
 
-Fixes this issue by using bio_full() to check if the added segment may
-overflow .bi_size.
+---8<---
+void fallocate_file(const char *filename, off_t size)
+{
+	struct stat st;
+	int fd;
 
-Cc: Liu Yiding <liuyd.fnst@cn.fujitsu.com>
-Cc: kernel test robot <rong.a.chen@intel.com>
-Cc: "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc: linux-xfs@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: stable@vger.kernel.org
-Fixes: 07173c3ec276 ("block: enable multipage bvecs")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
+	if (!stat(filename, &st) && st.st_size >= size)
+		return;
+
+	fd = open(filename, O_WRONLY | O_CREAT, 0600);
+	if (fd < 0) {
+		perror("create file");
+		exit(1);
+	}
+	if (posix_fallocate(fd, 0, size)) {
+		perror("fallocate");
+		exit(1);
+	}
+	close(fd);
+}
+
+long *alloc_anon(long size)
+{
+	long *start = malloc(size);
+	memset(start, 1, size);
+	return start;
+}
+
+long access_file(const char *filename, long size, long rounds)
+{
+	int fd, i;
+	volatile char *start1, *end1, *start2;
+	const int page_size = getpagesize();
+	long sum = 0;
+
+	fd = open(filename, O_RDONLY);
+	if (fd == -1) {
+		perror("open");
+		exit(1);
+	}
+
+	/*
+	 * Some applications, e.g. chrome, use a lot of executable file
+	 * pages, map some of the pages with PROT_EXEC flag to simulate
+	 * the behavior.
+	 */
+	start1 = mmap(NULL, size / 2, PROT_READ | PROT_EXEC, MAP_SHARED,
+		      fd, 0);
+	if (start1 == MAP_FAILED) {
+		perror("mmap");
+		exit(1);
+	}
+	end1 = start1 + size / 2;
+
+	start2 = mmap(NULL, size / 2, PROT_READ, MAP_SHARED, fd, size / 2);
+	if (start2 == MAP_FAILED) {
+		perror("mmap");
+		exit(1);
+	}
+
+	for (i = 0; i < rounds; ++i) {
+		struct timeval before, after;
+		volatile char *ptr1 = start1, *ptr2 = start2;
+		gettimeofday(&before, NULL);
+		for (; ptr1 < end1; ptr1 += page_size, ptr2 += page_size)
+			sum += *ptr1 + *ptr2;
+		gettimeofday(&after, NULL);
+		printf("File access time, round %d: %f (sec)\n", i,
+		       (after.tv_sec - before.tv_sec) +
+		       (after.tv_usec - before.tv_usec) / 1000000.0);
+	}
+	return sum;
+}
+
+int main(int argc, char *argv[])
+{
+	const long MB = 1024 * 1024;
+	long anon_mb, file_mb, file_rounds;
+	const char filename[] = "large";
+	long *ret1;
+	long ret2;
+
+	if (argc != 4) {
+		printf("usage: thrash ANON_MB FILE_MB FILE_ROUNDS\n");
+		exit(0);
+	}
+	anon_mb = atoi(argv[1]);
+	file_mb = atoi(argv[2]);
+	file_rounds = atoi(argv[3]);
+
+	fallocate_file(filename, file_mb * MB);
+	printf("Allocate %ld MB anonymous pages\n", anon_mb);
+	ret1 = alloc_anon(anon_mb * MB);
+	printf("Access %ld MB file pages\n", file_mb);
+	ret2 = access_file(filename, file_mb * MB, file_rounds);
+	printf("Print result to prevent optimization: %ld\n",
+	       *ret1 + ret2);
+	return 0;
+}
+---8<---
+
+Running the test program on 2GB RAM VM with kernel 5.2.0-rc5, the
+program fills ram with 2048 MB memory, access a 200 MB file for 10
+times.  Without this patch, the file cache is dropped aggresively and
+every access to the file is from disk.
+
+  $ ./thrash 2048 200 10
+  Allocate 2048 MB anonymous pages
+  Access 200 MB file pages
+  File access time, round 0: 2.489316 (sec)
+  File access time, round 1: 2.581277 (sec)
+  File access time, round 2: 2.487624 (sec)
+  File access time, round 3: 2.449100 (sec)
+  File access time, round 4: 2.420423 (sec)
+  File access time, round 5: 2.343411 (sec)
+  File access time, round 6: 2.454833 (sec)
+  File access time, round 7: 2.483398 (sec)
+  File access time, round 8: 2.572701 (sec)
+  File access time, round 9: 2.493014 (sec)
+
+With this patch, these file pages can be cached.
+
+  $ ./thrash 2048 200 10
+  Allocate 2048 MB anonymous pages
+  Access 200 MB file pages
+  File access time, round 0: 2.475189 (sec)
+  File access time, round 1: 2.440777 (sec)
+  File access time, round 2: 2.411671 (sec)
+  File access time, round 3: 1.955267 (sec)
+  File access time, round 4: 0.029924 (sec)
+  File access time, round 5: 0.000808 (sec)
+  File access time, round 6: 0.000771 (sec)
+  File access time, round 7: 0.000746 (sec)
+  File access time, round 8: 0.000738 (sec)
+  File access time, round 9: 0.000747 (sec)
+
+Fixes: e9868505987a ("mm,vmscan: only evict file pages when we have plenty")
+Fixes: 7c5bd705d8f9 ("mm: memcg: only evict file pages when we have plenty")
+Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: <stable@vger.kernel.org> # 4.12+
 ---
- block/bio.c         | 10 +++++-----
- fs/iomap.c          |  2 +-
- fs/xfs/xfs_aops.c   |  2 +-
- include/linux/bio.h | 18 ++++++++++++++++--
- 4 files changed, 23 insertions(+), 9 deletions(-)
+ mm/vmscan.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index ce797d73bb43..67bba12d273b 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -731,7 +731,7 @@ static int __bio_add_pc_page(struct request_queue *q, struct bio *bio,
- 		}
- 	}
- 
--	if (bio_full(bio))
-+	if (bio_full(bio, len))
- 		return 0;
- 
- 	if (bio->bi_phys_segments >= queue_max_segments(q))
-@@ -807,7 +807,7 @@ void __bio_add_page(struct bio *bio, struct page *page,
- 	struct bio_vec *bv = &bio->bi_io_vec[bio->bi_vcnt];
- 
- 	WARN_ON_ONCE(bio_flagged(bio, BIO_CLONED));
--	WARN_ON_ONCE(bio_full(bio));
-+	WARN_ON_ONCE(bio_full(bio, len));
- 
- 	bv->bv_page = page;
- 	bv->bv_offset = off;
-@@ -834,7 +834,7 @@ int bio_add_page(struct bio *bio, struct page *page,
- 	bool same_page = false;
- 
- 	if (!__bio_try_merge_page(bio, page, len, offset, &same_page)) {
--		if (bio_full(bio))
-+		if (bio_full(bio, len))
- 			return 0;
- 		__bio_add_page(bio, page, len, offset);
- 	}
-@@ -922,7 +922,7 @@ static int __bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
- 			if (same_page)
- 				put_page(page);
- 		} else {
--			if (WARN_ON_ONCE(bio_full(bio)))
-+			if (WARN_ON_ONCE(bio_full(bio, len)))
-                                 return -EINVAL;
- 			__bio_add_page(bio, page, len, offset);
- 		}
-@@ -966,7 +966,7 @@ int bio_iov_iter_get_pages(struct bio *bio, struct iov_iter *iter)
- 			ret = __bio_iov_bvec_add_pages(bio, iter);
- 		else
- 			ret = __bio_iov_iter_get_pages(bio, iter);
--	} while (!ret && iov_iter_count(iter) && !bio_full(bio));
-+	} while (!ret && iov_iter_count(iter) && !bio_full(bio, 0));
- 
- 	if (iov_iter_bvec_no_ref(iter))
- 		bio_set_flag(bio, BIO_NO_PAGE_REF);
-diff --git a/fs/iomap.c b/fs/iomap.c
-index 12654c2e78f8..da961fca3180 100644
---- a/fs/iomap.c
-+++ b/fs/iomap.c
-@@ -333,7 +333,7 @@ iomap_readpage_actor(struct inode *inode, loff_t pos, loff_t length, void *data,
- 	if (iop)
- 		atomic_inc(&iop->read_count);
- 
--	if (!ctx->bio || !is_contig || bio_full(ctx->bio)) {
-+	if (!ctx->bio || !is_contig || bio_full(ctx->bio, plen)) {
- 		gfp_t gfp = mapping_gfp_constraint(page->mapping, GFP_KERNEL);
- 		int nr_vecs = (length + PAGE_SIZE - 1) >> PAGE_SHIFT;
- 
-diff --git a/fs/xfs/xfs_aops.c b/fs/xfs/xfs_aops.c
-index 8da5e6637771..11f703d4a605 100644
---- a/fs/xfs/xfs_aops.c
-+++ b/fs/xfs/xfs_aops.c
-@@ -782,7 +782,7 @@ xfs_add_to_ioend(
- 		atomic_inc(&iop->write_count);
- 
- 	if (!merged) {
--		if (bio_full(wpc->ioend->io_bio))
-+		if (bio_full(wpc->ioend->io_bio, len))
- 			xfs_chain_bio(wpc->ioend, wbc, bdev, sector);
- 		bio_add_page(wpc->ioend->io_bio, page, len, poff);
- 	}
-diff --git a/include/linux/bio.h b/include/linux/bio.h
-index f87abaa898f0..e36b8fc1b1c3 100644
---- a/include/linux/bio.h
-+++ b/include/linux/bio.h
-@@ -102,9 +102,23 @@ static inline void *bio_data(struct bio *bio)
- 	return NULL;
- }
- 
--static inline bool bio_full(struct bio *bio)
-+/**
-+ * bio_full - check if the bio is full
-+ * @bio:	bio to check
-+ * @len:	length of one segment to be added
-+ *
-+ * Return true if @bio is full and one segment with @len bytes can't be
-+ * added to the bio, otherwise return false
-+ */
-+static inline bool bio_full(struct bio *bio, unsigned len)
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 7889f583ced9f..da0b97204372e 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -2125,7 +2125,7 @@ static void shrink_active_list(unsigned long nr_to_scan,
+  *   10TB     320        32GB
+  */
+ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+-				 struct scan_control *sc, bool actual_reclaim)
++				 struct scan_control *sc, bool trace)
  {
--	return bio->bi_vcnt >= bio->bi_max_vecs;
-+	if (bio->bi_vcnt >= bio->bi_max_vecs)
-+		return true;
-+
-+	if (bio->bi_iter.bi_size > UINT_MAX - len)
-+		return true;
-+
-+	return false;
- }
+ 	enum lru_list active_lru = file * LRU_FILE + LRU_ACTIVE;
+ 	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
+@@ -2151,7 +2151,7 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+ 	 * rid of the stale workingset quickly.
+ 	 */
+ 	refaults = lruvec_page_state_local(lruvec, WORKINGSET_ACTIVATE);
+-	if (file && actual_reclaim && lruvec->refaults != refaults) {
++	if (file && lruvec->refaults != refaults) {
+ 		inactive_ratio = 0;
+ 	} else {
+ 		gb = (inactive + active) >> (30 - PAGE_SHIFT);
+@@ -2161,7 +2161,7 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+ 			inactive_ratio = 1;
+ 	}
  
- static inline bool bio_next_segment(const struct bio *bio,
+-	if (actual_reclaim)
++	if (trace)
+ 		trace_mm_vmscan_inactive_list_is_low(pgdat->node_id, sc->reclaim_idx,
+ 			lruvec_lru_size(lruvec, inactive_lru, MAX_NR_ZONES), inactive,
+ 			lruvec_lru_size(lruvec, active_lru, MAX_NR_ZONES), active,
 -- 
-2.20.1
+2.22.0.410.gd8fdbe21b5-goog
 
