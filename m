@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2C195C59D
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 00:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C93A95C59E
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 00:23:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726339AbfGAWXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 18:23:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53238 "EHLO mail.kernel.org"
+        id S1726866AbfGAWXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 18:23:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726486AbfGAWXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jul 2019 18:23:04 -0400
+        id S1726486AbfGAWXM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jul 2019 18:23:12 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A60721479;
-        Mon,  1 Jul 2019 22:23:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A97C02184B;
+        Mon,  1 Jul 2019 22:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562019783;
-        bh=aUwUBO/WbbOKAqFFyZEnLPzADg3HF1ZUavlAIhR7Bgo=;
+        s=default; t=1562019791;
+        bh=r8fIIYoMROeNFoNdX2VTqOxpftrNFKnAkQQcBgVHNlc=;
         h=Date:From:To:Subject:From;
-        b=LDx/7+UmcQkRc0xFkWli2Z8r01JfKhbJIjdRNo1VOi2GL+CkKGT3sD9VXbQISl+6W
-         0t3X4qfYqVAIvVXjqnJWzvymt0emLJnEf8mPXjAAQYLtaaJ07RSS0jBfSAMgeIW8I6
-         zxYDDGtlPzx8Zejd3dzLfssiEofqALsqZyIhjL+U=
-Date:   Mon, 01 Jul 2019 15:23:03 -0700
+        b=oxNRGO685a7mXUpRI6dckCypvwKAxbl8wzK9ylyC25++ngGabncrtSTHWJNknWQ20
+         YRYbZvHzMWP3M3ZnKKVH4JO8QqHDGyehjceT0LdchGvOWDGs1hKk+pi8bo/7+xiXYW
+         vO8pnUb4KxNcPPdkPw/nxQWfQEnm01h/Awghh1OU=
+Date:   Mon, 01 Jul 2019 15:23:10 -0700
 From:   akpm@linux-foundation.org
-To:     jerry.t.chen@intel.com, mhocko@kernel.org, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, n-horiguchi@ah.jp.nec.com,
-        osalvador@suse.de, qiuxu.zhuo@intel.com, stable@vger.kernel.org,
-        xishi.qiuxishi@alibaba-inc.com
+To:     akpm@linux-foundation.org, aryabinin@virtuozzo.com,
+        colin.king@canonical.com, mgorman@techsingularity.net,
+        mhocko@suse.com, mm-commits@vger.kernel.org,
+        rppt@linux.vnet.ibm.com, sfr@canb.auug.org.au,
+        stable@vger.kernel.org, vdavydov.dev@gmail.com
 Subject:  [merged]
- =?US-ASCII?Q?mm-hugetlb-soft-offline-dissolve=5Ffree=5Fhuge=5Fpage-retu?=
- =?US-ASCII?Q?rn-zero-on-pagehuge-v3.patch?= removed from -mm tree
-Message-ID: <20190701222303.ThzFYB8HO%akpm@linux-foundation.org>
+ mm-idle-page-fix-oops-because-end_pfn-is-larger-than-max_pfn.patch removed
+ from -mm tree
+Message-ID: <20190701222310.qbh_Ezywd%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -43,67 +42,95 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge-v3
+     Subject: mm/page_idle.c: fix oops because end_pfn is larger than max_pfn
 has been removed from the -mm tree.  Its filename was
-     mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge-v3.patch
+     mm-idle-page-fix-oops-because-end_pfn-is-larger-than-max_pfn.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Subject: mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge-v3
+From: Colin Ian King <colin.king@canonical.com>
+Subject: mm/page_idle.c: fix oops because end_pfn is larger than max_pfn
 
-- add PageHuge check in dissolve_free_huge_page() outside hugetlb_lock
-- update comment on dissolve_free_huge_page() about return value
+Currently the calcuation of end_pfn can round up the pfn number to more
+than the actual maximum number of pfns, causing an Oops.  Fix this by
+ensuring end_pfn is never more than max_pfn.
 
-Link: http://lkml.kernel.org/r/1560761476-4651-3-git-send-email-n-horiguchi@ah.jp.nec.com
-Reported-by: Chen, Jerry T <jerry.t.chen@intel.com>
-Tested-by: Chen, Jerry T <jerry.t.chen@intel.com>
-Signed-off-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Fixes: 6bc9b56433b76 ("mm: fix race on soft-offlining")
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Xishi Qiu <xishi.qiuxishi@alibaba-inc.com>
-Cc: "Chen, Jerry T" <jerry.t.chen@intel.com>
-Cc: "Zhuo, Qiuxu" <qiuxu.zhuo@intel.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: <stable@vger.kernel.org>	[4.19+]
+This can be easily triggered when on systems where the end_pfn gets
+rounded up to more than max_pfn using the idle-page stress-ng stress test:
+
+sudo stress-ng --idle-page 0
+
+[ 3812.222790] BUG: unable to handle kernel paging request at 00000000000020d8
+[ 3812.224341] #PF error: [normal kernel read fault]
+[ 3812.225144] PGD 0 P4D 0
+[ 3812.225626] Oops: 0000 [#1] SMP PTI
+[ 3812.226264] CPU: 1 PID: 11039 Comm: stress-ng-idle- Not tainted 5.0.0-5-generic #6-Ubuntu
+[ 3812.227643] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+[ 3812.229286] RIP: 0010:page_idle_get_page+0xc8/0x1a0
+[ 3812.230173] Code: 0f b1 0a 75 7d 48 8b 03 48 89 c2 48 c1 e8 33 83 e0 07 48 c1 ea 36 48 8d 0c 40 4c 8d 24 88 49 c1 e4 07 4c 03 24 d5 00 89 c3 be <49> 8b 44 24 58 48 8d b8 80 a1 02 00 e8 07 d5 77 00 48 8b 53 08 48
+[ 3812.234641] RSP: 0018:ffffafd7c672fde8 EFLAGS: 00010202
+[ 3812.235792] RAX: 0000000000000005 RBX: ffffe36341fff700 RCX: 000000000000000f
+[ 3812.237739] RDX: 0000000000000284 RSI: 0000000000000275 RDI: 0000000001fff700
+[ 3812.239225] RBP: ffffafd7c672fe00 R08: ffffa0bc34056410 R09: 0000000000000276
+[ 3812.241027] R10: ffffa0bc754e9b40 R11: ffffa0bc330f6400 R12: 0000000000002080
+[ 3812.242555] R13: ffffe36341fff700 R14: 0000000000080000 R15: ffffa0bc330f6400
+[ 3812.244073] FS: 00007f0ec1ea5740(0000) GS:ffffa0bc7db00000(0000) knlGS:0000000000000000
+[ 3812.245968] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 3812.247162] CR2: 00000000000020d8 CR3: 0000000077d68000 CR4: 00000000000006e0
+[ 3812.249045] Call Trace:
+[ 3812.249625] page_idle_bitmap_write+0x8c/0x140
+[ 3812.250567] sysfs_kf_bin_write+0x5c/0x70
+[ 3812.251406] kernfs_fop_write+0x12e/0x1b0
+[ 3812.252282] __vfs_write+0x1b/0x40
+[ 3812.253002] vfs_write+0xab/0x1b0
+[ 3812.253941] ksys_write+0x55/0xc0
+[ 3812.254660] __x64_sys_write+0x1a/0x20
+[ 3812.255446] do_syscall_64+0x5a/0x110
+[ 3812.256254] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Link: http://lkml.kernel.org/r/20190618124352.28307-1-colin.king@canonical.com
+Fixes: 33c3fc71c8cf ("mm: introduce idle page tracking")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/hugetlb.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ mm/page_idle.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/hugetlb.c~mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge-v3
-+++ a/mm/hugetlb.c
-@@ -1510,14 +1510,22 @@ static int free_pool_huge_page(struct hs
+--- a/mm/page_idle.c~mm-idle-page-fix-oops-because-end_pfn-is-larger-than-max_pfn
++++ a/mm/page_idle.c
+@@ -136,7 +136,7 @@ static ssize_t page_idle_bitmap_read(str
  
- /*
-  * Dissolve a given free hugepage into free buddy pages. This function does
-- * nothing for in-use (including surplus) hugepages. Returns -EBUSY if the
-- * dissolution fails because a give page is not a free hugepage, or because
-- * free hugepages are fully reserved.
-+ * nothing for in-use hugepages and non-hugepages.
-+ * This function returns values like below:
-+ *
-+ *  -EBUSY: failed to dissolved free hugepages or the hugepage is in-use
-+ *          (allocated or reserved.)
-+ *       0: successfully dissolved free hugepages or the page is not a
-+ *          hugepage (considered as already dissolved)
-  */
- int dissolve_free_huge_page(struct page *page)
- {
- 	int rc = -EBUSY;
+ 	end_pfn = pfn + count * BITS_PER_BYTE;
+ 	if (end_pfn > max_pfn)
+-		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
++		end_pfn = max_pfn;
  
-+	/* Not to disrupt normal path by vainly holding hugetlb_lock */
-+	if (!PageHuge(page))
-+		return 0;
-+
- 	spin_lock(&hugetlb_lock);
- 	if (!PageHuge(page)) {
- 		rc = 0;
+ 	for (; pfn < end_pfn; pfn++) {
+ 		bit = pfn % BITMAP_CHUNK_BITS;
+@@ -181,7 +181,7 @@ static ssize_t page_idle_bitmap_write(st
+ 
+ 	end_pfn = pfn + count * BITS_PER_BYTE;
+ 	if (end_pfn > max_pfn)
+-		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
++		end_pfn = max_pfn;
+ 
+ 	for (; pfn < end_pfn; pfn++) {
+ 		bit = pfn % BITMAP_CHUNK_BITS;
 _
 
-Patches currently in -mm which might be from n-horiguchi@ah.jp.nec.com are
+Patches currently in -mm which might be from colin.king@canonical.com are
 
+scripts-spellingtxt-add-more-spellings-to-spellingtxt.patch
+z3fold-add-inter-page-compaction-fix.patch
+coda-clean-up-indentation-replace-spaces-with-tab.patch
 
