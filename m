@@ -2,256 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B575CFFB
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 15:04:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74C575D002
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 15:04:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726733AbfGBNEj convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 2 Jul 2019 09:04:39 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:54112 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726702AbfGBNEj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 09:04:39 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 8D256307D963
-        for <stable@vger.kernel.org>; Tue,  2 Jul 2019 13:04:38 +0000 (UTC)
-Received: from [172.54.89.168] (cpt-1048.paas.prod.upshift.rdu2.redhat.com [10.0.19.70])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E38031972C;
-        Tue,  2 Jul 2019 13:04:35 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.1.16-rc1-5f67e0e.cki
- (stable)
-Message-ID: <cki.4413DAA96D.82239QONPI@redhat.com>
-X-Gitlab-Pipeline-ID: 15005
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Tue, 02 Jul 2019 13:04:38 +0000 (UTC)
-Date:   Tue, 2 Jul 2019 09:04:39 -0400
+        id S1727072AbfGBNEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 09:04:54 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:40302 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727035AbfGBNEy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 09:04:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
+        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
+        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
+        List-Archive; bh=VrK8RqyESLo3WlpxCq2cSsDNMbC4+p4MWk5KU0cJU3I=; b=EFokFO1nfOpY
+        fIPeXvkxo9ueAg1wwWdUeSqMydAEiBJW4BFfTklU0Cj/EXyrw6c+ZtqrCkNyZRClA+SaPzEfB2kvj
+        LvCgjxz1vj7acGPsO6CIIjsT9hFCJDJzg+kEPPzkhMw/nk7kcP7P9At15JE+eX3YAAcHuUvUZj0b8
+        uAOg8=;
+Received: from [2001:470:1f1d:6b5:7e7a:91ff:fede:4a45] (helo=finisterre.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hiISn-0002O4-3p; Tue, 02 Jul 2019 13:04:49 +0000
+Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
+        id 6E65A44004B; Tue,  2 Jul 2019 14:04:48 +0100 (BST)
+From:   Mark Brown <broonie@kernel.org>
+To:     Krzysztof Kozlowski <krzk@kernel.org>
+Cc:     Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+        Mark Brown <broonie@kernel.org>,
+        Sangbeom Kim <sbkim73@samsung.com>, <stable@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Applied "regulator: s2mps11: Fix buck7 and buck8 wrong voltages" to the regulator tree
+In-Reply-To: <20190629114446.11381-1-krzk@kernel.org>
+X-Patchwork-Hint: ignore
+Message-Id: <20190702130448.6E65A44004B@finisterre.sirena.org.uk>
+Date:   Tue,  2 Jul 2019 14:04:48 +0100 (BST)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+The patch
 
-We ran automated tests on a recent commit from this kernel tree:
+   regulator: s2mps11: Fix buck7 and buck8 wrong voltages
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: 5f67e0e4cdaf - Linux 5.1.16-rc1
+has been applied to the regulator tree at
 
-The results of these automated tests are provided below.
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-5.2
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
 
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
-Compile testing
----------------
+Thanks,
+Mark
 
-We compiled the kernel for 4 architectures:
+From 16da0eb5ab6ef2dd1d33431199126e63db9997cc Mon Sep 17 00:00:00 2001
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Date: Sat, 29 Jun 2019 13:44:45 +0200
+Subject: [PATCH] regulator: s2mps11: Fix buck7 and buck8 wrong voltages
 
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-5f67e0e4cdaf3f59e34417bb2379a2a45e0e49be.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-5f67e0e4cdaf3f59e34417bb2379a2a45e0e49be.tar.gz
+On S2MPS11 device, the buck7 and buck8 regulator voltages start at 750
+mV, not 600 mV.  Using wrong minimal value caused shifting of these
+regulator values by 150 mV (e.g. buck7 usually configured to v1.35 V was
+reported as 1.2 V).
 
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-5f67e0e4cdaf3f59e34417bb2379a2a45e0e49be.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-5f67e0e4cdaf3f59e34417bb2379a2a45e0e49be.tar.gz
+On most of the boards these regulators are left in default state so this
+was only affecting reported voltage.  However if any driver wanted to
+change them, then effectively it would set voltage 150 mV higher than
+intended.
 
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-5f67e0e4cdaf3f59e34417bb2379a2a45e0e49be.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-5f67e0e4cdaf3f59e34417bb2379a2a45e0e49be.tar.gz
+Cc: <stable@vger.kernel.org>
+Fixes: cb74685ecb39 ("regulator: s2mps11: Add samsung s2mps11 regulator driver")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ drivers/regulator/s2mps11.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-5f67e0e4cdaf3f59e34417bb2379a2a45e0e49be.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-5f67e0e4cdaf3f59e34417bb2379a2a45e0e49be.tar.gz
+diff --git a/drivers/regulator/s2mps11.c b/drivers/regulator/s2mps11.c
+index af9bf10b4c33..7a89030187a4 100644
+--- a/drivers/regulator/s2mps11.c
++++ b/drivers/regulator/s2mps11.c
+@@ -372,8 +372,8 @@ static const struct regulator_desc s2mps11_regulators[] = {
+ 	regulator_desc_s2mps11_buck1_4(4),
+ 	regulator_desc_s2mps11_buck5,
+ 	regulator_desc_s2mps11_buck67810(6, MIN_600_MV, STEP_6_25_MV),
+-	regulator_desc_s2mps11_buck67810(7, MIN_600_MV, STEP_12_5_MV),
+-	regulator_desc_s2mps11_buck67810(8, MIN_600_MV, STEP_12_5_MV),
++	regulator_desc_s2mps11_buck67810(7, MIN_750_MV, STEP_12_5_MV),
++	regulator_desc_s2mps11_buck67810(8, MIN_750_MV, STEP_12_5_MV),
+ 	regulator_desc_s2mps11_buck9,
+ 	regulator_desc_s2mps11_buck67810(10, MIN_750_MV, STEP_12_5_MV),
+ };
+-- 
+2.20.1
 
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ Memory function: memfd_create [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ LTP: openposix test suite [5]
-       ✅ Ethernet drivers sanity [6]
-       ✅ audit: audit testsuite test [7]
-       ✅ httpd: mod_ssl smoke sanity [8]
-       ✅ iotop: sanity [9]
-       ✅ redhat-rpm-config: detect-kabi-provides sanity [10]
-       ✅ Usex - version 1.9-29 [11]
-       ✅ lvm thinp sanity [12]
-       🚧 ✅ Networking socket: fuzz [13]
-       🚧 ✅ Networking sctp-auth: sockopts test [14]
-       🚧 ✅ Networking route: pmtu [15]
-       🚧 ✅ Networking route_func: local [16]
-       🚧 ✅ Networking route_func: forward [16]
-       🚧 ✅ Networking TCP: keepalive test [17]
-       🚧 ✅ Networking UDP: socket [18]
-       🚧 ✅ Networking tunnel: gre basic [19]
-       🚧 ✅ Networking tunnel: vxlan basic [20]
-       🚧 ✅ Networking tunnel: geneve basic test [21]
-       🚧 ✅ Networking ipsec: basic netns tunnel [22]
-       🚧 ✅ tuned: tune-processes-through-perf [23]
-       🚧 ✅ storage: software RAID testing [24]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [25]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [26]
-       ✅ xfstests: xfs [26]
-       ✅ selinux-policy: serge-testsuite [27]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ Memory function: memfd_create [3]
-       ✅ LTP: openposix test suite [5]
-       ✅ Ethernet drivers sanity [6]
-       ✅ audit: audit testsuite test [7]
-       ✅ httpd: mod_ssl smoke sanity [8]
-       ✅ iotop: sanity [9]
-       ✅ redhat-rpm-config: detect-kabi-provides sanity [10]
-       ✅ lvm thinp sanity [12]
-       🚧 ✅ Networking socket: fuzz [13]
-       🚧 ✅ Networking sctp-auth: sockopts test [14]
-       🚧 ✅ Networking: igmp conformance test [28]
-       🚧 ✅ Networking route: pmtu [15]
-       🚧 ✅ Networking route_func: local [16]
-       🚧 ✅ Networking route_func: forward [16]
-       🚧 ✅ Networking TCP: keepalive test [17]
-       🚧 ✅ Networking UDP: socket [18]
-       🚧 ✅ Networking tunnel: gre basic [19]
-       🚧 ✅ Networking tunnel: vxlan basic [20]
-       🚧 ✅ Networking tunnel: geneve basic test [21]
-       🚧 ✅ Networking ipsec: basic netns transport [22]
-       🚧 ✅ Networking ipsec: basic netns tunnel [22]
-       🚧 ✅ tuned: tune-processes-through-perf [23]
-       🚧 ✅ storage: software RAID testing [24]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [27]
-
-    Host 3:
-       ✅ Boot test [0]
-       ✅ kdump: sysrq-c [29]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ kdump: sysrq-c [29]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ Memory function: memfd_create [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ LTP: openposix test suite [5]
-       ✅ Ethernet drivers sanity [6]
-       ✅ audit: audit testsuite test [7]
-       ✅ httpd: mod_ssl smoke sanity [8]
-       ✅ iotop: sanity [9]
-       ✅ redhat-rpm-config: detect-kabi-provides sanity [10]
-       ✅ Usex - version 1.9-29 [11]
-       ✅ lvm thinp sanity [12]
-       🚧 ✅ Networking socket: fuzz [13]
-       🚧 ✅ Networking sctp-auth: sockopts test [14]
-       🚧 ✅ Networking: igmp conformance test [28]
-       🚧 ✅ Networking route: pmtu [15]
-       🚧 ✅ Networking route_func: local [16]
-       🚧 ✅ Networking route_func: forward [16]
-       🚧 ✅ Networking TCP: keepalive test [17]
-       🚧 ✅ Networking UDP: socket [18]
-       🚧 ✅ Networking tunnel: gre basic [19]
-       🚧 ✅ Networking tunnel: vxlan basic [20]
-       🚧 ✅ Networking tunnel: geneve basic test [21]
-       🚧 ✅ Networking ipsec: basic netns transport [22]
-       🚧 ✅ Networking ipsec: basic netns tunnel [22]
-       🚧 ✅ tuned: tune-processes-through-perf [23]
-       🚧 ✅ storage: SCSI VPD [30]
-       🚧 ✅ storage: software RAID testing [24]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [25]
-
-    Host 3:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [26]
-       ✅ xfstests: xfs [26]
-       ✅ selinux-policy: serge-testsuite [27]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/detect-kabi-provides
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/gre/basic
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
-    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
-    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#vm/hugepage/libhugetlbfs
-    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
-    [29]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/kdump/kdump-sysrq-c
-    [30]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
