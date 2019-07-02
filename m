@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AA675CA78
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:04:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 527CA5CB10
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:11:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727749AbfGBIEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:04:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50016 "EHLO mail.kernel.org"
+        id S1728486AbfGBIK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:10:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727117AbfGBIEc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:04:32 -0400
+        id S1728915AbfGBIKz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:10:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75D8F20659;
-        Tue,  2 Jul 2019 08:04:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16F7820665;
+        Tue,  2 Jul 2019 08:10:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054671;
-        bh=eIekVJduXiAY8NR+H9LqVvRCKNuiaPZOxZuEk+pTRJQ=;
+        s=default; t=1562055054;
+        bh=DcM6BvikXnZQVDyUoJmwoTLl3k6lVmvyEkQXJvPKY7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g+DPClZsqmXhxsLjLx9vYw2bz8kCCKlx+9ozY19xIECqidW469VnArM1NyMltYaAT
-         JLpbZAR8xU6jxZTlsiDML8ElY9XOmYt9Xp3atTrDIBMXI3IzBol5Oujag4LKuDpqwS
-         tJe4tgW/p5qq4l6aVfhkhkqe7lmi3tSmYy5Su1is=
+        b=P7w7HCytnrFxoQke9wnLz3Te+AIaN++TaFmn9VMm4tVQiZuvc7TJidf7+hkFvAbTL
+         Fhd9q3Gob+J8dpedis2FXCGTwBApqJjj2UELT77yWTavVk7lKr7euhGjXTR452KYza
+         LKjVF02v6SwHQdJNuMVW+uuw6MYfGV9kKwMuXwu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.1 51/55] bpf, arm64: use more scalable stadd over ldxr / stxr loop in xadd
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 19/43] mm/page_idle.c: fix oops because end_pfn is larger than max_pfn
 Date:   Tue,  2 Jul 2019 10:01:59 +0200
-Message-Id: <20190702080126.728030225@linuxfoundation.org>
+Message-Id: <20190702080124.793064726@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
-References: <20190702080124.103022729@linuxfoundation.org>
+In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
+References: <20190702080123.904399496@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,165 +50,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 34b8ab091f9ef57a2bb3c8c8359a0a03a8abf2f9 upstream.
+commit 7298e3b0a149c91323b3205d325e942c3b3b9ef6 upstream.
 
-Since ARMv8.1 supplement introduced LSE atomic instructions back in 2016,
-lets add support for STADD and use that in favor of LDXR / STXR loop for
-the XADD mapping if available. STADD is encoded as an alias for LDADD with
-XZR as the destination register, therefore add LDADD to the instruction
-encoder along with STADD as special case and use it in the JIT for CPUs
-that advertise LSE atomics in CPUID register. If immediate offset in the
-BPF XADD insn is 0, then use dst register directly instead of temporary
-one.
+Currently the calcuation of end_pfn can round up the pfn number to more
+than the actual maximum number of pfns, causing an Oops.  Fix this by
+ensuring end_pfn is never more than max_pfn.
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+This can be easily triggered when on systems where the end_pfn gets
+rounded up to more than max_pfn using the idle-page stress-ng stress test:
+
+sudo stress-ng --idle-page 0
+
+  BUG: unable to handle kernel paging request at 00000000000020d8
+  #PF error: [normal kernel read fault]
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  CPU: 1 PID: 11039 Comm: stress-ng-idle- Not tainted 5.0.0-5-generic #6-Ubuntu
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+  RIP: 0010:page_idle_get_page+0xc8/0x1a0
+  Code: 0f b1 0a 75 7d 48 8b 03 48 89 c2 48 c1 e8 33 83 e0 07 48 c1 ea 36 48 8d 0c 40 4c 8d 24 88 49 c1 e4 07 4c 03 24 d5 00 89 c3 be <49> 8b 44 24 58 48 8d b8 80 a1 02 00 e8 07 d5 77 00 48 8b 53 08 48
+  RSP: 0018:ffffafd7c672fde8 EFLAGS: 00010202
+  RAX: 0000000000000005 RBX: ffffe36341fff700 RCX: 000000000000000f
+  RDX: 0000000000000284 RSI: 0000000000000275 RDI: 0000000001fff700
+  RBP: ffffafd7c672fe00 R08: ffffa0bc34056410 R09: 0000000000000276
+  R10: ffffa0bc754e9b40 R11: ffffa0bc330f6400 R12: 0000000000002080
+  R13: ffffe36341fff700 R14: 0000000000080000 R15: ffffa0bc330f6400
+  FS: 00007f0ec1ea5740(0000) GS:ffffa0bc7db00000(0000) knlGS:0000000000000000
+  CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00000000000020d8 CR3: 0000000077d68000 CR4: 00000000000006e0
+  Call Trace:
+    page_idle_bitmap_write+0x8c/0x140
+    sysfs_kf_bin_write+0x5c/0x70
+    kernfs_fop_write+0x12e/0x1b0
+    __vfs_write+0x1b/0x40
+    vfs_write+0xab/0x1b0
+    ksys_write+0x55/0xc0
+    __x64_sys_write+0x1a/0x20
+    do_syscall_64+0x5a/0x110
+    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Link: http://lkml.kernel.org/r/20190618124352.28307-1-colin.king@canonical.com
+Fixes: 33c3fc71c8cf ("mm: introduce idle page tracking")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/insn.h |    8 ++++++++
- arch/arm64/kernel/insn.c      |   40 ++++++++++++++++++++++++++++++++++++++++
- arch/arm64/net/bpf_jit.h      |    4 ++++
- arch/arm64/net/bpf_jit_comp.c |   28 +++++++++++++++++++---------
- 4 files changed, 71 insertions(+), 9 deletions(-)
+ mm/page_idle.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/include/asm/insn.h
-+++ b/arch/arm64/include/asm/insn.h
-@@ -277,6 +277,7 @@ __AARCH64_INSN_FUNCS(adrp,	0x9F000000, 0
- __AARCH64_INSN_FUNCS(prfm,	0x3FC00000, 0x39800000)
- __AARCH64_INSN_FUNCS(prfm_lit,	0xFF000000, 0xD8000000)
- __AARCH64_INSN_FUNCS(str_reg,	0x3FE0EC00, 0x38206800)
-+__AARCH64_INSN_FUNCS(ldadd,	0x3F20FC00, 0xB8200000)
- __AARCH64_INSN_FUNCS(ldr_reg,	0x3FE0EC00, 0x38606800)
- __AARCH64_INSN_FUNCS(ldr_lit,	0xBF000000, 0x18000000)
- __AARCH64_INSN_FUNCS(ldrsw_lit,	0xFF000000, 0x98000000)
-@@ -394,6 +395,13 @@ u32 aarch64_insn_gen_load_store_ex(enum
- 				   enum aarch64_insn_register state,
- 				   enum aarch64_insn_size_type size,
- 				   enum aarch64_insn_ldst_type type);
-+u32 aarch64_insn_gen_ldadd(enum aarch64_insn_register result,
-+			   enum aarch64_insn_register address,
-+			   enum aarch64_insn_register value,
-+			   enum aarch64_insn_size_type size);
-+u32 aarch64_insn_gen_stadd(enum aarch64_insn_register address,
-+			   enum aarch64_insn_register value,
-+			   enum aarch64_insn_size_type size);
- u32 aarch64_insn_gen_add_sub_imm(enum aarch64_insn_register dst,
- 				 enum aarch64_insn_register src,
- 				 int imm, enum aarch64_insn_variant variant,
---- a/arch/arm64/kernel/insn.c
-+++ b/arch/arm64/kernel/insn.c
-@@ -734,6 +734,46 @@ u32 aarch64_insn_gen_load_store_ex(enum
- 					    state);
- }
+--- a/mm/page_idle.c
++++ b/mm/page_idle.c
+@@ -136,7 +136,7 @@ static ssize_t page_idle_bitmap_read(str
  
-+u32 aarch64_insn_gen_ldadd(enum aarch64_insn_register result,
-+			   enum aarch64_insn_register address,
-+			   enum aarch64_insn_register value,
-+			   enum aarch64_insn_size_type size)
-+{
-+	u32 insn = aarch64_insn_get_ldadd_value();
-+
-+	switch (size) {
-+	case AARCH64_INSN_SIZE_32:
-+	case AARCH64_INSN_SIZE_64:
-+		break;
-+	default:
-+		pr_err("%s: unimplemented size encoding %d\n", __func__, size);
-+		return AARCH64_BREAK_FAULT;
-+	}
-+
-+	insn = aarch64_insn_encode_ldst_size(size, insn);
-+
-+	insn = aarch64_insn_encode_register(AARCH64_INSN_REGTYPE_RT, insn,
-+					    result);
-+
-+	insn = aarch64_insn_encode_register(AARCH64_INSN_REGTYPE_RN, insn,
-+					    address);
-+
-+	return aarch64_insn_encode_register(AARCH64_INSN_REGTYPE_RS, insn,
-+					    value);
-+}
-+
-+u32 aarch64_insn_gen_stadd(enum aarch64_insn_register address,
-+			   enum aarch64_insn_register value,
-+			   enum aarch64_insn_size_type size)
-+{
-+	/*
-+	 * STADD is simply encoded as an alias for LDADD with XZR as
-+	 * the destination register.
-+	 */
-+	return aarch64_insn_gen_ldadd(AARCH64_INSN_REG_ZR, address,
-+				      value, size);
-+}
-+
- static u32 aarch64_insn_encode_prfm_imm(enum aarch64_insn_prfm_type type,
- 					enum aarch64_insn_prfm_target target,
- 					enum aarch64_insn_prfm_policy policy,
---- a/arch/arm64/net/bpf_jit.h
-+++ b/arch/arm64/net/bpf_jit.h
-@@ -100,6 +100,10 @@
- #define A64_STXR(sf, Rt, Rn, Rs) \
- 	A64_LSX(sf, Rt, Rn, Rs, STORE_EX)
+ 	end_pfn = pfn + count * BITS_PER_BYTE;
+ 	if (end_pfn > max_pfn)
+-		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
++		end_pfn = max_pfn;
  
-+/* LSE atomics */
-+#define A64_STADD(sf, Rn, Rs) \
-+	aarch64_insn_gen_stadd(Rn, Rs, A64_SIZE(sf))
-+
- /* Add/subtract (immediate) */
- #define A64_ADDSUB_IMM(sf, Rd, Rn, imm12, type) \
- 	aarch64_insn_gen_add_sub_imm(Rd, Rn, imm12, \
---- a/arch/arm64/net/bpf_jit_comp.c
-+++ b/arch/arm64/net/bpf_jit_comp.c
-@@ -365,7 +365,7 @@ static int build_insn(const struct bpf_i
- 	const bool is64 = BPF_CLASS(code) == BPF_ALU64 ||
- 			  BPF_CLASS(code) == BPF_JMP;
- 	const bool isdw = BPF_SIZE(code) == BPF_DW;
--	u8 jmp_cond;
-+	u8 jmp_cond, reg;
- 	s32 jmp_offset;
+ 	for (; pfn < end_pfn; pfn++) {
+ 		bit = pfn % BITMAP_CHUNK_BITS;
+@@ -181,7 +181,7 @@ static ssize_t page_idle_bitmap_write(st
  
- #define check_imm(bits, imm) do {				\
-@@ -756,18 +756,28 @@ emit_cond_jmp:
- 			break;
- 		}
- 		break;
-+
- 	/* STX XADD: lock *(u32 *)(dst + off) += src */
- 	case BPF_STX | BPF_XADD | BPF_W:
- 	/* STX XADD: lock *(u64 *)(dst + off) += src */
- 	case BPF_STX | BPF_XADD | BPF_DW:
--		emit_a64_mov_i(1, tmp, off, ctx);
--		emit(A64_ADD(1, tmp, tmp, dst), ctx);
--		emit(A64_LDXR(isdw, tmp2, tmp), ctx);
--		emit(A64_ADD(isdw, tmp2, tmp2, src), ctx);
--		emit(A64_STXR(isdw, tmp2, tmp, tmp3), ctx);
--		jmp_offset = -3;
--		check_imm19(jmp_offset);
--		emit(A64_CBNZ(0, tmp3, jmp_offset), ctx);
-+		if (!off) {
-+			reg = dst;
-+		} else {
-+			emit_a64_mov_i(1, tmp, off, ctx);
-+			emit(A64_ADD(1, tmp, tmp, dst), ctx);
-+			reg = tmp;
-+		}
-+		if (cpus_have_cap(ARM64_HAS_LSE_ATOMICS)) {
-+			emit(A64_STADD(isdw, reg, src), ctx);
-+		} else {
-+			emit(A64_LDXR(isdw, tmp2, reg), ctx);
-+			emit(A64_ADD(isdw, tmp2, tmp2, src), ctx);
-+			emit(A64_STXR(isdw, tmp2, reg, tmp3), ctx);
-+			jmp_offset = -3;
-+			check_imm19(jmp_offset);
-+			emit(A64_CBNZ(0, tmp3, jmp_offset), ctx);
-+		}
- 		break;
+ 	end_pfn = pfn + count * BITS_PER_BYTE;
+ 	if (end_pfn > max_pfn)
+-		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
++		end_pfn = max_pfn;
  
- 	default:
+ 	for (; pfn < end_pfn; pfn++) {
+ 		bit = pfn % BITMAP_CHUNK_BITS;
 
 
