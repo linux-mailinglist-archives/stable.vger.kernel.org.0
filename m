@@ -2,163 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C9485D334
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 17:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABED75D481
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 18:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726358AbfGBPoK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 11:44:10 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:37215 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725996AbfGBPoK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 11:44:10 -0400
-Received: by mail-lj1-f196.google.com with SMTP id 131so17379357ljf.4
-        for <stable@vger.kernel.org>; Tue, 02 Jul 2019 08:44:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=J/Zq9g98WhFnjJ6y9wBnnlW6K7Ygb2l9Rki+bO5sY+I=;
-        b=Q8PZzJ3eZS8L9ysfK8C6aSAQh4HfqdNWbqXXILy/RbRM+y7YWs2Iw7KBgd9rkNKoC+
-         HxLR7rGe4Iz3iDBYPicAmzpVXipEj74zq0pCzjftJKPn9b1SsdjNDpNKpy7hansSQry0
-         FDt+5PL1G2DBHIhXyApvTjr+vaTqBBa/SqYKSAu9+N82t1otddwa9HjHPkhZMgRqHnkY
-         9HRJCTh/hZpSjlyoz04GUG06eIbKI1zzPnTgEGZvCmmBZQ/bl7OZcOV7mhHhOSPRYWwl
-         m4iOwXGXLClMW3mQ51tl7oDcDm11HjQn82vM/1qG612oQ5G7kW1BCKeXUafGDGguEFQu
-         zufg==
+        id S1726150AbfGBQnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 12:43:37 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:39845 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726255AbfGBQnh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 12:43:37 -0400
+Received: by mail-wr1-f67.google.com with SMTP id x4so18617549wrt.6
+        for <stable@vger.kernel.org>; Tue, 02 Jul 2019 09:43:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=J/Zq9g98WhFnjJ6y9wBnnlW6K7Ygb2l9Rki+bO5sY+I=;
-        b=ZvBh+UyA8NnUyezMs1SPDrDlNM1+7yavNhutiwasPEk/AHDflKzyDA4t4HFFDcPCOn
-         F4lt5o6EovjnSIoxzPXIv4v9ZBKK1YQzZPTrgLvQQ+5ZVtYyiAxfAIzAUtymSezde5w5
-         Jt+e39Z9eZ4Q9rdcL8OIRQ6QHk3WiFhNMt0rwq7ORMlABhkWG97gT6/lp4fbl6iQjWK2
-         5JsSf4xNVwZhnYyz9WFq49XATGvowb/QJ39UFgEfMc7Hd7x0hn8ajKsHbIPs+5ZSoBbK
-         4p3XtA1KyFa0mf5ordRvho7PqRVmmL/eiuYRIETeDeDvNID3GkOhF26rZf3WhMEaFiMo
-         8E/Q==
-X-Gm-Message-State: APjAAAXK6Lqnp+wb7ZXozCxKwYRp9qA994BeS6P2zB7bEb4SMk070bZa
-        /YAUxAotVWmFLGaD4+FeGgO/0sT45I4lT1Z229/GKA==
-X-Google-Smtp-Source: APXvYqxEhb3B1z/H72FVDsDuHgIXwdXzYIWyPbk5VQgwkxwUTrr29cmyE4xym6p4R5jLar9LhfjCRBn3aaLaLsABrpc=
-X-Received: by 2002:a2e:b0f0:: with SMTP id h16mr17941985ljl.21.1562082248436;
- Tue, 02 Jul 2019 08:44:08 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=kV2rDBr8f3q9kLby6YRxl8ZXleRdsPAklKANirTDrb4=;
+        b=r7BD0raMGv7FmVVeOJtKWpcILxvXPvtUlfgCVtG33G6tXVz3uEo1wZUUetOz3P8Ko6
+         uWB7Oer+8XES0UQuMFFBiTYfuq/fYcUXePQiCOWTYQrXRWUizr9L92qWoCy30py0DHVH
+         gU97x4YVHRQ+uuoqwxKozccsflkBvS1Gzu5f9/5EKN9QXKfv2CIwGbtXUVZdLe8+9d8j
+         wEsRd/R+NWWTQ6JVSkGaBO7PfZM8eQfyMhek+1biuZxd/RGyVik/Ewg+qIYb+tyHknTA
+         3MFrbL5uECCBlrC+Iy6PIASwF0cdkwDFvBTWGMIFA7+0xzlX/ddK7WHs9124cioe8J95
+         e6IQ==
+X-Gm-Message-State: APjAAAUg4eBPVyCz2lYEE6NrQCzxV1hjasWZf37cw8cXy/zcGmZyEdT/
+        5a6B7rFP59/241dGlG3WPu60gaQm/9w=
+X-Google-Smtp-Source: APXvYqyCjkw4IWIQFh2eWCekFXDCVrk3wVqWTz5BvaxR3YLEORVKvovktt+CsNcs/+L6TdZmGAhXPg==
+X-Received: by 2002:a5d:500f:: with SMTP id e15mr12587591wrt.41.1562085814230;
+        Tue, 02 Jul 2019 09:43:34 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:b8:794:183e:9e2a? ([2001:b07:6468:f312:b8:794:183e:9e2a])
+        by smtp.gmail.com with ESMTPSA id z1sm15403353wrv.90.2019.07.02.09.43.33
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Tue, 02 Jul 2019 09:43:33 -0700 (PDT)
+Subject: Re: [PATCH] KVM: LAPIC: Fix pending interrupt in IRR blocked by
+ software disable LAPIC
+To:     Wanpeng Li <kernellwp@gmail.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Rong Chen <rong.a.chen@intel.com>,
+        Feng Tang <feng.tang@intel.com>, stable@vger.kernel.org
+References: <1562059502-8581-1-git-send-email-wanpengli@tencent.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <c75371c8-7dbc-7ce8-c0f3-0396305b896b@redhat.com>
+Date:   Tue, 2 Jul 2019 18:43:32 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-References: <20190702080123.904399496@linuxfoundation.org>
-In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 2 Jul 2019 21:13:56 +0530
-Message-ID: <CA+G9fYuKoCVAK7C4Urr_LpAb5KNFGusVELUYjVt3PMVU3+=K0w@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/43] 4.14.132-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1562059502-8581-1-git-send-email-wanpengli@tencent.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2 Jul 2019 at 13:39, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.132 release.
-> There are 43 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu 04 Jul 2019 07:59:45 AM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.132-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On 02/07/19 11:25, Wanpeng Li wrote:
+> From: Wanpeng Li <wanpengli@tencent.com>
+> 
+> Thomas reported that:
+> 
+>  | Background:
+>  | 
+>  |    In preparation of supporting IPI shorthands I changed the CPU offline
+>  |    code to software disable the local APIC instead of just masking it.
+>  |    That's done by clearing the APIC_SPIV_APIC_ENABLED bit in the APIC_SPIV
+>  |    register.
+>  | 
+>  | Failure:
+>  | 
+>  |    When the CPU comes back online the startup code triggers occasionally
+>  |    the warning in apic_pending_intr_clear(). That complains that the IRRs
+>  |    are not empty.
+>  | 
+>  |    The offending vector is the local APIC timer vector who's IRR bit is set
+>  |    and stays set.
+>  | 
+>  | It took me quite some time to reproduce the issue locally, but now I can
+>  | see what happens.
+>  | 
+>  | It requires apicv_enabled=0, i.e. full apic emulation. With apicv_enabled=1
+>  | (and hardware support) it behaves correctly.
+>  | 
+>  | Here is the series of events:
+>  | 
+>  |     Guest CPU
+>  | 
+>  |     goes down
+>  | 
+>  |       native_cpu_disable()		
+>  | 
+>  | 			apic_soft_disable();
+>  | 
+>  |     play_dead()
+>  | 
+>  |     ....
+>  | 
+>  |     startup()
+>  | 
+>  |       if (apic_enabled())
+>  |         apic_pending_intr_clear()	<- Not taken
+>  | 
+>  |      enable APIC
+>  | 
+>  |         apic_pending_intr_clear()	<- Triggers warning because IRR is stale
+>  | 
+>  | When this happens then the deadline timer or the regular APIC timer -
+>  | happens with both, has fired shortly before the APIC is disabled, but the
+>  | interrupt was not serviced because the guest CPU was in an interrupt
+>  | disabled region at that point.
+>  | 
+>  | The state of the timer vector ISR/IRR bits:
+>  | 
+>  |     	     	       	        ISR     IRR
+>  | before apic_soft_disable()    0	      1
+>  | after apic_soft_disable()     0	      1
+>  | 
+>  | On startup		      		 0	      1
+>  | 
+>  | Now one would assume that the IRR is cleared after the INIT reset, but this
+>  | happens only on CPU0.
+>  | 
+>  | Why?
+>  | 
+>  | Because our CPU0 hotplug is just for testing to make sure nothing breaks
+>  | and goes through an NMI wakeup vehicle because INIT would send it through
+>  | the boots-trap code which is not really working if that CPU was not
+>  | physically unplugged.
+>  | 
+>  | Now looking at a real world APIC the situation in that case is:
+>  | 
+>  |     	     	       	      	ISR     IRR
+>  | before apic_soft_disable()    0	      1
+>  | after apic_soft_disable()     0	      1
+>  | 
+>  | On startup		      		 0	      0
+>  | 
+>  | Why?
+>  | 
+>  | Once the dying CPU reenables interrupts the pending interrupt gets
+>  | delivered as a spurious interupt and then the state is clear.
+>  | 
+>  | While that CPU0 hotplug test case is surely an esoteric issue, the APIC
+>  | emulation is still wrong, Even if the play_dead() code would not enable
+>  | interrupts then the pending IRR bit would turn into an ISR .. interrupt
+>  | when the APIC is reenabled on startup.
+> 
+> 
+> From SDM 10.4.7.2 Local APIC State After It Has Been Software Disabled
+> * Pending interrupts in the IRR and ISR registers are held and require
+>   masking or handling by the CPU.
+> 
+> In Thomas's testing, hardware cpu will not respect soft disable LAPIC 
+> when IRR has already been set or APICv posted-interrupt is in flight, 
+> so we can skip soft disable APIC checking when clearing IRR and set ISR,
+> continue to respect soft disable APIC when attempting to set IRR.
+> 
+> Reported-by: Rong Chen <rong.a.chen@intel.com>
+> Reported-by: Feng Tang <feng.tang@intel.com>
+> Reported-by: Thomas Gleixner <tglx@linutronix.de>
+> Tested-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Radim Krčmář <rkrcmar@redhat.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Rong Chen <rong.a.chen@intel.com>
+> Cc: Feng Tang <feng.tang@intel.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+> ---
+>  arch/x86/kvm/lapic.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+> index 05d8934..f857a12 100644
+> --- a/arch/x86/kvm/lapic.c
+> +++ b/arch/x86/kvm/lapic.c
+> @@ -2376,7 +2376,7 @@ int kvm_apic_has_interrupt(struct kvm_vcpu *vcpu)
+>  	struct kvm_lapic *apic = vcpu->arch.apic;
+>  	u32 ppr;
+>  
+> -	if (!apic_enabled(apic))
+> +	if (!kvm_apic_hw_enabled(apic))
+>  		return -1;
+>  
+>  	__apic_update_ppr(apic, &ppr);
+> 
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Queued, thanks.
 
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.14.132-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: 3734933c2330c5fe94ed2724033965b2eb545028
-git describe: v4.14.131-44-g3734933c2330
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.131-44-g3734933c2330
-
-
-No regressions (compared to build v4.14.131)
-
-No fixes (compared to build v4.14.131)
-
-
-Ran 22541 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-timers-tests
-* perf
-* v4l2-compliance
-* libhugetlbfs
-* ltp-commands-tests
-* ltp-cve-tests
-* ltp-math-tests
-* ltp-sched-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* spectre-meltdown-checker-test
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Paolo
