@@ -2,112 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC9D25CF2A
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:12:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E4135CF41
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:16:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726432AbfGBMMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 08:12:10 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:36740 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726362AbfGBMMK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 08:12:10 -0400
-Received: by mail-wm1-f67.google.com with SMTP id u8so754313wmm.1
-        for <stable@vger.kernel.org>; Tue, 02 Jul 2019 05:12:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=CDsS5u+KDTbhhEMFxmDgcX1QIIeBg3cSM1Nwi7INntc=;
-        b=QmQQd2Ip5d+cg9oHML77Yy8e5G1DAUyTI7QNJ7KoKUh7U+va7mztkOY4eR6lqFEqB2
-         IkBJuwvqohI1cFYTp4CdPv2B63QD0wRktgeKY0O59cDHu6vhXJxPqBY/36KNiSNfrLah
-         1O3mMpckKWV1gYSBqpLoByHZOvJE6qdgGbboEzt5W0SVpllLmY1GfN2UDiihqODyeKWh
-         g3knQToLqeXWuRPsc1RdFKPg3ktK8Jt3sZEJMXIa2aDqT+uit5EbN0GgZaJ51jlMlbT5
-         qa47xw9rCQ8O9mcjvqyvNor3+8F7jwOOXoMzU0iILFk+Bby7ZmbbiLR4dD9cyo+nu1Rt
-         L0QQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=CDsS5u+KDTbhhEMFxmDgcX1QIIeBg3cSM1Nwi7INntc=;
-        b=RcFF6kyqdlHWApNG/+IyHtemTt9UfKdWji24s1HRYbsxdRKbJ3s680UhCd1njwIwwH
-         FRHUnknW/Rz1R2T6ATdmJFXlP22yL0Fpr1UNwE6Y7B1VGyiIyZ4FtXt0Iy1S87qmNuLf
-         1/z0n+O62p7MhDasEQwL0kLR5l0e5qwZ3WytoNqRKgEcdzgSv4eE7SEmGbCjN27lmmTI
-         4yYqmcC2OFcKmaE76xG6BdFNnYw2GjpTFGW7JTDAo3XQnb9A38+1pLVj+x61GImUkloz
-         9J6+LCB06sT82L/TfpOGVun+H4UvU4ifufkaGfjBkdxsKnpr0GpJm1eVEXWW8fjMOAcX
-         KT8g==
-X-Gm-Message-State: APjAAAWJcqXlVe+0BgY6dgTbFHWrm7yommZPB84sMSyAsN1tyf3Uomum
-        d2hSQJWr3OyFGFgTv5QsS/g=
-X-Google-Smtp-Source: APXvYqzbJ9XA5Lx19RMbCq/HOWbEcX92eFuuAzbCPMuombttIhTwC0+RQCbpADQDP8YfDf4oKdXFEg==
-X-Received: by 2002:a1c:f018:: with SMTP id a24mr3215727wmb.66.1562069527903;
-        Tue, 02 Jul 2019 05:12:07 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id c4sm13006626wrt.86.2019.07.02.05.12.06
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Jul 2019 05:12:07 -0700 (PDT)
-Message-ID: <5d1b4a17.1c69fb81.daa12.d41f@mx.google.com>
-Date:   Tue, 02 Jul 2019 05:12:07 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726575AbfGBMQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 08:16:25 -0400
+Received: from mga18.intel.com ([134.134.136.126]:43469 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726475AbfGBMQY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 08:16:24 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Jul 2019 05:16:24 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,443,1557212400"; 
+   d="scan'208";a="315221883"
+Received: from gaia.fi.intel.com ([10.237.72.192])
+  by orsmga004.jf.intel.com with ESMTP; 02 Jul 2019 05:16:23 -0700
+Received: by gaia.fi.intel.com (Postfix, from userid 1000)
+        id A76975C166E; Tue,  2 Jul 2019 15:16:17 +0300 (EEST)
+From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH v7 2/3] drm/i915: whitelist PS_(DEPTH|INVOCATION)_COUNT
+In-Reply-To: <156206601183.2466.7357010939425742878@skylake-alporthouse-com>
+References: <20190628120720.21682-1-lionel.g.landwerlin@intel.com> <20190628120720.21682-3-lionel.g.landwerlin@intel.com> <156206601183.2466.7357010939425742878@skylake-alporthouse-com>
+Date:   Tue, 02 Jul 2019 15:16:17 +0300
+Message-ID: <87zhlw3a3y.fsf@gaia.fi.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.131-43-g6fa18665b865
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
-References: <20190702080123.904399496@linuxfoundation.org>
-Subject: Re: [PATCH 4.14 00/43] 4.14.132-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 128 boots: 3 failed, 124 passed with 1 offline=
- (v4.14.131-43-g6fa18665b865)
+Chris Wilson <chris@chris-wilson.co.uk> writes:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.131-43-g6fa18665b865/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.131-43-g6fa18665b865/
+> Quoting Lionel Landwerlin (2019-06-28 13:07:19)
+>> CFL:C0+ changed the status of those registers which are now
+>> blacklisted by default.
+>> 
+>> This is breaking a number of CTS tests on GL & Vulkan :
+>> 
+>>   KHR-GL45.pipeline_statistics_query_tests_ARB.functional_fragment_shader_invocations (GL)
+>> 
+>>   dEQP-VK.query_pool.statistics_query.fragment_shader_invocations.* (Vulkan)
+>> 
+>> v2: Only use one whitelist entry (Lionel)
+>
+> Bspec: 14091
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.131-43-g6fa18665b865
-Git Commit: 6fa18665b865d4e0d0bbf1a0269e79a5f0bdc2c2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 25 SoC families, 15 builds out of 201
+Sometimes we have optionally used References: BSID#0934 to
+mark the workaround. But it feels a tad redudant now.
 
-Boot Failures Detected:
+>> Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+>> Cc: stable@vger.kernel.org
+> Acked-by: Chris Wilson <chris@chris-wilson.co.uk>
 
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
-
-    multi_v7_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
