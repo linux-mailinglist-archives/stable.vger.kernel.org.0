@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5D5B5CB1C
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:11:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2189B5CB6D
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:13:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728846AbfGBIKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:10:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59050 "EHLO mail.kernel.org"
+        id S1727643AbfGBINN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:13:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727844AbfGBIKe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:10:34 -0400
+        id S1727503AbfGBIH5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:07:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7E1021852;
-        Tue,  2 Jul 2019 08:10:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77F922183F;
+        Tue,  2 Jul 2019 08:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562055033;
-        bh=JzhaEiPOMzUPEDdCttlNaZQHACR4FpyS+c4Ey6GXKhw=;
+        s=default; t=1562054877;
+        bh=CfzKGISLy0baesUffpS+ZxMiRrjmZdabf2zmwiwTGiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UYaL0caHGGZOPL/IAH/RHafBj3bu7CKbFJz+CnsML+dIdn4TPTBlUU5kxaH6WEuPP
-         NP1JzQO7D2CTnZiLWDZtHfinsDReQthsk/KSURifvcOquAbxwEog2YYB8xo4HrSVk0
-         xrkldG0C7WslH/7awFqRIxDOgU740ayAI3WUwWjQ=
+        b=GMnREkKWG2rCRf63EiFUjDoRRnSpsZVooy7P09Jp4PCeNr1unPQNDLDBddUFWnVVn
+         niMc6vNh/m6eg8rsSB3iEO3BwHetZfaJdM/PUJwA4nPgbJQ+9r+nAywueepX9FffNr
+         D+ZQCUr6I0QhCYXoN05pWKRJvx4EdpWEOTC/rGf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alejandro Jimenez <alejandro.j.jimenez@oracle.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Liam Merwick <liam.merwick@oracle.com>,
-        Mark Kanda <mark.kanda@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, bp@alien8.de,
-        rkrcmar@redhat.com, kvm@vger.kernel.org
-Subject: [PATCH 4.14 22/43] x86/speculation: Allow guests to use SSBD even if host does not
+        stable@vger.kernel.org, Fei Li <lifei.shirley@bytedance.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 61/72] tun: wake up waitqueues after IFF_UP is set
 Date:   Tue,  2 Jul 2019 10:02:02 +0200
-Message-Id: <20190702080124.964149146@linuxfoundation.org>
+Message-Id: <20190702080127.788211875@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
-References: <20190702080123.904399496@linuxfoundation.org>
+In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
+References: <20190702080124.564652899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,70 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
+From: Fei Li <lifei.shirley@bytedance.com>
 
-commit c1f7fec1eb6a2c86d01bc22afce772c743451d88 upstream.
+[ Upstream commit 72b319dc08b4924a29f5e2560ef6d966fa54c429 ]
 
-The bits set in x86_spec_ctrl_mask are used to calculate the guest's value
-of SPEC_CTRL that is written to the MSR before VMENTRY, and control which
-mitigations the guest can enable.  In the case of SSBD, unless the host has
-enabled SSBD always on mode (by passing "spec_store_bypass_disable=on" in
-the kernel parameters), the SSBD bit is not set in the mask and the guest
-can not properly enable the SSBD always on mitigation mode.
+Currently after setting tap0 link up, the tun code wakes tx/rx waited
+queues up in tun_net_open() when .ndo_open() is called, however the
+IFF_UP flag has not been set yet. If there's already a wait queue, it
+would fail to transmit when checking the IFF_UP flag in tun_sendmsg().
+Then the saving vhost_poll_start() will add the wq into wqh until it
+is waken up again. Although this works when IFF_UP flag has been set
+when tun_chr_poll detects; this is not true if IFF_UP flag has not
+been set at that time. Sadly the latter case is a fatal error, as
+the wq will never be waken up in future unless later manually
+setting link up on purpose.
 
-This has been confirmed by running the SSBD PoC on a guest using the SSBD
-always on mitigation mode (booted with kernel parameter
-"spec_store_bypass_disable=on"), and verifying that the guest is vulnerable
-unless the host is also using SSBD always on mode. In addition, the guest
-OS incorrectly reports the SSB vulnerability as mitigated.
+Fix this by moving the wakeup process into the NETDEV_UP event
+notifying process, this makes sure IFF_UP has been set before all
+waited queues been waken up.
 
-Always set the SSBD bit in x86_spec_ctrl_mask when the host CPU supports
-it, allowing the guest to use SSBD whether or not the host has chosen to
-enable the mitigation in any of its modes.
-
-Fixes: be6fcb5478e9 ("x86/bugs: Rework spec_ctrl base and mask logic")
-Signed-off-by: Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
-Reviewed-by: Mark Kanda <mark.kanda@oracle.com>
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: bp@alien8.de
-Cc: rkrcmar@redhat.com
-Cc: kvm@vger.kernel.org
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1560187210-11054-1-git-send-email-alejandro.j.jimenez@oracle.com
+Signed-off-by: Fei Li <lifei.shirley@bytedance.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kernel/cpu/bugs.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/tun.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -821,6 +821,16 @@ static enum ssb_mitigation __init __ssb_
- 	}
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1024,18 +1024,8 @@ static void tun_net_uninit(struct net_de
+ /* Net device open. */
+ static int tun_net_open(struct net_device *dev)
+ {
+-	struct tun_struct *tun = netdev_priv(dev);
+-	int i;
+-
+ 	netif_tx_start_all_queues(dev);
  
- 	/*
-+	 * If SSBD is controlled by the SPEC_CTRL MSR, then set the proper
-+	 * bit in the mask to allow guests to use the mitigation even in the
-+	 * case where the host does not enable it.
-+	 */
-+	if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
-+	    static_cpu_has(X86_FEATURE_AMD_SSBD)) {
-+		x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
-+	}
+-	for (i = 0; i < tun->numqueues; i++) {
+-		struct tun_file *tfile;
+-
+-		tfile = rtnl_dereference(tun->tfiles[i]);
+-		tfile->socket.sk->sk_write_space(tfile->socket.sk);
+-	}
+-
+ 	return 0;
+ }
+ 
+@@ -3443,6 +3433,7 @@ static int tun_device_event(struct notif
+ {
+ 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
+ 	struct tun_struct *tun = netdev_priv(dev);
++	int i;
+ 
+ 	if (dev->rtnl_link_ops != &tun_link_ops)
+ 		return NOTIFY_DONE;
+@@ -3452,6 +3443,14 @@ static int tun_device_event(struct notif
+ 		if (tun_queue_resize(tun))
+ 			return NOTIFY_BAD;
+ 		break;
++	case NETDEV_UP:
++		for (i = 0; i < tun->numqueues; i++) {
++			struct tun_file *tfile;
 +
-+	/*
- 	 * We have three CPU feature flags that are in play here:
- 	 *  - X86_BUG_SPEC_STORE_BYPASS - CPU is susceptible.
- 	 *  - X86_FEATURE_SSBD - CPU is able to turn off speculative store bypass
-@@ -837,7 +847,6 @@ static enum ssb_mitigation __init __ssb_
- 			x86_amd_ssb_disable();
- 		} else {
- 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
--			x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
- 			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
- 		}
++			tfile = rtnl_dereference(tun->tfiles[i]);
++			tfile->socket.sk->sk_write_space(tfile->socket.sk);
++		}
++		break;
+ 	default:
+ 		break;
  	}
 
 
