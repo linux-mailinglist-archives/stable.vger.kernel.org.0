@@ -2,34 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF5D5CB23
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:11:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56B315CB04
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:10:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727846AbfGBIL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:11:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58890 "EHLO mail.kernel.org"
+        id S1728830AbfGBIKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:10:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728654AbfGBIK1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:10:27 -0400
+        id S1728073AbfGBIKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:10:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB6792184B;
-        Tue,  2 Jul 2019 08:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 269F321852;
+        Tue,  2 Jul 2019 08:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562055027;
-        bh=FHZuVNPHrPEskjr4ytkC96O85qWn+vClIozAy1WdJBk=;
+        s=default; t=1562055030;
+        bh=nifUm/JXR3cyL28TKqQxvKrN3mKnp2p+nSmRs25XYtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sq23KUQZLGtbBD1etvUvfcTPmkzz6vNv4e7WpGmm0MXawGlkKDxvlIv9wUVthTERy
-         tBwDrbpqYcFP8LfXGC92QuWEh7onEwIMR5jBOY3OsxfpokWOY/NiAgmUSuPCMx4KJ+
-         DhCG1499HeMEc+sCkXDbm6REzQZyus+nCZOk+de0=
+        b=ZVbZdF9GvfGkSqOfOcO5t7lI5dlRk8JZ1ztj6qQODi9ZBLSIFG/VGieM+TEmwg7SS
+         YYa27MEXD9FP5tKY6Zi0J6aQh8eHUH/Jlde3wBHE7iTb4vxepQ2DciwhmlG1pthxjB
+         XyEL8gd8AqLTBHWdsJqmyHwGEJl83wfL3uemHAXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>
-Subject: [PATCH 4.14 42/43] futex: Update comments and docs about return values of arch futex code
-Date:   Tue,  2 Jul 2019 10:02:22 +0200
-Message-Id: <20190702080126.094515764@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com,
+        syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com,
+        syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com,
+        syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com,
+        syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com,
+        syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 43/43] tipc: pass tunnel dev as NULL to udp_tunnel(6)_xmit_skb
+Date:   Tue,  2 Jul 2019 10:02:23 +0200
+Message-Id: <20190702080126.138655706@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
 References: <20190702080123.904399496@linuxfoundation.org>
@@ -42,57 +50,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 427503519739e779c0db8afe876c1b33f3ac60ae upstream.
+commit c3bcde026684c62d7a2b6f626dc7cf763833875c upstream.
 
-The architecture implementations of 'arch_futex_atomic_op_inuser()' and
-'futex_atomic_cmpxchg_inatomic()' are permitted to return only -EFAULT,
--EAGAIN or -ENOSYS in the case of failure.
+udp_tunnel(6)_xmit_skb() called by tipc_udp_xmit() expects a tunnel device
+to count packets on dev->tstats, a perpcu variable. However, TIPC is using
+udp tunnel with no tunnel device, and pass the lower dev, like veth device
+that only initializes dev->lstats(a perpcu variable) when creating it.
 
-Update the comments in the asm-generic/ implementation and also a stray
-reference in the robust futex documentation.
+Later iptunnel_xmit_stats() called by ip(6)tunnel_xmit() thinks the dev as
+a tunnel device, and uses dev->tstats instead of dev->lstats. tstats' each
+pointer points to a bigger struct than lstats, so when tstats->tx_bytes is
+increased, other percpu variable's members could be overwritten.
 
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+syzbot has reported quite a few crashes due to fib_nh_common percpu member
+'nhc_pcpu_rth_output' overwritten, call traces are like:
+
+  BUG: KASAN: slab-out-of-bounds in rt_cache_valid+0x158/0x190
+  net/ipv4/route.c:1556
+    rt_cache_valid+0x158/0x190 net/ipv4/route.c:1556
+    __mkroute_output net/ipv4/route.c:2332 [inline]
+    ip_route_output_key_hash_rcu+0x819/0x2d50 net/ipv4/route.c:2564
+    ip_route_output_key_hash+0x1ef/0x360 net/ipv4/route.c:2393
+    __ip_route_output_key include/net/route.h:125 [inline]
+    ip_route_output_flow+0x28/0xc0 net/ipv4/route.c:2651
+    ip_route_output_key include/net/route.h:135 [inline]
+  ...
+
+or:
+
+  kasan: GPF could be caused by NULL-ptr deref or user memory access
+  RIP: 0010:dst_dev_put+0x24/0x290 net/core/dst.c:168
+    <IRQ>
+    rt_fibinfo_free_cpus net/ipv4/fib_semantics.c:200 [inline]
+    free_fib_info_rcu+0x2e1/0x490 net/ipv4/fib_semantics.c:217
+    __rcu_reclaim kernel/rcu/rcu.h:240 [inline]
+    rcu_do_batch kernel/rcu/tree.c:2437 [inline]
+    invoke_rcu_callbacks kernel/rcu/tree.c:2716 [inline]
+    rcu_process_callbacks+0x100a/0x1ac0 kernel/rcu/tree.c:2697
+  ...
+
+The issue exists since tunnel stats update is moved to iptunnel_xmit by
+Commit 039f50629b7f ("ip_tunnel: Move stats update to iptunnel_xmit()"),
+and here to fix it by passing a NULL tunnel dev to udp_tunnel(6)_xmit_skb
+so that the packets counting won't happen on dev->tstats.
+
+Reported-by: syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com
+Reported-by: syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com
+Reported-by: syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com
+Reported-by: syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com
+Reported-by: syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com
+Reported-by: syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com
+Fixes: 039f50629b7f ("ip_tunnel: Move stats update to iptunnel_xmit()")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/robust-futexes.txt |    3 +--
- include/asm-generic/futex.h      |    8 ++++++--
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ net/tipc/udp_media.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/Documentation/robust-futexes.txt
-+++ b/Documentation/robust-futexes.txt
-@@ -218,5 +218,4 @@ All other architectures should build jus
- the new syscalls yet.
+--- a/net/tipc/udp_media.c
++++ b/net/tipc/udp_media.c
+@@ -174,7 +174,6 @@ static int tipc_udp_xmit(struct net *net
+ 			goto tx_error;
+ 		}
  
- Architectures need to implement the new futex_atomic_cmpxchg_inatomic()
--inline function before writing up the syscalls (that function returns
---ENOSYS right now).
-+inline function before writing up the syscalls.
---- a/include/asm-generic/futex.h
-+++ b/include/asm-generic/futex.h
-@@ -23,7 +23,9 @@
-  *
-  * Return:
-  * 0 - On success
-- * <0 - On error
-+ * -EFAULT - User access resulted in a page fault
-+ * -EAGAIN - Atomic operation was unable to complete due to contention
-+ * -ENOSYS - Operation not supported
-  */
- static inline int
- arch_futex_atomic_op_inuser(int op, u32 oparg, int *oval, u32 __user *uaddr)
-@@ -85,7 +87,9 @@ out_pagefault_enable:
-  *
-  * Return:
-  * 0 - On success
-- * <0 - On error
-+ * -EFAULT - User access resulted in a page fault
-+ * -EAGAIN - Atomic operation was unable to complete due to contention
-+ * -ENOSYS - Function not implemented (only if !HAVE_FUTEX_CMPXCHG)
-  */
- static inline int
- futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
+-		skb->dev = rt->dst.dev;
+ 		ttl = ip4_dst_hoplimit(&rt->dst);
+ 		udp_tunnel_xmit_skb(rt, ub->ubsock->sk, skb, src->ipv4.s_addr,
+ 				    dst->ipv4.s_addr, 0, ttl, 0, src->port,
+@@ -193,10 +192,9 @@ static int tipc_udp_xmit(struct net *net
+ 		if (err)
+ 			goto tx_error;
+ 		ttl = ip6_dst_hoplimit(ndst);
+-		err = udp_tunnel6_xmit_skb(ndst, ub->ubsock->sk, skb,
+-					   ndst->dev, &src->ipv6,
+-					   &dst->ipv6, 0, ttl, 0, src->port,
+-					   dst->port, false);
++		err = udp_tunnel6_xmit_skb(ndst, ub->ubsock->sk, skb, NULL,
++					   &src->ipv6, &dst->ipv6, 0, ttl, 0,
++					   src->port, dst->port, false);
+ #endif
+ 	}
+ 	return err;
 
 
