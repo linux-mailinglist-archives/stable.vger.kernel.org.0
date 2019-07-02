@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A28295CA94
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:05:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E7AB5CBA0
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727985AbfGBIFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:05:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51892 "EHLO mail.kernel.org"
+        id S1727771AbfGBIOx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:14:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727983AbfGBIFk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:05:40 -0400
+        id S1727177AbfGBIFo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:05:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01C2821479;
-        Tue,  2 Jul 2019 08:05:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B68321841;
+        Tue,  2 Jul 2019 08:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054739;
-        bh=P4gngWAm/oQwGpJFLyM9AT+69qGMzIOeTXRMv4eSdiA=;
+        s=default; t=1562054742;
+        bh=UHj+reTeQRaOFAHNyvjjTOieOnvPAd53doWoMIt3ixE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KKYll/S7r+fsScD7YV8nwdSgZhfLBkng67FNQVjAqu77OjsFLSMYRS+F4vgUpGbuy
-         TUgwZpDh0jR2MZDPUeipuXtakRDzOeQhgJ0dBUuEZ1lhNYWt62Ts1qgiFAKGuKX7hh
-         +g897K/4wfF2ly6IBmpRq0vI2rANi+rgA+Ld8YYA=
+        b=yxwORs356FDiGVF0JtNDdDj93Dyd3ax/qdbQ2qD+TPkE9VSMk6+PZToydHqGnY0CZ
+         u9kvZa6Ppvr8fQixgYbosvonRhngWBLrt0wCkgWGJ5wrhE2fgtAWWPEfFxDocNu3Nr
+         FAbKu95jJ6+gQc4LG1PlXCpJUH3wedqyVNSESZw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.19 03/72] perf header: Fix unchecked usage of strncpy()
-Date:   Tue,  2 Jul 2019 10:01:04 +0200
-Message-Id: <20190702080124.744956462@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Dave Martin <Dave.Martin@arm.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 4.19 04/72] arm64: Dont unconditionally add -Wno-psabi to KBUILD_CFLAGS
+Date:   Tue,  2 Jul 2019 10:01:05 +0200
+Message-Id: <20190702080124.797142876@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
 References: <20190702080124.564652899@linuxfoundation.org>
@@ -45,46 +46,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 5192bde7d98c99f2cd80225649e3c2e7493722f7 upstream.
+commit fa63da2ab046b885a7f70291aafc4e8ce015429b upstream.
 
-The strncpy() function may leave the destination string buffer
-unterminated, better use strlcpy() that we have a __weak fallback
-implementation for systems without it.
+This is a GCC only option, which warns about ABI changes within GCC, so
+unconditionally adding it breaks Clang with tons of:
 
-This fixes this warning on an Alpine Linux Edge system with gcc 8.2:
+warning: unknown warning option '-Wno-psabi' [-Wunknown-warning-option]
 
-  util/header.c: In function 'perf_event__synthesize_event_update_name':
-  util/header.c:3625:2: error: 'strncpy' output truncated before terminating nul copying as many bytes from a string as its length [-Werror=stringop-truncation]
-    strncpy(ev->data, evsel->name, len);
-    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  util/header.c:3618:15: note: length computed here
-    size_t len = strlen(evsel->name);
-                 ^~~~~~~~~~~~~~~~~~~
+and link time failures:
 
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Fixes: a6e5281780d1 ("perf tools: Add event_update event unit type")
-Link: https://lkml.kernel.org/n/tip-wycz66iy8dl2z3yifgqf894p@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+ld.lld: error: undefined symbol: __efistub___stack_chk_guard
+>>> referenced by arm-stub.c:73
+(/home/nathan/cbl/linux/drivers/firmware/efi/libstub/arm-stub.c:73)
+>>>               arm-stub.stub.o:(__efistub_install_memreserve_table)
+in archive ./drivers/firmware/efi/libstub/lib.a
+
+These failures come from the lack of -fno-stack-protector, which is
+added via cc-option in drivers/firmware/efi/libstub/Makefile. When an
+unknown flag is added to KBUILD_CFLAGS, clang will noisily warn that it
+is ignoring the option like above, unlike gcc, who will just error.
+
+$ echo "int main() { return 0; }" > tmp.c
+
+$ clang -Wno-psabi tmp.c; echo $?
+warning: unknown warning option '-Wno-psabi' [-Wunknown-warning-option]
+1 warning generated.
+0
+
+$ gcc -Wsometimes-uninitialized tmp.c; echo $?
+gcc: error: unrecognized command line option
+‘-Wsometimes-uninitialized’; did you mean ‘-Wmaybe-uninitialized’?
+1
+
+For cc-option to work properly with clang and behave like gcc, -Werror
+is needed, which was done in commit c3f0d0bc5b01 ("kbuild, LLVMLinux:
+Add -Werror to cc-option to support clang").
+
+$ clang -Werror -Wno-psabi tmp.c; echo $?
+error: unknown warning option '-Wno-psabi'
+[-Werror,-Wunknown-warning-option]
+1
+
+As a consequence of this, when an unknown flag is unconditionally added
+to KBUILD_CFLAGS, it will cause cc-option to always fail and those flags
+will never get added:
+
+$ clang -Werror -Wno-psabi -fno-stack-protector tmp.c; echo $?
+error: unknown warning option '-Wno-psabi'
+[-Werror,-Wunknown-warning-option]
+1
+
+This can be seen when compiling the whole kernel as some warnings that
+are normally disabled (see below) show up. The full list of flags
+missing from drivers/firmware/efi/libstub are the following (gathered
+from diffing .arm64-stub.o.cmd):
+
+-fno-delete-null-pointer-checks
+-Wno-address-of-packed-member
+-Wframe-larger-than=2048
+-Wno-unused-const-variable
+-fno-strict-overflow
+-fno-merge-all-constants
+-fno-stack-check
+-Werror=date-time
+-Werror=incompatible-pointer-types
+-ffreestanding
+-fno-stack-protector
+
+Use cc-disable-warning so that it gets disabled for GCC and does nothing
+for Clang.
+
+Fixes: ebcc5928c5d9 ("arm64: Silence gcc warnings about arch ABI drift")
+Link: https://github.com/ClangBuiltLinux/linux/issues/511
+Reported-by: Qian Cai <cai@lca.pw>
+Acked-by: Dave Martin <Dave.Martin@arm.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/header.c |    2 +-
+ arch/arm64/Makefile |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -3562,7 +3562,7 @@ perf_event__synthesize_event_update_name
- 	if (ev == NULL)
- 		return -ENOMEM;
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -51,7 +51,7 @@ endif
  
--	strncpy(ev->data, evsel->name, len);
-+	strlcpy(ev->data, evsel->name, len + 1);
- 	err = process(tool, (union perf_event*) ev, NULL, NULL);
- 	free(ev);
- 	return err;
+ KBUILD_CFLAGS	+= -mgeneral-regs-only $(lseinstr) $(brokengasinst)
+ KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
+-KBUILD_CFLAGS	+= -Wno-psabi
++KBUILD_CFLAGS	+= $(call cc-disable-warning, psabi)
+ KBUILD_AFLAGS	+= $(lseinstr) $(brokengasinst)
+ 
+ KBUILD_CFLAGS	+= $(call cc-option,-mabi=lp64)
 
 
