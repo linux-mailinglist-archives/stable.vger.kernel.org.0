@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4C05CA9A
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:06:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 170835CB9A
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:14:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728005AbfGBIF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:05:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52158 "EHLO mail.kernel.org"
+        id S1727591AbfGBIGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:06:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728017AbfGBIFz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:05:55 -0400
+        id S1728027AbfGBIF7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:05:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2401621841;
-        Tue,  2 Jul 2019 08:05:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5F642183F;
+        Tue,  2 Jul 2019 08:05:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054754;
-        bh=j4POpiZAJr5NhmNfJJ5Gk7CD9ssh8Y+BLHCfgWQAvBQ=;
+        s=default; t=1562054757;
+        bh=jjLpPwxvMYCLHxw9Zy/8sUQAGzYYFQHNVw0gu2BXpsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dUEGp2ICuXoz1GOhu0+2u7Tw0ldBwjIYAfII+l761yy1PVtslKWVB33IvcI+qlpjd
-         ByRE0G3dI29fIDQ25BH/VhLBq6DyfXOWIGuxRGG//Tajy5YHr47E9q1/r9wfw+XwUR
-         oxLS7TDLRPeNAgBKarc9n2yiqGF1r4TGOVg4SfCU=
+        b=MxL92S+KV+6ODnSf/4F4z1ZmmIGQSYGToT8sGNj8fZ2CgjaXZG2UQy1OgD2GChTnC
+         2TX0S5CMKZ5nBFftfVVz2Zn/dsiOciJc8ziBPPOUwFFRbYMg+AUVtimAd5/nDkEO0n
+         PdgCRSWnfVDbZcRWDvEIUekLrOEDhhTTWXvKKpog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Eric Van Hensbergen <ericvh@gmail.com>,
-        Ron Minnich <rminnich@sandia.gov>,
-        Latchesar Ionkov <lucho@ionkov.net>,
         Dominique Martinet <dominique.martinet@cea.fr>,
+        Greg Kurz <groug@kaod.org>, Jun Piao <piaojun@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/72] 9p: Use a slab for allocating requests
-Date:   Tue,  2 Jul 2019 10:01:09 +0200
-Message-Id: <20190702080125.001804507@linuxfoundation.org>
+Subject: [PATCH 4.19 09/72] 9p: embed fcall in req to round down buffer allocs
+Date:   Tue,  2 Jul 2019 10:01:10 +0200
+Message-Id: <20190702080125.059583519@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
 References: <20190702080124.564652899@linuxfoundation.org>
@@ -47,519 +45,810 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 996d5b4db4b191f2676cf8775565cab8a5e2753b ]
+[ Upstream commit 523adb6cc10b48655c0abe556505240741425b49 ]
 
-Replace the custom batch allocation with a slab.  Use an IDR to store
-pointers to the active requests instead of an array.  We don't try to
-handle P9_NOTAG specially; the IDR will happily shrink all the way back
-once the TVERSION call has completed.
+'msize' is often a power of two, or at least page-aligned, so avoiding
+an overhead of two dozen bytes for each allocation will help the
+allocator do its work and reduce memory fragmentation.
 
-Link: http://lkml.kernel.org/r/20180711210225.19730-6-willy@infradead.org
-Signed-off-by: Matthew Wilcox <willy@infradead.org>
-Cc: Eric Van Hensbergen <ericvh@gmail.com>
-Cc: Ron Minnich <rminnich@sandia.gov>
-Cc: Latchesar Ionkov <lucho@ionkov.net>
+Link: http://lkml.kernel.org/r/1533825236-22896-1-git-send-email-asmadeus@codewreck.org
+Suggested-by: Matthew Wilcox <willy@infradead.org>
 Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
+Reviewed-by: Greg Kurz <groug@kaod.org>
+Acked-by: Jun Piao <piaojun@huawei.com>
+Cc: Matthew Wilcox <willy@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/9p/client.h |  51 ++-------
- net/9p/client.c         | 238 ++++++++++++++--------------------------
- net/9p/mod.c            |   9 +-
- 3 files changed, 102 insertions(+), 196 deletions(-)
+ include/net/9p/client.h |   5 +-
+ net/9p/client.c         | 167 +++++++++++++++++++++-------------------
+ net/9p/trans_fd.c       |  12 +--
+ net/9p/trans_rdma.c     |  29 +++----
+ net/9p/trans_virtio.c   |  18 ++---
+ net/9p/trans_xen.c      |  12 +--
+ 6 files changed, 125 insertions(+), 118 deletions(-)
 
 diff --git a/include/net/9p/client.h b/include/net/9p/client.h
-index 0fa0fbab33b0..a4dc42c53d18 100644
+index a4dc42c53d18..c2671d40bb6b 100644
 --- a/include/net/9p/client.h
 +++ b/include/net/9p/client.h
-@@ -64,22 +64,15 @@ enum p9_trans_status {
- 
- /**
-  * enum p9_req_status_t - status of a request
-- * @REQ_STATUS_IDLE: request slot unused
-  * @REQ_STATUS_ALLOC: request has been allocated but not sent
-  * @REQ_STATUS_UNSENT: request waiting to be sent
-  * @REQ_STATUS_SENT: request sent to server
-  * @REQ_STATUS_RCVD: response received from server
-  * @REQ_STATUS_FLSHD: request has been flushed
-  * @REQ_STATUS_ERROR: request encountered an error on the client side
-- *
-- * The @REQ_STATUS_IDLE state is used to mark a request slot as unused
-- * but use is actually tracked by the idpool structure which handles tag
-- * id allocation.
-- *
-  */
- 
- enum p9_req_status_t {
--	REQ_STATUS_IDLE,
- 	REQ_STATUS_ALLOC,
- 	REQ_STATUS_UNSENT,
- 	REQ_STATUS_SENT,
-@@ -92,24 +85,12 @@ enum p9_req_status_t {
-  * struct p9_req_t - request slots
-  * @status: status of this request slot
-  * @t_err: transport error
-- * @flush_tag: tag of request being flushed (for flush requests)
-  * @wq: wait_queue for the client to block on for this request
-  * @tc: the request fcall structure
-  * @rc: the response fcall structure
-  * @aux: transport specific data (provided for trans_fd migration)
-  * @req_list: link for higher level objects to chain requests
-- *
-- * Transport use an array to track outstanding requests
-- * instead of a list.  While this may incurr overhead during initial
-- * allocation or expansion, it makes request lookup much easier as the
-- * tag id is a index into an array.  (We use tag+1 so that we can accommodate
-- * the -1 tag for the T_VERSION request).
-- * This also has the nice effect of only having to allocate wait_queues
-- * once, instead of constantly allocating and freeing them.  Its possible
-- * other resources could benefit from this scheme as well.
-- *
-  */
--
- struct p9_req_t {
+@@ -95,8 +95,8 @@ struct p9_req_t {
  	int status;
  	int t_err;
-@@ -117,40 +98,26 @@ struct p9_req_t {
- 	struct p9_fcall *tc;
- 	struct p9_fcall *rc;
+ 	wait_queue_head_t wq;
+-	struct p9_fcall *tc;
+-	struct p9_fcall *rc;
++	struct p9_fcall tc;
++	struct p9_fcall rc;
  	void *aux;
--
  	struct list_head req_list;
  };
+@@ -230,6 +230,7 @@ int p9_client_mkdir_dotl(struct p9_fid *fid, const char *name, int mode,
+ 				kgid_t gid, struct p9_qid *);
+ int p9_client_lock_dotl(struct p9_fid *fid, struct p9_flock *flock, u8 *status);
+ int p9_client_getlock_dotl(struct p9_fid *fid, struct p9_getlock *fl);
++void p9_fcall_fini(struct p9_fcall *fc);
+ struct p9_req_t *p9_tag_lookup(struct p9_client *, u16);
+ void p9_client_cb(struct p9_client *c, struct p9_req_t *req, int status);
  
- /**
-  * struct p9_client - per client instance state
-- * @lock: protect @fidlist
-+ * @lock: protect @fids and @reqs
-  * @msize: maximum data size negotiated by protocol
-- * @dotu: extension flags negotiated by protocol
-  * @proto_version: 9P protocol version to use
-  * @trans_mod: module API instantiated with this client
-+ * @status: connection state
-  * @trans: tranport instance state and API
-  * @fids: All active FID handles
-- * @tagpool - transaction id accounting for session
-- * @reqs - 2D array of requests
-- * @max_tag - current maximum tag id allocated
-- * @name - node name used as client id
-+ * @reqs: All active requests.
-+ * @name: node name used as client id
-  *
-  * The client structure is used to keep track of various per-client
-  * state that has been instantiated.
-- * In order to minimize per-transaction overhead we use a
-- * simple array to lookup requests instead of a hash table
-- * or linked list.  In order to support larger number of
-- * transactions, we make this a 2D array, allocating new rows
-- * when we need to grow the total number of the transactions.
-- *
-- * Each row is 256 requests and we'll support up to 256 rows for
-- * a total of 64k concurrent requests per session.
-- *
-- * Bugs: duplicated data and potentially unnecessary elements.
-  */
--
- struct p9_client {
--	spinlock_t lock; /* protect client structure */
-+	spinlock_t lock;
- 	unsigned int msize;
- 	unsigned char proto_version;
- 	struct p9_trans_module *trans_mod;
-@@ -170,10 +137,7 @@ struct p9_client {
- 	} trans_opts;
- 
- 	struct idr fids;
--
--	struct p9_idpool *tagpool;
--	struct p9_req_t *reqs[P9_ROW_MAXTAG];
--	int max_tag;
-+	struct idr reqs;
- 
- 	char name[__NEW_UTS_LEN + 1];
- };
-@@ -279,4 +243,7 @@ struct p9_fid *p9_client_xattrwalk(struct p9_fid *, const char *, u64 *);
- int p9_client_xattrcreate(struct p9_fid *, const char *, u64, int);
- int p9_client_readlink(struct p9_fid *fid, char **target);
- 
-+int p9_client_init(void);
-+void p9_client_exit(void);
-+
- #endif /* NET_9P_CLIENT_H */
 diff --git a/net/9p/client.c b/net/9p/client.c
-index 23ec6187dc07..d8949c59d46e 100644
+index d8949c59d46e..83e39fef58e1 100644
 --- a/net/9p/client.c
 +++ b/net/9p/client.c
-@@ -248,132 +248,102 @@ static struct p9_fcall *p9_fcall_alloc(int alloc_msize)
- 	return fc;
+@@ -237,16 +237,20 @@ static int parse_opts(char *opts, struct p9_client *clnt)
+ 	return ret;
  }
  
-+static struct kmem_cache *p9_req_cache;
-+
- /**
-- * p9_tag_alloc - lookup/allocate a request by tag
-- * @c: client session to lookup tag within
-- * @tag: numeric id for transaction
-- *
-- * this is a simple array lookup, but will grow the
-- * request_slots as necessary to accommodate transaction
-- * ids which did not previously have a slot.
-- *
-- * this code relies on the client spinlock to manage locks, its
-- * possible we should switch to something else, but I'd rather
-- * stick with something low-overhead for the common case.
-+ * p9_req_alloc - Allocate a new request.
-+ * @c: Client session.
-+ * @type: Transaction type.
-+ * @max_size: Maximum packet size for this request.
-  *
-+ * Context: Process context.
-+ * Return: Pointer to new request.
-  */
--
- static struct p9_req_t *
--p9_tag_alloc(struct p9_client *c, u16 tag, unsigned int max_size)
-+p9_tag_alloc(struct p9_client *c, int8_t type, unsigned int max_size)
+-static struct p9_fcall *p9_fcall_alloc(int alloc_msize)
++static int p9_fcall_init(struct p9_fcall *fc, int alloc_msize)
  {
--	unsigned long flags;
--	int row, col;
--	struct p9_req_t *req;
-+	struct p9_req_t *req = kmem_cache_alloc(p9_req_cache, GFP_NOFS);
- 	int alloc_msize = min(c->msize, max_size);
-+	int tag;
- 
--	/* This looks up the original request by tag so we know which
--	 * buffer to read the data into */
--	tag++;
--
--	if (tag >= c->max_tag) {
--		spin_lock_irqsave(&c->lock, flags);
--		/* check again since original check was outside of lock */
--		while (tag >= c->max_tag) {
--			row = (tag / P9_ROW_MAXTAG);
--			c->reqs[row] = kcalloc(P9_ROW_MAXTAG,
--					sizeof(struct p9_req_t), GFP_ATOMIC);
--
--			if (!c->reqs[row]) {
--				pr_err("Couldn't grow tag array\n");
--				spin_unlock_irqrestore(&c->lock, flags);
--				return ERR_PTR(-ENOMEM);
--			}
--			for (col = 0; col < P9_ROW_MAXTAG; col++) {
--				req = &c->reqs[row][col];
--				req->status = REQ_STATUS_IDLE;
--				init_waitqueue_head(&req->wq);
--			}
--			c->max_tag += P9_ROW_MAXTAG;
--		}
--		spin_unlock_irqrestore(&c->lock, flags);
--	}
--	row = tag / P9_ROW_MAXTAG;
--	col = tag % P9_ROW_MAXTAG;
-+	if (!req)
-+		return NULL;
- 
--	req = &c->reqs[row][col];
--	if (!req->tc)
--		req->tc = p9_fcall_alloc(alloc_msize);
--	if (!req->rc)
--		req->rc = p9_fcall_alloc(alloc_msize);
-+	req->tc = p9_fcall_alloc(alloc_msize);
-+	req->rc = p9_fcall_alloc(alloc_msize);
- 	if (!req->tc || !req->rc)
--		goto grow_failed;
-+		goto free;
- 
- 	p9pdu_reset(req->tc);
- 	p9pdu_reset(req->rc);
--
--	req->tc->tag = tag-1;
- 	req->status = REQ_STATUS_ALLOC;
-+	init_waitqueue_head(&req->wq);
-+	INIT_LIST_HEAD(&req->req_list);
+-	struct p9_fcall *fc;
+-	fc = kmalloc(sizeof(struct p9_fcall) + alloc_msize, GFP_NOFS);
+-	if (!fc)
+-		return NULL;
++	fc->sdata = kmalloc(alloc_msize, GFP_NOFS);
++	if (!fc->sdata)
++		return -ENOMEM;
+ 	fc->capacity = alloc_msize;
+-	fc->sdata = (char *) fc + sizeof(struct p9_fcall);
+-	return fc;
++	return 0;
++}
 +
-+	idr_preload(GFP_NOFS);
-+	spin_lock_irq(&c->lock);
-+	if (type == P9_TVERSION)
-+		tag = idr_alloc(&c->reqs, req, P9_NOTAG, P9_NOTAG + 1,
-+				GFP_NOWAIT);
-+	else
-+		tag = idr_alloc(&c->reqs, req, 0, P9_NOTAG, GFP_NOWAIT);
-+	req->tc->tag = tag;
-+	spin_unlock_irq(&c->lock);
-+	idr_preload_end();
-+	if (tag < 0)
-+		goto free;
++void p9_fcall_fini(struct p9_fcall *fc)
++{
++	kfree(fc->sdata);
+ }
++EXPORT_SYMBOL(p9_fcall_fini);
  
+ static struct kmem_cache *p9_req_cache;
+ 
+@@ -269,13 +273,13 @@ p9_tag_alloc(struct p9_client *c, int8_t type, unsigned int max_size)
+ 	if (!req)
+ 		return NULL;
+ 
+-	req->tc = p9_fcall_alloc(alloc_msize);
+-	req->rc = p9_fcall_alloc(alloc_msize);
+-	if (!req->tc || !req->rc)
++	if (p9_fcall_init(&req->tc, alloc_msize))
++		goto free_req;
++	if (p9_fcall_init(&req->rc, alloc_msize))
+ 		goto free;
+ 
+-	p9pdu_reset(req->tc);
+-	p9pdu_reset(req->rc);
++	p9pdu_reset(&req->tc);
++	p9pdu_reset(&req->rc);
+ 	req->status = REQ_STATUS_ALLOC;
+ 	init_waitqueue_head(&req->wq);
+ 	INIT_LIST_HEAD(&req->req_list);
+@@ -287,7 +291,7 @@ p9_tag_alloc(struct p9_client *c, int8_t type, unsigned int max_size)
+ 				GFP_NOWAIT);
+ 	else
+ 		tag = idr_alloc(&c->reqs, req, 0, P9_NOTAG, GFP_NOWAIT);
+-	req->tc->tag = tag;
++	req->tc.tag = tag;
+ 	spin_unlock_irq(&c->lock);
+ 	idr_preload_end();
+ 	if (tag < 0)
+@@ -296,8 +300,9 @@ p9_tag_alloc(struct p9_client *c, int8_t type, unsigned int max_size)
  	return req;
  
--grow_failed:
--	pr_err("Couldn't grow tag array\n");
-+free:
- 	kfree(req->tc);
- 	kfree(req->rc);
--	req->tc = req->rc = NULL;
-+	kmem_cache_free(p9_req_cache, req);
+ free:
+-	kfree(req->tc);
+-	kfree(req->rc);
++	p9_fcall_fini(&req->tc);
++	p9_fcall_fini(&req->rc);
++free_req:
+ 	kmem_cache_free(p9_req_cache, req);
  	return ERR_PTR(-ENOMEM);
  }
- 
- /**
-- * p9_tag_lookup - lookup a request by tag
-- * @c: client session to lookup tag within
-- * @tag: numeric id for transaction
-+ * p9_tag_lookup - Look up a request by tag.
-+ * @c: Client session.
-+ * @tag: Transaction ID.
-  *
-+ * Context: Any context.
-+ * Return: A request, or %NULL if there is no request with that tag.
-  */
--
- struct p9_req_t *p9_tag_lookup(struct p9_client *c, u16 tag)
+@@ -335,14 +340,14 @@ EXPORT_SYMBOL(p9_tag_lookup);
+ static void p9_free_req(struct p9_client *c, struct p9_req_t *r)
  {
--	int row, col;
--
--	/* This looks up the original request by tag so we know which
--	 * buffer to read the data into */
--	tag++;
--
--	if (tag >= c->max_tag)
--		return NULL;
-+	struct p9_req_t *req;
+ 	unsigned long flags;
+-	u16 tag = r->tc->tag;
++	u16 tag = r->tc.tag;
  
--	row = tag / P9_ROW_MAXTAG;
--	col = tag % P9_ROW_MAXTAG;
-+	rcu_read_lock();
-+	req = idr_find(&c->reqs, tag);
-+	/* There's no refcount on the req; a malicious server could cause
-+	 * us to dereference a NULL pointer
-+	 */
-+	rcu_read_unlock();
- 
--	return &c->reqs[row][col];
-+	return req;
- }
- EXPORT_SYMBOL(p9_tag_lookup);
- 
- /**
-- * p9_tag_init - setup tags structure and contents
-- * @c:  v9fs client struct
-- *
-- * This initializes the tags structure for each client instance.
-+ * p9_free_req - Free a request.
-+ * @c: Client session.
-+ * @r: Request to free.
-  *
-+ * Context: Any context.
-  */
--
--static int p9_tag_init(struct p9_client *c)
-+static void p9_free_req(struct p9_client *c, struct p9_req_t *r)
- {
--	int err = 0;
-+	unsigned long flags;
-+	u16 tag = r->tc->tag;
- 
--	c->tagpool = p9_idpool_create();
--	if (IS_ERR(c->tagpool)) {
--		err = PTR_ERR(c->tagpool);
--		goto error;
--	}
--	err = p9_idpool_get(c->tagpool); /* reserve tag 0 */
--	if (err < 0) {
--		p9_idpool_destroy(c->tagpool);
--		goto error;
--	}
--	c->max_tag = 0;
--error:
--	return err;
-+	p9_debug(P9_DEBUG_MUX, "clnt %p req %p tag: %d\n", c, r, tag);
-+	spin_lock_irqsave(&c->lock, flags);
-+	idr_remove(&c->reqs, tag);
-+	spin_unlock_irqrestore(&c->lock, flags);
-+	kfree(r->tc);
-+	kfree(r->rc);
-+	kmem_cache_free(p9_req_cache, r);
+ 	p9_debug(P9_DEBUG_MUX, "clnt %p req %p tag: %d\n", c, r, tag);
+ 	spin_lock_irqsave(&c->lock, flags);
+ 	idr_remove(&c->reqs, tag);
+ 	spin_unlock_irqrestore(&c->lock, flags);
+-	kfree(r->tc);
+-	kfree(r->rc);
++	p9_fcall_fini(&r->tc);
++	p9_fcall_fini(&r->rc);
+ 	kmem_cache_free(p9_req_cache, r);
  }
  
- /**
-@@ -385,52 +355,15 @@ static int p9_tag_init(struct p9_client *c)
+@@ -374,7 +379,7 @@ static void p9_tag_cleanup(struct p9_client *c)
   */
- static void p9_tag_cleanup(struct p9_client *c)
+ void p9_client_cb(struct p9_client *c, struct p9_req_t *req, int status)
  {
--	int row, col;
--
--	/* check to insure all requests are idle */
--	for (row = 0; row < (c->max_tag/P9_ROW_MAXTAG); row++) {
--		for (col = 0; col < P9_ROW_MAXTAG; col++) {
--			if (c->reqs[row][col].status != REQ_STATUS_IDLE) {
--				p9_debug(P9_DEBUG_MUX,
--					 "Attempting to cleanup non-free tag %d,%d\n",
--					 row, col);
--				/* TODO: delay execution of cleanup */
--				return;
--			}
--		}
--	}
--
--	if (c->tagpool) {
--		p9_idpool_put(0, c->tagpool); /* free reserved tag 0 */
--		p9_idpool_destroy(c->tagpool);
--	}
-+	struct p9_req_t *req;
-+	int id;
+-	p9_debug(P9_DEBUG_MUX, " tag %d\n", req->tc->tag);
++	p9_debug(P9_DEBUG_MUX, " tag %d\n", req->tc.tag);
  
--	/* free requests associated with tags */
--	for (row = 0; row < (c->max_tag/P9_ROW_MAXTAG); row++) {
--		for (col = 0; col < P9_ROW_MAXTAG; col++) {
--			kfree(c->reqs[row][col].tc);
--			kfree(c->reqs[row][col].rc);
--		}
--		kfree(c->reqs[row]);
-+	rcu_read_lock();
-+	idr_for_each_entry(&c->reqs, req, id) {
-+		pr_info("Tag %d still in use\n", id);
-+		p9_free_req(c, req);
+ 	/*
+ 	 * This barrier is needed to make sure any change made to req before
+@@ -384,7 +389,7 @@ void p9_client_cb(struct p9_client *c, struct p9_req_t *req, int status)
+ 	req->status = status;
+ 
+ 	wake_up(&req->wq);
+-	p9_debug(P9_DEBUG_MUX, "wakeup: %d\n", req->tc->tag);
++	p9_debug(P9_DEBUG_MUX, "wakeup: %d\n", req->tc.tag);
+ }
+ EXPORT_SYMBOL(p9_client_cb);
+ 
+@@ -455,18 +460,18 @@ static int p9_check_errors(struct p9_client *c, struct p9_req_t *req)
+ 	int err;
+ 	int ecode;
+ 
+-	err = p9_parse_header(req->rc, NULL, &type, NULL, 0);
+-	if (req->rc->size >= c->msize) {
++	err = p9_parse_header(&req->rc, NULL, &type, NULL, 0);
++	if (req->rc.size >= c->msize) {
+ 		p9_debug(P9_DEBUG_ERROR,
+ 			 "requested packet size too big: %d\n",
+-			 req->rc->size);
++			 req->rc.size);
+ 		return -EIO;
  	}
--	c->max_tag = 0;
--}
--
--/**
-- * p9_free_req - free a request and clean-up as necessary
-- * c: client state
-- * r: request to release
-- *
-- */
--
--static void p9_free_req(struct p9_client *c, struct p9_req_t *r)
--{
--	int tag = r->tc->tag;
--	p9_debug(P9_DEBUG_MUX, "clnt %p req %p tag: %d\n", c, r, tag);
--
--	r->status = REQ_STATUS_IDLE;
--	if (tag != P9_NOTAG && p9_idpool_check(tag, c->tagpool))
--		p9_idpool_put(tag, c->tagpool);
-+	rcu_read_unlock();
- }
+ 	/*
+ 	 * dump the response from server
+ 	 * This should be after check errors which poplulate pdu_fcall.
+ 	 */
+-	trace_9p_protocol_dump(c, req->rc);
++	trace_9p_protocol_dump(c, &req->rc);
+ 	if (err) {
+ 		p9_debug(P9_DEBUG_ERROR, "couldn't parse header %d\n", err);
+ 		return err;
+@@ -476,7 +481,7 @@ static int p9_check_errors(struct p9_client *c, struct p9_req_t *req)
  
- /**
-@@ -704,7 +637,7 @@ static struct p9_req_t *p9_client_prepare_req(struct p9_client *c,
- 					      int8_t type, int req_size,
- 					      const char *fmt, va_list ap)
- {
--	int tag, err;
-+	int err;
- 	struct p9_req_t *req;
+ 	if (!p9_is_proto_dotl(c)) {
+ 		char *ename;
+-		err = p9pdu_readf(req->rc, c->proto_version, "s?d",
++		err = p9pdu_readf(&req->rc, c->proto_version, "s?d",
+ 				  &ename, &ecode);
+ 		if (err)
+ 			goto out_err;
+@@ -492,7 +497,7 @@ static int p9_check_errors(struct p9_client *c, struct p9_req_t *req)
+ 		}
+ 		kfree(ename);
+ 	} else {
+-		err = p9pdu_readf(req->rc, c->proto_version, "d", &ecode);
++		err = p9pdu_readf(&req->rc, c->proto_version, "d", &ecode);
+ 		err = -ecode;
  
- 	p9_debug(P9_DEBUG_MUX, "client %p op %d\n", c, type);
-@@ -717,24 +650,17 @@ static struct p9_req_t *p9_client_prepare_req(struct p9_client *c,
- 	if ((c->status == BeginDisconnect) && (type != P9_TCLUNK))
- 		return ERR_PTR(-EIO);
+ 		p9_debug(P9_DEBUG_9P, "<<< RLERROR (%d)\n", -ecode);
+@@ -526,12 +531,12 @@ static int p9_check_zc_errors(struct p9_client *c, struct p9_req_t *req,
+ 	int8_t type;
+ 	char *ename = NULL;
  
--	tag = P9_NOTAG;
--	if (type != P9_TVERSION) {
--		tag = p9_idpool_get(c->tagpool);
--		if (tag < 0)
--			return ERR_PTR(-ENOMEM);
--	}
--
--	req = p9_tag_alloc(c, tag, req_size);
-+	req = p9_tag_alloc(c, type, req_size);
- 	if (IS_ERR(req))
+-	err = p9_parse_header(req->rc, NULL, &type, NULL, 0);
++	err = p9_parse_header(&req->rc, NULL, &type, NULL, 0);
+ 	/*
+ 	 * dump the response from server
+ 	 * This should be after parse_header which poplulate pdu_fcall.
+ 	 */
+-	trace_9p_protocol_dump(c, req->rc);
++	trace_9p_protocol_dump(c, &req->rc);
+ 	if (err) {
+ 		p9_debug(P9_DEBUG_ERROR, "couldn't parse header %d\n", err);
+ 		return err;
+@@ -546,13 +551,13 @@ static int p9_check_zc_errors(struct p9_client *c, struct p9_req_t *req,
+ 		/* 7 = header size for RERROR; */
+ 		int inline_len = in_hdrlen - 7;
+ 
+-		len =  req->rc->size - req->rc->offset;
++		len = req->rc.size - req->rc.offset;
+ 		if (len > (P9_ZC_HDR_SZ - 7)) {
+ 			err = -EFAULT;
+ 			goto out_err;
+ 		}
+ 
+-		ename = &req->rc->sdata[req->rc->offset];
++		ename = &req->rc.sdata[req->rc.offset];
+ 		if (len > inline_len) {
+ 			/* We have error in external buffer */
+ 			if (!copy_from_iter_full(ename + inline_len,
+@@ -562,7 +567,7 @@ static int p9_check_zc_errors(struct p9_client *c, struct p9_req_t *req,
+ 			}
+ 		}
+ 		ename = NULL;
+-		err = p9pdu_readf(req->rc, c->proto_version, "s?d",
++		err = p9pdu_readf(&req->rc, c->proto_version, "s?d",
+ 				  &ename, &ecode);
+ 		if (err)
+ 			goto out_err;
+@@ -578,7 +583,7 @@ static int p9_check_zc_errors(struct p9_client *c, struct p9_req_t *req,
+ 		}
+ 		kfree(ename);
+ 	} else {
+-		err = p9pdu_readf(req->rc, c->proto_version, "d", &ecode);
++		err = p9pdu_readf(&req->rc, c->proto_version, "d", &ecode);
+ 		err = -ecode;
+ 
+ 		p9_debug(P9_DEBUG_9P, "<<< RLERROR (%d)\n", -ecode);
+@@ -611,7 +616,7 @@ static int p9_client_flush(struct p9_client *c, struct p9_req_t *oldreq)
+ 	int16_t oldtag;
+ 	int err;
+ 
+-	err = p9_parse_header(oldreq->tc, NULL, NULL, &oldtag, 1);
++	err = p9_parse_header(&oldreq->tc, NULL, NULL, &oldtag, 1);
+ 	if (err)
+ 		return err;
+ 
+@@ -655,12 +660,12 @@ static struct p9_req_t *p9_client_prepare_req(struct p9_client *c,
  		return req;
  
  	/* marshall the data */
--	p9pdu_prepare(req->tc, tag, type);
-+	p9pdu_prepare(req->tc, req->tc->tag, type);
- 	err = p9pdu_vwritef(req->tc, c->proto_version, fmt, ap);
+-	p9pdu_prepare(req->tc, req->tc->tag, type);
+-	err = p9pdu_vwritef(req->tc, c->proto_version, fmt, ap);
++	p9pdu_prepare(&req->tc, req->tc.tag, type);
++	err = p9pdu_vwritef(&req->tc, c->proto_version, fmt, ap);
  	if (err)
  		goto reterr;
- 	p9pdu_finalize(c, req->tc);
--	trace_9p_client_req(c, type, tag);
-+	trace_9p_client_req(c, type, req->tc->tag);
+-	p9pdu_finalize(c, req->tc);
+-	trace_9p_client_req(c, type, req->tc->tag);
++	p9pdu_finalize(c, &req->tc);
++	trace_9p_client_req(c, type, req->tc.tag);
  	return req;
  reterr:
  	p9_free_req(c, req);
-@@ -1040,14 +966,11 @@ struct p9_client *p9_client_create(const char *dev_name, char *options)
+@@ -745,7 +750,7 @@ p9_client_rpc(struct p9_client *c, int8_t type, const char *fmt, ...)
+ 		goto reterr;
  
- 	spin_lock_init(&clnt->lock);
- 	idr_init(&clnt->fids);
--
--	err = p9_tag_init(clnt);
--	if (err < 0)
--		goto free_client;
-+	idr_init(&clnt->reqs);
+ 	err = p9_check_errors(c, req);
+-	trace_9p_client_res(c, type, req->rc->tag, err);
++	trace_9p_client_res(c, type, req->rc.tag, err);
+ 	if (!err)
+ 		return req;
+ reterr:
+@@ -827,7 +832,7 @@ static struct p9_req_t *p9_client_zc_rpc(struct p9_client *c, int8_t type,
+ 		goto reterr;
  
- 	err = parse_opts(options, clnt);
- 	if (err < 0)
--		goto destroy_tagpool;
-+		goto free_client;
+ 	err = p9_check_zc_errors(c, req, uidata, in_hdrlen);
+-	trace_9p_client_res(c, type, req->rc->tag, err);
++	trace_9p_client_res(c, type, req->rc.tag, err);
+ 	if (!err)
+ 		return req;
+ reterr:
+@@ -910,10 +915,10 @@ static int p9_client_version(struct p9_client *c)
+ 	if (IS_ERR(req))
+ 		return PTR_ERR(req);
  
- 	if (!clnt->trans_mod)
- 		clnt->trans_mod = v9fs_get_default_trans();
-@@ -1056,7 +979,7 @@ struct p9_client *p9_client_create(const char *dev_name, char *options)
- 		err = -EPROTONOSUPPORT;
- 		p9_debug(P9_DEBUG_ERROR,
- 			 "No transport defined or default transport\n");
--		goto destroy_tagpool;
-+		goto free_client;
+-	err = p9pdu_readf(req->rc, c->proto_version, "ds", &msize, &version);
++	err = p9pdu_readf(&req->rc, c->proto_version, "ds", &msize, &version);
+ 	if (err) {
+ 		p9_debug(P9_DEBUG_9P, "version error %d\n", err);
+-		trace_9p_protocol_dump(c, req->rc);
++		trace_9p_protocol_dump(c, &req->rc);
+ 		goto error;
  	}
  
- 	p9_debug(P9_DEBUG_MUX, "clnt %p trans %p msize %d protocol %d\n",
-@@ -1086,8 +1009,6 @@ struct p9_client *p9_client_create(const char *dev_name, char *options)
- 	clnt->trans_mod->close(clnt);
- put_trans:
- 	v9fs_put_trans(clnt->trans_mod);
--destroy_tagpool:
--	p9_idpool_destroy(clnt->tagpool);
- free_client:
- 	kfree(clnt);
- 	return ERR_PTR(err);
-@@ -2303,3 +2224,14 @@ int p9_client_readlink(struct p9_fid *fid, char **target)
- 	return err;
- }
- EXPORT_SYMBOL(p9_client_readlink);
-+
-+int __init p9_client_init(void)
-+{
-+	p9_req_cache = KMEM_CACHE(p9_req_t, 0);
-+	return p9_req_cache ? 0 : -ENOMEM;
-+}
-+
-+void __exit p9_client_exit(void)
-+{
-+	kmem_cache_destroy(p9_req_cache);
-+}
-diff --git a/net/9p/mod.c b/net/9p/mod.c
-index 253ba824a325..0da56d6af73b 100644
---- a/net/9p/mod.c
-+++ b/net/9p/mod.c
-@@ -171,11 +171,17 @@ void v9fs_put_trans(struct p9_trans_module *m)
-  */
- static int __init init_p9(void)
- {
-+	int ret;
-+
-+	ret = p9_client_init();
-+	if (ret)
-+		return ret;
-+
- 	p9_error_init();
- 	pr_info("Installing 9P2000 support\n");
- 	p9_trans_fd_init();
+@@ -1077,9 +1082,9 @@ struct p9_fid *p9_client_attach(struct p9_client *clnt, struct p9_fid *afid,
+ 		goto error;
+ 	}
  
--	return 0;
-+	return ret;
- }
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "Q", &qid);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "Q", &qid);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		p9_free_req(clnt, req);
+ 		goto error;
+ 	}
+@@ -1134,9 +1139,9 @@ struct p9_fid *p9_client_walk(struct p9_fid *oldfid, uint16_t nwname,
+ 		goto error;
+ 	}
  
- /**
-@@ -188,6 +194,7 @@ static void __exit exit_p9(void)
- 	pr_info("Unloading 9P2000 support\n");
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "R", &nwqids, &wqids);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "R", &nwqids, &wqids);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		p9_free_req(clnt, req);
+ 		goto clunk_fid;
+ 	}
+@@ -1201,9 +1206,9 @@ int p9_client_open(struct p9_fid *fid, int mode)
+ 		goto error;
+ 	}
  
- 	p9_trans_fd_exit();
-+	p9_client_exit();
- }
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "Qd", &qid, &iounit);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "Qd", &qid, &iounit);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		goto free_and_error;
+ 	}
  
- module_init(init_p9)
+@@ -1245,9 +1250,9 @@ int p9_client_create_dotl(struct p9_fid *ofid, const char *name, u32 flags, u32
+ 		goto error;
+ 	}
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "Qd", qid, &iounit);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "Qd", qid, &iounit);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		goto free_and_error;
+ 	}
+ 
+@@ -1290,9 +1295,9 @@ int p9_client_fcreate(struct p9_fid *fid, const char *name, u32 perm, int mode,
+ 		goto error;
+ 	}
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "Qd", &qid, &iounit);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "Qd", &qid, &iounit);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		goto free_and_error;
+ 	}
+ 
+@@ -1329,9 +1334,9 @@ int p9_client_symlink(struct p9_fid *dfid, const char *name,
+ 		goto error;
+ 	}
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "Q", qid);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "Q", qid);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		goto free_and_error;
+ 	}
+ 
+@@ -1527,10 +1532,10 @@ p9_client_read(struct p9_fid *fid, u64 offset, struct iov_iter *to, int *err)
+ 			break;
+ 		}
+ 
+-		*err = p9pdu_readf(req->rc, clnt->proto_version,
++		*err = p9pdu_readf(&req->rc, clnt->proto_version,
+ 				   "D", &count, &dataptr);
+ 		if (*err) {
+-			trace_9p_protocol_dump(clnt, req->rc);
++			trace_9p_protocol_dump(clnt, &req->rc);
+ 			p9_free_req(clnt, req);
+ 			break;
+ 		}
+@@ -1600,9 +1605,9 @@ p9_client_write(struct p9_fid *fid, u64 offset, struct iov_iter *from, int *err)
+ 			break;
+ 		}
+ 
+-		*err = p9pdu_readf(req->rc, clnt->proto_version, "d", &count);
++		*err = p9pdu_readf(&req->rc, clnt->proto_version, "d", &count);
+ 		if (*err) {
+-			trace_9p_protocol_dump(clnt, req->rc);
++			trace_9p_protocol_dump(clnt, &req->rc);
+ 			p9_free_req(clnt, req);
+ 			break;
+ 		}
+@@ -1644,9 +1649,9 @@ struct p9_wstat *p9_client_stat(struct p9_fid *fid)
+ 		goto error;
+ 	}
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "wS", &ignored, ret);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "wS", &ignored, ret);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		p9_free_req(clnt, req);
+ 		goto error;
+ 	}
+@@ -1697,9 +1702,9 @@ struct p9_stat_dotl *p9_client_getattr_dotl(struct p9_fid *fid,
+ 		goto error;
+ 	}
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "A", ret);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "A", ret);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		p9_free_req(clnt, req);
+ 		goto error;
+ 	}
+@@ -1849,11 +1854,11 @@ int p9_client_statfs(struct p9_fid *fid, struct p9_rstatfs *sb)
+ 		goto error;
+ 	}
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "ddqqqqqqd", &sb->type,
+-		&sb->bsize, &sb->blocks, &sb->bfree, &sb->bavail,
+-		&sb->files, &sb->ffree, &sb->fsid, &sb->namelen);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "ddqqqqqqd", &sb->type,
++			  &sb->bsize, &sb->blocks, &sb->bfree, &sb->bavail,
++			  &sb->files, &sb->ffree, &sb->fsid, &sb->namelen);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		p9_free_req(clnt, req);
+ 		goto error;
+ 	}
+@@ -1957,9 +1962,9 @@ struct p9_fid *p9_client_xattrwalk(struct p9_fid *file_fid,
+ 		err = PTR_ERR(req);
+ 		goto error;
+ 	}
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "q", attr_size);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "q", attr_size);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		p9_free_req(clnt, req);
+ 		goto clunk_fid;
+ 	}
+@@ -2045,9 +2050,9 @@ int p9_client_readdir(struct p9_fid *fid, char *data, u32 count, u64 offset)
+ 		goto error;
+ 	}
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "D", &count, &dataptr);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "D", &count, &dataptr);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		goto free_and_error;
+ 	}
+ 	if (rsize < count) {
+@@ -2086,9 +2091,9 @@ int p9_client_mknod_dotl(struct p9_fid *fid, const char *name, int mode,
+ 	if (IS_ERR(req))
+ 		return PTR_ERR(req);
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "Q", qid);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "Q", qid);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		goto error;
+ 	}
+ 	p9_debug(P9_DEBUG_9P, "<<< RMKNOD qid %x.%llx.%x\n", qid->type,
+@@ -2117,9 +2122,9 @@ int p9_client_mkdir_dotl(struct p9_fid *fid, const char *name, int mode,
+ 	if (IS_ERR(req))
+ 		return PTR_ERR(req);
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "Q", qid);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "Q", qid);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		goto error;
+ 	}
+ 	p9_debug(P9_DEBUG_9P, "<<< RMKDIR qid %x.%llx.%x\n", qid->type,
+@@ -2152,9 +2157,9 @@ int p9_client_lock_dotl(struct p9_fid *fid, struct p9_flock *flock, u8 *status)
+ 	if (IS_ERR(req))
+ 		return PTR_ERR(req);
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "b", status);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "b", status);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		goto error;
+ 	}
+ 	p9_debug(P9_DEBUG_9P, "<<< RLOCK status %i\n", *status);
+@@ -2183,11 +2188,11 @@ int p9_client_getlock_dotl(struct p9_fid *fid, struct p9_getlock *glock)
+ 	if (IS_ERR(req))
+ 		return PTR_ERR(req);
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "bqqds", &glock->type,
+-			&glock->start, &glock->length, &glock->proc_id,
+-			&glock->client_id);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "bqqds", &glock->type,
++			  &glock->start, &glock->length, &glock->proc_id,
++			  &glock->client_id);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		goto error;
+ 	}
+ 	p9_debug(P9_DEBUG_9P, "<<< RGETLOCK type %i start %lld length %lld "
+@@ -2213,9 +2218,9 @@ int p9_client_readlink(struct p9_fid *fid, char **target)
+ 	if (IS_ERR(req))
+ 		return PTR_ERR(req);
+ 
+-	err = p9pdu_readf(req->rc, clnt->proto_version, "s", target);
++	err = p9pdu_readf(&req->rc, clnt->proto_version, "s", target);
+ 	if (err) {
+-		trace_9p_protocol_dump(clnt, req->rc);
++		trace_9p_protocol_dump(clnt, &req->rc);
+ 		goto error;
+ 	}
+ 	p9_debug(P9_DEBUG_9P, "<<< RREADLINK target %s\n", *target);
+diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
+index e2ef3c782c53..51615c0fb744 100644
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -354,7 +354,7 @@ static void p9_read_work(struct work_struct *work)
+ 			goto error;
+ 		}
+ 
+-		if (m->req->rc == NULL) {
++		if (!m->req->rc.sdata) {
+ 			p9_debug(P9_DEBUG_ERROR,
+ 				 "No recv fcall for tag %d (req %p), disconnecting!\n",
+ 				 m->rc.tag, m->req);
+@@ -362,7 +362,7 @@ static void p9_read_work(struct work_struct *work)
+ 			err = -EIO;
+ 			goto error;
+ 		}
+-		m->rc.sdata = (char *)m->req->rc + sizeof(struct p9_fcall);
++		m->rc.sdata = m->req->rc.sdata;
+ 		memcpy(m->rc.sdata, m->tmp_buf, m->rc.capacity);
+ 		m->rc.capacity = m->rc.size;
+ 	}
+@@ -372,7 +372,7 @@ static void p9_read_work(struct work_struct *work)
+ 	 */
+ 	if ((m->req) && (m->rc.offset == m->rc.capacity)) {
+ 		p9_debug(P9_DEBUG_TRANS, "got new packet\n");
+-		m->req->rc->size = m->rc.offset;
++		m->req->rc.size = m->rc.offset;
+ 		spin_lock(&m->client->lock);
+ 		if (m->req->status != REQ_STATUS_ERROR)
+ 			status = REQ_STATUS_RCVD;
+@@ -469,8 +469,8 @@ static void p9_write_work(struct work_struct *work)
+ 		p9_debug(P9_DEBUG_TRANS, "move req %p\n", req);
+ 		list_move_tail(&req->req_list, &m->req_list);
+ 
+-		m->wbuf = req->tc->sdata;
+-		m->wsize = req->tc->size;
++		m->wbuf = req->tc.sdata;
++		m->wsize = req->tc.size;
+ 		m->wpos = 0;
+ 		spin_unlock(&m->client->lock);
+ 	}
+@@ -663,7 +663,7 @@ static int p9_fd_request(struct p9_client *client, struct p9_req_t *req)
+ 	struct p9_conn *m = &ts->conn;
+ 
+ 	p9_debug(P9_DEBUG_TRANS, "mux %p task %p tcall %p id %d\n",
+-		 m, current, req->tc, req->tc->id);
++		 m, current, &req->tc, req->tc.id);
+ 	if (m->err < 0)
+ 		return m->err;
+ 
+diff --git a/net/9p/trans_rdma.c b/net/9p/trans_rdma.c
+index b513cffeeb3c..5b0cda1aaa7a 100644
+--- a/net/9p/trans_rdma.c
++++ b/net/9p/trans_rdma.c
+@@ -122,7 +122,7 @@ struct p9_rdma_context {
+ 	dma_addr_t busa;
+ 	union {
+ 		struct p9_req_t *req;
+-		struct p9_fcall *rc;
++		struct p9_fcall rc;
+ 	};
+ };
+ 
+@@ -320,8 +320,8 @@ recv_done(struct ib_cq *cq, struct ib_wc *wc)
+ 	if (wc->status != IB_WC_SUCCESS)
+ 		goto err_out;
+ 
+-	c->rc->size = wc->byte_len;
+-	err = p9_parse_header(c->rc, NULL, NULL, &tag, 1);
++	c->rc.size = wc->byte_len;
++	err = p9_parse_header(&c->rc, NULL, NULL, &tag, 1);
+ 	if (err)
+ 		goto err_out;
+ 
+@@ -331,12 +331,13 @@ recv_done(struct ib_cq *cq, struct ib_wc *wc)
+ 
+ 	/* Check that we have not yet received a reply for this request.
+ 	 */
+-	if (unlikely(req->rc)) {
++	if (unlikely(req->rc.sdata)) {
+ 		pr_err("Duplicate reply for request %d", tag);
+ 		goto err_out;
+ 	}
+ 
+-	req->rc = c->rc;
++	req->rc.size = c->rc.size;
++	req->rc.sdata = c->rc.sdata;
+ 	p9_client_cb(client, req, REQ_STATUS_RCVD);
+ 
+  out:
+@@ -361,7 +362,7 @@ send_done(struct ib_cq *cq, struct ib_wc *wc)
+ 		container_of(wc->wr_cqe, struct p9_rdma_context, cqe);
+ 
+ 	ib_dma_unmap_single(rdma->cm_id->device,
+-			    c->busa, c->req->tc->size,
++			    c->busa, c->req->tc.size,
+ 			    DMA_TO_DEVICE);
+ 	up(&rdma->sq_sem);
+ 	kfree(c);
+@@ -401,7 +402,7 @@ post_recv(struct p9_client *client, struct p9_rdma_context *c)
+ 	struct ib_sge sge;
+ 
+ 	c->busa = ib_dma_map_single(rdma->cm_id->device,
+-				    c->rc->sdata, client->msize,
++				    c->rc.sdata, client->msize,
+ 				    DMA_FROM_DEVICE);
+ 	if (ib_dma_mapping_error(rdma->cm_id->device, c->busa))
+ 		goto error;
+@@ -443,9 +444,9 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 	 **/
+ 	if (unlikely(atomic_read(&rdma->excess_rc) > 0)) {
+ 		if ((atomic_sub_return(1, &rdma->excess_rc) >= 0)) {
+-			/* Got one ! */
+-			kfree(req->rc);
+-			req->rc = NULL;
++			/* Got one! */
++			p9_fcall_fini(&req->rc);
++			req->rc.sdata = NULL;
+ 			goto dont_need_post_recv;
+ 		} else {
+ 			/* We raced and lost. */
+@@ -459,7 +460,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 		err = -ENOMEM;
+ 		goto recv_error;
+ 	}
+-	rpl_context->rc = req->rc;
++	rpl_context->rc.sdata = req->rc.sdata;
+ 
+ 	/*
+ 	 * Post a receive buffer for this request. We need to ensure
+@@ -479,7 +480,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 		goto recv_error;
+ 	}
+ 	/* remove posted receive buffer from request structure */
+-	req->rc = NULL;
++	req->rc.sdata = NULL;
+ 
+ dont_need_post_recv:
+ 	/* Post the request */
+@@ -491,7 +492,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 	c->req = req;
+ 
+ 	c->busa = ib_dma_map_single(rdma->cm_id->device,
+-				    c->req->tc->sdata, c->req->tc->size,
++				    c->req->tc.sdata, c->req->tc.size,
+ 				    DMA_TO_DEVICE);
+ 	if (ib_dma_mapping_error(rdma->cm_id->device, c->busa)) {
+ 		err = -EIO;
+@@ -501,7 +502,7 @@ static int rdma_request(struct p9_client *client, struct p9_req_t *req)
+ 	c->cqe.done = send_done;
+ 
+ 	sge.addr = c->busa;
+-	sge.length = c->req->tc->size;
++	sge.length = c->req->tc.size;
+ 	sge.lkey = rdma->pd->local_dma_lkey;
+ 
+ 	wr.next = NULL;
+diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
+index 7728b0acde09..3dd6ce1c0f2d 100644
+--- a/net/9p/trans_virtio.c
++++ b/net/9p/trans_virtio.c
+@@ -155,7 +155,7 @@ static void req_done(struct virtqueue *vq)
+ 		}
+ 
+ 		if (len) {
+-			req->rc->size = len;
++			req->rc.size = len;
+ 			p9_client_cb(chan->client, req, REQ_STATUS_RCVD);
+ 		}
+ 	}
+@@ -273,12 +273,12 @@ p9_virtio_request(struct p9_client *client, struct p9_req_t *req)
+ 	out_sgs = in_sgs = 0;
+ 	/* Handle out VirtIO ring buffers */
+ 	out = pack_sg_list(chan->sg, 0,
+-			   VIRTQUEUE_NUM, req->tc->sdata, req->tc->size);
++			   VIRTQUEUE_NUM, req->tc.sdata, req->tc.size);
+ 	if (out)
+ 		sgs[out_sgs++] = chan->sg;
+ 
+ 	in = pack_sg_list(chan->sg, out,
+-			  VIRTQUEUE_NUM, req->rc->sdata, req->rc->capacity);
++			  VIRTQUEUE_NUM, req->rc.sdata, req->rc.capacity);
+ 	if (in)
+ 		sgs[out_sgs + in_sgs++] = chan->sg + out;
+ 
+@@ -416,15 +416,15 @@ p9_virtio_zc_request(struct p9_client *client, struct p9_req_t *req,
+ 		out_nr_pages = DIV_ROUND_UP(n + offs, PAGE_SIZE);
+ 		if (n != outlen) {
+ 			__le32 v = cpu_to_le32(n);
+-			memcpy(&req->tc->sdata[req->tc->size - 4], &v, 4);
++			memcpy(&req->tc.sdata[req->tc.size - 4], &v, 4);
+ 			outlen = n;
+ 		}
+ 		/* The size field of the message must include the length of the
+ 		 * header and the length of the data.  We didn't actually know
+ 		 * the length of the data until this point so add it in now.
+ 		 */
+-		sz = cpu_to_le32(req->tc->size + outlen);
+-		memcpy(&req->tc->sdata[0], &sz, sizeof(sz));
++		sz = cpu_to_le32(req->tc.size + outlen);
++		memcpy(&req->tc.sdata[0], &sz, sizeof(sz));
+ 	} else if (uidata) {
+ 		int n = p9_get_mapped_pages(chan, &in_pages, uidata,
+ 					    inlen, &offs, &need_drop);
+@@ -433,7 +433,7 @@ p9_virtio_zc_request(struct p9_client *client, struct p9_req_t *req,
+ 		in_nr_pages = DIV_ROUND_UP(n + offs, PAGE_SIZE);
+ 		if (n != inlen) {
+ 			__le32 v = cpu_to_le32(n);
+-			memcpy(&req->tc->sdata[req->tc->size - 4], &v, 4);
++			memcpy(&req->tc.sdata[req->tc.size - 4], &v, 4);
+ 			inlen = n;
+ 		}
+ 	}
+@@ -445,7 +445,7 @@ p9_virtio_zc_request(struct p9_client *client, struct p9_req_t *req,
+ 
+ 	/* out data */
+ 	out = pack_sg_list(chan->sg, 0,
+-			   VIRTQUEUE_NUM, req->tc->sdata, req->tc->size);
++			   VIRTQUEUE_NUM, req->tc.sdata, req->tc.size);
+ 
+ 	if (out)
+ 		sgs[out_sgs++] = chan->sg;
+@@ -464,7 +464,7 @@ p9_virtio_zc_request(struct p9_client *client, struct p9_req_t *req,
+ 	 * alloced memory and payload onto the user buffer.
+ 	 */
+ 	in = pack_sg_list(chan->sg, out,
+-			  VIRTQUEUE_NUM, req->rc->sdata, in_hdr_len);
++			  VIRTQUEUE_NUM, req->rc.sdata, in_hdr_len);
+ 	if (in)
+ 		sgs[out_sgs + in_sgs++] = chan->sg + out;
+ 
+diff --git a/net/9p/trans_xen.c b/net/9p/trans_xen.c
+index 843cb823d9b9..782a07f2ad0c 100644
+--- a/net/9p/trans_xen.c
++++ b/net/9p/trans_xen.c
+@@ -141,7 +141,7 @@ static int p9_xen_request(struct p9_client *client, struct p9_req_t *p9_req)
+ 	struct xen_9pfs_front_priv *priv = NULL;
+ 	RING_IDX cons, prod, masked_cons, masked_prod;
+ 	unsigned long flags;
+-	u32 size = p9_req->tc->size;
++	u32 size = p9_req->tc.size;
+ 	struct xen_9pfs_dataring *ring;
+ 	int num;
+ 
+@@ -154,7 +154,7 @@ static int p9_xen_request(struct p9_client *client, struct p9_req_t *p9_req)
+ 	if (!priv || priv->client != client)
+ 		return -EINVAL;
+ 
+-	num = p9_req->tc->tag % priv->num_rings;
++	num = p9_req->tc.tag % priv->num_rings;
+ 	ring = &priv->rings[num];
+ 
+ again:
+@@ -176,7 +176,7 @@ static int p9_xen_request(struct p9_client *client, struct p9_req_t *p9_req)
+ 	masked_prod = xen_9pfs_mask(prod, XEN_9PFS_RING_SIZE);
+ 	masked_cons = xen_9pfs_mask(cons, XEN_9PFS_RING_SIZE);
+ 
+-	xen_9pfs_write_packet(ring->data.out, p9_req->tc->sdata, size,
++	xen_9pfs_write_packet(ring->data.out, p9_req->tc.sdata, size,
+ 			      &masked_prod, masked_cons, XEN_9PFS_RING_SIZE);
+ 
+ 	p9_req->status = REQ_STATUS_SENT;
+@@ -229,12 +229,12 @@ static void p9_xen_response(struct work_struct *work)
+ 			continue;
+ 		}
+ 
+-		memcpy(req->rc, &h, sizeof(h));
+-		req->rc->offset = 0;
++		memcpy(&req->rc, &h, sizeof(h));
++		req->rc.offset = 0;
+ 
+ 		masked_cons = xen_9pfs_mask(cons, XEN_9PFS_RING_SIZE);
+ 		/* Then, read the whole packet (including the header) */
+-		xen_9pfs_read_packet(req->rc->sdata, ring->data.in, h.size,
++		xen_9pfs_read_packet(req->rc.sdata, ring->data.in, h.size,
+ 				     masked_prod, &masked_cons,
+ 				     XEN_9PFS_RING_SIZE);
+ 
 -- 
 2.20.1
 
