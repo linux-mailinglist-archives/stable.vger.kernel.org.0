@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EACA85CF87
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E84D5CF88
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726686AbfGBMec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 08:34:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53760 "EHLO mail.kernel.org"
+        id S1726825AbfGBMei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 08:34:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726457AbfGBMec (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 08:34:32 -0400
+        id S1726457AbfGBMei (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 08:34:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F9C92054F;
-        Tue,  2 Jul 2019 12:34:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E2B62054F;
+        Tue,  2 Jul 2019 12:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562070871;
-        bh=5CgQ4XcaSmQc+CLsab4TbNHADv7Q0aRzEmsoxZkTiE0=;
+        s=default; t=1562070877;
+        bh=ghmgmxiF72WCFXy3LZbMzCL/LNxywBivWup/m8AIolI=;
         h=Subject:To:From:Date:From;
-        b=yGIy62a5V8dOIJ2kkOtZnzopHJ/diZ6pe+7vjg1lWYKLbIh2VWcLuMyNFQqojpI8t
-         nvlmAZC3tX3hWN/mk9U14QL2J1iUcqldYHe8+ctUfhEDyg2WECKYve/ZKp/m4D5X2O
-         TG5PsI0eO0XPZmnUNrveks92/TNS9joAytwkR6og=
-Subject: patch "staging: bcm2835-camera: Restore return behavior of" added to staging-next
-To:     wahrenst@gmx.net, dan.carpenter@oracle.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=tvLdziyk9go6f3kn8AJJ9gR27dfXwThRUTqHJe/VME9vppIBY0iGUyeg1MHlFrtCz
+         IyLBhC85G0n9UfyxS2sDmOJ9ZB/qu/0I0SP3fJRlz+woBmr1kr2Z6ieqdo9wjUBOh7
+         cYqFE2QRTPIF9QFRgwKaGjyAhP2Y5C0QghyzYoKo=
+Subject: patch "staging: mt7621-pci: fix PCIE_FTS_NUM_LO macro" added to staging-next
+To:     sergio.paracuellos@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 02 Jul 2019 14:29:39 +0200
-Message-ID: <156207057920554@kroah.com>
+Message-ID: <156207057950191@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: bcm2835-camera: Restore return behavior of
+    staging: mt7621-pci: fix PCIE_FTS_NUM_LO macro
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,73 +55,35 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From f816db1dc17b99b059325f41ed5a78f85d15368c Mon Sep 17 00:00:00 2001
-From: Stefan Wahren <wahrenst@gmx.net>
-Date: Wed, 26 Jun 2019 17:48:11 +0200
-Subject: staging: bcm2835-camera: Restore return behavior of
- ctrl_set_bitrate()
+From 0ae0cf509d28d8539b88b5f7f24558f5bfe57cdf Mon Sep 17 00:00:00 2001
+From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Date: Wed, 26 Jun 2019 14:43:18 +0200
+Subject: staging: mt7621-pci: fix PCIE_FTS_NUM_LO macro
 
-The commit 52c4dfcead49 ("Staging: vc04_services: Cleanup in
-ctrl_set_bitrate()") changed the return behavior of ctrl_set_bitrate().
-We cannot do this because of a bug in the firmware, which breaks probing
-of bcm2835-camera:
+Add missing parenthesis to PCIE_FTS_NUM_LO macro to do the
+same it was being done in original code.
 
-    bcm2835-v4l2: mmal_init: failed to set all camera controls: -3
-    Cleanup: Destroy video encoder
-    Cleanup: Destroy image encoder
-    Cleanup: Destroy video render
-    Cleanup: Destroy camera
-    bcm2835-v4l2: bcm2835_mmal_probe: mmal init failed: -3
-    bcm2835-camera: probe of bcm2835-camera failed with error -3
-
-So restore the old behavior, add an explaining comment and a debug message
-to verify that the bug has been fixed in firmware.
-
-Fixes: 52c4dfcead49 ("Staging: vc04_services: Cleanup in ctrl_set_bitrate()")
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+Fixes: a4b2eb912bb1 ("staging: mt7621-pci: rewrite RC FTS configuration")
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 Cc: stable <stable@vger.kernel.org>
-Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../vc04_services/bcm2835-camera/controls.c   | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/staging/mt7621-pci/pci-mt7621.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/vc04_services/bcm2835-camera/controls.c b/drivers/staging/vc04_services/bcm2835-camera/controls.c
-index d60e378bdfce..c251164655ba 100644
---- a/drivers/staging/vc04_services/bcm2835-camera/controls.c
-+++ b/drivers/staging/vc04_services/bcm2835-camera/controls.c
-@@ -604,15 +604,28 @@ static int ctrl_set_bitrate(struct bm2835_mmal_dev *dev,
- 			    struct v4l2_ctrl *ctrl,
- 			    const struct bm2835_mmal_v4l2_ctrl *mmal_ctrl)
- {
-+	int ret;
- 	struct vchiq_mmal_port *encoder_out;
+diff --git a/drivers/staging/mt7621-pci/pci-mt7621.c b/drivers/staging/mt7621-pci/pci-mt7621.c
+index a981f4f0ed03..89fa813142ab 100644
+--- a/drivers/staging/mt7621-pci/pci-mt7621.c
++++ b/drivers/staging/mt7621-pci/pci-mt7621.c
+@@ -42,7 +42,7 @@
+ /* MediaTek specific configuration registers */
+ #define PCIE_FTS_NUM			0x70c
+ #define PCIE_FTS_NUM_MASK		GENMASK(15, 8)
+-#define PCIE_FTS_NUM_L0(x)		((x) & 0xff << 8)
++#define PCIE_FTS_NUM_L0(x)		(((x) & 0xff) << 8)
  
- 	dev->capture.encode_bitrate = ctrl->val;
- 
- 	encoder_out = &dev->component[MMAL_COMPONENT_VIDEO_ENCODE]->output[0];
- 
--	return vchiq_mmal_port_parameter_set(dev->instance, encoder_out,
--					     mmal_ctrl->mmal_id, &ctrl->val,
--					     sizeof(ctrl->val));
-+	ret = vchiq_mmal_port_parameter_set(dev->instance, encoder_out,
-+					    mmal_ctrl->mmal_id, &ctrl->val,
-+					    sizeof(ctrl->val));
-+
-+	v4l2_dbg(1, bcm2835_v4l2_debug, &dev->v4l2_dev,
-+		 "%s: After: mmal_ctrl:%p ctrl id:0x%x ctrl val:%d ret %d(%d)\n",
-+		 __func__, mmal_ctrl, ctrl->id, ctrl->val, ret,
-+		 (ret == 0 ? 0 : -EINVAL));
-+
-+	/*
-+	 * Older firmware versions (pre July 2019) have a bug in handling
-+	 * MMAL_PARAMETER_VIDEO_BIT_RATE that result in the call
-+	 * returning -MMAL_MSG_STATUS_EINVAL. So ignore errors from this call.
-+	 */
-+	return 0;
- }
- 
- static int ctrl_set_bitrate_mode(struct bm2835_mmal_dev *dev,
+ /* rt_sysc_membase relative registers */
+ #define RALINK_CLKCFG1			0x30
 -- 
 2.22.0
 
