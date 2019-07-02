@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C975CA6A
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:03:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F7095CBA2
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:15:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727521AbfGBIDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:03:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49098 "EHLO mail.kernel.org"
+        id S1727943AbfGBIF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:05:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727546AbfGBIDw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:03:52 -0400
+        id S1727443AbfGBIF0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:05:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB91421848;
-        Tue,  2 Jul 2019 08:03:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFDA420659;
+        Tue,  2 Jul 2019 08:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054631;
-        bh=Egxd7GBmipUcSfGsZsrwiyABLjDIQUu5RtV2kIjuesA=;
+        s=default; t=1562054725;
+        bh=7VoB28kTHwj0Tl6LL1H7TgWAL359xaX2QKUoNu45dKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z4BmcUtL7Q3H4n9I8U+JjJSpFBR/WHyOJyHPlLhCYdn0vmFoa83I6uFGRWHtJShoM
-         DDV/20WToWjOVVAMngmI83FmPvOTRne17/GyIwzPEO6V5MrAX5Ua7QZwXVEXjsto/S
-         fUBLB2tAgbQ48fZ70kQl0YcDm5sAFs5GXEVwK6hA=
+        b=grvwCBIHSGOP4EGZ1lsjytlAwSfTfYPteqYsNamuQHZpo90Quhk6uF04OVqiXmiTT
+         XVQet9hEXgIWs98UkhFmuS121kR3vCpcRdqlw0eUgFDcMW3F3y9+xOdeiAIrutPOij
+         XpgrYPWa/yb2gQiUU0P/ebvWiKZQraKWbTootl4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Nicolas Pitre <nicolas.pitre@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.1 06/55] fs/binfmt_flat.c: make load_flat_shared_library() work
-Date:   Tue,  2 Jul 2019 10:01:14 +0200
-Message-Id: <20190702080124.380905163@linuxfoundation.org>
+        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Dominique Martinet <dominique.martinet@cea.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 14/72] 9p: Rename req to rreq in trans_fd
+Date:   Tue,  2 Jul 2019 10:01:15 +0200
+Message-Id: <20190702080125.346857741@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
-References: <20190702080124.103022729@linuxfoundation.org>
+In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
+References: <20190702080124.564652899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,86 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+[ Upstream commit 6d35190f395316916c8bb4aabd35a182890bf856 ]
 
-commit 867bfa4a5fcee66f2b25639acae718e8b28b25a5 upstream.
+In struct p9_conn, rename req to rreq as it is used by the read routine.
 
-load_flat_shared_library() is broken: It only calls load_flat_file() if
-prepare_binprm() returns zero, but prepare_binprm() returns the number of
-bytes read - so this only happens if the file is empty.
-
-Instead, call into load_flat_file() if the number of bytes read is
-non-negative. (Even if the number of bytes is zero - in that case,
-load_flat_file() will see nullbytes and return a nice -ENOEXEC.)
-
-In addition, remove the code related to bprm creds and stop using
-prepare_binprm() - this code is loading a library, not a main executable,
-and it only actually uses the members "buf", "file" and "filename" of the
-linux_binprm struct. Instead, call kernel_read() directly.
-
-Link: http://lkml.kernel.org/r/20190524201817.16509-1-jannh@google.com
-Fixes: 287980e49ffc ("remove lots of IS_ERR_VALUE abuses")
-Signed-off-by: Jann Horn <jannh@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Greg Ungerer <gerg@linux-m68k.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: http://lkml.kernel.org/r/20180903160321.2181-1-tomasbortoli@gmail.com
+Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
+Suggested-by: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_flat.c |   23 +++++++----------------
- 1 file changed, 7 insertions(+), 16 deletions(-)
+ net/9p/trans_fd.c | 30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
---- a/fs/binfmt_flat.c
-+++ b/fs/binfmt_flat.c
-@@ -856,9 +856,14 @@ err:
+diff --git a/net/9p/trans_fd.c b/net/9p/trans_fd.c
+index aca528722183..12559c474dde 100644
+--- a/net/9p/trans_fd.c
++++ b/net/9p/trans_fd.c
+@@ -131,7 +131,7 @@ struct p9_conn {
+ 	int err;
+ 	struct list_head req_list;
+ 	struct list_head unsent_req_list;
+-	struct p9_req_t *req;
++	struct p9_req_t *rreq;
+ 	struct p9_req_t *wreq;
+ 	char tmp_buf[7];
+ 	struct p9_fcall rc;
+@@ -323,7 +323,7 @@ static void p9_read_work(struct work_struct *work)
+ 	m->rc.offset += err;
  
- static int load_flat_shared_library(int id, struct lib_info *libs)
- {
-+	/*
-+	 * This is a fake bprm struct; only the members "buf", "file" and
-+	 * "filename" are actually used.
-+	 */
- 	struct linux_binprm bprm;
- 	int res;
- 	char buf[16];
-+	loff_t pos = 0;
+ 	/* header read in */
+-	if ((!m->req) && (m->rc.offset == m->rc.capacity)) {
++	if ((!m->rreq) && (m->rc.offset == m->rc.capacity)) {
+ 		p9_debug(P9_DEBUG_TRANS, "got new header\n");
  
- 	memset(&bprm, 0, sizeof(bprm));
+ 		/* Header size */
+@@ -347,23 +347,23 @@ static void p9_read_work(struct work_struct *work)
+ 			 "mux %p pkt: size: %d bytes tag: %d\n",
+ 			 m, m->rc.size, m->rc.tag);
  
-@@ -872,25 +877,11 @@ static int load_flat_shared_library(int
- 	if (IS_ERR(bprm.file))
- 		return res;
+-		m->req = p9_tag_lookup(m->client, m->rc.tag);
+-		if (!m->req || (m->req->status != REQ_STATUS_SENT)) {
++		m->rreq = p9_tag_lookup(m->client, m->rc.tag);
++		if (!m->rreq || (m->rreq->status != REQ_STATUS_SENT)) {
+ 			p9_debug(P9_DEBUG_ERROR, "Unexpected packet tag %d\n",
+ 				 m->rc.tag);
+ 			err = -EIO;
+ 			goto error;
+ 		}
  
--	bprm.cred = prepare_exec_creds();
--	res = -ENOMEM;
--	if (!bprm.cred)
--		goto out;
--
--	/* We don't really care about recalculating credentials at this point
--	 * as we're past the point of no return and are dealing with shared
--	 * libraries.
--	 */
--	bprm.called_set_creds = 1;
--
--	res = prepare_binprm(&bprm);
-+	res = kernel_read(bprm.file, bprm.buf, BINPRM_BUF_SIZE, &pos);
+-		if (!m->req->rc.sdata) {
++		if (!m->rreq->rc.sdata) {
+ 			p9_debug(P9_DEBUG_ERROR,
+ 				 "No recv fcall for tag %d (req %p), disconnecting!\n",
+-				 m->rc.tag, m->req);
+-			m->req = NULL;
++				 m->rc.tag, m->rreq);
++			m->rreq = NULL;
+ 			err = -EIO;
+ 			goto error;
+ 		}
+-		m->rc.sdata = m->req->rc.sdata;
++		m->rc.sdata = m->rreq->rc.sdata;
+ 		memcpy(m->rc.sdata, m->tmp_buf, m->rc.capacity);
+ 		m->rc.capacity = m->rc.size;
+ 	}
+@@ -371,21 +371,21 @@ static void p9_read_work(struct work_struct *work)
+ 	/* packet is read in
+ 	 * not an else because some packets (like clunk) have no payload
+ 	 */
+-	if ((m->req) && (m->rc.offset == m->rc.capacity)) {
++	if ((m->rreq) && (m->rc.offset == m->rc.capacity)) {
+ 		p9_debug(P9_DEBUG_TRANS, "got new packet\n");
+-		m->req->rc.size = m->rc.offset;
++		m->rreq->rc.size = m->rc.offset;
+ 		spin_lock(&m->client->lock);
+-		if (m->req->status != REQ_STATUS_ERROR)
++		if (m->rreq->status != REQ_STATUS_ERROR)
+ 			status = REQ_STATUS_RCVD;
+-		list_del(&m->req->req_list);
++		list_del(&m->rreq->req_list);
+ 		/* update req->status while holding client->lock  */
+-		p9_client_cb(m->client, m->req, status);
++		p9_client_cb(m->client, m->rreq, status);
+ 		spin_unlock(&m->client->lock);
+ 		m->rc.sdata = NULL;
+ 		m->rc.offset = 0;
+ 		m->rc.capacity = 0;
+-		p9_req_put(m->req);
+-		m->req = NULL;
++		p9_req_put(m->rreq);
++		m->rreq = NULL;
+ 	}
  
--	if (!res)
-+	if (res >= 0)
- 		res = load_flat_file(&bprm, libs, id, NULL);
- 
--	abort_creds(bprm.cred);
--
--out:
- 	allow_write_access(bprm.file);
- 	fput(bprm.file);
- 
+ end_clear:
+-- 
+2.20.1
+
 
 
