@@ -2,80 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DAB65DAD9
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 03:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E97F5D963
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 02:42:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727107AbfGCBab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 21:30:31 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:37370 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727101AbfGCBab (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 21:30:31 -0400
-Received: by mail-pf1-f193.google.com with SMTP id 19so346609pfa.4;
-        Tue, 02 Jul 2019 18:30:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=L4pET9YsQCDoE6awsVZbNmmWVq+gXFm7LkEAIu1gcBs=;
-        b=EdonMdmdmkotg2/LT1Jpk4FL1maXE5svD0pQof+aR+UNif6NuzSKmQKlhWCSuVFz/o
-         YDGpZOnOtRlQs9XuALnqDt66Jo+K2vOLWYvyFO05BJ8qVPWrkx3c1KjAN44shkAmj3ln
-         2q5n12oi8oUC25hDtUg4u7QSXtwUaNNg8VkOVnRUb/sem22609SJWE+21KCMO6KFgqhR
-         hw1EVRnu+VLCDvrhIGYuY6X+rQyaHWnOW2ctjW2NNYeMw1U4k4z+C8VopwZPdIRYaNZo
-         w61Q8YsIr5KPhMJCWd62lMbQPNQotFj3iGFBT7OVhy1E0G5Ff2cSKM5gPfaIzWVzjIIx
-         NNRA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=L4pET9YsQCDoE6awsVZbNmmWVq+gXFm7LkEAIu1gcBs=;
-        b=JJrGyiY0e19l3jQp3J4v1zXqCuVndsmMedLgEIH8k6VumF0pH34MOT3SzrFXZvjcBu
-         3D1RuJQQTPqvfezOVtaaHXpq+KSgxbz0YCOE7kYYotdMXeepRpdhngulX8LZzD0VKHZ1
-         RQvpq5+Fep2xFDN2WPNBvZ5RiWxqC8w4V9uQKfOBg4A9N5i8tyuNqPXOOzjQ+jrL/HgW
-         n+/9XnhpUNjkgZRVbjZF1vDOmPtqQFn7UhZWxX0Conk3moGj+cO5v7AwrExk4UqdcELo
-         DI20ZAWcytBB2Y065k8wDFgNzyw4yz5pcb7AN0shb/fVeBEdnLLGa70fT3QKil+8XfG5
-         pjNg==
-X-Gm-Message-State: APjAAAUOpMvQJt2yidpLVJibZJiPmc7VKr8D98EnkGIgJRKBan70tXbN
-        v6uTzpGuTyrkVLM4ZepKy0mUa13C
-X-Google-Smtp-Source: APXvYqyXvgDCpfZwAW9HAbb/O8p8jWpGBgsXjRUHz3i/iVyqJtvIBTvUS1mUlaDrzx+mSpHGypX75Q==
-X-Received: by 2002:a17:90a:a008:: with SMTP id q8mr7786552pjp.114.1562098981736;
-        Tue, 02 Jul 2019 13:23:01 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id r15sm14610899pfh.121.2019.07.02.13.23.00
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Jul 2019 13:23:01 -0700 (PDT)
-Date:   Tue, 2 Jul 2019 13:23:00 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/72] 4.19.57-stable review
-Message-ID: <20190702202300.GB29128@roeck-us.net>
-References: <20190702080124.564652899@linuxfoundation.org>
+        id S1727132AbfGCAm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 20:42:29 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:53874 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726430AbfGCAm2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 20:42:28 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x62KJUkC012245;
+        Tue, 2 Jul 2019 20:37:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
+ from : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=corp-2018-07-02;
+ bh=fueYM9eyTvkbZeEIBz3R0f1MZEh81+cPxnT08admdT8=;
+ b=wI1+tiHOHvPB7MJ9DqyK6UmskqgS5QUYfFJTqMJeLmTNamGGw0KyEuqI/6JAFQjKM27w
+ TliOenZbQ/h1XC45SwV5MyH1dXbi4HamWkvZneeAV5cd7XPftSMb2R7d7YZDU/DD2npS
+ yixUrvuAKq/5kA5y9g2vCQm9Sp7LxK5hOspo/JXxe23aUz8CfzQ5PNS6fdGyiI05WDqX
+ Tc18fFzsX4mpOefjaRcnf1AaxiCOYOt4Fr19lalbW9nl/HOjWa4W4JCM+A49r7xXGlZO
+ mcLYNC+8lnL0XLYM79fbVXP9I8uNuxNoOVMTnxdfYGYXrNCMOS2EwPjRU9uIBrM/jlfK qA== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by aserp2120.oracle.com with ESMTP id 2te5tbnv4n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 02 Jul 2019 20:37:21 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x62KNbG9196020;
+        Tue, 2 Jul 2019 20:37:20 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by userp3030.oracle.com with ESMTP id 2tebqgqst4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 02 Jul 2019 20:37:20 +0000
+Received: from abhmp0011.oracle.com (abhmp0011.oracle.com [141.146.116.17])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x62KbIbS027858;
+        Tue, 2 Jul 2019 20:37:18 GMT
+Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 02 Jul 2019 13:37:18 -0700
+To:     Roman Bolshakov <r.bolshakov@yadro.com>
+Cc:     <target-devel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        <stable@vger.kernel.org>, Bart Van Assche <bvanassche@acm.org>
+Subject: Re: [RESEND PATCH] scsi: target/iblock: Fix overrun in WRITE SAME emulation
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+Organization: Oracle Corporation
+References: <20190702191636.26481-1-r.bolshakov@yadro.com>
+Date:   Tue, 02 Jul 2019 16:37:16 -0400
+In-Reply-To: <20190702191636.26481-1-r.bolshakov@yadro.com> (Roman Bolshakov's
+        message of "Tue, 2 Jul 2019 22:16:38 +0300")
+Message-ID: <yq1pnmsfa0z.fsf@oracle.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9306 signatures=668688
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=974
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1907020227
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9306 signatures=668688
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1907020227
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 02, 2019 at 10:01:01AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.57 release.
-> There are 72 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu 04 Jul 2019 07:59:45 AM UTC.
-> Anything received after that time might be too late.
-> 
-Build results:
-	total: 156 pass: 156 fail: 0
-Qemu test results:
-	total: 364 pass: 364 fail: 0
 
-Guenter
+Roman,
+
+> WRITE SAME corrupts data on the block device behind iblock if the
+> command is emulated. The emulation code issues (M - 1) * N times more
+> bios than requested, where M is the number of 512 blocks per real
+> block size and N is the NUMBER OF LOGICAL BLOCKS specified in WRITE
+> SAME command. So, for a device with 4k blocks, 7 * N more LBAs gets
+> written after the requested range.
+>
+> The issue happens because the number of 512 byte sectors to be written
+> is decreased one by one while the real bios are typically from 1 to 8
+> 512 byte sectors per bio.
+
+Applied to 5.2/scsi-fixes, thanks!
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
