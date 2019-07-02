@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F2595D994
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 02:48:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF52D5D993
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 02:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727091AbfGCAr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 20:47:58 -0400
+        id S1727089AbfGCAr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 20:47:57 -0400
 Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:43173 "EHLO
         smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726963AbfGCAr6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 20:47:58 -0400
+        with ESMTP id S1727049AbfGCAr5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 20:47:57 -0400
 X-IronPort-AV: E=Sophos;i="5.62,444,1554768000"; 
-   d="scan'208";a="809025475"
-Received: from sea3-co-svc-lb6-vlan3.sea.amazon.com (HELO email-inbound-relay-2c-397e131e.us-west-2.amazon.com) ([10.47.22.38])
-  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 02 Jul 2019 21:02:22 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
-        by email-inbound-relay-2c-397e131e.us-west-2.amazon.com (Postfix) with ESMTPS id 4AB34A2693;
-        Tue,  2 Jul 2019 21:02:22 +0000 (UTC)
-Received: from EX13D05UWC001.ant.amazon.com (10.43.162.82) by
- EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Tue, 2 Jul 2019 21:02:21 +0000
+   d="scan'208";a="809025504"
+Received: from sea3-co-svc-lb6-vlan3.sea.amazon.com (HELO email-inbound-relay-2b-81e76b79.us-west-2.amazon.com) ([10.47.22.38])
+  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 02 Jul 2019 21:02:32 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
+        by email-inbound-relay-2b-81e76b79.us-west-2.amazon.com (Postfix) with ESMTPS id 82973A1E7B;
+        Tue,  2 Jul 2019 21:02:32 +0000 (UTC)
+Received: from EX13D01UWB002.ant.amazon.com (10.43.161.136) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Tue, 2 Jul 2019 21:02:32 +0000
 Received: from EX13MTAUWC001.ant.amazon.com (10.43.162.135) by
- EX13D05UWC001.ant.amazon.com (10.43.162.82) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Tue, 2 Jul 2019 21:02:21 +0000
+ EX13d01UWB002.ant.amazon.com (10.43.161.136) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Tue, 2 Jul 2019 21:02:32 +0000
 Received: from localhost (172.23.204.141) by mail-relay.amazon.com
  (10.43.162.232) with Microsoft SMTP Server id 15.0.1367.3 via Frontend
- Transport; Tue, 2 Jul 2019 21:02:21 +0000
+ Transport; Tue, 2 Jul 2019 21:02:31 +0000
 From:   Balbir Singh <sblbir@amzn.com>
 To:     <gregkh@linuxfoundation.org>
-CC:     <stable@vger.kernel.org>, Balbir Singh <sblbir@amzn.com>
-Subject: [backport to v4.14 CVE-2019-3900 0/7] Fix CVE-2019-3900 in stable v4.14
-Date:   Tue, 2 Jul 2019 21:02:03 +0000
-Message-ID: <20190702210210.2375-1-sblbir@amzn.com>
+CC:     <stable@vger.kernel.org>,
+        =?UTF-8?q?haibinzhang=28=E5=BC=A0=E6=B5=B7=E6=96=8C=29?= 
+        <haibinzhang@tencent.com>, Yunfang Tai <yunfangtai@tencent.com>,
+        Lidong Chen <lidongchen@tencent.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        "Balbir Singh" <sblbir@amazon.com>
+Subject: [backport to v4.14 CVE-2019-3900 1/7] vhost-net: set packet weight of tx polling to 2 * vq size
+Date:   Tue, 2 Jul 2019 21:02:04 +0000
+Message-ID: <20190702210210.2375-2-sblbir@amzn.com>
 X-Mailer: git-send-email 2.16.5
+In-Reply-To: <20190702210210.2375-1-sblbir@amzn.com>
+References: <20190702210210.2375-1-sblbir@amzn.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
@@ -42,31 +49,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-These series of patches are required to fix the specified CVE in v4.14.
-I've tested these patches with a VM running vhost. Jason Wang who originally
-wrote the patches, helped identify other patches to backport and also tested
-this version and provided feedback on the patches.
+From: haibinzhang(张海斌) <haibinzhang@tencent.com>
 
-Jason Wang (5):
-  vhost_net: introduce vhost_exceeds_weight()
-  vhost: introduce vhost_exceeds_weight()
-  vhost_net: fix possible infinite loop
-  vhost: vsock: add weight support
-  vhost: scsi: add weight support
+handle_tx will delay rx for tens or even hundreds of milliseconds when tx busy
+polling udp packets with small length(e.g. 1byte udp payload), because setting
+VHOST_NET_WEIGHT takes into account only sent-bytes but no single packet length.
 
-Paolo Abeni (1):
-  vhost_net: use packet weight for rx handler, too
+Ping-Latencies shown below were tested between two Virtual Machines using
+netperf (UDP_STREAM, len=1), and then another machine pinged the client:
 
-haibinzhang(张海斌) (1):
-  vhost-net: set packet weight of tx polling to 2 * vq size
+vq size=256
+Packet-Weight   Ping-Latencies(millisecond)
+                   min      avg       max
+Origin           3.319   18.489    57.303
+64               1.643    2.021     2.552
+128              1.825    2.600     3.224
+256              1.997    2.710     4.295
+512              1.860    3.171     4.631
+1024             2.002    4.173     9.056
+2048             2.257    5.650     9.688
+4096             2.093    8.508    15.943
 
- drivers/vhost/net.c   | 33 +++++++++++++++++++--------------
- drivers/vhost/scsi.c  | 14 ++++++++++----
- drivers/vhost/vhost.c | 20 +++++++++++++++++++-
- drivers/vhost/vhost.h |  6 +++++-
- drivers/vhost/vsock.c | 27 ++++++++++++++++++++-------
- 5 files changed, 73 insertions(+), 27 deletions(-)
+vq size=512
+Packet-Weight   Ping-Latencies(millisecond)
+                   min      avg       max
+Origin           6.537   29.177    66.245
+64               2.798    3.614     4.403
+128              2.861    3.820     4.775
+256              3.008    4.018     4.807
+512              3.254    4.523     5.824
+1024             3.079    5.335     7.747
+2048             3.944    8.201    12.762
+4096             4.158   11.057    19.985
 
+Seems pretty consistent, a small dip at 2 VQ sizes.
+Ring size is a hint from device about a burst size it can tolerate. Based on
+benchmarks, set the weight to 2 * vq size.
+
+To evaluate this change, another tests were done using netperf(RR, TX) between
+two machines with Intel(R) Xeon(R) Gold 6133 CPU @ 2.50GHz, and vq size was
+tweaked through qemu. Results shown below does not show obvious changes.
+
+vq size=256 TCP_RR                vq size=512 TCP_RR
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+   1/       1/  -7%/        -2%      1/       1/   0%/        -2%
+   1/       4/  +1%/         0%      1/       4/  +1%/         0%
+   1/       8/  +1%/        -2%      1/       8/   0%/        +1%
+  64/       1/  -6%/         0%     64/       1/  +7%/        +3%
+  64/       4/   0%/        +2%     64/       4/  -1%/        +1%
+  64/       8/   0%/         0%     64/       8/  -1%/        -2%
+ 256/       1/  -3%/        -4%    256/       1/  -4%/        -2%
+ 256/       4/  +3%/        +4%    256/       4/  +1%/        +2%
+ 256/       8/  +2%/         0%    256/       8/  +1%/        -1%
+
+vq size=256 UDP_RR                vq size=512 UDP_RR
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+   1/       1/  -5%/        +1%      1/       1/  -3%/        -2%
+   1/       4/  +4%/        +1%      1/       4/  -2%/        +2%
+   1/       8/  -1%/        -1%      1/       8/  -1%/         0%
+  64/       1/  -2%/        -3%     64/       1/  +1%/        +1%
+  64/       4/  -5%/        -1%     64/       4/  +2%/         0%
+  64/       8/   0%/        -1%     64/       8/  -2%/        +1%
+ 256/       1/  +7%/        +1%    256/       1/  -7%/         0%
+ 256/       4/  +1%/        +1%    256/       4/  -3%/        -4%
+ 256/       8/  +2%/        +2%    256/       8/  +1%/        +1%
+
+vq size=256 TCP_STREAM            vq size=512 TCP_STREAM
+size/sessions/+thu%/+normalize%   size/sessions/+thu%/+normalize%
+  64/       1/   0%/        -3%     64/       1/   0%/         0%
+  64/       4/  +3%/        -1%     64/       4/  -2%/        +4%
+  64/       8/  +9%/        -4%     64/       8/  -1%/        +2%
+ 256/       1/  +1%/        -4%    256/       1/  +1%/        +1%
+ 256/       4/  -1%/        -1%    256/       4/  -3%/         0%
+ 256/       8/  +7%/        +5%    256/       8/  -3%/         0%
+ 512/       1/  +1%/         0%    512/       1/  -1%/        -1%
+ 512/       4/  +1%/        -1%    512/       4/   0%/         0%
+ 512/       8/  +7%/        -5%    512/       8/  +6%/        -1%
+1024/       1/   0%/        -1%   1024/       1/   0%/        +1%
+1024/       4/  +3%/         0%   1024/       4/  +1%/         0%
+1024/       8/  +8%/        +5%   1024/       8/  -1%/         0%
+2048/       1/  +2%/        +2%   2048/       1/  -1%/         0%
+2048/       4/  +1%/         0%   2048/       4/   0%/        -1%
+2048/       8/  -2%/         0%   2048/       8/   5%/        -1%
+4096/       1/  -2%/         0%   4096/       1/  -2%/         0%
+4096/       4/  +2%/         0%   4096/       4/   0%/         0%
+4096/       8/  +9%/        -2%   4096/       8/  -5%/        -1%
+
+[upstream - a2ac99905f1ea8b15997a6ec39af69aa28a3653b]
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Haibin Zhang <haibinzhang@tencent.com>
+Signed-off-by: Yunfang Tai <yunfangtai@tencent.com>
+Signed-off-by: Lidong Chen <lidongchen@tencent.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Balbir Singh <sblbir@amazon.com>
+---
+ drivers/vhost/net.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 4eba9ee179e3..a60fcf07f86c 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -44,6 +44,10 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+  * Using this limit prevents one virtqueue from starving others. */
+ #define VHOST_NET_WEIGHT 0x80000
+ 
++/* Max number of packets transferred before requeueing the job.
++ * Using this limit prevents one virtqueue from starving rx. */
++#define VHOST_NET_PKT_WEIGHT(vq) ((vq)->num * 2)
++
+ /* MAX number of TX used buffers for outstanding zerocopy */
+ #define VHOST_MAX_PEND 128
+ #define VHOST_GOODCOPY_LEN 256
+@@ -461,6 +465,7 @@ static void handle_tx(struct vhost_net *net)
+ 	struct socket *sock;
+ 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
+ 	bool zcopy, zcopy_used;
++	int sent_pkts = 0;
+ 
+ 	mutex_lock(&vq->mutex);
+ 	sock = vq->private_data;
+@@ -572,7 +577,8 @@ static void handle_tx(struct vhost_net *net)
+ 		else
+ 			vhost_zerocopy_signal_used(net, vq);
+ 		vhost_net_tx_packet(net);
+-		if (unlikely(total_len >= VHOST_NET_WEIGHT)) {
++		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
++		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT(vq))) {
+ 			vhost_poll_queue(&vq->poll);
+ 			break;
+ 		}
 -- 
 2.16.5
 
