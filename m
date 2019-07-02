@@ -2,132 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58C685D255
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 17:05:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF735D2D6
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 17:28:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727063AbfGBPEs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 11:04:48 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:42067 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727130AbfGBPEn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 11:04:43 -0400
-Received: by mail-wr1-f66.google.com with SMTP id x17so18219705wrl.9;
-        Tue, 02 Jul 2019 08:04:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=t56wQhmbC0eK6Si58Q9wqbieCBfEkE9Pa30U73bNL2s=;
-        b=LPtQII5df23fZnUhJhsdshpakbDmVhjyV7jWcOKOIs2e/ZHfr3fEGBH+6nvj8DsUCY
-         gLD40CWql4WreFhw2fHLTNvEji3Gr/jZMEm6Ix2brFwD5ml31Qy6rQDkTGs6RHhQnM4l
-         mUWfYlVgBPJkrrCLfbj7AuCqPAmdaQ+lgGZGMaF4RAK9JciT3l4oNA/pNxbALGatPI++
-         mJMPn864+cvRqJDTc5l9iWxqD/su98ET8kXVMtPpIWQzHLKbQPxcNgyTGlNCR9QpXO9J
-         wzAaScV8Qjj7g7guI9XzAkBxRewlLFC5xgVrcDBmsU5Lma2DAVyB8wtTXrSfYpaGEhtW
-         WlIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=t56wQhmbC0eK6Si58Q9wqbieCBfEkE9Pa30U73bNL2s=;
-        b=qyfi0xxGQF6uxRqPIPVG/3Eai+ylZCuSKI0Ea+8TcvRfxfmabpKuJtlku5grvbeuBd
-         +cBCKPdhjxzAX82i/vn77pXHNeSx00BuuCfai2/U4HKB5g0Kw4tC6cY7qY5YB4DAiAB6
-         dxswabXF4qmVdMPms0nG631L1o1u8FGY39+GjyIwRwoAAQXjS3bRh1PjQj9C0iI7qTF+
-         ZU31EBz13ueRMckIy4cwLcEmwxoSLZxGP6LFT1IqfDoZvZU5sbgGPSbRfaTSOIwju1B0
-         z+Lehbpecm4FenamCyBAbfp627OQTjYNdNCkMXa5FqiUpnugPXxfwdCU/P3G/c+wLPgr
-         A3yA==
-X-Gm-Message-State: APjAAAWkdIzMvxxSNC8//7Ll8vRswSX5YyvyAh3gUiv+zumPHJg9agFQ
-        Izhd4lT1bXHbkmX1HtxmUL+uTJJH+/w=
-X-Google-Smtp-Source: APXvYqwxRLKO+D0At4TubFsnDlNCAevYaJZOFetfxOe9d+M5+sj+wf62oBSmxnWtg7uOj+sXiB3/9g==
-X-Received: by 2002:a5d:53ca:: with SMTP id a10mr24763517wrw.131.1562079881552;
-        Tue, 02 Jul 2019 08:04:41 -0700 (PDT)
-Received: from 640k.lan ([93.56.166.5])
-        by smtp.gmail.com with ESMTPSA id b203sm3494191wmd.41.2019.07.02.08.04.40
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Jul 2019 08:04:40 -0700 (PDT)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     Liran Alon <liran.alon@oracle.com>, stable@vger.kernel.org
-Subject: [PATCH 3/3] KVM: nVMX: list VMX MSRs in KVM_GET_MSR_INDEX_LIST
-Date:   Tue,  2 Jul 2019 17:04:36 +0200
-Message-Id: <1562079876-20756-4-git-send-email-pbonzini@redhat.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1562079876-20756-1-git-send-email-pbonzini@redhat.com>
+        id S1727013AbfGBP22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 11:28:28 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:49472 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727010AbfGBP22 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 11:28:28 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x62FOJLt159850;
+        Tue, 2 Jul 2019 15:27:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=content-type :
+ mime-version : subject : from : in-reply-to : date : cc :
+ content-transfer-encoding : message-id : references : to;
+ s=corp-2018-07-02; bh=Sk1VVbY07rQZ5y4KHjvVKWCOHvjzB5kFnUcVYEmCVjA=;
+ b=dVHGuN8yjD9MHMIXJa46Gh2FXAdCgFLRdPIwdEtlDQIHRaEE4sAVgkjz/cDULTCjfpHW
+ N9O2Z+Y+FygLlUEktsJ0gpM5OhMMUHXJg4iRF17FvDsjQqZ930a0Hx79kU50TkQK8PsM
+ TTiifKLqfl4Tx51MwiCgN8/HoqZVDYfZQGhJg3j3slP+jq93MNb4VNMdxCOvzqn7xzlo
+ u4FuVuXH4X+KaLjO4GZN98Jw7mrdn1vbI97S08YMp8trNi8alljweNb2/IXYhphB1E+L
+ bpI5Awq3btI0TTPQ0Pm1bF7mC4Gl7YU37/vzjCfGZMSvrqovvYyx9CsH7PlxPovIvJ4e 1A== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2120.oracle.com with ESMTP id 2te5tbmcy4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 02 Jul 2019 15:27:56 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x62FI8tZ163587;
+        Tue, 2 Jul 2019 15:27:56 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by aserp3030.oracle.com with ESMTP id 2tebaku4mk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 02 Jul 2019 15:27:56 +0000
+Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x62FRsG8025450;
+        Tue, 2 Jul 2019 15:27:55 GMT
+Received: from [10.30.3.6] (/213.57.127.2)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 02 Jul 2019 08:27:54 -0700
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 11.1 \(3445.4.7\))
+Subject: Re: [PATCH 2/3] KVM: nVMX: allow setting the VMFUNC controls MSR
+From:   Liran Alon <liran.alon@oracle.com>
+In-Reply-To: <1562079876-20756-3-git-send-email-pbonzini@redhat.com>
+Date:   Tue, 2 Jul 2019 18:27:49 +0300
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <3E09BABA-FADF-41AD-8524-68A587197DBC@oracle.com>
 References: <1562079876-20756-1-git-send-email-pbonzini@redhat.com>
+ <1562079876-20756-3-git-send-email-pbonzini@redhat.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+X-Mailer: Apple Mail (2.3445.4.7)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9306 signatures=668688
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=851
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1907020166
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9306 signatures=668688
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=903 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1907020167
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This allows userspace to know which MSRs are supported by the hypervisor.
-Unfortunately userspace must resort to tricks for everything except
-MSR_IA32_VMX_VMFUNC (which was just added in the previous patch).
-One possibility is to use the feature control MSR, which is tied to nested
-VMX as well and is present on all KVM versions that support feature MSRs.
 
-Fixes: 1389309c811 ("KVM: nVMX: expose VMX capabilities for nested hypervisors to userspace", 2018-02-26)
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- arch/x86/kvm/svm.c     |  1 +
- arch/x86/kvm/vmx/vmx.c |  2 ++
- arch/x86/kvm/x86.c     | 20 ++++++++++++++++++++
- 3 files changed, 23 insertions(+)
 
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index bbc31f7213ed..5db50c19d1c7 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -5885,6 +5885,7 @@ static bool svm_has_emulated_msr(int index)
- {
- 	switch (index) {
- 	case MSR_IA32_MCG_EXT_CTL:
-+	case MSR_IA32_VMX_BASIC ... MSR_IA32_VMX_VMFUNC:
- 		return false;
- 	default:
- 		break;
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index a35459ce7e29..c43635942693 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6223,6 +6223,8 @@ static bool vmx_has_emulated_msr(int index)
- 		 * real mode.
- 		 */
- 		return enable_unrestricted_guest || emulate_invalid_guest_state;
-+	case MSR_IA32_VMX_BASIC ... MSR_IA32_VMX_VMFUNC:
-+		return nested;
- 	case MSR_AMD64_VIRT_SPEC_CTRL:
- 		/* This is AMD only.  */
- 		return false;
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 8996a3131116..a02d4c244422 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1177,6 +1177,26 @@ bool kvm_rdpmc(struct kvm_vcpu *vcpu)
- 	MSR_AMD64_VIRT_SPEC_CTRL,
- 	MSR_IA32_POWER_CTL,
- 
-+	/*
-+	 * The following list leaves out MSRs whose values are determined
-+	 * by arch/x86/kvm/vmx/nested.c based on CPUID or other MSRs.
-+	 * We always support the "true" VMX control MSRs, even if the host
-+	 * processor does not, so I am putting these registers here rather
-+	 * than in msrs_to_save.
-+	 */
-+	MSR_IA32_VMX_BASIC,
-+	MSR_IA32_VMX_TRUE_PINBASED_CTLS,
-+	MSR_IA32_VMX_TRUE_PROCBASED_CTLS,
-+	MSR_IA32_VMX_TRUE_EXIT_CTLS,
-+	MSR_IA32_VMX_TRUE_ENTRY_CTLS,
-+	MSR_IA32_VMX_MISC,
-+	MSR_IA32_VMX_CR0_FIXED0,
-+	MSR_IA32_VMX_CR4_FIXED0,
-+	MSR_IA32_VMX_VMCS_ENUM,
-+	MSR_IA32_VMX_PROCBASED_CTLS2,
-+	MSR_IA32_VMX_EPT_VPID_CAP,
-+	MSR_IA32_VMX_VMFUNC,
-+
- 	MSR_K7_HWCR,
- 	MSR_KVM_POLL_CONTROL,
- };
--- 
-1.8.3.1
+> On 2 Jul 2019, at 18:04, Paolo Bonzini <pbonzini@redhat.com> wrote:
+>=20
+> Allow userspace to set a custom value for the VMFUNC controls MSR, as =
+long
+> as the capabilities it advertises do not exceed those of the host.
+>=20
+> Fixes: 27c42a1bb ("KVM: nVMX: Enable VMFUNC for the L1 hypervisor", =
+2017-08-03)
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+Reviewed-by: Liran Alon <liran.alon@oracle.com>
+
+> ---
+> arch/x86/kvm/vmx/nested.c | 5 +++++
+> 1 file changed, 5 insertions(+)
+>=20
+> diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+> index c4e29ef0b21e..163d226efa96 100644
+> --- a/arch/x86/kvm/vmx/nested.c
+> +++ b/arch/x86/kvm/vmx/nested.c
+> @@ -1234,6 +1234,11 @@ int vmx_set_vmx_msr(struct kvm_vcpu *vcpu, u32 =
+msr_index, u64 data)
+> 	case MSR_IA32_VMX_VMCS_ENUM:
+> 		vmx->nested.msrs.vmcs_enum =3D data;
+> 		return 0;
+> +	case MSR_IA32_VMX_VMFUNC:
+> +		if (data & ~vmx->nested.msrs.vmfunc_controls)
+> +			return -EINVAL;
+> +		vmx->nested.msrs.vmfunc_controls =3D data;
+> +		return 0;
+> 	default:
+> 		/*
+> 		 * The rest of the VMX capability MSRs do not support =
+restore.
+> --=20
+> 1.8.3.1
+>=20
+>=20
 
