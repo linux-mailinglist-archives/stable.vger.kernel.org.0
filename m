@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 008FF5CBE0
+	by mail.lfdr.de (Postfix) with ESMTP id E06A55CBE2
 	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727350AbfGBIDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:03:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
+        id S1727352AbfGBIDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:03:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727346AbfGBIDK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:03:10 -0400
+        id S1727364AbfGBIDN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:03:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB13021855;
-        Tue,  2 Jul 2019 08:03:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1289821850;
+        Tue,  2 Jul 2019 08:03:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054589;
-        bh=ncsY3koxNbozow26+6W2J19rN2kZ2ukHfPyYZVg5NmI=;
+        s=default; t=1562054592;
+        bh=fgRUB79YT+5xC1ry2TnbPMtOJwT5psZtKGL8gy5wwgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1yQRhmJcVTFfxYKhQBsefpwJcRdwcG9MzNs1hsYww4WJ9qDwJ2YL2SeUZar8h6M+z
-         xWdiJvd3cEHQFprKXQX7mcA0+4NjRmfF5occjecEcQXVSqBXbfqoEUBZfPmk+KTBMi
-         YomTZVaVln67D909iQuMyuZjmVnzTWhxdEep8SQA=
+        b=T7x2w7vPziQOlmCb3f2pzSiKy9bFFuzC1p2U0qsN8AYgVnP8084hN2pXiErukA22w
+         XcQwCIXwHL8TpiheDlFkktHNMNMAZBkRDWKQYyL9NsuAC3+8bLRZ/g2+cXVpJ0zhgU
+         iexQjcwQcpsoI9zHj2BbTOhWWUubLR/wThUL2E14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alejandro Jimenez <alejandro.j.jimenez@oracle.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Liam Merwick <liam.merwick@oracle.com>,
-        Mark Kanda <mark.kanda@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, bp@alien8.de,
-        rkrcmar@redhat.com, kvm@vger.kernel.org
-Subject: [PATCH 5.1 21/55] x86/speculation: Allow guests to use SSBD even if host does not
-Date:   Tue,  2 Jul 2019 10:01:29 +0200
-Message-Id: <20190702080125.142975123@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Ingo Molnar <mingo@redhat.com>, x86-ml <x86@kernel.org>
+Subject: [PATCH 5.1 22/55] x86/microcode: Fix the microcode load on CPU hotplug for real
+Date:   Tue,  2 Jul 2019 10:01:30 +0200
+Message-Id: <20190702080125.200649399@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
 References: <20190702080124.103022729@linuxfoundation.org>
@@ -48,70 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit c1f7fec1eb6a2c86d01bc22afce772c743451d88 upstream.
+commit 5423f5ce5ca410b3646f355279e4e937d452e622 upstream.
 
-The bits set in x86_spec_ctrl_mask are used to calculate the guest's value
-of SPEC_CTRL that is written to the MSR before VMENTRY, and control which
-mitigations the guest can enable.  In the case of SSBD, unless the host has
-enabled SSBD always on mode (by passing "spec_store_bypass_disable=on" in
-the kernel parameters), the SSBD bit is not set in the mask and the guest
-can not properly enable the SSBD always on mitigation mode.
+A recent change moved the microcode loader hotplug callback into the early
+startup phase which is running with interrupts disabled. It missed that
+the callbacks invoke sysfs functions which might sleep causing nice 'might
+sleep' splats with proper debugging enabled.
 
-This has been confirmed by running the SSBD PoC on a guest using the SSBD
-always on mitigation mode (booted with kernel parameter
-"spec_store_bypass_disable=on"), and verifying that the guest is vulnerable
-unless the host is also using SSBD always on mode. In addition, the guest
-OS incorrectly reports the SSB vulnerability as mitigated.
+Split the callbacks and only load the microcode in the early startup phase
+and move the sysfs handling back into the later threaded and preemptible
+bringup phase where it was before.
 
-Always set the SSBD bit in x86_spec_ctrl_mask when the host CPU supports
-it, allowing the guest to use SSBD whether or not the host has chosen to
-enable the mitigation in any of its modes.
-
-Fixes: be6fcb5478e9 ("x86/bugs: Rework spec_ctrl base and mask logic")
-Signed-off-by: Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
+Fixes: 78f4e932f776 ("x86/microcode, cpuhotplug: Add a microcode loader CPU hotplug callback")
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
-Reviewed-by: Mark Kanda <mark.kanda@oracle.com>
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: bp@alien8.de
-Cc: rkrcmar@redhat.com
-Cc: kvm@vger.kernel.org
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1560187210-11054-1-git-send-email-alejandro.j.jimenez@oracle.com
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1906182228350.1766@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/cpu/bugs.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/microcode/core.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -836,6 +836,16 @@ static enum ssb_mitigation __init __ssb_
- 	}
+--- a/arch/x86/kernel/cpu/microcode/core.c
++++ b/arch/x86/kernel/cpu/microcode/core.c
+@@ -793,13 +793,16 @@ static struct syscore_ops mc_syscore_ops
+ 	.resume			= mc_bp_resume,
+ };
  
- 	/*
-+	 * If SSBD is controlled by the SPEC_CTRL MSR, then set the proper
-+	 * bit in the mask to allow guests to use the mitigation even in the
-+	 * case where the host does not enable it.
-+	 */
-+	if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
-+	    static_cpu_has(X86_FEATURE_AMD_SSBD)) {
-+		x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
-+	}
+-static int mc_cpu_online(unsigned int cpu)
++static int mc_cpu_starting(unsigned int cpu)
+ {
+-	struct device *dev;
+-
+-	dev = get_cpu_device(cpu);
+ 	microcode_update_cpu(cpu);
+ 	pr_debug("CPU%d added\n", cpu);
++	return 0;
++}
 +
-+	/*
- 	 * We have three CPU feature flags that are in play here:
- 	 *  - X86_BUG_SPEC_STORE_BYPASS - CPU is susceptible.
- 	 *  - X86_FEATURE_SSBD - CPU is able to turn off speculative store bypass
-@@ -852,7 +862,6 @@ static enum ssb_mitigation __init __ssb_
- 			x86_amd_ssb_disable();
- 		} else {
- 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
--			x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
- 			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
- 		}
- 	}
++static int mc_cpu_online(unsigned int cpu)
++{
++	struct device *dev = get_cpu_device(cpu);
+ 
+ 	if (sysfs_create_group(&dev->kobj, &mc_attr_group))
+ 		pr_err("Failed to create group for CPU%d\n", cpu);
+@@ -876,7 +879,9 @@ int __init microcode_init(void)
+ 		goto out_ucode_group;
+ 
+ 	register_syscore_ops(&mc_syscore_ops);
+-	cpuhp_setup_state_nocalls(CPUHP_AP_MICROCODE_LOADER, "x86/microcode:online",
++	cpuhp_setup_state_nocalls(CPUHP_AP_MICROCODE_LOADER, "x86/microcode:starting",
++				  mc_cpu_starting, NULL);
++	cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN, "x86/microcode:online",
+ 				  mc_cpu_online, mc_cpu_down_prep);
+ 
+ 	pr_info("Microcode Update Driver: v%s.", DRIVER_VERSION);
 
 
