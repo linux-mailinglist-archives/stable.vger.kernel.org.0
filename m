@@ -2,227 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52ADD5C752
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 04:30:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E650D5C778
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 04:51:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727071AbfGBC0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 22:26:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39238 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727059AbfGBC0b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jul 2019 22:26:31 -0400
-Received: from quaco.ghostprotocols.net (unknown [179.97.35.11])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C21E621721;
-        Tue,  2 Jul 2019 02:26:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562034390;
-        bh=sIi7JzdlsTo1iHliJsIjDsN9QdPzoosxI9hpQTH4r1o=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5A12Qyujq3xmBzQGsMnKow6eBHo2CAtK7MLz1rPj5SsuwVknRsGz69R2z4R00VNp
-         qwxRmErmtdQO2Xn5MGuJn2BHSmgJFTKIayl1OvkBOk4KpKrD73NBdF+6rMUN2c6UQ2
-         BY/rRcdLfNIPKKCP/80SEv+eeHMvIsiQ3VhyetRU=
-From:   Arnaldo Carvalho de Melo <acme@kernel.org>
-To:     Ingo Molnar <mingo@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     Jiri Olsa <jolsa@kernel.org>, Namhyung Kim <namhyung@kernel.org>,
-        Clark Williams <williams@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH 02/43] perf thread-stack: Fix thread stack return from kernel for kernel-only case
-Date:   Mon,  1 Jul 2019 23:25:35 -0300
-Message-Id: <20190702022616.1259-3-acme@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190702022616.1259-1-acme@kernel.org>
-References: <20190702022616.1259-1-acme@kernel.org>
+        id S1726486AbfGBCvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 22:51:15 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:41186 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726362AbfGBCvO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 22:51:14 -0400
+Received: by mail-io1-f67.google.com with SMTP id w25so33569039ioc.8;
+        Mon, 01 Jul 2019 19:51:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:openpgp:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=057Pa4boLoPPDteo8R0KTEwSZg3CyppxjLulMTMnDsw=;
+        b=p/j9hre/GI3XCiRSCpdiyabMg8GFc6R9jAHFE9ssWcyiBjZHFVssnSPik9p4qndE7F
+         5DA1nQNjVke5uTJBAKJ7a7i5Ky7Qz1vXZBrlLWr7Vhc2a71i554xVR/eLuRnNwSYvGmt
+         qIgoIMjhGTVgz13FqbzT1G4jzb1h4StY14Ux2P6h5z8n2pzTNeFfIcUSKQiYwsi3CWSm
+         fpHW5PklxCH7Tk8pJMcZF29e1t/7IC0Oy6tudMNKkUGiLy5HdU0Us54RSZHvZkLuBrNC
+         jZPiG6HOwiBf2jEerOYfN4oQ5HAzqdjnsYu1mWSzxC9Ah553ECTCl4rEaLZKEiTSRLoj
+         fk6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=057Pa4boLoPPDteo8R0KTEwSZg3CyppxjLulMTMnDsw=;
+        b=b6Z3PYGuAjblTP0pQuIPI2++rrLHcwHviAYyTwO4qVFDNE8SMSmxCm9UCj9KCNkplr
+         SmPRmoigbT8GQ1Aql5pKXLNGNRxvERF5Wjpk31bqoZz3YuLF2nfvk9IMtbPdnKGpt3Jg
+         WATppSalMjZbHHqTkW0CtFQICzn05SAL00l5LGfojI0f9jVtkVxKs0ADYmpCzlz1+kro
+         E9pJD3TYZTjLdLAM4baK0UlHigqnZWWQQIBlNZBTrir4ggybdDLftmYet8e6yUc75aas
+         6behQqmK9KZwSTJNlr4q0f7bvHub9EM+SCsFEJVXXNa8yxHREYQSbQFTB4+QgVFc5F/4
+         UkYQ==
+X-Gm-Message-State: APjAAAVVMbbIiLMsaubxQPkaS9kBuJAN0IJWLUhsh4bZFDwMEEfJTKOD
+        1/rrrwOH7fPSgxI4VSzeRMU=
+X-Google-Smtp-Source: APXvYqwasQ2Qsk8eJeFsrpZ19yqKDk9kJpsNQX6oTygilT30vuDGJHldZ/AF/aqWKX/aL8zq3XGldA==
+X-Received: by 2002:a02:3904:: with SMTP id l4mr1311099jaa.81.1562035873543;
+        Mon, 01 Jul 2019 19:51:13 -0700 (PDT)
+Received: from [10.230.24.186] ([192.19.224.250])
+        by smtp.gmail.com with ESMTPSA id c81sm24959528iof.28.2019.07.01.19.51.11
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Jul 2019 19:51:12 -0700 (PDT)
+Subject: Re: [PATCH 3.16 08/10] tcp: tcp_fragment() should apply sane memory
+ limits
+To:     Ben Hutchings <ben@decadent.org.uk>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jonathan Lemon <jonathan.lemon@gmail.com>,
+        Jonathan Looney <jtl@netflix.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Tyler Hicks <tyhicks@canonical.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Bruce Curtis <brucec@netflix.com>
+References: <lsq.1560868082.489417250@decadent.org.uk>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Openpgp: preference=signencrypt
+Message-ID: <37926faa-0f7f-621c-8ee6-ba46d34c8cfc@gmail.com>
+Date:   Mon, 1 Jul 2019 19:51:10 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <lsq.1560868082.489417250@decadent.org.uk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+Hi Ben,
 
-Commit f08046cb3082 ("perf thread-stack: Represent jmps to the start of a
-different symbol") had the side-effect of introducing more stack entries
-before return from kernel space.
+On 6/18/2019 7:28 AM, Ben Hutchings wrote:
+> 3.16.69-rc1 review patch.  If anyone has any objections, please let me know.
+> 
+> ------------------
+> 
+> From: Eric Dumazet <edumazet@google.com>
+> 
+> commit f070ef2ac66716357066b683fb0baf55f8191a2e upstream.
+> 
+> Jonathan Looney reported that a malicious peer can force a sender
+> to fragment its retransmit queue into tiny skbs, inflating memory
+> usage and/or overflow 32bit counters.
+> 
+> TCP allows an application to queue up to sk_sndbuf bytes,
+> so we need to give some allowance for non malicious splitting
+> of retransmit queue.
+> 
+> A new SNMP counter is added to monitor how many times TCP
+> did not allow to split an skb if the allowance was exceeded.
+> 
+> Note that this counter might increase in the case applications
+> use SO_SNDBUF socket option to lower sk_sndbuf.
+> 
+> CVE-2019-11478 : tcp_fragment, prevent fragmenting a packet when the
+> 	socket is already using more than half the allowed space
+> 
+> Signed-off-by: Eric Dumazet <edumazet@google.com>
+> Reported-by: Jonathan Looney <jtl@netflix.com>
+> Acked-by: Neal Cardwell <ncardwell@google.com>
+> Acked-by: Yuchung Cheng <ycheng@google.com>
+> Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+> Cc: Bruce Curtis <brucec@netflix.com>
+> Cc: Jonathan Lemon <jonathan.lemon@gmail.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> [Salvatore Bonaccorso: Adjust context for backport to 4.9.168]
+> [bwh: Backported to 3.16: adjust context]
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 
-When user space is also traced, those entries are popped before entry to
-user space, but when user space is not traced, they get stuck at the
-bottom of the stack, making the stack grow progressively larger.
+Don't we also need this patch to be backported:
 
-Fix by detecting a return-from-kernel branch type, and popping kernel
-addresses from the stack then.
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?id=b6653b3629e5b88202be3c9abc44713973f5c4b4
 
-Note, the problem and fix affect the exported Call Graph / Tree but not
-the callindent option used by "perf script --call-trace".
-
-Example:
-
-  perf-with-kcore record example -e intel_pt//k -- ls
-  perf-with-kcore script example --itrace=bep -s ~/libexec/perf-core/scripts/python/export-to-sqlite.py example.db branches calls
-  ~/libexec/perf-core/scripts/python/exported-sql-viewer.py example.db
-
-  Menu option: Reports -> Context-Sensitive Call Graph
-
-  Before: (showing Call Path column only)
-
-    Call Path
-    ▶ perf
-    ▼ ls
-      ▼ 12111:12111
-        ▶ setup_new_exec
-        ▶ __task_pid_nr_ns
-        ▶ perf_event_pid_type
-        ▶ perf_event_comm_output
-        ▶ perf_iterate_ctx
-        ▶ perf_iterate_sb
-        ▶ perf_event_comm
-        ▶ __set_task_comm
-        ▶ load_elf_binary
-        ▶ search_binary_handler
-        ▶ __do_execve_file.isra.41
-        ▶ __x64_sys_execve
-        ▶ do_syscall_64
-        ▼ entry_SYSCALL_64_after_hwframe
-          ▼ swapgs_restore_regs_and_return_to_usermode
-            ▼ native_iret
-              ▶ error_entry
-              ▶ do_page_fault
-              ▼ error_exit
-                ▼ retint_user
-                  ▶ prepare_exit_to_usermode
-                  ▼ native_iret
-                    ▶ error_entry
-                    ▶ do_page_fault
-                    ▼ error_exit
-                      ▼ retint_user
-                        ▶ prepare_exit_to_usermode
-                        ▼ native_iret
-                          ▶ error_entry
-                          ▶ do_page_fault
-                          ▼ error_exit
-                            ▼ retint_user
-                              ▶ prepare_exit_to_usermode
-                              ▶ native_iret
-
-  After: (showing Call Path column only)
-
-    Call Path
-    ▶ perf
-    ▼ ls
-      ▼ 12111:12111
-        ▶ setup_new_exec
-        ▶ __task_pid_nr_ns
-        ▶ perf_event_pid_type
-        ▶ perf_event_comm_output
-        ▶ perf_iterate_ctx
-        ▶ perf_iterate_sb
-        ▶ perf_event_comm
-        ▶ __set_task_comm
-        ▶ load_elf_binary
-        ▶ search_binary_handler
-        ▶ __do_execve_file.isra.41
-        ▶ __x64_sys_execve
-        ▶ do_syscall_64
-        ▶ entry_SYSCALL_64_after_hwframe
-        ▶ page_fault
-        ▼ entry_SYSCALL_64
-          ▼ do_syscall_64
-            ▶ __x64_sys_brk
-            ▶ __x64_sys_access
-            ▶ __x64_sys_openat
-            ▶ __x64_sys_newfstat
-            ▶ __x64_sys_mmap
-            ▶ __x64_sys_close
-            ▶ __x64_sys_read
-            ▶ __x64_sys_mprotect
-            ▶ __x64_sys_arch_prctl
-            ▶ __x64_sys_munmap
-            ▶ exit_to_usermode_loop
-            ▶ __x64_sys_set_tid_address
-            ▶ __x64_sys_set_robust_list
-            ▶ __x64_sys_rt_sigaction
-            ▶ __x64_sys_rt_sigprocmask
-            ▶ __x64_sys_prlimit64
-            ▶ __x64_sys_statfs
-            ▶ __x64_sys_ioctl
-            ▶ __x64_sys_getdents64
-            ▶ __x64_sys_write
-            ▶ __x64_sys_exit_group
-
-Committer notes:
-
-The first arg to the perf-with-kcore needs to be the same for the
-'record' and 'script' lines, otherwise we'll record the perf.data file
-and kcore_dir/ files in one directory ('example') to then try to use it
-from the 'bep' directory, fix the instructions above it so that both use
-'example'.
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: f08046cb3082 ("perf thread-stack: Represent jmps to the start of a different symbol")
-Link: http://lkml.kernel.org/r/20190619064429.14940-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
----
- tools/perf/util/thread-stack.c | 30 +++++++++++++++++++++++++++++-
- 1 file changed, 29 insertions(+), 1 deletion(-)
-
-diff --git a/tools/perf/util/thread-stack.c b/tools/perf/util/thread-stack.c
-index c485186a8b6d..4c826a2e08d8 100644
---- a/tools/perf/util/thread-stack.c
-+++ b/tools/perf/util/thread-stack.c
-@@ -628,6 +628,23 @@ static int thread_stack__bottom(struct thread_stack *ts,
- 				     true, false);
- }
- 
-+static int thread_stack__pop_ks(struct thread *thread, struct thread_stack *ts,
-+				struct perf_sample *sample, u64 ref)
-+{
-+	u64 tm = sample->time;
-+	int err;
-+
-+	/* Return to userspace, so pop all kernel addresses */
-+	while (thread_stack__in_kernel(ts)) {
-+		err = thread_stack__call_return(thread, ts, --ts->cnt,
-+						tm, ref, true);
-+		if (err)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
- static int thread_stack__no_call_return(struct thread *thread,
- 					struct thread_stack *ts,
- 					struct perf_sample *sample,
-@@ -910,7 +927,18 @@ int thread_stack__process(struct thread *thread, struct comm *comm,
- 			ts->rstate = X86_RETPOLINE_DETECTED;
- 
- 	} else if (sample->flags & PERF_IP_FLAG_RETURN) {
--		if (!sample->ip || !sample->addr)
-+		if (!sample->addr) {
-+			u32 return_from_kernel = PERF_IP_FLAG_SYSCALLRET |
-+						 PERF_IP_FLAG_INTERRUPT;
-+
-+			if (!(sample->flags & return_from_kernel))
-+				return 0;
-+
-+			/* Pop kernel stack */
-+			return thread_stack__pop_ks(thread, ts, sample, ref);
-+		}
-+
-+		if (!sample->ip)
- 			return 0;
- 
- 		/* x86 retpoline 'return' doesn't match the stack */
+Thanks!
 -- 
-2.20.1
-
+Florian
