@@ -2,111 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F0E5CF56
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:24:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B435CF7F
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:33:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726526AbfGBMYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 08:24:20 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:39539 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726418AbfGBMYU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 08:24:20 -0400
-Received: by mail-wm1-f65.google.com with SMTP id z23so780554wma.4
-        for <stable@vger.kernel.org>; Tue, 02 Jul 2019 05:24:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=q4Ig0pW+JPQytMPCbxS0otGowN43QKWdiQ5Oqax0xMM=;
-        b=LfyCAKZ78kk3fu4qPTXukBwgzwaqZ273Kxg7LiEdwD01/VrgYgHYKEx6IAtJCNeatU
-         vgyregbCykcTWpT4hQmLW3z3Cp2FfYEi6dNzOkrEDjVe2CUzhyHBSoR/PzdCaYuYmE1L
-         WHULL2ciKNC1JRHQNYUBPP18amrxAJLhST7qeuHMf85kRBkHL7vJYR+8wxa3dn3O8E32
-         rBpTBNP/eyvRm4A67SYGMF/9nnnvYUhcLWKRlQofsDROgrtKfleJdEckgiVpmotM3vv4
-         TjdBRnSzGFUZ7KzzwzIhfghHoDdFPuUiDGPNK31pDGAmtAao1V6Ux1/tJNFnevDeFlp5
-         cgwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=q4Ig0pW+JPQytMPCbxS0otGowN43QKWdiQ5Oqax0xMM=;
-        b=UxzvJhU43SK5gTry6QYsHXT5hhg8yYFnEa/k3qunpGWF0Zw8GHKT2oUVoXyXYLkp7U
-         F8ULqMQCtNErLR52ogR5mko1vdCLjxDYlgEI3wDQNLn4E5NgMKxfgCj9kw34SESQ//7L
-         DFGQCNYvA1skVgxtjHL3ljJ/7JjyctY6Op3FRDsjCEXFfqCVvm/canpctC5bfaMauorq
-         MAxTdqZ8bwuqZCCHjGhLQpxNgHoy+B2rFuyxVOFzINLYMy3fFSchG4I8beL7ub6yCBfr
-         35/poOzct7lMq0zXwrTDwKXxwnwZ7Tct2pJQvzm63K0icrGJaPs7g/RtQ74WIGj+UzoG
-         eKRg==
-X-Gm-Message-State: APjAAAXW3CU39p8LdmnxijXcOjwBGLh3IVdLJMUXzaiBJoh55pKcq2LM
-        apaTNnkAvtoovyI74j1sfGU3RG40oZK3Pw==
-X-Google-Smtp-Source: APXvYqxrNHv8ss34b3ZN2pgT7vcPpZXmlqRZrmFl2rgCpeXYlVsuCFJ7CPmQ1uc6qZ9Vlhvkc5FUvQ==
-X-Received: by 2002:a1c:c255:: with SMTP id s82mr3522475wmf.6.1562070258261;
-        Tue, 02 Jul 2019 05:24:18 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id h15sm10095786wrp.17.2019.07.02.05.24.17
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 02 Jul 2019 05:24:17 -0700 (PDT)
-Message-ID: <5d1b4cf1.1c69fb81.a6dea.b3d2@mx.google.com>
-Date:   Tue, 02 Jul 2019 05:24:17 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726591AbfGBMdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 08:33:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52422 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726455AbfGBMdJ (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 08:33:09 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2EBC205F4;
+        Tue,  2 Jul 2019 12:33:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1562070788;
+        bh=PHhEskV48bPJWKtOyFpocp2DsM4e4kNx7urF/A6wstk=;
+        h=Subject:To:From:Date:From;
+        b=bujt7uo5ZelCmff3U4EUcp6LppTBQg9cjJHIIASzQuH2g3Iu44bSSbNEOYT8MKx96
+         d+/LaFP+k7fLF0SufAvmxpFopadqLgBvXXLhf8556xTKQYdifeKxynMwxbaCyAX0kU
+         KxaeFT7MaH17xHthq4uJpb/HIpM6rMU7949O6Ypk=
+Subject: patch "iio: adc: stm32-adc: add missing vdda-supply" added to staging-next
+To:     fabrice.gasnier@st.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 02 Jul 2019 14:29:31 +0200
+Message-ID: <1562070571200101@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.1.15-54-g5f67e0e4cdaf
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.1.y boot: 137 boots: 3 failed,
- 132 passed with 1 offline, 1 conflict (v5.1.15-54-g5f67e0e4cdaf)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.1.y boot: 137 boots: 3 failed, 132 passed with 1 offline,=
- 1 conflict (v5.1.15-54-g5f67e0e4cdaf)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.1.y/kernel/v5.1.15-54-g5f67e0e4cdaf/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
-/kernel/v5.1.15-54-g5f67e0e4cdaf/
+This is a note to let you know that I've just added the patch titled
 
-Tree: stable-rc
-Branch: linux-5.1.y
-Git Describe: v5.1.15-54-g5f67e0e4cdaf
-Git Commit: 5f67e0e4cdaf3f59e34417bb2379a2a45e0e49be
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 78 unique boards, 26 SoC families, 16 builds out of 209
+    iio: adc: stm32-adc: add missing vdda-supply
 
-Boot Failures Detected:
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-next branch.
 
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-    multi_v7_defconfig:
-        gcc-8:
-            bcm4708-smartrg-sr400ac: 1 failed lab
-            sun7i-a20-bananapi: 1 failed lab
+The patch will also be merged in the next major kernel release
+during the merge window.
 
-Offline Platforms:
+If you have any questions about this process, please let me know.
 
-arm:
 
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
+From 7685010fca2ba0284f31fd1380df3cffc96d847e Mon Sep 17 00:00:00 2001
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
+Date: Wed, 19 Jun 2019 14:29:55 +0200
+Subject: iio: adc: stm32-adc: add missing vdda-supply
 
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
+Add missing vdda-supply, analog power supply, to STM32 ADC. When vdda is
+an independent supply, it needs to be properly turned on or off to supply
+the ADC.
 
-arm:
-    exynos_defconfig:
-        exynos5422-odroidxu3:
-            lab-baylibre: FAIL (gcc-8)
-            lab-collabora: PASS (gcc-8)
-
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Fixes: 1add69880240 ("iio: adc: Add support for STM32 ADC core").
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
-For more info write to <info@kernelci.org>
+ drivers/iio/adc/stm32-adc-core.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
+index 2327ec18b40c..1f7ce5186dfc 100644
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -87,6 +87,7 @@ struct stm32_adc_priv_cfg {
+  * @domain:		irq domain reference
+  * @aclk:		clock reference for the analog circuitry
+  * @bclk:		bus clock common for all ADCs, depends on part used
++ * @vdda:		vdda analog supply reference
+  * @vref:		regulator reference
+  * @cfg:		compatible configuration data
+  * @common:		common data for all ADC instances
+@@ -97,6 +98,7 @@ struct stm32_adc_priv {
+ 	struct irq_domain		*domain;
+ 	struct clk			*aclk;
+ 	struct clk			*bclk;
++	struct regulator		*vdda;
+ 	struct regulator		*vref;
+ 	const struct stm32_adc_priv_cfg	*cfg;
+ 	struct stm32_adc_common		common;
+@@ -394,10 +396,16 @@ static int stm32_adc_core_hw_start(struct device *dev)
+ 	struct stm32_adc_priv *priv = to_stm32_adc_priv(common);
+ 	int ret;
+ 
++	ret = regulator_enable(priv->vdda);
++	if (ret < 0) {
++		dev_err(dev, "vdda enable failed %d\n", ret);
++		return ret;
++	}
++
+ 	ret = regulator_enable(priv->vref);
+ 	if (ret < 0) {
+ 		dev_err(dev, "vref enable failed\n");
+-		return ret;
++		goto err_vdda_disable;
+ 	}
+ 
+ 	if (priv->bclk) {
+@@ -425,6 +433,8 @@ static int stm32_adc_core_hw_start(struct device *dev)
+ 		clk_disable_unprepare(priv->bclk);
+ err_regulator_disable:
+ 	regulator_disable(priv->vref);
++err_vdda_disable:
++	regulator_disable(priv->vdda);
+ 
+ 	return ret;
+ }
+@@ -441,6 +451,7 @@ static void stm32_adc_core_hw_stop(struct device *dev)
+ 	if (priv->bclk)
+ 		clk_disable_unprepare(priv->bclk);
+ 	regulator_disable(priv->vref);
++	regulator_disable(priv->vdda);
+ }
+ 
+ static int stm32_adc_probe(struct platform_device *pdev)
+@@ -468,6 +479,14 @@ static int stm32_adc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(priv->common.base);
+ 	priv->common.phys_base = res->start;
+ 
++	priv->vdda = devm_regulator_get(&pdev->dev, "vdda");
++	if (IS_ERR(priv->vdda)) {
++		ret = PTR_ERR(priv->vdda);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "vdda get failed, %d\n", ret);
++		return ret;
++	}
++
+ 	priv->vref = devm_regulator_get(&pdev->dev, "vref");
+ 	if (IS_ERR(priv->vref)) {
+ 		ret = PTR_ERR(priv->vref);
+-- 
+2.22.0
+
+
