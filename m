@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2189B5CB6D
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:13:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6563C5CBB2
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:15:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727643AbfGBINN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:13:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55388 "EHLO mail.kernel.org"
+        id S1727315AbfGBIEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:04:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727503AbfGBIH5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:07:57 -0400
+        id S1727814AbfGBIEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:04:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77F922183F;
-        Tue,  2 Jul 2019 08:07:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF05321479;
+        Tue,  2 Jul 2019 08:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054877;
-        bh=CfzKGISLy0baesUffpS+ZxMiRrjmZdabf2zmwiwTGiQ=;
+        s=default; t=1562054685;
+        bh=qlNER7IGKMqQxQpXoyyqHoszXTk+HOmLOJ3OAVrexkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GMnREkKWG2rCRf63EiFUjDoRRnSpsZVooy7P09Jp4PCeNr1unPQNDLDBddUFWnVVn
-         niMc6vNh/m6eg8rsSB3iEO3BwHetZfaJdM/PUJwA4nPgbJQ+9r+nAywueepX9FffNr
-         D+ZQCUr6I0QhCYXoN05pWKRJvx4EdpWEOTC/rGf4=
+        b=L0fJnz3k5nY1w0agC+aifDEYQOXkkc8Khdxgl2Q1l2wzF/N0FX8PT7yZTY0QGTq9h
+         S21+v/e8WlGoSY48WAVTxElNbDVV86Me9gFSXIR+69iuFi+7fh9USjXsfvh+i7cSOT
+         ilvWRAa0azNor86oB6VvbBP3fIu7BYhr/cqt3HnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fei Li <lifei.shirley@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com,
+        syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com,
+        syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com,
+        syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com,
+        syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com,
+        syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 61/72] tun: wake up waitqueues after IFF_UP is set
-Date:   Tue,  2 Jul 2019 10:02:02 +0200
-Message-Id: <20190702080127.788211875@linuxfoundation.org>
+Subject: [PATCH 5.1 55/55] tipc: pass tunnel dev as NULL to udp_tunnel(6)_xmit_skb
+Date:   Tue,  2 Jul 2019 10:02:03 +0200
+Message-Id: <20190702080126.904780432@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
-References: <20190702080124.564652899@linuxfoundation.org>
+In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
+References: <20190702080124.103022729@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +50,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fei Li <lifei.shirley@bytedance.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 72b319dc08b4924a29f5e2560ef6d966fa54c429 ]
+commit c3bcde026684c62d7a2b6f626dc7cf763833875c upstream.
 
-Currently after setting tap0 link up, the tun code wakes tx/rx waited
-queues up in tun_net_open() when .ndo_open() is called, however the
-IFF_UP flag has not been set yet. If there's already a wait queue, it
-would fail to transmit when checking the IFF_UP flag in tun_sendmsg().
-Then the saving vhost_poll_start() will add the wq into wqh until it
-is waken up again. Although this works when IFF_UP flag has been set
-when tun_chr_poll detects; this is not true if IFF_UP flag has not
-been set at that time. Sadly the latter case is a fatal error, as
-the wq will never be waken up in future unless later manually
-setting link up on purpose.
+udp_tunnel(6)_xmit_skb() called by tipc_udp_xmit() expects a tunnel device
+to count packets on dev->tstats, a perpcu variable. However, TIPC is using
+udp tunnel with no tunnel device, and pass the lower dev, like veth device
+that only initializes dev->lstats(a perpcu variable) when creating it.
 
-Fix this by moving the wakeup process into the NETDEV_UP event
-notifying process, this makes sure IFF_UP has been set before all
-waited queues been waken up.
+Later iptunnel_xmit_stats() called by ip(6)tunnel_xmit() thinks the dev as
+a tunnel device, and uses dev->tstats instead of dev->lstats. tstats' each
+pointer points to a bigger struct than lstats, so when tstats->tx_bytes is
+increased, other percpu variable's members could be overwritten.
 
-Signed-off-by: Fei Li <lifei.shirley@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+syzbot has reported quite a few crashes due to fib_nh_common percpu member
+'nhc_pcpu_rth_output' overwritten, call traces are like:
+
+  BUG: KASAN: slab-out-of-bounds in rt_cache_valid+0x158/0x190
+  net/ipv4/route.c:1556
+    rt_cache_valid+0x158/0x190 net/ipv4/route.c:1556
+    __mkroute_output net/ipv4/route.c:2332 [inline]
+    ip_route_output_key_hash_rcu+0x819/0x2d50 net/ipv4/route.c:2564
+    ip_route_output_key_hash+0x1ef/0x360 net/ipv4/route.c:2393
+    __ip_route_output_key include/net/route.h:125 [inline]
+    ip_route_output_flow+0x28/0xc0 net/ipv4/route.c:2651
+    ip_route_output_key include/net/route.h:135 [inline]
+  ...
+
+or:
+
+  kasan: GPF could be caused by NULL-ptr deref or user memory access
+  RIP: 0010:dst_dev_put+0x24/0x290 net/core/dst.c:168
+    <IRQ>
+    rt_fibinfo_free_cpus net/ipv4/fib_semantics.c:200 [inline]
+    free_fib_info_rcu+0x2e1/0x490 net/ipv4/fib_semantics.c:217
+    __rcu_reclaim kernel/rcu/rcu.h:240 [inline]
+    rcu_do_batch kernel/rcu/tree.c:2437 [inline]
+    invoke_rcu_callbacks kernel/rcu/tree.c:2716 [inline]
+    rcu_process_callbacks+0x100a/0x1ac0 kernel/rcu/tree.c:2697
+  ...
+
+The issue exists since tunnel stats update is moved to iptunnel_xmit by
+Commit 039f50629b7f ("ip_tunnel: Move stats update to iptunnel_xmit()"),
+and here to fix it by passing a NULL tunnel dev to udp_tunnel(6)_xmit_skb
+so that the packets counting won't happen on dev->tstats.
+
+Reported-by: syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com
+Reported-by: syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com
+Reported-by: syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com
+Reported-by: syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com
+Reported-by: syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com
+Reported-by: syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com
+Fixes: 039f50629b7f ("ip_tunnel: Move stats update to iptunnel_xmit()")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/tun.c |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1024,18 +1024,8 @@ static void tun_net_uninit(struct net_de
- /* Net device open. */
- static int tun_net_open(struct net_device *dev)
- {
--	struct tun_struct *tun = netdev_priv(dev);
--	int i;
--
- 	netif_tx_start_all_queues(dev);
+---
+ net/tipc/udp_media.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+--- a/net/tipc/udp_media.c
++++ b/net/tipc/udp_media.c
+@@ -176,7 +176,6 @@ static int tipc_udp_xmit(struct net *net
+ 			goto tx_error;
+ 		}
  
--	for (i = 0; i < tun->numqueues; i++) {
--		struct tun_file *tfile;
--
--		tfile = rtnl_dereference(tun->tfiles[i]);
--		tfile->socket.sk->sk_write_space(tfile->socket.sk);
--	}
--
- 	return 0;
- }
- 
-@@ -3443,6 +3433,7 @@ static int tun_device_event(struct notif
- {
- 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
- 	struct tun_struct *tun = netdev_priv(dev);
-+	int i;
- 
- 	if (dev->rtnl_link_ops != &tun_link_ops)
- 		return NOTIFY_DONE;
-@@ -3452,6 +3443,14 @@ static int tun_device_event(struct notif
- 		if (tun_queue_resize(tun))
- 			return NOTIFY_BAD;
- 		break;
-+	case NETDEV_UP:
-+		for (i = 0; i < tun->numqueues; i++) {
-+			struct tun_file *tfile;
-+
-+			tfile = rtnl_dereference(tun->tfiles[i]);
-+			tfile->socket.sk->sk_write_space(tfile->socket.sk);
-+		}
-+		break;
- 	default:
- 		break;
+-		skb->dev = rt->dst.dev;
+ 		ttl = ip4_dst_hoplimit(&rt->dst);
+ 		udp_tunnel_xmit_skb(rt, ub->ubsock->sk, skb, src->ipv4.s_addr,
+ 				    dst->ipv4.s_addr, 0, ttl, 0, src->port,
+@@ -195,10 +194,9 @@ static int tipc_udp_xmit(struct net *net
+ 		if (err)
+ 			goto tx_error;
+ 		ttl = ip6_dst_hoplimit(ndst);
+-		err = udp_tunnel6_xmit_skb(ndst, ub->ubsock->sk, skb,
+-					   ndst->dev, &src->ipv6,
+-					   &dst->ipv6, 0, ttl, 0, src->port,
+-					   dst->port, false);
++		err = udp_tunnel6_xmit_skb(ndst, ub->ubsock->sk, skb, NULL,
++					   &src->ipv6, &dst->ipv6, 0, ttl, 0,
++					   src->port, dst->port, false);
+ #endif
  	}
+ 	return err;
 
 
