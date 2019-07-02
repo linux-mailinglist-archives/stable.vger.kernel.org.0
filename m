@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BC885CBD0
+	by mail.lfdr.de (Postfix) with ESMTP id 2315F5CBCF
 	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:16:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727572AbfGBID7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727576AbfGBID7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 2 Jul 2019 04:03:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49184 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727558AbfGBIDz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:03:55 -0400
+        id S1727546AbfGBID5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:03:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DB9221479;
-        Tue,  2 Jul 2019 08:03:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C029A21479;
+        Tue,  2 Jul 2019 08:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054634;
-        bh=AUw/e8DAeEZVsRY/zAXPjh9h8Bv7yd0wNjaqHTRNU9c=;
+        s=default; t=1562054637;
+        bh=BU0AhxekeNGWqi7mp/5rG6KvQm1Hk8klTrgPtxYW/Go=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9FzxrRSfVURLnfEInxMG2XsLoPkj5qenmWM1eB7yuSxO43frJwcto+1AmjTXGBj+
-         apooVwG71RR41mtEtAeWKZJUTOjk2EPNULH0EdHmsi2CKGeRup8T4NQ1fYyrIHKRL4
-         UN0fdqD6uYj9yU6Saw+9ZQxN7ifHFIFM2UbwmBg4=
+        b=Ihnj8Xjj4ie/qVqlkv1ep3AOFfC+resCkUMRhmtEBuOlKSdMsnFQHaVOCCQZCOzLk
+         TKWurHjIrPv2jBtVZ3zPxdxSgR4C15uN3QuVHqwzUyQa9oE5w4x5I4UOA35/NSE5ev
+         qFkIpO5w9aEqQ8xCOmpoxrhQ5yQrZ/ITXJVA0/GA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
         Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.1 07/55] clk: tegra210: Fix default rates for HDA clocks
-Date:   Tue,  2 Jul 2019 10:01:15 +0200
-Message-Id: <20190702080124.431646492@linuxfoundation.org>
+Subject: [PATCH 5.1 08/55] clk: socfpga: stratix10: fix divider entry for the emac clocks
+Date:   Tue,  2 Jul 2019 10:01:16 +0200
+Message-Id: <20190702080124.470164769@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
 References: <20190702080124.103022729@linuxfoundation.org>
@@ -44,37 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-commit 9caec6620f25b6d15646bbdb93062c872ba3b56f upstream.
+commit 74684cce5ebd567b01e9bc0e9a1945c70a32f32f upstream.
 
-Currently the default clock rates for the HDA and HDA2CODEC_2X clocks
-are both 19.2MHz. However, the default rates for these clocks should
-actually be 51MHz and 48MHz, respectively. The current clock settings
-results in a distorted output during audio playback. Correct the default
-clock rates for these clocks by specifying them in the clock init table
-for Tegra210.
+The fixed dividers for the emac clocks should be 2 not 4.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/tegra/clk-tegra210.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/clk/socfpga/clk-s10.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/clk/tegra/clk-tegra210.c
-+++ b/drivers/clk/tegra/clk-tegra210.c
-@@ -3377,6 +3377,8 @@ static struct tegra_clk_init_table init_
- 	{ TEGRA210_CLK_I2S3_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
- 	{ TEGRA210_CLK_I2S4_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
- 	{ TEGRA210_CLK_VIMCLK_SYNC, TEGRA210_CLK_CLK_MAX, 24576000, 0 },
-+	{ TEGRA210_CLK_HDA, TEGRA210_CLK_PLL_P, 51000000, 0 },
-+	{ TEGRA210_CLK_HDA2CODEC_2X, TEGRA210_CLK_PLL_P, 48000000, 0 },
- 	/* This MUST be the last entry. */
- 	{ TEGRA210_CLK_CLK_MAX, TEGRA210_CLK_CLK_MAX, 0, 0 },
- };
+--- a/drivers/clk/socfpga/clk-s10.c
++++ b/drivers/clk/socfpga/clk-s10.c
+@@ -103,9 +103,9 @@ static const struct stratix10_perip_cnt_
+ 	{ STRATIX10_NOC_CLK, "noc_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux),
+ 	  0, 0, 0, 0x3C, 1},
+ 	{ STRATIX10_EMAC_A_FREE_CLK, "emaca_free_clk", NULL, emaca_free_mux, ARRAY_SIZE(emaca_free_mux),
+-	  0, 0, 4, 0xB0, 0},
++	  0, 0, 2, 0xB0, 0},
+ 	{ STRATIX10_EMAC_B_FREE_CLK, "emacb_free_clk", NULL, emacb_free_mux, ARRAY_SIZE(emacb_free_mux),
+-	  0, 0, 4, 0xB0, 1},
++	  0, 0, 2, 0xB0, 1},
+ 	{ STRATIX10_EMAC_PTP_FREE_CLK, "emac_ptp_free_clk", NULL, emac_ptp_free_mux,
+ 	  ARRAY_SIZE(emac_ptp_free_mux), 0, 0, 4, 0xB0, 2},
+ 	{ STRATIX10_GPIO_DB_FREE_CLK, "gpio_db_free_clk", NULL, gpio_db_free_mux,
 
 
