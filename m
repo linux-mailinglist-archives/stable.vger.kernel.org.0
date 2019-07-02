@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 398145CB63
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:13:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24D275CA51
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:03:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726951AbfGBIII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:08:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55564 "EHLO mail.kernel.org"
+        id S1727095AbfGBIDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:03:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727269AbfGBIIH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:08:07 -0400
+        id S1727253AbfGBIC7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:02:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE7EE20665;
-        Tue,  2 Jul 2019 08:08:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA29121841;
+        Tue,  2 Jul 2019 08:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054886;
-        bh=jfaFKRwODgzpe5m0PyRnqYrbY6UgLRoTY0gkJzjgTx4=;
+        s=default; t=1562054578;
+        bh=8NSgKZxTWmWUF8pmUzhakLWr3ssJicyhNk8pH+WBQgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CR/KZ8ItQoL3weAWfrnvTnXanjqB0mHDiNRiX7x0G1mHr4Hfav9ihVyEuejZ3Ijpd
-         F0Z54w3xbUgr5984jlS7sjXzfHm558AiHY/GLWO5lAoM2YZ9C/0AqN2bjQiqPAyat2
-         Tn9jH7BW7TG1VxC7MED1ELdj8guDTGx0R87E5AQY=
+        b=hVMzBuPw9G+e+8QbFu+FqF+FvaWCu54Jzsvu3Tt6srn41/He+IFcn1DLWFrtxpWom
+         KgQYGQL+9czzdPXxvsN7vhJAl3UHYe0AqOnfc7aCrUZ00DZAGCmA6VA/f6SSCPInBI
+         lPd/vzi6A4O4b4Shg8ll2+HS+ML1BEe1bjAy1Wy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fei Yang <fei.yang@intel.com>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/72] usb: dwc3: gadget: track number of TRBs per request
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.1 18/55] dm log writes: make sure super sector log updates are written in order
 Date:   Tue,  2 Jul 2019 10:01:26 +0200
-Message-Id: <20190702080125.974366303@linuxfoundation.org>
+Message-Id: <20190702080125.001290277@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
-References: <20190702080124.564652899@linuxfoundation.org>
+In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
+References: <20190702080124.103022729@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,92 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 09fe1f8d7e2f461275b1cdd832f2cfa5e9be346d upstream
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-This will help us remove the wait_event() from our ->dequeue().
+commit 211ad4b733037f66f9be0a79eade3da7ab11cbb8 upstream.
 
-Cc: Fei Yang <fei.yang@intel.com>
-Cc: Sam Protsenko <semen.protsenko@linaro.org>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: linux-usb@vger.kernel.org
-Cc: stable@vger.kernel.org # 4.19.y
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
-(cherry picked from commit 09fe1f8d7e2f461275b1cdd832f2cfa5e9be346d)
-Signed-off-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Currently, although we submit super bios in order (and super.nr_entries
+is incremented by each logged entry), submit_bio() is async so each
+super sector may not be written to log device in order and then the
+final nr_entries may be smaller than it should be.
+
+This problem can be reproduced by the xfstests generic/455 with ext4:
+
+  QA output created by 455
+ -Silence is golden
+ +mark 'end' does not exist
+
+Fix this by serializing submission of super sectors to make sure each
+is written to the log disk in order.
+
+Fixes: 0e9cebe724597 ("dm: add log writes target")
+Cc: stable@vger.kernel.org
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Suggested-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/usb/dwc3/core.h   | 3 +++
- drivers/usb/dwc3/gadget.c | 6 ++++++
- 2 files changed, 9 insertions(+)
+ drivers/md/dm-log-writes.c |   23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index 4872cba8699b..0de78cb29f2c 100644
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -847,6 +847,7 @@ struct dwc3_hwparams {
-  * @epnum: endpoint number to which this request refers
-  * @trb: pointer to struct dwc3_trb
-  * @trb_dma: DMA address of @trb
-+ * @num_trbs: number of TRBs used by this request
-  * @needs_extra_trb: true when request needs one extra TRB (either due to ZLP
-  *	or unaligned OUT)
-  * @direction: IN or OUT direction flag
-@@ -867,6 +868,8 @@ struct dwc3_request {
- 	struct dwc3_trb		*trb;
- 	dma_addr_t		trb_dma;
+--- a/drivers/md/dm-log-writes.c
++++ b/drivers/md/dm-log-writes.c
+@@ -60,6 +60,7 @@
  
-+	unsigned		num_trbs;
+ #define WRITE_LOG_VERSION 1ULL
+ #define WRITE_LOG_MAGIC 0x6a736677736872ULL
++#define WRITE_LOG_SUPER_SECTOR 0
+ 
+ /*
+  * The disk format for this is braindead simple.
+@@ -115,6 +116,7 @@ struct log_writes_c {
+ 	struct list_head logging_blocks;
+ 	wait_queue_head_t wait;
+ 	struct task_struct *log_kthread;
++	struct completion super_done;
+ };
+ 
+ struct pending_block {
+@@ -180,6 +182,14 @@ static void log_end_io(struct bio *bio)
+ 	bio_put(bio);
+ }
+ 
++static void log_end_super(struct bio *bio)
++{
++	struct log_writes_c *lc = bio->bi_private;
 +
- 	unsigned		needs_extra_trb:1;
- 	unsigned		direction:1;
- 	unsigned		mapped:1;
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 8db7466e4f76..fd91c494307c 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1041,6 +1041,8 @@ static void dwc3_prepare_one_trb(struct dwc3_ep *dep,
- 		req->trb_dma = dwc3_trb_dma_offset(dep, trb);
++	complete(&lc->super_done);
++	log_end_io(bio);
++}
++
+ /*
+  * Meant to be called if there is an error, it will free all the pages
+  * associated with the block.
+@@ -215,7 +225,8 @@ static int write_metadata(struct log_wri
+ 	bio->bi_iter.bi_size = 0;
+ 	bio->bi_iter.bi_sector = sector;
+ 	bio_set_dev(bio, lc->logdev->bdev);
+-	bio->bi_end_io = log_end_io;
++	bio->bi_end_io = (sector == WRITE_LOG_SUPER_SECTOR) ?
++			  log_end_super : log_end_io;
+ 	bio->bi_private = lc;
+ 	bio_set_op_attrs(bio, REQ_OP_WRITE, 0);
+ 
+@@ -418,11 +429,18 @@ static int log_super(struct log_writes_c
+ 	super.nr_entries = cpu_to_le64(lc->logged_entries);
+ 	super.sectorsize = cpu_to_le32(lc->sectorsize);
+ 
+-	if (write_metadata(lc, &super, sizeof(super), NULL, 0, 0)) {
++	if (write_metadata(lc, &super, sizeof(super), NULL, 0,
++			   WRITE_LOG_SUPER_SECTOR)) {
+ 		DMERR("Couldn't write super");
+ 		return -1;
  	}
  
-+	req->num_trbs++;
++	/*
++	 * Super sector should be writen in-order, otherwise the
++	 * nr_entries could be rewritten incorrectly by an old bio.
++	 */
++	wait_for_completion_io(&lc->super_done);
 +
- 	__dwc3_prepare_one_trb(dep, trb, dma, length, chain, node,
- 			stream_id, short_not_ok, no_interrupt);
+ 	return 0;
  }
-@@ -1075,6 +1077,7 @@ static void dwc3_prepare_one_trb_sg(struct dwc3_ep *dep,
  
- 			/* Now prepare one extra TRB to align transfer size */
- 			trb = &dep->trb_pool[dep->trb_enqueue];
-+			req->num_trbs++;
- 			__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr,
- 					maxp - rem, false, 1,
- 					req->request.stream_id,
-@@ -1119,6 +1122,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
+@@ -531,6 +549,7 @@ static int log_writes_ctr(struct dm_targ
+ 	INIT_LIST_HEAD(&lc->unflushed_blocks);
+ 	INIT_LIST_HEAD(&lc->logging_blocks);
+ 	init_waitqueue_head(&lc->wait);
++	init_completion(&lc->super_done);
+ 	atomic_set(&lc->io_blocks, 0);
+ 	atomic_set(&lc->pending_blocks, 0);
  
- 		/* Now prepare one extra TRB to align transfer size */
- 		trb = &dep->trb_pool[dep->trb_enqueue];
-+		req->num_trbs++;
- 		__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, maxp - rem,
- 				false, 1, req->request.stream_id,
- 				req->request.short_not_ok,
-@@ -1135,6 +1139,7 @@ static void dwc3_prepare_one_trb_linear(struct dwc3_ep *dep,
- 
- 		/* Now prepare one extra TRB to handle ZLP */
- 		trb = &dep->trb_pool[dep->trb_enqueue];
-+		req->num_trbs++;
- 		__dwc3_prepare_one_trb(dep, trb, dwc->bounce_addr, 0,
- 				false, 1, req->request.stream_id,
- 				req->request.short_not_ok,
-@@ -2231,6 +2236,7 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
- 	dwc3_ep_inc_deq(dep);
- 
- 	trace_dwc3_complete_trb(dep, trb);
-+	req->num_trbs--;
- 
- 	/*
- 	 * If we're in the middle of series of chained TRBs and we
--- 
-2.20.1
-
 
 
