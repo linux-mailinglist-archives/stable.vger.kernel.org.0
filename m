@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D845CF8D
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:35:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A4115CF94
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726831AbfGBMfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 08:35:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54562 "EHLO mail.kernel.org"
+        id S1726457AbfGBMhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 08:37:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726457AbfGBMfO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 08:35:14 -0400
+        id S1726167AbfGBMhC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 08:37:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E93B9208C4;
-        Tue,  2 Jul 2019 12:35:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66D1C2054F;
+        Tue,  2 Jul 2019 12:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562070913;
-        bh=wFxh3ecm1+SBsibpNos3qJ6LtvzzqIaEruyHOf3Kmdg=;
+        s=default; t=1562071021;
+        bh=vR8f62OR3BClMMSg54NfquLPBd/T0YIsB1gCJAUSwk0=;
         h=Subject:To:From:Date:From;
-        b=GAM+W9XBgsUDUBYP0sUZ/64GZumFyQzBJuq6vwgo7hRF7Eyf9ROAFQs50xDcGmjyn
-         Sah5GAMcysmutN2Nk/gj3bOh7FPRAk0wIp4f+isxf6B+j+lsZ6rCUjKYYcLGnckS/N
-         MWxwEqqpXe16lI0fJr2AvaKVMqc4BK4a3XwLzYUg=
-Subject: patch "usb: gadget: f_fs: data_len used before properly set" added to usb-next
-To:     fei.yang@intel.com, felipe.balbi@linux.intel.com,
+        b=sX5PDT4FyRmRr4qnhRtJKtCYxOr11BYPBmmotdBq4HdtyNihblRz2iHoakw30v658
+         yYpWiU/JPaG+TrelC22PK2pkX9g1sAA4mST/yTDgm2rkf3NDWywZeQDZUPmXFP5nEO
+         FetD0hkqR3lSf25LJtQLJRJgdhVhhek+WdSb7+2I=
+Subject: patch "usb: gadget: ether: Fix race between gether_disconnect and rx_submit" added to usb-next
+To:     Kiruthika.Varadarajan@harman.com, felipe.balbi@linux.intel.com,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 02 Jul 2019 14:29:43 +0200
-Message-ID: <1562070583159130@kroah.com>
+Date:   Tue, 02 Jul 2019 14:29:54 +0200
+Message-ID: <15620705943771@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: gadget: f_fs: data_len used before properly set
+    usb: gadget: ether: Fix race between gether_disconnect and rx_submit
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,51 +55,52 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 4833a94eb383f5b22775077ff92ddaae90440921 Mon Sep 17 00:00:00 2001
-From: Fei Yang <fei.yang@intel.com>
-Date: Wed, 12 Jun 2019 15:13:26 -0700
-Subject: usb: gadget: f_fs: data_len used before properly set
+From d29fcf7078bc8be2b6366cbd4418265b53c94fac Mon Sep 17 00:00:00 2001
+From: Kiruthika Varadarajan <Kiruthika.Varadarajan@harman.com>
+Date: Tue, 18 Jun 2019 08:39:06 +0000
+Subject: usb: gadget: ether: Fix race between gether_disconnect and rx_submit
 
-The following line of code in function ffs_epfile_io is trying to set
-flag io_data->use_sg in case buffer required is larger than one page.
+On spin lock release in rx_submit, gether_disconnect get a chance to
+run, it makes port_usb NULL, rx_submit access NULL port USB, hence null
+pointer crash.
 
-    io_data->use_sg = gadget->sg_supported && data_len > PAGE_SIZE;
+Fixed by releasing the lock in rx_submit after port_usb is used.
 
-However at this point of time the variable data_len has not been set
-to the proper buffer size yet. The consequence is that io_data->use_sg
-is always set regardless what buffer size really is, because the condition
-(data_len > PAGE_SIZE) is effectively an unsigned comparison between
--EINVAL and PAGE_SIZE which would always result in TRUE.
-
-Fixes: 772a7a724f69 ("usb: gadget: f_fs: Allow scatter-gather buffers")
-Signed-off-by: Fei Yang <fei.yang@intel.com>
-Cc: stable <stable@vger.kernel.org>
+Fixes: 2b3d942c4878 ("usb ethernet gadget: split out network core")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Kiruthika Varadarajan <Kiruthika.Varadarajan@harman.com>
 Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 ---
- drivers/usb/gadget/function/f_fs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/u_ether.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 47be961f1bf3..c7ed90084d1a 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -997,7 +997,6 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
- 		 * earlier
- 		 */
- 		gadget = epfile->ffs->gadget;
--		io_data->use_sg = gadget->sg_supported && data_len > PAGE_SIZE;
+diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
+index 737bd77a575d..2929bb47a618 100644
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -186,11 +186,12 @@ rx_submit(struct eth_dev *dev, struct usb_request *req, gfp_t gfp_flags)
+ 		out = dev->port_usb->out_ep;
+ 	else
+ 		out = NULL;
+-	spin_unlock_irqrestore(&dev->lock, flags);
  
- 		spin_lock_irq(&epfile->ffs->eps_lock);
- 		/* In the meantime, endpoint got disabled or changed. */
-@@ -1012,6 +1011,8 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
- 		 */
- 		if (io_data->read)
- 			data_len = usb_ep_align_maybe(gadget, ep->ep, data_len);
-+
-+		io_data->use_sg = gadget->sg_supported && data_len > PAGE_SIZE;
- 		spin_unlock_irq(&epfile->ffs->eps_lock);
+ 	if (!out)
++	{
++		spin_unlock_irqrestore(&dev->lock, flags);
+ 		return -ENOTCONN;
+-
++	}
  
- 		data = ffs_alloc_buffer(io_data, data_len);
+ 	/* Padding up to RX_EXTRA handles minor disagreements with host.
+ 	 * Normally we use the USB "terminate on short read" convention;
+@@ -214,6 +215,7 @@ rx_submit(struct eth_dev *dev, struct usb_request *req, gfp_t gfp_flags)
+ 
+ 	if (dev->port_usb->is_fixed)
+ 		size = max_t(size_t, size, dev->port_usb->fixed_out_len);
++	spin_unlock_irqrestore(&dev->lock, flags);
+ 
+ 	skb = __netdev_alloc_skb(dev->net, size + NET_IP_ALIGN, gfp_flags);
+ 	if (skb == NULL) {
 -- 
 2.22.0
 
