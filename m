@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E00C15CA53
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:03:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A314D5CB64
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:13:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727286AbfGBIDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:03:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47784 "EHLO mail.kernel.org"
+        id S1728378AbfGBIIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:08:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727267AbfGBIDC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:03:02 -0400
+        id S1728373AbfGBIIJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:08:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EB5F21855;
-        Tue,  2 Jul 2019 08:03:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E10B206A2;
+        Tue,  2 Jul 2019 08:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054581;
-        bh=GZ6x7zr+8FH2xCGjotD8waIYCou0HOtehOKgUnqZdoc=;
+        s=default; t=1562054888;
+        bh=dBd5Gi/aU9o+YoIteL3TsGFh0gBXpK4pcIblhu743gU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vwIVU5kD2j1ZdkG1OEFUQaeX6R55GkFEUJ2eoHCzaqyy92qnNiorqNzDulYybE3wo
-         7WCMWOxD6sf4hfjmvzDZeCv+h63QhbzDxh+y7zTvWrzlLfWjQb2wSRUqkoywfikMr+
-         2rYh8zUiFSJuPGbGPD/DqH8S7M8WvQko8V3wBdec=
+        b=kVgj0T0IXwcdw7XUjrjiwwB20P33kuwPEnH0Ib0VRyROoMukTYYUKy41xtWFNtejA
+         7BUz/WbgkIkEi5ys2p8AVFcZfN2cwZ/G0dHQvkVcDI0nEp03r9Zbpt9PJ+/wKMnHUr
+         eDhHkNp5aQ3hGTbgxHo0Wf1lJKiHoR9GOU/IjNeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Bates <sbates@raithlin.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.1 19/55] io_uring: ensure req->file is cleared on allocation
+        stable@vger.kernel.org, Fei Yang <fei.yang@intel.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 26/72] usb: dwc3: gadget: use num_trbs when skipping TRBs on ->dequeue()
 Date:   Tue,  2 Jul 2019 10:01:27 +0200
-Message-Id: <20190702080125.041640340@linuxfoundation.org>
+Message-Id: <20190702080126.031346654@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
-References: <20190702080124.103022729@linuxfoundation.org>
+In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
+References: <20190702080124.564652899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,114 +47,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+commit c3acd59014148470dc58519870fbc779785b4bf7 upstream
 
-commit 60c112b0ada09826cc4ae6a4e55df677f76f1313 upstream.
+Now that we track how many TRBs a request uses, it's easier to skip
+over them in case of a call to usb_ep_dequeue(). Let's do so and
+simplify the code a bit.
 
-Stephen reports:
-
-I hit the following General Protection Fault when testing io_uring via
-the io_uring engine in fio. This was on a VM running 5.2-rc5 and the
-latest version of fio. The issue occurs for both null_blk and fake NVMe
-drives. I have not tested bare metal or real NVMe SSDs. The fio script
-used is given below.
-
-[io_uring]
-time_based=1
-runtime=60
-filename=/dev/nvme2n1 (note /dev/nullb0 also fails)
-ioengine=io_uring
-bs=4k
-rw=readwrite
-direct=1
-fixedbufs=1
-sqthread_poll=1
-sqthread_poll_cpu=0
-
-general protection fault: 0000 [#1] SMP PTI
-CPU: 0 PID: 872 Comm: io_uring-sq Not tainted 5.2.0-rc5-cpacket-io-uring #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
-RIP: 0010:fput_many+0x7/0x90
-Code: 01 48 85 ff 74 17 55 48 89 e5 53 48 8b 1f e8 a0 f9 ff ff 48 85 db 48 89 df 75 f0 5b 5d f3 c3 0f 1f 40 00 0f 1f 44 00 00 89 f6 <f0> 48 29 77 38 74 01 c3 55 48 89 e5 53 48 89 fb 65 48 \
-
-RSP: 0018:ffffadeb817ebc50 EFLAGS: 00010246
-RAX: 0000000000000004 RBX: ffff8f46ad477480 RCX: 0000000000001805
-RDX: 0000000000000000 RSI: 0000000000000001 RDI: f18b51b9a39552b5
-RBP: ffffadeb817ebc58 R08: ffff8f46b7a318c0 R09: 000000000000015d
-R10: ffffadeb817ebce8 R11: 0000000000000020 R12: ffff8f46ad4cd000
-R13: 00000000fffffff7 R14: ffffadeb817ebe30 R15: 0000000000000004
-FS:  0000000000000000(0000) GS:ffff8f46b7a00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000055828f0bbbf0 CR3: 0000000232176004 CR4: 00000000003606f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- ? fput+0x13/0x20
- io_free_req+0x20/0x40
- io_put_req+0x1b/0x20
- io_submit_sqe+0x40a/0x680
- ? __switch_to_asm+0x34/0x70
- ? __switch_to_asm+0x40/0x70
- io_submit_sqes+0xb9/0x160
- ? io_submit_sqes+0xb9/0x160
- ? __switch_to_asm+0x40/0x70
- ? __switch_to_asm+0x34/0x70
- ? __schedule+0x3f2/0x6a0
- ? __switch_to_asm+0x34/0x70
- io_sq_thread+0x1af/0x470
- ? __switch_to_asm+0x34/0x70
- ? wait_woken+0x80/0x80
- ? __switch_to+0x85/0x410
- ? __switch_to_asm+0x40/0x70
- ? __switch_to_asm+0x34/0x70
- ? __schedule+0x3f2/0x6a0
- kthread+0x105/0x140
- ? io_submit_sqes+0x160/0x160
- ? kthread+0x105/0x140
- ? io_submit_sqes+0x160/0x160
- ? kthread_destroy_worker+0x50/0x50
- ret_from_fork+0x35/0x40
-
-which occurs because using a kernel side submission thread isn't valid
-without using fixed files (registered through io_uring_register()). This
-causes io_uring to put the request after logging an error, but before
-the file field is set in the request. If it happens to be non-zero, we
-attempt to fput() garbage.
-
-Fix this by ensuring that req->file is initialized when the request is
-allocated.
-
-Cc: stable@vger.kernel.org # 5.1+
-Reported-by: Stephen Bates <sbates@raithlin.com>
-Tested-by: Stephen Bates <sbates@raithlin.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Fei Yang <fei.yang@intel.com>
+Cc: Sam Protsenko <semen.protsenko@linaro.org>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: linux-usb@vger.kernel.org
+Cc: stable@vger.kernel.org # 4.19.y
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+(cherry picked from commit c3acd59014148470dc58519870fbc779785b4bf7)
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/gadget.c | 28 ++++------------------------
+ 1 file changed, 4 insertions(+), 24 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -533,6 +533,7 @@ static struct io_kiocb *io_get_req(struc
- 		state->cur_req++;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index fd91c494307c..4e08904890ed 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1368,6 +1368,8 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
+ 				break;
+ 		}
+ 		if (r == req) {
++			int i;
++
+ 			/* wait until it is processed */
+ 			dwc3_stop_active_transfer(dep, true);
+ 
+@@ -1405,32 +1407,12 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
+ 			if (!r->trb)
+ 				goto out0;
+ 
+-			if (r->num_pending_sgs) {
++			for (i = 0; i < r->num_trbs; i++) {
+ 				struct dwc3_trb *trb;
+-				int i = 0;
+-
+-				for (i = 0; i < r->num_pending_sgs; i++) {
+-					trb = r->trb + i;
+-					trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
+-					dwc3_ep_inc_deq(dep);
+-				}
+-
+-				if (r->needs_extra_trb) {
+-					trb = r->trb + r->num_pending_sgs + 1;
+-					trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
+-					dwc3_ep_inc_deq(dep);
+-				}
+-			} else {
+-				struct dwc3_trb *trb = r->trb;
+ 
++				trb = r->trb + i;
+ 				trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
+ 				dwc3_ep_inc_deq(dep);
+-
+-				if (r->needs_extra_trb) {
+-					trb = r->trb + 1;
+-					trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
+-					dwc3_ep_inc_deq(dep);
+-				}
+ 			}
+ 			goto out1;
+ 		}
+@@ -1441,8 +1423,6 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
  	}
  
-+	req->file = NULL;
- 	req->ctx = ctx;
- 	req->flags = 0;
- 	/* one is dropped after submission, the other at completion */
-@@ -1684,10 +1685,8 @@ static int io_req_set_file(struct io_rin
- 	flags = READ_ONCE(s->sqe->flags);
- 	fd = READ_ONCE(s->sqe->fd);
+ out1:
+-	/* giveback the request */
+-
+ 	dwc3_gadget_giveback(dep, req, -ECONNRESET);
  
--	if (!io_op_needs_file(s->sqe)) {
--		req->file = NULL;
-+	if (!io_op_needs_file(s->sqe))
- 		return 0;
--	}
- 
- 	if (flags & IOSQE_FIXED_FILE) {
- 		if (unlikely(!ctx->user_files ||
+ out0:
+-- 
+2.20.1
+
 
 
