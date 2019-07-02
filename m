@@ -2,46 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD7595CB39
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:12:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87BE05CBC8
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:16:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727621AbfGBIJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:09:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57074 "EHLO mail.kernel.org"
+        id S1727174AbfGBIE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:04:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728624AbfGBIJP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:09:15 -0400
+        id S1727726AbfGBIE2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:04:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39092206A2;
-        Tue,  2 Jul 2019 08:09:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7C6A20659;
+        Tue,  2 Jul 2019 08:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054954;
-        bh=Egxd7GBmipUcSfGsZsrwiyABLjDIQUu5RtV2kIjuesA=;
+        s=default; t=1562054668;
+        bh=emvwUdVW0+nZbV6MltQoEQlRpt9QAeRJY2O4pV29Klw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FP5BYczrdRoKCHWae2Allh5qVe3m2DcK0OTCj4GZ22hUB08JHt/SDTROJujvswNxB
-         g+9GeURdAZVgeUTo0orFpoQRxWTO8/RlmrKP57mxM7OE6EBB8sQ3qngK1FRGg36pZa
-         6XeWk1x/31N/G8S4AhEppB6uiwSHQ7XKUUFPYnhk=
+        b=eQNgn5IeUXjFIM/aUxnKj4cU4jMlZtGVUB+NTxtdC9RS8NOj7z23+wmJBAOb8771R
+         1/IwbOHoz0EaNmF86cNFfwkrDLx2twgajJqa4Thr24NWdUYGciwTri29xuGoXp3znJ
+         O2wYJBzcCcxNOuRLtqpBRVLHqOHlgHF6kO8SlWrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Nicolas Pitre <nicolas.pitre@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 18/43] fs/binfmt_flat.c: make load_flat_shared_library() work
+        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 5.1 50/55] arm64: futex: Avoid copying out uninitialised stack in failed cmpxchg()
 Date:   Tue,  2 Jul 2019 10:01:58 +0200
-Message-Id: <20190702080124.740115176@linuxfoundation.org>
+Message-Id: <20190702080126.687857009@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
-References: <20190702080123.904399496@linuxfoundation.org>
+In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
+References: <20190702080124.103022729@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,86 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Will Deacon <will.deacon@arm.com>
 
-commit 867bfa4a5fcee66f2b25639acae718e8b28b25a5 upstream.
+commit 8e4e0ac02b449297b86498ac24db5786ddd9f647 upstream.
 
-load_flat_shared_library() is broken: It only calls load_flat_file() if
-prepare_binprm() returns zero, but prepare_binprm() returns the number of
-bytes read - so this only happens if the file is empty.
+Returning an error code from futex_atomic_cmpxchg_inatomic() indicates
+that the caller should not make any use of *uval, and should instead act
+upon on the value of the error code. Although this is implemented
+correctly in our futex code, we needlessly copy uninitialised stack to
+*uval in the error case, which can easily be avoided.
 
-Instead, call into load_flat_file() if the number of bytes read is
-non-negative. (Even if the number of bytes is zero - in that case,
-load_flat_file() will see nullbytes and return a nice -ENOEXEC.)
-
-In addition, remove the code related to bprm creds and stop using
-prepare_binprm() - this code is loading a library, not a main executable,
-and it only actually uses the members "buf", "file" and "filename" of the
-linux_binprm struct. Instead, call kernel_read() directly.
-
-Link: http://lkml.kernel.org/r/20190524201817.16509-1-jannh@google.com
-Fixes: 287980e49ffc ("remove lots of IS_ERR_VALUE abuses")
-Signed-off-by: Jann Horn <jannh@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Greg Ungerer <gerg@linux-m68k.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/binfmt_flat.c |   23 +++++++----------------
- 1 file changed, 7 insertions(+), 16 deletions(-)
+ arch/arm64/include/asm/futex.h |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/binfmt_flat.c
-+++ b/fs/binfmt_flat.c
-@@ -856,9 +856,14 @@ err:
+--- a/arch/arm64/include/asm/futex.h
++++ b/arch/arm64/include/asm/futex.h
+@@ -134,7 +134,9 @@ futex_atomic_cmpxchg_inatomic(u32 *uval,
+ 	: "memory");
+ 	uaccess_disable();
  
- static int load_flat_shared_library(int id, struct lib_info *libs)
- {
-+	/*
-+	 * This is a fake bprm struct; only the members "buf", "file" and
-+	 * "filename" are actually used.
-+	 */
- 	struct linux_binprm bprm;
- 	int res;
- 	char buf[16];
-+	loff_t pos = 0;
- 
- 	memset(&bprm, 0, sizeof(bprm));
- 
-@@ -872,25 +877,11 @@ static int load_flat_shared_library(int
- 	if (IS_ERR(bprm.file))
- 		return res;
- 
--	bprm.cred = prepare_exec_creds();
--	res = -ENOMEM;
--	if (!bprm.cred)
--		goto out;
--
--	/* We don't really care about recalculating credentials at this point
--	 * as we're past the point of no return and are dealing with shared
--	 * libraries.
--	 */
--	bprm.called_set_creds = 1;
--
--	res = prepare_binprm(&bprm);
-+	res = kernel_read(bprm.file, bprm.buf, BINPRM_BUF_SIZE, &pos);
- 
--	if (!res)
-+	if (res >= 0)
- 		res = load_flat_file(&bprm, libs, id, NULL);
- 
--	abort_creds(bprm.cred);
--
--out:
- 	allow_write_access(bprm.file);
- 	fput(bprm.file);
+-	*uval = val;
++	if (!ret)
++		*uval = val;
++
+ 	return ret;
+ }
  
 
 
