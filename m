@@ -2,73 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A58C05C6D6
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 03:56:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F11155C6F1
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 04:09:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726896AbfGBB4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 21:56:36 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:41209 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726878AbfGBB4g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 21:56:36 -0400
-Received: by mail-pf1-f194.google.com with SMTP id m30so7428056pff.8
-        for <stable@vger.kernel.org>; Mon, 01 Jul 2019 18:56:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=appneta.com; s=google;
-        h=mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=stN/jIcTtxkt6RabqwrSWPJaiRnq2+3A1E/0aRNbIVM=;
-        b=qqBUbhvJ0LOwiVbEXfdDBe/HVEYqlx2/QoFVPRd/aREc2aplfnzuDV33TSY8qORmzR
-         h5KNux9TsYrU+KnPyS2D2gan81KJ3k+jsEqHbbX9mocR7T5/bCFm8zStgyNfZ7i3kYfB
-         6J8g6VzJWr/mYKxn+b2dXRWXOU+Q4sXHcuvzw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=stN/jIcTtxkt6RabqwrSWPJaiRnq2+3A1E/0aRNbIVM=;
-        b=p1UweF+7Sv7R3hEJENcxnitwkfuAy3vGVe1M3hR3c3EJLbZ7phdWkPBDvB/xgyWIw1
-         0wUMbP+B6rYfcI6MxeGI68xL524rQCcU4UdbOIlZRxwSyOufJauiXvID7G8Zp7NPbQJ6
-         WkZptcUvjMM8bvlI+fDVeySqxJEDAY7XstFmTTvsmIywFzIXpA2Dr0jx1AeMwYBZwr8/
-         1hEfvxyk48zLMXwcQCo6bFlCsDuxRXvvvW338+5KTTJ7qWbY6d3aIbxordHJR1MnKtEu
-         LFOPHDQWokHTOK6B5HQ/aTm+n3h7il1oDASLnLf0oVrgiTNDYn27WOjhSBWCm5tcIrCP
-         64HA==
-X-Gm-Message-State: APjAAAUS0VKCyY3hbEzRk/BCWB0Xa1P/3No5dIvTzsgDX+0M1ALh22jD
-        /NmPQ6vm8A7oZOtns03qL1nd
-X-Google-Smtp-Source: APXvYqwrYsK/dMW3rmcYM9cn7fBU79CkEgcA3NY8e9ZMu60O5v89syAMOxOqc1+RIddGd4bp1Ah5sg==
-X-Received: by 2002:a63:f50d:: with SMTP id w13mr27794200pgh.411.1562032595919;
-        Mon, 01 Jul 2019 18:56:35 -0700 (PDT)
-Received: from [192.168.1.144] (64-46-6-129.dyn.novuscom.net. [64.46.6.129])
-        by smtp.gmail.com with ESMTPSA id n26sm12435679pfa.83.2019.07.01.18.56.34
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 01 Jul 2019 18:56:35 -0700 (PDT)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Subject: Re: [PATCH RESEND 4.9.y] net: check before dereferencing netdev_ops
- during busy poll
-From:   Josh Elsasser <jelsasser@appneta.com>
-In-Reply-To: <20190701.185156.2142325894415755085.davem@davemloft.net>
-Date:   Mon, 1 Jul 2019 18:56:32 -0700
-Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        netdev@vger.kernel.org, edumazet@google.com, mcroce@redhat.com
-Content-Transfer-Encoding: 7bit
-Message-Id: <84C901BF-9CA7-4A5F-9CC7-EE095EA043A5@appneta.com>
-References: <20190701234143.72631-1-jelsasser@appneta.com>
- <20190701.185156.2142325894415755085.davem@davemloft.net>
-To:     David Miller <davem@davemloft.net>
-X-Mailer: Apple Mail (2.3445.104.11)
+        id S1726434AbfGBCJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 22:09:37 -0400
+Received: from userp2130.oracle.com ([156.151.31.86]:47672 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726362AbfGBCJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 22:09:37 -0400
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x6228pek195172;
+        Tue, 2 Jul 2019 02:09:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2018-07-02;
+ bh=lXB2umxm4Qxv5Jy6JF1w9qFRyfyBm2ed0ppYjC/gkXs=;
+ b=czWLyvqqHGd12bl13IG+KBmPKJ1vm3zTRakmWxBDGZo3Z1HQhQY0jOpEstB0hWYp/kHi
+ k9pvXt3M1bQhtqYRJO43DgFxfZfM0BnZvCXQ8Hnch78Ehc+t0G2n2+cEhEnct3PPqHVV
+ JrVVK59qPNCg6S/vZY6HrsXLU0XK/nbfsuuRls9/31Bi2gdtCBxxNUjXO+rMk+fwpEot
+ hBwuekxknCD/cSeIGXa8/wHUekSr28UoAi5AkqXYrSiMDqr9PyPN30cG+FYpt412fzfv
+ lG73z9C8s/LG2CKYBtqTq0g8Ew8R8PalL9aXYHFUf5OCvZplWHYrk30HUuMwfxdj9EjC pQ== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by userp2130.oracle.com with ESMTP id 2te61e0nbu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 02 Jul 2019 02:09:31 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x6228PI0117335;
+        Tue, 2 Jul 2019 02:09:30 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by aserp3020.oracle.com with ESMTP id 2tebku060s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 02 Jul 2019 02:09:30 +0000
+Received: from abhmp0011.oracle.com (abhmp0011.oracle.com [141.146.116.17])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x6229SwQ025233;
+        Tue, 2 Jul 2019 02:09:29 GMT
+Received: from bostrovs-us.us.oracle.com (/10.152.32.65)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 01 Jul 2019 19:09:28 -0700
+Date:   Mon, 1 Jul 2019 22:09:51 -0400
+From:   Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To:     Juergen Gross <jgross@suse.com>
+Cc:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] xen/events: fix binding user event channels to cpus
+Message-ID: <20190702020951.GA8003@bostrovs-us.us.oracle.com>
+References: <20190621184703.17108-1-jgross@suse.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190621184703.17108-1-jgross@suse.com>
+User-Agent: Mutt/1.11.3 (2019-02-01)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9305 signatures=668688
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1907020019
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9305 signatures=668688
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1907020020
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Jul 1, 2019, at 6:51 PM, David Miller <davem@davemloft.net> wrote:
+On Fri, Jun 21, 2019 at 08:47:03PM +0200, Juergen Gross wrote:
+> When binding an interdomain event channel to a vcpu via
+> IOCTL_EVTCHN_BIND_INTERDOMAIN not only the event channel needs to be
+> bound, but the affinity of the associated IRQi must be changed, too.
+> Otherwise the IRQ and the event channel won't be moved to another vcpu
+> in case the original vcpu they were bound to is going offline.
+> 
+> Cc: <stable@vger.kernel.org> # 4.13
+> Fixes: c48f64ab472389df ("xen-evtchn: Bind dyn evtchn:qemu-dm interrupt to next online VCPU")
+> Signed-off-by: Juergen Gross <jgross@suse.com>
 
-> I just tried to apply this with "git am" to the current v4.19 -stable
-> branch and it failed.
-
-This is only needed for the v4.9 stable kernel, ndo_busy_poll (and this NPE) 
-went away in kernel 4.11.
-
-Sorry, I probably should have called that out more explicitly.
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 
