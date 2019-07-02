@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A103F5CB13
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:11:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A05E25CB3B
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:12:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727469AbfGBILG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:11:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59682 "EHLO mail.kernel.org"
+        id S1728449AbfGBIIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:08:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728485AbfGBIKt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:10:49 -0400
+        id S1728074AbfGBII3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:08:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40ACA2184B;
-        Tue,  2 Jul 2019 08:10:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D90721851;
+        Tue,  2 Jul 2019 08:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562055048;
-        bh=PkOp1tK8MXcfqqgY3v2HBpAJUAf1o5pm3r1aqb8Awwc=;
+        s=default; t=1562054908;
+        bh=pZuPC87F7Ez7v8MKlVnZCC8cf5cYx8wCtINfbQZCZWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjvgyxqGKcrEOz2cEyB0vOGm8kXOzTRfsPx7yefVwzXyn0rucRLnUYHb5+WItR08c
-         EeZkGuuYakolzGHLyYxkEYIF2J41EUl+xSNV614yZG/RB0ToOS4f3XX1oGJXA2bx+2
-         rjE960PVOa/dvK9ywLGIZ18smruWb6wiSCSOFoZw=
+        b=dlYrJDKBdTGGurdGLVPpigEsWQbsVIREKYlRSxT0zy3dcgOlaUZJcuDvNMD8UszFQ
+         uHqf3WVsDp6xdNIxciaJ++OjHMfoRHJHsKJisK4B7J05RH53AozWdwX9fQK6Th5ZGK
+         v032E/I8w0a3OEmsBWQq2euiLjz8E58S91g3QrCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Matteo Croce <mcroce@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 27/43] af_packet: Block execution of tasks waiting for transmit to complete in AF_PACKET
+        stable@vger.kernel.org, Tom Herbert <tom@herbertland.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 4.19 66/72] bpf: udp: Avoid calling reuseports bpf_prog from udp_gro
 Date:   Tue,  2 Jul 2019 10:02:07 +0200
-Message-Id: <20190702080125.248065085@linuxfoundation.org>
+Message-Id: <20190702080128.065178436@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
-References: <20190702080123.904399496@linuxfoundation.org>
+In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
+References: <20190702080124.564652899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,153 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Horman <nhorman@tuxdriver.com>
+From: Martin KaFai Lau <kafai@fb.com>
 
-[ Upstream commit 89ed5b519004a7706f50b70f611edbd3aaacff2c ]
+commit 257a525fe2e49584842c504a92c27097407f778f upstream.
 
-When an application is run that:
-a) Sets its scheduler to be SCHED_FIFO
-and
-b) Opens a memory mapped AF_PACKET socket, and sends frames with the
-MSG_DONTWAIT flag cleared, its possible for the application to hang
-forever in the kernel.  This occurs because when waiting, the code in
-tpacket_snd calls schedule, which under normal circumstances allows
-other tasks to run, including ksoftirqd, which in some cases is
-responsible for freeing the transmitted skb (which in AF_PACKET calls a
-destructor that flips the status bit of the transmitted frame back to
-available, allowing the transmitting task to complete).
+When the commit a6024562ffd7 ("udp: Add GRO functions to UDP socket")
+added udp[46]_lib_lookup_skb to the udp_gro code path, it broke
+the reuseport_select_sock() assumption that skb->data is pointing
+to the transport header.
 
-However, when the calling application is SCHED_FIFO, its priority is
-such that the schedule call immediately places the task back on the cpu,
-preventing ksoftirqd from freeing the skb, which in turn prevents the
-transmitting task from detecting that the transmission is complete.
+This patch follows an earlier __udp6_lib_err() fix by
+passing a NULL skb to avoid calling the reuseport's bpf_prog.
 
-We can fix this by converting the schedule call to a completion
-mechanism.  By using a completion queue, we force the calling task, when
-it detects there are no more frames to send, to schedule itself off the
-cpu until such time as the last transmitted skb is freed, allowing
-forward progress to be made.
-
-Tested by myself and the reporter, with good results
-
-Change Notes:
-
-V1->V2:
-	Enhance the sleep logic to support being interruptible and
-allowing for honoring to SK_SNDTIMEO (Willem de Bruijn)
-
-V2->V3:
-	Rearrage the point at which we wait for the completion queue, to
-avoid needing to check for ph/skb being null at the end of the loop.
-Also move the complete call to the skb destructor to avoid needing to
-modify __packet_set_status.  Also gate calling complete on
-packet_read_pending returning zero to avoid multiple calls to complete.
-(Willem de Bruijn)
-
-	Move timeo computation within loop, to re-fetch the socket
-timeout since we also use the timeo variable to record the return code
-from the wait_for_complete call (Neil Horman)
-
-V3->V4:
-	Willem has requested that the control flow be restored to the
-previous state.  Doing so lets us eliminate the need for the
-po->wait_on_complete flag variable, and lets us get rid of the
-packet_next_frame function, but introduces another complexity.
-Specifically, but using the packet pending count, we can, if an
-applications calls sendmsg multiple times with MSG_DONTWAIT set, each
-set of transmitted frames, when complete, will cause
-tpacket_destruct_skb to issue a complete call, for which there will
-never be a wait_on_completion call.  This imbalance will lead to any
-future call to wait_for_completion here to return early, when the frames
-they sent may not have completed.  To correct this, we need to re-init
-the completion queue on every call to tpacket_snd before we enter the
-loop so as to ensure we wait properly for the frames we send in this
-iteration.
-
-	Change the timeout and interrupted gotos to out_put rather than
-out_status so that we don't try to free a non-existant skb
-	Clean up some extra newlines (Willem de Bruijn)
-
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
-Reported-by: Matteo Croce <mcroce@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a6024562ffd7 ("udp: Add GRO functions to UDP socket")
+Cc: Tom Herbert <tom@herbertland.com>
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/packet/af_packet.c |   20 +++++++++++++++++---
- net/packet/internal.h  |    1 +
- 2 files changed, 18 insertions(+), 3 deletions(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2438,6 +2438,9 @@ static void tpacket_destruct_skb(struct
- 
- 		ts = __packet_set_timestamp(po, ph, skb);
- 		__packet_set_status(po, ph, TP_STATUS_AVAILABLE | ts);
-+
-+		if (!packet_read_pending(&po->tx_ring))
-+			complete(&po->skb_completion);
- 	}
- 
- 	sock_wfree(skb);
-@@ -2632,7 +2635,7 @@ static int tpacket_parse_header(struct p
- 
- static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
+---
+ net/ipv4/udp.c |    6 +++++-
+ net/ipv6/udp.c |    2 +-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -542,7 +542,11 @@ static inline struct sock *__udp4_lib_lo
+ struct sock *udp4_lib_lookup_skb(struct sk_buff *skb,
+ 				 __be16 sport, __be16 dport)
  {
--	struct sk_buff *skb;
-+	struct sk_buff *skb = NULL;
- 	struct net_device *dev;
- 	struct virtio_net_hdr *vnet_hdr = NULL;
- 	struct sockcm_cookie sockc;
-@@ -2647,6 +2650,7 @@ static int tpacket_snd(struct packet_soc
- 	int len_sum = 0;
- 	int status = TP_STATUS_AVAILABLE;
- 	int hlen, tlen, copylen = 0;
-+	long timeo = 0;
- 
- 	mutex_lock(&po->pg_vec_lock);
- 
-@@ -2693,12 +2697,21 @@ static int tpacket_snd(struct packet_soc
- 	if ((size_max > dev->mtu + reserve + VLAN_HLEN) && !po->has_vnet_hdr)
- 		size_max = dev->mtu + reserve + VLAN_HLEN;
- 
-+	reinit_completion(&po->skb_completion);
+-	return __udp4_lib_lookup_skb(skb, sport, dport, &udp_table);
++	const struct iphdr *iph = ip_hdr(skb);
 +
- 	do {
- 		ph = packet_current_frame(po, &po->tx_ring,
- 					  TP_STATUS_SEND_REQUEST);
- 		if (unlikely(ph == NULL)) {
--			if (need_wait && need_resched())
--				schedule();
-+			if (need_wait && skb) {
-+				timeo = sock_sndtimeo(&po->sk, msg->msg_flags & MSG_DONTWAIT);
-+				timeo = wait_for_completion_interruptible_timeout(&po->skb_completion, timeo);
-+				if (timeo <= 0) {
-+					err = !timeo ? -ETIMEDOUT : -ERESTARTSYS;
-+					goto out_put;
-+				}
-+			}
-+			/* check for additional frames */
- 			continue;
- 		}
++	return __udp4_lib_lookup(dev_net(skb->dev), iph->saddr, sport,
++				 iph->daddr, dport, inet_iif(skb),
++				 inet_sdif(skb), &udp_table, NULL);
+ }
+ EXPORT_SYMBOL_GPL(udp4_lib_lookup_skb);
  
-@@ -3252,6 +3265,7 @@ static int packet_create(struct net *net
- 	sock_init_data(sock, sk);
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -282,7 +282,7 @@ struct sock *udp6_lib_lookup_skb(struct
  
- 	po = pkt_sk(sk);
-+	init_completion(&po->skb_completion);
- 	sk->sk_family = PF_PACKET;
- 	po->num = proto;
- 	po->xmit = dev_queue_xmit;
---- a/net/packet/internal.h
-+++ b/net/packet/internal.h
-@@ -128,6 +128,7 @@ struct packet_sock {
- 	unsigned int		tp_hdrlen;
- 	unsigned int		tp_reserve;
- 	unsigned int		tp_tstamp;
-+	struct completion	skb_completion;
- 	struct net_device __rcu	*cached_dev;
- 	int			(*xmit)(struct sk_buff *skb);
- 	struct packet_type	prot_hook ____cacheline_aligned_in_smp;
+ 	return __udp6_lib_lookup(dev_net(skb->dev), &iph->saddr, sport,
+ 				 &iph->daddr, dport, inet6_iif(skb),
+-				 inet6_sdif(skb), &udp_table, skb);
++				 inet6_sdif(skb), &udp_table, NULL);
+ }
+ EXPORT_SYMBOL_GPL(udp6_lib_lookup_skb);
+ 
 
 
