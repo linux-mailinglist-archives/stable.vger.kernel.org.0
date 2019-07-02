@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 422495CB6B
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:13:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2339D5CB2D
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:11:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728421AbfGBIIW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:08:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55892 "EHLO mail.kernel.org"
+        id S1727678AbfGBIJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:09:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728412AbfGBIIV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:08:21 -0400
+        id S1728757AbfGBIJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:09:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29EB821851;
-        Tue,  2 Jul 2019 08:08:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7772E21479;
+        Tue,  2 Jul 2019 08:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054900;
-        bh=qlNER7IGKMqQxQpXoyyqHoszXTk+HOmLOJ3OAVrexkk=;
+        s=default; t=1562054996;
+        bh=YLcbfUXBUozGKSMWDKztSglmTCsQ+7TKQNM5VEuVoY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QCvUAUewVFsNA5c6UDuFGvOemZkgLi0xtBgw75/Um4/6+kTfQPz55sF/Mrqu81z/3
-         zIGEb536LlcZD6cnK0e8vo7QQ8u+RwC58iIpCP/GO+Q2AAenCmMiP9mCxKpE/Eo6mF
-         tBD2Jx4VV0WegxaOOuTsK/GvDn/9zjqrMhKpQt28=
+        b=EZh7h5orqir4udYjbdeEGctNqAKl1eA2lVyWrQHpcyo2rOuffAi4Z8eF7iDzQFU/+
+         fOtbQ5NUFQVkr/M2RgG8o16zNp2GJBRl+SrtPj/O+7Hq9C+n6wtkbwhuD8oaF5+5sW
+         eEcWC0iJ/DpRoBvZo826rNh+AIZCQwCmQ+WONHvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com,
-        syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com,
-        syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com,
-        syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com,
-        syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com,
-        syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
         Xin Long <lucien.xin@gmail.com>,
+        Jon Maloy <jon.maloy@ericsson.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 72/72] tipc: pass tunnel dev as NULL to udp_tunnel(6)_xmit_skb
+Subject: [PATCH 4.14 33/43] tipc: change to use register_pernet_device
 Date:   Tue,  2 Jul 2019 10:02:13 +0200
-Message-Id: <20190702080128.370013884@linuxfoundation.org>
+Message-Id: <20190702080125.605529529@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
-References: <20190702080124.564652899@linuxfoundation.org>
+In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
+References: <20190702080123.904399496@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,88 +47,98 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xin Long <lucien.xin@gmail.com>
 
-commit c3bcde026684c62d7a2b6f626dc7cf763833875c upstream.
+[ Upstream commit c492d4c74dd3f87559883ffa0f94a8f1ae3fe5f5 ]
 
-udp_tunnel(6)_xmit_skb() called by tipc_udp_xmit() expects a tunnel device
-to count packets on dev->tstats, a perpcu variable. However, TIPC is using
-udp tunnel with no tunnel device, and pass the lower dev, like veth device
-that only initializes dev->lstats(a perpcu variable) when creating it.
+This patch is to fix a dst defcnt leak, which can be reproduced by doing:
 
-Later iptunnel_xmit_stats() called by ip(6)tunnel_xmit() thinks the dev as
-a tunnel device, and uses dev->tstats instead of dev->lstats. tstats' each
-pointer points to a bigger struct than lstats, so when tstats->tx_bytes is
-increased, other percpu variable's members could be overwritten.
+  # ip net a c; ip net a s; modprobe tipc
+  # ip net e s ip l a n eth1 type veth peer n eth1 netns c
+  # ip net e c ip l s lo up; ip net e c ip l s eth1 up
+  # ip net e s ip l s lo up; ip net e s ip l s eth1 up
+  # ip net e c ip a a 1.1.1.2/8 dev eth1
+  # ip net e s ip a a 1.1.1.1/8 dev eth1
+  # ip net e c tipc b e m udp n u1 localip 1.1.1.2
+  # ip net e s tipc b e m udp n u1 localip 1.1.1.1
+  # ip net d c; ip net d s; rmmod tipc
 
-syzbot has reported quite a few crashes due to fib_nh_common percpu member
-'nhc_pcpu_rth_output' overwritten, call traces are like:
+and it will get stuck and keep logging the error:
 
-  BUG: KASAN: slab-out-of-bounds in rt_cache_valid+0x158/0x190
-  net/ipv4/route.c:1556
-    rt_cache_valid+0x158/0x190 net/ipv4/route.c:1556
-    __mkroute_output net/ipv4/route.c:2332 [inline]
-    ip_route_output_key_hash_rcu+0x819/0x2d50 net/ipv4/route.c:2564
-    ip_route_output_key_hash+0x1ef/0x360 net/ipv4/route.c:2393
-    __ip_route_output_key include/net/route.h:125 [inline]
-    ip_route_output_flow+0x28/0xc0 net/ipv4/route.c:2651
-    ip_route_output_key include/net/route.h:135 [inline]
-  ...
+  unregister_netdevice: waiting for lo to become free. Usage count = 1
 
-or:
+The cause is that a dst is held by the udp sock's sk_rx_dst set on udp rx
+path with udp_early_demux == 1, and this dst (eventually holding lo dev)
+can't be released as bearer's removal in tipc pernet .exit happens after
+lo dev's removal, default_device pernet .exit.
 
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  RIP: 0010:dst_dev_put+0x24/0x290 net/core/dst.c:168
-    <IRQ>
-    rt_fibinfo_free_cpus net/ipv4/fib_semantics.c:200 [inline]
-    free_fib_info_rcu+0x2e1/0x490 net/ipv4/fib_semantics.c:217
-    __rcu_reclaim kernel/rcu/rcu.h:240 [inline]
-    rcu_do_batch kernel/rcu/tree.c:2437 [inline]
-    invoke_rcu_callbacks kernel/rcu/tree.c:2716 [inline]
-    rcu_process_callbacks+0x100a/0x1ac0 kernel/rcu/tree.c:2697
-  ...
+ "There are two distinct types of pernet_operations recognized: subsys and
+  device.  At creation all subsys init functions are called before device
+  init functions, and at destruction all device exit functions are called
+  before subsys exit function."
 
-The issue exists since tunnel stats update is moved to iptunnel_xmit by
-Commit 039f50629b7f ("ip_tunnel: Move stats update to iptunnel_xmit()"),
-and here to fix it by passing a NULL tunnel dev to udp_tunnel(6)_xmit_skb
-so that the packets counting won't happen on dev->tstats.
+So by calling register_pernet_device instead to register tipc_net_ops, the
+pernet .exit() will be invoked earlier than loopback dev's removal when a
+netns is being destroyed, as fou/gue does.
 
-Reported-by: syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com
-Reported-by: syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com
-Reported-by: syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com
-Reported-by: syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com
-Reported-by: syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com
-Reported-by: syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com
-Fixes: 039f50629b7f ("ip_tunnel: Move stats update to iptunnel_xmit()")
+Note that vxlan and geneve udp tunnels don't have this issue, as the udp
+sock is released in their device ndo_stop().
+
+This fix is also necessary for tipc dst_cache, which will hold dsts on tx
+path and I will introduce in my next patch.
+
+Reported-by: Li Shuang <shuali@redhat.com>
 Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jon.maloy@ericsson.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/tipc/udp_media.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/tipc/core.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/net/tipc/udp_media.c
-+++ b/net/tipc/udp_media.c
-@@ -176,7 +176,6 @@ static int tipc_udp_xmit(struct net *net
- 			goto tx_error;
- 		}
+--- a/net/tipc/core.c
++++ b/net/tipc/core.c
+@@ -128,7 +128,7 @@ static int __init tipc_init(void)
+ 	if (err)
+ 		goto out_sysctl;
  
--		skb->dev = rt->dst.dev;
- 		ttl = ip4_dst_hoplimit(&rt->dst);
- 		udp_tunnel_xmit_skb(rt, ub->ubsock->sk, skb, src->ipv4.s_addr,
- 				    dst->ipv4.s_addr, 0, ttl, 0, src->port,
-@@ -195,10 +194,9 @@ static int tipc_udp_xmit(struct net *net
- 		if (err)
- 			goto tx_error;
- 		ttl = ip6_dst_hoplimit(ndst);
--		err = udp_tunnel6_xmit_skb(ndst, ub->ubsock->sk, skb,
--					   ndst->dev, &src->ipv6,
--					   &dst->ipv6, 0, ttl, 0, src->port,
--					   dst->port, false);
-+		err = udp_tunnel6_xmit_skb(ndst, ub->ubsock->sk, skb, NULL,
-+					   &src->ipv6, &dst->ipv6, 0, ttl, 0,
-+					   src->port, dst->port, false);
- #endif
- 	}
- 	return err;
+-	err = register_pernet_subsys(&tipc_net_ops);
++	err = register_pernet_device(&tipc_net_ops);
+ 	if (err)
+ 		goto out_pernet;
+ 
+@@ -136,7 +136,7 @@ static int __init tipc_init(void)
+ 	if (err)
+ 		goto out_socket;
+ 
+-	err = register_pernet_subsys(&tipc_topsrv_net_ops);
++	err = register_pernet_device(&tipc_topsrv_net_ops);
+ 	if (err)
+ 		goto out_pernet_topsrv;
+ 
+@@ -147,11 +147,11 @@ static int __init tipc_init(void)
+ 	pr_info("Started in single node mode\n");
+ 	return 0;
+ out_bearer:
+-	unregister_pernet_subsys(&tipc_topsrv_net_ops);
++	unregister_pernet_device(&tipc_topsrv_net_ops);
+ out_pernet_topsrv:
+ 	tipc_socket_stop();
+ out_socket:
+-	unregister_pernet_subsys(&tipc_net_ops);
++	unregister_pernet_device(&tipc_net_ops);
+ out_pernet:
+ 	tipc_unregister_sysctl();
+ out_sysctl:
+@@ -166,9 +166,9 @@ out_netlink:
+ static void __exit tipc_exit(void)
+ {
+ 	tipc_bearer_cleanup();
+-	unregister_pernet_subsys(&tipc_topsrv_net_ops);
++	unregister_pernet_device(&tipc_topsrv_net_ops);
+ 	tipc_socket_stop();
+-	unregister_pernet_subsys(&tipc_net_ops);
++	unregister_pernet_device(&tipc_net_ops);
+ 	tipc_netlink_stop();
+ 	tipc_netlink_compat_stop();
+ 	tipc_unregister_sysctl();
 
 
