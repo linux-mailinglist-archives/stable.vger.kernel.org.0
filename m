@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB13A5CB4E
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:12:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F385A5CB0D
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:10:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727757AbfGBII2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:08:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56010 "EHLO mail.kernel.org"
+        id S1728879AbfGBIKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:10:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728438AbfGBII2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:08:28 -0400
+        id S1728895AbfGBIKq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:10:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B3C721841;
-        Tue,  2 Jul 2019 08:08:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04286206A2;
+        Tue,  2 Jul 2019 08:10:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054906;
-        bh=Mvvr+pgVu09yDC6gNxxAuwlJfAi6b/TqWbF0jSD9bRU=;
+        s=default; t=1562055045;
+        bh=Vx9DkmCnEUQSOhGDZdt1CgFSoxs+WL6oyvc7wV8s+vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rsXNTbMomfS/zT4DPNhrVAlNIMn3DaMXEuXPJHMchjudCQTE7oId4iDdNyt7ACrxm
-         lZ3+8UUNCEf6wnutx+om3NLgxW3Y0m2RByWknDFon7Vkqp7e1kph4UlpqaHRqn2sMq
-         q31L6LUN3Tga/C8p/lDUUTAYS6gX7kkE2RPYINJY=
+        b=f5oZ2/G5ZU9hI06PnLs3Ksb7M1kS7d0Px34NUtJUPg6R2HLA/MP2Gk4m0gmHEciML
+         YMTk3qr0rePtM7WkzmgOlnTG3/zuT0QFMeTF/Lft4r0Ce+q5HjusSGGQONeaX1bWn9
+         xNwul39M9G4Y+QA74sB9ERAehj3uSy+QM0xXcSio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Andrey Ignatov <rdna@fb.com>, Martin KaFai Lau <kafai@fb.com>,
-        Martynas Pumputis <m@lambda.lt>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.19 65/72] bpf: fix unconnected udp hooks
+        stable@vger.kernel.org, Wang Xin <xin.wang7@cn.bosch.com>,
+        Mark Jonas <mark.jonas@de.bosch.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 4.14 26/43] eeprom: at24: fix unexpected timeout under high load
 Date:   Tue,  2 Jul 2019 10:02:06 +0200
-Message-Id: <20190702080128.014501200@linuxfoundation.org>
+Message-Id: <20190702080125.196152902@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
-References: <20190702080124.564652899@linuxfoundation.org>
+In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
+References: <20190702080123.904399496@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,308 +44,252 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Wang Xin <xin.wang7@cn.bosch.com>
 
-commit 983695fa676568fc0fe5ddd995c7267aabc24632 upstream.
+commit 9a9e295e7c5c0409c020088b0ae017e6c2b7df6e upstream.
 
-Intention of cgroup bind/connect/sendmsg BPF hooks is to act transparently
-to applications as also stated in original motivation in 7828f20e3779 ("Merge
-branch 'bpf-cgroup-bind-connect'"). When recently integrating the latter
-two hooks into Cilium to enable host based load-balancing with Kubernetes,
-I ran into the issue that pods couldn't start up as DNS got broken. Kubernetes
-typically sets up DNS as a service and is thus subject to load-balancing.
+Within at24_loop_until_timeout the timestamp used for timeout checking
+is recorded after the I2C transfer and sleep_range(). Under high CPU
+load either the execution time for I2C transfer or sleep_range() could
+actually be larger than the timeout value. Worst case the I2C transfer
+is only tried once because the loop will exit due to the timeout
+although the EEPROM is now ready.
 
-Upon further debugging, it turns out that the cgroupv2 sendmsg BPF hooks API
-is currently insufficient and thus not usable as-is for standard applications
-shipped with most distros. To break down the issue we ran into with a simple
-example:
+To fix this issue the timestamp is recorded at the beginning of each
+iteration. That is, before I2C transfer and sleep. Then the timeout
+is actually checked against the timestamp of the previous iteration.
+This makes sure that even if the timeout is reached, there is still one
+more chance to try the I2C transfer in case the EEPROM is ready.
 
-  # cat /etc/resolv.conf
-  nameserver 147.75.207.207
-  nameserver 147.75.207.208
+Example:
 
-For the purpose of a simple test, we set up above IPs as service IPs and
-transparently redirect traffic to a different DNS backend server for that
-node:
+If you have a system which combines high CPU load with repeated EEPROM
+writes you will run into the following scenario.
 
-  # cilium service list
-  ID   Frontend            Backend
-  1    147.75.207.207:53   1 => 8.8.8.8:53
-  2    147.75.207.208:53   1 => 8.8.8.8:53
+ - System makes a successful regmap_bulk_write() to EEPROM.
+ - System wants to perform another write to EEPROM but EEPROM is still
+   busy with the last write.
+ - Because of high CPU load the usleep_range() will sleep more than
+   25 ms (at24_write_timeout).
+ - Within the over-long sleeping the EEPROM finished the previous write
+   operation and is ready again.
+ - at24_loop_until_timeout() will detect timeout and won't try to write.
 
-The attached BPF program is basically selecting one of the backends if the
-service IP/port matches on the cgroup hook. DNS breaks here, because the
-hooks are not transparent enough to applications which have built-in msg_name
-address checks:
-
-  # nslookup 1.1.1.1
-  ;; reply from unexpected source: 8.8.8.8#53, expected 147.75.207.207#53
-  ;; reply from unexpected source: 8.8.8.8#53, expected 147.75.207.208#53
-  ;; reply from unexpected source: 8.8.8.8#53, expected 147.75.207.207#53
-  [...]
-  ;; connection timed out; no servers could be reached
-
-  # dig 1.1.1.1
-  ;; reply from unexpected source: 8.8.8.8#53, expected 147.75.207.207#53
-  ;; reply from unexpected source: 8.8.8.8#53, expected 147.75.207.208#53
-  ;; reply from unexpected source: 8.8.8.8#53, expected 147.75.207.207#53
-  [...]
-
-  ; <<>> DiG 9.11.3-1ubuntu1.7-Ubuntu <<>> 1.1.1.1
-  ;; global options: +cmd
-  ;; connection timed out; no servers could be reached
-
-For comparison, if none of the service IPs is used, and we tell nslookup
-to use 8.8.8.8 directly it works just fine, of course:
-
-  # nslookup 1.1.1.1 8.8.8.8
-  1.1.1.1.in-addr.arpa	name = one.one.one.one.
-
-In order to fix this and thus act more transparent to the application,
-this needs reverse translation on recvmsg() side. A minimal fix for this
-API is to add similar recvmsg() hooks behind the BPF cgroups static key
-such that the program can track state and replace the current sockaddr_in{,6}
-with the original service IP. From BPF side, this basically tracks the
-service tuple plus socket cookie in an LRU map where the reverse NAT can
-then be retrieved via map value as one example. Side-note: the BPF cgroups
-static key should be converted to a per-hook static key in future.
-
-Same example after this fix:
-
-  # cilium service list
-  ID   Frontend            Backend
-  1    147.75.207.207:53   1 => 8.8.8.8:53
-  2    147.75.207.208:53   1 => 8.8.8.8:53
-
-Lookups work fine now:
-
-  # nslookup 1.1.1.1
-  1.1.1.1.in-addr.arpa    name = one.one.one.one.
-
-  Authoritative answers can be found from:
-
-  # dig 1.1.1.1
-
-  ; <<>> DiG 9.11.3-1ubuntu1.7-Ubuntu <<>> 1.1.1.1
-  ;; global options: +cmd
-  ;; Got answer:
-  ;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 51550
-  ;; flags: qr rd ra ad; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
-
-  ;; OPT PSEUDOSECTION:
-  ; EDNS: version: 0, flags:; udp: 512
-  ;; QUESTION SECTION:
-  ;1.1.1.1.                       IN      A
-
-  ;; AUTHORITY SECTION:
-  .                       23426   IN      SOA     a.root-servers.net. nstld.verisign-grs.com. 2019052001 1800 900 604800 86400
-
-  ;; Query time: 17 msec
-  ;; SERVER: 147.75.207.207#53(147.75.207.207)
-  ;; WHEN: Tue May 21 12:59:38 UTC 2019
-  ;; MSG SIZE  rcvd: 111
-
-And from an actual packet level it shows that we're using the back end
-server when talking via 147.75.207.20{7,8} front end:
-
-  # tcpdump -i any udp
-  [...]
-  12:59:52.698732 IP foo.42011 > google-public-dns-a.google.com.domain: 18803+ PTR? 1.1.1.1.in-addr.arpa. (38)
-  12:59:52.698735 IP foo.42011 > google-public-dns-a.google.com.domain: 18803+ PTR? 1.1.1.1.in-addr.arpa. (38)
-  12:59:52.701208 IP google-public-dns-a.google.com.domain > foo.42011: 18803 1/0/0 PTR one.one.one.one. (67)
-  12:59:52.701208 IP google-public-dns-a.google.com.domain > foo.42011: 18803 1/0/0 PTR one.one.one.one. (67)
-  [...]
-
-In order to be flexible and to have same semantics as in sendmsg BPF
-programs, we only allow return codes in [1,1] range. In the sendmsg case
-the program is called if msg->msg_name is present which can be the case
-in both, connected and unconnected UDP.
-
-The former only relies on the sockaddr_in{,6} passed via connect(2) if
-passed msg->msg_name was NULL. Therefore, on recvmsg side, we act in similar
-way to call into the BPF program whenever a non-NULL msg->msg_name was
-passed independent of sk->sk_state being TCP_ESTABLISHED or not. Note
-that for TCP case, the msg->msg_name is ignored in the regular recvmsg
-path and therefore not relevant.
-
-For the case of ip{,v6}_recv_error() paths, picked up via MSG_ERRQUEUE,
-the hook is not called. This is intentional as it aligns with the same
-semantics as in case of TCP cgroup BPF hooks right now. This might be
-better addressed in future through a different bpf_attach_type such
-that this case can be distinguished from the regular recvmsg paths,
-for example.
-
-Fixes: 1cedee13d25a ("bpf: Hooks for sys_sendmsg")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrey Ignatov <rdna@fb.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Martynas Pumputis <m@lambda.lt>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Wang Xin <xin.wang7@cn.bosch.com>
+Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/bpf-cgroup.h |    8 ++++++++
- include/uapi/linux/bpf.h   |    2 ++
- kernel/bpf/syscall.c       |    8 ++++++++
- kernel/bpf/verifier.c      |   12 ++++++++----
- net/core/filter.c          |    2 ++
- net/ipv4/udp.c             |    4 ++++
- net/ipv6/udp.c             |    4 ++++
- 7 files changed, 36 insertions(+), 4 deletions(-)
 
---- a/include/linux/bpf-cgroup.h
-+++ b/include/linux/bpf-cgroup.h
-@@ -210,6 +210,12 @@ void bpf_cgroup_storage_release(struct b
- #define BPF_CGROUP_RUN_PROG_UDP6_SENDMSG_LOCK(sk, uaddr, t_ctx)		       \
- 	BPF_CGROUP_RUN_SA_PROG_LOCK(sk, uaddr, BPF_CGROUP_UDP6_SENDMSG, t_ctx)
+
+---
+ drivers/misc/eeprom/at24.c |  107 ++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 77 insertions(+), 30 deletions(-)
+
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -113,22 +113,6 @@ MODULE_PARM_DESC(write_timeout, "Time (i
+ 	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
+ 	    << AT24_SIZE_BYTELEN | ilog2(_len))
  
-+#define BPF_CGROUP_RUN_PROG_UDP4_RECVMSG_LOCK(sk, uaddr)			\
-+	BPF_CGROUP_RUN_SA_PROG_LOCK(sk, uaddr, BPF_CGROUP_UDP4_RECVMSG, NULL)
-+
-+#define BPF_CGROUP_RUN_PROG_UDP6_RECVMSG_LOCK(sk, uaddr)			\
-+	BPF_CGROUP_RUN_SA_PROG_LOCK(sk, uaddr, BPF_CGROUP_UDP6_RECVMSG, NULL)
-+
- #define BPF_CGROUP_RUN_PROG_SOCK_OPS(sock_ops)				       \
- ({									       \
- 	int __ret = 0;							       \
-@@ -290,6 +296,8 @@ static inline void bpf_cgroup_storage_fr
- #define BPF_CGROUP_RUN_PROG_INET6_CONNECT_LOCK(sk, uaddr) ({ 0; })
- #define BPF_CGROUP_RUN_PROG_UDP4_SENDMSG_LOCK(sk, uaddr, t_ctx) ({ 0; })
- #define BPF_CGROUP_RUN_PROG_UDP6_SENDMSG_LOCK(sk, uaddr, t_ctx) ({ 0; })
-+#define BPF_CGROUP_RUN_PROG_UDP4_RECVMSG_LOCK(sk, uaddr) ({ 0; })
-+#define BPF_CGROUP_RUN_PROG_UDP6_RECVMSG_LOCK(sk, uaddr) ({ 0; })
- #define BPF_CGROUP_RUN_PROG_SOCK_OPS(sock_ops) ({ 0; })
- #define BPF_CGROUP_RUN_PROG_DEVICE_CGROUP(type,major,minor,access) ({ 0; })
- 
---- a/include/uapi/linux/bpf.h
-+++ b/include/uapi/linux/bpf.h
-@@ -172,6 +172,8 @@ enum bpf_attach_type {
- 	BPF_CGROUP_UDP4_SENDMSG,
- 	BPF_CGROUP_UDP6_SENDMSG,
- 	BPF_LIRC_MODE2,
-+	BPF_CGROUP_UDP4_RECVMSG = 19,
-+	BPF_CGROUP_UDP6_RECVMSG,
- 	__MAX_BPF_ATTACH_TYPE
- };
- 
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -1342,6 +1342,8 @@ bpf_prog_load_check_attach_type(enum bpf
- 		case BPF_CGROUP_INET6_CONNECT:
- 		case BPF_CGROUP_UDP4_SENDMSG:
- 		case BPF_CGROUP_UDP6_SENDMSG:
-+		case BPF_CGROUP_UDP4_RECVMSG:
-+		case BPF_CGROUP_UDP6_RECVMSG:
- 			return 0;
- 		default:
- 			return -EINVAL;
-@@ -1622,6 +1624,8 @@ static int bpf_prog_attach(const union b
- 	case BPF_CGROUP_INET6_CONNECT:
- 	case BPF_CGROUP_UDP4_SENDMSG:
- 	case BPF_CGROUP_UDP6_SENDMSG:
-+	case BPF_CGROUP_UDP4_RECVMSG:
-+	case BPF_CGROUP_UDP6_RECVMSG:
- 		ptype = BPF_PROG_TYPE_CGROUP_SOCK_ADDR;
- 		break;
- 	case BPF_CGROUP_SOCK_OPS:
-@@ -1698,6 +1702,8 @@ static int bpf_prog_detach(const union b
- 	case BPF_CGROUP_INET6_CONNECT:
- 	case BPF_CGROUP_UDP4_SENDMSG:
- 	case BPF_CGROUP_UDP6_SENDMSG:
-+	case BPF_CGROUP_UDP4_RECVMSG:
-+	case BPF_CGROUP_UDP6_RECVMSG:
- 		ptype = BPF_PROG_TYPE_CGROUP_SOCK_ADDR;
- 		break;
- 	case BPF_CGROUP_SOCK_OPS:
-@@ -1744,6 +1750,8 @@ static int bpf_prog_query(const union bp
- 	case BPF_CGROUP_INET6_CONNECT:
- 	case BPF_CGROUP_UDP4_SENDMSG:
- 	case BPF_CGROUP_UDP6_SENDMSG:
-+	case BPF_CGROUP_UDP4_RECVMSG:
-+	case BPF_CGROUP_UDP6_RECVMSG:
- 	case BPF_CGROUP_SOCK_OPS:
- 	case BPF_CGROUP_DEVICE:
- 		break;
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -4342,9 +4342,12 @@ static int check_return_code(struct bpf_
- 	struct tnum range = tnum_range(0, 1);
- 
- 	switch (env->prog->type) {
-+	case BPF_PROG_TYPE_CGROUP_SOCK_ADDR:
-+		if (env->prog->expected_attach_type == BPF_CGROUP_UDP4_RECVMSG ||
-+		    env->prog->expected_attach_type == BPF_CGROUP_UDP6_RECVMSG)
-+			range = tnum_range(1, 1);
- 	case BPF_PROG_TYPE_CGROUP_SKB:
- 	case BPF_PROG_TYPE_CGROUP_SOCK:
--	case BPF_PROG_TYPE_CGROUP_SOCK_ADDR:
- 	case BPF_PROG_TYPE_SOCK_OPS:
- 	case BPF_PROG_TYPE_CGROUP_DEVICE:
- 		break;
-@@ -4360,16 +4363,17 @@ static int check_return_code(struct bpf_
- 	}
- 
- 	if (!tnum_in(range, reg->var_off)) {
-+		char tn_buf[48];
-+
- 		verbose(env, "At program exit the register R0 ");
- 		if (!tnum_is_unknown(reg->var_off)) {
--			char tn_buf[48];
+-/*
+- * Both reads and writes fail if the previous write didn't complete yet. This
+- * macro loops a few times waiting at least long enough for one entire page
+- * write to work while making sure that at least one iteration is run before
+- * checking the break condition.
+- *
+- * It takes two parameters: a variable in which the future timeout in jiffies
+- * will be stored and a temporary variable holding the time of the last
+- * iteration of processing the request. Both should be unsigned integers
+- * holding at least 32 bits.
+- */
+-#define loop_until_timeout(tout, op_time)				\
+-	for (tout = jiffies + msecs_to_jiffies(write_timeout), op_time = 0; \
+-	     op_time ? time_before(op_time, tout) : true;		\
+-	     usleep_range(1000, 1500), op_time = jiffies)
 -
- 			tnum_strn(tn_buf, sizeof(tn_buf), reg->var_off);
- 			verbose(env, "has value %s", tn_buf);
- 		} else {
- 			verbose(env, "has unknown scalar value");
- 		}
--		verbose(env, " should have been 0 or 1\n");
-+		tnum_strn(tn_buf, sizeof(tn_buf), range);
-+		verbose(env, " should have been in %s\n", tn_buf);
- 		return -EINVAL;
- 	}
- 	return 0;
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -5558,6 +5558,7 @@ static bool sock_addr_is_valid_access(in
- 		case BPF_CGROUP_INET4_BIND:
- 		case BPF_CGROUP_INET4_CONNECT:
- 		case BPF_CGROUP_UDP4_SENDMSG:
-+		case BPF_CGROUP_UDP4_RECVMSG:
- 			break;
- 		default:
- 			return false;
-@@ -5568,6 +5569,7 @@ static bool sock_addr_is_valid_access(in
- 		case BPF_CGROUP_INET6_BIND:
- 		case BPF_CGROUP_INET6_CONNECT:
- 		case BPF_CGROUP_UDP6_SENDMSG:
-+		case BPF_CGROUP_UDP6_RECVMSG:
- 			break;
- 		default:
- 			return false;
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -1720,6 +1720,10 @@ try_again:
- 		sin->sin_addr.s_addr = ip_hdr(skb)->saddr;
- 		memset(sin->sin_zero, 0, sizeof(sin->sin_zero));
- 		*addr_len = sizeof(*sin);
-+
-+		if (cgroup_bpf_enabled)
-+			BPF_CGROUP_RUN_PROG_UDP4_RECVMSG_LOCK(sk,
-+							(struct sockaddr *)sin);
- 	}
- 	if (inet->cmsg_flags)
- 		ip_cmsg_recv_offset(msg, sk, skb, sizeof(struct udphdr), off);
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -419,6 +419,10 @@ try_again:
- 						    inet6_iif(skb));
- 		}
- 		*addr_len = sizeof(*sin6);
-+
-+		if (cgroup_bpf_enabled)
-+			BPF_CGROUP_RUN_PROG_UDP6_RECVMSG_LOCK(sk,
-+						(struct sockaddr *)sin6);
- 	}
+ static const struct i2c_device_id at24_ids[] = {
+ 	/* needs 8 addresses as A0-A2 are ignored */
+ 	{ "24c00",	AT24_DEVICE_MAGIC(128 / 8,	AT24_FLAG_TAKE8ADDR) },
+@@ -234,7 +218,14 @@ static ssize_t at24_eeprom_read_smbus(st
+ 	if (count > I2C_SMBUS_BLOCK_MAX)
+ 		count = I2C_SMBUS_BLOCK_MAX;
  
- 	if (np->rxopt.all)
+-	loop_until_timeout(timeout, read_time) {
++	timeout = jiffies + msecs_to_jiffies(write_timeout);
++	do {
++		/*
++		 * The timestamp shall be taken before the actual operation
++		 * to avoid a premature timeout in case of high CPU load.
++		 */
++		read_time = jiffies;
++
+ 		status = i2c_smbus_read_i2c_block_data_or_emulated(client,
+ 								   offset,
+ 								   count, buf);
+@@ -244,7 +235,9 @@ static ssize_t at24_eeprom_read_smbus(st
+ 
+ 		if (status == count)
+ 			return count;
+-	}
++
++		usleep_range(1000, 1500);
++	} while (time_before(read_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+ }
+@@ -284,7 +277,14 @@ static ssize_t at24_eeprom_read_i2c(stru
+ 	msg[1].buf = buf;
+ 	msg[1].len = count;
+ 
+-	loop_until_timeout(timeout, read_time) {
++	timeout = jiffies + msecs_to_jiffies(write_timeout);
++	do {
++		/*
++		 * The timestamp shall be taken before the actual operation
++		 * to avoid a premature timeout in case of high CPU load.
++		 */
++		read_time = jiffies;
++
+ 		status = i2c_transfer(client->adapter, msg, 2);
+ 		if (status == 2)
+ 			status = count;
+@@ -294,7 +294,9 @@ static ssize_t at24_eeprom_read_i2c(stru
+ 
+ 		if (status == count)
+ 			return count;
+-	}
++
++		usleep_range(1000, 1500);
++	} while (time_before(read_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+ }
+@@ -343,11 +345,20 @@ static ssize_t at24_eeprom_read_serial(s
+ 	msg[1].buf = buf;
+ 	msg[1].len = count;
+ 
+-	loop_until_timeout(timeout, read_time) {
++	timeout = jiffies + msecs_to_jiffies(write_timeout);
++	do {
++		/*
++		 * The timestamp shall be taken before the actual operation
++		 * to avoid a premature timeout in case of high CPU load.
++		 */
++		read_time = jiffies;
++
+ 		status = i2c_transfer(client->adapter, msg, 2);
+ 		if (status == 2)
+ 			return count;
+-	}
++
++		usleep_range(1000, 1500);
++	} while (time_before(read_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+ }
+@@ -374,11 +385,20 @@ static ssize_t at24_eeprom_read_mac(stru
+ 	msg[1].buf = buf;
+ 	msg[1].len = count;
+ 
+-	loop_until_timeout(timeout, read_time) {
++	timeout = jiffies + msecs_to_jiffies(write_timeout);
++	do {
++		/*
++		 * The timestamp shall be taken before the actual operation
++		 * to avoid a premature timeout in case of high CPU load.
++		 */
++		read_time = jiffies;
++
+ 		status = i2c_transfer(client->adapter, msg, 2);
+ 		if (status == 2)
+ 			return count;
+-	}
++
++		usleep_range(1000, 1500);
++	} while (time_before(read_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+ }
+@@ -420,7 +440,14 @@ static ssize_t at24_eeprom_write_smbus_b
+ 	client = at24_translate_offset(at24, &offset);
+ 	count = at24_adjust_write_count(at24, offset, count);
+ 
+-	loop_until_timeout(timeout, write_time) {
++	timeout = jiffies + msecs_to_jiffies(write_timeout);
++	do {
++		/*
++		 * The timestamp shall be taken before the actual operation
++		 * to avoid a premature timeout in case of high CPU load.
++		 */
++		write_time = jiffies;
++
+ 		status = i2c_smbus_write_i2c_block_data(client,
+ 							offset, count, buf);
+ 		if (status == 0)
+@@ -431,7 +458,9 @@ static ssize_t at24_eeprom_write_smbus_b
+ 
+ 		if (status == count)
+ 			return count;
+-	}
++
++		usleep_range(1000, 1500);
++	} while (time_before(write_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+ }
+@@ -446,7 +475,14 @@ static ssize_t at24_eeprom_write_smbus_b
+ 
+ 	client = at24_translate_offset(at24, &offset);
+ 
+-	loop_until_timeout(timeout, write_time) {
++	timeout = jiffies + msecs_to_jiffies(write_timeout);
++	do {
++		/*
++		 * The timestamp shall be taken before the actual operation
++		 * to avoid a premature timeout in case of high CPU load.
++		 */
++		write_time = jiffies;
++
+ 		status = i2c_smbus_write_byte_data(client, offset, buf[0]);
+ 		if (status == 0)
+ 			status = count;
+@@ -456,7 +492,9 @@ static ssize_t at24_eeprom_write_smbus_b
+ 
+ 		if (status == count)
+ 			return count;
+-	}
++
++		usleep_range(1000, 1500);
++	} while (time_before(write_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+ }
+@@ -485,7 +523,14 @@ static ssize_t at24_eeprom_write_i2c(str
+ 	memcpy(&msg.buf[i], buf, count);
+ 	msg.len = i + count;
+ 
+-	loop_until_timeout(timeout, write_time) {
++	timeout = jiffies + msecs_to_jiffies(write_timeout);
++	do {
++		/*
++		 * The timestamp shall be taken before the actual operation
++		 * to avoid a premature timeout in case of high CPU load.
++		 */
++		write_time = jiffies;
++
+ 		status = i2c_transfer(client->adapter, &msg, 1);
+ 		if (status == 1)
+ 			status = count;
+@@ -495,7 +540,9 @@ static ssize_t at24_eeprom_write_i2c(str
+ 
+ 		if (status == count)
+ 			return count;
+-	}
++
++		usleep_range(1000, 1500);
++	} while (time_before(write_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+ }
 
 
