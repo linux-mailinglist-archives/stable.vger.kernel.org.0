@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EFF45CF84
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:34:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EACA85CF87
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:34:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726820AbfGBMeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 08:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53598 "EHLO mail.kernel.org"
+        id S1726686AbfGBMec (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 08:34:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726457AbfGBMeX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 08:34:23 -0400
+        id S1726457AbfGBMec (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 08:34:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF1DA2054F;
-        Tue,  2 Jul 2019 12:34:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F9C92054F;
+        Tue,  2 Jul 2019 12:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562070862;
-        bh=efxMCoAIJxWHS+En7dFpqGzyVdF4net3rRwacFSQFW4=;
+        s=default; t=1562070871;
+        bh=5CgQ4XcaSmQc+CLsab4TbNHADv7Q0aRzEmsoxZkTiE0=;
         h=Subject:To:From:Date:From;
-        b=ClschHMkVdpVm/J+Deqk3rQagRBP4jSTZabYAS9raOSydqWq/F48HdP88A6xP+jRl
-         vDFASEs9Lpsu/ROBkAqTTctkTbfQ5qKL4FwYyswRrtaRAJFsVO0tS2jkZKyk+F44o3
-         ddxPf/eM/5Ukid2ZXOm1S3Dmxq2BTMnyknbnvMSU=
-Subject: patch "staging: comedi: dt282x: fix a null pointer deref on interrupt" added to staging-next
-To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=yGIy62a5V8dOIJ2kkOtZnzopHJ/diZ6pe+7vjg1lWYKLbIh2VWcLuMyNFQqojpI8t
+         nvlmAZC3tX3hWN/mk9U14QL2J1iUcqldYHe8+ctUfhEDyg2WECKYve/ZKp/m4D5X2O
+         TG5PsI0eO0XPZmnUNrveks92/TNS9joAytwkR6og=
+Subject: patch "staging: bcm2835-camera: Restore return behavior of" added to staging-next
+To:     wahrenst@gmx.net, dan.carpenter@oracle.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 02 Jul 2019 14:29:38 +0200
-Message-ID: <1562070578254138@kroah.com>
+Date:   Tue, 02 Jul 2019 14:29:39 +0200
+Message-ID: <156207057920554@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: comedi: dt282x: fix a null pointer deref on interrupt
+    staging: bcm2835-camera: Restore return behavior of
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,53 +55,73 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From b8336be66dec06bef518030a0df9847122053ec5 Mon Sep 17 00:00:00 2001
-From: Ian Abbott <abbotti@mev.co.uk>
-Date: Wed, 26 Jun 2019 14:18:04 +0100
-Subject: staging: comedi: dt282x: fix a null pointer deref on interrupt
+From f816db1dc17b99b059325f41ed5a78f85d15368c Mon Sep 17 00:00:00 2001
+From: Stefan Wahren <wahrenst@gmx.net>
+Date: Wed, 26 Jun 2019 17:48:11 +0200
+Subject: staging: bcm2835-camera: Restore return behavior of
+ ctrl_set_bitrate()
 
-The interrupt handler `dt282x_interrupt()` causes a null pointer
-dereference for those supported boards that have no analog output
-support.  For these boards, `dev->write_subdev` will be `NULL` and
-therefore the `s_ao` subdevice pointer variable will be `NULL`.  In that
-case, the following call near the end of the interrupt handler results
-in a null pointer dereference:
+The commit 52c4dfcead49 ("Staging: vc04_services: Cleanup in
+ctrl_set_bitrate()") changed the return behavior of ctrl_set_bitrate().
+We cannot do this because of a bug in the firmware, which breaks probing
+of bcm2835-camera:
 
-	comedi_handle_events(dev, s_ao);
+    bcm2835-v4l2: mmal_init: failed to set all camera controls: -3
+    Cleanup: Destroy video encoder
+    Cleanup: Destroy image encoder
+    Cleanup: Destroy video render
+    Cleanup: Destroy camera
+    bcm2835-v4l2: bcm2835_mmal_probe: mmal init failed: -3
+    bcm2835-camera: probe of bcm2835-camera failed with error -3
 
-Fix it by only calling the above function if `s_ao` is valid.
+So restore the old behavior, add an explaining comment and a debug message
+to verify that the bug has been fixed in firmware.
 
-(There are other uses of `s_ao` by the interrupt handler that may or may
-not be reached depending on values of hardware registers.  Trust that
-they are reliable for now.)
-
-Note:
-commit 4f6f009b204f ("staging: comedi: dt282x: use comedi_handle_events()")
-propagates an earlier error from
-commit f21c74fa4cfe ("staging: comedi: dt282x: use cfc_handle_events()").
-
-Fixes: 4f6f009b204f ("staging: comedi: dt282x: use comedi_handle_events()")
-Cc: <stable@vger.kernel.org> # v3.19+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Fixes: 52c4dfcead49 ("Staging: vc04_services: Cleanup in ctrl_set_bitrate()")
+Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/dt282x.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../vc04_services/bcm2835-camera/controls.c   | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/comedi/drivers/dt282x.c b/drivers/staging/comedi/drivers/dt282x.c
-index 3be927f1d3a9..e15e33ed94ae 100644
---- a/drivers/staging/comedi/drivers/dt282x.c
-+++ b/drivers/staging/comedi/drivers/dt282x.c
-@@ -557,7 +557,8 @@ static irqreturn_t dt282x_interrupt(int irq, void *d)
- 	}
- #endif
- 	comedi_handle_events(dev, s);
--	comedi_handle_events(dev, s_ao);
-+	if (s_ao)
-+		comedi_handle_events(dev, s_ao);
+diff --git a/drivers/staging/vc04_services/bcm2835-camera/controls.c b/drivers/staging/vc04_services/bcm2835-camera/controls.c
+index d60e378bdfce..c251164655ba 100644
+--- a/drivers/staging/vc04_services/bcm2835-camera/controls.c
++++ b/drivers/staging/vc04_services/bcm2835-camera/controls.c
+@@ -604,15 +604,28 @@ static int ctrl_set_bitrate(struct bm2835_mmal_dev *dev,
+ 			    struct v4l2_ctrl *ctrl,
+ 			    const struct bm2835_mmal_v4l2_ctrl *mmal_ctrl)
+ {
++	int ret;
+ 	struct vchiq_mmal_port *encoder_out;
  
- 	return IRQ_RETVAL(handled);
+ 	dev->capture.encode_bitrate = ctrl->val;
+ 
+ 	encoder_out = &dev->component[MMAL_COMPONENT_VIDEO_ENCODE]->output[0];
+ 
+-	return vchiq_mmal_port_parameter_set(dev->instance, encoder_out,
+-					     mmal_ctrl->mmal_id, &ctrl->val,
+-					     sizeof(ctrl->val));
++	ret = vchiq_mmal_port_parameter_set(dev->instance, encoder_out,
++					    mmal_ctrl->mmal_id, &ctrl->val,
++					    sizeof(ctrl->val));
++
++	v4l2_dbg(1, bcm2835_v4l2_debug, &dev->v4l2_dev,
++		 "%s: After: mmal_ctrl:%p ctrl id:0x%x ctrl val:%d ret %d(%d)\n",
++		 __func__, mmal_ctrl, ctrl->id, ctrl->val, ret,
++		 (ret == 0 ? 0 : -EINVAL));
++
++	/*
++	 * Older firmware versions (pre July 2019) have a bug in handling
++	 * MMAL_PARAMETER_VIDEO_BIT_RATE that result in the call
++	 * returning -MMAL_MSG_STATUS_EINVAL. So ignore errors from this call.
++	 */
++	return 0;
  }
+ 
+ static int ctrl_set_bitrate_mode(struct bm2835_mmal_dev *dev,
 -- 
 2.22.0
 
