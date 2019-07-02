@@ -2,94 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59B335D9F1
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 02:58:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD7B55D9F0
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 02:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727186AbfGCA6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727116AbfGCA6G (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 2 Jul 2019 20:58:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49336 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727089AbfGCA6F (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727066AbfGCA6F (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Jul 2019 20:58:05 -0400
-Received: from ebiggers-linuxstation.mtv.corp.google.com (unknown [104.132.1.77])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC2DD20449;
-        Tue,  2 Jul 2019 21:18:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDA26218BC;
+        Tue,  2 Jul 2019 21:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562102286;
-        bh=ZncPmqJjQ5p8Nzi6KA3tSryklHFPA1+D6VokdeGHa28=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SB5zOgdMv5+0+Y00OB/l2Jsui1egnX0iDRToH0chu73SQDnspeXPnukhhoEmUrnLn
-         1J+BRo9A3r/sqHCxARyy5JjA32jtlBzB0ijOU2DU7SGrhcMqqdeMDKnGYa4XxgYNle
-         NM7aJFyBE6dbHGDyiqMab5d1sEPNEWHorvFmP4uM=
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     linux-crypto@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Cc:     chetjain@in.ibm.com, "David S . Miller" <davem@davemloft.net>,
-        linux-kernel@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
-        stable@vger.kernel.org,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH] crypto: user - prevent operating on larval algorithms
-Date:   Tue,  2 Jul 2019 14:17:00 -0700
-Message-Id: <20190702211700.16526-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.22.0.410.gd8fdbe21b5-goog
-In-Reply-To: <20190701153154.1569c2dc@kitsune.suse.cz>
-References: <20190701153154.1569c2dc@kitsune.suse.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        s=default; t=1562102415;
+        bh=wk2coQWrWL1yM28XO9ORJlu6TQV5gKfIcIJ1NbIXuGw=;
+        h=Date:From:To:Subject:From;
+        b=k0K13oFOgrFlsXH9Ly9U7ZlG0a8U9n7c91S1uUC5m2FNHipEWJFGYS88vRxeSmmcT
+         UGqWW0UDqVLXzf40IkoPt8Z98E4HeoK86kBQQFvRg7GeaotqZT9roRczwxF2k2a890
+         5jLfSg2+/H08s7VzOC3e6Vb9GU1ccxuNwBZvHkfc=
+Date:   Tue, 02 Jul 2019 14:20:12 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, wangxidong_97@163.com,
+        vitalywool@gmail.com, vitaly.vul@sony.com, stable@vger.kernel.org,
+        shakeelb@google.com, rppt@linux.vnet.ibm.com, rientjes@google.com,
+        jwadams@google.com, henryburns@google.com
+Subject:  + mm-z3foldc-lock-z3fold-page-before-__setpagemovable.patch
+ added to -mm tree
+Message-ID: <20190702212012.WPPnc%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
 
-Michal Suchanek reported [1] that running the pcrypt_aead01 test from
-LTP [2] in a loop and holding Ctrl-C causes a NULL dereference of
-alg->cra_users.next in crypto_remove_spawns(), via crypto_del_alg().
-The test repeatedly uses CRYPTO_MSG_NEWALG and CRYPTO_MSG_DELALG.
+The patch titled
+     Subject: mm/z3fold.c: lock z3fold page before __SetPageMovable()
+has been added to the -mm tree.  Its filename is
+     mm-z3foldc-lock-z3fold-page-before-__setpagemovable.patch
 
-The crash occurs when the instance that CRYPTO_MSG_DELALG is trying to
-unregister isn't a real registered algorithm, but rather is a "test
-larval", which is a special "algorithm" added to the algorithms list
-while the real algorithm is still being tested.  Larvals don't have
-initialized cra_users, so that causes the crash.  Normally pcrypt_aead01
-doesn't trigger this because CRYPTO_MSG_NEWALG waits for the algorithm
-to be tested; however, CRYPTO_MSG_NEWALG returns early when interrupted.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-z3foldc-lock-z3fold-page-before-__setpagemovable.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-z3foldc-lock-z3fold-page-before-__setpagemovable.patch
 
-Everything else in the "crypto user configuration" API has this same bug
-too, i.e. it inappropriately allows operating on larval algorithms
-(though it doesn't look like the other cases can cause a crash).
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Fix this by making crypto_alg_match() exclude larval algorithms.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-[1] https://lkml.kernel.org/r/20190625071624.27039-1-msuchanek@suse.de
-[2] https://github.com/linux-test-project/ltp/blob/20190517/testcases/kernel/crypto/pcrypt_aead01.c
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Reported-by: Michal Suchanek <msuchanek@suse.de>
-Fixes: a38f7907b926 ("crypto: Add userspace configuration API")
-Cc: <stable@vger.kernel.org> # v3.2+
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+------------------------------------------------------
+From: Henry Burns <henryburns@google.com>
+Subject: mm/z3fold.c: lock z3fold page before __SetPageMovable()
+
+__SetPageMovable() expects its page to be locked, but z3fold.c doesn't
+lock the page.  This triggers the VM_BUG_ON_PAGE(!PageLocked(page), page)
+in __SetPageMovable().
+
+Following zsmalloc.c's example we call trylock_page() and unlock_page(). 
+Also make z3fold_page_migrate() assert that newpage is passed in locked,
+as per the documentation.
+
+Link: http://lkml.kernel.org/r/20190702005122.41036-1-henryburns@google.com
+Signed-off-by: Henry Burns <henryburns@google.com>
+Suggested-by: Vitaly Wool <vitalywool@gmail.com>
+Acked-by: Vitaly Wool <vitalywool@gmail.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Vitaly Vul <vitaly.vul@sony.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Xidong Wang <wangxidong_97@163.com>
+Cc: Jonathan Adams <jwadams@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- crypto/crypto_user_base.c | 3 +++
- 1 file changed, 3 insertions(+)
 
-diff --git a/crypto/crypto_user_base.c b/crypto/crypto_user_base.c
-index e48da3b75c71d4..a89fcc530092a8 100644
---- a/crypto/crypto_user_base.c
-+++ b/crypto/crypto_user_base.c
-@@ -56,6 +56,9 @@ struct crypto_alg *crypto_alg_match(struct crypto_user_alg *p, int exact)
- 	list_for_each_entry(q, &crypto_alg_list, cra_list) {
- 		int match = 0;
+ mm/z3fold.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/mm/z3fold.c~mm-z3foldc-lock-z3fold-page-before-__setpagemovable
++++ a/mm/z3fold.c
+@@ -919,7 +919,10 @@ retry:
+ 		set_bit(PAGE_HEADLESS, &page->private);
+ 		goto headless;
+ 	}
+-	__SetPageMovable(page, pool->inode->i_mapping);
++	if (!WARN_ON(!trylock_page(page))) {
++		__SetPageMovable(page, pool->inode->i_mapping);
++		unlock_page(page);
++	}
+ 	z3fold_page_lock(zhdr);
  
-+		if (crypto_is_larval(q))
-+			continue;
-+
- 		if ((q->cra_flags ^ p->cru_type) & p->cru_mask)
- 			continue;
+ found:
+@@ -1326,6 +1329,7 @@ static int z3fold_page_migrate(struct ad
  
--- 
-2.22.0.410.gd8fdbe21b5-goog
+ 	VM_BUG_ON_PAGE(!PageMovable(page), page);
+ 	VM_BUG_ON_PAGE(!PageIsolated(page), page);
++	VM_BUG_ON_PAGE(!PageLocked(newpage), newpage);
+ 
+ 	zhdr = page_address(page);
+ 	pool = zhdr_to_pool(zhdr);
+_
+
+Patches currently in -mm which might be from henryburns@google.com are
+
+mm-z3fold-fix-z3fold_buddy_slots-use-after-free.patch
+mm-z3foldc-lock-z3fold-page-before-__setpagemovable.patch
 
