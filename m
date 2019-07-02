@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1F2E5CF8C
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3D845CF8D
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:35:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727022AbfGBMe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 08:34:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54254 "EHLO mail.kernel.org"
+        id S1726831AbfGBMfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 08:35:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726457AbfGBMe7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 08:34:59 -0400
+        id S1726457AbfGBMfO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 08:35:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E6102054F;
-        Tue,  2 Jul 2019 12:34:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E93B9208C4;
+        Tue,  2 Jul 2019 12:35:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562070898;
-        bh=KQLUHlrthJrHHKnEu+CJvfosFg3ravLnP/1F/uWhabk=;
+        s=default; t=1562070913;
+        bh=wFxh3ecm1+SBsibpNos3qJ6LtvzzqIaEruyHOf3Kmdg=;
         h=Subject:To:From:Date:From;
-        b=U3D1Nz/4nEVolPKvNPPvLqnLV5Dv8YNLtnv5rSp6sxKHMheofTajvR5bLkNyYkPrG
-         yo3ys+reY8SWNSkRuuQ97mm1SPTFyb0GclO5bONexNgt558VFcUEv5SsRGITo+NAfe
-         4EF7KHi+CQdtO9VV0y63w3MUGNo55aJs0V1dOLk8=
-Subject: patch "staging: wilc1000: fix error path cleanup in wilc_wlan_initialize()" added to staging-next
-To:     ajay.kathat@microchip.com, gregkh@linuxfoundation.org,
+        b=GAM+W9XBgsUDUBYP0sUZ/64GZumFyQzBJuq6vwgo7hRF7Eyf9ROAFQs50xDcGmjyn
+         Sah5GAMcysmutN2Nk/gj3bOh7FPRAk0wIp4f+isxf6B+j+lsZ6rCUjKYYcLGnckS/N
+         MWxwEqqpXe16lI0fJr2AvaKVMqc4BK4a3XwLzYUg=
+Subject: patch "usb: gadget: f_fs: data_len used before properly set" added to usb-next
+To:     fei.yang@intel.com, felipe.balbi@linux.intel.com,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 02 Jul 2019 14:29:41 +0200
-Message-ID: <1562070581849@kroah.com>
+Date:   Tue, 02 Jul 2019 14:29:43 +0200
+Message-ID: <1562070583159130@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,11 +40,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: wilc1000: fix error path cleanup in wilc_wlan_initialize()
+    usb: gadget: f_fs: data_len used before properly set
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -55,59 +55,51 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 6419f818ababebc1116fb2d0e220bd4fe835d0e3 Mon Sep 17 00:00:00 2001
-From: Ajay Singh <ajay.kathat@microchip.com>
-Date: Wed, 26 Jun 2019 12:40:48 +0000
-Subject: staging: wilc1000: fix error path cleanup in wilc_wlan_initialize()
+From 4833a94eb383f5b22775077ff92ddaae90440921 Mon Sep 17 00:00:00 2001
+From: Fei Yang <fei.yang@intel.com>
+Date: Wed, 12 Jun 2019 15:13:26 -0700
+Subject: usb: gadget: f_fs: data_len used before properly set
 
-For the error path in wilc_wlan_initialize(), the resources are not
-cleanup in the correct order. Reverted the previous changes and use the
-correct order to free during error condition.
+The following line of code in function ffs_epfile_io is trying to set
+flag io_data->use_sg in case buffer required is larger than one page.
 
-Fixes: b46d68825c2d ("staging: wilc1000: remove COMPLEMENT_BOOT")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ajay Singh <ajay.kathat@microchip.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    io_data->use_sg = gadget->sg_supported && data_len > PAGE_SIZE;
+
+However at this point of time the variable data_len has not been set
+to the proper buffer size yet. The consequence is that io_data->use_sg
+is always set regardless what buffer size really is, because the condition
+(data_len > PAGE_SIZE) is effectively an unsigned comparison between
+-EINVAL and PAGE_SIZE which would always result in TRUE.
+
+Fixes: 772a7a724f69 ("usb: gadget: f_fs: Allow scatter-gather buffers")
+Signed-off-by: Fei Yang <fei.yang@intel.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 ---
- drivers/staging/wilc1000/wilc_netdev.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/gadget/function/f_fs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/wilc1000/wilc_netdev.c b/drivers/staging/wilc1000/wilc_netdev.c
-index c4efec277255..0e0a4eec5486 100644
---- a/drivers/staging/wilc1000/wilc_netdev.c
-+++ b/drivers/staging/wilc1000/wilc_netdev.c
-@@ -530,17 +530,17 @@ static int wilc_wlan_initialize(struct net_device *dev, struct wilc_vif *vif)
- 			goto fail_locks;
- 		}
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 47be961f1bf3..c7ed90084d1a 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -997,7 +997,6 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+ 		 * earlier
+ 		 */
+ 		gadget = epfile->ffs->gadget;
+-		io_data->use_sg = gadget->sg_supported && data_len > PAGE_SIZE;
  
--		if (wl->gpio_irq && init_irq(dev)) {
--			ret = -EIO;
--			goto fail_locks;
--		}
--
- 		ret = wlan_initialize_threads(dev);
- 		if (ret < 0) {
- 			ret = -EIO;
- 			goto fail_wilc_wlan;
- 		}
- 
-+		if (wl->gpio_irq && init_irq(dev)) {
-+			ret = -EIO;
-+			goto fail_threads;
-+		}
+ 		spin_lock_irq(&epfile->ffs->eps_lock);
+ 		/* In the meantime, endpoint got disabled or changed. */
+@@ -1012,6 +1011,8 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+ 		 */
+ 		if (io_data->read)
+ 			data_len = usb_ep_align_maybe(gadget, ep->ep, data_len);
 +
- 		if (!wl->dev_irq_num &&
- 		    wl->hif_func->enable_interrupt &&
- 		    wl->hif_func->enable_interrupt(wl)) {
-@@ -596,7 +596,7 @@ static int wilc_wlan_initialize(struct net_device *dev, struct wilc_vif *vif)
- fail_irq_init:
- 		if (wl->dev_irq_num)
- 			deinit_irq(dev);
--
-+fail_threads:
- 		wlan_deinitialize_threads(dev);
- fail_wilc_wlan:
- 		wilc_wlan_cleanup(dev);
++		io_data->use_sg = gadget->sg_supported && data_len > PAGE_SIZE;
+ 		spin_unlock_irq(&epfile->ffs->eps_lock);
+ 
+ 		data = ffs_alloc_buffer(io_data, data_len);
 -- 
 2.22.0
 
