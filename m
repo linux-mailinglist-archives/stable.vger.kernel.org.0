@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A4255CAF3
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:09:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 723CD5CBBD
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:15:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727684AbfGBIJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:09:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57694 "EHLO mail.kernel.org"
+        id S1727373AbfGBIPs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:15:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728091AbfGBIJn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:09:43 -0400
+        id S1727756AbfGBIEe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:04:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27B5A206A2;
-        Tue,  2 Jul 2019 08:09:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B8E821479;
+        Tue,  2 Jul 2019 08:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054982;
-        bh=mEcSQA743o/+5T1M9riLJ9D6Uq5/D9wKIGLRBU3Iwiw=;
+        s=default; t=1562054673;
+        bh=FHZuVNPHrPEskjr4ytkC96O85qWn+vClIozAy1WdJBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oonXpVsKejcXHekLTKIn/VMyMjZgXllMa39CgvpzeKuyUtx9VJVlaoI444oT7EDz5
-         S3wALHDzBwxjw1LBjzf+1zRPQhXiT8giT6/5TVzvOHNVRYRdM0VCRJ5LH2iHJdJjCg
-         g9cuZD9mAPo4DxxeRtEDvQ7BBkKDe8Okkwfnj8x4=
+        b=iZ26FpzoJ8rdCzkCD0stE3YIMp+X90hdY6AyzJFxIHvL6tklWPbOvYAp37cQgvozx
+         P4JSfbRz2WgWebmzhVqmfGmb3lnWdwX86RwiSyyaH2vuYyIUuPRKGuYakpgKC32HfP
+         wj8aZCOc3x5X7xtV7VwkLn59PHR7NU3EP3AQ6n74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 20/43] dm log writes: make sure super sector log updates are written in order
+        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 5.1 52/55] futex: Update comments and docs about return values of arch futex code
 Date:   Tue,  2 Jul 2019 10:02:00 +0200
-Message-Id: <20190702080124.846911554@linuxfoundation.org>
+Message-Id: <20190702080126.770004015@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
-References: <20190702080123.904399496@linuxfoundation.org>
+In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
+References: <20190702080124.103022729@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,106 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyi (F) <yi.zhang@huawei.com>
+From: Will Deacon <will.deacon@arm.com>
 
-commit 211ad4b733037f66f9be0a79eade3da7ab11cbb8 upstream.
+commit 427503519739e779c0db8afe876c1b33f3ac60ae upstream.
 
-Currently, although we submit super bios in order (and super.nr_entries
-is incremented by each logged entry), submit_bio() is async so each
-super sector may not be written to log device in order and then the
-final nr_entries may be smaller than it should be.
+The architecture implementations of 'arch_futex_atomic_op_inuser()' and
+'futex_atomic_cmpxchg_inatomic()' are permitted to return only -EFAULT,
+-EAGAIN or -ENOSYS in the case of failure.
 
-This problem can be reproduced by the xfstests generic/455 with ext4:
+Update the comments in the asm-generic/ implementation and also a stray
+reference in the robust futex documentation.
 
-  QA output created by 455
- -Silence is golden
- +mark 'end' does not exist
-
-Fix this by serializing submission of super sectors to make sure each
-is written to the log disk in order.
-
-Fixes: 0e9cebe724597 ("dm: add log writes target")
-Cc: stable@vger.kernel.org
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Suggested-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-log-writes.c |   23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ Documentation/robust-futexes.txt |    3 +--
+ include/asm-generic/futex.h      |    8 ++++++--
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/md/dm-log-writes.c
-+++ b/drivers/md/dm-log-writes.c
-@@ -57,6 +57,7 @@
+--- a/Documentation/robust-futexes.txt
++++ b/Documentation/robust-futexes.txt
+@@ -218,5 +218,4 @@ All other architectures should build jus
+ the new syscalls yet.
  
- #define WRITE_LOG_VERSION 1ULL
- #define WRITE_LOG_MAGIC 0x6a736677736872ULL
-+#define WRITE_LOG_SUPER_SECTOR 0
- 
- /*
-  * The disk format for this is braindead simple.
-@@ -112,6 +113,7 @@ struct log_writes_c {
- 	struct list_head logging_blocks;
- 	wait_queue_head_t wait;
- 	struct task_struct *log_kthread;
-+	struct completion super_done;
- };
- 
- struct pending_block {
-@@ -177,6 +179,14 @@ static void log_end_io(struct bio *bio)
- 	bio_put(bio);
- }
- 
-+static void log_end_super(struct bio *bio)
-+{
-+	struct log_writes_c *lc = bio->bi_private;
-+
-+	complete(&lc->super_done);
-+	log_end_io(bio);
-+}
-+
- /*
-  * Meant to be called if there is an error, it will free all the pages
-  * associated with the block.
-@@ -212,7 +222,8 @@ static int write_metadata(struct log_wri
- 	bio->bi_iter.bi_size = 0;
- 	bio->bi_iter.bi_sector = sector;
- 	bio_set_dev(bio, lc->logdev->bdev);
--	bio->bi_end_io = log_end_io;
-+	bio->bi_end_io = (sector == WRITE_LOG_SUPER_SECTOR) ?
-+			  log_end_super : log_end_io;
- 	bio->bi_private = lc;
- 	bio_set_op_attrs(bio, REQ_OP_WRITE, 0);
- 
-@@ -334,11 +345,18 @@ static int log_super(struct log_writes_c
- 	super.nr_entries = cpu_to_le64(lc->logged_entries);
- 	super.sectorsize = cpu_to_le32(lc->sectorsize);
- 
--	if (write_metadata(lc, &super, sizeof(super), NULL, 0, 0)) {
-+	if (write_metadata(lc, &super, sizeof(super), NULL, 0,
-+			   WRITE_LOG_SUPER_SECTOR)) {
- 		DMERR("Couldn't write super");
- 		return -1;
- 	}
- 
-+	/*
-+	 * Super sector should be writen in-order, otherwise the
-+	 * nr_entries could be rewritten incorrectly by an old bio.
-+	 */
-+	wait_for_completion_io(&lc->super_done);
-+
- 	return 0;
- }
- 
-@@ -447,6 +465,7 @@ static int log_writes_ctr(struct dm_targ
- 	INIT_LIST_HEAD(&lc->unflushed_blocks);
- 	INIT_LIST_HEAD(&lc->logging_blocks);
- 	init_waitqueue_head(&lc->wait);
-+	init_completion(&lc->super_done);
- 	atomic_set(&lc->io_blocks, 0);
- 	atomic_set(&lc->pending_blocks, 0);
- 
+ Architectures need to implement the new futex_atomic_cmpxchg_inatomic()
+-inline function before writing up the syscalls (that function returns
+--ENOSYS right now).
++inline function before writing up the syscalls.
+--- a/include/asm-generic/futex.h
++++ b/include/asm-generic/futex.h
+@@ -23,7 +23,9 @@
+  *
+  * Return:
+  * 0 - On success
+- * <0 - On error
++ * -EFAULT - User access resulted in a page fault
++ * -EAGAIN - Atomic operation was unable to complete due to contention
++ * -ENOSYS - Operation not supported
+  */
+ static inline int
+ arch_futex_atomic_op_inuser(int op, u32 oparg, int *oval, u32 __user *uaddr)
+@@ -85,7 +87,9 @@ out_pagefault_enable:
+  *
+  * Return:
+  * 0 - On success
+- * <0 - On error
++ * -EFAULT - User access resulted in a page fault
++ * -EAGAIN - Atomic operation was unable to complete due to contention
++ * -ENOSYS - Function not implemented (only if !HAVE_FUTEX_CMPXCHG)
+  */
+ static inline int
+ futex_atomic_cmpxchg_inatomic(u32 *uval, u32 __user *uaddr,
 
 
