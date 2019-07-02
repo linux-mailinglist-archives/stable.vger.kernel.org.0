@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABAD35CBC4
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:16:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92CCA5CB5B
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:13:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727687AbfGBIEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:04:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49814 "EHLO mail.kernel.org"
+        id S1727468AbfGBIHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:07:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727664AbfGBIEX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:04:23 -0400
+        id S1727724AbfGBIHh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:07:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7141D20659;
-        Tue,  2 Jul 2019 08:04:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F239321479;
+        Tue,  2 Jul 2019 08:07:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054662;
-        bh=39pUnFZd9YfXZTHov4rqSLDdJnWtQ3l3w6H9df6BZzQ=;
+        s=default; t=1562054856;
+        bh=JXLrTMyeRZdR8Tz9O6emJCMGlBucOV6CQTFmjD3gLUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U8GWrLsP7UUDr4sU5HcV+Udh+MAAi1ILeKiSX9FFXEIeaS4EYHaZKoPelVixltrFG
-         NouOOAGSQiwE3PXCO/lFN9UhRoL+J/ARjf2y44OYJRlQacIcBUNdPqwsaVdyFZq7mW
-         yObGedcCgWIYsmeqY3yzcxEmGT/CIm22znRSPDN8=
+        b=0UjUi/dZfmUnixwTpTay/0bMlkhAxXWK2IQh4bkXwveChvz5uYv8XsTqTzf873U93
+         kRmVMWOwLHql0q5dnWspKJoZRnZ1vW2R8uXpLspsIouhAcJvDSuomtc1ndr9Vxglj5
+         nuRpWeIpdWeZebdBCNVY7Zb6juFM/3ZH1hIyCMFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Herbert <tom@herbertland.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.1 48/55] bpf: udp: Avoid calling reuseports bpf_prog from udp_gro
+        stable@vger.kernel.org,
+        Roland Hii <roland.king.guan.hii@intel.com>,
+        Ong Boon Leong <boon.leong.ong@intel.com>,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 55/72] net: stmmac: fixed new system time seconds value calculation
 Date:   Tue,  2 Jul 2019 10:01:56 +0200
-Message-Id: <20190702080126.575246866@linuxfoundation.org>
+Message-Id: <20190702080127.429080021@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
-References: <20190702080124.103022729@linuxfoundation.org>
+In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
+References: <20190702080124.564652899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin KaFai Lau <kafai@fb.com>
+From: Roland Hii <roland.king.guan.hii@intel.com>
 
-commit 257a525fe2e49584842c504a92c27097407f778f upstream.
+[ Upstream commit a1e5388b4d5fc78688e5e9ee6641f779721d6291 ]
 
-When the commit a6024562ffd7 ("udp: Add GRO functions to UDP socket")
-added udp[46]_lib_lookup_skb to the udp_gro code path, it broke
-the reuseport_select_sock() assumption that skb->data is pointing
-to the transport header.
+When ADDSUB bit is set, the system time seconds field is calculated as
+the complement of the seconds part of the update value.
 
-This patch follows an earlier __udp6_lib_err() fix by
-passing a NULL skb to avoid calling the reuseport's bpf_prog.
+For example, if 3.000000001 seconds need to be subtracted from the
+system time, this field is calculated as
+2^32 - 3 = 4294967296 - 3 = 0x100000000 - 3 = 0xFFFFFFFD
 
-Fixes: a6024562ffd7 ("udp: Add GRO functions to UDP socket")
-Cc: Tom Herbert <tom@herbertland.com>
-Signed-off-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Previously, the 0x100000000 is mistakenly written as 100000000.
+
+This is further simplified from
+  sec = (0x100000000ULL - sec);
+to
+  sec = -sec;
+
+Fixes: ba1ffd74df74 ("stmmac: fix PTP support for GMAC4")
+Signed-off-by: Roland Hii <roland.king.guan.hii@intel.com>
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/ipv4/udp.c |    6 +++++-
- net/ipv6/udp.c |    2 +-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -503,7 +503,11 @@ static inline struct sock *__udp4_lib_lo
- struct sock *udp4_lib_lookup_skb(struct sk_buff *skb,
- 				 __be16 sport, __be16 dport)
- {
--	return __udp4_lib_lookup_skb(skb, sport, dport, &udp_table);
-+	const struct iphdr *iph = ip_hdr(skb);
-+
-+	return __udp4_lib_lookup(dev_net(skb->dev), iph->saddr, sport,
-+				 iph->daddr, dport, inet_iif(skb),
-+				 inet_sdif(skb), &udp_table, NULL);
- }
- EXPORT_SYMBOL_GPL(udp4_lib_lookup_skb);
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+@@ -122,7 +122,7 @@ static int adjust_systime(void __iomem *
+ 		 * programmed with (2^32 – <new_sec_value>)
+ 		 */
+ 		if (gmac4)
+-			sec = (100000000ULL - sec);
++			sec = -sec;
  
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -242,7 +242,7 @@ struct sock *udp6_lib_lookup_skb(struct
- 
- 	return __udp6_lib_lookup(dev_net(skb->dev), &iph->saddr, sport,
- 				 &iph->daddr, dport, inet6_iif(skb),
--				 inet6_sdif(skb), &udp_table, skb);
-+				 inet6_sdif(skb), &udp_table, NULL);
- }
- EXPORT_SYMBOL_GPL(udp6_lib_lookup_skb);
- 
+ 		value = readl(ioaddr + PTP_TCR);
+ 		if (value & PTP_TCR_TSCTRLSSR)
 
 
