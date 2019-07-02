@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A47DA5CA58
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:03:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A3335CB97
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:14:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727380AbfGBIDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:03:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48172 "EHLO mail.kernel.org"
+        id S1727916AbfGBIOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:14:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727379AbfGBIDQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:03:16 -0400
+        id S1728060AbfGBIGN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:06:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C033E216C8;
-        Tue,  2 Jul 2019 08:03:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E83620659;
+        Tue,  2 Jul 2019 08:06:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054595;
-        bh=4gKGw1J2PXubqLIA0ppPWMBfclGqzmPg3zzOTk6+L2U=;
+        s=default; t=1562054772;
+        bh=f31brRCLJwDLQmLPVh+HVaNtwvSkOXwIuRLFN02XLk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+w4PhFeazL2uZJn1QwzDjLFsE3ib5YBchM24Y6OkWPNeEpK+zWPGhr2q5naQccrk
-         NSIJFT/JDUk1GMfam/xrPzTDuYgWqpB3CJNGojh93rJW0EIw3i2TXyVDyWQoZdOM4x
-         sOeM4mKCAqJiIk5uOM0UsMvGwCCnjfimYDysfnic=
+        b=kiAK2WldXgM9gPEnZb+KGesKg7uk8vV5SMPFVyvdSMfKIYtsB4vaGAgUYU2073uOv
+         ZJznXlXfcg6FSeixClqi/2yjCXImZvyGd+D6nXewlnqfkR1R/XEf+jSrB7N69+s7DY
+         nYAwneJpfJdIyGYprMTP0XZdkK2uS8uo4uClTOzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>, x86-ml <x86@kernel.org>
-Subject: [PATCH 5.1 23/55] x86/resctrl: Prevent possible overrun during bitmap operations
+        stable@vger.kernel.org, Fei Yang <fei.yang@intel.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 30/72] usb: dwc3: gadget: remove wait_end_transfer
 Date:   Tue,  2 Jul 2019 10:01:31 +0200
-Message-Id: <20190702080125.255952865@linuxfoundation.org>
+Message-Id: <20190702080126.229595910@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
-References: <20190702080124.103022729@linuxfoundation.org>
+In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
+References: <20190702080124.564652899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,119 +47,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinette Chatre <reinette.chatre@intel.com>
+commit fec9095bdef4e7c988adb603d0d4f92ee735d4a1 upstream
 
-commit 32f010deab575199df4ebe7b6aec20c17bb7eccd upstream.
+Now that we have a list of cancelled requests, we can skip over TRBs
+when END_TRANSFER command completes.
 
-While the DOC at the beginning of lib/bitmap.c explicitly states that
-"The number of valid bits in a given bitmap does _not_ need to be an
-exact multiple of BITS_PER_LONG.", some of the bitmap operations do
-indeed access BITS_PER_LONG portions of the provided bitmap no matter
-the size of the provided bitmap.
-
-For example, if find_first_bit() is provided with an 8 bit bitmap the
-operation will access BITS_PER_LONG bits from the provided bitmap. While
-the operation ensures that these extra bits do not affect the result,
-the memory is still accessed.
-
-The capacity bitmasks (CBMs) are typically stored in u32 since they
-can never exceed 32 bits. A few instances exist where a bitmap_*
-operation is performed on a CBM by simply pointing the bitmap operation
-to the stored u32 value.
-
-The consequence of this pattern is that some bitmap_* operations will
-access out-of-bounds memory when interacting with the provided CBM.
-
-This same issue has previously been addressed with commit 49e00eee0061
-("x86/intel_rdt: Fix out-of-bounds memory access in CBM tests")
-but at that time not all instances of the issue were fixed.
-
-Fix this by using an unsigned long to store the capacity bitmask data
-that is passed to bitmap functions.
-
-Fixes: e651901187ab ("x86/intel_rdt: Introduce "bit_usage" to display cache allocations details")
-Fixes: f4e80d67a527 ("x86/intel_rdt: Resctrl files reflect pseudo-locked information")
-Fixes: 95f0b77efa57 ("x86/intel_rdt: Initialize new resource group with sane defaults")
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: stable <stable@vger.kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/58c9b6081fd9bf599af0dfc01a6fdd335768efef.1560975645.git.reinette.chatre@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Fei Yang <fei.yang@intel.com>
+Cc: Sam Protsenko <semen.protsenko@linaro.org>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: linux-usb@vger.kernel.org
+Cc: stable@vger.kernel.org # 4.19.y
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+(cherry picked from commit fec9095bdef4e7c988adb603d0d4f92ee735d4a1)
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/resctrl/rdtgroup.c |   35 +++++++++++++++------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+ drivers/usb/dwc3/core.h   |  3 ---
+ drivers/usb/dwc3/gadget.c | 40 +--------------------------------------
+ 2 files changed, 1 insertion(+), 42 deletions(-)
 
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -804,8 +804,12 @@ static int rdt_bit_usage_show(struct ker
- 			      struct seq_file *seq, void *v)
- {
- 	struct rdt_resource *r = of->kn->parent->priv;
--	u32 sw_shareable = 0, hw_shareable = 0;
--	u32 exclusive = 0, pseudo_locked = 0;
-+	/*
-+	 * Use unsigned long even though only 32 bits are used to ensure
-+	 * test_bit() is used safely.
-+	 */
-+	unsigned long sw_shareable = 0, hw_shareable = 0;
-+	unsigned long exclusive = 0, pseudo_locked = 0;
- 	struct rdt_domain *dom;
- 	int i, hwb, swb, excl, psl;
- 	enum rdtgrp_mode mode;
-@@ -850,10 +854,10 @@ static int rdt_bit_usage_show(struct ker
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index 24f0b108b7f6..131028501752 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -639,7 +639,6 @@ struct dwc3_event_buffer {
+  * @cancelled_list: list of cancelled requests for this endpoint
+  * @pending_list: list of pending requests for this endpoint
+  * @started_list: list of started requests on this endpoint
+- * @wait_end_transfer: wait_queue_head_t for waiting on End Transfer complete
+  * @lock: spinlock for endpoint request queue traversal
+  * @regs: pointer to first endpoint register
+  * @trb_pool: array of transaction buffers
+@@ -664,8 +663,6 @@ struct dwc3_ep {
+ 	struct list_head	pending_list;
+ 	struct list_head	started_list;
+ 
+-	wait_queue_head_t	wait_end_transfer;
+-
+ 	spinlock_t		lock;
+ 	void __iomem		*regs;
+ 
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 8291fa1624e1..843586f20572 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -638,8 +638,6 @@ static int __dwc3_gadget_ep_enable(struct dwc3_ep *dep, unsigned int action)
+ 		reg |= DWC3_DALEPENA_EP(dep->number);
+ 		dwc3_writel(dwc->regs, DWC3_DALEPENA, reg);
+ 
+-		init_waitqueue_head(&dep->wait_end_transfer);
+-
+ 		if (usb_endpoint_xfer_control(desc))
+ 			goto out;
+ 
+@@ -1404,15 +1402,11 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
+ 		if (r == req) {
+ 			/* wait until it is processed */
+ 			dwc3_stop_active_transfer(dep, true);
+-			wait_event_lock_irq(dep->wait_end_transfer,
+-					!(dep->flags & DWC3_EP_END_TRANSFER_PENDING),
+-					dwc->lock);
+ 
+ 			if (!r->trb)
+ 				goto out0;
+ 
+ 			dwc3_gadget_move_cancelled_request(req);
+-			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
+ 			goto out0;
  		}
- 		for (i = r->cache.cbm_len - 1; i >= 0; i--) {
- 			pseudo_locked = dom->plr ? dom->plr->cbm : 0;
--			hwb = test_bit(i, (unsigned long *)&hw_shareable);
--			swb = test_bit(i, (unsigned long *)&sw_shareable);
--			excl = test_bit(i, (unsigned long *)&exclusive);
--			psl = test_bit(i, (unsigned long *)&pseudo_locked);
-+			hwb = test_bit(i, &hw_shareable);
-+			swb = test_bit(i, &sw_shareable);
-+			excl = test_bit(i, &exclusive);
-+			psl = test_bit(i, &pseudo_locked);
- 			if (hwb && swb)
- 				seq_putc(seq, 'X');
- 			else if (hwb && !swb)
-@@ -2494,26 +2498,19 @@ out_destroy:
-  */
- static void cbm_ensure_valid(u32 *_val, struct rdt_resource *r)
+ 		dev_err(dwc->dev, "request %pK was not queued to %s\n",
+@@ -1913,8 +1907,6 @@ static int dwc3_gadget_stop(struct usb_gadget *g)
  {
--	/*
--	 * Convert the u32 _val to an unsigned long required by all the bit
--	 * operations within this function. No more than 32 bits of this
--	 * converted value can be accessed because all bit operations are
--	 * additionally provided with cbm_len that is initialized during
--	 * hardware enumeration using five bits from the EAX register and
--	 * thus never can exceed 32 bits.
--	 */
--	unsigned long *val = (unsigned long *)_val;
-+	unsigned long val = *_val;
- 	unsigned int cbm_len = r->cache.cbm_len;
- 	unsigned long first_bit, zero_bit;
+ 	struct dwc3		*dwc = gadget_to_dwc(g);
+ 	unsigned long		flags;
+-	int			epnum;
+-	u32			tmo_eps = 0;
  
--	if (*val == 0)
-+	if (val == 0)
- 		return;
+ 	spin_lock_irqsave(&dwc->lock, flags);
  
--	first_bit = find_first_bit(val, cbm_len);
--	zero_bit = find_next_zero_bit(val, cbm_len, first_bit);
-+	first_bit = find_first_bit(&val, cbm_len);
-+	zero_bit = find_next_zero_bit(&val, cbm_len, first_bit);
+@@ -1923,36 +1915,6 @@ static int dwc3_gadget_stop(struct usb_gadget *g)
  
- 	/* Clear any remaining bits to ensure contiguous region */
--	bitmap_clear(val, zero_bit, cbm_len - zero_bit);
-+	bitmap_clear(&val, zero_bit, cbm_len - zero_bit);
-+	*_val = (u32)val;
- }
+ 	__dwc3_gadget_stop(dwc);
  
- /**
+-	for (epnum = 2; epnum < DWC3_ENDPOINTS_NUM; epnum++) {
+-		struct dwc3_ep  *dep = dwc->eps[epnum];
+-		int ret;
+-
+-		if (!dep)
+-			continue;
+-
+-		if (!(dep->flags & DWC3_EP_END_TRANSFER_PENDING))
+-			continue;
+-
+-		ret = wait_event_interruptible_lock_irq_timeout(dep->wait_end_transfer,
+-			    !(dep->flags & DWC3_EP_END_TRANSFER_PENDING),
+-			    dwc->lock, msecs_to_jiffies(5));
+-
+-		if (ret <= 0) {
+-			/* Timed out or interrupted! There's nothing much
+-			 * we can do so we just log here and print which
+-			 * endpoints timed out at the end.
+-			 */
+-			tmo_eps |= 1 << epnum;
+-			dep->flags &= DWC3_EP_END_TRANSFER_PENDING;
+-		}
+-	}
+-
+-	if (tmo_eps) {
+-		dev_err(dwc->dev,
+-			"end transfer timed out on endpoints 0x%x [bitmap]\n",
+-			tmo_eps);
+-	}
+-
+ out:
+ 	dwc->gadget_driver	= NULL;
+ 	spin_unlock_irqrestore(&dwc->lock, flags);
+@@ -2449,7 +2411,7 @@ static void dwc3_endpoint_interrupt(struct dwc3 *dwc,
+ 
+ 		if (cmd == DWC3_DEPCMD_ENDTRANSFER) {
+ 			dep->flags &= ~DWC3_EP_END_TRANSFER_PENDING;
+-			wake_up(&dep->wait_end_transfer);
++			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
+ 		}
+ 		break;
+ 	case DWC3_DEPEVT_STREAMEVT:
+-- 
+2.20.1
+
 
 
