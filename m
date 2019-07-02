@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6563C5CBB2
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69FD35CB1E
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727315AbfGBIEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:04:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50434 "EHLO mail.kernel.org"
+        id S1728073AbfGBIKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:10:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727814AbfGBIEq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:04:46 -0400
+        id S1728072AbfGBIKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:10:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF05321479;
-        Tue,  2 Jul 2019 08:04:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D8722189F;
+        Tue,  2 Jul 2019 08:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054685;
-        bh=qlNER7IGKMqQxQpXoyyqHoszXTk+HOmLOJ3OAVrexkk=;
+        s=default; t=1562055036;
+        bh=UGiJQGJTx3wkmG+1excLzEVoivEDKBu/VMBZYlSklB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L0fJnz3k5nY1w0agC+aifDEYQOXkkc8Khdxgl2Q1l2wzF/N0FX8PT7yZTY0QGTq9h
-         S21+v/e8WlGoSY48WAVTxElNbDVV86Me9gFSXIR+69iuFi+7fh9USjXsfvh+i7cSOT
-         ilvWRAa0azNor86oB6VvbBP3fIu7BYhr/cqt3HnU=
+        b=rRHWIw+4ZP1gIxevItJZguFNpKuICZQe8nIsXmNGyyNowZOkcoOZs5uRlV3qcNWSK
+         YyEC0abrL6Rxfw4Me7qs+jAUkuGrlfeljl6J9UUyi6NjpwWQl0aPQLb2UuCHLxj2Bs
+         6xxr+XnjrFEA7eUSrljuu/MJuXhxkYVtQnMOOp0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com,
-        syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com,
-        syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com,
-        syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com,
-        syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com,
-        syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 55/55] tipc: pass tunnel dev as NULL to udp_tunnel(6)_xmit_skb
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Ingo Molnar <mingo@redhat.com>, x86-ml <x86@kernel.org>
+Subject: [PATCH 4.14 23/43] x86/microcode: Fix the microcode load on CPU hotplug for real
 Date:   Tue,  2 Jul 2019 10:02:03 +0200
-Message-Id: <20190702080126.904780432@linuxfoundation.org>
+Message-Id: <20190702080125.017051610@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
-References: <20190702080124.103022729@linuxfoundation.org>
+In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
+References: <20190702080123.904399496@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,90 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit c3bcde026684c62d7a2b6f626dc7cf763833875c upstream.
+commit 5423f5ce5ca410b3646f355279e4e937d452e622 upstream.
 
-udp_tunnel(6)_xmit_skb() called by tipc_udp_xmit() expects a tunnel device
-to count packets on dev->tstats, a perpcu variable. However, TIPC is using
-udp tunnel with no tunnel device, and pass the lower dev, like veth device
-that only initializes dev->lstats(a perpcu variable) when creating it.
+A recent change moved the microcode loader hotplug callback into the early
+startup phase which is running with interrupts disabled. It missed that
+the callbacks invoke sysfs functions which might sleep causing nice 'might
+sleep' splats with proper debugging enabled.
 
-Later iptunnel_xmit_stats() called by ip(6)tunnel_xmit() thinks the dev as
-a tunnel device, and uses dev->tstats instead of dev->lstats. tstats' each
-pointer points to a bigger struct than lstats, so when tstats->tx_bytes is
-increased, other percpu variable's members could be overwritten.
+Split the callbacks and only load the microcode in the early startup phase
+and move the sysfs handling back into the later threaded and preemptible
+bringup phase where it was before.
 
-syzbot has reported quite a few crashes due to fib_nh_common percpu member
-'nhc_pcpu_rth_output' overwritten, call traces are like:
-
-  BUG: KASAN: slab-out-of-bounds in rt_cache_valid+0x158/0x190
-  net/ipv4/route.c:1556
-    rt_cache_valid+0x158/0x190 net/ipv4/route.c:1556
-    __mkroute_output net/ipv4/route.c:2332 [inline]
-    ip_route_output_key_hash_rcu+0x819/0x2d50 net/ipv4/route.c:2564
-    ip_route_output_key_hash+0x1ef/0x360 net/ipv4/route.c:2393
-    __ip_route_output_key include/net/route.h:125 [inline]
-    ip_route_output_flow+0x28/0xc0 net/ipv4/route.c:2651
-    ip_route_output_key include/net/route.h:135 [inline]
-  ...
-
-or:
-
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  RIP: 0010:dst_dev_put+0x24/0x290 net/core/dst.c:168
-    <IRQ>
-    rt_fibinfo_free_cpus net/ipv4/fib_semantics.c:200 [inline]
-    free_fib_info_rcu+0x2e1/0x490 net/ipv4/fib_semantics.c:217
-    __rcu_reclaim kernel/rcu/rcu.h:240 [inline]
-    rcu_do_batch kernel/rcu/tree.c:2437 [inline]
-    invoke_rcu_callbacks kernel/rcu/tree.c:2716 [inline]
-    rcu_process_callbacks+0x100a/0x1ac0 kernel/rcu/tree.c:2697
-  ...
-
-The issue exists since tunnel stats update is moved to iptunnel_xmit by
-Commit 039f50629b7f ("ip_tunnel: Move stats update to iptunnel_xmit()"),
-and here to fix it by passing a NULL tunnel dev to udp_tunnel(6)_xmit_skb
-so that the packets counting won't happen on dev->tstats.
-
-Reported-by: syzbot+9d4c12bfd45a58738d0a@syzkaller.appspotmail.com
-Reported-by: syzbot+a9e23ea2aa21044c2798@syzkaller.appspotmail.com
-Reported-by: syzbot+c4c4b2bb358bb936ad7e@syzkaller.appspotmail.com
-Reported-by: syzbot+0290d2290a607e035ba1@syzkaller.appspotmail.com
-Reported-by: syzbot+a43d8d4e7e8a7a9e149e@syzkaller.appspotmail.com
-Reported-by: syzbot+a47c5f4c6c00fc1ed16e@syzkaller.appspotmail.com
-Fixes: 039f50629b7f ("ip_tunnel: Move stats update to iptunnel_xmit()")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 78f4e932f776 ("x86/microcode, cpuhotplug: Add a microcode loader CPU hotplug callback")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: stable@vger.kernel.org
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1906182228350.1766@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/tipc/udp_media.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/x86/kernel/cpu/microcode/core.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/net/tipc/udp_media.c
-+++ b/net/tipc/udp_media.c
-@@ -176,7 +176,6 @@ static int tipc_udp_xmit(struct net *net
- 			goto tx_error;
- 		}
+--- a/arch/x86/kernel/cpu/microcode/core.c
++++ b/arch/x86/kernel/cpu/microcode/core.c
+@@ -790,13 +790,16 @@ static struct syscore_ops mc_syscore_ops
+ 	.resume			= mc_bp_resume,
+ };
  
--		skb->dev = rt->dst.dev;
- 		ttl = ip4_dst_hoplimit(&rt->dst);
- 		udp_tunnel_xmit_skb(rt, ub->ubsock->sk, skb, src->ipv4.s_addr,
- 				    dst->ipv4.s_addr, 0, ttl, 0, src->port,
-@@ -195,10 +194,9 @@ static int tipc_udp_xmit(struct net *net
- 		if (err)
- 			goto tx_error;
- 		ttl = ip6_dst_hoplimit(ndst);
--		err = udp_tunnel6_xmit_skb(ndst, ub->ubsock->sk, skb,
--					   ndst->dev, &src->ipv6,
--					   &dst->ipv6, 0, ttl, 0, src->port,
--					   dst->port, false);
-+		err = udp_tunnel6_xmit_skb(ndst, ub->ubsock->sk, skb, NULL,
-+					   &src->ipv6, &dst->ipv6, 0, ttl, 0,
-+					   src->port, dst->port, false);
- #endif
- 	}
- 	return err;
+-static int mc_cpu_online(unsigned int cpu)
++static int mc_cpu_starting(unsigned int cpu)
+ {
+-	struct device *dev;
+-
+-	dev = get_cpu_device(cpu);
+ 	microcode_update_cpu(cpu);
+ 	pr_debug("CPU%d added\n", cpu);
++	return 0;
++}
++
++static int mc_cpu_online(unsigned int cpu)
++{
++	struct device *dev = get_cpu_device(cpu);
+ 
+ 	if (sysfs_create_group(&dev->kobj, &mc_attr_group))
+ 		pr_err("Failed to create group for CPU%d\n", cpu);
+@@ -873,7 +876,9 @@ int __init microcode_init(void)
+ 		goto out_ucode_group;
+ 
+ 	register_syscore_ops(&mc_syscore_ops);
+-	cpuhp_setup_state_nocalls(CPUHP_AP_MICROCODE_LOADER, "x86/microcode:online",
++	cpuhp_setup_state_nocalls(CPUHP_AP_MICROCODE_LOADER, "x86/microcode:starting",
++				  mc_cpu_starting, NULL);
++	cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN, "x86/microcode:online",
+ 				  mc_cpu_online, mc_cpu_down_prep);
+ 
+ 	pr_info("Microcode Update Driver: v%s.", DRIVER_VERSION);
 
 
