@@ -2,284 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCF905CE9C
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 13:40:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC3AB5CEAB
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 13:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725835AbfGBLkj convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 2 Jul 2019 07:40:39 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:58072 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726319AbfGBLkd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 07:40:33 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 77F41307D91E
-        for <stable@vger.kernel.org>; Tue,  2 Jul 2019 11:40:32 +0000 (UTC)
-Received: from [172.54.89.168] (cpt-1048.paas.prod.upshift.rdu2.redhat.com [10.0.19.70])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8D7FE2E036;
-        Tue,  2 Jul 2019 11:40:29 +0000 (UTC)
+        id S1725868AbfGBLpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 07:45:13 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:53494 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725858AbfGBLpN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 07:45:13 -0400
+Received: by mail-wm1-f67.google.com with SMTP id x15so536149wmj.3
+        for <stable@vger.kernel.org>; Tue, 02 Jul 2019 04:45:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=7XnS1nSglGl3J4iwz5UZQop6wVOESU077vgMnQIwlF8=;
+        b=hlORffj1x7217Wuo6ckSEeyuoXlSnU81MBl/YYYhbB6G6j+SGky2fn6wVaRo1TOekr
+         54d1g9yTCSL+jfGROBw/lY6CN+k4XOHMfsoQHWdwqYYgUepeOMkNu9sZShu06Bhh8SUk
+         gmplvqn0PI3nY8y91eY1NuN+Z/rtxAvTABh9G9JOrDbS8GO3QkLioRSJFb823OUuACGv
+         oEMxbK51eufA+pxwdGTCDA9+IK85O0yxULwWPSZC7C4P4L0dV1bvsZ/tpfQL2wXk4Gbp
+         7ES841zS2Ichfv+1dXrXk+C9s97bJZiwimte1+zoXlyh8qwZERKyj8NEPhGhzvP/Dh2X
+         URHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=7XnS1nSglGl3J4iwz5UZQop6wVOESU077vgMnQIwlF8=;
+        b=fOTOYbSk9S7k81tU2QdC4tibbzdrCj1nhxW9bFAnLZ/NpooMHiiJxxG6HPKwrf1arF
+         o2EX6y4tbT7RV+mGhtBOKkf6r86t6oDuFZ0y8gB/1tJBphvdXq36H46j4kftljk8i1ik
+         sk6v4PWaI8iLRL0G+j2DdEH4Qqt6j87QQPgenb744oZ+KuvMXXiKEHycaOdlS3FdwLVY
+         k0bzGKz+01V36QamOTKFYiXakm0Q2Vw2tPho0itgs6EISNp5JTV8cUUBj8Z1x3SIU9nW
+         4NicBiY1d5d3dSNYY79FnG671uji4/gihs16y6O2MCAKTWtMjaCLQLBMtrMnjYVanRwR
+         QfzA==
+X-Gm-Message-State: APjAAAVjG3xx7Vt7f7Irw/e9Fa+JmJPzXUXxxqh5f/mDza6u684/4XEL
+        /tnizXeJ0dHGASSIbB4uRC81BI5EGpk=
+X-Google-Smtp-Source: APXvYqxnxewY0JAQRHIPtt5jfC6oIgmvqIYlrvp8C4Z7AQf+myW/YybEPw/lkdgnC8+cpFlI1H+S9Q==
+X-Received: by 2002:a1c:5602:: with SMTP id k2mr2981579wmb.173.1562067911099;
+        Tue, 02 Jul 2019 04:45:11 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id x20sm28462582wrg.52.2019.07.02.04.45.10
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 02 Jul 2019 04:45:10 -0700 (PDT)
+Message-ID: <5d1b43c6.1c69fb81.51f06.7465@mx.google.com>
+Date:   Tue, 02 Jul 2019 04:45:10 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.77B3152AE6.67TCC8SS31@redhat.com>
-X-Gitlab-Pipeline-ID: 14960
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Tue, 02 Jul 2019 11:40:32 +0000 (UTC)
-Date:   Tue, 2 Jul 2019 07:40:33 -0400
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.184-48-gc9cfb526e8ad
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.4.y boot: 98 boots: 3 failed,
+ 94 passed with 1 offline (v4.4.184-48-gc9cfb526e8ad)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+stable-rc/linux-4.4.y boot: 98 boots: 3 failed, 94 passed with 1 offline (v=
+4.4.184-48-gc9cfb526e8ad)
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.184-48-gc9cfb526e8ad/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.184-48-gc9cfb526e8ad/
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: f0fae702de30 - Linux 5.1.15
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.184-48-gc9cfb526e8ad
+Git Commit: c9cfb526e8addf9ce28ed0e15ec5b4413c06c9a1
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 45 unique boards, 20 SoC families, 14 builds out of 190
 
-The results of these automated tests are provided below.
+Boot Failures Detected:
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+arm:
+    sunxi_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
 
+    multi_v7_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+Offline Platforms:
 
-Merge testing
--------------
+arm:
 
-We cloned this repository and checked out the following commit:
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
 
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: f0fae702de30 - Linux 5.1.15
-
-
-We grabbed the 3aee92acb769 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  arm64-don-t-unconditionally-add-wno-psabi-to-kbuild_cflags.patch
-  revert-x86-uaccess-ftrace-fix-ftrace_likely_update-v.patch
-  qmi_wwan-fix-out-of-bounds-read.patch
-  fs-proc-array.c-allow-reporting-eip-esp-for-all-coredumping-threads.patch
-  mm-mempolicy.c-fix-an-incorrect-rebind-node-in-mpol_rebind_nodemask.patch
-  fs-binfmt_flat.c-make-load_flat_shared_library-work.patch
-  clk-tegra210-fix-default-rates-for-hda-clocks.patch
-  clk-socfpga-stratix10-fix-divider-entry-for-the-emac-clocks.patch
-  drm-i915-force-2-96-mhz-cdclk-on-glk-cnl-when-audio-power-is-enabled.patch
-  drm-i915-save-the-old-cdclk-atomic-state.patch
-  drm-i915-remove-redundant-store-of-logical-cdclk-state.patch
-  drm-i915-skip-modeset-for-cdclk-changes-if-possible.patch
-  mm-soft-offline-return-ebusy-if-set_hwpoison_free_buddy_page-fails.patch
-  mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge.patch
-  mm-page_idle.c-fix-oops-because-end_pfn-is-larger-than-max_pfn.patch
-  mm-swap-fix-thp-swap-out.patch
-  dm-init-fix-incorrect-uses-of-kstrndup.patch
-  dm-log-writes-make-sure-super-sector-log-updates-are-written-in-order.patch
-  io_uring-ensure-req-file-is-cleared-on-allocation.patch
-  scsi-vmw_pscsi-fix-use-after-free-in-pvscsi_queue_lck.patch
-  x86-speculation-allow-guests-to-use-ssbd-even-if-host-does-not.patch
-  x86-microcode-fix-the-microcode-load-on-cpu-hotplug-for-real.patch
-  x86-resctrl-prevent-possible-overrun-during-bitmap-operations.patch
-  mm-fix-page-cache-convergence-regression.patch
-  efi-memreserve-deal-with-memreserve-entries-in-unmapped-memory.patch
-  nfs-flexfiles-use-the-correct-tcp-timeout-for-flexfiles-i-o.patch
-  cpu-speculation-warn-on-unsupported-mitigations-parameter.patch
-  sunrpc-fix-up-calculation-of-client-message-length.patch
-  irqchip-mips-gic-use-the-correct-local-interrupt-map-registers.patch
-  af_packet-block-execution-of-tasks-waiting-for-transmit-to-complete-in-af_packet.patch
-  bonding-always-enable-vlan-tx-offload.patch
-  ipv4-use-return-value-of-inet_iif-for-__raw_v4_lookup-in-the-while-loop.patch
-  net-packet-fix-memory-leak-in-packet_set_ring.patch
-  net-remove-duplicate-fetch-in-sock_getsockopt.patch
-  net-stmmac-fixed-new-system-time-seconds-value-calculation.patch
-  net-stmmac-set-ic-bit-when-transmitting-frames-with-hw-timestamp.patch
-  net-tls-fix-page-double-free-on-tx-cleanup.patch
-  sctp-change-to-hold-sk-after-auth-shkey-is-created-successfully.patch
-  team-always-enable-vlan-tx-offload.patch
-  tipc-change-to-use-register_pernet_device.patch
-  tipc-check-msg-req-data-len-in-tipc_nl_compat_bearer_disable.patch
-  tun-wake-up-waitqueues-after-iff_up-is-set.patch
-  net-aquantia-fix-vlans-not-working-over-bridged-network.patch
-  bpf-simplify-definition-of-bpf_fib_lookup-related-flags.patch
-  bpf-lpm_trie-check-left-child-of-last-leftmost-node-for-null.patch
-  bpf-fix-nested-bpf-tracepoints-with-per-cpu-data.patch
-  bpf-fix-unconnected-udp-hooks.patch
-  bpf-udp-avoid-calling-reuseport-s-bpf_prog-from-udp_gro.patch
-  bpf-udp-ipv6-avoid-running-reuseport-s-bpf_prog-from-__udp6_lib_err.patch
-  arm64-futex-avoid-copying-out-uninitialised-stack-in-failed-cmpxchg.patch
-  bpf-arm64-use-more-scalable-stadd-over-ldxr-stxr-loop-in-xadd.patch
-  futex-update-comments-and-docs-about-return-values-of-arch-futex-code.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-c57febc1ffc84943e0d24d331ffbc07af4ced0c0.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-c57febc1ffc84943e0d24d331ffbc07af4ced0c0.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-c57febc1ffc84943e0d24d331ffbc07af4ced0c0.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-c57febc1ffc84943e0d24d331ffbc07af4ced0c0.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-c57febc1ffc84943e0d24d331ffbc07af4ced0c0.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-c57febc1ffc84943e0d24d331ffbc07af4ced0c0.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-c57febc1ffc84943e0d24d331ffbc07af4ced0c0.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-c57febc1ffc84943e0d24d331ffbc07af4ced0c0.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ Ethernet drivers sanity [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking sctp-auth: sockopts test [11]
-       🚧 ✅ Networking UDP: socket [12]
-       🚧 ✅ tuned: tune-processes-through-perf [13]
-       🚧 ✅ storage: SCSI VPD [14]
-       🚧 ✅ storage: software RAID testing [15]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [16]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [17]
-       ✅ selinux-policy: serge-testsuite [18]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ Ethernet drivers sanity [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking sctp-auth: sockopts test [11]
-       🚧 ✅ Networking UDP: socket [12]
-       🚧 ✅ tuned: tune-processes-through-perf [13]
-       🚧 ✅ storage: software RAID testing [15]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [16]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [17]
-       ✅ selinux-policy: serge-testsuite [18]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ LTP: openposix test suite [4]
-       ✅ Ethernet drivers sanity [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking sctp-auth: sockopts test [11]
-       🚧 ✅ Networking UDP: socket [12]
-       🚧 ✅ tuned: tune-processes-through-perf [13]
-       🚧 ✅ storage: software RAID testing [15]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [18]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ LTP: openposix test suite [4]
-       ✅ Ethernet drivers sanity [5]
-       ✅ audit: audit testsuite test [6]
-       ✅ httpd: mod_ssl smoke sanity [7]
-       ✅ iotop: sanity [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking sctp-auth: sockopts test [11]
-       🚧 ✅ Networking UDP: socket [12]
-       🚧 ✅ tuned: tune-processes-through-perf [13]
-       🚧 ✅ storage: SCSI VPD [14]
-       🚧 ✅ storage: software RAID testing [15]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [16]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [17]
-       ✅ selinux-policy: serge-testsuite [18]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#vm/hugepage/libhugetlbfs
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+---
+For more info write to <info@kernelci.org>
