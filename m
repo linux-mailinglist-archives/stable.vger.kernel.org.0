@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45AA95C645
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 02:17:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 946455C646
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 02:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727010AbfGBARi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jul 2019 20:17:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39070 "EHLO mail.kernel.org"
+        id S1727024AbfGBAS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 20:18:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726866AbfGBARi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jul 2019 20:17:38 -0400
+        id S1726866AbfGBAS2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jul 2019 20:18:28 -0400
 Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45FB321479;
-        Tue,  2 Jul 2019 00:17:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D03720652;
+        Tue,  2 Jul 2019 00:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562026656;
-        bh=f76mx8+rlaVuU66r3XclAFWRAYVIVDzJaGZ3tNZF3lQ=;
+        s=default; t=1562026707;
+        bh=kcJQ49e2vbm99n8JEcSxAtHIX/vcUA+/3ssA7LuckdE=;
         h=Date:From:To:Subject:From;
-        b=qZtJaDi9V4WYhCglI/093Ontuwt9w5xgCEGOUCfdneOsVET23SsUCZCSHbJFEdr4W
-         kkTM1GSIaLwI5FU43Xny1ZX8TmVA2OAozB2dwKcKvNehwjkwcE2Lz0UBzgY0zL8f36
-         IFfCy3dPGPjqYBXs/4TKpctN9lvcuUDWNN+F/w6w=
-Date:   Mon, 01 Jul 2019 17:17:35 -0700
+        b=EnVXC03XOfugeBfpClIT0AWdLeAlE2oL6tgnb3yrKHh5/WUeURcirVAP0YkuBWNOB
+         ZOpkIv4z3v4EwmpjLuQiDQK2v0Fwc8Ll4szte1HET4wbf8rqgDsrCrO0W1KMN5YqkP
+         distSjpIgBSM8I65VTM+/yu0DiRBLRvmTUaLQcvo=
+Date:   Mon, 01 Jul 2019 17:18:26 -0700
 From:   akpm@linux-foundation.org
 To:     hannes@cmpxchg.org, mgorman@techsingularity.net, mhocko@suse.com,
         mm-commits@vger.kernel.org, riel@redhat.com, sonnyrao@chromium.org,
         stable@vger.kernel.org, vdavydov.dev@gmail.com, vovoy@chromium.org
-Subject:  [to-be-updated]
- =?US-ASCII?Q?mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting?=
- =?US-ASCII?Q?-file-refaults.patch?= removed from -mm tree
-Message-ID: <20190702001735.BDSEu50f6%akpm@linux-foundation.org>
+Subject:  + mm-vmscan-scan-anonymous-pages-on-file-refaults.patch
+ added to -mm tree
+Message-ID: <20190702001826.d0iOa2ws0%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -42,15 +39,29 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm: vmscan: fix not scanning anonymous pages when detecting file refaults
-has been removed from the -mm tree.  Its filename was
-     mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults.patch
+     Subject: mm: vmscan: scan anonymous pages on file refaults
+has been added to the -mm tree.  Its filename is
+     mm-vmscan-scan-anonymous-pages-on-file-refaults.patch
 
-This patch was dropped because an updated version will be merged
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-vmscan-scan-anonymous-pages-on-file-refaults.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-vmscan-scan-anonymous-pages-on-file-refaults.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
 ------------------------------------------------------
 From: Kuo-Hsin Yang <vovoy@chromium.org>
-Subject: mm: vmscan: fix not scanning anonymous pages when detecting file refaults
+Subject: mm: vmscan: scan anonymous pages on file refaults
 
 When file refaults are detected and there are many inactive file pages,
 the system never reclaim anonymous pages, the file pages are dropped
@@ -58,29 +69,9 @@ aggressively when there are still a lot of cold anonymous pages and system
 thrashes.  This issue impacts the performance of applications with large
 executable, e.g.  chrome.
 
-When file refaults are detected.  inactive_list_is_low() may return
-different values depends on the actual_reclaim parameter, the following 2
-conditions could be satisfied at the same time.
-
-1) inactive_list_is_low() returns false in get_scan_count() to trigger
-   scanning file lists only.
-2) inactive_list_is_low() returns true in shrink_list() to allow
-   scanning active file list.
-
-In that case vmscan would only scan file lists, and as active file list is
-also scanned, inactive_list_is_low() may keep returning false in
-get_scan_count() until file cache is very low.
-
-Before 2a2e48854d70 ("mm: vmscan: fix IO/refault regression in cache
-workingset transition"), inactive_list_is_low() never returns different
-value in get_scan_count() and shrink_list() in one shrink_node_memcg()
-run.  The original design should be that when inactive_list_is_low()
-returns false for file lists, vmscan only scan inactive file list.  As
-only inactive file list is scanned, inactive_list_is_low() would soon
-return true.
-
-This patch makes the return value of inactive_list_is_low() independent of
-actual_reclaim.
+With this patch, when file refault is detected, inactive_list_is_low()
+always returns true for file pages in get_scan_count() to enable scanning
+anonymous pages.
 
 The problem can be reproduced by the following test program.
 
@@ -225,16 +216,9 @@ With this patch, these file pages can be cached.
   File access time, round 8: 0.000738 (sec)
   File access time, round 9: 0.000747 (sec)
 
-Johannes:
-
-: The problem of forcing cache trimming while there is enough page cache
-: is older than the commit you refer to.  It could be argued that this
-: commit is incomplete - it could have added refault detection not just
-: to inactive:active file balancing, but also the file:anon balancing;
-: but it didn't *cause* this problem.
-
-Link: http://lkml.kernel.org/r/20190619080835.GA68312@google.com
-Fixes: 2a2e48854d70 ("mm: vmscan: fix IO/refault regression in cache workingset transition")
+Link: http://lkml.kernel.org/r/20190701081038.GA83398@google.com
+Fixes: e9868505987a ("mm,vmscan: only evict file pages when we have plenty")
+Fixes: 7c5bd705d8f9 ("mm: memcg: only evict file pages when we have plenty")
 Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
 Acked-by: Johannes Weiner <hannes@cmpxchg.org>
 Cc: Michal Hocko <mhocko@suse.com>
@@ -242,15 +226,24 @@ Cc: Sonny Rao <sonnyrao@chromium.org>
 Cc: Mel Gorman <mgorman@techsingularity.net>
 Cc: Rik van Riel <riel@redhat.com>
 Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: <stable@vger.kernel.org>
+Cc: <stable@vger.kernel.org>	[4.12+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/vmscan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/vmscan.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/mm/vmscan.c~mm-vmscan-fix-not-scanning-anonymous-pages-when-detecting-file-refaults
+--- a/mm/vmscan.c~mm-vmscan-scan-anonymous-pages-on-file-refaults
 +++ a/mm/vmscan.c
+@@ -2125,7 +2125,7 @@ static void shrink_active_list(unsigned
+  *   10TB     320        32GB
+  */
+ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+-				 struct scan_control *sc, bool actual_reclaim)
++				 struct scan_control *sc, bool trace)
+ {
+ 	enum lru_list active_lru = file * LRU_FILE + LRU_ACTIVE;
+ 	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
 @@ -2151,7 +2151,7 @@ static bool inactive_list_is_low(struct
  	 * rid of the stale workingset quickly.
  	 */
@@ -260,6 +253,15 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
  		inactive_ratio = 0;
  	} else {
  		gb = (inactive + active) >> (30 - PAGE_SHIFT);
+@@ -2161,7 +2161,7 @@ static bool inactive_list_is_low(struct
+ 			inactive_ratio = 1;
+ 	}
+ 
+-	if (actual_reclaim)
++	if (trace)
+ 		trace_mm_vmscan_inactive_list_is_low(pgdat->node_id, sc->reclaim_idx,
+ 			lruvec_lru_size(lruvec, inactive_lru, MAX_NR_ZONES), inactive,
+ 			lruvec_lru_size(lruvec, active_lru, MAX_NR_ZONES), active,
 _
 
 Patches currently in -mm which might be from vovoy@chromium.org are
