@@ -2,116 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74C575D002
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 15:04:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C5505D11B
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 15:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727072AbfGBNEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 09:04:54 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:40302 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727035AbfGBNEy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 09:04:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
-        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
-        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
-        List-Archive; bh=VrK8RqyESLo3WlpxCq2cSsDNMbC4+p4MWk5KU0cJU3I=; b=EFokFO1nfOpY
-        fIPeXvkxo9ueAg1wwWdUeSqMydAEiBJW4BFfTklU0Cj/EXyrw6c+ZtqrCkNyZRClA+SaPzEfB2kvj
-        LvCgjxz1vj7acGPsO6CIIjsT9hFCJDJzg+kEPPzkhMw/nk7kcP7P9At15JE+eX3YAAcHuUvUZj0b8
-        uAOg8=;
-Received: from [2001:470:1f1d:6b5:7e7a:91ff:fede:4a45] (helo=finisterre.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1hiISn-0002O4-3p; Tue, 02 Jul 2019 13:04:49 +0000
-Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
-        id 6E65A44004B; Tue,  2 Jul 2019 14:04:48 +0100 (BST)
-From:   Mark Brown <broonie@kernel.org>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        Mark Brown <broonie@kernel.org>,
-        Sangbeom Kim <sbkim73@samsung.com>, <stable@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Applied "regulator: s2mps11: Fix buck7 and buck8 wrong voltages" to the regulator tree
-In-Reply-To: <20190629114446.11381-1-krzk@kernel.org>
-X-Patchwork-Hint: ignore
-Message-Id: <20190702130448.6E65A44004B@finisterre.sirena.org.uk>
-Date:   Tue,  2 Jul 2019 14:04:48 +0100 (BST)
+        id S1726475AbfGBN7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 09:59:47 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:46572 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726341AbfGBN7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 09:59:47 -0400
+Received: by mail-wr1-f66.google.com with SMTP id n4so17929435wrw.13
+        for <stable@vger.kernel.org>; Tue, 02 Jul 2019 06:59:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HBd99GYbwRQMd1kR7ghYA5X8SNd4z0fQ7hMPObU+8aM=;
+        b=CDyqJAnZYlYcyOMDqgsBDVX3KuGfflGpPFrXA8AyLwJ3oYkYFYP93IJp++e3g0Zejw
+         pLRpHMje7TG3c7iqHF3sq2oo/qELNKabVYBS8vHHgKhcNQlUiAMTdMQsPi+O7UOacBLL
+         UrregFPD0gHjmfGTgAwHOSbSJ7+l5GlusN42Mim7IYhkKGVKtsz8lJasR5FWMSQo2QJE
+         7qWz4dPE5iYo92IqYkqau9ABHzfSZM44PjMJ14KZl0ZBWSql/2M0nntzf+/+C93jOukf
+         nSA6guqQyXVwyvYRWnTj9Kghu0O1CdfhU5/t1Pq4wlFKJ3Coc6I22nhC5PpvXIvuG/OI
+         Gu3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HBd99GYbwRQMd1kR7ghYA5X8SNd4z0fQ7hMPObU+8aM=;
+        b=ChmIZ9mLonDu29TIsdYSKj6WL4Zzdwj04pwUyWICvCnA2d7XxbvWhSLYA+B2U55VrG
+         1oxSpDMwj/WaZZjGp3b1aTrwciY9EoAmFGCLZh3d+THwQC37WbUEuTg40ZMMaorNq4o8
+         OhV/awz9QDcpWnk/VR7Mh4qFUB7oTpjHqQYQkEj9b2pZtu556aZD+tN2MLBfsPmCh6kF
+         dWrghLxkDZuC6Smp99pSAFcpjkiLG+7n3EbPn0dBNZKIR6mu1GwFEdqBnkxJO9jqK6jh
+         OeChORoLWDo8n8xCyHAHUQM66b0F9YxelQzVt1uuYsmrAxfaVlPmg01taVtaLlTrO3rt
+         oPvA==
+X-Gm-Message-State: APjAAAWRWObDbTrbVtSejiATcGGoRnWBn5kRiHWor5KoMnraoVgCPGvy
+        jv9FwXFs0PB9U5V7iAz/3McJ1vBh+tLPNg==
+X-Google-Smtp-Source: APXvYqyqolUKYuGKUtt9/XIRY9J7BveLHEspCu+O5KOIZ0Vxt7U8a1IZbn/C2iPejEvXkp8xcoOlAQ==
+X-Received: by 2002:adf:dd8c:: with SMTP id x12mr24027860wrl.212.1562075984968;
+        Tue, 02 Jul 2019 06:59:44 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id o6sm31958825wra.27.2019.07.02.06.59.44
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 02 Jul 2019 06:59:44 -0700 (PDT)
+Message-ID: <5d1b6350.1c69fb81.a3beb.fc66@mx.google.com>
+Date:   Tue, 02 Jul 2019 06:59:44 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.131-44-g3734933c2330
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 126 boots: 4 failed,
+ 121 passed with 1 offline (v4.14.131-44-g3734933c2330)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch
+stable-rc/linux-4.14.y boot: 126 boots: 4 failed, 121 passed with 1 offline=
+ (v4.14.131-44-g3734933c2330)
 
-   regulator: s2mps11: Fix buck7 and buck8 wrong voltages
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.131-44-g3734933c2330/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.131-44-g3734933c2330/
 
-has been applied to the regulator tree at
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.131-44-g3734933c2330
+Git Commit: 3734933c2330c5fe94ed2724033965b2eb545028
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 67 unique boards, 25 SoC families, 15 builds out of 201
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-5.2
+Boot Failures Detected:
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
+arm:
+    sunxi_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
 
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
+    multi_v7_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
 
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxbb-p200: 1 failed lab
+            rk3399-firefly: 1 failed lab
 
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
+Offline Platforms:
 
-Thanks,
-Mark
+arm:
 
-From 16da0eb5ab6ef2dd1d33431199126e63db9997cc Mon Sep 17 00:00:00 2001
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Date: Sat, 29 Jun 2019 13:44:45 +0200
-Subject: [PATCH] regulator: s2mps11: Fix buck7 and buck8 wrong voltages
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
 
-On S2MPS11 device, the buck7 and buck8 regulator voltages start at 750
-mV, not 600 mV.  Using wrong minimal value caused shifting of these
-regulator values by 150 mV (e.g. buck7 usually configured to v1.35 V was
-reported as 1.2 V).
-
-On most of the boards these regulators are left in default state so this
-was only affecting reported voltage.  However if any driver wanted to
-change them, then effectively it would set voltage 150 mV higher than
-intended.
-
-Cc: <stable@vger.kernel.org>
-Fixes: cb74685ecb39 ("regulator: s2mps11: Add samsung s2mps11 regulator driver")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
 ---
- drivers/regulator/s2mps11.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/regulator/s2mps11.c b/drivers/regulator/s2mps11.c
-index af9bf10b4c33..7a89030187a4 100644
---- a/drivers/regulator/s2mps11.c
-+++ b/drivers/regulator/s2mps11.c
-@@ -372,8 +372,8 @@ static const struct regulator_desc s2mps11_regulators[] = {
- 	regulator_desc_s2mps11_buck1_4(4),
- 	regulator_desc_s2mps11_buck5,
- 	regulator_desc_s2mps11_buck67810(6, MIN_600_MV, STEP_6_25_MV),
--	regulator_desc_s2mps11_buck67810(7, MIN_600_MV, STEP_12_5_MV),
--	regulator_desc_s2mps11_buck67810(8, MIN_600_MV, STEP_12_5_MV),
-+	regulator_desc_s2mps11_buck67810(7, MIN_750_MV, STEP_12_5_MV),
-+	regulator_desc_s2mps11_buck67810(8, MIN_750_MV, STEP_12_5_MV),
- 	regulator_desc_s2mps11_buck9,
- 	regulator_desc_s2mps11_buck67810(10, MIN_750_MV, STEP_12_5_MV),
- };
--- 
-2.20.1
-
+For more info write to <info@kernelci.org>
