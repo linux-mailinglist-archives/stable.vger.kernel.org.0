@@ -2,114 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF735D2D6
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 17:28:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3A8D5D2EF
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 17:31:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727013AbfGBP22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 11:28:28 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:49472 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727010AbfGBP22 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 11:28:28 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x62FOJLt159850;
-        Tue, 2 Jul 2019 15:27:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=content-type :
- mime-version : subject : from : in-reply-to : date : cc :
- content-transfer-encoding : message-id : references : to;
- s=corp-2018-07-02; bh=Sk1VVbY07rQZ5y4KHjvVKWCOHvjzB5kFnUcVYEmCVjA=;
- b=dVHGuN8yjD9MHMIXJa46Gh2FXAdCgFLRdPIwdEtlDQIHRaEE4sAVgkjz/cDULTCjfpHW
- N9O2Z+Y+FygLlUEktsJ0gpM5OhMMUHXJg4iRF17FvDsjQqZ930a0Hx79kU50TkQK8PsM
- TTiifKLqfl4Tx51MwiCgN8/HoqZVDYfZQGhJg3j3slP+jq93MNb4VNMdxCOvzqn7xzlo
- u4FuVuXH4X+KaLjO4GZN98Jw7mrdn1vbI97S08YMp8trNi8alljweNb2/IXYhphB1E+L
- bpI5Awq3btI0TTPQ0Pm1bF7mC4Gl7YU37/vzjCfGZMSvrqovvYyx9CsH7PlxPovIvJ4e 1A== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by aserp2120.oracle.com with ESMTP id 2te5tbmcy4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 02 Jul 2019 15:27:56 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x62FI8tZ163587;
-        Tue, 2 Jul 2019 15:27:56 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by aserp3030.oracle.com with ESMTP id 2tebaku4mk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 02 Jul 2019 15:27:56 +0000
-Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x62FRsG8025450;
-        Tue, 2 Jul 2019 15:27:55 GMT
-Received: from [10.30.3.6] (/213.57.127.2)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 02 Jul 2019 08:27:54 -0700
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 11.1 \(3445.4.7\))
-Subject: Re: [PATCH 2/3] KVM: nVMX: allow setting the VMFUNC controls MSR
-From:   Liran Alon <liran.alon@oracle.com>
-In-Reply-To: <1562079876-20756-3-git-send-email-pbonzini@redhat.com>
-Date:   Tue, 2 Jul 2019 18:27:49 +0300
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org
+        id S1726252AbfGBPbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 11:31:14 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:45298 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725972AbfGBPbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 11:31:13 -0400
+Received: by mail-wr1-f67.google.com with SMTP id f9so18293330wre.12
+        for <stable@vger.kernel.org>; Tue, 02 Jul 2019 08:31:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=WWE5bHOw1Gq51lfvLp+0B08xrxTgYhFoofF71iGJ9FM=;
+        b=r/4UrFUO0qzzrYyhGVcJfjrWRZc6O3cSIlBWJrU8GIEiSEUjIPcgjmZGtF8pug8r3S
+         ILCEUgJPQfdwVbbFEw0V0jBVfMdRcaZ0+h4bX5LGoNn8KErxoI8uKqG7luZVIFNtdFUu
+         /lUjFsqVNWMQdaCT0SJlzj9gbvT718kSYjb3mbHriHq1mv+3pnO2PuowMXz4BcTfXQM6
+         6DJ2uziC1nodAoQBqOPwyBJnazwWPMibc8hyhP4JQ2r7lfoE+mWfLQmDJiJLLbeNIl+5
+         2D7E20uEXFB4b0saz8jRMAzmYMFLNV+5vPF/4hc3KluIQ5zaH7mwwHMNEKz9BBwE/g1P
+         +39w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=WWE5bHOw1Gq51lfvLp+0B08xrxTgYhFoofF71iGJ9FM=;
+        b=m0C1a3zFJTHWS88UhLqsC2oaxdeXYBqGNekOA8uTUDHWMKdfuA2EKoVvHkcZti7erj
+         imhdsyz8ajnSKfFIPUjt/ThuUCGjG1vDVwxfoo5ZXAbijB2rhqf8wVo8rWoFp/PC/Yvn
+         CKZmM44k6lFulRQqnv8EzgxneAvaguoMrgOGTu8uTLBineOHHvG3Z5aCgUBL+pIvsVe7
+         DcW2t2gB1T704iAuanvwtwubPO88V4kDIwU8QBcbK1E+g1kyO8bEDmgqArK0BWINHHlH
+         M8J03Acz+c1eUcTdvrt68UeQ+ZCtV8BuuUKVh3S52T/VuwWR3RpRIO23LiVpAaBofYq0
+         ienw==
+X-Gm-Message-State: APjAAAW8qpIjnNzDNDoyLcDgNeCE2+2CsNbCQ/gPIkl0wu8PNo1uqX9E
+        QcX/4Ta5PxRywXHWeERkcWEgFaaJ0YwQXg==
+X-Google-Smtp-Source: APXvYqxKi+3L+weX7AmCRP/3CY/cepcPPYKD2Qtej8yknQfoMj+YN9KWiAPoTqTD9le6z+WmJjI8Pw==
+X-Received: by 2002:adf:fb8d:: with SMTP id a13mr24217731wrr.273.1562081471542;
+        Tue, 02 Jul 2019 08:31:11 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id s10sm3890542wmf.8.2019.07.02.08.31.10
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 02 Jul 2019 08:31:10 -0700 (PDT)
+Message-ID: <5d1b78be.1c69fb81.ceec.803d@mx.google.com>
+Date:   Tue, 02 Jul 2019 08:31:10 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <3E09BABA-FADF-41AD-8524-68A587197DBC@oracle.com>
-References: <1562079876-20756-1-git-send-email-pbonzini@redhat.com>
- <1562079876-20756-3-git-send-email-pbonzini@redhat.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-X-Mailer: Apple Mail (2.3445.4.7)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9306 signatures=668688
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=851
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1810050000 definitions=main-1907020166
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9306 signatures=668688
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=903 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
- definitions=main-1907020167
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.184-47-gc83cb33c7680
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.4.y boot: 96 boots: 3 failed,
+ 91 passed with 1 offline, 1 conflict (v4.4.184-47-gc83cb33c7680)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y boot: 96 boots: 3 failed, 91 passed with 1 offline, 1=
+ conflict (v4.4.184-47-gc83cb33c7680)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.184-47-gc83cb33c7680/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.184-47-gc83cb33c7680/
 
-> On 2 Jul 2019, at 18:04, Paolo Bonzini <pbonzini@redhat.com> wrote:
->=20
-> Allow userspace to set a custom value for the VMFUNC controls MSR, as =
-long
-> as the capabilities it advertises do not exceed those of the host.
->=20
-> Fixes: 27c42a1bb ("KVM: nVMX: Enable VMFUNC for the L1 hypervisor", =
-2017-08-03)
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.184-47-gc83cb33c7680
+Git Commit: c83cb33c7680a459427d388601e2de866383b3c3
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 44 unique boards, 20 SoC families, 14 builds out of 190
 
-Reviewed-by: Liran Alon <liran.alon@oracle.com>
+Boot Failures Detected:
 
-> ---
-> arch/x86/kvm/vmx/nested.c | 5 +++++
-> 1 file changed, 5 insertions(+)
->=20
-> diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-> index c4e29ef0b21e..163d226efa96 100644
-> --- a/arch/x86/kvm/vmx/nested.c
-> +++ b/arch/x86/kvm/vmx/nested.c
-> @@ -1234,6 +1234,11 @@ int vmx_set_vmx_msr(struct kvm_vcpu *vcpu, u32 =
-msr_index, u64 data)
-> 	case MSR_IA32_VMX_VMCS_ENUM:
-> 		vmx->nested.msrs.vmcs_enum =3D data;
-> 		return 0;
-> +	case MSR_IA32_VMX_VMFUNC:
-> +		if (data & ~vmx->nested.msrs.vmfunc_controls)
-> +			return -EINVAL;
-> +		vmx->nested.msrs.vmfunc_controls =3D data;
-> +		return 0;
-> 	default:
-> 		/*
-> 		 * The rest of the VMX capability MSRs do not support =
-restore.
-> --=20
-> 1.8.3.1
->=20
->=20
+arm:
+    sunxi_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
 
+    multi_v7_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu:
+            lab-drue: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+            lab-mhart: PASS (gcc-8)
+            lab-collabora: PASS (gcc-8)
+            lab-linaro-lkft: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
