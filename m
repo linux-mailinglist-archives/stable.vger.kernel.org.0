@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9320D5CABE
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:07:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78AFC5CB47
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:12:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728250AbfGBIH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:07:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54626 "EHLO mail.kernel.org"
+        id S1727868AbfGBII6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:08:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727690AbfGBIHZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:07:25 -0400
+        id S1727705AbfGBII6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:08:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00B3E21479;
-        Tue,  2 Jul 2019 08:07:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C69E21841;
+        Tue,  2 Jul 2019 08:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054844;
-        bh=+uiyczWvhFtbA6WqY0j5fHfFIoFRThxEQMuXZjIIItc=;
+        s=default; t=1562054937;
+        bh=7+KiisQO44b+0B8ltKPR+aTQjmKfAoUAKi7Tw5GLKvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VIFrvfrTMTtg2LJHWoG03/OvmHtuAL4YgPEddmLOljX2plzYNpJH6VlAnQPgRfLRq
-         sVzx1JrxX8zctYMnb9hDovlVybI1vrFR3GaEdj+AJWm8vLmz2Zs1AHZSrtXqCEeZ3B
-         jJJ0BRvuz8uLtagetU16C5zMOR006p6J4Szdi+uM=
+        b=tlqcGE3RbyhQPUqLQ51WP4icD+QumADN1k7L+rCIvom7YmSI3AfmpcnWvlUuEzIGa
+         lmHI+vwEN9mH4hoxoK3bJZ56dK/GMAFPO6GCVs2kRRFxFwl6lmgqbKSaxrXQtnuo2t
+         bQoUff10e7rgI84DGh6UmiiHsfqt3lpfzuwOBxLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Pirko <jiri@resnulli.us>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 51/72] bonding: Always enable vlan tx offload
+        stable@vger.kernel.org,
+        Dominique Martinet <dominique.martinet@cea.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 12/43] 9p: p9dirent_read: check network-provided name length
 Date:   Tue,  2 Jul 2019 10:01:52 +0200
-Message-Id: <20190702080127.224340525@linuxfoundation.org>
+Message-Id: <20190702080124.447367850@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
-References: <20190702080124.564652899@linuxfoundation.org>
+In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
+References: <20190702080123.904399496@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+[ Upstream commit ef5305f1f72eb1cfcda25c382bb0368509c0385b ]
 
-[ Upstream commit 30d8177e8ac776d89d387fad547af6a0f599210e ]
+strcpy to dirent->d_name could overflow the buffer, use strscpy to check
+the provided string length and error out if the size was too big.
 
-We build vlan on top of bonding interface, which vlan offload
-is off, bond mode is 802.3ad (LACP) and xmit_hash_policy is
-BOND_XMIT_POLICY_ENCAP34.
+While we are here, make the function return an error when the pdu
+parsing failed, instead of returning the pdu offset as if it had been a
+success...
 
-Because vlan tx offload is off, vlan tci is cleared and skb push
-the vlan header in validate_xmit_vlan() while sending from vlan
-devices. Then in bond_xmit_hash, __skb_flow_dissect() fails to
-get information from protocol headers encapsulated within vlan,
-because 'nhoff' is points to IP header, so bond hashing is based
-on layer 2 info, which fails to distribute packets across slaves.
-
-This patch always enable bonding's vlan tx offload, pass the vlan
-packets to the slave devices with vlan tci, let them to handle
-vlan implementation.
-
-Fixes: 278339a42a1b ("bonding: propogate vlan_features to bonding master")
-Suggested-by: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: http://lkml.kernel.org/r/1536339057-21974-4-git-send-email-asmadeus@codewreck.org
+Addresses-Coverity-ID: 139133 ("Copy into fixed size buffer")
+Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/9p/protocol.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -4307,12 +4307,12 @@ void bond_setup(struct net_device *bond_
- 	bond_dev->features |= NETIF_F_NETNS_LOCAL;
+diff --git a/net/9p/protocol.c b/net/9p/protocol.c
+index 766d1ef4640a..1885403c9a3e 100644
+--- a/net/9p/protocol.c
++++ b/net/9p/protocol.c
+@@ -622,13 +622,19 @@ int p9dirent_read(struct p9_client *clnt, char *buf, int len,
+ 	if (ret) {
+ 		p9_debug(P9_DEBUG_9P, "<<< p9dirent_read failed: %d\n", ret);
+ 		trace_9p_protocol_dump(clnt, &fake_pdu);
+-		goto out;
++		return ret;
+ 	}
  
- 	bond_dev->hw_features = BOND_VLAN_FEATURES |
--				NETIF_F_HW_VLAN_CTAG_TX |
- 				NETIF_F_HW_VLAN_CTAG_RX |
- 				NETIF_F_HW_VLAN_CTAG_FILTER;
+-	strcpy(dirent->d_name, nameptr);
++	ret = strscpy(dirent->d_name, nameptr, sizeof(dirent->d_name));
++	if (ret < 0) {
++		p9_debug(P9_DEBUG_ERROR,
++			 "On the wire dirent name too long: %s\n",
++			 nameptr);
++		kfree(nameptr);
++		return ret;
++	}
+ 	kfree(nameptr);
  
- 	bond_dev->hw_features |= NETIF_F_GSO_ENCAP_ALL | NETIF_F_GSO_UDP_L4;
- 	bond_dev->features |= bond_dev->hw_features;
-+	bond_dev->features |= NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_STAG_TX;
+-out:
+ 	return fake_pdu.offset;
  }
- 
- /* Destroy a bonding device.
+ EXPORT_SYMBOL(p9dirent_read);
+-- 
+2.20.1
+
 
 
