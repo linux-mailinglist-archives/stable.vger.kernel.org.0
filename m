@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 958A25CBC6
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAC4F5CAC4
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:07:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727708AbfGBIE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:04:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49894 "EHLO mail.kernel.org"
+        id S1728314AbfGBIHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:07:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727700AbfGBIE0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:04:26 -0400
+        id S1728312AbfGBIHn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:07:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E71E21479;
-        Tue,  2 Jul 2019 08:04:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0371021479;
+        Tue,  2 Jul 2019 08:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054665;
-        bh=B0zE+ze37peEMgxTPIJ5aLGa/EiAMNoLf4EUJG8WUcQ=;
+        s=default; t=1562054862;
+        bh=nHuwhUTRAxfjXPVHa1/B3FzGKUEmmVuofCaXCYoxoko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M0ujkxYiGRd8c5Lay8sNK6uf3IJ3EbH/e6+UgojEyPUPmarMJZXrub9accQ1iETq9
-         L5A5RvluD8faog7dNpX2TXJ1lLVfBOjDSeuN4Al95sSUmb3qa3nJZ6dWQNiSxobS5R
-         guUaMJPFto292OvQdFnl7tgZqywVcNvFzT4y8DV4=
+        b=bj7g+eTnm6HZ/JTG1fzoYbzdKzoDZHp0yC+du++pSzVvl4Gs3l33MnAHW1iYrW59S
+         /RmJqi5HVxRkojAdEV3E/lFHb1yr9GKMIGpXZ9MwIy106LjtN1wsu7ImiL3ebvDyhP
+         x1HXv+HOjShzbuaiKvwCP1vVVzf+1qDNZd3SgBaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Craig Gallek <kraig@google.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.1 49/55] bpf: udp: ipv6: Avoid running reuseports bpf_prog from __udp6_lib_err
-Date:   Tue,  2 Jul 2019 10:01:57 +0200
-Message-Id: <20190702080126.622025751@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+afabda3890cc2f765041@syzkaller.appspotmail.com,
+        syzbot+276ca1c77a19977c0130@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        Neil Horman <nhorman@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 57/72] sctp: change to hold sk after auth shkey is created successfully
+Date:   Tue,  2 Jul 2019 10:01:58 +0200
+Message-Id: <20190702080127.559912786@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
-References: <20190702080124.103022729@linuxfoundation.org>
+In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
+References: <20190702080124.564652899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin KaFai Lau <kafai@fb.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 4ac30c4b3659efac031818c418beb51e630d512d upstream.
+[ Upstream commit 25bff6d5478b2a02368097015b7d8eb727c87e16 ]
 
-__udp6_lib_err() may be called when handling icmpv6 message. For example,
-the icmpv6 toobig(type=2).  __udp6_lib_lookup() is then called
-which may call reuseport_select_sock().  reuseport_select_sock() will
-call into a bpf_prog (if there is one).
+Now in sctp_endpoint_init(), it holds the sk then creates auth
+shkey. But when the creation fails, it doesn't release the sk,
+which causes a sk defcnf leak,
 
-reuseport_select_sock() is expecting the skb->data pointing to the
-transport header (udphdr in this case).  For example, run_bpf_filter()
-is pulling the transport header.
+Here to fix it by only holding the sk when auth shkey is created
+successfully.
 
-However, in the __udp6_lib_err() path, the skb->data is pointing to the
-ipv6hdr instead of the udphdr.
-
-One option is to pull and push the ipv6hdr in __udp6_lib_err().
-Instead of doing this, this patch follows how the original
-commit 538950a1b752 ("soreuseport: setsockopt SO_ATTACH_REUSEPORT_[CE]BPF")
-was done in IPv4, which has passed a NULL skb pointer to
-reuseport_select_sock().
-
-Fixes: 538950a1b752 ("soreuseport: setsockopt SO_ATTACH_REUSEPORT_[CE]BPF")
-Cc: Craig Gallek <kraig@google.com>
-Signed-off-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Song Liu <songliubraving@fb.com>
-Acked-by: Craig Gallek <kraig@google.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: a29a5bd4f5c3 ("[SCTP]: Implement SCTP-AUTH initializations.")
+Reported-by: syzbot+afabda3890cc2f765041@syzkaller.appspotmail.com
+Reported-by: syzbot+276ca1c77a19977c0130@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Neil Horman <nhorman@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/ipv6/udp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sctp/endpointola.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -520,7 +520,7 @@ int __udp6_lib_err(struct sk_buff *skb,
- 	struct net *net = dev_net(skb->dev);
+--- a/net/sctp/endpointola.c
++++ b/net/sctp/endpointola.c
+@@ -126,10 +126,6 @@ static struct sctp_endpoint *sctp_endpoi
+ 	/* Initialize the bind addr area */
+ 	sctp_bind_addr_init(&ep->base.bind_addr, 0);
  
- 	sk = __udp6_lib_lookup(net, daddr, uh->dest, saddr, uh->source,
--			       inet6_iif(skb), inet6_sdif(skb), udptable, skb);
-+			       inet6_iif(skb), inet6_sdif(skb), udptable, NULL);
- 	if (!sk) {
- 		/* No socket for error: try tunnels before discarding */
- 		sk = ERR_PTR(-ENOENT);
+-	/* Remember who we are attached to.  */
+-	ep->base.sk = sk;
+-	sock_hold(ep->base.sk);
+-
+ 	/* Create the lists of associations.  */
+ 	INIT_LIST_HEAD(&ep->asocs);
+ 
+@@ -167,6 +163,10 @@ static struct sctp_endpoint *sctp_endpoi
+ 	ep->prsctp_enable = net->sctp.prsctp_enable;
+ 	ep->reconf_enable = net->sctp.reconf_enable;
+ 
++	/* Remember who we are attached to.  */
++	ep->base.sk = sk;
++	sock_hold(ep->base.sk);
++
+ 	return ep;
+ 
+ nomem_hmacs:
 
 
