@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CD785CB5D
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:13:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2CC55CBB6
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727830AbfGBIH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:07:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55240 "EHLO mail.kernel.org"
+        id S1727788AbfGBIEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:04:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727269AbfGBIHw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:07:52 -0400
+        id S1727242AbfGBIEk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:04:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E25C2184E;
-        Tue,  2 Jul 2019 08:07:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0989F21841;
+        Tue,  2 Jul 2019 08:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054871;
-        bh=7DQGuESCLaUEs01XjT2ZWgglXaxb0cRNK0S7RFfDxiE=;
+        s=default; t=1562054679;
+        bh=BTSRS7krKf0ykVWMx0adRYJYzVZlruXljy9zoQppowA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DlaoqQX1ClFL33yDerOrfSamVyhLul6ldi1TL6wEWP243zksu0H37Pgdg3tMfRSDr
-         bE54Hmw+55kBiOuskDzlKBLCSuUKib9yauA0DcVmzB0s8C8dMtPD5+Q2RrwEC41stF
-         8VnAjsj5x24b7gTlLUO0uxkul8V2WJ05sNhXLZq8=
+        b=urPeLJ1J2ScKfGKzkAMV1w0zYDYh1sL4jhiubadli5Ynaq/I3R/kR8q3FqKMzJID/
+         bJR6lOcmDKiOX1kg3NABP9dvK04IizGoJDpGgK7nYW2oOJOveEP+7IkMx4Vkw3fdrX
+         9cayqIVxi0z2NWUA00oE4Iv1l1hzXth3k4JyX/Nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Jon Maloy <jon.maloy@ericsson.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 59/72] tipc: change to use register_pernet_device
-Date:   Tue,  2 Jul 2019 10:02:00 +0200
-Message-Id: <20190702080127.667772181@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.1 53/55] RDMA: Directly cast the sockaddr union to sockaddr
+Date:   Tue,  2 Jul 2019 10:02:01 +0200
+Message-Id: <20190702080126.810631450@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
-References: <20190702080124.564652899@linuxfoundation.org>
+In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
+References: <20190702080124.103022729@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,100 +42,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit c492d4c74dd3f87559883ffa0f94a8f1ae3fe5f5 ]
+commit 641114d2af312d39ca9bbc2369d18a5823da51c6 upstream.
 
-This patch is to fix a dst defcnt leak, which can be reproduced by doing:
+gcc 9 now does allocation size tracking and thinks that passing the member
+of a union and then accessing beyond that member's bounds is an overflow.
 
-  # ip net a c; ip net a s; modprobe tipc
-  # ip net e s ip l a n eth1 type veth peer n eth1 netns c
-  # ip net e c ip l s lo up; ip net e c ip l s eth1 up
-  # ip net e s ip l s lo up; ip net e s ip l s eth1 up
-  # ip net e c ip a a 1.1.1.2/8 dev eth1
-  # ip net e s ip a a 1.1.1.1/8 dev eth1
-  # ip net e c tipc b e m udp n u1 localip 1.1.1.2
-  # ip net e s tipc b e m udp n u1 localip 1.1.1.1
-  # ip net d c; ip net d s; rmmod tipc
+Instead of using the union member, use the entire union with a cast to
+get to the sockaddr. gcc will now know that the memory extends the full
+size of the union.
 
-and it will get stuck and keep logging the error:
-
-  unregister_netdevice: waiting for lo to become free. Usage count = 1
-
-The cause is that a dst is held by the udp sock's sk_rx_dst set on udp rx
-path with udp_early_demux == 1, and this dst (eventually holding lo dev)
-can't be released as bearer's removal in tipc pernet .exit happens after
-lo dev's removal, default_device pernet .exit.
-
- "There are two distinct types of pernet_operations recognized: subsys and
-  device.  At creation all subsys init functions are called before device
-  init functions, and at destruction all device exit functions are called
-  before subsys exit function."
-
-So by calling register_pernet_device instead to register tipc_net_ops, the
-pernet .exit() will be invoked earlier than loopback dev's removal when a
-netns is being destroyed, as fou/gue does.
-
-Note that vxlan and geneve udp tunnels don't have this issue, as the udp
-sock is released in their device ndo_stop().
-
-This fix is also necessary for tipc dst_cache, which will hold dsts on tx
-path and I will introduce in my next patch.
-
-Reported-by: Li Shuang <shuali@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/tipc/core.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -132,7 +132,7 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_sysctl;
+---
+ drivers/infiniband/core/addr.c           |   16 ++++++++--------
+ drivers/infiniband/hw/ocrdma/ocrdma_ah.c |    5 ++---
+ drivers/infiniband/hw/ocrdma/ocrdma_hw.c |    5 ++---
+ 3 files changed, 12 insertions(+), 14 deletions(-)
+
+--- a/drivers/infiniband/core/addr.c
++++ b/drivers/infiniband/core/addr.c
+@@ -730,8 +730,8 @@ int roce_resolve_route_from_path(struct
+ 	if (rec->roce.route_resolved)
+ 		return 0;
  
--	err = register_pernet_subsys(&tipc_net_ops);
-+	err = register_pernet_device(&tipc_net_ops);
- 	if (err)
- 		goto out_pernet;
+-	rdma_gid2ip(&sgid._sockaddr, &rec->sgid);
+-	rdma_gid2ip(&dgid._sockaddr, &rec->dgid);
++	rdma_gid2ip((struct sockaddr *)&sgid, &rec->sgid);
++	rdma_gid2ip((struct sockaddr *)&dgid, &rec->dgid);
  
-@@ -140,7 +140,7 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_socket;
+ 	if (sgid._sockaddr.sa_family != dgid._sockaddr.sa_family)
+ 		return -EINVAL;
+@@ -742,7 +742,7 @@ int roce_resolve_route_from_path(struct
+ 	dev_addr.net = &init_net;
+ 	dev_addr.sgid_attr = attr;
  
--	err = register_pernet_subsys(&tipc_topsrv_net_ops);
-+	err = register_pernet_device(&tipc_topsrv_net_ops);
- 	if (err)
- 		goto out_pernet_topsrv;
+-	ret = addr_resolve(&sgid._sockaddr, &dgid._sockaddr,
++	ret = addr_resolve((struct sockaddr *)&sgid, (struct sockaddr *)&dgid,
+ 			   &dev_addr, false, true, 0);
+ 	if (ret)
+ 		return ret;
+@@ -814,22 +814,22 @@ int rdma_addr_find_l2_eth_by_grh(const u
+ 	struct rdma_dev_addr dev_addr;
+ 	struct resolve_cb_context ctx;
+ 	union {
+-		struct sockaddr     _sockaddr;
+ 		struct sockaddr_in  _sockaddr_in;
+ 		struct sockaddr_in6 _sockaddr_in6;
+ 	} sgid_addr, dgid_addr;
+ 	int ret;
  
-@@ -151,11 +151,11 @@ static int __init tipc_init(void)
- 	pr_info("Started in single node mode\n");
- 	return 0;
- out_bearer:
--	unregister_pernet_subsys(&tipc_topsrv_net_ops);
-+	unregister_pernet_device(&tipc_topsrv_net_ops);
- out_pernet_topsrv:
- 	tipc_socket_stop();
- out_socket:
--	unregister_pernet_subsys(&tipc_net_ops);
-+	unregister_pernet_device(&tipc_net_ops);
- out_pernet:
- 	tipc_unregister_sysctl();
- out_sysctl:
-@@ -170,9 +170,9 @@ out_netlink:
- static void __exit tipc_exit(void)
- {
- 	tipc_bearer_cleanup();
--	unregister_pernet_subsys(&tipc_topsrv_net_ops);
-+	unregister_pernet_device(&tipc_topsrv_net_ops);
- 	tipc_socket_stop();
--	unregister_pernet_subsys(&tipc_net_ops);
-+	unregister_pernet_device(&tipc_net_ops);
- 	tipc_netlink_stop();
- 	tipc_netlink_compat_stop();
- 	tipc_unregister_sysctl();
+-	rdma_gid2ip(&sgid_addr._sockaddr, sgid);
+-	rdma_gid2ip(&dgid_addr._sockaddr, dgid);
++	rdma_gid2ip((struct sockaddr *)&sgid_addr, sgid);
++	rdma_gid2ip((struct sockaddr *)&dgid_addr, dgid);
+ 
+ 	memset(&dev_addr, 0, sizeof(dev_addr));
+ 	dev_addr.net = &init_net;
+ 	dev_addr.sgid_attr = sgid_attr;
+ 
+ 	init_completion(&ctx.comp);
+-	ret = rdma_resolve_ip(&sgid_addr._sockaddr, &dgid_addr._sockaddr,
+-			      &dev_addr, 1000, resolve_cb, true, &ctx);
++	ret = rdma_resolve_ip((struct sockaddr *)&sgid_addr,
++			      (struct sockaddr *)&dgid_addr, &dev_addr, 1000,
++			      resolve_cb, true, &ctx);
+ 	if (ret)
+ 		return ret;
+ 
+--- a/drivers/infiniband/hw/ocrdma/ocrdma_ah.c
++++ b/drivers/infiniband/hw/ocrdma/ocrdma_ah.c
+@@ -83,7 +83,6 @@ static inline int set_av_attr(struct ocr
+ 	struct iphdr ipv4;
+ 	const struct ib_global_route *ib_grh;
+ 	union {
+-		struct sockaddr     _sockaddr;
+ 		struct sockaddr_in  _sockaddr_in;
+ 		struct sockaddr_in6 _sockaddr_in6;
+ 	} sgid_addr, dgid_addr;
+@@ -133,9 +132,9 @@ static inline int set_av_attr(struct ocr
+ 		ipv4.tot_len = htons(0);
+ 		ipv4.ttl = ib_grh->hop_limit;
+ 		ipv4.protocol = nxthdr;
+-		rdma_gid2ip(&sgid_addr._sockaddr, sgid);
++		rdma_gid2ip((struct sockaddr *)&sgid_addr, sgid);
+ 		ipv4.saddr = sgid_addr._sockaddr_in.sin_addr.s_addr;
+-		rdma_gid2ip(&dgid_addr._sockaddr, &ib_grh->dgid);
++		rdma_gid2ip((struct sockaddr*)&dgid_addr, &ib_grh->dgid);
+ 		ipv4.daddr = dgid_addr._sockaddr_in.sin_addr.s_addr;
+ 		memcpy((u8 *)ah->av + eth_sz, &ipv4, sizeof(struct iphdr));
+ 	} else {
+--- a/drivers/infiniband/hw/ocrdma/ocrdma_hw.c
++++ b/drivers/infiniband/hw/ocrdma/ocrdma_hw.c
+@@ -2499,7 +2499,6 @@ static int ocrdma_set_av_params(struct o
+ 	u32 vlan_id = 0xFFFF;
+ 	u8 mac_addr[6], hdr_type;
+ 	union {
+-		struct sockaddr     _sockaddr;
+ 		struct sockaddr_in  _sockaddr_in;
+ 		struct sockaddr_in6 _sockaddr_in6;
+ 	} sgid_addr, dgid_addr;
+@@ -2541,8 +2540,8 @@ static int ocrdma_set_av_params(struct o
+ 
+ 	hdr_type = rdma_gid_attr_network_type(sgid_attr);
+ 	if (hdr_type == RDMA_NETWORK_IPV4) {
+-		rdma_gid2ip(&sgid_addr._sockaddr, &sgid_attr->gid);
+-		rdma_gid2ip(&dgid_addr._sockaddr, &grh->dgid);
++		rdma_gid2ip((struct sockaddr *)&sgid_addr, &sgid_attr->gid);
++		rdma_gid2ip((struct sockaddr *)&dgid_addr, &grh->dgid);
+ 		memcpy(&cmd->params.dgid[0],
+ 		       &dgid_addr._sockaddr_in.sin_addr.s_addr, 4);
+ 		memcpy(&cmd->params.sgid[0],
 
 
