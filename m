@@ -2,90 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFCB5DA48
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 03:08:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59B335D9F1
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 02:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727299AbfGCBHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 21:07:49 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:42537 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727179AbfGCBHs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 21:07:48 -0400
-Received: by mail-io1-f66.google.com with SMTP id u19so784448ior.9;
-        Tue, 02 Jul 2019 18:07:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=vLtFV7QdcKPiMrP0cqycBzD9PcFJ3VgNlGMx4ns+VN4=;
-        b=EKHMxKvzvgGTNXwn/RBpbz6aIPmxjz3xQqiEf6ofrsoWvRfaX4SjLj18+5ZL2Byv2o
-         3P5vZdXWBWg1r3QnYbgMIhCiTloWI9Ao7Xt9BiD3/0rlMJNWVZA/A7VqjsLcpTljrNYu
-         4sJ/SXRzR5xb1oYT/qYHpIohRK4WHuK2SqWTzEPTL5oTdb2STMFMZCTGvALtCuUwEFNT
-         xXRKkrfgx9+d4RTL2RC6mUR8+gSkQBB/zNr98tpGBREhAEorEsvFzklkmw1ssdfkH2Vp
-         lYr4r2BgZ3bK4JWbzneA/PuzINBLUhsOPwTM3+bY52BjUQrJVrsncKI+P58blRrRlyIA
-         Z0gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=vLtFV7QdcKPiMrP0cqycBzD9PcFJ3VgNlGMx4ns+VN4=;
-        b=a+FiBEOkvL8h7c7xpRQAGX4MnkAWkm/QesNNO6cHLj75cCVdU6agddLbprru4zoo8x
-         +I3QUQPoeWCbWu08WAbrk4x1wpj3nNg6OdkSzwAGZ9lxG+uNRgQYjZ20Ppt7/1PKMAAO
-         NFAnBqcMXF/xkv6g63Ru4POD/f4b/TRhfRzmhZ1rXeiaCZsZs2JfjJP7DQvFtaDuJj8H
-         PGSd0Yyw5eW1H20FaR3RJpO0plqF6dSr+JEf9xWMW7YeP86DznuWn2R60EChVHUKrCLc
-         2sUA0XPWkzBQ1Fxmixo01PtjCxqnJSRpCXCP/j5S6IK9pT4sW1tE6IJCdlQGd5kdX4W0
-         HPfg==
-X-Gm-Message-State: APjAAAW8p5xskyF+MTAermB2IWPhC1D1JNlbRwhrskHhkZOZ/TA5IwZj
-        TisWcLACf0UPvDu9Q3exjF4yK5SOGQUEMg==
-X-Google-Smtp-Source: APXvYqwiCb0xm7iQRReoMsSVNFqrs90ckKeqF8zYFScw3R8LqDJuJm3bQ23aPAT4ifFGaqv3cYNmMg==
-X-Received: by 2002:a5d:9bc6:: with SMTP id d6mr5061258ion.160.1562101850084;
-        Tue, 02 Jul 2019 14:10:50 -0700 (PDT)
-Received: from JATN (c-73-243-191-173.hsd1.co.comcast.net. [73.243.191.173])
-        by smtp.gmail.com with ESMTPSA id t5sm38951iol.55.2019.07.02.14.10.48
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 02 Jul 2019 14:10:49 -0700 (PDT)
-Date:   Tue, 2 Jul 2019 15:10:48 -0600
-From:   Kelsey Skunberg <skunberg.kelsey@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.14 00/43] 4.14.132-stable review
-Message-ID: <20190702211047.GC2368@JATN>
-References: <20190702080123.904399496@linuxfoundation.org>
+        id S1727186AbfGCA6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 20:58:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49336 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727089AbfGCA6F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 20:58:05 -0400
+Received: from ebiggers-linuxstation.mtv.corp.google.com (unknown [104.132.1.77])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC2DD20449;
+        Tue,  2 Jul 2019 21:18:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1562102286;
+        bh=ZncPmqJjQ5p8Nzi6KA3tSryklHFPA1+D6VokdeGHa28=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SB5zOgdMv5+0+Y00OB/l2Jsui1egnX0iDRToH0chu73SQDnspeXPnukhhoEmUrnLn
+         1J+BRo9A3r/sqHCxARyy5JjA32jtlBzB0ijOU2DU7SGrhcMqqdeMDKnGYa4XxgYNle
+         NM7aJFyBE6dbHGDyiqMab5d1sEPNEWHorvFmP4uM=
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-crypto@vger.kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Cc:     chetjain@in.ibm.com, "David S . Miller" <davem@davemloft.net>,
+        linux-kernel@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
+        stable@vger.kernel.org,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH] crypto: user - prevent operating on larval algorithms
+Date:   Tue,  2 Jul 2019 14:17:00 -0700
+Message-Id: <20190702211700.16526-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.22.0.410.gd8fdbe21b5-goog
+In-Reply-To: <20190701153154.1569c2dc@kitsune.suse.cz>
+References: <20190701153154.1569c2dc@kitsune.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 02, 2019 at 10:01:40AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.132 release.
-> There are 43 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu 04 Jul 2019 07:59:45 AM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.132-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+From: Eric Biggers <ebiggers@google.com>
 
-Compiled, booted, and no regressions on my system.
+Michal Suchanek reported [1] that running the pcrypt_aead01 test from
+LTP [2] in a loop and holding Ctrl-C causes a NULL dereference of
+alg->cra_users.next in crypto_remove_spawns(), via crypto_del_alg().
+The test repeatedly uses CRYPTO_MSG_NEWALG and CRYPTO_MSG_DELALG.
 
-Cheers,
-Kelsey
+The crash occurs when the instance that CRYPTO_MSG_DELALG is trying to
+unregister isn't a real registered algorithm, but rather is a "test
+larval", which is a special "algorithm" added to the algorithms list
+while the real algorithm is still being tested.  Larvals don't have
+initialized cra_users, so that causes the crash.  Normally pcrypt_aead01
+doesn't trigger this because CRYPTO_MSG_NEWALG waits for the algorithm
+to be tested; however, CRYPTO_MSG_NEWALG returns early when interrupted.
+
+Everything else in the "crypto user configuration" API has this same bug
+too, i.e. it inappropriately allows operating on larval algorithms
+(though it doesn't look like the other cases can cause a crash).
+
+Fix this by making crypto_alg_match() exclude larval algorithms.
+
+[1] https://lkml.kernel.org/r/20190625071624.27039-1-msuchanek@suse.de
+[2] https://github.com/linux-test-project/ltp/blob/20190517/testcases/kernel/crypto/pcrypt_aead01.c
+
+Reported-by: Michal Suchanek <msuchanek@suse.de>
+Fixes: a38f7907b926 ("crypto: Add userspace configuration API")
+Cc: <stable@vger.kernel.org> # v3.2+
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ crypto/crypto_user_base.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/crypto/crypto_user_base.c b/crypto/crypto_user_base.c
+index e48da3b75c71d4..a89fcc530092a8 100644
+--- a/crypto/crypto_user_base.c
++++ b/crypto/crypto_user_base.c
+@@ -56,6 +56,9 @@ struct crypto_alg *crypto_alg_match(struct crypto_user_alg *p, int exact)
+ 	list_for_each_entry(q, &crypto_alg_list, cra_list) {
+ 		int match = 0;
+ 
++		if (crypto_is_larval(q))
++			continue;
++
+ 		if ((q->cra_flags ^ p->cru_type) & p->cru_mask)
+ 			continue;
+ 
+-- 
+2.22.0.410.gd8fdbe21b5-goog
 
