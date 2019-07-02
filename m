@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F375C5CB18
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:11:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E545CB0C
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:10:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728858AbfGBIKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:10:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59414 "EHLO mail.kernel.org"
+        id S1728255AbfGBIKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:10:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728855AbfGBIKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:10:39 -0400
+        id S1728879AbfGBIKn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:10:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED6C72186A;
-        Tue,  2 Jul 2019 08:10:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B7F020665;
+        Tue,  2 Jul 2019 08:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562055039;
-        bh=9I0J9Q9BNRma8ZT/GTjIET7njTTlPZtA+u6Uyvd4U58=;
+        s=default; t=1562055042;
+        bh=uiVFToY1J/8BCI8bn4gOJQPAGV7k0Xk67iP/xnWd0VE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hj+TVXScNuvQlsInqAudc+4D817ymrogxfh287X8X9R9c1HR2a/YFYmZCxJDzYu2o
-         XljaJChw45n4BnTD+S4bjUstCjdXVztVx87qrRCrrZpu/Km8DBJ+UDlNcGwbBD5BKr
-         4LAdhFgVw/i8YOZaXYoyhq2Cg21cDDJ8GEM73kPk=
+        b=ikkpbzuqCU+wY+k1wthotoAWo098xdDbDYda3Tvi5BrD09iGBiCkyk95kSgemAk3j
+         nheHOXQGkvyP3ImJ65DDkzpsUYoFDwO1QTW/yZ2QdVBSOOB+IdWsmqEXe24TdDR9Xw
+         yQmHk+Hn95vckwdy/6nadwarrRjW3IWrYCrGOFsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 4.14 24/43] NFS/flexfiles: Use the correct TCP timeout for flexfiles I/O
-Date:   Tue,  2 Jul 2019 10:02:04 +0200
-Message-Id: <20190702080125.071813274@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.14 25/43] cpu/speculation: Warn on unsupported mitigations= parameter
+Date:   Tue,  2 Jul 2019 10:02:05 +0200
+Message-Id: <20190702080125.137325770@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
 References: <20190702080123.904399496@linuxfoundation.org>
@@ -44,33 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-commit 68f461593f76bd5f17e87cdd0bea28f4278c7268 upstream.
+commit 1bf72720281770162c87990697eae1ba2f1d917a upstream.
 
-Fix a typo where we're confusing the default TCP retrans value
-(NFS_DEF_TCP_RETRANS) for the default TCP timeout value.
+Currently, if the user specifies an unsupported mitigation strategy on the
+kernel command line, it will be ignored silently.  The code will fall back
+to the default strategy, possibly leaving the system more vulnerable than
+expected.
 
-Fixes: 15d03055cf39f ("pNFS/flexfiles: Set reasonable default ...")
-Cc: stable@vger.kernel.org # 4.8+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+This may happen due to e.g. a simple typo, or, for a stable kernel release,
+because not all mitigation strategies have been backported.
+
+Inform the user by printing a message.
+
+Fixes: 98af8452945c5565 ("cpu/speculation: Add 'mitigations=' cmdline option")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Ben Hutchings <ben@decadent.org.uk>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20190516070935.22546-1-geert@linux-m68k.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/flexfilelayout/flexfilelayoutdev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cpu.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/nfs/flexfilelayout/flexfilelayoutdev.c
-+++ b/fs/nfs/flexfilelayout/flexfilelayoutdev.c
-@@ -18,7 +18,7 @@
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -2308,6 +2308,9 @@ static int __init mitigations_parse_cmdl
+ 		cpu_mitigations = CPU_MITIGATIONS_AUTO;
+ 	else if (!strcmp(arg, "auto,nosmt"))
+ 		cpu_mitigations = CPU_MITIGATIONS_AUTO_NOSMT;
++	else
++		pr_crit("Unsupported mitigations=%s, system may still be vulnerable\n",
++			arg);
  
- #define NFSDBG_FACILITY		NFSDBG_PNFS_LD
- 
--static unsigned int dataserver_timeo = NFS_DEF_TCP_RETRANS;
-+static unsigned int dataserver_timeo = NFS_DEF_TCP_TIMEO;
- static unsigned int dataserver_retrans;
- 
- static bool ff_layout_has_available_ds(struct pnfs_layout_segment *lseg);
+ 	return 0;
+ }
 
 
