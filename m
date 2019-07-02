@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9BA95CB87
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:14:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51E5A5CB34
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:12:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727542AbfGBIOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:14:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53444 "EHLO mail.kernel.org"
+        id S1727560AbfGBIJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:09:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728110AbfGBIGi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:06:38 -0400
+        id S1728076AbfGBIJl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:09:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BBD921850;
-        Tue,  2 Jul 2019 08:06:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B73621852;
+        Tue,  2 Jul 2019 08:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054797;
-        bh=DcM6BvikXnZQVDyUoJmwoTLl3k6lVmvyEkQXJvPKY7s=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PVEHbgNUz63MUf1GNfrusqMjeHVsAragR6akxjGVrAfBdRhOJVSu+F9VD9upjR++W
-         QRdUpi+f+TaGAvy2cXVku+JajPMJYrmsOSaKmqUH7a3A/+IqEAjCTZjMyJLM767Omw
-         8M06K8/0vlLom63Isrz0BTngXcRZEF1V28ZV34ow=
+        s=default; t=1562054980;
+        bh=NSzTonMBiKCPb9gXx7Edd5QoNBlC2RBlWPEqXZ7Y0/g=;
+        h=From:To:Cc:Subject:Date:From;
+        b=vgNi4GAXfFECRL63e8xcLdudTBFtS+T7IpJXE3vNjjtN0kQmPGq+IUYZ06goDrRvU
+         vTFrloyjqdkFKZo6zq2iaFsSdQz86sGfDFmCPnJrlw/mzxVsWDxviLU2B/d9zAOER5
+         CjGz638Nrvaioc5imhO0yAJ4Jd9iCsm+lvd2oUPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 38/72] mm/page_idle.c: fix oops because end_pfn is larger than max_pfn
-Date:   Tue,  2 Jul 2019 10:01:39 +0200
-Message-Id: <20190702080126.637385479@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.14 00/43] 4.14.132-stable review
+Date:   Tue,  2 Jul 2019 10:01:40 +0200
+Message-Id: <20190702080123.904399496@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
-References: <20190702080124.564652899@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.132-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.132-rc1
+X-KernelTest-Deadline: 2019-07-04T08:01+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -50,85 +51,212 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+This is the start of the stable review cycle for the 4.14.132 release.
+There are 43 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 7298e3b0a149c91323b3205d325e942c3b3b9ef6 upstream.
+Responses should be made by Thu 04 Jul 2019 07:59:45 AM UTC.
+Anything received after that time might be too late.
 
-Currently the calcuation of end_pfn can round up the pfn number to more
-than the actual maximum number of pfns, causing an Oops.  Fix this by
-ensuring end_pfn is never more than max_pfn.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.132-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-This can be easily triggered when on systems where the end_pfn gets
-rounded up to more than max_pfn using the idle-page stress-ng stress test:
+thanks,
 
-sudo stress-ng --idle-page 0
+greg k-h
 
-  BUG: unable to handle kernel paging request at 00000000000020d8
-  #PF error: [normal kernel read fault]
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  CPU: 1 PID: 11039 Comm: stress-ng-idle- Not tainted 5.0.0-5-generic #6-Ubuntu
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-  RIP: 0010:page_idle_get_page+0xc8/0x1a0
-  Code: 0f b1 0a 75 7d 48 8b 03 48 89 c2 48 c1 e8 33 83 e0 07 48 c1 ea 36 48 8d 0c 40 4c 8d 24 88 49 c1 e4 07 4c 03 24 d5 00 89 c3 be <49> 8b 44 24 58 48 8d b8 80 a1 02 00 e8 07 d5 77 00 48 8b 53 08 48
-  RSP: 0018:ffffafd7c672fde8 EFLAGS: 00010202
-  RAX: 0000000000000005 RBX: ffffe36341fff700 RCX: 000000000000000f
-  RDX: 0000000000000284 RSI: 0000000000000275 RDI: 0000000001fff700
-  RBP: ffffafd7c672fe00 R08: ffffa0bc34056410 R09: 0000000000000276
-  R10: ffffa0bc754e9b40 R11: ffffa0bc330f6400 R12: 0000000000002080
-  R13: ffffe36341fff700 R14: 0000000000080000 R15: ffffa0bc330f6400
-  FS: 00007f0ec1ea5740(0000) GS:ffffa0bc7db00000(0000) knlGS:0000000000000000
-  CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00000000000020d8 CR3: 0000000077d68000 CR4: 00000000000006e0
-  Call Trace:
-    page_idle_bitmap_write+0x8c/0x140
-    sysfs_kf_bin_write+0x5c/0x70
-    kernfs_fop_write+0x12e/0x1b0
-    __vfs_write+0x1b/0x40
-    vfs_write+0xab/0x1b0
-    ksys_write+0x55/0xc0
-    __x64_sys_write+0x1a/0x20
-    do_syscall_64+0x5a/0x110
-    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+-------------
+Pseudo-Shortlog of commits:
 
-Link: http://lkml.kernel.org/r/20190618124352.28307-1-colin.king@canonical.com
-Fixes: 33c3fc71c8cf ("mm: introduce idle page tracking")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.132-rc1
 
----
- mm/page_idle.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Xin Long <lucien.xin@gmail.com>
+    tipc: pass tunnel dev as NULL to udp_tunnel(6)_xmit_skb
 
---- a/mm/page_idle.c
-+++ b/mm/page_idle.c
-@@ -136,7 +136,7 @@ static ssize_t page_idle_bitmap_read(str
- 
- 	end_pfn = pfn + count * BITS_PER_BYTE;
- 	if (end_pfn > max_pfn)
--		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
-+		end_pfn = max_pfn;
- 
- 	for (; pfn < end_pfn; pfn++) {
- 		bit = pfn % BITMAP_CHUNK_BITS;
-@@ -181,7 +181,7 @@ static ssize_t page_idle_bitmap_write(st
- 
- 	end_pfn = pfn + count * BITS_PER_BYTE;
- 	if (end_pfn > max_pfn)
--		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
-+		end_pfn = max_pfn;
- 
- 	for (; pfn < end_pfn; pfn++) {
- 		bit = pfn % BITMAP_CHUNK_BITS;
+Will Deacon <will.deacon@arm.com>
+    futex: Update comments and docs about return values of arch futex code
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf, arm64: use more scalable stadd over ldxr / stxr loop in xadd
+
+Will Deacon <will.deacon@arm.com>
+    arm64: futex: Avoid copying out uninitialised stack in failed cmpxchg()
+
+Martin KaFai Lau <kafai@fb.com>
+    bpf: udp: ipv6: Avoid running reuseport's bpf_prog from __udp6_lib_err
+
+Martin KaFai Lau <kafai@fb.com>
+    bpf: udp: Avoid calling reuseport's bpf_prog from udp_gro
+
+YueHaibing <yuehaibing@huawei.com>
+    bonding: Always enable vlan tx offload
+
+YueHaibing <yuehaibing@huawei.com>
+    team: Always enable vlan tx offload
+
+Fei Li <lifei.shirley@bytedance.com>
+    tun: wake up waitqueues after IFF_UP is set
+
+Xin Long <lucien.xin@gmail.com>
+    tipc: check msg->req data len in tipc_nl_compat_bearer_disable
+
+Xin Long <lucien.xin@gmail.com>
+    tipc: change to use register_pernet_device
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: change to hold sk after auth shkey is created successfully
+
+Roland Hii <roland.king.guan.hii@intel.com>
+    net: stmmac: fixed new system time seconds value calculation
+
+JingYi Hou <houjingyi647@gmail.com>
+    net: remove duplicate fetch in sock_getsockopt
+
+Eric Dumazet <edumazet@google.com>
+    net/packet: fix memory leak in packet_set_ring()
+
+Stephen Suryaputra <ssuryaextr@gmail.com>
+    ipv4: Use return value of inet_iif() for __raw_v4_lookup in the while loop
+
+Neil Horman <nhorman@tuxdriver.com>
+    af_packet: Block execution of tasks waiting for transmit to complete in AF_PACKET
+
+Wang Xin <xin.wang7@cn.bosch.com>
+    eeprom: at24: fix unexpected timeout under high load
+
+Geert Uytterhoeven <geert@linux-m68k.org>
+    cpu/speculation: Warn on unsupported mitigations= parameter
+
+Trond Myklebust <trondmy@gmail.com>
+    NFS/flexfiles: Use the correct TCP timeout for flexfiles I/O
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/microcode: Fix the microcode load on CPU hotplug for real
+
+Alejandro Jimenez <alejandro.j.jimenez@oracle.com>
+    x86/speculation: Allow guests to use SSBD even if host does not
+
+Jan Kara <jack@suse.cz>
+    scsi: vmw_pscsi: Fix use-after-free in pvscsi_queue_lck()
+
+zhangyi (F) <yi.zhang@huawei.com>
+    dm log writes: make sure super sector log updates are written in order
+
+Colin Ian King <colin.king@canonical.com>
+    mm/page_idle.c: fix oops because end_pfn is larger than max_pfn
+
+Jann Horn <jannh@google.com>
+    fs/binfmt_flat.c: make load_flat_shared_library() work
+
+zhong jiang <zhongjiang@huawei.com>
+    mm/mempolicy.c: fix an incorrect rebind node in mpol_rebind_nodemask
+
+John Ogness <john.ogness@linutronix.de>
+    fs/proc/array.c: allow reporting eip/esp for all coredumping threads
+
+Sasha Levin <sashal@kernel.org>
+    Revert "compiler.h: update definition of unreachable()"
+
+Kristian Evensen <kristian.evensen@gmail.com>
+    qmi_wwan: Fix out-of-bounds read
+
+Adeodato Simó <dato@net.com.org.es>
+    net/9p: include trans_common.h to fix missing prototype warning.
+
+Dominique Martinet <dominique.martinet@cea.fr>
+    9p: p9dirent_read: check network-provided name length
+
+Dominique Martinet <dominique.martinet@cea.fr>
+    9p/rdma: remove useless check in cm_event_handler
+
+Dominique Martinet <dominique.martinet@cea.fr>
+    9p: acl: fix uninitialized iattr access
+
+Dominique Martinet <dominique.martinet@cea.fr>
+    9p/rdma: do not disconnect on down_interruptible EAGAIN
+
+Dominique Martinet <dominique.martinet@cea.fr>
+    9p/xen: fix check for xenbus_read error in front_probe
+
+Martin Wilck <mwilck@suse.com>
+    block: bio_iov_iter_get_pages: pin more pages for multi-segment IOs
+
+Christoph Hellwig <hch@lst.de>
+    block: add a lower-level bio_add_page interface
+
+Mike Marciniszyn <mike.marciniszyn@intel.com>
+    IB/hfi1: Close PSM sdma_progress sleep window
+
+Sasha Levin <sashal@kernel.org>
+    Revert "x86/uaccess, ftrace: Fix ftrace_likely_update() vs. SMAP"
+
+Arnaldo Carvalho de Melo <acme@redhat.com>
+    perf header: Fix unchecked usage of strncpy()
+
+Arnaldo Carvalho de Melo <acme@redhat.com>
+    perf help: Remove needless use of strncpy()
+
+Arnaldo Carvalho de Melo <acme@redhat.com>
+    perf ui helpline: Use strlcpy() as a shorter form of strncpy() + explicit set nul
+
+
+-------------
+
+Diffstat:
+
+ Documentation/robust-futexes.txt                   |   3 +-
+ Makefile                                           |   4 +-
+ arch/arm64/include/asm/futex.h                     |   4 +-
+ arch/arm64/include/asm/insn.h                      |   8 ++
+ arch/arm64/kernel/insn.c                           |  40 +++++++
+ arch/arm64/net/bpf_jit.h                           |   4 +
+ arch/arm64/net/bpf_jit_comp.c                      |  28 +++--
+ arch/x86/kernel/cpu/bugs.c                         |  11 +-
+ arch/x86/kernel/cpu/microcode/core.c               |  15 ++-
+ block/bio.c                                        | 131 +++++++++++++++------
+ drivers/infiniband/hw/hfi1/user_sdma.c             |  12 +-
+ drivers/infiniband/hw/hfi1/user_sdma.h             |   1 -
+ drivers/md/dm-log-writes.c                         |  23 +++-
+ drivers/misc/eeprom/at24.c                         | 107 ++++++++++++-----
+ drivers/net/bonding/bond_main.c                    |   2 +-
+ .../net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c  |   2 +-
+ drivers/net/team/team.c                            |   2 +-
+ drivers/net/tun.c                                  |  19 ++-
+ drivers/net/usb/qmi_wwan.c                         |   4 +-
+ drivers/scsi/vmw_pvscsi.c                          |   6 +-
+ fs/9p/acl.c                                        |   2 +-
+ fs/binfmt_flat.c                                   |  23 ++--
+ fs/nfs/flexfilelayout/flexfilelayoutdev.c          |   2 +-
+ fs/proc/array.c                                    |   2 +-
+ include/asm-generic/futex.h                        |   8 +-
+ include/linux/bio.h                                |   9 ++
+ include/linux/compiler.h                           |   5 +-
+ kernel/cpu.c                                       |   3 +
+ kernel/trace/trace_branch.c                        |   4 -
+ mm/mempolicy.c                                     |   2 +-
+ mm/page_idle.c                                     |   4 +-
+ net/9p/protocol.c                                  |  12 +-
+ net/9p/trans_common.c                              |   1 +
+ net/9p/trans_rdma.c                                |   7 +-
+ net/9p/trans_xen.c                                 |   4 +-
+ net/core/sock.c                                    |   3 -
+ net/ipv4/raw.c                                     |   2 +-
+ net/ipv4/udp.c                                     |   6 +-
+ net/ipv6/udp.c                                     |   4 +-
+ net/packet/af_packet.c                             |  23 +++-
+ net/packet/internal.h                              |   1 +
+ net/sctp/endpointola.c                             |   8 +-
+ net/tipc/core.c                                    |  12 +-
+ net/tipc/netlink_compat.c                          |  18 ++-
+ net/tipc/udp_media.c                               |   8 +-
+ tools/perf/builtin-help.c                          |   2 +-
+ tools/perf/ui/tui/helpline.c                       |   2 +-
+ tools/perf/util/header.c                           |   2 +-
+ 48 files changed, 418 insertions(+), 187 deletions(-)
 
 
