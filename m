@@ -2,117 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00C2B5E157
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 11:48:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 694385C639
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 02:09:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727071AbfGCJrz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jul 2019 05:47:55 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47630 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727056AbfGCJrx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Jul 2019 05:47:53 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 7ADFDB15C;
-        Wed,  3 Jul 2019 09:47:51 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 285CE1E433D; Mon,  1 Jul 2019 14:11:19 +0200 (CEST)
-Date:   Mon, 1 Jul 2019 14:11:19 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Robert Barror <robert.barror@intel.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Jan Kara <jack@suse.cz>
-Subject: Re: [PATCH] filesystem-dax: Disable PMD support
-Message-ID: <20190701121119.GE31621@quack2.suse.cz>
-References: <CAPcyv4jQP-SFJGor-Q3VCRQ0xwt3MuVpH2qHx2wzyRA88DGQww@mail.gmail.com>
- <CAPcyv4jjqooboxivY=AsfEPhCvxdwU66GpwE9vM+cqrZWvtX3g@mail.gmail.com>
- <CAPcyv4h6HgNE38RF5TxO3C268ZvrxgcPNrPWOt94MnO5gP_pjw@mail.gmail.com>
- <CAPcyv4gwd1_VHk_MfHeNSxyH+N1=aatj9WkKXqYNPkSXe4bFDg@mail.gmail.com>
- <20190627195948.GB4286@bombadil.infradead.org>
- <CAPcyv4iB3f1hDdCsw=Cy234dP-RXpxGyXDoTwEU8nt5qUDEVQg@mail.gmail.com>
- <20190629160336.GB1180@bombadil.infradead.org>
- <CAPcyv4ge3Ht1k_v=tSoVA6hCzKg1N3imhs_rTL3oTB+5_KC8_Q@mail.gmail.com>
- <CAA9_cmcb-Prn6CnOx-mJfb9CRdf0uG9u4M1Vq1B1rKVemCD-Vw@mail.gmail.com>
- <20190630152324.GA15900@bombadil.infradead.org>
+        id S1727055AbfGBAJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jul 2019 20:09:53 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:42120 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726966AbfGBAJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jul 2019 20:09:52 -0400
+Received: by mail-wr1-f67.google.com with SMTP id x17so15635732wrl.9
+        for <stable@vger.kernel.org>; Mon, 01 Jul 2019 17:09:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=t6fIGuN7B62Tpnmq5BywD/f3RcTkG+SvFM2tOCRDauM=;
+        b=lrwKFluxvJd3Jh+4nRu5UxJgoX9HZqBktZDhRRaf2UFpTyNht14SQITV2OiYEvpnXf
+         NLiWnRaX+gZ+2TUMv1vNQM4LZOkH87A32yPQcg8MNsgKrcTWZzEpat2JSLxe2Qj9brU9
+         XEZRb8YpuhkAMqjAlHyCMh6ln6lAStyWv5YC1xJ8HyynzX54GZ1mUru/tufbuJj4fOEe
+         IBh7jgbYS98Zc6HJ9uZqoiMJvqpviXAX5CO3aOVXTvb/RhZekb+2LxtiVm8YOVSU6lla
+         8va73m7uC9pUx8lRFOrcUU6OPVjJzayB6HbaJ4KUo4a7LFiAdvnpF9RDxgXG8MnYRGas
+         j/zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=t6fIGuN7B62Tpnmq5BywD/f3RcTkG+SvFM2tOCRDauM=;
+        b=AP7vNkfGw5va1KV9tvI5kCbixR68PjxPQVPEame5IoMTqgyK4WVkYCNPvnV/2m941r
+         aElJG292MNBA4uv2gCop6Wd40nRW+aihLMeXcrdQ4BEc1/cfh4rZ2usH/qGSfPvB7Pfq
+         S5BF2xywbPmXzeOtfvSSalXRc63BLVkg86BdmhmXlp8IY8MUDkRuk0BqcNxnqh3hRoUg
+         ElXD95VNT1rxu+4tPxoXUIB8iTBI1X5mxC5WJfJatWvyHc+8OsaLes4OJ0gGNnomLiFb
+         g3UlsmoWumGrCSRnBfMYZIrh62yCUOotB+UeTqQ/1+SBdr2kt2DKfWoduFHlMYwzSdWS
+         DDJg==
+X-Gm-Message-State: APjAAAUMViS2znZW3bjzfkhMbzy6nDp4enTabX1xyv0Cbhwnar9oIh/t
+        Mk/Kr6IA6wujhrqXYSdCtuUXnNHEdRjFXw==
+X-Google-Smtp-Source: APXvYqy8YtYDpq6VoRyW9o5mUcqL+8ft2CRU+6erL27haHOJMp7p+i5h8JExwgLqRntu9pmN9Y3W+w==
+X-Received: by 2002:a5d:5607:: with SMTP id l7mr22029347wrv.228.1562026191167;
+        Mon, 01 Jul 2019 17:09:51 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id t15sm10847977wrx.84.2019.07.01.17.09.49
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 01 Jul 2019 17:09:50 -0700 (PDT)
+Message-ID: <5d1aa0ce.1c69fb81.b5874.00cd@mx.google.com>
+Date:   Mon, 01 Jul 2019 17:09:50 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190630152324.GA15900@bombadil.infradead.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.131-27-gaedf6f1832d9
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 128 boots: 3 failed,
+ 124 passed with 1 offline (v4.14.131-27-gaedf6f1832d9)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun 30-06-19 08:23:24, Matthew Wilcox wrote:
-> On Sun, Jun 30, 2019 at 01:01:04AM -0700, Dan Williams wrote:
-> > @@ -215,7 +216,7 @@ static wait_queue_head_t
-> > *dax_entry_waitqueue(struct xa_state *xas,
-> >          * queue to the start of that PMD.  This ensures that all offsets in
-> >          * the range covered by the PMD map to the same bit lock.
-> >          */
-> > -       if (dax_is_pmd_entry(entry))
-> > +       //if (dax_is_pmd_entry(entry))
-> >                 index &= ~PG_PMD_COLOUR;
-> >         key->xa = xas->xa;
-> >         key->entry_start = index;
-> 
-> Hah, that's a great naive fix!  Thanks for trying that out.
-> 
-> I think my theory was slightly mistaken, but your fix has the effect of
-> fixing the actual problem too.
-> 
-> The xas->xa_index for a PMD is going to be PMD-aligned (ie a multiple of
-> 512), but xas_find_conflict() does _not_ adjust xa_index (... which I
-> really should have mentioned in the documentation).  So we go to sleep
-> on the PMD-aligned index instead of the index of the PTE.  Your patch
-> fixes this by using the PMD-aligned index for PTEs too.
-> 
-> I'm trying to come up with a clean fix for this.  Clearly we
-> shouldn't wait for a PTE entry if we're looking for a PMD entry.
-> But what should get_unlocked_entry() return if it detects that case?
-> We could have it return an error code encoded as an internal entry,
-> like grab_mapping_entry() does.  Or we could have it return the _locked_
-> PTE entry, and have callers interpret that.
-> 
-> At least get_unlocked_entry() is static, but it's got quite a few callers.
-> Trying to discern which ones might ask for a PMD entry is a bit tricky.
-> So this seems like a large patch which might have bugs.
+stable-rc/linux-4.14.y boot: 128 boots: 3 failed, 124 passed with 1 offline=
+ (v4.14.131-27-gaedf6f1832d9)
 
-Yeah. So get_unlocked_entry() is used in several cases:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.131-27-gaedf6f1832d9/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.131-27-gaedf6f1832d9/
 
-1) Case where we already have entry at given index but it is locked and we
-need it unlocked so that we can do our thing `(dax_writeback_one(),
-dax_layout_busy_page()).
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.131-27-gaedf6f1832d9
+Git Commit: aedf6f1832d918db6c3652feda74206aac56c1e5
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 69 unique boards, 25 SoC families, 15 builds out of 201
 
-2) Case where we want any entry covering given index (in
-__dax_invalidate_entry()). This is essentially the same as case 1) since we
-have already looked up the entry (just didn't propagate that information
-from mm/truncate.c) - we want any unlocked entry covering given index.
+Boot Failures Detected:
 
-3) Cases where we really want entry at given index and we have some entry
-order constraints (dax_insert_pfn_mkwrite(), grab_mapping_entry()).
+arm:
+    sunxi_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
 
-Honestly I'd make the rule that get_unlocked_entry() returns entry of any
-order that is covering given index. I agree it may be unnecessarily waiting
-for PTE entry lock for the case where in case 3) we are really looking only
-for PMD entry but that seems like a relatively small cost for the
-simplicity of the interface.
+    multi_v7_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
 
-BTW, looking into the xarray code, I think I found another difference
-between the old radix tree code and the new xarray code that could cause
-issues. In the old radix tree code if we tried to insert PMD entry but
-there was some PTE entry in the covered range, we'd get EEXIST error back
-and the DAX fault code relies on this. I don't see how similar behavior is
-achieved by xas_store()...
+arm64:
+    defconfig:
+        gcc-8:
+            rk3399-firefly: 1 failed lab
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
