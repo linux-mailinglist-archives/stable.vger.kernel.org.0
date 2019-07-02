@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6375CB4C
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:12:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABAD35CBC4
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:16:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728604AbfGBIJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:09:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56924 "EHLO mail.kernel.org"
+        id S1727687AbfGBIEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:04:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728584AbfGBIJJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:09:09 -0400
+        id S1727664AbfGBIEX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:04:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85FED20665;
-        Tue,  2 Jul 2019 08:09:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7141D20659;
+        Tue,  2 Jul 2019 08:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054949;
-        bh=RSOkxXSyZ2sNkeOzn5fr775UMm1wxH2xyAEoEIewI0U=;
+        s=default; t=1562054662;
+        bh=39pUnFZd9YfXZTHov4rqSLDdJnWtQ3l3w6H9df6BZzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=deJNS07DoWhq6sucpkLontge4OBuzXB+8rBfr+C2lUsTl+omgdBKb/zbgkygpU3pA
-         sfbGBdr/iJRTUVrLWtikydTRPPfNMgxPtRJlQ8F0lHiF/hxXYL+567uhGf9wDw8mje
-         VFk/EwlxFNFgKfHX4BKDMPIJf3gKTN9D8sxzZBVU=
+        b=U8GWrLsP7UUDr4sU5HcV+Udh+MAAi1ILeKiSX9FFXEIeaS4EYHaZKoPelVixltrFG
+         NouOOAGSQiwE3PXCO/lFN9UhRoL+J/ARjf2y44OYJRlQacIcBUNdPqwsaVdyFZq7mW
+         yObGedcCgWIYsmeqY3yzcxEmGT/CIm22znRSPDN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Ogness <john.ogness@linutronix.de>,
-        Jan Luebbe <jlu@pengutronix.de>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 16/43] fs/proc/array.c: allow reporting eip/esp for all coredumping threads
+        stable@vger.kernel.org, Tom Herbert <tom@herbertland.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.1 48/55] bpf: udp: Avoid calling reuseports bpf_prog from udp_gro
 Date:   Tue,  2 Jul 2019 10:01:56 +0200
-Message-Id: <20190702080124.632413849@linuxfoundation.org>
+Message-Id: <20190702080126.575246866@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
-References: <20190702080123.904399496@linuxfoundation.org>
+In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
+References: <20190702080124.103022729@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,48 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Ogness <john.ogness@linutronix.de>
+From: Martin KaFai Lau <kafai@fb.com>
 
-commit cb8f381f1613cafe3aec30809991cd56e7135d92 upstream.
+commit 257a525fe2e49584842c504a92c27097407f778f upstream.
 
-0a1eb2d474ed ("fs/proc: Stop reporting eip and esp in /proc/PID/stat")
-stopped reporting eip/esp and fd7d56270b52 ("fs/proc: Report eip/esp in
-/prod/PID/stat for coredumping") reintroduced the feature to fix a
-regression with userspace core dump handlers (such as minicoredumper).
+When the commit a6024562ffd7 ("udp: Add GRO functions to UDP socket")
+added udp[46]_lib_lookup_skb to the udp_gro code path, it broke
+the reuseport_select_sock() assumption that skb->data is pointing
+to the transport header.
 
-Because PF_DUMPCORE is only set for the primary thread, this didn't fix
-the original problem for secondary threads.  Allow reporting the eip/esp
-for all threads by checking for PF_EXITING as well.  This is set for all
-the other threads when they are killed.  coredump_wait() waits for all the
-tasks to become inactive before proceeding to invoke a core dumper.
+This patch follows an earlier __udp6_lib_err() fix by
+passing a NULL skb to avoid calling the reuseport's bpf_prog.
 
-Link: http://lkml.kernel.org/r/87y32p7i7a.fsf@linutronix.de
-Link: http://lkml.kernel.org/r/20190522161614.628-1-jlu@pengutronix.de
-Fixes: fd7d56270b526ca3 ("fs/proc: Report eip/esp in /prod/PID/stat for coredumping")
-Signed-off-by: John Ogness <john.ogness@linutronix.de>
-Reported-by: Jan Luebbe <jlu@pengutronix.de>
-Tested-by: Jan Luebbe <jlu@pengutronix.de>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: a6024562ffd7 ("udp: Add GRO functions to UDP socket")
+Cc: Tom Herbert <tom@herbertland.com>
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/proc/array.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/udp.c |    6 +++++-
+ net/ipv6/udp.c |    2 +-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/proc/array.c
-+++ b/fs/proc/array.c
-@@ -448,7 +448,7 @@ static int do_task_stat(struct seq_file
- 		 * a program is not able to use ptrace(2) in that case. It is
- 		 * safe because the task has stopped executing permanently.
- 		 */
--		if (permitted && (task->flags & PF_DUMPCORE)) {
-+		if (permitted && (task->flags & (PF_EXITING|PF_DUMPCORE))) {
- 			if (try_get_task_stack(task)) {
- 				eip = KSTK_EIP(task);
- 				esp = KSTK_ESP(task);
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -503,7 +503,11 @@ static inline struct sock *__udp4_lib_lo
+ struct sock *udp4_lib_lookup_skb(struct sk_buff *skb,
+ 				 __be16 sport, __be16 dport)
+ {
+-	return __udp4_lib_lookup_skb(skb, sport, dport, &udp_table);
++	const struct iphdr *iph = ip_hdr(skb);
++
++	return __udp4_lib_lookup(dev_net(skb->dev), iph->saddr, sport,
++				 iph->daddr, dport, inet_iif(skb),
++				 inet_sdif(skb), &udp_table, NULL);
+ }
+ EXPORT_SYMBOL_GPL(udp4_lib_lookup_skb);
+ 
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -242,7 +242,7 @@ struct sock *udp6_lib_lookup_skb(struct
+ 
+ 	return __udp6_lib_lookup(dev_net(skb->dev), &iph->saddr, sport,
+ 				 &iph->daddr, dport, inet6_iif(skb),
+-				 inet6_sdif(skb), &udp_table, skb);
++				 inet6_sdif(skb), &udp_table, NULL);
+ }
+ EXPORT_SYMBOL_GPL(udp6_lib_lookup_skb);
+ 
 
 
