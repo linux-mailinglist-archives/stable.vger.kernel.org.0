@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 326425CBAD
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:15:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B33E65CB73
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 10:13:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727380AbfGBIPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 04:15:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50952 "EHLO mail.kernel.org"
+        id S1728054AbfGBINg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 04:13:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727869AbfGBIFH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 04:05:07 -0400
+        id S1727620AbfGBIHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 04:07:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F20AB2184B;
-        Tue,  2 Jul 2019 08:05:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D889921871;
+        Tue,  2 Jul 2019 08:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562054706;
-        bh=H3AGDmzp0Zp1pSbvJRNNH0Kcv9iuWLBCIvSBDtcO4X0=;
+        s=default; t=1562054838;
+        bh=PScR0iWl+uXaeaqDVi/x/ZMcF5kpu/c8XZ1GlNOadzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2pUQHdh1ZN1IqY0M6/TEKr/J1tdlpg5tplyg6LXSBMYDC37lzwGUNAq4+na1dweT
-         rKIuHx5NXqK+LcUjKDxTdqYL1oCCj+XFyBc6+/9zbkFE4lu0cd2lUktxNaL95Kw7RY
-         K8vmDa8HyF73aWlwDkSgfpzUl90zW8GCDgrl+Ops=
+        b=2hmySojLN++GoPL42w40J8KKbaa3deQxs5vFa6FZVBQVG2ezYeYovBgQk8eiRuJFJ
+         g3mzJ3p9dCzueO790TlVJl6asi9qENr+5XxmGpED5Wd27HEvM1ofav8bZZIFfmdKXE
+         OC9WhrfqBrdJeOo9bOZQZeSEzTFGGldRj6Lc31jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fei Li <lifei.shirley@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 42/55] tun: wake up waitqueues after IFF_UP is set
+        stable@vger.kernel.org, Wang Xin <xin.wang7@cn.bosch.com>,
+        Mark Jonas <mark.jonas@de.bosch.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 4.19 49/72] eeprom: at24: fix unexpected timeout under high load
 Date:   Tue,  2 Jul 2019 10:01:50 +0200
-Message-Id: <20190702080126.295927263@linuxfoundation.org>
+Message-Id: <20190702080127.132720374@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
-References: <20190702080124.103022729@linuxfoundation.org>
+In-Reply-To: <20190702080124.564652899@linuxfoundation.org>
+References: <20190702080124.564652899@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fei Li <lifei.shirley@bytedance.com>
+From: Wang Xin <xin.wang7@cn.bosch.com>
 
-[ Upstream commit 72b319dc08b4924a29f5e2560ef6d966fa54c429 ]
+commit 9a9e295e7c5c0409c020088b0ae017e6c2b7df6e upstream.
 
-Currently after setting tap0 link up, the tun code wakes tx/rx waited
-queues up in tun_net_open() when .ndo_open() is called, however the
-IFF_UP flag has not been set yet. If there's already a wait queue, it
-would fail to transmit when checking the IFF_UP flag in tun_sendmsg().
-Then the saving vhost_poll_start() will add the wq into wqh until it
-is waken up again. Although this works when IFF_UP flag has been set
-when tun_chr_poll detects; this is not true if IFF_UP flag has not
-been set at that time. Sadly the latter case is a fatal error, as
-the wq will never be waken up in future unless later manually
-setting link up on purpose.
+Within at24_loop_until_timeout the timestamp used for timeout checking
+is recorded after the I2C transfer and sleep_range(). Under high CPU
+load either the execution time for I2C transfer or sleep_range() could
+actually be larger than the timeout value. Worst case the I2C transfer
+is only tried once because the loop will exit due to the timeout
+although the EEPROM is now ready.
 
-Fix this by moving the wakeup process into the NETDEV_UP event
-notifying process, this makes sure IFF_UP has been set before all
-waited queues been waken up.
+To fix this issue the timestamp is recorded at the beginning of each
+iteration. That is, before I2C transfer and sleep. Then the timeout
+is actually checked against the timestamp of the previous iteration.
+This makes sure that even if the timeout is reached, there is still one
+more chance to try the I2C transfer in case the EEPROM is ready.
 
-Signed-off-by: Fei Li <lifei.shirley@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Example:
+
+If you have a system which combines high CPU load with repeated EEPROM
+writes you will run into the following scenario.
+
+ - System makes a successful regmap_bulk_write() to EEPROM.
+ - System wants to perform another write to EEPROM but EEPROM is still
+   busy with the last write.
+ - Because of high CPU load the usleep_range() will sleep more than
+   25 ms (at24_write_timeout).
+ - Within the over-long sleeping the EEPROM finished the previous write
+   operation and is ready again.
+ - at24_loop_until_timeout() will detect timeout and won't try to write.
+
+Signed-off-by: Wang Xin <xin.wang7@cn.bosch.com>
+Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/tun.c |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1024,18 +1024,8 @@ static void tun_net_uninit(struct net_de
- /* Net device open. */
- static int tun_net_open(struct net_device *dev)
- {
--	struct tun_struct *tun = netdev_priv(dev);
--	int i;
--
- 	netif_tx_start_all_queues(dev);
+---
+ drivers/misc/eeprom/at24.c |   43 ++++++++++++++++++++++---------------------
+ 1 file changed, 22 insertions(+), 21 deletions(-)
+
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -106,23 +106,6 @@ static unsigned int at24_write_timeout =
+ module_param_named(write_timeout, at24_write_timeout, uint, 0);
+ MODULE_PARM_DESC(at24_write_timeout, "Time (in ms) to try writes (default 25)");
  
--	for (i = 0; i < tun->numqueues; i++) {
--		struct tun_file *tfile;
+-/*
+- * Both reads and writes fail if the previous write didn't complete yet. This
+- * macro loops a few times waiting at least long enough for one entire page
+- * write to work while making sure that at least one iteration is run before
+- * checking the break condition.
+- *
+- * It takes two parameters: a variable in which the future timeout in jiffies
+- * will be stored and a temporary variable holding the time of the last
+- * iteration of processing the request. Both should be unsigned integers
+- * holding at least 32 bits.
+- */
+-#define at24_loop_until_timeout(tout, op_time)				\
+-	for (tout = jiffies + msecs_to_jiffies(at24_write_timeout),	\
+-	     op_time = 0;						\
+-	     op_time ? time_before(op_time, tout) : true;		\
+-	     usleep_range(1000, 1500), op_time = jiffies)
 -
--		tfile = rtnl_dereference(tun->tfiles[i]);
--		tfile->socket.sk->sk_write_space(tfile->socket.sk);
--	}
--
- 	return 0;
- }
+ struct at24_chip_data {
+ 	/*
+ 	 * these fields mirror their equivalents in
+@@ -311,13 +294,22 @@ static ssize_t at24_regmap_read(struct a
+ 	/* adjust offset for mac and serial read ops */
+ 	offset += at24->offset_adj;
  
-@@ -3636,6 +3626,7 @@ static int tun_device_event(struct notif
- {
- 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
- 	struct tun_struct *tun = netdev_priv(dev);
-+	int i;
- 
- 	if (dev->rtnl_link_ops != &tun_link_ops)
- 		return NOTIFY_DONE;
-@@ -3645,6 +3636,14 @@ static int tun_device_event(struct notif
- 		if (tun_queue_resize(tun))
- 			return NOTIFY_BAD;
- 		break;
-+	case NETDEV_UP:
-+		for (i = 0; i < tun->numqueues; i++) {
-+			struct tun_file *tfile;
+-	at24_loop_until_timeout(timeout, read_time) {
++	timeout = jiffies + msecs_to_jiffies(at24_write_timeout);
++	do {
++		/*
++		 * The timestamp shall be taken before the actual operation
++		 * to avoid a premature timeout in case of high CPU load.
++		 */
++		read_time = jiffies;
 +
-+			tfile = rtnl_dereference(tun->tfiles[i]);
-+			tfile->socket.sk->sk_write_space(tfile->socket.sk);
-+		}
-+		break;
- 	default:
- 		break;
- 	}
+ 		ret = regmap_bulk_read(regmap, offset, buf, count);
+ 		dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
+ 			count, offset, ret, jiffies);
+ 		if (!ret)
+ 			return count;
+-	}
++
++		usleep_range(1000, 1500);
++	} while (time_before(read_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+ }
+@@ -361,14 +353,23 @@ static ssize_t at24_regmap_write(struct
+ 	regmap = at24_client->regmap;
+ 	client = at24_client->client;
+ 	count = at24_adjust_write_count(at24, offset, count);
++	timeout = jiffies + msecs_to_jiffies(at24_write_timeout);
++
++	do {
++		/*
++		 * The timestamp shall be taken before the actual operation
++		 * to avoid a premature timeout in case of high CPU load.
++		 */
++		write_time = jiffies;
+ 
+-	at24_loop_until_timeout(timeout, write_time) {
+ 		ret = regmap_bulk_write(regmap, offset, buf, count);
+ 		dev_dbg(&client->dev, "write %zu@%d --> %d (%ld)\n",
+ 			count, offset, ret, jiffies);
+ 		if (!ret)
+ 			return count;
+-	}
++
++		usleep_range(1000, 1500);
++	} while (time_before(write_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+ }
 
 
