@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B435CF7F
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:33:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3505CF85
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 14:34:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726591AbfGBMdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 08:33:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52422 "EHLO mail.kernel.org"
+        id S1726821AbfGBMeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 08:34:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726455AbfGBMdJ (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 08:33:09 -0400
+        id S1726457AbfGBMeZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 08:34:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2EBC205F4;
-        Tue,  2 Jul 2019 12:33:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D14EA2054F;
+        Tue,  2 Jul 2019 12:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562070788;
-        bh=PHhEskV48bPJWKtOyFpocp2DsM4e4kNx7urF/A6wstk=;
+        s=default; t=1562070865;
+        bh=XHft2SzCTZ1LYD0fCpddVcCaeJ8vG2bWH91g8vBgd40=;
         h=Subject:To:From:Date:From;
-        b=bujt7uo5ZelCmff3U4EUcp6LppTBQg9cjJHIIASzQuH2g3Iu44bSSbNEOYT8MKx96
-         d+/LaFP+k7fLF0SufAvmxpFopadqLgBvXXLhf8556xTKQYdifeKxynMwxbaCyAX0kU
-         KxaeFT7MaH17xHthq4uJpb/HIpM6rMU7949O6Ypk=
-Subject: patch "iio: adc: stm32-adc: add missing vdda-supply" added to staging-next
-To:     fabrice.gasnier@st.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=2aIc3tcuMKZXxg4Z+DlhgFfqX8rflmRYB5cFN84es/C7oLEWv9qNCzdlXb/if5R0G
+         MDCn9Ug3aOUSKplHXD8roKbyBKU3dnsdRgcZEpsZTgiaCvTUJR9LznwpnjxvGTtf1s
+         dZWbPaGyC36Lm3eET8GMgJjQLmh7Zjs63o6jZBIs=
+Subject: patch "staging: comedi: amplc_pci230: fix null pointer deref on interrupt" added to staging-next
+To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 02 Jul 2019 14:29:31 +0200
-Message-ID: <1562070571200101@kroah.com>
+Date:   Tue, 02 Jul 2019 14:29:38 +0200
+Message-ID: <1562070578211238@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: stm32-adc: add missing vdda-supply
+    staging: comedi: amplc_pci230: fix null pointer deref on interrupt
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,93 +55,48 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 7685010fca2ba0284f31fd1380df3cffc96d847e Mon Sep 17 00:00:00 2001
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
-Date: Wed, 19 Jun 2019 14:29:55 +0200
-Subject: iio: adc: stm32-adc: add missing vdda-supply
+From 7379e6baeddf580d01feca650ec1ad508b6ea8ee Mon Sep 17 00:00:00 2001
+From: Ian Abbott <abbotti@mev.co.uk>
+Date: Wed, 26 Jun 2019 14:17:39 +0100
+Subject: staging: comedi: amplc_pci230: fix null pointer deref on interrupt
 
-Add missing vdda-supply, analog power supply, to STM32 ADC. When vdda is
-an independent supply, it needs to be properly turned on or off to supply
-the ADC.
+The interrupt handler `pci230_interrupt()` causes a null pointer
+dereference for a PCI260 card.  There is no analog output subdevice for
+a PCI260.  The `dev->write_subdev` subdevice pointer and therefore the
+`s_ao` subdevice pointer variable will be `NULL` for a PCI260.  The
+following call near the end of the interrupt handler results in the null
+pointer dereference for a PCI260:
 
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Fixes: 1add69880240 ("iio: adc: Add support for STM32 ADC core").
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+	comedi_handle_events(dev, s_ao);
+
+Fix it by only calling the above function if `s_ao` is valid.
+
+Note that the other uses of `s_ao` in the calls
+`pci230_handle_ao_nofifo(dev, s_ao);` and `pci230_handle_ao_fifo(dev,
+s_ao);` will never be reached for a PCI260, so they are safe.
+
+Fixes: 39064f23284c ("staging: comedi: amplc_pci230: use comedi_handle_events()")
+Cc: <stable@vger.kernel.org> # v3.19+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/stm32-adc-core.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/amplc_pci230.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
-index 2327ec18b40c..1f7ce5186dfc 100644
---- a/drivers/iio/adc/stm32-adc-core.c
-+++ b/drivers/iio/adc/stm32-adc-core.c
-@@ -87,6 +87,7 @@ struct stm32_adc_priv_cfg {
-  * @domain:		irq domain reference
-  * @aclk:		clock reference for the analog circuitry
-  * @bclk:		bus clock common for all ADCs, depends on part used
-+ * @vdda:		vdda analog supply reference
-  * @vref:		regulator reference
-  * @cfg:		compatible configuration data
-  * @common:		common data for all ADC instances
-@@ -97,6 +98,7 @@ struct stm32_adc_priv {
- 	struct irq_domain		*domain;
- 	struct clk			*aclk;
- 	struct clk			*bclk;
-+	struct regulator		*vdda;
- 	struct regulator		*vref;
- 	const struct stm32_adc_priv_cfg	*cfg;
- 	struct stm32_adc_common		common;
-@@ -394,10 +396,16 @@ static int stm32_adc_core_hw_start(struct device *dev)
- 	struct stm32_adc_priv *priv = to_stm32_adc_priv(common);
- 	int ret;
+diff --git a/drivers/staging/comedi/drivers/amplc_pci230.c b/drivers/staging/comedi/drivers/amplc_pci230.c
+index 65f60c2b702a..f7e673121864 100644
+--- a/drivers/staging/comedi/drivers/amplc_pci230.c
++++ b/drivers/staging/comedi/drivers/amplc_pci230.c
+@@ -2330,7 +2330,8 @@ static irqreturn_t pci230_interrupt(int irq, void *d)
+ 	devpriv->intr_running = false;
+ 	spin_unlock_irqrestore(&devpriv->isr_spinlock, irqflags);
  
-+	ret = regulator_enable(priv->vdda);
-+	if (ret < 0) {
-+		dev_err(dev, "vdda enable failed %d\n", ret);
-+		return ret;
-+	}
-+
- 	ret = regulator_enable(priv->vref);
- 	if (ret < 0) {
- 		dev_err(dev, "vref enable failed\n");
--		return ret;
-+		goto err_vdda_disable;
- 	}
+-	comedi_handle_events(dev, s_ao);
++	if (s_ao)
++		comedi_handle_events(dev, s_ao);
+ 	comedi_handle_events(dev, s_ai);
  
- 	if (priv->bclk) {
-@@ -425,6 +433,8 @@ static int stm32_adc_core_hw_start(struct device *dev)
- 		clk_disable_unprepare(priv->bclk);
- err_regulator_disable:
- 	regulator_disable(priv->vref);
-+err_vdda_disable:
-+	regulator_disable(priv->vdda);
- 
- 	return ret;
- }
-@@ -441,6 +451,7 @@ static void stm32_adc_core_hw_stop(struct device *dev)
- 	if (priv->bclk)
- 		clk_disable_unprepare(priv->bclk);
- 	regulator_disable(priv->vref);
-+	regulator_disable(priv->vdda);
- }
- 
- static int stm32_adc_probe(struct platform_device *pdev)
-@@ -468,6 +479,14 @@ static int stm32_adc_probe(struct platform_device *pdev)
- 		return PTR_ERR(priv->common.base);
- 	priv->common.phys_base = res->start;
- 
-+	priv->vdda = devm_regulator_get(&pdev->dev, "vdda");
-+	if (IS_ERR(priv->vdda)) {
-+		ret = PTR_ERR(priv->vdda);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "vdda get failed, %d\n", ret);
-+		return ret;
-+	}
-+
- 	priv->vref = devm_regulator_get(&pdev->dev, "vref");
- 	if (IS_ERR(priv->vref)) {
- 		ret = PTR_ERR(priv->vref);
+ 	return IRQ_HANDLED;
 -- 
 2.22.0
 
