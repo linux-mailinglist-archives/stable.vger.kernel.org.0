@@ -2,166 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D4335D561
-	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 19:40:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E04A25D58D
+	for <lists+stable@lfdr.de>; Tue,  2 Jul 2019 19:46:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726652AbfGBRkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 13:40:01 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:39859 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726291AbfGBRkB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jul 2019 13:40:01 -0400
-Received: by mail-lj1-f194.google.com with SMTP id v18so17769233ljh.6
-        for <stable@vger.kernel.org>; Tue, 02 Jul 2019 10:39:59 -0700 (PDT)
+        id S1726765AbfGBRq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 13:46:59 -0400
+Received: from mail-eopbgr680041.outbound.protection.outlook.com ([40.107.68.41]:31008
+        "EHLO NAM04-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726193AbfGBRq6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 13:46:58 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=WgB+9uuiwuE9iCPhDcp1r+yxpmY9+6ZZHpbOM7YQ+TA=;
-        b=T37MiJh8nO+YDgjXezLnaciz5dqZad77dEPrp9dUeBYTRXYgKSmhw8zElp8hYaWsCp
-         /KdJvPoLny0Dg2Penje3iLPexUQZo/Ph09iKzr/0Vb5Ik6k34GvrOyxLokJoSN5KdPrB
-         znI7l1+1y9YLTXhpzqpl1qAULYPP8G0ajTlGNzhu/DYfAjmY5TU3YhgqsR4ma5lVYuz0
-         VjAs/aIKd//X/r5mJPHr1/p9Un58OzK0wGwUVYI8DvH1NoXRnmLpeCmOtOutGqzs0YYl
-         40oSh19/LccsP6+XpQWs2kiPQABUCJOEcazrIbBbFMGvpnD4jmT98bgQvzCNMZdqh67X
-         BC8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=WgB+9uuiwuE9iCPhDcp1r+yxpmY9+6ZZHpbOM7YQ+TA=;
-        b=X6c/XhqlUH0hnPg4437lwdtC7dOprbvAb0OFdtFLDwbdDb9UEw0VzI7p44SPmJHfPF
-         baP0PqnXlnhu7wABDQhVWYJOfOhDWsJdpijGV7YtBBj27LeV3TIlzW/r11fU7SwZDf3m
-         ZNISsdLgmD02693brpoR+sLSWOKobYJlx7VwzU5sIjNf2GkKbioCyV3la8fhT0fZQcTQ
-         e3WsH3WLf+DRhZ+dTZ8GVnLveR69GOq6FNteDIyuMtQ+ddxgAGQiD7N+NnXOgrtAH8wI
-         Vojh3kRGY5vzb9k5CcuBY39BmYrBmHe1ZFw7B0PPZ7NuSOA9r+KM+Mm5gKjh31c+7sid
-         ei/Q==
-X-Gm-Message-State: APjAAAX0qQdg96lSC80ycx8ANcGv5bEY7UuRt/qSN/tXhntEOV32NxdQ
-        tudMPn7LOUADHV3/tbcpK7dkjwf2NmjKzYlvWStPxg==
-X-Google-Smtp-Source: APXvYqx5fya33C0VkYYC8y7sQrZrJFa/B4MLV/ngGgJ/0WV4+e8DE5U3frO6+aYycclUGEd2lfUQO7TZPOu6kzX0J+M=
-X-Received: by 2002:a2e:85d7:: with SMTP id h23mr18348940ljj.53.1562089198721;
- Tue, 02 Jul 2019 10:39:58 -0700 (PDT)
+ d=amdcloud.onmicrosoft.com; s=selector1-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=JKrxzGEfgC/NFJCq6+fmtSWANUJEAldqOq1UQ2lA/xQ=;
+ b=ZiOw17Oa9ynZHDMUx6RiEulW7DxPd2FEVvAUePXGQ9G1l879OZHCimmq7Rygrp/20AI3tKZwuu5Z0Liy0KM8VFHfnR8CVoy+7B9bTfEAgt+LymTlfqGD8vBTm5mtkFQjMByX+z1kCw1Ou94WyrM2Lvo9a74Q7GmxUqRhy+xrUTE=
+Received: from DM5PR12MB1449.namprd12.prod.outlook.com (10.172.40.14) by
+ DM5PR12MB1420.namprd12.prod.outlook.com (10.168.239.12) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2032.20; Tue, 2 Jul 2019 17:46:54 +0000
+Received: from DM5PR12MB1449.namprd12.prod.outlook.com
+ ([fe80::180c:ff0c:37e6:a482]) by DM5PR12MB1449.namprd12.prod.outlook.com
+ ([fe80::180c:ff0c:37e6:a482%10]) with mapi id 15.20.2032.019; Tue, 2 Jul 2019
+ 17:46:54 +0000
+From:   Gary R Hook <ghook@amd.com>
+To:     Cfir Cohen <cfir@google.com>,
+        "Lendacky, Thomas" <Thomas.Lendacky@amd.com>,
+        "Hook, Gary" <Gary.Hook@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        David Rientjes <rientjes@google.com>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] crypto: ccp/gcm - use const time tag comparison.
+Thread-Topic: [PATCH v2] crypto: ccp/gcm - use const time tag comparison.
+Thread-Index: AQHVMPw13VShZb2ZG0mtCEYORUtnoKa3mkoA
+Date:   Tue, 2 Jul 2019 17:46:53 +0000
+Message-ID: <aa19bd59-7b76-b8ad-3f25-42efbfb7fd29@amd.com>
+References: <20190702173256.50485-1-cfir@google.com>
+In-Reply-To: <20190702173256.50485-1-cfir@google.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: SN6PR04CA0020.namprd04.prod.outlook.com
+ (2603:10b6:805:3e::33) To DM5PR12MB1449.namprd12.prod.outlook.com
+ (2603:10b6:4:10::14)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=Gary.Hook@amd.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [165.204.78.1]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: e50e804a-1b8e-49de-b36e-08d6ff1544ea
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:DM5PR12MB1420;
+x-ms-traffictypediagnostic: DM5PR12MB1420:
+x-microsoft-antispam-prvs: <DM5PR12MB142050A723D046C9C3672BB4FDF80@DM5PR12MB1420.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:1728;
+x-forefront-prvs: 008663486A
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(366004)(136003)(39860400002)(396003)(346002)(376002)(199004)(189003)(66556008)(66946007)(66476007)(73956011)(68736007)(3846002)(99286004)(66446008)(64756008)(6116002)(4744005)(7736002)(478600001)(66066001)(72206003)(36756003)(305945005)(8936002)(31686004)(81156014)(5660300002)(81166006)(4326008)(25786009)(54906003)(76176011)(2906002)(11346002)(6512007)(186003)(6436002)(446003)(14444005)(486006)(53936002)(256004)(102836004)(6506007)(386003)(53546011)(2616005)(476003)(26005)(8676002)(6486002)(71190400001)(52116002)(229853002)(14454004)(31696002)(6246003)(71200400001)(316002)(110136005);DIR:OUT;SFP:1101;SCL:1;SRVR:DM5PR12MB1420;H:DM5PR12MB1449.namprd12.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: amd.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: Z+Yntg6EzFCNnvQX+L8Jtnw8J1z4q/dpq8kBLudSBCPOwjvQr6heESzRjLzvKoOcLrEoCLVyj4OVnLkYLSCBoW+J52CIQJNHdODYVN6QVtyvBkf7GvVMSrmJiwSldZW3zCFTmJTBFyuYuI+EnnU4gI6i14PFz2E5YWq29+nbKfs98o7jmtlD6lw7pUt1FJIdJ91b55p/Q1By8fz0CJno90DVt8rJLpHF8iGb6pE00oPzk6mQY9IVufdchgq41K/km0jx+RocpB53cDVFIfVhGwSBxYK+uuNF0ZIaA8nOqtH+sfqB7Ttn9dOOouIeGXJfJH7isMfbDxgYO3wQZ8IOFHDgo8uYRIDJSC2oCPTDTa0Iz/1w2vznDC0kxk8MWxqvXY8Vtf/o/Nf1OyQDXli4hkfWnBZd84xuQkmlC0ZXgHw=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <3383CC4B34FCFC47B2A45BEA5C4D5FD2@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <20190702080124.103022729@linuxfoundation.org>
-In-Reply-To: <20190702080124.103022729@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 2 Jul 2019 23:09:47 +0530
-Message-ID: <CA+G9fYsJjfb2HakVDzUyuf9G9cQeO2DD0ErPQNHfVmKCv47BTA@mail.gmail.com>
-Subject: Re: [PATCH 5.1 00/55] 5.1.16-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e50e804a-1b8e-49de-b36e-08d6ff1544ea
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Jul 2019 17:46:53.8955
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: ghook@amd.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1420
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2 Jul 2019 at 13:34, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.1.16 release.
-> There are 55 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu 04 Jul 2019 07:59:45 AM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.1.16-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
-
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 5.1.16-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.1.y
-git commit: be6a5acaf4fb84829cc456c77af78ef981fb6db2
-git describe: v5.1.15-56-gbe6a5acaf4fb
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.1-oe/bui=
-ld/v5.1.15-56-gbe6a5acaf4fb
-
-
-No regressions (compared to build v5.1.15)
-
-
-No fixes (compared to build v5.1.15)
-
-Ran 22032 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libgpiod
-* libhugetlbfs
-* ltp-containers-tests
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-timers-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-open-posix-tests
-* ltp-syscalls-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+T24gNy8yLzE5IDEyOjMyIFBNLCBDZmlyIENvaGVuIHdyb3RlOg0KPiBBdm9pZCBsZWFraW5nIEdD
+TSB0YWcgdGhyb3VnaCB0aW1pbmcgc2lkZSBjaGFubmVsLg0KPiANCj4gRml4ZXM6IDM2Y2Y1MTVi
+OWJiZSAoImNyeXB0bzogY2NwIC0gRW5hYmxlIHN1cHBvcnQgZm9yIEFFUyBHQ00gb24gdjUgQ0NQ
+cyIpDQo+IENjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4gIyB2NC4xMisNCj4gU2lnbmVkLW9m
+Zi1ieTogQ2ZpciBDb2hlbiA8Y2ZpckBnb29nbGUuY29tPg0KDQpBY2tlZC1ieTogR2FyeSBSIEhv
+b2sgPGdob29rQGFtZC5jb20+DQoNCj4gLS0tDQo+ICAgZHJpdmVycy9jcnlwdG8vY2NwL2NjcC1v
+cHMuYyB8IDMgKystDQo+ICAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMSBkZWxl
+dGlvbigtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvY3J5cHRvL2NjcC9jY3Atb3BzLmMg
+Yi9kcml2ZXJzL2NyeXB0by9jY3AvY2NwLW9wcy5jDQo+IGluZGV4IGRiOGRlODlkOTkwZi4uNjMz
+NjcwMjIwZjZjIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL2NyeXB0by9jY3AvY2NwLW9wcy5jDQo+
+ICsrKyBiL2RyaXZlcnMvY3J5cHRvL2NjcC9jY3Atb3BzLmMNCj4gQEAgLTg0MCw3ICs4NDAsOCBA
+QCBzdGF0aWMgaW50IGNjcF9ydW5fYWVzX2djbV9jbWQoc3RydWN0IGNjcF9jbWRfcXVldWUgKmNt
+ZF9xLA0KPiAgIAkJaWYgKHJldCkNCj4gICAJCQlnb3RvIGVfdGFnOw0KPiAgIA0KPiAtCQlyZXQg
+PSBtZW1jbXAodGFnLmFkZHJlc3MsIGZpbmFsX3dhLmFkZHJlc3MsIEFFU19CTE9DS19TSVpFKTsN
+Cj4gKwkJcmV0ID0gY3J5cHRvX21lbW5lcSh0YWcuYWRkcmVzcywgZmluYWxfd2EuYWRkcmVzcywN
+Cj4gKwkJCQkgICAgQUVTX0JMT0NLX1NJWkUpID8gLUVCQURNU0cgOiAwOw0KPiAgIAkJY2NwX2Rt
+X2ZyZWUoJnRhZyk7DQo+ICAgCX0NCj4gICANCj4gDQoNCg==
