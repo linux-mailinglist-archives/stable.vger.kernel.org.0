@@ -2,186 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C28F5E32D
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 13:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73B0F5E35D
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 14:01:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726473AbfGCLvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jul 2019 07:51:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37354 "EHLO mail.kernel.org"
+        id S1725830AbfGCMBR convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 3 Jul 2019 08:01:17 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:45570 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725786AbfGCLvr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Jul 2019 07:51:47 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725820AbfGCMBR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Jul 2019 08:01:17 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D749D218A5;
-        Wed,  3 Jul 2019 11:51:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562154707;
-        bh=CZY7f8kxJ6Ik5VCoAg7xms2gpJLfiAmC8mg3WU0Axxs=;
-        h=Subject:To:From:Date:From;
-        b=GmjLId4m0vjTQeDmm0ub1352n3ci9RCKrZzP0ZREypbG2KurdPwFZl+lGQtCGez4e
-         7K4HfKfLpEgVy47a66xilCNkikegHE9AcpXGF94zgvkiePgYE8tTli36u0rIvSZiX2
-         I1C0uLH+AT04BwxEopLkRcPxl6alLCrXQgHCtAAk=
-Subject: patch "usb: renesas_usbhs: add a workaround for a race condition of" added to usb-testing
-To:     yoshihiro.shimoda.uh@renesas.com, felipe.balbi@linux.intel.com,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 03 Jul 2019 13:51:16 +0200
-Message-ID: <156215467691118@kroah.com>
+        by mx1.redhat.com (Postfix) with ESMTPS id 8104C8762E;
+        Wed,  3 Jul 2019 12:01:17 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 757DF842C9;
+        Wed,  3 Jul 2019 12:01:17 +0000 (UTC)
+Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 64FE8E163;
+        Wed,  3 Jul 2019 12:01:17 +0000 (UTC)
+Date:   Wed, 3 Jul 2019 08:01:16 -0400 (EDT)
+From:   Veronika Kabatova <vkabatov@redhat.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>
+Message-ID: <1989107726.28546762.1562155276612.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20190703112520.GA20712@kroah.com>
+References: <cki.3BCD9A354F.JWPY9HGRUT@redhat.com> <20190703112520.GA20712@kroah.com>
+Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Stable_queue:_queue-5.1?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+X-Originating-IP: [10.40.205.46, 10.4.195.12]
+Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Stable queue: queue-5.1
+Thread-Index: J/jJZrT9SSsuZZ6QKC34ntsHKwcm8w==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Wed, 03 Jul 2019 12:01:17 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
 
-    usb: renesas_usbhs: add a workaround for a race condition of
+----- Original Message -----
+> From: "Greg KH" <gregkh@linuxfoundation.org>
+> To: "CKI Project" <cki-project@redhat.com>
+> Cc: "Linux Stable maillist" <stable@vger.kernel.org>
+> Sent: Wednesday, July 3, 2019 1:25:20 PM
+> Subject: Re: ❌ FAIL: Stable queue: queue-5.1
+> 
+> On Wed, Jul 03, 2019 at 07:16:58AM -0400, CKI Project wrote:
+> > Hello,
+> > 
+> > We ran automated tests on a patchset that was proposed for merging into
+> > this
+> > kernel tree. The patches were applied to:
+> > 
+> >        Kernel repo:
+> >        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+> >             Commit: 8584aaf1c326 - Linux 5.1.16
+> > 
+> > The results of these automated tests are provided below.
+> > 
+> >     Overall result: FAILED (see details below)
+> >              Merge: FAILED
+> 
+> Guys, this is getting annoying, this is your test systems, the queue is
+> empty :)
+> 
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
+Hi,
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+this is not an empty queue problem (that should be fixed now). We triggered
+the testing right after the 5.1.16 was released to test the present queue
+with it. We have added the commit hash of the queue to the merge details in
+the report to verify this is indeed the case.
 
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
+The base commit for the stable kernel is 8584aaf1c326
+The commit of the stable queue is d0f506ba82
 
-If you have any questions about this process, please let me know.
-
-
-From b2357839c56ab7d06bcd4e866ebc2d0e2b7997f3 Mon Sep 17 00:00:00 2001
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Date: Wed, 26 Jun 2019 22:06:33 +0900
-Subject: usb: renesas_usbhs: add a workaround for a race condition of
- workqueue
-
-The old commit 6e4b74e4690d ("usb: renesas: fix scheduling in atomic
-context bug") fixed an atomic issue by using workqueue for the shdmac
-dmaengine driver. However, this has a potential race condition issue
-between the work pending and usbhsg_ep_free_request() in gadget mode.
-When usbhsg_ep_free_request() is called while pending the queue,
-since the work_struct will be freed and then the work handler is
-called, kernel panic happens on process_one_work().
-
-To fix the issue, if we could call cancel_work_sync() at somewhere
-before the free request, it could be easy. However,
-the usbhsg_ep_free_request() is called on atomic (e.g. f_ncm driver
-calls free request via gether_disconnect()).
-
-For now, almost all users are having "USB-DMAC" and the DMAengine
-driver can be used on atomic. So, this patch adds a workaround for
-a race condition to call the DMAengine APIs without the workqueue.
-
-This means we still have TODO on shdmac environment (SH7724), but
-since it doesn't have SMP, the race condition might not happen.
-
-Fixes: ab330cf3888d ("usb: renesas_usbhs: add support for USB-DMAC")
-Cc: <stable@vger.kernel.org> # v4.1+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
----
- drivers/usb/renesas_usbhs/fifo.c | 34 +++++++++++++++++++++-----------
- 1 file changed, 22 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/usb/renesas_usbhs/fifo.c b/drivers/usb/renesas_usbhs/fifo.c
-index e84d2ac2a30a..1a0ab639dd22 100644
---- a/drivers/usb/renesas_usbhs/fifo.c
-+++ b/drivers/usb/renesas_usbhs/fifo.c
-@@ -803,9 +803,8 @@ static int __usbhsf_dma_map_ctrl(struct usbhs_pkt *pkt, int map)
- }
- 
- static void usbhsf_dma_complete(void *arg);
--static void xfer_work(struct work_struct *work)
-+static void usbhsf_dma_xfer_preparing(struct usbhs_pkt *pkt)
- {
--	struct usbhs_pkt *pkt = container_of(work, struct usbhs_pkt, work);
- 	struct usbhs_pipe *pipe = pkt->pipe;
- 	struct usbhs_fifo *fifo;
- 	struct usbhs_priv *priv = usbhs_pipe_to_priv(pipe);
-@@ -813,12 +812,10 @@ static void xfer_work(struct work_struct *work)
- 	struct dma_chan *chan;
- 	struct device *dev = usbhs_priv_to_dev(priv);
- 	enum dma_transfer_direction dir;
--	unsigned long flags;
- 
--	usbhs_lock(priv, flags);
- 	fifo = usbhs_pipe_to_fifo(pipe);
- 	if (!fifo)
--		goto xfer_work_end;
-+		return;
- 
- 	chan = usbhsf_dma_chan_get(fifo, pkt);
- 	dir = usbhs_pipe_is_dir_in(pipe) ? DMA_DEV_TO_MEM : DMA_MEM_TO_DEV;
-@@ -827,7 +824,7 @@ static void xfer_work(struct work_struct *work)
- 					pkt->trans, dir,
- 					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
- 	if (!desc)
--		goto xfer_work_end;
-+		return;
- 
- 	desc->callback		= usbhsf_dma_complete;
- 	desc->callback_param	= pipe;
-@@ -835,7 +832,7 @@ static void xfer_work(struct work_struct *work)
- 	pkt->cookie = dmaengine_submit(desc);
- 	if (pkt->cookie < 0) {
- 		dev_err(dev, "Failed to submit dma descriptor\n");
--		goto xfer_work_end;
-+		return;
- 	}
- 
- 	dev_dbg(dev, "  %s %d (%d/ %d)\n",
-@@ -846,8 +843,17 @@ static void xfer_work(struct work_struct *work)
- 	dma_async_issue_pending(chan);
- 	usbhsf_dma_start(pipe, fifo);
- 	usbhs_pipe_enable(pipe);
-+}
-+
-+static void xfer_work(struct work_struct *work)
-+{
-+	struct usbhs_pkt *pkt = container_of(work, struct usbhs_pkt, work);
-+	struct usbhs_pipe *pipe = pkt->pipe;
-+	struct usbhs_priv *priv = usbhs_pipe_to_priv(pipe);
-+	unsigned long flags;
- 
--xfer_work_end:
-+	usbhs_lock(priv, flags);
-+	usbhsf_dma_xfer_preparing(pkt);
- 	usbhs_unlock(priv, flags);
- }
- 
-@@ -900,8 +906,13 @@ static int usbhsf_dma_prepare_push(struct usbhs_pkt *pkt, int *is_done)
- 	pkt->trans = len;
- 
- 	usbhsf_tx_irq_ctrl(pipe, 0);
--	INIT_WORK(&pkt->work, xfer_work);
--	schedule_work(&pkt->work);
-+	/* FIXME: Workaound for usb dmac that driver can be used in atomic */
-+	if (usbhs_get_dparam(priv, has_usb_dmac)) {
-+		usbhsf_dma_xfer_preparing(pkt);
-+	} else {
-+		INIT_WORK(&pkt->work, xfer_work);
-+		schedule_work(&pkt->work);
-+	}
- 
- 	return 0;
- 
-@@ -1007,8 +1018,7 @@ static int usbhsf_dma_prepare_pop_with_usb_dmac(struct usbhs_pkt *pkt,
- 
- 	pkt->trans = pkt->length;
- 
--	INIT_WORK(&pkt->work, xfer_work);
--	schedule_work(&pkt->work);
-+	usbhsf_dma_xfer_preparing(pkt);
- 
- 	return 0;
- 
--- 
-2.22.0
+This queue was removed a minute later (obviously with the release) after the
+baseline change was pushed but we caught this combo as we try to trigger
+testing after every change to any of those repos. So the patches from the
+queue really didn't apply.
 
 
+I currently see two ways (or their combination) around this:
+1) The queue changes need to be pushed first
+2) We detect how long ago the baseline was pushed and if it's less than
+   let's say 5mins we abort the pipeline to give you enough time to do the
+   changes to the repo
+
+Maybe you also have a different idea that would work better? We try to
+keep up with your quick changes to really test everything and in this case
+ended up being too fast.
+
+
+Thanks for the feedback and working with us so we can figure out a workflow
+that works the best for you,
+
+Veronika
+
+
+> thanks,
+> 
+> greg k-h
+> 
+> 
