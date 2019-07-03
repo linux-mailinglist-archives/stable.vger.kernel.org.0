@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94CA95DBF1
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83D425DBD1
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:19:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727739AbfGCCSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 22:18:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56466 "EHLO mail.kernel.org"
+        id S1727464AbfGCCSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 22:18:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728276AbfGCCSc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 22:18:32 -0400
+        id S1728043AbfGCCSf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 22:18:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 034B621874;
-        Wed,  3 Jul 2019 02:18:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 498A12187F;
+        Wed,  3 Jul 2019 02:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562120311;
-        bh=blrMzjnG4BFCaJAhYzSyPoEnFsnOWYXtexx/u2A++Cs=;
+        s=default; t=1562120314;
+        bh=uENfrnc36wGwGmfUs3kHW+aKKK8OHMXgfYO50WXB/Rc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CTJJxUXVJ+yppHlHyp7GB9nNyWx7rftCPbfX21vd8afSzyotQmOi49MbY7egKu539
-         0x+ukxKW66mGg/p0JhBA4B3ZTemG0RkSWx1oU3tnKBElV4Xf73M+83qs32C2khLf8w
-         3etm1TKA5E85+eD6R8oab6KUrgNgWxX8af3UFjqI=
+        b=VLFDFdrcO4LZbS5gCOXE1JxfN52ElbD56eb/IxjvsSwnNy/hL6M/RQE/xHug7zmb5
+         z//w8s0+a+WBtK+CB0i0NsUUW7C3SdTxKx7JNcXeSmq6a+Q6HrdGj6W+r0Pc7/a1oy
+         eA/DGFXOYrGHtVF7StdeInQBTpmGFOcf/Km/Cxsg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eiichi Tsukata <devel@etsukata.com>,
-        Thomas Gleixner <tglx@linutronix.de>, peterz@infradead.org,
+Cc:     Vinod Koul <vkoul@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 12/13] cpu/hotplug: Fix out-of-bounds read when setting fail state
-Date:   Tue,  2 Jul 2019 22:18:13 -0400
-Message-Id: <20190703021814.18385-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 13/13] linux/kernel.h: fix overflow for DIV_ROUND_UP_ULL
+Date:   Tue,  2 Jul 2019 22:18:14 -0400
+Message-Id: <20190703021814.18385-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190703021814.18385-1-sashal@kernel.org>
 References: <20190703021814.18385-1-sashal@kernel.org>
@@ -43,72 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <devel@etsukata.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 33d4a5a7a5b4d02915d765064b2319e90a11cbde ]
+[ Upstream commit 8f9fab480c7a87b10bb5440b5555f370272a5d59 ]
 
-Setting invalid value to /sys/devices/system/cpu/cpuX/hotplug/fail
-can control `struct cpuhp_step *sp` address, results in the following
-global-out-of-bounds read.
+DIV_ROUND_UP_ULL adds the two arguments and then invokes
+DIV_ROUND_DOWN_ULL.  But on a 32bit system the addition of two 32 bit
+values can overflow.  DIV_ROUND_DOWN_ULL does it correctly and stashes
+the addition into a unsigned long long so cast the result to unsigned
+long long here to avoid the overflow condition.
 
-Reproducer:
-
-  # echo -2 > /sys/devices/system/cpu/cpu0/hotplug/fail
-
-KASAN report:
-
-  BUG: KASAN: global-out-of-bounds in write_cpuhp_fail+0x2cd/0x2e0
-  Read of size 8 at addr ffffffff89734438 by task bash/1941
-
-  CPU: 0 PID: 1941 Comm: bash Not tainted 5.2.0-rc6+ #31
-  Call Trace:
-   write_cpuhp_fail+0x2cd/0x2e0
-   dev_attr_store+0x58/0x80
-   sysfs_kf_write+0x13d/0x1a0
-   kernfs_fop_write+0x2bc/0x460
-   vfs_write+0x1e1/0x560
-   ksys_write+0x126/0x250
-   do_syscall_64+0xc1/0x390
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  RIP: 0033:0x7f05e4f4c970
-
-  The buggy address belongs to the variable:
-   cpu_hotplug_lock+0x98/0xa0
-
-  Memory state around the buggy address:
-   ffffffff89734300: fa fa fa fa 00 00 00 00 00 00 00 00 00 00 00 00
-   ffffffff89734380: fa fa fa fa 00 00 00 00 00 00 00 00 00 00 00 00
-  >ffffffff89734400: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
-                                          ^
-   ffffffff89734480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-   ffffffff89734500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-Add a sanity check for the value written from user space.
-
-Fixes: 1db49484f21ed ("smp/hotplug: Hotplug state fail injection")
-Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: peterz@infradead.org
-Link: https://lkml.kernel.org/r/20190627024732.31672-1-devel@etsukata.com
+[akpm@linux-foundation.org: DIV_ROUND_UP_ULL must be an rval]
+Link: http://lkml.kernel.org/r/20190625100518.30753-1-vkoul@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cpu.c | 3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/kernel.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/cpu.c b/kernel/cpu.c
-index 127a69b8b192..5a10390b09de 100644
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -1944,6 +1944,9 @@ static ssize_t write_cpuhp_fail(struct device *dev,
- 	if (ret)
- 		return ret;
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index 1c5469adaa85..bb7baecef002 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -101,7 +101,8 @@
+ #define DIV_ROUND_DOWN_ULL(ll, d) \
+ 	({ unsigned long long _tmp = (ll); do_div(_tmp, d); _tmp; })
  
-+	if (fail < CPUHP_OFFLINE || fail > CPUHP_ONLINE)
-+		return -EINVAL;
-+
- 	/*
- 	 * Cannot fail STARTING/DYING callbacks.
- 	 */
+-#define DIV_ROUND_UP_ULL(ll, d)		DIV_ROUND_DOWN_ULL((ll) + (d) - 1, (d))
++#define DIV_ROUND_UP_ULL(ll, d) \
++	DIV_ROUND_DOWN_ULL((unsigned long long)(ll) + (d) - 1, (d))
+ 
+ #if BITS_PER_LONG == 32
+ # define DIV_ROUND_UP_SECTOR_T(ll,d) DIV_ROUND_UP_ULL(ll, d)
 -- 
 2.20.1
 
