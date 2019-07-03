@@ -2,119 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A0AC5E14B
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 11:47:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98EE25E1E7
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 12:20:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726605AbfGCJrA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jul 2019 05:47:00 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:35807 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726457AbfGCJrA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 05:47:00 -0400
-Received: by mail-wr1-f68.google.com with SMTP id c27so2026993wrb.2
-        for <stable@vger.kernel.org>; Wed, 03 Jul 2019 02:46:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=GQbS3A8xiMmpNNf6PGola8QmLy/1LRvhN5dwsk9vSMU=;
-        b=QiYd9+QzOW/pYTkr8SYV6I8DIASwtVXe+x5Wqr2AeqaT83gaJe7zqCocyRCqfU7rU8
-         HL8gpAs0Wg8VxD2DWix7nIhwdD7usU3WnfC8+2SV+Eq8/iF1NK0j8CF+mdOlFq/xDSpk
-         T5FzMdh9pLFOnTjE9/W0L+z+lsg9wvH4gH1pRrWrude8Q8LZ3juVlvtGAZeo+814DjPd
-         0OfsvUHPjrFb3HvZtep8OVYp7hET1slBcptzPlMxsRbWRXphPWznHKNbz6bGOF/S5O30
-         GnjOGRJhMBJcvKNgLeJCyxFmJh4aNdhZL/zixn02TehjX0IdXHi2yVIF5gfWSUZTh6Vo
-         HfcQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=GQbS3A8xiMmpNNf6PGola8QmLy/1LRvhN5dwsk9vSMU=;
-        b=GoLg1HGpMT2y1iko9R7w4pEVQ8DI/aVjYPtmijLZyKSDAS3IZsOzqs3smJV26E5hER
-         WmsNoA854MUW/TiiOhsaR9C0R8CxGIXqWbG+hKYyft72wPceWqQ2mNed0AZPUl1K4d/T
-         qvuR/tOxs8t8uRU1DCJKtRNiDBmg1uYyyuBK1MljnkJquRt7BD4IxsAxQ94NXAsFDfnX
-         mzzF5y8XtSTbcHPXnxzPoehxymcnUUz7CD+8KqdS3IYLyz5r+mW1nRwdQYdKnfxZf7rP
-         210KjHeQuqqY7MBeroxR8i8dYoWLdsX5OQ9YxJa01nswfgUYeR4NM1fWU1gonALwWcud
-         ptPQ==
-X-Gm-Message-State: APjAAAWNgKNIRmf+AciAWXCPyTCB8zJY53rihYYTub7Nlb/FUK7yRYQ8
-        JfkZedTzGOEU8PfHsX5bwlnckA==
-X-Google-Smtp-Source: APXvYqxSiCauqcgWW3J3sZMFKmyZsw1W3L9ofo4oAfmqgg0AknYF6emACifhDeu+uGeQC+z1c2BqXw==
-X-Received: by 2002:adf:ce8f:: with SMTP id r15mr28166092wrn.122.1562147217911;
-        Wed, 03 Jul 2019 02:46:57 -0700 (PDT)
-Received: from balsini.lon.corp.google.com ([2a00:79e0:d:203:fc05:dec:5003:37b1])
-        by smtp.gmail.com with ESMTPSA id 17sm1836529wmx.47.2019.07.03.02.46.57
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Wed, 03 Jul 2019 02:46:57 -0700 (PDT)
-From:   Alessio Balsini <balsini@android.com>
-To:     gregkh@linuxfoundation.org
-Cc:     astrachan@google.com, maennich@google.com, kernel-team@android.com,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 4.4] um: Compile with modern headers
-Date:   Wed,  3 Jul 2019 10:46:27 +0100
-Message-Id: <20190703094627.50424-1-balsini@android.com>
-X-Mailer: git-send-email 2.22.0.410.gd8fdbe21b5-goog
+        id S1726621AbfGCKU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jul 2019 06:20:26 -0400
+Received: from hqemgate14.nvidia.com ([216.228.121.143]:11402 "EHLO
+        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726486AbfGCKUZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 06:20:25 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d1c81650001>; Wed, 03 Jul 2019 03:20:21 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 03 Jul 2019 03:20:24 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 03 Jul 2019 03:20:24 -0700
+Received: from [10.21.132.148] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 3 Jul
+ 2019 10:20:22 +0000
+Subject: Re: [PATCH 4.14 00/43] 4.14.132-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20190702080123.904399496@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <a47ff63e-9250-d12c-2bc2-6027e4b0f6c5@nvidia.com>
+Date:   Wed, 3 Jul 2019 11:20:20 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190702080123.904399496@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1562149221; bh=gyQVgxER1zUiBZgEtuKwwAdpSeLgNHaZVj1LUOHZVD4=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=eEVegu5XbQnCHgr6eFdPTlTIjOZWPAekficjzBAXNPGE9eaAwhM5mMtIMAa6nCGKF
+         71Afji0xOy7H/4S2bYw29EjQMz//JoCPZwMbwtINAi9oJIgRkSAqUApfcFUHh0DMna
+         xbwtFnvH3ybg3Mi5hLOxPuqY1Ta9OIIyIkIZokLthhdQcTB6hLapwr3AtF+ZwEw6L8
+         fGixeqquMwfqEvdXBREG5HyM2m4YvwNQ4CytfLcCBDH42i6Tn3JUaD+UrR9Upl2Oxh
+         0Li3oaOIuhqXtp05jIHcQMM5j/QrpDYgs7xwKOH3SlG5fXR/fu/3ywmMwHzUXugTVx
+         1uISmUxI7RPhg==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 530ba6c7cb3c22435a4d26de47037bb6f86a5329 upstream.
+On 02/07/2019 09:01, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.132 release.
+> There are 43 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu 04 Jul 2019 07:59:45 AM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.132-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Recent libcs have gotten a bit more strict, so we actually need to
-include the right headers and use the right types. This enables UML to
-compile again.
+All tests are passing for Tegra ...
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Alessio Balsini <balsini@android.com>
----
- arch/um/os-Linux/file.c   | 1 +
- arch/um/os-Linux/signal.c | 2 ++
- arch/x86/um/stub_segv.c   | 1 +
- 3 files changed, 4 insertions(+)
+Test results for stable-v4.14:
+    8 builds:	8 pass, 0 fail
+    16 boots:	16 pass, 0 fail
+    24 tests:	24 pass, 0 fail
 
-diff --git a/arch/um/os-Linux/file.c b/arch/um/os-Linux/file.c
-index 26e0164895e4..6e6f6d28d54b 100644
---- a/arch/um/os-Linux/file.c
-+++ b/arch/um/os-Linux/file.c
-@@ -12,6 +12,7 @@
- #include <sys/mount.h>
- #include <sys/socket.h>
- #include <sys/stat.h>
-+#include <sys/sysmacros.h>
- #include <sys/un.h>
- #include <sys/types.h>
- #include <os.h>
-diff --git a/arch/um/os-Linux/signal.c b/arch/um/os-Linux/signal.c
-index 56648f4f8b41..5da50451d372 100644
---- a/arch/um/os-Linux/signal.c
-+++ b/arch/um/os-Linux/signal.c
-@@ -14,7 +14,9 @@
- #include <as-layout.h>
- #include <kern_util.h>
- #include <os.h>
-+#include <sys/ucontext.h>
- #include <sysdep/mcontext.h>
-+#include <um_malloc.h>
- 
- void (*sig_info[NSIG])(int, struct siginfo *, struct uml_pt_regs *) = {
- 	[SIGTRAP]	= relay_signal,
-diff --git a/arch/x86/um/stub_segv.c b/arch/x86/um/stub_segv.c
-index fd6825537b97..27361cbb7ca9 100644
---- a/arch/x86/um/stub_segv.c
-+++ b/arch/x86/um/stub_segv.c
-@@ -6,6 +6,7 @@
- #include <sysdep/stub.h>
- #include <sysdep/faultinfo.h>
- #include <sysdep/mcontext.h>
-+#include <sys/ucontext.h>
- 
- void __attribute__ ((__section__ (".__syscall_stub")))
- stub_segv_handler(int sig, siginfo_t *info, void *p)
+Linux version:	4.14.132-rc1-g3734933c2330
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
+
+Cheers
+Jon
+
 -- 
-2.22.0.410.gd8fdbe21b5-goog
-
+nvpublic
