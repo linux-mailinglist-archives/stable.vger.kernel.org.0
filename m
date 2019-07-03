@@ -2,68 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 947065DCA2
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:47:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6F125DD14
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 05:40:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727144AbfGCCrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 22:47:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41410 "EHLO mail.kernel.org"
+        id S1727065AbfGCDkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 23:40:36 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:41506 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727036AbfGCCrG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 22:47:06 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727025AbfGCDkg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 23:40:36 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47EDB21721;
-        Wed,  3 Jul 2019 02:47:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562122025;
-        bh=/5rTbplUIS3P82/nrCyz60q08P6DaMOsWJbXI6TJPZU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WnyGRBJY1cK7Y1P9+ShEnaQDIJjrrRuWf7l3cnFc0syWchrId8/4MQyjhbKpn6W6f
-         76XtaI37v7uKYFzP8x25w10ch2e+eG6lWHVN5zWwJpddmLIdk024erNPm3UDdFe/Js
-         1cSsKC37qvb0lFZWoglBL+7jc5ZP+q3fPSw7txEo=
-Date:   Tue, 2 Jul 2019 22:47:04 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        linux-xfs <linux-xfs@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [STABLE 4.19] fixes for xfs memory and fs corruption
-Message-ID: <20190703024704.GT11506@sasha-vm>
-References: <155009104740.32028.193157199378698979.stgit@magnolia>
- <20190213205804.GE32253@magnolia>
- <CAOQ4uximAfJjNdunY2xK_1DwC2G7v31XWbv64AdO9nYdExUsVw@mail.gmail.com>
- <20190627233216.GD11506@sasha-vm>
+        by mx1.redhat.com (Postfix) with ESMTPS id 14DC913AA9;
+        Wed,  3 Jul 2019 03:40:35 +0000 (UTC)
+Received: from mchristi.msp.csb (unknown [10.64.242.49])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 458F75C1A1;
+        Wed,  3 Jul 2019 03:40:31 +0000 (UTC)
+Reply-To: mchristi@redhat.com
+Subject: Re: [RESEND PATCH] scsi: target/iblock: Fix overrun in WRITE SAME
+ emulation
+To:     Roman Bolshakov <r.bolshakov@yadro.com>,
+        target-devel@vger.kernel.org, linux-scsi@vger.kernel.org
+Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>
+References: <20190702191636.26481-1-r.bolshakov@yadro.com>
+From:   Michael Christie <mchristi@redhat.com>
+Organization: Red Hat
+Message-ID: <a1c14025-cb00-7f64-a633-82019a3b6813@redhat.com>
+Date:   Wed, 3 Jul 2019 12:40:29 +0900
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.2.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190627233216.GD11506@sasha-vm>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190702191636.26481-1-r.bolshakov@yadro.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Wed, 03 Jul 2019 03:40:36 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 27, 2019 at 07:32:17PM -0400, Sasha Levin wrote:
->On Thu, Jun 27, 2019 at 07:12:48PM +0300, Amir Goldstein wrote:
->>Darrick,
->>
->>Can I have your blessing on the choice of these upstream commits
->>as stable candidates?
->>I did not observe any xfstests regressions when testing v4.19.55
->>with these patches applied.
->>
->>Sasha,
->>
->>Can you run these patches though your xfstests setup?
->>They fix nasty bugs.
->
->Will do. Tests running now - I'll update tomorrow.
+On 07/03/2019 04:16 AM, Roman Bolshakov wrote:
+> WRITE SAME corrupts data on the block device behind iblock if the
+> command is emulated. The emulation code issues (M - 1) * N times more
+> bios than requested, where M is the number of 512 blocks per real block
+> size and N is the NUMBER OF LOGICAL BLOCKS specified in WRITE SAME
+> command. So, for a device with 4k blocks, 7 * N more LBAs gets written
+> after the requested range.
+> 
+> The issue happens because the number of 512 byte sectors to be written
+> is decreased one by one while the real bios are typically from 1 to 8
+> 512 byte sectors per bio.
+> 
+> Fixes: c66ac9db8d4a ("[SCSI] target: Add LIO target core v4.0.0-rc6")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+> Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+> ---
+>  drivers/target/target_core_iblock.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/target/target_core_iblock.c b/drivers/target/target_core_iblock.c
+> index f4a075303e9a..6949ea8bc387 100644
+> --- a/drivers/target/target_core_iblock.c
+> +++ b/drivers/target/target_core_iblock.c
+> @@ -502,7 +502,7 @@ iblock_execute_write_same(struct se_cmd *cmd)
+>  
+>  		/* Always in 512 byte units for Linux/Block */
+>  		block_lba += sg->length >> SECTOR_SHIFT;
+> -		sectors -= 1;
+> +		sectors -= sg->length >> SECTOR_SHIFT;
+>  	}
+>  
+>  	iblock_submit_bios(&list);
+> 
 
-I gave it a few more days, and it looks good here.
+Roman,
 
---
-Thanks,
-Sasha
+The patch looks ok to me. Just one question. How did you hit this?
+
+Did you by any chance export this disk to a ESX initiator and was it
+doing WRITE SAME to zero out data. But, did the device being used by
+iblock not support the zero out command (was
+/sys/block/XYZ/queue/write_zeroes_max_bytes == 0)?
+
+Or, did you just send a WRITE SAME command manually using some tools
+like sg utils and it had a non zero'd buffer to write out?
+
+Or, was it some other use case?
+
