@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B5F45DB9F
+	by mail.lfdr.de (Postfix) with ESMTP id A30F65DBA0
 	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727533AbfGCCQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 22:16:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55216 "EHLO mail.kernel.org"
+        id S1728085AbfGCCQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 22:16:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728065AbfGCCQs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 22:16:48 -0400
+        id S1727530AbfGCCQw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 22:16:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCDED2189F;
-        Wed,  3 Jul 2019 02:16:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1C5D21880;
+        Wed,  3 Jul 2019 02:16:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562120208;
-        bh=WkK+kTJashnT0bWWbMgBLKOFuKWDJnwHFusuOvM2TY8=;
+        s=default; t=1562120210;
+        bh=WLRSW10dLHRVb2oZyCPZDmoAiESSADs0iBv9LxSmbys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+mli7inG/KJsLCzQ6Dbzk5PX50IVXyEVA1h6OekE3W/vTt1M1znfEs/moCWg68Fj
-         7R0zXmwpqQ1L3/+zdkpIqTPmsBWBSgXjXCxkQtycIDX8+nP0eDX4oH1j89SZgWVGy5
-         kbTx0dEhDjgGlAuReWnrCE5Pcb+Vpfvfq18NKyns=
+        b=ADpmsUNqvcIpc3y7JA1uBDp/aAWHVQjNBo7xh/p+LkJ1VjcB2kfmWG46fSlvQzzyd
+         e1vdHHoTAxCNWANimyBPhlOxuz2Fl8Z111Qovv9JaY3vAe7N2gEyFqlhUJ2tCUEybd
+         dL2J1pzZh7TXAaxb+hAO7vRtJoUUqsDkDPFTXw/g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Milan Broz <gmazyland@gmail.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+Cc:     "Kirill A. Shutemov" <kirill@shutemov.name>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 18/26] dm verity: use message limit for data block corruption message
-Date:   Tue,  2 Jul 2019 22:16:17 -0400
-Message-Id: <20190703021625.18116-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 19/26] x86/boot/64: Fix crash if kernel image crosses page table boundary
+Date:   Tue,  2 Jul 2019 22:16:18 -0400
+Message-Id: <20190703021625.18116-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190703021625.18116-1-sashal@kernel.org>
 References: <20190703021625.18116-1-sashal@kernel.org>
@@ -43,35 +49,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Milan Broz <gmazyland@gmail.com>
+From: "Kirill A. Shutemov" <kirill@shutemov.name>
 
-[ Upstream commit 2eba4e640b2c4161e31ae20090a53ee02a518657 ]
+[ Upstream commit 81c7ed296dcd02bc0b4488246d040e03e633737a ]
 
-DM verity should also use DMERR_LIMIT to limit repeat data block
-corruption messages.
+A kernel which boots in 5-level paging mode crashes in a small percentage
+of cases if KASLR is enabled.
 
-Signed-off-by: Milan Broz <gmazyland@gmail.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+This issue was tracked down to the case when the kernel image unpacks in a
+way that it crosses an 1G boundary. The crash is caused by an overrun of
+the PMD page table in __startup_64() and corruption of P4D page table
+allocated next to it. This particular issue is not visible with 4-level
+paging as P4D page tables are not used.
+
+But the P4D and the PUD calculation have similar problems.
+
+The PMD index calculation is wrong due to operator precedence, which fails
+to confine the PMDs in the PMD array on wrap around.
+
+The P4D calculation for 5-level paging and the PUD calculation calculate
+the first index correctly, but then blindly increment it which causes the
+same issue when a kernel image is located across a 512G and for 5-level
+paging across a 46T boundary.
+
+This wrap around mishandling was introduced when these parts moved from
+assembly to C.
+
+Restore it to the correct behaviour.
+
+Fixes: c88d71508e36 ("x86/boot/64: Rewrite startup_64() in C")
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20190620112345.28833-1-kirill.shutemov@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-verity-target.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/head64.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/md/dm-verity-target.c b/drivers/md/dm-verity-target.c
-index fc65f0dedf7f..e3599b43f9eb 100644
---- a/drivers/md/dm-verity-target.c
-+++ b/drivers/md/dm-verity-target.c
-@@ -236,8 +236,8 @@ static int verity_handle_err(struct dm_verity *v, enum verity_block_type type,
- 		BUG();
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index ddee1f0870c4..cc5b519dc687 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -190,18 +190,18 @@ unsigned long __head __startup_64(unsigned long physaddr,
+ 		pgd[i + 0] = (pgdval_t)p4d + pgtable_flags;
+ 		pgd[i + 1] = (pgdval_t)p4d + pgtable_flags;
+ 
+-		i = (physaddr >> P4D_SHIFT) % PTRS_PER_P4D;
+-		p4d[i + 0] = (pgdval_t)pud + pgtable_flags;
+-		p4d[i + 1] = (pgdval_t)pud + pgtable_flags;
++		i = physaddr >> P4D_SHIFT;
++		p4d[(i + 0) % PTRS_PER_P4D] = (pgdval_t)pud + pgtable_flags;
++		p4d[(i + 1) % PTRS_PER_P4D] = (pgdval_t)pud + pgtable_flags;
+ 	} else {
+ 		i = (physaddr >> PGDIR_SHIFT) % PTRS_PER_PGD;
+ 		pgd[i + 0] = (pgdval_t)pud + pgtable_flags;
+ 		pgd[i + 1] = (pgdval_t)pud + pgtable_flags;
  	}
  
--	DMERR("%s: %s block %llu is corrupted", v->data_dev->name, type_str,
--		block);
-+	DMERR_LIMIT("%s: %s block %llu is corrupted", v->data_dev->name,
-+		    type_str, block);
+-	i = (physaddr >> PUD_SHIFT) % PTRS_PER_PUD;
+-	pud[i + 0] = (pudval_t)pmd + pgtable_flags;
+-	pud[i + 1] = (pudval_t)pmd + pgtable_flags;
++	i = physaddr >> PUD_SHIFT;
++	pud[(i + 0) % PTRS_PER_PUD] = (pudval_t)pmd + pgtable_flags;
++	pud[(i + 1) % PTRS_PER_PUD] = (pudval_t)pmd + pgtable_flags;
  
- 	if (v->corrupted_errs == DM_VERITY_MAX_CORRUPTED_ERRS)
- 		DMERR("%s: reached maximum errors", v->data_dev->name);
+ 	pmd_entry = __PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL;
+ 	/* Filter out unsupported __PAGE_KERNEL_* bits: */
+@@ -211,8 +211,9 @@ unsigned long __head __startup_64(unsigned long physaddr,
+ 	pmd_entry +=  physaddr;
+ 
+ 	for (i = 0; i < DIV_ROUND_UP(_end - _text, PMD_SIZE); i++) {
+-		int idx = i + (physaddr >> PMD_SHIFT) % PTRS_PER_PMD;
+-		pmd[idx] = pmd_entry + i * PMD_SIZE;
++		int idx = i + (physaddr >> PMD_SHIFT);
++
++		pmd[idx % PTRS_PER_PMD] = pmd_entry + i * PMD_SIZE;
+ 	}
+ 
+ 	/*
 -- 
 2.20.1
 
