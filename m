@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11EEA5EB80
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 20:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B09305EB83
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 20:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727060AbfGCSZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jul 2019 14:25:19 -0400
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:41579 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725933AbfGCSZT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 14:25:19 -0400
-Received: by mail-qt1-f195.google.com with SMTP id d17so3512286qtj.8;
-        Wed, 03 Jul 2019 11:25:19 -0700 (PDT)
+        id S1726951AbfGCSZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jul 2019 14:25:50 -0400
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:45098 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725933AbfGCSZu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 14:25:50 -0400
+Received: by mail-qk1-f193.google.com with SMTP id s22so3554661qkj.12;
+        Wed, 03 Jul 2019 11:25:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=XYrr2XkrtgdorZ+tdABJeKy5zju0JjS/EkkrPZfhGno=;
-        b=inS/DIPdSoPfTHLiDf1At1P3aXyuv1m9trP5THMKCNAhLlUNSsHOpUn/+WSOyjCYd0
-         a9FYUNgoE9h5Q0HkBhk0nS2TuEd90Nw8VTmvzA4gfn0cPD4LFJPoeePLOOG2V9tdaZXF
-         YuYJqrUtHZYCbBTzOOnxCuNNv76zSe7VYUenXn9m+GHR+sH0WqUyJFoqV+Gpcds6NDvc
-         U8Kbay8bMpOwBKhEpUnHTvtwaeQVdiC2DxeudmdXWYKA9EGj2CFReOCeFmUTQU4+CCn4
-         +yuKc3HOVRV/McKZTTVS5VOxjHSyZxdjaOaOiHQnxcxawpictsgUVv9MnBJ3SPOhf8W8
-         5Q8Q==
-X-Gm-Message-State: APjAAAUYhcJ9XJTjGJRLXhqCvRdAhdH6rKMbtfYpxgCHkUEsurHOdDHF
-        JyqWLTM8I2GhKjVVaLy26R1RLFJNTteYXl9xMNs=
-X-Google-Smtp-Source: APXvYqxNIjufeVEK1O1zdHGp08z8xlfUA3yLG9ntzbfi0UnYDfHY6JYgxc3gO/5VgfXlAEeC2twCgVEHAIWxpfJ/Wxo=
-X-Received: by 2002:ac8:5311:: with SMTP id t17mr31066092qtn.304.1562178317199;
- Wed, 03 Jul 2019 11:25:17 -0700 (PDT)
+        bh=hj9Mu/A07WEzdqlLv51CSKCOmnErRsnZV7qZQXqAPU4=;
+        b=g/kQq3p647txc2mMTt8f5KdSG4a1NpMtkK4irigH16icij1MmJFrPu2sboNdJl6XSP
+         CMuRp7bCBgJe+LM+SE84yjvMjPZB3GVVdV328BWiWwX+cuoGVg0Rr1kc51swRHwpgFuE
+         e1ahBWyTilQTVGvEOlxQhNP5Pp9vH2+BuRDpwFwR+kUjp9bxnqhciiL6pux1Ol5/2lfi
+         lV+avlAi87pPWGK5MiAXwq7pBjnH8dA+woup+HHZrrQ+jZPP71pchZ1ZG7QYVooNDwqt
+         rSWgKQzR9343aRno4lqkVqwekEUWaalPbQC3BTUEK3Z0TVnfqg0Q75OqVatHcMYx+57x
+         lvEA==
+X-Gm-Message-State: APjAAAV+aDIosMmvSdla46IpeT94VUFhmCe4SeIBmj7176fsYXV/dUhN
+        kWahQG3ZszBkMyXkW/eFT39b3qzbn+Rpiju+UabgdYjV
+X-Google-Smtp-Source: APXvYqz4bMygWKgzPmMPQ5p4ZuQcJbZZCvEe0RJ2vPSOcOE5DSOmY6oaJcaZ7l0WpnAhLbZjS+hOicTtiyKfXEbB3xc=
+X-Received: by 2002:a37:ad12:: with SMTP id f18mr31452492qkm.3.1562178349452;
+ Wed, 03 Jul 2019 11:25:49 -0700 (PDT)
 MIME-Version: 1.0
 References: <20190703133940.1493249-1-arnd@arndb.de> <7584cf05-e3f9-7027-a08c-87efbfb0f608@synopsys.com>
 In-Reply-To: <7584cf05-e3f9-7027-a08c-87efbfb0f608@synopsys.com>
 From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Wed, 3 Jul 2019 20:24:56 +0200
-Message-ID: <CAK8P3a2VS0TCNQa7r_C09fFD2uYiMn79V25B90Opx6SYC51idw@mail.gmail.com>
+Date:   Wed, 3 Jul 2019 20:25:32 +0200
+Message-ID: <CAK8P3a2c49gLLU5BKsty7WCD=6gZbJ0PiJvYfe3SMou=SqUi9Q@mail.gmail.com>
 Subject: Re: [PATCH] ARC: hide unused function unw_hdr_alloc
 To:     Vineet Gupta <Vineet.Gupta1@synopsys.com>
 Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
@@ -49,18 +49,17 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-n Wed, Jul 3, 2019 at 6:13 PM Vineet Gupta <Vineet.Gupta1@synopsys.com> wrote:
->
+On Wed, Jul 3, 2019 at 6:13 PM Vineet Gupta <Vineet.Gupta1@synopsys.com> wrote:
 > On 7/3/19 6:39 AM, Arnd Bergmann wrote:
-> > As kernelci.org reports,
+> > Fixes: bc79c9a72165 ("ARC: dw2 unwind: Reinstante unwinding out of modules")
+> > Link: https://kernelci.org/build/id/5d1cae3f59b514300340c132/logs/
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 >
-> Curious, how are you getting these reports ? I want to see as well.
+> Thx, do you want me to pick this up via arc tree.
 
-I'm subscribed to the mailing list at
+Yes, that would be great.
 
-https://lists.linaro.org/mailman/listinfo/kernel-build-reports
+Thanks,
 
-I think you can also ask the kernelci folks to get a different subset of
-the build reports.
-
-     Arnd
+      Arnd
