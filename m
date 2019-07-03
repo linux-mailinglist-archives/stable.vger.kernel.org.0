@@ -2,173 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8044A5DEFE
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 09:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22EBF5E06A
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 11:01:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727045AbfGCHjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jul 2019 03:39:15 -0400
-Received: from mga03.intel.com ([134.134.136.65]:5217 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727008AbfGCHjP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Jul 2019 03:39:15 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 03 Jul 2019 00:39:14 -0700
-X-IronPort-AV: E=Sophos;i="5.63,446,1557212400"; 
-   d="scan'208";a="157884803"
-Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 03 Jul 2019 00:39:11 -0700
-Subject: [PATCH] dax: Fix missed PMD wakeups
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     linux-fsdevel@vger.kernel.org
-Cc:     Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
-        Boaz Harrosh <openosd@gmail.com>, stable@vger.kernel.org,
-        Robert Barror <robert.barror@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org
-Date:   Wed, 03 Jul 2019 00:24:54 -0700
-Message-ID: <156213869409.3910140.7715747316991468148.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: StGit/0.18-2-gc94f
+        id S1727208AbfGCJBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jul 2019 05:01:22 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:43404 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727197AbfGCJBW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 05:01:22 -0400
+Received: by mail-ot1-f65.google.com with SMTP id q10so1538654otk.10;
+        Wed, 03 Jul 2019 02:01:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Nqsl7mw8i2F0KpVu3YClsX9awvB+a3f/6kMjL+tSEX0=;
+        b=NBlReOsCEysqP0tKzR7+2SoIMgPZQTbMxjMN3O689cupA+zJC9X7NQ9JzYy95V7Zth
+         khffgZXpyEMVM9zQmRz9cELHlokp1YbTApLv0wpoXlMIcymKqHW183DDIzGRb/9w7Eds
+         QDyARb5iMwDqaKh7m8vX0dkpF+XaJvTBDxFerSPzoZa0Gtnt0srZuDrTT9q6cBr45SCe
+         F8ec5gQqYMTm0jd/rVyPy2xD96AkVQXxthY83d+xzkJoVG/W01+yvxMG1aIdjSopExuN
+         VzXRIhGajp86xxbkNMiSKFJ6G0U3OS1Ncv5k71aGEdus+ltgEb7BfANujqZwT2nKNIeB
+         tGjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Nqsl7mw8i2F0KpVu3YClsX9awvB+a3f/6kMjL+tSEX0=;
+        b=tAGSAqRlQs/5dXLBvu1Sqcdh0LdjKBghXrIU4GfGy1TuernubL7xiXI0FYWUJBjyxd
+         tCfm7PTulBd3arRNHaiSmBVXgLg4bRruZ9pTLSib9lvPlWKsdqjsd5hPKk4YmlK/A2lw
+         2VRrJZyIOZZPXNqc7JQsbyBCI3LAfFcVWkoQMdT0blc35ayRrD8B7Iy6MRM3hZraxliG
+         b0QVNJhDQAhAOeuEuSsbwor4uj3daGqteRzKa1lbvNDVyYDv+b9DaqibiIXCeqfhOCYE
+         Tho0HRRvgBoV9+tF4ObcMdxy31U5GwvcnY0Myh6wDS9ZmTNSJbDMcP1tQoxEkVj+6MDC
+         dIiw==
+X-Gm-Message-State: APjAAAWR+iJCpQuJrURwkGfa6p0uV9G8zStj0iitkGu358ZrYt4MmhhG
+        GOlgA5nfz/YFsvBR1LeYpnfiooRTczcLJP3/qSw=
+X-Google-Smtp-Source: APXvYqy8nQfsCP9N5UeSronAuP31jlfLFowq8I3R9eP1zf8A8FBjZ25PU/l0s1nJ98KQZ2Cjy6gP0Ktnt+omp6h1XMI=
+X-Received: by 2002:a9d:226c:: with SMTP id o99mr27126789ota.42.1562144481370;
+ Wed, 03 Jul 2019 02:01:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+References: <20190620175022.29348-1-martin.blumenstingl@googlemail.com>
+ <a7647aea-b3e6-b785-8476-1851f50beff1@synopsys.com> <CAFBinCDDyG_CxW+PB_OrUXfy-aDKSoewC2OyCfGh18N=omSgcQ@mail.gmail.com>
+In-Reply-To: <CAFBinCDDyG_CxW+PB_OrUXfy-aDKSoewC2OyCfGh18N=omSgcQ@mail.gmail.com>
+From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date:   Wed, 3 Jul 2019 11:01:10 +0200
+Message-ID: <CAFBinCD1qj8sNXOK2Pcbz1MAcdvwywPSxQeERNVpmNw=Gmz=Vw@mail.gmail.com>
+Subject: Re: [PATCH] usb: dwc2: use a longer AHB idle timeout in dwc2_core_reset()
+To:     "felipe.balbi@linux.intel.com" <felipe.balbi@linux.intel.com>
+Cc:     "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ever since the conversion of DAX to the Xarray a RocksDB benchmark has
-been encountering intermittent lockups. In the failing case a thread
-that is taking a PMD-fault is awaiting a wakeup while holding the
-'mmap_sem' for read. As soon as the next mmap() event occurs that tries
-to take the 'mmap_sem' for write it causes ps(1)  and any new 'mmap_sem'
-reader to block.
+On Mon, Jul 1, 2019 at 7:54 PM Martin Blumenstingl
+<martin.blumenstingl@googlemail.com> wrote:
+>
+> On Mon, Jun 24, 2019 at 7:41 AM Minas Harutyunyan
+> <Minas.Harutyunyan@synopsys.com> wrote:
+> >
+> > On 6/20/2019 9:51 PM, Martin Blumenstingl wrote:
+> > > Use a 10000us AHB idle timeout in dwc2_core_reset() and make it
+> > > consistent with the other "wait for AHB master IDLE state" ocurrences.
+> > >
+> > > This fixes a problem for me where dwc2 would not want to initialize when
+> > > updating to 4.19 on a MIPS Lantiq VRX200 SoC. dwc2 worked fine with
+> > > 4.14.
+> > > Testing on my board shows that it takes 180us until AHB master IDLE
+> > > state is signalled. The very old vendor driver for this SoC (ifxhcd)
+> > > used a 1 second timeout.
+> > > Use the same timeout that is used everywhere when polling for
+> > > GRSTCTL_AHBIDLE instead of using a timeout that "works for one board"
+> > > (180us in my case) to have consistent behavior across the dwc2 driver.
+> > >
+> > > Cc: linux-stable <stable@vger.kernel.org> # 4.19+
+> > > Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+> > > ---
+> >
+> > Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+> thank you for reviewing this!
+>
+> is there any chance we can get this fix into Linux 5.3? I know that
+> it's too late for 5.2 so I'm fine with skipping that.
+thank you Felipe for queuing this for v5.3!
+for reference, this patch is now in the usb-for-v5.3-part2 tag: [0]
 
-Debug shows that there are no outstanding Xarray entry-lock holders in
-the hang state which indicates that a PTE lock-holder thread caused a
-PMD thread to wait. When the PTE index-lock is released it may wake the
-wrong waitqueue depending on how the index hashes. Brute-force fix this
-by arranging for PTE-aligned indices within a PMD-span to hash to the
-same waitqueue as the PMD-index.
 
-This fix may increase waitqueue contention, but a fix for that is saved
-for a larger rework. In the meantime this fix is suitable for -stable
-backports.
-
-Link: https://lore.kernel.org/linux-fsdevel/CAPcyv4hwHpX-MkUEqxwdTj7wCCZCN4RV-L4jsnuwLGyL_UEG4A@mail>
-Fixes: b15cd800682f ("dax: Convert page fault handlers to XArray")
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Boaz Harrosh <openosd@gmail.com>
-Cc: <stable@vger.kernel.org>
-Reported-by: Robert Barror <robert.barror@intel.com>
-Reported-by: Seema Pandit <seema.pandit@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
- fs/dax.c |   34 ++++++++++++----------------------
- 1 file changed, 12 insertions(+), 22 deletions(-)
-
-diff --git a/fs/dax.c b/fs/dax.c
-index 9fd908f3df32..592944c522b8 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -144,19 +144,14 @@ struct wait_exceptional_entry_queue {
- 	struct exceptional_entry_key key;
- };
- 
--static wait_queue_head_t *dax_entry_waitqueue(struct xa_state *xas,
--		void *entry, struct exceptional_entry_key *key)
-+static wait_queue_head_t *dax_index_waitqueue(struct xa_state *xas,
-+		struct exceptional_entry_key *key)
- {
- 	unsigned long hash;
- 	unsigned long index = xas->xa_index;
- 
--	/*
--	 * If 'entry' is a PMD, align the 'index' that we use for the wait
--	 * queue to the start of that PMD.  This ensures that all offsets in
--	 * the range covered by the PMD map to the same bit lock.
--	 */
--	if (dax_is_pmd_entry(entry))
--		index &= ~PG_PMD_COLOUR;
-+	/* PMD-align the index to ensure PTE events wakeup PMD waiters */
-+	index &= ~PG_PMD_COLOUR;
- 	key->xa = xas->xa;
- 	key->entry_start = index;
- 
-@@ -177,17 +172,12 @@ static int wake_exceptional_entry_func(wait_queue_entry_t *wait,
- 	return autoremove_wake_function(wait, mode, sync, NULL);
- }
- 
--/*
-- * @entry may no longer be the entry at the index in the mapping.
-- * The important information it's conveying is whether the entry at
-- * this index used to be a PMD entry.
-- */
--static void dax_wake_entry(struct xa_state *xas, void *entry, bool wake_all)
-+static void dax_wake_index(struct xa_state *xas, bool wake_all)
- {
- 	struct exceptional_entry_key key;
- 	wait_queue_head_t *wq;
- 
--	wq = dax_entry_waitqueue(xas, entry, &key);
-+	wq = dax_index_waitqueue(xas, &key);
- 
- 	/*
- 	 * Checking for locked entry and prepare_to_wait_exclusive() happens
-@@ -222,7 +212,7 @@ static void *get_unlocked_entry(struct xa_state *xas)
- 				!dax_is_locked(entry))
- 			return entry;
- 
--		wq = dax_entry_waitqueue(xas, entry, &ewait.key);
-+		wq = dax_index_waitqueue(xas, &ewait.key);
- 		prepare_to_wait_exclusive(wq, &ewait.wait,
- 					  TASK_UNINTERRUPTIBLE);
- 		xas_unlock_irq(xas);
-@@ -246,7 +236,7 @@ static void wait_entry_unlocked(struct xa_state *xas, void *entry)
- 	init_wait(&ewait.wait);
- 	ewait.wait.func = wake_exceptional_entry_func;
- 
--	wq = dax_entry_waitqueue(xas, entry, &ewait.key);
-+	wq = dax_index_waitqueue(xas, &ewait.key);
- 	/*
- 	 * Unlike get_unlocked_entry() there is no guarantee that this
- 	 * path ever successfully retrieves an unlocked entry before an
-@@ -263,7 +253,7 @@ static void put_unlocked_entry(struct xa_state *xas, void *entry)
- {
- 	/* If we were the only waiter woken, wake the next one */
- 	if (entry)
--		dax_wake_entry(xas, entry, false);
-+		dax_wake_index(xas, false);
- }
- 
- /*
-@@ -281,7 +271,7 @@ static void dax_unlock_entry(struct xa_state *xas, void *entry)
- 	old = xas_store(xas, entry);
- 	xas_unlock_irq(xas);
- 	BUG_ON(!dax_is_locked(old));
--	dax_wake_entry(xas, entry, false);
-+	dax_wake_index(xas, false);
- }
- 
- /*
-@@ -522,7 +512,7 @@ static void *grab_mapping_entry(struct xa_state *xas,
- 
- 		dax_disassociate_entry(entry, mapping, false);
- 		xas_store(xas, NULL);	/* undo the PMD join */
--		dax_wake_entry(xas, entry, true);
-+		dax_wake_index(xas, true);
- 		mapping->nrexceptional--;
- 		entry = NULL;
- 		xas_set(xas, index);
-@@ -915,7 +905,7 @@ static int dax_writeback_one(struct xa_state *xas, struct dax_device *dax_dev,
- 	xas_lock_irq(xas);
- 	xas_store(xas, entry);
- 	xas_clear_mark(xas, PAGECACHE_TAG_DIRTY);
--	dax_wake_entry(xas, entry, false);
-+	dax_wake_index(xas, false);
- 
- 	trace_dax_writeback_one(mapping->host, index, count);
- 	return ret;
-
+[0] https://git.kernel.org/pub/scm/linux/kernel/git/balbi/usb.git/commit/?h=usb-for-v5.3-part2&id=dfc4fdebc5d62ac4e2fe5428e59b273675515fb2
