@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0EA5DBC6
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:18:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A0F5DBC4
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:18:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726430AbfGCCSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 22:18:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54974 "EHLO mail.kernel.org"
+        id S1728002AbfGCCQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 22:16:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727469AbfGCCQi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 22:16:38 -0400
+        id S1727991AbfGCCQj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 22:16:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B19321873;
-        Wed,  3 Jul 2019 02:16:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFA3C21882;
+        Wed,  3 Jul 2019 02:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562120197;
-        bh=eb5UpNE5hB2giHBIaYlk1IVM4nC4nFhfey5sEfP+6sY=;
+        s=default; t=1562120198;
+        bh=/Ee2WZO4rde4TtUHzNrdFEtRJg+LA0aD8ucF+Vmu5hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A9ZziIvgkgLJKqrdqKrgEF198f1ie4AEoRPAJ3mhOEO3KcqrTgI/u79tFkpOoRHsN
-         R4N2naPbXYSuqeAZgE3MchWN74H5jCK7VAefvhwLAbDcXnEj9mmB8cXsBUVPRWKXK5
-         ZfwS26PVlrjMOv/c4HLrfLUSEGiwgSG7Qshfd5pc=
+        b=H9SjWcmjK0rxw0F0lCYr9ZTxm2A6fR1L9YL9m3M/FAiQy9SGDVLxyry4fbavOhEXY
+         8QjdgWPXS71nzH6UmbtuEX+hJx9Xm2cura7nU+7JVgoBjx5PxJmPds8YfrcuzCK0Nf
+         ddDV1NQR9rQ2fxCbZRouuHN9us/gOVazawcx7dcI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>, kernel-janitors@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 08/26] x86/apic: Fix integer overflow on 10 bit left shift of cpu_khz
-Date:   Tue,  2 Jul 2019 22:16:07 -0400
-Message-Id: <20190703021625.18116-8-sashal@kernel.org>
+Cc:     Petr Oros <poros@redhat.com>, Ivan Vecera <ivecera@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 09/26] be2net: fix link failure after ethtool offline test
+Date:   Tue,  2 Jul 2019 22:16:08 -0400
+Message-Id: <20190703021625.18116-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190703021625.18116-1-sashal@kernel.org>
 References: <20190703021625.18116-1-sashal@kernel.org>
@@ -45,41 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Petr Oros <poros@redhat.com>
 
-[ Upstream commit ea136a112d89bade596314a1ae49f748902f4727 ]
+[ Upstream commit 2e5db6eb3c23e5dc8171eb8f6af7a97ef9fcf3a9 ]
 
-The left shift of unsigned int cpu_khz will overflow for large values of
-cpu_khz, so cast it to a long long before shifting it to avoid overvlow.
-For example, this can happen when cpu_khz is 4194305, i.e. ~4.2 GHz.
+Certain cards in conjunction with certain switches need a little more
+time for link setup that results in ethtool link test failure after
+offline test. Patch adds a loop that waits for a link setup finish.
 
-Addresses-Coverity: ("Unintentional integer overflow")
-Fixes: 8c3ba8d04924 ("x86, apic: ack all pending irqs when crashed/on kexec")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H . Peter Anvin" <hpa@zytor.com>
-Cc: kernel-janitors@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190619181446.13635-1-colin.king@canonical.com
+Changes in v2:
+- added fixes header
+
+Fixes: 4276e47e2d1c ("be2net: Add link test to list of ethtool self tests.")
+Signed-off-by: Petr Oros <poros@redhat.com>
+Reviewed-by: Ivan Vecera <ivecera@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/apic.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../net/ethernet/emulex/benet/be_ethtool.c    | 28 +++++++++++++++----
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 84132eddb5a8..2646234380cc 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1452,7 +1452,8 @@ static void apic_pending_intr_clear(void)
- 		if (queued) {
- 			if (boot_cpu_has(X86_FEATURE_TSC) && cpu_khz) {
- 				ntsc = rdtsc();
--				max_loops = (cpu_khz << 10) - (ntsc - tsc);
-+				max_loops = (long long)cpu_khz << 10;
-+				max_loops -= ntsc - tsc;
- 			} else {
- 				max_loops--;
- 			}
+diff --git a/drivers/net/ethernet/emulex/benet/be_ethtool.c b/drivers/net/ethernet/emulex/benet/be_ethtool.c
+index bfb16a474490..d1905d50c26c 100644
+--- a/drivers/net/ethernet/emulex/benet/be_ethtool.c
++++ b/drivers/net/ethernet/emulex/benet/be_ethtool.c
+@@ -895,7 +895,7 @@ static void be_self_test(struct net_device *netdev, struct ethtool_test *test,
+ 			 u64 *data)
+ {
+ 	struct be_adapter *adapter = netdev_priv(netdev);
+-	int status;
++	int status, cnt;
+ 	u8 link_status = 0;
+ 
+ 	if (adapter->function_caps & BE_FUNCTION_CAPS_SUPER_NIC) {
+@@ -906,6 +906,9 @@ static void be_self_test(struct net_device *netdev, struct ethtool_test *test,
+ 
+ 	memset(data, 0, sizeof(u64) * ETHTOOL_TESTS_NUM);
+ 
++	/* check link status before offline tests */
++	link_status = netif_carrier_ok(netdev);
++
+ 	if (test->flags & ETH_TEST_FL_OFFLINE) {
+ 		if (be_loopback_test(adapter, BE_MAC_LOOPBACK, &data[0]) != 0)
+ 			test->flags |= ETH_TEST_FL_FAILED;
+@@ -926,13 +929,26 @@ static void be_self_test(struct net_device *netdev, struct ethtool_test *test,
+ 		test->flags |= ETH_TEST_FL_FAILED;
+ 	}
+ 
+-	status = be_cmd_link_status_query(adapter, NULL, &link_status, 0);
+-	if (status) {
+-		test->flags |= ETH_TEST_FL_FAILED;
+-		data[4] = -1;
+-	} else if (!link_status) {
++	/* link status was down prior to test */
++	if (!link_status) {
+ 		test->flags |= ETH_TEST_FL_FAILED;
+ 		data[4] = 1;
++		return;
++	}
++
++	for (cnt = 10; cnt; cnt--) {
++		status = be_cmd_link_status_query(adapter, NULL, &link_status,
++						  0);
++		if (status) {
++			test->flags |= ETH_TEST_FL_FAILED;
++			data[4] = -1;
++			break;
++		}
++
++		if (link_status)
++			break;
++
++		msleep_interruptible(500);
+ 	}
+ }
+ 
 -- 
 2.20.1
 
