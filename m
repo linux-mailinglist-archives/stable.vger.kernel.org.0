@@ -2,60 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B35405EF3C
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 00:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F7385EF48
+	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 00:55:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727056AbfGCWpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jul 2019 18:45:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45062 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726821AbfGCWpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Jul 2019 18:45:33 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 005FC21882;
-        Wed,  3 Jul 2019 22:45:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562193932;
-        bh=roUPOwnfv8OnIk/SPlgOJqDs/8VdDdiWpv+VltJNB4E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=l1c9iahUAHDTdjeP2SKf0hsTb6yO5g72zyVOEUkRUNxu0eCA9d4TuERYImpetO+M5
-         OOxMOF8+AmWxyKUsaXJWD6naAcp2ysIreLboSTUszUoq4oTQU/GeTx+QC51BCwa6fy
-         BcUbGzu4BFWBZLA3eV/K20NV7/xIv9DtIf2zYElw=
-Date:   Wed, 3 Jul 2019 18:45:30 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     "4.4.y backports" <stable@vger.kernel.org>,
-        gregkh <gregkh@linuxfoundation.org>
-Subject: Re: [STABLE-4.9] proposed backports
-Message-ID: <20190703224530.GC10104@sasha-vm>
-References: <CAK8P3a2yqf5WK37mud7k4oFn95rTJRqpOdZ+v6zJ-9xM0u11zw@mail.gmail.com>
- <CAK8P3a3M7cuxPeoZrNKaQGayg-Q6-UH+JEN4gsMDNxa9SWBpUw@mail.gmail.com>
- <CAK8P3a11WpSu8qzyHme9vDZdmv-ZgdFhc1-3rw8LeygbdYER8Q@mail.gmail.com>
+        id S1727021AbfGCWzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jul 2019 18:55:33 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:52421 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726902AbfGCWzd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 18:55:33 -0400
+Received: by mail-wm1-f65.google.com with SMTP id s3so3800710wms.2
+        for <stable@vger.kernel.org>; Wed, 03 Jul 2019 15:55:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=We+o/j36bpuWtN8+9foORejIMtHCnbq5tVy4XuNjR08=;
+        b=qoKsGyj1arM39taP0CajaatgrR55D8MHoVSJuf7r7LeZyQrAYFcbQunzQm4Wyh+9f4
+         WY+Q5skYb0E/JGCU5in/8ydeOu0H264nnErmLW6ZAEtPHX1oSXVrzpTF8hi6h7ByH/ov
+         SUeQY8iam5gyxXCZSVhctu0Yz3dLJZvlyC+JlpLa8zfibfAlN9dN4OWrxzRTI0dYi7zT
+         xi4o9/ycRUD/6dDv2wFpgVFZTO6xAZcnSzLxjeV36t4qbAtsbCztZA7zYfZv+8F35e8b
+         iPM//QHYmx5op/OGpXHO70pynXRkGyOif4frzTD6IfjCh5BSdk2ETecil7sx4ykBae3A
+         3ifA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=We+o/j36bpuWtN8+9foORejIMtHCnbq5tVy4XuNjR08=;
+        b=rk65bc50rHZSi1xA5V8ZEcC7oSzukYba+9Ue+X2uJT1YmMw7NfmW2yBHMzXML1PC98
+         /Tqebn/M4lLQOhsXY3zx7eGlRhedr4zhEKR7PRAWDpQ8gFKWF5R49aXqK5eCZpbmBD0N
+         1MdT1160+ifBlyHjU02GjYaS/rJc3JDIxS3CJ2kxhrpmAwL4E/V0rT7GgQcEo3CD6YcM
+         qSgRuGa3iCGa0lqsMVZpwwkghyORvaGgIGpKJjlWhMw0J9D5gkUulxOzt/5E4pWx7oT1
+         /wWn398PVGPI3hzuVVDS0AeoMnNJTLRPRahCvgy8SH6HAQyydPQlqggYfq+d3ILkHaPY
+         wuTw==
+X-Gm-Message-State: APjAAAU9AyAjpBvUj2Y1jjRj8YJhTnTlk8vycrEVHAjbsrf76na3PfIm
+        c7gEdMI/KN5m5m4/kTA3lCOQnlTwLRigtA==
+X-Google-Smtp-Source: APXvYqxb4PAGJiRuhJQWw0Ptax7lUU1Y9jB+fxbDy9b4Dvq1mIZpFKKh0BPKb9Fu77aOtWUa2YoLrw==
+X-Received: by 2002:a7b:c051:: with SMTP id u17mr9214737wmc.25.1562194530944;
+        Wed, 03 Jul 2019 15:55:30 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id o7sm135642wmc.36.2019.07.03.15.55.29
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 03 Jul 2019 15:55:29 -0700 (PDT)
+Message-ID: <5d1d3261.1c69fb81.19b8f.0d79@mx.google.com>
+Date:   Wed, 03 Jul 2019 15:55:29 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a11WpSu8qzyHme9vDZdmv-ZgdFhc1-3rw8LeygbdYER8Q@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.184-49-g7d3f5931514f
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.4.y boot: 100 boots: 4 failed,
+ 95 passed with 1 conflict (v4.4.184-49-g7d3f5931514f)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 03, 2019 at 10:43:40PM +0200, Arnd Bergmann wrote:
->On Wed, Jul 3, 2019 at 10:31 PM Arnd Bergmann <arnd@arndb.de> wrote:
->>
->> Here is a similar list for 4.9, from
->> https://kernelci.org/build/stable-rc/branch/linux-4.9.y/kernel/v4.9.184-66-g79155cd391a8/
->
->On 4.14, I can only see one missing patch in
->https://kernelci.org/build/stable-rc/branch/linux-4.14.y/kernel/v4.14.132-2-g69aa9e7d0127/
->
->02eec6c9fc0c ("MIPS: netlogic: xlr: Remove erroneous check in nlm_fmn_send()")
+stable-rc/linux-4.4.y boot: 100 boots: 4 failed, 95 passed with 1 conflict =
+(v4.4.184-49-g7d3f5931514f)
 
-Queued this up, thanks!
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.184-49-g7d3f5931514f/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.184-49-g7d3f5931514f/
 
---
-Thanks,
-Sasha
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.184-49-g7d3f5931514f
+Git Commit: 7d3f5931514f4a3ff9d60f6ccc097de0966e0b35
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 46 unique boards, 20 SoC families, 14 builds out of 190
+
+Boot Failures Detected:
+
+arm:
+    sunxi_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
+
+    multi_v7_defconfig:
+        gcc-8:
+            stih410-b2120: 1 failed lab
+            sun7i-a20-bananapi: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+            lab-mhart: PASS (gcc-8)
+            lab-drue: PASS (gcc-8)
+            lab-linaro-lkft: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
