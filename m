@@ -2,54 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5155E5E3A5
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 14:17:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB2A05E3B1
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 14:19:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725944AbfGCMRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jul 2019 08:17:44 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:33644 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725933AbfGCMRo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 08:17:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=hc324U3gAsxTQ/xr9GNXQHJJuTwkj9Ztqk5d0xFNlFU=; b=Xj2zv+NLMKqcrDj7CARx0zOVI
-        jJK06jsuo+7e0kGWyVsxlo9JpCRcFvB70RUcxc76zUpG5U8ZMGyFvIObD6VE1TsfdpdgsvZhGdWFZ
-        3vKAdB1dzqzis3/L2txNhzx46f8QXrWRy0dYKjBKiFxHq3dZAxgiQCItF9xKq7V/WZXyz+Pxa6gC9
-        lxaJgQUtqqeiKyI1pjLnOiLEvaDiKkW/mQc6JeWowqfBpEQcuiPXAoV1PhCVx+RpVimMl2NcX+Q7n
-        fDLBWQsDHhwFnZcYUCn75x+jq0vtuq8cF1nAbAOALi8y6bGYnc4QT8GquQ/xpHG8pqAEUvHzvSFVu
-        a4VGSS+pA==;
-Received: from willy by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
-        id 1hieCl-0000Gy-GK; Wed, 03 Jul 2019 12:17:43 +0000
-Date:   Wed, 3 Jul 2019 05:17:43 -0700
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     linux-fsdevel@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Boaz Harrosh <openosd@gmail.com>, stable@vger.kernel.org,
-        Robert Barror <robert.barror@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dax: Fix missed PMD wakeups
-Message-ID: <20190703121743.GH1729@bombadil.infradead.org>
-References: <156213869409.3910140.7715747316991468148.stgit@dwillia2-desk3.amr.corp.intel.com>
+        id S1726486AbfGCMTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jul 2019 08:19:30 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:54687 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725830AbfGCMT3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 08:19:29 -0400
+Received: from mail-wr1-f72.google.com ([209.85.221.72])
+        by youngberry.canonical.com with esmtps (TLS1.0:RSA_AES_128_CBC_SHA1:16)
+        (Exim 4.76)
+        (envelope-from <guilherme.piccoli@canonical.com>)
+        id 1hieER-0004xt-Js
+        for stable@vger.kernel.org; Wed, 03 Jul 2019 12:19:27 +0000
+Received: by mail-wr1-f72.google.com with SMTP id s18so1002940wru.16
+        for <stable@vger.kernel.org>; Wed, 03 Jul 2019 05:19:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hl4IN+UFShyWybz5Y9nFx/v6kLwn65u0JGDKlBXalYE=;
+        b=Rxe+RdGYAUppLPMEXdrk8C647DoyrhuolulbOHyrS4D3FK+Nzk+7MN0j/jtW2qqMdC
+         R9CR9p0TwDvOZZJGm09VNIEF0sGIj+q83sHsTTI0sFnGT3cRuybufeHLJ1iecYS7I5bw
+         Bp+EGA9eTPjIklhkAYCsRnfhyyvzJseksmo8t18QDKWTPK5600ldBXtN8wfHRcqGkKG1
+         T4h6rtGDqnWHExt6GdpEXrbwlOZeZROq0j6xst3e020c4wE2TyBkNhhPBZnJX4T41eCu
+         6NllWcdbcV6VnEntB5dt7lo50pST5/Sf0lQZfMoHqvucuDu/H0I1qL2H6jqUWknSq/Zv
+         CiiQ==
+X-Gm-Message-State: APjAAAUZ85ZOtiVPDqh7yIqqY6YzCTUI053O5GRE1x4GVd+rCAq4F9Zo
+        sl8UfUNFYq80v2BhUBsEFV8XqtM1RynBKI6ZPJ5QR4ch93pZRjfD8TbvkiRYsr68qMT61BRphNV
+        /ECnjTmOD1B9ObsG6VW6y4I8o8qfuZGV2AUtiDZkTyXvB7ifsRg==
+X-Received: by 2002:a1c:7304:: with SMTP id d4mr7806062wmb.39.1562156367411;
+        Wed, 03 Jul 2019 05:19:27 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqzWDxudz+dZ2eL2tgM1xv05DBOxBXD5d9mfD6trqmEZtBgjgFSRf5Jats2GQunAnlnOsWSWp007ri9L831lJAw=
+X-Received: by 2002:a1c:7304:: with SMTP id d4mr7806046wmb.39.1562156367242;
+ Wed, 03 Jul 2019 05:19:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <156213869409.3910140.7715747316991468148.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+References: <20190628221759.18274-1-gpiccoli@canonical.com> <20190703121700.GE7784@kroah.com>
+In-Reply-To: <20190703121700.GE7784@kroah.com>
+From:   Guilherme Piccoli <gpiccoli@canonical.com>
+Date:   Wed, 3 Jul 2019 09:18:51 -0300
+Message-ID: <CAHD1Q_z+V7NgL1cT3hWioWwWfpViNHDLbhpK=USbBnE=MY7X+A@mail.gmail.com>
+Subject: Re: [4.19.y PATCH 1/2] block: Fix a NULL pointer dereference in generic_make_request()
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org,
+        linux-raid <linux-raid@vger.kernel.org>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Song Liu <songliubraving@fb.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Ming Lei <ming.lei@redhat.com>,
+        Eric Ren <renzhengeek@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 03, 2019 at 12:24:54AM -0700, Dan Williams wrote:
-> This fix may increase waitqueue contention, but a fix for that is saved
-> for a larger rework. In the meantime this fix is suitable for -stable
-> backports.
+On Wed, Jul 3, 2019 at 9:17 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> [...]
+> Both patches now queued up, thanks.
 
-I think this is too big for what it is; just the two-line patch to stop
-incorporating the low bits of the PTE would be more appropriate.
+Thanks a lot Song and Greg!
+Cheers,
+
+
+Guilherme
