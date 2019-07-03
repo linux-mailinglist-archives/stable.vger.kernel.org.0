@@ -2,45 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67EB95DC1D
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:21:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B63A5DC18
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:20:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727410AbfGCCQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 22:16:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54844 "EHLO mail.kernel.org"
+        id S1727968AbfGCCQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 22:16:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727957AbfGCCQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 22:16:31 -0400
+        id S1727958AbfGCCQd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 22:16:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E37C721880;
-        Wed,  3 Jul 2019 02:16:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C58B02187F;
+        Wed,  3 Jul 2019 02:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562120191;
-        bh=oM1L33t+/hCOXb8D8GYlYwjleBds3DD6VTDRcYGc8YI=;
+        s=default; t=1562120192;
+        bh=Vax1MVjoW4XnIG0uQMSCfa0qyH3DTn2Y5luSLf2Qd9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=caHK6xE9oB5WIO9R4K36/uStHNSli50VOh28jsDggxwfKhUi/P1JVvtagcVyv9MUF
-         KQ9QmXqP6PIfyMfn5gRP8fL3DZRAaVrsOARI39wXfJZMeKtsb+57dlPqD2kd4Gt6f7
-         3DbNXifkrDWJiHTMfhqEKVkI93+dmYLxdBUMhfZU=
+        b=DKuBSfRdcOBAefsEaKFhrf39FmR2Y5m+4K9D1D01T7ni1hiCziGZMGzwi897GQR4s
+         MSXut9AcTN7HEtyZIPJ8U2fj9wEaKZAeT8ecql0yWDSfsb6AlDOgUHZnwhgyUmYi0g
+         fCZTAU4EdbrfUSVyhpzJIVLfWLmsJ8T8md1bgArs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@linux.vnet.ibm.com>,
-        Young Xiao <92siuyang@gmail.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Frederic Weisbecker <fweisbec@gmail.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 04/26] perf/core: Fix perf_sample_regs_user() mm check
-Date:   Tue,  2 Jul 2019 22:16:03 -0400
-Message-Id: <20190703021625.18116-4-sashal@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 05/26] ARM: dts: gemini Fix up DNS-313 compatible string
+Date:   Tue,  2 Jul 2019 22:16:04 -0400
+Message-Id: <20190703021625.18116-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190703021625.18116-1-sashal@kernel.org>
 References: <20190703021625.18116-1-sashal@kernel.org>
@@ -53,52 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 085ebfe937d7a7a5df1729f35a12d6d655fea68c ]
+[ Upstream commit 36558020128b1a48b7bddd5792ee70e3f64b04b0 ]
 
-perf_sample_regs_user() uses 'current->mm' to test for the presence of
-userspace, but this is insufficient, consider use_mm().
+It's a simple typo in the DNS file, which was pretty serious.
+No scripts were working properly. Fix it up.
 
-A better test is: '!(current->flags & PF_KTHREAD)', exec() clears
-PF_KTHREAD after it sets the new ->mm but before it drops to userspace
-for the first time.
-
-Possibly obsoletes: bf05fc25f268 ("powerpc/perf: Fix oops when kthread execs user process")
-
-Reported-by: Ravi Bangoria <ravi.bangoria@linux.vnet.ibm.com>
-Reported-by: Young Xiao <92siuyang@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 4018994f3d87 ("perf: Add ability to attach user level registers dump to sample")
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 2 +-
+ arch/arm/boot/dts/gemini-dlink-dns-313.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 171b83ebed4a..3b61ff40bfe2 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5906,7 +5906,7 @@ static void perf_sample_regs_user(struct perf_regs *regs_user,
- 	if (user_mode(regs)) {
- 		regs_user->abi = perf_reg_abi(current);
- 		regs_user->regs = regs;
--	} else if (current->mm) {
-+	} else if (!(current->flags & PF_KTHREAD)) {
- 		perf_get_regs_user(regs_user, regs, regs_user_copy);
- 	} else {
- 		regs_user->abi = PERF_SAMPLE_REGS_ABI_NONE;
+diff --git a/arch/arm/boot/dts/gemini-dlink-dns-313.dts b/arch/arm/boot/dts/gemini-dlink-dns-313.dts
+index d1329322b968..361dccd6c7ee 100644
+--- a/arch/arm/boot/dts/gemini-dlink-dns-313.dts
++++ b/arch/arm/boot/dts/gemini-dlink-dns-313.dts
+@@ -11,7 +11,7 @@
+ 
+ / {
+ 	model = "D-Link DNS-313 1-Bay Network Storage Enclosure";
+-	compatible = "dlink,dir-313", "cortina,gemini";
++	compatible = "dlink,dns-313", "cortina,gemini";
+ 	#address-cells = <1>;
+ 	#size-cells = <1>;
+ 
 -- 
 2.20.1
 
