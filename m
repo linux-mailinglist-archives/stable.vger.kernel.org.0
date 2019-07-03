@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8F665DBB4
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:18:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5F45DB9F
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727679AbfGCCRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 22:17:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55208 "EHLO mail.kernel.org"
+        id S1727533AbfGCCQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 22:16:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728054AbfGCCQs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728065AbfGCCQs (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Jul 2019 22:16:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC8D221880;
-        Wed,  3 Jul 2019 02:16:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCDED2189F;
+        Wed,  3 Jul 2019 02:16:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562120207;
-        bh=7NiTt5czzUH551Nzj8LZqum/G+FC9dq30qWS4x1U9kE=;
+        s=default; t=1562120208;
+        bh=WkK+kTJashnT0bWWbMgBLKOFuKWDJnwHFusuOvM2TY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ArZs3jdXXUupmbULP0h9BR2bRDgccGB0Yt5rGZjkcSzONYUM7LTKRkCURjrg0lsGn
-         l8uYDWHROPQtzs96K9+661KPLC3HrSQnkzDllFd2y+e7/MZ2EkUKqE023/CQeVb2Al
-         RldlclbKvMxZ3klfsrXKj7SdUjky/JcmCfuierjQ=
+        b=F+mli7inG/KJsLCzQ6Dbzk5PX50IVXyEVA1h6OekE3W/vTt1M1znfEs/moCWg68Fj
+         7R0zXmwpqQ1L3/+zdkpIqTPmsBWBSgXjXCxkQtycIDX8+nP0eDX4oH1j89SZgWVGy5
+         kbTx0dEhDjgGlAuReWnrCE5Pcb+Vpfvfq18NKyns=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jerome Marchand <jmarchan@redhat.com>,
+Cc:     Milan Broz <gmazyland@gmail.com>,
         Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 17/26] dm table: don't copy from a NULL pointer in realloc_argv()
-Date:   Tue,  2 Jul 2019 22:16:16 -0400
-Message-Id: <20190703021625.18116-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 18/26] dm verity: use message limit for data block corruption message
+Date:   Tue,  2 Jul 2019 22:16:17 -0400
+Message-Id: <20190703021625.18116-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190703021625.18116-1-sashal@kernel.org>
 References: <20190703021625.18116-1-sashal@kernel.org>
@@ -43,51 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Marchand <jmarchan@redhat.com>
+From: Milan Broz <gmazyland@gmail.com>
 
-[ Upstream commit a0651926553cfe7992166432e418987760882652 ]
+[ Upstream commit 2eba4e640b2c4161e31ae20090a53ee02a518657 ]
 
-For the first call to realloc_argv() in dm_split_args(), old_argv is
-NULL and size is zero. Then memcpy is called, with the NULL old_argv
-as the source argument and a zero size argument. AFAIK, this is
-undefined behavior and generates the following warning when compiled
-with UBSAN on ppc64le:
+DM verity should also use DMERR_LIMIT to limit repeat data block
+corruption messages.
 
-In file included from ./arch/powerpc/include/asm/paca.h:19,
-                 from ./arch/powerpc/include/asm/current.h:16,
-                 from ./include/linux/sched.h:12,
-                 from ./include/linux/kthread.h:6,
-                 from drivers/md/dm-core.h:12,
-                 from drivers/md/dm-table.c:8:
-In function 'memcpy',
-    inlined from 'realloc_argv' at drivers/md/dm-table.c:565:3,
-    inlined from 'dm_split_args' at drivers/md/dm-table.c:588:9:
-./include/linux/string.h:345:9: error: argument 2 null where non-null expected [-Werror=nonnull]
-  return __builtin_memcpy(p, q, size);
-         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/md/dm-table.c: In function 'dm_split_args':
-./include/linux/string.h:345:9: note: in a call to built-in function '__builtin_memcpy'
-
-Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
+Signed-off-by: Milan Broz <gmazyland@gmail.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-table.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-verity-target.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index c7fe4789c40e..34ab30dd5de9 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -562,7 +562,7 @@ static char **realloc_argv(unsigned *size, char **old_argv)
- 		gfp = GFP_NOIO;
+diff --git a/drivers/md/dm-verity-target.c b/drivers/md/dm-verity-target.c
+index fc65f0dedf7f..e3599b43f9eb 100644
+--- a/drivers/md/dm-verity-target.c
++++ b/drivers/md/dm-verity-target.c
+@@ -236,8 +236,8 @@ static int verity_handle_err(struct dm_verity *v, enum verity_block_type type,
+ 		BUG();
  	}
- 	argv = kmalloc_array(new_size, sizeof(*argv), gfp);
--	if (argv) {
-+	if (argv && old_argv) {
- 		memcpy(argv, old_argv, *size * sizeof(*argv));
- 		*size = new_size;
- 	}
+ 
+-	DMERR("%s: %s block %llu is corrupted", v->data_dev->name, type_str,
+-		block);
++	DMERR_LIMIT("%s: %s block %llu is corrupted", v->data_dev->name,
++		    type_str, block);
+ 
+ 	if (v->corrupted_errs == DM_VERITY_MAX_CORRUPTED_ERRS)
+ 		DMERR("%s: reached maximum errors", v->data_dev->name);
 -- 
 2.20.1
 
