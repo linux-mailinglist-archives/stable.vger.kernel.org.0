@@ -2,55 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6714A5E627
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 16:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE7B25E673
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 16:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726736AbfGCOMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jul 2019 10:12:18 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:42758 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725944AbfGCOMS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 10:12:18 -0400
-Received: by mail-lf1-f68.google.com with SMTP id s19so1161308lfb.9
-        for <stable@vger.kernel.org>; Wed, 03 Jul 2019 07:12:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=l6ZI8A8uWh/IBQ32UN89r9vrVQyeeAX4sFAEaSJ6o2Y=;
-        b=Ihbvh1fN0PdsWvdpgHV3wP5vmVBYmE8IEMMEytfsdiP2rhsX2Lwt3njArN+LKKdoQU
-         ZszvL+ub3Gmesa9I/VXmePnYWkpZz0GBq5Ale8tB0d8djybNJO4fas6SPrbIJfC7Gmw7
-         p1gU9tDu/TLOb2y0RuXJm8BMGgR+bAfn/7XJyS+0XDNiuLVtH5vowSCXhh3kn0hljcgP
-         gGr/6SE7UmccdhXYimL8x97wU7X2aJr8MJrvOQOmYO4ZaOTFB4gDB5E7gBaPV17SbW86
-         Tdyng9f1eWvSOqnpW2h+JcFZPZsfzNNjbKctiGXdYQ7+nod7JQYwf0UbzEu/6fIalhsU
-         5U+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=l6ZI8A8uWh/IBQ32UN89r9vrVQyeeAX4sFAEaSJ6o2Y=;
-        b=qZKxXeyiFbt7qEzcqqVXZJU+jZ3nLOho6xP8reBE7V79YcVc9Nmv39l5Ta+Lg+VJ7Q
-         vlzU6SeUTGlk1kRV2EWZwvzdfssJF5MtC3euG6u9IJKSamm6o7yZsisBZkMToYcJJWyT
-         Nv2cIULJF6W4jHqCzDasKp3VNstWLi2LWP5OhtMow4/yfOstDl+UMf/ZlkuueA4DpYVS
-         ajcNnrmPD/+/TGNJPpfSGpUxaROj8uPqeTxJaWwLN2Hpb1gGHvbe0wQvytx4YlJsAdd7
-         wNHUWrk90TFGYvVAzHENpYg183yrkabz+qXn2nci5O0hCHY9m+mZLOKCtoduT3HO5XyI
-         2tZA==
-X-Gm-Message-State: APjAAAXB4LksjNCVeTy95+zlw4af26AqLoLkjJDgjdLTJdxuZbm6gSxq
-        DG7PjiG2xYzmMbThjYYbfOIOeMliOOnhUVG9whQ=
-X-Google-Smtp-Source: APXvYqxd9DL3Czw3wRQWxIE90QkIw/SLnTFHhJ5cEOrBnVHgtNeOzm9Zrg/n4UwbGcl+qI7SY01vhFjuDPuPqZjkGoE=
-X-Received: by 2002:ac2:50cd:: with SMTP id h13mr18836623lfm.36.1562163136496;
- Wed, 03 Jul 2019 07:12:16 -0700 (PDT)
+        id S1726305AbfGCOV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jul 2019 10:21:56 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:54098 "EHLO
+        mail.parknet.co.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725830AbfGCOVz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 10:21:55 -0400
+X-Greylist: delayed 480 seconds by postgrey-1.27 at vger.kernel.org; Wed, 03 Jul 2019 10:21:54 EDT
+Received: from ibmpc.myhome.or.jp (server.parknet.ne.jp [210.171.168.39])
+        by mail.parknet.co.jp (Postfix) with ESMTPSA id 33C231B457B;
+        Wed,  3 Jul 2019 23:13:54 +0900 (JST)
+Received: from devron.myhome.or.jp (foobar@devron.myhome.or.jp [192.168.0.3])
+        by ibmpc.myhome.or.jp (8.15.2/8.15.2/Debian-12) with ESMTPS id x63EDqx6010978
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Wed, 3 Jul 2019 23:13:53 +0900
+Received: from devron.myhome.or.jp (foobar@localhost [127.0.0.1])
+        by devron.myhome.or.jp (8.15.2/8.15.2/Debian-12) with ESMTPS id x63EDquc026641
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Wed, 3 Jul 2019 23:13:52 +0900
+Received: (from hirofumi@localhost)
+        by devron.myhome.or.jp (8.15.2/8.15.2/Submit) id x63EDql7026640;
+        Wed, 3 Jul 2019 23:13:52 +0900
+From:   OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
+Subject: Re: + fat-add-nobarrier-to-workaround-the-strange-behavior-of-device.patch added to -mm tree
+References: <20190702224959.sBsBg%akpm@linux-foundation.org>
+        <20190702225053.GA24248@lst.de>
+        <20190702160343.0b1fd99491f7b257f68ad82c@linux-foundation.org>
+Date:   Wed, 03 Jul 2019 23:13:52 +0900
+In-Reply-To: <20190702160343.0b1fd99491f7b257f68ad82c@linux-foundation.org>
+        (Andrew Morton's message of "Tue, 2 Jul 2019 16:03:43 -0700")
+Message-ID: <87pnmrjjdr.fsf@mail.parknet.co.jp>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.0.50 (gnu/linux)
 MIME-Version: 1.0
-Received: by 2002:a2e:5bd4:0:0:0:0:0 with HTTP; Wed, 3 Jul 2019 07:12:16 -0700 (PDT)
-Reply-To: sherrigallagher212@gmail.com
-From:   Sherri Gallagher <betweenbannabas3@gmail.com>
-Date:   Wed, 3 Jul 2019 14:12:16 +0000
-Message-ID: <CAFY2rwAe4tZ+d_vSJe=krUMirfxjDB3K2QuK0+zad8ox09-G_A@mail.gmail.com>
-Subject: Hello
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings, My name is Sherri Gallagher, please reply me back?
+Andrew Morton <akpm@linux-foundation.org> writes:
+
+> On Wed, 3 Jul 2019 00:50:53 +0200 Christoph Hellwig <hch@lst.de> wrote:
+>
+>> I still very fundamentally disagree with this patch.  We did a concerted
+>> effort around the other file systems to move to the device level tweak
+>> and remove the badly misnamed option, so we should not add it now for
+>> fat.
+>
+> OK, thanks, I'll leave it on hold for now.
+
+I've checked v5.1, you mentioned "cache_type" (scsi specific
+unfortunately). It calls blk_queue_write_cache(), so it calls
+wbt_set_write_cache() too. So it affects to writeback throttling.
+
+Is this intended one? At least, it was not what I expected. It is why I
+asked side effect of it repeatedly in that thread.
+
+True candidate looks like block layer's "write_cache" introduced after
+v4.6. It doesn't call wbt_set_write_cache(). However, I worry if this is
+intent or bug, behave like "cache_type". Did this get consensus to
+replace "nobarrier" (I hope so)?
+
+If not, I even can't recommend "write_cache", instead of "nobarrier" as
+documenting, and we need real replacement to just disable flush command.
+
+Thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
