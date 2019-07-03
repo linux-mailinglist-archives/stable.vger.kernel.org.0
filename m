@@ -2,71 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A21095DB4A
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7E955DB68
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:15:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726652AbfGCCDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 22:03:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51734 "EHLO mail.kernel.org"
+        id S1727460AbfGCCPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 22:15:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726329AbfGCCDO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 22:03:14 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727069AbfGCCPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 22:15:17 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8974221721;
-        Wed,  3 Jul 2019 02:03:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A5842187F;
+        Wed,  3 Jul 2019 02:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562119393;
-        bh=uIc8npXlDPzr+S/7B9hYr82BsRCFFHm8wnQz4nRRXLA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eKVNhoH6yiXM4DcZdP9dFYzRSb5LfAM9PGXt0vLsoAJzOZmdzggO/D7Sfz7thPWV6
-         r+uM33/XmK8AX8+eZ1zb2k5x/t6oruxpGWAcpczVahXlnZSfP2pSPmx0Yu6VOzx3MH
-         OJNGZZwQeCAsdos/8f2wGWFed8rhke3HFkSZJgjc=
-Date:   Tue, 2 Jul 2019 22:03:12 -0400
+        s=default; t=1562120116;
+        bh=+Jv8G9Bv9bksetOHe/bcYYYfL0WmjVsX+d9rjn+Cmss=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XQFn13ipJP+0+zHKTMq5Udp5IFm8Su6S/Gql6yvyzI9FQVPQ5O219aFKm8uuLm5hG
+         8NJKqUc5lfgf8/5G9AH9UPJjeXmj9UlY58UnN2eF7FwlHA+BJdZ1Q0AAbJMpt9ssjq
+         i61Z78Ce5FEilda7LuNNPuig3FTjxJTsOgiJLH5s=
 From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Fei Yang <fei.yang@intel.com>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        John Stultz <john.stultz@linaro.org>
-Subject: Re: [PATCH 4.19 26/72] usb: dwc3: gadget: use num_trbs when skipping
- TRBs on ->dequeue()
-Message-ID: <20190703020312.GS11506@sasha-vm>
-References: <20190702080124.564652899@linuxfoundation.org>
- <20190702080126.031346654@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-amlogic@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.1 01/39] ARM: dts: meson8: fix GPU interrupts and drop an undocumented property
+Date:   Tue,  2 Jul 2019 22:14:36 -0400
+Message-Id: <20190703021514.17727-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190702080126.031346654@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 02, 2019 at 10:01:27AM +0200, Greg Kroah-Hartman wrote:
->commit c3acd59014148470dc58519870fbc779785b4bf7 upstream
->
->Now that we track how many TRBs a request uses, it's easier to skip
->over them in case of a call to usb_ep_dequeue(). Let's do so and
->simplify the code a bit.
->
->Cc: Fei Yang <fei.yang@intel.com>
->Cc: Sam Protsenko <semen.protsenko@linaro.org>
->Cc: Felipe Balbi <balbi@kernel.org>
->Cc: linux-usb@vger.kernel.org
->Cc: stable@vger.kernel.org # 4.19.y
->Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
->(cherry picked from commit c3acd59014148470dc58519870fbc779785b4bf7)
->Signed-off-by: John Stultz <john.stultz@linaro.org>
->Signed-off-by: Sasha Levin <sashal@kernel.org>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-This one has an upstream fix: c7152763f02e05567da27462b2277a554e507c89
-("usb: dwc3: Reset num_trbs after skipping").
+[ Upstream commit 01dfdd7b4693496854ac92d1ebfb18d7b108f777 ]
 
---
-Thanks,
-Sasha
+The interrupts in Amlogic's vendor kernel sources are all contiguous.
+There are two typos leading to pp2 and pp4 as well as ppmmu2 and ppmmu4
+incorrectly sharing the same interrupt line.
+Fix this by using interrupt 170 for pp2 and 171 for ppmmu2.
+
+Also drop the undocumented "switch-delay" which is a left-over from my
+experiments with an early lima kernel driver when it was still
+out-of-tree and required this property on Amlogic SoCs.
+
+Fixes: 7d3f6b536e72c9 ("ARM: dts: meson8: add the Mali-450 MP6 GPU")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/arm/boot/dts/meson8.dtsi | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/meson8.dtsi b/arch/arm/boot/dts/meson8.dtsi
+index a9781243453e..048b55c8dc1e 100644
+--- a/arch/arm/boot/dts/meson8.dtsi
++++ b/arch/arm/boot/dts/meson8.dtsi
+@@ -248,8 +248,8 @@
+ 				     <GIC_SPI 167 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 172 IRQ_TYPE_LEVEL_HIGH>,
+-				     <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>,
++				     <GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 172 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>,
+@@ -264,7 +264,6 @@
+ 			clocks = <&clkc CLKID_CLK81>, <&clkc CLKID_MALI>;
+ 			clock-names = "bus", "core";
+ 			operating-points-v2 = <&gpu_opp_table>;
+-			switch-delay = <0xffff>;
+ 		};
+ 	};
+ }; /* end of / */
+-- 
+2.20.1
+
