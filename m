@@ -2,102 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 785985DEC3
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 09:20:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E3695DECF
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 09:24:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727056AbfGCHU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jul 2019 03:20:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41414 "EHLO mail.kernel.org"
+        id S1727025AbfGCHYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jul 2019 03:24:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726327AbfGCHU6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Jul 2019 03:20:58 -0400
+        id S1726327AbfGCHYU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Jul 2019 03:24:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D51F2187F;
-        Wed,  3 Jul 2019 07:20:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2DB321881;
+        Wed,  3 Jul 2019 07:24:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562138457;
-        bh=pmmyLD01moQ31bQVKZnQ05HD1+FL9GEFlcixSC4ieTM=;
-        h=Subject:To:From:Date:From;
-        b=n6E5nlAbPfZ9x+L3NactvxUbGLgUlJIGfuiycZHlAEnqIBEsNPIH5L5v4wUns2WI/
-         RO7kQUw/7PuK9y4Rx7vrT5QYzedrON8XEK7SDjNVuynkR22O3+ht2hLH9hqKOpQ8KV
-         cyV+TH/mx7xtBdpz2Mw9pzkAQnEawdRYIJnwyODk=
-Subject: patch "USB: serial: ftdi_sio: add ID for isodebug v1" added to usb-testing
-To:     andreas.fritiofson@unjo.com, johan@kernel.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 03 Jul 2019 09:20:47 +0200
-Message-ID: <156213844717211@kroah.com>
+        s=default; t=1562138659;
+        bh=oKLiX+noAGMAX3ZpKVTLVn9b2ZYDuHOziGSU1+gstKU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rLh+yYfz/nRaPHeiqDg1glKx2Cy7AtwWnvYxbfuMNcfK/3479K8YaolFNL6iG88uI
+         es8AkxUt8kfHyiJ7ZeDugjBOxhcT2XdH2URPgNC+NYOxXbSatRdLqXMuwESPtDbM/b
+         AuKCcRQ/T+sE5VamnY7oazoPR3EFPjSYuHPfRTJw=
+Date:   Wed, 3 Jul 2019 09:24:16 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: Re: [PATCH 5.1 51/55] bpf, arm64: use more scalable stadd over ldxr
+ / stxr loop in xadd
+Message-ID: <20190703072416.GD3033@kroah.com>
+References: <20190702080124.103022729@linuxfoundation.org>
+ <20190702080126.728030225@linuxfoundation.org>
+ <20190703020200.GR11506@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190703020200.GR11506@sasha-vm>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Jul 02, 2019 at 10:02:00PM -0400, Sasha Levin wrote:
+> On Tue, Jul 02, 2019 at 10:01:59AM +0200, Greg Kroah-Hartman wrote:
+> > From: Daniel Borkmann <daniel@iogearbox.net>
+> > 
+> > commit 34b8ab091f9ef57a2bb3c8c8359a0a03a8abf2f9 upstream.
+> > 
+> > Since ARMv8.1 supplement introduced LSE atomic instructions back in 2016,
+> > lets add support for STADD and use that in favor of LDXR / STXR loop for
+> > the XADD mapping if available. STADD is encoded as an alias for LDADD with
+> > XZR as the destination register, therefore add LDADD to the instruction
+> > encoder along with STADD as special case and use it in the JIT for CPUs
+> > that advertise LSE atomics in CPUID register. If immediate offset in the
+> > BPF XADD insn is 0, then use dst register directly instead of temporary
+> > one.
+> > 
+> > Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+> > Acked-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+> > Acked-by: Will Deacon <will.deacon@arm.com>
+> > Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> This one has a fix upstream: c5e2edeb01ae9ffbdde95bdcdb6d3614ba1eb195
+> ("arm64: insn: Fix ldadd instruction encoding").
 
-This is a note to let you know that I've just added the patch titled
+Good catch, now queued up, thanks.
 
-    USB: serial: ftdi_sio: add ID for isodebug v1
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From f8377eff548170e8ea8022c067a1fbdf9e1c46a8 Mon Sep 17 00:00:00 2001
-From: Andreas Fritiofson <andreas.fritiofson@unjo.com>
-Date: Fri, 28 Jun 2019 15:08:34 +0200
-Subject: USB: serial: ftdi_sio: add ID for isodebug v1
-
-This adds the vid:pid of the isodebug v1 isolated JTAG/SWD+UART. Only the
-second channel is available for use as a serial port.
-
-Signed-off-by: Andreas Fritiofson <andreas.fritiofson@unjo.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/ftdi_sio.c     | 1 +
- drivers/usb/serial/ftdi_sio_ids.h | 6 ++++++
- 2 files changed, 7 insertions(+)
-
-diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
-index 1d8461ae2c34..23669a584bae 100644
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1029,6 +1029,7 @@ static const struct usb_device_id id_table_combined[] = {
- 	{ USB_DEVICE(AIRBUS_DS_VID, AIRBUS_DS_P8GR) },
- 	/* EZPrototypes devices */
- 	{ USB_DEVICE(EZPROTOTYPES_VID, HJELMSLUND_USB485_ISO_PID) },
-+	{ USB_DEVICE_INTERFACE_NUMBER(UNJO_VID, UNJO_ISODEBUG_V1_PID, 1) },
- 	{ }					/* Terminating entry */
- };
- 
-diff --git a/drivers/usb/serial/ftdi_sio_ids.h b/drivers/usb/serial/ftdi_sio_ids.h
-index 5755f0df0025..f12d806220b4 100644
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -1543,3 +1543,9 @@
- #define CHETCO_SEASMART_DISPLAY_PID	0xA5AD /* SeaSmart NMEA2000 Display */
- #define CHETCO_SEASMART_LITE_PID	0xA5AE /* SeaSmart Lite USB Adapter */
- #define CHETCO_SEASMART_ANALOG_PID	0xA5AF /* SeaSmart Analog Adapter */
-+
-+/*
-+ * Unjo AB
-+ */
-+#define UNJO_VID			0x22B7
-+#define UNJO_ISODEBUG_V1_PID		0x150D
--- 
-2.22.0
-
-
+greg k-h
