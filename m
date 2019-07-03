@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7E955DB68
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:15:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09A265DC6D
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727460AbfGCCPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 22:15:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53600 "EHLO mail.kernel.org"
+        id S1727494AbfGCCPS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 22:15:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727069AbfGCCPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 22:15:17 -0400
+        id S1727474AbfGCCPS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 22:15:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A5842187F;
-        Wed,  3 Jul 2019 02:15:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86B8621873;
+        Wed,  3 Jul 2019 02:15:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562120116;
-        bh=+Jv8G9Bv9bksetOHe/bcYYYfL0WmjVsX+d9rjn+Cmss=;
-        h=From:To:Cc:Subject:Date:From;
-        b=XQFn13ipJP+0+zHKTMq5Udp5IFm8Su6S/Gql6yvyzI9FQVPQ5O219aFKm8uuLm5hG
-         8NJKqUc5lfgf8/5G9AH9UPJjeXmj9UlY58UnN2eF7FwlHA+BJdZ1Q0AAbJMpt9ssjq
-         i61Z78Ce5FEilda7LuNNPuig3FTjxJTsOgiJLH5s=
+        s=default; t=1562120117;
+        bh=yfKz8Pgy3xUbbCrtwVExGp4uzeldW4cOAyhyQTJFsFE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Cszx2o5nZL5X9URylEmFnv42BogCzeB9ZcZniss5l647gs0Ewlw/OSOWCfVKrLAp7
+         6NlxwublEB8Ua3sHyiXsibz9BlL+fu/Quh1/Wn1oxwzIXTVanCp4cCyDSXq3QeY5LX
+         AeUnU+vIVQbZiw3vPQz+wzUpZ7t+UO/YXk+fyNJo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.1 01/39] ARM: dts: meson8: fix GPU interrupts and drop an undocumented property
-Date:   Tue,  2 Jul 2019 22:14:36 -0400
-Message-Id: <20190703021514.17727-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 02/39] ARM: dts: meson8b: fix the operating voltage of the Mali GPU
+Date:   Tue,  2 Jul 2019 22:14:37 -0400
+Message-Id: <20190703021514.17727-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190703021514.17727-1-sashal@kernel.org>
+References: <20190703021514.17727-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,48 +46,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 01dfdd7b4693496854ac92d1ebfb18d7b108f777 ]
+[ Upstream commit 26d65140e92a626e39c73c9abf769fd174bf5076 ]
 
-The interrupts in Amlogic's vendor kernel sources are all contiguous.
-There are two typos leading to pp2 and pp4 as well as ppmmu2 and ppmmu4
-incorrectly sharing the same interrupt line.
-Fix this by using interrupt 170 for pp2 and 171 for ppmmu2.
+Amlogic's vendor kernel defines an OPP for the GPU on Meson8b boards
+with a voltage of 1.15V. It turns out that the vendor kernel relies on
+the bootloader to set up the voltage. The bootloader however sets a
+fixed voltage of 1.10V.
 
-Also drop the undocumented "switch-delay" which is a left-over from my
-experiments with an early lima kernel driver when it was still
-out-of-tree and required this property on Amlogic SoCs.
+Amlogic's patched u-boot sources (uboot-2015-01-15-23a3562521) confirm
+this:
+$ grep -oiE "VDD(EE|AO)_VOLTAGE[ ]+[0-9]+" board/amlogic/configs/m8b_*
+  board/amlogic/configs/m8b_m100_v1.h:VDDAO_VOLTAGE            1100
+  board/amlogic/configs/m8b_m101_v1.h:VDDAO_VOLTAGE            1100
+  board/amlogic/configs/m8b_m102_v1.h:VDDAO_VOLTAGE            1100
+  board/amlogic/configs/m8b_m200_v1.h:VDDAO_VOLTAGE            1100
+  board/amlogic/configs/m8b_m201_v1.h:VDDEE_VOLTAGE            1100
+  board/amlogic/configs/m8b_m201_v1.h:VDDEE_VOLTAGE            1100
+  board/amlogic/configs/m8b_m202_v1.h:VDDEE_VOLTAGE            1100
 
-Fixes: 7d3f6b536e72c9 ("ARM: dts: meson8: add the Mali-450 MP6 GPU")
+Another hint at this is the VDDEE voltage on the EC-100 and Odroid-C1
+boards. The VDDEE regulator supplies the Mali GPU. It's basically a copy
+of the VCCK (CPU supply) which means it's limited to 0.86V to 1.14V.
+
+Update the operating voltage of the Mali GPU on Meson8b to 1.10V so it
+matches with what the vendor u-boot sets.
+
+Fixes: c3ea80b6138cae ("ARM: dts: meson8b: add the Mali-450 MP2 GPU")
 Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/meson8.dtsi | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/meson8b.dtsi | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/meson8.dtsi b/arch/arm/boot/dts/meson8.dtsi
-index a9781243453e..048b55c8dc1e 100644
---- a/arch/arm/boot/dts/meson8.dtsi
-+++ b/arch/arm/boot/dts/meson8.dtsi
-@@ -248,8 +248,8 @@
- 				     <GIC_SPI 167 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 172 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>,
-+				     <GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>,
-+				     <GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 172 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>,
-@@ -264,7 +264,6 @@
- 			clocks = <&clkc CLKID_CLK81>, <&clkc CLKID_MALI>;
- 			clock-names = "bus", "core";
- 			operating-points-v2 = <&gpu_opp_table>;
--			switch-delay = <0xffff>;
+diff --git a/arch/arm/boot/dts/meson8b.dtsi b/arch/arm/boot/dts/meson8b.dtsi
+index fe84a8c3ce81..6b80aff32fc2 100644
+--- a/arch/arm/boot/dts/meson8b.dtsi
++++ b/arch/arm/boot/dts/meson8b.dtsi
+@@ -163,23 +163,23 @@
+ 
+ 		opp-255000000 {
+ 			opp-hz = /bits/ 64 <255000000>;
+-			opp-microvolt = <1150000>;
++			opp-microvolt = <1100000>;
+ 		};
+ 		opp-364300000 {
+ 			opp-hz = /bits/ 64 <364300000>;
+-			opp-microvolt = <1150000>;
++			opp-microvolt = <1100000>;
+ 		};
+ 		opp-425000000 {
+ 			opp-hz = /bits/ 64 <425000000>;
+-			opp-microvolt = <1150000>;
++			opp-microvolt = <1100000>;
+ 		};
+ 		opp-510000000 {
+ 			opp-hz = /bits/ 64 <510000000>;
+-			opp-microvolt = <1150000>;
++			opp-microvolt = <1100000>;
+ 		};
+ 		opp-637500000 {
+ 			opp-hz = /bits/ 64 <637500000>;
+-			opp-microvolt = <1150000>;
++			opp-microvolt = <1100000>;
+ 			turbo-mode;
  		};
  	};
- }; /* end of / */
 -- 
 2.20.1
 
