@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83D425DBD1
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:19:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D9775DBF2
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:20:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727464AbfGCCSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 22:18:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
+        id S1727693AbfGCCSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 22:18:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728043AbfGCCSf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 22:18:35 -0400
+        id S1727773AbfGCCSv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 22:18:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 498A12187F;
-        Wed,  3 Jul 2019 02:18:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB5C821874;
+        Wed,  3 Jul 2019 02:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562120314;
-        bh=uENfrnc36wGwGmfUs3kHW+aKKK8OHMXgfYO50WXB/Rc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VLFDFdrcO4LZbS5gCOXE1JxfN52ElbD56eb/IxjvsSwnNy/hL6M/RQE/xHug7zmb5
-         z//w8s0+a+WBtK+CB0i0NsUUW7C3SdTxKx7JNcXeSmq6a+Q6HrdGj6W+r0Pc7/a1oy
-         eA/DGFXOYrGHtVF7StdeInQBTpmGFOcf/Km/Cxsg=
+        s=default; t=1562120330;
+        bh=mUb06GlPkIZX2TWwchCmZNTU+3knEUqDQHpJxoUKJdk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=LoJOSwo9PDA55/C33iQ9iLSWy3SuETzmFvyITBNgAAYGqzEW9qBtqNJDtG1ky0Sab
+         DAi2kvjjsoCcC1dfaZ/IO5PE8sn6/d5B0ka8S0pbAYg1tM05zaAoakP9CyKgkrTe+c
+         M5T5y9yjQM83fGbzSWi3oy5oVHjDG9rGYa7M7SPY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vinod Koul <vkoul@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Ravi Bangoria <ravi.bangoria@linux.vnet.ibm.com>,
+        Young Xiao <92siuyang@gmail.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Frederic Weisbecker <fweisbec@gmail.com>,
+        Jiri Olsa <jolsa@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 13/13] linux/kernel.h: fix overflow for DIV_ROUND_UP_ULL
-Date:   Tue,  2 Jul 2019 22:18:14 -0400
-Message-Id: <20190703021814.18385-13-sashal@kernel.org>
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 1/8] perf/core: Fix perf_sample_regs_user() mm check
+Date:   Tue,  2 Jul 2019 22:18:40 -0400
+Message-Id: <20190703021847.18542-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190703021814.18385-1-sashal@kernel.org>
-References: <20190703021814.18385-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,43 +51,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 8f9fab480c7a87b10bb5440b5555f370272a5d59 ]
+[ Upstream commit 085ebfe937d7a7a5df1729f35a12d6d655fea68c ]
 
-DIV_ROUND_UP_ULL adds the two arguments and then invokes
-DIV_ROUND_DOWN_ULL.  But on a 32bit system the addition of two 32 bit
-values can overflow.  DIV_ROUND_DOWN_ULL does it correctly and stashes
-the addition into a unsigned long long so cast the result to unsigned
-long long here to avoid the overflow condition.
+perf_sample_regs_user() uses 'current->mm' to test for the presence of
+userspace, but this is insufficient, consider use_mm().
 
-[akpm@linux-foundation.org: DIV_ROUND_UP_ULL must be an rval]
-Link: http://lkml.kernel.org/r/20190625100518.30753-1-vkoul@kernel.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+A better test is: '!(current->flags & PF_KTHREAD)', exec() clears
+PF_KTHREAD after it sets the new ->mm but before it drops to userspace
+for the first time.
+
+Possibly obsoletes: bf05fc25f268 ("powerpc/perf: Fix oops when kthread execs user process")
+
+Reported-by: Ravi Bangoria <ravi.bangoria@linux.vnet.ibm.com>
+Reported-by: Young Xiao <92siuyang@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Frederic Weisbecker <fweisbec@gmail.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 4018994f3d87 ("perf: Add ability to attach user level registers dump to sample")
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kernel.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/events/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-index 1c5469adaa85..bb7baecef002 100644
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -101,7 +101,8 @@
- #define DIV_ROUND_DOWN_ULL(ll, d) \
- 	({ unsigned long long _tmp = (ll); do_div(_tmp, d); _tmp; })
- 
--#define DIV_ROUND_UP_ULL(ll, d)		DIV_ROUND_DOWN_ULL((ll) + (d) - 1, (d))
-+#define DIV_ROUND_UP_ULL(ll, d) \
-+	DIV_ROUND_DOWN_ULL((unsigned long long)(ll) + (d) - 1, (d))
- 
- #if BITS_PER_LONG == 32
- # define DIV_ROUND_UP_SECTOR_T(ll,d) DIV_ROUND_UP_ULL(ll, d)
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 7929526e96e2..93d7333c64d8 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -5492,7 +5492,7 @@ static void perf_sample_regs_user(struct perf_regs *regs_user,
+ 	if (user_mode(regs)) {
+ 		regs_user->abi = perf_reg_abi(current);
+ 		regs_user->regs = regs;
+-	} else if (current->mm) {
++	} else if (!(current->flags & PF_KTHREAD)) {
+ 		perf_get_regs_user(regs_user, regs, regs_user_copy);
+ 	} else {
+ 		regs_user->abi = PERF_SAMPLE_REGS_ABI_NONE;
 -- 
 2.20.1
 
