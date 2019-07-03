@@ -2,91 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 921395EE20
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 23:10:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6EE85EE81
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 23:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726821AbfGCVKQ convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 3 Jul 2019 17:10:16 -0400
-Received: from mx2.suse.de ([195.135.220.15]:35034 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726550AbfGCVKQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Jul 2019 17:10:16 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 24FABAD35;
-        Wed,  3 Jul 2019 21:10:15 +0000 (UTC)
-Date:   Wed, 3 Jul 2019 23:10:14 +0200
-From:   Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-crypto@vger.kernel.org, chetjain@in.ibm.com,
-        "David S . Miller" <davem@davemloft.net>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: Re: [PATCH] crypto: user - prevent operating on larval algorithms
-Message-ID: <20190703231014.610ab8b5@kitsune.suse.cz>
-In-Reply-To: <20190703203128.GC10080@gmail.com>
-References: <20190701153154.1569c2dc@kitsune.suse.cz>
-        <20190702211700.16526-1-ebiggers@kernel.org>
-        <20190703143057.miqgc7blhjjxjmee@gondor.apana.org.au>
-        <20190703222108.467ec204@kitsune.suse.cz>
-        <20190703203128.GC10080@gmail.com>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.17.1 (GTK+ 2.24.31; x86_64-suse-linux-gnu)
+        id S1726821AbfGCV2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jul 2019 17:28:54 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:43278 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726678AbfGCV2x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 17:28:53 -0400
+Received: by mail-ot1-f65.google.com with SMTP id q10so3887667otk.10
+        for <stable@vger.kernel.org>; Wed, 03 Jul 2019 14:28:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8Oa5fyrgRSaS4/rlLU6Dg1I751HN6ZGGg3XuTeNEsyA=;
+        b=EVDV2i92j6Oc8X9cDYFxw3faBgrvRgokearOh6hTInPcfDEF/9Dw3KaF4Zq6F/M1Po
+         7PhktLMJwFP6nTQp9RrenWueYOGk2EVUa/0Qx0+hUltXSvdhvIuEHI+qKgYeF3B1eFlS
+         5Y3swajWUyLDnwgyIA3axCIg+XMQUJMGQtIBwCbx1V1d//Itvxh9xcx753a7zTQU7G7q
+         9Zf9F4ew3jdtrywY3ZSbzOZTGZe1X8L9mb5LB87Kgaj4vPdRVLpEenwZhPzX+x7S/pLI
+         SKnQAFXjTLXqteyTAJ1slhEtrupPHQDbOkd7sNBcRXPLRfHg2/4qMUGQWkb8jOyatu6m
+         VoNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8Oa5fyrgRSaS4/rlLU6Dg1I751HN6ZGGg3XuTeNEsyA=;
+        b=FCZuvq9KQfvB8NWPsiReIZ9axhxPCvlQYC29l5jAkQqBtPkVQaeDYe98XJ+nH4J6rL
+         PpRi5zVvUlXi8wOmy0TJyTOFZxHYWdDSH86GXTWa5GqaNr3QhrH5g4NlptL7fttPLsfu
+         Okwx8HNOe/MfOZD+3hWTtdGlggelDoL7TpjPpmVIXYOWn/l8wWtnU9h8+wdGKgzQoPLs
+         NEI3Rp2NBuOM8IfbBWEbU777i1PU/SZwOmi6XoIyp6fWNnGOJSr+AK4zRJfa42Y8mGl1
+         8ySZIV7fBHC58n7BLCOOc/5dKWTFO+IH3RQYMtqa8YzX8PhhJ2BBsj3NhFUfORw6/OvH
+         9B5w==
+X-Gm-Message-State: APjAAAWBWhqQwyNYLijSFQ7QDdcO7QiW+yhrr5pHUg9zg5ya/egOXhu1
+        z6N/z4J7BUv2c6a7x9jS6GOp9vucDwkFHJDqnuqHwg==
+X-Google-Smtp-Source: APXvYqx/eeik3ZxIiy7z87X0O8OLG62WiPNdXk3FcnhR2wJoQDPQ4BqLvO7rM7/LGIyRCPcHEmicv2tHJYa45mbHcK0=
+X-Received: by 2002:a9d:7248:: with SMTP id a8mr32385007otk.363.1562189332829;
+ Wed, 03 Jul 2019 14:28:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+References: <156213869409.3910140.7715747316991468148.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <20190703121743.GH1729@bombadil.infradead.org> <CAPcyv4jgs5LTtTXR+2CyfbjJE85B_eoPFuXQsGBDnVMo41Jawg@mail.gmail.com>
+ <20190703195302.GJ1729@bombadil.infradead.org>
+In-Reply-To: <20190703195302.GJ1729@bombadil.infradead.org>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Wed, 3 Jul 2019 14:28:41 -0700
+Message-ID: <CAPcyv4iPNz=oJyc_EoE-mC11=gyBzwMKbmj1ZY_Yna54=cC=Mg@mail.gmail.com>
+Subject: Re: [PATCH] dax: Fix missed PMD wakeups
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Jan Kara <jack@suse.cz>, Boaz Harrosh <openosd@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Robert Barror <robert.barror@intel.com>,
+        Seema Pandit <seema.pandit@intel.com>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 3 Jul 2019 13:31:29 -0700
-Eric Biggers <ebiggers@kernel.org> wrote:
+On Wed, Jul 3, 2019 at 12:53 PM Matthew Wilcox <willy@infradead.org> wrote:
+>
+> On Wed, Jul 03, 2019 at 10:01:37AM -0700, Dan Williams wrote:
+> > On Wed, Jul 3, 2019 at 5:17 AM Matthew Wilcox <willy@infradead.org> wrote:
+> > >
+> > > On Wed, Jul 03, 2019 at 12:24:54AM -0700, Dan Williams wrote:
+> > > > This fix may increase waitqueue contention, but a fix for that is saved
+> > > > for a larger rework. In the meantime this fix is suitable for -stable
+> > > > backports.
+> > >
+> > > I think this is too big for what it is; just the two-line patch to stop
+> > > incorporating the low bits of the PTE would be more appropriate.
+> >
+> > Sufficient, yes, "appropriate", not so sure. All those comments about
+> > pmd entry size are stale after this change.
+>
+> But then they'll have to be put back in again.  This seems to be working
+> for me, although I doubt I'm actually hitting the edge case that rocksdb
+> hits:
 
-> Hi Michal,
-> 
-> On Wed, Jul 03, 2019 at 10:21:08PM +0200, Michal Suchánek wrote:
-> > On Wed, 3 Jul 2019 22:30:57 +0800
-> > Herbert Xu <herbert@gondor.apana.org.au> wrote:
-> >   
-> > > On Tue, Jul 02, 2019 at 02:17:00PM -0700, Eric Biggers wrote:  
-> > > > From: Eric Biggers <ebiggers@google.com>
-> > > > 
-> > > > Michal Suchanek reported [1] that running the pcrypt_aead01 test from
-> > > > LTP [2] in a loop and holding Ctrl-C causes a NULL dereference of
-> > > > alg->cra_users.next in crypto_remove_spawns(), via crypto_del_alg().
-> > > > The test repeatedly uses CRYPTO_MSG_NEWALG and CRYPTO_MSG_DELALG.
-> > > > 
-> > > > The crash occurs when the instance that CRYPTO_MSG_DELALG is trying to
-> > > > unregister isn't a real registered algorithm, but rather is a "test
-> > > > larval", which is a special "algorithm" added to the algorithms list
-> > > > while the real algorithm is still being tested.  Larvals don't have
-> > > > initialized cra_users, so that causes the crash.  Normally pcrypt_aead01
-> > > > doesn't trigger this because CRYPTO_MSG_NEWALG waits for the algorithm
-> > > > to be tested; however, CRYPTO_MSG_NEWALG returns early when interrupted.
-> > > >   
-> > 
-> > Do you have some way to reproduce this reliably?
-> > 
-> > I suppose you would have to send a signal to the process for the call
-> > to get interrupted, right?
-> >   
-> 
-> It reproduced pretty reliably for me with what you suggested.  Just typing in
-> terminal:
-> 
-> 	while true; do pcrypt_aead01; done
-> 
-> and then holding Ctrl-C.
-> 
-> If I have time I'll try writing an LTP test that specifically reproduces it.
-> Yes, it would involve sending a signal to a thread or process that's executing
-> CRYPTO_MSG_NEWALG (unless I find a better way).
+Seems to be holding up under testing here, a couple comments...
 
-Maybe it is possible to just send the remove message without waiting
-for the ack on add.
+>
+> diff --git a/fs/dax.c b/fs/dax.c
+> index 2e48c7ebb973..e77bd6aef10c 100644
+> --- a/fs/dax.c
+> +++ b/fs/dax.c
+> @@ -198,6 +198,10 @@ static void dax_wake_entry(struct xa_state *xas, void *entry, bool wake_all)
+>   * if it did.
+>   *
+>   * Must be called with the i_pages lock held.
+> + *
+> + * If the xa_state refers to a larger entry, then it may return a locked
+> + * smaller entry (eg a PTE entry) without waiting for the smaller entry
+> + * to be unlocked.
+>   */
+>  static void *get_unlocked_entry(struct xa_state *xas)
+>  {
+> @@ -211,7 +215,8 @@ static void *get_unlocked_entry(struct xa_state *xas)
+>         for (;;) {
+>                 entry = xas_find_conflict(xas);
+>                 if (!entry || WARN_ON_ONCE(!xa_is_value(entry)) ||
+> -                               !dax_is_locked(entry))
+> +                               !dax_is_locked(entry) ||
+> +                               dax_entry_order(entry) < xas_get_order(xas))
 
-Thanks
+Doesn't this potentially allow a locked entry to be returned for a
+caller that expects all value entries are unlocked?
 
-Michal
+>                         return entry;
+>
+>                 wq = dax_entry_waitqueue(xas, entry, &ewait.key);
+> @@ -253,8 +258,12 @@ static void wait_entry_unlocked(struct xa_state *xas, void *entry)
+>
+>  static void put_unlocked_entry(struct xa_state *xas, void *entry)
+>  {
+> -       /* If we were the only waiter woken, wake the next one */
+> -       if (entry)
+> +       /*
+> +        * If we were the only waiter woken, wake the next one.
+> +        * Do not wake anybody if the entry is locked; that indicates
+> +        * we weren't woken.
+> +        */
+> +       if (entry && !dax_is_locked(entry))
+>                 dax_wake_entry(xas, entry, false);
+>  }
+>
+> diff --git a/include/linux/xarray.h b/include/linux/xarray.h
+> index 052e06ff4c36..b17289d92af4 100644
+> --- a/include/linux/xarray.h
+> +++ b/include/linux/xarray.h
+> @@ -1529,6 +1529,27 @@ static inline void xas_set_order(struct xa_state *xas, unsigned long index,
+>  #endif
+>  }
+>
+> +/**
+> + * xas_get_order() - Get the order of the entry being operated on.
+> + * @xas: XArray operation state.
+> + *
+> + * Return: The order of the entry.
+> + */
+> +static inline unsigned int xas_get_order(const struct xa_state *xas)
+> +{
+> +       unsigned int order = xas->xa_shift;
+> +
+> +#ifdef CONFIG_XARRAY_MULTI
+> +       unsigned int sibs = xas->xa_sibs;
+> +
+> +       while (sibs) {
+> +               order++;
+> +               sibs /= 2;
+> +       }
+
+Use ilog2() here?
