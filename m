@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEED35DEC2
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 09:20:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 785985DEC3
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 09:20:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727025AbfGCHUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jul 2019 03:20:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41372 "EHLO mail.kernel.org"
+        id S1727056AbfGCHU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jul 2019 03:20:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726327AbfGCHUu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Jul 2019 03:20:50 -0400
+        id S1726327AbfGCHU6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Jul 2019 03:20:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E52772187F;
-        Wed,  3 Jul 2019 07:20:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D51F2187F;
+        Wed,  3 Jul 2019 07:20:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562138449;
-        bh=SXNGHwV/rl3SNBzZo309vJuOa40ZneIYYsLbDIGZtoc=;
+        s=default; t=1562138457;
+        bh=pmmyLD01moQ31bQVKZnQ05HD1+FL9GEFlcixSC4ieTM=;
         h=Subject:To:From:Date:From;
-        b=sGz4KJg9DqQMNrQ8ro2m8YEqR/dI+p2f0CTcXerwFyplH2sdtS0STl4Yy+yqEVGmt
-         i1Alak3FCYvsPBtyj3W/+JwflQirbrLMpB2vhjOhvHSurmiCkai847Jrv/+5W1OYr5
-         4FLec2o7lNoIr7mN7H9LtmDNpLidYOts2cqStXzg=
-Subject: patch "USB: serial: option: add support for GosunCn ME3630 RNDIS mode" added to usb-testing
-To:     jorgen.storvist@gmail.com, johan@kernel.org, stable@vger.kernel.org
+        b=n6E5nlAbPfZ9x+L3NactvxUbGLgUlJIGfuiycZHlAEnqIBEsNPIH5L5v4wUns2WI/
+         RO7kQUw/7PuK9y4Rx7vrT5QYzedrON8XEK7SDjNVuynkR22O3+ht2hLH9hqKOpQ8KV
+         cyV+TH/mx7xtBdpz2Mw9pzkAQnEawdRYIJnwyODk=
+Subject: patch "USB: serial: ftdi_sio: add ID for isodebug v1" added to usb-testing
+To:     andreas.fritiofson@unjo.com, johan@kernel.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 03 Jul 2019 09:20:47 +0200
-Message-ID: <15621384471661@kroah.com>
+Message-ID: <156213844717211@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -39,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: serial: option: add support for GosunCn ME3630 RNDIS mode
+    USB: serial: ftdi_sio: add ID for isodebug v1
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -54,48 +55,48 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From aed2a26283528fb69c38e414f649411aa48fb391 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?J=C3=B6rgen=20Storvist?= <jorgen.storvist@gmail.com>
-Date: Wed, 19 Jun 2019 00:30:19 +0200
-Subject: USB: serial: option: add support for GosunCn ME3630 RNDIS mode
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From f8377eff548170e8ea8022c067a1fbdf9e1c46a8 Mon Sep 17 00:00:00 2001
+From: Andreas Fritiofson <andreas.fritiofson@unjo.com>
+Date: Fri, 28 Jun 2019 15:08:34 +0200
+Subject: USB: serial: ftdi_sio: add ID for isodebug v1
 
-Added USB IDs for GosunCn ME3630 cellular module in RNDIS mode.
+This adds the vid:pid of the isodebug v1 isolated JTAG/SWD+UART. Only the
+second channel is available for use as a serial port.
 
-T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=03 Dev#= 18 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=19d2 ProdID=0601 Rev=03.18
-S:  Manufacturer=Android
-S:  Product=Android
-S:  SerialNumber=b950269c
-C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=e0(wlcon) Sub=01 Prot=03 Driver=rndis_host
-I:  If#=0x1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-
-Signed-off-by: Jörgen Storvist <jorgen.storvist@gmail.com>
+Signed-off-by: Andreas Fritiofson <andreas.fritiofson@unjo.com>
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/serial/option.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/ftdi_sio.c     | 1 +
+ drivers/usb/serial/ftdi_sio_ids.h | 6 ++++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
-index a0aaf0635359..c1582fbd1150 100644
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1343,6 +1343,7 @@ static const struct usb_device_id option_ids[] = {
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0414, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0417, 0xff, 0xff, 0xff) },
-+	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x0601, 0xff) },	/* GosunCn ZTE WeLink ME3630 (RNDIS mode) */
- 	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x0602, 0xff) },	/* GosunCn ZTE WeLink ME3630 (MBIM mode) */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1008, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(4) },
+diff --git a/drivers/usb/serial/ftdi_sio.c b/drivers/usb/serial/ftdi_sio.c
+index 1d8461ae2c34..23669a584bae 100644
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1029,6 +1029,7 @@ static const struct usb_device_id id_table_combined[] = {
+ 	{ USB_DEVICE(AIRBUS_DS_VID, AIRBUS_DS_P8GR) },
+ 	/* EZPrototypes devices */
+ 	{ USB_DEVICE(EZPROTOTYPES_VID, HJELMSLUND_USB485_ISO_PID) },
++	{ USB_DEVICE_INTERFACE_NUMBER(UNJO_VID, UNJO_ISODEBUG_V1_PID, 1) },
+ 	{ }					/* Terminating entry */
+ };
+ 
+diff --git a/drivers/usb/serial/ftdi_sio_ids.h b/drivers/usb/serial/ftdi_sio_ids.h
+index 5755f0df0025..f12d806220b4 100644
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1543,3 +1543,9 @@
+ #define CHETCO_SEASMART_DISPLAY_PID	0xA5AD /* SeaSmart NMEA2000 Display */
+ #define CHETCO_SEASMART_LITE_PID	0xA5AE /* SeaSmart Lite USB Adapter */
+ #define CHETCO_SEASMART_ANALOG_PID	0xA5AF /* SeaSmart Analog Adapter */
++
++/*
++ * Unjo AB
++ */
++#define UNJO_VID			0x22B7
++#define UNJO_ISODEBUG_V1_PID		0x150D
 -- 
 2.22.0
 
