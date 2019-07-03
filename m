@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D9775DBF2
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:20:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B93255DC03
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:20:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727693AbfGCCSw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 22:18:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56672 "EHLO mail.kernel.org"
+        id S1727504AbfGCCUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 22:20:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727773AbfGCCSv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 22:18:51 -0400
+        id S1727642AbfGCCSw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 22:18:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB5C821874;
-        Wed,  3 Jul 2019 02:18:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D7D72187F;
+        Wed,  3 Jul 2019 02:18:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562120330;
-        bh=mUb06GlPkIZX2TWwchCmZNTU+3knEUqDQHpJxoUKJdk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=LoJOSwo9PDA55/C33iQ9iLSWy3SuETzmFvyITBNgAAYGqzEW9qBtqNJDtG1ky0Sab
-         DAi2kvjjsoCcC1dfaZ/IO5PE8sn6/d5B0ka8S0pbAYg1tM05zaAoakP9CyKgkrTe+c
-         M5T5y9yjQM83fGbzSWi3oy5oVHjDG9rGYa7M7SPY=
+        s=default; t=1562120331;
+        bh=eUj0ZVGO8PKILQTJEtxf6raT4rDm6uUSVkzKyoS5pJs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=qbafI6Xh7s3GDlUJ2+iXJfGGyf3QQogham9sd/ruSceNYEuNu1PUe6eIdYMkXMkUw
+         wpFt3z+RdvpzC5LPHIM81ySXi/+8JsXK5MA2QPsauEfjqZ8LdoFP82MpDSvMup+6Dt
+         iO212Inqi1toAIip81pdY1STPVo9yy5HfJ0JpioA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@linux.vnet.ibm.com>,
-        Young Xiao <92siuyang@gmail.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Frederic Weisbecker <fweisbec@gmail.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 1/8] perf/core: Fix perf_sample_regs_user() mm check
-Date:   Tue,  2 Jul 2019 22:18:40 -0400
-Message-Id: <20190703021847.18542-1-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Olof Johansson <olof@lixom.net>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.9 2/8] ARM: omap2: remove incorrect __init annotation
+Date:   Tue,  2 Jul 2019 22:18:41 -0400
+Message-Id: <20190703021847.18542-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190703021847.18542-1-sashal@kernel.org>
+References: <20190703021847.18542-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -51,52 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 085ebfe937d7a7a5df1729f35a12d6d655fea68c ]
+[ Upstream commit 27e23d8975270df6999f8b5b3156fc0c04927451 ]
 
-perf_sample_regs_user() uses 'current->mm' to test for the presence of
-userspace, but this is insufficient, consider use_mm().
+omap3xxx_prm_enable_io_wakeup() is marked __init, but its caller is not, so
+we get a warning with clang-8:
 
-A better test is: '!(current->flags & PF_KTHREAD)', exec() clears
-PF_KTHREAD after it sets the new ->mm but before it drops to userspace
-for the first time.
+WARNING: vmlinux.o(.text+0x343c8): Section mismatch in reference from the function omap3xxx_prm_late_init() to the function .init.text:omap3xxx_prm_enable_io_wakeup()
+The function omap3xxx_prm_late_init() references
+the function __init omap3xxx_prm_enable_io_wakeup().
+This is often because omap3xxx_prm_late_init lacks a __init
+annotation or the annotation of omap3xxx_prm_enable_io_wakeup is wrong.
 
-Possibly obsoletes: bf05fc25f268 ("powerpc/perf: Fix oops when kthread execs user process")
+When building with gcc, omap3xxx_prm_enable_io_wakeup() is always
+inlined, so we never noticed in the past.
 
-Reported-by: Ravi Bangoria <ravi.bangoria@linux.vnet.ibm.com>
-Reported-by: Young Xiao <92siuyang@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 4018994f3d87 ("perf: Add ability to attach user level registers dump to sample")
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 2 +-
+ arch/arm/mach-omap2/prm3xxx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 7929526e96e2..93d7333c64d8 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5492,7 +5492,7 @@ static void perf_sample_regs_user(struct perf_regs *regs_user,
- 	if (user_mode(regs)) {
- 		regs_user->abi = perf_reg_abi(current);
- 		regs_user->regs = regs;
--	} else if (current->mm) {
-+	} else if (!(current->flags & PF_KTHREAD)) {
- 		perf_get_regs_user(regs_user, regs, regs_user_copy);
- 	} else {
- 		regs_user->abi = PERF_SAMPLE_REGS_ABI_NONE;
+diff --git a/arch/arm/mach-omap2/prm3xxx.c b/arch/arm/mach-omap2/prm3xxx.c
+index 718981bb80cd..0aec48c1736b 100644
+--- a/arch/arm/mach-omap2/prm3xxx.c
++++ b/arch/arm/mach-omap2/prm3xxx.c
+@@ -433,7 +433,7 @@ static void omap3_prm_reconfigure_io_chain(void)
+  * registers, and omap3xxx_prm_reconfigure_io_chain() must be called.
+  * No return value.
+  */
+-static void __init omap3xxx_prm_enable_io_wakeup(void)
++static void omap3xxx_prm_enable_io_wakeup(void)
+ {
+ 	if (prm_features & PRM_HAS_IO_WAKEUP)
+ 		omap2_prm_set_mod_reg_bits(OMAP3430_EN_IO_MASK, WKUP_MOD,
 -- 
 2.20.1
 
