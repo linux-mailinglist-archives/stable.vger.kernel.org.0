@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A1965DBAC
-	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:18:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C90E75DBA9
+	for <lists+stable@lfdr.de>; Wed,  3 Jul 2019 04:18:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727526AbfGCCRK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jul 2019 22:17:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55420 "EHLO mail.kernel.org"
+        id S1728144AbfGCCRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jul 2019 22:17:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728126AbfGCCRB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jul 2019 22:17:01 -0400
+        id S1728122AbfGCCRD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jul 2019 22:17:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4781321897;
-        Wed,  3 Jul 2019 02:16:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF53121874;
+        Wed,  3 Jul 2019 02:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562120220;
-        bh=aDN70qcwkeDqPdAinBSB8dWscJxpUhdC/Ecsaa5kelI=;
+        s=default; t=1562120222;
+        bh=eQJgn9fyUC0oz1fbl32vimo1aaaM/DsvQRu/EQBSVgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8dVMOpBO3vY2IM4ZhmytHl+I8Hz9mg36iNi4lPoJQ3T+cpKARJ7z4UcdN/AllnBJ
-         Hv6sgYROtACMTc5052fHK8c4Kpfs3uEzqjf5YYuOhgwQml6PqFMPnHsVTd5lDqkl5n
-         b8MoHT7Y8voXsp/0DD9/JixaL1b8nwJwA9OEkDG8=
+        b=NMOfZ4gYkvuXiJDFZuM2Wk5pF1NKpaRCDawLNkLBuTAl5unQemWmtFXZrFujMCpp1
+         JObuhb+N0+TUGevmYDRAiK28TcJHuHrCF+wqbZ8hL3tzs0+DolU3wIdhhSAF5PDd7g
+         7Ih4s7HTSEU0Xxo1JDdRfMu0YVDqPrD9BFawfo1Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Boichat <drinkcat@chromium.org>,
-        Sean Wang <sean.wang@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 25/26] pinctrl: mediatek: Update cur_mask in mask/mask ops
-Date:   Tue,  2 Jul 2019 22:16:24 -0400
-Message-Id: <20190703021625.18116-25-sashal@kernel.org>
+Cc:     Vinod Koul <vkoul@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 26/26] linux/kernel.h: fix overflow for DIV_ROUND_UP_ULL
+Date:   Tue,  2 Jul 2019 22:16:25 -0400
+Message-Id: <20190703021625.18116-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190703021625.18116-1-sashal@kernel.org>
 References: <20190703021625.18116-1-sashal@kernel.org>
@@ -44,99 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Boichat <drinkcat@chromium.org>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 9d957a959bc8c3dfe37572ac8e99affb5a885965 ]
+[ Upstream commit 8f9fab480c7a87b10bb5440b5555f370272a5d59 ]
 
-During suspend/resume, mtk_eint_mask may be called while
-wake_mask is active. For example, this happens if a wake-source
-with an active interrupt handler wakes the system:
-irq/pm.c:irq_pm_check_wakeup would disable the interrupt, so
-that it can be handled later on in the resume flow.
+DIV_ROUND_UP_ULL adds the two arguments and then invokes
+DIV_ROUND_DOWN_ULL.  But on a 32bit system the addition of two 32 bit
+values can overflow.  DIV_ROUND_DOWN_ULL does it correctly and stashes
+the addition into a unsigned long long so cast the result to unsigned
+long long here to avoid the overflow condition.
 
-However, this may happen before mtk_eint_do_resume is called:
-in this case, wake_mask is loaded, and cur_mask is restored
-from an older copy, re-enabling the interrupt, and causing
-an interrupt storm (especially for level interrupts).
-
-Step by step, for a line that has both wake and interrupt enabled:
- 1. cur_mask[irq] = 1; wake_mask[irq] = 1; EINT_EN[irq] = 1 (interrupt
-    enabled at hardware level)
- 2. System suspends, resumes due to that line (at this stage EINT_EN
-    == wake_mask)
- 3. irq_pm_check_wakeup is called, and disables the interrupt =>
-    EINT_EN[irq] = 0, but we still have cur_mask[irq] = 1
- 4. mtk_eint_do_resume is called, and restores EINT_EN = cur_mask, so
-    it reenables EINT_EN[irq] = 1 => interrupt storm as the driver
-    is not yet ready to handle the interrupt.
-
-This patch fixes the issue in step 3, by recording all mask/unmask
-changes in cur_mask. This also avoids the need to read the current
-mask in eint_do_suspend, and we can remove mtk_eint_chip_read_mask
-function.
-
-The interrupt will be re-enabled properly later on, sometimes after
-mtk_eint_do_resume, when the driver is ready to handle it.
-
-Fixes: 58a5e1b64bb0 ("pinctrl: mediatek: Implement wake handler and suspend resume")
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-Acked-by: Sean Wang <sean.wang@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+[akpm@linux-foundation.org: DIV_ROUND_UP_ULL must be an rval]
+Link: http://lkml.kernel.org/r/20190625100518.30753-1-vkoul@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mediatek/mtk-eint.c | 18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+ include/linux/kernel.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/mediatek/mtk-eint.c b/drivers/pinctrl/mediatek/mtk-eint.c
-index b9f3c02ba59d..564cfaee129d 100644
---- a/drivers/pinctrl/mediatek/mtk-eint.c
-+++ b/drivers/pinctrl/mediatek/mtk-eint.c
-@@ -113,6 +113,8 @@ static void mtk_eint_mask(struct irq_data *d)
- 	void __iomem *reg = mtk_eint_get_offset(eint, d->hwirq,
- 						eint->regs->mask_set);
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index 3d83ebb302cf..f6f94e54ab96 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -118,7 +118,8 @@
+ #define DIV_ROUND_DOWN_ULL(ll, d) \
+ 	({ unsigned long long _tmp = (ll); do_div(_tmp, d); _tmp; })
  
-+	eint->cur_mask[d->hwirq >> 5] &= ~mask;
-+
- 	writel(mask, reg);
- }
+-#define DIV_ROUND_UP_ULL(ll, d)		DIV_ROUND_DOWN_ULL((ll) + (d) - 1, (d))
++#define DIV_ROUND_UP_ULL(ll, d) \
++	DIV_ROUND_DOWN_ULL((unsigned long long)(ll) + (d) - 1, (d))
  
-@@ -123,6 +125,8 @@ static void mtk_eint_unmask(struct irq_data *d)
- 	void __iomem *reg = mtk_eint_get_offset(eint, d->hwirq,
- 						eint->regs->mask_clr);
- 
-+	eint->cur_mask[d->hwirq >> 5] |= mask;
-+
- 	writel(mask, reg);
- 
- 	if (eint->dual_edge[d->hwirq])
-@@ -217,19 +221,6 @@ static void mtk_eint_chip_write_mask(const struct mtk_eint *eint,
- 	}
- }
- 
--static void mtk_eint_chip_read_mask(const struct mtk_eint *eint,
--				    void __iomem *base, u32 *buf)
--{
--	int port;
--	void __iomem *reg;
--
--	for (port = 0; port < eint->hw->ports; port++) {
--		reg = base + eint->regs->mask + (port << 2);
--		buf[port] = ~readl_relaxed(reg);
--		/* Mask is 0 when irq is enabled, and 1 when disabled. */
--	}
--}
--
- static int mtk_eint_irq_request_resources(struct irq_data *d)
- {
- 	struct mtk_eint *eint = irq_data_get_irq_chip_data(d);
-@@ -384,7 +375,6 @@ static void mtk_eint_irq_handler(struct irq_desc *desc)
- 
- int mtk_eint_do_suspend(struct mtk_eint *eint)
- {
--	mtk_eint_chip_read_mask(eint, eint->base, eint->cur_mask);
- 	mtk_eint_chip_write_mask(eint, eint->base, eint->wake_mask);
- 
- 	return 0;
+ #if BITS_PER_LONG == 32
+ # define DIV_ROUND_UP_SECTOR_T(ll,d) DIV_ROUND_UP_ULL(ll, d)
 -- 
 2.20.1
 
