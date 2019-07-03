@@ -2,116 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0329E5EF97
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 01:22:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCDE05EFA5
+	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 01:36:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727021AbfGCXWx convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 3 Jul 2019 19:22:53 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:33308 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726562AbfGCXWx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Jul 2019 19:22:53 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 999F1308A963
-        for <stable@vger.kernel.org>; Wed,  3 Jul 2019 23:22:52 +0000 (UTC)
-Received: from [172.54.129.25] (cpt-1023.paas.prod.upshift.rdu2.redhat.com [10.0.19.35])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E28E818BB4;
-        Wed,  3 Jul 2019 23:22:47 +0000 (UTC)
+        id S1726988AbfGCXgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jul 2019 19:36:18 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:44620 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726562AbfGCXgS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jul 2019 19:36:18 -0400
+Received: by mail-wr1-f66.google.com with SMTP id b2so3357996wrx.11
+        for <stable@vger.kernel.org>; Wed, 03 Jul 2019 16:36:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=G7UqnRaAm8rBW+gn96rLD/ZddS/fL+xt9QrjXSI7Kqg=;
+        b=zLdziHSov00yIzmXB6D2NwtGriGZz9FnDo6BjjAgoaXFZyOYmZzkwdBrq/D+gXO/25
+         EzjV02+GSYZtNTeVdeI27p818hXMJ1z33RLKYFjFx086/hvzOA05xXmbMY096XlsW9Sj
+         qrNmEKoCmwMqxZojKTyBlWGRT4YH5V0FhnShwBLHyE777DVfaSxCtuFC4k/ljGJjEo/I
+         pAy5KV2pH9T7O8jTGUtKafyLPxKLphU9HdQadC+XQ/ByGpq1uA19sEtUDW+J5HziDyk7
+         OlbqkLbn2qlFZwWAUMe4JEJCLLRRfw4SOSTawKZgsOvNVxXWwbYediA2Z+hEMmGx+WIg
+         MkyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=G7UqnRaAm8rBW+gn96rLD/ZddS/fL+xt9QrjXSI7Kqg=;
+        b=caVkK013O2fhOcLsazZWs12wEtLHBVz/R+Dv3pFOmTRKZanhx59ekZhiflymi+dwFy
+         DUvwurJPXBUNqFcYZrHat9iSlLagOU7E8Nk+DJjYch7J6tB5wB0d6BBbFYfuuZo59fzX
+         uzSIGWyqMq0ak5eedIJBrTyvRmHuwDx3Od8qvk4obLkBMO3Ge3AiGIGUgHW2KWnlpJf4
+         LHU10IKYQSpwoY8LXhAYsaXAYRWBo05RHB9/Wsf39Jj06cE3T0vncNtkBuQY+AwPFYqy
+         OI+L71l+W8v9qx8WJaAv8nuXj4A+nFD4C4vrAgTilFkiUx9foN2blPmO9fvrYCMgxqly
+         uvUQ==
+X-Gm-Message-State: APjAAAWYE/WmyUyoWDYYUdBDZjYJLAwoDMcBmPpwvKMocS7O7P55SVpe
+        /6b09FRcP2dm7KJaRn9sG8wwRTBGPDLRyg==
+X-Google-Smtp-Source: APXvYqxGQDORCepyaRS6dNWbTAeVeEfWWlHNtoC79p73SYaCMST0UMVo9l4g0thcjyFqcZDhoRFa2g==
+X-Received: by 2002:adf:e2c6:: with SMTP id d6mr22864085wrj.326.1562196976266;
+        Wed, 03 Jul 2019 16:36:16 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id d9sm6164255wrb.71.2019.07.03.16.36.15
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 03 Jul 2019 16:36:15 -0700 (PDT)
+Message-ID: <5d1d3bef.1c69fb81.745b1.4180@mx.google.com>
+Date:   Wed, 03 Jul 2019 16:36:15 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 4.19.58-rc1-c0b2467.cki
- (stable)
-Message-ID: <cki.1A73B385E5.OJX437QK5O@redhat.com>
-X-Gitlab-Pipeline-ID: 17833
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.41]); Wed, 03 Jul 2019 23:22:52 +0000 (UTC)
-Date:   Wed, 3 Jul 2019 19:22:53 -0400
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.57-8-gc0b2467c02bd
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 131 boots: 2 failed,
+ 128 passed with 1 offline (v4.19.57-8-gc0b2467c02bd)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+stable-rc/linux-4.19.y boot: 131 boots: 2 failed, 128 passed with 1 offline=
+ (v4.19.57-8-gc0b2467c02bd)
 
-We ran automated tests on a recent commit from this kernel tree:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.57-8-gc0b2467c02bd/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.57-8-gc0b2467c02bd/
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: c0b2467c02bd - Linux 4.19.58-rc1
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.57-8-gc0b2467c02bd
+Git Commit: c0b2467c02bdbd6d49d9165e4097bbb83da01c35
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 72 unique boards, 26 SoC families, 16 builds out of 206
 
-The results of these automated tests are provided below.
+Boot Failures Detected:
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+arm:
+    sunxi_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
 
+    multi_v7_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+Offline Platforms:
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+arm:
 
-Compile testing
----------------
+    multi_v7_defconfig:
+        gcc-8
+            stih410-b2120: 1 offline lab
 
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-c0b2467c02bdbd6d49d9165e4097bbb83da01c35.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-c0b2467c02bdbd6d49d9165e4097bbb83da01c35.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-c0b2467c02bdbd6d49d9165e4097bbb83da01c35.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-c0b2467c02bdbd6d49d9165e4097bbb83da01c35.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-c0b2467c02bdbd6d49d9165e4097bbb83da01c35.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-c0b2467c02bdbd6d49d9165e4097bbb83da01c35.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-c0b2467c02bdbd6d49d9165e4097bbb83da01c35.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-c0b2467c02bdbd6d49d9165e4097bbb83da01c35.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  ppc64le:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  s390x:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  x86_64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
+---
+For more info write to <info@kernelci.org>
