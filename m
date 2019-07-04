@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ACF95F27B
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5385F27C
 	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 07:55:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726267AbfGDFzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jul 2019 01:55:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57012 "EHLO mail.kernel.org"
+        id S1726273AbfGDFzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 01:55:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725879AbfGDFzW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jul 2019 01:55:22 -0400
+        id S1725879AbfGDFzZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jul 2019 01:55:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3929221882;
-        Thu,  4 Jul 2019 05:55:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D01F82189E;
+        Thu,  4 Jul 2019 05:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562219721;
-        bh=2htda0EGf+huXRNyQdxAYDyZqCZUGN2uy6IYRSktq5g=;
+        s=default; t=1562219724;
+        bh=P+0Wu1MBUVQW5HU4+F6rFGHqA5xdxlVgjtAafENkCNs=;
         h=Subject:To:From:Date:From;
-        b=OSAnQfELK7e4tMPjzVCv0KvMwcUkfaPHp02yakDrEH+VzBuWbwCcf2el0etfX5FKU
-         YtYaU5dlrpg2HbQHJ/Kveh42BTEfq561UM59kYi5c0zMm9/I9IarhW2SeAsE1NIT2B
-         mz7e187bTXQe1lERJtRP4K3kYRL5zUc6eYg5NSYw=
-Subject: patch "coresight: Potential uninitialized variable in probe()" added to char-misc-next
-To:     dan.carpenter@oracle.com, gregkh@linuxfoundation.org,
+        b=Eh+5b/I31ZI8W5+kEvt4XuCOMWMSfueKogsuRgrZ5Py0yETWwqY5REzwPeWzq+YjZ
+         06Et9SvZb7H308b+klF4e8rR+LDpEdVAoxqS+9ld1SPppNfkoKoeLhQvAwaW0nU2D3
+         HqhV2KHUAPx2wlgKHFbDacIjFD5HNJOMrjBfFgDg=
+Subject: patch "coresight: etb10: Do not call smp_processor_id from preemptible" added to char-misc-next
+To:     suzuki.poulose@arm.com, gregkh@linuxfoundation.org,
         mathieu.poirier@linaro.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 04 Jul 2019 07:52:20 +0200
-Message-ID: <156221954015369@kroah.com>
+Message-ID: <1562219540128146@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    coresight: Potential uninitialized variable in probe()
+    coresight: etb10: Do not call smp_processor_id from preemptible
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -55,37 +55,51 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 0530ef6b41e80c5cc979e0e50682302161edb6b7 Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Thu, 20 Jun 2019 16:12:37 -0600
-Subject: coresight: Potential uninitialized variable in probe()
+From 730766bae3280a25d40ea76a53dc6342e84e6513 Mon Sep 17 00:00:00 2001
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+Date: Thu, 20 Jun 2019 16:12:36 -0600
+Subject: coresight: etb10: Do not call smp_processor_id from preemptible
 
-The "drvdata->atclk" clock is optional, but if it gets set to an error
-pointer then we're accidentally return an uninitialized variable instead
-of success.
+During a perf session we try to allocate buffers on the "node" associated
+with the CPU the event is bound to. If it is not bound to a CPU, we
+use the current CPU node, using smp_processor_id(). However this is unsafe
+in a pre-emptible context and could generate the splats as below :
 
-Fixes: 78e6427b4e7b ("coresight: funnel: Support static funnel")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+ BUG: using smp_processor_id() in preemptible [00000000] code: perf/2544
+
+Use NUMA_NO_NODE hint instead of using the current node for events
+not bound to CPUs.
+
+Fixes: 2997aa4063d97fdb39 ("coresight: etb10: implementing AUX API")
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: stable <stable@vger.kernel.org> # 4.6+
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190620221237.3536-6-mathieu.poirier@linaro.org
+Link: https://lore.kernel.org/r/20190620221237.3536-5-mathieu.poirier@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-funnel.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwtracing/coresight/coresight-etb10.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-funnel.c b/drivers/hwtracing/coresight/coresight-funnel.c
-index 5867fcb4503b..fa97cb9ab4f9 100644
---- a/drivers/hwtracing/coresight/coresight-funnel.c
-+++ b/drivers/hwtracing/coresight/coresight-funnel.c
-@@ -244,6 +244,7 @@ static int funnel_probe(struct device *dev, struct resource *res)
- 	}
+diff --git a/drivers/hwtracing/coresight/coresight-etb10.c b/drivers/hwtracing/coresight/coresight-etb10.c
+index d5b9edecf76e..3810290e6d07 100644
+--- a/drivers/hwtracing/coresight/coresight-etb10.c
++++ b/drivers/hwtracing/coresight/coresight-etb10.c
+@@ -374,12 +374,10 @@ static void *etb_alloc_buffer(struct coresight_device *csdev,
+ 			      struct perf_event *event, void **pages,
+ 			      int nr_pages, bool overwrite)
+ {
+-	int node, cpu = event->cpu;
++	int node;
+ 	struct cs_buffers *buf;
  
- 	pm_runtime_put(dev);
-+	ret = 0;
+-	if (cpu == -1)
+-		cpu = smp_processor_id();
+-	node = cpu_to_node(cpu);
++	node = (event->cpu == -1) ? NUMA_NO_NODE : cpu_to_node(event->cpu);
  
- out_disable_clk:
- 	if (ret && !IS_ERR_OR_NULL(drvdata->atclk))
+ 	buf = kzalloc_node(sizeof(struct cs_buffers), GFP_KERNEL, node);
+ 	if (!buf)
 -- 
 2.22.0
 
