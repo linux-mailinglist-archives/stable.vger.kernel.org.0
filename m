@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C91A45F268
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 07:52:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 061DE5F274
+	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 07:55:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726696AbfGDFwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jul 2019 01:52:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54090 "EHLO mail.kernel.org"
+        id S1725917AbfGDFyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 01:54:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725861AbfGDFwT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jul 2019 01:52:19 -0400
+        id S1725879AbfGDFyh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jul 2019 01:54:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7655218A4;
-        Thu,  4 Jul 2019 05:52:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7201A218A4;
+        Thu,  4 Jul 2019 05:54:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562219538;
-        bh=B0PRN7HvXst7ivQvpFTEksVTRhchddU1yxrzmpJcGL4=;
+        s=default; t=1562219676;
+        bh=lpL9qYe0RO88wdEgU9YQEHIZJOwABejFZDyUmJs4itY=;
         h=Subject:To:From:Date:From;
-        b=clq7HnfnVeTKSVQ4bGJbUKXu8JhHpaZkiKJReOBoywXKI1bW6c24ABRgKJGv1Y6gl
-         SU+OLEVcszR2mLYIg8Euc0wsR+4JQf0w6rRzREr7VJa2YegPP7Ao0pKIIiRqcNfDOK
-         7tg5JP6GHu6Oq3KbTdv0qsTTMou/2MvfRh66pFZg=
-Subject: patch "usb: Handle USB3 remote wakeup for LPM enabled devices correctly" added to usb-next
-To:     chiasheng.lee@intel.com, gregkh@linuxfoundation.org,
-        mathias.nyman@linux.intel.com, stable@vger.kernel.org
+        b=XQsqacfbRBgwQ9DxwvprBgZz+qBnnQP0PLnXJmeTgDlnnq8mjiiCd/nx1j6UGwEuM
+         dq0wB7tpmO1dyp+YGUIK3ToqXX3NE7zs7B7tk/Bgsbe+F96fFEmoLpggnjtCqaXvmz
+         nrHlGiBMjY0Ris3zQ7bOGwRn4xJvOBjX32ju31FY=
+Subject: patch "intel_th: msu: Fix unused variable warning on arm64 platform" added to char-misc-next
+To:     zhangshaokun@hisilicon.com, alexander.shishkin@linux.intel.com,
+        andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 04 Jul 2019 07:51:37 +0200
-Message-ID: <1562219497126132@kroah.com>
+Date:   Thu, 04 Jul 2019 07:52:13 +0200
+Message-ID: <1562219533255243@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -40,11 +41,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: Handle USB3 remote wakeup for LPM enabled devices correctly
+    intel_th: msu: Fix unused variable warning on arm64 platform
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -55,61 +56,122 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From e244c4699f859cf7149b0781b1894c7996a8a1df Mon Sep 17 00:00:00 2001
-From: "Lee, Chiasheng" <chiasheng.lee@intel.com>
-Date: Thu, 20 Jun 2019 10:56:04 +0300
-Subject: usb: Handle USB3 remote wakeup for LPM enabled devices correctly
+From b96fb368b08f1637cbf780a6b83e36c2c5ed4ff5 Mon Sep 17 00:00:00 2001
+From: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Date: Fri, 21 Jun 2019 19:19:27 +0300
+Subject: intel_th: msu: Fix unused variable warning on arm64 platform
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-With Link Power Management (LPM) enabled USB3 links transition to low
-power U1/U2 link states from U0 state automatically.
+Commit ba39bd8306057 ("intel_th: msu: Switch over to scatterlist")
+introduced the following warnings on non-x86 architectures, as a result
+of reordering the multi mode buffer allocation sequence:
 
-Current hub code detects USB3 remote wakeups by checking if the software
-state still shows suspended, but the link has transitioned from suspended
-U3 to enabled U0 state.
+> drivers/hwtracing/intel_th/msu.c: In function ‘msc_buffer_win_alloc’:
+> drivers/hwtracing/intel_th/msu.c:783:21: warning: unused variable ‘i’
+> [-Wunused-variable]
+> int ret = -ENOMEM, i;
+>                    ^
+> drivers/hwtracing/intel_th/msu.c: In function ‘msc_buffer_win_free’:
+> drivers/hwtracing/intel_th/msu.c:863:6: warning: unused variable ‘i’
+> [-Wunused-variable]
+> int i;
+>     ^
 
-As it takes some time before the hub thread reads the port link state
-after a USB3 wake notification, the link may have transitioned from U0
-to U1/U2, and wake is not detected by hub code.
+Fix this compiler warning by factoring out set_memory sequences and making
+them x86-only.
 
-Fix this by handling U1/U2 states in the same way as U0 in USB3 wakeup
-handling
-
-This patch should be added to stable kernels since 4.13 where LPM was
-kept enabled during suspend/resume
-
-Cc: <stable@vger.kernel.org> # v4.13+
-Signed-off-by: Lee, Chiasheng <chiasheng.lee@intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Suggested-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Fixes: ba39bd8306057 ("intel_th: msu: Switch over to scatterlist")
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190621161930.60785-2-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/hwtracing/intel_th/msu.c | 40 +++++++++++++++++++++-----------
+ 1 file changed, 27 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index a59e1573b43b..236313f41f4a 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -3619,6 +3619,7 @@ static int hub_handle_remote_wakeup(struct usb_hub *hub, unsigned int port,
- 	struct usb_device *hdev;
- 	struct usb_device *udev;
- 	int connect_change = 0;
-+	u16 link_state;
- 	int ret;
+diff --git a/drivers/hwtracing/intel_th/msu.c b/drivers/hwtracing/intel_th/msu.c
+index 81bb54fa3ce8..8c568b5c8920 100644
+--- a/drivers/hwtracing/intel_th/msu.c
++++ b/drivers/hwtracing/intel_th/msu.c
+@@ -767,6 +767,30 @@ static int __msc_buffer_win_alloc(struct msc_window *win,
+ 	return -ENOMEM;
+ }
  
- 	hdev = hub->hdev;
-@@ -3628,9 +3629,11 @@ static int hub_handle_remote_wakeup(struct usb_hub *hub, unsigned int port,
- 			return 0;
- 		usb_clear_port_feature(hdev, port, USB_PORT_FEAT_C_SUSPEND);
- 	} else {
-+		link_state = portstatus & USB_PORT_STAT_LINK_STATE;
- 		if (!udev || udev->state != USB_STATE_SUSPENDED ||
--				 (portstatus & USB_PORT_STAT_LINK_STATE) !=
--				 USB_SS_PORT_LS_U0)
-+				(link_state != USB_SS_PORT_LS_U0 &&
-+				 link_state != USB_SS_PORT_LS_U1 &&
-+				 link_state != USB_SS_PORT_LS_U2))
- 			return 0;
++#ifdef CONFIG_X86
++static void msc_buffer_set_uc(struct msc_window *win, unsigned int nr_blocks)
++{
++	int i;
++
++	for (i = 0; i < nr_blocks; i++)
++		/* Set the page as uncached */
++		set_memory_uc((unsigned long)msc_win_block(win, i), 1);
++}
++
++static void msc_buffer_set_wb(struct msc_window *win)
++{
++	int i;
++
++	for (i = 0; i < win->nr_blocks; i++)
++		/* Reset the page to write-back */
++		set_memory_wb((unsigned long)msc_win_block(win, i), 1);
++}
++#else /* !X86 */
++static inline void
++msc_buffer_set_uc(struct msc_window *win, unsigned int nr_blocks) {}
++static inline void msc_buffer_set_wb(struct msc_window *win) {}
++#endif /* CONFIG_X86 */
++
+ /**
+  * msc_buffer_win_alloc() - alloc a window for a multiblock mode
+  * @msc:	MSC device
+@@ -780,7 +804,7 @@ static int __msc_buffer_win_alloc(struct msc_window *win,
+ static int msc_buffer_win_alloc(struct msc *msc, unsigned int nr_blocks)
+ {
+ 	struct msc_window *win;
+-	int ret = -ENOMEM, i;
++	int ret = -ENOMEM;
+ 
+ 	if (!nr_blocks)
+ 		return 0;
+@@ -811,11 +835,7 @@ static int msc_buffer_win_alloc(struct msc *msc, unsigned int nr_blocks)
+ 	if (ret < 0)
+ 		goto err_nomem;
+ 
+-#ifdef CONFIG_X86
+-	for (i = 0; i < ret; i++)
+-		/* Set the page as uncached */
+-		set_memory_uc((unsigned long)msc_win_block(win, i), 1);
+-#endif
++	msc_buffer_set_uc(win, ret);
+ 
+ 	win->nr_blocks = ret;
+ 
+@@ -860,8 +880,6 @@ static void __msc_buffer_win_free(struct msc *msc, struct msc_window *win)
+  */
+ static void msc_buffer_win_free(struct msc *msc, struct msc_window *win)
+ {
+-	int i;
+-
+ 	msc->nr_pages -= win->nr_blocks;
+ 
+ 	list_del(&win->entry);
+@@ -870,11 +888,7 @@ static void msc_buffer_win_free(struct msc *msc, struct msc_window *win)
+ 		msc->base_addr = 0;
  	}
+ 
+-#ifdef CONFIG_X86
+-	for (i = 0; i < win->nr_blocks; i++)
+-		/* Reset the page to write-back */
+-		set_memory_wb((unsigned long)msc_win_block(win, i), 1);
+-#endif
++	msc_buffer_set_wb(win);
+ 
+ 	__msc_buffer_win_free(msc, win);
  
 -- 
 2.22.0
