@@ -2,187 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B7565FC87
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 19:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7278D5FD23
+	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 20:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727206AbfGDRdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jul 2019 13:33:04 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:46839 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726805AbfGDRdE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Jul 2019 13:33:04 -0400
-X-Originating-IP: 195.189.32.242
-Received: from pc.localdomain (unknown [195.189.32.242])
-        (Authenticated sender: contact@artur-rojek.eu)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 938E8240004;
-        Thu,  4 Jul 2019 17:32:56 +0000 (UTC)
-From:   Artur Rojek <contact@artur-rojek.eu>
-To:     Jonathan Cameron <jic23@kernel.org>
-Cc:     linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        Maarten ter Huurne <maarten@treewalker.org>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Artur Rojek <contact@artur-rojek.eu>
-Subject: [PATCH v2] IIO: Ingenic JZ47xx: Set clock divider on probe
-Date:   Thu,  4 Jul 2019 19:36:56 +0200
-Message-Id: <20190704173656.6617-1-contact@artur-rojek.eu>
-X-Mailer: git-send-email 2.22.0
+        id S1727093AbfGDSyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 14:54:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44710 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726867AbfGDSyq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jul 2019 14:54:46 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA97721738;
+        Thu,  4 Jul 2019 18:54:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1562266485;
+        bh=OcwVhJ/pCoFLJY1p5izzYP0FHtw/v9QjgtMBZCN4P8Y=;
+        h=Date:From:To:Subject:From;
+        b=zzhM/2iO/4r3IdsAJOYL7syfZ1ExU/5BJYFHbwI7GTipd1E4n2evFZKE4OBlKiOAf
+         bT+aLV/43U3gDxwJlDbxqMg9+v1HnppqBx5GD2Wr/8faIDsuBGkldvppCgq5sQb74o
+         tc7eHyhoNQ9fU8g0WUSqXfy/+OhmzC1HRuIlZcRs=
+Date:   Thu, 04 Jul 2019 11:54:44 -0700
+From:   akpm@linux-foundation.org
+To:     aneesh.kumar@linux.ibm.com, corbet@lwn.net,
+        dan.j.williams@intel.com, david@redhat.com, jane.chu@oracle.com,
+        jglisse@redhat.com, jmoyer@redhat.com, logang@deltatee.com,
+        mhocko@suse.com, mm-commits@vger.kernel.org, osalvador@suse.de,
+        pasha.tatashin@soleen.com, richardw.yang@linux.intel.com,
+        rppt@linux.ibm.com, stable@vger.kernel.org, toshi.kani@hpe.com,
+        vbabka@suse.cz
+Subject:  [wrecked]
+ libnvdimm-pfn-fix-fsdax-mode-namespace-info-block-zero-fields.patch removed
+ from -mm tree
+Message-ID: <20190704185444.t8IWhKhDz%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maarten ter Huurne <maarten@treewalker.org>
 
-The SADC component can run at up to 8 MHz on JZ4725B, but is fed
-a 12 MHz input clock (EXT). Divide it by two to get 6 MHz, then
-set up another divider to match, to produce a 10us clock.
+The patch titled
+     Subject: libnvdimm/pfn: fix fsdax-mode namespace info-block zero-fields
+has been removed from the -mm tree.  Its filename was
+     libnvdimm-pfn-fix-fsdax-mode-namespace-info-block-zero-fields.patch
 
-If the clock dividers are left on their power-on defaults (a divider
-of 1), the SADC mostly works, but will occasionally produce erroneous
-readings. This led to button presses being detected out of nowhere on
-the RS90 every few minutes. With this change, no ghost button presses
-were logged in almost a day worth of testing.
+This patch was dropped because other changes were merged, which wrecked thi=
+s patch
 
-The ADCLK register for configuring clock dividers doesn't exist on
-JZ4740, so avoid writing it there.
+------------------------------------------------------
+=46rom: Dan Williams <dan.j.williams@intel.com>
+Subject: libnvdimm/pfn: fix fsdax-mode namespace info-block zero-fields
 
-A function has been introduced rather than a flag because there is a lot
-of variation between the ADCLK registers on JZ47xx SoCs, both in
-the internal layout of the register and in the frequency range
-supported by the SADC. So this solution should make it easier
-to add support for other JZ47xx SoCs later.
+At namespace creation time there is the potential for the "expected to be
+zero" fields of a 'pfn' info-block to be filled with indeterminate data.=20
+While the kernel buffer is zeroed on allocation it is immediately
+overwritten by nd_pfn_validate() filling it with the current contents of
+the on-media info-block location.  For fields like, 'flags' and the
+'padding' it potentially means that future implementations can not rely on
+those fields being zero.
 
-Fixes: 1a78daea107d ("iio: adc: probe should set clock divider")
-Signed-off-by: Maarten ter Huurne <maarten@treewalker.org>
-Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
+In preparation to stop using the 'start_pad' and 'end_trunc' fields for
+section alignment, arrange for fields that are not explicitly initialized
+to be guaranteed zero.  Bump the minor version to indicate it is safe to
+assume the 'padding' and 'flags' are zero.  Otherwise, this corruption is
+expected to benign since all other critical fields are explicitly
+initialized.
+
+Note The cc: stable is about spreading this new policy to as many kernels
+as possible not fixing an issue in those kernels.  It is not until the
+change titled "libnvdimm/pfn: Stop padding pmem namespaces to section
+alignment" where this improper initialization becomes a problem.  So if
+someone decides to backport "libnvdimm/pfn: Stop padding pmem namespaces
+to section alignment" (which is not tagged for stable), make sure this
+pre-requisite is flagged.
+
+Link: http://lkml.kernel.org/r/156092356065.979959.6681003754765958296.stgi=
+t@dwillia2-desk3.amr.corp.intel.com
+Fixes: 32ab0a3f5170 ("libnvdimm, pmem: 'struct page' for pmem")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Tested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>	[ppc64]
+Cc: <stable@vger.kernel.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Jane Chu <jane.chu@oracle.com>
+Cc: Jeff Moyer <jmoyer@redhat.com>
+Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Toshi Kani <toshi.kani@hpe.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- Changes:
+ drivers/nvdimm/dax_devs.c |    2 +-
+ drivers/nvdimm/pfn.h      |    1 +
+ drivers/nvdimm/pfn_devs.c |   18 +++++++++++++++---
+ 3 files changed, 17 insertions(+), 4 deletions(-)
 
- v2: Add the fixes tag.
+--- a/drivers/nvdimm/dax_devs.c~libnvdimm-pfn-fix-fsdax-mode-namespace-info=
+-block-zero-fields
++++ a/drivers/nvdimm/dax_devs.c
+@@ -118,7 +118,7 @@ int nd_dax_probe(struct device *dev, str
+ 	nvdimm_bus_unlock(&ndns->dev);
+ 	if (!dax_dev)
+ 		return -ENOMEM;
+-	pfn_sb =3D devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb =3D devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	nd_pfn->pfn_sb =3D pfn_sb;
+ 	rc =3D nd_pfn_validate(nd_pfn, DAX_SIG);
+ 	dev_dbg(dev, "dax: %s\n", rc =3D=3D 0 ? dev_name(dax_dev) : "<none>");
+--- a/drivers/nvdimm/pfn_devs.c~libnvdimm-pfn-fix-fsdax-mode-namespace-info=
+-block-zero-fields
++++ a/drivers/nvdimm/pfn_devs.c
+@@ -412,6 +412,15 @@ static int nd_pfn_clear_memmap_errors(st
+ 	return 0;
+ }
+=20
++/**
++ * nd_pfn_validate - read and validate info-block
++ * @nd_pfn: fsdax namespace runtime state / properties
++ * @sig: 'devdax' or 'fsdax' signature
++ *
++ * Upon return the info-block buffer contents (->pfn_sb) are
++ * indeterminate when validation fails, and a coherent info-block
++ * otherwise.
++ */
+ int nd_pfn_validate(struct nd_pfn *nd_pfn, const char *sig)
+ {
+ 	u64 checksum, offset;
+@@ -557,7 +566,7 @@ int nd_pfn_probe(struct device *dev, str
+ 	nvdimm_bus_unlock(&ndns->dev);
+ 	if (!pfn_dev)
+ 		return -ENOMEM;
+-	pfn_sb =3D devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb =3D devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	nd_pfn =3D to_nd_pfn(pfn_dev);
+ 	nd_pfn->pfn_sb =3D pfn_sb;
+ 	rc =3D nd_pfn_validate(nd_pfn, PFN_SIG);
+@@ -694,7 +703,7 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 	u64 checksum;
+ 	int rc;
+=20
+-	pfn_sb =3D devm_kzalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb =3D devm_kmalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	if (!pfn_sb)
+ 		return -ENOMEM;
+=20
+@@ -703,11 +712,14 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 		sig =3D DAX_SIG;
+ 	else
+ 		sig =3D PFN_SIG;
++
+ 	rc =3D nd_pfn_validate(nd_pfn, sig);
+ 	if (rc !=3D -ENODEV)
+ 		return rc;
+=20
+ 	/* no info block, do init */;
++	memset(pfn_sb, 0, sizeof(*pfn_sb));
++
+ 	nd_region =3D to_nd_region(nd_pfn->dev.parent);
+ 	if (nd_region->ro) {
+ 		dev_info(&nd_pfn->dev,
+@@ -760,7 +772,7 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 	memcpy(pfn_sb->uuid, nd_pfn->uuid, 16);
+ 	memcpy(pfn_sb->parent_uuid, nd_dev_to_uuid(&ndns->dev), 16);
+ 	pfn_sb->version_major =3D cpu_to_le16(1);
+-	pfn_sb->version_minor =3D cpu_to_le16(2);
++	pfn_sb->version_minor =3D cpu_to_le16(3);
+ 	pfn_sb->start_pad =3D cpu_to_le32(start_pad);
+ 	pfn_sb->end_trunc =3D cpu_to_le32(end_trunc);
+ 	pfn_sb->align =3D cpu_to_le32(nd_pfn->align);
+--- a/drivers/nvdimm/pfn.h~libnvdimm-pfn-fix-fsdax-mode-namespace-info-bloc=
+k-zero-fields
++++ a/drivers/nvdimm/pfn.h
+@@ -28,6 +28,7 @@ struct nd_pfn_sb {
+ 	__le32 end_trunc;
+ 	/* minor-version-2 record the base alignment of the mapping */
+ 	__le32 align;
++	/* minor-version-3 guarantee the padding and flags are zero */
+ 	u8 padding[4000];
+ 	__le64 checksum;
+ };
+_
 
- drivers/iio/adc/ingenic-adc.c | 54 +++++++++++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
+Patches currently in -mm which might be from dan.j.williams@intel.com are
 
-diff --git a/drivers/iio/adc/ingenic-adc.c b/drivers/iio/adc/ingenic-adc.c
-index 92b1d5037ac9..e234970b7150 100644
---- a/drivers/iio/adc/ingenic-adc.c
-+++ b/drivers/iio/adc/ingenic-adc.c
-@@ -11,6 +11,7 @@
- #include <linux/iio/iio.h>
- #include <linux/io.h>
- #include <linux/iopoll.h>
-+#include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
- #include <linux/platform_device.h>
-@@ -22,8 +23,11 @@
- #define JZ_ADC_REG_ADTCH		0x18
- #define JZ_ADC_REG_ADBDAT		0x1c
- #define JZ_ADC_REG_ADSDAT		0x20
-+#define JZ_ADC_REG_ADCLK		0x28
- 
- #define JZ_ADC_REG_CFG_BAT_MD		BIT(4)
-+#define JZ_ADC_REG_ADCLK_CLKDIV_LSB	0
-+#define JZ_ADC_REG_ADCLK_CLKDIV10US_LSB	16
- 
- #define JZ_ADC_AUX_VREF				3300
- #define JZ_ADC_AUX_VREF_BITS			12
-@@ -34,6 +38,8 @@
- #define JZ4740_ADC_BATTERY_HIGH_VREF		(7500 * 0.986)
- #define JZ4740_ADC_BATTERY_HIGH_VREF_BITS	12
- 
-+struct ingenic_adc;
-+
- struct ingenic_adc_soc_data {
- 	unsigned int battery_high_vref;
- 	unsigned int battery_high_vref_bits;
-@@ -41,6 +47,7 @@ struct ingenic_adc_soc_data {
- 	size_t battery_raw_avail_size;
- 	const int *battery_scale_avail;
- 	size_t battery_scale_avail_size;
-+	int (*init_clk_div)(struct device *dev, struct ingenic_adc *adc);
- };
- 
- struct ingenic_adc {
-@@ -151,6 +158,42 @@ static const int jz4740_adc_battery_scale_avail[] = {
- 	JZ_ADC_BATTERY_LOW_VREF, JZ_ADC_BATTERY_LOW_VREF_BITS,
- };
- 
-+static int jz4725b_adc_init_clk_div(struct device *dev, struct ingenic_adc *adc)
-+{
-+	struct clk *parent_clk;
-+	unsigned long parent_rate, rate;
-+	unsigned int div_main, div_10us;
-+
-+	parent_clk = clk_get_parent(adc->clk);
-+	if (!parent_clk) {
-+		dev_err(dev, "ADC clock has no parent\n");
-+		return -ENODEV;
-+	}
-+	parent_rate = clk_get_rate(parent_clk);
-+
-+	/*
-+	 * The JZ4725B ADC works at 500 kHz to 8 MHz.
-+	 * We pick the highest rate possible.
-+	 * In practice we typically get 6 MHz, half of the 12 MHz EXT clock.
-+	 */
-+	div_main = DIV_ROUND_UP(parent_rate, 8000000);
-+	div_main = clamp(div_main, 1u, 64u);
-+	rate = parent_rate / div_main;
-+	if (rate < 500000 || rate > 8000000) {
-+		dev_err(dev, "No valid divider for ADC main clock\n");
-+		return -EINVAL;
-+	}
-+
-+	/* We also need a divider that produces a 10us clock. */
-+	div_10us = DIV_ROUND_UP(rate, 100000);
-+
-+	writel(((div_10us - 1) << JZ_ADC_REG_ADCLK_CLKDIV10US_LSB) |
-+	       (div_main - 1) << JZ_ADC_REG_ADCLK_CLKDIV_LSB,
-+	       adc->base + JZ_ADC_REG_ADCLK);
-+
-+	return 0;
-+}
-+
- static const struct ingenic_adc_soc_data jz4725b_adc_soc_data = {
- 	.battery_high_vref = JZ4725B_ADC_BATTERY_HIGH_VREF,
- 	.battery_high_vref_bits = JZ4725B_ADC_BATTERY_HIGH_VREF_BITS,
-@@ -158,6 +201,7 @@ static const struct ingenic_adc_soc_data jz4725b_adc_soc_data = {
- 	.battery_raw_avail_size = ARRAY_SIZE(jz4725b_adc_battery_raw_avail),
- 	.battery_scale_avail = jz4725b_adc_battery_scale_avail,
- 	.battery_scale_avail_size = ARRAY_SIZE(jz4725b_adc_battery_scale_avail),
-+	.init_clk_div = jz4725b_adc_init_clk_div,
- };
- 
- static const struct ingenic_adc_soc_data jz4740_adc_soc_data = {
-@@ -167,6 +211,7 @@ static const struct ingenic_adc_soc_data jz4740_adc_soc_data = {
- 	.battery_raw_avail_size = ARRAY_SIZE(jz4740_adc_battery_raw_avail),
- 	.battery_scale_avail = jz4740_adc_battery_scale_avail,
- 	.battery_scale_avail_size = ARRAY_SIZE(jz4740_adc_battery_scale_avail),
-+	.init_clk_div = NULL, /* no ADCLK register on JZ4740 */
- };
- 
- static int ingenic_adc_read_avail(struct iio_dev *iio_dev,
-@@ -317,6 +362,15 @@ static int ingenic_adc_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	/* Set clock dividers. */
-+	if (soc_data->init_clk_div) {
-+		ret = soc_data->init_clk_div(dev, adc);
-+		if (ret) {
-+			clk_disable_unprepare(adc->clk);
-+			return ret;
-+		}
-+	}
-+
- 	/* Put hardware in a known passive state. */
- 	writeb(0x00, adc->base + JZ_ADC_REG_ENABLE);
- 	writeb(0xff, adc->base + JZ_ADC_REG_CTRL);
--- 
-2.22.0
 
