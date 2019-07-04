@@ -2,93 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B8465FBFF
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 18:40:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACFB65FC1D
+	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 18:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727014AbfGDQki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jul 2019 12:40:38 -0400
-Received: from mx2.suse.de ([195.135.220.15]:40190 "EHLO mx1.suse.de"
+        id S1726900AbfGDQyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 12:54:52 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42728 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726880AbfGDQki (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jul 2019 12:40:38 -0400
+        id S1725865AbfGDQyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jul 2019 12:54:52 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id F0586AEF5;
-        Thu,  4 Jul 2019 16:40:36 +0000 (UTC)
+        by mx1.suse.de (Postfix) with ESMTP id 3D1F0AD2A;
+        Thu,  4 Jul 2019 16:54:51 +0000 (UTC)
 Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 936671E3F56; Thu,  4 Jul 2019 18:40:36 +0200 (CEST)
-Date:   Thu, 4 Jul 2019 18:40:36 +0200
+        id D0EFC1E3F56; Thu,  4 Jul 2019 18:54:50 +0200 (CEST)
+Date:   Thu, 4 Jul 2019 18:54:50 +0200
 From:   Jan Kara <jack@suse.cz>
 To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Jan Kara <jack@suse.cz>, Boaz Harrosh <openosd@gmail.com>,
         stable <stable@vger.kernel.org>,
         Robert Barror <robert.barror@intel.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: Re: [PATCH] filesystem-dax: Disable PMD support
-Message-ID: <20190704164036.GG31037@quack2.suse.cz>
-References: <CAPcyv4h6HgNE38RF5TxO3C268ZvrxgcPNrPWOt94MnO5gP_pjw@mail.gmail.com>
- <CAPcyv4gwd1_VHk_MfHeNSxyH+N1=aatj9WkKXqYNPkSXe4bFDg@mail.gmail.com>
- <20190627195948.GB4286@bombadil.infradead.org>
- <CAPcyv4iB3f1hDdCsw=Cy234dP-RXpxGyXDoTwEU8nt5qUDEVQg@mail.gmail.com>
- <20190629160336.GB1180@bombadil.infradead.org>
- <CAPcyv4ge3Ht1k_v=tSoVA6hCzKg1N3imhs_rTL3oTB+5_KC8_Q@mail.gmail.com>
- <CAA9_cmcb-Prn6CnOx-mJfb9CRdf0uG9u4M1Vq1B1rKVemCD-Vw@mail.gmail.com>
- <20190630152324.GA15900@bombadil.infradead.org>
- <20190701121119.GE31621@quack2.suse.cz>
- <20190703154700.GI1729@bombadil.infradead.org>
+        Seema Pandit <seema.pandit@intel.com>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] dax: Fix missed PMD wakeups
+Message-ID: <20190704165450.GH31037@quack2.suse.cz>
+References: <156213869409.3910140.7715747316991468148.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <20190703121743.GH1729@bombadil.infradead.org>
+ <CAPcyv4jgs5LTtTXR+2CyfbjJE85B_eoPFuXQsGBDnVMo41Jawg@mail.gmail.com>
+ <20190703195302.GJ1729@bombadil.infradead.org>
+ <CAPcyv4iPNz=oJyc_EoE-mC11=gyBzwMKbmj1ZY_Yna54=cC=Mg@mail.gmail.com>
+ <20190704032728.GK1729@bombadil.infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190703154700.GI1729@bombadil.infradead.org>
+In-Reply-To: <20190704032728.GK1729@bombadil.infradead.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 03-07-19 08:47:00, Matthew Wilcox wrote:
-> On Mon, Jul 01, 2019 at 02:11:19PM +0200, Jan Kara wrote:
-> > BTW, looking into the xarray code, I think I found another difference
-> > between the old radix tree code and the new xarray code that could cause
-> > issues. In the old radix tree code if we tried to insert PMD entry but
-> > there was some PTE entry in the covered range, we'd get EEXIST error back
-> > and the DAX fault code relies on this. I don't see how similar behavior is
-> > achieved by xas_store()...
+On Wed 03-07-19 20:27:28, Matthew Wilcox wrote:
+> On Wed, Jul 03, 2019 at 02:28:41PM -0700, Dan Williams wrote:
+> > On Wed, Jul 3, 2019 at 12:53 PM Matthew Wilcox <willy@infradead.org> wrote:
+> > > @@ -211,7 +215,8 @@ static void *get_unlocked_entry(struct xa_state *xas)
+> > >         for (;;) {
+> > >                 entry = xas_find_conflict(xas);
+> > >                 if (!entry || WARN_ON_ONCE(!xa_is_value(entry)) ||
+> > > -                               !dax_is_locked(entry))
+> > > +                               !dax_is_locked(entry) ||
+> > > +                               dax_entry_order(entry) < xas_get_order(xas))
+> > 
+> > Doesn't this potentially allow a locked entry to be returned for a
+> > caller that expects all value entries are unlocked?
 > 
-> Are you referring to this?
+> It only allows locked entries to be returned for callers which pass in
+> an xas which refers to a PMD entry.  This is fine for grab_mapping_entry()
+> because it checks size_flag & is_pte_entry.
 > 
-> -               entry = dax_make_locked(0, size_flag | DAX_EMPTY);
-> -
-> -               err = __radix_tree_insert(&mapping->i_pages, index,
-> -                               dax_entry_order(entry), entry);
-> -               radix_tree_preload_end();
-> -               if (err) {
-> -                       xa_unlock_irq(&mapping->i_pages);
-> -                       /*
-> -                        * Our insertion of a DAX entry failed, most likely
-> -                        * because we were inserting a PMD entry and it
-> -                        * collided with a PTE sized entry at a different
-> -                        * index in the PMD range.  We haven't inserted
-> -                        * anything into the radix tree and have no waiters to
-> -                        * wake.
-> -                        */
-> -                       return ERR_PTR(err);
-> -               }
+> dax_layout_busy_page() only uses 0-order.
+> __dax_invalidate_entry() only uses 0-order.
+> dax_writeback_one() needs an extra fix:
+> 
+>                 /* Did a PMD entry get split? */
+>                 if (dax_is_locked(entry))
+>                         goto put_unlocked;
+> 
+> dax_insert_pfn_mkwrite() checks for a mismatch of pte vs pmd.
+> 
+> So I think we're good for all current users.
 
-Mostly yes.
-
-> If so, that can't happen any more because we no longer drop the i_pages
-> lock while the entry is NULL, so the entry is always locked while the
-> i_pages lock is dropped.
-
-Ah, I have misinterpretted what xas_find_conflict() does. I'm sorry for the
-noise. I find it somewhat unfortunate that xas_find_conflict() will not
-return in any way the index where it has found the conflicting entry. We
-could then use it for the wait logic as well and won't have to resort to
-some masking tricks...
+Agreed but it is an ugly trap. As I already said, I'd rather pay the
+unnecessary cost of waiting for pte entry and have an easy to understand
+interface. If we ever have a real world use case that would care for this
+optimization, we will need to refactor functions to make this possible and
+still keep the interfaces sane. For example get_unlocked_entry() could
+return special "error code" indicating that there's no entry with matching
+order in xarray but there's a conflict with it. That would be much less
+error-prone interface.
 
 								Honza
 
