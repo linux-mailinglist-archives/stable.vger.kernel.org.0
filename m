@@ -2,153 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5FA05F3A5
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 09:26:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 502EE5F40C
+	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 09:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726267AbfGDH0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jul 2019 03:26:45 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:33250 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726120AbfGDH0p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Jul 2019 03:26:45 -0400
-Received: by mail-wr1-f66.google.com with SMTP id n9so5446801wru.0;
-        Thu, 04 Jul 2019 00:26:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=acx589NG1jiLdMklxVwLi+wOV3q1fLOPyM7fTcUpo3I=;
-        b=m+iUzkBtjYaLgESnRPV9+Z/nVko0OyGzmiwqgN8BW9oDY1jcJTkJ8ylTuoYrAQAoc8
-         FiPG3Mph8IKFK8/i5V4n1VMoQq6jytVBIPcCHrCrC0nWsIEF31I3GECxsdQWI7HjPsgX
-         rnpLB5K/HQJS04oXWr+VfisP+kBIdYXR+YcWlqBrA6HNVEe8tTURbnw6WWOOlQY0HAGz
-         qeu/3XAcDNdkbXkq+UB+uDcqEmdBAM5BQ6qHqY2+3F83qoesCqGUnHtj/siW1F0YSfqH
-         kWYWy35GgNqjXkF1A3ftoROfz04W00OL6E+p95a6etLTuNgPD1LblDGRjT/AH2lrANys
-         EZoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=acx589NG1jiLdMklxVwLi+wOV3q1fLOPyM7fTcUpo3I=;
-        b=ofiVXlvp8r6+fe1K3YOxlTNELOc2QLbLvWJ62OQkueSWBX2Tfu6msVScx/MI680+Go
-         YAoWPzE/lfmJPL1QCWZjAN/WzgG4YMmxKFRaGCOr0KjJaphq9m7PsMCJmF8nl0yGwFay
-         P13u1UfSxCTPxpPA7NvzxAZCoqMbNemCuEjFc2qwW5Kn3RPPpj3AP+Azyfo93NpyMOif
-         rMqUXyyWGfe3fRfkZF46rZqMAuk4Fw9w2boz+NAt4L+qW28ARxtsvb/QsZ5R5h+LPyLE
-         LbA4ZqWKsQ+92SJKM7oLuR446lJCRxD3J+JJYyN4qr1r9km24KpFuSruGUvWS16Vv+VW
-         PLew==
-X-Gm-Message-State: APjAAAUDPDyOogdh8QTIQOCJ2QRdgickCO4GlsvU1BjerR7Ba0O05vfO
-        YHMgom8anakOzxM7MnYhpPo=
-X-Google-Smtp-Source: APXvYqxMOnY0H5x2seVGKnaSEPGyBJd2lKzLEa8n4+9QTNHnN3GtySgKLzsYZyLUJeTU+jvLOMAuOg==
-X-Received: by 2002:a5d:43c9:: with SMTP id v9mr31873353wrr.70.1562225201923;
-        Thu, 04 Jul 2019 00:26:41 -0700 (PDT)
-Received: from merlot.mazyland.net (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.googlemail.com with ESMTPSA id p11sm5163388wrm.53.2019.07.04.00.26.40
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Thu, 04 Jul 2019 00:26:41 -0700 (PDT)
-From:   Milan Broz <gmazyland@gmail.com>
-To:     jarkko.sakkinen@linux.intel.com
-Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, arnd@arndb.de,
-        gregkh@linuxfoundation.org, linux-integrity@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Milan Broz <gmazyland@gmail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] tpm: Fix null pointer dereference on chip register error path
-Date:   Thu,  4 Jul 2019 09:26:15 +0200
-Message-Id: <20190704072615.31143-1-gmazyland@gmail.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190703230125.aynx4ianvqqjt5d7@linux.intel.com>
-References: <20190703230125.aynx4ianvqqjt5d7@linux.intel.com>
+        id S1726087AbfGDHqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 03:46:33 -0400
+Received: from mga06.intel.com ([134.134.136.31]:42702 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725945AbfGDHqd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jul 2019 03:46:33 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Jul 2019 00:46:32 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,449,1557212400"; 
+   d="asc'?scan'208";a="191299870"
+Received: from zhen-hp.sh.intel.com (HELO zhen-hp) ([10.239.13.116])
+  by fmsmga002.fm.intel.com with ESMTP; 04 Jul 2019 00:46:29 -0700
+Date:   Thu, 4 Jul 2019 15:43:51 +0800
+From:   Zhenyu Wang <zhenyuw@linux.intel.com>
+To:     Colin Xu <colin.xu@intel.com>
+Cc:     intel-gvt-dev@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] drm/i915/gvt: Adding ppgtt to GVT GEM context after
+ pin.
+Message-ID: <20190704074351.GV9684@zhen-hp.sh.intel.com>
+Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
+References: <20190704070613.31609-1-colin.xu@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="YtYWfCPO8ILWk+jM"
+Content-Disposition: inline
+In-Reply-To: <20190704070613.31609-1-colin.xu@intel.com>
+User-Agent: Mutt/1.10.0 (2018-05-17)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If clk_enable is not defined and chip initialization
-is canceled code hits null dereference.
 
-Easily reproducible with vTPM init fail:
-  swtpm chardev --tpmstate dir=nonexistent_dir --tpm2 --vtpm-proxy
+--YtYWfCPO8ILWk+jM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-BUG: kernel NULL pointer dereference, address: 00000000
-...
-Call Trace:
- tpm_chip_start+0x9d/0xa0 [tpm]
- tpm_chip_register+0x10/0x1a0 [tpm]
- vtpm_proxy_work+0x11/0x30 [tpm_vtpm_proxy]
- process_one_work+0x214/0x5a0
- worker_thread+0x134/0x3e0
- ? process_one_work+0x5a0/0x5a0
- kthread+0xd4/0x100
- ? process_one_work+0x5a0/0x5a0
- ? kthread_park+0x90/0x90
- ret_from_fork+0x19/0x24
+On 2019.07.04 15:06:13 +0800, Colin Xu wrote:
+> Windows guest can't run after force-TDR with host log:
+> ...
+> gvt: vgpu 1: workload shadow ppgtt isn't ready
+> gvt: vgpu 1: fail to dispatch workload, skip
+> ...
+>=20
+> The error is raised by set_context_ppgtt_from_shadow(), when it checks
+> and found the shadow_mm isn't marked as shadowed.
+>=20
+> In work thread before each submission, a shadow_mm is set to shadowed in:
+> shadow_ppgtt_mm()
+> <-intel_vgpu_pin_mm()
+> <-prepare_workload()
+> <-dispatch_workload()
+> <-workload_thread()
+> However checking whether or not shadow_mm is shadowed is prior to it:
+> set_context_ppgtt_from_shadow()
+> <-dispatch_workload()
+> <-workload_thread()
+>=20
+> In normal case, create workload will check the existence of shadow_mm,
+> if not it will create a new one and marked as shadowed. If already exist
+> it will reuse the old one. Since shadow_mm is reused, checking of shadowed
+> in set_context_ppgtt_from_shadow() actually always see the state set in
+> creation, but not the state set in intel_vgpu_pin_mm().
+>=20
+> When force-TDR, all engines are reset, since it's not dmlr level, all
+> ppgtt_mm are invalidated but not destroyed. Invalidation will mark all
+> reused shadow_mm as not shadowed but still keeps in ppgtt_mm_list_head.
+> If workload submission phase those shadow_mm are reused with shadowed
+> not set, then set_context_ppgtt_from_shadow() will report error.
+>=20
+> Fixes: 4f15665ccbba (drm/i915: Add ppgtt to GVT GEM context)
+>=20
+> v2:
+> Move set_context_ppgtt_from_shadow() after prepare_workload(). (zhenyu)
+>=20
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Colin Xu <colin.xu@intel.com>
+> ---
+>  drivers/gpu/drm/i915/gvt/scheduler.c | 14 +++++++-------
+>  1 file changed, 7 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/drivers/gpu/drm/i915/gvt/scheduler.c b/drivers/gpu/drm/i915/=
+gvt/scheduler.c
+> index 196b4155a309..100040209188 100644
+> --- a/drivers/gpu/drm/i915/gvt/scheduler.c
+> +++ b/drivers/gpu/drm/i915/gvt/scheduler.c
+> @@ -685,13 +685,6 @@ static int dispatch_workload(struct intel_vgpu_workl=
+oad *workload)
+>  	mutex_lock(&vgpu->vgpu_lock);
+>  	mutex_lock(&dev_priv->drm.struct_mutex);
+> =20
+> -	ret =3D set_context_ppgtt_from_shadow(workload,
+> -					    s->shadow[ring_id]->gem_context);
+> -	if (ret < 0) {
+> -		gvt_vgpu_err("workload shadow ppgtt isn't ready\n");
+> -		goto err_req;
+> -	}
+> -
+>  	ret =3D intel_gvt_workload_req_alloc(workload);
+>  	if (ret)
+>  		goto err_req;
+> @@ -707,6 +700,13 @@ static int dispatch_workload(struct intel_vgpu_workl=
+oad *workload)
+>  	}
+> =20
+>  	ret =3D prepare_workload(workload);
+> +	if (ret)
+> +		goto out;
+> +
+> +	ret =3D set_context_ppgtt_from_shadow(workload,
+> +					    s->shadow[ring_id]->gem_context);
+> +	if (ret)
+> +		gvt_vgpu_err("workload shadow ppgtt isn't ready\n");
 
-Fixes: 719b7d81f204 ("tpm: introduce tpm_chip_start() and tpm_chip_stop()")
-Cc: stable@vger.kernel.org # v5.1+
-Signed-off-by: Milan Broz <gmazyland@gmail.com>
----
- drivers/char/tpm/tpm-chip.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+As workload's shadow_mm should always be for ppgtt, so we don't need return
+for set_context_ppgtt_from_shadow, can just be void. Then how about do that
+in prepare_workload after we settle down shadow pdp?
 
-diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-index 90325e1749fb..db6ac6f83948 100644
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -77,6 +77,18 @@ static int tpm_go_idle(struct tpm_chip *chip)
- 	return chip->ops->go_idle(chip);
- }
- 
-+static void tpm_clk_enable(struct tpm_chip *chip)
-+{
-+	if (chip->ops->clk_enable)
-+		chip->ops->clk_enable(chip, true);
-+}
-+
-+static void tpm_clk_disable(struct tpm_chip *chip)
-+{
-+	if (chip->ops->clk_enable)
-+		chip->ops->clk_enable(chip, false);
-+}
-+
- /**
-  * tpm_chip_start() - power on the TPM
-  * @chip:	a TPM chip to use
-@@ -89,13 +101,12 @@ int tpm_chip_start(struct tpm_chip *chip)
- {
- 	int ret;
- 
--	if (chip->ops->clk_enable)
--		chip->ops->clk_enable(chip, true);
-+	tpm_clk_enable(chip);
- 
- 	if (chip->locality == -1) {
- 		ret = tpm_request_locality(chip);
- 		if (ret) {
--			chip->ops->clk_enable(chip, false);
-+			tpm_clk_disable(chip);
- 			return ret;
- 		}
- 	}
-@@ -103,8 +114,7 @@ int tpm_chip_start(struct tpm_chip *chip)
- 	ret = tpm_cmd_ready(chip);
- 	if (ret) {
- 		tpm_relinquish_locality(chip);
--		if (chip->ops->clk_enable)
--			chip->ops->clk_enable(chip, false);
-+		tpm_clk_disable(chip);
- 		return ret;
- 	}
- 
-@@ -124,8 +134,7 @@ void tpm_chip_stop(struct tpm_chip *chip)
- {
- 	tpm_go_idle(chip);
- 	tpm_relinquish_locality(chip);
--	if (chip->ops->clk_enable)
--		chip->ops->clk_enable(chip, false);
-+	tpm_clk_disable(chip);
- }
- EXPORT_SYMBOL_GPL(tpm_chip_stop);
- 
--- 
-2.20.1
+>  out:
+>  	if (ret) {
+>  		/* We might still need to add request with
+> --=20
+> 2.22.0
+>=20
 
+--=20
+Open Source Technology Center, Intel ltd.
+
+$gpg --keyserver wwwkeys.pgp.net --recv-keys 4D781827
+
+--YtYWfCPO8ILWk+jM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCXR2uNgAKCRCxBBozTXgY
+JzznAKCNlpcuWmr68bARFGCHfO3XNV+7XwCeLzBZctiBxA8M1FtthyBDwbmfeCs=
+=coQO
+-----END PGP SIGNATURE-----
+
+--YtYWfCPO8ILWk+jM--
