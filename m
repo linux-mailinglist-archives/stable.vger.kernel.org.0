@@ -2,136 +2,221 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89D6F5FE18
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 23:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F0005FE5E
+	for <lists+stable@lfdr.de>; Fri,  5 Jul 2019 00:14:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727177AbfGDVXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jul 2019 17:23:23 -0400
-Received: from mail-yb1-f195.google.com ([209.85.219.195]:33655 "EHLO
-        mail-yb1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727093AbfGDVXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Jul 2019 17:23:23 -0400
-Received: by mail-yb1-f195.google.com with SMTP id x4so1667383ybk.0
-        for <stable@vger.kernel.org>; Thu, 04 Jul 2019 14:23:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ODcLKS4fA6Fts+ALAb5EoA1LXRf5LsQW3r2QMmBZkZg=;
-        b=T454SotmdTpjOVqHBHQ4SE8pCSsTMij4gNDh/mfnD0X1Ut6R4I84quAVAYwkDBnMrk
-         kuPgtCRGf3re38URtW6c55quE9g6OLy3hUOrIYaMkXRHGfENtv1TFBUA+8noXdqvQVTm
-         hIibw5m3KZYMz0w7OChJTqwq9yiDFOEeI3jF0kG0ZzDNOTPEgemSVklS/G3dNF9YeHOy
-         KKHvYnAUN5eIJ6jwPEGj1SZ84DhrGRN7PLwXyVpdCWozJK3r1YZ3Ik0rKHMjL5kw874u
-         Gsnv3kPCmezz2PS7hCocfIrtAIgiVBgM/ADMToWpFs2XuiUpkTm0fLwSMJSbD7e9m3U1
-         WLxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ODcLKS4fA6Fts+ALAb5EoA1LXRf5LsQW3r2QMmBZkZg=;
-        b=aGch27Fus7N9ffONJbdRSv3ghCYqajCPDY6ylkrrOfj4V5Rv602V3WShj4qFvRV3sE
-         9Q1WMMP7pykgK3OxR9439HSPazI0ZZ9S+59NhIezAYFGD7pRSP65MHXzXBzC2t7q4j80
-         //rslHvpKIadC6gQY1PELqKAjn7/tqfBpJUbqi6XWHiS27RFnfWov2w/52QJTJ9YtO48
-         thqscRpyFH5A5473e78PqzkfQcVIKPoj8mwTCHSQyFvzj5gr1emsq8Tlyre+5cjZJD/n
-         pK0a2eBCcJQ55occrCuf00PbJb3GFgLD9PGFgjzbC9ckTAYfNIImNLISU+H7Xz2ZGI3N
-         /9Yw==
-X-Gm-Message-State: APjAAAX3qXvACCEAwliEs7hdgoaoxyhgPk0EhISzaWYlgou3gddX6ygi
-        nBs+3C8GoKTrjercgwX5x/pPsRFBgI2D7FPRBxgIag==
-X-Google-Smtp-Source: APXvYqwVMVqw9/e7Du+/z1RCV15VKc57umt9D+M0HKHWMNebwwH17Gud3tvPZrktcNIaaLBpyA5iWjrRShGJNs6cGg4=
-X-Received: by 2002:a25:9903:: with SMTP id z3mr239063ybn.293.1562275402132;
- Thu, 04 Jul 2019 14:23:22 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190704210222.D8psCcsKb%akpm@linux-foundation.org>
-In-Reply-To: <20190704210222.D8psCcsKb%akpm@linux-foundation.org>
-From:   Shakeel Butt <shakeelb@google.com>
-Date:   Thu, 4 Jul 2019 14:23:11 -0700
-Message-ID: <CALvZod5a1hNeD_nMsE92dpp7geVJYRa2KdtUdCBQBZze+oXixQ@mail.gmail.com>
-Subject: Re: + mm-memcontrol-fix-wrong-statistics-in-memorystat.patch added to
- -mm tree
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Johannes Weiner <hannes@cmpxchg.org>,
-        Yafang Shao <laoar.shao@gmail.com>,
-        Michal Hocko <mhocko@suse.com>, mm-commits@vger.kernel.org,
-        Yafang Shao <shaoyafang@didiglobal.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1726907AbfGDWOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 18:14:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41276 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726844AbfGDWOl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jul 2019 18:14:41 -0400
+Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D70B4218A0;
+        Thu,  4 Jul 2019 22:14:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1562278480;
+        bh=09gEdONsy8/J73OjjGYv9A2H86+lCJCH2aoOsWRpso4=;
+        h=Date:From:To:Subject:From;
+        b=L4SU4BMOjxFOo7Zzn6iYa7JNN4I7bGohatwiYWBC8NlDscdlE1CidLDiMY1dExflC
+         CsncaEZyvKj9p2a2+wDZSYcwb6mLJ2KEYojmkjNYO6KT5nZpRfy1Qngm+9zub+LRZZ
+         WcqZTLW5Jfc8fRxBRFSnu3On5RZuTnAlwOyg04hM=
+Date:   Thu, 04 Jul 2019 15:14:39 -0700
+From:   akpm@linux-foundation.org
+To:     aarcange@redhat.com, akpm@linux-foundation.org,
+        ebiggers@google.com, hch@lst.de, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 2/5] fs/userfaultfd.c: disable irqs for
+ fault_pending and event locks
+Message-ID: <20190704221439.V77OcpnlH%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 4, 2019 at 2:02 PM <akpm@linux-foundation.org> wrote:
->
->
-> The patch titled
->      Subject: mm/memcontrol: fix wrong statistics in memory.stat
-> has been added to the -mm tree.  Its filename is
->      mm-memcontrol-fix-wrong-statistics-in-memorystat.patch
->
-> This patch should soon appear at
->     http://ozlabs.org/~akpm/mmots/broken-out/mm-memcontrol-fix-wrong-statistics-in-memorystat.patch
-> and later at
->     http://ozlabs.org/~akpm/mmotm/broken-out/mm-memcontrol-fix-wrong-statistics-in-memorystat.patch
->
-> Before you just go and hit "reply", please:
->    a) Consider who else should be cc'ed
->    b) Prefer to cc a suitable mailing list as well
->    c) Ideally: find the original patch on the mailing list and do a
->       reply-to-all to that, adding suitable additional cc's
->
-> *** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
->
-> The -mm tree is included into linux-next and is updated
-> there every 3-4 working days
->
-> ------------------------------------------------------
-> From: Yafang Shao <laoar.shao@gmail.com>
-> Subject: mm/memcontrol: fix wrong statistics in memory.stat
->
-> When we calculate total statistics for memcg1_stats and memcg1_events, we
-> use the the index 'i' in the for loop as the events index.  Actually we
-> should use memcg1_stats[i] and memcg1_events[i] as the events index.
->
-> Link: http://lkml.kernel.org/r/1562116978-19539-1-git-send-email-laoar.shao@gmail.com
-> Fixes: 42a300353577 ("mm: memcontrol: fix recursive statistics correctness & scalabilty").
+From: Eric Biggers <ebiggers@google.com>
+Subject: fs/userfaultfd.c: disable irqs for fault_pending and event locks
 
-Missing Yafang's signoff and my reviewed-by.
+When IOCB_CMD_POLL is used on a userfaultfd, aio_poll() disables IRQs and
+takes kioctx::ctx_lock, then userfaultfd_ctx::fd_wqh.lock.  This may have
+to wait for userfaultfd_ctx::fd_wqh.lock to be released by
+userfaultfd_ctx_read(), which can be waiting for
+userfaultfd_ctx::fault_pending_wqh.lock or
+userfaultfd_ctx::event_wqh.lock.  But elsewhere the fault_pending_wqh and
+event_wqh locks are taken with IRQs enabled.  Since the IRQ handler may
+take kioctx::ctx_lock, lockdep reports that a deadlock is possible.
 
-> Cc: Shakeel Butt <shakeelb@google.com>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Johannes Weiner <hannes@cmpxchg.org>
-> Cc: Yafang Shao <shaoyafang@didiglobal.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> ---
->
->  mm/memcontrol.c |    5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->
-> --- a/mm/memcontrol.c~mm-memcontrol-fix-wrong-statistics-in-memorystat
-> +++ a/mm/memcontrol.c
-> @@ -3530,12 +3530,13 @@ static int memcg_stat_show(struct seq_fi
->                 if (memcg1_stats[i] == MEMCG_SWAP && !do_memsw_account())
->                         continue;
->                 seq_printf(m, "total_%s %llu\n", memcg1_stat_names[i],
-> -                          (u64)memcg_page_state(memcg, i) * PAGE_SIZE);
-> +                          (u64)memcg_page_state(memcg, memcg1_stats[i]) *
-> +                          PAGE_SIZE);
->         }
->
->         for (i = 0; i < ARRAY_SIZE(memcg1_events); i++)
->                 seq_printf(m, "total_%s %llu\n", memcg1_event_names[i],
-> -                          (u64)memcg_events(memcg, i));
-> +                          (u64)memcg_events(memcg, memcg1_events[i]));
->
->         for (i = 0; i < NR_LRU_LISTS; i++)
->                 seq_printf(m, "total_%s %llu\n", mem_cgroup_lru_names[i],
-> _
->
-> Patches currently in -mm which might be from laoar.shao@gmail.com are
->
-> mm-memcontrol-fix-wrong-statistics-in-memorystat.patch
-> mm-vmscan-expose-cgroup_ino-for-memcg-reclaim-tracepoints.patch
-> mm-vmscan-add-a-new-member-reclaim_state-in-struct-shrink_control.patch
-> mm-vmscan-add-a-new-member-reclaim_state-in-struct-shrink_control-fix.patch
-> mm-vmscan-calculate-reclaimed-slab-caches-in-all-reclaim-paths.patch
->
+Fix it by always disabling IRQs when taking the fault_pending_wqh and
+event_wqh locks.
+
+ae62c16e105a ("userfaultfd: disable irqs when taking the waitqueue lock")
+didn't fix this because it only accounted for the fd_wqh lock, not the
+other locks nested inside it.
+
+Link: http://lkml.kernel.org/r/20190627075004.21259-1-ebiggers@kernel.org
+Fixes: bfe4037e722e ("aio: implement IOCB_CMD_POLL")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reported-by: syzbot+fab6de82892b6b9c6191@syzkaller.appspotmail.com
+Reported-by: syzbot+53c0b767f7ca0dc0c451@syzkaller.appspotmail.com
+Reported-by: syzbot+a3accb352f9c22041cfa@syzkaller.appspotmail.com
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>	[4.19+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/userfaultfd.c |   42 ++++++++++++++++++++++++++----------------
+ 1 file changed, 26 insertions(+), 16 deletions(-)
+
+--- a/fs/userfaultfd.c~userfaultfd-disable-irqs-for-fault_pending-and-event-locks
++++ a/fs/userfaultfd.c
+@@ -40,6 +40,16 @@ enum userfaultfd_state {
+ /*
+  * Start with fault_pending_wqh and fault_wqh so they're more likely
+  * to be in the same cacheline.
++ *
++ * Locking order:
++ *	fd_wqh.lock
++ *		fault_pending_wqh.lock
++ *			fault_wqh.lock
++ *		event_wqh.lock
++ *
++ * To avoid deadlocks, IRQs must be disabled when taking any of the above locks,
++ * since fd_wqh.lock is taken by aio_poll() while it's holding a lock that's
++ * also taken in IRQ context.
+  */
+ struct userfaultfd_ctx {
+ 	/* waitqueue head for the pending (i.e. not read) userfaults */
+@@ -458,7 +468,7 @@ vm_fault_t handle_userfault(struct vm_fa
+ 	blocking_state = return_to_userland ? TASK_INTERRUPTIBLE :
+ 			 TASK_KILLABLE;
+ 
+-	spin_lock(&ctx->fault_pending_wqh.lock);
++	spin_lock_irq(&ctx->fault_pending_wqh.lock);
+ 	/*
+ 	 * After the __add_wait_queue the uwq is visible to userland
+ 	 * through poll/read().
+@@ -470,7 +480,7 @@ vm_fault_t handle_userfault(struct vm_fa
+ 	 * __add_wait_queue.
+ 	 */
+ 	set_current_state(blocking_state);
+-	spin_unlock(&ctx->fault_pending_wqh.lock);
++	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
+ 
+ 	if (!is_vm_hugetlb_page(vmf->vma))
+ 		must_wait = userfaultfd_must_wait(ctx, vmf->address, vmf->flags,
+@@ -552,13 +562,13 @@ vm_fault_t handle_userfault(struct vm_fa
+ 	 * kernel stack can be released after the list_del_init.
+ 	 */
+ 	if (!list_empty_careful(&uwq.wq.entry)) {
+-		spin_lock(&ctx->fault_pending_wqh.lock);
++		spin_lock_irq(&ctx->fault_pending_wqh.lock);
+ 		/*
+ 		 * No need of list_del_init(), the uwq on the stack
+ 		 * will be freed shortly anyway.
+ 		 */
+ 		list_del(&uwq.wq.entry);
+-		spin_unlock(&ctx->fault_pending_wqh.lock);
++		spin_unlock_irq(&ctx->fault_pending_wqh.lock);
+ 	}
+ 
+ 	/*
+@@ -583,7 +593,7 @@ static void userfaultfd_event_wait_compl
+ 	init_waitqueue_entry(&ewq->wq, current);
+ 	release_new_ctx = NULL;
+ 
+-	spin_lock(&ctx->event_wqh.lock);
++	spin_lock_irq(&ctx->event_wqh.lock);
+ 	/*
+ 	 * After the __add_wait_queue the uwq is visible to userland
+ 	 * through poll/read().
+@@ -613,15 +623,15 @@ static void userfaultfd_event_wait_compl
+ 			break;
+ 		}
+ 
+-		spin_unlock(&ctx->event_wqh.lock);
++		spin_unlock_irq(&ctx->event_wqh.lock);
+ 
+ 		wake_up_poll(&ctx->fd_wqh, EPOLLIN);
+ 		schedule();
+ 
+-		spin_lock(&ctx->event_wqh.lock);
++		spin_lock_irq(&ctx->event_wqh.lock);
+ 	}
+ 	__set_current_state(TASK_RUNNING);
+-	spin_unlock(&ctx->event_wqh.lock);
++	spin_unlock_irq(&ctx->event_wqh.lock);
+ 
+ 	if (release_new_ctx) {
+ 		struct vm_area_struct *vma;
+@@ -918,10 +928,10 @@ wakeup:
+ 	 * the last page faults that may have been already waiting on
+ 	 * the fault_*wqh.
+ 	 */
+-	spin_lock(&ctx->fault_pending_wqh.lock);
++	spin_lock_irq(&ctx->fault_pending_wqh.lock);
+ 	__wake_up_locked_key(&ctx->fault_pending_wqh, TASK_NORMAL, &range);
+ 	__wake_up(&ctx->fault_wqh, TASK_NORMAL, 1, &range);
+-	spin_unlock(&ctx->fault_pending_wqh.lock);
++	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
+ 
+ 	/* Flush pending events that may still wait on event_wqh */
+ 	wake_up_all(&ctx->event_wqh);
+@@ -1134,7 +1144,7 @@ static ssize_t userfaultfd_ctx_read(stru
+ 
+ 	if (!ret && msg->event == UFFD_EVENT_FORK) {
+ 		ret = resolve_userfault_fork(ctx, fork_nctx, msg);
+-		spin_lock(&ctx->event_wqh.lock);
++		spin_lock_irq(&ctx->event_wqh.lock);
+ 		if (!list_empty(&fork_event)) {
+ 			/*
+ 			 * The fork thread didn't abort, so we can
+@@ -1180,7 +1190,7 @@ static ssize_t userfaultfd_ctx_read(stru
+ 			if (ret)
+ 				userfaultfd_ctx_put(fork_nctx);
+ 		}
+-		spin_unlock(&ctx->event_wqh.lock);
++		spin_unlock_irq(&ctx->event_wqh.lock);
+ 	}
+ 
+ 	return ret;
+@@ -1219,14 +1229,14 @@ static ssize_t userfaultfd_read(struct f
+ static void __wake_userfault(struct userfaultfd_ctx *ctx,
+ 			     struct userfaultfd_wake_range *range)
+ {
+-	spin_lock(&ctx->fault_pending_wqh.lock);
++	spin_lock_irq(&ctx->fault_pending_wqh.lock);
+ 	/* wake all in the range and autoremove */
+ 	if (waitqueue_active(&ctx->fault_pending_wqh))
+ 		__wake_up_locked_key(&ctx->fault_pending_wqh, TASK_NORMAL,
+ 				     range);
+ 	if (waitqueue_active(&ctx->fault_wqh))
+ 		__wake_up(&ctx->fault_wqh, TASK_NORMAL, 1, range);
+-	spin_unlock(&ctx->fault_pending_wqh.lock);
++	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
+ }
+ 
+ static __always_inline void wake_userfault(struct userfaultfd_ctx *ctx,
+@@ -1881,7 +1891,7 @@ static void userfaultfd_show_fdinfo(stru
+ 	wait_queue_entry_t *wq;
+ 	unsigned long pending = 0, total = 0;
+ 
+-	spin_lock(&ctx->fault_pending_wqh.lock);
++	spin_lock_irq(&ctx->fault_pending_wqh.lock);
+ 	list_for_each_entry(wq, &ctx->fault_pending_wqh.head, entry) {
+ 		pending++;
+ 		total++;
+@@ -1889,7 +1899,7 @@ static void userfaultfd_show_fdinfo(stru
+ 	list_for_each_entry(wq, &ctx->fault_wqh.head, entry) {
+ 		total++;
+ 	}
+-	spin_unlock(&ctx->fault_pending_wqh.lock);
++	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
+ 
+ 	/*
+ 	 * If more protocols will be added, there will be all shown
+_
