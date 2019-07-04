@@ -2,75 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF33E5FD10
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 20:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B07275FAD2
+	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 17:27:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727240AbfGDSlq convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 4 Jul 2019 14:41:46 -0400
-Received: from smtp2.qwestoffice.com ([64.26.60.191]:45012 "EHLO
-        smtp2.qwestoffice.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726881AbfGDSlp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Jul 2019 14:41:45 -0400
-X-Greylist: delayed 11871 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Jul 2019 14:41:44 EDT
-Received: from smtpauth04b.mfg.siteprotect.com ([64.26.60.161] helo=smtpauth02.mfg.siteprotect.com)
-        by semf09.mfg.siteprotect.com with esmtps (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
-        (Exim 4.89)
-        (envelope-from <pastoraltland@qwestoffice.net>)
-        id 1hj3Zv-0006PG-9q; Thu, 04 Jul 2019 11:23:22 -0400
-Received: from favour.homerouter.cpe (unknown [160.152.36.127])
-        (Authenticated sender: ronaldadamson@qwestoffice.net)
-        by smtpauth02.mfg.siteprotect.com (Postfix) with ESMTPSA id 45fhYb0l3XzfqfRl;
-        Thu,  4 Jul 2019 11:22:42 -0400 (EDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727717AbfGDP1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 11:27:20 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:35459 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727066AbfGDP1U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Jul 2019 11:27:20 -0400
+Received: by mail-wm1-f67.google.com with SMTP id c6so6577564wml.0;
+        Thu, 04 Jul 2019 08:27:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:openpgp:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=sJaoAJm+vr+hfSZiUJmGgzcbIrgfovbrJWCxV23LtM4=;
+        b=NgnTWA1WXAcTz9gdGhK99h4bL/9yxcQVlZNQd68BtineVAPG2iI/J06YkfFVdTDC0Y
+         8mDkh2BPuGEVsTlww7JN5vQC6e/bCQw3BAAXqQjEgvKnVuzexneQf7V9Y7U/Rf7OPa1H
+         proiI3qw7kiYervEZWdz/+/rgNg+ZQjvthe8dUKeAjIkGF/bDSVYd3TEbbNBb2wgNROQ
+         58Z9bgoF37eXTwfNaZ4jJdvLEDTIAdVZ/qZE5z5Ld5l035DxJvL5N9NcOZO9LyPRJ+AD
+         fi0M5xhY8sdgHzviaHau8lB1IdmRN9UYv5bJ4j6w30w5SL/HvBx2FgkjodEfEpMJfgI4
+         5rAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=sJaoAJm+vr+hfSZiUJmGgzcbIrgfovbrJWCxV23LtM4=;
+        b=VB8MfWg7XF6yvaO/qsX++4ie1ICQcajTnpyZjyzXd03YRQoklKZG1ZL3qFt9RBADf+
+         kjqQpb5z3FidHI3X6ngDP94piM2dfpL1Jfk6ZrVpqkIgvscyd7LrNOFobFjGupsCCwHF
+         qQe7uTblXg4183Acp6By2Jlo6yT7obe9V8xZ3O96mnzFEcnbyxM3pX9QUWFytR4Y49hM
+         OmEIKrz6jKU3GOuOxyBJowr4g9+0BDhk/ese2N9hU2/rhAnnqhklMWXXnaBdyDh7Ubed
+         Rgt+Z044qVXaCItTLzeVlUblFCLZoelrUPCnEKqTkT52qdic7lcAGELtuUI8tDBrhpMI
+         DhVg==
+X-Gm-Message-State: APjAAAVbq9P2pP4OhsQ1JgdqJtimvUat3Bwqa7H7avlNFc27UNQ48qgx
+        oarS2ZTgrRhTJkpsWjSC9BNwKw94
+X-Google-Smtp-Source: APXvYqysqF+b3wxfuoECdI3oA1dHTqn4SnBT+bb+Z9O3tDFZvG5N7ZnZT+OCBn1OJGdU69siqSCbtQ==
+X-Received: by 2002:a05:600c:2056:: with SMTP id p22mr69988wmg.155.1562254037051;
+        Thu, 04 Jul 2019 08:27:17 -0700 (PDT)
+Received: from [192.168.1.4] (ip-86-49-110-70.net.upcbroadband.cz. [86.49.110.70])
+        by smtp.gmail.com with ESMTPSA id q10sm6108288wrf.32.2019.07.04.08.27.15
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Thu, 04 Jul 2019 08:27:16 -0700 (PDT)
+Subject: Re: [PATCH] iio: adc: gyroadc: fix uninitialized return code
+To:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Wolfram Sang <wsa@the-dreams.de>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Jonathan Cameron <jic23@kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Marek Vasut <marek.vasut+renesas@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Rob Herring <robh@kernel.org>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        linux-iio@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20190704113800.3299636-1-arnd@arndb.de>
+ <20190704120756.GA1582@kunai>
+ <CAMuHMdXDN60WWFerok1h05COdNNPZTMDCgKXejmQZMj9B6y5Cw@mail.gmail.com>
+From:   Marek Vasut <marek.vasut@gmail.com>
+Openpgp: preference=signencrypt
+Message-ID: <fc3b8b4e-fe0e-9573-124d-4b41efa409e4@gmail.com>
+Date:   Thu, 4 Jul 2019 17:27:15 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Contract Offer
-To:     Recipients <pastoraltland@qwestoffice.net>
-From:   "SAKI NISHIYO" <pastoraltland@qwestoffice.net>
-Date:   Thu, 04 Jul 2019 09:22:36 -0600
-Reply-To: kiyoshihomma21@gmail.com
-Authentication-Results: mfg.siteprotect.com; auth=pass smtp.auth=ronaldadamson@qwestoffice.net smtp.mailfrom=<pastoraltland@qwestoffice.net>
-Message-ID: <E1hj3Zv-0006PG-9q@semf09.mfg.siteprotect.com>
-X-Originating-IP: 64.26.60.161
-X-portal.siteprotect.com-Domain: qwest.outbound
-X-portal.siteprotect.com-Username: 64.26.60.161
-Authentication-Results: mfg.siteprotect.com; auth=pass smtp.auth=64.26.60.161@qwest.outbound
-X-portal.siteprotect.com-Outgoing-Class: unsure
-X-portal.siteprotect.com-Outgoing-Evidence: Combined (0.70)
-X-Recommended-Action: accept
-X-Filter-ID: Mvzo4OR0dZXEDF/gcnlw0Ud2CCyxmm2KHETL0VYw/ASpSDasLI4SayDByyq9LIhVbzyrHWng2i1b
- UBO0sHTeRUTNWdUk1Ol2OGx3IfrIJKyP9eGNFz9TW9u+Jt8z2T3KgVEyf6K3Efn/WVy8nPF64hdp
- rMyyV3jQxzlFgRHUN3UkGv6rbYIA5i4iJb1B4q4FDYxT42d7cZa4Np3LaHNTBcNFkE+VKbWysqMQ
- EPfUmo9xUBQaCsN5XvOMJey3iFEHWlSgRvo8xuzI9LcYvrSYtsouyNwReNKN7W5TBhmqjFWbzu42
- nS6l4k41zD64ZKWtW15E39tA7+K4hMZtrwZLmFvcsMVNxZBnI45lrbqmRD7cQe+rvoMjuMxAHVUu
- HrNjyJlgq1q/lpsHQZYrMUVKyKvhtuVx2mtimsBY9Doi6xCwZmm7+RfFfXNLImNSOsgb9MkcgETT
- xxzz4RX4EungckkbWvxX+Y7PbhOMVPlQd/fJ9XumfR0XyHEWPYZNY4ScMqO+DUZp3KkhVqVjHEud
- TQvP6sgp/Cgm9hg+aKQBPsJdMQdAIFqz0SLRTmESxOldf7j0CKTjist7O+WLg0AfiNXKeTCmBzfk
- 5DDx+TODGGm3wL2Y4F0412ezGCyTUPanaritLjmRvUzfqnQ+GQzzA6T4ilai9FNK+SxpmBASFK60
- IkWdWsg4DI4va0pvzkWnt1ylwZRiLBoTUnc0EP5XVL0OMoTcy/+ydAU9U1Im+y+/9C1JXfJxjUBR
- htvwVbIpbSdsa9wKVB9HLYkqjcKV0FUdQwyvjt6QyLhxEV7DXvJPewEJRzjYg3kbrt3x8igVWmuN
- A8WTybi1JN85FSnfKUI2ReeXB3UU4sFX4AtXBVgamSS3efP/5fqe0e0xlg09AOTmdYiIhy2F1Nqi
- 2QhqtIRsp/pWfJlZ0AnSWEY8KhF2e8VuESCXa6Mg/Ndmv2wBbU0KKlTXzRXeCKOKJhsuYBgWfVqs
- 1QlXN1wi3QKSJb6o2lZ8dPZ83+IFiIOX0vVYQtk/xNHIo9BZ2klihOsK3urdcepWUUyYLuP7f9uP
- cBMoG3oHtnbjJEbPOph2rpCUcUOi4eaRxlDvAfSdh54sq15poCNQZR/ftgEGGirICdM93SsS4aMX
- JmiJ2G0eb5ahOLo90lEiN7SMNlevCQG/psQzN6sl9Br1QBgqyARXyn4lkbtdCETGUMX6hMiF0ZL/
- HSG7WzUrxdMKslbTvS4oMHXJzrDD9dMBG7hxbb5THGDonV+E7OMXRvgtdyMlnmWirbRkdtbDXTLE
- u7cZVAGfDJ1LQccfC/K3w2Z5pfJMAy+1RrCsHuDjXg3PqYS15VwMO2v6WNUeDS8JjpKCcXBk7vIT
- 2a8a/m35I1cD7TNHM5R96a5Wt7CZevZJaInfl6DPX0HYjslJO4qqGgS8PDK8zdU4S0c7sFdGT6Rv
- Qh7eXq4XckeyESXmUcMGnmyuk6GjY4oGgi3CbTjDIcJltiAWNnKdVudhV3ykyBN6q7YFssC1iY5M
- blAwJcqfglZzM+UQ0ML7CtHjLlFEEWsjVKUhcVFfEoXm0/FPF8PR0w363lmhE90vBuEnU177heTm
- 3p8PkXxN564rOnvoA3wzSu+31PUYZwvawhCXDHf09EayjndPRFA8Ewn20r4xR4B6leutqnRRCuGj
- T73eKnQhjZxPMm7N8Y4TRibnsKYQz9/xf1R8K4EgtgsN2Ij6q4Ui0HC+Xc+mMzoijciXisjtqBKt
- wLfso20WFhziqCltx5zVKHtB9KOzNyqLFbDxV6pqWEKN
-X-Report-Abuse-To: spam@semfq03.mfg.siteprotect.com
+In-Reply-To: <CAMuHMdXDN60WWFerok1h05COdNNPZTMDCgKXejmQZMj9B6y5Cw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We’d like to contract your services for a period of 12 months. Please advise if you are open to new opportunities.
+On 7/4/19 2:10 PM, Geert Uytterhoeven wrote:
+> Hi Wolfram,
+> 
+> On Thu, Jul 4, 2019 at 2:08 PM Wolfram Sang <wsa@the-dreams.de> wrote:
+>> On Thu, Jul 04, 2019 at 01:37:47PM +0200, Arnd Bergmann wrote:
+>>> gcc-9 complains about a blatant uninitialized variable use that
+>>> all earlier compiler versions missed:
+>>>
+>>> drivers/iio/adc/rcar-gyroadc.c:510:5: warning: 'ret' may be used uninitialized in this function [-Wmaybe-uninitialized]
+>>>
+>>> Return -EINVAL instead here.
+>>>
+>>> Cc: stable@vger.kernel.org
+>>> Fixes: 059c53b32329 ("iio: adc: Add Renesas GyroADC driver")
+>>> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>>
+>> This is correct but missing that the above 'return ret' is broken, too.
+>> ret is initialized but 0 in that case.
+> 
+> Nice catch! Oh well, given enough eyeballs, ...
 
-Regards,
+I don't think ret is initialized, reg is, not ret .
 
-SAKI NISHIYO
+>> And maybe we can use something else than -EINVAL for this case? I am on
+>> the go right now, I will look for a suggestion later.
+> 
+> -EINVAL is correct here (and in the above case, too), IMHO.
+
+Yep, -EINVAL is fine.
+
+-- 
+Best regards,
+Marek Vasut
