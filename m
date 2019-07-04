@@ -2,67 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 964B85FB21
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 17:42:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA4BB5FB6E
+	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 18:04:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727585AbfGDPmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jul 2019 11:42:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44966 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727066AbfGDPmU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jul 2019 11:42:20 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21C76218A0;
-        Thu,  4 Jul 2019 15:42:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562254939;
-        bh=90IAYIDOi1QLPVnEcO0dm7ZhGHvdD+D6IPMs+IlKMPY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZsFy9TFiADal2GkIJAsYBiyxKopXv0CDLglzBOYTdMIt/BxyAxb8Rcg9OwHh/VjNs
-         OP5Ed+OW1Lx7W9TpIc8Mx/0Cr4ZZ0qZwlgYq82LXF4bp0vwJ3cFDPRhA8+uh/YlUlI
-         Ko37OfEBmK677yVVKD0e7dotTKpmZhTw7Qpp4now=
-Date:   Thu, 4 Jul 2019 11:42:18 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     "# 5.1.x" <stable@vger.kernel.org>,
-        Kernel Build Reports Mailman List 
-        <kernel-build-reports@lists.linaro.org>,
-        Olof's autobuilder <build@lixom.net>
-Subject: Re: stable-rc build: 78 warnings 1 failures
- (stable-rc/v5.1.16-8-g57f5b343cdf95)
-Message-ID: <20190704154218.GE10104@sasha-vm>
-References: <5d1dd15d.1c69fb81.90003.b2ac@mx.google.com>
- <CAK8P3a1aTHOGOgRjHgFHS+vuDV2Kv2aY7-bEUBa2nx5aF_vVCA@mail.gmail.com>
+        id S1725882AbfGDQE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 12:04:59 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:37071 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725865AbfGDQE7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Jul 2019 12:04:59 -0400
+Received: by mail-lf1-f66.google.com with SMTP id c9so2813770lfh.4
+        for <stable@vger.kernel.org>; Thu, 04 Jul 2019 09:04:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=QgxGnjMisYITfftaRLvmfCW5K9lUexHznwk2c8+ygRw=;
+        b=M8+I46Slkhm2d11JMOrMFKXUOLcM0wimrY2qoH9+fcYtQ+0jVmVadWGt0Op5rQ1Mn2
+         Qad8jdb772YFDXyX3Fyco7bW+pPHp17Jnarxms4KP2dYVSJz3HT5aVEnjcu9tiqzlpHh
+         MLiHy7FlLmLvO2k7nEY6aFUNdRvbXpPjqTRbXvXv3+jDzQrO9dVRO0rVBEqUDHQQN6So
+         wTmm4Z3wTf5xntyzUe4vC0+EjvIz445pMUICJ37hRNf3GZslrMySl3Bbwyz3AHam4KCc
+         +kj+ck9Qcx1DyyfIZ+TO7JHjpkW3pn6XcyQVL4C1diGe8wIU2iKD+R5Mg3TgjBORNhGa
+         7OsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=QgxGnjMisYITfftaRLvmfCW5K9lUexHznwk2c8+ygRw=;
+        b=qZjktdzAEPwsREw5TsGwtwoj8KgEVc4Hwq19BJWGiU0JhYqU2QSHrRVwhe6wl5n1LE
+         pr8xj9InDxvQFQWqCpUtomggGYdC4b3lP2tk9cVfMhISFC7ovVsa5f0towyCAQxqUX19
+         l+LNg2JKZAdtAzWZLbXLJirymv61I6PVZ9BkP0pDXYJbxCKw92wj0vsO9y+Ninbo8XBd
+         M7OJsY/fL+erxTQUs2NO6znCGocTXyIBNJiELq4H7Y0k72VSfTlbm1PeemXo94URQAyJ
+         ExfjlBXnwJu1SxB3JIGaeFLcKa9H/tgdKXxAXhqY34FyRXV7oHkbIgwb8LvEJBmTJNWr
+         0YXQ==
+X-Gm-Message-State: APjAAAUNKt5E9hbirmCeQampDoyYyrR36mIqT4fLdyEpmAK874NTqfYi
+        Ts77A75HqJJAJn1koR/Z+GrDYhfltZcrI5+9hg==
+X-Google-Smtp-Source: APXvYqxQ9lhNtXOKqEYYCKCWUAv6PYEL2yfZwe5CeokUIvcSQv8H3WYEol5DAD7X1nKH6JZB+/vCNAZAJtrlvxs28J8=
+X-Received: by 2002:ac2:4d1c:: with SMTP id r28mr20459516lfi.159.1562256297477;
+ Thu, 04 Jul 2019 09:04:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a1aTHOGOgRjHgFHS+vuDV2Kv2aY7-bEUBa2nx5aF_vVCA@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Received: by 2002:ab3:5a7:0:0:0:0:0 with HTTP; Thu, 4 Jul 2019 09:04:57 -0700 (PDT)
+Reply-To: sgtannhesterr@hotmail.com
+From:   Ann Hester <phillipmore33@gmail.com>
+Date:   Thu, 4 Jul 2019 16:04:57 +0000
+Message-ID: <CA+DNqrcEcD9RDH8bqQCvQ=0ftk4GJr75KttbDsw99zvcLw26gQ@mail.gmail.com>
+Subject: Hi
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 04, 2019 at 01:46:36PM +0200, Arnd Bergmann wrote:
->> arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
->> arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
->
->Please backport this to 5.1-stable:
->
->e6c4375f7c92 ("ARM: 8865/1: mm: remove unused variables")
-
-It's not in mainline yet.
-
->> include/linux/module.h:132:6: warning: 'init_module' specifies less restrictive attribute than its target 'rp_init': 'cold' [-Wmissing-attributes]
->
->Please backport this to all stable kernels (2.6.39+):
->
->423ea3255424 ("tty: rocket: fix incorrect forward declaration of 'rp_init()'"
-
-I've queued this one for all trees, thanks.
-
---
-Thanks,
-Sasha
+Hello my friend
+My name is Ann Hester
+Please kindly reply me
+so that i will tell you
+more about me.
