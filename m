@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E50245F276
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 07:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8A475F278
+	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 07:55:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726120AbfGDFyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jul 2019 01:54:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56492 "EHLO mail.kernel.org"
+        id S1725895AbfGDFzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 01:55:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726038AbfGDFyr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jul 2019 01:54:47 -0400
+        id S1725879AbfGDFzO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jul 2019 01:55:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2610218AD;
-        Thu,  4 Jul 2019 05:54:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85F3521882;
+        Thu,  4 Jul 2019 05:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562219686;
-        bh=FiL8cissCzywRB144Wpf/1iaG8qHrOADLoBYuD7NSfw=;
+        s=default; t=1562219713;
+        bh=sUasbt2RohFP+/Y0fbdMXeIB0Q27M8diVT7CsK0EX88=;
         h=Subject:To:From:Date:From;
-        b=dpAbHFT0a0NkAEwyvtI8Mqq/k6jpmWPVk/+qJ81/rVelpzoWgHGEHjaxxRPELn89O
-         2BmbMnsjiGh2jMX/kcwFlxNXNe/io9dVW86Kxvfa/WOpEJld08yRJi0VtHVkfZolwn
-         h9XJImz1emsK2v0qljn7DEdq+SPzvPX/bl5J+ZGA=
-Subject: patch "intel_th: pci: Add Ice Lake NNPI support" added to char-misc-next
-To:     alexander.shishkin@linux.intel.com,
-        andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=ym7HWY8AhTogmrlYv9mNzKMEuILS9kiWEEMG4ONCLXb0z8qflNmwBMnzOIo50cHw/
+         hiFBlwT0yzHhVOb4gP+WFf86vZWchB3MEDDKgrwxyOeCnAUp8iH3mcV7qSsaCMRH/W
+         TKFjDaFxaNWIwBvJyDSu2aFVzTMlptljpfmFm8/Q=
+Subject: patch "coresight: tmc-etr: alloc_perf_buf: Do not call smp_processor_id from" added to char-misc-next
+To:     suzuki.poulose@arm.com, gregkh@linuxfoundation.org,
+        mathieu.poirier@linaro.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 04 Jul 2019 07:52:14 +0200
-Message-ID: <15622195347185@kroah.com>
+Date:   Thu, 04 Jul 2019 07:52:18 +0200
+Message-ID: <1562219538147150@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    intel_th: pci: Add Ice Lake NNPI support
+    coresight: tmc-etr: alloc_perf_buf: Do not call smp_processor_id from
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -56,38 +55,73 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 4aa5aed2b6f267592705a526f57518a5d715b769 Mon Sep 17 00:00:00 2001
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Date: Fri, 21 Jun 2019 19:19:30 +0300
-Subject: intel_th: pci: Add Ice Lake NNPI support
+From 3a8710392db2c70f74aed6f06b16e8bec0f05a35 Mon Sep 17 00:00:00 2001
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+Date: Thu, 20 Jun 2019 16:12:34 -0600
+Subject: coresight: tmc-etr: alloc_perf_buf: Do not call smp_processor_id from
+ preemptible
 
-This adds Ice Lake NNPI support to the Intel(R) Trace Hub.
+During a perf session we try to allocate buffers on the "node" associated
+with the CPU the event is bound to. If it is not bound to a CPU, we
+use the current CPU node, using smp_processor_id(). However this is unsafe
+in a pre-emptible context and could generate the splats as below :
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190621161930.60785-5-alexander.shishkin@linux.intel.com
+ BUG: using smp_processor_id() in preemptible [00000000] code: perf/1743
+ caller is tmc_alloc_etr_buffer+0x1bc/0x1f0
+ CPU: 1 PID: 1743 Comm: perf Not tainted 5.1.0-rc6-147786-g116841e #344
+ Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno Development Platform, BIOS EDK II Feb  1 2019
+ Call trace:
+  dump_backtrace+0x0/0x150
+  show_stack+0x14/0x20
+  dump_stack+0x9c/0xc4
+  debug_smp_processor_id+0x10c/0x110
+  tmc_alloc_etr_buffer+0x1bc/0x1f0
+  etm_setup_aux+0x1c4/0x230
+  rb_alloc_aux+0x1b8/0x2b8
+  perf_mmap+0x35c/0x478
+  mmap_region+0x34c/0x4f0
+  do_mmap+0x2d8/0x418
+  vm_mmap_pgoff+0xd0/0xf8
+  ksys_mmap_pgoff+0x88/0xf8
+  __arm64_sys_mmap+0x28/0x38
+  el0_svc_handler+0xd8/0x138
+  el0_svc+0x8/0xc
+
+Use NUMA_NO_NODE hint instead of using the current node for events
+not bound to CPUs.
+
+Fixes: 22f429f19c4135d51e9 ("coresight: etm-perf: Add support for ETR backend")
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: stable <stable@vger.kernel.org> # 4.20+
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20190620221237.3536-3-mathieu.poirier@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/intel_th/pci.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hwtracing/coresight/coresight-tmc-etr.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
-index f1228708f2a2..c0378c3de9a4 100644
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -194,6 +194,11 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x02a6),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
- 	},
-+	{
-+		/* Ice Lake NNPI */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x45c5),
-+		.driver_data = (kernel_ulong_t)&intel_th_2x,
-+	},
- 	{ 0 },
- };
+diff --git a/drivers/hwtracing/coresight/coresight-tmc-etr.c b/drivers/hwtracing/coresight/coresight-tmc-etr.c
+index 7c81f634ecb4..5d2bf6d18961 100644
+--- a/drivers/hwtracing/coresight/coresight-tmc-etr.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-etr.c
+@@ -1184,14 +1184,11 @@ static struct etr_buf *
+ alloc_etr_buf(struct tmc_drvdata *drvdata, struct perf_event *event,
+ 	      int nr_pages, void **pages, bool snapshot)
+ {
+-	int node, cpu = event->cpu;
++	int node;
+ 	struct etr_buf *etr_buf;
+ 	unsigned long size;
  
+-	if (cpu == -1)
+-		cpu = smp_processor_id();
+-	node = cpu_to_node(cpu);
+-
++	node = (event->cpu == -1) ? NUMA_NO_NODE : cpu_to_node(event->cpu);
+ 	/*
+ 	 * Try to match the perf ring buffer size if it is larger
+ 	 * than the size requested via sysfs.
 -- 
 2.22.0
 
