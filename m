@@ -2,65 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25ACD5FD74
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 21:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F15305FD92
+	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 21:56:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727091AbfGDTdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jul 2019 15:33:53 -0400
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:38000 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726844AbfGDTdx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Jul 2019 15:33:53 -0400
-Received: by mail-qt1-f195.google.com with SMTP id n11so9001484qtl.5
-        for <stable@vger.kernel.org>; Thu, 04 Jul 2019 12:33:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=trZAp9LOKuqwVKXtG5sPne0ur3xocoaSp6Vhf48qK18=;
-        b=VSkZD6nCctKOxLYikoZQccQSIC7HG3BjF7auKnkVjzV3S6/JOTYm3/QyeelGqmvEv5
-         vV2ZnUl+MgwSMvRFyAEDJCShSPKU1JI07ny5JA0iiuyH0+lkFzbULBWEISYsUa0VoX1q
-         TUYnjf0g8+QOJ8wVdSbbSzcanguz6ZA4CL1UWW0Jtw7xpDig9xoZSpQ/LZp5da+xPgo4
-         hKxKv7IzrUiUzbVOxwtz8oR/DO9QrgigV93U8WwaA123ORmsHMOt1c95GOxFRp5zEPdI
-         SXhHKMMdBPepptNRLfbe38TAOi/gi7ilJJP942Cl1p6w8QSn9h2SXoJLWdFUGVeU3VvS
-         VZNQ==
-X-Gm-Message-State: APjAAAWXMn0FNJS4Tt8EEzLW++JzxyNEFXhv5BXtO+bamS78CQ6mwBrb
-        Nuicogr9Nj7OYWvDwz2tnotcGFTq/l3dHnZtjaM=
-X-Google-Smtp-Source: APXvYqweVx77P+bRxDU02t5Q7MxM9R08MVxR1EvLbV0Ux/SA5OUqheKaap0U+IW767J7q2Nj9YHBZ79qkWd8CCBSlKs=
-X-Received: by 2002:ac8:5311:: with SMTP id t17mr35843053qtn.304.1562268832124;
- Thu, 04 Jul 2019 12:33:52 -0700 (PDT)
+        id S1727101AbfGDT4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 15:56:01 -0400
+Received: from sauhun.de ([88.99.104.3]:40170 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726038AbfGDT4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jul 2019 15:56:01 -0400
+Received: from localhost (p5DCB43A6.dip0.t-ipconnect.de [93.203.67.166])
+        by pokefinder.org (Postfix) with ESMTPSA id C1E012C290E;
+        Thu,  4 Jul 2019 21:55:58 +0200 (CEST)
+Date:   Thu, 4 Jul 2019 21:55:58 +0200
+From:   Wolfram Sang <wsa@the-dreams.de>
+To:     Marek Vasut <marek.vasut@gmail.com>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jonathan Cameron <jic23@kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Marek Vasut <marek.vasut+renesas@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Rob Herring <robh@kernel.org>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        linux-iio@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] iio: adc: gyroadc: fix uninitialized return code
+Message-ID: <20190704195557.GA1338@kunai>
+References: <20190704113800.3299636-1-arnd@arndb.de>
+ <20190704120756.GA1582@kunai>
+ <CAMuHMdXDN60WWFerok1h05COdNNPZTMDCgKXejmQZMj9B6y5Cw@mail.gmail.com>
+ <fc3b8b4e-fe0e-9573-124d-4b41efa409e4@gmail.com>
 MIME-Version: 1.0
-References: <5d1dd15d.1c69fb81.90003.b2ac@mx.google.com> <CAK8P3a1aTHOGOgRjHgFHS+vuDV2Kv2aY7-bEUBa2nx5aF_vVCA@mail.gmail.com>
- <20190704154218.GE10104@sasha-vm>
-In-Reply-To: <20190704154218.GE10104@sasha-vm>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Thu, 4 Jul 2019 21:33:34 +0200
-Message-ID: <CAK8P3a3ysa=HeUEtQ1fZPDYA41oPTbdtnCUN+oSFLHJk=MawBg@mail.gmail.com>
-Subject: Re: stable-rc build: 78 warnings 1 failures (stable-rc/v5.1.16-8-g57f5b343cdf95)
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     "# 5.1.x" <stable@vger.kernel.org>,
-        Kernel Build Reports Mailman List 
-        <kernel-build-reports@lists.linaro.org>,
-        "Olof's autobuilder" <build@lixom.net>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
+Content-Disposition: inline
+In-Reply-To: <fc3b8b4e-fe0e-9573-124d-4b41efa409e4@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 4, 2019 at 5:42 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> On Thu, Jul 04, 2019 at 01:46:36PM +0200, Arnd Bergmann wrote:
-> >> arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
-> >> arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
-> >
-> >Please backport this to 5.1-stable:
-> >
-> >e6c4375f7c92 ("ARM: 8865/1: mm: remove unused variables")
->
-> It's not in mainline yet.
 
-oops, sorry about this. I only looked at the checked out tree which happened
-to be linux-next ;-)
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-      Arnd
+
+> >> This is correct but missing that the above 'return ret' is broken, too.
+> >> ret is initialized but 0 in that case.
+> >=20
+> > Nice catch! Oh well, given enough eyeballs, ...
+>=20
+> I don't think ret is initialized, reg is, not ret .
+
+It is initialized for the broken 'return ret' *above* the one which gets
+rightfully fixed in this patch.
+
+
+--ibTvN161/egqYuK8
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0eWckACgkQFA3kzBSg
+Kbb/Aw/+JS8QiD+5YFD08Aece1AYJ2md7n6gHKlrgxsleiM3hY40m90l6ayrIq8Q
+YW6n4kloAs8QtzaPv7zjHAhs2n/bs8RubGDv+N+M3fkJnbxUijW1iw15r8DtPsDH
+m5a8BW9khGfbGpZdRBD7LXfKNryoCymGxx/izJS6ZfQFnTrlEXzrTtHXv78Ynsv9
+hvp2jkywnNZRK27pzzKRG/B3adb1Xq3yz+uHMhQRLvJSQPKLXsS4wyGqmDBONjgC
+sX681ZgKl632cIbxkvUUApF3UMShkVZzXi05lMo2V+9dFa8P+T+RAX3/7kH2roAR
+dOfo92O9ZR7q6J2t3H00pL3bpPJKPZ14Dxk39fO6xx2zB4av9EVHzRRgdlzPwvfI
+K+XTGFjLTAcPiteVVeaueiLhjANJNkGYq4ayZvkf+tZhuglkWjZadUv+oYVVUWcW
+dD8bzYwhok8l3ChtB5Kd8455aM9uPvMbjv++UbDAHP73L1IEuU3I4pvGEt3+mhmG
+HMKdFKboVp1auLUlgnNjylt1lb4jG7OJfs0TjJA/v8HoaJPWq6guaD5v+vIoVgCB
+PXTjIiLo9GpaXJiAGnlZLPisQlt9Y0pvyj8dLAeiS/k8ZtXsIEehZs4pIUhIdDzV
+h8pzF3R/Zh0WEcFte0RVbbhSaGyDFrJK5uc0eNqCC+a4OTYhVi0=
+=qqM5
+-----END PGP SIGNATURE-----
+
+--ibTvN161/egqYuK8--
