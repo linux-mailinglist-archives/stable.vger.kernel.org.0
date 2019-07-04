@@ -2,105 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5385F27C
-	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 07:55:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CEB45F335
+	for <lists+stable@lfdr.de>; Thu,  4 Jul 2019 09:06:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726273AbfGDFzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jul 2019 01:55:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57042 "EHLO mail.kernel.org"
+        id S1726199AbfGDHGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 03:06:16 -0400
+Received: from mga04.intel.com ([192.55.52.120]:28153 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725879AbfGDFzZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jul 2019 01:55:25 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D01F82189E;
-        Thu,  4 Jul 2019 05:55:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562219724;
-        bh=P+0Wu1MBUVQW5HU4+F6rFGHqA5xdxlVgjtAafENkCNs=;
-        h=Subject:To:From:Date:From;
-        b=Eh+5b/I31ZI8W5+kEvt4XuCOMWMSfueKogsuRgrZ5Py0yETWwqY5REzwPeWzq+YjZ
-         06Et9SvZb7H308b+klF4e8rR+LDpEdVAoxqS+9ld1SPppNfkoKoeLhQvAwaW0nU2D3
-         HqhV2KHUAPx2wlgKHFbDacIjFD5HNJOMrjBfFgDg=
-Subject: patch "coresight: etb10: Do not call smp_processor_id from preemptible" added to char-misc-next
-To:     suzuki.poulose@arm.com, gregkh@linuxfoundation.org,
-        mathieu.poirier@linaro.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 04 Jul 2019 07:52:20 +0200
-Message-ID: <1562219540128146@kroah.com>
+        id S1726087AbfGDHGQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jul 2019 03:06:16 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Jul 2019 00:06:15 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,449,1557212400"; 
+   d="scan'208";a="172357774"
+Received: from coxu-arch-shz.sh.intel.com ([10.239.160.21])
+  by FMSMGA003.fm.intel.com with ESMTP; 04 Jul 2019 00:06:14 -0700
+From:   Colin Xu <colin.xu@intel.com>
+To:     intel-gvt-dev@lists.freedesktop.org
+Cc:     colin.xu@intel.com, stable@vger.kernel.org, zhenyuw@linux.intel.com
+Subject: [PATCH v2] drm/i915/gvt: Adding ppgtt to GVT GEM context after pin.
+Date:   Thu,  4 Jul 2019 15:06:13 +0800
+Message-Id: <20190704070613.31609-1-colin.xu@intel.com>
+X-Mailer: git-send-email 2.22.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Windows guest can't run after force-TDR with host log:
+...
+gvt: vgpu 1: workload shadow ppgtt isn't ready
+gvt: vgpu 1: fail to dispatch workload, skip
+...
 
-This is a note to let you know that I've just added the patch titled
+The error is raised by set_context_ppgtt_from_shadow(), when it checks
+and found the shadow_mm isn't marked as shadowed.
 
-    coresight: etb10: Do not call smp_processor_id from preemptible
+In work thread before each submission, a shadow_mm is set to shadowed in:
+shadow_ppgtt_mm()
+<-intel_vgpu_pin_mm()
+<-prepare_workload()
+<-dispatch_workload()
+<-workload_thread()
+However checking whether or not shadow_mm is shadowed is prior to it:
+set_context_ppgtt_from_shadow()
+<-dispatch_workload()
+<-workload_thread()
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-next branch.
+In normal case, create workload will check the existence of shadow_mm,
+if not it will create a new one and marked as shadowed. If already exist
+it will reuse the old one. Since shadow_mm is reused, checking of shadowed
+in set_context_ppgtt_from_shadow() actually always see the state set in
+creation, but not the state set in intel_vgpu_pin_mm().
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+When force-TDR, all engines are reset, since it's not dmlr level, all
+ppgtt_mm are invalidated but not destroyed. Invalidation will mark all
+reused shadow_mm as not shadowed but still keeps in ppgtt_mm_list_head.
+If workload submission phase those shadow_mm are reused with shadowed
+not set, then set_context_ppgtt_from_shadow() will report error.
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+Fixes: 4f15665ccbba (drm/i915: Add ppgtt to GVT GEM context)
 
-If you have any questions about this process, please let me know.
+v2:
+Move set_context_ppgtt_from_shadow() after prepare_workload(). (zhenyu)
 
-
-From 730766bae3280a25d40ea76a53dc6342e84e6513 Mon Sep 17 00:00:00 2001
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
-Date: Thu, 20 Jun 2019 16:12:36 -0600
-Subject: coresight: etb10: Do not call smp_processor_id from preemptible
-
-During a perf session we try to allocate buffers on the "node" associated
-with the CPU the event is bound to. If it is not bound to a CPU, we
-use the current CPU node, using smp_processor_id(). However this is unsafe
-in a pre-emptible context and could generate the splats as below :
-
- BUG: using smp_processor_id() in preemptible [00000000] code: perf/2544
-
-Use NUMA_NO_NODE hint instead of using the current node for events
-not bound to CPUs.
-
-Fixes: 2997aa4063d97fdb39 ("coresight: etb10: implementing AUX API")
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: stable <stable@vger.kernel.org> # 4.6+
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20190620221237.3536-5-mathieu.poirier@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Colin Xu <colin.xu@intel.com>
 ---
- drivers/hwtracing/coresight/coresight-etb10.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/gvt/scheduler.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etb10.c b/drivers/hwtracing/coresight/coresight-etb10.c
-index d5b9edecf76e..3810290e6d07 100644
---- a/drivers/hwtracing/coresight/coresight-etb10.c
-+++ b/drivers/hwtracing/coresight/coresight-etb10.c
-@@ -374,12 +374,10 @@ static void *etb_alloc_buffer(struct coresight_device *csdev,
- 			      struct perf_event *event, void **pages,
- 			      int nr_pages, bool overwrite)
- {
--	int node, cpu = event->cpu;
-+	int node;
- 	struct cs_buffers *buf;
+diff --git a/drivers/gpu/drm/i915/gvt/scheduler.c b/drivers/gpu/drm/i915/gvt/scheduler.c
+index 196b4155a309..100040209188 100644
+--- a/drivers/gpu/drm/i915/gvt/scheduler.c
++++ b/drivers/gpu/drm/i915/gvt/scheduler.c
+@@ -685,13 +685,6 @@ static int dispatch_workload(struct intel_vgpu_workload *workload)
+ 	mutex_lock(&vgpu->vgpu_lock);
+ 	mutex_lock(&dev_priv->drm.struct_mutex);
  
--	if (cpu == -1)
--		cpu = smp_processor_id();
--	node = cpu_to_node(cpu);
-+	node = (event->cpu == -1) ? NUMA_NO_NODE : cpu_to_node(event->cpu);
+-	ret = set_context_ppgtt_from_shadow(workload,
+-					    s->shadow[ring_id]->gem_context);
+-	if (ret < 0) {
+-		gvt_vgpu_err("workload shadow ppgtt isn't ready\n");
+-		goto err_req;
+-	}
+-
+ 	ret = intel_gvt_workload_req_alloc(workload);
+ 	if (ret)
+ 		goto err_req;
+@@ -707,6 +700,13 @@ static int dispatch_workload(struct intel_vgpu_workload *workload)
+ 	}
  
- 	buf = kzalloc_node(sizeof(struct cs_buffers), GFP_KERNEL, node);
- 	if (!buf)
+ 	ret = prepare_workload(workload);
++	if (ret)
++		goto out;
++
++	ret = set_context_ppgtt_from_shadow(workload,
++					    s->shadow[ring_id]->gem_context);
++	if (ret)
++		gvt_vgpu_err("workload shadow ppgtt isn't ready\n");
+ out:
+ 	if (ret) {
+ 		/* We might still need to add request with
 -- 
 2.22.0
-
 
