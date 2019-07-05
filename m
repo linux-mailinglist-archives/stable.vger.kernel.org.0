@@ -2,62 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9CBB601BD
-	for <lists+stable@lfdr.de>; Fri,  5 Jul 2019 09:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1269601C9
+	for <lists+stable@lfdr.de>; Fri,  5 Jul 2019 09:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728035AbfGEHtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jul 2019 03:49:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35408 "EHLO mail.kernel.org"
+        id S1727587AbfGEHwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jul 2019 03:52:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728033AbfGEHtl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jul 2019 03:49:41 -0400
+        id S1727455AbfGEHwo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jul 2019 03:52:44 -0400
 Received: from localhost (unknown [122.167.76.109])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05FEF218A3;
-        Fri,  5 Jul 2019 07:49:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7C23218BC;
+        Fri,  5 Jul 2019 07:52:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562312980;
-        bh=nbUdxjVXdeGRh1ae5O8KsM/oe6+kZ/hnblt7BvODiQs=;
+        s=default; t=1562313163;
+        bh=sGsMo32UVw8Di9Jyj88e7Hy+JqyP8yaKWl3j6/DAklU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rEpSjo2aPJ7I1Pk7pXNwW0tbQRyOrO3vHMUD16ysrCTHZsSdWk0z/2hdRSCG1zm/7
-         facLWarRUcEU7134axoOzgtpBqSskyyxT3o8cGSd6phbIKvMgcxcvgLc44hg7LCyFJ
-         Ui5X+yfVKfTATY1LdxtU6YEWv2vsq50BijvQ+rxI=
-Date:   Fri, 5 Jul 2019 13:16:26 +0530
+        b=IBuV2J+/X9w5ItEQfBpdv+PDrQrTDmz/Nj0ie+AdJnshP4tvn9GJeeeu84BfSIXbK
+         eE8t4k0+W6rjkjsegnPIbImjO7Sz+OPuOsrqXaGPYDgrEyaaMsTnUe6IPO59Y7Q2GF
+         a1z9ckXsqsD9IzTs2vEeUOqTRXS/hW6BGAdZxduY=
+Date:   Fri, 5 Jul 2019 13:19:27 +0530
 From:   Vinod Koul <vkoul@kernel.org>
-To:     yibin.gong@nxp.com
-Cc:     shawnguo@kernel.org, s.hauer@pengutronix.de, festevam@gmail.com,
-        dan.j.williams@intel.com, thesven73@gmail.com,
-        m.olbrich@pengutronix.de, linux-imx@nxp.com,
-        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        dmaengine@vger.kernel.org, kernel@pengutronix.de
-Subject: Re: [PATCH v2] dmaengine: imx-sdma: remove BD_INTR for channel0
-Message-ID: <20190705074626.GB2911@vkoul-mobl>
-References: <20190621082306.34415-1-yibin.gong@nxp.com>
+To:     Sricharan R <sricharan@codeaurora.org>
+Cc:     agross@kernel.org, david.brown@linaro.org,
+        dan.j.williams@intel.com, linux-arm-msm@vger.kernel.org,
+        dmaengine@vger.kernel.org, linux-kernel@vger.kernel.org,
+        srinivas.kandagatla@linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH] dmaengine: qcom: bam_dma: Fix completed descriptors count
+Message-ID: <20190705074927.GC2911@vkoul-mobl>
+References: <1561723786-22500-1-git-send-email-sricharan@codeaurora.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190621082306.34415-1-yibin.gong@nxp.com>
+In-Reply-To: <1561723786-22500-1-git-send-email-sricharan@codeaurora.org>
 User-Agent: Mutt/1.11.3 (2019-02-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21-06-19, 16:23, yibin.gong@nxp.com wrote:
-> From: Robin Gong <yibin.gong@nxp.com>
+On 28-06-19, 17:39, Sricharan R wrote:
+> One space is left unused in circular FIFO to differentiate
+> 'full' and 'empty' cases. So take that in to account while
+> counting for the descriptors completed.
 > 
-> It is possible for an irq triggered by channel0 to be received later
-> after clks are disabled once firmware loaded during sdma probe. If
-> that happens then clearing them by writing to SDMA_H_INTR won't work
-> and the kernel will hang processing infinite interrupts. Actually,
-> don't need interrupt triggered on channel0 since it's pollling
-> SDMA_H_STATSTOP to know channel0 done rather than interrupt in
-> current code, just clear BD_INTR to disable channel0 interrupt to
-> avoid the above case.
-> This issue was brought by commit 1d069bfa3c78 ("dmaengine: imx-sdma:
-> ack channel 0 IRQ in the interrupt handler") which didn't take care
-> the above case.
+> Fixes the issue reported here,
+> 	https://lkml.org/lkml/2019/6/18/669
 
 Applied, thanks
 
