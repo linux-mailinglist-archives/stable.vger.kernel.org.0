@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF97D606E2
-	for <lists+stable@lfdr.de>; Fri,  5 Jul 2019 15:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B52DC60789
+	for <lists+stable@lfdr.de>; Fri,  5 Jul 2019 16:12:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727652AbfGENyX convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 5 Jul 2019 09:54:23 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:38143 "EHLO mx1.redhat.com"
+        id S1725865AbfGEOMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jul 2019 10:12:32 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:59352 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726921AbfGENyX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jul 2019 09:54:23 -0400
+        id S1725813AbfGEOMc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jul 2019 10:12:32 -0400
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id E97AE30BC588
-        for <stable@vger.kernel.org>; Fri,  5 Jul 2019 13:54:22 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 461E2308216C
+        for <stable@vger.kernel.org>; Fri,  5 Jul 2019 14:12:32 +0000 (UTC)
 Received: from [172.54.129.25] (cpt-1023.paas.prod.upshift.rdu2.redhat.com [10.0.19.35])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7E8B69D91D;
-        Fri,  5 Jul 2019 13:54:20 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6CFE59D912;
+        Fri,  5 Jul 2019 14:12:30 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.5909CC1A23.HFM59ZAU8N@redhat.com>
-X-Gitlab-Pipeline-ID: 21574
+Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-4.19
+Message-ID: <cki.F5FF1F2506.C37ZD8PDAV@redhat.com>
+X-Gitlab-Pipeline-ID: 21824
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Fri, 05 Jul 2019 13:54:22 +0000 (UTC)
-Date:   Fri, 5 Jul 2019 09:54:23 -0400
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Fri, 05 Jul 2019 14:12:32 +0000 (UTC)
+Date:   Fri, 5 Jul 2019 10:12:32 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,11 +45,24 @@ kernel tree. The patches were applied to:
 
 The results of these automated tests are provided below.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+    Overall result: FAILED (see details below)
+             Merge: FAILED
 
+
+
+
+When we attempted to merge the patchset, we received an error:
+
+  error: patch failed: arch/x86/kernel/ftrace.c:22
+  error: arch/x86/kernel/ftrace.c: patch does not apply
+  error: patch failed: kernel/trace/ftrace.c:35
+  error: kernel/trace/ftrace.c: patch does not apply
+  hint: Use 'git am --show-current-patch' to see the failed patch
+  Applying: ftrace/x86: Remove possible deadlock between register_kprobe() and ftrace_run_update_code()
+  Patch failed at 0001 ftrace/x86: Remove possible deadlock between register_kprobe() and ftrace_run_update_code()
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
 
 Please reply to this email if you have any questions about the tests that we
 ran or if you have any suggestions on how to make future tests more effective.
@@ -70,7 +83,7 @@ We cloned this repository and checked out the following commit:
   Commit: 1a0592436669 - Linux 4.19.57
 
 
-We grabbed the f422da86528e commit of the stable queue repository.
+We grabbed the a602ecdaf763 commit of the stable queue repository.
 
 We then merged the patchset with `git am`:
 
@@ -136,146 +149,5 @@ We then merged the patchset with `git am`:
   ftrace-x86-remove-possible-deadlock-between-register_kprobe-and-ftrace_run_update_code.patch
   mm-vmscan.c-prevent-useless-kswapd-loops.patch
   btrfs-ensure-replaced-device-doesn-t-have-pending-chunk-allocation.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-c86cfe809e8d48870c1a9cd570a65a659183a799.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-c86cfe809e8d48870c1a9cd570a65a659183a799.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-c86cfe809e8d48870c1a9cd570a65a659183a799.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-c86cfe809e8d48870c1a9cd570a65a659183a799.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-c86cfe809e8d48870c1a9cd570a65a659183a799.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-c86cfe809e8d48870c1a9cd570a65a659183a799.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-c86cfe809e8d48870c1a9cd570a65a659183a799.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-c86cfe809e8d48870c1a9cd570a65a659183a799.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ AMTU (Abstract Machine Test Utility) [5]
-       ✅ LTP: openposix test suite [6]
-       ✅ audit: audit testsuite test [7]
-       ✅ httpd: mod_ssl smoke sanity [8]
-       ✅ iotop: sanity [9]
-       ✅ Usex - version 1.9-29 [10]
-       ✅ lvm thinp sanity [11]
-       🚧 ✅ Networking socket: fuzz [12]
-       🚧 ✅ tuned: tune-processes-through-perf [13]
-       🚧 ✅ storage: SCSI VPD [14]
-       🚧 ✅ storage: software RAID testing [15]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ AMTU (Abstract Machine Test Utility) [5]
-       ✅ LTP: openposix test suite [6]
-       ✅ audit: audit testsuite test [7]
-       ✅ httpd: mod_ssl smoke sanity [8]
-       ✅ iotop: sanity [9]
-       ✅ Usex - version 1.9-29 [10]
-       ✅ lvm thinp sanity [11]
-       🚧 ✅ Networking socket: fuzz [12]
-       🚧 ✅ tuned: tune-processes-through-perf [13]
-       🚧 ✅ storage: software RAID testing [15]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ LTP: openposix test suite [6]
-       ✅ audit: audit testsuite test [7]
-       ✅ httpd: mod_ssl smoke sanity [8]
-       ✅ iotop: sanity [9]
-       ✅ lvm thinp sanity [11]
-       🚧 ✅ Networking socket: fuzz [12]
-       🚧 ✅ tuned: tune-processes-through-perf [13]
-       🚧 ✅ storage: software RAID testing [15]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [2]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ AMTU (Abstract Machine Test Utility) [5]
-       ✅ LTP: openposix test suite [6]
-       ✅ audit: audit testsuite test [7]
-       ✅ httpd: mod_ssl smoke sanity [8]
-       ✅ iotop: sanity [9]
-       ✅ Usex - version 1.9-29 [10]
-       ✅ lvm thinp sanity [11]
-       🚧 ✅ Networking socket: fuzz [12]
-       🚧 ✅ tuned: tune-processes-through-perf [13]
-       🚧 ✅ storage: SCSI VPD [14]
-       🚧 ✅ storage: software RAID testing [15]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/openposix_testsuite
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+  tty-rocket-fix-incorrect-forward-declaration-of-rp_i.patch
+  ftrace-x86-remove-possible-deadlock-between-register.patch
