@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FF16602A9
-	for <lists+stable@lfdr.de>; Fri,  5 Jul 2019 10:53:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C7A4602AA
+	for <lists+stable@lfdr.de>; Fri,  5 Jul 2019 10:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727588AbfGEIxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jul 2019 04:53:25 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:45607 "EHLO
+        id S1727483AbfGEIxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jul 2019 04:53:34 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:38505 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727483AbfGEIxZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Jul 2019 04:53:25 -0400
+        by vger.kernel.org with ESMTP id S1726427AbfGEIxd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Jul 2019 04:53:33 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 54FAE21BBA;
-        Fri,  5 Jul 2019 04:53:24 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id F120F21FC3;
+        Fri,  5 Jul 2019 04:53:32 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 05 Jul 2019 04:53:24 -0400
+  by compute6.internal (MEProxy); Fri, 05 Jul 2019 04:53:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=WcSM5V
-        5sSIegisPhVh97mghPaXVXhR/Otd75rDZFTtY=; b=K8jehOuz1R3rVpk7AvP6ww
-        nbaF5FaLnLE+zh3dk2w5IzCVh9bdVorEInXJmb1mlijIB/hsh41vZQjpnDIVNSHf
-        fDOk17mhqXPxnuG9xaIhpoQKzoJPrTbXXHf0rpOvpXvjbDEYEr0qdaT/LfeuHNfc
-        mI9fAYi0Jn2ow+RlBmFhsFKB4uxb3ajPL2g8ocsi+c7/xI1OI9hd8qe7VfBBdJfb
-        weVOfESpd6u+zl+Tky/tXfCO7FH2W9ZOVAviuBGbYKOR6oCmxxU2WzaWci0TgIBx
-        suxUu1l4b0jTYFh5PIM6YlJvWjcXJyQsXqweidJNkiain8Uy5xk87rHRrJAdf/pw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aqiuFw
+        IWdFe/fQqM6DItodPN+sP8+tpyaHFotZbf17U=; b=EYvuUuuuXhffxuCHjQg4Xi
+        C3adoh/FReax8+05Kh2eAMNDlbQWUcW2rGrJEBjToIzRjkbFmv3zAbosvHIQEo9R
+        DhNK7pKCBbnDWMjWIKTKhng1UiQaNKgVZkfhO0OJO4A9Cep6SqgXb9X35Ww+9n9T
+        eZhyC1SkJ8Y/LeD5GE9SdgK/frTgkUFviKYyhy3aZIuoyqd8PEie6U2NC05QLNRh
+        T0HJl6zklMAsE1EHE8WhP98hsiZHkXpPDkAINGaYJnPOBSBtSw0h2o3Ol7TSYKPt
+        gi2EHwB2G8ioeTxUtUv4HcCTR3UOEhSNAKV8IK0m+V1Qr2ohYd/YQ3GJqNAgzFpg
         ==
-X-ME-Sender: <xms:AxAfXSqKK3B2hJxip_OTvzx00CiAoYCqnKSlm1ZWTOJqUGI6iBER3A>
+X-ME-Sender: <xms:DBAfXWwSLnXit-vr2cVQSSe3WYWcaPLOGC8dBzP1nWeguQJHNfb-jQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrfeeggddtlecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeegrdduvdeird
     dvgedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:AxAfXUoKrMObbcIsv7_x49g6o2_J8ot83UID_VkA1zEGUEBDXiLwNA>
-    <xmx:AxAfXWQU2IavO6-6PuXQqq88xrrYpk3hIhcE2dpA0gza6IXBiV3Fbw>
-    <xmx:AxAfXTr9ZKvz5QX3zn5gonHq_eqXrnVng0s8siYIeFqwFuQiy9IZ1Q>
-    <xmx:BBAfXc2OVpUEVCGpuB1pHuUSpWyz3SdANpfI4WCUQyMaFJylEKjK7Q>
+    ucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:DBAfXY75VTi_Xzb10vLT1G-Fl_zpNDursL0Le1qNEsZoR_pXO3AEmQ>
+    <xmx:DBAfXffC9uGM1MmIVBzeMES7Ui6Xbfl90rQG16-1qvn31893lZJixQ>
+    <xmx:DBAfXZfElSILZ1nZeM9DqLX4KGVQvSVnaDxEXm8kE9UcIosJPe30XQ>
+    <xmx:DBAfXWJBzsSm-ocyXigNQRnUfuhaeoAQOm9LuEYz5GFiXbgnZZU4pg>
 Received: from localhost (83-84-126-242.cable.dynamic.v4.ziggo.nl [83.84.126.242])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 626CD80062;
-        Fri,  5 Jul 2019 04:53:23 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tracing/snapshot: Resize spare buffer if size changed" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 667538005C;
+        Fri,  5 Jul 2019 04:53:32 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tracing/snapshot: Resize spare buffer if size changed" failed to apply to 4.4-stable tree
 To:     devel@etsukata.com, rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 05 Jul 2019 10:53:20 +0200
-Message-ID: <1562316800193174@kroah.com>
+Date:   Fri, 05 Jul 2019 10:53:22 +0200
+Message-ID: <156231680279219@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
