@@ -2,99 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D35825FEA4
-	for <lists+stable@lfdr.de>; Fri,  5 Jul 2019 01:27:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B94B25FFA9
+	for <lists+stable@lfdr.de>; Fri,  5 Jul 2019 05:13:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727320AbfGDX10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jul 2019 19:27:26 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:45677 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727246AbfGDX1Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Jul 2019 19:27:25 -0400
-Received: by mail-ot1-f68.google.com with SMTP id x21so7282946otq.12
-        for <stable@vger.kernel.org>; Thu, 04 Jul 2019 16:27:25 -0700 (PDT)
+        id S1727116AbfGEDNX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jul 2019 23:13:23 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:35770 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726404AbfGEDNX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Jul 2019 23:13:23 -0400
+Received: by mail-pf1-f194.google.com with SMTP id u14so2465543pfn.2
+        for <stable@vger.kernel.org>; Thu, 04 Jul 2019 20:13:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=29vsGpTjh39zWXsI6Ik43Nv+EdiuWAOV6vxVTajp20k=;
-        b=xPh6pbcmI7ZR83uwzt44/h5WZ1jKG98r+LQaDHsemaTjfAFmLK4NHwQNObxnmJM5M8
-         kiKlk4co3uBSxHYbFY+WMMvf50uquNZyF0w7RVkb+wN9QHaDcveJWANUrWindaZdPjYX
-         fRPefhjZL+h/GTwMBlPyo/7+/fOiU2/TzGWz4bA8jxIM0dAKYaLHEKDaVOkAQSEXS/JJ
-         HntfFU+nDsisSL67tqCRY1E2FW29XVGHkHGY+9yi5XPwwkF8dUbKQwZFovjFinBx4P3H
-         +CX76/THYqM9Ar2u/pO3kfTI759leI2eRYxgBjawd3DUVZuTF7q3s4H/zjBzZl96hbN0
-         jkcQ==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=N2IO4pfRvp3fi/Bx06vT+ESFz9m9oS+vnVgitDhXnlk=;
+        b=cvinMYul5caH68j0PDS1o1euY/qMSIt+eJQzgm97Fqa3GfDOq2oEsUvOQNXrVCwh48
+         emTL3XAhJmoeXJkhWcNykVeXoXydlL1bSbR2Gf72J2XcSnSALaX/tRuyp+e9PbFFtm8o
+         moR49LBYEp8iEDHV43t1iwy4GQJTIyuu9Imgn0OB6mNxMjcPa67SXzpag/SNO5FOnHgi
+         iGRCbEtykbhpWgiZ1ou2DAIZAaY3BXz559PgIlxdvNevnIXUWSGjhlNaKo/D8C3hE5WW
+         Pcx5u2fhD/KRr0T3mGOBGHtb72tSELxuy9O8+Y8EJViFdkfRMGp0hZsPJ+iiJ4lmIbFT
+         3HYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=29vsGpTjh39zWXsI6Ik43Nv+EdiuWAOV6vxVTajp20k=;
-        b=UWDQzDV2td26GyjNzjoOy1uC2jRteYN6SwyHBCJidmDCk5pQf7RwUp/L+u5PiD4VKT
-         FlTXPaySvp//Nstu28bop4CTvucNy3OzBnXdFkTlcYEJJ2F17YDZLsB5zqLwFtHVQedU
-         Nxh2HtKHyoW9ETab0/iFAJ14+n/hzRmXIKsh+pwnf495c1K7wHhy5+233xgKyGGW6vEE
-         vskZDuNKNJpdfS+9XGY7amgQc8mKq3KffBMt1nqRkEDmq4Oian0oEe8adRR8rw/+fTlm
-         rsU/AEQ8098GLmgbx5gBAal8phHhQgkYgkUoCjC1cN2DuD3Ejoqoj6H92NAjlruFrdFr
-         vitA==
-X-Gm-Message-State: APjAAAV0R7D+gA4nI56CjVA9PjkofOpgdoO047lfJ1L62JxzO+zNgkNl
-        k+yfVviQ4lMprTaqROlbV0bGQOnZLlA89Id67G+v/w==
-X-Google-Smtp-Source: APXvYqzFfoPnlwPxd7HMRN1iiNSb0TD46BOhSl+i1LNcRaH8pGkExzmOgi5cRwt9v88JBevUo0Jwrlqmbeg2el1s4mY=
-X-Received: by 2002:a9d:7a9a:: with SMTP id l26mr386103otn.71.1562282845133;
- Thu, 04 Jul 2019 16:27:25 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=N2IO4pfRvp3fi/Bx06vT+ESFz9m9oS+vnVgitDhXnlk=;
+        b=Tm15e3zMnVsUyevWhBJIUBcSM2cU3wE1wblgUO2QfM2HnOaMRuYC99DB940b14t4oq
+         qkFdXbxgxo4EnHFZMWP7mZOMQ3Rt2ckdlVM4Vrh2REQgOvK+QWLHtNAwFH+5MZl27Nye
+         eM1RR08wBL9KAUI8wntPetoNNMfHm0ABW8/W3QEV/4xshytN/PGSI0n+jP3/LZMvFspQ
+         MTqft4+76xq55dDfoo9GEYTFqQQPQc4NC72kceB+9GLjErzTy/t8ZvGNe8VkeM7eprxT
+         8ZLePI/hVceUTXwmg+VNPnqJcNRdTniH+aJtPqtWPH69HQelC5114pHUGlSrjdAzZy7A
+         19ew==
+X-Gm-Message-State: APjAAAV30G0j2Ea5ZzHgxo183L76WMhrP6V5uxktYKMDE/boqkvdDbRG
+        B5642uDY8WQ611LiGZgZOnWWoQ==
+X-Google-Smtp-Source: APXvYqzqeRpd3KPGd5X2doKamT8zLl4p5im8dqSN/7y2ZSp4g4fAZ+OLBA5C1SDmUDXXCWg7N2SIug==
+X-Received: by 2002:a17:90a:5288:: with SMTP id w8mr1705563pjh.61.1562296402187;
+        Thu, 04 Jul 2019 20:13:22 -0700 (PDT)
+Received: from localhost ([122.172.21.205])
+        by smtp.gmail.com with ESMTPSA id s20sm7499185pfe.169.2019.07.04.20.13.20
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 04 Jul 2019 20:13:20 -0700 (PDT)
+Date:   Fri, 5 Jul 2019 08:43:18 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Julien Thierry <julien.thierry@arm.com>
+Cc:     linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com
+Subject: Re: [PATCH v4.4 10/45] mm/kasan: add API to check memory regions
+Message-ID: <20190705031318.qnhrvfrzjqk24r3f@vireshk-i7>
+References: <cover.1560480942.git.viresh.kumar@linaro.org>
+ <0cedfc51f5941ab2c2e9a09149d34c7451efda56.1560480942.git.viresh.kumar@linaro.org>
+ <9c5374d4-1775-572d-ba79-b161a82190c6@arm.com>
 MIME-Version: 1.0
-References: <156213869409.3910140.7715747316991468148.stgit@dwillia2-desk3.amr.corp.intel.com>
- <20190703121743.GH1729@bombadil.infradead.org> <CAPcyv4jgs5LTtTXR+2CyfbjJE85B_eoPFuXQsGBDnVMo41Jawg@mail.gmail.com>
- <20190703195302.GJ1729@bombadil.infradead.org> <CAPcyv4iPNz=oJyc_EoE-mC11=gyBzwMKbmj1ZY_Yna54=cC=Mg@mail.gmail.com>
- <20190704032728.GK1729@bombadil.infradead.org> <20190704165450.GH31037@quack2.suse.cz>
- <20190704191407.GM1729@bombadil.infradead.org>
-In-Reply-To: <20190704191407.GM1729@bombadil.infradead.org>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Thu, 4 Jul 2019 16:27:14 -0700
-Message-ID: <CAPcyv4gUiDw8Ma9mvbW5BamQtGZxWVuvBW7UrOLa2uijrXUWaw@mail.gmail.com>
-Subject: Re: [PATCH] dax: Fix missed PMD wakeups
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Jan Kara <jack@suse.cz>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Boaz Harrosh <openosd@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Robert Barror <robert.barror@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9c5374d4-1775-572d-ba79-b161a82190c6@arm.com>
+User-Agent: NeoMutt/20180716-391-311a52
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 4, 2019 at 12:14 PM Matthew Wilcox <willy@infradead.org> wrote:
->
-> On Thu, Jul 04, 2019 at 06:54:50PM +0200, Jan Kara wrote:
-> > On Wed 03-07-19 20:27:28, Matthew Wilcox wrote:
-> > > So I think we're good for all current users.
-> >
-> > Agreed but it is an ugly trap. As I already said, I'd rather pay the
-> > unnecessary cost of waiting for pte entry and have an easy to understand
-> > interface. If we ever have a real world use case that would care for this
-> > optimization, we will need to refactor functions to make this possible and
-> > still keep the interfaces sane. For example get_unlocked_entry() could
-> > return special "error code" indicating that there's no entry with matching
-> > order in xarray but there's a conflict with it. That would be much less
-> > error-prone interface.
->
-> This is an internal interface.  I think it's already a pretty gnarly
-> interface to use by definition -- it's going to sleep and might return
-> almost anything.  There's not much scope for returning an error indicator
-> either; value entries occupy half of the range (all odd numbers between 1
-> and ULONG_MAX inclusive), plus NULL.  We could use an internal entry, but
-> I don't think that makes the interface any easier to use than returning
-> a locked entry.
->
-> I think this iteration of the patch makes it a little clearer.  What do you
-> think?
->
+On 04-07-19, 15:15, Julien Thierry wrote:
+> I know you have updated the code since then but the issue seems to be
+> also present on your updated branch.
+> 
+> This patch breaks the build when enabling CONFIG_KASAN because in 4.4
+> check_memory_region() only takes 3 arguments.
 
-Not much clearer to me. get_unlocked_entry() is now misnamed and this
-arrangement allows for mismatches of @order argument vs @xas
-configuration. Can you describe, or even better demonstrate with
-numbers, why it's better to carry this complication than just
-converging the waitqueues between the types?
+Fixed and pushed again. Thanks.
+
+I have also tried enabling all the other ifdefs used in these patches
+to make sure it doesn't work after enabling them. Looks good now.
+
+-- 
+viresh
