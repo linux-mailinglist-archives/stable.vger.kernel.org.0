@@ -2,70 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC1FE61241
-	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 18:51:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E114361253
+	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 19:20:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726800AbfGFQvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Jul 2019 12:51:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58190 "EHLO mail.kernel.org"
+        id S1726800AbfGFRU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Jul 2019 13:20:29 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:38250 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726702AbfGFQvD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 6 Jul 2019 12:51:03 -0400
-Received: from localhost (unknown [62.119.166.9])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726698AbfGFRU3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 6 Jul 2019 13:20:29 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2853320836;
-        Sat,  6 Jul 2019 16:51:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562431862;
-        bh=03VXPoBGTEudhnVcaNxaOVX1cfv+o2GmUaqaEjZx+50=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ingCHlRr0ouEaWbvT2OAbv4fmZiMg8QNjH2L9FhoMGSqugRHJmIARkHwSKyL33kre
-         vPXZUXBONySfsLLpPPfpnN15DFDgsLpD/PxSpt7+T0/WNYTSfFCb7DJmeg0AZQRV7h
-         b4fIS0eHgwXqi8X/UCTjOCyn5Zu5J56nsunnQ4Gg=
-Date:   Sat, 6 Jul 2019 18:50:44 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Stephen Rothwell <sfr@canb.auug.org.au>,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] blk-mq: fix up placement of debugfs directory of queue
- files
-Message-ID: <20190706165044.GA18886@kroah.com>
-References: <20190706155032.GA3106@kroah.com>
- <a4e28385-6f87-05f5-edb2-d68446771b7c@kernel.dk>
+        by mx1.redhat.com (Postfix) with ESMTPS id 4F539356F6;
+        Sat,  6 Jul 2019 17:20:29 +0000 (UTC)
+Received: from sandy.ghostprotocols.net (ovpn-112-18.phx2.redhat.com [10.3.112.18])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8D76C3844;
+        Sat,  6 Jul 2019 17:20:28 +0000 (UTC)
+Received: by sandy.ghostprotocols.net (Postfix, from userid 1000)
+        id 3AD10115; Sat,  6 Jul 2019 14:17:36 -0300 (BRT)
+Date:   Sat, 6 Jul 2019 14:17:36 -0300
+From:   Arnaldo Carvalho de Melo <acme@redhat.com>
+To:     Song Liu <songliubraving@fb.com>
+Cc:     linux-kernel@vger.kernel.org, kernel-team@fb.com, davidca@fb.com,
+        jolsa@kernel.org, namhyung@kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] perf: assign proper ff->ph in
+ perf_event__synthesize_features()
+Message-ID: <20190706171736.GD2093@redhat.com>
+References: <20190620010453.4118689-1-songliubraving@fb.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a4e28385-6f87-05f5-edb2-d68446771b7c@kernel.dk>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+In-Reply-To: <20190620010453.4118689-1-songliubraving@fb.com>
+X-Url:  http://acmel.wordpress.com
+User-Agent: Mutt/1.5.20 (2009-12-10)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Sat, 06 Jul 2019 17:20:29 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 06, 2019 at 10:07:14AM -0600, Jens Axboe wrote:
-> On 7/6/19 9:50 AM, Greg Kroah-Hartman wrote:
-> > When the blk-mq debugfs file creation logic was "cleaned up" it was
-> > cleaned up too much, causing the queue file to not be created in the
-> > correct location.  Turns out the check for the directory being present
-> > is needed as if that has not happened yet, the files should not be
-> > created, and the function will be called later on in the initialization
-> > code so that the files can be created in the correct location.
+Em Wed, Jun 19, 2019 at 06:04:53PM -0700, Song Liu escreveu:
+> bpf/btf  write_* functions need ff->ph->env.
 > 
-> How about we shove this in for 5.2 final? Trivial enough to do, and it
-> would suck to have 5.2 released with this.
+> With this missing, pipe-mode (perf record -o -)  would crash like:
+> 
+> Program terminated with signal SIGSEGV, Segmentation fault.
+> 
+> This patch assign proper ph value to ff.
 
-Sure, no objection from me!
+Thanks, applied.
 
-> Though not sure what devices this actually impacts, I haven't noticed
-> anything awry on my setups?
-
-I can easily trigger this with loop devices.  I know Stephen reported
-this and I don't know if that was the driver that caused it for him.  I
-have also seen this happen in syzbot boot logs already, but again, don't
-know what block devices they are using that causes this.
-
-thanks,
-
-greg k-h
+- Arnaldo
+ 
+> Cc: stable@vger.kernel.org #v5.1+
+> Fixes: 606f972b1361 ("perf bpf: Save bpf_prog_info information as headers to perf.data")
+> Reported-by: David Carrillo Cisneros <davidca@fb.com>
+> Signed-off-by: Song Liu <songliubraving@fb.com>
+> ---
+>  tools/perf/util/header.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+> index 06ddb6618ef3..5f1aa0284e1b 100644
+> --- a/tools/perf/util/header.c
+> +++ b/tools/perf/util/header.c
+> @@ -3684,6 +3684,7 @@ int perf_event__synthesize_features(struct perf_tool *tool,
+>  		return -ENOMEM;
+>  
+>  	ff.size = sz - sz_hdr;
+> +	ff.ph = &session->header;
+>  
+>  	for_each_set_bit(feat, header->adds_features, HEADER_FEAT_BITS) {
+>  		if (!feat_ops[feat].synthesize) {
+> -- 
+> 2.17.1
