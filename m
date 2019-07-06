@@ -2,77 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE0E960FE5
-	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 12:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 106986103D
+	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 13:04:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725990AbfGFKtR convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 6 Jul 2019 06:49:17 -0400
-Received: from coyote.holtmann.net ([212.227.132.17]:53714 "EHLO
-        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725926AbfGFKtR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Jul 2019 06:49:17 -0400
-Received: from [192.168.0.113] (CMPC-089-239-107-172.CNet.Gawex.PL [89.239.107.172])
-        by mail.holtmann.org (Postfix) with ESMTPSA id 19908CEFAE;
-        Sat,  6 Jul 2019 12:57:47 +0200 (CEST)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Subject: Re: [PATCH v3 2/2] Bluetooth: hci_ldisc: Add NULL check for
- tiocmget() and tiocmset() in hci_uart_set_flow_control()
-From:   Marcel Holtmann <marcel@holtmann.org>
-In-Reply-To: <4cc3a826614822661dbedad74d9970172cbfa6d7.1549346039.git.mhjungk@gmail.com>
-Date:   Sat, 6 Jul 2019 12:49:14 +0200
-Cc:     Johan Hedberg <johan.hedberg@gmail.com>,
-        linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Transfer-Encoding: 8BIT
-Message-Id: <CB134419-019E-4B55-A1F6-E3361BD581C4@holtmann.org>
-References: <cover.1549346039.git.mhjungk@gmail.com>
- <cover.1549346039.git.mhjungk@gmail.com>
- <4cc3a826614822661dbedad74d9970172cbfa6d7.1549346039.git.mhjungk@gmail.com>
-To:     Myungho Jung <mhjungk@gmail.com>
-X-Mailer: Apple Mail (2.3445.104.11)
+        id S1726173AbfGFLEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Jul 2019 07:04:01 -0400
+Received: from mail-wr1-f53.google.com ([209.85.221.53]:46597 "EHLO
+        mail-wr1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726001AbfGFLEB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Jul 2019 07:04:01 -0400
+Received: by mail-wr1-f53.google.com with SMTP id z1so7623413wru.13
+        for <stable@vger.kernel.org>; Sat, 06 Jul 2019 04:03:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=zZ1nD3EQzfVhq6MPEoDfd3+0b68mSQdK0HwtydATwng=;
+        b=h6tVNu6Xx3NHMRJdWNHSkFSVYA4v0POHKIY4cNcmDWwcbAGZu4zHeDoU92uj+j8mxY
+         dmuisDEnGCpsHro9SrsUmjHywjdzt5d3fffCcKeDJXgwtolnYJrNYfQ0CyuX3A0g5smn
+         H1rqOxYpHuY971LLWoycUpKF2Be1lZ2MH6JGu4plmMOgZWerDLqBFhC7oGlV4bcqOQAa
+         suPlDnQpDx99bIZQaWmkhOtlEffoupNpsGZUJKfpcVXbyhk4jXX0HXVn1gVZE/1L9WPv
+         0U7pgX7uwoQk8YVDm89r75DudiPoYjgpIi4pEI6LJ3FVV3XBdUDcPmht30ujuSeIz4LP
+         tUeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=zZ1nD3EQzfVhq6MPEoDfd3+0b68mSQdK0HwtydATwng=;
+        b=iYBPTLXZkVIwjg9H3fqryYy2mey/eonPZTa0bnvCPb3Yk6h6J1P4fxDaw0M8y+Rbf8
+         L+Gb5QCuRK4OboJufGP1NVQCFOXBmgwAxBygEbczYk2BxRe/NYolGOTuLw6jv87eUNq2
+         oE9DQs4M+tsx7Ilxyc0PD57CCfLCYMcUdL8UTIkR3+ZLcq5xUW0OE414h0iVQ/ifLkvO
+         TG2PtyOZaV7kBjNkGLra8AqrDyZIkzS8lNNILCYm8JGbaRgiBNHTdLaBSW7+vFvV5pJy
+         YxvDehaYIaFpOPfS+iZgLu3llEDE/ItGxs/ssrF8voNbdVzFxQRcWuIKG/M3tMD+MSN7
+         uLig==
+X-Gm-Message-State: APjAAAVJLBIPxdHXZdzhbXp196hP/SxYEHb93V2az1EowMDjsuO3/2LZ
+        an0A7edF+7Fbc6i7H7f0iBrWsiO5Igyjog==
+X-Google-Smtp-Source: APXvYqyhKMda9132nrxyf/1OXwnd0Rz1d/aOSnOaLP0gxoPxdstQKEaVu2DtGvr83U8jFkfHwkZM0w==
+X-Received: by 2002:adf:f902:: with SMTP id b2mr8924850wrr.199.1562411039207;
+        Sat, 06 Jul 2019 04:03:59 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id j26sm2489667wrb.88.2019.07.06.04.03.58
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 06 Jul 2019 04:03:58 -0700 (PDT)
+Message-ID: <5d20801e.1c69fb81.5bff.c8b3@mx.google.com>
+Date:   Sat, 06 Jul 2019 04:03:58 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.57-86-g8d95b9513ddb
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 131 boots: 3 failed,
+ 128 passed (v4.19.57-86-g8d95b9513ddb)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Myungho,
+stable-rc/linux-4.19.y boot: 131 boots: 3 failed, 128 passed (v4.19.57-86-g=
+8d95b9513ddb)
 
-> tiocmget() or tiocmset() operations are optional. Just return from
-> hci_uart_set_flow_control() if tiocmget() or tiocmset() operation is
-> NULL.
-> 
-> Fixes: 2a973dfada2b ("hci_uart: Add new line discipline enhancements")
-> Cc: <stable@vger.kernel.org> # 4.2
-> Signed-off-by: Myungho Jung <mhjungk@gmail.com>
-> ---
-> Changes in v2:
->  - Remove braces in if statment
-> 
-> Changes in v3:
->  - Split into 2 patches
->  - Add stable CC and fixes tags
-> 
-> drivers/bluetooth/hci_ldisc.c | 4 ++++
-> 1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/bluetooth/hci_ldisc.c b/drivers/bluetooth/hci_ldisc.c
-> index fbf7b4df23ab..cb31c2d8d826 100644
-> --- a/drivers/bluetooth/hci_ldisc.c
-> +++ b/drivers/bluetooth/hci_ldisc.c
-> @@ -314,6 +314,10 @@ void hci_uart_set_flow_control(struct hci_uart *hu, bool enable)
-> 		return;
-> 	}
-> 
-> +	/* tiocmget() and tiocmset() operations are optional */
-> +	if (!tty->driver->ops->tiocmget || !tty->driver->ops->tiocmset)
-> +		return;
-> +
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.57-86-g8d95b9513ddb/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.57-86-g8d95b9513ddb/
 
-lets just fail setting the line discipline if these ops are not available.  Doing some silent ignoring is not going to help.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.57-86-g8d95b9513ddb
+Git Commit: 8d95b9513ddb95fb0987162263d3da9031d83d40
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 73 unique boards, 27 SoC families, 17 builds out of 206
 
-Regards
+Boot Failures Detected:
 
-Marcel
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
 
+arm:
+    sunxi_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
+
+    multi_v7_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
