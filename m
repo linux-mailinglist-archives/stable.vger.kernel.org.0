@@ -2,18 +2,18 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF3E610E1
-	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 15:51:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4DD8610E4
+	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 15:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726446AbfGFNvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Jul 2019 09:51:16 -0400
-Received: from coyote.holtmann.net ([212.227.132.17]:39440 "EHLO
+        id S1726267AbfGFN6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Jul 2019 09:58:06 -0400
+Received: from coyote.holtmann.net ([212.227.132.17]:47969 "EHLO
         mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726065AbfGFNvQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Jul 2019 09:51:16 -0400
+        with ESMTP id S1726177AbfGFN6F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Jul 2019 09:58:05 -0400
 Received: from [192.168.0.171] (188.146.228.97.nat.umts.dynamic.t-mobile.pl [188.146.228.97])
-        by mail.holtmann.org (Postfix) with ESMTPSA id 27DF8CF12E;
-        Sat,  6 Jul 2019 15:59:46 +0200 (CEST)
+        by mail.holtmann.org (Postfix) with ESMTPSA id 1B1FCCF12E;
+        Sat,  6 Jul 2019 16:06:36 +0200 (CEST)
 Content-Type: text/plain;
         charset=us-ascii
 Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
@@ -21,12 +21,12 @@ Subject: Re: [PATCH] Bluetooth: SMP: Workaround Microsoft Surface Precision
  Mouse bug
 From:   Marcel Holtmann <marcel@holtmann.org>
 In-Reply-To: <20190618224747.446-1-szymon.janc@codecoup.pl>
-Date:   Sat, 6 Jul 2019 15:51:13 +0200
+Date:   Sat, 6 Jul 2019 15:58:03 +0200
 Cc:     linux-bluetooth@vger.kernel.org,
         Maarten Fonville <maarten.fonville@gmail.com>,
         stable@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-Message-Id: <E8043BA4-A070-4D02-8DFC-08C6AA94C247@holtmann.org>
+Message-Id: <47663D4D-8800-4A7A-87A6-4708651C40EC@holtmann.org>
 References: <20190618224747.446-1-szymon.janc@codecoup.pl>
 To:     Szymon Janc <szymon.janc@codecoup.pl>
 X-Mailer: Apple Mail (2.3445.104.11)
