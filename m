@@ -2,79 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 653B5611E2
-	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 17:31:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D418611D5
+	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 17:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726887AbfGFPbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Jul 2019 11:31:18 -0400
-Received: from mo4-p05-ob.smtp.rzone.de ([85.215.255.130]:34980 "EHLO
-        mo4-p05-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726698AbfGFPbS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Jul 2019 11:31:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1562427076;
-        s=strato-dkim-0002; d=jm0.eu;
-        h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=+SpY4xus7eP4MPcA3lgfvlER9kX2n6MRDtKqhf0ITkk=;
-        b=J4mI5LQLhuSWuosVTBvx5niBFYzKBa8lyhqmdXOLvR6D78cxXslDP9VqvcPrPYgCJq
-        fwma0KVIVkVF/Ighq3Ka9mTQVHiZsxahO3QI4ysOz3/t3c3BDO50IKmBBCrVoEHCsXAD
-        lWpdktg626r3wq6kqWT8Kpzny7+7UQ8/J6oVES1ucO0M9u03IT8h70f92krftiszDwLe
-        5z/xCxySMpKA8GvcuJMzNaybBrypev87TH+93Ic+0Gls6n3QgkF1hoLd40R63bm/q5ox
-        SPk5KCLcev4KbEOGBvD1Jh06DdtH48tJjNlI2gClwZQqbdUmkU+U2W1nABTeLUv9jadO
-        kbpw==
-X-RZG-AUTH: ":JmMXYEHmdv4HaV2cbPh7iS0wbr/uKIfGM0EPWe8EZQbw/dDJ/fVPBaXaSiaF5/mu26zWKwNU"
-X-RZG-CLASS-ID: mo05
-Received: from linux-1tvp.lan
-        by smtp.strato.de (RZmta 44.24 DYNA|AUTH)
-        with ESMTPSA id h0a328v66FJB6MW
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve secp521r1 with 521 ECDH bits, eq. 15360 bits RSA))
-        (Client did not present a certificate);
-        Sat, 6 Jul 2019 17:19:11 +0200 (CEST)
-From:   josua@solid-run.com
-To:     netdev@vger.kernel.org
-Cc:     Josua Mayer <josua@solid-run.com>, stable@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 2/4] net: mvmdio: allow up to four clocks to be specified for orion-mdio
-Date:   Sat,  6 Jul 2019 17:18:58 +0200
-Message-Id: <20190706151900.14355-3-josua@solid-run.com>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20190706151900.14355-1-josua@solid-run.com>
-References: <20190706151900.14355-1-josua@solid-run.com>
+        id S1726607AbfGFPTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Jul 2019 11:19:04 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:32814 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726446AbfGFPTE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 6 Jul 2019 11:19:04 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 83CDC86658;
+        Sat,  6 Jul 2019 15:19:03 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 38CF717102;
+        Sat,  6 Jul 2019 15:19:03 +0000 (UTC)
+Received: from zmail21.collab.prod.int.phx2.redhat.com (zmail21.collab.prod.int.phx2.redhat.com [10.5.83.24])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 081E44E9E2;
+        Sat,  6 Jul 2019 15:19:02 +0000 (UTC)
+Date:   Sat, 6 Jul 2019 11:19:02 -0400 (EDT)
+From:   Vladis Dronov <vdronov@redhat.com>
+To:     Marcel Holtmann <marcel@holtmann.org>
+Cc:     Johan Hedberg <johan.hedberg@gmail.com>,
+        linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzbot+79337b501d6aa974d0f6@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Loic Poulain <loic.poulain@intel.com>,
+        Ilya Faenson <ifaenson@broadcom.com>
+Message-ID: <1938318038.39428333.1562426342706.JavaMail.zimbra@redhat.com>
+In-Reply-To: <37673EE8-2391-425D-9957-D6FDAEFB03FA@holtmann.org>
+References: <20190625173215.25999-1-vdronov@redhat.com> <37673EE8-2391-425D-9957-D6FDAEFB03FA@holtmann.org>
+Subject: Re: [PATCH] Bluetooth: hci_ldisc: check for missing tty operations
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.43.2.20, 10.4.195.25]
+Thread-Topic: Bluetooth: hci_ldisc: check for missing tty operations
+Thread-Index: Y6PSNA1ggdS0XuGkMbW9gMaqSx7KUg==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Sat, 06 Jul 2019 15:19:03 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josua Mayer <josua@solid-run.com>
+Hello, Marcel,
 
-Allow up to four clocks to be specified and enabled for the orion-mdio
-interface, which are required by the Armada 8k and defined in
-armada-cp110.dtsi.
+I totally agree, the same came to my mind some time after sending the patch.
+Let me send a v2 in a while with drivers checking for needed tty operations
+presence.
 
-Fixes a hang in probing the mvmdio driver that was encountered on the
-Clearfog GT 8K with all drivers built as modules, but also affects other
-boards such as the MacchiatoBIN.
+Best regards,
+Vladis Dronov | Red Hat, Inc. | The Core Kernel | Senior Software Engineer
 
-Cc: stable@vger.kernel.org
-Fixes: 96cb43423822 ("net: mvmdio: allow up to three clocks to be specified for orion-mdio")
-Signed-off-by: Josua Mayer <josua@solid-run.com>
----
- drivers/net/ethernet/marvell/mvmdio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/net/ethernet/marvell/mvmdio.c b/drivers/net/ethernet/marvell/mvmdio.c
-index c5dac6bd2be4..e17d563e97a6 100644
---- a/drivers/net/ethernet/marvell/mvmdio.c
-+++ b/drivers/net/ethernet/marvell/mvmdio.c
-@@ -64,7 +64,7 @@
- 
- struct orion_mdio_dev {
- 	void __iomem *regs;
--	struct clk *clk[3];
-+	struct clk *clk[4];
- 	/*
- 	 * If we have access to the error interrupt pin (which is
- 	 * somewhat misnamed as it not only reflects internal errors
--- 
-2.16.4
-
+----- Original Message -----
+> From: "Marcel Holtmann" <marcel@holtmann.org>
+> To: "Vladis Dronov" <vdronov@redhat.com>
+> Cc: "Johan Hedberg" <johan.hedberg@gmail.com>, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org,
+> syzbot+79337b501d6aa974d0f6@syzkaller.appspotmail.com, stable@vger.kernel.org, "Loic Poulain"
+> <loic.poulain@intel.com>, "Ilya Faenson" <ifaenson@broadcom.com>
+> Sent: Saturday, July 6, 2019 12:35:39 PM
+> Subject: Re: [PATCH] Bluetooth: hci_ldisc: check for missing tty operations
+> 
+> Hi Vladis,
+> 
+> > Certain ttys lack operations (eg: pty_unix98_ops) which still can be
+> > called by certain hci uart proto (eg: mrvl, ath). Currently this leads
+> > to execution at address 0x0. Fix this by adding checks for missing tty
+> > operations.
+> 
+> so I really prefer that we just fail setting the line discipline. These
+> drivers need to check that the underlying transport has all the operations
+> available they need. We can not just ignore them.
+> 
+> Regards
+> 
+> Marcel
