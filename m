@@ -2,80 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D418611D5
-	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 17:19:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EFAE611FA
+	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 17:47:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726607AbfGFPTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Jul 2019 11:19:04 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:32814 "EHLO mx1.redhat.com"
+        id S1726876AbfGFPrM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Jul 2019 11:47:12 -0400
+Received: from vps0.lunn.ch ([185.16.172.187]:58048 "EHLO vps0.lunn.ch"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726446AbfGFPTE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 6 Jul 2019 11:19:04 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 83CDC86658;
-        Sat,  6 Jul 2019 15:19:03 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 38CF717102;
-        Sat,  6 Jul 2019 15:19:03 +0000 (UTC)
-Received: from zmail21.collab.prod.int.phx2.redhat.com (zmail21.collab.prod.int.phx2.redhat.com [10.5.83.24])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 081E44E9E2;
-        Sat,  6 Jul 2019 15:19:02 +0000 (UTC)
-Date:   Sat, 6 Jul 2019 11:19:02 -0400 (EDT)
-From:   Vladis Dronov <vdronov@redhat.com>
-To:     Marcel Holtmann <marcel@holtmann.org>
-Cc:     Johan Hedberg <johan.hedberg@gmail.com>,
-        linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzbot+79337b501d6aa974d0f6@syzkaller.appspotmail.com,
-        stable@vger.kernel.org, Loic Poulain <loic.poulain@intel.com>,
-        Ilya Faenson <ifaenson@broadcom.com>
-Message-ID: <1938318038.39428333.1562426342706.JavaMail.zimbra@redhat.com>
-In-Reply-To: <37673EE8-2391-425D-9957-D6FDAEFB03FA@holtmann.org>
-References: <20190625173215.25999-1-vdronov@redhat.com> <37673EE8-2391-425D-9957-D6FDAEFB03FA@holtmann.org>
-Subject: Re: [PATCH] Bluetooth: hci_ldisc: check for missing tty operations
+        id S1726760AbfGFPrM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 6 Jul 2019 11:47:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+        Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=1eI4tCmPmpE27U/r/gWKuKPvYgiN7t8Zw9O+A9SMlFk=; b=COKvlU7CIc90CEhoAhau31KFjj
+        lVnmusI213K30YJwZsw5pIP85rSwiSNPdqa8OZrWQZFTKOzrqG4Gf+AdzyINhjry1rbT04eCUEq3r
+        1W68XxtTEWpgRL7INzUPaz0JLLnELRG12wB0Cm6q55TsRyKb+fzoSkO9Ftah2cmjDjUw=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.89)
+        (envelope-from <andrew@lunn.ch>)
+        id 1hjmu2-0000MY-JY; Sat, 06 Jul 2019 17:47:06 +0200
+Date:   Sat, 6 Jul 2019 17:47:06 +0200
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     josua@solid-run.com
+Cc:     netdev@vger.kernel.org, stable@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH 1/4] dt-bindings: allow up to four clocks for orion-mdio
+Message-ID: <20190706154706.GE4428@lunn.ch>
+References: <20190706151900.14355-1-josua@solid-run.com>
+ <20190706151900.14355-2-josua@solid-run.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.43.2.20, 10.4.195.25]
-Thread-Topic: Bluetooth: hci_ldisc: check for missing tty operations
-Thread-Index: Y6PSNA1ggdS0XuGkMbW9gMaqSx7KUg==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Sat, 06 Jul 2019 15:19:03 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190706151900.14355-2-josua@solid-run.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello, Marcel,
+On Sat, Jul 06, 2019 at 05:18:57PM +0200, josua@solid-run.com wrote:
+> From: Josua Mayer <josua@solid-run.com>
+> 
+> Armada 8040 needs four clocks to be enabled for MDIO accesses to work.
+> Update the binding to allow the extra clock to be specified.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 6d6a331f44a1 ("dt-bindings: allow up to three clocks for orion-mdio")
+> Signed-off-by: Josua Mayer <josua@solid-run.com>
 
-I totally agree, the same came to my mind some time after sending the patch.
-Let me send a v2 in a while with drivers checking for needed tty operations
-presence.
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 
-Best regards,
-Vladis Dronov | Red Hat, Inc. | The Core Kernel | Senior Software Engineer
-
------ Original Message -----
-> From: "Marcel Holtmann" <marcel@holtmann.org>
-> To: "Vladis Dronov" <vdronov@redhat.com>
-> Cc: "Johan Hedberg" <johan.hedberg@gmail.com>, linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org,
-> syzbot+79337b501d6aa974d0f6@syzkaller.appspotmail.com, stable@vger.kernel.org, "Loic Poulain"
-> <loic.poulain@intel.com>, "Ilya Faenson" <ifaenson@broadcom.com>
-> Sent: Saturday, July 6, 2019 12:35:39 PM
-> Subject: Re: [PATCH] Bluetooth: hci_ldisc: check for missing tty operations
-> 
-> Hi Vladis,
-> 
-> > Certain ttys lack operations (eg: pty_unix98_ops) which still can be
-> > called by certain hci uart proto (eg: mrvl, ath). Currently this leads
-> > to execution at address 0x0. Fix this by adding checks for missing tty
-> > operations.
-> 
-> so I really prefer that we just fail setting the line discipline. These
-> drivers need to check that the underlying transport has all the operations
-> available they need. We can not just ignore them.
-> 
-> Regards
-> 
-> Marcel
+    Andrew
