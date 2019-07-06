@@ -2,94 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F11B261072
-	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 13:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF3E610E1
+	for <lists+stable@lfdr.de>; Sat,  6 Jul 2019 15:51:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726065AbfGFLZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Jul 2019 07:25:14 -0400
-Received: from mail-wm1-f41.google.com ([209.85.128.41]:35477 "EHLO
-        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726007AbfGFLZO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Jul 2019 07:25:14 -0400
-Received: by mail-wm1-f41.google.com with SMTP id l2so4738373wmg.0
-        for <stable@vger.kernel.org>; Sat, 06 Jul 2019 04:25:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=36KlCNolIjV276dwesHT4WTqnoup0b4pZSYfyjH7Sic=;
-        b=xmIRLjbzhyZqN8uNwtK/6XX4u7E8FJsGmlyJ5xcTgipisrLfkJ8KBUq3WD2rtIMd6M
-         toqHBkEmKQTK2DRorz/h2Tes7sbg/PhrfH7k4O9L0qXkBI/IPezFr8mZqJkirTfNDH6c
-         Ei0u08Pv58nyTEfsbawZtDmCTgrhxQ7vi3b+ZacApjQVKxpd6luWwruwbBxQRCBjNpL1
-         b4hDpogP469ui8gHMARMF4hYQKZa9ucg2hZOGguPLdw975rluyCehiP6COmNd2kCDe6r
-         vlyH2S91bpsNIvEYIK2maUD+YI6u/l3vTG9pywegdmTmE8B8Gx7MuUqFq2+fxot0Pb0u
-         OpYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=36KlCNolIjV276dwesHT4WTqnoup0b4pZSYfyjH7Sic=;
-        b=TijwenrACu55r9UOewkV8TugdY2IXKQRjhi5Anf9GaWvG/Nt0bKfqLQrKLKn+5udfi
-         JdznqafnTyhVMfvvyk06xloHv5PGjsxleSBwyOLzieGs9zu0L27bGxm5/gIQOJgiX0TN
-         pb7Ff9QkPv44p8PC2K5nRjLzgdxeyx0xHDXyn180PnA1AeJiNJziNnqNprETW6vzCMbY
-         P1OqKBGU3w3UrzO2x3sDepDFLv+Jpj2/K2JnQaDXIfAIYl4NC3AXC6WlO2wN1NZ3Er8J
-         Q33+2jAkO2iA1qLAuLv1BkcbQkpnP5N7EFwvmJuGfVFWuRxEWsqiLzWj0hKo8qObA0jY
-         mUqA==
-X-Gm-Message-State: APjAAAW7BBtzqVWpcYO/KdTAlATaWzwNo7r0Rv4Z1wUHulaGLILjd/E9
-        Kb2QqZHDmkNccqmD+c+UHLoNGGXPdMJJKg==
-X-Google-Smtp-Source: APXvYqwUb2r97NGqRZRSVVitY6ANGREz7Mwsb6HzUrGmsu9LXnRsifQ+YQ9tPF9aIjXScp1Fc4slwg==
-X-Received: by 2002:a1c:f018:: with SMTP id a24mr228758wmb.66.1562412311893;
-        Sat, 06 Jul 2019 04:25:11 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id 2sm11525199wrn.29.2019.07.06.04.25.09
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 06 Jul 2019 04:25:09 -0700 (PDT)
-Message-ID: <5d208515.1c69fb81.75e33.3348@mx.google.com>
-Date:   Sat, 06 Jul 2019 04:25:09 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.1.16-89-g2b5fd394355a
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.1.y boot: 139 boots: 3 failed,
- 136 passed (v5.1.16-89-g2b5fd394355a)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726446AbfGFNvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Jul 2019 09:51:16 -0400
+Received: from coyote.holtmann.net ([212.227.132.17]:39440 "EHLO
+        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726065AbfGFNvQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Jul 2019 09:51:16 -0400
+Received: from [192.168.0.171] (188.146.228.97.nat.umts.dynamic.t-mobile.pl [188.146.228.97])
+        by mail.holtmann.org (Postfix) with ESMTPSA id 27DF8CF12E;
+        Sat,  6 Jul 2019 15:59:46 +0200 (CEST)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Subject: Re: [PATCH] Bluetooth: SMP: Workaround Microsoft Surface Precision
+ Mouse bug
+From:   Marcel Holtmann <marcel@holtmann.org>
+In-Reply-To: <20190618224747.446-1-szymon.janc@codecoup.pl>
+Date:   Sat, 6 Jul 2019 15:51:13 +0200
+Cc:     linux-bluetooth@vger.kernel.org,
+        Maarten Fonville <maarten.fonville@gmail.com>,
+        stable@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Message-Id: <E8043BA4-A070-4D02-8DFC-08C6AA94C247@holtmann.org>
+References: <20190618224747.446-1-szymon.janc@codecoup.pl>
+To:     Szymon Janc <szymon.janc@codecoup.pl>
+X-Mailer: Apple Mail (2.3445.104.11)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.1.y boot: 139 boots: 3 failed, 136 passed (v5.1.16-89-g2b=
-5fd394355a)
+Hi Szymon,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.1.y/kernel/v5.1.16-89-g2b5fd394355a/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
-/kernel/v5.1.16-89-g2b5fd394355a/
+> Microsoft Surface Precision Mouse provides bogus identity address when
+> pairing. It connects with Static Random address but provides Public
+> Address in SMP Identity Address Information PDU. Address has same
+> value but type is different. Workaround this by dropping IRK if ID
+> address discrepancy is detected.
+> 
+>> HCI Event: LE Meta Event (0x3e) plen 19
+>      LE Connection Complete (0x01)
+>        Status: Success (0x00)
+>        Handle: 75
+>        Role: Master (0x00)
+>        Peer address type: Random (0x01)
+>        Peer address: E0:52:33:93:3B:21 (Static)
+>        Connection interval: 50.00 msec (0x0028)
+>        Connection latency: 0 (0x0000)
+>        Supervision timeout: 420 msec (0x002a)
+>        Master clock accuracy: 0x00
+> 
+> ....
+> 
+>> ACL Data RX: Handle 75 flags 0x02 dlen 12
+>      SMP: Identity Address Information (0x09) len 7
+>        Address type: Public (0x00)
+>        Address: E0:52:33:93:3B:21
+> 
+> Signed-off-by: Szymon Janc <szymon.janc@codecoup.pl>
+> Tested-by: Maarten Fonville <maarten.fonville@gmail.com>
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=199461
+> Cc: stable@vger.kernel.org
+> ---
+> net/bluetooth/smp.c | 14 ++++++++++++++
+> 1 file changed, 14 insertions(+)
 
-Tree: stable-rc
-Branch: linux-5.1.y
-Git Describe: v5.1.16-89-g2b5fd394355a
-Git Commit: 2b5fd394355ac0b2cc9572232727cb2bce7c15a7
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 79 unique boards, 27 SoC families, 17 builds out of 209
+patch has been applied to bluetooth-next tree.
 
-Boot Failures Detected:
+Regards
 
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
+Marcel
 
-    multi_v7_defconfig:
-        gcc-8:
-            bcm4708-smartrg-sr400ac: 1 failed lab
-            sun7i-a20-bananapi: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
