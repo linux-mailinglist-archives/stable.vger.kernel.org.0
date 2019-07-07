@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB66361726
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:45:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88404616BC
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:42:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727523AbfGGTiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:38:05 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:56964 "EHLO
+        id S1727631AbfGGTiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:38:13 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57608 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727486AbfGGTiD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:03 -0400
+        by vger.kernel.org with ESMTP id S1727611AbfGGTiM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:12 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz2-0006eK-Mg; Sun, 07 Jul 2019 20:38:00 +0100
+        id 1hkCz9-0006kW-F0; Sun, 07 Jul 2019 20:38:07 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz1-0005YM-7l; Sun, 07 Jul 2019 20:37:59 +0100
+        id 1hkCz7-0005eH-Gs; Sun, 07 Jul 2019 20:38:05 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>,
-        "Jacek Anaszewski" <jacek.anaszewski@gmail.com>,
-        "Pawe? Chmiel" <pawel.mikolaj.chmiel@gmail.com>
+        "NeilBrown" <neilb@suse.com>,
+        "J. Bruce Fields" <bfields@redhat.com>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.126870290@decadent.org.uk>
+Message-ID: <lsq.1562518457.225073674@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 026/129] media: s5p-jpeg: Check for fmt_ver_flag when
- doing fmt enumeration
+Subject: [PATCH 3.16 099/129] nfsd: fix memory corruption caused by readdir
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,82 +46,95 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
+From: NeilBrown <neilb@suse.com>
 
-commit 49710c32cd9d6626a77c9f5f978a5f58cb536b35 upstream.
+commit b602345da6cbb135ba68cf042df8ec9a73da7981 upstream.
 
-Previously when doing format enumeration, it was returning all
- formats supported by driver, even if they're not supported by hw.
-Add missing check for fmt_ver_flag, so it'll be fixed and only those
- supported by hw will be returned. Similar thing is already done
- in s5p_jpeg_find_format.
+If the result of an NFSv3 readdir{,plus} request results in the
+"offset" on one entry having to be split across 2 pages, and is sized
+so that the next directory entry doesn't fit in the requested size,
+then memory corruption can happen.
 
-It was found by using v4l2-compliance tool and checking result
- of VIDIOC_ENUM_FMT/FRAMESIZES/FRAMEINTERVALS test
-and using v4l2-ctl to get list of all supported formats.
+When encode_entry() is called after encoding the last entry that fits,
+it notices that ->offset and ->offset1 are set, and so stores the
+offset value in the two pages as required.  It clears ->offset1 but
+*does not* clear ->offset.
 
-Tested on s5pv210-galaxys (Samsung i9000 phone).
+Normally this omission doesn't matter as encode_entry_baggage() will
+be called, and will set ->offset to a suitable value (not on a page
+boundary).
+But in the case where cd->buflen < elen and nfserr_toosmall is
+returned, ->offset is not reset.
 
-Fixes: bb677f3ac434 ("[media] Exynos4 JPEG codec v4l2 driver")
+This means that nfsd3proc_readdirplus will see ->offset with a value 4
+bytes before the end of a page, and ->offset1 set to NULL.
+It will try to write 8bytes to ->offset.
+If we are lucky, the next page will be read-only, and the system will
+  BUG: unable to handle kernel paging request at...
 
-Signed-off-by: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Reviewed-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-[hverkuil-cisco@xs4all.nl: fix a few alignment issues]
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+If we are unlucky, some innocent page will have the first 4 bytes
+corrupted.
+
+nfsd3proc_readdir() doesn't even check for ->offset1, it just blindly
+writes 8 bytes to the offset wherever it is.
+
+Fix this by clearing ->offset after it is used, and copying the
+->offset handling code from nfsd3_proc_readdirplus into
+nfsd3_proc_readdir.
+
+(Note that the commit hash in the Fixes tag is from the 'history'
+ tree - this bug predates git).
+
+Fixes: 0b1d57cf7654 ("[PATCH] kNFSd: Fix nfs3 dentry encoding")
+Fixes-URL: https://git.kernel.org/pub/scm/linux/kernel/git/history/history.git/commit/?id=0b1d57cf7654
+Signed-off-by: NeilBrown <neilb@suse.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/media/platform/s5p-jpeg/jpeg-core.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ fs/nfsd/nfs3proc.c | 16 ++++++++++++++--
+ fs/nfsd/nfs3xdr.c  |  1 +
+ 2 files changed, 15 insertions(+), 2 deletions(-)
 
---- a/drivers/media/platform/s5p-jpeg/jpeg-core.c
-+++ b/drivers/media/platform/s5p-jpeg/jpeg-core.c
-@@ -859,13 +859,16 @@ static int s5p_jpeg_querycap(struct file
- 	return 0;
+--- a/fs/nfsd/nfs3proc.c
++++ b/fs/nfsd/nfs3proc.c
+@@ -440,8 +440,19 @@ nfsd3_proc_readdir(struct svc_rqst *rqst
+ 					&resp->common, nfs3svc_encode_entry);
+ 	memcpy(resp->verf, argp->verf, 8);
+ 	resp->count = resp->buffer - argp->buffer;
+-	if (resp->offset)
+-		xdr_encode_hyper(resp->offset, argp->cookie);
++	if (resp->offset) {
++		loff_t offset = argp->cookie;
++
++		if (unlikely(resp->offset1)) {
++			/* we ended up with offset on a page boundary */
++			*resp->offset = htonl(offset >> 32);
++			*resp->offset1 = htonl(offset & 0xffffffff);
++			resp->offset1 = NULL;
++		} else {
++			xdr_encode_hyper(resp->offset, offset);
++		}
++		resp->offset = NULL;
++	}
+ 
+ 	RETURN_STATUS(nfserr);
  }
+@@ -501,6 +512,7 @@ nfsd3_proc_readdirplus(struct svc_rqst *
+ 		} else {
+ 			xdr_encode_hyper(resp->offset, offset);
+ 		}
++		resp->offset = NULL;
+ 	}
  
--static int enum_fmt(struct s5p_jpeg_fmt *sjpeg_formats, int n,
-+static int enum_fmt(struct s5p_jpeg_ctx *ctx,
-+		    struct s5p_jpeg_fmt *sjpeg_formats, int n,
- 		    struct v4l2_fmtdesc *f, u32 type)
- {
- 	int i, num = 0;
-+	unsigned int fmt_ver_flag = ctx->jpeg->variant->fmt_ver_flag;
+ 	RETURN_STATUS(nfserr);
+--- a/fs/nfsd/nfs3xdr.c
++++ b/fs/nfsd/nfs3xdr.c
+@@ -909,6 +909,7 @@ encode_entry(struct readdir_cd *ccd, con
+ 		} else {
+ 			xdr_encode_hyper(cd->offset, offset64);
+ 		}
++		cd->offset = NULL;
+ 	}
  
- 	for (i = 0; i < n; ++i) {
--		if (sjpeg_formats[i].flags & type) {
-+		if (sjpeg_formats[i].flags & type &&
-+		    sjpeg_formats[i].flags & fmt_ver_flag) {
- 			/* index-th format of type type found ? */
- 			if (num == f->index)
- 				break;
-@@ -891,11 +894,11 @@ static int s5p_jpeg_enum_fmt_vid_cap(str
- 	struct s5p_jpeg_ctx *ctx = fh_to_ctx(priv);
- 
- 	if (ctx->mode == S5P_JPEG_ENCODE)
--		return enum_fmt(sjpeg_formats, SJPEG_NUM_FORMATS, f,
-+		return enum_fmt(ctx, sjpeg_formats, SJPEG_NUM_FORMATS, f,
- 				SJPEG_FMT_FLAG_ENC_CAPTURE);
- 
--	return enum_fmt(sjpeg_formats, SJPEG_NUM_FORMATS, f,
--					SJPEG_FMT_FLAG_DEC_CAPTURE);
-+	return enum_fmt(ctx, sjpeg_formats, SJPEG_NUM_FORMATS, f,
-+			SJPEG_FMT_FLAG_DEC_CAPTURE);
- }
- 
- static int s5p_jpeg_enum_fmt_vid_out(struct file *file, void *priv,
-@@ -904,11 +907,11 @@ static int s5p_jpeg_enum_fmt_vid_out(str
- 	struct s5p_jpeg_ctx *ctx = fh_to_ctx(priv);
- 
- 	if (ctx->mode == S5P_JPEG_ENCODE)
--		return enum_fmt(sjpeg_formats, SJPEG_NUM_FORMATS, f,
-+		return enum_fmt(ctx, sjpeg_formats, SJPEG_NUM_FORMATS, f,
- 				SJPEG_FMT_FLAG_ENC_OUTPUT);
- 
--	return enum_fmt(sjpeg_formats, SJPEG_NUM_FORMATS, f,
--					SJPEG_FMT_FLAG_DEC_OUTPUT);
-+	return enum_fmt(ctx, sjpeg_formats, SJPEG_NUM_FORMATS, f,
-+			SJPEG_FMT_FLAG_DEC_OUTPUT);
- }
- 
- static struct s5p_jpeg_q_data *get_q_data(struct s5p_jpeg_ctx *ctx,
+ 	/*
 
