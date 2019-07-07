@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF9A61672
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2223C616EA
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727683AbfGGTiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:38:17 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:58026 "EHLO
+        id S1727977AbfGGTnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:43:52 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57408 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727668AbfGGTiR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:17 -0400
+        by vger.kernel.org with ESMTP id S1727575AbfGGTiK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:10 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCzE-0006kg-0j; Sun, 07 Jul 2019 20:38:12 +0100
+        id 1hkCz7-0006ig-El; Sun, 07 Jul 2019 20:38:05 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz9-0005gl-SV; Sun, 07 Jul 2019 20:38:07 +0100
+        id 1hkCz5-0005cf-Om; Sun, 07 Jul 2019 20:38:03 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Takashi Iwai" <tiwai@suse.de>,
-        "Kalle Valo" <kvalo@codeaurora.org>,
-        "huangwen" <huangwen@venustech.com.cn>
+        "Florian Fainelli" <f.fainelli@gmail.com>,
+        "Doug Berger" <opendmb@gmail.com>,
+        "Marc Zyngier" <marc.zyngier@arm.com>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.996126085@decadent.org.uk>
+Message-ID: <lsq.1562518457.981020944@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 128/129] mwifiex: Fix heap overflow in
- mwifiex_uap_parse_tail_ies()
+Subject: [PATCH 3.16 079/129] irqchip/brcmstb-l2: Use _irqsave locking
+ variants in non-interrupt code
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,100 +48,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Doug Berger <opendmb@gmail.com>
 
-commit 69ae4f6aac1578575126319d3f55550e7e440449 upstream.
+commit 33517881ede742107f416533b8c3e4abc56763da upstream.
 
-A few places in mwifiex_uap_parse_tail_ies() perform memcpy()
-unconditionally, which may lead to either buffer overflow or read over
-boundary.
+Using the irq_gc_lock/irq_gc_unlock functions in the suspend and
+resume functions creates the opportunity for a deadlock during
+suspend, resume, and shutdown. Using the irq_gc_lock_irqsave/
+irq_gc_unlock_irqrestore variants prevents this possible deadlock.
 
-This patch addresses the issues by checking the read size and the
-destination size at each place more properly.  Along with the fixes,
-the patch cleans up the code slightly by introducing a temporary
-variable for the token size, and unifies the error path with the
-standard goto statement.
-
-Reported-by: huangwen <huangwen@venustech.com.cn>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-[bwh: Backported to 3.16:
- - The tail IEs are parsed in mwifiex_set_mgmt_ies, which looks for two
-   specific IEs rather than looping
- - Check IE length against tail length after calling
-   cfg80211_find_vendor_ie(), but not after cfg80211_find_ie() since that
-   already does it
- - On error, return without calling mwifiex_set_mgmt_beacon_data_ies()
- - Drop inapplicable change to WMM IE handling
- - Adjust filename]
+Fixes: 7f646e92766e2 ("irqchip: brcmstb-l2: Add Broadcom Set Top Box Level-2 interrupt controller")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+[maz: tidied up $SUBJECT]
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/wireless/mwifiex/ie.c | 47 +++++++++++++++--------
- 1 file changed, 31 insertions(+), 16 deletions(-)
+ drivers/irqchip/irq-brcmstb-l2.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/mwifiex/ie.c
-+++ b/drivers/net/wireless/mwifiex/ie.c
-@@ -328,6 +328,8 @@ int mwifiex_set_mgmt_ies(struct mwifiex_
- 	struct ieee_types_header *rsn_ie, *wpa_ie = NULL;
- 	u16 rsn_idx = MWIFIEX_AUTO_IDX_MASK, ie_len = 0;
- 	const u8 *vendor_ie;
-+	unsigned int token_len;
-+	int err = 0;
+--- a/drivers/irqchip/irq-brcmstb-l2.c
++++ b/drivers/irqchip/irq-brcmstb-l2.c
+@@ -82,8 +82,9 @@ static void brcmstb_l2_intc_suspend(stru
+ {
+ 	struct irq_chip_generic *gc = irq_data_get_irq_chip_data(d);
+ 	struct brcmstb_l2_intc_data *b = gc->private;
++	unsigned long flags;
  
- 	if (info->tail && info->tail_len) {
- 		gen_ie = kzalloc(sizeof(struct mwifiex_ie), GFP_KERNEL);
-@@ -341,8 +343,13 @@ int mwifiex_set_mgmt_ies(struct mwifiex_
- 		rsn_ie = (void *)cfg80211_find_ie(WLAN_EID_RSN,
- 						  info->tail, info->tail_len);
- 		if (rsn_ie) {
--			memcpy(gen_ie->ie_buffer, rsn_ie, rsn_ie->len + 2);
--			ie_len = rsn_ie->len + 2;
-+			token_len = rsn_ie->len + 2;
-+			if (ie_len + token_len > IEEE_MAX_IE_SIZE) {
-+				err = -EINVAL;
-+				goto out;
-+			}
-+			memcpy(gen_ie->ie_buffer + ie_len, rsn_ie, token_len);
-+			ie_len += token_len;
- 			gen_ie->ie_length = cpu_to_le16(ie_len);
- 		}
+-	irq_gc_lock(gc);
++	irq_gc_lock_irqsave(gc, flags);
+ 	/* Save the current mask */
+ 	b->saved_mask = __raw_readl(b->base + CPU_MASK_STATUS);
  
-@@ -352,9 +359,15 @@ int mwifiex_set_mgmt_ies(struct mwifiex_
- 						    info->tail_len);
- 		if (vendor_ie) {
- 			wpa_ie = (struct ieee_types_header *)vendor_ie;
--			memcpy(gen_ie->ie_buffer + ie_len,
--			       wpa_ie, wpa_ie->len + 2);
--			ie_len += wpa_ie->len + 2;
-+			token_len = wpa_ie->len + 2;
-+			if (token_len >
-+			    info->tail + info->tail_len - (u8 *)wpa_ie ||
-+			    ie_len + token_len > IEEE_MAX_IE_SIZE) {
-+				err = -EINVAL;
-+				goto out;
-+			}
-+			memcpy(gen_ie->ie_buffer + ie_len, wpa_ie, token_len);
-+			ie_len += token_len;
- 			gen_ie->ie_length = cpu_to_le16(ie_len);
- 		}
- 
-@@ -362,13 +375,16 @@ int mwifiex_set_mgmt_ies(struct mwifiex_
- 			if (mwifiex_update_uap_custom_ie(priv, gen_ie, &rsn_idx,
- 							 NULL, NULL,
- 							 NULL, NULL)) {
--				kfree(gen_ie);
--				return -1;
-+				err = -EINVAL;
-+				goto out;
- 			}
- 			priv->rsn_idx = rsn_idx;
- 		}
- 
-+	out:
- 		kfree(gen_ie);
-+		if (err)
-+			return err;
+@@ -92,22 +93,23 @@ static void brcmstb_l2_intc_suspend(stru
+ 		__raw_writel(~gc->wake_active, b->base + CPU_MASK_SET);
+ 		__raw_writel(gc->wake_active, b->base + CPU_MASK_CLEAR);
  	}
+-	irq_gc_unlock(gc);
++	irq_gc_unlock_irqrestore(gc, flags);
+ }
  
- 	return mwifiex_set_mgmt_beacon_data_ies(priv, info);
+ static void brcmstb_l2_intc_resume(struct irq_data *d)
+ {
+ 	struct irq_chip_generic *gc = irq_data_get_irq_chip_data(d);
+ 	struct brcmstb_l2_intc_data *b = gc->private;
++	unsigned long flags;
+ 
+-	irq_gc_lock(gc);
++	irq_gc_lock_irqsave(gc, flags);
+ 	/* Clear unmasked non-wakeup interrupts */
+ 	__raw_writel(~b->saved_mask & ~gc->wake_active, b->base + CPU_CLEAR);
+ 
+ 	/* Restore the saved mask */
+ 	__raw_writel(b->saved_mask, b->base + CPU_MASK_SET);
+ 	__raw_writel(~b->saved_mask, b->base + CPU_MASK_CLEAR);
+-	irq_gc_unlock(gc);
++	irq_gc_unlock_irqrestore(gc, flags);
+ }
+ 
+ int __init brcmstb_l2_intc_of_init(struct device_node *np,
 
