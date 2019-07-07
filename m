@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5670761671
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3571D61673
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:41:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727658AbfGGTiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:38:15 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57822 "EHLO
+        id S1727681AbfGGTiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:38:17 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57890 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727640AbfGGTiO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:14 -0400
+        by vger.kernel.org with ESMTP id S1727654AbfGGTiQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:16 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCzC-0006j1-HH; Sun, 07 Jul 2019 20:38:10 +0100
+        id 1hkCzD-0006kR-NI; Sun, 07 Jul 2019 20:38:11 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz7-0005eT-PT; Sun, 07 Jul 2019 20:38:05 +0100
+        id 1hkCz9-0005gD-Bl; Sun, 07 Jul 2019 20:38:07 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,17 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Luis R. Rodriguez" <mcgrof@kernel.org>,
-        "Andrey Ryabinin" <aryabinin@virtuozzo.com>,
-        "Michal Hocko" <mhocko@suse.com>, "Joe Perches" <joe@perches.com>,
-        "Roman Penyaev" <rpenyaev@suse.de>
+        "David S. Miller" <davem@davemloft.net>,
+        "Christoph Paasch" <cpaasch@apple.com>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Eric Dumazet" <edumazet@google.com>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.673598026@decadent.org.uk>
+Message-ID: <lsq.1562518457.496529670@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 101/129] mm/vmalloc: fix size check for
- remap_vmalloc_range_partial()
+Subject: [PATCH 3.16 121/129] tcp: refine memory limit test in tcp_fragment()
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -50,83 +48,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Roman Penyaev <rpenyaev@suse.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 401592d2e095947344e10ec0623adbcd58934dd4 upstream.
+commit b6653b3629e5b88202be3c9abc44713973f5c4b4 upstream.
 
-When VM_NO_GUARD is not set area->size includes adjacent guard page,
-thus for correct size checking get_vm_area_size() should be used, but
-not area->size.
+tcp_fragment() might be called for skbs in the write queue.
 
-This fixes possible kernel oops when userspace tries to mmap an area on
-1 page bigger than was allocated by vmalloc_user() call: the size check
-inside remap_vmalloc_range_partial() accounts non-existing guard page
-also, so check successfully passes but vmalloc_to_page() returns NULL
-(guard page does not physically exist).
+Memory limits might have been exceeded because tcp_sendmsg() only
+checks limits at full skb (64KB) boundaries.
 
-The following code pattern example should trigger an oops:
+Therefore, we need to make sure tcp_fragment() wont punish applications
+that might have setup very low SO_SNDBUF values.
 
-  static int oops_mmap(struct file *file, struct vm_area_struct *vma)
-  {
-        void *mem;
-
-        mem = vmalloc_user(4096);
-        BUG_ON(!mem);
-        /* Do not care about mem leak */
-
-        return remap_vmalloc_range(vma, mem, 0);
-  }
-
-And userspace simply mmaps size + PAGE_SIZE:
-
-  mmap(NULL, 8192, PROT_WRITE|PROT_READ, MAP_PRIVATE, fd, 0);
-
-Possible candidates for oops which do not have any explicit size
-checks:
-
-   *** drivers/media/usb/stkwebcam/stk-webcam.c:
-   v4l_stk_mmap[789]   ret = remap_vmalloc_range(vma, sbuf->buffer, 0);
-
-Or the following one:
-
-   *** drivers/video/fbdev/core/fbmem.c
-   static int
-   fb_mmap(struct file *file, struct vm_area_struct * vma)
-        ...
-        res = fb->fb_mmap(info, vma);
-
-Where fb_mmap callback calls remap_vmalloc_range() directly without any
-explicit checks:
-
-   *** drivers/video/fbdev/vfb.c
-   static int vfb_mmap(struct fb_info *info,
-             struct vm_area_struct *vma)
-   {
-       return remap_vmalloc_range(vma, (void *)info->fix.smem_start, vma->vm_pgoff);
-   }
-
-Link: http://lkml.kernel.org/r/20190103145954.16942-2-rpenyaev@suse.de
-Signed-off-by: Roman Penyaev <rpenyaev@suse.de>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: "Luis R. Rodriguez" <mcgrof@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f070ef2ac667 ("tcp: tcp_fragment() should apply sane memory limits")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Christoph Paasch <cpaasch@apple.com>
+Tested-by: Christoph Paasch <cpaasch@apple.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- mm/vmalloc.c | 2 +-
+ net/ipv4/tcp_output.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -2141,7 +2141,7 @@ int remap_vmalloc_range_partial(struct v
- 	if (!(area->flags & VM_USERMAP))
- 		return -EINVAL;
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1091,7 +1091,7 @@ int tcp_fragment(struct sock *sk, struct
+ 	if (nsize < 0)
+ 		nsize = 0;
  
--	if (kaddr + size > area->addr + area->size)
-+	if (kaddr + size > area->addr + get_vm_area_size(area))
- 		return -EINVAL;
- 
- 	do {
+-	if (unlikely((sk->sk_wmem_queued >> 1) > sk->sk_sndbuf)) {
++	if (unlikely((sk->sk_wmem_queued >> 1) > sk->sk_sndbuf + 0x20000)) {
+ 		NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPWQUEUETOOBIG);
+ 		return -ENOMEM;
+ 	}
 
