@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 839A66165E
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60A3861710
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727652AbfGGTiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:38:14 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57778 "EHLO
+        id S1728085AbfGGTpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:45:03 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57186 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727634AbfGGTiO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:14 -0400
+        by vger.kernel.org with ESMTP id S1727532AbfGGTiG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:06 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCzC-0006je-Fa; Sun, 07 Jul 2019 20:38:10 +0100
+        id 1hkCz4-0006gW-Tc; Sun, 07 Jul 2019 20:38:03 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz8-0005fN-HD; Sun, 07 Jul 2019 20:38:06 +0100
+        id 1hkCz3-0005aK-FY; Sun, 07 Jul 2019 20:38:01 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Eric Dumazet" <edumazet@google.com>
+        "Eric Biggers" <ebiggers@google.com>,
+        "Herbert Xu" <herbert@gondor.apana.org.au>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.568896783@decadent.org.uk>
+Message-ID: <lsq.1562518457.813548642@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 111/129] vxlan: test dev->flags & IFF_UP before
- calling gro_cells_receive()
+Subject: [PATCH 3.16 050/129] crypto: ahash - fix another early
+ termination in hash walk
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,63 +47,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Eric Dumazet <edumazet@google.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 59cbf56fcd98ba2a715b6e97c4e43f773f956393 upstream.
+commit 77568e535af7c4f97eaef1e555bf0af83772456c upstream.
 
-Same reasons than the ones explained in commit 4179cb5a4c92
-("vxlan: test dev->flags & IFF_UP before calling netif_rx()")
+Hash algorithms with an alignmask set, e.g. "xcbc(aes-aesni)" and
+"michael_mic", fail the improved hash tests because they sometimes
+produce the wrong digest.  The bug is that in the case where a
+scatterlist element crosses pages, not all the data is actually hashed
+because the scatterlist walk terminates too early.  This happens because
+the 'nbytes' variable in crypto_hash_walk_done() is assigned the number
+of bytes remaining in the page, then later interpreted as the number of
+bytes remaining in the scatterlist element.  Fix it.
 
-netif_rx() or gro_cells_receive() must be called under a strict contract.
-
-At device dismantle phase, core networking clears IFF_UP
-and flush_all_backlogs() is called after rcu grace period
-to make sure no incoming packet might be in a cpu backlog
-and still referencing the device.
-
-A similar protocol is used for gro_cells infrastructure, as
-gro_cells_destroy() will be called only after a full rcu
-grace period is observed after IFF_UP has been cleared.
-
-Most drivers call netif_rx() from their interrupt handler,
-and since the interrupts are disabled at device dismantle,
-netif_rx() does not have to check dev->flags & IFF_UP
-
-Virtual drivers do not have this guarantee, and must
-therefore make the check themselves.
-
-Otherwise we risk use-after-free and/or crashes.
-
-Fixes: d342894c5d2f ("vxlan: virtual extensible lan")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 3.16: adjust context]
+Fixes: 900a081f6912 ("crypto: ahash - Fix early termination in hash walk")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -1280,6 +1280,14 @@ static void vxlan_rcv(struct vxlan_sock
+ crypto/ahash.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+--- a/crypto/ahash.c
++++ b/crypto/ahash.c
+@@ -84,17 +84,17 @@ static int hash_walk_new_entry(struct cr
+ int crypto_hash_walk_done(struct crypto_hash_walk *walk, int err)
+ {
+ 	unsigned int alignmask = walk->alignmask;
+-	unsigned int nbytes = walk->entrylen;
+ 
+ 	walk->data -= walk->offset;
+ 
+-	if (nbytes && walk->offset & alignmask && !err) {
+-		walk->offset = ALIGN(walk->offset, alignmask + 1);
+-		nbytes = min(nbytes,
+-			     ((unsigned int)(PAGE_SIZE)) - walk->offset);
+-		walk->entrylen -= nbytes;
++	if (walk->entrylen && (walk->offset & alignmask) && !err) {
++		unsigned int nbytes;
+ 
++		walk->offset = ALIGN(walk->offset, alignmask + 1);
++		nbytes = min(walk->entrylen,
++			     (unsigned int)(PAGE_SIZE - walk->offset));
+ 		if (nbytes) {
++			walk->entrylen -= nbytes;
+ 			walk->data += walk->offset;
+ 			return nbytes;
  		}
- 	}
+@@ -114,7 +114,7 @@ int crypto_hash_walk_done(struct crypto_
+ 	if (err)
+ 		return err;
  
-+	rcu_read_lock();
-+
-+	if (unlikely(!(vxlan->dev->flags & IFF_UP))) {
-+		rcu_read_unlock();
-+		atomic_long_inc(&vxlan->dev->rx_dropped);
-+		goto drop;
-+	}
-+
- 	stats = this_cpu_ptr(vxlan->dev->tstats);
- 	u64_stats_update_begin(&stats->syncp);
- 	stats->rx_packets++;
-@@ -1288,6 +1296,8 @@ static void vxlan_rcv(struct vxlan_sock
- 
- 	netif_rx(skb);
- 
-+	rcu_read_unlock();
-+
- 	return;
- drop:
- 	/* Consume bad packet */
+-	if (nbytes) {
++	if (walk->entrylen) {
+ 		walk->offset = 0;
+ 		walk->pg++;
+ 		return hash_walk_next(walk);
 
