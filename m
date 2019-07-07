@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13FE7616DC
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:43:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2F261728
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:45:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727598AbfGGTnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:43:18 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57458 "EHLO
+        id S1727576AbfGGTpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:45:55 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57056 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727581AbfGGTiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:11 -0400
+        by vger.kernel.org with ESMTP id S1727513AbfGGTiF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:05 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz5-0006hE-RO; Sun, 07 Jul 2019 20:38:03 +0100
+        id 1hkCz3-0006ff-Pp; Sun, 07 Jul 2019 20:38:01 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz4-0005b6-7n; Sun, 07 Jul 2019 20:38:02 +0100
+        id 1hkCz2-0005ZE-G4; Sun, 07 Jul 2019 20:38:00 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Sudip Mukherjee" <sudipm.mukherjee@gmail.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Alan Cox" <alan@linux.intel.com>,
-        "QiaoChong" <qiaochong@loongson.cn>
+        "Richard Weinberger" <richard@nod.at>,
+        "Brian Norris" <computersforpeace@gmail.com>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.586141178@decadent.org.uk>
+Message-ID: <lsq.1562518457.691006377@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 060/129] parport_pc: fix find_superio io compare
- code, should use equal test.
+Subject: [PATCH 3.16 037/129] mtd: docg3: Don't leak docg3->bbt in error path
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,38 +46,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: QiaoChong <qiaochong@loongson.cn>
+From: Richard Weinberger <richard@nod.at>
 
-commit 21698fd57984cd28207d841dbdaa026d6061bceb upstream.
+commit 45c2ebd702a468d5037cf16aa4f8ea8d67776f6a upstream.
 
-In the original code before 181bf1e815a2 the loop was continuing until
-it finds the first matching superios[i].io and p->base.
-But after 181bf1e815a2 the logic changed and the loop now returns the
-pointer to the first mismatched array element which is then used in
-get_superio_dma() and get_superio_irq() and thus returning the wrong
-value.
-Fix the condition so that it now returns the correct pointer.
-
-Fixes: 181bf1e815a2 ("parport_pc: clean up the modified while loops using for")
-Cc: Alan Cox <alan@linux.intel.com>
-Signed-off-by: QiaoChong <qiaochong@loongson.cn>
-[rewrite the commit message]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Brian Norris <computersforpeace@gmail.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/parport/parport_pc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/devices/docg3.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/parport/parport_pc.c
-+++ b/drivers/parport/parport_pc.c
-@@ -1377,7 +1377,7 @@ static struct superio_struct *find_super
- {
- 	int i;
- 	for (i = 0; i < NR_SUPERIOS; i++)
--		if (superios[i].io != p->base)
-+		if (superios[i].io == p->base)
- 			return &superios[i];
- 	return NULL;
- }
+--- a/drivers/mtd/devices/docg3.c
++++ b/drivers/mtd/devices/docg3.c
+@@ -1907,7 +1907,7 @@ doc_probe_device(struct docg3_cascade *c
+ 
+ 	ret = 0;
+ 	if (chip_id != (u16)(~chip_id_inv)) {
+-		goto nomem3;
++		goto nomem4;
+ 	}
+ 
+ 	switch (chip_id) {
+@@ -1917,7 +1917,7 @@ doc_probe_device(struct docg3_cascade *c
+ 		break;
+ 	default:
+ 		doc_err("Chip id %04x is not a DiskOnChip G3 chip\n", chip_id);
+-		goto nomem3;
++		goto nomem4;
+ 	}
+ 
+ 	doc_set_driver_info(chip_id, mtd);
+@@ -1926,6 +1926,8 @@ doc_probe_device(struct docg3_cascade *c
+ 	doc_reload_bbt(docg3);
+ 	return mtd;
+ 
++nomem4:
++	kfree(docg3->bbt);
+ nomem3:
+ 	kfree(mtd);
+ nomem2:
 
