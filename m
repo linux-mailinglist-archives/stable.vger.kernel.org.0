@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84CF861747
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:48:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5921D616C3
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:42:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728507AbfGGTqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:46:52 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:56848 "EHLO
+        id S1727997AbfGGTmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:42:31 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57652 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727457AbfGGTiB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:01 -0400
+        by vger.kernel.org with ESMTP id S1727618AbfGGTiM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:12 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz1-0006dM-AU; Sun, 07 Jul 2019 20:37:59 +0100
+        id 1hkCzA-0006kg-7U; Sun, 07 Jul 2019 20:38:08 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz0-0005XU-94; Sun, 07 Jul 2019 20:37:58 +0100
+        id 1hkCz7-0005eY-RS; Sun, 07 Jul 2019 20:38:05 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jeremy Fertic" <jeremyfertic@gmail.com>,
-        "Jonathan Cameron" <Jonathan.Cameron@huawei.com>
+        "Andrey Konovalov" <andreyknvl@google.com>,
+        "Hugh Dickins" <hughd@google.com>,
+        "Al Viro" <viro@zeniv.linux.org.uk>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.922294205@decadent.org.uk>
+Message-ID: <lsq.1562518457.978666923@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 015/129] staging: iio: adt7316: fix handling of dac
- high resolution option
+Subject: [PATCH 3.16 102/129] mm: fix potential data race in SyS_swapon
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,61 +47,104 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Jeremy Fertic <jeremyfertic@gmail.com>
+From: Hugh Dickins <hughd@google.com>
 
-commit 76b7fe8d6c4daf4db672eb953c892c6f6572a282 upstream.
+commit 6f179af88f60b32c2855e7f3e16ea8e336a7043f upstream.
 
-The adt7316/7 and adt7516/7 have the option to output voltage proportional
-to temperature on dac a and/or dac b. The default dac resolution in this
-mode is 8 bits with the dac high resolution option enabling 10 bits. None
-of these settings affect dacs c and d. Remove the "1 (12 bits)" output from
-the show function since that is not an option for this mode. Return
-"1 (10 bits)" if the device is one of the above mentioned chips and the dac
-high resolution mode is enabled.
+While running KernelThreadSanitizer (ktsan) on upstream kernel with
+trinity, we got a few reports from SyS_swapon, here is one of them:
 
-In the store function, the driver currently allows the user to write to the
-ADT7316_DA_HIGH_RESOLUTION bit regardless of the device in use. Add a check
-to return an error in the case of an adt7318 or adt7519. Remove the else
-statement that clears the ADT7316_DA_HIGH_RESOLUTION bit. Instead, clear it
-before conditionally enabling it, depending on user input. This matches the
-typical pattern in the driver when an attribute is a boolean.
+Read of size 8 by thread T307 (K7621):
+ [<     inlined    >] SyS_swapon+0x3c0/0x1850 SYSC_swapon mm/swapfile.c:2395
+ [<ffffffff812242c0>] SyS_swapon+0x3c0/0x1850 mm/swapfile.c:2345
+ [<ffffffff81e97c8a>] ia32_do_call+0x1b/0x25
 
-Fixes: 35f6b6b86ede ("staging: iio: new ADT7316/7/8 and ADT7516/7/9 driver")
-Signed-off-by: Jeremy Fertic <jeremyfertic@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-[bwh: Backported to 3.16: adjust context]
+Looks like the swap_lock should be taken when iterating through the
+swap_info array on lines 2392 - 2401: q->swap_file may be reset to
+NULL by another thread before it is dereferenced for f_mapping.
+
+But why is that iteration needed at all?  Doesn't the claim_swapfile()
+which follows do all that is needed to check for a duplicate entry -
+FMODE_EXCL on a bdev, testing IS_SWAPFILE under i_mutex on a regfile?
+
+Well, not quite: bd_may_claim() allows the same "holder" to claim the
+bdev again, so we do need to use a different holder than "sys_swapon";
+and we should not replace appropriate -EBUSY by inappropriate -EINVAL.
+
+Index i was reused in a cpu loop further down: renamed cpu there.
+
+Reported-by: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/staging/iio/addac/adt7316.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ mm/swapfile.c | 25 +++++++------------------
+ 1 file changed, 7 insertions(+), 18 deletions(-)
 
---- a/drivers/staging/iio/addac/adt7316.c
-+++ b/drivers/staging/iio/addac/adt7316.c
-@@ -635,9 +635,7 @@ static ssize_t adt7316_show_da_high_reso
- 	struct adt7316_chip_info *chip = iio_priv(dev_info);
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -2144,11 +2144,10 @@ static int claim_swapfile(struct swap_in
+ 	if (S_ISBLK(inode->i_mode)) {
+ 		p->bdev = bdgrab(I_BDEV(inode));
+ 		error = blkdev_get(p->bdev,
+-				   FMODE_READ | FMODE_WRITE | FMODE_EXCL,
+-				   sys_swapon);
++				   FMODE_READ | FMODE_WRITE | FMODE_EXCL, p);
+ 		if (error < 0) {
+ 			p->bdev = NULL;
+-			return -EINVAL;
++			return error;
+ 		}
+ 		p->old_block_size = block_size(p->bdev);
+ 		error = set_blocksize(p->bdev, PAGE_SIZE);
+@@ -2365,7 +2364,6 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 	struct filename *name;
+ 	struct file *swap_file = NULL;
+ 	struct address_space *mapping;
+-	int i;
+ 	int prio;
+ 	int error;
+ 	union swap_header *swap_header;
+@@ -2405,19 +2403,8 @@ SYSCALL_DEFINE2(swapon, const char __use
  
- 	if (chip->config3 & ADT7316_DA_HIGH_RESOLUTION) {
--		if (chip->id == ID_ADT7316 || chip->id == ID_ADT7516)
--			return sprintf(buf, "1 (12 bits)\n");
--		else if (chip->id == ID_ADT7317 || chip->id == ID_ADT7517)
-+		if (chip->id != ID_ADT7318 && chip->id != ID_ADT7519)
- 			return sprintf(buf, "1 (10 bits)\n");
- 	}
- 
-@@ -654,10 +652,12 @@ static ssize_t adt7316_store_da_high_res
- 	u8 config3;
- 	int ret;
- 
-+	if (chip->id == ID_ADT7318 || chip->id == ID_ADT7519)
-+		return -EPERM;
+ 	p->swap_file = swap_file;
+ 	mapping = swap_file->f_mapping;
+-
+-	for (i = 0; i < nr_swapfiles; i++) {
+-		struct swap_info_struct *q = swap_info[i];
+-
+-		if (q == p || !q->swap_file)
+-			continue;
+-		if (mapping == q->swap_file->f_mapping) {
+-			error = -EBUSY;
+-			goto bad_swap;
+-		}
+-	}
+-
+ 	inode = mapping->host;
 +
-+	config3 = chip->config3 & (~ADT7316_DA_HIGH_RESOLUTION);
- 	if (buf[0] == '1')
--		config3 = chip->config3 | ADT7316_DA_HIGH_RESOLUTION;
--	else
--		config3 = chip->config3 & (~ADT7316_DA_HIGH_RESOLUTION);
-+		config3 |= ADT7316_DA_HIGH_RESOLUTION;
- 
- 	ret = chip->bus.write(chip->bus.client, ADT7316_CONFIG3, config3);
- 	if (ret)
+ 	/* If S_ISREG(inode->i_mode) will do mutex_lock(&inode->i_mutex); */
+ 	error = claim_swapfile(p, inode);
+ 	if (unlikely(error))
+@@ -2450,6 +2437,8 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 		goto bad_swap;
+ 	}
+ 	if (p->bdev && blk_queue_nonrot(bdev_get_queue(p->bdev))) {
++		int cpu;
++
+ 		p->flags |= SWP_SOLIDSTATE;
+ 		/*
+ 		 * select a random position to start with to help wear leveling
+@@ -2468,9 +2457,9 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 			error = -ENOMEM;
+ 			goto bad_swap;
+ 		}
+-		for_each_possible_cpu(i) {
++		for_each_possible_cpu(cpu) {
+ 			struct percpu_cluster *cluster;
+-			cluster = per_cpu_ptr(p->percpu_cluster, i);
++			cluster = per_cpu_ptr(p->percpu_cluster, cpu);
+ 			cluster_set_null(&cluster->index);
+ 		}
+ 	}
 
