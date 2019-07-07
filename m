@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE20361736
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:46:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD11E61713
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728695AbfGGTqX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:46:23 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57006 "EHLO
+        id S1728504AbfGGTpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:45:04 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57126 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727500AbfGGTiE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:04 -0400
+        by vger.kernel.org with ESMTP id S1727529AbfGGTiG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:06 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz3-0006f5-6E; Sun, 07 Jul 2019 20:38:01 +0100
+        id 1hkCz4-0006g3-9v; Sun, 07 Jul 2019 20:38:02 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz1-0005YQ-Aa; Sun, 07 Jul 2019 20:37:59 +0100
+        id 1hkCz2-0005Zk-Vp; Sun, 07 Jul 2019 20:38:00 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,17 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jacek Anaszewski" <jacek.anaszewski@gmail.com>,
-        "Sylwester Nawrocki" <s.nawrocki@samsung.com>,
-        "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>,
-        "Pawe? Chmiel" <pawel.mikolaj.chmiel@gmail.com>,
-        "Hans Verkuil" <hverkuil-cisco@xs4all.nl>
+        "Herbert Xu" <herbert@gondor.apana.org.au>,
+        "Eric Biggers" <ebiggers@google.com>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.887968802@decadent.org.uk>
+Message-ID: <lsq.1562518457.77341541@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 027/129] media: s5p-jpeg: Correct step and max values
- for V4L2_CID_JPEG_RESTART_INTERVAL
+Subject: [PATCH 3.16 043/129] crypto: testmgr - skip crc32c context test
+ for ahash algorithms
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -50,38 +47,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 19c624c6b29e244c418f8b44a711cbf5e82e3cd4 upstream.
+commit eb5e6730db98fcc4b51148b4a819fa4bf864ae54 upstream.
 
-This commit corrects max and step values for v4l2 control for
-V4L2_CID_JPEG_RESTART_INTERVAL. Max should be 0xffff and step should be 1.
-It was found by using v4l2-compliance tool and checking result of
-VIDIOC_QUERY_EXT_CTRL/QUERYMENU test.
-Previously it was complaining that step was bigger than difference
-between max and min.
+Instantiating "cryptd(crc32c)" causes a crypto self-test failure because
+the crypto_alloc_shash() in alg_test_crc32c() fails.  This is because
+cryptd(crc32c) is an ahash algorithm, not a shash algorithm; so it can
+only be accessed through the ahash API, unlike shash algorithms which
+can be accessed through both the ahash and shash APIs.
 
-Fixes: 15f4bc3b1f42 ("[media] s5p-jpeg: Add JPEG controls support")
+As the test is testing the shash descriptor format which is only
+applicable to shash algorithms, skip it for ahash algorithms.
 
-Signed-off-by: Pawe? Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Reviewed-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+(Note that it's still important to fix crypto self-test failures even
+ for weird algorithm instantiations like cryptd(crc32c) that no one
+ would really use; in fips_enabled mode unprivileged users can use them
+ to panic the kernel, and also they prevent treating a crypto self-test
+ failure as a bug when fuzzing the kernel.)
+
+Fixes: 8e3ee85e68c5 ("crypto: crc32c - Test descriptor context format")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/media/platform/s5p-jpeg/jpeg-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/testmgr.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/media/platform/s5p-jpeg/jpeg-core.c
-+++ b/drivers/media/platform/s5p-jpeg/jpeg-core.c
-@@ -1363,7 +1363,7 @@ static int s5p_jpeg_controls_create(stru
+--- a/crypto/testmgr.c
++++ b/crypto/testmgr.c
+@@ -1655,14 +1655,21 @@ static int alg_test_crc32c(const struct
  
- 		v4l2_ctrl_new_std(&ctx->ctrl_handler, &s5p_jpeg_ctrl_ops,
- 				  V4L2_CID_JPEG_RESTART_INTERVAL,
--				  0, 3, 0xffff, 0);
-+				  0, 0xffff, 1, 0);
- 		if (ctx->jpeg->variant->version == SJPEG_S5P)
- 			mask = ~0x06; /* 422, 420 */
+ 	err = alg_test_hash(desc, driver, type, mask);
+ 	if (err)
+-		goto out;
++		return err;
+ 
+ 	tfm = crypto_alloc_shash(driver, type, mask);
+ 	if (IS_ERR(tfm)) {
++		if (PTR_ERR(tfm) == -ENOENT) {
++			/*
++			 * This crc32c implementation is only available through
++			 * ahash API, not the shash API, so the remaining part
++			 * of the test is not applicable to it.
++			 */
++			return 0;
++		}
+ 		printk(KERN_ERR "alg: crc32c: Failed to load transform for %s: "
+ 		       "%ld\n", driver, PTR_ERR(tfm));
+-		err = PTR_ERR(tfm);
+-		goto out;
++		return PTR_ERR(tfm);
  	}
+ 
+ 	do {
+@@ -1691,7 +1698,6 @@ static int alg_test_crc32c(const struct
+ 
+ 	crypto_free_shash(tfm);
+ 
+-out:
+ 	return err;
+ }
+ 
 
