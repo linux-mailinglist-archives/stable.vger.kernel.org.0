@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 405BD616C9
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5C0C6169F
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:41:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727615AbfGGTiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:38:11 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57498 "EHLO
+        id S1728084AbfGGTlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:41:11 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57808 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727588AbfGGTiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:11 -0400
+        by vger.kernel.org with ESMTP id S1727639AbfGGTiP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:15 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz8-0006iz-AP; Sun, 07 Jul 2019 20:38:06 +0100
+        id 1hkCzC-0006kJ-SY; Sun, 07 Jul 2019 20:38:11 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz6-0005cz-3r; Sun, 07 Jul 2019 20:38:04 +0100
+        id 1hkCz8-0005fS-KZ; Sun, 07 Jul 2019 20:38:06 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Aaro Koskinen" <aaro.koskinen@iki.fi>,
-        "Ulf Hansson" <ulf.hansson@linaro.org>
+        "syzbot" <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        "Eric Dumazet" <edumazet@google.com>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.999453514@decadent.org.uk>
+Message-ID: <lsq.1562518457.26322687@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 083/129] mmc: omap: fix the maximum timeout setting
+Subject: [PATCH 3.16 112/129] gro_cells: make sure device is up in
+ gro_cells_receive()
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,47 +48,127 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
+From: Eric Dumazet <edumazet@google.com>
 
-commit a6327b5e57fdc679c842588c3be046c0b39cc127 upstream.
+commit 2a5ff07a0eb945f291e361aa6f6becca8340ba46 upstream.
 
-When running OMAP1 kernel on QEMU, MMC access is annoyingly noisy:
+We keep receiving syzbot reports [1] that show that tunnels do not play
+the rcu/IFF_UP rules properly.
 
-	MMC: CTO of 0xff and 0xfe cannot be used!
-	MMC: CTO of 0xff and 0xfe cannot be used!
-	MMC: CTO of 0xff and 0xfe cannot be used!
-	[ad inf.]
+At device dismantle phase, gro_cells_destroy() will be called
+only after a full rcu grace period is observed after IFF_UP
+has been cleared.
 
-Emulator warnings appear to be valid. The TI document SPRU680 [1]
-("OMAP5910 Dual-Core Processor MultiMedia Card/Secure Data Memory Card
-(MMC/SD) Reference Guide") page 36 states that the maximum timeout is 253
-cycles and "0xff and 0xfe cannot be used".
+This means that IFF_UP needs to be tested before queueing packets
+into netif_rx() or gro_cells.
 
-Fix by using 0xfd as the maximum timeout.
+This patch implements the test in gro_cells_receive() because
+too many callers do not seem to bother enough.
 
-Tested using QEMU 2.5 (Siemens SX1 machine, OMAP310), and also checked on
-real hardware using Palm TE (OMAP310), Nokia 770 (OMAP1710) and Nokia N810
-(OMAP2420) that MMC works as before.
+[1]
+BUG: unable to handle kernel paging request at fffff4ca0b9ffffe
+PGD 0 P4D 0
+Oops: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 21 Comm: kworker/u4:1 Not tainted 5.0.0+ #97
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: netns cleanup_net
+RIP: 0010:__skb_unlink include/linux/skbuff.h:1929 [inline]
+RIP: 0010:__skb_dequeue include/linux/skbuff.h:1945 [inline]
+RIP: 0010:__skb_queue_purge include/linux/skbuff.h:2656 [inline]
+RIP: 0010:gro_cells_destroy net/core/gro_cells.c:89 [inline]
+RIP: 0010:gro_cells_destroy+0x19d/0x360 net/core/gro_cells.c:78
+Code: 03 42 80 3c 20 00 0f 85 53 01 00 00 48 8d 7a 08 49 8b 47 08 49 c7 07 00 00 00 00 48 89 f9 49 c7 47 08 00 00 00 00 48 c1 e9 03 <42> 80 3c 21 00 0f 85 10 01 00 00 48 89 c1 48 89 42 08 48 c1 e9 03
+RSP: 0018:ffff8880aa3f79a8 EFLAGS: 00010a02
+RAX: 00ffffffffffffe8 RBX: ffffe8ffffc64b70 RCX: 1ffff8ca0b9ffffe
+RDX: ffffc6505cffffe8 RSI: ffffffff858410ca RDI: ffffc6505cfffff0
+RBP: ffff8880aa3f7a08 R08: ffff8880aa3e8580 R09: fffffbfff1263645
+R10: fffffbfff1263644 R11: ffffffff8931b223 R12: dffffc0000000000
+R13: 0000000000000000 R14: ffffe8ffffc64b80 R15: ffffe8ffffc64b75
+kobject: 'loop2' (000000004bd7d84a): kobject_uevent_env
+FS:  0000000000000000(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: fffff4ca0b9ffffe CR3: 0000000094941000 CR4: 00000000001406f0
+Call Trace:
+kobject: 'loop2' (000000004bd7d84a): fill_kobj_path: path = '/devices/virtual/block/loop2'
+ ip_tunnel_dev_free+0x19/0x60 net/ipv4/ip_tunnel.c:1010
+ netdev_run_todo+0x51c/0x7d0 net/core/dev.c:8970
+ rtnl_unlock+0xe/0x10 net/core/rtnetlink.c:116
+ ip_tunnel_delete_nets+0x423/0x5f0 net/ipv4/ip_tunnel.c:1124
+ vti_exit_batch_net+0x23/0x30 net/ipv4/ip_vti.c:495
+ ops_exit_list.isra.0+0x105/0x160 net/core/net_namespace.c:156
+ cleanup_net+0x3fb/0x960 net/core/net_namespace.c:551
+ process_one_work+0x98e/0x1790 kernel/workqueue.c:2173
+ worker_thread+0x98/0xe40 kernel/workqueue.c:2319
+ kthread+0x357/0x430 kernel/kthread.c:246
+ ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:352
+Modules linked in:
+CR2: fffff4ca0b9ffffe
+   [ end trace 513fc9c1338d1cb3 ]
+RIP: 0010:__skb_unlink include/linux/skbuff.h:1929 [inline]
+RIP: 0010:__skb_dequeue include/linux/skbuff.h:1945 [inline]
+RIP: 0010:__skb_queue_purge include/linux/skbuff.h:2656 [inline]
+RIP: 0010:gro_cells_destroy net/core/gro_cells.c:89 [inline]
+RIP: 0010:gro_cells_destroy+0x19d/0x360 net/core/gro_cells.c:78
+Code: 03 42 80 3c 20 00 0f 85 53 01 00 00 48 8d 7a 08 49 8b 47 08 49 c7 07 00 00 00 00 48 89 f9 49 c7 47 08 00 00 00 00 48 c1 e9 03 <42> 80 3c 21 00 0f 85 10 01 00 00 48 89 c1 48 89 42 08 48 c1 e9 03
+RSP: 0018:ffff8880aa3f79a8 EFLAGS: 00010a02
+RAX: 00ffffffffffffe8 RBX: ffffe8ffffc64b70 RCX: 1ffff8ca0b9ffffe
+RDX: ffffc6505cffffe8 RSI: ffffffff858410ca RDI: ffffc6505cfffff0
+RBP: ffff8880aa3f7a08 R08: ffff8880aa3e8580 R09: fffffbfff1263645
+R10: fffffbfff1263644 R11: ffffffff8931b223 R12: dffffc0000000000
+kobject: 'loop3' (00000000e4ee57a6): kobject_uevent_env
+R13: 0000000000000000 R14: ffffe8ffffc64b80 R15: ffffe8ffffc64b75
+FS:  0000000000000000(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: fffff4ca0b9ffffe CR3: 0000000094941000 CR4: 00000000001406f0
 
-[1] http://www.ti.com/lit/ug/spru680/spru680.pdf
-
-Fixes: 730c9b7e6630f ("[MMC] Add OMAP MMC host driver")
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: c9e6bc644e55 ("net: add gro_cells infrastructure")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 3.16:
+ - Adjust filename, context
+ - Return type is void]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/mmc/host/omap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/gro_cells.h | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
---- a/drivers/mmc/host/omap.c
-+++ b/drivers/mmc/host/omap.c
-@@ -921,7 +921,7 @@ static inline void set_cmd_timeout(struc
- 	reg &= ~(1 << 5);
- 	OMAP_MMC_WRITE(host, SDIO, reg);
- 	/* Set maximum timeout */
--	OMAP_MMC_WRITE(host, CTO, 0xff);
-+	OMAP_MMC_WRITE(host, CTO, 0xfd);
+--- a/include/net/gro_cells.h
++++ b/include/net/gro_cells.h
+@@ -20,18 +20,23 @@ static inline void gro_cells_receive(str
+ 	struct gro_cell *cell = gcells->cells;
+ 	struct net_device *dev = skb->dev;
+ 
++	rcu_read_lock();
++	if (unlikely(!(dev->flags & IFF_UP)))
++		goto drop;
++
+ 	if (!cell || skb_cloned(skb) || !(dev->features & NETIF_F_GRO)) {
+ 		netif_rx(skb);
+-		return;
++		goto unlock;
+ 	}
+ 
+ 	if (skb_rx_queue_recorded(skb))
+ 		cell += skb_get_rx_queue(skb) & gcells->gro_cells_mask;
+ 
+ 	if (skb_queue_len(&cell->napi_skbs) > netdev_max_backlog) {
++drop:
+ 		atomic_long_inc(&dev->rx_dropped);
+ 		kfree_skb(skb);
+-		return;
++		goto unlock;
+ 	}
+ 
+ 	/* We run in BH context */
+@@ -42,6 +47,9 @@ static inline void gro_cells_receive(str
+ 		napi_schedule(&cell->napi);
+ 
+ 	spin_unlock(&cell->napi_skbs.lock);
++
++unlock:
++	rcu_read_unlock();
  }
  
- static inline void set_data_timeout(struct mmc_omap_host *host, struct mmc_request *req)
+ /* called unser BH context */
 
