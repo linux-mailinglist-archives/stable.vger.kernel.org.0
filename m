@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 261166171D
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF9A61672
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728356AbfGGTp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:45:29 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57074 "EHLO
+        id S1727683AbfGGTiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:38:17 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:58026 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727515AbfGGTiF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:05 -0400
+        by vger.kernel.org with ESMTP id S1727668AbfGGTiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:17 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz4-0006g2-8Q; Sun, 07 Jul 2019 20:38:02 +0100
+        id 1hkCzE-0006kg-0j; Sun, 07 Jul 2019 20:38:12 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz2-0005Ze-Tp; Sun, 07 Jul 2019 20:38:00 +0100
+        id 1hkCz9-0005gl-SV; Sun, 07 Jul 2019 20:38:07 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Sergei Shtylyov" <sergei.shtylyov@cogentembedded.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+        "Takashi Iwai" <tiwai@suse.de>,
+        "Kalle Valo" <kvalo@codeaurora.org>,
+        "huangwen" <huangwen@venustech.com.cn>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.326878483@decadent.org.uk>
+Message-ID: <lsq.1562518457.996126085@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 042/129] devres: always use dev_name() in
- devm_ioremap_resource()
+Subject: [PATCH 3.16 128/129] mwifiex: Fix heap overflow in
+ mwifiex_uap_parse_tail_ies()
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,98 +48,100 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 8d84b18f5678d3adfdb9375dfb0d968da2dc753d upstream.
+commit 69ae4f6aac1578575126319d3f55550e7e440449 upstream.
 
-devm_ioremap_resource() prefers calling devm_request_mem_region() with a
-resource name instead of a device name -- this looks pretty iff a resource
-name isn't specified via a device tree with a "reg-names" property (in this
-case, a resource name is set to a device node's full name), but if it is,
-it doesn't really scale since these names are only unique to a given device
-node, not globally; so, looking at the output of 'cat /proc/iomem', you do
-not have an idea which memory region belongs to which device (see "dirmap",
-"regs", and "wbuf" lines below):
+A few places in mwifiex_uap_parse_tail_ies() perform memcpy()
+unconditionally, which may lead to either buffer overflow or read over
+boundary.
 
-08000000-0bffffff : dirmap
-48000000-bfffffff : System RAM
-  48000000-48007fff : reserved
-  48080000-48b0ffff : Kernel code
-  48b10000-48b8ffff : reserved
-  48b90000-48c7afff : Kernel data
-  bc6a4000-bcbfffff : reserved
-  bcc0f000-bebfffff : reserved
-  bec0e000-bec0efff : reserved
-  bec11000-bec11fff : reserved
-  bec12000-bec14fff : reserved
-  bec15000-bfffffff : reserved
-e6050000-e605004f : gpio@e6050000
-e6051000-e605104f : gpio@e6051000
-e6052000-e605204f : gpio@e6052000
-e6053000-e605304f : gpio@e6053000
-e6054000-e605404f : gpio@e6054000
-e6055000-e605504f : gpio@e6055000
-e6060000-e606050b : pin-controller@e6060000
-e6e60000-e6e6003f : e6e60000.serial
-e7400000-e7400fff : ethernet@e7400000
-ee200000-ee2001ff : regs
-ee208000-ee2080ff : wbuf
+This patch addresses the issues by checking the read size and the
+destination size at each place more properly.  Along with the fixes,
+the patch cleans up the code slightly by introducing a temporary
+variable for the token size, and unifies the error path with the
+standard goto statement.
 
-I think that devm_request_mem_region() should be called with dev_name()
-despite the region names won't look as pretty as before (however, we gain
-more consistency with e.g. the serial driver:
-
-08000000-0bffffff : ee200000.rpc
-48000000-bfffffff : System RAM
-  48000000-48007fff : reserved
-  48080000-48b0ffff : Kernel code
-  48b10000-48b8ffff : reserved
-  48b90000-48c7afff : Kernel data
-  bc6a4000-bcbfffff : reserved
-  bcc0f000-bebfffff : reserved
-  bec0e000-bec0efff : reserved
-  bec11000-bec11fff : reserved
-  bec12000-bec14fff : reserved
-  bec15000-bfffffff : reserved
-e6050000-e605004f : e6050000.gpio
-e6051000-e605104f : e6051000.gpio
-e6052000-e605204f : e6052000.gpio
-e6053000-e605304f : e6053000.gpio
-e6054000-e605404f : e6054000.gpio
-e6055000-e605504f : e6055000.gpio
-e6060000-e606050b : e6060000.pin-controller
-e6e60000-e6e6003f : e6e60000.serial
-e7400000-e7400fff : e7400000.ethernet
-ee200000-ee2001ff : ee200000.rpc
-ee208000-ee2080ff : ee200000.rpc
-
-Fixes: 72f8c0bfa0de ("lib: devres: add convenience function to remap a resource")
-Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: huangwen <huangwen@venustech.com.cn>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+[bwh: Backported to 3.16:
+ - The tail IEs are parsed in mwifiex_set_mgmt_ies, which looks for two
+   specific IEs rather than looping
+ - Check IE length against tail length after calling
+   cfg80211_find_vendor_ie(), but not after cfg80211_find_ie() since that
+   already does it
+ - On error, return without calling mwifiex_set_mgmt_beacon_data_ies()
+ - Drop inapplicable change to WMM IE handling
+ - Adjust filename]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- lib/devres.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/wireless/mwifiex/ie.c | 47 +++++++++++++++--------
+ 1 file changed, 31 insertions(+), 16 deletions(-)
 
---- a/lib/devres.c
-+++ b/lib/devres.c
-@@ -109,7 +109,6 @@ EXPORT_SYMBOL(devm_iounmap);
- void __iomem *devm_ioremap_resource(struct device *dev, struct resource *res)
- {
- 	resource_size_t size;
--	const char *name;
- 	void __iomem *dest_ptr;
+--- a/drivers/net/wireless/mwifiex/ie.c
++++ b/drivers/net/wireless/mwifiex/ie.c
+@@ -328,6 +328,8 @@ int mwifiex_set_mgmt_ies(struct mwifiex_
+ 	struct ieee_types_header *rsn_ie, *wpa_ie = NULL;
+ 	u16 rsn_idx = MWIFIEX_AUTO_IDX_MASK, ie_len = 0;
+ 	const u8 *vendor_ie;
++	unsigned int token_len;
++	int err = 0;
  
- 	BUG_ON(!dev);
-@@ -120,9 +119,8 @@ void __iomem *devm_ioremap_resource(stru
+ 	if (info->tail && info->tail_len) {
+ 		gen_ie = kzalloc(sizeof(struct mwifiex_ie), GFP_KERNEL);
+@@ -341,8 +343,13 @@ int mwifiex_set_mgmt_ies(struct mwifiex_
+ 		rsn_ie = (void *)cfg80211_find_ie(WLAN_EID_RSN,
+ 						  info->tail, info->tail_len);
+ 		if (rsn_ie) {
+-			memcpy(gen_ie->ie_buffer, rsn_ie, rsn_ie->len + 2);
+-			ie_len = rsn_ie->len + 2;
++			token_len = rsn_ie->len + 2;
++			if (ie_len + token_len > IEEE_MAX_IE_SIZE) {
++				err = -EINVAL;
++				goto out;
++			}
++			memcpy(gen_ie->ie_buffer + ie_len, rsn_ie, token_len);
++			ie_len += token_len;
+ 			gen_ie->ie_length = cpu_to_le16(ie_len);
+ 		}
+ 
+@@ -352,9 +359,15 @@ int mwifiex_set_mgmt_ies(struct mwifiex_
+ 						    info->tail_len);
+ 		if (vendor_ie) {
+ 			wpa_ie = (struct ieee_types_header *)vendor_ie;
+-			memcpy(gen_ie->ie_buffer + ie_len,
+-			       wpa_ie, wpa_ie->len + 2);
+-			ie_len += wpa_ie->len + 2;
++			token_len = wpa_ie->len + 2;
++			if (token_len >
++			    info->tail + info->tail_len - (u8 *)wpa_ie ||
++			    ie_len + token_len > IEEE_MAX_IE_SIZE) {
++				err = -EINVAL;
++				goto out;
++			}
++			memcpy(gen_ie->ie_buffer + ie_len, wpa_ie, token_len);
++			ie_len += token_len;
+ 			gen_ie->ie_length = cpu_to_le16(ie_len);
+ 		}
+ 
+@@ -362,13 +375,16 @@ int mwifiex_set_mgmt_ies(struct mwifiex_
+ 			if (mwifiex_update_uap_custom_ie(priv, gen_ie, &rsn_idx,
+ 							 NULL, NULL,
+ 							 NULL, NULL)) {
+-				kfree(gen_ie);
+-				return -1;
++				err = -EINVAL;
++				goto out;
+ 			}
+ 			priv->rsn_idx = rsn_idx;
+ 		}
+ 
++	out:
+ 		kfree(gen_ie);
++		if (err)
++			return err;
  	}
  
- 	size = resource_size(res);
--	name = res->name ?: dev_name(dev);
- 
--	if (!devm_request_mem_region(dev, res->start, size, name)) {
-+	if (!devm_request_mem_region(dev, res->start, size, dev_name(dev))) {
- 		dev_err(dev, "can't request region for resource %pR\n", res);
- 		return IOMEM_ERR_PTR(-EBUSY);
- 	}
+ 	return mwifiex_set_mgmt_beacon_data_ies(priv, info);
 
