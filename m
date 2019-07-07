@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72DBE6165B
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:38:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1B1C61658
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:38:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727570AbfGGTiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:38:09 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57200 "EHLO
+        id S1727536AbfGGTiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:38:06 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57030 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727541AbfGGTiH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:07 -0400
+        by vger.kernel.org with ESMTP id S1727509AbfGGTiF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:05 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz5-0006gb-2o; Sun, 07 Jul 2019 20:38:03 +0100
+        id 1hkCz3-0006fV-Lh; Sun, 07 Jul 2019 20:38:01 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz3-0005aE-EH; Sun, 07 Jul 2019 20:38:01 +0100
+        id 1hkCz2-0005Z3-A0; Sun, 07 Jul 2019 20:38:00 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Chiranjeevi Rapolu" <chiranjeevi.rapolu@intel.com>,
-        "Laurent Pinchart" <laurent.pinchart@ideasonboard.com>,
-        "Sakari Ailus" <sakari.ailus@linux.intel.com>,
-        "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.774638704@decadent.org.uk>
+Message-ID: <lsq.1562518457.682156065@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 049/129] media: uvcvideo: Avoid NULL pointer
- dereference at the end of streaming
+Subject: [PATCH 3.16 035/129] applicom: Fix potential Spectre v1
+ vulnerabilities
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,55 +47,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
-commit 9dd0627d8d62a7ddb001a75f63942d92b5336561 upstream.
+commit d7ac3c6ef5d8ce14b6381d52eb7adafdd6c8bb3c upstream.
 
-The UVC video driver converts the timestamp from hardware specific unit
-to one known by the kernel at the time when the buffer is dequeued. This
-is fine in general, but the streamoff operation consists of the
-following steps (among other things):
+IndexCard is indirectly controlled by user-space, hence leading to
+a potential exploitation of the Spectre variant 1 vulnerability.
 
-1. uvc_video_clock_cleanup --- the hardware clock sample array is
-   released and the pointer to the array is set to NULL,
+This issue was detected with the help of Smatch:
 
-2. buffers in active state are returned to the user and
+drivers/char/applicom.c:418 ac_write() warn: potential spectre issue 'apbs' [r]
+drivers/char/applicom.c:728 ac_ioctl() warn: potential spectre issue 'apbs' [r] (local cap)
 
-3. buf_finish callback is called on buffers that are prepared.
-   buf_finish includes calling uvc_video_clock_update that accesses the
-   hardware clock sample array.
+Fix this by sanitizing IndexCard before using it to index apbs.
 
-The above is serialised by a queue specific mutex. Address the problem
-by skipping the clock conversion if the hardware clock sample array is
-already released.
+Notice that given that speculation windows are large, the policy is
+to kill the speculation on the first load and not worry if it can be
+completed with a dependent load/store [1].
 
-Fixes: 9c0863b1cc48 ("[media] vb2: call buf_finish from __queue_cancel")
+[1] https://lore.kernel.org/lkml/20180423164740.GY17484@dhcp22.suse.cz/
 
-Reported-by: Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>
-Tested-by: Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/media/usb/uvc/uvc_video.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/char/applicom.c | 35 ++++++++++++++++++++++++-----------
+ 1 file changed, 24 insertions(+), 11 deletions(-)
 
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -627,6 +627,14 @@ void uvc_video_clock_update(struct uvc_s
- 	u32 rem;
- 	u64 y;
+--- a/drivers/char/applicom.c
++++ b/drivers/char/applicom.c
+@@ -32,6 +32,7 @@
+ #include <linux/wait.h>
+ #include <linux/init.h>
+ #include <linux/fs.h>
++#include <linux/nospec.h>
  
-+	/*
-+	 * We will get called from __vb2_queue_cancel() if there are buffers
-+	 * done but not dequeued by the user, but the sample array has already
-+	 * been released at that time. Just bail out in that case.
-+	 */
-+	if (!clock->samples)
-+		return;
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+@@ -386,7 +387,11 @@ static ssize_t ac_write(struct file *fil
+ 	TicCard = st_loc.tic_des_from_pc;	/* tic number to send            */
+ 	IndexCard = NumCard - 1;
+ 
+-	if((NumCard < 1) || (NumCard > MAX_BOARD) || !apbs[IndexCard].RamIO)
++	if (IndexCard >= MAX_BOARD)
++		return -EINVAL;
++	IndexCard = array_index_nospec(IndexCard, MAX_BOARD);
 +
- 	spin_lock_irqsave(&clock->lock, flags);
++	if (!apbs[IndexCard].RamIO)
+ 		return -EINVAL;
  
- 	if (clock->count < clock->size)
+ #ifdef DEBUG
+@@ -697,6 +702,7 @@ static long ac_ioctl(struct file *file,
+ 	unsigned char IndexCard;
+ 	void __iomem *pmem;
+ 	int ret = 0;
++	static int warncount = 10;
+ 	volatile unsigned char byte_reset_it;
+ 	struct st_ram_io *adgl;
+ 	void __user *argp = (void __user *)arg;
+@@ -711,16 +717,12 @@ static long ac_ioctl(struct file *file,
+ 	mutex_lock(&ac_mutex);	
+ 	IndexCard = adgl->num_card-1;
+ 	 
+-	if(cmd != 6 && ((IndexCard >= MAX_BOARD) || !apbs[IndexCard].RamIO)) {
+-		static int warncount = 10;
+-		if (warncount) {
+-			printk( KERN_WARNING "APPLICOM driver IOCTL, bad board number %d\n",(int)IndexCard+1);
+-			warncount--;
+-		}
+-		kfree(adgl);
+-		mutex_unlock(&ac_mutex);
+-		return -EINVAL;
+-	}
++	if (cmd != 6 && IndexCard >= MAX_BOARD)
++		goto err;
++	IndexCard = array_index_nospec(IndexCard, MAX_BOARD);
++
++	if (cmd != 6 && !apbs[IndexCard].RamIO)
++		goto err;
+ 
+ 	switch (cmd) {
+ 		
+@@ -838,5 +840,16 @@ static long ac_ioctl(struct file *file,
+ 	kfree(adgl);
+ 	mutex_unlock(&ac_mutex);
+ 	return 0;
++
++err:
++	if (warncount) {
++		pr_warn("APPLICOM driver IOCTL, bad board number %d\n",
++			(int)IndexCard + 1);
++		warncount--;
++	}
++	kfree(adgl);
++	mutex_unlock(&ac_mutex);
++	return -EINVAL;
++
+ }
+ 
 
