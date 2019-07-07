@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DAD886173A
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5218861725
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728687AbfGGTqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:46:22 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57018 "EHLO
+        id S1728581AbfGGTpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:45:30 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57082 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727503AbfGGTiE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:04 -0400
+        by vger.kernel.org with ESMTP id S1727517AbfGGTiF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:05 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz2-0006eG-JV; Sun, 07 Jul 2019 20:38:00 +0100
+        id 1hkCz4-0006fz-1W; Sun, 07 Jul 2019 20:38:02 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz1-0005YC-2a; Sun, 07 Jul 2019 20:37:59 +0100
+        id 1hkCz2-0005Za-RS; Sun, 07 Jul 2019 20:38:00 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,12 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Herbert Xu" <herbert@gondor.apana.org.au>,
-        "David Howells" <dhowells@redhat.com>,
-        "Eric Biggers" <ebiggers@google.com>
+        "Jan Kara" <jack@suse.cz>, "yangerkun" <yangerkun@huawei.com>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.238506517@decadent.org.uk>
+Message-ID: <lsq.1562518457.826051651@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 024/129] crypto: pcbc - remove bogus memcpy()s with
- src == dest
+Subject: [PATCH 3.16 041/129] ext2: Fix underflow in ext2_max_size()
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,91 +45,95 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Eric Biggers <ebiggers@google.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 251b7aea34ba3c4d4fdfa9447695642eb8b8b098 upstream.
+commit 1c2d14212b15a60300a2d4f6364753e87394c521 upstream.
 
-The memcpy()s in the PCBC implementation use walk->iv as both the source
-and destination, which has undefined behavior.  These memcpy()'s are
-actually unneeded, because walk->iv is already used to hold the previous
-plaintext block XOR'd with the previous ciphertext block.  Thus,
-walk->iv is already updated to its final value.
+When ext2 filesystem is created with 64k block size, ext2_max_size()
+will return value less than 0. Also, we cannot write any file in this fs
+since the sb->maxbytes is less than 0. The core of the problem is that
+the size of block index tree for such large block size is more than
+i_blocks can carry. So fix the computation to count with this
+possibility.
 
-So remove the broken and unnecessary memcpy()s.
+File size limits computed with the new function for the full range of
+possible block sizes look like:
 
-Fixes: 91652be5d1b9 ("[CRYPTO] pcbc: Add Propagated CBC template")
-Cc: David Howells <dhowells@redhat.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-[bwh: Backported to 3.16: adjust context]
+bits file_size
+10     17247252480
+11    275415851008
+12   2196873666560
+13   2197948973056
+14   2198486220800
+15   2198754754560
+16   2198888906752
+
+Reported-by: yangerkun <yangerkun@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- crypto/pcbc.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ fs/ext2/super.c | 39 +++++++++++++++++++++++++--------------
+ 1 file changed, 25 insertions(+), 14 deletions(-)
 
---- a/crypto/pcbc.c
-+++ b/crypto/pcbc.c
-@@ -52,7 +52,7 @@ static int crypto_pcbc_encrypt_segment(s
- 	unsigned int nbytes = walk->nbytes;
- 	u8 *src = walk->src.virt.addr;
- 	u8 *dst = walk->dst.virt.addr;
--	u8 *iv = walk->iv;
-+	u8 * const iv = walk->iv;
+--- a/fs/ext2/super.c
++++ b/fs/ext2/super.c
+@@ -701,7 +701,8 @@ static loff_t ext2_max_size(int bits)
+ {
+ 	loff_t res = EXT2_NDIR_BLOCKS;
+ 	int meta_blocks;
+-	loff_t upper_limit;
++	unsigned int upper_limit;
++	unsigned int ppb = 1 << (bits-2);
  
- 	do {
- 		crypto_xor(iv, src, bsize);
-@@ -76,7 +76,7 @@ static int crypto_pcbc_encrypt_inplace(s
- 	int bsize = crypto_cipher_blocksize(tfm);
- 	unsigned int nbytes = walk->nbytes;
- 	u8 *src = walk->src.virt.addr;
--	u8 *iv = walk->iv;
-+	u8 * const iv = walk->iv;
- 	u8 tmpbuf[bsize];
+ 	/* This is calculated to be the largest file size for a
+ 	 * dense, file such that the total number of
+@@ -715,24 +716,34 @@ static loff_t ext2_max_size(int bits)
+ 	/* total blocks in file system block size */
+ 	upper_limit >>= (bits - 9);
  
- 	do {
-@@ -89,8 +89,6 @@ static int crypto_pcbc_encrypt_inplace(s
- 		src += bsize;
- 	} while ((nbytes -= bsize) >= bsize);
- 
--	memcpy(walk->iv, iv, bsize);
 -
- 	return nbytes;
- }
- 
-@@ -130,7 +128,7 @@ static int crypto_pcbc_decrypt_segment(s
- 	unsigned int nbytes = walk->nbytes;
- 	u8 *src = walk->src.virt.addr;
- 	u8 *dst = walk->dst.virt.addr;
--	u8 *iv = walk->iv;
-+	u8 * const iv = walk->iv;
- 
- 	do {
- 		fn(crypto_cipher_tfm(tfm), dst, src);
-@@ -142,8 +140,6 @@ static int crypto_pcbc_decrypt_segment(s
- 		dst += bsize;
- 	} while ((nbytes -= bsize) >= bsize);
- 
--	memcpy(walk->iv, iv, bsize);
+-	/* indirect blocks */
+-	meta_blocks = 1;
+-	/* double indirect blocks */
+-	meta_blocks += 1 + (1LL << (bits-2));
+-	/* tripple indirect blocks */
+-	meta_blocks += 1 + (1LL << (bits-2)) + (1LL << (2*(bits-2)));
 -
- 	return nbytes;
- }
- 
-@@ -156,7 +152,7 @@ static int crypto_pcbc_decrypt_inplace(s
- 	int bsize = crypto_cipher_blocksize(tfm);
- 	unsigned int nbytes = walk->nbytes;
- 	u8 *src = walk->src.virt.addr;
--	u8 *iv = walk->iv;
-+	u8 * const iv = walk->iv;
- 	u8 tmpbuf[bsize];
- 
- 	do {
-@@ -169,8 +165,6 @@ static int crypto_pcbc_decrypt_inplace(s
- 		src += bsize;
- 	} while ((nbytes -= bsize) >= bsize);
- 
--	memcpy(walk->iv, iv, bsize);
+-	upper_limit -= meta_blocks;
+-	upper_limit <<= bits;
 -
- 	return nbytes;
- }
++	/* Compute how many blocks we can address by block tree */
+ 	res += 1LL << (bits-2);
+ 	res += 1LL << (2*(bits-2));
+ 	res += 1LL << (3*(bits-2));
++	/* Does block tree limit file size? */
++	if (res < upper_limit)
++		goto check_lfs;
++
++	res = upper_limit;
++	/* How many metadata blocks are needed for addressing upper_limit? */
++	upper_limit -= EXT2_NDIR_BLOCKS;
++	/* indirect blocks */
++	meta_blocks = 1;
++	upper_limit -= ppb;
++	/* double indirect blocks */
++	if (upper_limit < ppb * ppb) {
++		meta_blocks += 1 + DIV_ROUND_UP(upper_limit, ppb);
++		res -= meta_blocks;
++		goto check_lfs;
++	}
++	meta_blocks += 1 + ppb;
++	upper_limit -= ppb * ppb;
++	/* tripple indirect blocks for the rest */
++	meta_blocks += 1 + DIV_ROUND_UP(upper_limit, ppb) +
++		DIV_ROUND_UP(upper_limit, ppb*ppb);
++	res -= meta_blocks;
++check_lfs:
+ 	res <<= bits;
+-	if (res > upper_limit)
+-		res = upper_limit;
+-
+ 	if (res > MAX_LFS_FILESIZE)
+ 		res = MAX_LFS_FILESIZE;
  
 
