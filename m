@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1B8F6171C
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:45:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3542616AA
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:42:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728360AbfGGTp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:45:29 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57096 "EHLO
+        id S1727775AbfGGTlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:41:39 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57848 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727519AbfGGTiF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:05 -0400
+        by vger.kernel.org with ESMTP id S1727643AbfGGTiP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:15 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz3-0006fv-VC; Sun, 07 Jul 2019 20:38:02 +0100
+        id 1hkCzC-0006jD-K9; Sun, 07 Jul 2019 20:38:10 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz2-0005ZT-Os; Sun, 07 Jul 2019 20:38:00 +0100
+        id 1hkCz8-0005fA-C8; Sun, 07 Jul 2019 20:38:06 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "YueHaibing" <yuehaibing@huawei.com>
+        "Dan Carpenter" <dan.carpenter@oracle.com>,
+        "Juergen Gross" <jgross@suse.com>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.517469659@decadent.org.uk>
+Message-ID: <lsq.1562518457.752351023@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 040/129] tty: ipwireless: Fix potential NULL pointer
- dereference
+Subject: [PATCH 3.16 109/129] xen, cpu_hotplug: Prevent an out of bounds
+ access
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,30 +47,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 7dd50e205b3348dc7784efbdf85723551de64a25 upstream.
+commit 201676095dda7e5b31a5e1d116d10fc22985075e upstream.
 
-There is a potential NULL pointer dereference in case
-alloc_ctrl_packet() fails and returns NULL.
+The "cpu" variable comes from the sscanf() so Smatch marks it as
+untrusted data.  We can't pass a higher value than "nr_cpu_ids" to
+cpu_possible() or it results in an out of bounds access.
 
-Fixes: 099dc4fb6265 ("ipwireless: driver for PC Card 3G/UMTS modem")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d68d82afd4c8 ("xen: implement CPU hotplugging")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/tty/ipwireless/hardware.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/xen/cpu_hotplug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/ipwireless/hardware.c
-+++ b/drivers/tty/ipwireless/hardware.c
-@@ -1515,6 +1515,8 @@ static void ipw_send_setup_packet(struct
- 			sizeof(struct ipw_setup_get_version_query_packet),
- 			ADDR_SETUP_PROT, TL_PROTOCOLID_SETUP,
- 			TL_SETUP_SIGNO_GET_VERSION_QRY);
-+	if (!ver_packet)
-+		return;
- 	ver_packet->header.length = sizeof(struct tl_setup_get_version_qry);
+--- a/drivers/xen/cpu_hotplug.c
++++ b/drivers/xen/cpu_hotplug.c
+@@ -47,7 +47,7 @@ static int vcpu_online(unsigned int cpu)
+ }
+ static void vcpu_hotplug(unsigned int cpu)
+ {
+-	if (!cpu_possible(cpu))
++	if (cpu >= nr_cpu_ids || !cpu_possible(cpu))
+ 		return;
  
- 	/*
+ 	switch (vcpu_online(cpu)) {
 
