@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D20B616D0
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5EF86174F
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:48:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727761AbfGGTnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:43:01 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57554 "EHLO
+        id S1728777AbfGGTrN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:47:13 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:56798 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727602AbfGGTiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:11 -0400
+        by vger.kernel.org with ESMTP id S1727442AbfGGTiA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:00 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz9-0006kJ-2y; Sun, 07 Jul 2019 20:38:07 +0100
+        id 1hkCz0-0006cv-70; Sun, 07 Jul 2019 20:37:58 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz7-0005dw-5r; Sun, 07 Jul 2019 20:38:05 +0100
+        id 1hkCyz-0005WY-6B; Sun, 07 Jul 2019 20:37:57 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Michael Ellerman" <mpe@ellerman.id.au>,
-        "Christophe Leroy" <christophe.leroy@c-s.fr>
+        "Jeremy Fertic" <jeremyfertic@gmail.com>,
+        "Jonathan Cameron" <Jonathan.Cameron@huawei.com>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.995998582@decadent.org.uk>
+Message-ID: <lsq.1562518457.697799324@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 095/129] powerpc/32: Clear on-stack exception marker
- upon exception return
+Subject: [PATCH 3.16 003/129] staging: iio: adt7316: allow adt751x to use
+ internal vref for all dacs
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,78 +47,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Jeremy Fertic <jeremyfertic@gmail.com>
 
-commit 9580b71b5a7863c24a9bd18bcd2ad759b86b1eff upstream.
+commit 10bfe7cc1739c22f0aa296b39e53f61e9e3f4d99 upstream.
 
-Clear the on-stack STACK_FRAME_REGS_MARKER on exception exit in order
-to avoid confusing stacktrace like the one below.
+With adt7516/7/9, internal vref is available for dacs a and b, dacs c and
+d, or all dacs. The driver doesn't currently support internal vref for all
+dacs. Change the else if to an if so both bits are checked rather than
+just one or the other.
 
-  Call Trace:
-  [c0e9dca0] [c01c42a0] print_address_description+0x64/0x2bc (unreliable)
-  [c0e9dcd0] [c01c4684] kasan_report+0xfc/0x180
-  [c0e9dd10] [c0895130] memchr+0x24/0x74
-  [c0e9dd30] [c00a9e38] msg_print_text+0x124/0x574
-  [c0e9dde0] [c00ab710] console_unlock+0x114/0x4f8
-  [c0e9de40] [c00adc60] vprintk_emit+0x188/0x1c4
-  --- interrupt: c0e9df00 at 0x400f330
-      LR = init_stack+0x1f00/0x2000
-  [c0e9de80] [c00ae3c4] printk+0xa8/0xcc (unreliable)
-  [c0e9df20] [c0c27e44] early_irq_init+0x38/0x108
-  [c0e9df50] [c0c15434] start_kernel+0x310/0x488
-  [c0e9dff0] [00003484] 0x3484
-
-With this patch the trace becomes:
-
-  Call Trace:
-  [c0e9dca0] [c01c42c0] print_address_description+0x64/0x2bc (unreliable)
-  [c0e9dcd0] [c01c46a4] kasan_report+0xfc/0x180
-  [c0e9dd10] [c0895150] memchr+0x24/0x74
-  [c0e9dd30] [c00a9e58] msg_print_text+0x124/0x574
-  [c0e9dde0] [c00ab730] console_unlock+0x114/0x4f8
-  [c0e9de40] [c00adc80] vprintk_emit+0x188/0x1c4
-  [c0e9de80] [c00ae3e4] printk+0xa8/0xcc
-  [c0e9df20] [c0c27e44] early_irq_init+0x38/0x108
-  [c0e9df50] [c0c15434] start_kernel+0x310/0x488
-  [c0e9dff0] [00003484] 0x3484
-
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Jeremy Fertic <jeremyfertic@gmail.com>
+Fixes: 35f6b6b86ede ("staging: iio: new ADT7316/7/8 and ADT7516/7/9 driver")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/powerpc/kernel/entry_32.S | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/staging/iio/addac/adt7316.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/entry_32.S
-+++ b/arch/powerpc/kernel/entry_32.S
-@@ -757,6 +757,9 @@ fast_exception_return:
- 	mtcr	r10
- 	lwz	r10,_LINK(r11)
- 	mtlr	r10
-+	/* Clear the exception_marker on the stack to avoid confusing stacktrace */
-+	li	r10, 0
-+	stw	r10, 8(r11)
- 	REST_GPR(10, r11)
- 	mtspr	SPRN_SRR1,r9
- 	mtspr	SPRN_SRR0,r12
-@@ -987,6 +990,9 @@ END_FTR_SECTION_IFSET(CPU_FTR_NEED_PAIRE
- 	mtcrf	0xFF,r10
- 	mtlr	r11
- 
-+	/* Clear the exception_marker on the stack to avoid confusing stacktrace */
-+	li	r10, 0
-+	stw	r10, 8(r1)
- 	/*
- 	 * Once we put values in SRR0 and SRR1, we are in a state
- 	 * where exceptions are not recoverable, since taking an
-@@ -1024,6 +1030,9 @@ exc_exit_restart_end:
- 	mtlr	r11
- 	lwz	r10,_CCR(r1)
- 	mtcrf	0xff,r10
-+	/* Clear the exception_marker on the stack to avoid confusing stacktrace */
-+	li	r10, 0
-+	stw	r10, 8(r1)
- 	REST_2GPRS(9, r1)
- 	.globl exc_exit_restart
- exc_exit_restart:
+--- a/drivers/staging/iio/addac/adt7316.c
++++ b/drivers/staging/iio/addac/adt7316.c
+@@ -1093,7 +1093,7 @@ static ssize_t adt7316_store_DAC_interna
+ 		ldac_config = chip->ldac_config & (~ADT7516_DAC_IN_VREF_MASK);
+ 		if (data & 0x1)
+ 			ldac_config |= ADT7516_DAC_AB_IN_VREF;
+-		else if (data & 0x2)
++		if (data & 0x2)
+ 			ldac_config |= ADT7516_DAC_CD_IN_VREF;
+ 	} else {
+ 		ret = kstrtou8(buf, 16, &data);
 
