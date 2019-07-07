@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBEEB61694
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:41:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 405BD616C9
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:42:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727367AbfGGTkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:40:53 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:58022 "EHLO
+        id S1727615AbfGGTiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:38:11 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57498 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727667AbfGGTiR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:17 -0400
+        by vger.kernel.org with ESMTP id S1727588AbfGGTiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:11 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCzG-0006je-45; Sun, 07 Jul 2019 20:38:14 +0100
+        id 1hkCz8-0006iz-AP; Sun, 07 Jul 2019 20:38:06 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz9-0005gX-Kp; Sun, 07 Jul 2019 20:38:07 +0100
+        id 1hkCz6-0005cz-3r; Sun, 07 Jul 2019 20:38:04 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>,
-        "Alistair Strachan" <astrachan@google.com>,
-        "syzbot" <syzkaller@googlegroups.com>,
-        "Laurent Pinchart" <laurent.pinchart@ideasonboard.com>
+        "Aaro Koskinen" <aaro.koskinen@iki.fi>,
+        "Ulf Hansson" <ulf.hansson@linaro.org>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.148922416@decadent.org.uk>
+Message-ID: <lsq.1562518457.999453514@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 125/129] media: uvcvideo: Fix 'type' check leading to
- overflow
+Subject: [PATCH 3.16 083/129] mmc: omap: fix the maximum timeout setting
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,60 +46,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Alistair Strachan <astrachan@google.com>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
 
-commit 47bb117911b051bbc90764a8bff96543cbd2005f upstream.
+commit a6327b5e57fdc679c842588c3be046c0b39cc127 upstream.
 
-When initially testing the Camera Terminal Descriptor wTerminalType
-field (buffer[4]), no mask is used. Later in the function, the MSB is
-overloaded to store the descriptor subtype, and so a mask of 0x7fff
-is used to check the type.
+When running OMAP1 kernel on QEMU, MMC access is annoyingly noisy:
 
-If a descriptor is specially crafted to set this overloaded bit in the
-original wTerminalType field, the initial type check will fail (falling
-through, without adjusting the buffer size), but the later type checks
-will pass, assuming the buffer has been made suitably large, causing an
-overflow.
+	MMC: CTO of 0xff and 0xfe cannot be used!
+	MMC: CTO of 0xff and 0xfe cannot be used!
+	MMC: CTO of 0xff and 0xfe cannot be used!
+	[ad inf.]
 
-Avoid this problem by checking for the MSB in the wTerminalType field.
-If the bit is set, assume the descriptor is bad, and abort parsing it.
+Emulator warnings appear to be valid. The TI document SPRU680 [1]
+("OMAP5910 Dual-Core Processor MultiMedia Card/Secure Data Memory Card
+(MMC/SD) Reference Guide") page 36 states that the maximum timeout is 253
+cycles and "0xff and 0xfe cannot be used".
 
-Originally reported here:
-https://groups.google.com/forum/#!topic/syzkaller/Ot1fOE6v1d8
-A similar (non-compiling) patch was provided at that time.
+Fix by using 0xfd as the maximum timeout.
 
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Alistair Strachan <astrachan@google.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Tested using QEMU 2.5 (Siemens SX1 machine, OMAP310), and also checked on
+real hardware using Palm TE (OMAP310), Nokia 770 (OMAP1710) and Nokia N810
+(OMAP2420) that MMC works as before.
+
+[1] http://www.ti.com/lit/ug/spru680/spru680.pdf
+
+Fixes: 730c9b7e6630f ("[MMC] Add OMAP MMC host driver")
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/media/usb/uvc/uvc_driver.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/mmc/host/omap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -977,11 +977,19 @@ static int uvc_parse_standard_control(st
- 			return -EINVAL;
- 		}
+--- a/drivers/mmc/host/omap.c
++++ b/drivers/mmc/host/omap.c
+@@ -921,7 +921,7 @@ static inline void set_cmd_timeout(struc
+ 	reg &= ~(1 << 5);
+ 	OMAP_MMC_WRITE(host, SDIO, reg);
+ 	/* Set maximum timeout */
+-	OMAP_MMC_WRITE(host, CTO, 0xff);
++	OMAP_MMC_WRITE(host, CTO, 0xfd);
+ }
  
--		/* Make sure the terminal type MSB is not null, otherwise it
--		 * could be confused with a unit.
-+		/*
-+		 * Reject invalid terminal types that would cause issues:
-+		 *
-+		 * - The high byte must be non-zero, otherwise it would be
-+		 *   confused with a unit.
-+		 *
-+		 * - Bit 15 must be 0, as we use it internally as a terminal
-+		 *   direction flag.
-+		 *
-+		 * Other unknown types are accepted.
- 		 */
- 		type = get_unaligned_le16(&buffer[4]);
--		if ((type & 0xff00) == 0) {
-+		if ((type & 0x7f00) == 0 || (type & 0x8000) != 0) {
- 			uvc_trace(UVC_TRACE_DESCR, "device %d videocontrol "
- 				"interface %d INPUT_TERMINAL %d has invalid "
- 				"type 0x%04x, skipping\n", udev->devnum,
+ static inline void set_data_timeout(struct mmc_omap_host *host, struct mmc_request *req)
 
