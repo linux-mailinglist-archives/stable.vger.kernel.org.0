@@ -2,155 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 048DC6165A
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:38:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3491461616
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 20:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727561AbfGGTiI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:38:08 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57102 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727521AbfGGTiG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:06 -0400
-Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz4-0006g8-C6; Sun, 07 Jul 2019 20:38:02 +0100
-Received: from ben by deadeye with local (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz3-0005Zu-32; Sun, 07 Jul 2019 20:38:01 +0100
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+        id S1726605AbfGGSnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 14:43:17 -0400
+Received: from mail180-22.suw31.mandrillapp.com ([198.2.180.22]:44907 "EHLO
+        mail180-22.suw31.mandrillapp.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726418AbfGGSnQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 14:43:16 -0400
+X-Greylist: delayed 1802 seconds by postgrey-1.27 at vger.kernel.org; Sun, 07 Jul 2019 14:43:15 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=mandrill; d=nexedi.com;
+ h=From:Subject:To:Cc:Message-Id:References:In-Reply-To:Date:MIME-Version:Content-Type:Content-Transfer-Encoding; i=kirr@nexedi.com;
+ bh=owTjbI7UdD8VgA6b1BMAffbWT0iESkUoHZSCvU4Uh8I=;
+ b=bFVa8DZSq7eUa+ec2dXzdRxVhLourcYkZxoJ79tXH3iisWmQ/aw9rM0d5oBBFeSHnN+l5VudB3bK
+   oL+PVFRBbZg7IPdlrbpWeIKWHrOBf365b0/sVcSe2DM8blwuNO09Vr3hHF0tOHkWu7X+7tS7YhWX
+   VY7deDj1JODPdP4O7FA=
+Received: from pmta03.mandrill.prod.suw01.rsglab.com (127.0.0.1) by mail180-22.suw31.mandrillapp.com id h48uk622sc01 for <stable@vger.kernel.org>; Sun, 7 Jul 2019 18:13:12 +0000 (envelope-from <bounce-md_31050260.5d223638.v1-85941fa003c94de7a46b9f2a28de003f@mandrillapp.com>)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mandrillapp.com; 
+ i=@mandrillapp.com; q=dns/txt; s=mandrill; t=1562523192; h=From : 
+ Subject : To : Cc : Message-Id : References : In-Reply-To : Date : 
+ MIME-Version : Content-Type : Content-Transfer-Encoding : From : 
+ Subject : Date : X-Mandrill-User : List-Unsubscribe; 
+ bh=owTjbI7UdD8VgA6b1BMAffbWT0iESkUoHZSCvU4Uh8I=; 
+ b=n6bkfqSyFpcjpSmZtlvP5MO+oB6QBTZc52QvHYJQQTLu2lRswkTFoOTTQWI0Kd0a8RSMec
+ +ye96X9GnshkMS9xq4ftvBhXmtF1kdeWeHukErR6eeLcR7CO/hDkdYdKMmBI0wx2oF4xwqGG
+ XLbL5gerpOBz878QyG68KYvY2Y7sE=
+From:   Kirill Smelkov <kirr@nexedi.com>
+Subject: Re: [PATCH 3.16 0/2] Fix FUSE read/write deadlock on stream-like files
+Received: from [87.98.221.171] by mandrillapp.com id 85941fa003c94de7a46b9f2a28de003f; Sun, 07 Jul 2019 18:13:12 +0000
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Message-Id: <20190707181305.GA25031@deco.navytux.spb.ru>
+References: <20190609135607.9840-1-kirr@nexedi.com> <ef1625b5c6921289e2f87cdbb0101ff6301b2a7d.camel@decadent.org.uk>
+In-Reply-To: <ef1625b5c6921289e2f87cdbb0101ff6301b2a7d.camel@decadent.org.uk>
+X-Report-Abuse: Please forward a copy of this message, including all headers, to abuse@mandrill.com
+X-Report-Abuse: You can also report abuse here: http://mandrillapp.com/contact/abuse?id=31050260.85941fa003c94de7a46b9f2a28de003f
+X-Mandrill-User: md_31050260
+Date:   Sun, 07 Jul 2019 18:13:12 +0000
 MIME-Version: 1.0
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jann Horn" <jannh@google.com>, "Al Viro" <viro@zeniv.linux.org.uk>
-Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.961437661@decadent.org.uk>
-X-Mailer: LinuxStableQueue (scripts by bwh)
-X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 045/129] splice: don't merge into linked buffers
-In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
-X-SA-Exim-Connect-IP: 94.197.121.43
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-3.16.70-rc1 review patch.  If anyone has any objections, please let me know.
+On Sun, Jul 07, 2019 at 03:03:45PM +0100, Ben Hutchings wrote:
+> On Sun, 2019-06-09 at 15:41 +0000, Kirill Smelkov wrote:
+> > Hello stable team,
+> > 
+> > Please consider applying the following 2 patches to Linux-3.16 stable
+> > tree. The patches fix regression introduced in 3.14 where both read and
+> > write started to run under lock taken, which resulted in FUSE (and many
+> > other drivers) deadlocks for cases where stream-like files are used with
+> > read and write being run simultaneously.
+> > 
+> > Please see complete problem description in upstream commit 10dce8af3422
+> > ("fs: stream_open - opener for stream-like files so that read and write
+> > can run simultaneously without deadlock").
+> > 
+> > The actual FUSE fix (upstream commit bbd84f33652f "fuse: Add
+> > FOPEN_STREAM to use stream_open()") was merged into 5.2 with `Cc:
+> > stable@vger.kernel.org # v3.14+` mark and is already included into 5.1,
+> > 5.0 and 4.19 stable trees. However for some reason it is not (yet ?)
+> > included into 4.14, 4.9, 4.4, 3.18 and 3.16 trees.
+> > 
+> > The patches fix a real problem into which my FUSE filesystem ran, and
+> > which also likely affects OSSPD (full details are in the patches
+> > description). Please consider including the fixes into 3.16 (as well as
+> > into other stable trees - I'm sending corresponding series separately -
+> > - one per tree).
+> [...]
+> 
+> I've queued these up for 3.16, thanks.
 
-------------------
+Thanks a lot.
 
-From: Jann Horn <jannh@google.com>
-
-commit a0ce2f0aa6ad97c3d4927bf2ca54bcebdf062d55 upstream.
-
-Before this patch, it was possible for two pipes to affect each other after
-data had been transferred between them with tee():
-
-============
-$ cat tee_test.c
-
-int main(void) {
-  int pipe_a[2];
-  if (pipe(pipe_a)) err(1, "pipe");
-  int pipe_b[2];
-  if (pipe(pipe_b)) err(1, "pipe");
-  if (write(pipe_a[1], "abcd", 4) != 4) err(1, "write");
-  if (tee(pipe_a[0], pipe_b[1], 2, 0) != 2) err(1, "tee");
-  if (write(pipe_b[1], "xx", 2) != 2) err(1, "write");
-
-  char buf[5];
-  if (read(pipe_a[0], buf, 4) != 4) err(1, "read");
-  buf[4] = 0;
-  printf("got back: '%s'\n", buf);
-}
-$ gcc -o tee_test tee_test.c
-$ ./tee_test
-got back: 'abxx'
-$
-============
-
-As suggested by Al Viro, fix it by creating a separate type for
-non-mergeable pipe buffers, then changing the types of buffers in
-splice_pipe_to_pipe() and link_pipe().
-
-Fixes: 7c77f0b3f920 ("splice: implement pipe to pipe splicing")
-Fixes: 70524490ee2e ("[PATCH] splice: add support for sys_tee()")
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-[bwh: Backported to 3.16: Use generic_pipe_buf_steal(), as for other pipe
- types, since anon_pipe_buf_steal() does not exist here]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
----
- fs/pipe.c                 | 14 ++++++++++++++
- fs/splice.c               |  4 ++++
- include/linux/pipe_fs_i.h |  1 +
- 3 files changed, 19 insertions(+)
-
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -219,6 +219,14 @@ static const struct pipe_buf_operations
- 	.get = generic_pipe_buf_get,
- };
- 
-+static const struct pipe_buf_operations anon_pipe_buf_nomerge_ops = {
-+	.can_merge = 0,
-+	.confirm = generic_pipe_buf_confirm,
-+	.release = anon_pipe_buf_release,
-+	.steal = generic_pipe_buf_steal,
-+	.get = generic_pipe_buf_get,
-+};
-+
- static const struct pipe_buf_operations packet_pipe_buf_ops = {
- 	.can_merge = 0,
- 	.confirm = generic_pipe_buf_confirm,
-@@ -227,6 +235,12 @@ static const struct pipe_buf_operations
- 	.get = generic_pipe_buf_get,
- };
- 
-+void pipe_buf_mark_unmergeable(struct pipe_buffer *buf)
-+{
-+	if (buf->ops == &anon_pipe_buf_ops)
-+		buf->ops = &anon_pipe_buf_nomerge_ops;
-+}
-+
- static ssize_t
- pipe_read(struct kiocb *iocb, struct iov_iter *to)
- {
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -1901,6 +1901,8 @@ retry:
- 			 */
- 			obuf->flags &= ~PIPE_BUF_FLAG_GIFT;
- 
-+			pipe_buf_mark_unmergeable(obuf);
-+
- 			obuf->len = len;
- 			opipe->nrbufs++;
- 			ibuf->offset += obuf->len;
-@@ -1975,6 +1977,8 @@ static int link_pipe(struct pipe_inode_i
- 		 */
- 		obuf->flags &= ~PIPE_BUF_FLAG_GIFT;
- 
-+		pipe_buf_mark_unmergeable(obuf);
-+
- 		if (obuf->len > len)
- 			obuf->len = len;
- 
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -140,6 +140,7 @@ void generic_pipe_buf_get(struct pipe_in
- int generic_pipe_buf_confirm(struct pipe_inode_info *, struct pipe_buffer *);
- int generic_pipe_buf_steal(struct pipe_inode_info *, struct pipe_buffer *);
- void generic_pipe_buf_release(struct pipe_inode_info *, struct pipe_buffer *);
-+void pipe_buf_mark_unmergeable(struct pipe_buffer *buf);
- 
- extern const struct pipe_buf_operations nosteal_pipe_buf_ops;
- 
-
+Kirill
