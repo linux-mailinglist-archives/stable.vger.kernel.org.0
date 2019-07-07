@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71239616E2
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:44:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 048DC6165A
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:38:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727582AbfGGTiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:38:10 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57254 "EHLO
+        id S1727561AbfGGTiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:38:08 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57102 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727547AbfGGTiI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:08 -0400
+        by vger.kernel.org with ESMTP id S1727521AbfGGTiG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:06 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz5-0006h3-Kg; Sun, 07 Jul 2019 20:38:03 +0100
+        id 1hkCz4-0006g8-C6; Sun, 07 Jul 2019 20:38:02 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz4-0005b1-5X; Sun, 07 Jul 2019 20:38:02 +0100
+        id 1hkCz3-0005Zu-32; Sun, 07 Jul 2019 20:38:01 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,12 +26,12 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "yangerkun" <yangerkun@huawei.com>, "Theodore Ts'o" <tytso@mit.edu>
+        "Jann Horn" <jannh@google.com>, "Al Viro" <viro@zeniv.linux.org.uk>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.291988630@decadent.org.uk>
+Message-ID: <lsq.1562518457.961437661@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 059/129] ext4: add mask of ext4 flags to swap
+Subject: [PATCH 3.16 045/129] splice: don't merge into linked buffers
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -45,57 +45,112 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: yangerkun <yangerkun@huawei.com>
+From: Jann Horn <jannh@google.com>
 
-commit abdc644e8cbac2e9b19763680e5a7cf9bab2bee7 upstream.
+commit a0ce2f0aa6ad97c3d4927bf2ca54bcebdf062d55 upstream.
 
-The reason is that while swapping two inode, we swap the flags too.
-Some flags such as EXT4_JOURNAL_DATA_FL can really confuse the things
-since we're not resetting the address operations structure.  The
-simplest way to keep things sane is to restrict the flags that can be
-swapped.
+Before this patch, it was possible for two pipes to affect each other after
+data had been transferred between them with tee():
 
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-[bwh: Backported to 3.16: adjust context]
+============
+$ cat tee_test.c
+
+int main(void) {
+  int pipe_a[2];
+  if (pipe(pipe_a)) err(1, "pipe");
+  int pipe_b[2];
+  if (pipe(pipe_b)) err(1, "pipe");
+  if (write(pipe_a[1], "abcd", 4) != 4) err(1, "write");
+  if (tee(pipe_a[0], pipe_b[1], 2, 0) != 2) err(1, "tee");
+  if (write(pipe_b[1], "xx", 2) != 2) err(1, "write");
+
+  char buf[5];
+  if (read(pipe_a[0], buf, 4) != 4) err(1, "read");
+  buf[4] = 0;
+  printf("got back: '%s'\n", buf);
+}
+$ gcc -o tee_test tee_test.c
+$ ./tee_test
+got back: 'abxx'
+$
+============
+
+As suggested by Al Viro, fix it by creating a separate type for
+non-mergeable pipe buffers, then changing the types of buffers in
+splice_pipe_to_pipe() and link_pipe().
+
+Fixes: 7c77f0b3f920 ("splice: implement pipe to pipe splicing")
+Fixes: 70524490ee2e ("[PATCH] splice: add support for sys_tee()")
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+[bwh: Backported to 3.16: Use generic_pipe_buf_steal(), as for other pipe
+ types, since anon_pipe_buf_steal() does not exist here]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/ext4/ext4.h  | 3 +++
- fs/ext4/ioctl.c | 6 +++++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ fs/pipe.c                 | 14 ++++++++++++++
+ fs/splice.c               |  4 ++++
+ include/linux/pipe_fs_i.h |  1 +
+ 3 files changed, 19 insertions(+)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -405,6 +405,9 @@ struct flex_groups {
- /* Flags that are appropriate for non-directories/regular files. */
- #define EXT4_OTHER_FLMASK (EXT4_NODUMP_FL | EXT4_NOATIME_FL)
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -219,6 +219,14 @@ static const struct pipe_buf_operations
+ 	.get = generic_pipe_buf_get,
+ };
  
-+/* The only flags that should be swapped */
-+#define EXT4_FL_SHOULD_SWAP (EXT4_HUGE_FILE_FL | EXT4_EXTENTS_FL)
++static const struct pipe_buf_operations anon_pipe_buf_nomerge_ops = {
++	.can_merge = 0,
++	.confirm = generic_pipe_buf_confirm,
++	.release = anon_pipe_buf_release,
++	.steal = generic_pipe_buf_steal,
++	.get = generic_pipe_buf_get,
++};
 +
- /* Mask out flags that are inappropriate for the given type of inode. */
- static inline __u32 ext4_mask_flags(umode_t mode, __u32 flags)
+ static const struct pipe_buf_operations packet_pipe_buf_ops = {
+ 	.can_merge = 0,
+ 	.confirm = generic_pipe_buf_confirm,
+@@ -227,6 +235,12 @@ static const struct pipe_buf_operations
+ 	.get = generic_pipe_buf_get,
+ };
+ 
++void pipe_buf_mark_unmergeable(struct pipe_buffer *buf)
++{
++	if (buf->ops == &anon_pipe_buf_ops)
++		buf->ops = &anon_pipe_buf_nomerge_ops;
++}
++
+ static ssize_t
+ pipe_read(struct kiocb *iocb, struct iov_iter *to)
  {
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -61,6 +61,7 @@ static void swap_inode_data(struct inode
- 	loff_t isize;
- 	struct ext4_inode_info *ei1;
- 	struct ext4_inode_info *ei2;
-+	unsigned long tmp;
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -1901,6 +1901,8 @@ retry:
+ 			 */
+ 			obuf->flags &= ~PIPE_BUF_FLAG_GIFT;
  
- 	ei1 = EXT4_I(inode1);
- 	ei2 = EXT4_I(inode2);
-@@ -71,7 +72,10 @@ static void swap_inode_data(struct inode
- 	memswap(&inode1->i_mtime, &inode2->i_mtime, sizeof(inode1->i_mtime));
++			pipe_buf_mark_unmergeable(obuf);
++
+ 			obuf->len = len;
+ 			opipe->nrbufs++;
+ 			ibuf->offset += obuf->len;
+@@ -1975,6 +1977,8 @@ static int link_pipe(struct pipe_inode_i
+ 		 */
+ 		obuf->flags &= ~PIPE_BUF_FLAG_GIFT;
  
- 	memswap(ei1->i_data, ei2->i_data, sizeof(ei1->i_data));
--	memswap(&ei1->i_flags, &ei2->i_flags, sizeof(ei1->i_flags));
-+	tmp = ei1->i_flags & EXT4_FL_SHOULD_SWAP;
-+	ei1->i_flags = (ei2->i_flags & EXT4_FL_SHOULD_SWAP) |
-+		(ei1->i_flags & ~EXT4_FL_SHOULD_SWAP);
-+	ei2->i_flags = tmp | (ei2->i_flags & ~EXT4_FL_SHOULD_SWAP);
- 	memswap(&ei1->i_disksize, &ei2->i_disksize, sizeof(ei1->i_disksize));
- 	ext4_es_remove_extent(inode1, 0, EXT_MAX_BLOCKS);
- 	ext4_es_remove_extent(inode2, 0, EXT_MAX_BLOCKS);
++		pipe_buf_mark_unmergeable(obuf);
++
+ 		if (obuf->len > len)
+ 			obuf->len = len;
+ 
+--- a/include/linux/pipe_fs_i.h
++++ b/include/linux/pipe_fs_i.h
+@@ -140,6 +140,7 @@ void generic_pipe_buf_get(struct pipe_in
+ int generic_pipe_buf_confirm(struct pipe_inode_info *, struct pipe_buffer *);
+ int generic_pipe_buf_steal(struct pipe_inode_info *, struct pipe_buffer *);
+ void generic_pipe_buf_release(struct pipe_inode_info *, struct pipe_buffer *);
++void pipe_buf_mark_unmergeable(struct pipe_buffer *buf);
+ 
+ extern const struct pipe_buf_operations nosteal_pipe_buf_ops;
+ 
 
