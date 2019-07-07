@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9470616CF
-	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88969616FE
+	for <lists+stable@lfdr.de>; Sun,  7 Jul 2019 21:44:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727788AbfGGTnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jul 2019 15:43:01 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57558 "EHLO
+        id S1727555AbfGGTo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jul 2019 15:44:29 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57310 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727603AbfGGTiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:11 -0400
+        by vger.kernel.org with ESMTP id S1727550AbfGGTiI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jul 2019 15:38:08 -0400
 Received: from 94.197.121.43.threembb.co.uk ([94.197.121.43] helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz8-0006jU-Va; Sun, 07 Jul 2019 20:38:07 +0100
+        id 1hkCz5-0006gj-6M; Sun, 07 Jul 2019 20:38:03 +0100
 Received: from ben by deadeye with local (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1hkCz6-0005dN-I6; Sun, 07 Jul 2019 20:38:04 +0100
+        id 1hkCz3-0005aZ-Oh; Sun, 07 Jul 2019 20:38:01 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Lubomir Rintel" <lkundrak@v3.sk>
+        "Colin Ian King" <colin.king@canonical.com>,
+        "Alexandre Belloni" <alexandre.belloni@bootlin.com>
 Date:   Sun, 07 Jul 2019 17:54:17 +0100
-Message-ID: <lsq.1562518457.503602606@decadent.org.uk>
+Message-ID: <lsq.1562518457.992044291@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 088/129] serial: 8250_of: assume reg-shift of 2 for
- mrvl,mmp-uart
+Subject: [PATCH 3.16 053/129] rtc: pm8xxx: fix unintended sign extension
 In-Reply-To: <lsq.1562518456.876074874@decadent.org.uk>
 X-SA-Exim-Connect-IP: 94.197.121.43
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,36 +46,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Lubomir Rintel <lkundrak@v3.sk>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit f4817843e39ce78aace0195a57d4e8500a65a898 upstream.
+commit e42280886018c6f77f0a90190f7cba344b0df3e0 upstream.
 
-There are two other drivers that bind to mrvl,mmp-uart and both of them
-assume register shift of 2 bits. There are device trees that lack the
-property and rely on that assumption.
+Shifting a u8 by 24 will cause the value to be promoted to an integer. If
+the top bit of the u8 is set then the following conversion to an unsigned
+long will sign extend the value causing the upper 32 bits to be set in
+the result.
 
-If this driver wins the race to bind to those devices, it should behave
-the same as the older deprecated driver.
+Fix this by casting the u8 value to an unsigned long before the shift.
 
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backported to 3.16: adjust filename]
+Detected by CoverityScan, CID#1309693 ("Unintended sign extension")
+
+Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/tty/serial/of_serial.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/rtc/rtc-pm8xxx.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/of_serial.c
-+++ b/drivers/tty/serial/of_serial.c
-@@ -93,6 +93,10 @@ static int of_platform_serial_setup(stru
- 	if (of_property_read_u32(np, "reg-offset", &prop) == 0)
- 		port->mapbase += prop;
+--- a/drivers/rtc/rtc-pm8xxx.c
++++ b/drivers/rtc/rtc-pm8xxx.c
+@@ -175,7 +175,8 @@ static int pm8xxx_rtc_read_time(struct d
+ 		}
+ 	}
  
-+	/* Compatibility with the deprecated pxa driver and 8250_pxa drivers. */
-+	if (of_device_is_compatible(np, "mrvl,mmp-uart"))
-+		port->regshift = 2;
-+
- 	/* Check for registers offset within the devices address range */
- 	if (of_property_read_u32(np, "reg-shift", &prop) == 0)
- 		port->regshift = prop;
+-	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
++	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
++	       ((unsigned long)value[3] << 24);
+ 
+ 	rtc_time_to_tm(secs, tm);
+ 
+@@ -253,7 +254,8 @@ static int pm8xxx_rtc_read_alarm(struct
+ 		return rc;
+ 	}
+ 
+-	secs = value[0] | (value[1] << 8) | (value[2] << 16) | (value[3] << 24);
++	secs = value[0] | (value[1] << 8) | (value[2] << 16) |
++	       ((unsigned long)value[3] << 24);
+ 
+ 	rtc_time_to_tm(secs, &alarm->time);
+ 
 
