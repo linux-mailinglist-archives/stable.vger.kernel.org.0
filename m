@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F15462434
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:41:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A6B06248B
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:44:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389055AbfGHP11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:27:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55558 "EHLO mail.kernel.org"
+        id S2390094AbfGHPnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:43:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389037AbfGHP11 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:27:27 -0400
+        id S2388249AbfGHPXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:23:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 858DE2166E;
-        Mon,  8 Jul 2019 15:27:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BD62204EC;
+        Mon,  8 Jul 2019 15:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599646;
-        bh=9LWas1KayOGH3hc2un4Hs+C/XRRrVJ0OVtYVULhv7Nk=;
+        s=default; t=1562599427;
+        bh=UqYaX4fyRfNX1yoi0yvqj0iqzoEcaynzbhGcyc602uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Shwp7gGNX1v8kOb80lPg/5KWNtWtU8Cvu/c9vHcqM7Kke8NUivBBMsjSGBGM8RPOr
-         b3QapeBtckVlm9pPGq9d32EO4NXvwoMgrXwhy4gaGHr0F6wGe94kFtRc02Mq3ZXECI
-         FL/AlJfw82e0dYSGbL4hWVyGgyEf9mThN8N4tYqc=
+        b=J2UZFyQ68o5TqHmT8dFbCS7ii/w+tuynzg3LRSLOHRiC8d6N4moExhruAWZge6L+2
+         lfUhl75Ie90BhROy7R8PHu/K5fO/2kaxAL5ITwEVI9uAQN6MDepZnVkx1+civ69wyD
+         pti4LvZMi4aGLyNERpFEB1he8Q/DtutWwm/3CQnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Axel Lin <axel.lin@ingics.com>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 29/90] platform/x86: asus-wmi: Only Tell EC the OS will handle display hotkeys from asus_nb_wmi
+Subject: [PATCH 4.14 04/56] spi: bitbang: Fix NULL pointer dereference in spi_unregister_master
 Date:   Mon,  8 Jul 2019 17:12:56 +0200
-Message-Id: <20190708150524.083465965@linuxfoundation.org>
+Message-Id: <20190708150517.470067346@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,104 +48,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 401fee8195d401b2b94dee57383f627050724d5b ]
+[ Upstream commit 5caaf29af5ca82d5da8bc1d0ad07d9e664ccf1d8 ]
 
-Commit 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will
-handle the display off hotkey") causes the backlight to be permanently off
-on various EeePC laptop models using the eeepc-wmi driver (Asus EeePC
-1015BX, Asus EeePC 1025C).
+If spi_register_master fails in spi_bitbang_start
+because device_add failure, We should return the
+error code other than 0, otherwise calling
+spi_bitbang_stop may trigger NULL pointer dereference
+like this:
 
-The asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL) call added
-by that commit is made conditional in this commit and only enabled in
-the quirk_entry structs in the asus-nb-wmi driver fixing the broken
-display / backlight on various EeePC laptop models.
+BUG: KASAN: null-ptr-deref in __list_del_entry_valid+0x45/0xd0
+Read of size 8 at addr 0000000000000000 by task syz-executor.0/3661
 
-Cc: João Paulo Rechi Vita <jprvita@endlessm.com>
-Fixes: 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will handle the display off hotkey")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+CPU: 0 PID: 3661 Comm: syz-executor.0 Not tainted 5.1.0+ #28
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+Call Trace:
+ dump_stack+0xa9/0x10e
+ ? __list_del_entry_valid+0x45/0xd0
+ ? __list_del_entry_valid+0x45/0xd0
+ __kasan_report+0x171/0x18d
+ ? __list_del_entry_valid+0x45/0xd0
+ kasan_report+0xe/0x20
+ __list_del_entry_valid+0x45/0xd0
+ spi_unregister_controller+0x99/0x1b0
+ spi_lm70llp_attach+0x3ae/0x4b0 [spi_lm70llp]
+ ? 0xffffffffc1128000
+ ? klist_next+0x131/0x1e0
+ ? driver_detach+0x40/0x40 [parport]
+ port_check+0x3b/0x50 [parport]
+ bus_for_each_dev+0x115/0x180
+ ? subsys_dev_iter_exit+0x20/0x20
+ __parport_register_driver+0x1f0/0x210 [parport]
+ ? 0xffffffffc1150000
+ do_one_initcall+0xb9/0x3b5
+ ? perf_trace_initcall_level+0x270/0x270
+ ? kasan_unpoison_shadow+0x30/0x40
+ ? kasan_unpoison_shadow+0x30/0x40
+ do_init_module+0xe0/0x330
+ load_module+0x38eb/0x4270
+ ? module_frob_arch_sections+0x20/0x20
+ ? kernel_read_file+0x188/0x3f0
+ ? find_held_lock+0x6d/0xd0
+ ? fput_many+0x1a/0xe0
+ ? __do_sys_finit_module+0x162/0x190
+ __do_sys_finit_module+0x162/0x190
+ ? __ia32_sys_init_module+0x40/0x40
+ ? __mutex_unlock_slowpath+0xb4/0x3f0
+ ? wait_for_completion+0x240/0x240
+ ? vfs_write+0x160/0x2a0
+ ? lockdep_hardirqs_off+0xb5/0x100
+ ? mark_held_locks+0x1a/0x90
+ ? do_syscall_64+0x14/0x2a0
+ do_syscall_64+0x72/0x2a0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 702a4879ec33 ("spi: bitbang: Let spi_bitbang_start() take a reference to master")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Axel Lin <axel.lin@ingics.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 8 ++++++++
- drivers/platform/x86/asus-wmi.c    | 2 +-
- drivers/platform/x86/asus-wmi.h    | 1 +
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ drivers/spi/spi-bitbang.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index b6f2ff95c3ed..59f3a37a44d7 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -78,10 +78,12 @@ static bool asus_q500a_i8042_filter(unsigned char data, unsigned char str,
+diff --git a/drivers/spi/spi-bitbang.c b/drivers/spi/spi-bitbang.c
+index 3aa9e6e3dac8..4ef54436b9d4 100644
+--- a/drivers/spi/spi-bitbang.c
++++ b/drivers/spi/spi-bitbang.c
+@@ -392,7 +392,7 @@ int spi_bitbang_start(struct spi_bitbang *bitbang)
+ 	if (ret)
+ 		spi_master_put(master);
  
- static struct quirk_entry quirk_asus_unknown = {
- 	.wapf = 0,
-+	.wmi_backlight_set_devstate = true,
- };
+-	return 0;
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(spi_bitbang_start);
  
- static struct quirk_entry quirk_asus_q500a = {
- 	.i8042_filter = asus_q500a_i8042_filter,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- /*
-@@ -92,26 +94,32 @@ static struct quirk_entry quirk_asus_q500a = {
- static struct quirk_entry quirk_asus_x55u = {
- 	.wapf = 4,
- 	.wmi_backlight_power = true,
-+	.wmi_backlight_set_devstate = true,
- 	.no_display_toggle = true,
- };
- 
- static struct quirk_entry quirk_asus_wapf4 = {
- 	.wapf = 4,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- static struct quirk_entry quirk_asus_x200ca = {
- 	.wapf = 2,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- static struct quirk_entry quirk_asus_ux303ub = {
- 	.wmi_backlight_native = true,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- static struct quirk_entry quirk_asus_x550lb = {
-+	.wmi_backlight_set_devstate = true,
- 	.xusb2pr = 0x01D9,
- };
- 
- static struct quirk_entry quirk_asus_forceals = {
-+	.wmi_backlight_set_devstate = true,
- 	.wmi_force_als_set = true,
- };
- 
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index db3556dc90d1..22eac449d3a3 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -2231,7 +2231,7 @@ static int asus_wmi_add(struct platform_device *pdev)
- 		err = asus_wmi_backlight_init(asus);
- 		if (err && err != -ENODEV)
- 			goto fail_backlight;
--	} else
-+	} else if (asus->driver->quirks->wmi_backlight_set_devstate)
- 		err = asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL);
- 
- 	status = wmi_install_notify_handler(asus->driver->event_guid,
-diff --git a/drivers/platform/x86/asus-wmi.h b/drivers/platform/x86/asus-wmi.h
-index 6c1311f4b04d..57a79bddb286 100644
---- a/drivers/platform/x86/asus-wmi.h
-+++ b/drivers/platform/x86/asus-wmi.h
-@@ -44,6 +44,7 @@ struct quirk_entry {
- 	bool store_backlight_power;
- 	bool wmi_backlight_power;
- 	bool wmi_backlight_native;
-+	bool wmi_backlight_set_devstate;
- 	bool wmi_force_als_set;
- 	int wapf;
- 	/*
 -- 
 2.20.1
 
