@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13A8C62236
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63AED62395
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388206AbfGHPXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:23:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50606 "EHLO mail.kernel.org"
+        id S2390261AbfGHPdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:33:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388199AbfGHPXa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:23:30 -0400
+        id S2390258AbfGHPdD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:33:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0815204EC;
-        Mon,  8 Jul 2019 15:23:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B11A2177B;
+        Mon,  8 Jul 2019 15:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599409;
-        bh=8CW4HcZ2DSVrqyxKi1Wc3Cz091WSc5eEel58Rm3wUFU=;
+        s=default; t=1562599982;
+        bh=w/C1KY7DwgILP0qzGNFTrFsId6j3M+yqpLgt9370w2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qK+K+xLiTykKGmRmOwJm1DmwuljjDkwPmZd5/he4OQXuS8IXUMybxFF3jBZdR4bOE
-         k/mUrTdiMlYWbiSeV4PqV4X+AnU/bR7P7GEdJ4wyvuad2rPCUzXkydWqyrnOUiaDRK
-         yEXOmu8idZ2Ux3dhbCHc1NyM4E2Rkup4V9EqPdIY=
+        b=oDC7vc+LkHN4AFbumnBBlkixXBEAuM2PdkUdfBu9JwGs/KgLXOu7VbxXTXCvJqsa4
+         14outkq/5FpOvrISSwHPORNu7DrH6AyiSv2jNFrrnv+BCLb7ur5pBP1FLUXNG1ZwLn
+         HxgK+mA/PWguQygnORzzl/lkygbNq/ZDmxEzD6d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Nikolay Borisov <nborisov@suse.com>
-Subject: [PATCH 4.9 095/102] btrfs: Ensure replaced device doesnt have pending chunk allocation
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.1 56/96] ptrace: Fix ->ptracer_cred handling for PTRACE_TRACEME
 Date:   Mon,  8 Jul 2019 17:13:28 +0200
-Message-Id: <20190708150531.396008385@linuxfoundation.org>
+Message-Id: <20190708150529.539934595@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,122 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Jann Horn <jannh@google.com>
 
-commit debd1c065d2037919a7da67baf55cc683fee09f0 upstream.
+commit 6994eefb0053799d2e07cd140df6c2ea106c41ee upstream.
 
-Recent FITRIM work, namely bbbf7243d62d ("btrfs: combine device update
-operations during transaction commit") combined the way certain
-operations are recoded in a transaction. As a result an ASSERT was added
-in dev_replace_finish to ensure the new code works correctly.
-Unfortunately I got reports that it's possible to trigger the assert,
-meaning that during a device replace it's possible to have an unfinished
-chunk allocation on the source device.
+Fix two issues:
 
-This is supposed to be prevented by the fact that a transaction is
-committed before finishing the replace oepration and alter acquiring the
-chunk mutex. This is not sufficient since by the time the transaction is
-committed and the chunk mutex acquired it's possible to allocate a chunk
-depending on the workload being executed on the replaced device. This
-bug has been present ever since device replace was introduced but there
-was never code which checks for it.
+When called for PTRACE_TRACEME, ptrace_link() would obtain an RCU
+reference to the parent's objective credentials, then give that pointer
+to get_cred().  However, the object lifetime rules for things like
+struct cred do not permit unconditionally turning an RCU reference into
+a stable reference.
 
-The correct way to fix is to ensure that there is no pending device
-modification operation when the chunk mutex is acquire and if there is
-repeat transaction commit. Unfortunately it's not possible to just
-exclude the source device from btrfs_fs_devices::dev_alloc_list since
-this causes ENOSPC to be hit in transaction commit.
+PTRACE_TRACEME records the parent's credentials as if the parent was
+acting as the subject, but that's not the case.  If a malicious
+unprivileged child uses PTRACE_TRACEME and the parent is privileged, and
+at a later point, the parent process becomes attacker-controlled
+(because it drops privileges and calls execve()), the attacker ends up
+with control over two processes with a privileged ptrace relationship,
+which can be abused to ptrace a suid binary and obtain root privileges.
 
-Fixing that in another way would need to add special cases to handle the
-last writes and forbid new ones. The looped transaction fix is more
-obvious, and can be easily backported. The runtime of dev-replace is
-long so there's no noticeable delay caused by that.
+Fix both of these by always recording the credentials of the process
+that is requesting the creation of the ptrace relationship:
+current_cred() can't change under us, and current is the proper subject
+for access control.
 
-Reported-by: David Sterba <dsterba@suse.com>
-Fixes: 391cd9df81ac ("Btrfs: fix unprotected alloc list insertion during the finishing procedure of replace")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This change is theoretically userspace-visible, but I am not aware of
+any code that it will actually break.
+
+Fixes: 64b875f7ac8a ("ptrace: Capture the ptracer's creds not PT_PTRACE_CAP")
+Signed-off-by: Jann Horn <jannh@google.com>
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/dev-replace.c |   29 +++++++++++++++++++----------
- fs/btrfs/volumes.c     |    2 ++
- fs/btrfs/volumes.h     |    5 +++++
- 3 files changed, 26 insertions(+), 10 deletions(-)
+ kernel/ptrace.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -511,18 +511,27 @@ static int btrfs_dev_replace_finishing(s
- 	}
- 	btrfs_wait_ordered_roots(root->fs_info, -1, 0, (u64)-1);
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -78,9 +78,7 @@ void __ptrace_link(struct task_struct *c
+  */
+ static void ptrace_link(struct task_struct *child, struct task_struct *new_parent)
+ {
+-	rcu_read_lock();
+-	__ptrace_link(child, new_parent, __task_cred(new_parent));
+-	rcu_read_unlock();
++	__ptrace_link(child, new_parent, current_cred());
+ }
  
--	trans = btrfs_start_transaction(root, 0);
--	if (IS_ERR(trans)) {
--		mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
--		return PTR_ERR(trans);
-+	while (1) {
-+		trans = btrfs_start_transaction(root, 0);
-+		if (IS_ERR(trans)) {
-+			mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
-+			return PTR_ERR(trans);
-+		}
-+		ret = btrfs_commit_transaction(trans, root);
-+		WARN_ON(ret);
-+		mutex_lock(&uuid_mutex);
-+		/* keep away write_all_supers() during the finishing procedure */
-+		mutex_lock(&root->fs_info->fs_devices->device_list_mutex);
-+		mutex_lock(&root->fs_info->chunk_mutex);
-+		if (src_device->has_pending_chunks) {
-+			mutex_unlock(&root->fs_info->chunk_mutex);
-+			mutex_unlock(&root->fs_info->fs_devices->device_list_mutex);
-+			mutex_unlock(&uuid_mutex);
-+		} else {
-+			break;
-+		}
- 	}
--	ret = btrfs_commit_transaction(trans, root);
--	WARN_ON(ret);
- 
--	mutex_lock(&uuid_mutex);
--	/* keep away write_all_supers() during the finishing procedure */
--	mutex_lock(&root->fs_info->fs_devices->device_list_mutex);
--	mutex_lock(&root->fs_info->chunk_mutex);
- 	btrfs_dev_replace_lock(dev_replace, 1);
- 	dev_replace->replace_state =
- 		scrub_ret ? BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -4876,6 +4876,7 @@ static int __btrfs_alloc_chunk(struct bt
- 	for (i = 0; i < map->num_stripes; i++) {
- 		num_bytes = map->stripes[i].dev->bytes_used + stripe_size;
- 		btrfs_device_set_bytes_used(map->stripes[i].dev, num_bytes);
-+		map->stripes[i].dev->has_pending_chunks = true;
- 	}
- 
- 	spin_lock(&extent_root->fs_info->free_chunk_lock);
-@@ -7250,6 +7251,7 @@ void btrfs_update_commit_device_bytes_us
- 		for (i = 0; i < map->num_stripes; i++) {
- 			dev = map->stripes[i].dev;
- 			dev->commit_bytes_used = dev->bytes_used;
-+			dev->has_pending_chunks = false;
- 		}
- 	}
- 	unlock_chunks(root);
---- a/fs/btrfs/volumes.h
-+++ b/fs/btrfs/volumes.h
-@@ -62,6 +62,11 @@ struct btrfs_device {
- 
- 	spinlock_t io_lock ____cacheline_aligned;
- 	int running_pending;
-+	/* When true means this device has pending chunk alloc in
-+	 * current transaction. Protected by chunk_mutex.
-+	 */
-+	bool has_pending_chunks;
-+
- 	/* regular prio bios */
- 	struct btrfs_pending_bios pending_bios;
- 	/* WRITE_SYNC bios */
+ /**
 
 
