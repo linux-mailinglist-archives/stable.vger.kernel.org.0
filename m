@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 733BE62480
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A2E662324
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388333AbfGHPYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:24:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51516 "EHLO mail.kernel.org"
+        id S2390140AbfGHPc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:32:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388328AbfGHPYP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:24:15 -0400
+        id S1733016AbfGHPc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:32:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41CA0214C6;
-        Mon,  8 Jul 2019 15:24:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AADBB20665;
+        Mon,  8 Jul 2019 15:32:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599454;
-        bh=KawLcqAK8Jtlnzz5LbCaBUmEuHDVz6zoCaHEviFevVk=;
+        s=default; t=1562599948;
+        bh=qBAM00zCvMYtWN1dCU/qoDNT+CBMuc9+j9k5UsLhRAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qs+gVPY2oD4Pjd9CmZFoMm3fFcHVIpLBA94U0zsck0SHFvgjeB38s76HbvJdHX7Nh
-         uq7AY4WPpbUyimh3Qz/Q2OtShnszqI6L4a/O/i0W3k+fdZuaep330uHaQphW5b6/NS
-         9hKW9t1371MkpxbnGD+08AGjvjPaGUvDaV/SVcaw=
+        b=z+TRUtqHHpPMjCop8okBapyGFmaLsZdZ/ZPPqLFjepm2hXG3PCNZI0X02BWo2y5Wu
+         N4d1lPLCBBcIpFr/Cv9uJX2EAuPRxWUFKv8VeM7CuKa/gBWufsIuTejb/aQ25D5wwL
+         kkHWV8FY1uSlvbSpgD+60Lm5EIGlOv6aY98nhNqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
-        Ganesan Ramalingam <ganesanr@broadcom.com>,
-        James Hogan <jhogan@kernel.org>,
-        Jayachandran C <jnair@caviumnetworks.com>,
-        John Crispin <john@phrozen.org>,
-        Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
+        stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/56] MIPS: netlogic: xlr: Remove erroneous check in nlm_fmn_send()
+Subject: [PATCH 5.1 41/96] drm: panel-orientation-quirks: Add quirk for GPD MicroPC
 Date:   Mon,  8 Jul 2019 17:13:13 +0200
-Message-Id: <20190708150520.811521205@linuxfoundation.org>
+Message-Id: <20190708150528.771946667@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,53 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 02eec6c9fc0cb13169cc97a6139771768791f92b ]
+[ Upstream commit 652b8b086538c8a10de5aa5cbdaef79333b46358 ]
 
-In nlm_fmn_send() we have a loop which attempts to send a message
-multiple times in order to handle the transient failure condition of a
-lack of available credit. When examining the status register to detect
-the failure we check for a condition that can never be true, which falls
-foul of gcc 8's -Wtautological-compare:
+GPD has done it again, make a nice device (good), use way too generic
+DMI strings (bad) and use a portrait screen rotated 90 degrees (ugly).
 
-  In file included from arch/mips/netlogic/common/irq.c:65:
-  ./arch/mips/include/asm/netlogic/xlr/fmn.h: In function 'nlm_fmn_send':
-  ./arch/mips/include/asm/netlogic/xlr/fmn.h:304:22: error: bitwise
-    comparison always evaluates to false [-Werror=tautological-compare]
-     if ((status & 0x2) == 1)
-                        ^~
+Because of the too generic DMI strings this entry is also doing bios-date
+matching, so the gpd_micropc data struct may very well need to be updated
+with some extra bios-dates in the future.
 
-If the path taken if this condition were true all we do is print a
-message to the kernel console. Since failures seem somewhat expected
-here (making the console message questionable anyway) and the condition
-has clearly never evaluated true we simply remove it, rather than
-attempting to fix it to check status correctly.
-
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Patchwork: https://patchwork.linux-mips.org/patch/20174/
-Cc: Ganesan Ramalingam <ganesanr@broadcom.com>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Jayachandran C <jnair@caviumnetworks.com>
-Cc: John Crispin <john@phrozen.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: linux-mips@linux-mips.org
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190524125759.14131-2-hdegoede@redhat.com
+(cherry picked from commit f2f2bb60d998abde10de7e483ef9e17639892450)
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/netlogic/xlr/fmn.h | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/arch/mips/include/asm/netlogic/xlr/fmn.h b/arch/mips/include/asm/netlogic/xlr/fmn.h
-index 5604db3d1836..d79c68fa78d9 100644
---- a/arch/mips/include/asm/netlogic/xlr/fmn.h
-+++ b/arch/mips/include/asm/netlogic/xlr/fmn.h
-@@ -301,8 +301,6 @@ static inline int nlm_fmn_send(unsigned int size, unsigned int code,
- 	for (i = 0; i < 8; i++) {
- 		nlm_msgsnd(dest);
- 		status = nlm_read_c2_status0();
--		if ((status & 0x2) == 1)
--			pr_info("Send pending fail!\n");
- 		if ((status & 0x4) == 0)
- 			return 0;
- 	}
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index 019f148d5a78..dd982563304d 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -42,6 +42,14 @@ static const struct drm_dmi_panel_orientation_data asus_t100ha = {
+ 	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
+ };
+ 
++static const struct drm_dmi_panel_orientation_data gpd_micropc = {
++	.width = 720,
++	.height = 1280,
++	.bios_dates = (const char * const []){ "04/26/2019",
++		NULL },
++	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
++};
++
+ static const struct drm_dmi_panel_orientation_data gpd_pocket = {
+ 	.width = 1200,
+ 	.height = 1920,
+@@ -101,6 +109,14 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100HAN"),
+ 		},
+ 		.driver_data = (void *)&asus_t100ha,
++	}, {	/* GPD MicroPC (generic strings, also match on bios date) */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Default string"),
++		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Default string"),
++		  DMI_EXACT_MATCH(DMI_BOARD_NAME, "Default string"),
++		},
++		.driver_data = (void *)&gpd_micropc,
+ 	}, {	/*
+ 		 * GPD Pocket, note that the the DMI data is less generic then
+ 		 * it seems, devices with a board-vendor of "AMI Corporation"
 -- 
 2.20.1
 
