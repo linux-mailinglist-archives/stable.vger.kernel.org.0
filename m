@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 173D4624DD
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:46:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F6A762439
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:41:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390306AbfGHPqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:46:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46206 "EHLO mail.kernel.org"
+        id S2390976AbfGHPkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:40:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387662AbfGHPUy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:20:54 -0400
+        id S2388478AbfGHP1F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:27:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31EEF216E3;
-        Mon,  8 Jul 2019 15:20:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AACE216C4;
+        Mon,  8 Jul 2019 15:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599253;
-        bh=YLcbfUXBUozGKSMWDKztSglmTCsQ+7TKQNM5VEuVoY0=;
+        s=default; t=1562599625;
+        bh=i4YZhxEhpum9DmDPzI9pU8XkAK/3CfGO1Rg7YmxCLiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1oY5/3r+jZ/INsEHEXhu/G34/buqLxbqcSWIBm/RWm2xVoaSgCAJLBgD+SxEDzc2
-         j8PT3LDmHaOXIuU0P816Ohyd1HVy/Lx+GDkhAA4Xeppj7jxLx/O5U57qKrumA6x3x5
-         JciSK7Dkg7nzPt0AOFm6n/f0hGr+lNXtwD6vRxzA=
+        b=CDuFFlREU48xPK9BX6b1LIW7xEe78OdKpSd5s5XuzEk6viH96pBeBdsJMN/jQtokQ
+         tyxW4xJ8yW44ELjiMDeb8Fad79n7EoxSiRXREOKwGtDbBvyipsXAnlKcqizeckw41e
+         ODX5cfjpDef6nUwoHU8dwEjtXqBqsyXOE2g6gXCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Jon Maloy <jon.maloy@ericsson.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 055/102] tipc: change to use register_pernet_device
-Date:   Mon,  8 Jul 2019 17:12:48 +0200
-Message-Id: <20190708150529.302275727@linuxfoundation.org>
+        stable@vger.kernel.org, Young Xiao <92siuyang@gmail.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 22/90] usb: gadget: fusb300_udc: Fix memory leak of fusb300->ep[i]
+Date:   Mon,  8 Jul 2019 17:12:49 +0200
+Message-Id: <20190708150523.753501550@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,100 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+[ Upstream commit 62fd0e0a24abeebe2c19fce49dd5716d9b62042d ]
 
-[ Upstream commit c492d4c74dd3f87559883ffa0f94a8f1ae3fe5f5 ]
+There is no deallocation of fusb300->ep[i] elements, allocated at
+fusb300_probe.
 
-This patch is to fix a dst defcnt leak, which can be reproduced by doing:
+The patch adds deallocation of fusb300->ep array elements.
 
-  # ip net a c; ip net a s; modprobe tipc
-  # ip net e s ip l a n eth1 type veth peer n eth1 netns c
-  # ip net e c ip l s lo up; ip net e c ip l s eth1 up
-  # ip net e s ip l s lo up; ip net e s ip l s eth1 up
-  # ip net e c ip a a 1.1.1.2/8 dev eth1
-  # ip net e s ip a a 1.1.1.1/8 dev eth1
-  # ip net e c tipc b e m udp n u1 localip 1.1.1.2
-  # ip net e s tipc b e m udp n u1 localip 1.1.1.1
-  # ip net d c; ip net d s; rmmod tipc
-
-and it will get stuck and keep logging the error:
-
-  unregister_netdevice: waiting for lo to become free. Usage count = 1
-
-The cause is that a dst is held by the udp sock's sk_rx_dst set on udp rx
-path with udp_early_demux == 1, and this dst (eventually holding lo dev)
-can't be released as bearer's removal in tipc pernet .exit happens after
-lo dev's removal, default_device pernet .exit.
-
- "There are two distinct types of pernet_operations recognized: subsys and
-  device.  At creation all subsys init functions are called before device
-  init functions, and at destruction all device exit functions are called
-  before subsys exit function."
-
-So by calling register_pernet_device instead to register tipc_net_ops, the
-pernet .exit() will be invoked earlier than loopback dev's removal when a
-netns is being destroyed, as fou/gue does.
-
-Note that vxlan and geneve udp tunnels don't have this issue, as the udp
-sock is released in their device ndo_stop().
-
-This fix is also necessary for tipc dst_cache, which will hold dsts on tx
-path and I will introduce in my next patch.
-
-Reported-by: Li Shuang <shuali@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Young Xiao <92siuyang@gmail.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/core.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/gadget/udc/fusb300_udc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -128,7 +128,7 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_sysctl;
- 
--	err = register_pernet_subsys(&tipc_net_ops);
-+	err = register_pernet_device(&tipc_net_ops);
- 	if (err)
- 		goto out_pernet;
- 
-@@ -136,7 +136,7 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_socket;
- 
--	err = register_pernet_subsys(&tipc_topsrv_net_ops);
-+	err = register_pernet_device(&tipc_topsrv_net_ops);
- 	if (err)
- 		goto out_pernet_topsrv;
- 
-@@ -147,11 +147,11 @@ static int __init tipc_init(void)
- 	pr_info("Started in single node mode\n");
- 	return 0;
- out_bearer:
--	unregister_pernet_subsys(&tipc_topsrv_net_ops);
-+	unregister_pernet_device(&tipc_topsrv_net_ops);
- out_pernet_topsrv:
- 	tipc_socket_stop();
- out_socket:
--	unregister_pernet_subsys(&tipc_net_ops);
-+	unregister_pernet_device(&tipc_net_ops);
- out_pernet:
- 	tipc_unregister_sysctl();
- out_sysctl:
-@@ -166,9 +166,9 @@ out_netlink:
- static void __exit tipc_exit(void)
+diff --git a/drivers/usb/gadget/udc/fusb300_udc.c b/drivers/usb/gadget/udc/fusb300_udc.c
+index 263804d154a7..00e3f66836a9 100644
+--- a/drivers/usb/gadget/udc/fusb300_udc.c
++++ b/drivers/usb/gadget/udc/fusb300_udc.c
+@@ -1342,12 +1342,15 @@ static const struct usb_gadget_ops fusb300_gadget_ops = {
+ static int fusb300_remove(struct platform_device *pdev)
  {
- 	tipc_bearer_cleanup();
--	unregister_pernet_subsys(&tipc_topsrv_net_ops);
-+	unregister_pernet_device(&tipc_topsrv_net_ops);
- 	tipc_socket_stop();
--	unregister_pernet_subsys(&tipc_net_ops);
-+	unregister_pernet_device(&tipc_net_ops);
- 	tipc_netlink_stop();
- 	tipc_netlink_compat_stop();
- 	tipc_unregister_sysctl();
+ 	struct fusb300 *fusb300 = platform_get_drvdata(pdev);
++	int i;
+ 
+ 	usb_del_gadget_udc(&fusb300->gadget);
+ 	iounmap(fusb300->reg);
+ 	free_irq(platform_get_irq(pdev, 0), fusb300);
+ 
+ 	fusb300_free_request(&fusb300->ep[0]->ep, fusb300->ep0_req);
++	for (i = 0; i < FUSB300_MAX_NUM_EP; i++)
++		kfree(fusb300->ep[i]);
+ 	kfree(fusb300);
+ 
+ 	return 0;
+@@ -1491,6 +1494,8 @@ clean_up:
+ 		if (fusb300->ep0_req)
+ 			fusb300_free_request(&fusb300->ep[0]->ep,
+ 				fusb300->ep0_req);
++		for (i = 0; i < FUSB300_MAX_NUM_EP; i++)
++			kfree(fusb300->ep[i]);
+ 		kfree(fusb300);
+ 	}
+ 	if (reg)
+-- 
+2.20.1
+
 
 
