@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0B9762428
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:41:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A16956251D
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:48:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388918AbfGHP0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:26:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51892 "EHLO mail.kernel.org"
+        id S1732951AbfGHPSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:18:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388371AbfGHPYf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:24:35 -0400
+        id S1732890AbfGHPR4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:17:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D81A2177B;
-        Mon,  8 Jul 2019 15:24:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD365216E3;
+        Mon,  8 Jul 2019 15:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599474;
-        bh=cYmtbt2v6RfDc7FjULI93abk3YL+Uslmq20nfWzd5mE=;
+        s=default; t=1562599076;
+        bh=g5XSuJXDPPx1t/SoGy5oUODDhay0cexUUbaJaPStrbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CAQ2wTnE57QEmtCaWCB55t0AOYVEqkH7aOOvQA9de9otYG5UpDLaszv4SKXaC0XQv
-         ZwfjFw3HxxEy8lVXRr9d18QaEZf3MFe5RKm4hOJcc3Xh6v1PalMvPgJHQ4jYXoEfxe
-         eMzGNap8o7BYpEC36zIjEIzJhtWI48NC7HMMPPTc=
+        b=Mpy7z2ixCdMRwFJL7g8umHVHJZIbFpcQtXEIe1kfLEmlAe10Q1QmfDjjDM6Ze9muE
+         xUMWxm05ikx8UKzBoM91MSWzoqj6tllozO/OGpegDB3sW9qNbH8vxKlXEkCmz1+RlT
+         4hKWGXtq0OCcPgKBw/kYX9WdL3yFiMSVvUUWkCCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 27/56] ALSA: firewire-lib/fireworks: fix miss detection of received MIDI messages
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 69/73] tty: rocket: fix incorrect forward declaration of rp_init()
 Date:   Mon,  8 Jul 2019 17:13:19 +0200
-Message-Id: <20190708150522.354885399@linuxfoundation.org>
+Message-Id: <20190708150524.901695706@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+[ Upstream commit 423ea3255424b954947d167681b71ded1b8fca53 ]
 
-commit 7fbd1753b64eafe21cf842348a40a691d0dee440 upstream.
+Make the forward declaration actually match the real function
+definition, something that previous versions of gcc had just ignored.
 
-In IEC 61883-6, 8 MIDI data streams are multiplexed into single
-MIDI conformant data channel. The index of stream is calculated by
-modulo 8 of the value of data block counter.
+This is another patch to fix new warnings from gcc-9 before I start the
+merge window pulls.  I don't want to miss legitimate new warnings just
+because my system update brought a new compiler with new warnings.
 
-In fireworks, the value of data block counter in CIP header has a quirk
-with firmware version v5.0.0, v5.7.3 and v5.8.0. This brings ALSA
-IEC 61883-1/6 packet streaming engine to miss detection of MIDI
-messages.
-
-This commit fixes the miss detection to modify the value of data block
-counter for the modulo calculation.
-
-For maintainers, this bug exists since a commit 18f5ed365d3f ("ALSA:
-fireworks/firewire-lib: add support for recent firmware quirk") in Linux
-kernel v4.2. There're many changes since the commit.  This fix can be
-backported to Linux kernel v4.4 or later. I tagged a base commit to the
-backport for your convenience.
-
-Besides, my work for Linux kernel v5.3 brings heavy code refactoring and
-some structure members are renamed in 'sound/firewire/amdtp-stream.h'.
-The content of this patch brings conflict when merging -rc tree with
-this patch and the latest tree. I request maintainers to solve the
-conflict to replace 'tx_first_dbc' with 'ctx_data.tx.first_dbc'.
-
-Fixes: df075feefbd3 ("ALSA: firewire-lib: complete AM824 data block processing layer")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/amdtp-am824.c |    2 +-
+ drivers/tty/rocket.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/firewire/amdtp-am824.c
-+++ b/sound/firewire/amdtp-am824.c
-@@ -321,7 +321,7 @@ static void read_midi_messages(struct am
- 	u8 *b;
+diff --git a/drivers/tty/rocket.c b/drivers/tty/rocket.c
+index 2b8f2e0a4224..ec6d20f25e8b 100644
+--- a/drivers/tty/rocket.c
++++ b/drivers/tty/rocket.c
+@@ -279,7 +279,7 @@ MODULE_PARM_DESC(pc104_3, "set interface types for ISA(PC104) board #3 (e.g. pc1
+ module_param_array(pc104_4, ulong, NULL, 0);
+ MODULE_PARM_DESC(pc104_4, "set interface types for ISA(PC104) board #4 (e.g. pc104_4=232,232,485,485,...");
  
- 	for (f = 0; f < frames; f++) {
--		port = (s->data_block_counter + f) % 8;
-+		port = (8 - s->tx_first_dbc + s->data_block_counter + f) % 8;
- 		b = (u8 *)&buffer[p->midi_position];
+-static int rp_init(void);
++static int __init rp_init(void);
+ static void rp_cleanup_module(void);
  
- 		len = b[0] - 0x80;
+ module_init(rp_init);
+-- 
+2.20.1
+
 
 
