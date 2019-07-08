@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE72362390
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E44862289
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732480AbfGHPcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:32:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34460 "EHLO mail.kernel.org"
+        id S2388852AbfGHP0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:26:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390180AbfGHPcl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:32:41 -0400
+        id S2388866AbfGHP0h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:26:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECCB6216F4;
-        Mon,  8 Jul 2019 15:32:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 728F421707;
+        Mon,  8 Jul 2019 15:26:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599960;
-        bh=sRzUo8N2c4jO93+r4ZILDbdApJGAD7zCtHKnqBowNh0=;
+        s=default; t=1562599596;
+        bh=IOJigquZYqTOVBc2a1Km/+TbA60nJuBD4nps1zfUfvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m56xAybMYGowi3C3GgsIcC3FjDGXr4vziJJvsFkaCGKsjAXcEYezeeqhQzO+PspVb
-         F78FcdAKJSSaxTU6Kr3gXbRxP9G7fPekUbzrzC1v9QNyN+z93O+miH/VDPMBudc8bh
-         OCEcTngsIj71aO5OwUBtA3U0ohXSu4UEQZQXEPsI=
+        b=U+nSyKxUXRfSL0Z4+dIv4dzRrdJCmeAdYTkp3whLd4GYUlwnPSb7va9vwj9C+n68y
+         JJiAFvzLQZf6ZnfmFQmTthNyY7UWlypr5p/fSn9LeMykdQENXuyG4gjVFH8HV7HFE9
+         xlPx3Ymk46y7RhvIry6xdCxVbOCoPTtz9FoNl7PE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 08/96] HID: i2c-hid: add iBall Aer3 to descriptor override
+        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 13/90] drm/mediatek: fix unbind functions
 Date:   Mon,  8 Jul 2019 17:12:40 +0200
-Message-Id: <20190708150526.772295121@linuxfoundation.org>
+Message-Id: <20190708150523.266519638@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit eb6964fa6509b4f1152313f1e0bb67f0c54a6046 ]
+[ Upstream commit 8fd7a37b191f93737f6280a9b5de65f98acc12c9 ]
 
-This device uses the SIPODEV SP1064 touchpad, which does not
-supply descriptors, so it has to be added to the override
-list.
+detatch panel in mtk_dsi_destroy_conn_enc(), since .bind will try to
+attach it again.
 
-BugLink: https://bugs.launchpad.net/bugs/1825718
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 2e54c14e310f ("drm/mediatek: Add DSI sub driver")
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/mediatek/mtk_dsi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index fd1b6eea6d2f..75078c83be1a 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -354,6 +354,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "iBall Aer3",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "iBall"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Aer3"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{ }	/* Terminate list */
- };
+diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
+index 66df1b177959..84bb66866631 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dsi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
+@@ -841,6 +841,8 @@ static void mtk_dsi_destroy_conn_enc(struct mtk_dsi *dsi)
+ 	/* Skip connector cleanup if creation was delegated to the bridge */
+ 	if (dsi->conn.dev)
+ 		drm_connector_cleanup(&dsi->conn);
++	if (dsi->panel)
++		drm_panel_detach(dsi->panel);
+ }
  
+ static void mtk_dsi_ddp_start(struct mtk_ddp_comp *comp)
 -- 
 2.20.1
 
