@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A93462239
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:24:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4305462412
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388227AbfGHPXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:23:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50730 "EHLO mail.kernel.org"
+        id S1732065AbfGHPkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:40:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729120AbfGHPXg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:23:36 -0400
+        id S1726435AbfGHP2d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:28:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26A46214C6;
-        Mon,  8 Jul 2019 15:23:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8438A21537;
+        Mon,  8 Jul 2019 15:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599415;
-        bh=XQyksg6BQprAUNPQBRwXdMzPOwjy+Jls0OH6AIq2J9M=;
+        s=default; t=1562599713;
+        bh=/FKc4kjIe82GxU9Sjc+/PTPdm3BLOpOWYvdj+AgWmkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KTgMyMm4GkzU0kKGG8qEuamUOVPVJ1JBT0EUCjJnzNKFEayqyu5pudG9YN23zrart
-         jdcgzYzX2B6p68/KJlHFuXtzeTequ89eh3Scufu+XHqTqRRIX6xpDHOK/sdf8TX/Tz
-         ISgvRd9UKIVeZGoLMOHzcvaeY2VceOG0jj0c9yF4=
+        b=KzTImTs0L2/h3MieRhcnxm7VDQcmGY9mK2GtMmnMordLT4a+rEANyri+gziXzJI8Y
+         12Ior4yOBJ+Y4ZTwU5WnxQO+w3kqLMvAky7KcTuA3COb0FKxobTygh8UhXyhiHDcUQ
+         MvVjlRy0SUCO55rEKO9rVYMdqM4CNAs7vof7H3vE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.9 087/102] crypto: user - prevent operating on larval algorithms
+        stable@vger.kernel.org,
+        Joshua Scott <joshua.scott@alliedtelesis.co.nz>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>
+Subject: [PATCH 4.19 53/90] ARM: dts: armada-xp-98dx3236: Switch to armada-38x-uart serial node
 Date:   Mon,  8 Jul 2019 17:13:20 +0200
-Message-Id: <20190708150530.971650838@linuxfoundation.org>
+Message-Id: <20190708150525.188209975@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Joshua Scott <joshua.scott@alliedtelesis.co.nz>
 
-commit 21d4120ec6f5b5992b01b96ac484701163917b63 upstream.
+commit 80031361747aec92163464f2ee08870fec33bcb0 upstream.
 
-Michal Suchanek reported [1] that running the pcrypt_aead01 test from
-LTP [2] in a loop and holding Ctrl-C causes a NULL dereference of
-alg->cra_users.next in crypto_remove_spawns(), via crypto_del_alg().
-The test repeatedly uses CRYPTO_MSG_NEWALG and CRYPTO_MSG_DELALG.
+Switch to the "marvell,armada-38x-uart" driver variant to empty
+the UART buffer before writing to the UART_LCR register.
 
-The crash occurs when the instance that CRYPTO_MSG_DELALG is trying to
-unregister isn't a real registered algorithm, but rather is a "test
-larval", which is a special "algorithm" added to the algorithms list
-while the real algorithm is still being tested.  Larvals don't have
-initialized cra_users, so that causes the crash.  Normally pcrypt_aead01
-doesn't trigger this because CRYPTO_MSG_NEWALG waits for the algorithm
-to be tested; however, CRYPTO_MSG_NEWALG returns early when interrupted.
-
-Everything else in the "crypto user configuration" API has this same bug
-too, i.e. it inappropriately allows operating on larval algorithms
-(though it doesn't look like the other cases can cause a crash).
-
-Fix this by making crypto_alg_match() exclude larval algorithms.
-
-[1] https://lkml.kernel.org/r/20190625071624.27039-1-msuchanek@suse.de
-[2] https://github.com/linux-test-project/ltp/blob/20190517/testcases/kernel/crypto/pcrypt_aead01.c
-
-Reported-by: Michal Suchanek <msuchanek@suse.de>
-Fixes: a38f7907b926 ("crypto: Add userspace configuration API")
-Cc: <stable@vger.kernel.org> # v3.2+
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Joshua Scott <joshua.scott@alliedtelesis.co.nz>
+Tested-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Gregory CLEMENT <gregory.clement@bootlin.com>.
+Cc: stable@vger.kernel.org
+Fixes: 43e28ba87708 ("ARM: dts: Use armada-370-xp as a base for armada-xp-98dx3236")
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/crypto_user.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/armada-xp-98dx3236.dtsi |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/crypto/crypto_user.c
-+++ b/crypto/crypto_user.c
-@@ -55,6 +55,9 @@ static struct crypto_alg *crypto_alg_mat
- 	list_for_each_entry(q, &crypto_alg_list, cra_list) {
- 		int match = 0;
+--- a/arch/arm/boot/dts/armada-xp-98dx3236.dtsi
++++ b/arch/arm/boot/dts/armada-xp-98dx3236.dtsi
+@@ -336,3 +336,11 @@
+ 	status = "disabled";
+ };
  
-+		if (crypto_is_larval(q))
-+			continue;
++&uart0 {
++	compatible = "marvell,armada-38x-uart";
++};
 +
- 		if ((q->cra_flags ^ p->cru_type) & p->cru_mask)
- 			continue;
- 
++&uart1 {
++	compatible = "marvell,armada-38x-uart";
++};
++
 
 
