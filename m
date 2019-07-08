@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A63A26237E
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A93462239
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733179AbfGHPe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:34:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37214 "EHLO mail.kernel.org"
+        id S2388227AbfGHPXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:23:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390655AbfGHPeu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:34:50 -0400
+        id S1729120AbfGHPXg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:23:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F19FF204EC;
-        Mon,  8 Jul 2019 15:34:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26A46214C6;
+        Mon,  8 Jul 2019 15:23:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562600089;
-        bh=1y6TrxPpo4z/VeD6N4ELESCYUlwBI91glaQM5xDDCtU=;
+        s=default; t=1562599415;
+        bh=XQyksg6BQprAUNPQBRwXdMzPOwjy+Jls0OH6AIq2J9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hc8PLI2jRy20ldAzu9exvzxgnLEh5iCGOvPFtT7FbSO6qWbnX5a+84RuJEgFatCLQ
-         /jFfDJh3qrx6E4hdltMPNGIFdF+BL2c39BJ663aNHUbDvJIKun8FTMhlApzxyPTQun
-         HFo/AimHSqvRf4Tf7wVzDkwtMF1itjPj35BLIEqk=
+        b=KTgMyMm4GkzU0kKGG8qEuamUOVPVJ1JBT0EUCjJnzNKFEayqyu5pudG9YN23zrart
+         jdcgzYzX2B6p68/KJlHFuXtzeTequ89eh3Scufu+XHqTqRRIX6xpDHOK/sdf8TX/Tz
+         ISgvRd9UKIVeZGoLMOHzcvaeY2VceOG0jj0c9yF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 48/96] i2c: pca-platform: Fix GPIO lookup code
+        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 087/102] crypto: user - prevent operating on larval algorithms
 Date:   Mon,  8 Jul 2019 17:13:20 +0200
-Message-Id: <20190708150529.113774328@linuxfoundation.org>
+Message-Id: <20190708150530.971650838@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a0cac264a86fbf4d6cb201fbbb73c1d335e3248a ]
+From: Eric Biggers <ebiggers@google.com>
 
-The devm_gpiod_request_gpiod() call will add "-gpios" to
-any passed connection ID before looking it up.
+commit 21d4120ec6f5b5992b01b96ac484701163917b63 upstream.
 
-I do not think the reset GPIO on this platform is named
-"reset-gpios-gpios" but rather "reset-gpios" in the device
-tree, so fix this up so that we get a proper reset GPIO
-handle.
+Michal Suchanek reported [1] that running the pcrypt_aead01 test from
+LTP [2] in a loop and holding Ctrl-C causes a NULL dereference of
+alg->cra_users.next in crypto_remove_spawns(), via crypto_del_alg().
+The test repeatedly uses CRYPTO_MSG_NEWALG and CRYPTO_MSG_DELALG.
 
-Also drop the inclusion of the legacy GPIO header.
+The crash occurs when the instance that CRYPTO_MSG_DELALG is trying to
+unregister isn't a real registered algorithm, but rather is a "test
+larval", which is a special "algorithm" added to the algorithms list
+while the real algorithm is still being tested.  Larvals don't have
+initialized cra_users, so that causes the crash.  Normally pcrypt_aead01
+doesn't trigger this because CRYPTO_MSG_NEWALG waits for the algorithm
+to be tested; however, CRYPTO_MSG_NEWALG returns early when interrupted.
 
-Fixes: 0e8ce93bdceb ("i2c: pca-platform: add devicetree awareness")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Everything else in the "crypto user configuration" API has this same bug
+too, i.e. it inappropriately allows operating on larval algorithms
+(though it doesn't look like the other cases can cause a crash).
+
+Fix this by making crypto_alg_match() exclude larval algorithms.
+
+[1] https://lkml.kernel.org/r/20190625071624.27039-1-msuchanek@suse.de
+[2] https://github.com/linux-test-project/ltp/blob/20190517/testcases/kernel/crypto/pcrypt_aead01.c
+
+Reported-by: Michal Suchanek <msuchanek@suse.de>
+Fixes: a38f7907b926 ("crypto: Add userspace configuration API")
+Cc: <stable@vger.kernel.org> # v3.2+
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/i2c/busses/i2c-pca-platform.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ crypto/crypto_user.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
-index de3fe6e828cb..f50afa8e3cba 100644
---- a/drivers/i2c/busses/i2c-pca-platform.c
-+++ b/drivers/i2c/busses/i2c-pca-platform.c
-@@ -21,7 +21,6 @@
- #include <linux/platform_device.h>
- #include <linux/i2c-algo-pca.h>
- #include <linux/platform_data/i2c-pca-platform.h>
--#include <linux/gpio.h>
- #include <linux/gpio/consumer.h>
- #include <linux/io.h>
- #include <linux/of.h>
-@@ -173,7 +172,7 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
- 	i2c->adap.dev.parent = &pdev->dev;
- 	i2c->adap.dev.of_node = np;
+--- a/crypto/crypto_user.c
++++ b/crypto/crypto_user.c
+@@ -55,6 +55,9 @@ static struct crypto_alg *crypto_alg_mat
+ 	list_for_each_entry(q, &crypto_alg_list, cra_list) {
+ 		int match = 0;
  
--	i2c->gpio = devm_gpiod_get_optional(&pdev->dev, "reset-gpios", GPIOD_OUT_LOW);
-+	i2c->gpio = devm_gpiod_get_optional(&pdev->dev, "reset", GPIOD_OUT_LOW);
- 	if (IS_ERR(i2c->gpio))
- 		return PTR_ERR(i2c->gpio);
++		if (crypto_is_larval(q))
++			continue;
++
+ 		if ((q->cra_flags ^ p->cru_type) & p->cru_mask)
+ 			continue;
  
--- 
-2.20.1
-
 
 
