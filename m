@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CA8C62487
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E5B36230C
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:33:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729890AbfGHPnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:43:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51012 "EHLO mail.kernel.org"
+        id S2389946AbfGHPbi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:31:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729736AbfGHPXw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:23:52 -0400
+        id S2389938AbfGHPbi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:31:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2ADE214C6;
-        Mon,  8 Jul 2019 15:23:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D48221537;
+        Mon,  8 Jul 2019 15:31:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599431;
-        bh=de8mC/QLuiEZzy4zq3/VOkL0MdnjAWqlozWMPbRT42M=;
+        s=default; t=1562599896;
+        bh=s5RHb5D+GklkK4fSw9wdDuQyqdOzVQxVPE9KLH2bnRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0tZL/cLnRwKj+agKayAijzjI0NT159uqOb3p8n3aSBAEWppnMZG+cuSp01RNqxdmh
-         sB3xCraHnUYcVhIX5cp2ul+QktlV/MWBTEYQykp+vkUuJLBV+FVOHWE3x/qhk2GWO9
-         LXqXfn1svduzAWS1ZYHKOY5g9dKYud3cI4ZExxYg=
+        b=gZTybPEkbyfKfuNGBXhUM7J+cm5HFzH6CBTnkvvg1t/t3OiUU401VIbqax2Mex9IK
+         0ztVbUrl154/ov1HiuTZSDEteaA8jJLJBB3GEjZOJLJVl7YE1Bk02GASuhVjdHwRwC
+         RnLoWy8Kl3LWCCKdese12/o4MXwKky82eDcclxC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
-        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/56] drm/mediatek: fix unbind functions
+        stable@vger.kernel.org, Marcus Cooper <codekipper@gmail.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 25/96] ASoC: sun4i-i2s: Fix sun8i tx channel offset mask
 Date:   Mon,  8 Jul 2019 17:12:57 +0200
-Message-Id: <20190708150517.994331556@linuxfoundation.org>
+Message-Id: <20190708150527.852538064@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8fd7a37b191f93737f6280a9b5de65f98acc12c9 ]
+[ Upstream commit 7e46169a5f35762f335898a75d1b8a242f2ae0f5 ]
 
-detatch panel in mtk_dsi_destroy_conn_enc(), since .bind will try to
-attach it again.
+Although not causing any noticeable issues, the mask for the
+channel offset is covering too many bits.
 
-Fixes: 2e54c14e310f ("drm/mediatek: Add DSI sub driver")
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Signed-off-by: CK Hu <ck.hu@mediatek.com>
+Signed-off-by: Marcus Cooper <codekipper@gmail.com>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dsi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/sunxi/sun4i-i2s.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
-index 7e5e24c2152a..413313f19c36 100644
---- a/drivers/gpu/drm/mediatek/mtk_dsi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
-@@ -851,6 +851,8 @@ static void mtk_dsi_destroy_conn_enc(struct mtk_dsi *dsi)
- 	/* Skip connector cleanup if creation was delegated to the bridge */
- 	if (dsi->conn.dev)
- 		drm_connector_cleanup(&dsi->conn);
-+	if (dsi->panel)
-+		drm_panel_detach(dsi->panel);
- }
+diff --git a/sound/soc/sunxi/sun4i-i2s.c b/sound/soc/sunxi/sun4i-i2s.c
+index d5ec1a20499d..8162e107e50b 100644
+--- a/sound/soc/sunxi/sun4i-i2s.c
++++ b/sound/soc/sunxi/sun4i-i2s.c
+@@ -110,7 +110,7 @@
  
- static void mtk_dsi_ddp_start(struct mtk_ddp_comp *comp)
+ #define SUN8I_I2S_TX_CHAN_MAP_REG	0x44
+ #define SUN8I_I2S_TX_CHAN_SEL_REG	0x34
+-#define SUN8I_I2S_TX_CHAN_OFFSET_MASK		GENMASK(13, 11)
++#define SUN8I_I2S_TX_CHAN_OFFSET_MASK		GENMASK(13, 12)
+ #define SUN8I_I2S_TX_CHAN_OFFSET(offset)	(offset << 12)
+ #define SUN8I_I2S_TX_CHAN_EN_MASK		GENMASK(11, 4)
+ #define SUN8I_I2S_TX_CHAN_EN(num_chan)		(((1 << num_chan) - 1) << 4)
 -- 
 2.20.1
 
