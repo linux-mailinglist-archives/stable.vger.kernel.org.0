@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CB8C6239A
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 177AA6247D
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390326AbfGHPdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:33:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35400 "EHLO mail.kernel.org"
+        id S2387429AbfGHPnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:43:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390334AbfGHPdV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:33:21 -0400
+        id S2388344AbfGHPYX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:24:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48533216E3;
-        Mon,  8 Jul 2019 15:33:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5314221743;
+        Mon,  8 Jul 2019 15:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562600000;
-        bh=30ZiUa57b9KbLpjZYhcteNW8B3iqs0vHt9M9lp9ue9k=;
+        s=default; t=1562599462;
+        bh=XQyksg6BQprAUNPQBRwXdMzPOwjy+Jls0OH6AIq2J9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HLOsbQezRPLVUhYxloKA/1dsIsTv/yKyi6SF3Z8ILyvihWRJ/0WGS1FsGRkWh7XLD
-         hunbw7pG8A5Z0IYxs488HTCdJNS9RhFiMT2m0LYAX+sk0bieT34jvub/1czzTM6Uw+
-         T6dTpKynfThkMp0w0a51SQROkH+qA6PRNFnuIs9w=
+        b=zbJ6+HI8mtVam6hkveGTsj0eg24KyQ7n7y5oVdwjpRjzP/VLrbodw2OHHJ9meT6IQ
+         VjhideNPWKJRWpfkQus8NWmlURjdAQTx0jd69167ci9M3U0U7cTtqLBnaTt2wIurdX
+         fOIyyYu/xcLFxNGRgVmpMmX4Ls+zClvsCvFdOj8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 44/96] platform/x86: asus-wmi: Only Tell EC the OS will handle display hotkeys from asus_nb_wmi
+        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 24/56] crypto: user - prevent operating on larval algorithms
 Date:   Mon,  8 Jul 2019 17:13:16 +0200
-Message-Id: <20190708150528.914263872@linuxfoundation.org>
+Message-Id: <20190708150521.596980733@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,106 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 401fee8195d401b2b94dee57383f627050724d5b ]
+From: Eric Biggers <ebiggers@google.com>
 
-Commit 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will
-handle the display off hotkey") causes the backlight to be permanently off
-on various EeePC laptop models using the eeepc-wmi driver (Asus EeePC
-1015BX, Asus EeePC 1025C).
+commit 21d4120ec6f5b5992b01b96ac484701163917b63 upstream.
 
-The asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL) call added
-by that commit is made conditional in this commit and only enabled in
-the quirk_entry structs in the asus-nb-wmi driver fixing the broken
-display / backlight on various EeePC laptop models.
+Michal Suchanek reported [1] that running the pcrypt_aead01 test from
+LTP [2] in a loop and holding Ctrl-C causes a NULL dereference of
+alg->cra_users.next in crypto_remove_spawns(), via crypto_del_alg().
+The test repeatedly uses CRYPTO_MSG_NEWALG and CRYPTO_MSG_DELALG.
 
-Cc: João Paulo Rechi Vita <jprvita@endlessm.com>
-Fixes: 78f3ac76d9e5 ("platform/x86: asus-wmi: Tell the EC the OS will handle the display off hotkey")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The crash occurs when the instance that CRYPTO_MSG_DELALG is trying to
+unregister isn't a real registered algorithm, but rather is a "test
+larval", which is a special "algorithm" added to the algorithms list
+while the real algorithm is still being tested.  Larvals don't have
+initialized cra_users, so that causes the crash.  Normally pcrypt_aead01
+doesn't trigger this because CRYPTO_MSG_NEWALG waits for the algorithm
+to be tested; however, CRYPTO_MSG_NEWALG returns early when interrupted.
+
+Everything else in the "crypto user configuration" API has this same bug
+too, i.e. it inappropriately allows operating on larval algorithms
+(though it doesn't look like the other cases can cause a crash).
+
+Fix this by making crypto_alg_match() exclude larval algorithms.
+
+[1] https://lkml.kernel.org/r/20190625071624.27039-1-msuchanek@suse.de
+[2] https://github.com/linux-test-project/ltp/blob/20190517/testcases/kernel/crypto/pcrypt_aead01.c
+
+Reported-by: Michal Suchanek <msuchanek@suse.de>
+Fixes: a38f7907b926 ("crypto: Add userspace configuration API")
+Cc: <stable@vger.kernel.org> # v3.2+
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/platform/x86/asus-nb-wmi.c | 8 ++++++++
- drivers/platform/x86/asus-wmi.c    | 2 +-
- drivers/platform/x86/asus-wmi.h    | 1 +
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ crypto/crypto_user.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index b6f2ff95c3ed..59f3a37a44d7 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -78,10 +78,12 @@ static bool asus_q500a_i8042_filter(unsigned char data, unsigned char str,
+--- a/crypto/crypto_user.c
++++ b/crypto/crypto_user.c
+@@ -55,6 +55,9 @@ static struct crypto_alg *crypto_alg_mat
+ 	list_for_each_entry(q, &crypto_alg_list, cra_list) {
+ 		int match = 0;
  
- static struct quirk_entry quirk_asus_unknown = {
- 	.wapf = 0,
-+	.wmi_backlight_set_devstate = true,
- };
++		if (crypto_is_larval(q))
++			continue;
++
+ 		if ((q->cra_flags ^ p->cru_type) & p->cru_mask)
+ 			continue;
  
- static struct quirk_entry quirk_asus_q500a = {
- 	.i8042_filter = asus_q500a_i8042_filter,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- /*
-@@ -92,26 +94,32 @@ static struct quirk_entry quirk_asus_q500a = {
- static struct quirk_entry quirk_asus_x55u = {
- 	.wapf = 4,
- 	.wmi_backlight_power = true,
-+	.wmi_backlight_set_devstate = true,
- 	.no_display_toggle = true,
- };
- 
- static struct quirk_entry quirk_asus_wapf4 = {
- 	.wapf = 4,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- static struct quirk_entry quirk_asus_x200ca = {
- 	.wapf = 2,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- static struct quirk_entry quirk_asus_ux303ub = {
- 	.wmi_backlight_native = true,
-+	.wmi_backlight_set_devstate = true,
- };
- 
- static struct quirk_entry quirk_asus_x550lb = {
-+	.wmi_backlight_set_devstate = true,
- 	.xusb2pr = 0x01D9,
- };
- 
- static struct quirk_entry quirk_asus_forceals = {
-+	.wmi_backlight_set_devstate = true,
- 	.wmi_force_als_set = true,
- };
- 
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index ee1fa93708ec..a66e99500c12 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -2131,7 +2131,7 @@ static int asus_wmi_add(struct platform_device *pdev)
- 		err = asus_wmi_backlight_init(asus);
- 		if (err && err != -ENODEV)
- 			goto fail_backlight;
--	} else
-+	} else if (asus->driver->quirks->wmi_backlight_set_devstate)
- 		err = asus_wmi_set_devstate(ASUS_WMI_DEVID_BACKLIGHT, 2, NULL);
- 
- 	status = wmi_install_notify_handler(asus->driver->event_guid,
-diff --git a/drivers/platform/x86/asus-wmi.h b/drivers/platform/x86/asus-wmi.h
-index 6c1311f4b04d..57a79bddb286 100644
---- a/drivers/platform/x86/asus-wmi.h
-+++ b/drivers/platform/x86/asus-wmi.h
-@@ -44,6 +44,7 @@ struct quirk_entry {
- 	bool store_backlight_power;
- 	bool wmi_backlight_power;
- 	bool wmi_backlight_native;
-+	bool wmi_backlight_set_devstate;
- 	bool wmi_force_als_set;
- 	int wapf;
- 	/*
--- 
-2.20.1
-
 
 
