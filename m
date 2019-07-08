@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C755962352
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:34:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96255623E5
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390509AbfGHPeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:34:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36492 "EHLO mail.kernel.org"
+        id S1731290AbfGHPih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:38:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390506AbfGHPeQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:34:16 -0400
+        id S1730329AbfGHPaI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:30:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3770320651;
-        Mon,  8 Jul 2019 15:34:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 662AB2173E;
+        Mon,  8 Jul 2019 15:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562600055;
-        bh=V836edaPtW1AbGnQQ629cXtx0K4VHQBNzBFbKxzKsws=;
+        s=default; t=1562599807;
+        bh=B+i8pNq1u1zfuPaQG55uUzHzlNs42FTF9jCQlpAxVBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2KgCNZsOuxDVQd3TVQLf1V8U4KNgOPAihot+sVW5is6nX6t3TB3OFu9Ej4irAxYm
-         w70QsRXRWzjbjFS0meBiftvTS0VFXArVVRaxSyjr1yi6TaX1OQAY7C5zT3Rw90dCXq
-         rVr+LeholNhdtULju1HcKEN4Frn2LRh4eHH2p3CM=
+        b=uw4pgwM+03xDqrXDOSOq27wk64ZJJC0NteCG38KHZV4QypaUIXicg5ivn8ykZsSJp
+         KhiKxQI+eWyWTflEtW4Y8m2fuYBnz+7Krd3zWlo324upVrtXc9KVX02Cz1iKEjZ0VH
+         YDFVyYXd2fQc+mQ2CtzbvOpxVOH9vHkNZcRp9GgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Beckett <bob.beckett@collabora.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Philipp Zabel <p.zabel@pengutronix.de>
-Subject: [PATCH 5.1 79/96] drm/imx: only send event on crtc disable if kept disabled
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 4.19 84/90] nfsd: Fix overflow causing non-working mounts on 1 TB machines
 Date:   Mon,  8 Jul 2019 17:13:51 +0200
-Message-Id: <20190708150530.733276041@linuxfoundation.org>
+Message-Id: <20190708150526.687176883@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Beckett <bob.beckett@collabora.com>
+From: Paul Menzel <pmenzel@molgen.mpg.de>
 
-commit 5aeab2bfc9ffa72d3ca73416635cb3785dfc076f upstream.
+commit 3b2d4dcf71c4a91b420f835e52ddea8192300a3b upstream.
 
-The event will be sent as part of the vblank enable during the modeset
-if the crtc is not being kept disabled.
+Since commit 10a68cdf10 (nfsd: fix performance-limiting session
+calculation) (Linux 5.1-rc1 and 4.19.31), shares from NFS servers with
+1 TB of memory cannot be mounted anymore. The mount just hangs on the
+client.
 
-Fixes: 5f2f911578fb ("drm/imx: atomic phase 3 step 1: Use atomic configuration")
+The gist of commit 10a68cdf10 is the change below.
 
-Signed-off-by: Robert Beckett <bob.beckett@collabora.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+    -avail = clamp_t(int, avail, slotsize, avail/3);
+    +avail = clamp_t(int, avail, slotsize, total_avail/3);
+
+Here are the macros.
+
+    #define min_t(type, x, y)       __careful_cmp((type)(x), (type)(y), <)
+    #define clamp_t(type, val, lo, hi) min_t(type, max_t(type, val, lo), hi)
+
+`total_avail` is 8,434,659,328 on the 1 TB machine. `clamp_t()` casts
+the values to `int`, which for 32-bit integers can only hold values
+−2,147,483,648 (−2^31) through 2,147,483,647 (2^31 − 1).
+
+`avail` (in the function signature) is just 65536, so that no overflow
+was happening. Before the commit the assignment would result in 21845,
+and `num = 4`.
+
+When using `total_avail`, it is causing the assignment to be
+18446744072226137429 (printed as %lu), and `num` is then 4164608182.
+
+My next guess is, that `nfsd_drc_mem_used` is then exceeded, and the
+server thinks there is no memory available any more for this client.
+
+Updating the arguments of `clamp_t()` and `min_t()` to `unsigned long`
+fixes the issue.
+
+Now, `avail = 65536` (before commit 10a68cdf10 `avail = 21845`), but
+`num = 4` remains the same.
+
+Fixes: c54f24e338ed (nfsd: fix performance-limiting session calculation)
+Cc: stable@vger.kernel.org
+Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/imx/ipuv3-crtc.c |    2 +-
+ fs/nfsd/nfs4state.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/imx/ipuv3-crtc.c
-+++ b/drivers/gpu/drm/imx/ipuv3-crtc.c
-@@ -94,7 +94,7 @@ static void ipu_crtc_atomic_disable(stru
- 	drm_crtc_vblank_off(crtc);
- 
- 	spin_lock_irq(&crtc->dev->event_lock);
--	if (crtc->state->event) {
-+	if (crtc->state->event && !crtc->state->active) {
- 		drm_crtc_send_vblank_event(crtc, crtc->state->event);
- 		crtc->state->event = NULL;
- 	}
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -1523,7 +1523,7 @@ static u32 nfsd4_get_drc_mem(struct nfsd
+ 	 * Never use more than a third of the remaining memory,
+ 	 * unless it's the only way to give this client a slot:
+ 	 */
+-	avail = clamp_t(int, avail, slotsize, total_avail/3);
++	avail = clamp_t(unsigned long, avail, slotsize, total_avail/3);
+ 	num = min_t(int, num, avail / slotsize);
+ 	nfsd_drc_mem_used += num * slotsize;
+ 	spin_unlock(&nfsd_drc_lock);
 
 
