@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66958621BB
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:19:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 698F062149
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733155AbfGHPS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:18:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43022 "EHLO mail.kernel.org"
+        id S1729476AbfGHPO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:14:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733147AbfGHPS6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:18:58 -0400
+        id S1728720AbfGHPO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:14:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EEA321537;
-        Mon,  8 Jul 2019 15:18:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6865D214C6;
+        Mon,  8 Jul 2019 15:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599137;
-        bh=tnRMDA48rboUP2LOwgafjmYOMveaq5ZxCFEFDxyyE1o=;
+        s=default; t=1562598895;
+        bh=wCVyoJVrCGjaHqF9vGVuonpAoeKlGm1R0XOa321y7M4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmAkAafjX08puTBH/mVkflV+PsXR5aYBOYEM2NvwrtgWNUPTutTpRS6dctGTQkLZ3
-         LISGM6u4IsBkQL8hWoZ34hWHX2osfqZl9gc4Jb6x25Dwd2jDKQE/EmkAEmLbquuVub
-         tP1hiXa28+agMCANKqtnG7AUEhEdEkI9wLKQCBUI=
+        b=m5BqSmL3B1oC1+lCjpQyqSWl/XJwP1BuSVgYOdsGt8rIaIxBeKVdQEyOOCjAiV+aR
+         nr9d1Q0Ekgx3Udb68lN2iXQIhn/QE9rd8Bm/ulWYMtTI/UTvP4DeZ8R+VrchPVLFw3
+         5llbtu+WbMWR4XjOXLb10cfB1tYJ4aXXL8WfQpYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Lee <mark-mc.lee@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 018/102] net: ethernet: mediatek: Use hw_feature to judge if HWLRO is supported
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Kees Cook <keescook@chromium.org>,
+        Nicolas Pitre <nicolas.pitre@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 01/73] fs/binfmt_flat.c: make load_flat_shared_library() work
 Date:   Mon,  8 Jul 2019 17:12:11 +0200
-Message-Id: <20190708150527.113999863@linuxfoundation.org>
+Message-Id: <20190708150516.969813037@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,69 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9e4f56f1a7f3287718d0083b5cb85298dc05a5fd ]
+From: Jann Horn <jannh@google.com>
 
-Should hw_feature as hardware capability flags to check if hardware LRO
-got support.
+commit 867bfa4a5fcee66f2b25639acae718e8b28b25a5 upstream.
 
-Signed-off-by: Mark Lee <mark-mc.lee@mediatek.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+load_flat_shared_library() is broken: It only calls load_flat_file() if
+prepare_binprm() returns zero, but prepare_binprm() returns the number of
+bytes read - so this only happens if the file is empty.
+
+Instead, call into load_flat_file() if the number of bytes read is
+non-negative. (Even if the number of bytes is zero - in that case,
+load_flat_file() will see nullbytes and return a nice -ENOEXEC.)
+
+In addition, remove the code related to bprm creds and stop using
+prepare_binprm() - this code is loading a library, not a main executable,
+and it only actually uses the members "buf", "file" and "filename" of the
+linux_binprm struct. Instead, call kernel_read() directly.
+
+Link: http://lkml.kernel.org/r/20190524201817.16509-1-jannh@google.com
+Fixes: 287980e49ffc ("remove lots of IS_ERR_VALUE abuses")
+Signed-off-by: Jann Horn <jannh@google.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Nicolas Pitre <nicolas.pitre@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Greg Ungerer <gerg@linux-m68k.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/binfmt_flat.c |   24 +++++++-----------------
+ 1 file changed, 7 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index 20de37a414fe..03b599109619 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -2175,13 +2175,13 @@ static int mtk_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd,
+--- a/fs/binfmt_flat.c
++++ b/fs/binfmt_flat.c
+@@ -808,9 +808,14 @@ err:
  
- 	switch (cmd->cmd) {
- 	case ETHTOOL_GRXRINGS:
--		if (dev->features & NETIF_F_LRO) {
-+		if (dev->hw_features & NETIF_F_LRO) {
- 			cmd->data = MTK_MAX_RX_RING_NUM;
- 			ret = 0;
- 		}
- 		break;
- 	case ETHTOOL_GRXCLSRLCNT:
--		if (dev->features & NETIF_F_LRO) {
-+		if (dev->hw_features & NETIF_F_LRO) {
- 			struct mtk_mac *mac = netdev_priv(dev);
+ static int load_flat_shared_library(int id, struct lib_info *libs)
+ {
++	/*
++	 * This is a fake bprm struct; only the members "buf", "file" and
++	 * "filename" are actually used.
++	 */
+ 	struct linux_binprm bprm;
+ 	int res;
+ 	char buf[16];
++	loff_t pos = 0;
  
- 			cmd->rule_cnt = mac->hwlro_ip_cnt;
-@@ -2189,11 +2189,11 @@ static int mtk_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd,
- 		}
- 		break;
- 	case ETHTOOL_GRXCLSRULE:
--		if (dev->features & NETIF_F_LRO)
-+		if (dev->hw_features & NETIF_F_LRO)
- 			ret = mtk_hwlro_get_fdir_entry(dev, cmd);
- 		break;
- 	case ETHTOOL_GRXCLSRLALL:
--		if (dev->features & NETIF_F_LRO)
-+		if (dev->hw_features & NETIF_F_LRO)
- 			ret = mtk_hwlro_get_fdir_all(dev, cmd,
- 						     rule_locs);
- 		break;
-@@ -2210,11 +2210,11 @@ static int mtk_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd)
+ 	memset(&bprm, 0, sizeof(bprm));
  
- 	switch (cmd->cmd) {
- 	case ETHTOOL_SRXCLSRLINS:
--		if (dev->features & NETIF_F_LRO)
-+		if (dev->hw_features & NETIF_F_LRO)
- 			ret = mtk_hwlro_add_ipaddr(dev, cmd);
- 		break;
- 	case ETHTOOL_SRXCLSRLDEL:
--		if (dev->features & NETIF_F_LRO)
-+		if (dev->hw_features & NETIF_F_LRO)
- 			ret = mtk_hwlro_del_ipaddr(dev, cmd);
- 		break;
- 	default:
--- 
-2.20.1
-
+@@ -824,25 +829,10 @@ static int load_flat_shared_library(int
+ 	if (IS_ERR(bprm.file))
+ 		return res;
+ 
+-	bprm.cred = prepare_exec_creds();
+-	res = -ENOMEM;
+-	if (!bprm.cred)
+-		goto out;
+-
+-	/* We don't really care about recalculating credentials at this point
+-	 * as we're past the point of no return and are dealing with shared
+-	 * libraries.
+-	 */
+-	bprm.cred_prepared = 1;
+-
+-	res = prepare_binprm(&bprm);
+-
+-	if (!IS_ERR_VALUE(res))
++	res = kernel_read(bprm.file, pos, bprm.buf, BINPRM_BUF_SIZE);
++	if (res >= 0)
+ 		res = load_flat_file(&bprm, libs, id, NULL);
+ 
+-	abort_creds(bprm.cred);
+-
+-out:
+ 	allow_write_access(bprm.file);
+ 	fput(bprm.file);
+ 
 
 
