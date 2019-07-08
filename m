@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2D7662277
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:26:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CB71622DE
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:30:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388759AbfGHP0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:26:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53834 "EHLO mail.kernel.org"
+        id S1732091AbfGHP3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:29:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388757AbfGHP0I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:26:08 -0400
+        id S2389646AbfGHP3s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:29:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E029520665;
-        Mon,  8 Jul 2019 15:26:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3D8821537;
+        Mon,  8 Jul 2019 15:29:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599568;
-        bh=oqJOOPIzXqtL84WhyP7K9dTw3vqk5/8dazpQ8iRpGL4=;
+        s=default; t=1562599787;
+        bh=FhcM5VeW8ZZjsBlZDLj55rh8i7coumNg9yBxsPa8s8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4zefNNd4Uc9X3GYRiX/z9t5CSr2Q0CkqIYcJup9u55UCdIO1vca9vJ1m+actuUuN
-         O9RKsmONijNGtSdzN2Gw3QgZdTYog5FoBeu4Xq+DW/nNe5ZM5GqGmIKcdcO/rBjTWZ
-         UJHUrXjOJpOATT9eHmRef1xSAjY9ndedp9jqlZlc=
+        b=AVeuvxX/E+6tAPINuE22Kj3wsSy4ZK5YZE11pDKwYKj5JRT9xRLY1s3lV37FFTOBR
+         DgFnnTu6u5lpbBOUfdq4RVxZYejdbqie/D5ByOsWbjy1tnnXoTr5KQK66eASvID43g
+         JchCBFMPXX2VCs79u4jj1NY/Q/GLkyX8EoVbeHXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
-        Hauke Mehrtens <hauke@hauke-m.de>, ralf@linux-mips.org,
-        jhogan@kernel.org, f4bug@amsat.org, linux-mips@vger.kernel.org,
-        ysu@wavecomp.com, jcristau@debian.org
-Subject: [PATCH 4.14 53/56] MIPS: Fix bounds check virt_addr_valid
+        stable@vger.kernel.org, Guoqing Jiang <gqjiang@suse.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 78/90] sc16is7xx: move label err_spi to correct section
 Date:   Mon,  8 Jul 2019 17:13:45 +0200
-Message-Id: <20190708150524.194818214@linuxfoundation.org>
+Message-Id: <20190708150526.296761684@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hauke Mehrtens <hauke@hauke-m.de>
+[ Upstream commit e00164a0f000de893944981f41a568c981aca658 ]
 
-commit d6ed083f5cc621e15c15b56c3b585fd524dbcb0f upstream.
+err_spi is used when SERIAL_SC16IS7XX_SPI is enabled, so make
+the label only available under SERIAL_SC16IS7XX_SPI option.
+Otherwise, the below warning appears.
 
-The bounds check used the uninitialized variable vaddr, it should use
-the given parameter kaddr instead. When using the uninitialized value
-the compiler assumed it to be 0 and optimized this function to just
-return 0 in all cases.
+drivers/tty/serial/sc16is7xx.c:1523:1: warning: label ‘err_spi’ defined but not used [-Wunused-label]
+ err_spi:
+  ^~~~~~~
 
-This should make the function check the range of the given address and
-only do the page map check in case it is in the expected range of
-virtual addresses.
-
-Fixes: 074a1e1167af ("MIPS: Bounds check virt_addr_valid")
-Cc: stable@vger.kernel.org # v4.12+
-Cc: Paul Burton <paul.burton@mips.com>
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: ralf@linux-mips.org
-Cc: jhogan@kernel.org
-Cc: f4bug@amsat.org
-Cc: linux-mips@vger.kernel.org
-Cc: ysu@wavecomp.com
-Cc: jcristau@debian.org
+Signed-off-by: Guoqing Jiang <gqjiang@suse.com>
+Fixes: ac0cdb3d9901 ("sc16is7xx: missing unregister/delete driver on error in sc16is7xx_init()")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/mmap.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/sc16is7xx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/mips/mm/mmap.c
-+++ b/arch/mips/mm/mmap.c
-@@ -203,7 +203,7 @@ unsigned long arch_randomize_brk(struct
+diff --git a/drivers/tty/serial/sc16is7xx.c b/drivers/tty/serial/sc16is7xx.c
+index 55b178c1bd65..372cc7ff228f 100644
+--- a/drivers/tty/serial/sc16is7xx.c
++++ b/drivers/tty/serial/sc16is7xx.c
+@@ -1494,10 +1494,12 @@ static int __init sc16is7xx_init(void)
+ #endif
+ 	return ret;
  
- int __virt_addr_valid(const volatile void *kaddr)
- {
--	unsigned long vaddr = (unsigned long)vaddr;
-+	unsigned long vaddr = (unsigned long)kaddr;
- 
- 	if ((vaddr < PAGE_OFFSET) || (vaddr >= MAP_BASE))
- 		return 0;
++#ifdef CONFIG_SERIAL_SC16IS7XX_SPI
+ err_spi:
+ #ifdef CONFIG_SERIAL_SC16IS7XX_I2C
+ 	i2c_del_driver(&sc16is7xx_i2c_uart_driver);
+ #endif
++#endif
+ err_i2c:
+ 	uart_unregister_driver(&sc16is7xx_uart);
+ 	return ret;
+-- 
+2.20.1
+
 
 
