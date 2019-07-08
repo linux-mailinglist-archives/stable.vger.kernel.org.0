@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B7862402
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0041F62192
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:17:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389458AbfGHP3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:29:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58132 "EHLO mail.kernel.org"
+        id S1732814AbfGHPR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:17:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725840AbfGHP3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:29:21 -0400
+        id S1732790AbfGHPRZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:17:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFC8821537;
-        Mon,  8 Jul 2019 15:29:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5C6C21707;
+        Mon,  8 Jul 2019 15:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599760;
-        bh=XQyksg6BQprAUNPQBRwXdMzPOwjy+Jls0OH6AIq2J9M=;
+        s=default; t=1562599045;
+        bh=HQzwS0w3Prp2h1SScAgw7qsC0Aw7VqIFeQWKRx99Qn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDjlcSIlSYkXNURtwjQBjupaufezEQD8XIJVMY1/qH94r8TW6vavaOnxO9ngDHvWj
-         JYlhZn+Mb4w/nWYTjd8kkaQ8rGCuMADDTNAfOnlTixoFh678uxyvNhV423Ru3ao9AT
-         JjhzaGwVCInS5zgOAeKkNlHn+4qaNoatIMs8lKy8=
+        b=Wpj9X/RkP5yoZesjOXkkOzaY3ilDInXpBdvp3DWNXvWJepIBasM6+VbYg/d77h4oE
+         4qbj//Nt/Z9Li+vII2mxU3cmWxJ1muvQ4fRqsnVWsR9gtC/HjQiAKyhpv9jKUZmNeP
+         mhyHBB67xBBnPJ7YdFGDTPvW5+/8KV6dRnjyWzHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 42/90] crypto: user - prevent operating on larval algorithms
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 59/73] swiotlb: Make linux/swiotlb.h standalone includible
 Date:   Mon,  8 Jul 2019 17:13:09 +0200
-Message-Id: <20190708150524.687220407@linuxfoundation.org>
+Message-Id: <20190708150524.450510989@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+[ Upstream commit 386744425e35e04984c6e741c7750fd6eef1a9df ]
 
-commit 21d4120ec6f5b5992b01b96ac484701163917b63 upstream.
+This header file uses the enum dma_data_direction and struct page types
+without explicitly including the corresponding header files. This makes
+it rely on the includer to have included the proper headers before.
 
-Michal Suchanek reported [1] that running the pcrypt_aead01 test from
-LTP [2] in a loop and holding Ctrl-C causes a NULL dereference of
-alg->cra_users.next in crypto_remove_spawns(), via crypto_del_alg().
-The test repeatedly uses CRYPTO_MSG_NEWALG and CRYPTO_MSG_DELALG.
+To fix this, include linux/dma-direction.h and forward-declare struct
+page. The swiotlb_free() function is also annotated __init, therefore
+requires linux/init.h to be included as well.
 
-The crash occurs when the instance that CRYPTO_MSG_DELALG is trying to
-unregister isn't a real registered algorithm, but rather is a "test
-larval", which is a special "algorithm" added to the algorithms list
-while the real algorithm is still being tested.  Larvals don't have
-initialized cra_users, so that causes the crash.  Normally pcrypt_aead01
-doesn't trigger this because CRYPTO_MSG_NEWALG waits for the algorithm
-to be tested; however, CRYPTO_MSG_NEWALG returns early when interrupted.
-
-Everything else in the "crypto user configuration" API has this same bug
-too, i.e. it inappropriately allows operating on larval algorithms
-(though it doesn't look like the other cases can cause a crash).
-
-Fix this by making crypto_alg_match() exclude larval algorithms.
-
-[1] https://lkml.kernel.org/r/20190625071624.27039-1-msuchanek@suse.de
-[2] https://github.com/linux-test-project/ltp/blob/20190517/testcases/kernel/crypto/pcrypt_aead01.c
-
-Reported-by: Michal Suchanek <msuchanek@suse.de>
-Fixes: a38f7907b926 ("crypto: Add userspace configuration API")
-Cc: <stable@vger.kernel.org> # v3.2+
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/crypto_user.c |    3 +++
+ include/linux/swiotlb.h |    3 +++
  1 file changed, 3 insertions(+)
 
---- a/crypto/crypto_user.c
-+++ b/crypto/crypto_user.c
-@@ -55,6 +55,9 @@ static struct crypto_alg *crypto_alg_mat
- 	list_for_each_entry(q, &crypto_alg_list, cra_list) {
- 		int match = 0;
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -1,10 +1,13 @@
+ #ifndef __LINUX_SWIOTLB_H
+ #define __LINUX_SWIOTLB_H
  
-+		if (crypto_is_larval(q))
-+			continue;
-+
- 		if ((q->cra_flags ^ p->cru_type) & p->cru_mask)
- 			continue;
++#include <linux/dma-direction.h>
++#include <linux/init.h>
+ #include <linux/types.h>
  
+ struct device;
+ struct dma_attrs;
++struct page;
+ struct scatterlist;
+ 
+ extern int swiotlb_force;
 
 
