@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7C4C6224D
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:24:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 014B1624C9
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388358AbfGHPY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:24:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51760 "EHLO mail.kernel.org"
+        id S2387744AbfGHPVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:21:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388357AbfGHPY3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:24:29 -0400
+        id S2387741AbfGHPVb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:21:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6EE02173C;
-        Mon,  8 Jul 2019 15:24:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2947B216E3;
+        Mon,  8 Jul 2019 15:21:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599468;
-        bh=nbg1uAtIg45BUypnjfpcZWL6DWQHO8lCwuS5lg5vDss=;
+        s=default; t=1562599290;
+        bh=uHLaqiSsQAcBq1LXrmM+IfqwHY3/6Ig7VQhPmEKMlxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eNkG/JCfE6RBsLN+gaG/KDl1vzNlt8EUl7CIh5HKD4FrZBosikvw6mH4YkvS9D1GB
-         b+SuKCUxe0Wn1LQ47mQGYsPawPXHYIVMX3buSwr96QvDg2cKpk6Css63+iDIrm0t9v
-         zqbzkmc4sPi229mTL3DiNsmReQrN21aqkxQQcL/Y=
+        b=T/8tFQobbttNh9rg9ERvv6iUvjW+euEyyPqli6zCD2kve5dwG4TCgvL3iu3jnXDSl
+         uvch7HfiShI/5H59Zcoe0+4oUeAxH5P/Y+UN6r+kLpHOSwE6uXD+/g5Q7CqlHfU2h0
+         CEUZjAGVn7puMhadtX+ypAEy7fw09Gxi9qrlj8+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
+        stable@vger.kernel.org, Libin Yang <libin.yang@intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/56] ASoC: max98090: remove 24-bit format support if RJ is 0
+Subject: [PATCH 4.9 067/102] ASoC: soc-pcm: BE dai needs prepare when pause release after resume
 Date:   Mon,  8 Jul 2019 17:13:00 +0200
-Message-Id: <20190708150518.499283297@linuxfoundation.org>
+Message-Id: <20190708150529.925684682@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5628c8979642a076f91ee86c3bae5ad251639af0 ]
+[ Upstream commit 5087a8f17df868601cd7568299e91c28086d2b45 ]
 
-The supported formats are S16_LE and S24_LE now. However, by datasheet
-of max98090, S24_LE is only supported when it is in the right justified
-mode. We should remove 24-bit format if it is not in that mode to avoid
-triggering error.
+If playback/capture is paused and system enters S3, after system returns
+from suspend, BE dai needs to call prepare() callback when playback/capture
+is released from pause if RESUME_INFO flag is not set.
 
-Signed-off-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+Currently, the dpcm_be_dai_prepare() function will block calling prepare()
+if the pcm is in SND_SOC_DPCM_STATE_PAUSED state. This will cause the
+following test case fail if the pcm uses BE:
+
+playback -> pause -> S3 suspend -> S3 resume -> pause release
+
+The playback may exit abnormally when pause is released because the BE dai
+prepare() is not called.
+
+This patch allows dpcm_be_dai_prepare() to call dai prepare() callback in
+SND_SOC_DPCM_STATE_PAUSED state.
+
+Signed-off-by: Libin Yang <libin.yang@intel.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98090.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ sound/soc/soc-pcm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
-index cc66ea5cc776..3fe09828745a 100644
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -1924,6 +1924,21 @@ static int max98090_configure_dmic(struct max98090_priv *max98090,
- 	return 0;
- }
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 1dbcdc99dbe3..1d00f6e894ef 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -2247,7 +2247,8 @@ int dpcm_be_dai_prepare(struct snd_soc_pcm_runtime *fe, int stream)
  
-+static int max98090_dai_startup(struct snd_pcm_substream *substream,
-+				struct snd_soc_dai *dai)
-+{
-+	struct snd_soc_component *component = dai->component;
-+	struct max98090_priv *max98090 = snd_soc_component_get_drvdata(component);
-+	unsigned int fmt = max98090->dai_fmt;
-+
-+	/* Remove 24-bit format support if it is not in right justified mode. */
-+	if ((fmt & SND_SOC_DAIFMT_FORMAT_MASK) != SND_SOC_DAIFMT_RIGHT_J) {
-+		substream->runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
-+		snd_pcm_hw_constraint_msbits(substream->runtime, 0, 16, 16);
-+	}
-+	return 0;
-+}
-+
- static int max98090_dai_hw_params(struct snd_pcm_substream *substream,
- 				   struct snd_pcm_hw_params *params,
- 				   struct snd_soc_dai *dai)
-@@ -2331,6 +2346,7 @@ EXPORT_SYMBOL_GPL(max98090_mic_detect);
- #define MAX98090_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE)
+ 		if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_HW_PARAMS) &&
+ 		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP) &&
+-		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND))
++		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND) &&
++		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
+ 			continue;
  
- static const struct snd_soc_dai_ops max98090_dai_ops = {
-+	.startup = max98090_dai_startup,
- 	.set_sysclk = max98090_dai_set_sysclk,
- 	.set_fmt = max98090_dai_set_fmt,
- 	.set_tdm_slot = max98090_set_tdm_slot,
+ 		dev_dbg(be->dev, "ASoC: prepare BE %s\n",
 -- 
 2.20.1
 
