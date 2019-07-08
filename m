@@ -2,158 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 054EC61AB8
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 08:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5836161B32
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 09:23:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728819AbfGHGgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 02:36:45 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:46965 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728423AbfGHGgo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 02:36:44 -0400
-Received: by mail-pl1-f194.google.com with SMTP id c2so6141759plz.13
-        for <stable@vger.kernel.org>; Sun, 07 Jul 2019 23:36:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=U5faaB2QS25gWcbZp0574GO7urSkcBDHpx7JYrayj6s=;
-        b=k8AtqPPBAIU9BFgDc1LoJIroW15SoAkdAibpdma80r6iYC7+o9XxniV5aE+9a8Kcy7
-         JsfzCV4LoqoMGDyWAXbL8IqAQQ6ANOsk74ESWQ972qbNDrsf0Irzbm8rGHqwIZwaewZ7
-         xkEHNYC2wm5qTxlC8E8dWNp8znXKneU6XMJxcjqwsyaNSHV6/76+2bcasa5kmADB+UPl
-         hrxgyIIvLY8QT2pUiwg+zKSWMI72eaq9go97g8Mey4V6Z/F0DBGAgHPc80HwTl4ARX9N
-         GUUEo6RT5DvII4ycF6gwUa1uuC0n630vdKZU5IWN1FBLlL+7AtHDxs+y2iUQNTzI8yo1
-         02kg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=U5faaB2QS25gWcbZp0574GO7urSkcBDHpx7JYrayj6s=;
-        b=EZBqWse06ChwqkoFWu2ZepNXRPbhJHRkz6UJDsNQ3PpH/50fOpmbyglmoAfyKoEKF3
-         ADtF0dgdfIiDWxK1dazNxqCkezTljFzZzkyxRFJAFdk/EoPtxw6UxLpcaPRE2325iWI5
-         c11L5U+N+a90RFUoDAfbzpaiixhHEvJcQ/yQA/cp5oabdwRajutUp220P/3iRTQw1voH
-         L7BGxXyvYwf9mfst/IrzSkTj5K7H9UrhNnhdu1PlrWkcEFxCDZNel4XahhZdfyNzyV7c
-         njCk64y0zHZtTshdiNnTKZFOR+V4B/bZ0AIYCy/sPGf0OUQbZ5rsN85Np0rDMODk6Tmp
-         KOXw==
-X-Gm-Message-State: APjAAAWlohN24KolPgnH1fQ6NdxL7tOlY5qe29Wpev0z/LnFtbvApsyg
-        6LwAbkmj82tE8uIgg6gRIB03GA==
-X-Google-Smtp-Source: APXvYqxA2c9ltYeJuPS/96QyMzXMHZoAV+lGrhI7hijTtcZlfz7f4W53t2DqphIMtl/XnK0J1m4Lvw==
-X-Received: by 2002:a17:902:724:: with SMTP id 33mr21908419pli.49.1562567804038;
-        Sun, 07 Jul 2019 23:36:44 -0700 (PDT)
-Received: from localhost.localdomain (123-204-46-122.static.seed.net.tw. [123.204.46.122])
-        by smtp.gmail.com with ESMTPSA id s66sm21388130pgs.39.2019.07.07.23.36.41
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Sun, 07 Jul 2019 23:36:43 -0700 (PDT)
-From:   Jian-Hong Pan <jian-hong@endlessm.com>
-To:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        id S1729400AbfGHHXN convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 8 Jul 2019 03:23:13 -0400
+Received: from rtits2.realtek.com ([211.75.126.72]:37073 "EHLO
+        rtits2.realtek.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725977AbfGHHXN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 03:23:13 -0400
+Authenticated-By: 
+X-SpamFilter-By: BOX Solutions SpamTrap 5.62 with qID x687N1D1015818, This message is accepted by code: ctloc85258
+Received: from mail.realtek.com (RTITCASV02.realtek.com.tw[172.21.6.19])
+        by rtits2.realtek.com.tw (8.15.2/2.57/5.78) with ESMTPS id x687N1D1015818
+        (version=TLSv1 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT);
+        Mon, 8 Jul 2019 15:23:01 +0800
+Received: from RTITMBSVM04.realtek.com.tw ([fe80::e404:880:2ef1:1aa1]) by
+ RTITCASV02.realtek.com.tw ([::1]) with mapi id 14.03.0439.000; Mon, 8 Jul
+ 2019 15:23:01 +0800
+From:   Tony Chuang <yhchuang@realtek.com>
+To:     Jian-Hong Pan <jian-hong@endlessm.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         "David S . Miller" <davem@davemloft.net>
-Cc:     linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux@endlessm.com,
-        Jian-Hong Pan <jian-hong@endlessm.com>,
-        Daniel Drake <drake@endlessm.com>, stable@vger.kernel.org
-Subject: [PATCH] rtw88/pci: Rearrange the memory usage for skb in RX ISR
-Date:   Mon,  8 Jul 2019 14:32:53 +0800
-Message-Id: <20190708063252.4756-1-jian-hong@endlessm.com>
-X-Mailer: git-send-email 2.22.0
+CC:     "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux@endlessm.com" <linux@endlessm.com>,
+        Daniel Drake <drake@endlessm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] rtw88/pci: Rearrange the memory usage for skb in RX ISR
+Thread-Topic: [PATCH] rtw88/pci: Rearrange the memory usage for skb in RX ISR
+Thread-Index: AQHVNVeEOhZgR6M53kuE5XrXitIVDqbAR+xA
+Date:   Mon, 8 Jul 2019 07:23:00 +0000
+Message-ID: <F7CD281DE3E379468C6D07993EA72F84D1861A6D@RTITMBSVM04.realtek.com.tw>
+References: <20190708063252.4756-1-jian-hong@endlessm.com>
+In-Reply-To: <20190708063252.4756-1-jian-hong@endlessm.com>
+Accept-Language: zh-TW, en-US
+Content-Language: zh-TW
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [172.21.68.183]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Testing with RTL8822BE hardware, when available memory is low, we
-frequently see a kernel panic and system freeze.
+> Subject: [PATCH] rtw88/pci: Rearrange the memory usage for skb in RX ISR
 
-First, rtw_pci_rx_isr encounters a memory allocation failure (trimmed):
+nit, "rtw88: pci:" would be better.
 
-rx routine starvation
-WARNING: CPU: 7 PID: 9871 at drivers/net/wireless/realtek/rtw88/pci.c:822 rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
-[ 2356.580313] RIP: 0010:rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
+> 
+> 
+> When skb allocation fails and the "rx routine starvation" is hit, the
+> function returns immediately without updating the RX ring. At this
+> point, the RX ring may continue referencing an old skb which was already
+> handed off to ieee80211_rx_irqsafe(). When it comes to be used again,
+> bad things happen.
+> 
+> This patch allocates a new skb first in RX ISR. If we don't have memory
+> available, we discard the current frame, allowing the existing skb to be
+> reused in the ring. Otherwise, we simplify the code flow and just hand
+> over the RX-populated skb over to mac80211.
+> 
+> In addition, to fixing the kernel crash, the RX routine should now
+> generally behave better under low memory conditions.
+> 
+> Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=204053
+> Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+> Reviewed-by: Daniel Drake <drake@endlessm.com>
+> Cc: <stable@vger.kernel.org>
+> ---
+>  drivers/net/wireless/realtek/rtw88/pci.c | 28 +++++++++++-------------
+>  1 file changed, 13 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/net/wireless/realtek/rtw88/pci.c
+> b/drivers/net/wireless/realtek/rtw88/pci.c
+> index cfe05ba7280d..1bfc99ae6b84 100644
+> --- a/drivers/net/wireless/realtek/rtw88/pci.c
+> +++ b/drivers/net/wireless/realtek/rtw88/pci.c
+> @@ -786,6 +786,15 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev,
+> struct rtw_pci *rtwpci,
+>  		rx_desc = skb->data;
+>  		chip->ops->query_rx_desc(rtwdev, rx_desc, &pkt_stat, &rx_status);
+> 
+> +		/* discard current skb if the new skb cannot be allocated as a
+> +		 * new one in rx ring later
+> +		 * */
 
-Then we see a variety of different error conditions and kernel panics,
-such as this one (trimmed):
+nit, comment indentation.
 
-rtw_pci 0000:02:00.0: pci bus timeout, check dma status
-skbuff: skb_over_panic: text:00000000091b6e66 len:415 put:415 head:00000000d2880c6f data:000000007a02b1ea tail:0x1df end:0xc0 dev:<NULL>
-------------[ cut here ]------------
-kernel BUG at net/core/skbuff.c:105!
-invalid opcode: 0000 [#1] SMP NOPTI
-RIP: 0010:skb_panic+0x43/0x45
+> +		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
+> +		if (WARN(!new, "rx routine starvation\n")) {
+> +			new = skb;
+> +			goto next_rp;
+> +		}
+> +
+>  		/* offset from rx_desc to payload */
+>  		pkt_offset = pkt_desc_sz + pkt_stat.drv_info_sz +
+>  			     pkt_stat.shift;
+> @@ -803,25 +812,14 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev,
+> struct rtw_pci *rtwpci,
+>  			skb_put(skb, pkt_stat.pkt_len);
+>  			skb_reserve(skb, pkt_offset);
+> 
+> -			/* alloc a smaller skb to mac80211 */
+> -			new = dev_alloc_skb(pkt_stat.pkt_len);
+> -			if (!new) {
+> -				new = skb;
+> -			} else {
+> -				skb_put_data(new, skb->data, skb->len);
+> -				dev_kfree_skb_any(skb);
+> -			}
 
-When skb allocation fails and the "rx routine starvation" is hit, the
-function returns immediately without updating the RX ring. At this
-point, the RX ring may continue referencing an old skb which was already
-handed off to ieee80211_rx_irqsafe(). When it comes to be used again,
-bad things happen.
+I am not sure if it's fine to deliver every huge SKB to mac80211.
+Because it will then be delivered to TCP/IP stack.
+Hence I think either it should be tested to know if the performance
+would be impacted or find out a more efficient way to send
+smaller SKB to mac80211 stack.
 
-This patch allocates a new skb first in RX ISR. If we don't have memory
-available, we discard the current frame, allowing the existing skb to be
-reused in the ring. Otherwise, we simplify the code flow and just hand
-over the RX-populated skb over to mac80211.
+>  			/* TODO: merge into rx.c */
+>  			rtw_rx_stats(rtwdev, pkt_stat.vif, skb);
+> -			memcpy(new->cb, &rx_status, sizeof(rx_status));
+> -			ieee80211_rx_irqsafe(rtwdev->hw, new);
+> +			memcpy(skb->cb, &rx_status, sizeof(rx_status));
+> +			ieee80211_rx_irqsafe(rtwdev->hw, skb);
+>  		}
+> 
+> -		/* skb delivered to mac80211, alloc a new one in rx ring */
+> -		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
+> -		if (WARN(!new, "rx routine starvation\n"))
+> -			return;
+> -
+> +next_rp:
+> +		/* skb delivered to mac80211, attach the new one into rx ring */
+>  		ring->buf[cur_rp] = new;
+>  		rtw_pci_reset_rx_desc(rtwdev, new, ring, cur_rp, buf_desc_sz);
+> 
 
-In addition, to fixing the kernel crash, the RX routine should now
-generally behave better under low memory conditions.
+--
 
-Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=204053
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Reviewed-by: Daniel Drake <drake@endlessm.com>
-Cc: <stable@vger.kernel.org>
----
- drivers/net/wireless/realtek/rtw88/pci.c | 28 +++++++++++-------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
-index cfe05ba7280d..1bfc99ae6b84 100644
---- a/drivers/net/wireless/realtek/rtw88/pci.c
-+++ b/drivers/net/wireless/realtek/rtw88/pci.c
-@@ -786,6 +786,15 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
- 		rx_desc = skb->data;
- 		chip->ops->query_rx_desc(rtwdev, rx_desc, &pkt_stat, &rx_status);
- 
-+		/* discard current skb if the new skb cannot be allocated as a
-+		 * new one in rx ring later
-+		 * */
-+		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
-+		if (WARN(!new, "rx routine starvation\n")) {
-+			new = skb;
-+			goto next_rp;
-+		}
-+
- 		/* offset from rx_desc to payload */
- 		pkt_offset = pkt_desc_sz + pkt_stat.drv_info_sz +
- 			     pkt_stat.shift;
-@@ -803,25 +812,14 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
- 			skb_put(skb, pkt_stat.pkt_len);
- 			skb_reserve(skb, pkt_offset);
- 
--			/* alloc a smaller skb to mac80211 */
--			new = dev_alloc_skb(pkt_stat.pkt_len);
--			if (!new) {
--				new = skb;
--			} else {
--				skb_put_data(new, skb->data, skb->len);
--				dev_kfree_skb_any(skb);
--			}
- 			/* TODO: merge into rx.c */
- 			rtw_rx_stats(rtwdev, pkt_stat.vif, skb);
--			memcpy(new->cb, &rx_status, sizeof(rx_status));
--			ieee80211_rx_irqsafe(rtwdev->hw, new);
-+			memcpy(skb->cb, &rx_status, sizeof(rx_status));
-+			ieee80211_rx_irqsafe(rtwdev->hw, skb);
- 		}
- 
--		/* skb delivered to mac80211, alloc a new one in rx ring */
--		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
--		if (WARN(!new, "rx routine starvation\n"))
--			return;
--
-+next_rp:
-+		/* skb delivered to mac80211, attach the new one into rx ring */
- 		ring->buf[cur_rp] = new;
- 		rtw_pci_reset_rx_desc(rtwdev, new, ring, cur_rp, buf_desc_sz);
- 
--- 
-2.22.0
-
+Yan-Hsuan
