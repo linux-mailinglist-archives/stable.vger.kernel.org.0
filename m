@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 316B062427
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:41:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7687C624B6
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:45:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388909AbfGHP0u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:26:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54622 "EHLO mail.kernel.org"
+        id S2388033AbfGHPWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:22:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388881AbfGHP0q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:26:46 -0400
+        id S1731270AbfGHPWo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:22:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36F44204EC;
-        Mon,  8 Jul 2019 15:26:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 412E4216E3;
+        Mon,  8 Jul 2019 15:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599605;
-        bh=airXRAxZKDnos46/zoucRow1iqpdjYT320OPeYpozhM=;
+        s=default; t=1562599363;
+        bh=lf+l3YWiXvNSLX6ulPo57HYWr8ukOed4LDD+Tb8RjGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aGbzQ5muSDu8YuntNrESEa/9u2MrUHXnHYSp2+wXXu+/peswEGJiM0wbYMnY5DdbC
-         qGV3iUd9Y5SyZancnSHrLjLgP/UtbHjLjn7L6YdqwskDLbjcC3Sa7hlNf4AdoS2iQW
-         3MA9KcXX7wpTqgYhrksP6jzCXV3Ro9HOXhK5dZq4=
+        b=FFUwdfduPEiGvH23rfAaMyExgLm6e8TPvlyZVEuoCIk9KyTlUnGzT5y1XV7dnwOvH
+         ac0jGLDQzE+LEYC5nEA6uUU2OFKt1DUgn0yIelQkANQeivIGMwyyhBf7oE5w5MRFXS
+         5Remmr5hBUxQBea5/3VRxJHiEfgCNgt7v8POYq6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
-        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/90] drm/mediatek: clear num_pipes when unbind driver
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.9 050/102] NFS/flexfiles: Use the correct TCP timeout for flexfiles I/O
 Date:   Mon,  8 Jul 2019 17:12:43 +0200
-Message-Id: <20190708150523.443835624@linuxfoundation.org>
+Message-Id: <20190708150529.028262811@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a4cd1d2b016d5d043ab2c4b9c4ec50a5805f5396 ]
+From: Trond Myklebust <trondmy@gmail.com>
 
-num_pipes is used for mutex created in mtk_drm_crtc_create(). If we
-don't clear num_pipes count, when rebinding driver, the count will
-be accumulated. From mtk_disp_mutex_get(), there can only be at most
-10 mutex id. Clear this number so it starts from 0 in every rebind.
+commit 68f461593f76bd5f17e87cdd0bea28f4278c7268 upstream.
 
-Fixes: 119f5173628a ("drm/mediatek: Add DRM Driver for Mediatek SoC MT8173.")
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Signed-off-by: CK Hu <ck.hu@mediatek.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix a typo where we're confusing the default TCP retrans value
+(NFS_DEF_TCP_RETRANS) for the default TCP timeout value.
+
+Fixes: 15d03055cf39f ("pNFS/flexfiles: Set reasonable default ...")
+Cc: stable@vger.kernel.org # 4.8+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/mediatek/mtk_drm_drv.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/flexfilelayout/flexfilelayoutdev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-index 3df8a9dbccfe..fd83046d8376 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-@@ -393,6 +393,7 @@ static void mtk_drm_unbind(struct device *dev)
- 	drm_dev_unregister(private->drm);
- 	mtk_drm_kms_deinit(private->drm);
- 	drm_dev_put(private->drm);
-+	private->num_pipes = 0;
- 	private->drm = NULL;
- }
+--- a/fs/nfs/flexfilelayout/flexfilelayoutdev.c
++++ b/fs/nfs/flexfilelayout/flexfilelayoutdev.c
+@@ -17,7 +17,7 @@
  
--- 
-2.20.1
-
+ #define NFSDBG_FACILITY		NFSDBG_PNFS_LD
+ 
+-static unsigned int dataserver_timeo = NFS_DEF_TCP_RETRANS;
++static unsigned int dataserver_timeo = NFS_DEF_TCP_TIMEO;
+ static unsigned int dataserver_retrans;
+ 
+ void nfs4_ff_layout_put_deviceid(struct nfs4_ff_layout_ds *mirror_ds)
 
 
