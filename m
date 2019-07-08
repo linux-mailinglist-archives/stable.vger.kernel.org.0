@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD32562398
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A40FF62498
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390314AbfGHPdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:33:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35274 "EHLO mail.kernel.org"
+        id S1729493AbfGHPXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:23:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390299AbfGHPdO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:33:14 -0400
+        id S2388096AbfGHPW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:22:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FD23216E3;
-        Mon,  8 Jul 2019 15:33:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36B662166E;
+        Mon,  8 Jul 2019 15:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599994;
-        bh=cYmtbt2v6RfDc7FjULI93abk3YL+Uslmq20nfWzd5mE=;
+        s=default; t=1562599378;
+        bh=FG0Fd4yCVaRhYLAoDH+EcpNxQWOhdpbmj1xXw0TZ748=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VCY2Hqr+q7FUCSUGV17lUzByejAtd4EDMSH8NLq849G+QnBVXmgv5nCXz/ZbCnzqa
-         FJz1KmR/32mbTZqQgdsEx5kyOK+4oOc+HOXoMmv9MW0TXa2RCIchB1vzBGfjqWNqpd
-         1KswLWCSrB879jZphhJ6Z1mVPMWMLuymwe+DGh3M=
+        b=XGKRJEEO2lvY81DeFLprtjV6EdeLZa/GfRq5jtnDRmgYgHcFOSG83DgX5V690y+lz
+         Sbgj/ve2f39TQ7f2os0vZ68y91KZj2jFKK6Tz6/ExxQrJLnlPxAHlPOuQE/Wg310bU
+         r8JWKIFSkP6o6w8ufSMighsfImSE6cv+nMFOq9uA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.1 60/96] ALSA: firewire-lib/fireworks: fix miss detection of received MIDI messages
+        stable@vger.kernel.org, Gary Leshner <Gary.S.Leshner@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.9 099/102] IB/hfi1: Close PSM sdma_progress sleep window
 Date:   Mon,  8 Jul 2019 17:13:32 +0200
-Message-Id: <20190708150529.733562399@linuxfoundation.org>
+Message-Id: <20190708150531.607648948@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-commit 7fbd1753b64eafe21cf842348a40a691d0dee440 upstream.
+commit da9de5f8527f4b9efc82f967d29a583318c034c7 upstream.
 
-In IEC 61883-6, 8 MIDI data streams are multiplexed into single
-MIDI conformant data channel. The index of stream is calculated by
-modulo 8 of the value of data block counter.
+The call to sdma_progress() is called outside the wait lock.
 
-In fireworks, the value of data block counter in CIP header has a quirk
-with firmware version v5.0.0, v5.7.3 and v5.8.0. This brings ALSA
-IEC 61883-1/6 packet streaming engine to miss detection of MIDI
-messages.
+In this case, there is a race condition where sdma_progress() can return
+false and the sdma_engine can idle.  If that happens, there will be no
+more sdma interrupts to cause the wakeup and the user_sdma xmit will hang.
 
-This commit fixes the miss detection to modify the value of data block
-counter for the modulo calculation.
+Fix by moving the lock to enclose the sdma_progress() call.
 
-For maintainers, this bug exists since a commit 18f5ed365d3f ("ALSA:
-fireworks/firewire-lib: add support for recent firmware quirk") in Linux
-kernel v4.2. There're many changes since the commit.  This fix can be
-backported to Linux kernel v4.4 or later. I tagged a base commit to the
-backport for your convenience.
+Also, delete busycount. The need for this was removed by:
+commit bcad29137a97 ("IB/hfi1: Serve the most starved iowait entry first")
 
-Besides, my work for Linux kernel v5.3 brings heavy code refactoring and
-some structure members are renamed in 'sound/firewire/amdtp-stream.h'.
-The content of this patch brings conflict when merging -rc tree with
-this patch and the latest tree. I request maintainers to solve the
-conflict to replace 'tx_first_dbc' with 'ctx_data.tx.first_dbc'.
-
-Fixes: df075feefbd3 ("ALSA: firewire-lib: complete AM824 data block processing layer")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: <stable@vger.kernel.org>
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Reviewed-by: Gary Leshner <Gary.S.Leshner@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- sound/firewire/amdtp-am824.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/firewire/amdtp-am824.c
-+++ b/sound/firewire/amdtp-am824.c
-@@ -321,7 +321,7 @@ static void read_midi_messages(struct am
- 	u8 *b;
+---
+ drivers/infiniband/hw/hfi1/user_sdma.c |   13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
+
+--- a/drivers/infiniband/hw/hfi1/user_sdma.c
++++ b/drivers/infiniband/hw/hfi1/user_sdma.c
+@@ -260,7 +260,6 @@ struct user_sdma_txreq {
+ 	struct list_head list;
+ 	struct user_sdma_request *req;
+ 	u16 flags;
+-	unsigned busycount;
+ 	u64 seqnum;
+ };
  
- 	for (f = 0; f < frames; f++) {
--		port = (s->data_block_counter + f) % 8;
-+		port = (8 - s->tx_first_dbc + s->data_block_counter + f) % 8;
- 		b = (u8 *)&buffer[p->midi_position];
+@@ -323,25 +322,22 @@ static int defer_packet_queue(
+ 	struct hfi1_user_sdma_pkt_q *pq =
+ 		container_of(wait, struct hfi1_user_sdma_pkt_q, busy);
+ 	struct hfi1_ibdev *dev = &pq->dd->verbs_dev;
+-	struct user_sdma_txreq *tx =
+-		container_of(txreq, struct user_sdma_txreq, txreq);
  
- 		len = b[0] - 0x80;
+-	if (sdma_progress(sde, seq, txreq)) {
+-		if (tx->busycount++ < MAX_DEFER_RETRY_COUNT)
+-			goto eagain;
+-	}
++	write_seqlock(&dev->iowait_lock);
++	if (sdma_progress(sde, seq, txreq))
++		goto eagain;
+ 	/*
+ 	 * We are assuming that if the list is enqueued somewhere, it
+ 	 * is to the dmawait list since that is the only place where
+ 	 * it is supposed to be enqueued.
+ 	 */
+ 	xchg(&pq->state, SDMA_PKT_Q_DEFERRED);
+-	write_seqlock(&dev->iowait_lock);
+ 	if (list_empty(&pq->busy.list))
+ 		list_add_tail(&pq->busy.list, &sde->dmawait);
+ 	write_sequnlock(&dev->iowait_lock);
+ 	return -EBUSY;
+ eagain:
++	write_sequnlock(&dev->iowait_lock);
+ 	return -EAGAIN;
+ }
+ 
+@@ -925,7 +921,6 @@ static int user_sdma_send_pkts(struct us
+ 
+ 		tx->flags = 0;
+ 		tx->req = req;
+-		tx->busycount = 0;
+ 		INIT_LIST_HEAD(&tx->list);
+ 
+ 		if (req->seqnum == req->info.npkts - 1)
 
 
