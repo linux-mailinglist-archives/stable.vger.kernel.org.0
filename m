@@ -2,174 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FA861BC5
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 10:37:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32E7561BFC
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 10:54:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729250AbfGHIg7 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 8 Jul 2019 04:36:59 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:36689 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727414AbfGHIg7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 04:36:59 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-58-GxZAHFndPNeufvGAW7tiGg-1; Mon, 08 Jul 2019 09:36:53 +0100
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Mon, 8 Jul 2019 09:36:52 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Mon, 8 Jul 2019 09:36:52 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Jian-Hong Pan' <jian-hong@endlessm.com>,
-        Yan-Hsuan Chuang <yhchuang@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S . Miller" <davem@davemloft.net>
-CC:     "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux@endlessm.com" <linux@endlessm.com>,
-        Daniel Drake <drake@endlessm.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] rtw88/pci: Rearrange the memory usage for skb in RX ISR
-Thread-Topic: [PATCH] rtw88/pci: Rearrange the memory usage for skb in RX ISR
-Thread-Index: AQHVNVeEF2VH1aWcW0SX/aCCs+qgc6bAY9qw
-Date:   Mon, 8 Jul 2019 08:36:52 +0000
-Message-ID: <e95fe2b6d5664aa4b256cdad1707f09f@AcuMS.aculab.com>
-References: <20190708063252.4756-1-jian-hong@endlessm.com>
-In-Reply-To: <20190708063252.4756-1-jian-hong@endlessm.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1728784AbfGHIyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 04:54:45 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:44966 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728869AbfGHIyp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 04:54:45 -0400
+Received: by mail-ot1-f67.google.com with SMTP id b7so15371418otl.11
+        for <stable@vger.kernel.org>; Mon, 08 Jul 2019 01:54:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=efd+BnPGvehL2A2UX02caz/Y1NvKnWaen2fuHX7MRzE=;
+        b=SBKlIJU/kRPxduwNsmhn4tfli4XHsNgkuvfs0vrliM2bO588TzaFFyJH5mpAvTSpyE
+         vMNX4Bd77Rl3/PaXl+2+z4JVB7NPoSm4GhlWUjVRlavKIQpL2Cxrd/FBWWa1j55aw4da
+         /QaiPrUGXrShadGQrBe86H0v+jTxpYgYb6ccgPiEacmVlt5b1e8v9q9rKiRW0dUtPMwT
+         0+XtYxiegFoER2tF+EwxhAwN0zyalL9YZrWD3dxmWJEgF864gq1gMwcHWrRSXfR1rdDs
+         GAgOGW8Zf5t8AedaZCgZCJOOkkpuaUfNlSBafi8WRxtyWJjnJiKk2YQymWEe/jUuSyjM
+         3EVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=efd+BnPGvehL2A2UX02caz/Y1NvKnWaen2fuHX7MRzE=;
+        b=Psf0B4cQJbgTCBBfjeJ9P8/wMNvu9SU3wUu9m5+jRpntJ50cw2au723T5ud6k9FbmT
+         uOWDwNA36CqPTInTLN43QbnpfK2dhqfiso3JZNNNb71P+AuOZFt1WcHrbFUDUzCQFxJI
+         xeQD2gf1lH+UfZGhXy59emJE+6/Lm5YSEoetNNOblGjOA93Tk9uJokqHUmmNgB1Vu+L/
+         yANBHu938kNinVIuvbq/LDnMKhCI4kaKNtTm6Up0HR/2q4oM0SJ34TpkphZ6m4Vvi7MD
+         E3m+5BXfz/8n08lLdbP2AZ58Yg0ZIth70ouZCUafVUUxUpMkv9okrHFb6/ecDja9nSZt
+         GOUA==
+X-Gm-Message-State: APjAAAWVzIjK0Aw1dBwI0vpQvpttXxsOZ5PbN5Xhkvc/aMSEA9vv4aPL
+        bPaObotWkwHmEvCMDvbwU4K8Cpj+AqbM62e3t7wbKwggfkY=
+X-Google-Smtp-Source: APXvYqwNmok92+w9MyPlUpAdoQ0jznixJXwNaN4TFLNBf7nxlThGFjRAFzCSBqIuTyVm+vHd/Yc8XBJSCd7lJMaOlJQ=
+X-Received: by 2002:a05:6830:1681:: with SMTP id k1mr13388848otr.256.1562576084924;
+ Mon, 08 Jul 2019 01:54:44 -0700 (PDT)
 MIME-Version: 1.0
-X-MC-Unique: GxZAHFndPNeufvGAW7tiGg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+References: <20190708052308.27802-1-michael.wu@vatics.com>
+In-Reply-To: <20190708052308.27802-1-michael.wu@vatics.com>
+From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Mon, 8 Jul 2019 10:54:34 +0200
+Message-ID: <CAMpxmJXZskz-cnqXVMRnUqxHjbQLwWZzQFrDc4eyGmronATCpg@mail.gmail.com>
+Subject: Re: [PATCH v2] gpiolib: fix incorrect IRQ requesting of an active-low lineevent
+To:     Michael Wu <michael.wu@vatics.com>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        linux-gpio <linux-gpio@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, morgan.chang@vatics.com,
+        "Stable # 4 . 20+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan
-> Sent: 08 July 2019 07:33
-> To: Yan-Hsuan Chuang; Kalle Valo; David S . Miller
-> 
-> Testing with RTL8822BE hardware, when available memory is low, we
-> frequently see a kernel panic and system freeze.
-> 
-> First, rtw_pci_rx_isr encounters a memory allocation failure (trimmed):
-> 
-> rx routine starvation
-> WARNING: CPU: 7 PID: 9871 at drivers/net/wireless/realtek/rtw88/pci.c:822
-> rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
-> [ 2356.580313] RIP: 0010:rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
-> 
-> Then we see a variety of different error conditions and kernel panics,
-> such as this one (trimmed):
-> 
-> rtw_pci 0000:02:00.0: pci bus timeout, check dma status
-> skbuff: skb_over_panic: text:00000000091b6e66 len:415 put:415 head:00000000d2880c6f
-> data:000000007a02b1ea tail:0x1df end:0xc0 dev:<NULL>
-> ------------[ cut here ]------------
-> kernel BUG at net/core/skbuff.c:105!
-> invalid opcode: 0000 [#1] SMP NOPTI
-> RIP: 0010:skb_panic+0x43/0x45
-> 
-> When skb allocation fails and the "rx routine starvation" is hit, the
-> function returns immediately without updating the RX ring. At this
-> point, the RX ring may continue referencing an old skb which was already
-> handed off to ieee80211_rx_irqsafe(). When it comes to be used again,
-> bad things happen.
-> 
-> This patch allocates a new skb first in RX ISR. If we don't have memory
-> available, we discard the current frame, allowing the existing skb to be
-> reused in the ring. Otherwise, we simplify the code flow and just hand
-> over the RX-populated skb over to mac80211.
-> 
-> In addition, to fixing the kernel crash, the RX routine should now
-> generally behave better under low memory conditions.
-
-Under low memory conditions it may be preferable to limit the amount
-of memory assigned to the receive ring.
-
-I also thought it was preferable (DM may correct me here) to do the
-skb allocates from the 'bh' of the driver rather than from the hardware
-interrupt.
-
-It is also almost certainly preferable (especially on IOMMU systems)
-to copy small frames into a new skb (of the right size) and then
-reuse the skb (with its dma-mapped buffer) for a later frame.
-
-Allocating a new skb before ay px processing just seems wrong...
-
-	David
-
-> Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=204053
-> Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-> Reviewed-by: Daniel Drake <drake@endlessm.com>
-> Cc: <stable@vger.kernel.org>
+pon., 8 lip 2019 o 07:23 Michael Wu <michael.wu@vatics.com> napisa=C5=82(a)=
+:
+>
+> When a pin is active-low, logical trigger edge should be inverted to matc=
+h
+> the same interrupt opportunity.
+>
+> For example, a button pushed triggers falling edge in ACTIVE_HIGH case; i=
+n
+> ACTIVE_LOW case, the button pushed triggers rising edge. For user space t=
+he
+> IRQ requesting doesn't need to do any modification except to configuring
+> GPIOHANDLE_REQUEST_ACTIVE_LOW.
+>
+> For example, we want to catch the event when the button is pushed. The
+> button on the original board drives level to be low when it is pushed, an=
+d
+> drives level to be high when it is released.
+>
+> In user space we can do:
+>
+>         req.handleflags =3D GPIOHANDLE_REQUEST_INPUT;
+>         req.eventflags =3D GPIOEVENT_REQUEST_FALLING_EDGE;
+>
+>         while (1) {
+>                 read(fd, &dat, sizeof(dat));
+>                 if (dat.id =3D=3D GPIOEVENT_EVENT_FALLING_EDGE)
+>                         printf("button pushed\n");
+>         }
+>
+> Run the same logic on another board which the polarity of the button is
+> inverted; it drives level to be high when pushed, and level to be low whe=
+n
+> released. For this inversion we add flag GPIOHANDLE_REQUEST_ACTIVE_LOW:
+>
+>         req.handleflags =3D GPIOHANDLE_REQUEST_INPUT |
+>                 GPIOHANDLE_REQUEST_ACTIVE_LOW;
+>         req.eventflags =3D GPIOEVENT_REQUEST_FALLING_EDGE;
+>
+> At the result, there are no any events caught when the button is pushed.
+> By the way, button releasing will emit a "falling" event. The timing of
+> "falling" catching is not expected.
+>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Michael Wu <michael.wu@vatics.com>
 > ---
->  drivers/net/wireless/realtek/rtw88/pci.c | 28 +++++++++++-------------
->  1 file changed, 13 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
-> index cfe05ba7280d..1bfc99ae6b84 100644
-> --- a/drivers/net/wireless/realtek/rtw88/pci.c
-> +++ b/drivers/net/wireless/realtek/rtw88/pci.c
-> @@ -786,6 +786,15 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
->  		rx_desc = skb->data;
->  		chip->ops->query_rx_desc(rtwdev, rx_desc, &pkt_stat, &rx_status);
-> 
-> +		/* discard current skb if the new skb cannot be allocated as a
-> +		 * new one in rx ring later
-> +		 * */
-> +		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
-> +		if (WARN(!new, "rx routine starvation\n")) {
-> +			new = skb;
-> +			goto next_rp;
-> +		}
-> +
->  		/* offset from rx_desc to payload */
->  		pkt_offset = pkt_desc_sz + pkt_stat.drv_info_sz +
->  			     pkt_stat.shift;
-> @@ -803,25 +812,14 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
->  			skb_put(skb, pkt_stat.pkt_len);
->  			skb_reserve(skb, pkt_offset);
-> 
-> -			/* alloc a smaller skb to mac80211 */
-> -			new = dev_alloc_skb(pkt_stat.pkt_len);
-> -			if (!new) {
-> -				new = skb;
-> -			} else {
-> -				skb_put_data(new, skb->data, skb->len);
-> -				dev_kfree_skb_any(skb);
-> -			}
->  			/* TODO: merge into rx.c */
->  			rtw_rx_stats(rtwdev, pkt_stat.vif, skb);
-> -			memcpy(new->cb, &rx_status, sizeof(rx_status));
-> -			ieee80211_rx_irqsafe(rtwdev->hw, new);
-> +			memcpy(skb->cb, &rx_status, sizeof(rx_status));
-> +			ieee80211_rx_irqsafe(rtwdev->hw, skb);
->  		}
-> 
-> -		/* skb delivered to mac80211, alloc a new one in rx ring */
-> -		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
-> -		if (WARN(!new, "rx routine starvation\n"))
-> -			return;
-> -
-> +next_rp:
-> +		/* skb delivered to mac80211, attach the new one into rx ring */
->  		ring->buf[cur_rp] = new;
->  		rtw_pci_reset_rx_desc(rtwdev, new, ring, cur_rp, buf_desc_sz);
-> 
+> Changes from v1:
+> - Correct undeclared 'IRQ_TRIGGER_RISING'
+> - Add an example to descibe the issue
+> ---
+>  drivers/gpio/gpiolib.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+> index e013d417a936..9c9597f929d7 100644
+> --- a/drivers/gpio/gpiolib.c
+> +++ b/drivers/gpio/gpiolib.c
+> @@ -956,9 +956,11 @@ static int lineevent_create(struct gpio_device *gdev=
+, void __user *ip)
+>         }
+>
+>         if (eflags & GPIOEVENT_REQUEST_RISING_EDGE)
+> -               irqflags |=3D IRQF_TRIGGER_RISING;
+> +               irqflags |=3D test_bit(FLAG_ACTIVE_LOW, &desc->flags) ?
+> +                       IRQF_TRIGGER_FALLING : IRQF_TRIGGER_RISING;
+>         if (eflags & GPIOEVENT_REQUEST_FALLING_EDGE)
+> -               irqflags |=3D IRQF_TRIGGER_FALLING;
+> +               irqflags |=3D test_bit(FLAG_ACTIVE_LOW, &desc->flags) ?
+> +                       IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
+>         irqflags |=3D IRQF_ONESHOT;
+>
+>         INIT_KFIFO(le->events);
 > --
-> 2.22.0
+> 2.17.1
+>
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+Tested-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
