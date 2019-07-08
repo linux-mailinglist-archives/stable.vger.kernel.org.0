@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CA0E6222D
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:24:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 272E96251E
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728845AbfGHPXL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:23:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50118 "EHLO mail.kernel.org"
+        id S1732330AbfGHPSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:18:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388144AbfGHPXL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:23:11 -0400
+        id S1728972AbfGHPSF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:18:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70E9B204EC;
-        Mon,  8 Jul 2019 15:23:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAF772166E;
+        Mon,  8 Jul 2019 15:18:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599390;
-        bh=fYiUsu4wzAHAeLPGcXP9HexqGaEUj1/KrAmDgh4Lwl8=;
+        s=default; t=1562599085;
+        bh=8FpICHuT4EzRHKjUENx9XgG+eDTgSw8j6i1/lxfkXT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6+D6u10p2AjlOTDkJ4uvLK7ospfaHpUQM1NkpBYmpyr1uHqmPqgyKYfEt0RWnL9t
-         aFeVj72zRZz4NBXXZqUwe2W5qwipSqAaovw0jmEBzhVyvbb7hcE6oqr7nG65Lngusp
-         Ewfh9mi7Sandru0BsSMw1rTRPtZBJwSSDpmlPAfA=
+        b=fNE1aP46lDYhrCrUA0AtDlPhEsT5IEvDZUqfFEsjkgKr7u71Rv6FjsPwZ7qYwVIRM
+         7nlEibyxLxwoaVri2lZTB+PmPoxbzytLU6emvIaVDkbV8oXs6aT+L1h4PFhKF6/XIs
+         At+Txw6dypbkerYQkBBwEhrZ5siZjtj3hP9ZRyiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 089/102] ALSA: firewire-lib/fireworks: fix miss detection of received MIDI messages
+        stable@vger.kernel.org,
+        syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com,
+        Alexander Potapenko <glider@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.4 72/73] KVM: x86: degrade WARN to pr_warn_ratelimited
 Date:   Mon,  8 Jul 2019 17:13:22 +0200
-Message-Id: <20190708150531.071686088@linuxfoundation.org>
+Message-Id: <20190708150525.030241522@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 7fbd1753b64eafe21cf842348a40a691d0dee440 upstream.
+commit 3f16a5c318392cbb5a0c7a3d19dff8c8ef3c38ee upstream.
 
-In IEC 61883-6, 8 MIDI data streams are multiplexed into single
-MIDI conformant data channel. The index of stream is calculated by
-modulo 8 of the value of data block counter.
+This warning can be triggered easily by userspace, so it should certainly not
+cause a panic if panic_on_warn is set.
 
-In fireworks, the value of data block counter in CIP header has a quirk
-with firmware version v5.0.0, v5.7.3 and v5.8.0. This brings ALSA
-IEC 61883-1/6 packet streaming engine to miss detection of MIDI
-messages.
-
-This commit fixes the miss detection to modify the value of data block
-counter for the modulo calculation.
-
-For maintainers, this bug exists since a commit 18f5ed365d3f ("ALSA:
-fireworks/firewire-lib: add support for recent firmware quirk") in Linux
-kernel v4.2. There're many changes since the commit.  This fix can be
-backported to Linux kernel v4.4 or later. I tagged a base commit to the
-backport for your convenience.
-
-Besides, my work for Linux kernel v5.3 brings heavy code refactoring and
-some structure members are renamed in 'sound/firewire/amdtp-stream.h'.
-The content of this patch brings conflict when merging -rc tree with
-this patch and the latest tree. I request maintainers to solve the
-conflict to replace 'tx_first_dbc' with 'ctx_data.tx.first_dbc'.
-
-Fixes: df075feefbd3 ("ALSA: firewire-lib: complete AM824 data block processing layer")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com
+Suggested-by: Alexander Potapenko <glider@google.com>
+Acked-by: Alexander Potapenko <glider@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/firewire/amdtp-am824.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/sound/firewire/amdtp-am824.c
-+++ b/sound/firewire/amdtp-am824.c
-@@ -388,7 +388,7 @@ static void read_midi_messages(struct am
- 	u8 *b;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1293,7 +1293,7 @@ static int set_tsc_khz(struct kvm_vcpu *
+ 			vcpu->arch.tsc_always_catchup = 1;
+ 			return 0;
+ 		} else {
+-			WARN(1, "user requested TSC rate below hardware speed\n");
++			pr_warn_ratelimited("user requested TSC rate below hardware speed\n");
+ 			return -1;
+ 		}
+ 	}
+@@ -1303,8 +1303,8 @@ static int set_tsc_khz(struct kvm_vcpu *
+ 				user_tsc_khz, tsc_khz);
  
- 	for (f = 0; f < frames; f++) {
--		port = (s->data_block_counter + f) % 8;
-+		port = (8 - s->tx_first_dbc + s->data_block_counter + f) % 8;
- 		b = (u8 *)&buffer[p->midi_position];
+ 	if (ratio == 0 || ratio >= kvm_max_tsc_scaling_ratio) {
+-		WARN_ONCE(1, "Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
+-			  user_tsc_khz);
++		pr_warn_ratelimited("Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
++			            user_tsc_khz);
+ 		return -1;
+ 	}
  
- 		len = b[0] - 0x80;
 
 
