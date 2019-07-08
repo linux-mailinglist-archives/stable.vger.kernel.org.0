@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C6F622BA
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D818662385
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:36:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389277AbfGHP23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:28:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56968 "EHLO mail.kernel.org"
+        id S1729576AbfGHPgD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:36:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389295AbfGHP22 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:28:28 -0400
+        id S2390535AbfGHPeZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:34:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EAEE204EC;
-        Mon,  8 Jul 2019 15:28:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E815320651;
+        Mon,  8 Jul 2019 15:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599707;
-        bh=rTGdvXqbpBlqYW6829dqvbaQPJhzV1cWAW8WcA4eh2U=;
+        s=default; t=1562600064;
+        bh=CkEnPNYqChytH+UasjUn29arYNXKTmNT3vNOpYPMoKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oIHExFSbIspxsa66LxibA9RIDTDI26MWt3EZcyOD6bwwBLpQnOseHbjEZ8icOwAT5
-         4otp687Jj7TYy/pkChJsyAup8r8xrodnMWJNgpz0aJDg0m25DkjfAERt19O6kN16R4
-         Dmohp+JLGpfVcbwiTCdeOxotK1SGluXHzYVu6Wpo=
+        b=cqlZA1veS2KsXJ+OXN6xORP2uW74VnOKxSKysUG2U/93sFPF8u/w3yEc7MhCOPGfH
+         oqLs7DpOEo4u+mbJKwNOlTGoNUKikHjIe6Tl+dqVPP4UtACvSYFeY6adogBzcNLHl0
+         U6qGhDBgfQ8o4fZkpgwXAfDdaBIoEO5j2iTufEQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        syzbot+fab6de82892b6b9c6191@syzkaller.appspotmail.com,
-        syzbot+53c0b767f7ca0dc0c451@syzkaller.appspotmail.com,
-        syzbot+a3accb352f9c22041cfa@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 51/90] fs/userfaultfd.c: disable irqs for fault_pending and event locks
+        stable@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 46/96] platform/x86: mlx-platform: Fix parent device in i2c-mux-reg device registration
 Date:   Mon,  8 Jul 2019 17:13:18 +0200
-Message-Id: <20190708150525.110658846@linuxfoundation.org>
+Message-Id: <20190708150529.014193844@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,193 +44,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+[ Upstream commit 160da20b254dd4bfc5828f12c208fa831ad4be6c ]
 
-commit cbcfa130a911c613a1d9d921af2eea171c414172 upstream.
+Fix the issue found while running kernel with the option
+CONFIG_DEBUG_TEST_DRIVER_REMOVE.
+Driver 'mlx-platform' registers 'i2c_mlxcpld' device and then registers
+few underlying 'i2c-mux-reg' devices:
+	priv->pdev_i2c = platform_device_register_simple("i2c_mlxcpld", nr,
+							 NULL, 0);
+	...
+	for (i = 0; i < ARRAY_SIZE(mlxplat_mux_data); i++) {
+		priv->pdev_mux[i] = platform_device_register_resndata(
+						&mlxplat_dev->dev,
+						"i2c-mux-reg", i, NULL,
+						0, &mlxplat_mux_data[i],
+						sizeof(mlxplat_mux_data[i]));
 
-When IOCB_CMD_POLL is used on a userfaultfd, aio_poll() disables IRQs
-and takes kioctx::ctx_lock, then userfaultfd_ctx::fd_wqh.lock.
+But actual parent of "i2c-mux-reg" device is priv->pdev_i2c->dev and
+not mlxplat_dev->dev.
+Patch fixes parent device parameter in a call to
+platform_device_register_resndata() for "i2c-mux-reg".
 
-This may have to wait for userfaultfd_ctx::fd_wqh.lock to be released by
-userfaultfd_ctx_read(), which in turn can be waiting for
-userfaultfd_ctx::fault_pending_wqh.lock or
-userfaultfd_ctx::event_wqh.lock.
+It solves the race during initialization flow while 'i2c_mlxcpld.1' is
+removing after probe, while 'i2c-mux-reg.0' is still in probing flow:
+'i2c_mlxcpld.1'	flow:	probe -> remove -> probe.
+'i2c-mux-reg.0'	flow:		  probe -> ...
 
-But elsewhere the fault_pending_wqh and event_wqh locks are taken with
-IRQs enabled.  Since the IRQ handler may take kioctx::ctx_lock, lockdep
-reports that a deadlock is possible.
+[   12:621096] Registering platform device 'i2c_mlxcpld.1'. Parent at platform
+[   12:621117] device: 'i2c_mlxcpld.1': device_add
+[   12:621155] bus: 'platform': add device i2c_mlxcpld.1
+[   12:621384] Registering platform device 'i2c-mux-reg.0'. Parent at mlxplat
+[   12:621395] device: 'i2c-mux-reg.0': device_add
+[   12:621425] bus: 'platform': add device i2c-mux-reg.0
+[   12:621806] Registering platform device 'i2c-mux-reg.1'. Parent at mlxplat
+[   12:621828] device: 'i2c-mux-reg.1': device_add
+[   12:621892] bus: 'platform': add device i2c-mux-reg.1
+[   12:621906] bus: 'platform': add driver i2c_mlxcpld
+[   12:621996] bus: 'platform': driver_probe_device: matched device i2c_mlxcpld.1 with driver i2c_mlxcpld
+[   12:622003] bus: 'platform': really_probe: probing driver i2c_mlxcpld with device i2c_mlxcpld.1
+[   12:622100] i2c_mlxcpld i2c_mlxcpld.1: no default pinctrl state
+[   12:622293] device: 'i2c-1': device_add
+[   12:627280] bus: 'i2c': add device i2c-1
+[   12:627692] device: 'i2c-1': device_add
+[   12.629639] bus: 'platform': add driver i2c-mux-reg
+[   12.629718] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.0 with driver i2c-mux-reg
+[   12.629723] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.0
+[   12.629818] i2c-mux-reg i2c-mux-reg.0: no default pinctrl state
+[   12.629981] platform i2c-mux-reg.0: Driver i2c-mux-reg requests probe deferral
+[   12.629986] platform i2c-mux-reg.0: Added to deferred list
+[   12.629992] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.1 with driver i2c-mux-reg
+[   12.629997] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.1
+[   12.630091] i2c-mux-reg i2c-mux-reg.1: no default pinctrl state
+[   12.630247] platform i2c-mux-reg.1: Driver i2c-mux-reg requests probe deferral
+[   12.630252] platform i2c-mux-reg.1: Added to deferred list
+[   12.640892] devices_kset: Moving i2c-mux-reg.0 to end of list
+[   12.640900] platform i2c-mux-reg.0: Retrying from deferred list
+[   12.640911] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.0 with driver i2c-mux-reg
+[   12.640919] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.0
+[   12.640999] i2c-mux-reg i2c-mux-reg.0: no default pinctrl state
+[   12.641177] platform i2c-mux-reg.0: Driver i2c-mux-reg requests probe deferral
+[   12.641187] platform i2c-mux-reg.0: Added to deferred list
+[   12.641198] devices_kset: Moving i2c-mux-reg.1 to end of list
+[   12.641219] platform i2c-mux-reg.1: Retrying from deferred list
+[   12.641237] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.1 with driver i2c-mux-reg
+[   12.641247] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.1
+[   12.641331] i2c-mux-reg i2c-mux-reg.1: no default pinctrl state
+[   12.641465] platform i2c-mux-reg.1: Driver i2c-mux-reg requests probe deferral
+[   12.641469] platform i2c-mux-reg.1: Added to deferred list
+[   12.646427] device: 'i2c-1': device_add
+[   12.646647] bus: 'i2c': add device i2c-1
+[   12.647104] device: 'i2c-1': device_add
+[   12.669231] devices_kset: Moving i2c-mux-reg.0 to end of list
+[   12.669240] platform i2c-mux-reg.0: Retrying from deferred list
+[   12.669258] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.0 with driver i2c-mux-reg
+[   12.669263] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.0
+[   12.669343] i2c-mux-reg i2c-mux-reg.0: no default pinctrl state
+[   12.669585] device: 'i2c-2': device_add
+[   12.669795] bus: 'i2c': add device i2c-2
+[   12.670201] device: 'i2c-2': device_add
+[   12.671427] i2c i2c-1: Added multiplexed i2c bus 2
+[   12.671514] device: 'i2c-3': device_add
+[   12.671724] bus: 'i2c': add device i2c-3
+[   12.672136] device: 'i2c-3': device_add
+[   12.673378] i2c i2c-1: Added multiplexed i2c bus 3
+[   12.673472] device: 'i2c-4': device_add
+[   12.673676] bus: 'i2c': add device i2c-4
+[   12.674060] device: 'i2c-4': device_add
+[   12.675861] i2c i2c-1: Added multiplexed i2c bus 4
+[   12.675941] device: 'i2c-5': device_add
+[   12.676150] bus: 'i2c': add device i2c-5
+[   12.676550] device: 'i2c-5': device_add
+[   12.678103] i2c i2c-1: Added multiplexed i2c bus 5
+[   12.678193] device: 'i2c-6': device_add
+[   12.678395] bus: 'i2c': add device i2c-6
+[   12.678774] device: 'i2c-6': device_add
+[   12.679969] i2c i2c-1: Added multiplexed i2c bus 6
+[   12.680065] device: 'i2c-7': device_add
+[   12.680275] bus: 'i2c': add device i2c-7
+[   12.680913] device: 'i2c-7': device_add
+[   12.682506] i2c i2c-1: Added multiplexed i2c bus 7
+[   12.682600] device: 'i2c-8': device_add
+[   12.682808] bus: 'i2c': add device i2c-8
+[   12.683189] device: 'i2c-8': device_add
+[   12.683907] device: 'i2c-1': device_unregister
+[   12.683945] device: 'i2c-1': device_unregister
+[   12.684387] device: 'i2c-1': device_create_release
+[   12.684536] bus: 'i2c': remove device i2c-1
+[   12.686019] i2c i2c-8: Failed to create compatibility class link
+[   12.686086] ------------[ cut here ]------------
+[   12.686087] can't create symlink to mux device
+[   12.686224] Workqueue: events deferred_probe_work_func
+[   12.686135] WARNING: CPU: 7 PID: 436 at drivers/i2c/i2c-mux.c:416 i2c_mux_add_adapter+0x729/0x7d0 [i2c_mux]
+[   12.686232] RIP: 0010:i2c_mux_add_adapter+0x729/0x7d0 [i2c_mux]
+[   0x190/0x190 [i2c_mux]
+[   12.686300]  ? i2c_mux_alloc+0xac/0x110 [i2c_mux]
+[   12.686306]  ? i2c_mux_reg_set+0x200/0x200 [i2c_mux_reg]
+[   12.686313]  i2c_mux_reg_probe+0x22c/0x731 [i2c_mux_reg]
+[   12.686322]  ? i2c_mux_reg_deselect+0x60/0x60 [i2c_mux_reg]
+[   12.686346]  platform_drv_probe+0xa8/0x110
+[   12.686351]  really_probe+0x185/0x720
+[   12.686358]  driver_probe_device+0xdf/0x1f0
+...
+[   12.686522] i2c i2c-1: Added multiplexed i2c bus 8
+[   12.686621] device: 'i2c-9': device_add
+[   12.686626] kobject_add_internal failed for i2c-9 (error: -2 parent: i2c-1)
+[   12.694729] i2c-core: adapter 'i2c-1-mux (chan_id 8)': can't register device (-2)
+[   12.705726] i2c i2c-1: failed to add mux-adapter 8 as bus 9 (error=-2)
+[   12.714494] device: 'i2c-8': device_unregister
+[   12.714537] device: 'i2c-8': device_unregister
 
-Fix it by always disabling IRQs when taking the fault_pending_wqh and
-event_wqh locks.
-
-Commit ae62c16e105a ("userfaultfd: disable irqs when taking the
-waitqueue lock") didn't fix this because it only accounted for the
-fd_wqh lock, not the other locks nested inside it.
-
-Link: http://lkml.kernel.org/r/20190627075004.21259-1-ebiggers@kernel.org
-Fixes: bfe4037e722e ("aio: implement IOCB_CMD_POLL")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reported-by: syzbot+fab6de82892b6b9c6191@syzkaller.appspotmail.com
-Reported-by: syzbot+53c0b767f7ca0dc0c451@syzkaller.appspotmail.com
-Reported-by: syzbot+a3accb352f9c22041cfa@syzkaller.appspotmail.com
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: <stable@vger.kernel.org>	[4.19+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 6613d18e9038 ("platform/x86: mlx-platform: Move module from arch/x86")
+Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/userfaultfd.c |   42 ++++++++++++++++++++++++++----------------
- 1 file changed, 26 insertions(+), 16 deletions(-)
+ drivers/platform/x86/mlx-platform.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -40,6 +40,16 @@ enum userfaultfd_state {
- /*
-  * Start with fault_pending_wqh and fault_wqh so they're more likely
-  * to be in the same cacheline.
-+ *
-+ * Locking order:
-+ *	fd_wqh.lock
-+ *		fault_pending_wqh.lock
-+ *			fault_wqh.lock
-+ *		event_wqh.lock
-+ *
-+ * To avoid deadlocks, IRQs must be disabled when taking any of the above locks,
-+ * since fd_wqh.lock is taken by aio_poll() while it's holding a lock that's
-+ * also taken in IRQ context.
-  */
- struct userfaultfd_ctx {
- 	/* waitqueue head for the pending (i.e. not read) userfaults */
-@@ -459,7 +469,7 @@ vm_fault_t handle_userfault(struct vm_fa
- 	blocking_state = return_to_userland ? TASK_INTERRUPTIBLE :
- 			 TASK_KILLABLE;
+diff --git a/drivers/platform/x86/mlx-platform.c b/drivers/platform/x86/mlx-platform.c
+index 48fa7573e29b..0e5f073e51bc 100644
+--- a/drivers/platform/x86/mlx-platform.c
++++ b/drivers/platform/x86/mlx-platform.c
+@@ -1828,7 +1828,7 @@ static int __init mlxplat_init(void)
  
--	spin_lock(&ctx->fault_pending_wqh.lock);
-+	spin_lock_irq(&ctx->fault_pending_wqh.lock);
- 	/*
- 	 * After the __add_wait_queue the uwq is visible to userland
- 	 * through poll/read().
-@@ -471,7 +481,7 @@ vm_fault_t handle_userfault(struct vm_fa
- 	 * __add_wait_queue.
- 	 */
- 	set_current_state(blocking_state);
--	spin_unlock(&ctx->fault_pending_wqh.lock);
-+	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
- 
- 	if (!is_vm_hugetlb_page(vmf->vma))
- 		must_wait = userfaultfd_must_wait(ctx, vmf->address, vmf->flags,
-@@ -553,13 +563,13 @@ vm_fault_t handle_userfault(struct vm_fa
- 	 * kernel stack can be released after the list_del_init.
- 	 */
- 	if (!list_empty_careful(&uwq.wq.entry)) {
--		spin_lock(&ctx->fault_pending_wqh.lock);
-+		spin_lock_irq(&ctx->fault_pending_wqh.lock);
- 		/*
- 		 * No need of list_del_init(), the uwq on the stack
- 		 * will be freed shortly anyway.
- 		 */
- 		list_del(&uwq.wq.entry);
--		spin_unlock(&ctx->fault_pending_wqh.lock);
-+		spin_unlock_irq(&ctx->fault_pending_wqh.lock);
- 	}
- 
- 	/*
-@@ -584,7 +594,7 @@ static void userfaultfd_event_wait_compl
- 	init_waitqueue_entry(&ewq->wq, current);
- 	release_new_ctx = NULL;
- 
--	spin_lock(&ctx->event_wqh.lock);
-+	spin_lock_irq(&ctx->event_wqh.lock);
- 	/*
- 	 * After the __add_wait_queue the uwq is visible to userland
- 	 * through poll/read().
-@@ -614,15 +624,15 @@ static void userfaultfd_event_wait_compl
- 			break;
- 		}
- 
--		spin_unlock(&ctx->event_wqh.lock);
-+		spin_unlock_irq(&ctx->event_wqh.lock);
- 
- 		wake_up_poll(&ctx->fd_wqh, EPOLLIN);
- 		schedule();
- 
--		spin_lock(&ctx->event_wqh.lock);
-+		spin_lock_irq(&ctx->event_wqh.lock);
- 	}
- 	__set_current_state(TASK_RUNNING);
--	spin_unlock(&ctx->event_wqh.lock);
-+	spin_unlock_irq(&ctx->event_wqh.lock);
- 
- 	if (release_new_ctx) {
- 		struct vm_area_struct *vma;
-@@ -919,10 +929,10 @@ wakeup:
- 	 * the last page faults that may have been already waiting on
- 	 * the fault_*wqh.
- 	 */
--	spin_lock(&ctx->fault_pending_wqh.lock);
-+	spin_lock_irq(&ctx->fault_pending_wqh.lock);
- 	__wake_up_locked_key(&ctx->fault_pending_wqh, TASK_NORMAL, &range);
- 	__wake_up(&ctx->fault_wqh, TASK_NORMAL, 1, &range);
--	spin_unlock(&ctx->fault_pending_wqh.lock);
-+	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
- 
- 	/* Flush pending events that may still wait on event_wqh */
- 	wake_up_all(&ctx->event_wqh);
-@@ -1135,7 +1145,7 @@ static ssize_t userfaultfd_ctx_read(stru
- 
- 	if (!ret && msg->event == UFFD_EVENT_FORK) {
- 		ret = resolve_userfault_fork(ctx, fork_nctx, msg);
--		spin_lock(&ctx->event_wqh.lock);
-+		spin_lock_irq(&ctx->event_wqh.lock);
- 		if (!list_empty(&fork_event)) {
- 			/*
- 			 * The fork thread didn't abort, so we can
-@@ -1181,7 +1191,7 @@ static ssize_t userfaultfd_ctx_read(stru
- 			if (ret)
- 				userfaultfd_ctx_put(fork_nctx);
- 		}
--		spin_unlock(&ctx->event_wqh.lock);
-+		spin_unlock_irq(&ctx->event_wqh.lock);
- 	}
- 
- 	return ret;
-@@ -1220,14 +1230,14 @@ static ssize_t userfaultfd_read(struct f
- static void __wake_userfault(struct userfaultfd_ctx *ctx,
- 			     struct userfaultfd_wake_range *range)
- {
--	spin_lock(&ctx->fault_pending_wqh.lock);
-+	spin_lock_irq(&ctx->fault_pending_wqh.lock);
- 	/* wake all in the range and autoremove */
- 	if (waitqueue_active(&ctx->fault_pending_wqh))
- 		__wake_up_locked_key(&ctx->fault_pending_wqh, TASK_NORMAL,
- 				     range);
- 	if (waitqueue_active(&ctx->fault_wqh))
- 		__wake_up(&ctx->fault_wqh, TASK_NORMAL, 1, range);
--	spin_unlock(&ctx->fault_pending_wqh.lock);
-+	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
- }
- 
- static __always_inline void wake_userfault(struct userfaultfd_ctx *ctx,
-@@ -1882,7 +1892,7 @@ static void userfaultfd_show_fdinfo(stru
- 	wait_queue_entry_t *wq;
- 	unsigned long pending = 0, total = 0;
- 
--	spin_lock(&ctx->fault_pending_wqh.lock);
-+	spin_lock_irq(&ctx->fault_pending_wqh.lock);
- 	list_for_each_entry(wq, &ctx->fault_pending_wqh.head, entry) {
- 		pending++;
- 		total++;
-@@ -1890,7 +1900,7 @@ static void userfaultfd_show_fdinfo(stru
- 	list_for_each_entry(wq, &ctx->fault_wqh.head, entry) {
- 		total++;
- 	}
--	spin_unlock(&ctx->fault_pending_wqh.lock);
-+	spin_unlock_irq(&ctx->fault_pending_wqh.lock);
- 
- 	/*
- 	 * If more protocols will be added, there will be all shown
+ 	for (i = 0; i < ARRAY_SIZE(mlxplat_mux_data); i++) {
+ 		priv->pdev_mux[i] = platform_device_register_resndata(
+-						&mlxplat_dev->dev,
++						&priv->pdev_i2c->dev,
+ 						"i2c-mux-reg", i, NULL,
+ 						0, &mlxplat_mux_data[i],
+ 						sizeof(mlxplat_mux_data[i]));
+-- 
+2.20.1
+
 
 
