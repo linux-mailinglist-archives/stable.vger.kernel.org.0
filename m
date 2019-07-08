@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE937621DB
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B671962556
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:50:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387543AbfGHPT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:19:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43836 "EHLO mail.kernel.org"
+        id S1732213AbfGHPPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:15:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729037AbfGHPT2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:19:28 -0400
+        id S1728720AbfGHPO7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:14:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 672F6216E3;
-        Mon,  8 Jul 2019 15:19:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F420216C4;
+        Mon,  8 Jul 2019 15:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599167;
-        bh=2VdFkdk9SIaAdzepBOAW1EfUckj2mgK2DM94z7kTn2A=;
+        s=default; t=1562598898;
+        bh=d37ICMBKvoimNiAqVg+adZ7Qd5e54zOXaNlzOgph3Rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+oQ6GiDxlOVcjsMYGss0P7+YM2q63aMt5lSHdcvxAQ/PQD7iTZ9qFYw65hPqw4/w
-         gu2HzWbPtCLKTCD6NQ4KK/rMokJ9nvvcCQd1QGtHnqqtC2xfR+IwI36mXHHGc5agsr
-         YDyEJ+0xd72EElih9MUrSFjygHxwOvemsaADVtlE=
+        b=llBmrusD/8WLZvlRE+fRMNLzY9o4+ZkoQhg/DGOT1u7jznkhV9F4hjrZKL/jIBv6q
+         V0uspvVdiGTk4t4yCAYvvrY7b3/qGtXzO50lLobqtPyrLgw+f1xtWBY/QUGwqaaEB1
+         BBxYFnCjp5BGq4oobAhUqH8WB1Mj4Hk+Ql8pC8I4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.9 027/102] can: flexcan: fix timeout when set small bitrate
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 10/73] parisc: Fix compiler warnings in float emulation code
 Date:   Mon,  8 Jul 2019 17:12:20 +0200
-Message-Id: <20190708150527.701988108@linuxfoundation.org>
+Message-Id: <20190708150519.010095758@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+[ Upstream commit 6b98d9134e14f5ef4bcf64b27eedf484ed19a1ec ]
 
-commit 247e5356a709eb49a0d95ff2a7f07dac05c8252c upstream.
+Avoid such compiler warnings:
+arch/parisc/math-emu/cnv_float.h:71:27: warning: ‘<<’ in boolean context, did you mean ‘<’ ? [-Wint-in-bool-context]
+     ((Dintp1(dint_valueA) << 33 - SGL_EXP_LENGTH) || Dintp2(dint_valueB))
+arch/parisc/math-emu/fcnvxf.c:257:6: note: in expansion of macro ‘Dint_isinexact_to_sgl’
+  if (Dint_isinexact_to_sgl(srcp1,srcp2)) {
 
-Current we can meet timeout issue when setting a small bitrate like
-10000 as follows on i.MX6UL EVK board (ipg clock = 66MHZ, per clock =
-30MHZ):
-
-| root@imx6ul7d:~# ip link set can0 up type can bitrate 10000
-
-A link change request failed with some changes committed already.
-Interface can0 may have been left with an inconsistent configuration,
-please check.
-
-| RTNETLINK answers: Connection timed out
-
-It is caused by calling of flexcan_chip_unfreeze() timeout.
-
-Originally the code is using usleep_range(10, 20) for unfreeze
-operation, but the patch (8badd65 can: flexcan: avoid calling
-usleep_range from interrupt context) changed it into udelay(10) which is
-only a half delay of before, there're also some other delay changes.
-
-After double to FLEXCAN_TIMEOUT_US to 100 can fix the issue.
-
-Meanwhile, Rasmus Villemoes reported that even with a timeout of 100,
-flexcan_probe() fails on the MPC8309, which requires a value of at least
-140 to work reliably. 250 works for everyone.
-
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/flexcan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/parisc/math-emu/cnv_float.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -171,7 +171,7 @@
- #define FLEXCAN_MB_CNT_LENGTH(x)	(((x) & 0xf) << 16)
- #define FLEXCAN_MB_CNT_TIMESTAMP(x)	((x) & 0xffff)
+diff --git a/arch/parisc/math-emu/cnv_float.h b/arch/parisc/math-emu/cnv_float.h
+index 933423fa5144..b0db61188a61 100644
+--- a/arch/parisc/math-emu/cnv_float.h
++++ b/arch/parisc/math-emu/cnv_float.h
+@@ -60,19 +60,19 @@
+     ((exponent < (SGL_P - 1)) ?				\
+      (Sall(sgl_value) << (SGL_EXP_LENGTH + 1 + exponent)) : FALSE)
  
--#define FLEXCAN_TIMEOUT_US		(50)
-+#define FLEXCAN_TIMEOUT_US		(250)
+-#define Int_isinexact_to_sgl(int_value)	(int_value << 33 - SGL_EXP_LENGTH)
++#define Int_isinexact_to_sgl(int_value)	((int_value << 33 - SGL_EXP_LENGTH) != 0)
  
- /* FLEXCAN hardware feature flags
-  *
+ #define Sgl_roundnearest_from_int(int_value,sgl_value)			\
+     if (int_value & 1<<(SGL_EXP_LENGTH - 2))   /* round bit */		\
+-    	if ((int_value << 34 - SGL_EXP_LENGTH) || Slow(sgl_value))	\
++	if (((int_value << 34 - SGL_EXP_LENGTH) != 0) || Slow(sgl_value)) \
+ 		Sall(sgl_value)++
+ 
+ #define Dint_isinexact_to_sgl(dint_valueA,dint_valueB)		\
+-    ((Dintp1(dint_valueA) << 33 - SGL_EXP_LENGTH) || Dintp2(dint_valueB))
++    (((Dintp1(dint_valueA) << 33 - SGL_EXP_LENGTH) != 0) || Dintp2(dint_valueB))
+ 
+ #define Sgl_roundnearest_from_dint(dint_valueA,dint_valueB,sgl_value)	\
+     if (Dintp1(dint_valueA) & 1<<(SGL_EXP_LENGTH - 2)) 			\
+-    	if ((Dintp1(dint_valueA) << 34 - SGL_EXP_LENGTH) ||		\
++	if (((Dintp1(dint_valueA) << 34 - SGL_EXP_LENGTH) != 0) ||	\
+     	Dintp2(dint_valueB) || Slow(sgl_value)) Sall(sgl_value)++
+ 
+ #define Dint_isinexact_to_dbl(dint_value) 	\
+-- 
+2.20.1
+
 
 
