@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9974621BE
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:19:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0743962157
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:15:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727189AbfGHPTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:19:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43102 "EHLO mail.kernel.org"
+        id S1730222AbfGHPP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:15:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733161AbfGHPTA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:19:00 -0400
+        id S1730171AbfGHPP1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:15:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA07821537;
-        Mon,  8 Jul 2019 15:18:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4610221738;
+        Mon,  8 Jul 2019 15:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599140;
-        bh=uR1AjF105+UTf4n2pmOKr80VoeSOIiGe1oknHSF5fWo=;
+        s=default; t=1562598926;
+        bh=Cx+RAoOkfIeIwwGcurKCke5Cr4Mrics5L7HjGT3jk1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HP/G6prMK8JgvnHIC96pcgAJS0WYlbqUwOymBCBdNaxSM4T6pHKe3CpQVHbSNvGLc
-         /T8Ldo3e5/ous45uooj60A5aHvZLLpTgi7R7G/v/kp58Ni8ma/N6hrjo+MNLgpWYvc
-         +I6r5hBBF/yOU6euDBywh13FOp6crO7H/by35GRQ=
+        b=dy/KrY2qsG3jWXbQT55cBzxAVit3tI3+uy+94e666UZsqkNfFiT4/ALcUPi0C4iKg
+         9+MSfOm+IBa1I9mu1DyV7w9dJ5Qhl0b7cygIB4HcsaBnh1GihaNrn+dh6Ozn+iIbwg
+         bmJA/1hcDyNQXz+bnWjUXEk9HocRIm+yhjlIDvxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Lee <mark-mc.lee@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 019/102] net: ethernet: mediatek: Use NET_IP_ALIGN to judge if HW RX_2BYTE_OFFSET is enabled
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 02/73] mm/page_idle.c: fix oops because end_pfn is larger than max_pfn
 Date:   Mon,  8 Jul 2019 17:12:12 +0200
-Message-Id: <20190708150527.177997526@linuxfoundation.org>
+Message-Id: <20190708150517.108200534@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +50,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 880c2d4b2fdfd580ebcd6bb7240a8027a1d34751 ]
+From: Colin Ian King <colin.king@canonical.com>
 
-Should only enable HW RX_2BYTE_OFFSET function in the case NET_IP_ALIGN
-equals to 2.
+commit 7298e3b0a149c91323b3205d325e942c3b3b9ef6 upstream.
 
-Signed-off-by: Mark Lee <mark-mc.lee@mediatek.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Currently the calcuation of end_pfn can round up the pfn number to more
+than the actual maximum number of pfns, causing an Oops.  Fix this by
+ensuring end_pfn is never more than max_pfn.
+
+This can be easily triggered when on systems where the end_pfn gets
+rounded up to more than max_pfn using the idle-page stress-ng stress test:
+
+sudo stress-ng --idle-page 0
+
+  BUG: unable to handle kernel paging request at 00000000000020d8
+  #PF error: [normal kernel read fault]
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  CPU: 1 PID: 11039 Comm: stress-ng-idle- Not tainted 5.0.0-5-generic #6-Ubuntu
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+  RIP: 0010:page_idle_get_page+0xc8/0x1a0
+  Code: 0f b1 0a 75 7d 48 8b 03 48 89 c2 48 c1 e8 33 83 e0 07 48 c1 ea 36 48 8d 0c 40 4c 8d 24 88 49 c1 e4 07 4c 03 24 d5 00 89 c3 be <49> 8b 44 24 58 48 8d b8 80 a1 02 00 e8 07 d5 77 00 48 8b 53 08 48
+  RSP: 0018:ffffafd7c672fde8 EFLAGS: 00010202
+  RAX: 0000000000000005 RBX: ffffe36341fff700 RCX: 000000000000000f
+  RDX: 0000000000000284 RSI: 0000000000000275 RDI: 0000000001fff700
+  RBP: ffffafd7c672fe00 R08: ffffa0bc34056410 R09: 0000000000000276
+  R10: ffffa0bc754e9b40 R11: ffffa0bc330f6400 R12: 0000000000002080
+  R13: ffffe36341fff700 R14: 0000000000080000 R15: ffffa0bc330f6400
+  FS: 00007f0ec1ea5740(0000) GS:ffffa0bc7db00000(0000) knlGS:0000000000000000
+  CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00000000000020d8 CR3: 0000000077d68000 CR4: 00000000000006e0
+  Call Trace:
+    page_idle_bitmap_write+0x8c/0x140
+    sysfs_kf_bin_write+0x5c/0x70
+    kernfs_fop_write+0x12e/0x1b0
+    __vfs_write+0x1b/0x40
+    vfs_write+0xab/0x1b0
+    ksys_write+0x55/0xc0
+    __x64_sys_write+0x1a/0x20
+    do_syscall_64+0x5a/0x110
+    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Link: http://lkml.kernel.org/r/20190618124352.28307-1-colin.king@canonical.com
+Fixes: 33c3fc71c8cf ("mm: introduce idle page tracking")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/page_idle.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index 03b599109619..d10c8a8156bc 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -1700,6 +1700,7 @@ static void mtk_poll_controller(struct net_device *dev)
+--- a/mm/page_idle.c
++++ b/mm/page_idle.c
+@@ -130,7 +130,7 @@ static ssize_t page_idle_bitmap_read(str
  
- static int mtk_start_dma(struct mtk_eth *eth)
- {
-+	u32 rx_2b_offset = (NET_IP_ALIGN == 2) ? MTK_RX_2B_OFFSET : 0;
- 	int err;
+ 	end_pfn = pfn + count * BITS_PER_BYTE;
+ 	if (end_pfn > max_pfn)
+-		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
++		end_pfn = max_pfn;
  
- 	err = mtk_dma_init(eth);
-@@ -1714,7 +1715,7 @@ static int mtk_start_dma(struct mtk_eth *eth)
- 		MTK_QDMA_GLO_CFG);
+ 	for (; pfn < end_pfn; pfn++) {
+ 		bit = pfn % BITMAP_CHUNK_BITS;
+@@ -175,7 +175,7 @@ static ssize_t page_idle_bitmap_write(st
  
- 	mtk_w32(eth,
--		MTK_RX_DMA_EN | MTK_RX_2B_OFFSET |
-+		MTK_RX_DMA_EN | rx_2b_offset |
- 		MTK_RX_BT_32DWORDS | MTK_MULTI_EN,
- 		MTK_PDMA_GLO_CFG);
+ 	end_pfn = pfn + count * BITS_PER_BYTE;
+ 	if (end_pfn > max_pfn)
+-		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
++		end_pfn = max_pfn;
  
--- 
-2.20.1
-
+ 	for (; pfn < end_pfn; pfn++) {
+ 		bit = pfn % BITMAP_CHUNK_BITS;
 
 
