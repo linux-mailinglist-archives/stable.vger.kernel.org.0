@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB55A623E3
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BA1D62520
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388281AbfGHPiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:38:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59370 "EHLO mail.kernel.org"
+        id S1730526AbfGHPRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:17:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732058AbfGHPaY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:30:24 -0400
+        id S1730500AbfGHPRm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:17:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B8D320645;
-        Mon,  8 Jul 2019 15:30:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B481B216F4;
+        Mon,  8 Jul 2019 15:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599823;
-        bh=BesVByDq8mCJjgxBxvP/tGyTuLfvKdH/Hlzf+VbiDIE=;
+        s=default; t=1562599061;
+        bh=fYiUsu4wzAHAeLPGcXP9HexqGaEUj1/KrAmDgh4Lwl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ep2ookHjOxPH+6p3GHkYvTTfNRHl2hkOTM5BkC30YDdfgModp+/sajEGDVISJZFmk
-         eb10m+7FWGtQ6eSQLNSfS9keVZ7kItgzrIvIrPelHbrJPe5jgbMTHdpV9du5XU1xQT
-         iTr35qcxuvbubIq40DNS0AUHZLymO+JTOdViwzTc=
+        b=j2HY/7MZVpXeM7zY/QzwImT7nfxNC+wtw8bXYCc9QXcRDYEgM4pUDWqk4Fqa4YtpC
+         kjGBCWZSrgJ5FaR+3U3PSr2BdZszr5UB+w204sw0XmGtts3SZ0cN4s8ospfTRLEOZW
+         jD4XN3DTqA7mUX30WxaZxjFP51h85bDnW7v09v08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 47/90] ALSA: usb-audio: fix sign unintended sign extension on left shifts
-Date:   Mon,  8 Jul 2019 17:13:14 +0200
-Message-Id: <20190708150524.941227552@linuxfoundation.org>
+Subject: [PATCH 4.4 65/73] ALSA: firewire-lib/fireworks: fix miss detection of received MIDI messages
+Date:   Mon,  8 Jul 2019 17:13:15 +0200
+Message-Id: <20190708150524.705914481@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 2acf5a3e6e9371e63c9e4ff54d84d08f630467a0 upstream.
+commit 7fbd1753b64eafe21cf842348a40a691d0dee440 upstream.
 
-There are a couple of left shifts of unsigned 8 bit values that
-first get promoted to signed ints and hence get sign extended
-on the shift if the top bit of the 8 bit values are set. Fix
-this by casting the 8 bit values to unsigned ints to stop the
-unintentional sign extension.
+In IEC 61883-6, 8 MIDI data streams are multiplexed into single
+MIDI conformant data channel. The index of stream is calculated by
+modulo 8 of the value of data block counter.
 
-Addresses-Coverity: ("Unintended sign extension")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: <stable@vger.kernel.org>
+In fireworks, the value of data block counter in CIP header has a quirk
+with firmware version v5.0.0, v5.7.3 and v5.8.0. This brings ALSA
+IEC 61883-1/6 packet streaming engine to miss detection of MIDI
+messages.
+
+This commit fixes the miss detection to modify the value of data block
+counter for the modulo calculation.
+
+For maintainers, this bug exists since a commit 18f5ed365d3f ("ALSA:
+fireworks/firewire-lib: add support for recent firmware quirk") in Linux
+kernel v4.2. There're many changes since the commit.  This fix can be
+backported to Linux kernel v4.4 or later. I tagged a base commit to the
+backport for your convenience.
+
+Besides, my work for Linux kernel v5.3 brings heavy code refactoring and
+some structure members are renamed in 'sound/firewire/amdtp-stream.h'.
+The content of this patch brings conflict when merging -rc tree with
+this patch and the latest tree. I request maintainers to solve the
+conflict to replace 'tx_first_dbc' with 'ctx_data.tx.first_dbc'.
+
+Fixes: df075feefbd3 ("ALSA: firewire-lib: complete AM824 data block processing layer")
+Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/mixer_quirks.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/firewire/amdtp-am824.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -753,7 +753,7 @@ static int snd_ni_control_init_val(struc
- 		return err;
- 	}
+--- a/sound/firewire/amdtp-am824.c
++++ b/sound/firewire/amdtp-am824.c
+@@ -388,7 +388,7 @@ static void read_midi_messages(struct am
+ 	u8 *b;
  
--	kctl->private_value |= (value << 24);
-+	kctl->private_value |= ((unsigned int)value << 24);
- 	return 0;
- }
+ 	for (f = 0; f < frames; f++) {
+-		port = (s->data_block_counter + f) % 8;
++		port = (8 - s->tx_first_dbc + s->data_block_counter + f) % 8;
+ 		b = (u8 *)&buffer[p->midi_position];
  
-@@ -914,7 +914,7 @@ static int snd_ftu_eff_switch_init(struc
- 	if (err < 0)
- 		return err;
- 
--	kctl->private_value |= value[0] << 24;
-+	kctl->private_value |= (unsigned int)value[0] << 24;
- 	return 0;
- }
- 
+ 		len = b[0] - 0x80;
 
 
