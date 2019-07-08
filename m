@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 661896244D
+	by mail.lfdr.de (Postfix) with ESMTP id D9E836244E
 	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:42:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388673AbfGHPZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:25:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53266 "EHLO mail.kernel.org"
+        id S1731585AbfGHPZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:25:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388667AbfGHPZr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:25:47 -0400
+        id S2388681AbfGHPZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:25:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D67B62166E;
-        Mon,  8 Jul 2019 15:25:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9284A204EC;
+        Mon,  8 Jul 2019 15:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599546;
-        bh=lILbjS1MfLSQF9cZm/MWdMJLBOHiKCzQiSBXSvNAmBc=;
+        s=default; t=1562599549;
+        bh=H4G29Oxk1339cRsoFCBpWjqf39RTO8vLCCaVvbRG9Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKA+9kXXKZ8awfhAfn81ajgitkhlQlMVVLKeucdyKIRbl3Qk66reqCGbBYd5Nk82P
-         PoEhTYe6vVq0IylyU0uT5R3ctDOxE4UFftteM9pKWNmdXuynmh9m8dyS2vHdKpdOXx
-         mKFGVqLg+/AybpcYNjvL0Rd7jdaOfP8WPDyNhgKw=
+        b=FpByg06Px//mGGoKBiauz3UeI/Ej/R1JqRlWGiRgaDTB4jqc0LHCK+AwG2s2Xa3vV
+         HP5I53UP1QXXvT7WrTdinV9awAblWChqZqj4FO6uk2/3A3FO9uKm86nPsK6FrbTKEc
+         oWG3vP1rR4DOtPG+Pir67QsmuJzMYHZoOkKoClK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 50/56] KVM: x86: degrade WARN to pr_warn_ratelimited
-Date:   Mon,  8 Jul 2019 17:13:42 +0200
-Message-Id: <20190708150524.041316708@linuxfoundation.org>
+        stable@vger.kernel.org, Rong Chen <rong.a.chen@intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>
+Subject: [PATCH 4.14 51/56] KVM: LAPIC: Fix pending interrupt in IRR blocked by software disable LAPIC
+Date:   Mon,  8 Jul 2019 17:13:43 +0200
+Message-Id: <20190708150524.090194311@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
 References: <20190708150514.376317156@linuxfoundation.org>
@@ -45,44 +47,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-commit 3f16a5c318392cbb5a0c7a3d19dff8c8ef3c38ee upstream.
+commit bb34e690e9340bc155ebed5a3d75fc63ff69e082 upstream.
 
-This warning can be triggered easily by userspace, so it should certainly not
-cause a panic if panic_on_warn is set.
+Thomas reported that:
 
-Reported-by: syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com
-Suggested-by: Alexander Potapenko <glider@google.com>
-Acked-by: Alexander Potapenko <glider@google.com>
+ | Background:
+ |
+ |    In preparation of supporting IPI shorthands I changed the CPU offline
+ |    code to software disable the local APIC instead of just masking it.
+ |    That's done by clearing the APIC_SPIV_APIC_ENABLED bit in the APIC_SPIV
+ |    register.
+ |
+ | Failure:
+ |
+ |    When the CPU comes back online the startup code triggers occasionally
+ |    the warning in apic_pending_intr_clear(). That complains that the IRRs
+ |    are not empty.
+ |
+ |    The offending vector is the local APIC timer vector who's IRR bit is set
+ |    and stays set.
+ |
+ | It took me quite some time to reproduce the issue locally, but now I can
+ | see what happens.
+ |
+ | It requires apicv_enabled=0, i.e. full apic emulation. With apicv_enabled=1
+ | (and hardware support) it behaves correctly.
+ |
+ | Here is the series of events:
+ |
+ |     Guest CPU
+ |
+ |     goes down
+ |
+ |       native_cpu_disable()
+ |
+ | 			apic_soft_disable();
+ |
+ |     play_dead()
+ |
+ |     ....
+ |
+ |     startup()
+ |
+ |       if (apic_enabled())
+ |         apic_pending_intr_clear()	<- Not taken
+ |
+ |      enable APIC
+ |
+ |         apic_pending_intr_clear()	<- Triggers warning because IRR is stale
+ |
+ | When this happens then the deadline timer or the regular APIC timer -
+ | happens with both, has fired shortly before the APIC is disabled, but the
+ | interrupt was not serviced because the guest CPU was in an interrupt
+ | disabled region at that point.
+ |
+ | The state of the timer vector ISR/IRR bits:
+ |
+ |     	     	       	        ISR     IRR
+ | before apic_soft_disable()    0	      1
+ | after apic_soft_disable()     0	      1
+ |
+ | On startup		      		 0	      1
+ |
+ | Now one would assume that the IRR is cleared after the INIT reset, but this
+ | happens only on CPU0.
+ |
+ | Why?
+ |
+ | Because our CPU0 hotplug is just for testing to make sure nothing breaks
+ | and goes through an NMI wakeup vehicle because INIT would send it through
+ | the boots-trap code which is not really working if that CPU was not
+ | physically unplugged.
+ |
+ | Now looking at a real world APIC the situation in that case is:
+ |
+ |     	     	       	      	ISR     IRR
+ | before apic_soft_disable()    0	      1
+ | after apic_soft_disable()     0	      1
+ |
+ | On startup		      		 0	      0
+ |
+ | Why?
+ |
+ | Once the dying CPU reenables interrupts the pending interrupt gets
+ | delivered as a spurious interupt and then the state is clear.
+ |
+ | While that CPU0 hotplug test case is surely an esoteric issue, the APIC
+ | emulation is still wrong, Even if the play_dead() code would not enable
+ | interrupts then the pending IRR bit would turn into an ISR .. interrupt
+ | when the APIC is reenabled on startup.
+
+>From SDM 10.4.7.2 Local APIC State After It Has Been Software Disabled
+* Pending interrupts in the IRR and ISR registers are held and require
+  masking or handling by the CPU.
+
+In Thomas's testing, hardware cpu will not respect soft disable LAPIC
+when IRR has already been set or APICv posted-interrupt is in flight,
+so we can skip soft disable APIC checking when clearing IRR and set ISR,
+continue to respect soft disable APIC when attempting to set IRR.
+
+Reported-by: Rong Chen <rong.a.chen@intel.com>
+Reported-by: Feng Tang <feng.tang@intel.com>
+Reported-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Radim Krčmář <rkrcmar@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Rong Chen <rong.a.chen@intel.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kvm/lapic.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1392,7 +1392,7 @@ static int set_tsc_khz(struct kvm_vcpu *
- 			vcpu->arch.tsc_always_catchup = 1;
- 			return 0;
- 		} else {
--			WARN(1, "user requested TSC rate below hardware speed\n");
-+			pr_warn_ratelimited("user requested TSC rate below hardware speed\n");
- 			return -1;
- 		}
- 	}
-@@ -1402,8 +1402,8 @@ static int set_tsc_khz(struct kvm_vcpu *
- 				user_tsc_khz, tsc_khz);
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -2161,7 +2161,7 @@ int kvm_apic_has_interrupt(struct kvm_vc
+ 	struct kvm_lapic *apic = vcpu->arch.apic;
+ 	u32 ppr;
  
- 	if (ratio == 0 || ratio >= kvm_max_tsc_scaling_ratio) {
--		WARN_ONCE(1, "Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
--			  user_tsc_khz);
-+		pr_warn_ratelimited("Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
-+			            user_tsc_khz);
+-	if (!apic_enabled(apic))
++	if (!kvm_apic_hw_enabled(apic))
  		return -1;
- 	}
  
+ 	__apic_update_ppr(apic, &ppr);
 
 
