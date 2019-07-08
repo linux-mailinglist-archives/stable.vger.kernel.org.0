@@ -2,94 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6151D62A34
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 22:12:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2381262A4E
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 22:22:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404066AbfGHUMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 16:12:34 -0400
-Received: from mail-wr1-f51.google.com ([209.85.221.51]:42692 "EHLO
-        mail-wr1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730045AbfGHUMd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 16:12:33 -0400
-Received: by mail-wr1-f51.google.com with SMTP id a10so17408038wrp.9
-        for <stable@vger.kernel.org>; Mon, 08 Jul 2019 13:12:32 -0700 (PDT)
+        id S2404950AbfGHUVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 16:21:55 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:42499 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730223AbfGHUVy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 16:21:54 -0400
+Received: by mail-lj1-f196.google.com with SMTP id t28so17239015lje.9
+        for <stable@vger.kernel.org>; Mon, 08 Jul 2019 13:21:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=syf2dhShrL/kMYoCddf7SCM4SjTLCNMWG5Ear4/4D/Y=;
-        b=kh4LUE3+Fn2tt2ETJsAz+/jFjhYZoDeNejoLxelVvXsV00bUGThxh0heYs+JEAslXp
-         DI2c6h0zJUuxgxNzFTAP1ecrD98qc+LM5n3PvbAn143aBJLohU2vJoS4fUrzLrTP1jwd
-         aeLDrczUdSqCmCjKQm0dZx0V1yXqammkzDbg8kpb9QA9K4Vuo+SnSiQoWx97f0JKyEgh
-         YWSYfexHZhJWfRVKlye2U4VbldqwxYMZQ7i8R2R9UhwbCAOik3yI8kltAKFS7xf2M4VJ
-         cYFHFyRjiOOLFd96Y71pKfDwmVsBKNnDZOPDwi8sJ4H93mGGYNefcQNMqfpmh0kgSmow
-         ZH9w==
+        d=eng.ucsd.edu; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=ryt0cZPm5+/IznGSSDvtmucCW76NK93kkjZBDBiSaU0=;
+        b=g4XD/1ZCBPdBw3MXPRXdyCJWvsrzTaIUe6jPY4axcAEQWJc/15BcXBNxDYRFvpd2JW
+         8scl6PQh/JhxMhyJIcBt5+WwtCxICN5NktW76UrgZP4y0COZQzsqjaeUM0RzV4f57MPm
+         Z5LRsjsbIqdRu0JFi1MZSeMAjQl9+BeL1XobQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=syf2dhShrL/kMYoCddf7SCM4SjTLCNMWG5Ear4/4D/Y=;
-        b=i8pVFvla2PlALxhOrDBahufYpO65dfIjN4+Ut8J2xkj0egt38y0u/exKcdwJ37r12m
-         nnbm4UQIF9BuqqiUUzAehvk90pHpd59Pv7d6SGRqTAc6FV/5Qnso1DiL/y7dJSxSLx0/
-         Tuzpsx7mbzSi9UbQaJqvyeza7WVYbwg1IfwWu7rcmJGvzhIX6a3kpOkoo5IF+h7l7Tcr
-         g/5u6SRvF0mnpUvfref6PLsBWCyk8nnNByfZ4o6hnvWODzUX35QTeBn385+a8QQRkQsw
-         n6InvsU4PUowQixjA5uMUqnlRuA0YdY2K0hBsG1YwllCuhlvgUM1ThOAKJ/nh5TZvQFT
-         N3iQ==
-X-Gm-Message-State: APjAAAUnkhS+F5vbJnRN6p+x26K/jMPtAQLw5ACIfLi+GRuYY83N8vZr
-        cfB/13+EJ1NaNCQNadm4Dp2V3oKN9h0mVA==
-X-Google-Smtp-Source: APXvYqx6DSfREGc1pujbja07+dTFMTCheOnBaoKXuyRNQnzGdirGVx8+7NSa6ZrEKd/yuaaDF6S+9Q==
-X-Received: by 2002:adf:f601:: with SMTP id t1mr115350wrp.337.1562616751791;
-        Mon, 08 Jul 2019 13:12:31 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id l9sm389340wmh.36.2019.07.08.13.12.30
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Jul 2019 13:12:31 -0700 (PDT)
-Message-ID: <5d23a3af.1c69fb81.efd51.2411@mx.google.com>
-Date:   Mon, 08 Jul 2019 13:12:31 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=ryt0cZPm5+/IznGSSDvtmucCW76NK93kkjZBDBiSaU0=;
+        b=NNOLXYV+HVFiSBSXqPedKi0BDNc1wtJF0J1B5SCV/aUX46xdGMxuHuJliBTK/DCRT+
+         0lde9sVzaU3343eGTPLfrTaysSN8MBDBOG28F59pjtYlIkPj5LstHE9PcBhE+Wp23ZI8
+         v0FFxS8PyjZhFoxuEXcLZsUx5Os9BVUjEDNN0IE9AXPgWgfBH4WgJBi4kmQ6TjgA+tCm
+         8VPMD3RKC0zTgVWE18s0ZMgEfzSukz/dPVbnat0pHJAdJO77Yu+oz/WNtZ9zWr4WlKLL
+         VZt3ABAaa4N9TLj4Da4zOhIplmC5JNkCJWQ+YaCwVu5+SX/038YzNLr3Tpe2QmnbsRrl
+         w5CA==
+X-Gm-Message-State: APjAAAVX4xiATFVad/W9K9px3ZsWjwI8+0GXFw0XwUg/jgjZiP0ayBJ3
+        9A5nhPzxQOYfOtfdCDyFvKDMYQ==
+X-Google-Smtp-Source: APXvYqxyeekyU2hfvc4ui92LSo7VMCed5IvscKuBWkBE75dmui02gIGzS6x4JiYAHFe9IbcMW4WewA==
+X-Received: by 2002:a2e:9117:: with SMTP id m23mr11599096ljg.134.1562617312886;
+        Mon, 08 Jul 2019 13:21:52 -0700 (PDT)
+Received: from luke-XPS-13 (77-255-206-190.adsl.inetia.pl. [77.255.206.190])
+        by smtp.gmail.com with ESMTPSA id y5sm3834659ljj.5.2019.07.08.13.21.51
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Mon, 08 Jul 2019 13:21:52 -0700 (PDT)
+Date:   Mon, 8 Jul 2019 13:21:50 -0700
+From:   Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, Guenter Roeck <linux@roeck-us.net>,
+        akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>
+Subject: Re: [PATCH 3.16 000/129] 3.16.70-rc1 review
+Message-ID: <20190708202150.GB13296@luke-XPS-13>
+References: <lsq.1562518456.876074874@decadent.org.uk>
+ <20190708130511.GA4626@luke-XPS-13>
+ <85820ecbcc368f992eb061481c388bb2ebb8ad65.camel@decadent.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.1.16-97-g16964bf47d80
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.1.y boot: 108 boots: 3 failed,
- 105 passed (v5.1.16-97-g16964bf47d80)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <85820ecbcc368f992eb061481c388bb2ebb8ad65.camel@decadent.org.uk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.1.y boot: 108 boots: 3 failed, 105 passed (v5.1.16-97-g16=
-964bf47d80)
+On Mon, Jul 08, 2019 at 04:29:22PM +0100, Ben Hutchings wrote:
+> On Mon, 2019-07-08 at 06:05 -0700, Luke Nowakowski-Krijger wrote:
+> > Hello, 
+> > 
+> > I got 1 error when applying this patch series to the latest linux-3.16.y
+> > stable branch
+> > 
+> > fs/fuse/file.c:218:3: error: implicit declaration of function ‘stream_open’
+> 
+> It is added by the previous patch and declared in <linux/fs.h>. 
+> fs/fuse/file.c always includes that (via fs/fuse/fuse_i.h), so I don't
+> see how this error can happen.
+> 
+> Ben.
+>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.1.y/kernel/v5.1.16-97-g16964bf47d80/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
-/kernel/v5.1.16-97-g16964bf47d80/
+I was actually in another src tree. My mistake.
 
-Tree: stable-rc
-Branch: linux-5.1.y
-Git Describe: v5.1.16-97-g16964bf47d80
-Git Commit: 16964bf47d80c29d28ccc8f7182bfa3e940118b1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 66 unique boards, 24 SoC families, 15 builds out of 209
+Rebuilding it off of your tree, I get no compilation errors and it
+boots on my x86_64 machine. 
 
-Boot Failures Detected:
+> -- 
+> Ben Hutchings
+> Time is nature's way of making sure that
+> everything doesn't happen at once.
+> 
+> 
 
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
+Also this is a good thing to remember. 
 
-    multi_v7_defconfig:
-        gcc-8:
-            bcm4708-smartrg-sr400ac: 1 failed lab
-            sun7i-a20-bananapi: 1 failed lab
+Thanks, 
+- Luke
 
----
-For more info write to <info@kernelci.org>
