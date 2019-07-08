@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEE9762484
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:43:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1B7862402
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391171AbfGHPnm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:43:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51268 "EHLO mail.kernel.org"
+        id S2389458AbfGHP3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:29:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388268AbfGHPYE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:24:04 -0400
+        id S1725840AbfGHP3V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:29:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C770820665;
-        Mon,  8 Jul 2019 15:24:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFC8821537;
+        Mon,  8 Jul 2019 15:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599443;
-        bh=Jf1+iatCgaO6rrc3+qO2ZmSaM2eKhCmZ7LKlJBJ7WLs=;
+        s=default; t=1562599760;
+        bh=XQyksg6BQprAUNPQBRwXdMzPOwjy+Jls0OH6AIq2J9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r2fbSZVo6iz6RrWPmOVa5KyfdjQxK6BsIGW66qkOgg+Y2kE6BiNVGSHz5Z52/0fP6
-         KrDRFDwstMWaeUFvlFuBY3QU6HMPVBS8u28IyoU/L4VhtEgtkzX8gunApizTesLibi
-         mcoOeiubF+MoMPjbA8nMXRmxRImS0tnBLEBNSEH8=
+        b=pDjlcSIlSYkXNURtwjQBjupaufezEQD8XIJVMY1/qH94r8TW6vavaOnxO9ngDHvWj
+         JYlhZn+Mb4w/nWYTjd8kkaQ8rGCuMADDTNAfOnlTixoFh678uxyvNhV423Ru3ao9AT
+         JjhzaGwVCInS5zgOAeKkNlHn+4qaNoatIMs8lKy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manuel Traut <manut@linutronix.de>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 17/56] scripts/decode_stacktrace.sh: prefix addr2line with $CROSS_COMPILE
+        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 42/90] crypto: user - prevent operating on larval algorithms
 Date:   Mon,  8 Jul 2019 17:13:09 +0200
-Message-Id: <20190708150520.032620312@linuxfoundation.org>
+Message-Id: <20190708150524.687220407@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c04e32e911653442fc834be6e92e072aeebe01a1 ]
+From: Eric Biggers <ebiggers@google.com>
 
-At least for ARM64 kernels compiled with the crosstoolchain from
-Debian/stretch or with the toolchain from kernel.org the line number is
-not decoded correctly by 'decode_stacktrace.sh':
+commit 21d4120ec6f5b5992b01b96ac484701163917b63 upstream.
 
-  $ echo "[  136.513051]  f1+0x0/0xc [kcrash]" | \
-    CROSS_COMPILE=/opt/gcc-8.1.0-nolibc/aarch64-linux/bin/aarch64-linux- \
-   ./scripts/decode_stacktrace.sh /scratch/linux-arm64/vmlinux \
-                                  /scratch/linux-arm64 \
-                                  /nfs/debian/lib/modules/4.20.0-devel
-  [  136.513051] f1 (/linux/drivers/staging/kcrash/kcrash.c:68) kcrash
+Michal Suchanek reported [1] that running the pcrypt_aead01 test from
+LTP [2] in a loop and holding Ctrl-C causes a NULL dereference of
+alg->cra_users.next in crypto_remove_spawns(), via crypto_del_alg().
+The test repeatedly uses CRYPTO_MSG_NEWALG and CRYPTO_MSG_DELALG.
 
-If addr2line from the toolchain is used the decoded line number is correct:
+The crash occurs when the instance that CRYPTO_MSG_DELALG is trying to
+unregister isn't a real registered algorithm, but rather is a "test
+larval", which is a special "algorithm" added to the algorithms list
+while the real algorithm is still being tested.  Larvals don't have
+initialized cra_users, so that causes the crash.  Normally pcrypt_aead01
+doesn't trigger this because CRYPTO_MSG_NEWALG waits for the algorithm
+to be tested; however, CRYPTO_MSG_NEWALG returns early when interrupted.
 
-  [  136.513051] f1 (/linux/drivers/staging/kcrash/kcrash.c:57) kcrash
+Everything else in the "crypto user configuration" API has this same bug
+too, i.e. it inappropriately allows operating on larval algorithms
+(though it doesn't look like the other cases can cause a crash).
 
-Link: http://lkml.kernel.org/r/20190527083425.3763-1-manut@linutronix.de
-Signed-off-by: Manuel Traut <manut@linutronix.de>
-Acked-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by making crypto_alg_match() exclude larval algorithms.
+
+[1] https://lkml.kernel.org/r/20190625071624.27039-1-msuchanek@suse.de
+[2] https://github.com/linux-test-project/ltp/blob/20190517/testcases/kernel/crypto/pcrypt_aead01.c
+
+Reported-by: Michal Suchanek <msuchanek@suse.de>
+Fixes: a38f7907b926 ("crypto: Add userspace configuration API")
+Cc: <stable@vger.kernel.org> # v3.2+
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- scripts/decode_stacktrace.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/crypto_user.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/scripts/decode_stacktrace.sh b/scripts/decode_stacktrace.sh
-index 98a7d63a723e..c4a9ddb174bc 100755
---- a/scripts/decode_stacktrace.sh
-+++ b/scripts/decode_stacktrace.sh
-@@ -66,7 +66,7 @@ parse_symbol() {
- 	if [[ "${cache[$module,$address]+isset}" == "isset" ]]; then
- 		local code=${cache[$module,$address]}
- 	else
--		local code=$(addr2line -i -e "$objfile" "$address")
-+		local code=$(${CROSS_COMPILE}addr2line -i -e "$objfile" "$address")
- 		cache[$module,$address]=$code
- 	fi
+--- a/crypto/crypto_user.c
++++ b/crypto/crypto_user.c
+@@ -55,6 +55,9 @@ static struct crypto_alg *crypto_alg_mat
+ 	list_for_each_entry(q, &crypto_alg_list, cra_list) {
+ 		int match = 0;
  
--- 
-2.20.1
-
++		if (crypto_is_larval(q))
++			continue;
++
+ 		if ((q->cra_flags ^ p->cru_type) & p->cru_mask)
+ 			continue;
+ 
 
 
