@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A16956251D
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:48:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32D1162361
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732951AbfGHPSG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:18:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41514 "EHLO mail.kernel.org"
+        id S2390575AbfGHPe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:34:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732890AbfGHPR4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:17:56 -0400
+        id S2390618AbfGHPes (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:34:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD365216E3;
-        Mon,  8 Jul 2019 15:17:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F18B204EC;
+        Mon,  8 Jul 2019 15:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599076;
-        bh=g5XSuJXDPPx1t/SoGy5oUODDhay0cexUUbaJaPStrbc=;
+        s=default; t=1562600086;
+        bh=jOGAo5Kf6rRcDT4LicwRH4ehDO0TFEjE18kYIJhuJN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mpy7z2ixCdMRwFJL7g8umHVHJZIbFpcQtXEIe1kfLEmlAe10Q1QmfDjjDM6Ze9muE
-         xUMWxm05ikx8UKzBoM91MSWzoqj6tllozO/OGpegDB3sW9qNbH8vxKlXEkCmz1+RlT
-         4hKWGXtq0OCcPgKBw/kYX9WdL3yFiMSVvUUWkCCo=
+        b=TEiaGyBTDWF1Z4qLtzxywUmmetxWC1q5nZscYRmlGutiN1zoYjXk8JopjaDonPnoF
+         V5slMUdo/NwfNwfxRoG56KimSfrd9PRKCK8Irco/NNnJnsOVyybB4tYFjfD4AMgKJ8
+         NEHhkiZqTdIg1DNNmqmPf5q+rq9Z9QiI/SSNFbpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 69/73] tty: rocket: fix incorrect forward declaration of rp_init()
+Subject: [PATCH 5.1 47/96] platform/mellanox: mlxreg-hotplug: Add devm_free_irq call to remove flow
 Date:   Mon,  8 Jul 2019 17:13:19 +0200
-Message-Id: <20190708150524.901695706@linuxfoundation.org>
+Message-Id: <20190708150529.065200329@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 423ea3255424b954947d167681b71ded1b8fca53 ]
+[ Upstream commit 8c2eb7b6468ad4aa5600aed01aa0715f921a3f8b ]
 
-Make the forward declaration actually match the real function
-definition, something that previous versions of gcc had just ignored.
+Add devm_free_irq() call to mlxreg-hotplug remove() for clean release
+of devices irq resource. Fix debugobjects warning triggered by rmmod
+It prevents of use-after-free memory, related to
+mlxreg_hotplug_work_handler.
 
-This is another patch to fix new warnings from gcc-9 before I start the
-merge window pulls.  I don't want to miss legitimate new warnings just
-because my system update brought a new compiler with new warnings.
+Issue has been reported as debugobjects warning triggered by
+'rmmod mlxtreg-hotplug' flow, while running kernel with
+CONFIG_DEBUG_OBJECTS* options.
 
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[ 2489.623551] ODEBUG: free active (active state 0) object type: work_struct hint: mlxreg_hotplug_work_handler+0x0/0x7f0 [mlxreg_hotplug]
+[ 2489.637097] WARNING: CPU: 5 PID: 3924 at lib/debugobjects.c:328 debug_print_object+0xfe/0x180
+[ 2489.637165] RIP: 0010:debug_print_object+0xfe/0x180
+?
+[ 2489.637214] Call Trace:
+[ 2489.637225]  __debug_check_no_obj_freed+0x25e/0x320
+[ 2489.637231]  kfree+0x82/0x110
+[ 2489.637238]  release_nodes+0x33c/0x4e0
+[ 2489.637242]  ? devres_remove_group+0x1b0/0x1b0
+[ 2489.637247]  device_release_driver_internal+0x146/0x270
+[ 2489.637251]  driver_detach+0x73/0xe0
+[ 2489.637254]  bus_remove_driver+0xa1/0x170
+[ 2489.637261]  __x64_sys_delete_module+0x29e/0x320
+[ 2489.637265]  ? __ia32_sys_delete_module+0x320/0x320
+[ 2489.637268]  ? blkcg_exit_queue+0x20/0x20
+[ 2489.637273]  ? task_work_run+0x7d/0x100
+[ 2489.637278]  ? exit_to_usermode_loop+0x5b/0xf0
+[ 2489.637281]  do_syscall_64+0x73/0x160
+[ 2489.637287]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[ 2489.637290] RIP: 0033:0x7f95c3596fd7
+
+The difference in release flow with and with no devm_free_irq is listed
+below:
+
+bus: 'platform': remove driver mlxreg-hotplug
+ mlxreg_hotplug_remove(start)
+					-> devm_free_irq (with new code)
+ mlxreg_hotplug_remove (end)
+ release_nodes (start)
+  mlxreg-hotplug: DEVRES REL devm_hwmon_release (8 bytes)
+  device: 'hwmon3': device_unregister
+  PM: Removing info for No Bus:hwmon3
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (88 bytes)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (6 bytes)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (5 bytes)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (5 bytes)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (5 bytes)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (5 bytes)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (5 bytes)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (5 bytes)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (5 bytes)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (5 bytes)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (5 bytes)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (5 bytes)
+  mlxreg-hotplug: DEVRES REL devm_irq_release (16 bytes) (no new code)
+  mlxreg-hotplug: DEVRES REL devm_kzalloc_release (1376 bytes)
+   ------------[ cut here ]------------ (no new code):
+   ODEBUG: free active (active state 0) object type: work_struct hint: mlxreg_hotplug_work_handler
+
+ release_nodes(end)
+driver: 'mlxreg-hotplug': driver_release
+
+Fixes: 1f976f6978bf ("platform/x86: Move Mellanox platform hotplug driver to platform/mellanox")
+Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/rocket.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/mellanox/mlxreg-hotplug.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/rocket.c b/drivers/tty/rocket.c
-index 2b8f2e0a4224..ec6d20f25e8b 100644
---- a/drivers/tty/rocket.c
-+++ b/drivers/tty/rocket.c
-@@ -279,7 +279,7 @@ MODULE_PARM_DESC(pc104_3, "set interface types for ISA(PC104) board #3 (e.g. pc1
- module_param_array(pc104_4, ulong, NULL, 0);
- MODULE_PARM_DESC(pc104_4, "set interface types for ISA(PC104) board #4 (e.g. pc104_4=232,232,485,485,...");
+diff --git a/drivers/platform/mellanox/mlxreg-hotplug.c b/drivers/platform/mellanox/mlxreg-hotplug.c
+index 687ce6817d0d..f85a1b9d129b 100644
+--- a/drivers/platform/mellanox/mlxreg-hotplug.c
++++ b/drivers/platform/mellanox/mlxreg-hotplug.c
+@@ -694,6 +694,7 @@ static int mlxreg_hotplug_remove(struct platform_device *pdev)
  
--static int rp_init(void);
-+static int __init rp_init(void);
- static void rp_cleanup_module(void);
+ 	/* Clean interrupts setup. */
+ 	mlxreg_hotplug_unset_irq(priv);
++	devm_free_irq(&pdev->dev, priv->irq, priv);
  
- module_init(rp_init);
+ 	return 0;
+ }
 -- 
 2.20.1
 
