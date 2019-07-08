@@ -2,83 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8451623BC
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 532B96246E
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731234AbfGHPhh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:37:37 -0400
-Received: from forwardcorp1p.mail.yandex.net ([77.88.29.217]:49006 "EHLO
-        forwardcorp1p.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1733152AbfGHPhh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 11:37:37 -0400
-X-Greylist: delayed 455 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Jul 2019 11:37:36 EDT
-Received: from mxbackcorp1g.mail.yandex.net (mxbackcorp1g.mail.yandex.net [IPv6:2a02:6b8:0:1402::301])
-        by forwardcorp1p.mail.yandex.net (Yandex) with ESMTP id F27A32E0A47;
-        Mon,  8 Jul 2019 18:29:58 +0300 (MSK)
-Received: from smtpcorp1p.mail.yandex.net (smtpcorp1p.mail.yandex.net [2a02:6b8:0:1472:2741:0:8b6:10])
-        by mxbackcorp1g.mail.yandex.net (nwsmtp/Yandex) with ESMTP id SGvld7Yg6z-Twtq6Pmt;
-        Mon, 08 Jul 2019 18:29:58 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru; s=default;
-        t=1562599798; bh=0ZLPgrM5RZIP8rfkfWdS2iGaxPtAPBUurmkYWYh9nVw=;
-        h=Message-ID:Date:To:From:Subject:Cc;
-        b=zZVm+LqvUNOElt9D5Fpn62DNu+R6E0Ocf8yo6kaWwidtIpAQSdGKp/OkZzxLJBe+J
-         gtdlZnaG0r8g/Cm3GNijyGzyJNsyDCOld478M6SLZArM9/xmFLAlaoZozKfdQt6Vlk
-         UHan79Lq3uT+tyIP2BtXXdXM5co4Gn4d4ZGRLyYA=
-Authentication-Results: mxbackcorp1g.mail.yandex.net; dkim=pass header.i=@yandex-team.ru
-Received: from dynamic-red.dhcp.yndx.net (dynamic-red.dhcp.yndx.net [2a02:6b8:0:40c:fce8:911:2fe8:4dfb])
-        by smtpcorp1p.mail.yandex.net (nwsmtp/Yandex) with ESMTPSA id 7RpncgZf1J-Tww4iCld;
-        Mon, 08 Jul 2019 18:29:58 +0300
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (Client certificate not present)
-Subject: [PATCH] blk-throttle: fix zero wait time for iops throttled group
-From:   Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-To:     linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        linux-kernel@vger.kernel.org
-Cc:     Liu Bo <bo.liu@linux.alibaba.com>, stable@vger.kernel.org
-Date:   Mon, 08 Jul 2019 18:29:57 +0300
-Message-ID: <156259979778.2486.6296077059654653057.stgit@buzz>
-User-Agent: StGit/0.17.1-dirty
+        id S2389640AbfGHPmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:42:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43046 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729789AbfGHPmn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:42:43 -0400
+Received: from quaco.ghostprotocols.net (179-240-135-35.3g.claro.net.br [179.240.135.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EECB42175B;
+        Mon,  8 Jul 2019 15:42:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1562600562;
+        bh=S9MveyUPoPJqyWBk6RkG+PIi4txbqqIJER1Z9E/hWqY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=pHBftSrSoiwG3GXjuEXHGxjHj+npFvOYz70topazH9n7VFCgWBv0VsW2mN+rvN9FJ
+         7A0rhyn0KgTRvdBQaThFHIp93uDCHk79WeDwA9lNXxIZiN56wVmpccCo+lzJEUjHYl
+         RtsVlbaxocp9BKcdUNk2ATJ2/CWybZSsZbr34R+0=
+From:   Arnaldo Carvalho de Melo <acme@kernel.org>
+To:     Ingo Molnar <mingo@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     Jiri Olsa <jolsa@kernel.org>, Namhyung Kim <namhyung@kernel.org>,
+        Clark Williams <williams@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+        Song Liu <songliubraving@fb.com>,
+        David Carrillo Cisneros <davidca@fb.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        kernel-team@fb.com, stable@vger.kernel.org
+Subject: [PATCH 2/8] perf header: Assign proper ff->ph in perf_event__synthesize_features()
+Date:   Mon,  8 Jul 2019 12:42:01 -0300
+Message-Id: <20190708154207.11403-3-acme@kernel.org>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190708154207.11403-1-acme@kernel.org>
+References: <20190708154207.11403-1-acme@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-After commit 991f61fe7e1d ("Blk-throttle: reduce tail io latency when iops
-limit is enforced") wait time could be zero even if group is throttled and
-cannot issue requests right now. As a result throtl_select_dispatch() turns
-into busy-loop under irq-safe queue spinlock.
+From: Song Liu <songliubraving@fb.com>
 
-Fix is simple: always round up target time to the next throttle slice.
+bpf/btf write_* functions need ff->ph->env.
 
-Fixes: 991f61fe7e1d ("Blk-throttle: reduce tail io latency when iops limit is enforced")
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: stable@vger.kernel.org # v4.19+
+With this missing, pipe-mode (perf record -o -)  would crash like:
+
+Program terminated with signal SIGSEGV, Segmentation fault.
+
+This patch assign proper ph value to ff.
+
+Committer testing:
+
+  (gdb) run record -o -
+  Starting program: /root/bin/perf record -o -
+  PERFILE2
+  <SNIP start of perf.data headers>
+  Thread 1 "perf" received signal SIGSEGV, Segmentation fault.
+  __do_write_buf (size=4, buf=0x160, ff=0x7fffffff8f80) at util/header.c:126
+  126		memcpy(ff->buf + ff->offset, buf, size);
+  (gdb) bt
+  #0  __do_write_buf (size=4, buf=0x160, ff=0x7fffffff8f80) at util/header.c:126
+  #1  do_write (ff=ff@entry=0x7fffffff8f80, buf=buf@entry=0x160, size=4) at util/header.c:137
+  #2  0x00000000004eddba in write_bpf_prog_info (ff=0x7fffffff8f80, evlist=<optimized out>) at util/header.c:912
+  #3  0x00000000004f69d7 in perf_event__synthesize_features (tool=tool@entry=0x97cc00 <record>, session=session@entry=0x7fffe9c6d010,
+      evlist=0x7fffe9cae010, process=process@entry=0x4435d0 <process_synthesized_event>) at util/header.c:3695
+  #4  0x0000000000443c79 in record__synthesize (tail=tail@entry=false, rec=0x97cc00 <record>) at builtin-record.c:1214
+  #5  0x0000000000444ec9 in __cmd_record (rec=0x97cc00 <record>, argv=<optimized out>, argc=0) at builtin-record.c:1435
+  #6  cmd_record (argc=0, argv=<optimized out>) at builtin-record.c:2450
+  #7  0x00000000004ae3e9 in run_builtin (p=p@entry=0x98e058 <commands+216>, argc=argc@entry=3, argv=0x7fffffffd670) at perf.c:304
+  #8  0x000000000042eded in handle_internal_command (argv=<optimized out>, argc=<optimized out>) at perf.c:356
+  #9  run_argv (argcp=<optimized out>, argv=<optimized out>) at perf.c:400
+  #10 main (argc=3, argv=<optimized out>) at perf.c:522
+  (gdb)
+
+After the patch the SEGSEGV is gone.
+
+Reported-by: David Carrillo Cisneros <davidca@fb.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: kernel-team@fb.com
+Cc: stable@vger.kernel.org # v5.1+
+Fixes: 606f972b1361 ("perf bpf: Save bpf_prog_info information as headers to perf.data")
+Link: http://lkml.kernel.org/r/20190620010453.4118689-1-songliubraving@fb.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
- block/blk-throttle.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ tools/perf/util/header.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/blk-throttle.c b/block/blk-throttle.c
-index 9ea7c0ecad10..8ab6c8153223 100644
---- a/block/blk-throttle.c
-+++ b/block/blk-throttle.c
-@@ -881,13 +881,10 @@ static bool tg_with_in_iops_limit(struct throtl_grp *tg, struct bio *bio,
- 	unsigned long jiffy_elapsed, jiffy_wait, jiffy_elapsed_rnd;
- 	u64 tmp;
+diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+index 847ae51a524b..fb0aa661644b 100644
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -3602,6 +3602,7 @@ int perf_event__synthesize_features(struct perf_tool *tool,
+ 		return -ENOMEM;
  
--	jiffy_elapsed = jiffy_elapsed_rnd = jiffies - tg->slice_start[rw];
--
--	/* Slice has just started. Consider one slice interval */
--	if (!jiffy_elapsed)
--		jiffy_elapsed_rnd = tg->td->throtl_slice;
-+	jiffy_elapsed = jiffies - tg->slice_start[rw];
+ 	ff.size = sz - sz_hdr;
++	ff.ph = &session->header;
  
--	jiffy_elapsed_rnd = roundup(jiffy_elapsed_rnd, tg->td->throtl_slice);
-+	/* Round up to the next throttle slice, wait time must be nonzero */
-+	jiffy_elapsed_rnd = roundup(jiffy_elapsed + 1, tg->td->throtl_slice);
- 
- 	/*
- 	 * jiffy_elapsed_rnd should not be a big value as minimum iops can be
+ 	for_each_set_bit(feat, header->adds_features, HEADER_FEAT_BITS) {
+ 		if (!feat_ops[feat].synthesize) {
+-- 
+2.20.1
 
