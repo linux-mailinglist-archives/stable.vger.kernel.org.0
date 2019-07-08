@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD49623FF
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AC1D6239E
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389484AbfGHPjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:39:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58228 "EHLO mail.kernel.org"
+        id S2390388AbfGHPdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:33:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389469AbfGHP30 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:29:26 -0400
+        id S2390398AbfGHPdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:33:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1534A21537;
-        Mon,  8 Jul 2019 15:29:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 483F720665;
+        Mon,  8 Jul 2019 15:33:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599765;
-        bh=qZLBh1sHjxWGHiD87H4Vw/gWJ+gUf8HfaEv+Mc9nFsY=;
+        s=default; t=1562600015;
+        bh=II54N9oyz9p4+uMfs8XurpWIeyvXpBd2PwxshOEByrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZlDD6VpVrvM44LD8Aij9s2QR7yUYeuCUBDBAk8xW8n0hyerUt8Nf/pG0fWr7xAwU
-         dqmvumuybbQv+GXqjknq4ggVREomCMcEpJcPUmqeKYL++SqBuoxQQE1vrXA9aLPCGr
-         xeb/x1Re+RnUj41D4kIzBvr6YNKQDKnynMQW++40=
+        b=imjfrNwRF+InIqtOfoetEWG3UYMn0eRijtSXQC20py5k3xPmwrP5uCPaWfPohimjB
+         y5nHASE6qZLtg6PCqOkT0j/hpAlJM/ajVJiDV+EVNb7ZTBNURdCmoC0BgtSoIyTyPH
+         UYE6Uei8X1VFQd271vInhxa2JG9+z+E6ClN/s7FI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Mike Christie <mchristi@redhat.com>,
-        Xiubo Li <xiubli@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 70/90] scsi: tcmu: fix use after free
-Date:   Mon,  8 Jul 2019 17:13:37 +0200
-Message-Id: <20190708150525.874122459@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+f7baccc38dcc1e094e77@syzkaller.appspotmail.com,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Eric Biggers <ebiggers@kernel.org>
+Subject: [PATCH 5.1 66/96] lib/mpi: Fix karactx leak in mpi_powm
+Date:   Mon,  8 Jul 2019 17:13:38 +0200
+Message-Id: <20190708150530.038193433@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 40d883b091758472c79b81fa1c0e0347e24a9cff ]
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-Fixes: a94a2572b977 ("scsi: tcmu: avoid cmd/qfull timers updated whenever a new cmd comes")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Mike Christie <mchristi@redhat.com>
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Mike Christie <mchristi@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+commit c8ea9fce2baf7b643384f36f29e4194fa40d33a6 upstream.
+
+Sometimes mpi_powm will leak karactx because a memory allocation
+failure causes a bail-out that skips the freeing of karactx.  This
+patch moves the freeing of karactx to the end of the function like
+everything else so that it can't be skipped.
+
+Reported-by: syzbot+f7baccc38dcc1e094e77@syzkaller.appspotmail.com
+Fixes: cdec9cb5167a ("crypto: GnuPG based MPI lib - source files...")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Eric Biggers <ebiggers@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/target/target_core_user.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ lib/mpi/mpi-pow.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
-index ac7620120491..c46efa47d68a 100644
---- a/drivers/target/target_core_user.c
-+++ b/drivers/target/target_core_user.c
-@@ -1317,12 +1317,13 @@ static int tcmu_check_expired_cmd(int id, void *p, void *data)
- 		 * target_complete_cmd will translate this to LUN COMM FAILURE
- 		 */
- 		scsi_status = SAM_STAT_CHECK_CONDITION;
-+		list_del_init(&cmd->queue_entry);
- 	} else {
-+		list_del_init(&cmd->queue_entry);
- 		idr_remove(&udev->commands, id);
- 		tcmu_free_cmd(cmd);
- 		scsi_status = SAM_STAT_TASK_SET_FULL;
- 	}
--	list_del_init(&cmd->queue_entry);
+--- a/lib/mpi/mpi-pow.c
++++ b/lib/mpi/mpi-pow.c
+@@ -37,6 +37,7 @@
+ int mpi_powm(MPI res, MPI base, MPI exp, MPI mod)
+ {
+ 	mpi_ptr_t mp_marker = NULL, bp_marker = NULL, ep_marker = NULL;
++	struct karatsuba_ctx karactx = {};
+ 	mpi_ptr_t xp_marker = NULL;
+ 	mpi_ptr_t tspace = NULL;
+ 	mpi_ptr_t rp, ep, mp, bp;
+@@ -163,13 +164,11 @@ int mpi_powm(MPI res, MPI base, MPI exp,
+ 		int c;
+ 		mpi_limb_t e;
+ 		mpi_limb_t carry_limb;
+-		struct karatsuba_ctx karactx;
  
- 	pr_debug("Timing out cmd %u on dev %s that is %s.\n",
- 		 id, udev->name, is_running ? "inflight" : "queued");
--- 
-2.20.1
-
+ 		xp = xp_marker = mpi_alloc_limb_space(2 * (msize + 1));
+ 		if (!xp)
+ 			goto enomem;
+ 
+-		memset(&karactx, 0, sizeof karactx);
+ 		negative_result = (ep[0] & 1) && base->sign;
+ 
+ 		i = esize - 1;
+@@ -294,8 +293,6 @@ int mpi_powm(MPI res, MPI base, MPI exp,
+ 		if (mod_shift_cnt)
+ 			mpihelp_rshift(rp, rp, rsize, mod_shift_cnt);
+ 		MPN_NORMALIZE(rp, rsize);
+-
+-		mpihelp_release_karatsuba_ctx(&karactx);
+ 	}
+ 
+ 	if (negative_result && rsize) {
+@@ -312,6 +309,7 @@ int mpi_powm(MPI res, MPI base, MPI exp,
+ leave:
+ 	rc = 0;
+ enomem:
++	mpihelp_release_karatsuba_ctx(&karactx);
+ 	if (assign_rp)
+ 		mpi_assign_limb_space(res, rp, size);
+ 	if (mp_marker)
 
 
