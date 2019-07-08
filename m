@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2B262537
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D534462240
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:24:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732674AbfGHPQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:16:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40018 "EHLO mail.kernel.org"
+        id S2388261AbfGHPX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:23:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732668AbfGHPQw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:16:52 -0400
+        id S2388268AbfGHPX6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:23:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1514221537;
-        Mon,  8 Jul 2019 15:16:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3D9420665;
+        Mon,  8 Jul 2019 15:23:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599011;
-        bh=GOB/YXIpeKG8WTf2PwyMQg9WJC6fmWNCpDL1MuwziA0=;
+        s=default; t=1562599437;
+        bh=BL66CyQQAZYLkJtSJfiuk72pCvxOa8IC4WMFAcSz6Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MADOcEbl3LjpWZe53jh9X7ZiaI6611shBhwzNHrz8cd4+s3WJOegnZnMfBAu21OLw
-         mXqP+gV2ImjrM3S19iiJIqloEoSpJHZPTPmoohLm3JaS4l1hQ93i+GeJybVZlvKdnx
-         EvKbRRUzSS2lxttV3T4V92e2VIuEI79dbgb+VYyY=
+        b=DGMYTBsmVGwHFyQyB/gOROwkCylW/VrVBrIjzIQwqR/LnS1G1XG20REwVtSRaXCqz
+         QGsHTIKuFgP7LAyh7wAOPPu6sR4Zu++dV65MgSoiPAJ4eVbIPWQrDId33Pm+VG8c+N
+         Q/BBIuadKEqHrtZZyiaansPoTDYPl3hJP2w56nAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Richard Weinberger <richard@nod.at>,
-        Alessio Balsini <balsini@android.com>
-Subject: [PATCH 4.4 48/73] um: Compile with modern headers
-Date:   Mon,  8 Jul 2019 17:12:58 +0200
-Message-Id: <20190708150523.917326177@linuxfoundation.org>
+        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 07/56] drm/mediatek: call mtk_dsi_stop() after mtk_drm_crtc_atomic_disable()
+Date:   Mon,  8 Jul 2019 17:12:59 +0200
+Message-Id: <20190708150518.265644852@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+[ Upstream commit 2458d9d6d94be982b917e93c61a89b4426f32e31 ]
 
-commit 530ba6c7cb3c22435a4d26de47037bb6f86a5329 upstream.
+mtk_dsi_stop() should be called after mtk_drm_crtc_atomic_disable(), which
+needs ovl irq for drm_crtc_wait_one_vblank(), since after mtk_dsi_stop() is
+called, ovl irq will be disabled. If drm_crtc_wait_one_vblank() is called
+after last irq, it will timeout with this message: "vblank wait timed out
+on crtc 0". This happens sometimes when turning off the screen.
 
-Recent libcs have gotten a bit more strict, so we actually need to
-include the right headers and use the right types. This enables UML to
-compile again.
+In drm_atomic_helper.c#disable_outputs(),
+the calling sequence when turning off the screen is:
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Alessio Balsini <balsini@android.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+1. mtk_dsi_encoder_disable()
+     --> mtk_output_dsi_disable()
+       --> mtk_dsi_stop();  /* sometimes make vblank timeout in
+                               atomic_disable */
+       --> mtk_dsi_poweroff();
+2. mtk_drm_crtc_atomic_disable()
+     --> drm_crtc_wait_one_vblank();
+     ...
+       --> mtk_dsi_ddp_stop()
+         --> mtk_dsi_poweroff();
+
+mtk_dsi_poweroff() has reference count design, change to make
+mtk_dsi_stop() called in mtk_dsi_poweroff() when refcount is 0.
+
+Fixes: 0707632b5bac ("drm/mediatek: update DSI sub driver flow for sending commands to panel")
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/os-Linux/file.c   |    1 +
- arch/um/os-Linux/signal.c |    2 ++
- arch/x86/um/stub_segv.c   |    1 +
- 3 files changed, 4 insertions(+)
+ drivers/gpu/drm/mediatek/mtk_dsi.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/arch/um/os-Linux/file.c
-+++ b/arch/um/os-Linux/file.c
-@@ -12,6 +12,7 @@
- #include <sys/mount.h>
- #include <sys/socket.h>
- #include <sys/stat.h>
-+#include <sys/sysmacros.h>
- #include <sys/un.h>
- #include <sys/types.h>
- #include <os.h>
---- a/arch/um/os-Linux/signal.c
-+++ b/arch/um/os-Linux/signal.c
-@@ -14,7 +14,9 @@
- #include <as-layout.h>
- #include <kern_util.h>
- #include <os.h>
-+#include <sys/ucontext.h>
- #include <sysdep/mcontext.h>
-+#include <um_malloc.h>
+diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
+index 413313f19c36..c1b8caad65e6 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dsi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
+@@ -631,6 +631,15 @@ static void mtk_dsi_poweroff(struct mtk_dsi *dsi)
+ 	if (--dsi->refcount != 0)
+ 		return;
  
- void (*sig_info[NSIG])(int, struct siginfo *, struct uml_pt_regs *) = {
- 	[SIGTRAP]	= relay_signal,
---- a/arch/x86/um/stub_segv.c
-+++ b/arch/x86/um/stub_segv.c
-@@ -6,6 +6,7 @@
- #include <sysdep/stub.h>
- #include <sysdep/faultinfo.h>
- #include <sysdep/mcontext.h>
-+#include <sys/ucontext.h>
++	/*
++	 * mtk_dsi_stop() and mtk_dsi_start() is asymmetric, since
++	 * mtk_dsi_stop() should be called after mtk_drm_crtc_atomic_disable(),
++	 * which needs irq for vblank, and mtk_dsi_stop() will disable irq.
++	 * mtk_dsi_start() needs to be called in mtk_output_dsi_enable(),
++	 * after dsi is fully set.
++	 */
++	mtk_dsi_stop(dsi);
++
+ 	if (!mtk_dsi_switch_to_cmd_mode(dsi, VM_DONE_INT_FLAG, 500)) {
+ 		if (dsi->panel) {
+ 			if (drm_panel_unprepare(dsi->panel)) {
+@@ -697,7 +706,6 @@ static void mtk_output_dsi_disable(struct mtk_dsi *dsi)
+ 		}
+ 	}
  
- void __attribute__ ((__section__ (".__syscall_stub")))
- stub_segv_handler(int sig, siginfo_t *info, void *p)
+-	mtk_dsi_stop(dsi);
+ 	mtk_dsi_poweroff(dsi);
+ 
+ 	dsi->enabled = false;
+-- 
+2.20.1
+
 
 
