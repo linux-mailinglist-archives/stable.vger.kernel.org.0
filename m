@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2087762543
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:50:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1673F623B0
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732490AbfGHPQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:16:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38972 "EHLO mail.kernel.org"
+        id S1733173AbfGHPhM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:37:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732485AbfGHPQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:16:09 -0400
+        id S2390164AbfGHPcf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:32:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F211E2166E;
-        Mon,  8 Jul 2019 15:16:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4A38216F4;
+        Mon,  8 Jul 2019 15:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562598969;
-        bh=4Kk/spa2hF0gjWj0ksSjSFLkAF7rqXT7hdSaVHL1Gi8=;
+        s=default; t=1562599954;
+        bh=H0IXspXxI/zpi03RBWqNoqskzumzNpuQhM1IWR1zcxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJFNQ9PLZZFhPElQCfZNncbGrTqA2elLITfQBILMnFc6H/UEKeqL6BPVYV3yIDgdz
-         zP9Ba0dn4BkSF3/GjfIOr9eFE756wmntZYp1SQ6jOowXDxWZlrVFGhblfDa/GSEymU
-         Ce6CXI41T8zHORk2+U7mUWPN7ac+YZRP8ELsSt10=
+        b=yfQn6qURwjFU9RiU5QkLgUOLudQOWPm0cBCVbo9kOuYQbPQrjJOeGvotn5AQlNy9D
+         e+MlVT3tMKe9h2hiKAOC2iBj8R7EnoxGtxVLeb4EEg5hEgNVqJURAHvOeOYxhQa7Sl
+         vXOOp9ykrYkJiW46Y4KHs9FT4y61OQklH6LT4DI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7fddca22578bc67c3fe4@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.4 27/73] cfg80211: fix memory leak of wiphy device name
-Date:   Mon,  8 Jul 2019 17:12:37 +0200
-Message-Id: <20190708150522.423940950@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.1 06/96] netfilter: nft_flow_offload: IPCB is only valid for ipv4 family
+Date:   Mon,  8 Jul 2019 17:12:38 +0200
+Message-Id: <20190708150526.644612063@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 4f488fbca2a86cc7714a128952eead92cac279ab upstream.
+commit 69aeb538587e087bfc81dd1f465eab3558ff3158 upstream.
 
-In wiphy_new_nm(), if an error occurs after dev_set_name() and
-device_initialize() have already been called, it's necessary to call
-put_device() (via wiphy_free()) to avoid a memory leak.
+Guard this with a check vs. ipv4, IPCB isn't valid in ipv6 case.
 
-Reported-by: syzbot+7fddca22578bc67c3fe4@syzkaller.appspotmail.com
-Fixes: 1f87f7d3a3b4 ("cfg80211: add rfkill support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nft_flow_offload.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/net/wireless/core.c
-+++ b/net/wireless/core.c
-@@ -447,7 +447,7 @@ use_default_name:
- 				   &rdev->rfkill_ops, rdev);
+--- a/net/netfilter/nft_flow_offload.c
++++ b/net/netfilter/nft_flow_offload.c
+@@ -48,15 +48,20 @@ static int nft_flow_route(const struct n
+ 	return 0;
+ }
  
- 	if (!rdev->rfkill) {
--		kfree(rdev);
-+		wiphy_free(&rdev->wiphy);
- 		return NULL;
- 	}
+-static bool nft_flow_offload_skip(struct sk_buff *skb)
++static bool nft_flow_offload_skip(struct sk_buff *skb, int family)
+ {
+-	struct ip_options *opt  = &(IPCB(skb)->opt);
+-
+-	if (unlikely(opt->optlen))
+-		return true;
+ 	if (skb_sec_path(skb))
+ 		return true;
  
++	if (family == NFPROTO_IPV4) {
++		const struct ip_options *opt;
++
++		opt = &(IPCB(skb)->opt);
++
++		if (unlikely(opt->optlen))
++			return true;
++	}
++
+ 	return false;
+ }
+ 
+@@ -74,7 +79,7 @@ static void nft_flow_offload_eval(const
+ 	struct nf_conn *ct;
+ 	int ret;
+ 
+-	if (nft_flow_offload_skip(pkt->skb))
++	if (nft_flow_offload_skip(pkt->skb, nft_pf(pkt)))
+ 		goto out;
+ 
+ 	ct = nf_ct_get(pkt->skb, &ctinfo);
 
 
