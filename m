@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DECD8624E6
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:46:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BEC662403
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388111AbfGHPXH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:23:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49938 "EHLO mail.kernel.org"
+        id S1732493AbfGHP3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:29:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388116AbfGHPXF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:23:05 -0400
+        id S1729984AbfGHP3Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:29:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43BE12166E;
-        Mon,  8 Jul 2019 15:23:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8553A20645;
+        Mon,  8 Jul 2019 15:29:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599384;
-        bh=7i5TIOHDCJrnRJK3is1Oicb1skMDjv9yLBrDM4cBtmo=;
+        s=default; t=1562599755;
+        bh=ND7lbqp39s4GIPSTjVhiU1UnmlxoVFRq31gK7a+756c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UjdMmEvckIPWquGud1AJPqL/YZL9yrbkH7COrRZLXezIHPOBLMNFljxNweR2NkqfC
-         k8wyLZmomjqLuoSa4E3NZWyw1y7WdQv4wNlMGZF5CqlSbFiY3iTTZdvKVja1Cp2mAi
-         9njb1w8KaUSl+qoMacabYbs0CeOkI0vdwjVNsGhE=
+        b=zFxZB17CU5QpOtN8G7HVbNOGW/zYNZULnz1paQ6PNH8w0qwIO+S+u8QKPlns09Ydk
+         5Sq/Aw0RkvsQXoAGfeubUCGCjL4LCOmjPQkhMaPdMiZ5d0tdeW+fegtEb41iudEMkF
+         nQvyDFhkSDFRCHaynmZLt6dK5ReED63ROgc0fVlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Gong <yibin.gong@nxp.com>,
-        Sven Van Asbroeck <thesven73@gmail.com>,
-        Michael Olbrich <m.olbrich@pengutronix.de>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.9 101/102] dmaengine: imx-sdma: remove BD_INTR for channel0
+        stable@vger.kernel.org,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 67/90] drm/fb-helper: generic: Dont take module ref for fbcon
 Date:   Mon,  8 Jul 2019 17:13:34 +0200
-Message-Id: <20190708150531.704945047@linuxfoundation.org>
+Message-Id: <20190708150525.748813850@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+[ Upstream commit 6ab20a05f4c7ed45632e24d5397d6284e192567d ]
 
-commit 3f93a4f297961c12bb17aa16cb3a4d1291823cae upstream.
+It's now safe to let fbcon unbind automatically on fbdev unregister.
+The crash problem was fixed in commit 2122b40580dd
+("fbdev: fbcon: Fix unregister crash when more than one framebuffer")
 
-It is possible for an irq triggered by channel0 to be received later
-after clks are disabled once firmware loaded during sdma probe. If
-that happens then clearing them by writing to SDMA_H_INTR won't work
-and the kernel will hang processing infinite interrupts. Actually,
-don't need interrupt triggered on channel0 since it's pollling
-SDMA_H_STATSTOP to know channel0 done rather than interrupt in
-current code, just clear BD_INTR to disable channel0 interrupt to
-avoid the above case.
-This issue was brought by commit 1d069bfa3c78 ("dmaengine: imx-sdma:
-ack channel 0 IRQ in the interrupt handler") which didn't take care
-the above case.
-
-Fixes: 1d069bfa3c78 ("dmaengine: imx-sdma: ack channel 0 IRQ in the interrupt handler")
-Cc: stable@vger.kernel.org #5.0+
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Reported-by: Sven Van Asbroeck <thesven73@gmail.com>
-Tested-by: Sven Van Asbroeck <thesven73@gmail.com>
-Reviewed-by: Michael Olbrich <m.olbrich@pengutronix.de>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190210131039.52664-13-noralf@tronnes.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/imx-sdma.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_fb_helper.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -632,7 +632,7 @@ static int sdma_load_script(struct sdma_
- 	spin_lock_irqsave(&sdma->channel_0_lock, flags);
+diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
+index a0663f44e218..8b546fde139d 100644
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -2957,7 +2957,8 @@ static int drm_fbdev_fb_open(struct fb_info *info, int user)
+ {
+ 	struct drm_fb_helper *fb_helper = info->par;
  
- 	bd0->mode.command = C0_SETPM;
--	bd0->mode.status = BD_DONE | BD_INTR | BD_WRAP | BD_EXTD;
-+	bd0->mode.status = BD_DONE | BD_WRAP | BD_EXTD;
- 	bd0->mode.count = size / 2;
- 	bd0->buffer_addr = buf_phys;
- 	bd0->ext_buffer_addr = address;
-@@ -909,7 +909,7 @@ static int sdma_load_context(struct sdma
- 	context->gReg[7] = sdmac->watermark_level;
+-	if (!try_module_get(fb_helper->dev->driver->fops->owner))
++	/* No need to take a ref for fbcon because it unbinds on unregister */
++	if (user && !try_module_get(fb_helper->dev->driver->fops->owner))
+ 		return -ENODEV;
  
- 	bd0->mode.command = C0_SETDM;
--	bd0->mode.status = BD_DONE | BD_INTR | BD_WRAP | BD_EXTD;
-+	bd0->mode.status = BD_DONE | BD_WRAP | BD_EXTD;
- 	bd0->mode.count = sizeof(*context) / 4;
- 	bd0->buffer_addr = sdma->context_phys;
- 	bd0->ext_buffer_addr = 2048 + (sizeof(*context) / 4) * channel;
+ 	return 0;
+@@ -2967,7 +2968,8 @@ static int drm_fbdev_fb_release(struct fb_info *info, int user)
+ {
+ 	struct drm_fb_helper *fb_helper = info->par;
+ 
+-	module_put(fb_helper->dev->driver->fops->owner);
++	if (user)
++		module_put(fb_helper->dev->driver->fops->owner);
+ 
+ 	return 0;
+ }
+-- 
+2.20.1
+
 
 
