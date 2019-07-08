@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C1162251
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:24:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A02FF6251F
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388377AbfGHPYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:24:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52004 "EHLO mail.kernel.org"
+        id S1732223AbfGHPSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:18:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388389AbfGHPYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:24:40 -0400
+        id S1732209AbfGHPSD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:18:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A0E1204EC;
-        Mon,  8 Jul 2019 15:24:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 042D0216C4;
+        Mon,  8 Jul 2019 15:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599480;
-        bh=nBB6RH8DlhwgZizyYTe+f/eNVq+Li7TO2zarQoSczqY=;
+        s=default; t=1562599082;
+        bh=iGU2IakMdnsGfZjyl6t1JmwybcKVOuOTkj4ZtxvOAag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+S2sUw03hT/umG/hYJG0LUKTkel2aFn6TayDRM1rU6r3NvcGKdZP29iowmpsVTL0
-         hoiOPSs2FjIoaAwxqbXGk50VMVKiro5YPUhNYgNMs+UmuUREHDqRDEaX6sF29fZJOu
-         2IrksMwkf6KCougdDFAQlm3P4q6ZgePSiTnW3Gtk=
+        b=HFGcq13ze2LCrXyYR4ILJGwxQ9Hb129Wsf7P8/eh1+AMgNIzyK1UnnG2wq/yqXbv8
+         jNF+j3IVvCI8b1ITfjo5ZychZTgpvCIaKlIDd/TpAiZZXxYmLD7l3Hl776sxJDPauC
+         PrV3mvL1PZfo+hX6xUCKqX8QuQV51TuIkoy8fN1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 29/56] ALSA: usb-audio: fix sign unintended sign extension on left shifts
+        stable@vger.kernel.org, Jisheng Zhang <jszhang@marvell.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Kees Cook <keescook@chromium.org>,
+        Will Deacon <will.deacon@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 71/73] arm64, vdso: Define vdso_{start,end} as array
 Date:   Mon,  8 Jul 2019 17:13:21 +0200
-Message-Id: <20190708150522.585884964@linuxfoundation.org>
+Message-Id: <20190708150524.993965245@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+Commit dbbb08f500d6146398b794fdc68a8e811366b451 upstream.
 
-commit 2acf5a3e6e9371e63c9e4ff54d84d08f630467a0 upstream.
+Adjust vdso_{start|end} to be char arrays to avoid compile-time analysis
+that flags "too large" memcmp() calls with CONFIG_FORTIFY_SOURCE.
 
-There are a couple of left shifts of unsigned 8 bit values that
-first get promoted to signed ints and hence get sign extended
-on the shift if the top bit of the 8 bit values are set. Fix
-this by casting the 8 bit values to unsigned ints to stop the
-unintentional sign extension.
-
-Addresses-Coverity: ("Unintended sign extension")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Jisheng Zhang <jszhang@marvell.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Suggested-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer_quirks.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/vdso.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -754,7 +754,7 @@ static int snd_ni_control_init_val(struc
- 		return err;
+diff --git a/arch/arm64/kernel/vdso.c b/arch/arm64/kernel/vdso.c
+index 97bc68f4c689..908bc5ab94c1 100644
+--- a/arch/arm64/kernel/vdso.c
++++ b/arch/arm64/kernel/vdso.c
+@@ -36,7 +36,7 @@
+ #include <asm/vdso.h>
+ #include <asm/vdso_datapage.h>
+ 
+-extern char vdso_start, vdso_end;
++extern char vdso_start[], vdso_end[];
+ static unsigned long vdso_pages;
+ static struct page **vdso_pagelist;
+ 
+@@ -115,14 +115,14 @@ static int __init vdso_init(void)
+ {
+ 	int i;
+ 
+-	if (memcmp(&vdso_start, "\177ELF", 4)) {
++	if (memcmp(vdso_start, "\177ELF", 4)) {
+ 		pr_err("vDSO is not a valid ELF object!\n");
+ 		return -EINVAL;
  	}
  
--	kctl->private_value |= (value << 24);
-+	kctl->private_value |= ((unsigned int)value << 24);
- 	return 0;
- }
+-	vdso_pages = (&vdso_end - &vdso_start) >> PAGE_SHIFT;
++	vdso_pages = (vdso_end - vdso_start) >> PAGE_SHIFT;
+ 	pr_info("vdso: %ld pages (%ld code @ %p, %ld data @ %p)\n",
+-		vdso_pages + 1, vdso_pages, &vdso_start, 1L, vdso_data);
++		vdso_pages + 1, vdso_pages, vdso_start, 1L, vdso_data);
  
-@@ -915,7 +915,7 @@ static int snd_ftu_eff_switch_init(struc
- 	if (err < 0)
- 		return err;
+ 	/* Allocate the vDSO pagelist, plus a page for the data. */
+ 	vdso_pagelist = kcalloc(vdso_pages + 1, sizeof(struct page *),
+@@ -135,7 +135,7 @@ static int __init vdso_init(void)
  
--	kctl->private_value |= value[0] << 24;
-+	kctl->private_value |= (unsigned int)value[0] << 24;
- 	return 0;
- }
+ 	/* Grab the vDSO code pages. */
+ 	for (i = 0; i < vdso_pages; i++)
+-		vdso_pagelist[i + 1] = virt_to_page(&vdso_start + i * PAGE_SIZE);
++		vdso_pagelist[i + 1] = virt_to_page(vdso_start + i * PAGE_SIZE);
  
+ 	/* Populate the special mapping structures */
+ 	vdso_spec[0] = (struct vm_special_mapping) {
+-- 
+2.20.1
+
 
 
