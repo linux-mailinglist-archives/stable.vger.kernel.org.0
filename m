@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79A90624EF
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3183A621E3
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:20:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387457AbfGHPUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:20:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45226 "EHLO mail.kernel.org"
+        id S2387483AbfGHPU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:20:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387451AbfGHPUX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:20:23 -0400
+        id S2387480AbfGHPUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:20:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6725B216FD;
-        Mon,  8 Jul 2019 15:20:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10C612166E;
+        Mon,  8 Jul 2019 15:20:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599221;
-        bh=llOhldVfBQaIDrwlm5N45xRxijHQV8PlwH5Ki7ASyEo=;
+        s=default; t=1562599224;
+        bh=9rRbZ/gV0I1JRATQsAyiYjwGe6MEQb9OFpwMW9mVSMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j8SKIaveVN1ZsVuJEVaQpiJwTUolUG+sWJFiouoys/azVh1cOHCW8fPCv4NeAjQra
-         MdyoqwVNpEdNpUg8IbyXuJZDrR3Z//fKkD+hGJ5mAYTrMSsi2gb71O+hsYi8MviK39
-         JZWiL8afpnYGkgj8T8eu5jfmEVlbRMzaN2P/V4go=
+        b=dV0VJQdlF3+lQSko1Svj7qoTeR3Dtz/8F8+3BamxcPYnIKjxN+/b2MpxJLMEuXelc
+         E/SrIOrzWK5/C8Mrdyln1WTJ29cE2QbFMtEkAxMoJKLPUI8uzmNZbUO8F2ER6hVUpi
+         RNCgrl+AAgxx2hO473zH+9A9XTswpk8OZp/v5GP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Doug Ledford <dledford@redhat.com>
-Subject: [PATCH 4.9 005/102] IB/hfi1: Silence txreq allocation warnings
-Date:   Mon,  8 Jul 2019 17:11:58 +0200
-Message-Id: <20190708150526.265563006@linuxfoundation.org>
+        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 006/102] Input: uinput - add compat ioctl number translation for UI_*_FF_UPLOAD
+Date:   Mon,  8 Jul 2019 17:11:59 +0200
+Message-Id: <20190708150526.320980178@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
 References: <20190708150525.973820964@linuxfoundation.org>
@@ -45,91 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@intel.com>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
 
-commit 3230f4a8d44e4a0bb7afea814b280b5129521f52 upstream.
+commit 7c7da40da1640ce6814dab1e8031b44e19e5a3f6 upstream.
 
-The following warning can happen when a memory shortage
-occurs during txreq allocation:
+In the case of compat syscall ioctl numbers for UI_BEGIN_FF_UPLOAD and
+UI_END_FF_UPLOAD need to be adjusted before being passed on
+uinput_ioctl_handler() since code built with -m32 will be passing
+slightly different values. Extend the code already covering
+UI_SET_PHYS to cover UI_BEGIN_FF_UPLOAD and UI_END_FF_UPLOAD as well.
 
-[10220.939246] SLUB: Unable to allocate memory on node -1, gfp=0xa20(GFP_ATOMIC)
-[10220.939246] Hardware name: Intel Corporation S2600WT2R/S2600WT2R, BIOS SE5C610.86B.01.01.0018.C4.072020161249 07/20/2016
-[10220.939247]   cache: mnt_cache, object size: 384, buffer size: 384, default order: 2, min order: 0
-[10220.939260] Workqueue: hfi0_0 _hfi1_do_send [hfi1]
-[10220.939261]   node 0: slabs: 1026568, objs: 43115856, free: 0
-[10220.939262] Call Trace:
-[10220.939262]   node 1: slabs: 820872, objs: 34476624, free: 0
-[10220.939263]  dump_stack+0x5a/0x73
-[10220.939265]  warn_alloc+0x103/0x190
-[10220.939267]  ? wake_all_kswapds+0x54/0x8b
-[10220.939268]  __alloc_pages_slowpath+0x86c/0xa2e
-[10220.939270]  ? __alloc_pages_nodemask+0x2fe/0x320
-[10220.939271]  __alloc_pages_nodemask+0x2fe/0x320
-[10220.939273]  new_slab+0x475/0x550
-[10220.939275]  ___slab_alloc+0x36c/0x520
-[10220.939287]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
-[10220.939299]  ? __get_txreq+0x54/0x160 [hfi1]
-[10220.939310]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
-[10220.939312]  __slab_alloc+0x40/0x61
-[10220.939323]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
-[10220.939325]  kmem_cache_alloc+0x181/0x1b0
-[10220.939336]  hfi1_make_rc_req+0x90/0x18b0 [hfi1]
-[10220.939348]  ? hfi1_verbs_send_dma+0x386/0xa10 [hfi1]
-[10220.939359]  ? find_prev_entry+0xb0/0xb0 [hfi1]
-[10220.939371]  hfi1_do_send+0x1d9/0x3f0 [hfi1]
-[10220.939372]  process_one_work+0x171/0x380
-[10220.939374]  worker_thread+0x49/0x3f0
-[10220.939375]  kthread+0xf8/0x130
-[10220.939377]  ? max_active_store+0x80/0x80
-[10220.939378]  ? kthread_bind+0x10/0x10
-[10220.939379]  ret_from_fork+0x35/0x40
-[10220.939381] SLUB: Unable to allocate memory on node -1, gfp=0xa20(GFP_ATOMIC)
-
-The shortage is handled properly so the message isn't needed. Silence by
-adding the no warn option to the slab allocation.
-
-Fixes: 45842abbb292 ("staging/rdma/hfi1: move txreq header code")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Reported-by: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/verbs_txreq.c |    2 +-
- drivers/infiniband/hw/hfi1/verbs_txreq.h |    3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/input/misc/uinput.c |   22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/verbs_txreq.c
-+++ b/drivers/infiniband/hw/hfi1/verbs_txreq.c
-@@ -100,7 +100,7 @@ struct verbs_txreq *__get_txreq(struct h
- 	if (ib_rvt_state_ops[qp->state] & RVT_PROCESS_RECV_OK) {
- 		struct hfi1_qp_priv *priv;
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -991,13 +991,31 @@ static long uinput_ioctl(struct file *fi
  
--		tx = kmem_cache_alloc(dev->verbs_txreq_cache, GFP_ATOMIC);
-+		tx = kmem_cache_alloc(dev->verbs_txreq_cache, VERBS_TXREQ_GFP);
- 		if (tx)
- 			goto out;
- 		priv = qp->priv;
---- a/drivers/infiniband/hw/hfi1/verbs_txreq.h
-+++ b/drivers/infiniband/hw/hfi1/verbs_txreq.h
-@@ -71,6 +71,7 @@ struct hfi1_ibdev;
- struct verbs_txreq *__get_txreq(struct hfi1_ibdev *dev,
- 				struct rvt_qp *qp);
+ #ifdef CONFIG_COMPAT
  
-+#define VERBS_TXREQ_GFP (GFP_ATOMIC | __GFP_NOWARN)
- static inline struct verbs_txreq *get_txreq(struct hfi1_ibdev *dev,
- 					    struct rvt_qp *qp)
- 	__must_hold(&qp->slock)
-@@ -78,7 +79,7 @@ static inline struct verbs_txreq *get_tx
- 	struct verbs_txreq *tx;
- 	struct hfi1_qp_priv *priv = qp->priv;
+-#define UI_SET_PHYS_COMPAT	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
++/*
++ * These IOCTLs change their size and thus their numbers between
++ * 32 and 64 bits.
++ */
++#define UI_SET_PHYS_COMPAT		\
++	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
++#define UI_BEGIN_FF_UPLOAD_COMPAT	\
++	_IOWR(UINPUT_IOCTL_BASE, 200, struct uinput_ff_upload_compat)
++#define UI_END_FF_UPLOAD_COMPAT		\
++	_IOW(UINPUT_IOCTL_BASE, 201, struct uinput_ff_upload_compat)
  
--	tx = kmem_cache_alloc(dev->verbs_txreq_cache, GFP_ATOMIC);
-+	tx = kmem_cache_alloc(dev->verbs_txreq_cache, VERBS_TXREQ_GFP);
- 	if (unlikely(!tx)) {
- 		/* call slow path to get the lock */
- 		tx = __get_txreq(dev, qp);
+ static long uinput_compat_ioctl(struct file *file,
+ 				unsigned int cmd, unsigned long arg)
+ {
+-	if (cmd == UI_SET_PHYS_COMPAT)
++	switch (cmd) {
++	case UI_SET_PHYS_COMPAT:
+ 		cmd = UI_SET_PHYS;
++		break;
++	case UI_BEGIN_FF_UPLOAD_COMPAT:
++		cmd = UI_BEGIN_FF_UPLOAD;
++		break;
++	case UI_END_FF_UPLOAD_COMPAT:
++		cmd = UI_END_FF_UPLOAD;
++		break;
++	}
+ 
+ 	return uinput_ioctl_handler(file, cmd, arg, compat_ptr(arg));
+ }
 
 
