@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 099A7624DF
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:46:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C28D3621D6
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387649AbfGHPUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:20:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44448 "EHLO mail.kernel.org"
+        id S1730907AbfGHPT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:19:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387502AbfGHPTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:19:53 -0400
+        id S1729739AbfGHPT4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:19:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25B6A21537;
-        Mon,  8 Jul 2019 15:19:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3AC821734;
+        Mon,  8 Jul 2019 15:19:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599192;
-        bh=tLVZwVgEy3INWT+QDUG63JAAvvmORHsEoFCuqJI91d8=;
+        s=default; t=1562599195;
+        bh=F5ChGmoebv9E+y8/z1Bl6v1Dw13JI3HmgOrnE90SSAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l7+miwscx8kolmmva2a8+Shi39ZZ9iakrYRH2OFoW71DKjcWEe11cRYzhxbUcVhKl
-         7YH3n/uojUkOJAH14NUtviV2HipS1VE7ytdGzfw0c7mbW53/RkXPr3XDY2Dg8Dl3IR
-         rv/eMfqsriT3V3cUHn727HY9D2+uoIobwPOxoqBQ=
+        b=EhpjXUzC6KsfKqurf2yaY1HAToVfExpDu6g5G6cHCH9ZzZNtNP7/2gukU96vdt1qN
+         gbqFW4/DCzcTerjQRHIAgXqB0lJAjfDQzsQQMTH8r2zuIBZGBKfqLW7X83r8Fy9mGf
+         SMJi0rs02t+cwBO2VMvovygFE1NxqpQL/740ZG9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jouni Malinen <j@w1.fi>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.9 035/102] mac80211: Do not use stack memory with scatterlist for GMAC
-Date:   Mon,  8 Jul 2019 17:12:28 +0200
-Message-Id: <20190708150528.209577232@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 036/102] IB/hfi1: Avoid hardlockup with flushlist_lock
+Date:   Mon,  8 Jul 2019 17:12:29 +0200
+Message-Id: <20190708150528.272739806@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
 References: <20190708150525.973820964@linuxfoundation.org>
@@ -43,60 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Malinen <j@w1.fi>
+commit cf131a81967583ae737df6383a0893b9fee75b4e upstream.
 
-commit a71fd9dac23613d96ba3c05619a8ef4fd6cdf9b9 upstream.
+Heavy contention of the sde flushlist_lock can cause hard lockups at
+extreme scale when the flushing logic is under stress.
 
-ieee80211_aes_gmac() uses the mic argument directly in sg_set_buf() and
-that does not allow use of stack memory (e.g., BUG_ON() is hit in
-sg_set_buf() with CONFIG_DEBUG_SG). BIP GMAC TX side is fine for this
-since it can use the skb data buffer, but the RX side was using a stack
-variable for deriving the local MIC value to compare against the
-received one.
+Mitigate by replacing the item at a time copy to the local list with
+an O(1) list_splice_init() and using the high priority work queue to
+do the flushes.
 
-Fix this by allocating heap memory for the mic buffer.
+Ported to linux-4.9.y.
 
-This was found with hwsim test case ap_cipher_bip_gmac_128 hitting that
-BUG_ON() and kernel panic.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Jouni Malinen <j@w1.fi>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Doug Ledford <dledford@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/wpa.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/sdma.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/net/mac80211/wpa.c
-+++ b/net/mac80211/wpa.c
-@@ -1169,7 +1169,7 @@ ieee80211_crypto_aes_gmac_decrypt(struct
- 	struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(skb);
- 	struct ieee80211_key *key = rx->key;
- 	struct ieee80211_mmie_16 *mmie;
--	u8 aad[GMAC_AAD_LEN], mic[GMAC_MIC_LEN], ipn[6], nonce[GMAC_NONCE_LEN];
-+	u8 aad[GMAC_AAD_LEN], *mic, ipn[6], nonce[GMAC_NONCE_LEN];
- 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
- 
- 	if (!ieee80211_is_mgmt(hdr->frame_control))
-@@ -1200,13 +1200,18 @@ ieee80211_crypto_aes_gmac_decrypt(struct
- 		memcpy(nonce, hdr->addr2, ETH_ALEN);
- 		memcpy(nonce + ETH_ALEN, ipn, 6);
- 
-+		mic = kmalloc(GMAC_MIC_LEN, GFP_ATOMIC);
-+		if (!mic)
-+			return RX_DROP_UNUSABLE;
- 		if (ieee80211_aes_gmac(key->u.aes_gmac.tfm, aad, nonce,
- 				       skb->data + 24, skb->len - 24,
- 				       mic) < 0 ||
- 		    crypto_memneq(mic, mmie->mic, sizeof(mmie->mic))) {
- 			key->u.aes_gmac.icverrors++;
-+			kfree(mic);
- 			return RX_DROP_UNUSABLE;
- 		}
-+		kfree(mic);
+diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
+index 9cbe52d21077..76e63c88a87a 100644
+--- a/drivers/infiniband/hw/hfi1/sdma.c
++++ b/drivers/infiniband/hw/hfi1/sdma.c
+@@ -410,10 +410,7 @@ static void sdma_flush(struct sdma_engine *sde)
+ 	sdma_flush_descq(sde);
+ 	spin_lock_irqsave(&sde->flushlist_lock, flags);
+ 	/* copy flush list */
+-	list_for_each_entry_safe(txp, txp_next, &sde->flushlist, list) {
+-		list_del_init(&txp->list);
+-		list_add_tail(&txp->list, &flushlist);
+-	}
++	list_splice_init(&sde->flushlist, &flushlist);
+ 	spin_unlock_irqrestore(&sde->flushlist_lock, flags);
+ 	/* flush from flush list */
+ 	list_for_each_entry_safe(txp, txp_next, &flushlist, list)
+@@ -2406,7 +2403,7 @@ int sdma_send_txreq(struct sdma_engine *sde,
+ 		wait->tx_count++;
+ 		wait->count += tx->num_desc;
  	}
- 
- 	memcpy(key->u.aes_gmac.rx_pn, ipn, 6);
+-	schedule_work(&sde->flush_worker);
++	queue_work_on(sde->cpu, system_highpri_wq, &sde->flush_worker);
+ 	ret = -ECOMM;
+ 	goto unlock;
+ nodesc:
+@@ -2504,7 +2501,7 @@ int sdma_send_txlist(struct sdma_engine *sde, struct iowait *wait,
+ 		}
+ 	}
+ 	spin_unlock(&sde->flushlist_lock);
+-	schedule_work(&sde->flush_worker);
++	queue_work_on(sde->cpu, system_highpri_wq, &sde->flush_worker);
+ 	ret = -ECOMM;
+ 	goto update_tail;
+ nodesc:
+-- 
+2.20.1
+
 
 
