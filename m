@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D72D362460
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E18F62499
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388575AbfGHPZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:25:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52846 "EHLO mail.kernel.org"
+        id S1727352AbfGHPXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:23:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388571AbfGHPZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:25:23 -0400
+        id S2388134AbfGHPXJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:23:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68471216C4;
-        Mon,  8 Jul 2019 15:25:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D958E204EC;
+        Mon,  8 Jul 2019 15:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599522;
-        bh=K6PGeGX2uGzbM2XUPHDUbzymPuucyvKYsiYoANA47CQ=;
+        s=default; t=1562599388;
+        bh=N+UVgD7OA5w7i4Zf1c+vj6sMbNBUCNtULkD6pkUw0ws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQDKm6SqvFhgP2reQ3G2J7Win5IagIyoVGI+/aT/JzprphtMXvH1zbXEjAg3m1agE
-         qedGF2WCbEx79osHfL67trpO60MjpHXlFJC6rppv0ss60lEzorGn4ydq1426W0oJMy
-         d89/qYTtxL24U4KUBv4iOioYs5sActQPXXOYw8k0=
+        b=xojPNPSwViqvhqS/AWJkLO6l7Lr3/qj1C5vtEDrBcm0LUp2pv9r0gLx5hhZQ/CmC5
+         GRFDeIvWk4MmIUKvfnHsO+g68cXaWvZ/iUP30NzP/7zg8EWaVG4Tzmup/IeOUSDPsd
+         E6GXmehiLDzU/K1sSkzPBjyL+50s7tywWO143HPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Balbir Singh <sblbir@amzn.com>
-Subject: [PATCH 4.14 43/56] vhost_net: introduce vhost_exceeds_weight()
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.9 102/102] arm64: kaslr: keep modules inside module region when KASAN is enabled
 Date:   Mon,  8 Jul 2019 17:13:35 +0200
-Message-Id: <20190708150523.719177265@linuxfoundation.org>
+Message-Id: <20190708150531.760421168@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-commit 272f35cba53d088085e5952fd81d7a133ab90789 upstream.
+commit 6f496a555d93db7a11d4860b9220d904822f586a upstream.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Balbir Singh <sblbir@amzn.com>
+When KASLR and KASAN are both enabled, we keep the modules where they
+are, and randomize the placement of the kernel so it is within 2 GB
+of the module region. The reason for this is that putting modules in
+the vmalloc region (like we normally do when KASLR is enabled) is not
+possible in this case, given that the entire vmalloc region is already
+backed by KASAN zero shadow pages, and so allocating dedicated KASAN
+shadow space as required by loaded modules is not possible.
+
+The default module allocation window is set to [_etext - 128MB, _etext]
+in kaslr.c, which is appropriate for KASLR kernels booted without a
+seed or with 'nokaslr' on the command line. However, as it turns out,
+it is not quite correct for the KASAN case, since it still intersects
+the vmalloc region at the top, where attempts to allocate shadow pages
+will collide with the KASAN zero shadow pages, causing a WARN() and all
+kinds of other trouble. So cap the top end to MODULES_END explicitly
+when running with KASAN.
+
+Cc: <stable@vger.kernel.org> # 4.9+
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Tested-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+[will: backport to 4.9.y]
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/vhost/net.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm64/kernel/module.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -446,6 +446,12 @@ static bool vhost_exceeds_maxpend(struct
- 		== nvq->done_idx;
- }
- 
-+static bool vhost_exceeds_weight(int pkts, int total_len)
-+{
-+	return total_len >= VHOST_NET_WEIGHT ||
-+	       pkts >= VHOST_NET_PKT_WEIGHT;
-+}
+--- a/arch/arm64/kernel/module.c
++++ b/arch/arm64/kernel/module.c
+@@ -33,10 +33,14 @@
+ void *module_alloc(unsigned long size)
+ {
+ 	void *p;
++	u64 module_alloc_end = module_alloc_base + MODULES_VSIZE;
 +
- /* Expects to be always run from workqueue - which acts as
-  * read-size critical section for our kind of RCU. */
- static void handle_tx(struct vhost_net *net)
-@@ -550,7 +556,6 @@ static void handle_tx(struct vhost_net *
- 			msg.msg_control = NULL;
- 			ubufs = NULL;
- 		}
--
- 		total_len += len;
- 		if (total_len < VHOST_NET_WEIGHT &&
- 		    !vhost_vq_avail_empty(&net->dev, vq) &&
-@@ -579,8 +584,7 @@ static void handle_tx(struct vhost_net *
- 		else
- 			vhost_zerocopy_signal_used(net, vq);
- 		vhost_net_tx_packet(net);
--		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
--		    unlikely(++sent_pkts >= VHOST_NET_PKT_WEIGHT)) {
-+		if (unlikely(vhost_exceeds_weight(++sent_pkts, total_len))) {
- 			vhost_poll_queue(&vq->poll);
- 			break;
- 		}
-@@ -863,8 +867,7 @@ static void handle_rx(struct vhost_net *
- 			vhost_log_write(vq, vq_log, log, vhost_len,
- 					vq->iov, in);
- 		total_len += vhost_len;
--		if (unlikely(total_len >= VHOST_NET_WEIGHT) ||
--		    unlikely(++recv_pkts >= VHOST_NET_PKT_WEIGHT)) {
-+		if (unlikely(vhost_exceeds_weight(++recv_pkts, total_len))) {
- 			vhost_poll_queue(&vq->poll);
- 			goto out;
- 		}
++	if (IS_ENABLED(CONFIG_KASAN))
++		/* don't exceed the static module region - see below */
++		module_alloc_end = MODULES_END;
+ 
+ 	p = __vmalloc_node_range(size, MODULE_ALIGN, module_alloc_base,
+-				module_alloc_base + MODULES_VSIZE,
+-				GFP_KERNEL, PAGE_KERNEL_EXEC, 0,
++				module_alloc_end, GFP_KERNEL, PAGE_KERNEL_EXEC, 0,
+ 				NUMA_NO_NODE, __builtin_return_address(0));
+ 
+ 	if (!p && IS_ENABLED(CONFIG_ARM64_MODULE_PLTS) &&
 
 
