@@ -2,138 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32E7561BFC
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 10:54:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1750C61C09
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 11:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728784AbfGHIyp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 04:54:45 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:44966 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728869AbfGHIyp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 04:54:45 -0400
-Received: by mail-ot1-f67.google.com with SMTP id b7so15371418otl.11
-        for <stable@vger.kernel.org>; Mon, 08 Jul 2019 01:54:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=efd+BnPGvehL2A2UX02caz/Y1NvKnWaen2fuHX7MRzE=;
-        b=SBKlIJU/kRPxduwNsmhn4tfli4XHsNgkuvfs0vrliM2bO588TzaFFyJH5mpAvTSpyE
-         vMNX4Bd77Rl3/PaXl+2+z4JVB7NPoSm4GhlWUjVRlavKIQpL2Cxrd/FBWWa1j55aw4da
-         /QaiPrUGXrShadGQrBe86H0v+jTxpYgYb6ccgPiEacmVlt5b1e8v9q9rKiRW0dUtPMwT
-         0+XtYxiegFoER2tF+EwxhAwN0zyalL9YZrWD3dxmWJEgF864gq1gMwcHWrRSXfR1rdDs
-         GAgOGW8Zf5t8AedaZCgZCJOOkkpuaUfNlSBafi8WRxtyWJjnJiKk2YQymWEe/jUuSyjM
-         3EVw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=efd+BnPGvehL2A2UX02caz/Y1NvKnWaen2fuHX7MRzE=;
-        b=Psf0B4cQJbgTCBBfjeJ9P8/wMNvu9SU3wUu9m5+jRpntJ50cw2au723T5ud6k9FbmT
-         uOWDwNA36CqPTInTLN43QbnpfK2dhqfiso3JZNNNb71P+AuOZFt1WcHrbFUDUzCQFxJI
-         xeQD2gf1lH+UfZGhXy59emJE+6/Lm5YSEoetNNOblGjOA93Tk9uJokqHUmmNgB1Vu+L/
-         yANBHu938kNinVIuvbq/LDnMKhCI4kaKNtTm6Up0HR/2q4oM0SJ34TpkphZ6m4Vvi7MD
-         E3m+5BXfz/8n08lLdbP2AZ58Yg0ZIth70ouZCUafVUUxUpMkv9okrHFb6/ecDja9nSZt
-         GOUA==
-X-Gm-Message-State: APjAAAWVzIjK0Aw1dBwI0vpQvpttXxsOZ5PbN5Xhkvc/aMSEA9vv4aPL
-        bPaObotWkwHmEvCMDvbwU4K8Cpj+AqbM62e3t7wbKwggfkY=
-X-Google-Smtp-Source: APXvYqwNmok92+w9MyPlUpAdoQ0jznixJXwNaN4TFLNBf7nxlThGFjRAFzCSBqIuTyVm+vHd/Yc8XBJSCd7lJMaOlJQ=
-X-Received: by 2002:a05:6830:1681:: with SMTP id k1mr13388848otr.256.1562576084924;
- Mon, 08 Jul 2019 01:54:44 -0700 (PDT)
+        id S1728744AbfGHJA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 05:00:28 -0400
+Received: from rtits2.realtek.com ([211.75.126.72]:43973 "EHLO
+        rtits2.realtek.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727352AbfGHJA2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 05:00:28 -0400
+Authenticated-By: 
+X-SpamFilter-By: BOX Solutions SpamTrap 5.62 with qID x6890GB1027880, This message is accepted by code: ctloc85258
+Received: from mail.realtek.com (RTITCASV01.realtek.com.tw[172.21.6.18])
+        by rtits2.realtek.com.tw (8.15.2/2.57/5.78) with ESMTPS id x6890GB1027880
+        (version=TLSv1 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT);
+        Mon, 8 Jul 2019 17:00:16 +0800
+Received: from RTITMBSVM04.realtek.com.tw ([fe80::e404:880:2ef1:1aa1]) by
+ RTITCASV01.realtek.com.tw ([::1]) with mapi id 14.03.0439.000; Mon, 8 Jul
+ 2019 17:00:15 +0800
+From:   Tony Chuang <yhchuang@realtek.com>
+To:     Jian-Hong Pan <jian-hong@endlessm.com>
+CC:     Kalle Valo <kvalo@codeaurora.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux@endlessm.com" <linux@endlessm.com>,
+        Daniel Drake <drake@endlessm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] rtw88/pci: Rearrange the memory usage for skb in RX ISR
+Thread-Topic: [PATCH] rtw88/pci: Rearrange the memory usage for skb in RX ISR
+Thread-Index: AQHVNVeEOhZgR6M53kuE5XrXitIVDqbAR+xA//+PoICAAIn6kA==
+Date:   Mon, 8 Jul 2019 09:00:15 +0000
+Message-ID: <F7CD281DE3E379468C6D07993EA72F84D1861B71@RTITMBSVM04.realtek.com.tw>
+References: <20190708063252.4756-1-jian-hong@endlessm.com>
+ <F7CD281DE3E379468C6D07993EA72F84D1861A6D@RTITMBSVM04.realtek.com.tw>
+ <CAPpJ_eebQtL0y_j98J2T7m9g77A61SVtvD8qnNN42bV0dm4MLA@mail.gmail.com>
+In-Reply-To: <CAPpJ_eebQtL0y_j98J2T7m9g77A61SVtvD8qnNN42bV0dm4MLA@mail.gmail.com>
+Accept-Language: zh-TW, en-US
+Content-Language: zh-TW
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [172.21.68.183]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <20190708052308.27802-1-michael.wu@vatics.com>
-In-Reply-To: <20190708052308.27802-1-michael.wu@vatics.com>
-From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date:   Mon, 8 Jul 2019 10:54:34 +0200
-Message-ID: <CAMpxmJXZskz-cnqXVMRnUqxHjbQLwWZzQFrDc4eyGmronATCpg@mail.gmail.com>
-Subject: Re: [PATCH v2] gpiolib: fix incorrect IRQ requesting of an active-low lineevent
-To:     Michael Wu <michael.wu@vatics.com>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        linux-gpio <linux-gpio@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, morgan.chang@vatics.com,
-        "Stable # 4 . 20+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-pon., 8 lip 2019 o 07:23 Michael Wu <michael.wu@vatics.com> napisa=C5=82(a)=
-:
->
-> When a pin is active-low, logical trigger edge should be inverted to matc=
-h
-> the same interrupt opportunity.
->
-> For example, a button pushed triggers falling edge in ACTIVE_HIGH case; i=
-n
-> ACTIVE_LOW case, the button pushed triggers rising edge. For user space t=
-he
-> IRQ requesting doesn't need to do any modification except to configuring
-> GPIOHANDLE_REQUEST_ACTIVE_LOW.
->
-> For example, we want to catch the event when the button is pushed. The
-> button on the original board drives level to be low when it is pushed, an=
-d
-> drives level to be high when it is released.
->
-> In user space we can do:
->
->         req.handleflags =3D GPIOHANDLE_REQUEST_INPUT;
->         req.eventflags =3D GPIOEVENT_REQUEST_FALLING_EDGE;
->
->         while (1) {
->                 read(fd, &dat, sizeof(dat));
->                 if (dat.id =3D=3D GPIOEVENT_EVENT_FALLING_EDGE)
->                         printf("button pushed\n");
->         }
->
-> Run the same logic on another board which the polarity of the button is
-> inverted; it drives level to be high when pushed, and level to be low whe=
-n
-> released. For this inversion we add flag GPIOHANDLE_REQUEST_ACTIVE_LOW:
->
->         req.handleflags =3D GPIOHANDLE_REQUEST_INPUT |
->                 GPIOHANDLE_REQUEST_ACTIVE_LOW;
->         req.eventflags =3D GPIOEVENT_REQUEST_FALLING_EDGE;
->
-> At the result, there are no any events caught when the button is pushed.
-> By the way, button releasing will emit a "falling" event. The timing of
-> "falling" catching is not expected.
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Michael Wu <michael.wu@vatics.com>
-> ---
-> Changes from v1:
-> - Correct undeclared 'IRQ_TRIGGER_RISING'
-> - Add an example to descibe the issue
-> ---
->  drivers/gpio/gpiolib.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-> index e013d417a936..9c9597f929d7 100644
-> --- a/drivers/gpio/gpiolib.c
-> +++ b/drivers/gpio/gpiolib.c
-> @@ -956,9 +956,11 @@ static int lineevent_create(struct gpio_device *gdev=
-, void __user *ip)
->         }
->
->         if (eflags & GPIOEVENT_REQUEST_RISING_EDGE)
-> -               irqflags |=3D IRQF_TRIGGER_RISING;
-> +               irqflags |=3D test_bit(FLAG_ACTIVE_LOW, &desc->flags) ?
-> +                       IRQF_TRIGGER_FALLING : IRQF_TRIGGER_RISING;
->         if (eflags & GPIOEVENT_REQUEST_FALLING_EDGE)
-> -               irqflags |=3D IRQF_TRIGGER_FALLING;
-> +               irqflags |=3D test_bit(FLAG_ACTIVE_LOW, &desc->flags) ?
-> +                       IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
->         irqflags |=3D IRQF_ONESHOT;
->
->         INIT_KFIFO(le->events);
-> --
-> 2.17.1
->
-
-Tested-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+PiA+ID4gQEAgLTgwMywyNSArODEyLDE0IEBAIHN0YXRpYyB2b2lkIHJ0d19wY2lfcnhfaXNyKHN0
+cnVjdCBydHdfZGV2DQo+ICpydHdkZXYsDQo+ID4gPiBzdHJ1Y3QgcnR3X3BjaSAqcnR3cGNpLA0K
+PiA+ID4gICAgICAgICAgICAgICAgICAgICAgIHNrYl9wdXQoc2tiLCBwa3Rfc3RhdC5wa3RfbGVu
+KTsNCj4gPiA+ICAgICAgICAgICAgICAgICAgICAgICBza2JfcmVzZXJ2ZShza2IsIHBrdF9vZmZz
+ZXQpOw0KPiA+ID4NCj4gPiA+IC0gICAgICAgICAgICAgICAgICAgICAvKiBhbGxvYyBhIHNtYWxs
+ZXIgc2tiIHRvIG1hYzgwMjExICovDQo+ID4gPiAtICAgICAgICAgICAgICAgICAgICAgbmV3ID0g
+ZGV2X2FsbG9jX3NrYihwa3Rfc3RhdC5wa3RfbGVuKTsNCj4gPiA+IC0gICAgICAgICAgICAgICAg
+ICAgICBpZiAoIW5ldykgew0KPiA+ID4gLSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbmV3
+ID0gc2tiOw0KPiA+ID4gLSAgICAgICAgICAgICAgICAgICAgIH0gZWxzZSB7DQo+ID4gPiAtICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICBza2JfcHV0X2RhdGEobmV3LCBza2ItPmRhdGEsDQo+
+IHNrYi0+bGVuKTsNCj4gPiA+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgIGRldl9rZnJl
+ZV9za2JfYW55KHNrYik7DQo+ID4gPiAtICAgICAgICAgICAgICAgICAgICAgfQ0KPiA+DQo+ID4g
+SSBhbSBub3Qgc3VyZSBpZiBpdCdzIGZpbmUgdG8gZGVsaXZlciBldmVyeSBodWdlIFNLQiB0byBt
+YWM4MDIxMS4NCj4gPiBCZWNhdXNlIGl0IHdpbGwgdGhlbiBiZSBkZWxpdmVyZWQgdG8gVENQL0lQ
+IHN0YWNrLg0KPiA+IEhlbmNlIEkgdGhpbmsgZWl0aGVyIGl0IHNob3VsZCBiZSB0ZXN0ZWQgdG8g
+a25vdyBpZiB0aGUgcGVyZm9ybWFuY2UNCj4gPiB3b3VsZCBiZSBpbXBhY3RlZCBvciBmaW5kIG91
+dCBhIG1vcmUgZWZmaWNpZW50IHdheSB0byBzZW5kDQo+ID4gc21hbGxlciBTS0IgdG8gbWFjODAy
+MTEgc3RhY2suDQo+IA0KPiBJIHJlbWVtYmVyIG5ldHdvcmsgc3RhY2sgb25seSBwcm9jZXNzZXMg
+dGhlIHNrYiB3aXRoKGluKSBwb2ludGVycw0KPiAoc2tiLT5kYXRhKSBhbmQgdGhlIHNrYi0+bGVu
+IGZvciBkYXRhIHBhcnQuICBJdCBhbHNvIGNoZWNrcyByZWFsDQo+IGJ1ZmZlciBib3VuZGFyeSAo
+aGVhZCBhbmQgZW5kKSBvZiB0aGUgc2tiIHRvIHByZXZlbnQgbWVtb3J5IG92ZXJmbG93Lg0KPiBU
+aGVyZWZvcmUsIEkgdGhpbmsgdXNpbmcgdGhlIG9yaWdpbmFsIHNrYiBpcyB0aGUgbW9zdCBlZmZp
+Y2llbnQgd2F5Lg0KPiANCj4gSWYgSSBtaXN1bmRlcnN0YW5kIHNvbWV0aGluZywgcGxlYXNlIHBv
+aW50IG91dC4NCj4gDQoNCkl0IG1lYW5zIGlmIHdlIHN0aWxsIHVzZSBhIGh1Z2UgU0tCICh+OEsp
+IGZvciBldmVyeSBSWCBwYWNrZXQgKH4xLjVLKS4NClRoZXJlIGlzIGFib3V0IDYuNUsgbm90IHVz
+ZWQuIEFuZCBldmVuIG1vcmUgaWYgd2UgcGluZyB3aXRoIGxhcmdlIHBhY2tldA0Kc2l6ZSAiZWcu
+ICQgcGluZyAtcyA2NTUzNiIsIEkgYW0gbm90IHN1cmUgaWYgdGhvc2UgaHVnZSBTS0JzIHdpbGwg
+ZWF0IGFsbCBvZg0KdGhlIFNLQiBtZW0gcG9vbCwgYW5kIHRoZW4gcGluZyBmYWlscy4NCg0KQlRX
+LCB0aGUgb3JpZ2luYWwgZGVzaWduIG9mIFJUS19QQ0lfUlhfQlVGX1NJWkUgdG8gYmUgKDgxOTIg
+KyAyNCkgaXMgdG8NCnJlY2VpdmUgQU1TRFUgcGFja2V0IGluIG9uZSBTS0IuDQooQ291bGQgcHJv
+YmFibHkgZW5sYXJnZSBpdCB0byBSWCBWSFQgQU1TRFUgfjExSykNCg0KWWFuLUhzdWFuDQo=
