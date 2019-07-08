@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B28B62524
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:49:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F39DC622B6
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732777AbfGHPRU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:17:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40630 "EHLO mail.kernel.org"
+        id S2389262AbfGHP2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:28:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732790AbfGHPRU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:17:20 -0400
+        id S1727411AbfGHP2S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:28:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30D0E21734;
-        Mon,  8 Jul 2019 15:17:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4740721537;
+        Mon,  8 Jul 2019 15:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599039;
-        bh=9Lm+DAluvmJC8A4FfuYnHTowqNDpvYmv0eYeeM+IBg4=;
+        s=default; t=1562599697;
+        bh=GJ2QA1DpHyIugeLV5/Z3csKsem03r9RFdj3YMVeGLvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q0i48WvoSTqsJZp3eBljWm319cDy1980Aw7S/MPlHmgj+mweuT20OKR+AaC75RiSA
-         OZks5KuJWxXoEDYY0F5H/3DL9lv+zqQXcAeZSRwxFuw2SXrmIUgPx6OdcZJcIBVA7c
-         9ZalYIqewyOZC2/3zygUEMF3Jnk8zNkS+lAlK29I=
+        b=usZW2M6h4FNvMqPg4X6XyEAWQE5AmcVI2MpkIj38OWGE1HJ3ffmwoIvcHz2zqcTPr
+         GuF9PmqyWIFWXDFe7mVXKdSk3WL4O7U4Zl1Vq+AShJ2O2EQ8DV/WU5mj4bjWw/Xkku
+         r9ncEeVATjaAPl0SkH5ZFvWxPZ4ci/SQ0t8GgBLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@imgtec.com>,
-        Manuel Lauss <manuel.lauss@gmail.com>,
-        linux-mips@linux-mips.org, Ralf Baechle <ralf@linux-mips.org>,
+        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 57/73] MIPS: math-emu: do not use bools for arithmetic
+Subject: [PATCH 4.19 40/90] drm/i915/dmc: protect against reading random memory
 Date:   Mon,  8 Jul 2019 17:13:07 +0200
-Message-Id: <20190708150524.357740050@linuxfoundation.org>
+Message-Id: <20190708150524.596597353@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8535f2ba0a9b971df62a5890699b9dfe2e0d5580 ]
+commit bc7b488b1d1c71dc4c5182206911127bc6c410d6 upstream.
 
-GCC-7 complains about a boolean value being used with an arithmetic
-AND:
+While loading the DMC firmware we were double checking the headers made
+sense, but in no place we checked that we were actually reading memory
+we were supposed to. This could be wrong in case the firmware file is
+truncated or malformed.
 
-arch/mips/math-emu/cp1emu.c: In function 'cop1Emulate':
-arch/mips/math-emu/cp1emu.c:838:14: warning: '~' on a boolean expression [-Wbool-operation]
-  fpr = (x) & ~(cop1_64bit(xcp) == 0);    \
-              ^
-arch/mips/math-emu/cp1emu.c:1068:3: note: in expansion of macro 'DITOREG'
-   DITOREG(dval, MIPSInst_RT(ir));
-   ^~~~~~~
-arch/mips/math-emu/cp1emu.c:838:14: note: did you mean to use logical not?
-  fpr = (x) & ~(cop1_64bit(xcp) == 0);    \
+Before this patch:
+	# ls -l /lib/firmware/i915/icl_dmc_ver1_07.bin
+	-rw-r--r-- 1 root root  25716 Feb  1 12:26 icl_dmc_ver1_07.bin
+	# truncate -s 25700 /lib/firmware/i915/icl_dmc_ver1_07.bin
+	# modprobe i915
+	# dmesg| grep -i dmc
+	[drm:intel_csr_ucode_init [i915]] Loading i915/icl_dmc_ver1_07.bin
+	[drm] Finished loading DMC firmware i915/icl_dmc_ver1_07.bin (v1.7)
 
-Since cop1_64bit() returns and int, just flip the LSB.
+i.e. it loads random data. Now it fails like below:
+	[drm:intel_csr_ucode_init [i915]] Loading i915/icl_dmc_ver1_07.bin
+	[drm:csr_load_work_fn [i915]] *ERROR* Truncated DMC firmware, rejecting.
+	i915 0000:00:02.0: Failed to load DMC firmware i915/icl_dmc_ver1_07.bin. Disabling runtime power management.
+	i915 0000:00:02.0: DMC firmware homepage: https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915
 
-Suggested-by: Maciej W. Rozycki <macro@imgtec.com>
-Signed-off-by: Manuel Lauss <manuel.lauss@gmail.com>
-Reviewed-by: Maciej W. Rozycki <macro@imgtec.com>
-Cc: linux-mips@linux-mips.org
-Patchwork: https://patchwork.linux-mips.org/patch/17058/
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+Before reading any part of the firmware file, validate the input first.
+
+Fixes: eb805623d8b1 ("drm/i915/skl: Add support to load SKL CSR firmware.")
+Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190605235535.17791-1-lucas.demarchi@intel.com
+(cherry picked from commit bc7b488b1d1c71dc4c5182206911127bc6c410d6)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+[ Lucas: backported to 4.9+ adjusting the context ]
+Cc: stable@vger.kernel.org # v4.9+
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/math-emu/cp1emu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/intel_csr.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/arch/mips/math-emu/cp1emu.c b/arch/mips/math-emu/cp1emu.c
-index 89d05de8040a..011b9b9574f1 100644
---- a/arch/mips/math-emu/cp1emu.c
-+++ b/arch/mips/math-emu/cp1emu.c
-@@ -829,12 +829,12 @@ do {									\
- } while (0)
+diff --git a/drivers/gpu/drm/i915/intel_csr.c b/drivers/gpu/drm/i915/intel_csr.c
+index cf9b600cca79..ca1a578d790d 100644
+--- a/drivers/gpu/drm/i915/intel_csr.c
++++ b/drivers/gpu/drm/i915/intel_csr.c
+@@ -282,10 +282,17 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
+ 	uint32_t i;
+ 	uint32_t *dmc_payload;
+ 	uint32_t required_version;
++	size_t fsize;
  
- #define DIFROMREG(di, x)						\
--	((di) = get_fpr64(&ctx->fpr[(x) & ~(cop1_64bit(xcp) == 0)], 0))
-+	((di) = get_fpr64(&ctx->fpr[(x) & ~(cop1_64bit(xcp) ^ 1)], 0))
+ 	if (!fw)
+ 		return NULL;
  
- #define DITOREG(di, x)							\
- do {									\
- 	unsigned fpr, i;						\
--	fpr = (x) & ~(cop1_64bit(xcp) == 0);				\
-+	fpr = (x) & ~(cop1_64bit(xcp) ^ 1);				\
- 	set_fpr64(&ctx->fpr[fpr], 0, di);				\
- 	for (i = 1; i < ARRAY_SIZE(ctx->fpr[x].val64); i++)		\
- 		set_fpr64(&ctx->fpr[fpr], i, 0);			\
++	fsize = sizeof(struct intel_css_header) +
++		sizeof(struct intel_package_header) +
++		sizeof(struct intel_dmc_header);
++	if (fsize > fw->size)
++		goto error_truncated;
++
+ 	/* Extract CSS Header information*/
+ 	css_header = (struct intel_css_header *)fw->data;
+ 	if (sizeof(struct intel_css_header) !=
+@@ -360,6 +367,9 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
+ 		return NULL;
+ 	}
+ 	readcount += dmc_offset;
++	fsize += dmc_offset;
++	if (fsize > fw->size)
++		goto error_truncated;
+ 
+ 	/* Extract dmc_header information. */
+ 	dmc_header = (struct intel_dmc_header *)&fw->data[readcount];
+@@ -391,6 +401,10 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
+ 
+ 	/* fw_size is in dwords, so multiplied by 4 to convert into bytes. */
+ 	nbytes = dmc_header->fw_size * 4;
++	fsize += nbytes;
++	if (fsize > fw->size)
++		goto error_truncated;
++
+ 	if (nbytes > CSR_MAX_FW_SIZE) {
+ 		DRM_ERROR("DMC firmware too big (%u bytes)\n", nbytes);
+ 		return NULL;
+@@ -404,6 +418,10 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
+ 	}
+ 
+ 	return memcpy(dmc_payload, &fw->data[readcount], nbytes);
++
++error_truncated:
++	DRM_ERROR("Truncated DMC firmware, rejecting.\n");
++	return NULL;
+ }
+ 
+ static void csr_load_work_fn(struct work_struct *work)
 -- 
 2.20.1
 
