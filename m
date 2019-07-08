@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB3461FF0
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 16:00:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87FC961FF2
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 16:00:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731492AbfGHOAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 10:00:53 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:47761 "EHLO
+        id S1731494AbfGHOA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 10:00:58 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:39427 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727401AbfGHOAx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 10:00:53 -0400
+        by vger.kernel.org with ESMTP id S1727401AbfGHOA6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 10:00:58 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id E445B21B6B;
-        Mon,  8 Jul 2019 10:00:51 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 4323621F16;
+        Mon,  8 Jul 2019 10:00:57 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 08 Jul 2019 10:00:51 -0400
+  by compute6.internal (MEProxy); Mon, 08 Jul 2019 10:00:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=l11icZ
-        lGq8U8O4u8KErxNkWZQpgTT2bfu06QCDE0CoU=; b=DL0coIbHWVjsq4vs7E4kSs
-        WOnJ3CPkEY7AIl4WHwAYOpX8oVw2TZtNA/rGbMRAHdLBSdSaJ6k5oUeYwXHHtd1m
-        JaIVhRy1D+bkA73pG/B8r0L8IACPbA3SwLQxE7uJQCPs1jKhG++/uh3m1cMZTmYp
-        m+3U0lVCciRdaYdB/S/YNwkJ8mW5KRzrCAHUfBM0OVPb4eoewAK4A4rROvJ5gq3C
-        ENLtGwJvhNrgc3WRXS7xw0+RfWvroXTT2j3Wgz0mIGtlTjT0oGuCF2T0GQ7GVJ2+
-        i+xCfvkCJCgCKdwWY+//LD4Q1odkJZUxYb6UKsnx5lzqJIZMZubUWMkpJn6FRR8g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=MgKoKR
+        GCmHDRY3Hfn3vZycyX+6ydFuCuR0URiaJDEAI=; b=UICKNRTuaATW4QlK1qKuKG
+        S5N/OsF+SaiUqg0VTIn8JFA39/H78aD2b80uFYI4pVqYc1rrdhzdBQcNbIHMF+qD
+        jh7vlO6HG5wsRYyfGfSfWCRWoJ8Ar+ceOwqkfXKL/BHLPife+1yCOKqnLZoI5XLu
+        hAAxPCctdhFimwLIotQ+cnWJ5b/hvTyzUDeWEed1uFwd/Lf6aFtpEnDsNqIDrIho
+        ClGhpmioRXG4PJjJXlGm8M6epPyLWho3CF9BDZxU3C+H3O/+2wHu1yCRyFRq+9nd
+        KAGSLuJsMa70nAaiAndNjZaKo05uUuyNjeHvDPlxMq5efX1ZngiilQTve2o9LICA
         ==
-X-ME-Sender: <xms:k0wjXfRFzmJpqLQMxv_vI7yOMlEn9p4_W1fDn3u-fQvActNczad9Mw>
+X-ME-Sender: <xms:mUwjXVssZ6WCRPdiaAhhMKoPNL62Hb12PbiV5RpK93YlRwd5blkZbQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrgedtgdejgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:k0wjXUJVoAaezKqVn_49A86t46HTJzMWjwHgpulenyaKVvLhLe0tBg>
-    <xmx:k0wjXQGsvORx_pYjCK7SJSi-rj75lmlkuCEDjmQCSMrk0qTgUaqOkg>
-    <xmx:k0wjXQiShoypikBBfCtj4MOSTCqhV0nM_xvNZBEWCa0iVZgOo5nPaQ>
-    <xmx:k0wjXRBfrEMqkxnWueUY5nf8iMoqaX987PiAh2Dod1iX-MJzg6qamQ>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
+X-ME-Proxy: <xmx:mUwjXYtXa_lLxnsVBwinaQe5hkQuGLcy0wnSF55lCSc0TBe-d6-n-Q>
+    <xmx:mUwjXePDp36VDoGIKhcPpEdgWX3ggboxEWokVnKLdpp5Jqa7HGQieA>
+    <xmx:mUwjXSd5T2GJhPpKUcN7VFl1oCxfR-7B9NYyyIHSwdBOiLWIMmbJNA>
+    <xmx:mUwjXRbFUYSEYbf7zh2TVWhiFM6-MJDfLoL6z9AzMa5ILalWxH6oxQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D0AC08005B;
-        Mon,  8 Jul 2019 10:00:50 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] scsi: target/iblock: Fix overrun in WRITE SAME emulation" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 197C18006A;
+        Mon,  8 Jul 2019 10:00:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] scsi: target/iblock: Fix overrun in WRITE SAME emulation" failed to apply to 4.14-stable tree
 To:     r.bolshakov@yadro.com, bvanassche@acm.org,
         martin.petersen@oracle.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 08 Jul 2019 16:00:49 +0200
-Message-ID: <1562594449218126@kroah.com>
+Date:   Mon, 08 Jul 2019 16:00:50 +0200
+Message-ID: <156259445030138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
