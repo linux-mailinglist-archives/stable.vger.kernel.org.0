@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47425624D8
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:46:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 704BB623D6
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387685AbfGHPU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:20:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46270 "EHLO mail.kernel.org"
+        id S2389678AbfGHPbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:31:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387680AbfGHPU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:20:57 -0400
+        id S1732189AbfGHPbN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:31:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C25B4216FD;
-        Mon,  8 Jul 2019 15:20:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41F27216C4;
+        Mon,  8 Jul 2019 15:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599256;
-        bh=cW6dXEbzQ5FFfEr+2oS4Oy2c+x2zJXY56Pe7Lr47RDM=;
+        s=default; t=1562599872;
+        bh=lkhV9/HANxzijUR4LfjWmtpwDhee0WU1joPW6eeOOtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lmu1kOdoHx1lxx+uranVbF5DaBcsa9fOygw+KQDcjpsZRkAZxEjFeZCH5RETyCxDw
-         zON4LuJYC4tPcFwwGGn7gvyUxLlM3NOHWAZqM3wVK0M/PXC4rLdhAuv26ubc2CwtqK
-         02iqGY9/PRmC+zcwkPgooW7BurouHQaIorcWm4KQ=
+        b=fpwbxnanDebj4Z+b2trMDrpyhbg6/ypSbnjIovlJsIvUZlSFtU+mwL1ykB3mfpIsm
+         PH/GZdbb9ifbtZFukTJ5bdzYqj92WwET+UwwgSWI4P+34L87bQ6DN7YSuu2UViGa5Q
+         PYJVu96K8tqDB2/H3GwCLG5EbCg9yA/jKjmKoBMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+30eaa8bf392f7fafffaf@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 056/102] tipc: check msg->req data len in tipc_nl_compat_bearer_disable
-Date:   Mon,  8 Jul 2019 17:12:49 +0200
-Message-Id: <20190708150529.357896700@linuxfoundation.org>
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 18/96] ASoC: hda: fix unbalanced codec dev refcount for HDA_DEV_ASOC
+Date:   Mon,  8 Jul 2019 17:12:50 +0200
+Message-Id: <20190708150527.412917723@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,88 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+[ Upstream commit d6947bb234dcc86e878d502516d0fb9d635aa2ae ]
 
-[ Upstream commit 4f07b80c973348a99b5d2a32476a2e7877e94a05 ]
+HDA_DEV_ASOC type codec device refcounts are managed differently
+from HDA_DEV_LEGACY devices. The refcount is released explicitly
+in snd_hdac_ext_bus_device_remove() for ASOC type devices.
+So, remove the put_device() call in snd_hda_codec_dev_free()
+for such devices to make the refcount balanced. This will prevent
+the NULL pointer exception when the codec driver is released
+after the card is freed.
 
-This patch is to fix an uninit-value issue, reported by syzbot:
-
-  BUG: KMSAN: uninit-value in memchr+0xce/0x110 lib/string.c:981
-  Call Trace:
-    __dump_stack lib/dump_stack.c:77 [inline]
-    dump_stack+0x191/0x1f0 lib/dump_stack.c:113
-    kmsan_report+0x130/0x2a0 mm/kmsan/kmsan.c:622
-    __msan_warning+0x75/0xe0 mm/kmsan/kmsan_instr.c:310
-    memchr+0xce/0x110 lib/string.c:981
-    string_is_valid net/tipc/netlink_compat.c:176 [inline]
-    tipc_nl_compat_bearer_disable+0x2a1/0x480 net/tipc/netlink_compat.c:449
-    __tipc_nl_compat_doit net/tipc/netlink_compat.c:327 [inline]
-    tipc_nl_compat_doit+0x3ac/0xb00 net/tipc/netlink_compat.c:360
-    tipc_nl_compat_handle net/tipc/netlink_compat.c:1178 [inline]
-    tipc_nl_compat_recv+0x1b1b/0x27b0 net/tipc/netlink_compat.c:1281
-
-TLV_GET_DATA_LEN() may return a negtive int value, which will be
-used as size_t (becoming a big unsigned long) passed into memchr,
-cause this issue.
-
-Similar to what it does in tipc_nl_compat_bearer_enable(), this
-fix is to return -EINVAL when TLV_GET_DATA_LEN() is negtive in
-tipc_nl_compat_bearer_disable(), as well as in
-tipc_nl_compat_link_stat_dump() and tipc_nl_compat_link_reset_stats().
-
-v1->v2:
-  - add the missing Fixes tags per Eric's request.
-
-Fixes: 0762216c0ad2 ("tipc: fix uninit-value in tipc_nl_compat_bearer_enable")
-Fixes: 8b66fee7f8ee ("tipc: fix uninit-value in tipc_nl_compat_link_reset_stats")
-Reported-by: syzbot+30eaa8bf392f7fafffaf@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/netlink_compat.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ sound/pci/hda/hda_codec.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/net/tipc/netlink_compat.c
-+++ b/net/tipc/netlink_compat.c
-@@ -436,7 +436,11 @@ static int tipc_nl_compat_bearer_disable
- 	if (!bearer)
- 		return -EMSGSIZE;
- 
--	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_BEARER_NAME);
-+	len = TLV_GET_DATA_LEN(msg->req);
-+	if (len <= 0)
-+		return -EINVAL;
+diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
+index b20eb7fc83eb..fcdf2cd3783b 100644
+--- a/sound/pci/hda/hda_codec.c
++++ b/sound/pci/hda/hda_codec.c
+@@ -840,7 +840,14 @@ static int snd_hda_codec_dev_free(struct snd_device *device)
+ 	if (codec->core.type == HDA_DEV_LEGACY)
+ 		snd_hdac_device_unregister(&codec->core);
+ 	codec_display_power(codec, false);
+-	put_device(hda_codec_dev(codec));
 +
-+	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
- 	if (!string_is_valid(name, len))
- 		return -EINVAL;
- 
-@@ -528,7 +532,11 @@ static int tipc_nl_compat_link_stat_dump
- 
- 	name = (char *)TLV_DATA(msg->req);
- 
--	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_LINK_NAME);
-+	len = TLV_GET_DATA_LEN(msg->req);
-+	if (len <= 0)
-+		return -EINVAL;
++	/*
++	 * In the case of ASoC HD-audio bus, the device refcount is released in
++	 * snd_hdac_ext_bus_device_remove() explicitly.
++	 */
++	if (codec->core.type == HDA_DEV_LEGACY)
++		put_device(hda_codec_dev(codec));
 +
-+	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
- 	if (!string_is_valid(name, len))
- 		return -EINVAL;
+ 	return 0;
+ }
  
-@@ -806,7 +814,11 @@ static int tipc_nl_compat_link_reset_sta
- 	if (!link)
- 		return -EMSGSIZE;
- 
--	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_LINK_NAME);
-+	len = TLV_GET_DATA_LEN(msg->req);
-+	if (len <= 0)
-+		return -EINVAL;
-+
-+	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
- 	if (!string_is_valid(name, len))
- 		return -EINVAL;
- 
+-- 
+2.20.1
+
 
 
