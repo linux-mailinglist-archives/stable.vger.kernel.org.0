@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59B4362482
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8199F624A7
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729798AbfGHPYV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:24:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51596 "EHLO mail.kernel.org"
+        id S1726284AbfGHPWT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:22:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731376AbfGHPYU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:24:20 -0400
+        id S2387541AbfGHPWT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:22:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98F4121738;
-        Mon,  8 Jul 2019 15:24:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97547216C4;
+        Mon,  8 Jul 2019 15:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599460;
-        bh=w/C1KY7DwgILP0qzGNFTrFsId6j3M+yqpLgt9370w2M=;
+        s=default; t=1562599338;
+        bh=Nf2YQlA6/8uRbuf11XOZ+HRCsHe6fw5Z0BmejLtcxfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lge/ErUNje40tVHmOjidFQL45t26g5CiegUDOYrAEaE67GTpQ6jmbWRvKUg9dXQiv
-         fPsBuCABmmSjTPlADSZrfk+3P4Kf/wuqwu37x/0xwcBPiBo4DLPy6LH0YppNjSJTrX
-         NaiX/qkKpN0SjzYUoAdP6akEAAsIsKIYtS5c5QQc=
+        b=n3ZDQ0NF/RwvVw/wCPuINkm5H/wmyV+/SQBJMZSOFVJ7y4QE9oUyu4uXBrVO9LzGL
+         Z4OUzVp96MkwdiwgogDineyjpuSriUiZZ7p11sEpwd27bmEGalDpy8MFzboX0usWjz
+         RsOTtgtd7R62OR1SUfAZKoxW+0oTFtggehtXuISc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 23/56] ptrace: Fix ->ptracer_cred handling for PTRACE_TRACEME
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Maxime Ripard <maxime.ripard@free-electrons.com>,
+        Stephen Boyd <sboyd@codeaurora.org>
+Subject: [PATCH 4.9 082/102] clk: sunxi: fix uninitialized access
 Date:   Mon,  8 Jul 2019 17:13:15 +0200
-Message-Id: <20190708150521.427133141@linuxfoundation.org>
+Message-Id: <20190708150530.716651984@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 6994eefb0053799d2e07cd140df6c2ea106c41ee upstream.
+commit 4e903450bcb9a6bc90733b981d7cb8b3c4996a0e upstream.
 
-Fix two issues:
+gcc-8 reports an uninitialized variable access in a code path
+that we would see with incorrect DTB input:
 
-When called for PTRACE_TRACEME, ptrace_link() would obtain an RCU
-reference to the parent's objective credentials, then give that pointer
-to get_cred().  However, the object lifetime rules for things like
-struct cred do not permit unconditionally turning an RCU reference into
-a stable reference.
+drivers/clk/sunxi/clk-sun8i-bus-gates.c: In function 'sun8i_h3_bus_gates_init':
+drivers/clk/sunxi/clk-sun8i-bus-gates.c:85:27: error: 'clk_parent' may be used uninitialized in this function [-Werror=maybe-uninitialized]
 
-PTRACE_TRACEME records the parent's credentials as if the parent was
-acting as the subject, but that's not the case.  If a malicious
-unprivileged child uses PTRACE_TRACEME and the parent is privileged, and
-at a later point, the parent process becomes attacker-controlled
-(because it drops privileges and calls execve()), the attacker ends up
-with control over two processes with a privileged ptrace relationship,
-which can be abused to ptrace a suid binary and obtain root privileges.
+This works around by skipping invalid input and printing a warning
+instead if it ever happens. The problem was apparently part of the
+initiali driver submission, but older compilers don't notice it.
 
-Fix both of these by always recording the credentials of the process
-that is requesting the creation of the ptrace relationship:
-current_cred() can't change under us, and current is the proper subject
-for access control.
-
-This change is theoretically userspace-visible, but I am not aware of
-any code that it will actually break.
-
-Fixes: 64b875f7ac8a ("ptrace: Capture the ptracer's creds not PT_PTRACE_CAP")
-Signed-off-by: Jann Horn <jannh@google.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: ab6e23a4e388 ("clk: sunxi: Add H3 clocks support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/ptrace.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/clk/sunxi/clk-sun8i-bus-gates.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -78,9 +78,7 @@ void __ptrace_link(struct task_struct *c
-  */
- static void ptrace_link(struct task_struct *child, struct task_struct *new_parent)
- {
--	rcu_read_lock();
--	__ptrace_link(child, new_parent, __task_cred(new_parent));
--	rcu_read_unlock();
-+	__ptrace_link(child, new_parent, current_cred());
- }
+--- a/drivers/clk/sunxi/clk-sun8i-bus-gates.c
++++ b/drivers/clk/sunxi/clk-sun8i-bus-gates.c
+@@ -78,6 +78,10 @@ static void __init sun8i_h3_bus_gates_in
+ 			clk_parent = APB1;
+ 		else if (index >= 96 && index <= 127)
+ 			clk_parent = APB2;
++		else {
++			WARN_ON(true);
++			continue;
++		}
  
- /**
+ 		clk_reg = reg + 4 * (index / 32);
+ 		clk_bit = index % 32;
 
 
