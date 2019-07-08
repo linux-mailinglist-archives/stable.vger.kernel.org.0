@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5264621A1
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:18:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BB1D62286
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:27:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732895AbfGHPSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:18:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41592 "EHLO mail.kernel.org"
+        id S1731470AbfGHPYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:24:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730545AbfGHPR7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:17:59 -0400
+        id S2388377AbfGHPYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:24:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96EC5216C4;
-        Mon,  8 Jul 2019 15:17:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43D50216C4;
+        Mon,  8 Jul 2019 15:24:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599079;
-        bh=gl/oNOjwK39gihV+wxOnVsA+ocDBYadNV3JNY+DxmXk=;
+        s=default; t=1562599476;
+        bh=vVFyYXwho3zCgkOD0rbDcYE6AzYSHyuG8zbWWEKW4J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E7nsqeMBW9S6M/GH0CR5jSfeEqRKDyx5bRxbxZ/jJEnaWfZfzukTn7xGw7D2JabpJ
-         FOsbfJKdfTuJDuDvwyVASMrv+MCXStaUqto+mZUcEc8dJwpFGFYXnPE4ACPy3pW7NT
-         FiueMnrnSDASrqdINLYbCqtQOt+Tw0DiBNA2ikNQ=
+        b=NvtpDwNPfb/Kc0l7l3Sa9IwB0jBm3jWi7nwIzWJTYvfgGUVt+4lfLJJNSIrKgYIbH
+         Hzxk6Vef2/HoY07PT4YqVOS9EC4vuRQzts5iKPRR795T5wqJ/V5mYmtXIIEzBXVL6X
+         97ldzaBwQTp1pkmhdcZp619Vb+hakPF+/y3PLuRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 4.4 70/73] ARC: handle gcc generated __builtin_trap for older compiler
+        stable@vger.kernel.org,
+        syzbot+219f00fb49874dcaea17@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 28/56] ALSA: line6: Fix write on zero-sized buffer
 Date:   Mon,  8 Jul 2019 17:13:20 +0200
-Message-Id: <20190708150524.946909595@linuxfoundation.org>
+Message-Id: <20190708150522.453606217@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit af1be2e21203867cb958aaceed5366e2e24b88e8 upstream.
+commit 3450121997ce872eb7f1248417225827ea249710 upstream.
 
-ARC gcc prior to GNU 2018.03 release didn't have a target specific
-__builtin_trap() implementation, generating default abort() call.
+LINE6 drivers allocate the buffers based on the value returned from
+usb_maxpacket() calls.  The manipulated device may return zero for
+this, and this results in the kmalloc() with zero size (and it may
+succeed) while the other part of the driver code writes the packet
+data with the fixed size -- which eventually overwrites.
 
-Implement the abort() call - emulating what newer gcc does for the same,
-as suggested by Arnd.
+This patch adds a simple sanity check for the invalid buffer size for
+avoiding that problem.
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Reported-by: syzbot+219f00fb49874dcaea17@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arc/kernel/traps.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/usb/line6/pcm.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/arc/kernel/traps.c
-+++ b/arch/arc/kernel/traps.c
-@@ -155,3 +155,11 @@ void do_insterror_or_kprobe(unsigned lon
+--- a/sound/usb/line6/pcm.c
++++ b/sound/usb/line6/pcm.c
+@@ -558,6 +558,11 @@ int line6_init_pcm(struct usb_line6 *lin
+ 	line6pcm->max_packet_size_out =
+ 		usb_maxpacket(line6->usbdev,
+ 			usb_sndisocpipe(line6->usbdev, ep_write), 1);
++	if (!line6pcm->max_packet_size_in || !line6pcm->max_packet_size_out) {
++		dev_err(line6pcm->line6->ifcdev,
++			"cannot get proper max packet size\n");
++		return -EINVAL;
++	}
  
- 	insterror_is_error(address, regs);
- }
-+
-+/*
-+ * abort() call generated by older gcc for __builtin_trap()
-+ */
-+void abort(void)
-+{
-+	__asm__ __volatile__("trap_s  5\n");
-+}
+ 	spin_lock_init(&line6pcm->out.lock);
+ 	spin_lock_init(&line6pcm->in.lock);
 
 
