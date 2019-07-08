@@ -2,105 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABEBC61FF4
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 16:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7924F61FF8
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 16:01:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728834AbfGHOBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 10:01:00 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:38821 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727401AbfGHOBA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 10:01:00 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 33018220AB;
-        Mon,  8 Jul 2019 10:00:59 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 08 Jul 2019 10:00:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=j4ONHi
-        WnWloPagwSyfVgJ176QA8tmmQCPkCZGbRQ3Sk=; b=s9ujutLRtDP67oyc3p7rpb
-        JKFOQGDeuswnCPx7F6ZBxqfrNFBSapYCj4jzST2Igf+bUrYcyyW73qw+u1jeVmik
-        UFGcgBKvYOcpBXLwOCgDdAflWpt3AJD8Cb3hvKDP4GZek+WCzBTlYJsXYUr+OwJx
-        RP5jhUrXJjzKhPwe7njI8jfZU8sEiMPjpuaDH8YsK57uXnW41SmU2P5GE9T4SF74
-        Ar1pq5MTx2v9n+65/5wQKr7tX3R3fGzuFz5TvMj+BfzAGiP08wC0I6Xe23sMNG3P
-        dPS6yGRpEHJ9OtrroDltzq1ku+2+2PFvya73Zd1EG1e+xAQZPViP7Hxn+DAjjG/A
-        ==
-X-ME-Sender: <xms:m0wjXe-5toZntQIFiV_OA8wlVIOuhYwZ98ue2eZzNq7CBLkSta6P7A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrgedtgdejgecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:m0wjXRh0sgog4YOEo8z5Qx6rSLGOfU3slIPBdM1qTUZ4yTYMOfG4TA>
-    <xmx:m0wjXZY30WRrYE7FztwNZVtqXomSPVT8sHWA65wEq9kyJDutXcVv8A>
-    <xmx:m0wjXUPunsX_YUVV0J3YqnaIZrxb-GTBH3eU1uVYJcCW6UQJXmxUTA>
-    <xmx:m0wjXX6zg3eaxipbVaN1CExOjfeZyBxLVSQjy-L1N0jr3U-Vgsa6ug>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5E69B8005B;
-        Mon,  8 Jul 2019 10:00:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] scsi: target/iblock: Fix overrun in WRITE SAME emulation" failed to apply to 4.4-stable tree
-To:     r.bolshakov@yadro.com, bvanassche@acm.org,
-        martin.petersen@oracle.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 08 Jul 2019 16:00:51 +0200
-Message-ID: <156259445110255@kroah.com>
+        id S1729059AbfGHOB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 10:01:58 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:43619 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728928AbfGHOB5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 10:01:57 -0400
+Received: by mail-pf1-f193.google.com with SMTP id i189so7663850pfg.10
+        for <stable@vger.kernel.org>; Mon, 08 Jul 2019 07:01:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Ru93OrCqoNyiaVfi1TlJTSGjvxdsyzldWNy2voNhj0Q=;
+        b=KIPhjLfSe9201vY7vemZeG53qruJ/2dwExr1eyAREYdNmjLg+yp+EfTGMQMlFjHteG
+         gWeylDcvI+MtNP2MqSVD6QDkcT4NFwd+CQBZRqVHvciNNYEwZJ+WNoJSyYfCzCMFIoMs
+         RCcXlnNFTB4ojBQu6EsKB8VbbR3eU4LlfgkS9aPL6g/yTXRyO08miueIh9yRZi/JjLWz
+         VaathuJjbF1vGDokn9p06orV7mAs+xc3BNqb0Ds8WITqD/vpufVuiKs5zgiHVr99Ca1Q
+         GQVD/SRHexW5WSwAwBC9tRd3fhfw3HeDzp9gvIEwC2fSt67IyOPt7/FDGmz8v+6+4Vya
+         9hnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Ru93OrCqoNyiaVfi1TlJTSGjvxdsyzldWNy2voNhj0Q=;
+        b=D1LVnN+Gmylm76iE+jgaDhFBDcBbzOoO8IIAKzSgGzSksSokaJ7h00CjN4PHfhsAeB
+         YLD9WFgbZYSmezQGif5VboxcVj8jnNTelTB9XDgoot2w8Yl7MqC9ZjTWkW+NBjtrWeDi
+         mtdWtRACsGspK4OGKZkGpi1HjZx1hmBaDvf7cqTQ3BHBmfvIQvmqgsTGIKuKRnvBFPMc
+         XXdUpLQLa5ksBU3f6AqwOwQ/lzholKdJcxEzix+RlfABaM/CPemVQTmqk4D/CFUQfLZD
+         XzQwOvlybajI7xIdv6NTxTtExQhPNFb+s5bejgaJXa3jmTSHN+JvBloD49A4cYXGsGvz
+         jNTg==
+X-Gm-Message-State: APjAAAWyKjjr87aKMqbHzbYMz9OVuA/MP4Gke+gnB3QDB6+K923pfp3U
+        Tm0pfNMq4Pa0ZU6+A3kUWIZu9x+1
+X-Google-Smtp-Source: APXvYqyOaToJ2+IxNaTCstaGfLo6pMvGkbrSBpkraTJsVHSuMkaXKJfYW2ZTps2DCvI0Ush6Q868aQ==
+X-Received: by 2002:a63:7e17:: with SMTP id z23mr22863721pgc.14.1562594516902;
+        Mon, 08 Jul 2019 07:01:56 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id b6sm16678192pgq.26.2019.07.08.07.01.55
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 08 Jul 2019 07:01:56 -0700 (PDT)
+Subject: Re: Build failures in v4.4.y.queue, v4.9.queue
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>
+References: <1d749d61-a489-11e2-bb6b-21408e1057ff@roeck-us.net>
+ <20190708135519.GA2900@kroah.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <1bb7fdb7-0ad5-6ef9-53d5-1e089fa4e2d0@roeck-us.net>
+Date:   Mon, 8 Jul 2019 07:01:55 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190708135519.GA2900@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 7/8/19 6:55 AM, Greg Kroah-Hartman wrote:
+> On Mon, Jul 08, 2019 at 06:21:31AM -0700, Guenter Roeck wrote:
+>> Various cris builds:
+>>
+>> init/built-in.o: In function `repair_env_string':
+>> main.c:(.init.text+0x106): undefined reference to `abort'
+>> arch/cris/mm/built-in.o: In function `do_page_fault':
+>> (.text+0x44e): undefined reference to `abort'
+>> arch/cris/mm/built-in.o: In function `mem_init':
+>> (.init.text+0x12): undefined reference to `abort'
+>> arch/cris/arch-v10/kernel/built-in.o: In function `cris_request_io_interface':
+>> (.text+0x219e): undefined reference to `abort'
+>> arch/cris/arch-v10/kernel/built-in.o: In function `cris_free_io_interface':
+>> (.text+0x2644): undefined reference to `abort'
+>> kernel/built-in.o:(.text+0x416): more undefined references to `abort' follow
+>>
+>> Caused by commit commit b068c10cde7f3e ("bug.h: work around GCC PR82365 in BUG()").
+>> Reverting it fixes the problem. I would suggest to undo the cris specific changes
+>> in that backport. An alternative would be for me to stop build-testing for the
+>> architecture if there is no further interest in keeping it alive for older branches.
+> 
+> Odd, why doesn't that trigger in mainline?
+> 
+> Oh, cris is gone upstream, that makes sense.  I'll just go drop that
+> hunk from the patches so that things keep building.
+> 
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+It builds in v4.14.y.queue, so I assume there must be additional context patches
+making it work. Tracking those down didn't seem to be worth the effort.
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 5676234f20fef02f6ca9bd66c63a8860fce62645 Mon Sep 17 00:00:00 2001
-From: Roman Bolshakov <r.bolshakov@yadro.com>
-Date: Tue, 2 Jul 2019 22:16:38 +0300
-Subject: [PATCH] scsi: target/iblock: Fix overrun in WRITE SAME emulation
-
-WRITE SAME corrupts data on the block device behind iblock if the command
-is emulated. The emulation code issues (M - 1) * N times more bios than
-requested, where M is the number of 512 blocks per real block size and N is
-the NUMBER OF LOGICAL BLOCKS specified in WRITE SAME command. So, for a
-device with 4k blocks, 7 * N more LBAs gets written after the requested
-range.
-
-The issue happens because the number of 512 byte sectors to be written is
-decreased one by one while the real bios are typically from 1 to 8 512 byte
-sectors per bio.
-
-Fixes: c66ac9db8d4a ("[SCSI] target: Add LIO target core v4.0.0-rc6")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-
-diff --git a/drivers/target/target_core_iblock.c b/drivers/target/target_core_iblock.c
-index b5ed9c377060..efebacd36101 100644
---- a/drivers/target/target_core_iblock.c
-+++ b/drivers/target/target_core_iblock.c
-@@ -515,7 +515,7 @@ iblock_execute_write_same(struct se_cmd *cmd)
- 
- 		/* Always in 512 byte units for Linux/Block */
- 		block_lba += sg->length >> SECTOR_SHIFT;
--		sectors -= 1;
-+		sectors -= sg->length >> SECTOR_SHIFT;
- 	}
- 
- 	iblock_submit_bios(&list);
-
+Guenter
