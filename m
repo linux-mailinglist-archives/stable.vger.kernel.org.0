@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7EA62182
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:17:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DBD3623BD
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730494AbfGHPQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:16:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40046 "EHLO mail.kernel.org"
+        id S2389971AbfGHPbq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:31:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732690AbfGHPQz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:16:55 -0400
+        id S2389966AbfGHPbq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:31:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4009216C4;
-        Mon,  8 Jul 2019 15:16:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD45020665;
+        Mon,  8 Jul 2019 15:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599014;
-        bh=uCRlZIC/VW7rzqhFjBiiYtqSwHiFQPXOrTmJnrfKFWY=;
+        s=default; t=1562599905;
+        bh=i4YZhxEhpum9DmDPzI9pU8XkAK/3CfGO1Rg7YmxCLiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pIj0cZGEdcND9tzqWaOnwaBxvn6luVT6KB5Cqc9OmAPrpZHJIkW/LsBZtoencGjeP
-         I5eqvESTJ2gLsx6WuY4BIlNJseqaqsoTvkGMTI8kI4Z0fAS1NamTXjn9XeoksoPHm+
-         4/gtvMfiOynOjsziHuPIyreUyRe/yrgTRn/4BTc8=
+        b=hNCYxQjOGTBgRD68Yi67tMA9PxcyaZWN75aOQCVeYp6S9m2vp4HxYoJ/6ajq8INJj
+         mfPcJ3O7sNaQ8FlHSrI+Qt7QLZx/oyQvCmmJftHODxQYLBSY/CVFm7PTNaXD9G2P8K
+         SYpJKGFaQTkahi0G5AxqXqXM7Gn0iWD3NThrsPCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Flax <flatmax@flatmax.org>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Young Xiao <92siuyang@gmail.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 49/73] ASoC : cs4265 : readable register too low
-Date:   Mon,  8 Jul 2019 17:12:59 +0200
-Message-Id: <20190708150523.966806295@linuxfoundation.org>
+Subject: [PATCH 5.1 28/96] usb: gadget: fusb300_udc: Fix memory leak of fusb300->ep[i]
+Date:   Mon,  8 Jul 2019 17:13:00 +0200
+Message-Id: <20190708150528.045711167@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f3df05c805983427319eddc2411a2105ee1757cf ]
+[ Upstream commit 62fd0e0a24abeebe2c19fce49dd5716d9b62042d ]
 
-The cs4265_readable_register function stopped short of the maximum
-register.
+There is no deallocation of fusb300->ep[i] elements, allocated at
+fusb300_probe.
 
-An example bug is taken from :
-https://github.com/Audio-Injector/Ultra/issues/25
+The patch adds deallocation of fusb300->ep array elements.
 
-Where alsactl store fails with :
-Cannot read control '2,0,0,C Data Buffer,0': Input/output error
-
-This patch fixes the bug by setting the cs4265 to have readable
-registers up to the maximum hardware register CS4265_MAX_REGISTER.
-
-Signed-off-by: Matt Flax <flatmax@flatmax.org>
-Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Young Xiao <92siuyang@gmail.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs4265.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/fusb300_udc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/codecs/cs4265.c b/sound/soc/codecs/cs4265.c
-index 93b02be3a90e..6edec2387861 100644
---- a/sound/soc/codecs/cs4265.c
-+++ b/sound/soc/codecs/cs4265.c
-@@ -60,7 +60,7 @@ static const struct reg_default cs4265_reg_defaults[] = {
- static bool cs4265_readable_register(struct device *dev, unsigned int reg)
+diff --git a/drivers/usb/gadget/udc/fusb300_udc.c b/drivers/usb/gadget/udc/fusb300_udc.c
+index 263804d154a7..00e3f66836a9 100644
+--- a/drivers/usb/gadget/udc/fusb300_udc.c
++++ b/drivers/usb/gadget/udc/fusb300_udc.c
+@@ -1342,12 +1342,15 @@ static const struct usb_gadget_ops fusb300_gadget_ops = {
+ static int fusb300_remove(struct platform_device *pdev)
  {
- 	switch (reg) {
--	case CS4265_CHIP_ID ... CS4265_SPDIF_CTL2:
-+	case CS4265_CHIP_ID ... CS4265_MAX_REGISTER:
- 		return true;
- 	default:
- 		return false;
+ 	struct fusb300 *fusb300 = platform_get_drvdata(pdev);
++	int i;
+ 
+ 	usb_del_gadget_udc(&fusb300->gadget);
+ 	iounmap(fusb300->reg);
+ 	free_irq(platform_get_irq(pdev, 0), fusb300);
+ 
+ 	fusb300_free_request(&fusb300->ep[0]->ep, fusb300->ep0_req);
++	for (i = 0; i < FUSB300_MAX_NUM_EP; i++)
++		kfree(fusb300->ep[i]);
+ 	kfree(fusb300);
+ 
+ 	return 0;
+@@ -1491,6 +1494,8 @@ clean_up:
+ 		if (fusb300->ep0_req)
+ 			fusb300_free_request(&fusb300->ep[0]->ep,
+ 				fusb300->ep0_req);
++		for (i = 0; i < FUSB300_MAX_NUM_EP; i++)
++			kfree(fusb300->ep[i]);
+ 		kfree(fusb300);
+ 	}
+ 	if (reg)
 -- 
 2.20.1
 
