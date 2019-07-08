@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ACAD62184
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:17:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45AAC62265
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732714AbfGHPRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:17:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40182 "EHLO mail.kernel.org"
+        id S1727499AbfGHPZe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:25:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732710AbfGHPRA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:17:00 -0400
+        id S2388611AbfGHPZc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:25:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A68121738;
-        Mon,  8 Jul 2019 15:16:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 004F9204EC;
+        Mon,  8 Jul 2019 15:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599019;
-        bh=bHZKW6WfXp8UbgOTjFC0id34g7lNLGcNbag2Dtz+Dtk=;
+        s=default; t=1562599531;
+        bh=iBOC9dvPBYWGAoKwG89YY6adm4gY1wvKQMBrGA/bDF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YZDds5150IkwB+V0B9cw/4XuWWZdWqWLUpzOPleLgHPUGEvzclAERddubvy/7kMAl
-         H/Pr7n4jUO+frOQvA2CaciQqDOal6HrIQfZ3NhGmBm54MN5D2eiYtkn1nje7I/Yf21
-         MI1PewJV6wH8LZ7GlcWdtKCV4vD9Pj2dX+IsvU5Y=
+        b=QYQ23Sy8S0sgNwN5kzMS4+TD6EPFOqcJBBMymAOaKhWyn23oGVn+GvdabGwJeSPnm
+         eVJnddvlpwiPPICSbUc2ptbPzMjWlbkHiEJFpgO7/dHNe2fJ1GZaea05TxK/uaFKR2
+         Fhue66E0ZIUc77V321NkLJt9Vpn3wmD0wugUZI0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Marcus Cooper <codekipper@gmail.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 51/73] ASoC: max98090: remove 24-bit format support if RJ is 0
-Date:   Mon,  8 Jul 2019 17:13:01 +0200
-Message-Id: <20190708150524.056878577@linuxfoundation.org>
+Subject: [PATCH 4.14 10/56] ASoC: sun4i-i2s: Add offset to RX channel select
+Date:   Mon,  8 Jul 2019 17:13:02 +0200
+Message-Id: <20190708150518.948056826@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5628c8979642a076f91ee86c3bae5ad251639af0 ]
+[ Upstream commit f9927000cb35f250051f0f1878db12ee2626eea1 ]
 
-The supported formats are S16_LE and S24_LE now. However, by datasheet
-of max98090, S24_LE is only supported when it is in the right justified
-mode. We should remove 24-bit format if it is not in that mode to avoid
-triggering error.
+Whilst testing the capture functionality of the i2s on the newer
+SoCs it was noticed that the recording was somewhat distorted.
+This was due to the offset not being set correctly on the receiver
+side.
 
-Signed-off-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+Signed-off-by: Marcus Cooper <codekipper@gmail.com>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98090.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ sound/soc/sunxi/sun4i-i2s.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
-index 3e65dc74eb33..e7aef841f87d 100644
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -1924,6 +1924,21 @@ static int max98090_configure_dmic(struct max98090_priv *max98090,
- 	return 0;
- }
- 
-+static int max98090_dai_startup(struct snd_pcm_substream *substream,
-+				struct snd_soc_dai *dai)
-+{
-+	struct snd_soc_component *component = dai->component;
-+	struct max98090_priv *max98090 = snd_soc_component_get_drvdata(component);
-+	unsigned int fmt = max98090->dai_fmt;
+diff --git a/sound/soc/sunxi/sun4i-i2s.c b/sound/soc/sunxi/sun4i-i2s.c
+index a10913f8293f..da0a2083e12a 100644
+--- a/sound/soc/sunxi/sun4i-i2s.c
++++ b/sound/soc/sunxi/sun4i-i2s.c
+@@ -442,6 +442,10 @@ static int sun4i_i2s_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ 		regmap_update_bits(i2s->regmap, SUN8I_I2S_TX_CHAN_SEL_REG,
+ 				   SUN8I_I2S_TX_CHAN_OFFSET_MASK,
+ 				   SUN8I_I2S_TX_CHAN_OFFSET(offset));
 +
-+	/* Remove 24-bit format support if it is not in right justified mode. */
-+	if ((fmt & SND_SOC_DAIFMT_FORMAT_MASK) != SND_SOC_DAIFMT_RIGHT_J) {
-+		substream->runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
-+		snd_pcm_hw_constraint_msbits(substream->runtime, 0, 16, 16);
-+	}
-+	return 0;
-+}
-+
- static int max98090_dai_hw_params(struct snd_pcm_substream *substream,
- 				   struct snd_pcm_hw_params *params,
- 				   struct snd_soc_dai *dai)
-@@ -2331,6 +2346,7 @@ EXPORT_SYMBOL_GPL(max98090_mic_detect);
- #define MAX98090_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE)
++		regmap_update_bits(i2s->regmap, SUN8I_I2S_RX_CHAN_SEL_REG,
++				   SUN8I_I2S_TX_CHAN_OFFSET_MASK,
++				   SUN8I_I2S_TX_CHAN_OFFSET(offset));
+ 	}
  
- static const struct snd_soc_dai_ops max98090_dai_ops = {
-+	.startup = max98090_dai_startup,
- 	.set_sysclk = max98090_dai_set_sysclk,
- 	.set_fmt = max98090_dai_set_fmt,
- 	.set_tdm_slot = max98090_set_tdm_slot,
+ 	regmap_field_write(i2s->field_fmt_mode, val);
 -- 
 2.20.1
 
