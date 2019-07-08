@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 932B662244
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:24:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75212622DF
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:30:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388297AbfGHPYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:24:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51336 "EHLO mail.kernel.org"
+        id S2387722AbfGHP3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:29:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388296AbfGHPYG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:24:06 -0400
+        id S2389716AbfGHP3u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:29:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66009216C4;
-        Mon,  8 Jul 2019 15:24:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43F8D204EC;
+        Mon,  8 Jul 2019 15:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599445;
-        bh=hgQ+2bVAoQQuV8KG06d4Eq1oE3qf1lul/5N4UIfJLCc=;
+        s=default; t=1562599789;
+        bh=YfYnE2EjNzOFpBmQyvvAYXtKa4/nrf6T7RqUEnwwf8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+44ugMoRSgjQPn2bQq+vPhsiLSR7VjRCt9lUoncIkMtNlqkRcRs1KcOw0dZrlVWv
-         C9aRzcieoVM5pcd+pRBY3nG55EaZjxVr8R1BxmNSmlOqWTy4+iNpy8X5IW5ef+fpWP
-         y1xjy8L2v+MJer8+zdt01IH49Ou6pjUrUGEutOfA=
+        b=R+sRL/Q+bt7DCG8L2FZioQMLe+JWZQdlOyiUXk4Ot/iUUhmhRJfeqs0LXGtN0iOjj
+         TT+gV+ilhkEz2HUV0fMLFRsI/DQ4o1Ix2KKsDrcNcj9ayZX4Qj98m60frGlJnVenPD
+         BcLTnfnQ4pCc1AOKq4NsANCtUAvGhDHDGdot/dec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, swkhack <swkhack@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/56] mm/mlock.c: change count_mm_mlocked_page_nr return type
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 43/90] crypto: cryptd - Fix skcipher instance memory leak
 Date:   Mon,  8 Jul 2019 17:13:10 +0200
-Message-Id: <20190708150520.182687785@linuxfoundation.org>
+Message-Id: <20190708150524.730642298@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0874bb49bb21bf24deda853e8bf61b8325e24bcb ]
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-On a 64-bit machine the value of "vma->vm_end - vma->vm_start" may be
-negative when using 32 bit ints and the "count >> PAGE_SHIFT"'s result
-will be wrong.  So change the local variable and return value to
-unsigned long to fix the problem.
+commit 1a0fad630e0b7cff38e7691b28b0517cfbb0633f upstream.
 
-Link: http://lkml.kernel.org/r/20190513023701.83056-1-swkhack@gmail.com
-Fixes: 0cf2f6f6dc60 ("mm: mlock: check against vma for actual mlock() size")
-Signed-off-by: swkhack <swkhack@gmail.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+cryptd_skcipher_free() fails to free the struct skcipher_instance
+allocated in cryptd_create_skcipher(), leading to a memory leak.  This
+is detected by kmemleak on bootup on ARM64 platforms:
+
+ unreferenced object 0xffff80003377b180 (size 1024):
+   comm "cryptomgr_probe", pid 822, jiffies 4294894830 (age 52.760s)
+   backtrace:
+     kmem_cache_alloc_trace+0x270/0x2d0
+     cryptd_create+0x990/0x124c
+     cryptomgr_probe+0x5c/0x1e8
+     kthread+0x258/0x318
+     ret_from_fork+0x10/0x1c
+
+Fixes: 4e0958d19bd8 ("crypto: cryptd - Add support for skcipher")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- mm/mlock.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ crypto/cryptd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/mlock.c b/mm/mlock.c
-index 46af369c13e5..1f9ee86672e8 100644
---- a/mm/mlock.c
-+++ b/mm/mlock.c
-@@ -629,11 +629,11 @@ static int apply_vma_lock_flags(unsigned long start, size_t len,
-  * is also counted.
-  * Return value: previously mlocked page counts
-  */
--static int count_mm_mlocked_page_nr(struct mm_struct *mm,
-+static unsigned long count_mm_mlocked_page_nr(struct mm_struct *mm,
- 		unsigned long start, size_t len)
- {
- 	struct vm_area_struct *vma;
--	int count = 0;
-+	unsigned long count = 0;
+--- a/crypto/cryptd.c
++++ b/crypto/cryptd.c
+@@ -586,6 +586,7 @@ static void cryptd_skcipher_free(struct
+ 	struct skcipherd_instance_ctx *ctx = skcipher_instance_ctx(inst);
  
- 	if (mm == NULL)
- 		mm = current->mm;
--- 
-2.20.1
-
+ 	crypto_drop_skcipher(&ctx->spawn);
++	kfree(inst);
+ }
+ 
+ static int cryptd_create_skcipher(struct crypto_template *tmpl,
 
 
