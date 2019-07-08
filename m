@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4556062301
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:31:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7829D62539
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732009AbfGHPbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:31:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60636 "EHLO mail.kernel.org"
+        id S1732642AbfGHPt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:49:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726318AbfGHPbQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:31:16 -0400
+        id S1732572AbfGHPQb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:16:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11B2A216C4;
-        Mon,  8 Jul 2019 15:31:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BF6E214C6;
+        Mon,  8 Jul 2019 15:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599875;
-        bh=ewRzYOiv+kCzU4AK3LIwiH2r38Of8oLZDguOVOfcIrQ=;
+        s=default; t=1562598991;
+        bh=sEOKUAq4GKM6/x3X6t11Te2cyR2Z3lcEGdyZJaXBlmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBPgEXGKwO7siCyOv3/MER9PBIkZ35lxZask0GSEJnveFVdYxjVjOXbcx2mLqrP7c
-         jwD1KEU7h/Boapm/XPzXQ9sCInlzyTnA4vaGHoMSlJgf+9nijcJUpY3Jy5MfkKBk2B
-         zd4lHCGHF8f2Dbin7YoXWjXiC7+KsczoGdg3QyKU=
+        b=d/odtrky+JN8DFeAUX9y+KyzjZXSBraWpUdaeaRdlaOToRiXza9EEAzlMp5WUMv5Z
+         J5eP3VWYIVxfQf7mVX0OR+Nd880KGROslRI19A6Gmyf870Zs/SdaX/pWm/Xguwm/la
+         I9Q1l6d/CIzT44zWdsO7d1PkpkYiTtAEhVPX8s80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
-        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 19/96] drm/mediatek: fix unbind functions
-Date:   Mon,  8 Jul 2019 17:12:51 +0200
-Message-Id: <20190708150527.472887073@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+30eaa8bf392f7fafffaf@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 42/73] tipc: check msg->req data len in tipc_nl_compat_bearer_disable
+Date:   Mon,  8 Jul 2019 17:12:52 +0200
+Message-Id: <20190708150523.590792309@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8fd7a37b191f93737f6280a9b5de65f98acc12c9 ]
+From: Xin Long <lucien.xin@gmail.com>
 
-detatch panel in mtk_dsi_destroy_conn_enc(), since .bind will try to
-attach it again.
+[ Upstream commit 4f07b80c973348a99b5d2a32476a2e7877e94a05 ]
 
-Fixes: 2e54c14e310f ("drm/mediatek: Add DSI sub driver")
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Signed-off-by: CK Hu <ck.hu@mediatek.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch is to fix an uninit-value issue, reported by syzbot:
+
+  BUG: KMSAN: uninit-value in memchr+0xce/0x110 lib/string.c:981
+  Call Trace:
+    __dump_stack lib/dump_stack.c:77 [inline]
+    dump_stack+0x191/0x1f0 lib/dump_stack.c:113
+    kmsan_report+0x130/0x2a0 mm/kmsan/kmsan.c:622
+    __msan_warning+0x75/0xe0 mm/kmsan/kmsan_instr.c:310
+    memchr+0xce/0x110 lib/string.c:981
+    string_is_valid net/tipc/netlink_compat.c:176 [inline]
+    tipc_nl_compat_bearer_disable+0x2a1/0x480 net/tipc/netlink_compat.c:449
+    __tipc_nl_compat_doit net/tipc/netlink_compat.c:327 [inline]
+    tipc_nl_compat_doit+0x3ac/0xb00 net/tipc/netlink_compat.c:360
+    tipc_nl_compat_handle net/tipc/netlink_compat.c:1178 [inline]
+    tipc_nl_compat_recv+0x1b1b/0x27b0 net/tipc/netlink_compat.c:1281
+
+TLV_GET_DATA_LEN() may return a negtive int value, which will be
+used as size_t (becoming a big unsigned long) passed into memchr,
+cause this issue.
+
+Similar to what it does in tipc_nl_compat_bearer_enable(), this
+fix is to return -EINVAL when TLV_GET_DATA_LEN() is negtive in
+tipc_nl_compat_bearer_disable(), as well as in
+tipc_nl_compat_link_stat_dump() and tipc_nl_compat_link_reset_stats().
+
+v1->v2:
+  - add the missing Fixes tags per Eric's request.
+
+Fixes: 0762216c0ad2 ("tipc: fix uninit-value in tipc_nl_compat_bearer_enable")
+Fixes: 8b66fee7f8ee ("tipc: fix uninit-value in tipc_nl_compat_link_reset_stats")
+Reported-by: syzbot+30eaa8bf392f7fafffaf@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dsi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/tipc/netlink_compat.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
-index b00eb2d2e086..1ae3be99e0ff 100644
---- a/drivers/gpu/drm/mediatek/mtk_dsi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
-@@ -844,6 +844,8 @@ static void mtk_dsi_destroy_conn_enc(struct mtk_dsi *dsi)
- 	/* Skip connector cleanup if creation was delegated to the bridge */
- 	if (dsi->conn.dev)
- 		drm_connector_cleanup(&dsi->conn);
-+	if (dsi->panel)
-+		drm_panel_detach(dsi->panel);
- }
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -430,7 +430,11 @@ static int tipc_nl_compat_bearer_disable
+ 	if (!bearer)
+ 		return -EMSGSIZE;
  
- static void mtk_dsi_ddp_start(struct mtk_ddp_comp *comp)
--- 
-2.20.1
-
+-	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_BEARER_NAME);
++	len = TLV_GET_DATA_LEN(msg->req);
++	if (len <= 0)
++		return -EINVAL;
++
++	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
+ 	if (!string_is_valid(name, len))
+ 		return -EINVAL;
+ 
+@@ -505,7 +509,11 @@ static int tipc_nl_compat_link_stat_dump
+ 
+ 	name = (char *)TLV_DATA(msg->req);
+ 
+-	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_LINK_NAME);
++	len = TLV_GET_DATA_LEN(msg->req);
++	if (len <= 0)
++		return -EINVAL;
++
++	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
+ 	if (!string_is_valid(name, len))
+ 		return -EINVAL;
+ 
+@@ -776,7 +784,11 @@ static int tipc_nl_compat_link_reset_sta
+ 	if (!link)
+ 		return -EMSGSIZE;
+ 
+-	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_LINK_NAME);
++	len = TLV_GET_DATA_LEN(msg->req);
++	if (len <= 0)
++		return -EINVAL;
++
++	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
+ 	if (!string_is_valid(name, len))
+ 		return -EINVAL;
+ 
 
 
