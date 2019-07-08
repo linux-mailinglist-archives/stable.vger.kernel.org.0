@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 183AB621EB
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:22:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00D74623B9
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387605AbfGHPUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:20:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45718 "EHLO mail.kernel.org"
+        id S2390658AbfGHPhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:37:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387599AbfGHPUi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:20:38 -0400
+        id S2389966AbfGHPbw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:31:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8153621707;
-        Mon,  8 Jul 2019 15:20:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18EA3216C4;
+        Mon,  8 Jul 2019 15:31:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599238;
-        bh=RuCd3mBU/YnHzV8tqwPc4vB+QugbZ7+ubgJ+TwVioV8=;
+        s=default; t=1562599911;
+        bh=EMd2/EMEbomDp/HYQ44yrWt9W+8QT59uhc6NBw2ZYe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYi4yF7yb9uLuWWaz/U5zah44YC8QO3qCL8HgLIlkGD1U8l66kiZrfyRwqJTk3SWz
-         KEvqa83qq3hmVg9Aydmu3hqRqPMMaTg5iBx8FI9DVlLAQs2AJvAlJGkRwtLtcToWgL
-         MGIEUskWGPSQXWsoIaIgwOG8Za9PpgQrylbFyrHQ=
+        b=MSh3b6yhn37nohj71HrHxUFTqcJ9LUOsKJlpTwF31DJoPoUql06PoaWFNFd091WeF
+         aVW9SnM2jtZWid49ESN7Oy8GV56WFas2Yl04XNVC4Dlvs4P9K6hr+fWdpFKY4aZ2Sb
+         rCCAUX8lFfW1bCzXP7TtxXV/q2SwRbr7LeTAfuZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominique Martinet <dominique.martinet@cea.fr>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 042/102] 9p/rdma: remove useless check in cm_event_handler
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.1 03/96] netfilter: nf_flow_table: ignore DF bit setting
 Date:   Mon,  8 Jul 2019 17:12:35 +0200
-Message-Id: <20190708150528.598293344@linuxfoundation.org>
+Message-Id: <20190708150526.452638247@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 473c7dd1d7b59ff8f88a5154737e3eac78a96e5b ]
+From: Florian Westphal <fw@strlen.de>
 
-the client c is always dereferenced to get the rdma struct, so c has to
-be a valid pointer at this point.
-Gcc would optimize that away but let's make coverity happy...
+commit e75b3e1c9bc5b997d09bdf8eb72ab3dd3c1a7072 upstream.
 
-Link: http://lkml.kernel.org/r/1536339057-21974-3-git-send-email-asmadeus@codewreck.org
-Addresses-Coverity-ID: 102778 ("Dereference before null check")
-Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Its irrelevant if the DF bit is set or not, we must pass packet to
+stack in either case.
+
+If the DF bit is set, we must pass it to stack so the appropriate
+ICMP error can be generated.
+
+If the DF is not set, we must pass it to stack for fragmentation.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/9p/trans_rdma.c | 3 +--
+ net/netfilter/nf_flow_table_ip.c |    3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/9p/trans_rdma.c b/net/9p/trans_rdma.c
-index 9662c2747be7..8e4313ad3f02 100644
---- a/net/9p/trans_rdma.c
-+++ b/net/9p/trans_rdma.c
-@@ -254,8 +254,7 @@ p9_cm_event_handler(struct rdma_cm_id *id, struct rdma_cm_event *event)
- 	case RDMA_CM_EVENT_DISCONNECTED:
- 		if (rdma)
- 			rdma->state = P9_RDMA_CLOSED;
--		if (c)
--			c->status = Disconnected;
-+		c->status = Disconnected;
- 		break;
+--- a/net/netfilter/nf_flow_table_ip.c
++++ b/net/netfilter/nf_flow_table_ip.c
+@@ -246,8 +246,7 @@ nf_flow_offload_ip_hook(void *priv, stru
+ 	flow = container_of(tuplehash, struct flow_offload, tuplehash[dir]);
+ 	rt = (struct rtable *)flow->tuplehash[dir].tuple.dst_cache;
  
- 	case RDMA_CM_EVENT_TIMEWAIT_EXIT:
--- 
-2.20.1
-
+-	if (unlikely(nf_flow_exceeds_mtu(skb, flow->tuplehash[dir].tuple.mtu)) &&
+-	    (ip_hdr(skb)->frag_off & htons(IP_DF)) != 0)
++	if (unlikely(nf_flow_exceeds_mtu(skb, flow->tuplehash[dir].tuple.mtu)))
+ 		return NF_ACCEPT;
+ 
+ 	if (skb_try_make_writable(skb, sizeof(*iph)))
 
 
