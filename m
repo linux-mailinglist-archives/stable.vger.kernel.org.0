@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDACA62476
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:43:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E6CF624A9
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:45:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388360AbfGHPYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:24:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51690 "EHLO mail.kernel.org"
+        id S2387950AbfGHPWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:22:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388349AbfGHPY0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:24:26 -0400
+        id S1727663AbfGHPWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:22:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1156C2175B;
-        Mon,  8 Jul 2019 15:24:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E54FF20665;
+        Mon,  8 Jul 2019 15:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599465;
-        bh=qLjg0DWNqTJ7BN/j9P64/y3e03eUz7PUOvgBE+41BOg=;
+        s=default; t=1562599343;
+        bh=ox3WH6zZtJmiPNpAZKeHVmPVMpAQvhgNkS+IDN4cqEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6gn8eTpQH1+r/WoC7kbGcHc18w14eiWY+hBXCmGrPDtkPagF/qJWsKxYg/as8dxe
-         BXuknRP9Hx3De6bMDRaUt/VQFaPUKImjR/1cVZuyxfh6swA6QtHwenYMW+QFr71m0W
-         1j6Kr3q63i1Ubde4VaWMYlNNn60Ry6mGBQ4KR7go=
+        b=d4crevve8NLeSTTjRiT3iuHgniBz32bCS3shb/6sxz0yl/815C4AVHjm2v1eI8ASI
+         OFyTbpq/m1sud//iT+4oM7y0lhKr657wj/lrRLyyrbdQII5wCKd+djhBdGecwwnqIq
+         aVL+zSwlSVUpGPt/5hI7Zas141RzKkDrklYCzipw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 25/56] crypto: cryptd - Fix skcipher instance memory leak
+        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 084/102] drm/i915/dmc: protect against reading random memory
 Date:   Mon,  8 Jul 2019 17:13:17 +0200
-Message-Id: <20190708150521.910421953@linuxfoundation.org>
+Message-Id: <20190708150530.815459442@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+commit bc7b488b1d1c71dc4c5182206911127bc6c410d6 upstream.
 
-commit 1a0fad630e0b7cff38e7691b28b0517cfbb0633f upstream.
+While loading the DMC firmware we were double checking the headers made
+sense, but in no place we checked that we were actually reading memory
+we were supposed to. This could be wrong in case the firmware file is
+truncated or malformed.
 
-cryptd_skcipher_free() fails to free the struct skcipher_instance
-allocated in cryptd_create_skcipher(), leading to a memory leak.  This
-is detected by kmemleak on bootup on ARM64 platforms:
+Before this patch:
+	# ls -l /lib/firmware/i915/icl_dmc_ver1_07.bin
+	-rw-r--r-- 1 root root  25716 Feb  1 12:26 icl_dmc_ver1_07.bin
+	# truncate -s 25700 /lib/firmware/i915/icl_dmc_ver1_07.bin
+	# modprobe i915
+	# dmesg| grep -i dmc
+	[drm:intel_csr_ucode_init [i915]] Loading i915/icl_dmc_ver1_07.bin
+	[drm] Finished loading DMC firmware i915/icl_dmc_ver1_07.bin (v1.7)
 
- unreferenced object 0xffff80003377b180 (size 1024):
-   comm "cryptomgr_probe", pid 822, jiffies 4294894830 (age 52.760s)
-   backtrace:
-     kmem_cache_alloc_trace+0x270/0x2d0
-     cryptd_create+0x990/0x124c
-     cryptomgr_probe+0x5c/0x1e8
-     kthread+0x258/0x318
-     ret_from_fork+0x10/0x1c
+i.e. it loads random data. Now it fails like below:
+	[drm:intel_csr_ucode_init [i915]] Loading i915/icl_dmc_ver1_07.bin
+	[drm:csr_load_work_fn [i915]] *ERROR* Truncated DMC firmware, rejecting.
+	i915 0000:00:02.0: Failed to load DMC firmware i915/icl_dmc_ver1_07.bin. Disabling runtime power management.
+	i915 0000:00:02.0: DMC firmware homepage: https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915
 
-Fixes: 4e0958d19bd8 ("crypto: cryptd - Add support for skcipher")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Before reading any part of the firmware file, validate the input first.
 
+Fixes: eb805623d8b1 ("drm/i915/skl: Add support to load SKL CSR firmware.")
+Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190605235535.17791-1-lucas.demarchi@intel.com
+(cherry picked from commit bc7b488b1d1c71dc4c5182206911127bc6c410d6)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+[ Lucas: backported to 4.9+ adjusting the context ]
+Cc: stable@vger.kernel.org # v4.9+
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/cryptd.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/intel_csr.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/crypto/cryptd.c
-+++ b/crypto/cryptd.c
-@@ -585,6 +585,7 @@ static void cryptd_skcipher_free(struct
- 	struct skcipherd_instance_ctx *ctx = skcipher_instance_ctx(inst);
+diff --git a/drivers/gpu/drm/i915/intel_csr.c b/drivers/gpu/drm/i915/intel_csr.c
+index 1ea0e1f43397..54d878cb458f 100644
+--- a/drivers/gpu/drm/i915/intel_csr.c
++++ b/drivers/gpu/drm/i915/intel_csr.c
+@@ -280,10 +280,17 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
+ 	uint32_t i;
+ 	uint32_t *dmc_payload;
+ 	uint32_t required_version;
++	size_t fsize;
  
- 	crypto_drop_skcipher(&ctx->spawn);
-+	kfree(inst);
+ 	if (!fw)
+ 		return NULL;
+ 
++	fsize = sizeof(struct intel_css_header) +
++		sizeof(struct intel_package_header) +
++		sizeof(struct intel_dmc_header);
++	if (fsize > fw->size)
++		goto error_truncated;
++
+ 	/* Extract CSS Header information*/
+ 	css_header = (struct intel_css_header *)fw->data;
+ 	if (sizeof(struct intel_css_header) !=
+@@ -349,6 +356,9 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
+ 		return NULL;
+ 	}
+ 	readcount += dmc_offset;
++	fsize += dmc_offset;
++	if (fsize > fw->size)
++		goto error_truncated;
+ 
+ 	/* Extract dmc_header information. */
+ 	dmc_header = (struct intel_dmc_header *)&fw->data[readcount];
+@@ -379,6 +389,10 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
+ 
+ 	/* fw_size is in dwords, so multiplied by 4 to convert into bytes. */
+ 	nbytes = dmc_header->fw_size * 4;
++	fsize += nbytes;
++	if (fsize > fw->size)
++		goto error_truncated;
++
+ 	if (nbytes > CSR_MAX_FW_SIZE) {
+ 		DRM_ERROR("CSR firmware too big (%u) bytes\n", nbytes);
+ 		return NULL;
+@@ -392,6 +406,10 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
+ 	}
+ 
+ 	return memcpy(dmc_payload, &fw->data[readcount], nbytes);
++
++error_truncated:
++	DRM_ERROR("Truncated DMC firmware, rejecting.\n");
++	return NULL;
  }
  
- static int cryptd_create_skcipher(struct crypto_template *tmpl,
+ static void csr_load_work_fn(struct work_struct *work)
+-- 
+2.20.1
+
 
 
