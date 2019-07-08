@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24C8762345
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 701FC623F2
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390450AbfGHPdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:33:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36042 "EHLO mail.kernel.org"
+        id S1732026AbfGHP3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:29:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390445AbfGHPdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:33:51 -0400
+        id S2389585AbfGHP3p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:29:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BF1A204EC;
-        Mon,  8 Jul 2019 15:33:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDE61216F4;
+        Mon,  8 Jul 2019 15:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562600031;
-        bh=+LiCpwHsjJSrbJyVIAOZQxJz3K+eHJCNVBkQ9T3ckGk=;
+        s=default; t=1562599784;
+        bh=5Bi1ejuRESz61bUYqPNkEyic9P7oSHxXtmSYp6EISkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d2N5ux5tl/IkTXD2oXWDwkoXjch0hPjQ11AVCtE9ge+jB4PUthKoJbRZ1M+i0Tj6J
-         Wk51etbcjE1wDOliudRVVF2PVVSOCnyHcRKrCuULUhwzY9XjzXPp2PcNX1ZyGvAT9G
-         agxZeWRRY5hhYzDvet1XNoDXvBc6K5UdBgSVYzgE=
+        b=LAAviDeTVHrn7RqMCi4WqO0YcMzEm3ut+rgXAtNdJJhr+LD1KLF5DeGNnpnnmWezo
+         C4cWpPdbb9JYG8nAzChqnOPbqYoLnneSvvFaNpZW51Pfj5BjH4P2kRGY+GOj+AMgJZ
+         1FQYdwIrpqcmR9w4KVrOaJg5SoQ4BCclZxtC8YfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.1 71/96] arm64: kaslr: keep modules inside module region when KASAN is enabled
-Date:   Mon,  8 Jul 2019 17:13:43 +0200
-Message-Id: <20190708150530.287560004@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 77/90] netfilter: ipv6: nf_defrag: fix leakage of unqueued fragments
+Date:   Mon,  8 Jul 2019 17:13:44 +0200
+Message-Id: <20190708150526.237087551@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+[ Upstream commit a0d56cb911ca301de81735f1d73c2aab424654ba ]
 
-commit 6f496a555d93db7a11d4860b9220d904822f586a upstream.
+With commit 997dd9647164 ("net: IP6 defrag: use rbtrees in
+nf_conntrack_reasm.c"), nf_ct_frag6_reasm() is now called from
+nf_ct_frag6_queue(). With this change, nf_ct_frag6_queue() can fail
+after the skb has been added to the fragment queue and
+nf_ct_frag6_gather() was adapted to handle this case.
 
-When KASLR and KASAN are both enabled, we keep the modules where they
-are, and randomize the placement of the kernel so it is within 2 GB
-of the module region. The reason for this is that putting modules in
-the vmalloc region (like we normally do when KASLR is enabled) is not
-possible in this case, given that the entire vmalloc region is already
-backed by KASAN zero shadow pages, and so allocating dedicated KASAN
-shadow space as required by loaded modules is not possible.
+But nf_ct_frag6_queue() can still fail before the fragment has been
+queued. nf_ct_frag6_gather() can't handle this case anymore, because it
+has no way to know if nf_ct_frag6_queue() queued the fragment before
+failing. If it didn't, the skb is lost as the error code is overwritten
+with -EINPROGRESS.
 
-The default module allocation window is set to [_etext - 128MB, _etext]
-in kaslr.c, which is appropriate for KASLR kernels booted without a
-seed or with 'nokaslr' on the command line. However, as it turns out,
-it is not quite correct for the KASAN case, since it still intersects
-the vmalloc region at the top, where attempts to allocate shadow pages
-will collide with the KASAN zero shadow pages, causing a WARN() and all
-kinds of other trouble. So cap the top end to MODULES_END explicitly
-when running with KASAN.
+Fix this by setting -EINPROGRESS directly in nf_ct_frag6_queue(), so
+that nf_ct_frag6_gather() can propagate the error as is.
 
-Cc: <stable@vger.kernel.org> # 4.9+
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 997dd9647164 ("net: IP6 defrag: use rbtrees in nf_conntrack_reasm.c")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/module.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/ipv6/netfilter/nf_conntrack_reasm.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/arch/arm64/kernel/module.c
-+++ b/arch/arm64/kernel/module.c
-@@ -32,6 +32,7 @@
- 
- void *module_alloc(unsigned long size)
- {
-+	u64 module_alloc_end = module_alloc_base + MODULES_VSIZE;
- 	gfp_t gfp_mask = GFP_KERNEL;
- 	void *p;
- 
-@@ -39,9 +40,12 @@ void *module_alloc(unsigned long size)
- 	if (IS_ENABLED(CONFIG_ARM64_MODULE_PLTS))
- 		gfp_mask |= __GFP_NOWARN;
- 
-+	if (IS_ENABLED(CONFIG_KASAN))
-+		/* don't exceed the static module region - see below */
-+		module_alloc_end = MODULES_END;
+diff --git a/net/ipv6/netfilter/nf_conntrack_reasm.c b/net/ipv6/netfilter/nf_conntrack_reasm.c
+index cb1b4772dac0..73c29ddcfb95 100644
+--- a/net/ipv6/netfilter/nf_conntrack_reasm.c
++++ b/net/ipv6/netfilter/nf_conntrack_reasm.c
+@@ -293,7 +293,11 @@ static int nf_ct_frag6_queue(struct frag_queue *fq, struct sk_buff *skb,
+ 		skb->_skb_refdst = 0UL;
+ 		err = nf_ct_frag6_reasm(fq, skb, prev, dev);
+ 		skb->_skb_refdst = orefdst;
+-		return err;
 +
- 	p = __vmalloc_node_range(size, MODULE_ALIGN, module_alloc_base,
--				module_alloc_base + MODULES_VSIZE,
--				gfp_mask, PAGE_KERNEL_EXEC, 0,
-+				module_alloc_end, gfp_mask, PAGE_KERNEL_EXEC, 0,
- 				NUMA_NO_NODE, __builtin_return_address(0));
++		/* After queue has assumed skb ownership, only 0 or
++		 * -EINPROGRESS must be returned.
++		 */
++		return err ? -EINPROGRESS : 0;
+ 	}
  
- 	if (!p && IS_ENABLED(CONFIG_ARM64_MODULE_PLTS) &&
+ 	skb_dst_drop(skb);
+@@ -481,12 +485,6 @@ int nf_ct_frag6_gather(struct net *net, struct sk_buff *skb, u32 user)
+ 		ret = 0;
+ 	}
+ 
+-	/* after queue has assumed skb ownership, only 0 or -EINPROGRESS
+-	 * must be returned.
+-	 */
+-	if (ret)
+-		ret = -EINPROGRESS;
+-
+ 	spin_unlock_bh(&fq->q.lock);
+ 	inet_frag_put(&fq->q);
+ 	return ret;
+-- 
+2.20.1
+
 
 
