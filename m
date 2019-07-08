@@ -2,99 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D75E762B45
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 23:59:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BB1D62B52
+	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 00:07:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732708AbfGHV7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 17:59:05 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:33560 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732609AbfGHV7E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 17:59:04 -0400
-Received: by mail-wm1-f67.google.com with SMTP id h19so960276wme.0
-        for <stable@vger.kernel.org>; Mon, 08 Jul 2019 14:59:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=npjs8zmHMIAK9yjt/PnyN9/5dfJ0FZUNFqmNA4IRhfM=;
-        b=yDeIwJ4F35BBs9dFqKiYM05CN4uzwKRFGKe5prwT+ggYVm9W1tq9nuJa8MfSJc5ZPe
-         RcB98Yub2tLpF+weu39qVG+GmIHHXxjZCfLVtNmsmS8V8a/u2uJSqWLNDizBZSJsFqtg
-         weqlhjrh5+fwI6YwGUpnBPpEjp/U+pYUNlFjMzjKOH6NJHL+1YU6/7e85LMqm6/Th99K
-         ePqLLocMr4uiCQTKhSCLJBRk7sg0XUtJRCXNNt70s4rgZAxOJG9Xb625V7fRJEav05BE
-         Y7SgC8ngGzADwE2vsvmMMkWL+7wpWtypLqMhbI03FSaf94mkNqspaCn13raXMLgWAhUw
-         vWAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=npjs8zmHMIAK9yjt/PnyN9/5dfJ0FZUNFqmNA4IRhfM=;
-        b=tOB4jB+G9bI8cd0SPoTywoktOXwrNeOjEjIU5XOMYDB5aH9psXaK07AgTnU8eifddH
-         0usZ6DKWgYbulakNW5WQYz41qK1CJU+dGLKbnQ+cJCQfsJge3G3IBkRrJxzldiE13s8N
-         bcPhYtkGXzJ4MWTJBpUn/L5YGrfTZ9SL5gYrT0KiMkpZl2IAU2Ts4g6pTF7ZpUZbHd7s
-         kHF2dNpYPm1a95eibPPm1chlfar0cxPx7xAhGkSH7Yk8LWEG2EyfWK0rykMm1T7IIMfI
-         n8VaRk1pnw2PHYBPRvH42A4qvF2PA5N8Zn1NAviZ94G5wRXXpePe5lXP4QnYo4z6XpLm
-         PsrA==
-X-Gm-Message-State: APjAAAVPBWQWLrxiBofxGTKquVvAOJ5XdMkKd9JA4SoUdpB+rzTyoPCz
-        Vp+Dw7XXH4lahIQ8QW5d3A/ysQ0+JgRz4A==
-X-Google-Smtp-Source: APXvYqzkhFAc1D654DobHQgZDpfIAXy2hQG6hy+i0W7G3ZSRQk+tMIQfBtzRbH4l7d1a0qyw9vr8cQ==
-X-Received: by 2002:a1c:e409:: with SMTP id b9mr17507853wmh.110.1562623143550;
-        Mon, 08 Jul 2019 14:59:03 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id n1sm14021389wrx.39.2019.07.08.14.59.02
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Jul 2019 14:59:03 -0700 (PDT)
-Message-ID: <5d23bca7.1c69fb81.3921f.cbb4@mx.google.com>
-Date:   Mon, 08 Jul 2019 14:59:03 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        id S1732733AbfGHWHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 18:07:00 -0400
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:58263 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732549AbfGHWHA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 18:07:00 -0400
+Received: from mmarshal3.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id ECAE1886BF;
+        Tue,  9 Jul 2019 10:06:55 +1200 (NZST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+        s=mail181024; t=1562623615;
+        bh=QLCPynRPra6ohUEHMDD48Kw1Eu3mCO/uX2j0Hh4Y9GI=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To;
+        b=rb41Aw8Wq1+DjcqHwpMs+bIFQSUCrElKoa+KIFN7xo6uvWHoj9mzJlkJQYMBdTj6a
+         2ARretCHwgm0YJnKa1on9M8ecKe76PP4xG6vfotkYPAChRSXRDoiqNZFk+hYNiMOLL
+         Prx/3DPWKC8RceQyLFjGisMIQLUBuu2t2TSCipAaI58ffgB6IEx2e4lPbhWeMYq4Ui
+         ekg/IdegKTQyYSPa5LC+XbkGgmtQGWWOBLsClTKkx98sICIv2wmWNjhIQX5uQh+Zhi
+         kHD/H7exlepo8yhVCrsvMldGxUJu7CHl9IEhNScUGRV59YuW2GJ21KsspwxNKm56fW
+         g66l0ooy82RTg==
+Received: from svr-chch-ex1.atlnz.lc (Not Verified[10.32.16.77]) by mmarshal3.atlnz.lc with Trustwave SEG (v7,5,8,10121)
+        id <B5d23be7f0000>; Tue, 09 Jul 2019 10:06:55 +1200
+Received: from svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8:409d:36f5:8899:92e8)
+ by svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8:409d:36f5:8899:92e8) with
+ Microsoft SMTP Server (TLS) id 15.0.1156.6; Tue, 9 Jul 2019 10:06:50 +1200
+Received: from svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8]) by
+ svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8%12]) with mapi id
+ 15.00.1156.000; Tue, 9 Jul 2019 10:06:50 +1200
+From:   Joshua Scott <Joshua.Scott@alliedtelesis.co.nz>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+CC:     "andrew@lunn.ch" <andrew@lunn.ch>,
+        "gregory.clement@bootlin.com" <gregory.clement@bootlin.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "stable-commits@vger.kernel.org" <stable-commits@vger.kernel.org>
+Subject: Re: Patch "ARM: dts: armada-xp-98dx3236: Switch to armada-38x-uart
+ serial node" has been added to the 4.14-stable tree
+Thread-Topic: Patch "ARM: dts: armada-xp-98dx3236: Switch to armada-38x-uart
+ serial node" has been added to the 4.14-stable tree
+Thread-Index: AQHVMxACed/vz2aduEix0kGQuG0pAKbAOpet//9BcgCAAcyjMg==
+Date:   Mon, 8 Jul 2019 22:06:50 +0000
+Message-ID: <1562623610543.71373@alliedtelesis.co.nz>
+References: <156231715780108@kroah.com>
+ <1562565301017.49476@alliedtelesis.co.nz>,<20190708062332.GA28690@kroah.com>
+In-Reply-To: <20190708062332.GA28690@kroah.com>
+Accept-Language: en-NZ, en-US
+Content-Language: en-NZ
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.32.1.10]
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.184-74-g1ef1d6e05dcd
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.4.y boot: 86 boots: 4 failed,
- 82 passed (v4.4.184-74-g1ef1d6e05dcd)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+MIME-Version: 1.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 86 boots: 4 failed, 82 passed (v4.4.184-74-g1ef=
-1d6e05dcd)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.184-74-g1ef1d6e05dcd/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.184-74-g1ef1d6e05dcd/
-
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.184-74-g1ef1d6e05dcd
-Git Commit: 1ef1d6e05dcd8a34ef188796843b380d0d4e4408
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 44 unique boards, 19 SoC families, 14 builds out of 190
-
-Boot Failures Detected:
-
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
-
-    multi_v7_defconfig:
-        gcc-8:
-            stih410-b2120: 1 failed lab
-            sun7i-a20-bananapi: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+Hi Greg,=0A=
+=0A=
+43e28ba87708 ("ARM: dts: Use armada-370-xp as a base for armada-xp-98dx3236=
+") is the patch=0A=
+which introduces the armada-xp-98dx3236, and contains the device-tree entry=
+ for the driver that does=0A=
+not behave correctly with this SoC.=0A=
+=0A=
+However, the driver quirk that implements the fix does not exist until the =
+two patches I mentioned :=0A=
+b7639b0b15dd serial: 8250_dw: Limit dw8250_tx_wait_empty quirk to armada-38=
+x devices=0A=
+914eaf935ec7 serial: 8250_dw: Allow TX FIFO to drain before writing to UART=
+_LCR=0A=
+=0A=
+Before then, there is no "marvell,armada-38x-uart".=0A=
+=0A=
+The current patch being delivered only changes the .dts to make use of the =
+quirk. This won't work=0A=
+if it's being delivered to a branch that does not have the above two patche=
+s. I had a look at linux-4.14.y=0A=
+on kernel.org, and did not see the two patches there.=0A=
+=0A=
+=0A=
+Cheers,=0A=
+Joshua=0A=
+________________________________________=0A=
+From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>=0A=
+Sent: Monday, 8 July 2019 6:23 p.m.=0A=
+To: Joshua Scott=0A=
+Cc: andrew@lunn.ch; gregory.clement@bootlin.com; stable@vger.kernel.org; st=
+able-commits@vger.kernel.org=0A=
+Subject: Re: Patch "ARM: dts: armada-xp-98dx3236: Switch to armada-38x-uart=
+ serial node" has been added to the 4.14-stable tree=0A=
+=0A=
+On Mon, Jul 08, 2019 at 05:55:00AM +0000, Joshua Scott wrote:=0A=
+> Hi,=0A=
+>=0A=
+> I do not think this patch alone will work on 4.14.=0A=
+>=0A=
+> An earlier pair of patches which implements the=0A=
+> "marvell,armada-38x-uart" quirk is present on the other kernel=0A=
+> versions, but I do see it as far back as 4.14.=0A=
+>=0A=
+> The following two patches are the ones which add support for that compati=
+ble string:=0A=
+>=0A=
+> b7639b0b15dd serial: 8250_dw: Limit dw8250_tx_wait_empty quirk to armada-=
+38x devices=0A=
+> 914eaf935ec7 serial: 8250_dw: Allow TX FIFO to drain before writing to UA=
+RT_LCR=0A=
+=0A=
+But, this patch says:=0A=
+        Fixes: 43e28ba87708 ("ARM: dts: Use armada-370-xp as a base for arm=
+ada-xp-98dx3236")=0A=
+and that commit showed up in 4.12.=0A=
+=0A=
+If that is not the case, fine, I'll drop this, otherwise I just have to=0A=
+go off of what is given to me :)=0A=
+=0A=
+thanks,=0A=
+=0A=
+greg k-h=0A=
