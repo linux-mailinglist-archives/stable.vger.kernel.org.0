@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFAD9623F9
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24C8762345
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:34:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730307AbfGHP3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:29:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58598 "EHLO mail.kernel.org"
+        id S2390450AbfGHPdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:33:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389540AbfGHP3m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:29:42 -0400
+        id S2390445AbfGHPdv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:33:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A01321537;
-        Mon,  8 Jul 2019 15:29:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BF1A204EC;
+        Mon,  8 Jul 2019 15:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599781;
-        bh=1TCbOetnLwdX5sAbswf+rlA3lUUKHP7GvOSM7jw5LRM=;
+        s=default; t=1562600031;
+        bh=+LiCpwHsjJSrbJyVIAOZQxJz3K+eHJCNVBkQ9T3ckGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8qrLV4mzLzeABDz3AIJHlOtl+ld3x8W79wzLXCk52TMA8zmFZY/Ff463K6JHki9H
-         i8gUueZNTHGQWo2sD5yXuRj1wFe74siGYtklRrkbM+xaZOgW9NPOZ3piZrG1fiLWFS
-         WGWYnZsJSGe7iSt2ZakGlbdTMAU1HnIHR9JBJe6o=
+        b=d2N5ux5tl/IkTXD2oXWDwkoXjch0hPjQ11AVCtE9ge+jB4PUthKoJbRZ1M+i0Tj6J
+         Wk51etbcjE1wDOliudRVVF2PVVSOCnyHcRKrCuULUhwzY9XjzXPp2PcNX1ZyGvAT9G
+         agxZeWRRY5hhYzDvet1XNoDXvBc6K5UdBgSVYzgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Stefan Bader <stefan.bader@canonical.com>,
-        Peter Oskolkov <posk@google.com>,
-        Florian Westphal <fw@strlen.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 76/90] ip6: fix skb leak in ip6frag_expire_frag_queue()
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.1 71/96] arm64: kaslr: keep modules inside module region when KASAN is enabled
 Date:   Mon,  8 Jul 2019 17:13:43 +0200
-Message-Id: <20190708150526.177660229@linuxfoundation.org>
+Message-Id: <20190708150530.287560004@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,59 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 47d3d7fdb10a21c223036b58bd70ffdc24a472c4 ]
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-Since ip6frag_expire_frag_queue() now pulls the head skb
-from frag queue, we should no longer use skb_get(), since
-this leads to an skb leak.
+commit 6f496a555d93db7a11d4860b9220d904822f586a upstream.
 
-Stefan Bader initially reported a problem in 4.4.stable [1] caused
-by the skb_get(), so this patch should also fix this issue.
+When KASLR and KASAN are both enabled, we keep the modules where they
+are, and randomize the placement of the kernel so it is within 2 GB
+of the module region. The reason for this is that putting modules in
+the vmalloc region (like we normally do when KASLR is enabled) is not
+possible in this case, given that the entire vmalloc region is already
+backed by KASAN zero shadow pages, and so allocating dedicated KASAN
+shadow space as required by loaded modules is not possible.
 
-296583.091021] kernel BUG at /build/linux-6VmqmP/linux-4.4.0/net/core/skbuff.c:1207!
-[296583.091734] Call Trace:
-[296583.091749]  [<ffffffff81740e50>] __pskb_pull_tail+0x50/0x350
-[296583.091764]  [<ffffffff8183939a>] _decode_session6+0x26a/0x400
-[296583.091779]  [<ffffffff817ec719>] __xfrm_decode_session+0x39/0x50
-[296583.091795]  [<ffffffff818239d0>] icmpv6_route_lookup+0xf0/0x1c0
-[296583.091809]  [<ffffffff81824421>] icmp6_send+0x5e1/0x940
-[296583.091823]  [<ffffffff81753238>] ? __netif_receive_skb+0x18/0x60
-[296583.091838]  [<ffffffff817532b2>] ? netif_receive_skb_internal+0x32/0xa0
-[296583.091858]  [<ffffffffc0199f74>] ? ixgbe_clean_rx_irq+0x594/0xac0 [ixgbe]
-[296583.091876]  [<ffffffffc04eb260>] ? nf_ct_net_exit+0x50/0x50 [nf_defrag_ipv6]
-[296583.091893]  [<ffffffff8183d431>] icmpv6_send+0x21/0x30
-[296583.091906]  [<ffffffff8182b500>] ip6_expire_frag_queue+0xe0/0x120
-[296583.091921]  [<ffffffffc04eb27f>] nf_ct_frag6_expire+0x1f/0x30 [nf_defrag_ipv6]
-[296583.091938]  [<ffffffff810f3b57>] call_timer_fn+0x37/0x140
-[296583.091951]  [<ffffffffc04eb260>] ? nf_ct_net_exit+0x50/0x50 [nf_defrag_ipv6]
-[296583.091968]  [<ffffffff810f5464>] run_timer_softirq+0x234/0x330
-[296583.091982]  [<ffffffff8108a339>] __do_softirq+0x109/0x2b0
+The default module allocation window is set to [_etext - 128MB, _etext]
+in kaslr.c, which is appropriate for KASLR kernels booted without a
+seed or with 'nokaslr' on the command line. However, as it turns out,
+it is not quite correct for the KASAN case, since it still intersects
+the vmalloc region at the top, where attempts to allocate shadow pages
+will collide with the KASAN zero shadow pages, causing a WARN() and all
+kinds of other trouble. So cap the top end to MODULES_END explicitly
+when running with KASAN.
 
-Fixes: d4289fcc9b16 ("net: IP6 defrag: use rbtrees for IPv6 defrag")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Stefan Bader <stefan.bader@canonical.com>
-Cc: Peter Oskolkov <posk@google.com>
-Cc: Florian Westphal <fw@strlen.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # 4.9+
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Tested-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/net/ipv6_frag.h | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/kernel/module.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/ipv6_frag.h b/include/net/ipv6_frag.h
-index 28aa9b30aece..1f77fb4dc79d 100644
---- a/include/net/ipv6_frag.h
-+++ b/include/net/ipv6_frag.h
-@@ -94,7 +94,6 @@ ip6frag_expire_frag_queue(struct net *net, struct frag_queue *fq)
- 		goto out;
+--- a/arch/arm64/kernel/module.c
++++ b/arch/arm64/kernel/module.c
+@@ -32,6 +32,7 @@
  
- 	head->dev = dev;
--	skb_get(head);
- 	spin_unlock(&fq->q.lock);
+ void *module_alloc(unsigned long size)
+ {
++	u64 module_alloc_end = module_alloc_base + MODULES_VSIZE;
+ 	gfp_t gfp_mask = GFP_KERNEL;
+ 	void *p;
  
- 	icmpv6_send(head, ICMPV6_TIME_EXCEED, ICMPV6_EXC_FRAGTIME, 0);
--- 
-2.20.1
-
+@@ -39,9 +40,12 @@ void *module_alloc(unsigned long size)
+ 	if (IS_ENABLED(CONFIG_ARM64_MODULE_PLTS))
+ 		gfp_mask |= __GFP_NOWARN;
+ 
++	if (IS_ENABLED(CONFIG_KASAN))
++		/* don't exceed the static module region - see below */
++		module_alloc_end = MODULES_END;
++
+ 	p = __vmalloc_node_range(size, MODULE_ALIGN, module_alloc_base,
+-				module_alloc_base + MODULES_VSIZE,
+-				gfp_mask, PAGE_KERNEL_EXEC, 0,
++				module_alloc_end, gfp_mask, PAGE_KERNEL_EXEC, 0,
+ 				NUMA_NO_NODE, __builtin_return_address(0));
+ 
+ 	if (!p && IS_ENABLED(CONFIG_ARM64_MODULE_PLTS) &&
 
 
