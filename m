@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 523A16241F
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D83AF6226D
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:25:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388428AbfGHPk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:40:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56144 "EHLO mail.kernel.org"
+        id S2388696AbfGHPZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:25:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389153AbfGHP1u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:27:50 -0400
+        id S2388689AbfGHPZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:25:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7717216C4;
-        Mon,  8 Jul 2019 15:27:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4554820665;
+        Mon,  8 Jul 2019 15:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599669;
-        bh=mKyRewV85cQe9StA8678jQ/lcojrSBiqThd0myR75EY=;
+        s=default; t=1562599551;
+        bh=2brGLRDW17KyZ3JkwFdSlCnobgYQ8m0GLWZgEhcWYYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gm5vnuvpgzufLtse0G4nFtAtWX9tIIG8vXemBsfK8hTjuEagwwkMiHHzOGPF3PfHI
-         XkF94GR5b3DgwLEovwIJpaDhSJIhgwWDbnfdFiFiz3r9o1xQI93etpPuMl5c+5jDle
-         sP0s/1tfJJ5EYf1UGeferJ+tke7G76LrBH2dd1h0=
+        b=Ei+LC5ZayvDSd7+FuH8hmMjP8OeXRzczVtO0UKRfK/mFYPghH7fenCtt6zZJCmJxv
+         ldZOkCe8hi2RXgD7yIu7vCvZM8oNjeXAHk3SEH6v7HFI/iGvTc6ocA+EgGBr1tMTvp
+         AbZHnk7bygQz0nne1qehvUjlGMHE2vM31H3kFMSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, swkhack <swkhack@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Young Xiao <92siuyang@gmail.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/90] mm/mlock.c: change count_mm_mlocked_page_nr return type
+Subject: [PATCH 4.14 11/56] usb: gadget: fusb300_udc: Fix memory leak of fusb300->ep[i]
 Date:   Mon,  8 Jul 2019 17:13:03 +0200
-Message-Id: <20190708150524.419868485@linuxfoundation.org>
+Message-Id: <20190708150519.076240236@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0874bb49bb21bf24deda853e8bf61b8325e24bcb ]
+[ Upstream commit 62fd0e0a24abeebe2c19fce49dd5716d9b62042d ]
 
-On a 64-bit machine the value of "vma->vm_end - vma->vm_start" may be
-negative when using 32 bit ints and the "count >> PAGE_SHIFT"'s result
-will be wrong.  So change the local variable and return value to
-unsigned long to fix the problem.
+There is no deallocation of fusb300->ep[i] elements, allocated at
+fusb300_probe.
 
-Link: http://lkml.kernel.org/r/20190513023701.83056-1-swkhack@gmail.com
-Fixes: 0cf2f6f6dc60 ("mm: mlock: check against vma for actual mlock() size")
-Signed-off-by: swkhack <swkhack@gmail.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The patch adds deallocation of fusb300->ep array elements.
+
+Signed-off-by: Young Xiao <92siuyang@gmail.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mlock.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/fusb300_udc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/mm/mlock.c b/mm/mlock.c
-index 41cc47e28ad6..0ab8250af1f8 100644
---- a/mm/mlock.c
-+++ b/mm/mlock.c
-@@ -636,11 +636,11 @@ static int apply_vma_lock_flags(unsigned long start, size_t len,
-  * is also counted.
-  * Return value: previously mlocked page counts
-  */
--static int count_mm_mlocked_page_nr(struct mm_struct *mm,
-+static unsigned long count_mm_mlocked_page_nr(struct mm_struct *mm,
- 		unsigned long start, size_t len)
+diff --git a/drivers/usb/gadget/udc/fusb300_udc.c b/drivers/usb/gadget/udc/fusb300_udc.c
+index e0c1b0099265..089f39de6897 100644
+--- a/drivers/usb/gadget/udc/fusb300_udc.c
++++ b/drivers/usb/gadget/udc/fusb300_udc.c
+@@ -1345,12 +1345,15 @@ static const struct usb_gadget_ops fusb300_gadget_ops = {
+ static int fusb300_remove(struct platform_device *pdev)
  {
- 	struct vm_area_struct *vma;
--	int count = 0;
-+	unsigned long count = 0;
+ 	struct fusb300 *fusb300 = platform_get_drvdata(pdev);
++	int i;
  
- 	if (mm == NULL)
- 		mm = current->mm;
+ 	usb_del_gadget_udc(&fusb300->gadget);
+ 	iounmap(fusb300->reg);
+ 	free_irq(platform_get_irq(pdev, 0), fusb300);
+ 
+ 	fusb300_free_request(&fusb300->ep[0]->ep, fusb300->ep0_req);
++	for (i = 0; i < FUSB300_MAX_NUM_EP; i++)
++		kfree(fusb300->ep[i]);
+ 	kfree(fusb300);
+ 
+ 	return 0;
+@@ -1494,6 +1497,8 @@ clean_up:
+ 		if (fusb300->ep0_req)
+ 			fusb300_free_request(&fusb300->ep[0]->ep,
+ 				fusb300->ep0_req);
++		for (i = 0; i < FUSB300_MAX_NUM_EP; i++)
++			kfree(fusb300->ep[i]);
+ 		kfree(fusb300);
+ 	}
+ 	if (reg)
 -- 
 2.20.1
 
