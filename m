@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F96762330
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:34:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 607E0622C4
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:29:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732543AbfGHPc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:32:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34818 "EHLO mail.kernel.org"
+        id S2389301AbfGHP2t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:28:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732686AbfGHPcz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:32:55 -0400
+        id S2389357AbfGHP2r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:28:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28EE120665;
-        Mon,  8 Jul 2019 15:32:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF18420645;
+        Mon,  8 Jul 2019 15:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599974;
-        bh=7hQTXNKTVE51JAzz/0jxsi5MNoIHeJexkZF5jwsc5jc=;
+        s=default; t=1562599726;
+        bh=vbZc4uPPnLp+N+12ISZPZmUubYAfhhAjCpDjEMR9Hdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rv2XFsgdVT80YfSQfcLqQBw8SU62+LBre6A1PapJvfAyAWltBZDtqbBgZ7aEqT1cz
-         x8GM03kHPve4crCXTTU00IIHhG6pCEJBVLhM9jcR1CGJv5wJytqtIpmnM+UxDdMxlH
-         OKcpos4xo7DWZBMaKB6bKrt5u7bcS4dGit4AzEb0=
+        b=FdYiVsEmpYyA7yCQEn5ic2MsyCINX4YZUXBqg54nLVy+joq36Yno4ay389s1fVDb1
+         abnqQRl82yGXPcBAaQYDsMyvKSEqWlk02K3e8jcDMBEJSS8gL2vMoMr4kBM9GLbRj6
+         ABkCyW1117YrkTKDQEh8TOZ9lnE2IFRkBrFLYQjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 53/96] tracing: avoid build warning with HAVE_NOP_MCOUNT
+        stable@vger.kernel.org, Robert Beckett <bob.beckett@collabora.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Philipp Zabel <p.zabel@pengutronix.de>
+Subject: [PATCH 4.19 58/90] drm/imx: notify drm core before sending event during crtc disable
 Date:   Mon,  8 Jul 2019 17:13:25 +0200
-Message-Id: <20190708150529.373569464@linuxfoundation.org>
+Message-Id: <20190708150525.378226208@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cbdaeaf050b730ea02e9ab4ff844ce54d85dbe1d ]
+From: Robert Beckett <bob.beckett@collabora.com>
 
-Selecting HAVE_NOP_MCOUNT enables -mnop-mcount (if gcc supports it)
-and sets CC_USING_NOP_MCOUNT. Reuse __is_defined (which is suitable for
-testing CC_USING_* defines) to avoid conditional compilation and fix
-the following gcc 9 warning on s390:
+commit 78c68e8f5cd24bd32ba4ca1cdfb0c30cf0642685 upstream.
 
-kernel/trace/ftrace.c:2514:1: warning: ‘ftrace_code_disable’ defined
-but not used [-Wunused-function]
+Notify drm core before sending pending events during crtc disable.
+This fixes the first event after disable having an old stale timestamp
+by having drm_crtc_vblank_off update the timestamp to now.
 
-Link: http://lkml.kernel.org/r/patch.git-1a82d13f33ac.your-ad-here.call-01559732716-ext-6629@work.hours
+This was seen while debugging weston log message:
+Warning: computed repaint delay is insane: -8212 msec
 
-Fixes: 2f4df0017baed ("tracing: Add -mcount-nop option support")
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This occurred due to:
+1. driver starts up
+2. fbcon comes along and restores fbdev, enabling vblank
+3. vblank_disable_fn fires via timer disabling vblank, keeping vblank
+seq number and time set at current value
+(some time later)
+4. weston starts and does a modeset
+5. atomic commit disables crtc while it does the modeset
+6. ipu_crtc_atomic_disable sends vblank with old seq number and time
+
+Fixes: a474478642d5 ("drm/imx: fix crtc vblank state regression")
+
+Signed-off-by: Robert Beckett <bob.beckett@collabora.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/trace/ftrace.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/imx/ipuv3-crtc.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index b920358dd8f7..538f0b1c7ea2 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -2939,14 +2939,13 @@ static int ftrace_update_code(struct module *mod, struct ftrace_page *new_pgs)
- 			p = &pg->records[i];
- 			p->flags = rec_flags;
+--- a/drivers/gpu/drm/imx/ipuv3-crtc.c
++++ b/drivers/gpu/drm/imx/ipuv3-crtc.c
+@@ -98,14 +98,14 @@ static void ipu_crtc_atomic_disable(stru
+ 	ipu_dc_disable(ipu);
+ 	ipu_prg_disable(ipu);
  
--#ifndef CC_USING_NOP_MCOUNT
- 			/*
- 			 * Do the initial record conversion from mcount jump
- 			 * to the NOP instructions.
- 			 */
--			if (!ftrace_code_disable(mod, p))
-+			if (!__is_defined(CC_USING_NOP_MCOUNT) &&
-+			    !ftrace_code_disable(mod, p))
- 				break;
--#endif
++	drm_crtc_vblank_off(crtc);
++
+ 	spin_lock_irq(&crtc->dev->event_lock);
+ 	if (crtc->state->event) {
+ 		drm_crtc_send_vblank_event(crtc, crtc->state->event);
+ 		crtc->state->event = NULL;
+ 	}
+ 	spin_unlock_irq(&crtc->dev->event_lock);
+-
+-	drm_crtc_vblank_off(crtc);
+ }
  
- 			update_cnt++;
- 		}
--- 
-2.20.1
-
+ static void imx_drm_crtc_reset(struct drm_crtc *crtc)
 
 
