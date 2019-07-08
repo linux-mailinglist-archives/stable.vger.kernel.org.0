@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6789622F0
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:30:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F45862358
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389722AbfGHPaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:30:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59614 "EHLO mail.kernel.org"
+        id S2390524AbfGHPeb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:34:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389720AbfGHPag (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:30:36 -0400
+        id S2390551AbfGHPea (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:34:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 651D320665;
-        Mon,  8 Jul 2019 15:30:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DCDA20651;
+        Mon,  8 Jul 2019 15:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599835;
-        bh=F0MLiEif0xXSL6E1WHyu/bkxCafh91cFapRm0n3w3PE=;
+        s=default; t=1562600070;
+        bh=B5Ps5EHCwOMk/+GkMoCH5wo2EPVXUVjD2NyKOyU17y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zqDn2s5Ph79ZC4ScrilMWRz1+7Zrg/UF51dP0anvaNiOHQM4tDkaNl9X0V5AdqUiF
-         ugx7EymBd/xZZ+jz0gNzgpz/k1E4cbC223lgTRTSOy8EyJTB1paKw74hmbKvSXo4d3
-         l+xbSUIOVwEq6u1Ybizo+Me6HoDkceNQ4bmKkRSI=
+        b=BjyLLxlUe45yjzl/CIIk1EPlJ1bn7Z4cc7asoiPALEhnaurBOr7pjfN1ioDJyCOT9
+         7/q+pfFF5FFH0m+X1W1bEZ9QKd94YCDlKlKdoQjXu+5FnerzNp/GOkjgEKq/UEZqsq
+         OUO2SWyxy1zVnbBcs0hz8i0fA/r5RsbAa6IIH7t4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Cedric Hombourger <Cedric_Hombourger@mentor.com>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org
-Subject: [PATCH 4.19 88/90] MIPS: have "plain" make calls build dtbs for selected platforms
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 83/96] tty: rocket: fix incorrect forward declaration of rp_init()
 Date:   Mon,  8 Jul 2019 17:13:55 +0200
-Message-Id: <20190708150526.970098760@linuxfoundation.org>
+Message-Id: <20190708150530.936020429@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cedric Hombourger <Cedric_Hombourger@mentor.com>
+[ Upstream commit 423ea3255424b954947d167681b71ded1b8fca53 ]
 
-commit 637dfa0fad6d91a9a709dc70549a6d20fa77f615 upstream.
+Make the forward declaration actually match the real function
+definition, something that previous versions of gcc had just ignored.
 
-scripts/package/builddeb calls "make dtbs_install" after executing
-a plain make (i.e. no build targets specified). It will fail if dtbs
-were not built beforehand. Match the arm64 architecture where DTBs get
-built by the "all" target.
+This is another patch to fix new warnings from gcc-9 before I start the
+merge window pulls.  I don't want to miss legitimate new warnings just
+because my system update brought a new compiler with new warnings.
 
-Signed-off-by: Cedric Hombourger <Cedric_Hombourger@mentor.com>
-[paul.burton@mips.com: s/builddep/builddeb]
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: linux-mips@vger.kernel.org
-Cc: stable@vger.kernel.org # v4.1+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Makefile |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/rocket.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/mips/Makefile
-+++ b/arch/mips/Makefile
-@@ -16,6 +16,7 @@ archscripts: scripts_basic
- 	$(Q)$(MAKE) $(build)=arch/mips/boot/tools relocs
+diff --git a/drivers/tty/rocket.c b/drivers/tty/rocket.c
+index b121d8f8f3d7..27aeca30eeae 100644
+--- a/drivers/tty/rocket.c
++++ b/drivers/tty/rocket.c
+@@ -266,7 +266,7 @@ MODULE_PARM_DESC(pc104_3, "set interface types for ISA(PC104) board #3 (e.g. pc1
+ module_param_array(pc104_4, ulong, NULL, 0);
+ MODULE_PARM_DESC(pc104_4, "set interface types for ISA(PC104) board #4 (e.g. pc104_4=232,232,485,485,...");
  
- KBUILD_DEFCONFIG := 32r2el_defconfig
-+KBUILD_DTBS      := dtbs
+-static int rp_init(void);
++static int __init rp_init(void);
+ static void rp_cleanup_module(void);
  
- #
- # Select the object file format to substitute into the linker script.
-@@ -385,7 +386,7 @@ quiet_cmd_64 = OBJCOPY $@
- vmlinux.64: vmlinux
- 	$(call cmd,64)
- 
--all:	$(all-y)
-+all:	$(all-y) $(KBUILD_DTBS)
- 
- # boot
- $(boot-y): $(vmlinux-32) FORCE
+ module_init(rp_init);
+-- 
+2.20.1
+
 
 
