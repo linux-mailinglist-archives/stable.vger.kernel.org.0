@@ -2,80 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F2DD620BC
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 16:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B141620E1
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 16:52:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727787AbfGHOoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 10:44:30 -0400
-Received: from mga06.intel.com ([134.134.136.31]:44328 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726580AbfGHOoa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 10:44:30 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 Jul 2019 07:44:29 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,466,1557212400"; 
-   d="scan'208";a="167695137"
-Received: from jsakkine-mobl1.tm.intel.com ([10.237.50.189])
-  by orsmga003.jf.intel.com with ESMTP; 08 Jul 2019 07:44:26 -0700
-Message-ID: <de67f9ec37843f6ad92db37c4f5e53e45e3dd69a.camel@linux.intel.com>
-Subject: Re: [PATCH v2] tpm: Fix null pointer dereference on chip register
- error path
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Milan Broz <gmazyland@gmail.com>
-Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, arnd@arndb.de,
-        gregkh@linuxfoundation.org, linux-integrity@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Date:   Mon, 08 Jul 2019 17:44:28 +0300
-In-Reply-To: <58070e5ee4e64b10df063b61612b021c23f0fc14.camel@linux.intel.com>
-References: <20190703230125.aynx4ianvqqjt5d7@linux.intel.com>
-         <20190704072615.31143-1-gmazyland@gmail.com>
-         <58070e5ee4e64b10df063b61612b021c23f0fc14.camel@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.32.1-2 
+        id S1729383AbfGHOwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 10:52:22 -0400
+Received: from mo4-p02-ob.smtp.rzone.de ([85.215.255.82]:29806 "EHLO
+        mo4-p02-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725905AbfGHOwW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 10:52:22 -0400
+X-Greylist: delayed 364 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Jul 2019 10:52:20 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1562597539;
+        s=strato-dkim-0002; d=goldelico.com;
+        h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=/5MRjzRqaUGjrhBFjHxJCusOtBew5uCthHfQYabNy/k=;
+        b=HDfIIz/p/A8wQattq/8RZ5eEKrjVXHxonhMLlA95HtnDYN2a3T/qe2mNncJxsebPcW
+        4RDZ3hs6JjHCUhYVi0+fbXD/QmuG4Ahneu3yo7b5RSzMELMd9I29uuQfDNUpVCGt0aIL
+        gcVbXaPmr9lHmIWkwRm9WD7ssnZEcaOhuhpSH2w8TV/7h1j8C0u4B3RRz+baw8s8zo8m
+        KKw1PxutCbpM3eDAAK/+xEPEzVi3oTiXr+rursvXoNQFkvkeaDHKSqiJlWC7x7cGccAf
+        XM8awEUjz77uKcOPx4cAaKQT6Q9apnRKMTs/DO2pY1XiTVThPGe/CKHjlr1wzmGyh55l
+        ZStQ==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9o1OAA2UNf2AyOEF/R66y"
+X-RZG-CLASS-ID: mo00
+Received: from iMac.fritz.box
+        by smtp.strato.de (RZmta 44.24 DYNA|AUTH)
+        with ESMTPSA id V09459v68Ek7X7H
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve secp521r1 with 521 ECDH bits, eq. 15360 bits RSA))
+        (Client did not present a certificate);
+        Mon, 8 Jul 2019 16:46:07 +0200 (CEST)
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+To:     Mark Brown <broonie@kernel.org>, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>
+Cc:     letux-kernel@openphoenux.org, linux-spi@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-omap@vger.kernel.org,
+        "H. Nikolaus Schaller" <hns@goldelico.com>, stable@vger.kernel.org
+Subject: [PATCH 2/2] DTS: ARM: gta04: introduce legacy spi-cs-high to make display work again
+Date:   Mon,  8 Jul 2019 16:46:05 +0200
+Message-Id: <8ae7cf816b22ef9cecee0d789fcf9e8a06495c39.1562597164.git.hns@goldelico.com>
+X-Mailer: git-send-email 2.19.1
+In-Reply-To: <cover.1562597164.git.hns@goldelico.com>
+References: <cover.1562597164.git.hns@goldelico.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2019-07-08 at 17:34 +0300, Jarkko Sakkinen wrote:
-> On Thu, 2019-07-04 at 09:26 +0200, Milan Broz wrote:
-> > If clk_enable is not defined and chip initialization
-> > is canceled code hits null dereference.
-> > 
-> > Easily reproducible with vTPM init fail:
-> >   swtpm chardev --tpmstate dir=nonexistent_dir --tpm2 --vtpm-proxy
-> > 
-> > BUG: kernel NULL pointer dereference, address: 00000000
-> > ...
-> > Call Trace:
-> >  tpm_chip_start+0x9d/0xa0 [tpm]
-> >  tpm_chip_register+0x10/0x1a0 [tpm]
-> >  vtpm_proxy_work+0x11/0x30 [tpm_vtpm_proxy]
-> >  process_one_work+0x214/0x5a0
-> >  worker_thread+0x134/0x3e0
-> >  ? process_one_work+0x5a0/0x5a0
-> >  kthread+0xd4/0x100
-> >  ? process_one_work+0x5a0/0x5a0
-> >  ? kthread_park+0x90/0x90
-> >  ret_from_fork+0x19/0x24
-> > 
-> > Fixes: 719b7d81f204 ("tpm: introduce tpm_chip_start() and tpm_chip_stop()")
-> > Cc: stable@vger.kernel.org # v5.1+
-> > Signed-off-by: Milan Broz <gmazyland@gmail.com>
-> 
-> Looks legit.
-> 
-> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+commit 6953c57ab172 "gpio: of: Handle SPI chipselect legacy bindings"
 
-Please check master and next branches from
+did introduce logic to centrally handle the legacy spi-cs-high property
+in combination with cs-gpios. This assumes that the polarity
+of the CS has to be inverted if spi-cs-high is missing, even
+and especially if non-legacy GPIO_ACTIVE_HIGH is specified.
 
-  git://git.infradead.org/users/jjs/linux-tpmdd.git
+The DTS for the GTA04 was orginally introduced under the assumption
+that there is no need for spi-cs-high if the gpio is defined with
+proper polarity GPIO_ACTIVE_HIGH.
 
-/Jarkko
+This was not a problem until gpiolib changed the interpretation of
+GPIO_ACTIVE_HIGH and missing spi-cs-high.
+
+The effect is that the missing spi-cs-high is now interpreted as CS being
+low (despite GPIO_ACTIVE_HIGH) which turns off the SPI interface when the
+panel is to be programmed by the panel driver.
+
+Therefore, we have to add the redundant and legacy spi-cs-high property
+to properly pass through the legacy handler.
+
+Since this is nowhere documented in the bindings, we add some words of
+WARNING.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+---
+ Documentation/devicetree/bindings/spi/spi-bus.txt | 6 ++++++
+ arch/arm/boot/dts/omap3-gta04.dtsi                | 1 +
+ 2 files changed, 7 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/spi/spi-bus.txt b/Documentation/devicetree/bindings/spi/spi-bus.txt
+index 1f6e86f787ef..982aa590058b 100644
+--- a/Documentation/devicetree/bindings/spi/spi-bus.txt
++++ b/Documentation/devicetree/bindings/spi/spi-bus.txt
+@@ -47,6 +47,10 @@ cs1 : native
+ cs2 : &gpio1 1 0
+ cs3 : &gpio1 2 0
+ 
++WARNING: the polarity of cs-gpios may be inverted in some cases compared
++to what is specified in the third parameter. In that case the spi-cs-high
++property must be defined for slave nodes.
++
+ 
+ SPI slave nodes must be children of the SPI controller node.
+ 
+@@ -69,6 +73,8 @@ All slave nodes can contain the following optional properties:
+ 		    phase (CPHA) mode.
+ - spi-cs-high     - Empty property indicating device requires chip select
+ 		    active high.
++                   WARNING: this is especially required even if the cs-gpios
++		    define the gpio as GPIO_ACTIVE_HIGH
+ - spi-3wire       - Empty property indicating device requires 3-wire mode.
+ - spi-lsb-first   - Empty property indicating device requires LSB first mode.
+ - spi-tx-bus-width - The bus width (number of data wires) that is used for MOSI.
+diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
+index 9a9a29fe88ec..47bab8e1040e 100644
+--- a/arch/arm/boot/dts/omap3-gta04.dtsi
++++ b/arch/arm/boot/dts/omap3-gta04.dtsi
+@@ -124,6 +124,7 @@
+ 			spi-max-frequency = <100000>;
+ 			spi-cpol;
+ 			spi-cpha;
++			spi-cs-high;
+ 
+ 			backlight= <&backlight>;
+ 			label = "lcd";
+-- 
+2.19.1
 
