@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B37B622A1
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49CDD6223B
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:24:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389008AbfGHP1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:27:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55440 "EHLO mail.kernel.org"
+        id S2388234AbfGHPXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:23:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389028AbfGHP1U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:27:20 -0400
+        id S1731166AbfGHPXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:23:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AE9921537;
-        Mon,  8 Jul 2019 15:27:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07925204EC;
+        Mon,  8 Jul 2019 15:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599639;
-        bh=sG0Foj3U+q11NH5M5t+rxF9XnnjNxtXcNZYDCEbC3YE=;
+        s=default; t=1562599421;
+        bh=9L0SttTa0BIq1Uf+MGhfQMvOxZrYpehlrhdYX9je6l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RaT1T3BLA8Zs542Ano+gq5a3Mhjf/Hw0uw0DvkJqREDasr/m1PEeTRHJAO3QAJRn4
-         tSHdboSOecPhZ6IBma2nQsedIwvdBccMhs8rSPQW6cZ12TQbmaUiPujd+V73W9ATYv
-         KZSU91M1J40iWC7ICVyRvOYoOTsj/jRI/q9ZpkbE=
+        b=h/woEQIty6LoQIiOZZmD5m/96GVvyHlzuuLM4/AGMNGUa0smJnWw2TtOlMUSpQY15
+         jVwXfBF8JURMBFfxNr+opHXD4jRCeflLSrsQ2+lca5OBpXYfwMuLLbuBjmkVUE9GSi
+         8EDX832M5gL11R7XDqf0ilnFyxcQPDJGe9Xk5T0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jurgen Kramer <gtmkramer@xs4all.nl>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Matt Flax <flatmax@flatmax.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/90] drm: panel-orientation-quirks: Add quirk for GPD pocket2
+Subject: [PATCH 4.14 02/56] ASoC : cs4265 : readable register too low
 Date:   Mon,  8 Jul 2019 17:12:54 +0200
-Message-Id: <20190708150523.979357450@linuxfoundation.org>
+Message-Id: <20190708150517.052324446@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 15abc7110a77555d3bf72aaef46d1557db0a4ac5 ]
+[ Upstream commit f3df05c805983427319eddc2411a2105ee1757cf ]
 
-GPD has done it again, make a nice device (good), use way too generic
-DMI strings (bad) and use a portrait screen rotated 90 degrees (ugly).
+The cs4265_readable_register function stopped short of the maximum
+register.
 
-Because of the too generic DMI strings this entry is also doing bios-date
-matching, so the gpd_pocket2 data struct may very well need to be updated
-with some extra bios-dates in the future.
+An example bug is taken from :
+https://github.com/Audio-Injector/Ultra/issues/25
 
-Changes in v2:
--Add one more known BIOS date to the list of BIOS dates
+Where alsactl store fails with :
+Cannot read control '2,0,0,C Data Buffer,0': Input/output error
 
-Cc: Jurgen Kramer <gtmkramer@xs4all.nl>
-Reported-by: Jurgen Kramer <gtmkramer@xs4all.nl>
-Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190524125759.14131-1-hdegoede@redhat.com
-(cherry picked from commit 6dab9102dd7b144e5723915438e0d6c473018cd0)
+This patch fixes the bug by setting the cs4265 to have readable
+registers up to the maximum hardware register CS4265_MAX_REGISTER.
+
+Signed-off-by: Matt Flax <flatmax@flatmax.org>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ sound/soc/codecs/cs4265.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index ee4a5e1221f1..088363675940 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -50,6 +50,14 @@ static const struct drm_dmi_panel_orientation_data gpd_pocket = {
- 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
- };
- 
-+static const struct drm_dmi_panel_orientation_data gpd_pocket2 = {
-+	.width = 1200,
-+	.height = 1920,
-+	.bios_dates = (const char * const []){ "06/28/2018", "08/28/2018",
-+		"12/07/2018", NULL },
-+	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
-+};
-+
- static const struct drm_dmi_panel_orientation_data gpd_win = {
- 	.width = 720,
- 	.height = 1280,
-@@ -98,6 +106,14 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Default string"),
- 		},
- 		.driver_data = (void *)&gpd_pocket,
-+	}, {	/* GPD Pocket 2 (generic strings, also match on bios date) */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Default string"),
-+		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Default string"),
-+		  DMI_EXACT_MATCH(DMI_BOARD_NAME, "Default string"),
-+		},
-+		.driver_data = (void *)&gpd_pocket2,
- 	}, {	/* GPD Win (same note on DMI match as GPD Pocket) */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
+diff --git a/sound/soc/codecs/cs4265.c b/sound/soc/codecs/cs4265.c
+index 6e8eb1f5a041..bed64723e5d9 100644
+--- a/sound/soc/codecs/cs4265.c
++++ b/sound/soc/codecs/cs4265.c
+@@ -60,7 +60,7 @@ static const struct reg_default cs4265_reg_defaults[] = {
+ static bool cs4265_readable_register(struct device *dev, unsigned int reg)
+ {
+ 	switch (reg) {
+-	case CS4265_CHIP_ID ... CS4265_SPDIF_CTL2:
++	case CS4265_CHIP_ID ... CS4265_MAX_REGISTER:
+ 		return true;
+ 	default:
+ 		return false;
 -- 
 2.20.1
 
