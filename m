@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EA3862293
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF34D624E1
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:46:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731764AbfGHP0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:26:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54748 "EHLO mail.kernel.org"
+        id S2387662AbfGHPqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:46:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388924AbfGHP0w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:26:52 -0400
+        id S1730899AbfGHPUs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:20:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E9E321738;
-        Mon,  8 Jul 2019 15:26:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39FBD216C4;
+        Mon,  8 Jul 2019 15:20:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599611;
-        bh=jZouWAH0ydmDcuQIbBTMDuOvcyAk4CEZcD2IbEZAhTU=;
+        s=default; t=1562599247;
+        bh=M3ZuKp0XDdst9JplQL3gyct4VtflnifobcVwFZFGdug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vVPc0Eoz5bydjuf+lnRP3IWHtQ3RQNCHqIpdXGO/gfTRiDa0inT3UpZekyjTucpF+
-         oa4nLdhv46eHMIhH02tiBCPzMsOOkXBNCtFuY23euQJEtwWpghaL2SbZ1Bz+ZcpJiA
-         JLRTcPqJPVTkwV7Ude1ICpcimriw2B/F07Pq5oZg=
+        b=Q/M7+Cph+QBT+BoM6X802weX+v1U1/itqaS47xnce4ylFQnnCobWWq49SiaEZVZs4
+         1rv/nX1nltGU+LLdVrQga+XTJindWAX6E+AFtfQ54X2atyHL/JKk3a0hYTlvi5Xvh7
+         3b9GP8QneC/73QrlyM2b4gRYZefejK/XrHbGFTeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/90] ASoC: max98090: remove 24-bit format support if RJ is 0
-Date:   Mon,  8 Jul 2019 17:12:45 +0200
-Message-Id: <20190708150523.530394685@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Roland Hii <roland.king.guan.hii@intel.com>,
+        Ong Boon Leong <boon.leong.ong@intel.com>,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 053/102] net: stmmac: fixed new system time seconds value calculation
+Date:   Mon,  8 Jul 2019 17:12:46 +0200
+Message-Id: <20190708150529.189410547@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5628c8979642a076f91ee86c3bae5ad251639af0 ]
+From: Roland Hii <roland.king.guan.hii@intel.com>
 
-The supported formats are S16_LE and S24_LE now. However, by datasheet
-of max98090, S24_LE is only supported when it is in the right justified
-mode. We should remove 24-bit format if it is not in that mode to avoid
-triggering error.
+[ Upstream commit a1e5388b4d5fc78688e5e9ee6641f779721d6291 ]
 
-Signed-off-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When ADDSUB bit is set, the system time seconds field is calculated as
+the complement of the seconds part of the update value.
+
+For example, if 3.000000001 seconds need to be subtracted from the
+system time, this field is calculated as
+2^32 - 3 = 4294967296 - 3 = 0x100000000 - 3 = 0xFFFFFFFD
+
+Previously, the 0x100000000 is mistakenly written as 100000000.
+
+This is further simplified from
+  sec = (0x100000000ULL - sec);
+to
+  sec = -sec;
+
+Fixes: ba1ffd74df74 ("stmmac: fix PTP support for GMAC4")
+Signed-off-by: Roland Hii <roland.king.guan.hii@intel.com>
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/max98090.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
-index f06ae43650a3..c3b28b2f4b10 100644
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -1924,6 +1924,21 @@ static int max98090_configure_dmic(struct max98090_priv *max98090,
- 	return 0;
- }
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+@@ -125,7 +125,7 @@ static int stmmac_adjust_systime(void __
+ 		 * programmed with (2^32 – <new_sec_value>)
+ 		 */
+ 		if (gmac4)
+-			sec = (100000000ULL - sec);
++			sec = -sec;
  
-+static int max98090_dai_startup(struct snd_pcm_substream *substream,
-+				struct snd_soc_dai *dai)
-+{
-+	struct snd_soc_component *component = dai->component;
-+	struct max98090_priv *max98090 = snd_soc_component_get_drvdata(component);
-+	unsigned int fmt = max98090->dai_fmt;
-+
-+	/* Remove 24-bit format support if it is not in right justified mode. */
-+	if ((fmt & SND_SOC_DAIFMT_FORMAT_MASK) != SND_SOC_DAIFMT_RIGHT_J) {
-+		substream->runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
-+		snd_pcm_hw_constraint_msbits(substream->runtime, 0, 16, 16);
-+	}
-+	return 0;
-+}
-+
- static int max98090_dai_hw_params(struct snd_pcm_substream *substream,
- 				   struct snd_pcm_hw_params *params,
- 				   struct snd_soc_dai *dai)
-@@ -2331,6 +2346,7 @@ EXPORT_SYMBOL_GPL(max98090_mic_detect);
- #define MAX98090_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE)
- 
- static const struct snd_soc_dai_ops max98090_dai_ops = {
-+	.startup = max98090_dai_startup,
- 	.set_sysclk = max98090_dai_set_sysclk,
- 	.set_fmt = max98090_dai_set_fmt,
- 	.set_tdm_slot = max98090_set_tdm_slot,
--- 
-2.20.1
-
+ 		value = readl(ioaddr + PTP_TCR);
+ 		if (value & PTP_TCR_TSCTRLSSR)
 
 
