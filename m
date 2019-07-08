@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B22E621C1
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:19:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC97624F1
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733185AbfGHPTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:19:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43424 "EHLO mail.kernel.org"
+        id S1733192AbfGHPTR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:19:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733192AbfGHPTN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:19:13 -0400
+        id S1733205AbfGHPTR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:19:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 032512166E;
-        Mon,  8 Jul 2019 15:19:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82D5321537;
+        Mon,  8 Jul 2019 15:19:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599152;
-        bh=bfHs3ROo57RB2tcNBss4vHTBOJ2MIl4Akl8RACSTyxs=;
+        s=default; t=1562599156;
+        bh=NUS9YOn5HCd2lVHAlqD9mDJjs3hLJPpuIfN7lHx0wp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vPDNrVxI9Eu/dagqpoq9nhyZoRC6hXV81J5K07SpnDkgX0ftP9As7AV2DiCYSFTS8
-         vB/Pbnyu5ifEz1GfN6HC7jjje6ttnbZeO5Swo1+IR+FruStWCGG2CuxUXhGfPNH5Un
-         +dq6vqGk71lWRiwaCGnUHK4VOhb5VZnRcV7e2JWY=
+        b=Zl7hj0IIg0tPkGR5NfUaR2gIVffmXrWVe1gGRoFuFoWSREPYVivNYgfY99kR4km5d
+         v/FuJizyNwPmsvDHZGkKuHXoRct2zC1NzZ84oC64H1aqkCFhNU2/GeGkO8SU6O1UCt
+         UKbGgO8A/bVJlNQP1mX1PFwBbzCG9OFsx5wFKtbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bean Huo <beanhuo@micron.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 022/102] scsi: ufs: Check that space was properly alloced in copy_query_response
-Date:   Mon,  8 Jul 2019 17:12:15 +0200
-Message-Id: <20190708150527.366495203@linuxfoundation.org>
+Subject: [PATCH 4.9 023/102] s390/qeth: fix VLAN attribute in bridge_hostnotify udev event
+Date:   Mon,  8 Jul 2019 17:12:16 +0200
+Message-Id: <20190708150527.430478010@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
 References: <20190708150525.973820964@linuxfoundation.org>
@@ -46,39 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1c90836f70f9a8ef7b7ad9e1fdd8961903e6ced6 ]
+[ Upstream commit 335726195e460cb6b3f795b695bfd31f0ea70ef0 ]
 
-struct ufs_dev_cmd is the main container that supports device management
-commands. In the case of a read descriptor request, we assume that the
-proper space was allocated in dev_cmd to hold the returning descriptor.
+Enabling sysfs attribute bridge_hostnotify triggers a series of udev events
+for the MAC addresses of all currently connected peers. In case no VLAN is
+set for a peer, the device reports the corresponding MAC addresses with
+VLAN ID 4096. This currently results in attribute VLAN=4096 for all
+non-VLAN interfaces in the initial series of events after host-notify is
+enabled.
 
-This is no longer true, as there are flows that doesn't use dev_cmd for
-device management requests, and was wrong in the first place.
+Instead, no VLAN attribute should be reported in the udev event for
+non-VLAN interfaces.
 
-Fixes: d44a5f98bb49 (ufs: query descriptor API)
-Signed-off-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Acked-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Only the initial events face this issue. For dynamic changes that are
+reported later, the device uses a validity flag.
+
+This also changes the code so that it now sets the VLAN attribute for
+MAC addresses with VID 0. On Linux, no qeth interface will ever be
+registered with VID 0: Linux kernel registers VID 0 on all network
+interfaces initially, but qeth will drop .ndo_vlan_rx_add_vid for VID 0.
+Peers with other OSs could register MACs with VID 0.
+
+Fixes: 9f48b9db9a22 ("qeth: bridgeport support - address notifications")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/s390/net/qeth_l2_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 0fe4f8e8c8c9..a9c172692f21 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -941,7 +941,8 @@ int ufshcd_copy_query_response(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
- 	memcpy(&query_res->upiu_res, &lrbp->ucd_rsp_ptr->qr, QUERY_OSF_SIZE);
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 58404e69aa4b..6ba4e921d2fd 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -2124,7 +2124,7 @@ static void qeth_bridgeport_an_set_cb(void *priv,
  
- 	/* Get the descriptor */
--	if (lrbp->ucd_rsp_ptr->qr.opcode == UPIU_QUERY_OPCODE_READ_DESC) {
-+	if (hba->dev_cmd.query.descriptor &&
-+	    lrbp->ucd_rsp_ptr->qr.opcode == UPIU_QUERY_OPCODE_READ_DESC) {
- 		u8 *descp = (u8 *)lrbp->ucd_rsp_ptr +
- 				GENERAL_UPIU_REQUEST_SIZE;
- 		u16 resp_len;
+ 	l2entry = (struct qdio_brinfo_entry_l2 *)entry;
+ 	code = IPA_ADDR_CHANGE_CODE_MACADDR;
+-	if (l2entry->addr_lnid.lnid)
++	if (l2entry->addr_lnid.lnid < VLAN_N_VID)
+ 		code |= IPA_ADDR_CHANGE_CODE_VLANID;
+ 	qeth_bridge_emit_host_event(card, anev_reg_unreg, code,
+ 		(struct net_if_token *)&l2entry->nit,
 -- 
 2.20.1
 
