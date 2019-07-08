@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64FA0621AC
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:18:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA3862293
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727795AbfGHPSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:18:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42116 "EHLO mail.kernel.org"
+        id S1731764AbfGHP0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:26:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733013AbfGHPSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:18:21 -0400
+        id S2388924AbfGHP0w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:26:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 220812171F;
-        Mon,  8 Jul 2019 15:18:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E9E321738;
+        Mon,  8 Jul 2019 15:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599100;
-        bh=+erWMCoHTiSsklg2eI6FKFJT38mbys5O4ZaxKE9Ogkc=;
+        s=default; t=1562599611;
+        bh=jZouWAH0ydmDcuQIbBTMDuOvcyAk4CEZcD2IbEZAhTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCmMan01dj6MvjpE1U0aYQSzOxExGa8v/EF5mdK3u7wbbeJ3cFgPpzc6fvWi5q78k
-         9Lxuy2GheRCO4JVgfjumejj1INQbfIC4U3VHTGesMkqrMwSsNegihh8tjUb6aoi0kc
-         YOGk8GMbjnA0EkcpBEYkTrZFX2BEPFUxtlRb0oJc=
+        b=vVPc0Eoz5bydjuf+lnRP3IWHtQ3RQNCHqIpdXGO/gfTRiDa0inT3UpZekyjTucpF+
+         oa4nLdhv46eHMIhH02tiBCPzMsOOkXBNCtFuY23euQJEtwWpghaL2SbZ1Bz+ZcpJiA
+         JLRTcPqJPVTkwV7Ude1ICpcimriw2B/F07Pq5oZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Adeodato=20Sim=C3=B3?= <dato@net.com.org.es>,
-        Dominique Martinet <dominique.martinet@cea.fr>,
+        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 35/73] net/9p: include trans_common.h to fix missing prototype warning.
+Subject: [PATCH 4.19 18/90] ASoC: max98090: remove 24-bit format support if RJ is 0
 Date:   Mon,  8 Jul 2019 17:12:45 +0200
-Message-Id: <20190708150523.187158218@linuxfoundation.org>
+Message-Id: <20190708150523.530394685@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,30 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 52ad259eaac0454c1ac7123e7148cf8d6e6f5301 ]
+[ Upstream commit 5628c8979642a076f91ee86c3bae5ad251639af0 ]
 
-This silences -Wmissing-prototypes when defining p9_release_pages.
+The supported formats are S16_LE and S24_LE now. However, by datasheet
+of max98090, S24_LE is only supported when it is in the right justified
+mode. We should remove 24-bit format if it is not in that mode to avoid
+triggering error.
 
-Link: http://lkml.kernel.org/r/b1c4df8f21689b10d451c28fe38e860722d20e71.1542089696.git.dato@net.com.org.es
-Signed-off-by: Adeodato Simó <dato@net.com.org.es>
-Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
+Signed-off-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_common.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/max98090.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/net/9p/trans_common.c b/net/9p/trans_common.c
-index 38aa6345bdfa..9c0c894b56f8 100644
---- a/net/9p/trans_common.c
-+++ b/net/9p/trans_common.c
-@@ -14,6 +14,7 @@
+diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
+index f06ae43650a3..c3b28b2f4b10 100644
+--- a/sound/soc/codecs/max98090.c
++++ b/sound/soc/codecs/max98090.c
+@@ -1924,6 +1924,21 @@ static int max98090_configure_dmic(struct max98090_priv *max98090,
+ 	return 0;
+ }
  
- #include <linux/mm.h>
- #include <linux/module.h>
-+#include "trans_common.h"
++static int max98090_dai_startup(struct snd_pcm_substream *substream,
++				struct snd_soc_dai *dai)
++{
++	struct snd_soc_component *component = dai->component;
++	struct max98090_priv *max98090 = snd_soc_component_get_drvdata(component);
++	unsigned int fmt = max98090->dai_fmt;
++
++	/* Remove 24-bit format support if it is not in right justified mode. */
++	if ((fmt & SND_SOC_DAIFMT_FORMAT_MASK) != SND_SOC_DAIFMT_RIGHT_J) {
++		substream->runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
++		snd_pcm_hw_constraint_msbits(substream->runtime, 0, 16, 16);
++	}
++	return 0;
++}
++
+ static int max98090_dai_hw_params(struct snd_pcm_substream *substream,
+ 				   struct snd_pcm_hw_params *params,
+ 				   struct snd_soc_dai *dai)
+@@ -2331,6 +2346,7 @@ EXPORT_SYMBOL_GPL(max98090_mic_detect);
+ #define MAX98090_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE)
  
- /**
-  *  p9_release_req_pages - Release pages after the transaction.
+ static const struct snd_soc_dai_ops max98090_dai_ops = {
++	.startup = max98090_dai_startup,
+ 	.set_sysclk = max98090_dai_set_sysclk,
+ 	.set_fmt = max98090_dai_set_fmt,
+ 	.set_tdm_slot = max98090_set_tdm_slot,
 -- 
 2.20.1
 
