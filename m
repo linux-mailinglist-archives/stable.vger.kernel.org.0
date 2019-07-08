@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 047C3624F2
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79A90624EF
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391350AbfGHPrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:47:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45036 "EHLO mail.kernel.org"
+        id S2387457AbfGHPUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:20:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733310AbfGHPUR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:20:17 -0400
+        id S2387451AbfGHPUX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:20:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 392C5216C4;
-        Mon,  8 Jul 2019 15:20:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6725B216FD;
+        Mon,  8 Jul 2019 15:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599216;
-        bh=zK/2m3vIdbnCyxfHRSFwOxu839hS2Og+FGZFOvRJtp8=;
+        s=default; t=1562599221;
+        bh=llOhldVfBQaIDrwlm5N45xRxijHQV8PlwH5Ki7ASyEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E/Ig25U9hDPNcKDS1drAqvImA2148pbCt1PuSjUHjS6gSNf50nILTc7MOhYgo5AyU
-         lyCjg7JnN6L51QYUX9IPrVLuJb5cR5SjcwDAoBeHrXOw4toXJ1fxkR+/BLOZlrpw2c
-         MkZrP7AWJm5TfJjJmQwu16968cM2jq1DYtsFhj/8=
+        b=j8SKIaveVN1ZsVuJEVaQpiJwTUolUG+sWJFiouoys/azVh1cOHCW8fPCv4NeAjQra
+         MdyoqwVNpEdNpUg8IbyXuJZDrR3Z//fKkD+hGJ5mAYTrMSsi2gb71O+hsYi8MviK39
+         JZWiL8afpnYGkgj8T8eu5jfmEVlbRMzaN2P/V4go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Jun Li <jun.li@nxp.com>, Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.9 004/102] usb: chipidea: udc: workaround for endpoint conflict issue
-Date:   Mon,  8 Jul 2019 17:11:57 +0200
-Message-Id: <20190708150526.209349107@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Doug Ledford <dledford@redhat.com>
+Subject: [PATCH 4.9 005/102] IB/hfi1: Silence txreq allocation warnings
+Date:   Mon,  8 Jul 2019 17:11:58 +0200
+Message-Id: <20190708150526.265563006@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
 References: <20190708150525.973820964@linuxfoundation.org>
@@ -44,76 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-commit c19dffc0a9511a7d7493ec21019aefd97e9a111b upstream.
+commit 3230f4a8d44e4a0bb7afea814b280b5129521f52 upstream.
 
-An endpoint conflict occurs when the USB is working in device mode
-during an isochronous communication. When the endpointA IN direction
-is an isochronous IN endpoint, and the host sends an IN token to
-endpointA on another device, then the OUT transaction may be missed
-regardless the OUT endpoint number. Generally, this occurs when the
-device is connected to the host through a hub and other devices are
-connected to the same hub.
+The following warning can happen when a memory shortage
+occurs during txreq allocation:
 
-The affected OUT endpoint can be either control, bulk, isochronous, or
-an interrupt endpoint. After the OUT endpoint is primed, if an IN token
-to the same endpoint number on another device is received, then the OUT
-endpoint may be unprimed (cannot be detected by software), which causes
-this endpoint to no longer respond to the host OUT token, and thus, no
-corresponding interrupt occurs.
+[10220.939246] SLUB: Unable to allocate memory on node -1, gfp=0xa20(GFP_ATOMIC)
+[10220.939246] Hardware name: Intel Corporation S2600WT2R/S2600WT2R, BIOS SE5C610.86B.01.01.0018.C4.072020161249 07/20/2016
+[10220.939247]   cache: mnt_cache, object size: 384, buffer size: 384, default order: 2, min order: 0
+[10220.939260] Workqueue: hfi0_0 _hfi1_do_send [hfi1]
+[10220.939261]   node 0: slabs: 1026568, objs: 43115856, free: 0
+[10220.939262] Call Trace:
+[10220.939262]   node 1: slabs: 820872, objs: 34476624, free: 0
+[10220.939263]  dump_stack+0x5a/0x73
+[10220.939265]  warn_alloc+0x103/0x190
+[10220.939267]  ? wake_all_kswapds+0x54/0x8b
+[10220.939268]  __alloc_pages_slowpath+0x86c/0xa2e
+[10220.939270]  ? __alloc_pages_nodemask+0x2fe/0x320
+[10220.939271]  __alloc_pages_nodemask+0x2fe/0x320
+[10220.939273]  new_slab+0x475/0x550
+[10220.939275]  ___slab_alloc+0x36c/0x520
+[10220.939287]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939299]  ? __get_txreq+0x54/0x160 [hfi1]
+[10220.939310]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939312]  __slab_alloc+0x40/0x61
+[10220.939323]  ? hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939325]  kmem_cache_alloc+0x181/0x1b0
+[10220.939336]  hfi1_make_rc_req+0x90/0x18b0 [hfi1]
+[10220.939348]  ? hfi1_verbs_send_dma+0x386/0xa10 [hfi1]
+[10220.939359]  ? find_prev_entry+0xb0/0xb0 [hfi1]
+[10220.939371]  hfi1_do_send+0x1d9/0x3f0 [hfi1]
+[10220.939372]  process_one_work+0x171/0x380
+[10220.939374]  worker_thread+0x49/0x3f0
+[10220.939375]  kthread+0xf8/0x130
+[10220.939377]  ? max_active_store+0x80/0x80
+[10220.939378]  ? kthread_bind+0x10/0x10
+[10220.939379]  ret_from_fork+0x35/0x40
+[10220.939381] SLUB: Unable to allocate memory on node -1, gfp=0xa20(GFP_ATOMIC)
 
-There is no good workaround for this issue, the only thing the software
-could do is numbering isochronous IN from the highest endpoint since we
-have observed most of device number endpoint from the lowest.
+The shortage is handled properly so the message isn't needed. Silence by
+adding the no warn option to the slab allocation.
 
-Cc: <stable@vger.kernel.org> #v3.14+
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Jun Li <jun.li@nxp.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Fixes: 45842abbb292 ("staging/rdma/hfi1: move txreq header code")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/chipidea/udc.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/infiniband/hw/hfi1/verbs_txreq.c |    2 +-
+ drivers/infiniband/hw/hfi1/verbs_txreq.h |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/chipidea/udc.c
-+++ b/drivers/usb/chipidea/udc.c
-@@ -1621,6 +1621,25 @@ static int ci_udc_pullup(struct usb_gadg
- static int ci_udc_start(struct usb_gadget *gadget,
- 			 struct usb_gadget_driver *driver);
- static int ci_udc_stop(struct usb_gadget *gadget);
-+
-+/* Match ISOC IN from the highest endpoint */
-+static struct usb_ep *ci_udc_match_ep(struct usb_gadget *gadget,
-+			      struct usb_endpoint_descriptor *desc,
-+			      struct usb_ss_ep_comp_descriptor *comp_desc)
-+{
-+	struct ci_hdrc *ci = container_of(gadget, struct ci_hdrc, gadget);
-+	struct usb_ep *ep;
-+
-+	if (usb_endpoint_xfer_isoc(desc) && usb_endpoint_dir_in(desc)) {
-+		list_for_each_entry_reverse(ep, &ci->gadget.ep_list, ep_list) {
-+			if (ep->caps.dir_in && !ep->claimed)
-+				return ep;
-+		}
-+	}
-+
-+	return NULL;
-+}
-+
- /**
-  * Device operations part of the API to the USB controller hardware,
-  * which don't involve endpoints (or i/o)
-@@ -1634,6 +1653,7 @@ static const struct usb_gadget_ops usb_g
- 	.vbus_draw	= ci_udc_vbus_draw,
- 	.udc_start	= ci_udc_start,
- 	.udc_stop	= ci_udc_stop,
-+	.match_ep 	= ci_udc_match_ep,
- };
+--- a/drivers/infiniband/hw/hfi1/verbs_txreq.c
++++ b/drivers/infiniband/hw/hfi1/verbs_txreq.c
+@@ -100,7 +100,7 @@ struct verbs_txreq *__get_txreq(struct h
+ 	if (ib_rvt_state_ops[qp->state] & RVT_PROCESS_RECV_OK) {
+ 		struct hfi1_qp_priv *priv;
  
- static int init_eps(struct ci_hdrc *ci)
+-		tx = kmem_cache_alloc(dev->verbs_txreq_cache, GFP_ATOMIC);
++		tx = kmem_cache_alloc(dev->verbs_txreq_cache, VERBS_TXREQ_GFP);
+ 		if (tx)
+ 			goto out;
+ 		priv = qp->priv;
+--- a/drivers/infiniband/hw/hfi1/verbs_txreq.h
++++ b/drivers/infiniband/hw/hfi1/verbs_txreq.h
+@@ -71,6 +71,7 @@ struct hfi1_ibdev;
+ struct verbs_txreq *__get_txreq(struct hfi1_ibdev *dev,
+ 				struct rvt_qp *qp);
+ 
++#define VERBS_TXREQ_GFP (GFP_ATOMIC | __GFP_NOWARN)
+ static inline struct verbs_txreq *get_txreq(struct hfi1_ibdev *dev,
+ 					    struct rvt_qp *qp)
+ 	__must_hold(&qp->slock)
+@@ -78,7 +79,7 @@ static inline struct verbs_txreq *get_tx
+ 	struct verbs_txreq *tx;
+ 	struct hfi1_qp_priv *priv = qp->priv;
+ 
+-	tx = kmem_cache_alloc(dev->verbs_txreq_cache, GFP_ATOMIC);
++	tx = kmem_cache_alloc(dev->verbs_txreq_cache, VERBS_TXREQ_GFP);
+ 	if (unlikely(!tx)) {
+ 		/* call slow path to get the lock */
+ 		tx = __get_txreq(dev, qp);
 
 
