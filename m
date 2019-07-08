@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC2CF624B0
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EB7F6219A
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:18:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731281AbfGHPWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:22:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49170 "EHLO mail.kernel.org"
+        id S1732887AbfGHPRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:17:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731269AbfGHPWe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:22:34 -0400
+        id S1730511AbfGHPRp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:17:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7B7820665;
-        Mon,  8 Jul 2019 15:22:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E88E6216C4;
+        Mon,  8 Jul 2019 15:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599354;
-        bh=B68yrbVy3+HwmW2J9/7x86FB8VbVZ4G8oc82CvTHK0g=;
+        s=default; t=1562599064;
+        bh=A3B+CCe3/MsWOjNTZZQCMTN4wd4E3BxnZap+XVg5Xew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nsqb/FsXWr24lpqh8jheR+gQ5rYGXu3rM9YHH2WZb7hLtXByKkP27N74ZzQmGIQkQ
-         7izi5mXJwzlxUNMt7fyXGdM0zDr/7OhqBGFd7OTIe3BmQliZ5+SmvSVrwTL4fWvPG3
-         erkCQIx7mCSYMN9WJDIU6hqfFhJw6UvYG/+Du+Jc=
+        b=cLhk2dhxRl9B9ZHxxLXKwzrpblKTAUCEmfCGxhRJ+FUN1A9b950KdsXebcWQmwW6q
+         Y690i+S8veWtCIJtLT1Y97aimmYf9+cTJN9F4QbFyKbxJ+UKGnwjjwEWjCG2FwI/Ik
+         Kv05fvGbZJB2VQWcl2LYZzU7eH2b/mTHPrYClIUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 047/102] mm/page_idle.c: fix oops because end_pfn is larger than max_pfn
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.4 30/73] perf help: Remove needless use of strncpy()
 Date:   Mon,  8 Jul 2019 17:12:40 +0200
-Message-Id: <20190708150528.868725392@linuxfoundation.org>
+Message-Id: <20190708150522.770686017@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,85 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit 7298e3b0a149c91323b3205d325e942c3b3b9ef6 upstream.
+commit b6313899f4ed2e76b8375cf8069556f5b94fbff0 upstream.
 
-Currently the calcuation of end_pfn can round up the pfn number to more
-than the actual maximum number of pfns, causing an Oops.  Fix this by
-ensuring end_pfn is never more than max_pfn.
+Since we make sure the destination buffer has at least strlen(orig) + 1,
+no need to do a strncpy(dest, orig, strlen(orig)), just use strcpy(dest,
+orig).
 
-This can be easily triggered when on systems where the end_pfn gets
-rounded up to more than max_pfn using the idle-page stress-ng stress test:
+This silences this gcc 8.2 warning on Alpine Linux:
 
-sudo stress-ng --idle-page 0
+  In function 'add_man_viewer',
+      inlined from 'perf_help_config' at builtin-help.c:284:3:
+  builtin-help.c:192:2: error: 'strncpy' output truncated before terminating nul copying as many bytes from a string as its length [-Werror=stringop-truncation]
+    strncpy((*p)->name, name, len);
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  builtin-help.c: In function 'perf_help_config':
+  builtin-help.c:187:15: note: length computed here
+    size_t len = strlen(name);
+                 ^~~~~~~~~~~~
 
-  BUG: unable to handle kernel paging request at 00000000000020d8
-  #PF error: [normal kernel read fault]
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  CPU: 1 PID: 11039 Comm: stress-ng-idle- Not tainted 5.0.0-5-generic #6-Ubuntu
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-  RIP: 0010:page_idle_get_page+0xc8/0x1a0
-  Code: 0f b1 0a 75 7d 48 8b 03 48 89 c2 48 c1 e8 33 83 e0 07 48 c1 ea 36 48 8d 0c 40 4c 8d 24 88 49 c1 e4 07 4c 03 24 d5 00 89 c3 be <49> 8b 44 24 58 48 8d b8 80 a1 02 00 e8 07 d5 77 00 48 8b 53 08 48
-  RSP: 0018:ffffafd7c672fde8 EFLAGS: 00010202
-  RAX: 0000000000000005 RBX: ffffe36341fff700 RCX: 000000000000000f
-  RDX: 0000000000000284 RSI: 0000000000000275 RDI: 0000000001fff700
-  RBP: ffffafd7c672fe00 R08: ffffa0bc34056410 R09: 0000000000000276
-  R10: ffffa0bc754e9b40 R11: ffffa0bc330f6400 R12: 0000000000002080
-  R13: ffffe36341fff700 R14: 0000000000080000 R15: ffffa0bc330f6400
-  FS: 00007f0ec1ea5740(0000) GS:ffffa0bc7db00000(0000) knlGS:0000000000000000
-  CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00000000000020d8 CR3: 0000000077d68000 CR4: 00000000000006e0
-  Call Trace:
-    page_idle_bitmap_write+0x8c/0x140
-    sysfs_kf_bin_write+0x5c/0x70
-    kernfs_fop_write+0x12e/0x1b0
-    __vfs_write+0x1b/0x40
-    vfs_write+0xab/0x1b0
-    ksys_write+0x55/0xc0
-    __x64_sys_write+0x1a/0x20
-    do_syscall_64+0x5a/0x110
-    entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Link: http://lkml.kernel.org/r/20190618124352.28307-1-colin.king@canonical.com
-Fixes: 33c3fc71c8cf ("mm: introduce idle page tracking")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Fixes: 078006012401 ("perf_counter tools: add in basic glue from Git")
+Link: https://lkml.kernel.org/n/tip-2f69l7drca427ob4km8i7kvo@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/page_idle.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/perf/builtin-help.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/page_idle.c
-+++ b/mm/page_idle.c
-@@ -131,7 +131,7 @@ static ssize_t page_idle_bitmap_read(str
+--- a/tools/perf/builtin-help.c
++++ b/tools/perf/builtin-help.c
+@@ -179,7 +179,7 @@ static void add_man_viewer(const char *n
+ 	while (*p)
+ 		p = &((*p)->next);
+ 	*p = zalloc(sizeof(**p) + len + 1);
+-	strncpy((*p)->name, name, len);
++	strcpy((*p)->name, name);
+ }
  
- 	end_pfn = pfn + count * BITS_PER_BYTE;
- 	if (end_pfn > max_pfn)
--		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
-+		end_pfn = max_pfn;
- 
- 	for (; pfn < end_pfn; pfn++) {
- 		bit = pfn % BITMAP_CHUNK_BITS;
-@@ -176,7 +176,7 @@ static ssize_t page_idle_bitmap_write(st
- 
- 	end_pfn = pfn + count * BITS_PER_BYTE;
- 	if (end_pfn > max_pfn)
--		end_pfn = ALIGN(max_pfn, BITMAP_CHUNK_BITS);
-+		end_pfn = max_pfn;
- 
- 	for (; pfn < end_pfn; pfn++) {
- 		bit = pfn % BITMAP_CHUNK_BITS;
+ static int supported_man_viewer(const char *name, size_t len)
 
 
