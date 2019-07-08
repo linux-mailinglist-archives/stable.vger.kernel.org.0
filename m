@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 082076244A
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:42:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A56622EE
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388637AbfGHPZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:25:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53126 "EHLO mail.kernel.org"
+        id S2389501AbfGHP3c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:29:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388633AbfGHPZi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:25:38 -0400
+        id S2389500AbfGHP3c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:29:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1FC921537;
-        Mon,  8 Jul 2019 15:25:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AD6321743;
+        Mon,  8 Jul 2019 15:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599537;
-        bh=RQlXnzawyAM0Ymk4SmrNvx0u3Rgqb3w5rE3zGbGCebo=;
+        s=default; t=1562599771;
+        bh=IWAfHE3MJdLP/FqmZHno6i2OiWv+r4s+QbncoVw12eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vykdINJlQahSquoOspvoQHvwveJbibTxcYyXp2EUQAmSkpeTmuoiyXz3nzuONDpvY
-         JmkNzjPu2rcvoLuOC5TsTywJu2MxIl1rVfmtfaUVjpSlrivrzTk5cgOktVNdyvLOu9
-         uCrw0lOQ9oqUqe9oFL3VIPechcKGjynPxpi9gSUg=
+        b=XP06qAH2RDYGUkSv7oZhIlSEEe7XG80CLHf1iWkOB7ufmgLCZZAL+Co0T0NkMhlCW
+         Da+wpiT/vmybvto9hHcHioY7ekJXsSYJkhuj1oQHPddVjW+JfTgju7Qe124YWGfbpz
+         EpE6onTqGE8Ie1FEJ5v1ICITfxjuIzdaJx6N5fEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Balbir Singh <sblbir@amzn.com>
-Subject: [PATCH 4.14 47/56] vhost: scsi: add weight support
+        stable@vger.kernel.org, Kyle D Pelton <kyle.d.pelton@intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>, dave.hansen@linux.intel.com,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Wei Huang <wei@redhat.com>, x86-ml <x86@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 72/90] x86/boot/compressed/64: Do not corrupt EDX on EFER.LME=1 setting
 Date:   Mon,  8 Jul 2019 17:13:39 +0200
-Message-Id: <20190708150523.895837718@linuxfoundation.org>
+Message-Id: <20190708150525.966995669@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,58 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+[ Upstream commit 45b13b424faafb81c8c44541f093a682fdabdefc ]
 
-commit c1ea02f15ab5efb3e93fc3144d895410bf79fcf2 upstream.
+RDMSR in the trampoline code overwrites EDX but that register is used
+to indicate whether 5-level paging has to be enabled and if clobbered,
+leads to failure to boot on a 5-level paging machine.
 
-This patch will check the weight and exit the loop if we exceeds the
-weight. This is useful for preventing scsi kthread from hogging cpu
-which is guest triggerable.
+Preserve EDX on the stack while we are dealing with EFER.
 
-This addresses CVE-2019-3900.
-
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Fixes: 057cbf49a1f0 ("tcm_vhost: Initial merge for vhost level target fabric driver")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Balbir Singh <sblbir@amzn.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: b677dfae5aa1 ("x86/boot/compressed/64: Set EFER.LME=1 in 32-bit trampoline before returning to long mode")
+Reported-by: Kyle D Pelton <kyle.d.pelton@intel.com>
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: dave.hansen@linux.intel.com
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Wei Huang <wei@redhat.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190206115253.1907-1-kirill.shutemov@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/scsi.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/boot/compressed/head_64.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -846,7 +846,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *
- 	u64 tag;
- 	u32 exp_data_len, data_direction;
- 	unsigned int out = 0, in = 0;
--	int head, ret, prot_bytes;
-+	int head, ret, prot_bytes, c = 0;
- 	size_t req_size, rsp_size = sizeof(struct virtio_scsi_cmd_resp);
- 	size_t out_size, in_size;
- 	u16 lun;
-@@ -865,7 +865,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index f105ae8651c9..f62e347862cc 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -602,10 +602,12 @@ ENTRY(trampoline_32bit_src)
+ 3:
+ 	/* Set EFER.LME=1 as a precaution in case hypervsior pulls the rug */
+ 	pushl	%ecx
++	pushl	%edx
+ 	movl	$MSR_EFER, %ecx
+ 	rdmsr
+ 	btsl	$_EFER_LME, %eax
+ 	wrmsr
++	popl	%edx
+ 	popl	%ecx
  
- 	vhost_disable_notify(&vs->dev, vq);
- 
--	for (;;) {
-+	do {
- 		head = vhost_get_vq_desc(vq, vq->iov,
- 					 ARRAY_SIZE(vq->iov), &out, &in,
- 					 NULL, NULL);
-@@ -1080,7 +1080,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *
- 		 */
- 		INIT_WORK(&cmd->work, vhost_scsi_submission_work);
- 		queue_work(vhost_scsi_workqueue, &cmd->work);
--	}
-+	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
- out:
- 	mutex_unlock(&vq->mutex);
- }
+ 	/* Enable PAE and LA57 (if required) paging modes */
+-- 
+2.20.1
+
 
 
