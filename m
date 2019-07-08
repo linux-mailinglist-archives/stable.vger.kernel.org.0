@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 701FC623F2
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBC9362449
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:41:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732026AbfGHP3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:29:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58638 "EHLO mail.kernel.org"
+        id S2388791AbfGHP0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:26:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389585AbfGHP3p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:29:45 -0400
+        id S2388805AbfGHP0W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:26:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDE61216F4;
-        Mon,  8 Jul 2019 15:29:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 192EE20665;
+        Mon,  8 Jul 2019 15:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599784;
-        bh=5Bi1ejuRESz61bUYqPNkEyic9P7oSHxXtmSYp6EISkg=;
+        s=default; t=1562599581;
+        bh=HvHBuw5vhtQrTQzI5wIOwi6sqkK0R/TKJ+aJRAfCSjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LAAviDeTVHrn7RqMCi4WqO0YcMzEm3ut+rgXAtNdJJhr+LD1KLF5DeGNnpnnmWezo
-         C4cWpPdbb9JYG8nAzChqnOPbqYoLnneSvvFaNpZW51Pfj5BjH4P2kRGY+GOj+AMgJZ
-         1FQYdwIrpqcmR9w4KVrOaJg5SoQ4BCclZxtC8YfQ=
+        b=uSHNSUoc0zCMFwmKS/ae88XoDGAzyZE5lRB2Gs5c5FWcxdBPwPX6MVsGCfj6ExXCI
+         5Tx+yo6082VK3FbrYB0dOKx0sxsBGIHGnzxj7WgUlGPz+NNytx4khoLzRcK4sUkTxx
+         CvkyEGV6K6WZH9QQVWabICHCGMMnN3V6K6khWjO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 77/90] netfilter: ipv6: nf_defrag: fix leakage of unqueued fragments
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 4.14 52/56] svcrdma: Ignore source port when computing DRC hash
 Date:   Mon,  8 Jul 2019 17:13:44 +0200
-Message-Id: <20190708150526.237087551@linuxfoundation.org>
+Message-Id: <20190708150524.139654936@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a0d56cb911ca301de81735f1d73c2aab424654ba ]
+From: Chuck Lever <chuck.lever@oracle.com>
 
-With commit 997dd9647164 ("net: IP6 defrag: use rbtrees in
-nf_conntrack_reasm.c"), nf_ct_frag6_reasm() is now called from
-nf_ct_frag6_queue(). With this change, nf_ct_frag6_queue() can fail
-after the skb has been added to the fragment queue and
-nf_ct_frag6_gather() was adapted to handle this case.
+commit 1e091c3bbf51d34d5d96337a59ce5ab2ac3ba2cc upstream.
 
-But nf_ct_frag6_queue() can still fail before the fragment has been
-queued. nf_ct_frag6_gather() can't handle this case anymore, because it
-has no way to know if nf_ct_frag6_queue() queued the fragment before
-failing. If it didn't, the skb is lost as the error code is overwritten
-with -EINPROGRESS.
+The DRC appears to be effectively empty after an RPC/RDMA transport
+reconnect. The problem is that each connection uses a different
+source port, which defeats the DRC hash.
 
-Fix this by setting -EINPROGRESS directly in nf_ct_frag6_queue(), so
-that nf_ct_frag6_gather() can propagate the error as is.
+Clients always have to disconnect before they send retransmissions
+to reset the connection's credit accounting, thus every retransmit
+on NFS/RDMA will miss the DRC.
 
-Fixes: 997dd9647164 ("net: IP6 defrag: use rbtrees in nf_conntrack_reasm.c")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+An NFS/RDMA client's IP source port is meaningless for RDMA
+transports. The transport layer typically sets the source port value
+on the connection to a random ephemeral port. The server already
+ignores it for the "secure port" check. See commit 16e4d93f6de7
+("NFSD: Ignore client's source port on RDMA transports").
+
+The Linux NFS server's DRC resolves XID collisions from the same
+source IP address by using the checksum of the first 200 bytes of
+the RPC call header.
+
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/ipv6/netfilter/nf_conntrack_reasm.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ net/sunrpc/xprtrdma/svc_rdma_transport.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv6/netfilter/nf_conntrack_reasm.c b/net/ipv6/netfilter/nf_conntrack_reasm.c
-index cb1b4772dac0..73c29ddcfb95 100644
---- a/net/ipv6/netfilter/nf_conntrack_reasm.c
-+++ b/net/ipv6/netfilter/nf_conntrack_reasm.c
-@@ -293,7 +293,11 @@ static int nf_ct_frag6_queue(struct frag_queue *fq, struct sk_buff *skb,
- 		skb->_skb_refdst = 0UL;
- 		err = nf_ct_frag6_reasm(fq, skb, prev, dev);
- 		skb->_skb_refdst = orefdst;
--		return err;
+--- a/net/sunrpc/xprtrdma/svc_rdma_transport.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_transport.c
+@@ -524,9 +524,14 @@ static void handle_connect_req(struct rd
+ 	/* Save client advertised inbound read limit for use later in accept. */
+ 	newxprt->sc_ord = param->initiator_depth;
+ 
+-	/* Set the local and remote addresses in the transport */
+ 	sa = (struct sockaddr *)&newxprt->sc_cm_id->route.addr.dst_addr;
+ 	svc_xprt_set_remote(&newxprt->sc_xprt, sa, svc_addr_len(sa));
++	/* The remote port is arbitrary and not under the control of the
++	 * client ULP. Set it to a fixed value so that the DRC continues
++	 * to be effective after a reconnect.
++	 */
++	rpc_set_port((struct sockaddr *)&newxprt->sc_xprt.xpt_remote, 0);
 +
-+		/* After queue has assumed skb ownership, only 0 or
-+		 * -EINPROGRESS must be returned.
-+		 */
-+		return err ? -EINPROGRESS : 0;
- 	}
+ 	sa = (struct sockaddr *)&newxprt->sc_cm_id->route.addr.src_addr;
+ 	svc_xprt_set_local(&newxprt->sc_xprt, sa, svc_addr_len(sa));
  
- 	skb_dst_drop(skb);
-@@ -481,12 +485,6 @@ int nf_ct_frag6_gather(struct net *net, struct sk_buff *skb, u32 user)
- 		ret = 0;
- 	}
- 
--	/* after queue has assumed skb ownership, only 0 or -EINPROGRESS
--	 * must be returned.
--	 */
--	if (ret)
--		ret = -EINPROGRESS;
--
- 	spin_unlock_bh(&fq->q.lock);
- 	inet_frag_put(&fq->q);
- 	return ret;
--- 
-2.20.1
-
 
 
