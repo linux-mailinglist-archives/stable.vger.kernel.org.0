@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32FFD62401
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD32562398
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732934AbfGHP3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:29:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57902 "EHLO mail.kernel.org"
+        id S2390314AbfGHPdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:33:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389437AbfGHP3K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:29:10 -0400
+        id S2390299AbfGHPdO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:33:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5344220645;
-        Mon,  8 Jul 2019 15:29:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FD23216E3;
+        Mon,  8 Jul 2019 15:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599749;
-        bh=Q8vouGM5vsmu2Gk6qMx0tbjHgKc3tJmIJHR34gP7v/g=;
+        s=default; t=1562599994;
+        bh=cYmtbt2v6RfDc7FjULI93abk3YL+Uslmq20nfWzd5mE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yz1Y1KP9aTzKBKtiQ+pfj3vVV98MvJz7LT4cI05yq6f47eOQ0AJrryCfpp4t4H8FF
-         lgieLd1P43AeQa+faRn15//n0S6/SEBhyifLw/5iwi0d95zUntqAQT/Awtkew+Y8ZE
-         vA0h+yziCyq2+jsIYfCZrHFWj6Qh0/BtROchBY7k=
+        b=VCY2Hqr+q7FUCSUGV17lUzByejAtd4EDMSH8NLq849G+QnBVXmgv5nCXz/ZbCnzqa
+         FJz1KmR/32mbTZqQgdsEx5kyOK+4oOc+HOXoMmv9MW0TXa2RCIchB1vzBGfjqWNqpd
+         1KswLWCSrB879jZphhJ6Z1mVPMWMLuymwe+DGh3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
-        Ursula Braun <ubraun@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 65/90] net/smc: move unhash before release of clcsock
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.1 60/96] ALSA: firewire-lib/fireworks: fix miss detection of received MIDI messages
 Date:   Mon,  8 Jul 2019 17:13:32 +0200
-Message-Id: <20190708150525.660982245@linuxfoundation.org>
+Message-Id: <20190708150529.733562399@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f61bca58f6c36e666c2b807697f25e5e98708162 ]
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-Commit <26d92e951fe0>
-("net/smc: move unhash as early as possible in smc_release()")
-fixes one occurrence in the smc code, but the same pattern exists
-in other places. This patch covers the remaining occurrences and
-makes sure, the unhash operation is done before the smc->clcsock is
-released. This avoids a potential use-after-free in smc_diag_dump().
+commit 7fbd1753b64eafe21cf842348a40a691d0dee440 upstream.
 
-Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In IEC 61883-6, 8 MIDI data streams are multiplexed into single
+MIDI conformant data channel. The index of stream is calculated by
+modulo 8 of the value of data block counter.
+
+In fireworks, the value of data block counter in CIP header has a quirk
+with firmware version v5.0.0, v5.7.3 and v5.8.0. This brings ALSA
+IEC 61883-1/6 packet streaming engine to miss detection of MIDI
+messages.
+
+This commit fixes the miss detection to modify the value of data block
+counter for the modulo calculation.
+
+For maintainers, this bug exists since a commit 18f5ed365d3f ("ALSA:
+fireworks/firewire-lib: add support for recent firmware quirk") in Linux
+kernel v4.2. There're many changes since the commit.  This fix can be
+backported to Linux kernel v4.4 or later. I tagged a base commit to the
+backport for your convenience.
+
+Besides, my work for Linux kernel v5.3 brings heavy code refactoring and
+some structure members are renamed in 'sound/firewire/amdtp-stream.h'.
+The content of this patch brings conflict when merging -rc tree with
+this patch and the latest tree. I request maintainers to solve the
+conflict to replace 'tx_first_dbc' with 'ctx_data.tx.first_dbc'.
+
+Fixes: df075feefbd3 ("ALSA: firewire-lib: complete AM824 data block processing layer")
+Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/smc/af_smc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/firewire/amdtp-am824.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index e6e506b2db99..9bbab6ba2dab 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -848,11 +848,11 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
- 	if  (rc < 0)
- 		lsk->sk_err = -rc;
- 	if (rc < 0 || lsk->sk_state == SMC_CLOSED) {
-+		new_sk->sk_prot->unhash(new_sk);
- 		if (new_clcsock)
- 			sock_release(new_clcsock);
- 		new_sk->sk_state = SMC_CLOSED;
- 		sock_set_flag(new_sk, SOCK_DEAD);
--		new_sk->sk_prot->unhash(new_sk);
- 		sock_put(new_sk); /* final */
- 		*new_smc = NULL;
- 		goto out;
-@@ -903,11 +903,11 @@ struct sock *smc_accept_dequeue(struct sock *parent,
+--- a/sound/firewire/amdtp-am824.c
++++ b/sound/firewire/amdtp-am824.c
+@@ -321,7 +321,7 @@ static void read_midi_messages(struct am
+ 	u8 *b;
  
- 		smc_accept_unlink(new_sk);
- 		if (new_sk->sk_state == SMC_CLOSED) {
-+			new_sk->sk_prot->unhash(new_sk);
- 			if (isk->clcsock) {
- 				sock_release(isk->clcsock);
- 				isk->clcsock = NULL;
- 			}
--			new_sk->sk_prot->unhash(new_sk);
- 			sock_put(new_sk); /* final */
- 			continue;
- 		}
-@@ -932,6 +932,7 @@ void smc_close_non_accepted(struct sock *sk)
- 		sock_set_flag(sk, SOCK_DEAD);
- 		sk->sk_shutdown |= SHUTDOWN_MASK;
- 	}
-+	sk->sk_prot->unhash(sk);
- 	if (smc->clcsock) {
- 		struct socket *tcp;
+ 	for (f = 0; f < frames; f++) {
+-		port = (s->data_block_counter + f) % 8;
++		port = (8 - s->tx_first_dbc + s->data_block_counter + f) % 8;
+ 		b = (u8 *)&buffer[p->midi_position];
  
-@@ -947,7 +948,6 @@ void smc_close_non_accepted(struct sock *sk)
- 			smc_conn_free(&smc->conn);
- 	}
- 	release_sock(sk);
--	sk->sk_prot->unhash(sk);
- 	sock_put(sk); /* final sock_put */
- }
- 
--- 
-2.20.1
-
+ 		len = b[0] - 0x80;
 
 
