@@ -2,94 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C2262770
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 19:42:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16B8B62795
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 19:50:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732156AbfGHRmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 13:42:22 -0400
-Received: from mail-wr1-f52.google.com ([209.85.221.52]:33806 "EHLO
-        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730527AbfGHRmW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 13:42:22 -0400
-Received: by mail-wr1-f52.google.com with SMTP id 31so1293147wrm.1
-        for <stable@vger.kernel.org>; Mon, 08 Jul 2019 10:42:21 -0700 (PDT)
+        id S2403913AbfGHRty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 13:49:54 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:35246 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2403870AbfGHRtx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 13:49:53 -0400
+Received: by mail-pl1-f196.google.com with SMTP id w24so8643693plp.2;
+        Mon, 08 Jul 2019 10:49:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=RDRGTN8x919ptUJcgdMpXaqUnSA3Nby8GPaC88Pdh/U=;
-        b=Q2MdZ1Bxa2BBbonFusRA5552As2FxrCbTQXoX1Md1WDJuxDzCOpumWqvJG2QnYzYz7
-         yv5n1j9oecjzoAC+z1txaMRpThD2Pi5QHgaC/WNvtf9IxZsli2qtIb4Y2gwo2pCDzSJA
-         FzFTsIbFpryaABq4pyERVZlMr4J0TJJf0f48eIo0UCjZmaBtR8F2EkQAJcHPqogsxn+G
-         4TArmq7bpIcpWL1O4HxA7vT0WTgjR8G2BYTnkKJ9Rc2O1vg9BxZesQtqTRLoktcm88Ko
-         jze35/msb5nUx+cjzoF0lQuYAkku25eTlBsw2BsqjjVF8vb9gLfY+DLM4MGcVGw/zeTX
-         bVAA==
+        d=gmail.com; s=20161025;
+        h=cc:subject:to:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=/ancY3EFLWrWbOtiL61BFmmz+2+LYOXr28AVKYlsboM=;
+        b=ZZ3DRy2AB9jjXaaZclJtiEqiGrrohKz++rVEG+SoD5ns9yAK/NrkarsxDMEIQaF0TI
+         rdtLQYAsp8m36P3/LrUQNzNj0WQ1eVPK+GLAqmkZ4Jr4fGLFCw7QGWg0UFqQaHJYR8jZ
+         WAPy0Y061TGQCSPRwJ5GV1uNGLn+sZehMQBgSI3jCOXddLlIQcBM5xrumBonGw4WcWb8
+         Lb27EJ4fY5DdW3OgJ843HaZsJdua0L2AE0FcYzNC5J/Lk48hPVamyrO6VWTOBbKJ8Vr6
+         bQ9X1yqU+zXwWMhwBgMOStKpsmVaBNp9vZf0qoAiCgm9Z5AXdTKm4XfLK5DRcDFmTGJE
+         dAfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=RDRGTN8x919ptUJcgdMpXaqUnSA3Nby8GPaC88Pdh/U=;
-        b=Dvi4/eAgCmhZtwUABPgz0J4nmcEjb8nOa6cHAMu0HxFY1Zrq/RW7THPLGhgguA8+8H
-         3t5sYUQd5sY5NnajB0ub8N7KTYc8vOws1gp+HN8bhuqXOu8T0iRQcTt2g5R+QeUAX7wk
-         xmfPUf561JsAL4nyH2TFFAKSlCOf8DyTC/+foWLRYiAfMI0fOt7Deh6lGbf/g2Yyd3Lk
-         o862pClw/2ujk4udqZ9JyajZNVtrfaOV9gv2MmmmTGplEm+TN1mtJuOmQ2cHo609+vX9
-         02ZPFhw2j8ZNoVO2L6WPNIzmuGJeOF4l7HQ4HmMvnMEip6ZB4Hbqo//j+6HWJjSpJec8
-         srVw==
-X-Gm-Message-State: APjAAAV4/iLV6nVQQ2flTc+a/sHDrRjldGbR+L/VKtPnNbZII1BgwlcG
-        N/ysEvrhrdcwmZXsiyji4eGX3rEZJxtw0A==
-X-Google-Smtp-Source: APXvYqzF7CXkVTOiOI+4lqpMaktncsFBTyl0H5cNG/7gg13t5FAeysJeRpjOWdiRPFJ2eyBo41LcKA==
-X-Received: by 2002:adf:f2cd:: with SMTP id d13mr17499528wrp.242.1562607740501;
-        Mon, 08 Jul 2019 10:42:20 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id z2sm15549753wrt.41.2019.07.08.10.42.19
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:cc:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=/ancY3EFLWrWbOtiL61BFmmz+2+LYOXr28AVKYlsboM=;
+        b=WIDfkZ/Wq01LB+bmfFFuCoaT5uvfxkLYXiFQ0+8jCGrB3OgcfRFQn52EXsyNL5jk9z
+         pjWo8TSAiWDl1EExzHFkZwytqBHkSnIykHHZIs9TumCZK40dhtPHoN6n5ZPBnxgmLJXL
+         dok4z3gDVZN+7BG36xgs7uyLOEypIUTxfIu9vvF1eRKo9Z/QU2IuRpUJJv0roS4tA1xV
+         627zrZh90k0jzAJrI9odt6bkkVreINCCLnQ3M9zUi9udiRIxwaJ1nPoBOF2M7541L8NY
+         aUQ2DC40Uug/BRSF4VKgr05blFcxFaNYd0TObhT+akbhqM/siO7Gn2Q1mlLgYVQDKEOz
+         1G7Q==
+X-Gm-Message-State: APjAAAWhZqb2UkEaxcMTBgKamZQ9Lf7DdqKKe+67Zd3R40zdKByUZghD
+        209oKIWRPy4iXQaUIPwsoC38z6VP
+X-Google-Smtp-Source: APXvYqzHnvoi64IAIYQAQwAjuuMAntEhX7GX0pOHKTC9bgLPVxmBM8eJrVrMWtkmJ8mmPUq2/gkPSg==
+X-Received: by 2002:a17:902:2a27:: with SMTP id i36mr26194794plb.161.1562608192793;
+        Mon, 08 Jul 2019 10:49:52 -0700 (PDT)
+Received: from ?IPv6:2405:4800:58c7:1881:3232:ec6:81a5:864b? ([2405:4800:58c7:1881:3232:ec6:81a5:864b])
+        by smtp.gmail.com with ESMTPSA id x9sm11038532pfn.177.2019.07.08.10.49.49
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 08 Jul 2019 10:42:19 -0700 (PDT)
-Message-ID: <5d23807b.1c69fb81.a836b.6bce@mx.google.com>
-Date:   Mon, 08 Jul 2019 10:42:19 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 08 Jul 2019 10:49:52 -0700 (PDT)
+Cc:     linux-kernel@vger.kernel.org, tranmanphong@gmail.com,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org,
+        linux-kernel-mentees@lists.linuxfoundation.org
+Subject: Re: [PATCH 5.1 00/96] 5.1.17-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
+From:   Phong Tran <tranmanphong@gmail.com>
+Message-ID: <c1498293-f0f6-0599-bd72-4156370a7599@gmail.com>
+Date:   Tue, 9 Jul 2019 00:49:48 +0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.1.16-96-gadc3bfb5810c
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.1.y boot: 108 boots: 3 failed,
- 105 passed (v5.1.16-96-gadc3bfb5810c)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.1.y boot: 108 boots: 3 failed, 105 passed (v5.1.16-96-gad=
-c3bfb5810c)
+On 7/8/19 10:12 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.1.17 release.
+> There are 96 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed 10 Jul 2019 03:03:52 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.17-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
+> and the diffstat can be found below.
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.1.y/kernel/v5.1.16-96-gadc3bfb5810c/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
-/kernel/v5.1.16-96-gadc3bfb5810c/
+build and boot fine with qemu-system-riscv64
 
-Tree: stable-rc
-Branch: linux-5.1.y
-Git Describe: v5.1.16-96-gadc3bfb5810c
-Git Commit: adc3bfb5810c7d89758b29f1736fc927757ea64f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 66 unique boards, 24 SoC families, 15 builds out of 209
+root@(none):~# uname  -a
+Linux (none) 5.1.17-rc1-00097-gb64119f8dffe #4 SMP Tue Jul 9 00:44:23 
++07 2019 riscv64 GNU/Linux
+root@(none):~# cat /proc/cpuinfo
+processor	: 0
+hart		: 0
+isa		: rv64imafdcu
+mmu		: sv48
 
-Boot Failures Detected:
 
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
-
-    multi_v7_defconfig:
-        gcc-8:
-            bcm4708-smartrg-sr400ac: 1 failed lab
-            sun7i-a20-bananapi: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
