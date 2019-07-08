@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B5F861EA0
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 14:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2114061EA1
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 14:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728859AbfGHMmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 08:42:11 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:36315 "EHLO
+        id S1729570AbfGHMmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 08:42:13 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:51921 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727065AbfGHMmL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 08:42:11 -0400
+        by vger.kernel.org with ESMTP id S1727065AbfGHMmN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 08:42:13 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 994552102F;
-        Mon,  8 Jul 2019 08:42:10 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 08 Jul 2019 08:42:10 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 9F3E621B1B;
+        Mon,  8 Jul 2019 08:42:12 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 08 Jul 2019 08:42:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=BOOKpD
-        SUQ3tV6cfVBiSVzblm4xGfa6zf4eFKuGdgSv0=; b=ixs9GVuvKmoqnUChiflKf/
-        CAHc7KYJgT8z/u9ztUkYbpCasyMcq/kY3m3irr6w+wouyv+dGyKAl3Ng+J9iWCHi
-        Tt1nPeVlGn5PlpQHvUh2bp8nhX6GBlmpk2oXB3bk2SJGW3SamDku3UYr6x9H8Mhu
-        Y1+dfkTa3zH4Efh7mRUSFr1Jp8GvMN1nMaHFbfVtsbNsJJs0EfdwwnjM4XCAyXQ0
-        4W2XN0HxPgS3tpb//lWcogkc/Gl6uNLokzxW5gI52UmLAcW29zFlwfO4aesookK7
-        mk3zBbVLNgeBdqQJzbZWDANWjmnQkRPKH2tzLlJwPRbOxDhfWvNSum0e+AzBCH6A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=O4afF3
+        3Akh4cHX6TgasPOguH6sVqh+HMj/nyF63MFd8=; b=ypCgGBMizOgYCtUCmysw28
+        KKm1wJ3Eg1j12Dndy7EsDTE6TuOWRi1m2Gatt7g2+LLn9rTbqlMwmXoR8RXc0BSa
+        60WfF94EzEH8Cpwu7zrXlpLr46D8OHWpcwfnC4Euz020h3u+jc/13kUPOVsq/9om
+        tboEsRZFw4cRP04FPc4xaeX3gNDaLKCZ2mb1iJV6ssqQpnbD/14XDJW0hUf3/WiA
+        gP8icO4Egy90adDFucFlKnbVnYapo/Nt5NQZVJRwJOH53b8B/iYg+wDrB4l81iSW
+        Qb7hvnZHdiBp50PYrZeaV6RZfp7mkaDb9IxsqHm4c8q8i049MuIBkTi9JpO7hTnw
         ==
-X-ME-Sender: <xms:IjojXWKajQ4f6KZDXRIeU0EkcMRMjkDmhgHZIjpHq1hrJga6QGL4wg>
+X-ME-Sender: <xms:JDojXYZW-zVR3NiJ3-Gjg5yEeigjaQn5Dku_Ymm8WzOcWBjPijxnrQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrgedtgdehiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
     hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:IjojXd2J0UJMXn3-M_LdbMbTfnRG5xcUzkc-sVBxPV8J1g9A_83pYw>
-    <xmx:IjojXSXHSNXvS8DuB51ex72v--2uiGKaa6S8OAL6Lw5Uck8tTw0Vzw>
-    <xmx:IjojXXNMUtauh7IapHcSpXPoKuIROxc1aZoj4QquHx_Oi1mQe-6lOA>
-    <xmx:IjojXajGhk_1B7Gorj0izp5ecOU2suH0jzrlXdyOiq0OK4fiSvP8Hg>
+X-ME-Proxy: <xmx:JDojXT3R5gjbKmgqZrjuX_5iCpMcjM-CIiPlTSwMqQYO70_kHKy0TQ>
+    <xmx:JDojXZ0nUs9I8upmONTm1TO6IP50p9A9Y0IxWpkS17NXmqQOlrGhVA>
+    <xmx:JDojXY5bYRdHgNAIDYBkDp_trlU3yzZjrD-RXLyooCK7k8snn-4f8w>
+    <xmx:JDojXcjK64a0nNtYLXMgU_Dr3p-f5xZA5hwT-7GeVlAohPZZuB-kHQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0A191380074;
-        Mon,  8 Jul 2019 08:42:09 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] MIPS: have "plain" make calls build dtbs for selected" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 16E4D8005A;
+        Mon,  8 Jul 2019 08:42:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] MIPS: have "plain" make calls build dtbs for selected" failed to apply to 4.4-stable tree
 To:     Cedric_Hombourger@mentor.com, paul.burton@mips.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 08 Jul 2019 14:42:00 +0200
-Message-ID: <1562589720119108@kroah.com>
+Date:   Mon, 08 Jul 2019 14:42:01 +0200
+Message-ID: <1562589721222@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
