@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAEF1622C7
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:29:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE7B862394
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389394AbfGHP24 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:28:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57552 "EHLO mail.kernel.org"
+        id S2390231AbfGHPdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:33:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389380AbfGHP2z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:28:55 -0400
+        id S2390245AbfGHPdB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:33:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF6F5204EC;
-        Mon,  8 Jul 2019 15:28:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6591221738;
+        Mon,  8 Jul 2019 15:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599734;
-        bh=oqeTBDmP+jcF4KXAKud7C7kJr8HLWLVMDQ8MvwIky9Y=;
+        s=default; t=1562599979;
+        bh=mHHIbmpjx1k4fYeuoQTgBXEaPh2UYat1E6zQj+kBDDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A019ZZSvywTWFkxKIjlM498utq3pub3x6aRqLqOHVSMG41RIK4XFHrMl/1HK9pkJa
-         gq30YqPWPlhOpRvzMljuUuOlFsBuwk765fgLnbf5OSmRXqywST9EECLhrSzW54lF4V
-         w+ya1Jp61urBSPqg6AZORjXpI5r9R8Eskg8baYLI=
+        b=1bYoXD8sU820SGrWVvLjMP8U57KiwGNQ8mXyQHLinYzyaRJSh+yrzNeWqlrCHJly5
+         jJHHe9ssn/sRgUIvDTSmiHoOhZUU5XxAHinIb1dYVtXAdvaQB4bx16Gx0QUrimoh8W
+         dfhqFPuZwpIntrU3GLmTMQRhLisUEwS1mispxFcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Petr Mladek <pmladek@suse.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 60/90] ftrace/x86: Remove possible deadlock between register_kprobe() and ftrace_run_update_code()
+        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 55/96] ftrace: Fix NULL pointer dereference in free_ftrace_func_mapper()
 Date:   Mon,  8 Jul 2019 17:13:27 +0200
-Message-Id: <20190708150525.457685976@linuxfoundation.org>
+Message-Id: <20190708150529.484926709@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,184 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Mladek <pmladek@suse.com>
+[ Upstream commit 04e03d9a616c19a47178eaca835358610e63a1dd ]
 
-commit d5b844a2cf507fc7642c9ae80a9d585db3065c28 upstream.
+The mapper may be NULL when called from register_ftrace_function_probe()
+with probe->data == NULL.
 
-The commit 9f255b632bf12c4dd7 ("module: Fix livepatch/ftrace module text
-permissions race") causes a possible deadlock between register_kprobe()
-and ftrace_run_update_code() when ftrace is using stop_machine().
+This issue can be reproduced as follow (it may be covered by compiler
+optimization sometime):
 
-The existing dependency chain (in reverse order) is:
+/ # cat /sys/kernel/debug/tracing/set_ftrace_filter
+#### all functions enabled ####
+/ # echo foo_bar:dump > /sys/kernel/debug/tracing/set_ftrace_filter
+[  206.949100] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+[  206.952402] Mem abort info:
+[  206.952819]   ESR = 0x96000006
+[  206.955326]   Exception class = DABT (current EL), IL = 32 bits
+[  206.955844]   SET = 0, FnV = 0
+[  206.956272]   EA = 0, S1PTW = 0
+[  206.956652] Data abort info:
+[  206.957320]   ISV = 0, ISS = 0x00000006
+[  206.959271]   CM = 0, WnR = 0
+[  206.959938] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000419f3a000
+[  206.960483] [0000000000000000] pgd=0000000411a87003, pud=0000000411a83003, pmd=0000000000000000
+[  206.964953] Internal error: Oops: 96000006 [#1] SMP
+[  206.971122] Dumping ftrace buffer:
+[  206.973677]    (ftrace buffer empty)
+[  206.975258] Modules linked in:
+[  206.976631] Process sh (pid: 281, stack limit = 0x(____ptrval____))
+[  206.978449] CPU: 10 PID: 281 Comm: sh Not tainted 5.2.0-rc1+ #17
+[  206.978955] Hardware name: linux,dummy-virt (DT)
+[  206.979883] pstate: 60000005 (nZCv daif -PAN -UAO)
+[  206.980499] pc : free_ftrace_func_mapper+0x2c/0x118
+[  206.980874] lr : ftrace_count_free+0x68/0x80
+[  206.982539] sp : ffff0000182f3ab0
+[  206.983102] x29: ffff0000182f3ab0 x28: ffff8003d0ec1700
+[  206.983632] x27: ffff000013054b40 x26: 0000000000000001
+[  206.984000] x25: ffff00001385f000 x24: 0000000000000000
+[  206.984394] x23: ffff000013453000 x22: ffff000013054000
+[  206.984775] x21: 0000000000000000 x20: ffff00001385fe28
+[  206.986575] x19: ffff000013872c30 x18: 0000000000000000
+[  206.987111] x17: 0000000000000000 x16: 0000000000000000
+[  206.987491] x15: ffffffffffffffb0 x14: 0000000000000000
+[  206.987850] x13: 000000000017430e x12: 0000000000000580
+[  206.988251] x11: 0000000000000000 x10: cccccccccccccccc
+[  206.988740] x9 : 0000000000000000 x8 : ffff000013917550
+[  206.990198] x7 : ffff000012fac2e8 x6 : ffff000012fac000
+[  206.991008] x5 : ffff0000103da588 x4 : 0000000000000001
+[  206.991395] x3 : 0000000000000001 x2 : ffff000013872a28
+[  206.991771] x1 : 0000000000000000 x0 : 0000000000000000
+[  206.992557] Call trace:
+[  206.993101]  free_ftrace_func_mapper+0x2c/0x118
+[  206.994827]  ftrace_count_free+0x68/0x80
+[  206.995238]  release_probe+0xfc/0x1d0
+[  206.995555]  register_ftrace_function_probe+0x4a8/0x868
+[  206.995923]  ftrace_trace_probe_callback.isra.4+0xb8/0x180
+[  206.996330]  ftrace_dump_callback+0x50/0x70
+[  206.996663]  ftrace_regex_write.isra.29+0x290/0x3a8
+[  206.997157]  ftrace_filter_write+0x44/0x60
+[  206.998971]  __vfs_write+0x64/0xf0
+[  206.999285]  vfs_write+0x14c/0x2f0
+[  206.999591]  ksys_write+0xbc/0x1b0
+[  206.999888]  __arm64_sys_write+0x3c/0x58
+[  207.000246]  el0_svc_common.constprop.0+0x408/0x5f0
+[  207.000607]  el0_svc_handler+0x144/0x1c8
+[  207.000916]  el0_svc+0x8/0xc
+[  207.003699] Code: aa0003f8 a9025bf5 aa0103f5 f946ea80 (f9400303)
+[  207.008388] ---[ end trace 7b6d11b5f542bdf1 ]---
+[  207.010126] Kernel panic - not syncing: Fatal exception
+[  207.011322] SMP: stopping secondary CPUs
+[  207.013956] Dumping ftrace buffer:
+[  207.014595]    (ftrace buffer empty)
+[  207.015632] Kernel Offset: disabled
+[  207.017187] CPU features: 0x002,20006008
+[  207.017985] Memory Limit: none
+[  207.019825] ---[ end Kernel panic - not syncing: Fatal exception ]---
 
--> #1 (text_mutex){+.+.}:
-       validate_chain.isra.21+0xb32/0xd70
-       __lock_acquire+0x4b8/0x928
-       lock_acquire+0x102/0x230
-       __mutex_lock+0x88/0x908
-       mutex_lock_nested+0x32/0x40
-       register_kprobe+0x254/0x658
-       init_kprobes+0x11a/0x168
-       do_one_initcall+0x70/0x318
-       kernel_init_freeable+0x456/0x508
-       kernel_init+0x22/0x150
-       ret_from_fork+0x30/0x34
-       kernel_thread_starter+0x0/0xc
+Link: http://lkml.kernel.org/r/20190606031754.10798-1-liwei391@huawei.com
 
--> #0 (cpu_hotplug_lock.rw_sem){++++}:
-       check_prev_add+0x90c/0xde0
-       validate_chain.isra.21+0xb32/0xd70
-       __lock_acquire+0x4b8/0x928
-       lock_acquire+0x102/0x230
-       cpus_read_lock+0x62/0xd0
-       stop_machine+0x2e/0x60
-       arch_ftrace_update_code+0x2e/0x40
-       ftrace_run_update_code+0x40/0xa0
-       ftrace_startup+0xb2/0x168
-       register_ftrace_function+0x64/0x88
-       klp_patch_object+0x1a2/0x290
-       klp_enable_patch+0x554/0x980
-       do_one_initcall+0x70/0x318
-       do_init_module+0x6e/0x250
-       load_module+0x1782/0x1990
-       __s390x_sys_finit_module+0xaa/0xf0
-       system_call+0xd8/0x2d0
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(text_mutex);
-                               lock(cpu_hotplug_lock.rw_sem);
-                               lock(text_mutex);
-  lock(cpu_hotplug_lock.rw_sem);
-
-It is similar problem that has been solved by the commit 2d1e38f56622b9b
-("kprobes: Cure hotplug lock ordering issues"). Many locks are involved.
-To be on the safe side, text_mutex must become a low level lock taken
-after cpu_hotplug_lock.rw_sem.
-
-This can't be achieved easily with the current ftrace design.
-For example, arm calls set_all_modules_text_rw() already in
-ftrace_arch_code_modify_prepare(), see arch/arm/kernel/ftrace.c.
-This functions is called:
-
-  + outside stop_machine() from ftrace_run_update_code()
-  + without stop_machine() from ftrace_module_enable()
-
-Fortunately, the problematic fix is needed only on x86_64. It is
-the only architecture that calls set_all_modules_text_rw()
-in ftrace path and supports livepatching at the same time.
-
-Therefore it is enough to move text_mutex handling from the generic
-kernel/trace/ftrace.c into arch/x86/kernel/ftrace.c:
-
-   ftrace_arch_code_modify_prepare()
-   ftrace_arch_code_modify_post_process()
-
-This patch basically reverts the ftrace part of the problematic
-commit 9f255b632bf12c4dd7 ("module: Fix livepatch/ftrace module
-text permissions race"). And provides x86_64 specific-fix.
-
-Some refactoring of the ftrace code will be needed when livepatching
-is implemented for arm or nds32. These architectures call
-set_all_modules_text_rw() and use stop_machine() at the same time.
-
-Link: http://lkml.kernel.org/r/20190627081334.12793-1-pmladek@suse.com
-
-Fixes: 9f255b632bf12c4dd7 ("module: Fix livepatch/ftrace module text permissions race")
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Reported-by: Miroslav Benes <mbenes@suse.cz>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-[
-  As reviewed by Miroslav Benes <mbenes@suse.cz>, removed return value of
-  ftrace_run_update_code() as it is a void function.
-]
+Signed-off-by: Wei Li <liwei391@huawei.com>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/ftrace.c |    3 +++
- kernel/trace/ftrace.c    |   10 +---------
- 2 files changed, 4 insertions(+), 9 deletions(-)
+ kernel/trace/ftrace.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -22,6 +22,7 @@
- #include <linux/init.h>
- #include <linux/list.h>
- #include <linux/module.h>
-+#include <linux/memory.h>
- 
- #include <trace/syscall.h>
- 
-@@ -35,6 +36,7 @@
- 
- int ftrace_arch_code_modify_prepare(void)
- {
-+	mutex_lock(&text_mutex);
- 	set_kernel_text_rw();
- 	set_all_modules_text_rw();
- 	return 0;
-@@ -44,6 +46,7 @@ int ftrace_arch_code_modify_post_process
- {
- 	set_all_modules_text_ro();
- 	set_kernel_text_ro();
-+	mutex_unlock(&text_mutex);
- 	return 0;
- }
- 
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 045e7f46a74a..2469d54b3e43 100644
 --- a/kernel/trace/ftrace.c
 +++ b/kernel/trace/ftrace.c
-@@ -35,7 +35,6 @@
- #include <linux/hash.h>
- #include <linux/rcupdate.h>
- #include <linux/kprobes.h>
--#include <linux/memory.h>
- 
- #include <trace/events/sched.h>
- 
-@@ -2628,12 +2627,10 @@ static void ftrace_run_update_code(int c
- {
- 	int ret;
- 
--	mutex_lock(&text_mutex);
--
- 	ret = ftrace_arch_code_modify_prepare();
- 	FTRACE_WARN_ON(ret);
- 	if (ret)
--		goto out_unlock;
+@@ -4230,10 +4230,13 @@ void free_ftrace_func_mapper(struct ftrace_func_mapper *mapper,
+ 	struct ftrace_func_entry *entry;
+ 	struct ftrace_func_map *map;
+ 	struct hlist_head *hhd;
+-	int size = 1 << mapper->hash.size_bits;
+-	int i;
++	int size, i;
++
++	if (!mapper)
 +		return;
  
- 	/*
- 	 * By default we use stop_machine() to modify the code.
-@@ -2645,9 +2642,6 @@ static void ftrace_run_update_code(int c
- 
- 	ret = ftrace_arch_code_modify_post_process();
- 	FTRACE_WARN_ON(ret);
--
--out_unlock:
--	mutex_unlock(&text_mutex);
- }
- 
- static void ftrace_run_modify_code(struct ftrace_ops *ops, int command,
-@@ -5771,7 +5765,6 @@ void ftrace_module_enable(struct module
- 	struct ftrace_page *pg;
- 
- 	mutex_lock(&ftrace_lock);
--	mutex_lock(&text_mutex);
- 
- 	if (ftrace_disabled)
- 		goto out_unlock;
-@@ -5833,7 +5826,6 @@ void ftrace_module_enable(struct module
- 		ftrace_arch_code_modify_post_process();
- 
-  out_unlock:
--	mutex_unlock(&text_mutex);
- 	mutex_unlock(&ftrace_lock);
- 
- 	process_cached_mods(mod->name);
+ 	if (free_func && mapper->hash.count) {
++		size = 1 << mapper->hash.size_bits;
+ 		for (i = 0; i < size; i++) {
+ 			hhd = &mapper->hash.buckets[i];
+ 			hlist_for_each_entry(entry, hhd, hlist) {
+-- 
+2.20.1
+
 
 
