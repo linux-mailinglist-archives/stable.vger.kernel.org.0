@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB189623A6
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6DA0622E2
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:30:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387598AbfGHPgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:36:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36368 "EHLO mail.kernel.org"
+        id S2389585AbfGHPaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:30:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390485AbfGHPeK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:34:10 -0400
+        id S1728167AbfGHPaC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:30:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F33821537;
-        Mon,  8 Jul 2019 15:34:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BE4F20645;
+        Mon,  8 Jul 2019 15:30:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562600049;
-        bh=Ksua/iMAduhWu+zLOlCp9/5YnnI7hgB2q1RZ0J0XCFk=;
+        s=default; t=1562599801;
+        bh=h/g+fnyqelDIBef6lZ+o2cuNEp5nnEToVRY3PLkrDnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XjBjtte0w3snKjqdw3TP3VU6RW0mX5sidP/1GkK1kmRJKNiT4QXJnb/ysx2ZC3MBF
-         I9I5ZybjgfamdTnGQVnaaYSo+FhScqyinsYiUcEcfGxI1TLzaWTd7FZzDneb6qy2Wd
-         y/u2V8tYmQXPqUP1IhW1zfL8BkeEH94A11glh1CM=
+        b=1wXTDn/4x8odbEdu1cd0cOqflBHrt9PsRD/Ivu2nOdhTHYCxXHKtKQc3g6IDW3MR6
+         DLnujIMJUJZY2OEOqTuYIr9LysO+69eBb5g9LQrnBMMz+YVl6yjpTV2oJFLUdBbs4B
+         02Z5DbtdtI7VPpkD5xSqXU5OmyGimblljI3w5pgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.1 77/96] drm/etnaviv: add missing failure path to destroy suballoc
+        stable@vger.kernel.org,
+        syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com,
+        Alexander Potapenko <glider@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 82/90] KVM: x86: degrade WARN to pr_warn_ratelimited
 Date:   Mon,  8 Jul 2019 17:13:49 +0200
-Message-Id: <20190708150530.622307378@linuxfoundation.org>
+Message-Id: <20190708150526.553674137@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit be132e1375c1fffe48801296279079f8a59a9ed3 upstream.
+commit 3f16a5c318392cbb5a0c7a3d19dff8c8ef3c38ee upstream.
 
-When something goes wrong in the GPU init after the cmdbuf suballocator
-has been constructed, we fail to destroy it properly. This causes havok
-later when the GPU is unbound due to a module unload or similar.
+This warning can be triggered easily by userspace, so it should certainly not
+cause a panic if panic_on_warn is set.
 
-Fixes: e66774dd6f6a (drm/etnaviv: add cmdbuf suballocator)
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Tested-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reported-by: syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com
+Suggested-by: Alexander Potapenko <glider@google.com>
+Acked-by: Alexander Potapenko <glider@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gpu.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/kvm/x86.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-@@ -762,7 +762,7 @@ int etnaviv_gpu_init(struct etnaviv_gpu
- 	if (IS_ERR(gpu->cmdbuf_suballoc)) {
- 		dev_err(gpu->dev, "Failed to create cmdbuf suballocator\n");
- 		ret = PTR_ERR(gpu->cmdbuf_suballoc);
--		goto fail;
-+		goto destroy_iommu;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1447,7 +1447,7 @@ static int set_tsc_khz(struct kvm_vcpu *
+ 			vcpu->arch.tsc_always_catchup = 1;
+ 			return 0;
+ 		} else {
+-			WARN(1, "user requested TSC rate below hardware speed\n");
++			pr_warn_ratelimited("user requested TSC rate below hardware speed\n");
+ 			return -1;
+ 		}
+ 	}
+@@ -1457,8 +1457,8 @@ static int set_tsc_khz(struct kvm_vcpu *
+ 				user_tsc_khz, tsc_khz);
+ 
+ 	if (ratio == 0 || ratio >= kvm_max_tsc_scaling_ratio) {
+-		WARN_ONCE(1, "Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
+-			  user_tsc_khz);
++		pr_warn_ratelimited("Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
++			            user_tsc_khz);
+ 		return -1;
  	}
  
- 	/* Create buffer: */
-@@ -770,7 +770,7 @@ int etnaviv_gpu_init(struct etnaviv_gpu
- 				  PAGE_SIZE);
- 	if (ret) {
- 		dev_err(gpu->dev, "could not create command buffer\n");
--		goto destroy_iommu;
-+		goto destroy_suballoc;
- 	}
- 
- 	if (gpu->mmu->version == ETNAVIV_IOMMU_V1 &&
-@@ -802,6 +802,9 @@ int etnaviv_gpu_init(struct etnaviv_gpu
- free_buffer:
- 	etnaviv_cmdbuf_free(&gpu->buffer);
- 	gpu->buffer.suballoc = NULL;
-+destroy_suballoc:
-+	etnaviv_cmdbuf_suballoc_destroy(gpu->cmdbuf_suballoc);
-+	gpu->cmdbuf_suballoc = NULL;
- destroy_iommu:
- 	etnaviv_iommu_destroy(gpu->mmu);
- 	gpu->mmu = NULL;
 
 
