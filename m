@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8D11623B4
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 110E0622AC
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:27:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387573AbfGHPcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33456 "EHLO mail.kernel.org"
+        id S1728976AbfGHP1x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:27:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390026AbfGHPcB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:32:01 -0400
+        id S2389165AbfGHP1w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:27:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B40032175B;
-        Mon,  8 Jul 2019 15:31:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CA03216C4;
+        Mon,  8 Jul 2019 15:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599920;
-        bh=2akShNN++7OyxdrBUMVOzaGB2COSQnnhoytIQP8HaXI=;
+        s=default; t=1562599672;
+        bh=mWMQHXqKZVR3al1nTYvxdRttsfifL0w1ICxxsQaXT3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sS428n05XPJwpns5yYIdnRuv4dnQnO+phelBPgMT1uYRv+pemF9fQAVMOl7EryYy4
-         P5y5vqujuGmwtzzBWttxuzwb/HluyhMvn7G7eox9jtqBQkrjYi34W9GHK1GUdNlGfI
-         dlYSUSKcNCerHivmYxr/C8Y4iaQ7x+2E3sB0XRBE=
+        b=h4DRLGBK5yOVWvWmbwIcmQmywHL8IcKRWDSIl9eI6Lnz4XMK8KtqWmPjQ6xNlcqxp
+         9HRYj53UJ+CYvxW2mgsDuy6QOLrrJiBzcshh98HbDW1303Lu6CuMpRcuHsjm4gybMQ
+         84qTQTbhANvkAhs5QWwRBNBbyGgzmcIfi3UvyWzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 32/96] ASoC: Intel: bytcht_es8316: fix kernel oops with platform_name override
+Subject: [PATCH 4.19 37/90] tracing: avoid build warning with HAVE_NOP_MCOUNT
 Date:   Mon,  8 Jul 2019 17:13:04 +0200
-Message-Id: <20190708150528.299101314@linuxfoundation.org>
+Message-Id: <20190708150524.469699228@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 79136a016add1acb690fe8d96be50dd22a143d26 ]
+[ Upstream commit cbdaeaf050b730ea02e9ab4ff844ce54d85dbe1d ]
 
-The platform override code uses devm_ functions to allocate memory for
-the new name but the card device is not initialized. Fix by moving the
-init earlier.
+Selecting HAVE_NOP_MCOUNT enables -mnop-mcount (if gcc supports it)
+and sets CC_USING_NOP_MCOUNT. Reuse __is_defined (which is suitable for
+testing CC_USING_* defines) to avoid conditional compilation and fix
+the following gcc 9 warning on s390:
 
-Fixes: e4bc6b1195f64 ("ASoC: Intel: bytcht_es8316: platform name fixup support")
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+kernel/trace/ftrace.c:2514:1: warning: ‘ftrace_code_disable’ defined
+but not used [-Wunused-function]
+
+Link: http://lkml.kernel.org/r/patch.git-1a82d13f33ac.your-ad-here.call-01559732716-ext-6629@work.hours
+
+Fixes: 2f4df0017baed ("tracing: Add -mcount-nop option support")
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcht_es8316.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/ftrace.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/intel/boards/bytcht_es8316.c b/sound/soc/intel/boards/bytcht_es8316.c
-index d2a7e6ba11ae..1c686f83220a 100644
---- a/sound/soc/intel/boards/bytcht_es8316.c
-+++ b/sound/soc/intel/boards/bytcht_es8316.c
-@@ -471,6 +471,7 @@ static int snd_byt_cht_es8316_mc_probe(struct platform_device *pdev)
- 	}
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 1688782f3dfb..90348b343460 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -2952,14 +2952,13 @@ static int ftrace_update_code(struct module *mod, struct ftrace_page *new_pgs)
+ 			p = &pg->records[i];
+ 			p->flags = rec_flags;
  
- 	/* override plaform name, if required */
-+	byt_cht_es8316_card.dev = dev;
- 	platform_name = mach->mach_params.platform;
+-#ifndef CC_USING_NOP_MCOUNT
+ 			/*
+ 			 * Do the initial record conversion from mcount jump
+ 			 * to the NOP instructions.
+ 			 */
+-			if (!ftrace_code_disable(mod, p))
++			if (!__is_defined(CC_USING_NOP_MCOUNT) &&
++			    !ftrace_code_disable(mod, p))
+ 				break;
+-#endif
  
- 	ret = snd_soc_fixup_dai_links_platform_name(&byt_cht_es8316_card,
-@@ -538,7 +539,6 @@ static int snd_byt_cht_es8316_mc_probe(struct platform_device *pdev)
- 		 (quirk & BYT_CHT_ES8316_MONO_SPEAKER) ? "mono" : "stereo",
- 		 mic_name[BYT_CHT_ES8316_MAP(quirk)]);
- 	byt_cht_es8316_card.long_name = long_name;
--	byt_cht_es8316_card.dev = dev;
- 	snd_soc_card_set_drvdata(&byt_cht_es8316_card, priv);
- 
- 	ret = devm_snd_soc_register_card(dev, &byt_cht_es8316_card);
+ 			update_cnt++;
+ 		}
 -- 
 2.20.1
 
