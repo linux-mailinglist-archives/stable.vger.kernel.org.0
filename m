@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 793A262284
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:26:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E336238F
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388838AbfGHP0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:26:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54364 "EHLO mail.kernel.org"
+        id S1732394AbfGHPcj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:32:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388852AbfGHP0e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:26:34 -0400
+        id S1732377AbfGHPci (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:32:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30F362166E;
-        Mon,  8 Jul 2019 15:26:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 589B921537;
+        Mon,  8 Jul 2019 15:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599593;
-        bh=n0ZWqNNLkCA7MrsPm/FnPcNlEAG7TmrU9z/p89E6hlE=;
+        s=default; t=1562599957;
+        bh=GJjTOXqbqgHDFASrn9drflgFS1R+sgfX9aM1EesWgXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zd2CLu8cVj9VifSVaoTt/rE6XvB9COgC2+7IcAJivePAAjkS98JwagJmvnFjzeuSI
-         GscNeRgzWSqdMWBhQLiqiD8JpH2xW+QF39O3ku/UcdDjxK8cWwDKlLSVHt2ovAELAX
-         llg/hHEkE+sENTaeZz28zgrl4YMuZDrqiS+p4uW0=
+        b=CfEYfn0g/FHyyi189SuXRoqVBn+a7pKSqA9cKnhT+tdrZYvkHlIVqUZOHQre+5V8O
+         mbrPLf9M3J6hN97+caGVdA0gg23ANutqAC65aLBGjnFsErWJV3Zs4UJ1rkD1l0wwqn
+         ONqMoWFoOdhIO5osnRhbM4h50fZT7+vusSWacvpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Axel Lin <axel.lin@ingics.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/90] spi: bitbang: Fix NULL pointer dereference in spi_unregister_master
+        stable@vger.kernel.org, Brendan Gregg <bgregg@netflix.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 5.1 07/96] idr: Fix idr_get_next race with idr_remove
 Date:   Mon,  8 Jul 2019 17:12:39 +0200
-Message-Id: <20190708150523.222935406@linuxfoundation.org>
+Message-Id: <20190708150526.709425198@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,86 +43,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5caaf29af5ca82d5da8bc1d0ad07d9e664ccf1d8 ]
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-If spi_register_master fails in spi_bitbang_start
-because device_add failure, We should return the
-error code other than 0, otherwise calling
-spi_bitbang_stop may trigger NULL pointer dereference
-like this:
+commit 5c089fd0c73411f2170ab795c9ffc16718c7d007 upstream.
 
-BUG: KASAN: null-ptr-deref in __list_del_entry_valid+0x45/0xd0
-Read of size 8 at addr 0000000000000000 by task syz-executor.0/3661
+If the entry is deleted from the IDR between the call to
+radix_tree_iter_find() and rcu_dereference_raw(), idr_get_next()
+will return NULL, which will end the iteration prematurely.  We should
+instead continue to the next entry in the IDR.  This only happens if the
+iteration is protected by the RCU lock.  Most IDR users use a spinlock
+or semaphore to exclude simultaneous modifications.  It was noticed once
+the PID allocator was converted to use the IDR, as it uses the RCU lock,
+but there may be other users elsewhere in the kernel.
 
-CPU: 0 PID: 3661 Comm: syz-executor.0 Not tainted 5.1.0+ #28
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-Call Trace:
- dump_stack+0xa9/0x10e
- ? __list_del_entry_valid+0x45/0xd0
- ? __list_del_entry_valid+0x45/0xd0
- __kasan_report+0x171/0x18d
- ? __list_del_entry_valid+0x45/0xd0
- kasan_report+0xe/0x20
- __list_del_entry_valid+0x45/0xd0
- spi_unregister_controller+0x99/0x1b0
- spi_lm70llp_attach+0x3ae/0x4b0 [spi_lm70llp]
- ? 0xffffffffc1128000
- ? klist_next+0x131/0x1e0
- ? driver_detach+0x40/0x40 [parport]
- port_check+0x3b/0x50 [parport]
- bus_for_each_dev+0x115/0x180
- ? subsys_dev_iter_exit+0x20/0x20
- __parport_register_driver+0x1f0/0x210 [parport]
- ? 0xffffffffc1150000
- do_one_initcall+0xb9/0x3b5
- ? perf_trace_initcall_level+0x270/0x270
- ? kasan_unpoison_shadow+0x30/0x40
- ? kasan_unpoison_shadow+0x30/0x40
- do_init_module+0xe0/0x330
- load_module+0x38eb/0x4270
- ? module_frob_arch_sections+0x20/0x20
- ? kernel_read_file+0x188/0x3f0
- ? find_held_lock+0x6d/0xd0
- ? fput_many+0x1a/0xe0
- ? __do_sys_finit_module+0x162/0x190
- __do_sys_finit_module+0x162/0x190
- ? __ia32_sys_init_module+0x40/0x40
- ? __mutex_unlock_slowpath+0xb4/0x3f0
- ? wait_for_completion+0x240/0x240
- ? vfs_write+0x160/0x2a0
- ? lockdep_hardirqs_off+0xb5/0x100
- ? mark_held_locks+0x1a/0x90
- ? do_syscall_64+0x14/0x2a0
- do_syscall_64+0x72/0x2a0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+We can't use the normal pattern of calling radix_tree_deref_retry()
+(which catches both a retry entry in a leaf node and a node entry in
+the root) as the IDR supports storing entries which are unaligned,
+which will trigger an infinite loop if they are encountered.  Instead,
+we have to explicitly check whether the entry is a retry entry.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 702a4879ec33 ("spi: bitbang: Let spi_bitbang_start() take a reference to master")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Axel Lin <axel.lin@ingics.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0a835c4f090a ("Reimplement IDR and IDA using the radix tree")
+Reported-by: Brendan Gregg <bgregg@netflix.com>
+Tested-by: Brendan Gregg <bgregg@netflix.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/spi/spi-bitbang.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/idr.c                           |   14 +++++++++-
+ tools/testing/radix-tree/idr-test.c |   46 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 58 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-bitbang.c b/drivers/spi/spi-bitbang.c
-index f29176000b8d..06cf9388e74f 100644
---- a/drivers/spi/spi-bitbang.c
-+++ b/drivers/spi/spi-bitbang.c
-@@ -416,7 +416,7 @@ int spi_bitbang_start(struct spi_bitbang *bitbang)
- 	if (ret)
- 		spi_master_put(master);
+--- a/lib/idr.c
++++ b/lib/idr.c
+@@ -227,11 +227,21 @@ void *idr_get_next(struct idr *idr, int
+ {
+ 	struct radix_tree_iter iter;
+ 	void __rcu **slot;
++	void *entry = NULL;
+ 	unsigned long base = idr->idr_base;
+ 	unsigned long id = *nextid;
  
--	return 0;
-+	return ret;
+ 	id = (id < base) ? 0 : id - base;
+-	slot = radix_tree_iter_find(&idr->idr_rt, &iter, id);
++	radix_tree_for_each_slot(slot, &idr->idr_rt, &iter, id) {
++		entry = rcu_dereference_raw(*slot);
++		if (!entry)
++			continue;
++		if (!xa_is_internal(entry))
++			break;
++		if (slot != &idr->idr_rt.xa_head && !xa_is_retry(entry))
++			break;
++		slot = radix_tree_iter_retry(&iter);
++	}
+ 	if (!slot)
+ 		return NULL;
+ 	id = iter.index + base;
+@@ -240,7 +250,7 @@ void *idr_get_next(struct idr *idr, int
+ 		return NULL;
+ 
+ 	*nextid = id;
+-	return rcu_dereference_raw(*slot);
++	return entry;
  }
- EXPORT_SYMBOL_GPL(spi_bitbang_start);
+ EXPORT_SYMBOL(idr_get_next);
  
--- 
-2.20.1
-
+--- a/tools/testing/radix-tree/idr-test.c
++++ b/tools/testing/radix-tree/idr-test.c
+@@ -287,6 +287,51 @@ static void idr_align_test(struct idr *i
+ 	}
+ }
+ 
++DEFINE_IDR(find_idr);
++
++static void *idr_throbber(void *arg)
++{
++	time_t start = time(NULL);
++	int id = *(int *)arg;
++
++	rcu_register_thread();
++	do {
++		idr_alloc(&find_idr, xa_mk_value(id), id, id + 1, GFP_KERNEL);
++		idr_remove(&find_idr, id);
++	} while (time(NULL) < start + 10);
++	rcu_unregister_thread();
++
++	return NULL;
++}
++
++void idr_find_test_1(int anchor_id, int throbber_id)
++{
++	pthread_t throbber;
++	time_t start = time(NULL);
++
++	pthread_create(&throbber, NULL, idr_throbber, &throbber_id);
++
++	BUG_ON(idr_alloc(&find_idr, xa_mk_value(anchor_id), anchor_id,
++				anchor_id + 1, GFP_KERNEL) != anchor_id);
++
++	do {
++		int id = 0;
++		void *entry = idr_get_next(&find_idr, &id);
++		BUG_ON(entry != xa_mk_value(id));
++	} while (time(NULL) < start + 11);
++
++	pthread_join(throbber, NULL);
++
++	idr_remove(&find_idr, anchor_id);
++	BUG_ON(!idr_is_empty(&find_idr));
++}
++
++void idr_find_test(void)
++{
++	idr_find_test_1(100000, 0);
++	idr_find_test_1(0, 100000);
++}
++
+ void idr_checks(void)
+ {
+ 	unsigned long i;
+@@ -368,6 +413,7 @@ void idr_checks(void)
+ 	idr_u32_test(1);
+ 	idr_u32_test(0);
+ 	idr_align_test(&idr);
++	idr_find_test();
+ }
+ 
+ #define module_init(x)
 
 
