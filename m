@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9017562196
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:18:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 733BE62480
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732851AbfGHPRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:17:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41040 "EHLO mail.kernel.org"
+        id S2388333AbfGHPYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:24:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732834AbfGHPRg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:17:36 -0400
+        id S2388328AbfGHPYP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:24:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E45921738;
-        Mon,  8 Jul 2019 15:17:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41CA0214C6;
+        Mon,  8 Jul 2019 15:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599055;
-        bh=QFAINz4lEj37zVrti+YsB6KbcFaaj4VKelkdmK9Ww1o=;
+        s=default; t=1562599454;
+        bh=KawLcqAK8Jtlnzz5LbCaBUmEuHDVz6zoCaHEviFevVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E0lStX4ArPFRRNOfJbXlLkM3wPJYbsuZmdInxLZ6zsdUQXe7ya+Va5EytXXKRFgwz
-         t5114JfqlvXnxklAJSIkQI/eoiV9x67Dj4arM4rMFKysTVfBV9j+BuvA8w0/VoTF1z
-         rClKY4wToFnovV8ROWGiHI4IoWEhmYtUdUUsUxWs=
+        b=qs+gVPY2oD4Pjd9CmZFoMm3fFcHVIpLBA94U0zsck0SHFvgjeB38s76HbvJdHX7Nh
+         uq7AY4WPpbUyimh3Qz/Q2OtShnszqI6L4a/O/i0W3k+fdZuaep330uHaQphW5b6/NS
+         9hKW9t1371MkpxbnGD+08AGjvjPaGUvDaV/SVcaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.4 63/73] crypto: user - prevent operating on larval algorithms
+        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
+        Ganesan Ramalingam <ganesanr@broadcom.com>,
+        James Hogan <jhogan@kernel.org>,
+        Jayachandran C <jnair@caviumnetworks.com>,
+        John Crispin <john@phrozen.org>,
+        Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 21/56] MIPS: netlogic: xlr: Remove erroneous check in nlm_fmn_send()
 Date:   Mon,  8 Jul 2019 17:13:13 +0200
-Message-Id: <20190708150524.620939033@linuxfoundation.org>
+Message-Id: <20190708150520.811521205@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+[ Upstream commit 02eec6c9fc0cb13169cc97a6139771768791f92b ]
 
-commit 21d4120ec6f5b5992b01b96ac484701163917b63 upstream.
+In nlm_fmn_send() we have a loop which attempts to send a message
+multiple times in order to handle the transient failure condition of a
+lack of available credit. When examining the status register to detect
+the failure we check for a condition that can never be true, which falls
+foul of gcc 8's -Wtautological-compare:
 
-Michal Suchanek reported [1] that running the pcrypt_aead01 test from
-LTP [2] in a loop and holding Ctrl-C causes a NULL dereference of
-alg->cra_users.next in crypto_remove_spawns(), via crypto_del_alg().
-The test repeatedly uses CRYPTO_MSG_NEWALG and CRYPTO_MSG_DELALG.
+  In file included from arch/mips/netlogic/common/irq.c:65:
+  ./arch/mips/include/asm/netlogic/xlr/fmn.h: In function 'nlm_fmn_send':
+  ./arch/mips/include/asm/netlogic/xlr/fmn.h:304:22: error: bitwise
+    comparison always evaluates to false [-Werror=tautological-compare]
+     if ((status & 0x2) == 1)
+                        ^~
 
-The crash occurs when the instance that CRYPTO_MSG_DELALG is trying to
-unregister isn't a real registered algorithm, but rather is a "test
-larval", which is a special "algorithm" added to the algorithms list
-while the real algorithm is still being tested.  Larvals don't have
-initialized cra_users, so that causes the crash.  Normally pcrypt_aead01
-doesn't trigger this because CRYPTO_MSG_NEWALG waits for the algorithm
-to be tested; however, CRYPTO_MSG_NEWALG returns early when interrupted.
+If the path taken if this condition were true all we do is print a
+message to the kernel console. Since failures seem somewhat expected
+here (making the console message questionable anyway) and the condition
+has clearly never evaluated true we simply remove it, rather than
+attempting to fix it to check status correctly.
 
-Everything else in the "crypto user configuration" API has this same bug
-too, i.e. it inappropriately allows operating on larval algorithms
-(though it doesn't look like the other cases can cause a crash).
-
-Fix this by making crypto_alg_match() exclude larval algorithms.
-
-[1] https://lkml.kernel.org/r/20190625071624.27039-1-msuchanek@suse.de
-[2] https://github.com/linux-test-project/ltp/blob/20190517/testcases/kernel/crypto/pcrypt_aead01.c
-
-Reported-by: Michal Suchanek <msuchanek@suse.de>
-Fixes: a38f7907b926 ("crypto: Add userspace configuration API")
-Cc: <stable@vger.kernel.org> # v3.2+
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Patchwork: https://patchwork.linux-mips.org/patch/20174/
+Cc: Ganesan Ramalingam <ganesanr@broadcom.com>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Jayachandran C <jnair@caviumnetworks.com>
+Cc: John Crispin <john@phrozen.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: linux-mips@linux-mips.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/crypto_user.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/mips/include/asm/netlogic/xlr/fmn.h | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/crypto/crypto_user.c
-+++ b/crypto/crypto_user.c
-@@ -54,6 +54,9 @@ static struct crypto_alg *crypto_alg_mat
- 	list_for_each_entry(q, &crypto_alg_list, cra_list) {
- 		int match = 0;
- 
-+		if (crypto_is_larval(q))
-+			continue;
-+
- 		if ((q->cra_flags ^ p->cru_type) & p->cru_mask)
- 			continue;
- 
+diff --git a/arch/mips/include/asm/netlogic/xlr/fmn.h b/arch/mips/include/asm/netlogic/xlr/fmn.h
+index 5604db3d1836..d79c68fa78d9 100644
+--- a/arch/mips/include/asm/netlogic/xlr/fmn.h
++++ b/arch/mips/include/asm/netlogic/xlr/fmn.h
+@@ -301,8 +301,6 @@ static inline int nlm_fmn_send(unsigned int size, unsigned int code,
+ 	for (i = 0; i < 8; i++) {
+ 		nlm_msgsnd(dest);
+ 		status = nlm_read_c2_status0();
+-		if ((status & 0x2) == 1)
+-			pr_info("Send pending fail!\n");
+ 		if ((status & 0x4) == 0)
+ 			return 0;
+ 	}
+-- 
+2.20.1
+
 
 
