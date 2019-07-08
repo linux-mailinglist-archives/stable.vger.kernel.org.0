@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C2A6225B
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:25:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46087622C8
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:29:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388418AbfGHPZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:25:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52436 "EHLO mail.kernel.org"
+        id S2389380AbfGHP27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:28:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388543AbfGHPZE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:25:04 -0400
+        id S2389399AbfGHP26 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:28:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73C14204EC;
-        Mon,  8 Jul 2019 15:25:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B6E021537;
+        Mon,  8 Jul 2019 15:28:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599503;
-        bh=pPvXy1dg4w7R9+7wjQwCiC2XVNsumn72yQ7jifnr8r8=;
+        s=default; t=1562599737;
+        bh=v3p0s9VV7bGgXKLIwcoxYndAsqwbD/So0jRgwNwg3So=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Him/r2HsdoSrrp3T6ruIjV38vZkl8RqtyXUsH4ObErqBkDNywW2Pe1v8o3TJWqgH3
-         6MONPYsGo6g0pSQlcLTu6T7oSSCFpYlNpoi8tswv2CdrMxKKXQ4JxrQJthtY8FySQj
-         ol5/J/0Eh1Zv8rpQa6ZYifF39VEq2+jjIqHBtEaI=
+        b=MhIE2QPGgWHQ0aBbotWu0/zIyF3zGS9AatglNebAj++X/6WPy+TzqyAoBFe63bi8S
+         5zPJnpN0fY0q3CG2fCHh4qd8Gtd/tjWtEiwdgpCj2c7bLumoJjR4rQD/sokB3Df/AJ
+         mvRfSmT9kzfUcZrHT2OdzYf4duoI+/01oLkhWtP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Beckett <bob.beckett@collabora.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Philipp Zabel <p.zabel@pengutronix.de>
-Subject: [PATCH 4.14 36/56] drm/imx: notify drm core before sending event during crtc disable
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Hillf Danton <hdanton@sina.com>, Roman Gushchin <guro@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 61/90] mm/vmscan.c: prevent useless kswapd loops
 Date:   Mon,  8 Jul 2019 17:13:28 +0200
-Message-Id: <20190708150523.216561571@linuxfoundation.org>
+Message-Id: <20190708150525.495665322@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +50,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Beckett <bob.beckett@collabora.com>
+From: Shakeel Butt <shakeelb@google.com>
 
-commit 78c68e8f5cd24bd32ba4ca1cdfb0c30cf0642685 upstream.
+commit dffcac2cb88e4ec5906235d64a83d802580b119e upstream.
 
-Notify drm core before sending pending events during crtc disable.
-This fixes the first event after disable having an old stale timestamp
-by having drm_crtc_vblank_off update the timestamp to now.
+In production we have noticed hard lockups on large machines running
+large jobs due to kswaps hoarding lru lock within isolate_lru_pages when
+sc->reclaim_idx is 0 which is a small zone.  The lru was couple hundred
+GiBs and the condition (page_zonenum(page) > sc->reclaim_idx) in
+isolate_lru_pages() was basically skipping GiBs of pages while holding
+the LRU spinlock with interrupt disabled.
 
-This was seen while debugging weston log message:
-Warning: computed repaint delay is insane: -8212 msec
+On further inspection, it seems like there are two issues:
 
-This occurred due to:
-1. driver starts up
-2. fbcon comes along and restores fbdev, enabling vblank
-3. vblank_disable_fn fires via timer disabling vblank, keeping vblank
-seq number and time set at current value
-(some time later)
-4. weston starts and does a modeset
-5. atomic commit disables crtc while it does the modeset
-6. ipu_crtc_atomic_disable sends vblank with old seq number and time
+(1) If kswapd on the return from balance_pgdat() could not sleep (i.e.
+    node is still unbalanced), the classzone_idx is unintentionally set
+    to 0 and the whole reclaim cycle of kswapd will try to reclaim only
+    the lowest and smallest zone while traversing the whole memory.
 
-Fixes: a474478642d5 ("drm/imx: fix crtc vblank state regression")
+(2) Fundamentally isolate_lru_pages() is really bad when the
+    allocation has woken kswapd for a smaller zone on a very large machine
+    running very large jobs.  It can hoard the LRU spinlock while skipping
+    over 100s of GiBs of pages.
 
-Signed-off-by: Robert Beckett <bob.beckett@collabora.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+This patch only fixes (1).  (2) needs a more fundamental solution.  To
+fix (1), in the kswapd context, if pgdat->kswapd_classzone_idx is
+invalid use the classzone_idx of the previous kswapd loop otherwise use
+the one the waker has requested.
+
+Link: http://lkml.kernel.org/r/20190701201847.251028-1-shakeelb@google.com
+Fixes: e716f2eb24de ("mm, vmscan: prevent kswapd sleeping prematurely due to mismatched classzone_idx")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Yang Shi <yang.shi@linux.alibaba.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Hillf Danton <hdanton@sina.com>
+Cc: Roman Gushchin <guro@fb.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/imx/ipuv3-crtc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/vmscan.c |   27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
---- a/drivers/gpu/drm/imx/ipuv3-crtc.c
-+++ b/drivers/gpu/drm/imx/ipuv3-crtc.c
-@@ -99,14 +99,14 @@ static void ipu_crtc_atomic_disable(stru
- 	ipu_dc_disable(ipu);
- 	ipu_prg_disable(ipu);
- 
-+	drm_crtc_vblank_off(crtc);
-+
- 	spin_lock_irq(&crtc->dev->event_lock);
- 	if (crtc->state->event) {
- 		drm_crtc_send_vblank_event(crtc, crtc->state->event);
- 		crtc->state->event = NULL;
- 	}
- 	spin_unlock_irq(&crtc->dev->event_lock);
--
--	drm_crtc_vblank_off(crtc);
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -3599,19 +3599,18 @@ out:
  }
  
- static void imx_drm_crtc_reset(struct drm_crtc *crtc)
+ /*
+- * pgdat->kswapd_classzone_idx is the highest zone index that a recent
+- * allocation request woke kswapd for. When kswapd has not woken recently,
+- * the value is MAX_NR_ZONES which is not a valid index. This compares a
+- * given classzone and returns it or the highest classzone index kswapd
+- * was recently woke for.
++ * The pgdat->kswapd_classzone_idx is used to pass the highest zone index to be
++ * reclaimed by kswapd from the waker. If the value is MAX_NR_ZONES which is not
++ * a valid index then either kswapd runs for first time or kswapd couldn't sleep
++ * after previous reclaim attempt (node is still unbalanced). In that case
++ * return the zone index of the previous kswapd reclaim cycle.
+  */
+ static enum zone_type kswapd_classzone_idx(pg_data_t *pgdat,
+-					   enum zone_type classzone_idx)
++					   enum zone_type prev_classzone_idx)
+ {
+ 	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
+-		return classzone_idx;
+-
+-	return max(pgdat->kswapd_classzone_idx, classzone_idx);
++		return prev_classzone_idx;
++	return pgdat->kswapd_classzone_idx;
+ }
+ 
+ static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_order,
+@@ -3752,7 +3751,7 @@ kswapd_try_sleep:
+ 
+ 		/* Read the new order and classzone_idx */
+ 		alloc_order = reclaim_order = pgdat->kswapd_order;
+-		classzone_idx = kswapd_classzone_idx(pgdat, 0);
++		classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
+ 		pgdat->kswapd_order = 0;
+ 		pgdat->kswapd_classzone_idx = MAX_NR_ZONES;
+ 
+@@ -3806,8 +3805,12 @@ void wakeup_kswapd(struct zone *zone, gf
+ 	if (!cpuset_zone_allowed(zone, gfp_flags))
+ 		return;
+ 	pgdat = zone->zone_pgdat;
+-	pgdat->kswapd_classzone_idx = kswapd_classzone_idx(pgdat,
+-							   classzone_idx);
++
++	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
++		pgdat->kswapd_classzone_idx = classzone_idx;
++	else
++		pgdat->kswapd_classzone_idx = max(pgdat->kswapd_classzone_idx,
++						  classzone_idx);
+ 	pgdat->kswapd_order = max(pgdat->kswapd_order, order);
+ 	if (!waitqueue_active(&pgdat->kswapd_wait))
+ 		return;
 
 
