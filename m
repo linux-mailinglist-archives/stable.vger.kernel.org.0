@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8ADE62320
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA23E624CD
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:46:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390119AbfGHPcX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:32:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34054 "EHLO mail.kernel.org"
+        id S2387787AbfGHPVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:21:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390088AbfGHPcX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:32:23 -0400
+        id S2387757AbfGHPVn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:21:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A33B7204EC;
-        Mon,  8 Jul 2019 15:32:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31F08214C6;
+        Mon,  8 Jul 2019 15:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599942;
-        bh=bnBg8bSk1oBoZuw31yBBPLVRo5aAPKtDhkgR04AM0/o=;
+        s=default; t=1562599302;
+        bh=+erWMCoHTiSsklg2eI6FKFJT38mbys5O4ZaxKE9Ogkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDvJrhUVvU4mXDsOvEZZ3M5nwi6rhUoPqujkLqKv6FSqn+My/nfcAWcsYtQ0HFUqp
-         b0OhaqIK9UGtM7ZNohNgzMW1fgppJnESzOiFwSmC6JHd+o/py61/Gidjvw6flPAL6r
-         DiMW0A5Jm0xFeb2Eud1NeEvKjnK31P4zz1lk7BVY=
+        b=q75EdKaXJnAWQlELDLaZEvoICU1KGCtXW2BgOQMbyYKBYCe60f5Sktg4F50NZkjqm
+         3H6l/edJd3bhMXly34fMDavQ7ybFlbJE+GXMKRgGPypmnGt2HpUE0/CFeN0KDhbs3L
+         LnwlLt1LlR58vFOiytuydZzp6AVAQxd5ToJNiF2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.1 04/96] netfilter: nft_flow_offload: set liberal tracking mode for tcp
-Date:   Mon,  8 Jul 2019 17:12:36 +0200
-Message-Id: <20190708150526.513518129@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Adeodato=20Sim=C3=B3?= <dato@net.com.org.es>,
+        Dominique Martinet <dominique.martinet@cea.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 044/102] net/9p: include trans_common.h to fix missing prototype warning.
+Date:   Mon,  8 Jul 2019 17:12:37 +0200
+Message-Id: <20190708150528.713266530@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+[ Upstream commit 52ad259eaac0454c1ac7123e7148cf8d6e6f5301 ]
 
-commit 8437a6209f76f85a2db1abb12a9bde2170801617 upstream.
+This silences -Wmissing-prototypes when defining p9_release_pages.
 
-Without it, whenever a packet has to be pushed up the stack (e.g. because
-of mtu mismatch), then conntrack will flag packets as invalid, which in
-turn breaks NAT.
-
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: http://lkml.kernel.org/r/b1c4df8f21689b10d451c28fe38e860722d20e71.1542089696.git.dato@net.com.org.es
+Signed-off-by: Adeodato Simó <dato@net.com.org.es>
+Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_flow_offload.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/9p/trans_common.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/netfilter/nft_flow_offload.c
-+++ b/net/netfilter/nft_flow_offload.c
-@@ -72,6 +72,7 @@ static void nft_flow_offload_eval(const
- 	struct nf_flow_route route;
- 	struct flow_offload *flow;
- 	enum ip_conntrack_dir dir;
-+	bool is_tcp = false;
- 	struct nf_conn *ct;
- 	int ret;
+diff --git a/net/9p/trans_common.c b/net/9p/trans_common.c
+index 38aa6345bdfa..9c0c894b56f8 100644
+--- a/net/9p/trans_common.c
++++ b/net/9p/trans_common.c
+@@ -14,6 +14,7 @@
  
-@@ -84,6 +85,8 @@ static void nft_flow_offload_eval(const
+ #include <linux/mm.h>
+ #include <linux/module.h>
++#include "trans_common.h"
  
- 	switch (ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.dst.protonum) {
- 	case IPPROTO_TCP:
-+		is_tcp = true;
-+		break;
- 	case IPPROTO_UDP:
- 		break;
- 	default:
-@@ -109,6 +112,11 @@ static void nft_flow_offload_eval(const
- 	if (!flow)
- 		goto err_flow_alloc;
- 
-+	if (is_tcp) {
-+		ct->proto.tcp.seen[0].flags |= IP_CT_TCP_FLAG_BE_LIBERAL;
-+		ct->proto.tcp.seen[1].flags |= IP_CT_TCP_FLAG_BE_LIBERAL;
-+	}
-+
- 	ret = flow_offload_add(flowtable, flow);
- 	if (ret < 0)
- 		goto err_flow_add;
+ /**
+  *  p9_release_req_pages - Release pages after the transaction.
+-- 
+2.20.1
+
 
 
