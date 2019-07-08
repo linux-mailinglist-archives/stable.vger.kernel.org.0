@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E67BA6230F
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:33:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B3FB624C6
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389962AbfGHPbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:31:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32998 "EHLO mail.kernel.org"
+        id S2387728AbfGHPV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:21:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389938AbfGHPbn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:31:43 -0400
+        id S2387516AbfGHPV2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:21:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F9B421537;
-        Mon,  8 Jul 2019 15:31:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 924602166E;
+        Mon,  8 Jul 2019 15:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599902;
-        bh=DNwRzKqCRJ/kSZuK+WVQ2r8v9h/vDkWGjs5cbDM/Bkw=;
+        s=default; t=1562599287;
+        bh=9L0SttTa0BIq1Uf+MGhfQMvOxZrYpehlrhdYX9je6l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQQglM5CWJiLvRz1P4+BOqd/Vpi2STBdalwLH/QwVES+QUawgp46fox547qts5xQF
-         4xT0eRN0UeXtsqt9JI8guKEwSTT8OL0IVZ7G57DSCZP28Jzz16B61sz5qRrHB5acFk
-         lxon0iHDDygMSrztt2bq/f8W8ZGATaww3Qg6/QGM=
+        b=hI7Prt/fF/VYR5FpIhyGCuxdVvN25DA6xVihRDiZKAKgt0EnPJ9SWSTOzXrRiXEL3
+         oWhSJcXF4c24GNqs62VM8RTZu+8vsaf1pkQ8O1DlO4NICCash8dL977ajaRPufgIrR
+         hGlobMU/Y0f5LfnOfrZL1GLyeEcXaD3WmEFw4/Ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>,
-        rui.zhang@intel.com, Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>, x86-ml <x86@kernel.org>,
+        stable@vger.kernel.org, Matt Flax <flatmax@flatmax.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 27/96] x86/CPU: Add more Icelake model numbers
+Subject: [PATCH 4.9 066/102] ASoC : cs4265 : readable register too low
 Date:   Mon,  8 Jul 2019 17:12:59 +0200
-Message-Id: <20190708150527.989999310@linuxfoundation.org>
+Message-Id: <20190708150529.864746321@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,45 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e35faeb64146f2015f2aec14b358ae508e4066db ]
+[ Upstream commit f3df05c805983427319eddc2411a2105ee1757cf ]
 
-Add the CPUID model numbers of Icelake (ICL) desktop and server
-processors to the Intel family list.
+The cs4265_readable_register function stopped short of the maximum
+register.
 
- [ Qiuxu: Sort the macros by model number. ]
+An example bug is taken from :
+https://github.com/Audio-Injector/Ultra/issues/25
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Cc: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
-Cc: rui.zhang@intel.com
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190603134122.13853-1-kan.liang@linux.intel.com
+Where alsactl store fails with :
+Cannot read control '2,0,0,C Data Buffer,0': Input/output error
+
+This patch fixes the bug by setting the cs4265 to have readable
+registers up to the maximum hardware register CS4265_MAX_REGISTER.
+
+Signed-off-by: Matt Flax <flatmax@flatmax.org>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/intel-family.h | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/cs4265.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
-index 9f15384c504a..310118805f57 100644
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -52,6 +52,9 @@
- 
- #define INTEL_FAM6_CANNONLAKE_MOBILE	0x66
- 
-+#define INTEL_FAM6_ICELAKE_X		0x6A
-+#define INTEL_FAM6_ICELAKE_XEON_D	0x6C
-+#define INTEL_FAM6_ICELAKE_DESKTOP	0x7D
- #define INTEL_FAM6_ICELAKE_MOBILE	0x7E
- 
- /* "Small Core" Processors (Atom) */
+diff --git a/sound/soc/codecs/cs4265.c b/sound/soc/codecs/cs4265.c
+index 6e8eb1f5a041..bed64723e5d9 100644
+--- a/sound/soc/codecs/cs4265.c
++++ b/sound/soc/codecs/cs4265.c
+@@ -60,7 +60,7 @@ static const struct reg_default cs4265_reg_defaults[] = {
+ static bool cs4265_readable_register(struct device *dev, unsigned int reg)
+ {
+ 	switch (reg) {
+-	case CS4265_CHIP_ID ... CS4265_SPDIF_CTL2:
++	case CS4265_CHIP_ID ... CS4265_MAX_REGISTER:
+ 		return true;
+ 	default:
+ 		return false;
 -- 
 2.20.1
 
