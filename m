@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5BD76244C
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:42:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4A056239F
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388654AbfGHPZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:25:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53184 "EHLO mail.kernel.org"
+        id S2390428AbfGHPdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:33:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388649AbfGHPZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:25:41 -0400
+        id S1732876AbfGHPdm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:33:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71B3A20665;
-        Mon,  8 Jul 2019 15:25:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1626520665;
+        Mon,  8 Jul 2019 15:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599540;
-        bh=64V9h1K9sOO1/vFNR+nqekbcBPvH68uwg+pEVDOf8Yc=;
+        s=default; t=1562600021;
+        bh=ek20vikqeNTdh8UyIHg+luSl1BDDdZIm/V5dgx82/oE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPKvA7nf1nLXFV8mRgNeUarJZ/0aleZka6iOwuej5FtH7Z9WbohroRIMTIwgxrrNH
-         1JXIp2rh5CCNyQrpDRgK0fbvOs1318j5wCdL6TctpRava+I/REkhHJfvpOBeC9n5lO
-         Ry9pvr7m1qaVs7wzifXoZb8HEZpuqqUPEjh2zXLA=
+        b=YoJ3+Jg0UWPSBH5/33uR5EcJn6Kq0c8exzTpNkWrKF8gjmV7pFfRiM6EPw1HMSdMu
+         qhiorZd4LynKXpvqoQah/kqCkRIKv58xGgec0xmZyElWiGdcDXzthIm7vWMMJKMQmS
+         yBqPB4O1Slz+c8fzlKLmScrPD4rx+Dp9FDqMjVW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 48/56] tty: rocket: fix incorrect forward declaration of rp_init()
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+        Qian Cai <cai@lca.pw>, Hugh Dickins <hughd@google.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.1 68/96] swap_readpage(): avoid blk_wake_io_task() if !synchronous
 Date:   Mon,  8 Jul 2019 17:13:40 +0200
-Message-Id: <20190708150523.944446224@linuxfoundation.org>
+Message-Id: <20190708150530.140084973@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 423ea3255424b954947d167681b71ded1b8fca53 ]
+From: Oleg Nesterov <oleg@redhat.com>
 
-Make the forward declaration actually match the real function
-definition, something that previous versions of gcc had just ignored.
+commit 8751853091998cd31e9e5f1e8206280155af8921 upstream.
 
-This is another patch to fix new warnings from gcc-9 before I start the
-merge window pulls.  I don't want to miss legitimate new warnings just
-because my system update brought a new compiler with new warnings.
+swap_readpage() sets waiter = bio->bi_private even if synchronous = F,
+this means that the caller can get the spurious wakeup after return.
 
+This can be fatal if blk_wake_io_task() does
+set_current_state(TASK_RUNNING) after the caller does
+set_special_state(), in the worst case the kernel can crash in
+do_task_dead().
+
+Link: http://lkml.kernel.org/r/20190704160301.GA5956@redhat.com
+Fixes: 0619317ff8baa2d ("block: add polled wakeup task helper")
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Reported-by: Qian Cai <cai@lca.pw>
+Acked-by: Hugh Dickins <hughd@google.com>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/tty/rocket.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/page_io.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/tty/rocket.c b/drivers/tty/rocket.c
-index 070733ca94d5..32943afacffd 100644
---- a/drivers/tty/rocket.c
-+++ b/drivers/tty/rocket.c
-@@ -279,7 +279,7 @@ MODULE_PARM_DESC(pc104_3, "set interface types for ISA(PC104) board #3 (e.g. pc1
- module_param_array(pc104_4, ulong, NULL, 0);
- MODULE_PARM_DESC(pc104_4, "set interface types for ISA(PC104) board #4 (e.g. pc104_4=232,232,485,485,...");
+--- a/mm/page_io.c
++++ b/mm/page_io.c
+@@ -137,8 +137,10 @@ out:
+ 	unlock_page(page);
+ 	WRITE_ONCE(bio->bi_private, NULL);
+ 	bio_put(bio);
+-	blk_wake_io_task(waiter);
+-	put_task_struct(waiter);
++	if (waiter) {
++		blk_wake_io_task(waiter);
++		put_task_struct(waiter);
++	}
+ }
  
--static int rp_init(void);
-+static int __init rp_init(void);
- static void rp_cleanup_module(void);
- 
- module_init(rp_init);
--- 
-2.20.1
-
+ int generic_swapfile_activate(struct swap_info_struct *sis,
+@@ -395,11 +397,12 @@ int swap_readpage(struct page *page, boo
+ 	 * Keep this task valid during swap readpage because the oom killer may
+ 	 * attempt to access it in the page fault retry time check.
+ 	 */
+-	get_task_struct(current);
+-	bio->bi_private = current;
+ 	bio_set_op_attrs(bio, REQ_OP_READ, 0);
+-	if (synchronous)
++	if (synchronous) {
+ 		bio->bi_opf |= REQ_HIPRI;
++		get_task_struct(current);
++		bio->bi_private = current;
++	}
+ 	count_vm_event(PSWPIN);
+ 	bio_get(bio);
+ 	qc = submit_bio(bio);
 
 
