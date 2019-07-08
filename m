@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41C9E6227C
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99790623F0
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388777AbfGHP0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:26:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54038 "EHLO mail.kernel.org"
+        id S1731330AbfGHPi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:38:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388791AbfGHP0T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:26:19 -0400
+        id S2389782AbfGHPaA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:30:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 607062166E;
-        Mon,  8 Jul 2019 15:26:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5CAA216C4;
+        Mon,  8 Jul 2019 15:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599578;
-        bh=guJo8kQuNGCLr9IcAC48ivEXO+m7e0YNXbz8SATXBW8=;
+        s=default; t=1562599799;
+        bh=+3pnNI24UcgqddC+16lnH/sPlaUZ2koWchHGt+Hx0XE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jsWvngfjgFWWVBtahIQfeeEPDQjm8V/loCwWLhWg1KhVQvy1jE3fVGGG4QogqHKFQ
-         EpeRBlYLYx9717WXXGcJdyhNKgnct6T4oKzOcD0LO00S2Y05cDS9zB7ctfn/ry24OC
-         GGBaEohud9mY7gEiwum4S04upHuE+ADF0fAv07ys=
+        b=nE1e5MS4mP6t0+CO9XgYa/EbKlNPKSq8EPXh93vXgFRpnXlQ7rIG6uZWL4BEwVRax
+         XsFpBxdpZGK3eSVSvZnYLvVXAQmMtYCyVezFa32TDJ6k11URLncCfUy0wtc/omIaWH
+         BxWssMTVFqwQxN37jvUpPjS0LcIf8FkQY+hJbP8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-btrfs@vger.kernel.org,
-        Olivier Mazouffre <olivier.mazouffre@ims-bordeaux.fr>,
-        Stanislaw Gruszka <sgruszka@redhat.com>,
-        Nikolay Borisov <nborisov@suse.com>
-Subject: [PATCH 4.14 56/56] stable/btrfs: fix backport bug in d819d97ea025 ("btrfs: honor path->skip_locking in backref code")
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 81/90] netfilter: ipv6: nf_defrag: accept duplicate fragments again
 Date:   Mon,  8 Jul 2019 17:13:48 +0200
-Message-Id: <20190708150524.341162307@linuxfoundation.org>
+Message-Id: <20190708150526.488683525@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislaw Gruszka <sgruszka@redhat.com>
+[ Upstream commit 8a3dca632538c550930ce8bafa8c906b130d35cf ]
 
-Upstream commit 38e3eebff643 ("btrfs: honor path->skip_locking in
-backref code") was incorrectly backported to 4.14.y . It misses removal
-of two lines from original commit, what cause deadlock.
+When fixing the skb leak introduced by the conversion to rbtree, I
+forgot about the special case of duplicate fragments. The condition
+under the 'insert_error' label isn't effective anymore as
+nf_ct_frg6_gather() doesn't override the returned value anymore. So
+duplicate fragments now get NF_DROP verdict.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203993
-Reported-by: Olivier Mazouffre <olivier.mazouffre@ims-bordeaux.fr>
-Fixes: d819d97ea025 ("btrfs: honor path->skip_locking in backref code")
-Signed-off-by: Stanislaw Gruszka <sgruszka@redhat.com>
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To accept duplicate fragments again, handle them specially as soon as
+inet_frag_queue_insert() reports them. Return -EINPROGRESS which will
+translate to NF_STOLEN verdict, like any accepted fragment. However,
+such packets don't carry any new information and aren't queued, so we
+just drop them immediately.
 
+Fixes: a0d56cb911ca ("netfilter: ipv6: nf_defrag: fix leakage of unqueued fragments")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c |    2 --
- 1 file changed, 2 deletions(-)
+ net/ipv6/netfilter/nf_conntrack_reasm.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -1290,8 +1290,6 @@ again:
- 					ret = -EIO;
- 					goto out;
- 				}
--				btrfs_tree_read_lock(eb);
--				btrfs_set_lock_blocking_rw(eb, BTRFS_READ_LOCK);
- 				if (!path->skip_locking) {
- 					btrfs_tree_read_lock(eb);
- 					btrfs_set_lock_blocking_rw(eb, BTRFS_READ_LOCK);
+diff --git a/net/ipv6/netfilter/nf_conntrack_reasm.c b/net/ipv6/netfilter/nf_conntrack_reasm.c
+index 73c29ddcfb95..35d5a76867d0 100644
+--- a/net/ipv6/netfilter/nf_conntrack_reasm.c
++++ b/net/ipv6/netfilter/nf_conntrack_reasm.c
+@@ -265,8 +265,14 @@ static int nf_ct_frag6_queue(struct frag_queue *fq, struct sk_buff *skb,
+ 
+ 	prev = fq->q.fragments_tail;
+ 	err = inet_frag_queue_insert(&fq->q, skb, offset, end);
+-	if (err)
++	if (err) {
++		if (err == IPFRAG_DUP) {
++			/* No error for duplicates, pretend they got queued. */
++			kfree_skb(skb);
++			return -EINPROGRESS;
++		}
+ 		goto insert_error;
++	}
+ 
+ 	if (dev)
+ 		fq->iif = dev->ifindex;
+@@ -304,8 +310,6 @@ static int nf_ct_frag6_queue(struct frag_queue *fq, struct sk_buff *skb,
+ 	return -EINPROGRESS;
+ 
+ insert_error:
+-	if (err == IPFRAG_DUP)
+-		goto err;
+ 	inet_frag_kill(&fq->q);
+ err:
+ 	skb_dst_drop(skb);
+-- 
+2.20.1
+
 
 
