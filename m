@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7829D62539
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:49:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63CB662430
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732642AbfGHPt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:49:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39518 "EHLO mail.kernel.org"
+        id S2389005AbfGHP1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:27:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732572AbfGHPQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:16:31 -0400
+        id S2389002AbfGHP1O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:27:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BF6E214C6;
-        Mon,  8 Jul 2019 15:16:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58BEA204EC;
+        Mon,  8 Jul 2019 15:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562598991;
-        bh=sEOKUAq4GKM6/x3X6t11Te2cyR2Z3lcEGdyZJaXBlmM=;
+        s=default; t=1562599633;
+        bh=ufD0E8SWNu+JsFTjySIfU4IWaPejDtquRn2gQbcJcKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d/odtrky+JN8DFeAUX9y+KyzjZXSBraWpUdaeaRdlaOToRiXza9EEAzlMp5WUMv5Z
-         J5eP3VWYIVxfQf7mVX0OR+Nd880KGROslRI19A6Gmyf870Zs/SdaX/pWm/Xguwm/la
-         I9Q1l6d/CIzT44zWdsO7d1PkpkYiTtAEhVPX8s80=
+        b=swaog2eMV10DfuXSXN5sqyYVakjjnt8DNiQK3pbFDkj+XyHRCwaknzn00XGhPemID
+         StIjYUMgwmG+xn0AJTCFQKPiM11+Jhc34Hff0Mksgcck9nU6UJvUkQMTwRbcwSa32c
+         ZLWcRJkJXoCTgTZsF7J9mFOnHywjf1CDeCJSf2TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+30eaa8bf392f7fafffaf@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 42/73] tipc: check msg->req data len in tipc_nl_compat_bearer_disable
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 25/90] SoC: rt274: Fix internal jack assignment in set_jack callback
 Date:   Mon,  8 Jul 2019 17:12:52 +0200
-Message-Id: <20190708150523.590792309@linuxfoundation.org>
+Message-Id: <20190708150523.885423970@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,88 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+[ Upstream commit 04268bf2757a125616b6c2140e6250f43b7b737a ]
 
-[ Upstream commit 4f07b80c973348a99b5d2a32476a2e7877e94a05 ]
+When we call snd_soc_component_set_jack(component, NULL, NULL) we should
+set rt274->jack to passed jack, so when interrupt is triggered it calls
+snd_soc_jack_report(rt274->jack, ...) with proper value.
 
-This patch is to fix an uninit-value issue, reported by syzbot:
+This fixes problem in machine where in register, we call
+snd_soc_register(component, &headset, NULL), which just calls
+rt274_mic_detect via callback.
+Now when machine driver is removed "headset" will be gone, so we
+need to tell codec driver that it's gone with:
+snd_soc_register(component, NULL, NULL), but we also need to be able
+to handle NULL jack argument here gracefully.
+If we don't set it to NULL, next time the rt274_irq runs it will call
+snd_soc_jack_report with first argument being invalid pointer and there
+will be Oops.
 
-  BUG: KMSAN: uninit-value in memchr+0xce/0x110 lib/string.c:981
-  Call Trace:
-    __dump_stack lib/dump_stack.c:77 [inline]
-    dump_stack+0x191/0x1f0 lib/dump_stack.c:113
-    kmsan_report+0x130/0x2a0 mm/kmsan/kmsan.c:622
-    __msan_warning+0x75/0xe0 mm/kmsan/kmsan_instr.c:310
-    memchr+0xce/0x110 lib/string.c:981
-    string_is_valid net/tipc/netlink_compat.c:176 [inline]
-    tipc_nl_compat_bearer_disable+0x2a1/0x480 net/tipc/netlink_compat.c:449
-    __tipc_nl_compat_doit net/tipc/netlink_compat.c:327 [inline]
-    tipc_nl_compat_doit+0x3ac/0xb00 net/tipc/netlink_compat.c:360
-    tipc_nl_compat_handle net/tipc/netlink_compat.c:1178 [inline]
-    tipc_nl_compat_recv+0x1b1b/0x27b0 net/tipc/netlink_compat.c:1281
-
-TLV_GET_DATA_LEN() may return a negtive int value, which will be
-used as size_t (becoming a big unsigned long) passed into memchr,
-cause this issue.
-
-Similar to what it does in tipc_nl_compat_bearer_enable(), this
-fix is to return -EINVAL when TLV_GET_DATA_LEN() is negtive in
-tipc_nl_compat_bearer_disable(), as well as in
-tipc_nl_compat_link_stat_dump() and tipc_nl_compat_link_reset_stats().
-
-v1->v2:
-  - add the missing Fixes tags per Eric's request.
-
-Fixes: 0762216c0ad2 ("tipc: fix uninit-value in tipc_nl_compat_bearer_enable")
-Fixes: 8b66fee7f8ee ("tipc: fix uninit-value in tipc_nl_compat_link_reset_stats")
-Reported-by: syzbot+30eaa8bf392f7fafffaf@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/netlink_compat.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ sound/soc/codecs/rt274.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/tipc/netlink_compat.c
-+++ b/net/tipc/netlink_compat.c
-@@ -430,7 +430,11 @@ static int tipc_nl_compat_bearer_disable
- 	if (!bearer)
- 		return -EMSGSIZE;
+diff --git a/sound/soc/codecs/rt274.c b/sound/soc/codecs/rt274.c
+index 18a931c25ca5..f09f2d87ac60 100644
+--- a/sound/soc/codecs/rt274.c
++++ b/sound/soc/codecs/rt274.c
+@@ -398,6 +398,8 @@ static int rt274_mic_detect(struct snd_soc_component *component,
+ {
+ 	struct rt274_priv *rt274 = snd_soc_component_get_drvdata(component);
  
--	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_BEARER_NAME);
-+	len = TLV_GET_DATA_LEN(msg->req);
-+	if (len <= 0)
-+		return -EINVAL;
++	rt274->jack = jack;
 +
-+	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
- 	if (!string_is_valid(name, len))
- 		return -EINVAL;
+ 	if (jack == NULL) {
+ 		/* Disable jack detection */
+ 		regmap_update_bits(rt274->regmap, RT274_EAPD_GPIO_IRQ_CTRL,
+@@ -405,7 +407,6 @@ static int rt274_mic_detect(struct snd_soc_component *component,
  
-@@ -505,7 +509,11 @@ static int tipc_nl_compat_link_stat_dump
+ 		return 0;
+ 	}
+-	rt274->jack = jack;
  
- 	name = (char *)TLV_DATA(msg->req);
- 
--	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_LINK_NAME);
-+	len = TLV_GET_DATA_LEN(msg->req);
-+	if (len <= 0)
-+		return -EINVAL;
-+
-+	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
- 	if (!string_is_valid(name, len))
- 		return -EINVAL;
- 
-@@ -776,7 +784,11 @@ static int tipc_nl_compat_link_reset_sta
- 	if (!link)
- 		return -EMSGSIZE;
- 
--	len = min_t(int, TLV_GET_DATA_LEN(msg->req), TIPC_MAX_LINK_NAME);
-+	len = TLV_GET_DATA_LEN(msg->req);
-+	if (len <= 0)
-+		return -EINVAL;
-+
-+	len = min_t(int, len, TIPC_MAX_BEARER_NAME);
- 	if (!string_is_valid(name, len))
- 		return -EINVAL;
- 
+ 	regmap_update_bits(rt274->regmap, RT274_EAPD_GPIO_IRQ_CTRL,
+ 				RT274_IRQ_EN, RT274_IRQ_EN);
+-- 
+2.20.1
+
 
 
