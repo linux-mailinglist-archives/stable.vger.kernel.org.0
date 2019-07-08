@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9E836244E
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:42:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFAD9623F9
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:39:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731585AbfGHPZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:25:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53396 "EHLO mail.kernel.org"
+        id S1730307AbfGHP3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:29:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388681AbfGHPZu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:25:50 -0400
+        id S2389540AbfGHP3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:29:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9284A204EC;
-        Mon,  8 Jul 2019 15:25:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A01321537;
+        Mon,  8 Jul 2019 15:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599549;
-        bh=H4G29Oxk1339cRsoFCBpWjqf39RTO8vLCCaVvbRG9Bo=;
+        s=default; t=1562599781;
+        bh=1TCbOetnLwdX5sAbswf+rlA3lUUKHP7GvOSM7jw5LRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FpByg06Px//mGGoKBiauz3UeI/Ej/R1JqRlWGiRgaDTB4jqc0LHCK+AwG2s2Xa3vV
-         HP5I53UP1QXXvT7WrTdinV9awAblWChqZqj4FO6uk2/3A3FO9uKm86nPsK6FrbTKEc
-         oWG3vP1rR4DOtPG+Pir67QsmuJzMYHZoOkKoClK0=
+        b=K8qrLV4mzLzeABDz3AIJHlOtl+ld3x8W79wzLXCk52TMA8zmFZY/Ff463K6JHki9H
+         i8gUueZNTHGQWo2sD5yXuRj1wFe74siGYtklRrkbM+xaZOgW9NPOZ3piZrG1fiLWFS
+         WGWYnZsJSGe7iSt2ZakGlbdTMAU1HnIHR9JBJe6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rong Chen <rong.a.chen@intel.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>
-Subject: [PATCH 4.14 51/56] KVM: LAPIC: Fix pending interrupt in IRR blocked by software disable LAPIC
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Stefan Bader <stefan.bader@canonical.com>,
+        Peter Oskolkov <posk@google.com>,
+        Florian Westphal <fw@strlen.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 76/90] ip6: fix skb leak in ip6frag_expire_frag_queue()
 Date:   Mon,  8 Jul 2019 17:13:43 +0200
-Message-Id: <20190708150524.090194311@linuxfoundation.org>
+Message-Id: <20190708150526.177660229@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,135 +47,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+[ Upstream commit 47d3d7fdb10a21c223036b58bd70ffdc24a472c4 ]
 
-commit bb34e690e9340bc155ebed5a3d75fc63ff69e082 upstream.
+Since ip6frag_expire_frag_queue() now pulls the head skb
+from frag queue, we should no longer use skb_get(), since
+this leads to an skb leak.
 
-Thomas reported that:
+Stefan Bader initially reported a problem in 4.4.stable [1] caused
+by the skb_get(), so this patch should also fix this issue.
 
- | Background:
- |
- |    In preparation of supporting IPI shorthands I changed the CPU offline
- |    code to software disable the local APIC instead of just masking it.
- |    That's done by clearing the APIC_SPIV_APIC_ENABLED bit in the APIC_SPIV
- |    register.
- |
- | Failure:
- |
- |    When the CPU comes back online the startup code triggers occasionally
- |    the warning in apic_pending_intr_clear(). That complains that the IRRs
- |    are not empty.
- |
- |    The offending vector is the local APIC timer vector who's IRR bit is set
- |    and stays set.
- |
- | It took me quite some time to reproduce the issue locally, but now I can
- | see what happens.
- |
- | It requires apicv_enabled=0, i.e. full apic emulation. With apicv_enabled=1
- | (and hardware support) it behaves correctly.
- |
- | Here is the series of events:
- |
- |     Guest CPU
- |
- |     goes down
- |
- |       native_cpu_disable()
- |
- | 			apic_soft_disable();
- |
- |     play_dead()
- |
- |     ....
- |
- |     startup()
- |
- |       if (apic_enabled())
- |         apic_pending_intr_clear()	<- Not taken
- |
- |      enable APIC
- |
- |         apic_pending_intr_clear()	<- Triggers warning because IRR is stale
- |
- | When this happens then the deadline timer or the regular APIC timer -
- | happens with both, has fired shortly before the APIC is disabled, but the
- | interrupt was not serviced because the guest CPU was in an interrupt
- | disabled region at that point.
- |
- | The state of the timer vector ISR/IRR bits:
- |
- |     	     	       	        ISR     IRR
- | before apic_soft_disable()    0	      1
- | after apic_soft_disable()     0	      1
- |
- | On startup		      		 0	      1
- |
- | Now one would assume that the IRR is cleared after the INIT reset, but this
- | happens only on CPU0.
- |
- | Why?
- |
- | Because our CPU0 hotplug is just for testing to make sure nothing breaks
- | and goes through an NMI wakeup vehicle because INIT would send it through
- | the boots-trap code which is not really working if that CPU was not
- | physically unplugged.
- |
- | Now looking at a real world APIC the situation in that case is:
- |
- |     	     	       	      	ISR     IRR
- | before apic_soft_disable()    0	      1
- | after apic_soft_disable()     0	      1
- |
- | On startup		      		 0	      0
- |
- | Why?
- |
- | Once the dying CPU reenables interrupts the pending interrupt gets
- | delivered as a spurious interupt and then the state is clear.
- |
- | While that CPU0 hotplug test case is surely an esoteric issue, the APIC
- | emulation is still wrong, Even if the play_dead() code would not enable
- | interrupts then the pending IRR bit would turn into an ISR .. interrupt
- | when the APIC is reenabled on startup.
+296583.091021] kernel BUG at /build/linux-6VmqmP/linux-4.4.0/net/core/skbuff.c:1207!
+[296583.091734] Call Trace:
+[296583.091749]  [<ffffffff81740e50>] __pskb_pull_tail+0x50/0x350
+[296583.091764]  [<ffffffff8183939a>] _decode_session6+0x26a/0x400
+[296583.091779]  [<ffffffff817ec719>] __xfrm_decode_session+0x39/0x50
+[296583.091795]  [<ffffffff818239d0>] icmpv6_route_lookup+0xf0/0x1c0
+[296583.091809]  [<ffffffff81824421>] icmp6_send+0x5e1/0x940
+[296583.091823]  [<ffffffff81753238>] ? __netif_receive_skb+0x18/0x60
+[296583.091838]  [<ffffffff817532b2>] ? netif_receive_skb_internal+0x32/0xa0
+[296583.091858]  [<ffffffffc0199f74>] ? ixgbe_clean_rx_irq+0x594/0xac0 [ixgbe]
+[296583.091876]  [<ffffffffc04eb260>] ? nf_ct_net_exit+0x50/0x50 [nf_defrag_ipv6]
+[296583.091893]  [<ffffffff8183d431>] icmpv6_send+0x21/0x30
+[296583.091906]  [<ffffffff8182b500>] ip6_expire_frag_queue+0xe0/0x120
+[296583.091921]  [<ffffffffc04eb27f>] nf_ct_frag6_expire+0x1f/0x30 [nf_defrag_ipv6]
+[296583.091938]  [<ffffffff810f3b57>] call_timer_fn+0x37/0x140
+[296583.091951]  [<ffffffffc04eb260>] ? nf_ct_net_exit+0x50/0x50 [nf_defrag_ipv6]
+[296583.091968]  [<ffffffff810f5464>] run_timer_softirq+0x234/0x330
+[296583.091982]  [<ffffffff8108a339>] __do_softirq+0x109/0x2b0
 
->From SDM 10.4.7.2 Local APIC State After It Has Been Software Disabled
-* Pending interrupts in the IRR and ISR registers are held and require
-  masking or handling by the CPU.
-
-In Thomas's testing, hardware cpu will not respect soft disable LAPIC
-when IRR has already been set or APICv posted-interrupt is in flight,
-so we can skip soft disable APIC checking when clearing IRR and set ISR,
-continue to respect soft disable APIC when attempting to set IRR.
-
-Reported-by: Rong Chen <rong.a.chen@intel.com>
-Reported-by: Feng Tang <feng.tang@intel.com>
-Reported-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Rong Chen <rong.a.chen@intel.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: d4289fcc9b16 ("net: IP6 defrag: use rbtrees for IPv6 defrag")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Stefan Bader <stefan.bader@canonical.com>
+Cc: Peter Oskolkov <posk@google.com>
+Cc: Florian Westphal <fw@strlen.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/lapic.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/ipv6_frag.h | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2161,7 +2161,7 @@ int kvm_apic_has_interrupt(struct kvm_vc
- 	struct kvm_lapic *apic = vcpu->arch.apic;
- 	u32 ppr;
+diff --git a/include/net/ipv6_frag.h b/include/net/ipv6_frag.h
+index 28aa9b30aece..1f77fb4dc79d 100644
+--- a/include/net/ipv6_frag.h
++++ b/include/net/ipv6_frag.h
+@@ -94,7 +94,6 @@ ip6frag_expire_frag_queue(struct net *net, struct frag_queue *fq)
+ 		goto out;
  
--	if (!apic_enabled(apic))
-+	if (!kvm_apic_hw_enabled(apic))
- 		return -1;
+ 	head->dev = dev;
+-	skb_get(head);
+ 	spin_unlock(&fq->q.lock);
  
- 	__apic_update_ppr(apic, &ppr);
+ 	icmpv6_send(head, ICMPV6_TIME_EXCEED, ICMPV6_EXC_FRAGTIME, 0);
+-- 
+2.20.1
+
 
 
