@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 655D462227
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A58476246B
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:42:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388089AbfGHPW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:22:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49682 "EHLO mail.kernel.org"
+        id S2388492AbfGHPZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:25:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729493AbfGHPW5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:22:57 -0400
+        id S2388463AbfGHPZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:25:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85F8E214C6;
-        Mon,  8 Jul 2019 15:22:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 404DE21738;
+        Mon,  8 Jul 2019 15:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599376;
-        bh=frJ4X5lZTs/c6mGsUYgae9BT+bXQw78oMXGMLEz7q6s=;
+        s=default; t=1562599511;
+        bh=2zJRIXTgaPtOVf64Ebd7s0xuJx6YoXNgOJtmlAmSkPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xrQ4omM7sAktLwsrmno8A2pUtZpcv5ULmrJv3F+qeajaf09hu0aCxeY/xRIMVDkPa
-         269FE0pKb1HZ2TXvlaj8KqKoaZZRvuOa2XjOATNCmFMXWpd+7Q8ZpNO3oE3IiT1n4S
-         wWHPCoJwsggDbQPljvumRmizCcMDwHIX0mCCIDR0=
+        b=zGgRCTo/Cv3OmOtsjcXIyVxdqr9DmbRh/6pD6YASrWyjFb//Yg9k4tTkwy1GW/ae+
+         iHTO4vpJLQCLklpYPtbhyHu5Or7GR/NQKYTcAzkpn1jUQ7tdfSG/9LrAEWnLpYvKtu
+         SyBZsUAJlS2piiB4t+pQGaqmFWYfpJz/ALrD61b8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rong Chen <rong.a.chen@intel.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>
-Subject: [PATCH 4.9 098/102] KVM: LAPIC: Fix pending interrupt in IRR blocked by software disable LAPIC
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Hillf Danton <hdanton@sina.com>, Roman Gushchin <guro@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 39/56] mm/vmscan.c: prevent useless kswapd loops
 Date:   Mon,  8 Jul 2019 17:13:31 +0200
-Message-Id: <20190708150531.552030006@linuxfoundation.org>
+Message-Id: <20190708150523.402553344@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,135 +50,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Shakeel Butt <shakeelb@google.com>
 
-commit bb34e690e9340bc155ebed5a3d75fc63ff69e082 upstream.
+commit dffcac2cb88e4ec5906235d64a83d802580b119e upstream.
 
-Thomas reported that:
+In production we have noticed hard lockups on large machines running
+large jobs due to kswaps hoarding lru lock within isolate_lru_pages when
+sc->reclaim_idx is 0 which is a small zone.  The lru was couple hundred
+GiBs and the condition (page_zonenum(page) > sc->reclaim_idx) in
+isolate_lru_pages() was basically skipping GiBs of pages while holding
+the LRU spinlock with interrupt disabled.
 
- | Background:
- |
- |    In preparation of supporting IPI shorthands I changed the CPU offline
- |    code to software disable the local APIC instead of just masking it.
- |    That's done by clearing the APIC_SPIV_APIC_ENABLED bit in the APIC_SPIV
- |    register.
- |
- | Failure:
- |
- |    When the CPU comes back online the startup code triggers occasionally
- |    the warning in apic_pending_intr_clear(). That complains that the IRRs
- |    are not empty.
- |
- |    The offending vector is the local APIC timer vector who's IRR bit is set
- |    and stays set.
- |
- | It took me quite some time to reproduce the issue locally, but now I can
- | see what happens.
- |
- | It requires apicv_enabled=0, i.e. full apic emulation. With apicv_enabled=1
- | (and hardware support) it behaves correctly.
- |
- | Here is the series of events:
- |
- |     Guest CPU
- |
- |     goes down
- |
- |       native_cpu_disable()
- |
- | 			apic_soft_disable();
- |
- |     play_dead()
- |
- |     ....
- |
- |     startup()
- |
- |       if (apic_enabled())
- |         apic_pending_intr_clear()	<- Not taken
- |
- |      enable APIC
- |
- |         apic_pending_intr_clear()	<- Triggers warning because IRR is stale
- |
- | When this happens then the deadline timer or the regular APIC timer -
- | happens with both, has fired shortly before the APIC is disabled, but the
- | interrupt was not serviced because the guest CPU was in an interrupt
- | disabled region at that point.
- |
- | The state of the timer vector ISR/IRR bits:
- |
- |     	     	       	        ISR     IRR
- | before apic_soft_disable()    0	      1
- | after apic_soft_disable()     0	      1
- |
- | On startup		      		 0	      1
- |
- | Now one would assume that the IRR is cleared after the INIT reset, but this
- | happens only on CPU0.
- |
- | Why?
- |
- | Because our CPU0 hotplug is just for testing to make sure nothing breaks
- | and goes through an NMI wakeup vehicle because INIT would send it through
- | the boots-trap code which is not really working if that CPU was not
- | physically unplugged.
- |
- | Now looking at a real world APIC the situation in that case is:
- |
- |     	     	       	      	ISR     IRR
- | before apic_soft_disable()    0	      1
- | after apic_soft_disable()     0	      1
- |
- | On startup		      		 0	      0
- |
- | Why?
- |
- | Once the dying CPU reenables interrupts the pending interrupt gets
- | delivered as a spurious interupt and then the state is clear.
- |
- | While that CPU0 hotplug test case is surely an esoteric issue, the APIC
- | emulation is still wrong, Even if the play_dead() code would not enable
- | interrupts then the pending IRR bit would turn into an ISR .. interrupt
- | when the APIC is reenabled on startup.
+On further inspection, it seems like there are two issues:
 
->From SDM 10.4.7.2 Local APIC State After It Has Been Software Disabled
-* Pending interrupts in the IRR and ISR registers are held and require
-  masking or handling by the CPU.
+(1) If kswapd on the return from balance_pgdat() could not sleep (i.e.
+    node is still unbalanced), the classzone_idx is unintentionally set
+    to 0 and the whole reclaim cycle of kswapd will try to reclaim only
+    the lowest and smallest zone while traversing the whole memory.
 
-In Thomas's testing, hardware cpu will not respect soft disable LAPIC
-when IRR has already been set or APICv posted-interrupt is in flight,
-so we can skip soft disable APIC checking when clearing IRR and set ISR,
-continue to respect soft disable APIC when attempting to set IRR.
+(2) Fundamentally isolate_lru_pages() is really bad when the
+    allocation has woken kswapd for a smaller zone on a very large machine
+    running very large jobs.  It can hoard the LRU spinlock while skipping
+    over 100s of GiBs of pages.
 
-Reported-by: Rong Chen <rong.a.chen@intel.com>
-Reported-by: Feng Tang <feng.tang@intel.com>
-Reported-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Rong Chen <rong.a.chen@intel.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This patch only fixes (1).  (2) needs a more fundamental solution.  To
+fix (1), in the kswapd context, if pgdat->kswapd_classzone_idx is
+invalid use the classzone_idx of the previous kswapd loop otherwise use
+the one the waker has requested.
+
+Link: http://lkml.kernel.org/r/20190701201847.251028-1-shakeelb@google.com
+Fixes: e716f2eb24de ("mm, vmscan: prevent kswapd sleeping prematurely due to mismatched classzone_idx")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Yang Shi <yang.shi@linux.alibaba.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Hillf Danton <hdanton@sina.com>
+Cc: Roman Gushchin <guro@fb.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/lapic.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/vmscan.c |   27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -1992,7 +1992,7 @@ int kvm_apic_has_interrupt(struct kvm_vc
- 	struct kvm_lapic *apic = vcpu->arch.apic;
- 	int highest_irr;
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -3439,19 +3439,18 @@ out:
+ }
  
--	if (!apic_enabled(apic))
-+	if (!kvm_apic_hw_enabled(apic))
- 		return -1;
+ /*
+- * pgdat->kswapd_classzone_idx is the highest zone index that a recent
+- * allocation request woke kswapd for. When kswapd has not woken recently,
+- * the value is MAX_NR_ZONES which is not a valid index. This compares a
+- * given classzone and returns it or the highest classzone index kswapd
+- * was recently woke for.
++ * The pgdat->kswapd_classzone_idx is used to pass the highest zone index to be
++ * reclaimed by kswapd from the waker. If the value is MAX_NR_ZONES which is not
++ * a valid index then either kswapd runs for first time or kswapd couldn't sleep
++ * after previous reclaim attempt (node is still unbalanced). In that case
++ * return the zone index of the previous kswapd reclaim cycle.
+  */
+ static enum zone_type kswapd_classzone_idx(pg_data_t *pgdat,
+-					   enum zone_type classzone_idx)
++					   enum zone_type prev_classzone_idx)
+ {
+ 	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
+-		return classzone_idx;
+-
+-	return max(pgdat->kswapd_classzone_idx, classzone_idx);
++		return prev_classzone_idx;
++	return pgdat->kswapd_classzone_idx;
+ }
  
- 	apic_update_ppr(apic);
+ static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_order,
+@@ -3592,7 +3591,7 @@ kswapd_try_sleep:
+ 
+ 		/* Read the new order and classzone_idx */
+ 		alloc_order = reclaim_order = pgdat->kswapd_order;
+-		classzone_idx = kswapd_classzone_idx(pgdat, 0);
++		classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
+ 		pgdat->kswapd_order = 0;
+ 		pgdat->kswapd_classzone_idx = MAX_NR_ZONES;
+ 
+@@ -3643,8 +3642,12 @@ void wakeup_kswapd(struct zone *zone, in
+ 	if (!cpuset_zone_allowed(zone, GFP_KERNEL | __GFP_HARDWALL))
+ 		return;
+ 	pgdat = zone->zone_pgdat;
+-	pgdat->kswapd_classzone_idx = kswapd_classzone_idx(pgdat,
+-							   classzone_idx);
++
++	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
++		pgdat->kswapd_classzone_idx = classzone_idx;
++	else
++		pgdat->kswapd_classzone_idx = max(pgdat->kswapd_classzone_idx,
++						  classzone_idx);
+ 	pgdat->kswapd_order = max(pgdat->kswapd_order, order);
+ 	if (!waitqueue_active(&pgdat->kswapd_wait))
+ 		return;
 
 
