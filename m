@@ -2,115 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FC7861A58
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 07:39:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CBA061A78
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 07:55:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728642AbfGHFjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 01:39:13 -0400
-Received: from mail.vivotek.com ([60.248.39.150]:52004 "EHLO mail.vivotek.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727286AbfGHFjN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 01:39:13 -0400
-X-Greylist: delayed 935 seconds by postgrey-1.27 at vger.kernel.org; Mon, 08 Jul 2019 01:39:12 EDT
-Received: from pps.filterd (vivotekpps.vivotek.com [127.0.0.1])
-        by vivotekpps.vivotek.com (8.16.0.22/8.16.0.22) with SMTP id x685MZlM025500;
-        Mon, 8 Jul 2019 13:23:23 +0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivotek.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-type; s=dkim;
- bh=zi7h8BLqmWEo/Z3srkGQhYbbOAKvfqg0vBi17vSUil8=;
- b=Adx0F6ezhMxVIIptEfA5rPG46jj1FPYfXb8sTpCLtLqNFH4pMGuxWVUGLzIjq4Gni2cD
- 2G7eBWc/88AtkAruGc6iLIU/FuRMiULHvKwvzmtYSu21qjn3y/krSsrQdDazdcTUB3+w
- hRTXg9Tf47ZsCI665I+UTIYi9e7/veLmD3w= 
-Received: from cas01.vivotek.tw ([192.168.0.58])
-        by vivotekpps.vivotek.com with ESMTP id 2tkyevr0by-1
-        (version=TLSv1 cipher=ECDHE-RSA-AES256-SHA bits=256 verify=NOT);
-        Mon, 08 Jul 2019 13:23:23 +0800
-Received: from localhost.localdomain (192.168.17.134) by CAS01.vivotek.tw
- (192.168.0.58) with Microsoft SMTP Server (TLS) id 14.3.319.2; Mon, 8 Jul
- 2019 13:23:22 +0800
-From:   Michael Wu <michael.wu@vatics.com>
-To:     Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        <linux-gpio@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     <morgan.chang@vatics.com>, <stable@vger.kernel.org>
-Subject: [PATCH v2] gpiolib: fix incorrect IRQ requesting of an active-low lineevent
-Date:   Mon, 8 Jul 2019 13:23:08 +0800
-Message-ID: <20190708052308.27802-1-michael.wu@vatics.com>
-X-Mailer: git-send-email 2.17.1
+        id S1728859AbfGHFzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 01:55:05 -0400
+Received: from gate2.alliedtelesis.co.nz ([202.36.163.20]:57365 "EHLO
+        gate2.alliedtelesis.co.nz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727448AbfGHFzF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 01:55:05 -0400
+Received: from mmarshal3.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id D54FF886BF;
+        Mon,  8 Jul 2019 17:55:01 +1200 (NZST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+        s=mail181024; t=1562565301;
+        bh=qC+ZsnV65qEsv89jlR1nAH5vNZinq9tDubETd//AR7I=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To;
+        b=QRrT7SRIHTXTleahxzKwWbJ5Zl9k2fY1Tk0KIsaetaSy06GgaqZF7HP1pzp5214zm
+         MUZ8tY/pOG1jJKxSrGvghyolk6u1IjCv1c1+0sO81xIGqCMBUTUnTIUwI5nf+QfEb1
+         g218k25FPoXS8ocrRDRQlsId7d9pfN8lcLcUXr8WrFPYczvMINtOc+f5fvc/6ImkPG
+         SlHFol8EcvSdA5uJVsnDKJIUmKrdYXXF/hJHgDuwZZ0s2RSv7RRhhaxtDniXq3UMvN
+         Be+MWUW6qusZevSTOxZxwcbK6dYq+UbwgCCt/Bj9UdMkKG25tTHAA1gK7Snp95VKJw
+         Mpx1v+zUKX/ug==
+Received: from svr-chch-ex1.atlnz.lc (Not Verified[10.32.16.77]) by mmarshal3.atlnz.lc with Trustwave SEG (v7,5,8,10121)
+        id <B5d22dab60001>; Mon, 08 Jul 2019 17:55:02 +1200
+Received: from svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8:409d:36f5:8899:92e8)
+ by svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8:409d:36f5:8899:92e8) with
+ Microsoft SMTP Server (TLS) id 15.0.1156.6; Mon, 8 Jul 2019 17:55:01 +1200
+Received: from svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8]) by
+ svr-chch-ex1.atlnz.lc ([fe80::409d:36f5:8899:92e8%12]) with mapi id
+ 15.00.1156.000; Mon, 8 Jul 2019 17:55:01 +1200
+From:   Joshua Scott <Joshua.Scott@alliedtelesis.co.nz>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "andrew@lunn.ch" <andrew@lunn.ch>,
+        "gregory.clement@bootlin.com" <gregory.clement@bootlin.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     "stable-commits@vger.kernel.org" <stable-commits@vger.kernel.org>
+Subject: Re: Patch "ARM: dts: armada-xp-98dx3236: Switch to armada-38x-uart
+ serial node" has been added to the 4.14-stable tree
+Thread-Topic: Patch "ARM: dts: armada-xp-98dx3236: Switch to armada-38x-uart
+ serial node" has been added to the 4.14-stable tree
+Thread-Index: AQHVMxACed/vz2aduEix0kGQuG0pAKbAOpet
+Date:   Mon, 8 Jul 2019 05:55:00 +0000
+Message-ID: <1562565301017.49476@alliedtelesis.co.nz>
+References: <156231715780108@kroah.com>
+In-Reply-To: <156231715780108@kroah.com>
+Accept-Language: en-NZ, en-US
+Content-Language: en-NZ
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.32.1.10]
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [192.168.17.134]
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-07-08_01:,,
- signatures=0
-X-Proofpoint-Spam-Reason: safe
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When a pin is active-low, logical trigger edge should be inverted to match
-the same interrupt opportunity.
-
-For example, a button pushed triggers falling edge in ACTIVE_HIGH case; in
-ACTIVE_LOW case, the button pushed triggers rising edge. For user space the
-IRQ requesting doesn't need to do any modification except to configuring
-GPIOHANDLE_REQUEST_ACTIVE_LOW.
-
-For example, we want to catch the event when the button is pushed. The
-button on the original board drives level to be low when it is pushed, and
-drives level to be high when it is released.
-
-In user space we can do:
-
-	req.handleflags = GPIOHANDLE_REQUEST_INPUT;
-	req.eventflags = GPIOEVENT_REQUEST_FALLING_EDGE;
-
-	while (1) {
-		read(fd, &dat, sizeof(dat));
-		if (dat.id == GPIOEVENT_EVENT_FALLING_EDGE)
-			printf("button pushed\n");
-	}
-
-Run the same logic on another board which the polarity of the button is
-inverted; it drives level to be high when pushed, and level to be low when
-released. For this inversion we add flag GPIOHANDLE_REQUEST_ACTIVE_LOW:
-
-	req.handleflags = GPIOHANDLE_REQUEST_INPUT |
-		GPIOHANDLE_REQUEST_ACTIVE_LOW;
-	req.eventflags = GPIOEVENT_REQUEST_FALLING_EDGE;
-
-At the result, there are no any events caught when the button is pushed.
-By the way, button releasing will emit a "falling" event. The timing of
-"falling" catching is not expected.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael Wu <michael.wu@vatics.com>
----
-Changes from v1:
-- Correct undeclared 'IRQ_TRIGGER_RISING'
-- Add an example to descibe the issue
----
- drivers/gpio/gpiolib.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index e013d417a936..9c9597f929d7 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -956,9 +956,11 @@ static int lineevent_create(struct gpio_device *gdev, void __user *ip)
- 	}
- 
- 	if (eflags & GPIOEVENT_REQUEST_RISING_EDGE)
--		irqflags |= IRQF_TRIGGER_RISING;
-+		irqflags |= test_bit(FLAG_ACTIVE_LOW, &desc->flags) ?
-+			IRQF_TRIGGER_FALLING : IRQF_TRIGGER_RISING;
- 	if (eflags & GPIOEVENT_REQUEST_FALLING_EDGE)
--		irqflags |= IRQF_TRIGGER_FALLING;
-+		irqflags |= test_bit(FLAG_ACTIVE_LOW, &desc->flags) ?
-+			IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
- 	irqflags |= IRQF_ONESHOT;
- 
- 	INIT_KFIFO(le->events);
--- 
-2.17.1
-
+Hi,=0A=
+=0A=
+I do not think this patch alone will work on 4.14.=0A=
+=0A=
+An earlier pair of patches which implements the "marvell,armada-38x-uart" q=
+uirk is present on the other kernel versions, but I do see it as far back a=
+s 4.14.=0A=
+=0A=
+The following two patches are the ones which add support for that compatibl=
+e string:=0A=
+=0A=
+b7639b0b15dd serial: 8250_dw: Limit dw8250_tx_wait_empty quirk to armada-38=
+x devices=0A=
+914eaf935ec7 serial: 8250_dw: Allow TX FIFO to drain before writing to UART=
+_LCR=0A=
+=0A=
+=0A=
+Cheers,=0A=
+Joshua Scott=0A=
+________________________________________=0A=
+From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>=0A=
+Sent: Friday, 5 July 2019 8:59 p.m.=0A=
+To: andrew@lunn.ch; gregkh@linuxfoundation.org; gregory.clement@bootlin.com=
+; Joshua Scott=0A=
+Cc: stable-commits@vger.kernel.org=0A=
+Subject: Patch "ARM: dts: armada-xp-98dx3236: Switch to armada-38x-uart ser=
+ial node" has been added to the 4.14-stable tree=0A=
+=0A=
+This is a note to let you know that I've just added the patch titled=0A=
+=0A=
+    ARM: dts: armada-xp-98dx3236: Switch to armada-38x-uart serial node=0A=
+=0A=
+to the 4.14-stable tree which can be found at:=0A=
+    http://www.kernel.org/git/?p=3Dlinux/kernel/git/stable/stable-queue.git=
+;a=3Dsummary=0A=
+=0A=
+The filename of the patch is:=0A=
+     arm-dts-armada-xp-98dx3236-switch-to-armada-38x-uart-serial-node.patch=
+=0A=
+and it can be found in the queue-4.14 subdirectory.=0A=
+=0A=
+If you, or anyone else, feels it should not be added to the stable tree,=0A=
+please let <stable@vger.kernel.org> know about it.=0A=
+=0A=
+=0A=
+From 80031361747aec92163464f2ee08870fec33bcb0 Mon Sep 17 00:00:00 2001=0A=
+From: Joshua Scott <joshua.scott@alliedtelesis.co.nz>=0A=
+Date: Wed, 26 Jun 2019 10:11:08 +1200=0A=
+Subject: ARM: dts: armada-xp-98dx3236: Switch to armada-38x-uart serial nod=
+e=0A=
+=0A=
+From: Joshua Scott <joshua.scott@alliedtelesis.co.nz>=0A=
+=0A=
+commit 80031361747aec92163464f2ee08870fec33bcb0 upstream.=0A=
+=0A=
+Switch to the "marvell,armada-38x-uart" driver variant to empty=0A=
+the UART buffer before writing to the UART_LCR register.=0A=
+=0A=
+Signed-off-by: Joshua Scott <joshua.scott@alliedtelesis.co.nz>=0A=
+Tested-by: Andrew Lunn <andrew@lunn.ch>=0A=
+Acked-by: Gregory CLEMENT <gregory.clement@bootlin.com>.=0A=
+Cc: stable@vger.kernel.org=0A=
+Fixes: 43e28ba87708 ("ARM: dts: Use armada-370-xp as a base for armada-xp-9=
+8dx3236")=0A=
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>=0A=
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>=0A=
+=0A=
+---=0A=
+ arch/arm/boot/dts/armada-xp-98dx3236.dtsi |    8 ++++++++=0A=
+ 1 file changed, 8 insertions(+)=0A=
+=0A=
+--- a/arch/arm/boot/dts/armada-xp-98dx3236.dtsi=0A=
++++ b/arch/arm/boot/dts/armada-xp-98dx3236.dtsi=0A=
+@@ -360,3 +360,11 @@=0A=
+        status =3D "disabled";=0A=
+ };=0A=
+=0A=
++&uart0 {=0A=
++       compatible =3D "marvell,armada-38x-uart";=0A=
++};=0A=
++=0A=
++&uart1 {=0A=
++       compatible =3D "marvell,armada-38x-uart";=0A=
++};=0A=
++=0A=
+=0A=
+=0A=
+Patches currently in stable-queue which might be from joshua.scott@alliedte=
+lesis.co.nz are=0A=
+=0A=
+queue-4.14/arm-dts-armada-xp-98dx3236-switch-to-armada-38x-uart-serial-node=
+.patch=0A=
