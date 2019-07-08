@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75212622DF
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:30:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 376CC622E4
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:30:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387722AbfGHP3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:29:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58712 "EHLO mail.kernel.org"
+        id S1732055AbfGHPaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:30:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389716AbfGHP3u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:29:50 -0400
+        id S1731917AbfGHPaP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:30:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43F8D204EC;
-        Mon,  8 Jul 2019 15:29:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F7C320645;
+        Mon,  8 Jul 2019 15:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599789;
-        bh=YfYnE2EjNzOFpBmQyvvAYXtKa4/nrf6T7RqUEnwwf8o=;
+        s=default; t=1562599814;
+        bh=PlbhsP/1l0Cu+F69o8LIBKwjU4G9z5OkTVqCpdeIhS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+sRL/Q+bt7DCG8L2FZioQMLe+JWZQdlOyiUXk4Ot/iUUhmhRJfeqs0LXGtN0iOjj
-         TT+gV+ilhkEz2HUV0fMLFRsI/DQ4o1Ix2KKsDrcNcj9ayZX4Qj98m60frGlJnVenPD
-         BcLTnfnQ4pCc1AOKq4NsANCtUAvGhDHDGdot/dec=
+        b=DbRjqIgA0ejIPMKOmQgiSzacYlI0iz1XAtivkZA4xy6lta7KpoWNzVZhQA9evyZee
+         Xe32gA6n3+rw9u2LcHPxznixAbj9zhs2raVSTSfTaBO4bGkgkKx54riwFaZzVX9Kak
+         V2eEfnl0rkXXTDeZaj0xOjIfh/BFgKTTvpCGq300=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 43/90] crypto: cryptd - Fix skcipher instance memory leak
-Date:   Mon,  8 Jul 2019 17:13:10 +0200
-Message-Id: <20190708150524.730642298@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 44/90] ALSA: seq: fix incorrect order of dest_client/dest_ports arguments
+Date:   Mon,  8 Jul 2019 17:13:11 +0200
+Message-Id: <20190708150524.787056824@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
 References: <20190708150521.829733162@linuxfoundation.org>
@@ -44,42 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 1a0fad630e0b7cff38e7691b28b0517cfbb0633f upstream.
+commit c3ea60c231446663afd6ea1054da6b7f830855ca upstream.
 
-cryptd_skcipher_free() fails to free the struct skcipher_instance
-allocated in cryptd_create_skcipher(), leading to a memory leak.  This
-is detected by kmemleak on bootup on ARM64 platforms:
+There are two occurrances of a call to snd_seq_oss_fill_addr where
+the dest_client and dest_port arguments are in the wrong order. Fix
+this by swapping them around.
 
- unreferenced object 0xffff80003377b180 (size 1024):
-   comm "cryptomgr_probe", pid 822, jiffies 4294894830 (age 52.760s)
-   backtrace:
-     kmem_cache_alloc_trace+0x270/0x2d0
-     cryptd_create+0x990/0x124c
-     cryptomgr_probe+0x5c/0x1e8
-     kthread+0x258/0x318
-     ret_from_fork+0x10/0x1c
-
-Fixes: 4e0958d19bd8 ("crypto: cryptd - Add support for skcipher")
+Addresses-Coverity: ("Arguments in wrong order")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/cryptd.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/core/seq/oss/seq_oss_ioctl.c |    2 +-
+ sound/core/seq/oss/seq_oss_rw.c    |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/crypto/cryptd.c
-+++ b/crypto/cryptd.c
-@@ -586,6 +586,7 @@ static void cryptd_skcipher_free(struct
- 	struct skcipherd_instance_ctx *ctx = skcipher_instance_ctx(inst);
+--- a/sound/core/seq/oss/seq_oss_ioctl.c
++++ b/sound/core/seq/oss/seq_oss_ioctl.c
+@@ -62,7 +62,7 @@ static int snd_seq_oss_oob_user(struct s
+ 	if (copy_from_user(ev, arg, 8))
+ 		return -EFAULT;
+ 	memset(&tmpev, 0, sizeof(tmpev));
+-	snd_seq_oss_fill_addr(dp, &tmpev, dp->addr.port, dp->addr.client);
++	snd_seq_oss_fill_addr(dp, &tmpev, dp->addr.client, dp->addr.port);
+ 	tmpev.time.tick = 0;
+ 	if (! snd_seq_oss_process_event(dp, (union evrec *)ev, &tmpev)) {
+ 		snd_seq_oss_dispatch(dp, &tmpev, 0, 0);
+--- a/sound/core/seq/oss/seq_oss_rw.c
++++ b/sound/core/seq/oss/seq_oss_rw.c
+@@ -174,7 +174,7 @@ insert_queue(struct seq_oss_devinfo *dp,
+ 	memset(&event, 0, sizeof(event));
+ 	/* set dummy -- to be sure */
+ 	event.type = SNDRV_SEQ_EVENT_NOTEOFF;
+-	snd_seq_oss_fill_addr(dp, &event, dp->addr.port, dp->addr.client);
++	snd_seq_oss_fill_addr(dp, &event, dp->addr.client, dp->addr.port);
  
- 	crypto_drop_skcipher(&ctx->spawn);
-+	kfree(inst);
- }
- 
- static int cryptd_create_skcipher(struct crypto_template *tmpl,
+ 	if (snd_seq_oss_process_event(dp, rec, &event))
+ 		return 0; /* invalid event - no need to insert queue */
 
 
