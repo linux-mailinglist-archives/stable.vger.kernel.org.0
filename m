@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E18F62499
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:45:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A84376233D
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727352AbfGHPXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:23:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50044 "EHLO mail.kernel.org"
+        id S2390365AbfGHPd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:33:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388134AbfGHPXJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:23:09 -0400
+        id S2390347AbfGHPd1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:33:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D958E204EC;
-        Mon,  8 Jul 2019 15:23:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C94020665;
+        Mon,  8 Jul 2019 15:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599388;
-        bh=N+UVgD7OA5w7i4Zf1c+vj6sMbNBUCNtULkD6pkUw0ws=;
+        s=default; t=1562600006;
+        bh=a19q6HBJseF2Wd1PAwtLqB5gVl5woajPfylehEwf/b4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xojPNPSwViqvhqS/AWJkLO6l7Lr3/qj1C5vtEDrBcm0LUp2pv9r0gLx5hhZQ/CmC5
-         GRFDeIvWk4MmIUKvfnHsO+g68cXaWvZ/iUP30NzP/7zg8EWaVG4Tzmup/IeOUSDPsd
-         E6GXmehiLDzU/K1sSkzPBjyL+50s7tywWO143HPQ=
+        b=L7oNdHN9Zz2u+TrPIhALXRVQjThrEp9bJ1hYsL6ql84EN2bOMXCACQXOPCxGgT/aK
+         hl2N6Ij+GxTC4yshDCvs+O82Kq817RpTGGc8yfD3rLDj7KHNJqbpxf2Y7GTpZjzlLZ
+         z+Pz+aKs3OFXFpm7AfTVovbpaga6JE05J5EEtDJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.9 102/102] arm64: kaslr: keep modules inside module region when KASAN is enabled
+        stable@vger.kernel.org, Richard Sailer <rs@tuxedocomputers.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.1 63/96] ALSA: hda/realtek: Add quirks for several Clevo notebook barebones
 Date:   Mon,  8 Jul 2019 17:13:35 +0200
-Message-Id: <20190708150531.760421168@linuxfoundation.org>
+Message-Id: <20190708150529.874500232@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Richard Sailer <rs@tuxedocomputers.com>
 
-commit 6f496a555d93db7a11d4860b9220d904822f586a upstream.
+commit 503d90b30602a3295978e46d844ccc8167400fe6 upstream.
 
-When KASLR and KASAN are both enabled, we keep the modules where they
-are, and randomize the placement of the kernel so it is within 2 GB
-of the module region. The reason for this is that putting modules in
-the vmalloc region (like we normally do when KASLR is enabled) is not
-possible in this case, given that the entire vmalloc region is already
-backed by KASAN zero shadow pages, and so allocating dedicated KASAN
-shadow space as required by loaded modules is not possible.
+This adds 4 SND_PCI_QUIRK(...) lines for several barebone models of the ODM
+Clevo. The model names are written in regex syntax to describe/match all clevo
+models that are similar enough and use the same PCI SSID that this fixup works
+for them.
 
-The default module allocation window is set to [_etext - 128MB, _etext]
-in kaslr.c, which is appropriate for KASLR kernels booted without a
-seed or with 'nokaslr' on the command line. However, as it turns out,
-it is not quite correct for the KASAN case, since it still intersects
-the vmalloc region at the top, where attempts to allocate shadow pages
-will collide with the KASAN zero shadow pages, causing a WARN() and all
-kinds of other trouble. So cap the top end to MODULES_END explicitly
-when running with KASAN.
+Additionally the lines regarding SSID 0x96e1 and 0x97e1 didn't fix audio for the
+all our Clevo notebooks using these SSIDs (models Clevo P960* and P970*) since
+ALC1220_FIXP_CLEVO_PB51ED_PINS swapped pins that are not necesarry to be
+swapped. This patch initiates ALC1220_FIXUP_CLEVO_P950 instead for these model
+and fixes the audio.
 
-Cc: <stable@vger.kernel.org> # 4.9+
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-[will: backport to 4.9.y]
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 80690a276f44 ("ALSA: hda/realtek - Add quirk for Tuxedo XC 1509")
+Signed-off-by: Richard Sailer <rs@tuxedocomputers.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/kernel/module.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/module.c
-+++ b/arch/arm64/kernel/module.c
-@@ -33,10 +33,14 @@
- void *module_alloc(unsigned long size)
- {
- 	void *p;
-+	u64 module_alloc_end = module_alloc_base + MODULES_VSIZE;
-+
-+	if (IS_ENABLED(CONFIG_KASAN))
-+		/* don't exceed the static module region - see below */
-+		module_alloc_end = MODULES_END;
- 
- 	p = __vmalloc_node_range(size, MODULE_ALIGN, module_alloc_base,
--				module_alloc_base + MODULES_VSIZE,
--				GFP_KERNEL, PAGE_KERNEL_EXEC, 0,
-+				module_alloc_end, GFP_KERNEL, PAGE_KERNEL_EXEC, 0,
- 				NUMA_NO_NODE, __builtin_return_address(0));
- 
- 	if (!p && IS_ENABLED(CONFIG_ARM64_MODULE_PLTS) &&
+---
+ sound/pci/hda/patch_realtek.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2443,9 +2443,10 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1558, 0x9501, "Clevo P950HR", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1558, 0x95e1, "Clevo P95xER", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1558, 0x95e2, "Clevo P950ER", ALC1220_FIXUP_CLEVO_P950),
+-	SND_PCI_QUIRK(0x1558, 0x96e1, "System76 Oryx Pro (oryp5)", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+-	SND_PCI_QUIRK(0x1558, 0x97e1, "System76 Oryx Pro (oryp5)", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+-	SND_PCI_QUIRK(0x1558, 0x65d1, "Tuxedo Book XC1509", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x96e1, "Clevo P960[ER][CDFN]-K", ALC1220_FIXUP_CLEVO_P950),
++	SND_PCI_QUIRK(0x1558, 0x97e1, "Clevo P970[ER][CDFN]", ALC1220_FIXUP_CLEVO_P950),
++	SND_PCI_QUIRK(0x1558, 0x65d1, "Clevo PB51[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo laptop", ALC882_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x161f, 0x2054, "Medion laptop", ALC883_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x17aa, 0x3a0d, "Lenovo Y530", ALC882_FIXUP_LENOVO_Y530),
 
 
