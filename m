@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9894362546
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:50:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B22E621C1
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391463AbfGHPt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:49:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38596 "EHLO mail.kernel.org"
+        id S1733185AbfGHPTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:19:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729999AbfGHPPy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:15:54 -0400
+        id S1733192AbfGHPTN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:19:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21D91216FD;
-        Mon,  8 Jul 2019 15:15:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 032512166E;
+        Mon,  8 Jul 2019 15:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562598953;
-        bh=P4zCUfw3PBJ37v5L33h79iJqNctbwXqXcDvvCEH9UCQ=;
+        s=default; t=1562599152;
+        bh=bfHs3ROo57RB2tcNBss4vHTBOJ2MIl4Akl8RACSTyxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dLl/IX7I3H79Kf+blpzC2Jl7k3XWwJldv5xrQOWCU4mBCNJuXBTUICjVbgESk+Cr2
-         emYpeLv8GJqAmFqzqrYOKpidDmybEzBujIp5JhMV+5HIByEIX46fwpStQA534/Bs0O
-         l4IPhdPAmTxyJ5TQLq9uGlmUKVY14wfBpD5pV7oQ=
+        b=vPDNrVxI9Eu/dagqpoq9nhyZoRC6hXV81J5K07SpnDkgX0ftP9As7AV2DiCYSFTS8
+         vB/Pbnyu5ifEz1GfN6HC7jjje6ttnbZeO5Swo1+IR+FruStWCGG2CuxUXhGfPNH5Un
+         +dq6vqGk71lWRiwaCGnUHK4VOhb5VZnRcV7e2JWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 05/73] gcc-9: silence address-of-packed-member warning
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Bean Huo <beanhuo@micron.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 022/102] scsi: ufs: Check that space was properly alloced in copy_query_response
 Date:   Mon,  8 Jul 2019 17:12:15 +0200
-Message-Id: <20190708150518.071139435@linuxfoundation.org>
+Message-Id: <20190708150527.366495203@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+[ Upstream commit 1c90836f70f9a8ef7b7ad9e1fdd8961903e6ced6 ]
 
-commit 6f303d60534c46aa1a239f29c321f95c83dda748 upstream.
+struct ufs_dev_cmd is the main container that supports device management
+commands. In the case of a read descriptor request, we assume that the
+proper space was allocated in dev_cmd to hold the returning descriptor.
 
-We already did this for clang, but now gcc has that warning too.  Yes,
-yes, the address may be unaligned.  And that's kind of the point.
+This is no longer true, as there are flows that doesn't use dev_cmd for
+device management requests, and was wrong in the first place.
 
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: d44a5f98bb49 (ufs: query descriptor API)
+Signed-off-by: Avri Altman <avri.altman@wdc.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Acked-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -636,6 +636,7 @@ KBUILD_CFLAGS	+= $(call cc-disable-warni
- KBUILD_CFLAGS	+= $(call cc-disable-warning, format-truncation)
- KBUILD_CFLAGS	+= $(call cc-disable-warning, format-overflow)
- KBUILD_CFLAGS	+= $(call cc-disable-warning, int-in-bool-context)
-+KBUILD_CFLAGS	+= $(call cc-disable-warning, address-of-packed-member)
- KBUILD_CFLAGS	+= $(call cc-disable-warning, attribute-alias)
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 0fe4f8e8c8c9..a9c172692f21 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -941,7 +941,8 @@ int ufshcd_copy_query_response(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ 	memcpy(&query_res->upiu_res, &lrbp->ucd_rsp_ptr->qr, QUERY_OSF_SIZE);
  
- ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
-@@ -712,7 +713,6 @@ ifeq ($(cc-name),clang)
- KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
- KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
- KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
--KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
- # Quiet clang warning: comparison of unsigned expression < 0 is always false
- KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
- # CLANG uses a _MergedGlobals as optimization, but this breaks modpost, as the
+ 	/* Get the descriptor */
+-	if (lrbp->ucd_rsp_ptr->qr.opcode == UPIU_QUERY_OPCODE_READ_DESC) {
++	if (hba->dev_cmd.query.descriptor &&
++	    lrbp->ucd_rsp_ptr->qr.opcode == UPIU_QUERY_OPCODE_READ_DESC) {
+ 		u8 *descp = (u8 *)lrbp->ucd_rsp_ptr +
+ 				GENERAL_UPIU_REQUEST_SIZE;
+ 		u16 resp_len;
+-- 
+2.20.1
+
 
 
