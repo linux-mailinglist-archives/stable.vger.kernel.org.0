@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA23E624CD
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:46:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D33F62448
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:41:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387787AbfGHPVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:21:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47640 "EHLO mail.kernel.org"
+        id S2388829AbfGHP02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:26:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387757AbfGHPVn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:21:43 -0400
+        id S2388826AbfGHP02 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:26:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31F08214C6;
-        Mon,  8 Jul 2019 15:21:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C50B2173C;
+        Mon,  8 Jul 2019 15:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599302;
-        bh=+erWMCoHTiSsklg2eI6FKFJT38mbys5O4ZaxKE9Ogkc=;
+        s=default; t=1562599587;
+        bh=RXW4x+JMX0CQ0VlOOp/cWR/laxZudA1NraqDdzYXvK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q75EdKaXJnAWQlELDLaZEvoICU1KGCtXW2BgOQMbyYKBYCe60f5Sktg4F50NZkjqm
-         3H6l/edJd3bhMXly34fMDavQ7ybFlbJE+GXMKRgGPypmnGt2HpUE0/CFeN0KDhbs3L
-         LnwlLt1LlR58vFOiytuydZzp6AVAQxd5ToJNiF2Y=
+        b=U9Vcyn4C9lyA2Lfe2u9cHwH73gMDZAET7XyAMSiUQd1fmQcDwRvyItm6U9rgxEPus
+         M182yOIo1PZCfFtcVKCTjLKi0kJI/SK3PgkWvq+BJIic5afUy4MM+vZ8tgg4asCDYS
+         7COUNgFpIpiHb1Yv7175wsEKo7vKwle0o5VmXfek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Adeodato=20Sim=C3=B3?= <dato@net.com.org.es>,
-        Dominique Martinet <dominique.martinet@cea.fr>,
+        stable@vger.kernel.org, Libin Yang <libin.yang@intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 044/102] net/9p: include trans_common.h to fix missing prototype warning.
+Subject: [PATCH 4.19 10/90] ASoC: soc-pcm: BE dai needs prepare when pause release after resume
 Date:   Mon,  8 Jul 2019 17:12:37 +0200
-Message-Id: <20190708150528.713266530@linuxfoundation.org>
+Message-Id: <20190708150523.116501865@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,30 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 52ad259eaac0454c1ac7123e7148cf8d6e6f5301 ]
+[ Upstream commit 5087a8f17df868601cd7568299e91c28086d2b45 ]
 
-This silences -Wmissing-prototypes when defining p9_release_pages.
+If playback/capture is paused and system enters S3, after system returns
+from suspend, BE dai needs to call prepare() callback when playback/capture
+is released from pause if RESUME_INFO flag is not set.
 
-Link: http://lkml.kernel.org/r/b1c4df8f21689b10d451c28fe38e860722d20e71.1542089696.git.dato@net.com.org.es
-Signed-off-by: Adeodato Simó <dato@net.com.org.es>
-Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
+Currently, the dpcm_be_dai_prepare() function will block calling prepare()
+if the pcm is in SND_SOC_DPCM_STATE_PAUSED state. This will cause the
+following test case fail if the pcm uses BE:
+
+playback -> pause -> S3 suspend -> S3 resume -> pause release
+
+The playback may exit abnormally when pause is released because the BE dai
+prepare() is not called.
+
+This patch allows dpcm_be_dai_prepare() to call dai prepare() callback in
+SND_SOC_DPCM_STATE_PAUSED state.
+
+Signed-off-by: Libin Yang <libin.yang@intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/9p/trans_common.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/soc-pcm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/9p/trans_common.c b/net/9p/trans_common.c
-index 38aa6345bdfa..9c0c894b56f8 100644
---- a/net/9p/trans_common.c
-+++ b/net/9p/trans_common.c
-@@ -14,6 +14,7 @@
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 33060af18b5a..6566c8831a96 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -2451,7 +2451,8 @@ int dpcm_be_dai_prepare(struct snd_soc_pcm_runtime *fe, int stream)
  
- #include <linux/mm.h>
- #include <linux/module.h>
-+#include "trans_common.h"
+ 		if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_HW_PARAMS) &&
+ 		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP) &&
+-		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND))
++		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND) &&
++		    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
+ 			continue;
  
- /**
-  *  p9_release_req_pages - Release pages after the transaction.
+ 		dev_dbg(be->dev, "ASoC: prepare BE %s\n",
 -- 
 2.20.1
 
