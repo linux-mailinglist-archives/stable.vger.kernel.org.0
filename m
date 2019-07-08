@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1673F623B0
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF0D6217D
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733173AbfGHPhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:37:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34312 "EHLO mail.kernel.org"
+        id S1732640AbfGHPQo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:16:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390164AbfGHPcf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:32:35 -0400
+        id S1732622AbfGHPQn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:16:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4A38216F4;
-        Mon,  8 Jul 2019 15:32:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2E56216E3;
+        Mon,  8 Jul 2019 15:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599954;
-        bh=H0IXspXxI/zpi03RBWqNoqskzumzNpuQhM1IWR1zcxc=;
+        s=default; t=1562599003;
+        bh=jPUtAY0aRIOFzQ+zGaxTILOGg7nWtlDKM2DBfxvPVZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yfQn6qURwjFU9RiU5QkLgUOLudQOWPm0cBCVbo9kOuYQbPQrjJOeGvotn5AQlNy9D
-         e+MlVT3tMKe9h2hiKAOC2iBj8R7EnoxGtxVLeb4EEg5hEgNVqJURAHvOeOYxhQa7Sl
-         vXOOp9ykrYkJiW46Y4KHs9FT4y61OQklH6LT4DI8=
+        b=MTVmyrlJgZqHJXvm/YeAFi88JsgahkOUrsiHt6hsDYdOPuOLBGgvKVTyI+MaKIP4y
+         0GaetC191OvPr/RrMQojhezoh43PkzGrB8KWpB2qg49eDwslxkacHdxDY5lnxIQV21
+         pp75g3Dn/vWdijTlvUggLsmh+XiRwRBJBTVPdbAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.1 06/96] netfilter: nft_flow_offload: IPCB is only valid for ipv4 family
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.4 28/73] mac80211: drop robust management frames from unknown TA
 Date:   Mon,  8 Jul 2019 17:12:38 +0200
-Message-Id: <20190708150526.644612063@linuxfoundation.org>
+Message-Id: <20190708150522.494806945@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 69aeb538587e087bfc81dd1f465eab3558ff3158 upstream.
+commit 588f7d39b3592a36fb7702ae3b8bdd9be4621e2f upstream.
 
-Guard this with a check vs. ipv4, IPCB isn't valid in ipv6 case.
+When receiving a robust management frame, drop it if we don't have
+rx->sta since then we don't have a security association and thus
+couldn't possibly validate the frame.
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nft_flow_offload.c |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ net/mac80211/rx.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/netfilter/nft_flow_offload.c
-+++ b/net/netfilter/nft_flow_offload.c
-@@ -48,15 +48,20 @@ static int nft_flow_route(const struct n
- 	return 0;
- }
- 
--static bool nft_flow_offload_skip(struct sk_buff *skb)
-+static bool nft_flow_offload_skip(struct sk_buff *skb, int family)
- {
--	struct ip_options *opt  = &(IPCB(skb)->opt);
--
--	if (unlikely(opt->optlen))
--		return true;
- 	if (skb_sec_path(skb))
- 		return true;
- 
-+	if (family == NFPROTO_IPV4) {
-+		const struct ip_options *opt;
-+
-+		opt = &(IPCB(skb)->opt);
-+
-+		if (unlikely(opt->optlen))
-+			return true;
-+	}
-+
- 	return false;
- }
- 
-@@ -74,7 +79,7 @@ static void nft_flow_offload_eval(const
- 	struct nf_conn *ct;
- 	int ret;
- 
--	if (nft_flow_offload_skip(pkt->skb))
-+	if (nft_flow_offload_skip(pkt->skb, nft_pf(pkt)))
- 		goto out;
- 
- 	ct = nf_ct_get(pkt->skb, &ctinfo);
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -3324,6 +3324,8 @@ static bool ieee80211_accept_frame(struc
+ 	case NL80211_IFTYPE_STATION:
+ 		if (!bssid && !sdata->u.mgd.use_4addr)
+ 			return false;
++		if (ieee80211_is_robust_mgmt_frame(skb) && !rx->sta)
++			return false;
+ 		if (multicast)
+ 			return true;
+ 		return ether_addr_equal(sdata->vif.addr, hdr->addr1);
 
 
