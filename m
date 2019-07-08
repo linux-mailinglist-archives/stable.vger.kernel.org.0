@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EED6E62381
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:36:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C45B62198
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:18:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387523AbfGHPfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:35:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37464 "EHLO mail.kernel.org"
+        id S1732873AbfGHPRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:17:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390867AbfGHPfC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:35:02 -0400
+        id S1732856AbfGHPRj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:17:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DD6020665;
-        Mon,  8 Jul 2019 15:35:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14CFD216F4;
+        Mon,  8 Jul 2019 15:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562600101;
-        bh=8atBNu46beg+VWS2TbE2mQKXdNdpnS6fAWsFMrBMSoE=;
+        s=default; t=1562599058;
+        bh=PlbhsP/1l0Cu+F69o8LIBKwjU4G9z5OkTVqCpdeIhS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o0YPyVK6UICLAkEPQqynmpYWG5ynJh4HjmXBLqWqqDPqd1uRNva0LHAnzFG8zHDd+
-         H2FjvgzPTN8OB2jMznXPE4pwWtE8jfG9Wi0ZIhj+Q4fM9SJyjztbsAdz8CPI2+lF6X
-         dF+bK8HCX+WTfDy1uVm8FnTRwL19iKUWpOFo7c4U=
+        b=AbmCWCihay2rGBfqI3iC0wxZ0rr8lF1q2qrcQZZ1JFywC73rh1rHuY2qlzoxqiicL
+         JnxhIpru+aP3MZy428pvY6ouv/HWXmqen/EBqpxb2sSiMKcaessL8GnWHCaKL8M4C+
+         6JrhL42/MUtsUZ4HseW25AipfJdoHUOvp2zW2gw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 42/96] ASoC: core: Fix deadlock in snd_soc_instantiate_card()
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 64/73] ALSA: seq: fix incorrect order of dest_client/dest_ports arguments
 Date:   Mon,  8 Jul 2019 17:13:14 +0200
-Message-Id: <20190708150528.822507752@linuxfoundation.org>
+Message-Id: <20190708150524.660457073@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 495f926c68ddb905a7a0192963096138c6a934e1 ]
+From: Colin Ian King <colin.king@canonical.com>
 
-Move the client_mutex lock to snd_soc_unbind_card() before
-removing link components. This prevents the deadlock
-in the error path in snd_soc_instantiate_card().
+commit c3ea60c231446663afd6ea1054da6b7f830855ca upstream.
 
-Fixes: 34ac3c3eb8 (ASoC: core: lock client_mutex while removing
-link components)
-Reported-by: kernelci.org bot <bot@kernelci.org>
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+There are two occurrances of a call to snd_seq_oss_fill_addr where
+the dest_client and dest_port arguments are in the wrong order. Fix
+this by swapping them around.
+
+Addresses-Coverity: ("Arguments in wrong order")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/soc-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/core/seq/oss/seq_oss_ioctl.c |    2 +-
+ sound/core/seq/oss/seq_oss_rw.c    |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 9df3bdeb5c47..c010cc864cf3 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -1008,14 +1008,12 @@ static void soc_remove_link_components(struct snd_soc_card *card,
- 	struct snd_soc_component *component;
- 	struct snd_soc_rtdcom_list *rtdcom;
+--- a/sound/core/seq/oss/seq_oss_ioctl.c
++++ b/sound/core/seq/oss/seq_oss_ioctl.c
+@@ -62,7 +62,7 @@ static int snd_seq_oss_oob_user(struct s
+ 	if (copy_from_user(ev, arg, 8))
+ 		return -EFAULT;
+ 	memset(&tmpev, 0, sizeof(tmpev));
+-	snd_seq_oss_fill_addr(dp, &tmpev, dp->addr.port, dp->addr.client);
++	snd_seq_oss_fill_addr(dp, &tmpev, dp->addr.client, dp->addr.port);
+ 	tmpev.time.tick = 0;
+ 	if (! snd_seq_oss_process_event(dp, (union evrec *)ev, &tmpev)) {
+ 		snd_seq_oss_dispatch(dp, &tmpev, 0, 0);
+--- a/sound/core/seq/oss/seq_oss_rw.c
++++ b/sound/core/seq/oss/seq_oss_rw.c
+@@ -174,7 +174,7 @@ insert_queue(struct seq_oss_devinfo *dp,
+ 	memset(&event, 0, sizeof(event));
+ 	/* set dummy -- to be sure */
+ 	event.type = SNDRV_SEQ_EVENT_NOTEOFF;
+-	snd_seq_oss_fill_addr(dp, &event, dp->addr.port, dp->addr.client);
++	snd_seq_oss_fill_addr(dp, &event, dp->addr.client, dp->addr.port);
  
--	mutex_lock(&client_mutex);
- 	for_each_rtdcom(rtd, rtdcom) {
- 		component = rtdcom->component;
- 
- 		if (component->driver->remove_order == order)
- 			soc_remove_component(component);
- 	}
--	mutex_unlock(&client_mutex);
- }
- 
- static void soc_remove_dai_links(struct snd_soc_card *card)
-@@ -2836,12 +2834,14 @@ static void snd_soc_unbind_card(struct snd_soc_card *card, bool unregister)
- 		snd_soc_dapm_shutdown(card);
- 		snd_soc_flush_all_delayed_work(card);
- 
-+		mutex_lock(&client_mutex);
- 		/* remove all components used by DAI links on this card */
- 		for_each_comp_order(order) {
- 			for_each_card_rtds(card, rtd) {
- 				soc_remove_link_components(card, rtd, order);
- 			}
- 		}
-+		mutex_unlock(&client_mutex);
- 
- 		soc_cleanup_card_resources(card);
- 		if (!unregister)
--- 
-2.20.1
-
+ 	if (snd_seq_oss_process_event(dp, rec, &event))
+ 		return 0; /* invalid event - no need to insert queue */
 
 
