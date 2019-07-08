@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 110E0622AC
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEF8D62189
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:17:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728976AbfGHP1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:27:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56214 "EHLO mail.kernel.org"
+        id S1732755AbfGHPRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:17:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389165AbfGHP1w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:27:52 -0400
+        id S1732754AbfGHPRI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:17:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CA03216C4;
-        Mon,  8 Jul 2019 15:27:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DB1C2171F;
+        Mon,  8 Jul 2019 15:17:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599672;
-        bh=mWMQHXqKZVR3al1nTYvxdRttsfifL0w1ICxxsQaXT3Y=;
+        s=default; t=1562599027;
+        bh=ck8dNozvVLjcBbZbq+KwIKDsepkypfUgtNrS12l/Qss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h4DRLGBK5yOVWvWmbwIcmQmywHL8IcKRWDSIl9eI6Lnz4XMK8KtqWmPjQ6xNlcqxp
-         9HRYj53UJ+CYvxW2mgsDuy6QOLrrJiBzcshh98HbDW1303Lu6CuMpRcuHsjm4gybMQ
-         84qTQTbhANvkAhs5QWwRBNBbyGgzmcIfi3UvyWzc=
+        b=bMSHsqj9ziay6KkpBkAYrTvQkx12ympsP7N4+8xQ8+oXHLkxFJGdr4q23b4vTlbtX
+         pRQMU4kNW11FCpI0AgyFSIxUHWDFLcEZKBTrZXbvSmNJ0sc0E7HpxqVax0UqsB166M
+         TuD0ZlBsHNJFVlR1rAMlZB/PocgXjrgsKZSfGyGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org,
+        Bader Ali - Saleh <bader.alisaleh@microsemi.com>,
+        Scott Teel <scott.teel@microsemi.com>,
+        Matt Perricone <matt.perricone@microsemi.com>,
+        Don Brace <don.brace@microsemi.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 37/90] tracing: avoid build warning with HAVE_NOP_MCOUNT
+Subject: [PATCH 4.4 54/73] scsi: hpsa: correct ioaccel2 chaining
 Date:   Mon,  8 Jul 2019 17:13:04 +0200
-Message-Id: <20190708150524.469699228@linuxfoundation.org>
+Message-Id: <20190708150524.206587765@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cbdaeaf050b730ea02e9ab4ff844ce54d85dbe1d ]
+[ Upstream commit 625d7d3518875c4d303c652a198feaa13d9f52d9 ]
 
-Selecting HAVE_NOP_MCOUNT enables -mnop-mcount (if gcc supports it)
-and sets CC_USING_NOP_MCOUNT. Reuse __is_defined (which is suitable for
-testing CC_USING_* defines) to avoid conditional compilation and fix
-the following gcc 9 warning on s390:
+- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_LAST_SG for
+  the last s/g element.
 
-kernel/trace/ftrace.c:2514:1: warning: ‘ftrace_code_disable’ defined
-but not used [-Wunused-function]
+- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_CHAIN when
+  chaining.
 
-Link: http://lkml.kernel.org/r/patch.git-1a82d13f33ac.your-ad-here.call-01559732716-ext-6629@work.hours
-
-Fixes: 2f4df0017baed ("tracing: Add -mcount-nop option support")
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reviewed-by: Bader Ali - Saleh <bader.alisaleh@microsemi.com>
+Reviewed-by: Scott Teel <scott.teel@microsemi.com>
+Reviewed-by: Matt Perricone <matt.perricone@microsemi.com>
+Signed-off-by: Don Brace <don.brace@microsemi.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/scsi/hpsa.c     | 7 ++++++-
+ drivers/scsi/hpsa_cmd.h | 1 +
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 1688782f3dfb..90348b343460 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -2952,14 +2952,13 @@ static int ftrace_update_code(struct module *mod, struct ftrace_page *new_pgs)
- 			p = &pg->records[i];
- 			p->flags = rec_flags;
+diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
+index 910b795fc5eb..e0952882e132 100644
+--- a/drivers/scsi/hpsa.c
++++ b/drivers/scsi/hpsa.c
+@@ -4562,7 +4562,7 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
+ 			curr_sg->reserved[0] = 0;
+ 			curr_sg->reserved[1] = 0;
+ 			curr_sg->reserved[2] = 0;
+-			curr_sg->chain_indicator = 0x80;
++			curr_sg->chain_indicator = IOACCEL2_CHAIN;
  
--#ifndef CC_USING_NOP_MCOUNT
- 			/*
- 			 * Do the initial record conversion from mcount jump
- 			 * to the NOP instructions.
- 			 */
--			if (!ftrace_code_disable(mod, p))
-+			if (!__is_defined(CC_USING_NOP_MCOUNT) &&
-+			    !ftrace_code_disable(mod, p))
- 				break;
--#endif
- 
- 			update_cnt++;
+ 			curr_sg = h->ioaccel2_cmd_sg_list[c->cmdindex];
  		}
+@@ -4579,6 +4579,11 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
+ 			curr_sg++;
+ 		}
+ 
++		/*
++		 * Set the last s/g element bit
++		 */
++		(curr_sg - 1)->chain_indicator = IOACCEL2_LAST_SG;
++
+ 		switch (cmd->sc_data_direction) {
+ 		case DMA_TO_DEVICE:
+ 			cp->direction &= ~IOACCEL2_DIRECTION_MASK;
+diff --git a/drivers/scsi/hpsa_cmd.h b/drivers/scsi/hpsa_cmd.h
+index 26488e2a7f02..7ffde12d57d4 100644
+--- a/drivers/scsi/hpsa_cmd.h
++++ b/drivers/scsi/hpsa_cmd.h
+@@ -513,6 +513,7 @@ struct ioaccel2_sg_element {
+ 	u8 reserved[3];
+ 	u8 chain_indicator;
+ #define IOACCEL2_CHAIN 0x80
++#define IOACCEL2_LAST_SG 0x40
+ };
+ 
+ /*
 -- 
 2.20.1
 
