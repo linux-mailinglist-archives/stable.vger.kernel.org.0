@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7687C624B6
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:45:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C92E623D1
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:38:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388033AbfGHPWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:22:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49436 "EHLO mail.kernel.org"
+        id S2389901AbfGHPa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:30:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731270AbfGHPWo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:22:44 -0400
+        id S2389880AbfGHPa4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:30:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 412E4216E3;
-        Mon,  8 Jul 2019 15:22:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C49B221537;
+        Mon,  8 Jul 2019 15:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599363;
-        bh=lf+l3YWiXvNSLX6ulPo57HYWr8ukOed4LDD+Tb8RjGw=;
+        s=default; t=1562599856;
+        bh=tES8anvbIE6i8CteTv1DhyTdmObCNtpLBKg9b6C/sKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FFUwdfduPEiGvH23rfAaMyExgLm6e8TPvlyZVEuoCIk9KyTlUnGzT5y1XV7dnwOvH
-         ac0jGLDQzE+LEYC5nEA6uUU2OFKt1DUgn0yIelQkANQeivIGMwyyhBf7oE5w5MRFXS
-         5Remmr5hBUxQBea5/3VRxJHiEfgCNgt7v8POYq6Q=
+        b=gci1XkfMS5UYJC7VT2UqkBiizJP3yrsIvdmA1wXftArMqdE+7poi2FCWAjkkG0YgC
+         JJlSVcfLduq4B6ji/3e3fFLCJMPs51xO7URZ0/6wO6XSsNajYRyR1eC9dfJxRdb66U
+         +WjfZ2IHSlWTvkfezLjjvj5mBGjf78924Cq27RIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 4.9 050/102] NFS/flexfiles: Use the correct TCP timeout for flexfiles I/O
-Date:   Mon,  8 Jul 2019 17:12:43 +0200
-Message-Id: <20190708150529.028262811@linuxfoundation.org>
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Viorel Suman <viorel.suman@nxp.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 12/96] ASoC: ak4458: rstn_control - return a non-zero on error only
+Date:   Mon,  8 Jul 2019 17:12:44 +0200
+Message-Id: <20190708150527.026869103@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+[ Upstream commit 176a11834b65ec35e3b7a953f87fb9cc41309497 ]
 
-commit 68f461593f76bd5f17e87cdd0bea28f4278c7268 upstream.
+snd_soc_component_update_bits() may return 1 if operation
+was successful and the value of the register changed.
+Return a non-zero in ak4458_rstn_control for an error only.
 
-Fix a typo where we're confusing the default TCP retrans value
-(NFS_DEF_TCP_RETRANS) for the default TCP timeout value.
-
-Fixes: 15d03055cf39f ("pNFS/flexfiles: Set reasonable default ...")
-Cc: stable@vger.kernel.org # 4.8+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Signed-off-by: Viorel Suman <viorel.suman@nxp.com>
+Reviewed-by: Daniel Baluta <daniel.baluta@nxp.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/flexfilelayout/flexfilelayoutdev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/ak4458.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/nfs/flexfilelayout/flexfilelayoutdev.c
-+++ b/fs/nfs/flexfilelayout/flexfilelayoutdev.c
-@@ -17,7 +17,7 @@
+diff --git a/sound/soc/codecs/ak4458.c b/sound/soc/codecs/ak4458.c
+index 4c5c3ec92609..71562154c0b1 100644
+--- a/sound/soc/codecs/ak4458.c
++++ b/sound/soc/codecs/ak4458.c
+@@ -304,7 +304,10 @@ static int ak4458_rstn_control(struct snd_soc_component *component, int bit)
+ 					  AK4458_00_CONTROL1,
+ 					  AK4458_RSTN_MASK,
+ 					  0x0);
+-	return ret;
++	if (ret < 0)
++		return ret;
++
++	return 0;
+ }
  
- #define NFSDBG_FACILITY		NFSDBG_PNFS_LD
- 
--static unsigned int dataserver_timeo = NFS_DEF_TCP_RETRANS;
-+static unsigned int dataserver_timeo = NFS_DEF_TCP_TIMEO;
- static unsigned int dataserver_retrans;
- 
- void nfs4_ff_layout_put_deviceid(struct nfs4_ff_layout_ds *mirror_ds)
+ static int ak4458_hw_params(struct snd_pcm_substream *substream,
+-- 
+2.20.1
+
 
 
