@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19B3662274
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:26:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 365136231A
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388722AbfGHP0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:26:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53688 "EHLO mail.kernel.org"
+        id S2390073AbfGHPcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:32:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388733AbfGHP0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:26:03 -0400
+        id S2390065AbfGHPcJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:32:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23C3D21537;
-        Mon,  8 Jul 2019 15:26:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF3D6216C4;
+        Mon,  8 Jul 2019 15:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599562;
-        bh=mv6hFB3s7ta5L3rV55CfDeYsbhbVrljDVRgxZsB2vG4=;
+        s=default; t=1562599928;
+        bh=KTN/ndANs2Qeh0B+53eCPBQqeM5dLons4wh1sPJ3kY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OjrhHouciia2s2ukkolYpmLZ9/pe9Q+xlXwMrniSmVXf6iyeJ4QuSxyzY02vv+t8n
-         jcf7/YboDJUXUX2zHRhzIClvETmwHVi6IGzmHiZbLx6Hm6TBy2FpC2fygNRlWiIUFK
-         Q02j0GCqnfT1UzjO6rqYvFuaWyY8SWrfznXgYuNs=
+        b=qAAnvlLkWqARdVOMD3Ke1ZMQem9jNTuJ+maAghtk41r8eifZX8davbhbhWXQx5Ta4
+         LgYTeb9gZ8g27dOmd3hwHiBA4UVQMzhcsmzCSO+Jwrj8vOeknGPDH4lAgvCRGhDO3j
+         H+O7Q7jsCwcIn0NUMVedA18WEsYyZDgTG6ehHryU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/56] platform/x86: mlx-platform: Fix parent device in i2c-mux-reg device registration
+Subject: [PATCH 5.1 35/96] ASoC: core: move DAI pre-links initiation to snd_soc_instantiate_card
 Date:   Mon,  8 Jul 2019 17:13:07 +0200
-Message-Id: <20190708150519.851598649@linuxfoundation.org>
+Message-Id: <20190708150528.462560432@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,156 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 160da20b254dd4bfc5828f12c208fa831ad4be6c ]
+[ Upstream commit 70fc53734e71ce51f46dfcfd1a1c319e1cfe080c ]
 
-Fix the issue found while running kernel with the option
-CONFIG_DEBUG_TEST_DRIVER_REMOVE.
-Driver 'mlx-platform' registers 'i2c_mlxcpld' device and then registers
-few underlying 'i2c-mux-reg' devices:
-	priv->pdev_i2c = platform_device_register_simple("i2c_mlxcpld", nr,
-							 NULL, 0);
-	...
-	for (i = 0; i < ARRAY_SIZE(mlxplat_mux_data); i++) {
-		priv->pdev_mux[i] = platform_device_register_resndata(
-						&mlxplat_dev->dev,
-						"i2c-mux-reg", i, NULL,
-						0, &mlxplat_mux_data[i],
-						sizeof(mlxplat_mux_data[i]));
+Kernel crashes when an ASoC component rebinding.
 
-But actual parent of "i2c-mux-reg" device is priv->pdev_i2c->dev and
-not mlxplat_dev->dev.
-Patch fixes parent device parameter in a call to
-platform_device_register_resndata() for "i2c-mux-reg".
+The dai_link->platforms has been reset to NULL by soc_cleanup_platform()
+in soc_cleanup_card_resources() when un-registering component.  However,
+it has no chance to re-allocate the dai_link->platforms when registering
+the component again.
 
-It solves the race during initialization flow while 'i2c_mlxcpld.1' is
-removing after probe, while 'i2c-mux-reg.0' is still in probing flow:
-'i2c_mlxcpld.1'	flow:	probe -> remove -> probe.
-'i2c-mux-reg.0'	flow:		  probe -> ...
+Move the DAI pre-links initiation from snd_soc_register_card() to
+snd_soc_instantiate_card() to make sure all DAI pre-links get initiated
+when component rebinding.
 
-[   12:621096] Registering platform device 'i2c_mlxcpld.1'. Parent at platform
-[   12:621117] device: 'i2c_mlxcpld.1': device_add
-[   12:621155] bus: 'platform': add device i2c_mlxcpld.1
-[   12:621384] Registering platform device 'i2c-mux-reg.0'. Parent at mlxplat
-[   12:621395] device: 'i2c-mux-reg.0': device_add
-[   12:621425] bus: 'platform': add device i2c-mux-reg.0
-[   12:621806] Registering platform device 'i2c-mux-reg.1'. Parent at mlxplat
-[   12:621828] device: 'i2c-mux-reg.1': device_add
-[   12:621892] bus: 'platform': add device i2c-mux-reg.1
-[   12:621906] bus: 'platform': add driver i2c_mlxcpld
-[   12:621996] bus: 'platform': driver_probe_device: matched device i2c_mlxcpld.1 with driver i2c_mlxcpld
-[   12:622003] bus: 'platform': really_probe: probing driver i2c_mlxcpld with device i2c_mlxcpld.1
-[   12:622100] i2c_mlxcpld i2c_mlxcpld.1: no default pinctrl state
-[   12:622293] device: 'i2c-1': device_add
-[   12:627280] bus: 'i2c': add device i2c-1
-[   12:627692] device: 'i2c-1': device_add
-[   12.629639] bus: 'platform': add driver i2c-mux-reg
-[   12.629718] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.0 with driver i2c-mux-reg
-[   12.629723] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.0
-[   12.629818] i2c-mux-reg i2c-mux-reg.0: no default pinctrl state
-[   12.629981] platform i2c-mux-reg.0: Driver i2c-mux-reg requests probe deferral
-[   12.629986] platform i2c-mux-reg.0: Added to deferred list
-[   12.629992] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.1 with driver i2c-mux-reg
-[   12.629997] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.1
-[   12.630091] i2c-mux-reg i2c-mux-reg.1: no default pinctrl state
-[   12.630247] platform i2c-mux-reg.1: Driver i2c-mux-reg requests probe deferral
-[   12.630252] platform i2c-mux-reg.1: Added to deferred list
-[   12.640892] devices_kset: Moving i2c-mux-reg.0 to end of list
-[   12.640900] platform i2c-mux-reg.0: Retrying from deferred list
-[   12.640911] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.0 with driver i2c-mux-reg
-[   12.640919] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.0
-[   12.640999] i2c-mux-reg i2c-mux-reg.0: no default pinctrl state
-[   12.641177] platform i2c-mux-reg.0: Driver i2c-mux-reg requests probe deferral
-[   12.641187] platform i2c-mux-reg.0: Added to deferred list
-[   12.641198] devices_kset: Moving i2c-mux-reg.1 to end of list
-[   12.641219] platform i2c-mux-reg.1: Retrying from deferred list
-[   12.641237] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.1 with driver i2c-mux-reg
-[   12.641247] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.1
-[   12.641331] i2c-mux-reg i2c-mux-reg.1: no default pinctrl state
-[   12.641465] platform i2c-mux-reg.1: Driver i2c-mux-reg requests probe deferral
-[   12.641469] platform i2c-mux-reg.1: Added to deferred list
-[   12.646427] device: 'i2c-1': device_add
-[   12.646647] bus: 'i2c': add device i2c-1
-[   12.647104] device: 'i2c-1': device_add
-[   12.669231] devices_kset: Moving i2c-mux-reg.0 to end of list
-[   12.669240] platform i2c-mux-reg.0: Retrying from deferred list
-[   12.669258] bus: 'platform': driver_probe_device: matched device i2c-mux-reg.0 with driver i2c-mux-reg
-[   12.669263] bus: 'platform': really_probe: probing driver i2c-mux-reg with device i2c-mux-reg.0
-[   12.669343] i2c-mux-reg i2c-mux-reg.0: no default pinctrl state
-[   12.669585] device: 'i2c-2': device_add
-[   12.669795] bus: 'i2c': add device i2c-2
-[   12.670201] device: 'i2c-2': device_add
-[   12.671427] i2c i2c-1: Added multiplexed i2c bus 2
-[   12.671514] device: 'i2c-3': device_add
-[   12.671724] bus: 'i2c': add device i2c-3
-[   12.672136] device: 'i2c-3': device_add
-[   12.673378] i2c i2c-1: Added multiplexed i2c bus 3
-[   12.673472] device: 'i2c-4': device_add
-[   12.673676] bus: 'i2c': add device i2c-4
-[   12.674060] device: 'i2c-4': device_add
-[   12.675861] i2c i2c-1: Added multiplexed i2c bus 4
-[   12.675941] device: 'i2c-5': device_add
-[   12.676150] bus: 'i2c': add device i2c-5
-[   12.676550] device: 'i2c-5': device_add
-[   12.678103] i2c i2c-1: Added multiplexed i2c bus 5
-[   12.678193] device: 'i2c-6': device_add
-[   12.678395] bus: 'i2c': add device i2c-6
-[   12.678774] device: 'i2c-6': device_add
-[   12.679969] i2c i2c-1: Added multiplexed i2c bus 6
-[   12.680065] device: 'i2c-7': device_add
-[   12.680275] bus: 'i2c': add device i2c-7
-[   12.680913] device: 'i2c-7': device_add
-[   12.682506] i2c i2c-1: Added multiplexed i2c bus 7
-[   12.682600] device: 'i2c-8': device_add
-[   12.682808] bus: 'i2c': add device i2c-8
-[   12.683189] device: 'i2c-8': device_add
-[   12.683907] device: 'i2c-1': device_unregister
-[   12.683945] device: 'i2c-1': device_unregister
-[   12.684387] device: 'i2c-1': device_create_release
-[   12.684536] bus: 'i2c': remove device i2c-1
-[   12.686019] i2c i2c-8: Failed to create compatibility class link
-[   12.686086] ------------[ cut here ]------------
-[   12.686087] can't create symlink to mux device
-[   12.686224] Workqueue: events deferred_probe_work_func
-[   12.686135] WARNING: CPU: 7 PID: 436 at drivers/i2c/i2c-mux.c:416 i2c_mux_add_adapter+0x729/0x7d0 [i2c_mux]
-[   12.686232] RIP: 0010:i2c_mux_add_adapter+0x729/0x7d0 [i2c_mux]
-[   0x190/0x190 [i2c_mux]
-[   12.686300]  ? i2c_mux_alloc+0xac/0x110 [i2c_mux]
-[   12.686306]  ? i2c_mux_reg_set+0x200/0x200 [i2c_mux_reg]
-[   12.686313]  i2c_mux_reg_probe+0x22c/0x731 [i2c_mux_reg]
-[   12.686322]  ? i2c_mux_reg_deselect+0x60/0x60 [i2c_mux_reg]
-[   12.686346]  platform_drv_probe+0xa8/0x110
-[   12.686351]  really_probe+0x185/0x720
-[   12.686358]  driver_probe_device+0xdf/0x1f0
-...
-[   12.686522] i2c i2c-1: Added multiplexed i2c bus 8
-[   12.686621] device: 'i2c-9': device_add
-[   12.686626] kobject_add_internal failed for i2c-9 (error: -2 parent: i2c-1)
-[   12.694729] i2c-core: adapter 'i2c-1-mux (chan_id 8)': can't register device (-2)
-[   12.705726] i2c i2c-1: failed to add mux-adapter 8 as bus 9 (error=-2)
-[   12.714494] device: 'i2c-8': device_unregister
-[   12.714537] device: 'i2c-8': device_unregister
+As an example, by using the following commands:
+- echo -n max98357a > /sys/bus/platform/drivers/max98357a/unbind
+- echo -n max98357a > /sys/bus/platform/drivers/max98357a/bind
 
-Fixes: 6613d18e9038 ("platform/x86: mlx-platform: Move module from arch/x86")
-Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Got the error message:
+"Unable to handle kernel NULL pointer dereference at virtual address".
+
+The call trace:
+snd_soc_is_matching_component+0x30/0x6c
+soc_bind_dai_link+0x16c/0x240
+snd_soc_bind_card+0x1e4/0xb10
+snd_soc_add_component+0x270/0x300
+snd_soc_register_component+0x54/0x6c
+
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/mlx-platform.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-core.c | 27 ++++++++++-----------------
+ 1 file changed, 10 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/platform/x86/mlx-platform.c b/drivers/platform/x86/mlx-platform.c
-index 4f3de2a8c4df..9aced80f31a2 100644
---- a/drivers/platform/x86/mlx-platform.c
-+++ b/drivers/platform/x86/mlx-platform.c
-@@ -318,7 +318,7 @@ static int __init mlxplat_init(void)
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index a4668a788ed5..9df3bdeb5c47 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -2069,6 +2069,16 @@ static int snd_soc_instantiate_card(struct snd_soc_card *card)
+ 	int ret, i, order;
  
- 	for (i = 0; i < ARRAY_SIZE(mlxplat_mux_data); i++) {
- 		priv->pdev_mux[i] = platform_device_register_resndata(
--						&mlxplat_dev->dev,
-+						&priv->pdev_i2c->dev,
- 						"i2c-mux-reg", i, NULL,
- 						0, &mlxplat_mux_data[i],
- 						sizeof(mlxplat_mux_data[i]));
+ 	mutex_lock(&client_mutex);
++	for_each_card_prelinks(card, i, dai_link) {
++		ret = soc_init_dai_link(card, dai_link);
++		if (ret) {
++			soc_cleanup_platform(card);
++			dev_err(card->dev, "ASoC: failed to init link %s: %d\n",
++				dai_link->name, ret);
++			mutex_unlock(&client_mutex);
++			return ret;
++		}
++	}
+ 	mutex_lock_nested(&card->mutex, SND_SOC_CARD_CLASS_INIT);
+ 
+ 	card->dapm.bias_level = SND_SOC_BIAS_OFF;
+@@ -2793,26 +2803,9 @@ static int snd_soc_bind_card(struct snd_soc_card *card)
+  */
+ int snd_soc_register_card(struct snd_soc_card *card)
+ {
+-	int i, ret;
+-	struct snd_soc_dai_link *link;
+-
+ 	if (!card->name || !card->dev)
+ 		return -EINVAL;
+ 
+-	mutex_lock(&client_mutex);
+-	for_each_card_prelinks(card, i, link) {
+-
+-		ret = soc_init_dai_link(card, link);
+-		if (ret) {
+-			soc_cleanup_platform(card);
+-			dev_err(card->dev, "ASoC: failed to init link %s\n",
+-				link->name);
+-			mutex_unlock(&client_mutex);
+-			return ret;
+-		}
+-	}
+-	mutex_unlock(&client_mutex);
+-
+ 	dev_set_drvdata(card->dev, card);
+ 
+ 	snd_soc_initialize_card_lists(card);
 -- 
 2.20.1
 
