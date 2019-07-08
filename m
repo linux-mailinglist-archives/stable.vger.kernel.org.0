@@ -2,75 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1AAF61E64
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 14:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B5E61E97
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 14:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727189AbfGHM1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 08:27:43 -0400
-Received: from mail-io1-f65.google.com ([209.85.166.65]:35635 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727373AbfGHM1n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 08:27:43 -0400
-Received: by mail-io1-f65.google.com with SMTP id m24so25268442ioo.2
-        for <stable@vger.kernel.org>; Mon, 08 Jul 2019 05:27:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=yJ/ZC1foM+OeX5oj0w8tEazMB5pZha6Ec/92YrOC/Jo=;
-        b=u88Up9wTTRqd5cXk3ZrwxFtBxmv7GFLTmXC3HmxJQTgzW4JKfJJVEJBLazbIcjz5LN
-         SFS4nz5Ff6sxI7rtGdkHPYnnvf/CuBqF9DMQC5PJO1jxxxma6nCvdN+Y4euapXk8DsXI
-         umGUihAUogu2wVBVnCKkn/Jhz0UuMJhPRnycPHduqdRaQ6D4qFebVBs+6d4n7WUfxGl8
-         MogR9bgnFSU2r8mHu9ZMHR1g1KDWz3uiaShMfMx8o0WBG2IAtDYNYaCaU69wSb6vHwPv
-         PwdVBDXTgqXHvz1h/frr0KvTF1SWfSlkS2PxAeQBli3RBb8A93CgPiBGaB7rhx//i00I
-         8DSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=yJ/ZC1foM+OeX5oj0w8tEazMB5pZha6Ec/92YrOC/Jo=;
-        b=CrPFcUA8ugLQNx6VOjbuAxFYrwIAkZPRCN8CIEk++1Mu5/DyjrE2hGFXKUb712dAMF
-         fXNGlm2blnVxwkKYuIAK55cxR01oIjECBuUuOXGHVjq+O8Hg3gEEbmzWysbj/QHC6IlP
-         f7bKGPl45jHvfHtt11WyhRWanZcyAwYZfv8X7Q/qrsTJmslVJNh1m1fRjD6K7DuZSTmp
-         +9ZO5vJUp9yiF9lC9Jq49HBal/y2MyGywWIYxDVMWAKBG9Tg6PVlGynVsP0rofgiAXER
-         2SeDU6zsTf7dBvB301baJve82elA2tjM4feUM+teM9jBIPcPua4JqanDIzXpeBnhPCRW
-         4IWQ==
-X-Gm-Message-State: APjAAAXTX4f8MLLsq2m8DtxMGlkAIX8oK6mr5DIH25h78igQb+XPWAT+
-        5QD9s7eYCcgHcZzGafXwP8hqCZrifiAIywxYu7E=
-X-Google-Smtp-Source: APXvYqw23o/9q/1Aja7W6QJuqGEnLDmg61RodiVPBESzLUVqfCONqs2+eNceS2PKZSnzVLVX7od3/SdLqGdBuqSpvJM=
-X-Received: by 2002:a6b:6611:: with SMTP id a17mr1478016ioc.179.1562588862238;
- Mon, 08 Jul 2019 05:27:42 -0700 (PDT)
+        id S1727544AbfGHMlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 08:41:35 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:57607 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727375AbfGHMlf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 08:41:35 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id CDD2721B84;
+        Mon,  8 Jul 2019 08:41:33 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 08 Jul 2019 08:41:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=eHyDeZ
+        ypM0lMBgtsYGkqzvrox+XrruVcmuDJqg7EjMc=; b=TrDVKjiCBUNhh0R7d/l8Fb
+        aneVWtUQ9KQsBNZCK9opGweviF9dbSvvta1xRgG3k7gyMffYm+VeD3vQPZpjKdMA
+        goqJOODoY+XVj7WzgMKxPRFm8GCB+2OB6zdO0vD0McfwowzZVTgp41+03jQxZ1PI
+        sHfzT2KrOmAs1O5JftAUMlrIG7VJDxpK5Auy6bN7txvDVhr4MrT9Q8jdxt8dLb9h
+        IAOga0Ta5JqXHAMZoj0dHyfDR2GVcpLhJGXceC3cohgO+RoynzhSecTgPPTWYR+r
+        zEgdvddevI9vV/jYx0ZPTPOJwcm5iH7GJdjE+nTgk8Ma1tr1Gzosflsd31+f8gZQ
+        ==
+X-ME-Sender: <xms:_TkjXa_0tY7Ozmd8dIpKVGH9vQrzpnaMsr63aJ-iBTBSHdRBsl7UXw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrgedtgdehiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:_TkjXV3LDBheY7OV66vvcyDc0NQC7pjc24IYLhODy8k-Nn76NZcFHg>
+    <xmx:_TkjXfZovTAm2vTSa62rzAvY80QTI_JMmRfkRGt4cjxsGNldUvGMxw>
+    <xmx:_TkjXRujTPqOvVEQ5XMi3oA7_ZQyWaLHtEv7IvKHqTng0DSl9yr2Ig>
+    <xmx:_TkjXd1y124zgeKanNFvwclwQ4OVjXj63cGvpTFqiVDWMcA5sQLQBw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 18A0F380079;
+        Mon,  8 Jul 2019 08:41:32 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] MIPS: Add missing EHB in mtc0 -> mfc0 sequence." failed to apply to 4.4-stable tree
+To:     dkorotin@wavecomp.com, paul.burton@mips.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 08 Jul 2019 14:41:31 +0200
+Message-ID: <1562589691144251@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a4f:909c:0:0:0:0:0 with HTTP; Mon, 8 Jul 2019 05:27:41 -0700 (PDT)
-Reply-To: katiehiggins701@gmail.com
-From:   katie Higgins <lucielawfirm@gmail.com>
-Date:   Mon, 8 Jul 2019 13:27:41 +0100
-Message-ID: <CAJ4Pj78=f+4FzeD2Erghp8k_tX8kHHdBu2cf1053yRPXpijdBA@mail.gmail.com>
-Subject: Hello
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-TGllYmUgR3LDvMOfZQ0KSGFsbG8sIGljaCBiaW4gTGFkeSBLYXRpZS4gRGllcyBpc3QgZGFzIHp3
-ZWl0ZSBNYWwsIGRhc3MgZGllc2UgRS1NYWlsDQp2ZXJzZW5kZXQgd2lyZCBJaG5lbiB6dWdlc2Fu
-ZHQgdW5kIGRvY2ggaGFiZW4gU2llIG1laW5lIEUtTWFpbC1BbnR3b3J0DQphYmdlbGVobnQsIHdh
-cnVtLCB3YXMgaXN0IGRhcyBQcm9ibGVtPyBJY2ggd2VyZGUgc2VociBnbMO8Y2tsaWNoIHVuZA0K
-ZGFua2JhciBzZWluLCB3ZW5uIFNpZSBhdWYgbWVpbmUgTmFjaHJpY2h0IGFudHdvcnRlbiBrw7Zu
-bmVuLiBJY2ggbXVzcw0KSWhuZW4gZXR3YXMgc2VociBXaWNodGlnZXMgbWl0dGVpbGVuLCBlaW5z
-Y2hsaWXDn2xpY2ggbWVpbmVzDQp3dW5kZXJzY2jDtm5lbiBzZXh5IEJpbGRlcywgdW5kIGljaCB3
-ZWnDnywgZGFzcyBTaWUgc2llIGxpZWJlbiB3ZXJkZW4NCldhcnRlIGF1ZiBkZWluZSBBbnR3b3J0
-DQoNCkt1c3MNCj09PT09PT09PT09PT09PT09PT09PT09DQrYqtit2YrYp9iq2Yog2KfZhNi52LLZ
-itiy2KkNCtmF2LHYrdio2YvYpyDYo9mG2Kcg2LPZitiv2Kkg2YPYp9iq2Yog2Iwg2YfYsNmHINmH
-2Yog2KfZhNmF2LHYqSDYp9mE2KvYp9mG2YrYqSDYp9mE2KrZiiDZitiq2YUg2YHZitmH2Kcg2KXY
-sdiz2KfZhCDZh9iw2KcNCtin2YTYqNix2YrYryDYp9mE2KXZhNmD2KrYsdmI2YbZig0K2KPYsdiz
-2YTYqiDZhNmDINmI2LHZgdi22Kog2KfZhNil2KzYp9io2Kkg2LnZhNmJINio2LHZitiv2Yog2KfZ
-hNil2YTZg9iq2LHZiNmG2Yog2Iwg2YTZhdin2LDYp9ifINiz2KPZg9mI2YYg2KzYr9inDQrYs9i5
-2YrYryDZiNmF2YXYqtmGINil2LDYpyDYp9iz2KrYt9i52Kog2KfZhNil2KzYp9io2Kkg2LnZhNmJ
-INix2LPYp9mE2KrZiiDYjCDZhNiv2Yog2LTZitihDQrZhdmGINin2YTZhdmH2YUg2KzYr9inINij
-2YYg2KPYtNin2LfYsdmD2YUg2KjZhdinINmB2Yog2LDZhNmDINi12YjYsdiq2Yog2KfZhNis2YXZ
-itmE2Kkg2KfZhNis2YXZitmE2KkNCtmI2KPZhtinINij2LnZhNmFINij2YbZgyDYs9mI2YEg2KrY
-rdio2YfZhQ0KDQrYp9mG2KrYuNixINis2YjYp9io2YMNCg0K2YLYqNmE2KkNCg==
+
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 0b24cae4d535045f4c9e177aa228d4e97bad212c Mon Sep 17 00:00:00 2001
+From: Dmitry Korotin <dkorotin@wavecomp.com>
+Date: Mon, 24 Jun 2019 19:05:27 +0000
+Subject: [PATCH] MIPS: Add missing EHB in mtc0 -> mfc0 sequence.
+
+Add a missing EHB (Execution Hazard Barrier) in mtc0 -> mfc0 sequence.
+Without this execution hazard barrier it's possible for the value read
+back from the KScratch register to be the value from before the mtc0.
+
+Reproducible on P5600 & P6600.
+
+The hazard is documented in the MIPS Architecture Reference Manual Vol.
+III: MIPS32/microMIPS32 Privileged Resource Architecture (MD00088), rev
+6.03 table 8.1 which includes:
+
+   Producer | Consumer | Hazard
+  ----------|----------|----------------------------
+   mtc0     | mfc0     | any coprocessor 0 register
+
+Signed-off-by: Dmitry Korotin <dkorotin@wavecomp.com>
+[paul.burton@mips.com:
+  - Commit message tweaks.
+  - Add Fixes tags.
+  - Mark for stable back to v3.15 where P5600 support was introduced.]
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Fixes: 3d8bfdd03072 ("MIPS: Use C0_KScratch (if present) to hold PGD pointer.")
+Fixes: 829dcc0a956a ("MIPS: Add MIPS P5600 probe support")
+Cc: linux-mips@vger.kernel.org
+Cc: stable@vger.kernel.org # v3.15+
+
+diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
+index 65b6e85447b1..144ceb0fba88 100644
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -391,6 +391,7 @@ static struct work_registers build_get_work_registers(u32 **p)
+ static void build_restore_work_registers(u32 **p)
+ {
+ 	if (scratch_reg >= 0) {
++		uasm_i_ehb(p);
+ 		UASM_i_MFC0(p, 1, c0_kscratch(), scratch_reg);
+ 		return;
+ 	}
+@@ -668,10 +669,12 @@ static void build_restore_pagemask(u32 **p, struct uasm_reloc **r,
+ 			uasm_i_mtc0(p, 0, C0_PAGEMASK);
+ 			uasm_il_b(p, r, lid);
+ 		}
+-		if (scratch_reg >= 0)
++		if (scratch_reg >= 0) {
++			uasm_i_ehb(p);
+ 			UASM_i_MFC0(p, 1, c0_kscratch(), scratch_reg);
+-		else
++		} else {
+ 			UASM_i_LW(p, 1, scratchpad_offset(0), 0);
++		}
+ 	} else {
+ 		/* Reset default page size */
+ 		if (PM_DEFAULT_MASK >> 16) {
+@@ -938,10 +941,12 @@ build_get_pgd_vmalloc64(u32 **p, struct uasm_label **l, struct uasm_reloc **r,
+ 		uasm_i_jr(p, ptr);
+ 
+ 		if (mode == refill_scratch) {
+-			if (scratch_reg >= 0)
++			if (scratch_reg >= 0) {
++				uasm_i_ehb(p);
+ 				UASM_i_MFC0(p, 1, c0_kscratch(), scratch_reg);
+-			else
++			} else {
+ 				UASM_i_LW(p, 1, scratchpad_offset(0), 0);
++			}
+ 		} else {
+ 			uasm_i_nop(p);
+ 		}
+@@ -1258,6 +1263,7 @@ build_fast_tlb_refill_handler (u32 **p, struct uasm_label **l,
+ 	UASM_i_MTC0(p, odd, C0_ENTRYLO1); /* load it */
+ 
+ 	if (c0_scratch_reg >= 0) {
++		uasm_i_ehb(p);
+ 		UASM_i_MFC0(p, scratch, c0_kscratch(), c0_scratch_reg);
+ 		build_tlb_write_entry(p, l, r, tlb_random);
+ 		uasm_l_leave(l, *p);
+@@ -1603,15 +1609,17 @@ static void build_setup_pgd(void)
+ 		uasm_i_dinsm(&p, a0, 0, 29, 64 - 29);
+ 		uasm_l_tlbl_goaround1(&l, p);
+ 		UASM_i_SLL(&p, a0, a0, 11);
+-		uasm_i_jr(&p, 31);
+ 		UASM_i_MTC0(&p, a0, C0_CONTEXT);
++		uasm_i_jr(&p, 31);
++		uasm_i_ehb(&p);
+ 	} else {
+ 		/* PGD in c0_KScratch */
+-		uasm_i_jr(&p, 31);
+ 		if (cpu_has_ldpte)
+ 			UASM_i_MTC0(&p, a0, C0_PWBASE);
+ 		else
+ 			UASM_i_MTC0(&p, a0, c0_kscratch(), pgd_reg);
++		uasm_i_jr(&p, 31);
++		uasm_i_ehb(&p);
+ 	}
+ #else
+ #ifdef CONFIG_SMP
+@@ -1625,13 +1633,16 @@ static void build_setup_pgd(void)
+ 	UASM_i_LA_mostly(&p, a2, pgdc);
+ 	UASM_i_SW(&p, a0, uasm_rel_lo(pgdc), a2);
+ #endif /* SMP */
+-	uasm_i_jr(&p, 31);
+ 
+ 	/* if pgd_reg is allocated, save PGD also to scratch register */
+-	if (pgd_reg != -1)
++	if (pgd_reg != -1) {
+ 		UASM_i_MTC0(&p, a0, c0_kscratch(), pgd_reg);
+-	else
++		uasm_i_jr(&p, 31);
++		uasm_i_ehb(&p);
++	} else {
++		uasm_i_jr(&p, 31);
+ 		uasm_i_nop(&p);
++	}
+ #endif
+ 	if (p >= (u32 *)tlbmiss_handler_setup_pgd_end)
+ 		panic("tlbmiss_handler_setup_pgd space exceeded");
+
