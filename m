@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A40FF62498
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:45:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEF3862466
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:42:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729493AbfGHPXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:23:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49764 "EHLO mail.kernel.org"
+        id S2388550AbfGHPZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:25:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388096AbfGHPW7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:22:59 -0400
+        id S2388491AbfGHPZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:25:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36B662166E;
-        Mon,  8 Jul 2019 15:22:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1D1321707;
+        Mon,  8 Jul 2019 15:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599378;
-        bh=FG0Fd4yCVaRhYLAoDH+EcpNxQWOhdpbmj1xXw0TZ748=;
+        s=default; t=1562599514;
+        bh=qlYa6o9khw8LBnQk5+vv9KWTKvgudxPcerG4S16Krx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XGKRJEEO2lvY81DeFLprtjV6EdeLZa/GfRq5jtnDRmgYgHcFOSG83DgX5V690y+lz
-         Sbgj/ve2f39TQ7f2os0vZ68y91KZj2jFKK6Tz6/ExxQrJLnlPxAHlPOuQE/Wg310bU
-         r8JWKIFSkP6o6w8ufSMighsfImSE6cv+nMFOq9uA=
+        b=CLFzJAERG2FtSzXEZj56NvK88d6kplom8h2nG7WgumSLekgR1Vmse3DwujsfNjvNn
+         1p0w9zGn0sBiNOzO+DsohsbIyzXmXCZq0xR5JZXAAexgAZX1bmmbRNidUVTBcTUeKe
+         +Oyn1e5RVtCc/O7kmh1FX4xou+lPk9QkicBvCcGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gary Leshner <Gary.S.Leshner@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.9 099/102] IB/hfi1: Close PSM sdma_progress sleep window
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        Nikolay Borisov <nborisov@suse.com>
+Subject: [PATCH 4.14 40/56] btrfs: Ensure replaced device doesnt have pending chunk allocation
 Date:   Mon,  8 Jul 2019 17:13:32 +0200
-Message-Id: <20190708150531.607648948@linuxfoundation.org>
+Message-Id: <20190708150523.470793458@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,81 +43,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@intel.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit da9de5f8527f4b9efc82f967d29a583318c034c7 upstream.
+commit debd1c065d2037919a7da67baf55cc683fee09f0 upstream.
 
-The call to sdma_progress() is called outside the wait lock.
+Recent FITRIM work, namely bbbf7243d62d ("btrfs: combine device update
+operations during transaction commit") combined the way certain
+operations are recoded in a transaction. As a result an ASSERT was added
+in dev_replace_finish to ensure the new code works correctly.
+Unfortunately I got reports that it's possible to trigger the assert,
+meaning that during a device replace it's possible to have an unfinished
+chunk allocation on the source device.
 
-In this case, there is a race condition where sdma_progress() can return
-false and the sdma_engine can idle.  If that happens, there will be no
-more sdma interrupts to cause the wakeup and the user_sdma xmit will hang.
+This is supposed to be prevented by the fact that a transaction is
+committed before finishing the replace oepration and alter acquiring the
+chunk mutex. This is not sufficient since by the time the transaction is
+committed and the chunk mutex acquired it's possible to allocate a chunk
+depending on the workload being executed on the replaced device. This
+bug has been present ever since device replace was introduced but there
+was never code which checks for it.
 
-Fix by moving the lock to enclose the sdma_progress() call.
+The correct way to fix is to ensure that there is no pending device
+modification operation when the chunk mutex is acquire and if there is
+repeat transaction commit. Unfortunately it's not possible to just
+exclude the source device from btrfs_fs_devices::dev_alloc_list since
+this causes ENOSPC to be hit in transaction commit.
 
-Also, delete busycount. The need for this was removed by:
-commit bcad29137a97 ("IB/hfi1: Serve the most starved iowait entry first")
+Fixing that in another way would need to add special cases to handle the
+last writes and forbid new ones. The looped transaction fix is more
+obvious, and can be easily backported. The runtime of dev-replace is
+long so there's no noticeable delay caused by that.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Reviewed-by: Gary Leshner <Gary.S.Leshner@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Reported-by: David Sterba <dsterba@suse.com>
+Fixes: 391cd9df81ac ("Btrfs: fix unprotected alloc list insertion during the finishing procedure of replace")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 
 ---
- drivers/infiniband/hw/hfi1/user_sdma.c |   13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ fs/btrfs/dev-replace.c |   29 +++++++++++++++++++----------
+ fs/btrfs/volumes.c     |    2 ++
+ fs/btrfs/volumes.h     |    5 +++++
+ 3 files changed, 26 insertions(+), 10 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/user_sdma.c
-+++ b/drivers/infiniband/hw/hfi1/user_sdma.c
-@@ -260,7 +260,6 @@ struct user_sdma_txreq {
- 	struct list_head list;
- 	struct user_sdma_request *req;
- 	u16 flags;
--	unsigned busycount;
- 	u64 seqnum;
- };
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -512,18 +512,27 @@ static int btrfs_dev_replace_finishing(s
+ 	}
+ 	btrfs_wait_ordered_roots(fs_info, U64_MAX, 0, (u64)-1);
  
-@@ -323,25 +322,22 @@ static int defer_packet_queue(
- 	struct hfi1_user_sdma_pkt_q *pq =
- 		container_of(wait, struct hfi1_user_sdma_pkt_q, busy);
- 	struct hfi1_ibdev *dev = &pq->dd->verbs_dev;
--	struct user_sdma_txreq *tx =
--		container_of(txreq, struct user_sdma_txreq, txreq);
+-	trans = btrfs_start_transaction(root, 0);
+-	if (IS_ERR(trans)) {
+-		mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
+-		return PTR_ERR(trans);
++	while (1) {
++		trans = btrfs_start_transaction(root, 0);
++		if (IS_ERR(trans)) {
++			mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
++			return PTR_ERR(trans);
++		}
++		ret = btrfs_commit_transaction(trans);
++		WARN_ON(ret);
++		mutex_lock(&uuid_mutex);
++		/* keep away write_all_supers() during the finishing procedure */
++		mutex_lock(&fs_info->fs_devices->device_list_mutex);
++		mutex_lock(&fs_info->chunk_mutex);
++		if (src_device->has_pending_chunks) {
++			mutex_unlock(&root->fs_info->chunk_mutex);
++			mutex_unlock(&root->fs_info->fs_devices->device_list_mutex);
++			mutex_unlock(&uuid_mutex);
++		} else {
++			break;
++		}
+ 	}
+-	ret = btrfs_commit_transaction(trans);
+-	WARN_ON(ret);
  
--	if (sdma_progress(sde, seq, txreq)) {
--		if (tx->busycount++ < MAX_DEFER_RETRY_COUNT)
--			goto eagain;
--	}
-+	write_seqlock(&dev->iowait_lock);
-+	if (sdma_progress(sde, seq, txreq))
-+		goto eagain;
- 	/*
- 	 * We are assuming that if the list is enqueued somewhere, it
- 	 * is to the dmawait list since that is the only place where
- 	 * it is supposed to be enqueued.
- 	 */
- 	xchg(&pq->state, SDMA_PKT_Q_DEFERRED);
--	write_seqlock(&dev->iowait_lock);
- 	if (list_empty(&pq->busy.list))
- 		list_add_tail(&pq->busy.list, &sde->dmawait);
- 	write_sequnlock(&dev->iowait_lock);
- 	return -EBUSY;
- eagain:
-+	write_sequnlock(&dev->iowait_lock);
- 	return -EAGAIN;
- }
+-	mutex_lock(&uuid_mutex);
+-	/* keep away write_all_supers() during the finishing procedure */
+-	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+-	mutex_lock(&fs_info->chunk_mutex);
+ 	btrfs_dev_replace_lock(dev_replace, 1);
+ 	dev_replace->replace_state =
+ 		scrub_ret ? BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4851,6 +4851,7 @@ static int __btrfs_alloc_chunk(struct bt
+ 	for (i = 0; i < map->num_stripes; i++) {
+ 		num_bytes = map->stripes[i].dev->bytes_used + stripe_size;
+ 		btrfs_device_set_bytes_used(map->stripes[i].dev, num_bytes);
++		map->stripes[i].dev->has_pending_chunks = true;
+ 	}
  
-@@ -925,7 +921,6 @@ static int user_sdma_send_pkts(struct us
+ 	atomic64_sub(stripe_size * map->num_stripes, &info->free_chunk_space);
+@@ -7310,6 +7311,7 @@ void btrfs_update_commit_device_bytes_us
+ 		for (i = 0; i < map->num_stripes; i++) {
+ 			dev = map->stripes[i].dev;
+ 			dev->commit_bytes_used = dev->bytes_used;
++			dev->has_pending_chunks = false;
+ 		}
+ 	}
+ 	mutex_unlock(&fs_info->chunk_mutex);
+--- a/fs/btrfs/volumes.h
++++ b/fs/btrfs/volumes.h
+@@ -61,6 +61,11 @@ struct btrfs_device {
  
- 		tx->flags = 0;
- 		tx->req = req;
--		tx->busycount = 0;
- 		INIT_LIST_HEAD(&tx->list);
- 
- 		if (req->seqnum == req->info.npkts - 1)
+ 	spinlock_t io_lock ____cacheline_aligned;
+ 	int running_pending;
++	/* When true means this device has pending chunk alloc in
++	 * current transaction. Protected by chunk_mutex.
++	 */
++	bool has_pending_chunks;
++
+ 	/* regular prio bios */
+ 	struct btrfs_pending_bios pending_bios;
+ 	/* sync bios */
 
 
