@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC97624F1
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:47:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 651BA62164
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:15:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733192AbfGHPTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:19:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43516 "EHLO mail.kernel.org"
+        id S1732434AbfGHPP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:15:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733205AbfGHPTR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:19:17 -0400
+        id S1732433AbfGHPP5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:15:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82D5321537;
-        Mon,  8 Jul 2019 15:19:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C04A32173E;
+        Mon,  8 Jul 2019 15:15:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599156;
-        bh=NUS9YOn5HCd2lVHAlqD9mDJjs3hLJPpuIfN7lHx0wp8=;
+        s=default; t=1562598956;
+        bh=QJsgjTG5QCeMh/lFp+X7Adal0D8yvlkVRLCM1NVRpQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zl7hj0IIg0tPkGR5NfUaR2gIVffmXrWVe1gGRoFuFoWSREPYVivNYgfY99kR4km5d
-         v/FuJizyNwPmsvDHZGkKuHXoRct2zC1NzZ84oC64H1aqkCFhNU2/GeGkO8SU6O1UCt
-         UKbGgO8A/bVJlNQP1mX1PFwBbzCG9OFsx5wFKtbU=
+        b=dLUhcH/nuWCFu9OI99KfCnruExLikd2JhmAEoVg1xlMrw25KaKsoriWPrHHYCcOTH
+         H4K1FEHrQQLABridBueVNdeXJF53Z6YxIljg7waNBppnBPWuJTndtur8BygvjnAhov
+         5J7rlS7SD15bK/884+mIReu355DpM2NCmnDWZwcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 023/102] s390/qeth: fix VLAN attribute in bridge_hostnotify udev event
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Jun Li <jun.li@nxp.com>, Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.4 06/73] usb: chipidea: udc: workaround for endpoint conflict issue
 Date:   Mon,  8 Jul 2019 17:12:16 +0200
-Message-Id: <20190708150527.430478010@linuxfoundation.org>
+Message-Id: <20190708150518.237338255@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 335726195e460cb6b3f795b695bfd31f0ea70ef0 ]
+From: Peter Chen <peter.chen@nxp.com>
 
-Enabling sysfs attribute bridge_hostnotify triggers a series of udev events
-for the MAC addresses of all currently connected peers. In case no VLAN is
-set for a peer, the device reports the corresponding MAC addresses with
-VLAN ID 4096. This currently results in attribute VLAN=4096 for all
-non-VLAN interfaces in the initial series of events after host-notify is
-enabled.
+commit c19dffc0a9511a7d7493ec21019aefd97e9a111b upstream.
 
-Instead, no VLAN attribute should be reported in the udev event for
-non-VLAN interfaces.
+An endpoint conflict occurs when the USB is working in device mode
+during an isochronous communication. When the endpointA IN direction
+is an isochronous IN endpoint, and the host sends an IN token to
+endpointA on another device, then the OUT transaction may be missed
+regardless the OUT endpoint number. Generally, this occurs when the
+device is connected to the host through a hub and other devices are
+connected to the same hub.
 
-Only the initial events face this issue. For dynamic changes that are
-reported later, the device uses a validity flag.
+The affected OUT endpoint can be either control, bulk, isochronous, or
+an interrupt endpoint. After the OUT endpoint is primed, if an IN token
+to the same endpoint number on another device is received, then the OUT
+endpoint may be unprimed (cannot be detected by software), which causes
+this endpoint to no longer respond to the host OUT token, and thus, no
+corresponding interrupt occurs.
 
-This also changes the code so that it now sets the VLAN attribute for
-MAC addresses with VID 0. On Linux, no qeth interface will ever be
-registered with VID 0: Linux kernel registers VID 0 on all network
-interfaces initially, but qeth will drop .ndo_vlan_rx_add_vid for VID 0.
-Peers with other OSs could register MACs with VID 0.
+There is no good workaround for this issue, the only thing the software
+could do is numbering isochronous IN from the highest endpoint since we
+have observed most of device number endpoint from the lowest.
 
-Fixes: 9f48b9db9a22 ("qeth: bridgeport support - address notifications")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> #v3.14+
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: Jun Li <jun.li@nxp.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/s390/net/qeth_l2_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/chipidea/udc.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 58404e69aa4b..6ba4e921d2fd 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2124,7 +2124,7 @@ static void qeth_bridgeport_an_set_cb(void *priv,
+--- a/drivers/usb/chipidea/udc.c
++++ b/drivers/usb/chipidea/udc.c
+@@ -1614,6 +1614,25 @@ static int ci_udc_pullup(struct usb_gadg
+ static int ci_udc_start(struct usb_gadget *gadget,
+ 			 struct usb_gadget_driver *driver);
+ static int ci_udc_stop(struct usb_gadget *gadget);
++
++/* Match ISOC IN from the highest endpoint */
++static struct usb_ep *ci_udc_match_ep(struct usb_gadget *gadget,
++			      struct usb_endpoint_descriptor *desc,
++			      struct usb_ss_ep_comp_descriptor *comp_desc)
++{
++	struct ci_hdrc *ci = container_of(gadget, struct ci_hdrc, gadget);
++	struct usb_ep *ep;
++
++	if (usb_endpoint_xfer_isoc(desc) && usb_endpoint_dir_in(desc)) {
++		list_for_each_entry_reverse(ep, &ci->gadget.ep_list, ep_list) {
++			if (ep->caps.dir_in && !ep->claimed)
++				return ep;
++		}
++	}
++
++	return NULL;
++}
++
+ /**
+  * Device operations part of the API to the USB controller hardware,
+  * which don't involve endpoints (or i/o)
+@@ -1627,6 +1646,7 @@ static const struct usb_gadget_ops usb_g
+ 	.vbus_draw	= ci_udc_vbus_draw,
+ 	.udc_start	= ci_udc_start,
+ 	.udc_stop	= ci_udc_stop,
++	.match_ep 	= ci_udc_match_ep,
+ };
  
- 	l2entry = (struct qdio_brinfo_entry_l2 *)entry;
- 	code = IPA_ADDR_CHANGE_CODE_MACADDR;
--	if (l2entry->addr_lnid.lnid)
-+	if (l2entry->addr_lnid.lnid < VLAN_N_VID)
- 		code |= IPA_ADDR_CHANGE_CODE_VLANID;
- 	qeth_bridge_emit_host_event(card, anev_reg_unreg, code,
- 		(struct net_if_token *)&l2entry->nit,
--- 
-2.20.1
-
+ static int init_eps(struct ci_hdrc *ci)
 
 
