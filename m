@@ -2,69 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7737E61FDF
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 15:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB8DF61FED
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 15:58:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729854AbfGHNzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 09:55:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32920 "EHLO mail.kernel.org"
+        id S1731373AbfGHN6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 09:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727401AbfGHNzX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 09:55:23 -0400
+        id S1729112AbfGHN6Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 09:58:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41CFA20861;
-        Mon,  8 Jul 2019 13:55:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFE4C21479;
+        Mon,  8 Jul 2019 13:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562594122;
-        bh=h+JIToW0VCwcJEr296yFCpDhwCUUbZ8SK/H8fB8sNm4=;
+        s=default; t=1562594304;
+        bh=k9gzkfvTupemZe/mNLRkqdIXJkLtrLmu0ndLjZ6mjQc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WPMUQ37Ip1m0+HL8UsuR0HVexFctKEmvovH1tduZmAclun03+5wHsL1cbUph3OrPt
-         qUUICEx9UG/ro6jsSbsvZOQjXH4sxqf9QaKZrVBPG+4aVImlikivXAJX40bG/EfAm4
-         SerCdZizK8pcfaTWC5XXuSfjvFZ6HxBI1Ju9AjGE=
-Date:   Mon, 8 Jul 2019 15:55:19 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable <stable@vger.kernel.org>
-Subject: Re: Build failures in v4.4.y.queue, v4.9.queue
-Message-ID: <20190708135519.GA2900@kroah.com>
-References: <1d749d61-a489-11e2-bb6b-21408e1057ff@roeck-us.net>
+        b=MsaSjzQPtG2BZ4/bFmX72iaNKbZ/Odld0jtS//r5ywbWyGZ6gyaUkxZaidBeHgoLa
+         KFQt6ijnGYUe330V0uaZ2x5ScE8i0AvZPLbfgcSbB5SPkwEaTM2tGOnCuxJAy8WwS6
+         Gp+H/b+v3nBm5RFGqNX4ZC4lhipYqPsgsv4D6Vwo=
+Date:   Mon, 8 Jul 2019 15:58:21 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Will Deacon <will@kernel.org>
+Cc:     ard.biesheuvel@linaro.org, catalin.marinas@arm.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] arm64: kaslr: keep modules inside module
+ region when KASAN is" failed to apply to 4.9-stable tree
+Message-ID: <20190708135821.GB2900@kroah.com>
+References: <1562316860240248@kroah.com>
+ <20190708132351.kxai726abg2piley@willie-the-truck>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1d749d61-a489-11e2-bb6b-21408e1057ff@roeck-us.net>
+In-Reply-To: <20190708132351.kxai726abg2piley@willie-the-truck>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 08, 2019 at 06:21:31AM -0700, Guenter Roeck wrote:
-> Various cris builds:
+On Mon, Jul 08, 2019 at 02:23:52PM +0100, Will Deacon wrote:
+> On Fri, Jul 05, 2019 at 10:54:20AM +0200, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 4.9-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > From 6f496a555d93db7a11d4860b9220d904822f586a Mon Sep 17 00:00:00 2001
+> > From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> > Date: Tue, 25 Jun 2019 19:08:54 +0200
+> > Subject: [PATCH] arm64: kaslr: keep modules inside module region when KASAN is
+> >  enabled
 > 
-> init/built-in.o: In function `repair_env_string':
-> main.c:(.init.text+0x106): undefined reference to `abort'
-> arch/cris/mm/built-in.o: In function `do_page_fault':
-> (.text+0x44e): undefined reference to `abort'
-> arch/cris/mm/built-in.o: In function `mem_init':
-> (.init.text+0x12): undefined reference to `abort'
-> arch/cris/arch-v10/kernel/built-in.o: In function `cris_request_io_interface':
-> (.text+0x219e): undefined reference to `abort'
-> arch/cris/arch-v10/kernel/built-in.o: In function `cris_free_io_interface':
-> (.text+0x2644): undefined reference to `abort'
-> kernel/built-in.o:(.text+0x416): more undefined references to `abort' follow
+> 4.9 backport below.
 > 
-> Caused by commit commit b068c10cde7f3e ("bug.h: work around GCC PR82365 in BUG()").
-> Reverting it fixes the problem. I would suggest to undo the cris specific changes
-> in that backport. An alternative would be for me to stop build-testing for the
-> architecture if there is no further interest in keeping it alive for older branches.
+> Will
 
-Odd, why doesn't that trigger in mainline?
-
-Oh, cris is gone upstream, that makes sense.  I'll just go drop that
-hunk from the patches so that things keep building.
-
-thanks,
+Now queued up, thanks!
 
 greg k-h
