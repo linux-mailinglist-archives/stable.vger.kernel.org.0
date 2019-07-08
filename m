@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBF0D6217D
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:16:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B01A762283
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:26:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732640AbfGHPQo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:16:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39844 "EHLO mail.kernel.org"
+        id S2388845AbfGHP0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:26:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732622AbfGHPQn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:16:43 -0400
+        id S2388838AbfGHP0c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:26:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2E56216E3;
-        Mon,  8 Jul 2019 15:16:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98A4521707;
+        Mon,  8 Jul 2019 15:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599003;
-        bh=jPUtAY0aRIOFzQ+zGaxTILOGg7nWtlDKM2DBfxvPVZ8=;
+        s=default; t=1562599591;
+        bh=bZH1+pQXpXWoW32pkb6EuaJwhSCBdzAshRe8pVVsUI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MTVmyrlJgZqHJXvm/YeAFi88JsgahkOUrsiHt6hsDYdOPuOLBGgvKVTyI+MaKIP4y
-         0GaetC191OvPr/RrMQojhezoh43PkzGrB8KWpB2qg49eDwslxkacHdxDY5lnxIQV21
-         pp75g3Dn/vWdijTlvUggLsmh+XiRwRBJBTVPdbAA=
+        b=KsB1GXlQwwgbJ2+uf+fA6TKrL0o1q0qtvXRy9j9Kn7oC24QDNlLZZ0b2BfNiAUSBE
+         NawdTQXrf9Na+DGwt9UJEBD7zViRbcMNNh7aIJm1qxpxvZCflIPZYTLM30NeDtcgNQ
+         JoPup2EKYE9E9BL8XwmB65DEoVFp9xGPeRg2rBS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.4 28/73] mac80211: drop robust management frames from unknown TA
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Viorel Suman <viorel.suman@nxp.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 11/90] ASoC: ak4458: rstn_control - return a non-zero on error only
 Date:   Mon,  8 Jul 2019 17:12:38 +0200
-Message-Id: <20190708150522.494806945@linuxfoundation.org>
+Message-Id: <20190708150523.176590182@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+[ Upstream commit 176a11834b65ec35e3b7a953f87fb9cc41309497 ]
 
-commit 588f7d39b3592a36fb7702ae3b8bdd9be4621e2f upstream.
+snd_soc_component_update_bits() may return 1 if operation
+was successful and the value of the register changed.
+Return a non-zero in ak4458_rstn_control for an error only.
 
-When receiving a robust management frame, drop it if we don't have
-rx->sta since then we don't have a security association and thus
-couldn't possibly validate the frame.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Signed-off-by: Viorel Suman <viorel.suman@nxp.com>
+Reviewed-by: Daniel Baluta <daniel.baluta@nxp.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/ak4458.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -3324,6 +3324,8 @@ static bool ieee80211_accept_frame(struc
- 	case NL80211_IFTYPE_STATION:
- 		if (!bssid && !sdata->u.mgd.use_4addr)
- 			return false;
-+		if (ieee80211_is_robust_mgmt_frame(skb) && !rx->sta)
-+			return false;
- 		if (multicast)
- 			return true;
- 		return ether_addr_equal(sdata->vif.addr, hdr->addr1);
+diff --git a/sound/soc/codecs/ak4458.c b/sound/soc/codecs/ak4458.c
+index 58b6ca1de993..3bd57c02e6fd 100644
+--- a/sound/soc/codecs/ak4458.c
++++ b/sound/soc/codecs/ak4458.c
+@@ -272,7 +272,10 @@ static int ak4458_rstn_control(struct snd_soc_component *component, int bit)
+ 					  AK4458_00_CONTROL1,
+ 					  AK4458_RSTN_MASK,
+ 					  0x0);
+-	return ret;
++	if (ret < 0)
++		return ret;
++
++	return 0;
+ }
+ 
+ static int ak4458_hw_params(struct snd_pcm_substream *substream,
+-- 
+2.20.1
+
 
 
