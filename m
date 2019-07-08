@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC0B162551
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEB64621D4
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732254AbfGHPPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:15:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37448 "EHLO mail.kernel.org"
+        id S1733281AbfGHPTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:19:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732245AbfGHPPH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:15:07 -0400
+        id S1733290AbfGHPTm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:19:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0557F216C4;
-        Mon,  8 Jul 2019 15:15:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA307216C4;
+        Mon,  8 Jul 2019 15:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562598906;
-        bh=yTjW/8PijZkN6N/vsCgJLuOzygm7pX03BnGK9KWHeTc=;
+        s=default; t=1562599181;
+        bh=jLuUJzS93NiFBMI63O+Gx7/+lKHwhvNKMTtWX26LwmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AccbrKEIshrJlGS7eah5CI4jUPTOdelyIV9h33Hrl9S9oZLd8eJCMpRdcA7/AO7HR
-         6goFmvA97I91Gohz8HY+jwIyniOIW/FPX0Orw23G+gdw7YPoaEiR9AABFz7ohU/Be4
-         4O3FXq7qSde0Tx4tSqRpNEfNGeSHE9ZjZ877WSRc=
+        b=reobgoqgt6qGvaJtI6A5cE1sEuqEuig/nZyKtXUu3/TXKuXlVXPAVnMQs75faF39T
+         /t8/vLJvEQWma8bAiJT+GnhuaPKYeI87zhCLD2R80fMnoB34i+sRnkjxnrdFruCq/i
+         0qlOyoU3ty+oLFqNHBFWn9zi4veC/UpEi0LX1QIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonglong Liu <liuyonglong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 13/73] net: hns: Fix loopback test failed at copper ports
-Date:   Mon,  8 Jul 2019 17:12:23 +0200
-Message-Id: <20190708150519.845696916@linuxfoundation.org>
+        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@intel.com>
+Subject: [PATCH 4.9 031/102] Bluetooth: Align minimum encryption key size for LE and BR/EDR connections
+Date:   Mon,  8 Jul 2019 17:12:24 +0200
+Message-Id: <20190708150527.955639518@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2e1f164861e500f4e068a9d909bbd3fcc7841483 ]
+From: Marcel Holtmann <marcel@holtmann.org>
 
-When doing a loopback test at copper ports, the serdes loopback
-and the phy loopback will fail, because of the adjust link had
-not finished, and phy not ready.
+commit d5bb334a8e171b262e48f378bd2096c0ea458265 upstream.
 
-Adds sleep between adjust link and test process to fix it.
+The minimum encryption key size for LE connections is 56 bits and to
+align LE with BR/EDR, enforce 56 bits of minimum encryption key size for
+BR/EDR connections as well.
 
-Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/hisilicon/hns/hns_ethtool.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/net/bluetooth/hci_core.h |    3 +++
+ net/bluetooth/hci_conn.c         |    8 ++++++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c b/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
-index 4b91eb70c683..a2f2db58b5ab 100644
---- a/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
-@@ -351,6 +351,7 @@ static int __lb_setup(struct net_device *ndev,
- static int __lb_up(struct net_device *ndev,
- 		   enum hnae_loop loop_mode)
- {
-+#define NIC_LB_TEST_WAIT_PHY_LINK_TIME 300
- 	struct hns_nic_priv *priv = netdev_priv(ndev);
- 	struct hnae_handle *h = priv->ae_handle;
- 	int speed, duplex;
-@@ -389,6 +390,9 @@ static int __lb_up(struct net_device *ndev,
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -176,6 +176,9 @@ struct adv_info {
  
- 	h->dev->ops->adjust_link(h, speed, duplex);
+ #define HCI_MAX_SHORT_NAME_LENGTH	10
  
-+	/* wait adjust link done and phy ready */
-+	msleep(NIC_LB_TEST_WAIT_PHY_LINK_TIME);
++/* Min encryption key size to match with SMP */
++#define HCI_MIN_ENC_KEY_SIZE		7
 +
- 	return 0;
+ /* Default LE RPA expiry time, 15 minutes */
+ #define HCI_DEFAULT_RPA_TIMEOUT		(15 * 60)
+ 
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -1165,6 +1165,14 @@ int hci_conn_check_link_mode(struct hci_
+ 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
+ 		return 0;
+ 
++	/* The minimum encryption key size needs to be enforced by the
++	 * host stack before establishing any L2CAP connections. The
++	 * specification in theory allows a minimum of 1, but to align
++	 * BR/EDR and LE transports, a minimum of 7 is chosen.
++	 */
++	if (conn->enc_key_size < HCI_MIN_ENC_KEY_SIZE)
++		return 0;
++
+ 	return 1;
  }
  
--- 
-2.20.1
-
 
 
