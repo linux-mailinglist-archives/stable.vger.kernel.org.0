@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 573DE623AC
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 596D062410
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:40:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390152AbfGHPgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:36:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
+        id S1730122AbfGHP2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:28:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390800AbfGHPe4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:34:56 -0400
+        id S1730266AbfGHP2j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:28:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A5D2204EC;
-        Mon,  8 Jul 2019 15:34:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F283204EC;
+        Mon,  8 Jul 2019 15:28:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562600095;
-        bh=tpryO/u4wY0j9D9y9WvRP0yb5FCkbs8oBo3Kv9/O4Rw=;
+        s=default; t=1562599718;
+        bh=8TSg+YEiKH5AXP83bcgN+KQurxzli4KcEYlUUHeC2uA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ONgrxA3T0vz4/hsft7fVl1QFz1n2LBF/gpfjYvFYuh0KNVslF3vGxxFYGhbHb1E1+
-         roW7nSTucPxMXU0KYAkaiwlNub2VY+Fy/jtrN7IPKJBhph7tO0LPYmFRS+hFdTr4Nd
-         lNKg9huxct+N1HWOkvZeDuHAdy+riYtGm6h/LAFY=
+        b=m8UaNsl/F+bBMh1kvcdHRWobaZnhq6z/zr0AXsLFSoTr3ydFAyicfrsfNREys+kAv
+         MS41X+jdC+lMFwz1tvl/WPKKyyU0lx5B9VfxmQmcToWs478msRb7iAisdmuFsEeNa6
+         2IZ5y3rVlNA3PRnBGsLTgc6ye3onZIVBd+hwYvEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Phil Auld <pauld@redhat.com>, Joel Savitz <jsavitz@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 50/96] cpuset: restore sanity to cpuset_cpus_allowed_fallback()
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Slava Abramov <slava.abramov@amd.com>
+Subject: [PATCH 4.19 55/90] drm/amd/powerplay: use hardware fan control if no powerplay fan table
 Date:   Mon,  8 Jul 2019 17:13:22 +0200
-Message-Id: <20190708150529.223016390@linuxfoundation.org>
+Message-Id: <20190708150525.271037783@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
+References: <20190708150521.829733162@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,143 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d477f8c202d1f0d4791ab1263ca7657bbe5cf79e ]
+From: Evan Quan <evan.quan@amd.com>
 
-In the case that a process is constrained by taskset(1) (i.e.
-sched_setaffinity(2)) to a subset of available cpus, and all of those are
-subsequently offlined, the scheduler will set tsk->cpus_allowed to
-the current value of task_cs(tsk)->effective_cpus.
+commit f78c581e22d4b33359ac3462e8d0504735df01f4 upstream.
 
-This is done via a call to do_set_cpus_allowed() in the context of
-cpuset_cpus_allowed_fallback() made by the scheduler when this case is
-detected. This is the only call made to cpuset_cpus_allowed_fallback()
-in the latest mainline kernel.
+Otherwise, you may get divided-by-zero error or corrput the SMU fan
+control feature.
 
-However, this is not sane behavior.
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Tested-by: Slava Abramov <slava.abramov@amd.com>
+Acked-by: Slava Abramov <slava.abramov@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-I will demonstrate this on a system running the latest upstream kernel
-with the following initial configuration:
-
-	# grep -i cpu /proc/$$/status
-	Cpus_allowed:	ffffffff,fffffff
-	Cpus_allowed_list:	0-63
-
-(Where cpus 32-63 are provided via smt.)
-
-If we limit our current shell process to cpu2 only and then offline it
-and reonline it:
-
-	# taskset -p 4 $$
-	pid 2272's current affinity mask: ffffffffffffffff
-	pid 2272's new affinity mask: 4
-
-	# echo off > /sys/devices/system/cpu/cpu2/online
-	# dmesg | tail -3
-	[ 2195.866089] process 2272 (bash) no longer affine to cpu2
-	[ 2195.872700] IRQ 114: no longer affine to CPU2
-	[ 2195.879128] smpboot: CPU 2 is now offline
-
-	# echo on > /sys/devices/system/cpu/cpu2/online
-	# dmesg | tail -1
-	[ 2617.043572] smpboot: Booting Node 0 Processor 2 APIC 0x4
-
-We see that our current process now has an affinity mask containing
-every cpu available on the system _except_ the one we originally
-constrained it to:
-
-	# grep -i cpu /proc/$$/status
-	Cpus_allowed:   ffffffff,fffffffb
-	Cpus_allowed_list:      0-1,3-63
-
-This is not sane behavior, as the scheduler can now not only place the
-process on previously forbidden cpus, it can't even schedule it on
-the cpu it was originally constrained to!
-
-Other cases result in even more exotic affinity masks. Take for instance
-a process with an affinity mask containing only cpus provided by smt at
-the moment that smt is toggled, in a configuration such as the following:
-
-	# taskset -p f000000000 $$
-	# grep -i cpu /proc/$$/status
-	Cpus_allowed:	000000f0,00000000
-	Cpus_allowed_list:	36-39
-
-A double toggle of smt results in the following behavior:
-
-	# echo off > /sys/devices/system/cpu/smt/control
-	# echo on > /sys/devices/system/cpu/smt/control
-	# grep -i cpus /proc/$$/status
-	Cpus_allowed:	ffffff00,ffffffff
-	Cpus_allowed_list:	0-31,40-63
-
-This is even less sane than the previous case, as the new affinity mask
-excludes all smt-provided cpus with ids less than those that were
-previously in the affinity mask, as well as those that were actually in
-the mask.
-
-With this patch applied, both of these cases end in the following state:
-
-	# grep -i cpu /proc/$$/status
-	Cpus_allowed:	ffffffff,ffffffff
-	Cpus_allowed_list:	0-63
-
-The original policy is discarded. Though not ideal, it is the simplest way
-to restore sanity to this fallback case without reinventing the cpuset
-wheel that rolls down the kernel just fine in cgroup v2. A user who wishes
-for the previous affinity mask to be restored in this fallback case can use
-that mechanism instead.
-
-This patch modifies scheduler behavior by instead resetting the mask to
-task_cs(tsk)->cpus_allowed by default, and cpu_possible mask in legacy
-mode. I tested the cases above on both modes.
-
-Note that the scheduler uses this fallback mechanism if and only if
-_every_ other valid avenue has been traveled, and it is the last resort
-before calling BUG().
-
-Suggested-by: Waiman Long <longman@redhat.com>
-Suggested-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Joel Savitz <jsavitz@redhat.com>
-Acked-by: Phil Auld <pauld@redhat.com>
-Acked-by: Waiman Long <longman@redhat.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cpuset.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/powerplay/hwmgr/process_pptables_v1_0.c |    4 +++-
+ drivers/gpu/drm/amd/powerplay/inc/hwmgr.h                   |    1 +
+ drivers/gpu/drm/amd/powerplay/smumgr/polaris10_smumgr.c     |    4 ++++
+ 3 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index 4834c4214e9c..6c9deb2cc687 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -3255,10 +3255,23 @@ void cpuset_cpus_allowed(struct task_struct *tsk, struct cpumask *pmask)
- 	spin_unlock_irqrestore(&callback_lock, flags);
- }
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/process_pptables_v1_0.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/process_pptables_v1_0.c
+@@ -916,8 +916,10 @@ static int init_thermal_controller(
+ 			PHM_PlatformCaps_ThermalController
+ 		  );
  
-+/**
-+ * cpuset_cpus_allowed_fallback - final fallback before complete catastrophe.
-+ * @tsk: pointer to task_struct with which the scheduler is struggling
-+ *
-+ * Description: In the case that the scheduler cannot find an allowed cpu in
-+ * tsk->cpus_allowed, we fall back to task_cs(tsk)->cpus_allowed. In legacy
-+ * mode however, this value is the same as task_cs(tsk)->effective_cpus,
-+ * which will not contain a sane cpumask during cases such as cpu hotplugging.
-+ * This is the absolute last resort for the scheduler and it is only used if
-+ * _every_ other avenue has been traveled.
-+ **/
+-	if (0 == powerplay_table->usFanTableOffset)
++	if (0 == powerplay_table->usFanTableOffset) {
++		hwmgr->thermal_controller.use_hw_fan_control = 1;
+ 		return 0;
++	}
+ 
+ 	fan_table = (const PPTable_Generic_SubTable_Header *)
+ 		(((unsigned long)powerplay_table) +
+--- a/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h
++++ b/drivers/gpu/drm/amd/powerplay/inc/hwmgr.h
+@@ -677,6 +677,7 @@ struct pp_thermal_controller_info {
+ 	uint8_t ucType;
+ 	uint8_t ucI2cLine;
+ 	uint8_t ucI2cAddress;
++	uint8_t use_hw_fan_control;
+ 	struct pp_fan_info fanInfo;
+ 	struct pp_advance_fan_control_parameters advanceFanControlParameters;
+ };
+--- a/drivers/gpu/drm/amd/powerplay/smumgr/polaris10_smumgr.c
++++ b/drivers/gpu/drm/amd/powerplay/smumgr/polaris10_smumgr.c
+@@ -2038,6 +2038,10 @@ static int polaris10_thermal_setup_fan_t
+ 		return 0;
+ 	}
+ 
++	/* use hardware fan control */
++	if (hwmgr->thermal_controller.use_hw_fan_control)
++		return 0;
 +
- void cpuset_cpus_allowed_fallback(struct task_struct *tsk)
- {
- 	rcu_read_lock();
--	do_set_cpus_allowed(tsk, task_cs(tsk)->effective_cpus);
-+	do_set_cpus_allowed(tsk, is_in_v2_mode() ?
-+		task_cs(tsk)->cpus_allowed : cpu_possible_mask);
- 	rcu_read_unlock();
- 
- 	/*
--- 
-2.20.1
-
+ 	tmp64 = hwmgr->thermal_controller.advanceFanControlParameters.
+ 			usPWMMin * duty100;
+ 	do_div(tmp64, 10000);
 
 
