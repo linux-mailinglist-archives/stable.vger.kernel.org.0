@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21DD86252C
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:49:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7C4C6224D
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732705AbfGHPQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:16:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40104 "EHLO mail.kernel.org"
+        id S2388358AbfGHPY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:24:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732697AbfGHPQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:16:58 -0400
+        id S2388357AbfGHPY3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:24:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7021B21707;
-        Mon,  8 Jul 2019 15:16:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6EE02173C;
+        Mon,  8 Jul 2019 15:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599017;
-        bh=UqYaX4fyRfNX1yoi0yvqj0iqzoEcaynzbhGcyc602uk=;
+        s=default; t=1562599468;
+        bh=nbg1uAtIg45BUypnjfpcZWL6DWQHO8lCwuS5lg5vDss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nY2T2y1VHc+pPhSRgo9Yg/EBUYPkGcoSzPWKxdR0rixmncnC2swEKLmfcjGniHK6N
-         UBjqrNwF7b3CvFg6lbLrpwffGXMv3e3taNsM1mzjwsWtjXh91kHfCYCwLj1kfldSWE
-         PMbl6SnO8v91U8pS6Zbpwx4MRwhLy0snWo1P7aKU=
+        b=eNkG/JCfE6RBsLN+gaG/KDl1vzNlt8EUl7CIh5HKD4FrZBosikvw6mH4YkvS9D1GB
+         b+SuKCUxe0Wn1LQ47mQGYsPawPXHYIVMX3buSwr96QvDg2cKpk6Css63+iDIrm0t9v
+         zqbzkmc4sPi229mTL3DiNsmReQrN21aqkxQQcL/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Axel Lin <axel.lin@ingics.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
+        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 50/73] spi: bitbang: Fix NULL pointer dereference in spi_unregister_master
+Subject: [PATCH 4.14 08/56] ASoC: max98090: remove 24-bit format support if RJ is 0
 Date:   Mon,  8 Jul 2019 17:13:00 +0200
-Message-Id: <20190708150524.011326537@linuxfoundation.org>
+Message-Id: <20190708150518.499283297@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,84 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5caaf29af5ca82d5da8bc1d0ad07d9e664ccf1d8 ]
+[ Upstream commit 5628c8979642a076f91ee86c3bae5ad251639af0 ]
 
-If spi_register_master fails in spi_bitbang_start
-because device_add failure, We should return the
-error code other than 0, otherwise calling
-spi_bitbang_stop may trigger NULL pointer dereference
-like this:
+The supported formats are S16_LE and S24_LE now. However, by datasheet
+of max98090, S24_LE is only supported when it is in the right justified
+mode. We should remove 24-bit format if it is not in that mode to avoid
+triggering error.
 
-BUG: KASAN: null-ptr-deref in __list_del_entry_valid+0x45/0xd0
-Read of size 8 at addr 0000000000000000 by task syz-executor.0/3661
-
-CPU: 0 PID: 3661 Comm: syz-executor.0 Not tainted 5.1.0+ #28
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-Call Trace:
- dump_stack+0xa9/0x10e
- ? __list_del_entry_valid+0x45/0xd0
- ? __list_del_entry_valid+0x45/0xd0
- __kasan_report+0x171/0x18d
- ? __list_del_entry_valid+0x45/0xd0
- kasan_report+0xe/0x20
- __list_del_entry_valid+0x45/0xd0
- spi_unregister_controller+0x99/0x1b0
- spi_lm70llp_attach+0x3ae/0x4b0 [spi_lm70llp]
- ? 0xffffffffc1128000
- ? klist_next+0x131/0x1e0
- ? driver_detach+0x40/0x40 [parport]
- port_check+0x3b/0x50 [parport]
- bus_for_each_dev+0x115/0x180
- ? subsys_dev_iter_exit+0x20/0x20
- __parport_register_driver+0x1f0/0x210 [parport]
- ? 0xffffffffc1150000
- do_one_initcall+0xb9/0x3b5
- ? perf_trace_initcall_level+0x270/0x270
- ? kasan_unpoison_shadow+0x30/0x40
- ? kasan_unpoison_shadow+0x30/0x40
- do_init_module+0xe0/0x330
- load_module+0x38eb/0x4270
- ? module_frob_arch_sections+0x20/0x20
- ? kernel_read_file+0x188/0x3f0
- ? find_held_lock+0x6d/0xd0
- ? fput_many+0x1a/0xe0
- ? __do_sys_finit_module+0x162/0x190
- __do_sys_finit_module+0x162/0x190
- ? __ia32_sys_init_module+0x40/0x40
- ? __mutex_unlock_slowpath+0xb4/0x3f0
- ? wait_for_completion+0x240/0x240
- ? vfs_write+0x160/0x2a0
- ? lockdep_hardirqs_off+0xb5/0x100
- ? mark_held_locks+0x1a/0x90
- ? do_syscall_64+0x14/0x2a0
- do_syscall_64+0x72/0x2a0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 702a4879ec33 ("spi: bitbang: Let spi_bitbang_start() take a reference to master")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Axel Lin <axel.lin@ingics.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bitbang.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/max98090.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/spi/spi-bitbang.c b/drivers/spi/spi-bitbang.c
-index 3aa9e6e3dac8..4ef54436b9d4 100644
---- a/drivers/spi/spi-bitbang.c
-+++ b/drivers/spi/spi-bitbang.c
-@@ -392,7 +392,7 @@ int spi_bitbang_start(struct spi_bitbang *bitbang)
- 	if (ret)
- 		spi_master_put(master);
- 
--	return 0;
-+	return ret;
+diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
+index cc66ea5cc776..3fe09828745a 100644
+--- a/sound/soc/codecs/max98090.c
++++ b/sound/soc/codecs/max98090.c
+@@ -1924,6 +1924,21 @@ static int max98090_configure_dmic(struct max98090_priv *max98090,
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(spi_bitbang_start);
  
++static int max98090_dai_startup(struct snd_pcm_substream *substream,
++				struct snd_soc_dai *dai)
++{
++	struct snd_soc_component *component = dai->component;
++	struct max98090_priv *max98090 = snd_soc_component_get_drvdata(component);
++	unsigned int fmt = max98090->dai_fmt;
++
++	/* Remove 24-bit format support if it is not in right justified mode. */
++	if ((fmt & SND_SOC_DAIFMT_FORMAT_MASK) != SND_SOC_DAIFMT_RIGHT_J) {
++		substream->runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
++		snd_pcm_hw_constraint_msbits(substream->runtime, 0, 16, 16);
++	}
++	return 0;
++}
++
+ static int max98090_dai_hw_params(struct snd_pcm_substream *substream,
+ 				   struct snd_pcm_hw_params *params,
+ 				   struct snd_soc_dai *dai)
+@@ -2331,6 +2346,7 @@ EXPORT_SYMBOL_GPL(max98090_mic_detect);
+ #define MAX98090_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE)
+ 
+ static const struct snd_soc_dai_ops max98090_dai_ops = {
++	.startup = max98090_dai_startup,
+ 	.set_sysclk = max98090_dai_set_sysclk,
+ 	.set_fmt = max98090_dai_set_fmt,
+ 	.set_tdm_slot = max98090_set_tdm_slot,
 -- 
 2.20.1
 
