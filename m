@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE7B862394
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A914462473
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:42:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390231AbfGHPdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:33:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34954 "EHLO mail.kernel.org"
+        id S2389738AbfGHPm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:42:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390245AbfGHPdB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:33:01 -0400
+        id S1728834AbfGHPY7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:24:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6591221738;
-        Mon,  8 Jul 2019 15:32:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F2B92173C;
+        Mon,  8 Jul 2019 15:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599979;
-        bh=mHHIbmpjx1k4fYeuoQTgBXEaPh2UYat1E6zQj+kBDDA=;
+        s=default; t=1562599498;
+        bh=Ty4aiqji0oUjcxojs8aLHf5ZYylEYqKOuDuYN2qOtUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1bYoXD8sU820SGrWVvLjMP8U57KiwGNQ8mXyQHLinYzyaRJSh+yrzNeWqlrCHJly5
-         jJHHe9ssn/sRgUIvDTSmiHoOhZUU5XxAHinIb1dYVtXAdvaQB4bx16Gx0QUrimoh8W
-         dfhqFPuZwpIntrU3GLmTMQRhLisUEwS1mispxFcU=
+        b=sW/vQYMmCjavUtOHqNXpQFCwzKpSw9CIIDdUAmwnOhGFYQakLTXEnFcEMLzj1zH87
+         KeCHg5MnAQm4xjHl1/unGCRE62SIckhqgVybPz4quYT+B0Z90U1f3prNfks8AiVs5d
+         08ZCtRRHFJkiHkAmbyfdbxmCJOp4zihrHiX3h7T8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 55/96] ftrace: Fix NULL pointer dereference in free_ftrace_func_mapper()
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        Huang Rui <ray.huang@amd.com>
+Subject: [PATCH 4.14 35/56] drm/amdgpu/gfx9: use reset default for PA_SC_FIFO_SIZE
 Date:   Mon,  8 Jul 2019 17:13:27 +0200
-Message-Id: <20190708150529.484926709@linuxfoundation.org>
+Message-Id: <20190708150523.171670023@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,112 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 04e03d9a616c19a47178eaca835358610e63a1dd ]
+From: Alex Deucher <alexander.deucher@amd.com>
 
-The mapper may be NULL when called from register_ftrace_function_probe()
-with probe->data == NULL.
+commit 25f09f858835b0e9a06213811031190a17d8ab78 upstream.
 
-This issue can be reproduced as follow (it may be covered by compiler
-optimization sometime):
+Recommended by the hw team.
 
-/ # cat /sys/kernel/debug/tracing/set_ftrace_filter
-#### all functions enabled ####
-/ # echo foo_bar:dump > /sys/kernel/debug/tracing/set_ftrace_filter
-[  206.949100] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-[  206.952402] Mem abort info:
-[  206.952819]   ESR = 0x96000006
-[  206.955326]   Exception class = DABT (current EL), IL = 32 bits
-[  206.955844]   SET = 0, FnV = 0
-[  206.956272]   EA = 0, S1PTW = 0
-[  206.956652] Data abort info:
-[  206.957320]   ISV = 0, ISS = 0x00000006
-[  206.959271]   CM = 0, WnR = 0
-[  206.959938] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000419f3a000
-[  206.960483] [0000000000000000] pgd=0000000411a87003, pud=0000000411a83003, pmd=0000000000000000
-[  206.964953] Internal error: Oops: 96000006 [#1] SMP
-[  206.971122] Dumping ftrace buffer:
-[  206.973677]    (ftrace buffer empty)
-[  206.975258] Modules linked in:
-[  206.976631] Process sh (pid: 281, stack limit = 0x(____ptrval____))
-[  206.978449] CPU: 10 PID: 281 Comm: sh Not tainted 5.2.0-rc1+ #17
-[  206.978955] Hardware name: linux,dummy-virt (DT)
-[  206.979883] pstate: 60000005 (nZCv daif -PAN -UAO)
-[  206.980499] pc : free_ftrace_func_mapper+0x2c/0x118
-[  206.980874] lr : ftrace_count_free+0x68/0x80
-[  206.982539] sp : ffff0000182f3ab0
-[  206.983102] x29: ffff0000182f3ab0 x28: ffff8003d0ec1700
-[  206.983632] x27: ffff000013054b40 x26: 0000000000000001
-[  206.984000] x25: ffff00001385f000 x24: 0000000000000000
-[  206.984394] x23: ffff000013453000 x22: ffff000013054000
-[  206.984775] x21: 0000000000000000 x20: ffff00001385fe28
-[  206.986575] x19: ffff000013872c30 x18: 0000000000000000
-[  206.987111] x17: 0000000000000000 x16: 0000000000000000
-[  206.987491] x15: ffffffffffffffb0 x14: 0000000000000000
-[  206.987850] x13: 000000000017430e x12: 0000000000000580
-[  206.988251] x11: 0000000000000000 x10: cccccccccccccccc
-[  206.988740] x9 : 0000000000000000 x8 : ffff000013917550
-[  206.990198] x7 : ffff000012fac2e8 x6 : ffff000012fac000
-[  206.991008] x5 : ffff0000103da588 x4 : 0000000000000001
-[  206.991395] x3 : 0000000000000001 x2 : ffff000013872a28
-[  206.991771] x1 : 0000000000000000 x0 : 0000000000000000
-[  206.992557] Call trace:
-[  206.993101]  free_ftrace_func_mapper+0x2c/0x118
-[  206.994827]  ftrace_count_free+0x68/0x80
-[  206.995238]  release_probe+0xfc/0x1d0
-[  206.995555]  register_ftrace_function_probe+0x4a8/0x868
-[  206.995923]  ftrace_trace_probe_callback.isra.4+0xb8/0x180
-[  206.996330]  ftrace_dump_callback+0x50/0x70
-[  206.996663]  ftrace_regex_write.isra.29+0x290/0x3a8
-[  206.997157]  ftrace_filter_write+0x44/0x60
-[  206.998971]  __vfs_write+0x64/0xf0
-[  206.999285]  vfs_write+0x14c/0x2f0
-[  206.999591]  ksys_write+0xbc/0x1b0
-[  206.999888]  __arm64_sys_write+0x3c/0x58
-[  207.000246]  el0_svc_common.constprop.0+0x408/0x5f0
-[  207.000607]  el0_svc_handler+0x144/0x1c8
-[  207.000916]  el0_svc+0x8/0xc
-[  207.003699] Code: aa0003f8 a9025bf5 aa0103f5 f946ea80 (f9400303)
-[  207.008388] ---[ end trace 7b6d11b5f542bdf1 ]---
-[  207.010126] Kernel panic - not syncing: Fatal exception
-[  207.011322] SMP: stopping secondary CPUs
-[  207.013956] Dumping ftrace buffer:
-[  207.014595]    (ftrace buffer empty)
-[  207.015632] Kernel Offset: disabled
-[  207.017187] CPU features: 0x002,20006008
-[  207.017985] Memory Limit: none
-[  207.019825] ---[ end Kernel panic - not syncing: Fatal exception ]---
+Reviewed-and-Tested-by: Huang Rui <ray.huang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Link: http://lkml.kernel.org/r/20190606031754.10798-1-liwei391@huawei.com
-
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ftrace.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c |   19 -------------------
+ 1 file changed, 19 deletions(-)
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 045e7f46a74a..2469d54b3e43 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -4230,10 +4230,13 @@ void free_ftrace_func_mapper(struct ftrace_func_mapper *mapper,
- 	struct ftrace_func_entry *entry;
- 	struct ftrace_func_map *map;
- 	struct hlist_head *hhd;
--	int size = 1 << mapper->hash.size_bits;
--	int i;
-+	int size, i;
-+
-+	if (!mapper)
-+		return;
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -1534,25 +1534,6 @@ static void gfx_v9_0_gpu_init(struct amd
+ 	mutex_unlock(&adev->srbm_mutex);
  
- 	if (free_func && mapper->hash.count) {
-+		size = 1 << mapper->hash.size_bits;
- 		for (i = 0; i < size; i++) {
- 			hhd = &mapper->hash.buckets[i];
- 			hlist_for_each_entry(entry, hhd, hlist) {
--- 
-2.20.1
-
+ 	gfx_v9_0_init_compute_vmid(adev);
+-
+-	mutex_lock(&adev->grbm_idx_mutex);
+-	/*
+-	 * making sure that the following register writes will be broadcasted
+-	 * to all the shaders
+-	 */
+-	gfx_v9_0_select_se_sh(adev, 0xffffffff, 0xffffffff, 0xffffffff);
+-
+-	WREG32_SOC15(GC, 0, mmPA_SC_FIFO_SIZE,
+-		   (adev->gfx.config.sc_prim_fifo_size_frontend <<
+-			PA_SC_FIFO_SIZE__SC_FRONTEND_PRIM_FIFO_SIZE__SHIFT) |
+-		   (adev->gfx.config.sc_prim_fifo_size_backend <<
+-			PA_SC_FIFO_SIZE__SC_BACKEND_PRIM_FIFO_SIZE__SHIFT) |
+-		   (adev->gfx.config.sc_hiz_tile_fifo_size <<
+-			PA_SC_FIFO_SIZE__SC_HIZ_TILE_FIFO_SIZE__SHIFT) |
+-		   (adev->gfx.config.sc_earlyz_tile_fifo_size <<
+-			PA_SC_FIFO_SIZE__SC_EARLYZ_TILE_FIFO_SIZE__SHIFT));
+-	mutex_unlock(&adev->grbm_idx_mutex);
+-
+ }
+ 
+ static void gfx_v9_0_wait_for_rlc_serdes(struct amdgpu_device *adev)
 
 
