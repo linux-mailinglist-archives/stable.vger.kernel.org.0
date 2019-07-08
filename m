@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3F116240F
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:40:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C18EF621A3
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389261AbfGHP2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:28:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56906 "EHLO mail.kernel.org"
+        id S1732924AbfGHPR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:17:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389277AbfGHP2Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:28:24 -0400
+        id S1732895AbfGHPRu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:17:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5533A21537;
-        Mon,  8 Jul 2019 15:28:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5446216E3;
+        Mon,  8 Jul 2019 15:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599703;
-        bh=II54N9oyz9p4+uMfs8XurpWIeyvXpBd2PwxshOEByrs=;
+        s=default; t=1562599070;
+        bh=XP/wjr61UkwKqFacjGA1z8OfOfSKKAteAPObbnI2bmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C5qixreJixuIZ6SD0u+EUOYlla5g70gB//JeAgvFv8E0UGKCDVOHHCnpDZ95QfdQJ
-         ivADcdXrj5PX4njU66MtvFqP3e+/2Gqi0avFkST/r1gRw3xMvAdZRUc4WKQM1GOhr8
-         CD9NzHpi5QaSJaggEzE9HqsqnUXBlsSs/LwpvbV4=
+        b=lcqHqrws4HO19Zd4iG9Bu+/w4aMV0GQwqNSmwSuMbpSm1VcIj4DILHWUkXJmogsvV
+         IEQz+NNDsTTSS4R2KYRswNqDpt7EZpqqG5D4/upGP9wXFdIP3tJ5Vy2DGFDuYpf3PA
+         7n36KOoo8TwN85WzZtERYoBBLSFoiPBMvYgk2f6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         syzbot+f7baccc38dcc1e094e77@syzkaller.appspotmail.com,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Eric Biggers <ebiggers@kernel.org>
-Subject: [PATCH 4.19 50/90] lib/mpi: Fix karactx leak in mpi_powm
+Subject: [PATCH 4.4 67/73] lib/mpi: Fix karactx leak in mpi_powm
 Date:   Mon,  8 Jul 2019 17:13:17 +0200
-Message-Id: <20190708150525.072211436@linuxfoundation.org>
+Message-Id: <20190708150524.807209089@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,7 +76,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	mpi_ptr_t xp_marker = NULL;
  	mpi_ptr_t tspace = NULL;
  	mpi_ptr_t rp, ep, mp, bp;
-@@ -163,13 +164,11 @@ int mpi_powm(MPI res, MPI base, MPI exp,
+@@ -164,13 +165,11 @@ int mpi_powm(MPI res, MPI base, MPI exp,
  		int c;
  		mpi_limb_t e;
  		mpi_limb_t carry_limb;
@@ -90,7 +90,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		negative_result = (ep[0] & 1) && base->sign;
  
  		i = esize - 1;
-@@ -294,8 +293,6 @@ int mpi_powm(MPI res, MPI base, MPI exp,
+@@ -295,8 +294,6 @@ int mpi_powm(MPI res, MPI base, MPI exp,
  		if (mod_shift_cnt)
  			mpihelp_rshift(rp, rp, rsize, mod_shift_cnt);
  		MPN_NORMALIZE(rp, rsize);
@@ -99,7 +99,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	}
  
  	if (negative_result && rsize) {
-@@ -312,6 +309,7 @@ int mpi_powm(MPI res, MPI base, MPI exp,
+@@ -313,6 +310,7 @@ int mpi_powm(MPI res, MPI base, MPI exp,
  leave:
  	rc = 0;
  enomem:
