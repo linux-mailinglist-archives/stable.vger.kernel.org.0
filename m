@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9202623B6
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C116E6218B
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390018AbfGHPb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:31:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33398 "EHLO mail.kernel.org"
+        id S1732742AbfGHPRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:17:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387573AbfGHPb6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:31:58 -0400
+        id S1732738AbfGHPRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:17:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19D4B216C4;
-        Mon,  8 Jul 2019 15:31:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54D6E216E3;
+        Mon,  8 Jul 2019 15:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599917;
-        bh=WNVKe9XdnyGsS8CB+43/HUL12WZxv+JKCoH2Y64xShw=;
+        s=default; t=1562599024;
+        bh=IAXx6J5+4g+IypF8z+h3SMSC6jRMrnV/kPpeNlSDu0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mB5k8D9lkkRuLCbsEwPHo0kIu+YeFO2zo0pGUAYrWpG3Ghyj5gm8d9frvzOoNxL1m
-         NdzKJczR/GdpLRS0jzgevNwAMVhDe2VvXzfxYdMrER7x9MgL8tM+nRbNoYUFzL9RZc
-         xieuPaqv2XqhrCvPqbIjxKuQGKerO0/kIIwZnO6A=
+        b=YiSrHkec6fFcwP02N6ZqhqvRQmAukDcXpfMPI82PLTFJrLfyMAvf/wm2pVfH5f0i0
+         rEq/mOjgFWZrHK7vGaihW/N92KLP3bboTrsSMnCPLsSEtr1wIoNRD66V2j2f+D7Lw5
+         54rIHQSp2JG2Qhx8bCQwmHLo7TBQ4I0WbsTKzAZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Sylvain Lemieux <slemieux.tyco@gmail.com>,
+        James Grant <jamesg@zaltys.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 31/96] ASoC: Intel: cht_bsw_max98090: fix kernel oops with platform_name override
+Subject: [PATCH 4.4 53/73] usb: gadget: udc: lpc32xx: allocate descriptor with GFP_ATOMIC
 Date:   Mon,  8 Jul 2019 17:13:03 +0200
-Message-Id: <20190708150528.235698557@linuxfoundation.org>
+Message-Id: <20190708150524.153548224@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fb54555134b9b17835545e4d096b5550c27eed64 ]
+[ Upstream commit fbc318afadd6e7ae2252d6158cf7d0c5a2132f7d ]
 
-The platform override code uses devm_ functions to allocate memory for
-the new name but the card device is not initialized. Fix by moving the
-init earlier.
+Gadget drivers may queue request in interrupt context. This would lead to
+a descriptor allocation in that context. In that case we would hit
+BUG_ON(in_interrupt()) in __get_vm_area_node.
 
-Fixes: 7e7e24d7c7ff0 ("ASoC: Intel: cht_bsw_max98090_ti: platform name fixup support")
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Also remove the unnecessary cast.
+
+Acked-by: Sylvain Lemieux <slemieux.tyco@gmail.com>
+Tested-by: James Grant <jamesg@zaltys.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/cht_bsw_max98090_ti.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/lpc32xx_udc.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/boards/cht_bsw_max98090_ti.c b/sound/soc/intel/boards/cht_bsw_max98090_ti.c
-index c0e0844f75b9..572e336ae0f9 100644
---- a/sound/soc/intel/boards/cht_bsw_max98090_ti.c
-+++ b/sound/soc/intel/boards/cht_bsw_max98090_ti.c
-@@ -454,6 +454,7 @@ static int snd_cht_mc_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/usb/gadget/udc/lpc32xx_udc.c b/drivers/usb/gadget/udc/lpc32xx_udc.c
+index 00b5006baf15..90d24f62bd81 100644
+--- a/drivers/usb/gadget/udc/lpc32xx_udc.c
++++ b/drivers/usb/gadget/udc/lpc32xx_udc.c
+@@ -964,8 +964,7 @@ static struct lpc32xx_usbd_dd_gad *udc_dd_alloc(struct lpc32xx_udc *udc)
+ 	dma_addr_t			dma;
+ 	struct lpc32xx_usbd_dd_gad	*dd;
  
- 	/* override plaform name, if required */
-+	snd_soc_card_cht.dev = &pdev->dev;
- 	mach = (&pdev->dev)->platform_data;
- 	platform_name = mach->mach_params.platform;
+-	dd = (struct lpc32xx_usbd_dd_gad *) dma_pool_alloc(
+-			udc->dd_cache, (GFP_KERNEL | GFP_DMA), &dma);
++	dd = dma_pool_alloc(udc->dd_cache, GFP_ATOMIC | GFP_DMA, &dma);
+ 	if (dd)
+ 		dd->this_dma = dma;
  
-@@ -463,7 +464,6 @@ static int snd_cht_mc_probe(struct platform_device *pdev)
- 		return ret_val;
- 
- 	/* register the soc card */
--	snd_soc_card_cht.dev = &pdev->dev;
- 	snd_soc_card_set_drvdata(&snd_soc_card_cht, drv);
- 
- 	if (drv->quirks & QUIRK_PMC_PLT_CLK_0)
 -- 
 2.20.1
 
