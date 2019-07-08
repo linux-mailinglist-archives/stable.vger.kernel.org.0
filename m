@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BE5962355
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 256FB62357
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390529AbfGHPeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36604 "EHLO mail.kernel.org"
+        id S2390548AbfGHPe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:34:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390524AbfGHPeX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:34:23 -0400
+        id S2390543AbfGHPe2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:34:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51D35204EC;
-        Mon,  8 Jul 2019 15:34:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1CF520651;
+        Mon,  8 Jul 2019 15:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562600061;
-        bh=LAw8ROyevx5HxY16X/9v0fGtkIyqotvJSRgnPKReu1k=;
+        s=default; t=1562600067;
+        bh=i6acdeAxEMRD6gcNSjYZvA9AZg+jD55NhOTvfBmifLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EIJkxilaFxLv2cfjTzNrf0sy5LVRJKSCFSwkW4q9KWHbKntHT4yU9L1yKSF9EAGH4
-         1HrMApOTscPNx3SZ852luv79mpghnD4UFRZAb3iQmeilCWCaGHtXRHe2mQSEPvyGlx
-         p31gQ42ybimVH7kdX9jBBYgoHv7emDL8F6ozKYDg=
+        b=r/TCMQ8VSGHTv7b/OFkcpcWG9Ml9c0sGF8jEfQG/A4rBLKABrI55xfv6c2/hHgFu2
+         +rXpdE9jfcOyTEmfcnP5oUljU9Y/zc47uRGa1nOgmyM1cxTmaesGaylRo1BdwOl2dv
+         BP+PuzBY4XOl8G3ovPkXWKL+2IEEEBNEzbKrC5Vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Hillf Danton <hdanton@sina.com>, Roman Gushchin <guro@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.1 81/96] mm/vmscan.c: prevent useless kswapd loops
-Date:   Mon,  8 Jul 2019 17:13:53 +0200
-Message-Id: <20190708150530.838326773@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        Nikolay Borisov <nborisov@suse.com>
+Subject: [PATCH 5.1 82/96] btrfs: Ensure replaced device doesnt have pending chunk allocation
+Date:   Mon,  8 Jul 2019 17:13:54 +0200
+Message-Id: <20190708150530.889083692@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
 References: <20190708150526.234572443@linuxfoundation.org>
@@ -50,105 +43,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit dffcac2cb88e4ec5906235d64a83d802580b119e upstream.
+commit debd1c065d2037919a7da67baf55cc683fee09f0 upstream.
 
-In production we have noticed hard lockups on large machines running
-large jobs due to kswaps hoarding lru lock within isolate_lru_pages when
-sc->reclaim_idx is 0 which is a small zone.  The lru was couple hundred
-GiBs and the condition (page_zonenum(page) > sc->reclaim_idx) in
-isolate_lru_pages() was basically skipping GiBs of pages while holding
-the LRU spinlock with interrupt disabled.
+Recent FITRIM work, namely bbbf7243d62d ("btrfs: combine device update
+operations during transaction commit") combined the way certain
+operations are recoded in a transaction. As a result an ASSERT was added
+in dev_replace_finish to ensure the new code works correctly.
+Unfortunately I got reports that it's possible to trigger the assert,
+meaning that during a device replace it's possible to have an unfinished
+chunk allocation on the source device.
 
-On further inspection, it seems like there are two issues:
+This is supposed to be prevented by the fact that a transaction is
+committed before finishing the replace oepration and alter acquiring the
+chunk mutex. This is not sufficient since by the time the transaction is
+committed and the chunk mutex acquired it's possible to allocate a chunk
+depending on the workload being executed on the replaced device. This
+bug has been present ever since device replace was introduced but there
+was never code which checks for it.
 
-(1) If kswapd on the return from balance_pgdat() could not sleep (i.e.
-    node is still unbalanced), the classzone_idx is unintentionally set
-    to 0 and the whole reclaim cycle of kswapd will try to reclaim only
-    the lowest and smallest zone while traversing the whole memory.
+The correct way to fix is to ensure that there is no pending device
+modification operation when the chunk mutex is acquire and if there is
+repeat transaction commit. Unfortunately it's not possible to just
+exclude the source device from btrfs_fs_devices::dev_alloc_list since
+this causes ENOSPC to be hit in transaction commit.
 
-(2) Fundamentally isolate_lru_pages() is really bad when the
-    allocation has woken kswapd for a smaller zone on a very large machine
-    running very large jobs.  It can hoard the LRU spinlock while skipping
-    over 100s of GiBs of pages.
+Fixing that in another way would need to add special cases to handle the
+last writes and forbid new ones. The looped transaction fix is more
+obvious, and can be easily backported. The runtime of dev-replace is
+long so there's no noticeable delay caused by that.
 
-This patch only fixes (1).  (2) needs a more fundamental solution.  To
-fix (1), in the kswapd context, if pgdat->kswapd_classzone_idx is
-invalid use the classzone_idx of the previous kswapd loop otherwise use
-the one the waker has requested.
-
-Link: http://lkml.kernel.org/r/20190701201847.251028-1-shakeelb@google.com
-Fixes: e716f2eb24de ("mm, vmscan: prevent kswapd sleeping prematurely due to mismatched classzone_idx")
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Reviewed-by: Yang Shi <yang.shi@linux.alibaba.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Hillf Danton <hdanton@sina.com>
-Cc: Roman Gushchin <guro@fb.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: David Sterba <dsterba@suse.com>
+Fixes: 391cd9df81ac ("Btrfs: fix unprotected alloc list insertion during the finishing procedure of replace")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/vmscan.c |   27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ fs/btrfs/dev-replace.c |   26 +++++++++++++++++---------
+ fs/btrfs/volumes.c     |    5 ++++-
+ fs/btrfs/volumes.h     |    5 +++++
+ 3 files changed, 26 insertions(+), 10 deletions(-)
 
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -3703,19 +3703,18 @@ out:
- }
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -603,17 +603,25 @@ static int btrfs_dev_replace_finishing(s
+ 	}
+ 	btrfs_wait_ordered_roots(fs_info, U64_MAX, 0, (u64)-1);
  
- /*
-- * pgdat->kswapd_classzone_idx is the highest zone index that a recent
-- * allocation request woke kswapd for. When kswapd has not woken recently,
-- * the value is MAX_NR_ZONES which is not a valid index. This compares a
-- * given classzone and returns it or the highest classzone index kswapd
-- * was recently woke for.
-+ * The pgdat->kswapd_classzone_idx is used to pass the highest zone index to be
-+ * reclaimed by kswapd from the waker. If the value is MAX_NR_ZONES which is not
-+ * a valid index then either kswapd runs for first time or kswapd couldn't sleep
-+ * after previous reclaim attempt (node is still unbalanced). In that case
-+ * return the zone index of the previous kswapd reclaim cycle.
-  */
- static enum zone_type kswapd_classzone_idx(pg_data_t *pgdat,
--					   enum zone_type classzone_idx)
-+					   enum zone_type prev_classzone_idx)
- {
- 	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
--		return classzone_idx;
--
--	return max(pgdat->kswapd_classzone_idx, classzone_idx);
-+		return prev_classzone_idx;
-+	return pgdat->kswapd_classzone_idx;
- }
+-	trans = btrfs_start_transaction(root, 0);
+-	if (IS_ERR(trans)) {
+-		mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
+-		return PTR_ERR(trans);
++	while (1) {
++		trans = btrfs_start_transaction(root, 0);
++		if (IS_ERR(trans)) {
++			mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
++			return PTR_ERR(trans);
++		}
++		ret = btrfs_commit_transaction(trans);
++		WARN_ON(ret);
++		/* keep away write_all_supers() during the finishing procedure */
++		mutex_lock(&fs_info->fs_devices->device_list_mutex);
++		mutex_lock(&fs_info->chunk_mutex);
++		if (src_device->has_pending_chunks) {
++			mutex_unlock(&root->fs_info->chunk_mutex);
++			mutex_unlock(&root->fs_info->fs_devices->device_list_mutex);
++		} else {
++			break;
++		}
+ 	}
+-	ret = btrfs_commit_transaction(trans);
+-	WARN_ON(ret);
  
- static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_order,
-@@ -3856,7 +3855,7 @@ kswapd_try_sleep:
+-	/* keep away write_all_supers() during the finishing procedure */
+-	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+-	mutex_lock(&fs_info->chunk_mutex);
+ 	down_write(&dev_replace->rwsem);
+ 	dev_replace->replace_state =
+ 		scrub_ret ? BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -5222,9 +5222,11 @@ static int __btrfs_alloc_chunk(struct bt
+ 	if (ret)
+ 		goto error_del_extent;
  
- 		/* Read the new order and classzone_idx */
- 		alloc_order = reclaim_order = pgdat->kswapd_order;
--		classzone_idx = kswapd_classzone_idx(pgdat, 0);
-+		classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
- 		pgdat->kswapd_order = 0;
- 		pgdat->kswapd_classzone_idx = MAX_NR_ZONES;
+-	for (i = 0; i < map->num_stripes; i++)
++	for (i = 0; i < map->num_stripes; i++) {
+ 		btrfs_device_set_bytes_used(map->stripes[i].dev,
+ 				map->stripes[i].dev->bytes_used + stripe_size);
++		map->stripes[i].dev->has_pending_chunks = true;
++	}
  
-@@ -3910,8 +3909,12 @@ void wakeup_kswapd(struct zone *zone, gf
- 	if (!cpuset_zone_allowed(zone, gfp_flags))
- 		return;
- 	pgdat = zone->zone_pgdat;
--	pgdat->kswapd_classzone_idx = kswapd_classzone_idx(pgdat,
--							   classzone_idx);
+ 	atomic64_sub(stripe_size * map->num_stripes, &info->free_chunk_space);
+ 
+@@ -7716,6 +7718,7 @@ void btrfs_update_commit_device_bytes_us
+ 		for (i = 0; i < map->num_stripes; i++) {
+ 			dev = map->stripes[i].dev;
+ 			dev->commit_bytes_used = dev->bytes_used;
++			dev->has_pending_chunks = false;
+ 		}
+ 	}
+ 	mutex_unlock(&fs_info->chunk_mutex);
+--- a/fs/btrfs/volumes.h
++++ b/fs/btrfs/volumes.h
+@@ -54,6 +54,11 @@ struct btrfs_device {
+ 
+ 	spinlock_t io_lock ____cacheline_aligned;
+ 	int running_pending;
++	/* When true means this device has pending chunk alloc in
++	 * current transaction. Protected by chunk_mutex.
++	 */
++	bool has_pending_chunks;
 +
-+	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
-+		pgdat->kswapd_classzone_idx = classzone_idx;
-+	else
-+		pgdat->kswapd_classzone_idx = max(pgdat->kswapd_classzone_idx,
-+						  classzone_idx);
- 	pgdat->kswapd_order = max(pgdat->kswapd_order, order);
- 	if (!waitqueue_active(&pgdat->kswapd_wait))
- 		return;
+ 	/* regular prio bios */
+ 	struct btrfs_pending_bios pending_bios;
+ 	/* sync bios */
 
 
