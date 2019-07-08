@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 525046226E
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:25:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DE87624CE
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388701AbfGHPZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:25:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53482 "EHLO mail.kernel.org"
+        id S2387800AbfGHPVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:21:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388698AbfGHPZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:25:55 -0400
+        id S2387797AbfGHPVq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:21:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA21620665;
-        Mon,  8 Jul 2019 15:25:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2DA7216E3;
+        Mon,  8 Jul 2019 15:21:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599554;
-        bh=cYOXeoA13hecNXNXy0cMxkKIJAkMczHPDQI3mHpfdkM=;
+        s=default; t=1562599305;
+        bh=9HGfosyz4rMqfLNB/CN21fCDu1xqGpNd+21+lEo5jJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kJskHaMpUF64dSkfcz5t9Upc8PC4u89N/40c6eIip5skyqHeV07r3vShilCTeL5ut
-         SQWoIF2a5qep3vkSC+xh/NMbMk/+n9l7txT3QOpJmGxQKtxmbIsQku6QML79i5VbXw
-         vzYiCrp5bNvhkEZf9+G4qo/jFnP4un12FV78NCBE=
+        b=HT/nFM2yjrAaJ6pqBzFZwSRSE3lhAhEYZ9xmvVCeeiRLUqpiIoIn3g88/ijijJ1XU
+         oGY1d3fFLus0lpQkic8Xw6SrJ2D307O0/6Sugdksh8sPVaf1tqKzjJ8nNCrFKSdDTP
+         wbDaekaOyHX4cgOhC6hjVyWkgvNGa8G4zXnFx6l4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sylvain Lemieux <slemieux.tyco@gmail.com>,
-        James Grant <jamesg@zaltys.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Young Xiao <92siuyang@gmail.com>,
         Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/56] usb: gadget: udc: lpc32xx: allocate descriptor with GFP_ATOMIC
+Subject: [PATCH 4.9 071/102] usb: gadget: fusb300_udc: Fix memory leak of fusb300->ep[i]
 Date:   Mon,  8 Jul 2019 17:13:04 +0200
-Message-Id: <20190708150519.367952815@linuxfoundation.org>
+Message-Id: <20190708150530.133921001@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-References: <20190708150514.376317156@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fbc318afadd6e7ae2252d6158cf7d0c5a2132f7d ]
+[ Upstream commit 62fd0e0a24abeebe2c19fce49dd5716d9b62042d ]
 
-Gadget drivers may queue request in interrupt context. This would lead to
-a descriptor allocation in that context. In that case we would hit
-BUG_ON(in_interrupt()) in __get_vm_area_node.
+There is no deallocation of fusb300->ep[i] elements, allocated at
+fusb300_probe.
 
-Also remove the unnecessary cast.
+The patch adds deallocation of fusb300->ep array elements.
 
-Acked-by: Sylvain Lemieux <slemieux.tyco@gmail.com>
-Tested-by: James Grant <jamesg@zaltys.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Young Xiao <92siuyang@gmail.com>
 Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/lpc32xx_udc.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/gadget/udc/fusb300_udc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/usb/gadget/udc/lpc32xx_udc.c b/drivers/usb/gadget/udc/lpc32xx_udc.c
-index 8f32b5ee7734..6df1aded4503 100644
---- a/drivers/usb/gadget/udc/lpc32xx_udc.c
-+++ b/drivers/usb/gadget/udc/lpc32xx_udc.c
-@@ -935,8 +935,7 @@ static struct lpc32xx_usbd_dd_gad *udc_dd_alloc(struct lpc32xx_udc *udc)
- 	dma_addr_t			dma;
- 	struct lpc32xx_usbd_dd_gad	*dd;
+diff --git a/drivers/usb/gadget/udc/fusb300_udc.c b/drivers/usb/gadget/udc/fusb300_udc.c
+index 948845c90e47..351012c498c5 100644
+--- a/drivers/usb/gadget/udc/fusb300_udc.c
++++ b/drivers/usb/gadget/udc/fusb300_udc.c
+@@ -1345,12 +1345,15 @@ static const struct usb_gadget_ops fusb300_gadget_ops = {
+ static int fusb300_remove(struct platform_device *pdev)
+ {
+ 	struct fusb300 *fusb300 = platform_get_drvdata(pdev);
++	int i;
  
--	dd = (struct lpc32xx_usbd_dd_gad *) dma_pool_alloc(
--			udc->dd_cache, (GFP_KERNEL | GFP_DMA), &dma);
-+	dd = dma_pool_alloc(udc->dd_cache, GFP_ATOMIC | GFP_DMA, &dma);
- 	if (dd)
- 		dd->this_dma = dma;
+ 	usb_del_gadget_udc(&fusb300->gadget);
+ 	iounmap(fusb300->reg);
+ 	free_irq(platform_get_irq(pdev, 0), fusb300);
  
+ 	fusb300_free_request(&fusb300->ep[0]->ep, fusb300->ep0_req);
++	for (i = 0; i < FUSB300_MAX_NUM_EP; i++)
++		kfree(fusb300->ep[i]);
+ 	kfree(fusb300);
+ 
+ 	return 0;
+@@ -1494,6 +1497,8 @@ clean_up:
+ 		if (fusb300->ep0_req)
+ 			fusb300_free_request(&fusb300->ep[0]->ep,
+ 				fusb300->ep0_req);
++		for (i = 0; i < FUSB300_MAX_NUM_EP; i++)
++			kfree(fusb300->ep[i]);
+ 		kfree(fusb300);
+ 	}
+ 	if (reg)
 -- 
 2.20.1
 
