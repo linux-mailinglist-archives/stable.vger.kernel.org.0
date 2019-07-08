@@ -2,70 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00BB061A98
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 08:23:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 054EC61AB8
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 08:36:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728470AbfGHGXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 02:23:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38210 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727452AbfGHGXg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 02:23:36 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FDE720665;
-        Mon,  8 Jul 2019 06:23:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562567014;
-        bh=CoycDhSwAV24qIDsR6HCOJQ0ORGEItOGF8m235nH6Pk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pp7sjW/ZxzvbWsNptxEa5Myo2WN8RKRuofPBYxUcdUsnPnAwka3zas3dKLE37q+V1
-         UoQ+VmeZe6K0B3V7TZUCXfePyR6pPuExHCY6TXj+Kdt0+kCAZLoYA55TkrXOo6wAqU
-         qs/pDEx90YAdcimITX7FSq4bHNZJZFL/TjQmrdAs=
-Date:   Mon, 8 Jul 2019 08:23:32 +0200
-From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To:     Joshua Scott <Joshua.Scott@alliedtelesis.co.nz>
-Cc:     "andrew@lunn.ch" <andrew@lunn.ch>,
-        "gregory.clement@bootlin.com" <gregory.clement@bootlin.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "stable-commits@vger.kernel.org" <stable-commits@vger.kernel.org>
-Subject: Re: Patch "ARM: dts: armada-xp-98dx3236: Switch to armada-38x-uart
- serial node" has been added to the 4.14-stable tree
-Message-ID: <20190708062332.GA28690@kroah.com>
-References: <156231715780108@kroah.com>
- <1562565301017.49476@alliedtelesis.co.nz>
+        id S1728819AbfGHGgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 02:36:45 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:46965 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728423AbfGHGgo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 02:36:44 -0400
+Received: by mail-pl1-f194.google.com with SMTP id c2so6141759plz.13
+        for <stable@vger.kernel.org>; Sun, 07 Jul 2019 23:36:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=U5faaB2QS25gWcbZp0574GO7urSkcBDHpx7JYrayj6s=;
+        b=k8AtqPPBAIU9BFgDc1LoJIroW15SoAkdAibpdma80r6iYC7+o9XxniV5aE+9a8Kcy7
+         JsfzCV4LoqoMGDyWAXbL8IqAQQ6ANOsk74ESWQ972qbNDrsf0Irzbm8rGHqwIZwaewZ7
+         xkEHNYC2wm5qTxlC8E8dWNp8znXKneU6XMJxcjqwsyaNSHV6/76+2bcasa5kmADB+UPl
+         hrxgyIIvLY8QT2pUiwg+zKSWMI72eaq9go97g8Mey4V6Z/F0DBGAgHPc80HwTl4ARX9N
+         GUUEo6RT5DvII4ycF6gwUa1uuC0n630vdKZU5IWN1FBLlL+7AtHDxs+y2iUQNTzI8yo1
+         02kg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=U5faaB2QS25gWcbZp0574GO7urSkcBDHpx7JYrayj6s=;
+        b=EZBqWse06ChwqkoFWu2ZepNXRPbhJHRkz6UJDsNQ3PpH/50fOpmbyglmoAfyKoEKF3
+         ADtF0dgdfIiDWxK1dazNxqCkezTljFzZzkyxRFJAFdk/EoPtxw6UxLpcaPRE2325iWI5
+         c11L5U+N+a90RFUoDAfbzpaiixhHEvJcQ/yQA/cp5oabdwRajutUp220P/3iRTQw1voH
+         L7BGxXyvYwf9mfst/IrzSkTj5K7H9UrhNnhdu1PlrWkcEFxCDZNel4XahhZdfyNzyV7c
+         njCk64y0zHZtTshdiNnTKZFOR+V4B/bZ0AIYCy/sPGf0OUQbZ5rsN85Np0rDMODk6Tmp
+         KOXw==
+X-Gm-Message-State: APjAAAWlohN24KolPgnH1fQ6NdxL7tOlY5qe29Wpev0z/LnFtbvApsyg
+        6LwAbkmj82tE8uIgg6gRIB03GA==
+X-Google-Smtp-Source: APXvYqxA2c9ltYeJuPS/96QyMzXMHZoAV+lGrhI7hijTtcZlfz7f4W53t2DqphIMtl/XnK0J1m4Lvw==
+X-Received: by 2002:a17:902:724:: with SMTP id 33mr21908419pli.49.1562567804038;
+        Sun, 07 Jul 2019 23:36:44 -0700 (PDT)
+Received: from localhost.localdomain (123-204-46-122.static.seed.net.tw. [123.204.46.122])
+        by smtp.gmail.com with ESMTPSA id s66sm21388130pgs.39.2019.07.07.23.36.41
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Sun, 07 Jul 2019 23:36:43 -0700 (PDT)
+From:   Jian-Hong Pan <jian-hong@endlessm.com>
+To:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S . Miller" <davem@davemloft.net>
+Cc:     linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux@endlessm.com,
+        Jian-Hong Pan <jian-hong@endlessm.com>,
+        Daniel Drake <drake@endlessm.com>, stable@vger.kernel.org
+Subject: [PATCH] rtw88/pci: Rearrange the memory usage for skb in RX ISR
+Date:   Mon,  8 Jul 2019 14:32:53 +0800
+Message-Id: <20190708063252.4756-1-jian-hong@endlessm.com>
+X-Mailer: git-send-email 2.22.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1562565301017.49476@alliedtelesis.co.nz>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 08, 2019 at 05:55:00AM +0000, Joshua Scott wrote:
-> Hi,
-> 
-> I do not think this patch alone will work on 4.14.
-> 
-> An earlier pair of patches which implements the
-> "marvell,armada-38x-uart" quirk is present on the other kernel
-> versions, but I do see it as far back as 4.14.
-> 
-> The following two patches are the ones which add support for that compatible string:
-> 
-> b7639b0b15dd serial: 8250_dw: Limit dw8250_tx_wait_empty quirk to armada-38x devices
-> 914eaf935ec7 serial: 8250_dw: Allow TX FIFO to drain before writing to UART_LCR
+Testing with RTL8822BE hardware, when available memory is low, we
+frequently see a kernel panic and system freeze.
 
-But, this patch says:
-	Fixes: 43e28ba87708 ("ARM: dts: Use armada-370-xp as a base for armada-xp-98dx3236")
-and that commit showed up in 4.12.
+First, rtw_pci_rx_isr encounters a memory allocation failure (trimmed):
 
-If that is not the case, fine, I'll drop this, otherwise I just have to
-go off of what is given to me :)
+rx routine starvation
+WARNING: CPU: 7 PID: 9871 at drivers/net/wireless/realtek/rtw88/pci.c:822 rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
+[ 2356.580313] RIP: 0010:rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
 
-thanks,
+Then we see a variety of different error conditions and kernel panics,
+such as this one (trimmed):
 
-greg k-h
+rtw_pci 0000:02:00.0: pci bus timeout, check dma status
+skbuff: skb_over_panic: text:00000000091b6e66 len:415 put:415 head:00000000d2880c6f data:000000007a02b1ea tail:0x1df end:0xc0 dev:<NULL>
+------------[ cut here ]------------
+kernel BUG at net/core/skbuff.c:105!
+invalid opcode: 0000 [#1] SMP NOPTI
+RIP: 0010:skb_panic+0x43/0x45
+
+When skb allocation fails and the "rx routine starvation" is hit, the
+function returns immediately without updating the RX ring. At this
+point, the RX ring may continue referencing an old skb which was already
+handed off to ieee80211_rx_irqsafe(). When it comes to be used again,
+bad things happen.
+
+This patch allocates a new skb first in RX ISR. If we don't have memory
+available, we discard the current frame, allowing the existing skb to be
+reused in the ring. Otherwise, we simplify the code flow and just hand
+over the RX-populated skb over to mac80211.
+
+In addition, to fixing the kernel crash, the RX routine should now
+generally behave better under low memory conditions.
+
+Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=204053
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Reviewed-by: Daniel Drake <drake@endlessm.com>
+Cc: <stable@vger.kernel.org>
+---
+ drivers/net/wireless/realtek/rtw88/pci.c | 28 +++++++++++-------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
+index cfe05ba7280d..1bfc99ae6b84 100644
+--- a/drivers/net/wireless/realtek/rtw88/pci.c
++++ b/drivers/net/wireless/realtek/rtw88/pci.c
+@@ -786,6 +786,15 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
+ 		rx_desc = skb->data;
+ 		chip->ops->query_rx_desc(rtwdev, rx_desc, &pkt_stat, &rx_status);
+ 
++		/* discard current skb if the new skb cannot be allocated as a
++		 * new one in rx ring later
++		 * */
++		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
++		if (WARN(!new, "rx routine starvation\n")) {
++			new = skb;
++			goto next_rp;
++		}
++
+ 		/* offset from rx_desc to payload */
+ 		pkt_offset = pkt_desc_sz + pkt_stat.drv_info_sz +
+ 			     pkt_stat.shift;
+@@ -803,25 +812,14 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
+ 			skb_put(skb, pkt_stat.pkt_len);
+ 			skb_reserve(skb, pkt_offset);
+ 
+-			/* alloc a smaller skb to mac80211 */
+-			new = dev_alloc_skb(pkt_stat.pkt_len);
+-			if (!new) {
+-				new = skb;
+-			} else {
+-				skb_put_data(new, skb->data, skb->len);
+-				dev_kfree_skb_any(skb);
+-			}
+ 			/* TODO: merge into rx.c */
+ 			rtw_rx_stats(rtwdev, pkt_stat.vif, skb);
+-			memcpy(new->cb, &rx_status, sizeof(rx_status));
+-			ieee80211_rx_irqsafe(rtwdev->hw, new);
++			memcpy(skb->cb, &rx_status, sizeof(rx_status));
++			ieee80211_rx_irqsafe(rtwdev->hw, skb);
+ 		}
+ 
+-		/* skb delivered to mac80211, alloc a new one in rx ring */
+-		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
+-		if (WARN(!new, "rx routine starvation\n"))
+-			return;
+-
++next_rp:
++		/* skb delivered to mac80211, attach the new one into rx ring */
+ 		ring->buf[cur_rp] = new;
+ 		rtw_pci_reset_rx_desc(rtwdev, new, ring, cur_rp, buf_desc_sz);
+ 
+-- 
+2.22.0
+
