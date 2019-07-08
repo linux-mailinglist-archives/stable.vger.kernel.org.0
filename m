@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A756621EE
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:22:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BF02623D2
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:38:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387631AbfGHPUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:20:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45886 "EHLO mail.kernel.org"
+        id S2389880AbfGHPbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:31:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387626AbfGHPUp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:20:45 -0400
+        id S2389568AbfGHPa7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:30:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90A7A2175B;
-        Mon,  8 Jul 2019 15:20:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E0F3216C4;
+        Mon,  8 Jul 2019 15:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599244;
-        bh=xsjJ86Q+T5GaIDll6gOOCctVm7yc0BwsqYC21t7R8X4=;
+        s=default; t=1562599858;
+        bh=yJiA2PR8YPF1yGgR2WwLUjBahWd24u1D+ZqG8+xhrnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUv+pfSi/FTQrG24Vrnz3bZy/CLGY43y9Ieiw0CC59UZl9mLds4FxSJujkf0zFj8t
-         ec06qjSQGr0cMZtTFurppnlvmvK2QlR5zFDZIo6Es3259OYIGYLzHr9UzME81SKQLz
-         YL+bbbzI6s22Yd+0wNr8oDFbaeHdAtK//DsERLfU=
+        b=Yu5SWi7Ls+d9O213HQT/kPC61+fGxxNxzA80aP7CCWmSaYL2QASfrpmBsAZSFubCA
+         DDzEVn24YgwlRLZxWfhG5v5gTv8K5FDmhqSKOl9xP3MORVzkmyeQaoeNcOgiPU0uDJ
+         NS9x7+6ubGRxFUDdb0kM4cDbVJo4+ilsB7euUhlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Matteo Croce <mcroce@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 052/102] af_packet: Block execution of tasks waiting for transmit to complete in AF_PACKET
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Axel Lin <axel.lin@ingics.com>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 13/96] spi: bitbang: Fix NULL pointer dereference in spi_unregister_master
 Date:   Mon,  8 Jul 2019 17:12:45 +0200
-Message-Id: <20190708150529.134836691@linuxfoundation.org>
+Message-Id: <20190708150527.092837237@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
-References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+References: <20190708150526.234572443@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,153 +48,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Horman <nhorman@tuxdriver.com>
+[ Upstream commit 5caaf29af5ca82d5da8bc1d0ad07d9e664ccf1d8 ]
 
-[ Upstream commit 89ed5b519004a7706f50b70f611edbd3aaacff2c ]
+If spi_register_master fails in spi_bitbang_start
+because device_add failure, We should return the
+error code other than 0, otherwise calling
+spi_bitbang_stop may trigger NULL pointer dereference
+like this:
 
-When an application is run that:
-a) Sets its scheduler to be SCHED_FIFO
-and
-b) Opens a memory mapped AF_PACKET socket, and sends frames with the
-MSG_DONTWAIT flag cleared, its possible for the application to hang
-forever in the kernel.  This occurs because when waiting, the code in
-tpacket_snd calls schedule, which under normal circumstances allows
-other tasks to run, including ksoftirqd, which in some cases is
-responsible for freeing the transmitted skb (which in AF_PACKET calls a
-destructor that flips the status bit of the transmitted frame back to
-available, allowing the transmitting task to complete).
+BUG: KASAN: null-ptr-deref in __list_del_entry_valid+0x45/0xd0
+Read of size 8 at addr 0000000000000000 by task syz-executor.0/3661
 
-However, when the calling application is SCHED_FIFO, its priority is
-such that the schedule call immediately places the task back on the cpu,
-preventing ksoftirqd from freeing the skb, which in turn prevents the
-transmitting task from detecting that the transmission is complete.
+CPU: 0 PID: 3661 Comm: syz-executor.0 Not tainted 5.1.0+ #28
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+Call Trace:
+ dump_stack+0xa9/0x10e
+ ? __list_del_entry_valid+0x45/0xd0
+ ? __list_del_entry_valid+0x45/0xd0
+ __kasan_report+0x171/0x18d
+ ? __list_del_entry_valid+0x45/0xd0
+ kasan_report+0xe/0x20
+ __list_del_entry_valid+0x45/0xd0
+ spi_unregister_controller+0x99/0x1b0
+ spi_lm70llp_attach+0x3ae/0x4b0 [spi_lm70llp]
+ ? 0xffffffffc1128000
+ ? klist_next+0x131/0x1e0
+ ? driver_detach+0x40/0x40 [parport]
+ port_check+0x3b/0x50 [parport]
+ bus_for_each_dev+0x115/0x180
+ ? subsys_dev_iter_exit+0x20/0x20
+ __parport_register_driver+0x1f0/0x210 [parport]
+ ? 0xffffffffc1150000
+ do_one_initcall+0xb9/0x3b5
+ ? perf_trace_initcall_level+0x270/0x270
+ ? kasan_unpoison_shadow+0x30/0x40
+ ? kasan_unpoison_shadow+0x30/0x40
+ do_init_module+0xe0/0x330
+ load_module+0x38eb/0x4270
+ ? module_frob_arch_sections+0x20/0x20
+ ? kernel_read_file+0x188/0x3f0
+ ? find_held_lock+0x6d/0xd0
+ ? fput_many+0x1a/0xe0
+ ? __do_sys_finit_module+0x162/0x190
+ __do_sys_finit_module+0x162/0x190
+ ? __ia32_sys_init_module+0x40/0x40
+ ? __mutex_unlock_slowpath+0xb4/0x3f0
+ ? wait_for_completion+0x240/0x240
+ ? vfs_write+0x160/0x2a0
+ ? lockdep_hardirqs_off+0xb5/0x100
+ ? mark_held_locks+0x1a/0x90
+ ? do_syscall_64+0x14/0x2a0
+ do_syscall_64+0x72/0x2a0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-We can fix this by converting the schedule call to a completion
-mechanism.  By using a completion queue, we force the calling task, when
-it detects there are no more frames to send, to schedule itself off the
-cpu until such time as the last transmitted skb is freed, allowing
-forward progress to be made.
-
-Tested by myself and the reporter, with good results
-
-Change Notes:
-
-V1->V2:
-	Enhance the sleep logic to support being interruptible and
-allowing for honoring to SK_SNDTIMEO (Willem de Bruijn)
-
-V2->V3:
-	Rearrage the point at which we wait for the completion queue, to
-avoid needing to check for ph/skb being null at the end of the loop.
-Also move the complete call to the skb destructor to avoid needing to
-modify __packet_set_status.  Also gate calling complete on
-packet_read_pending returning zero to avoid multiple calls to complete.
-(Willem de Bruijn)
-
-	Move timeo computation within loop, to re-fetch the socket
-timeout since we also use the timeo variable to record the return code
-from the wait_for_complete call (Neil Horman)
-
-V3->V4:
-	Willem has requested that the control flow be restored to the
-previous state.  Doing so lets us eliminate the need for the
-po->wait_on_complete flag variable, and lets us get rid of the
-packet_next_frame function, but introduces another complexity.
-Specifically, but using the packet pending count, we can, if an
-applications calls sendmsg multiple times with MSG_DONTWAIT set, each
-set of transmitted frames, when complete, will cause
-tpacket_destruct_skb to issue a complete call, for which there will
-never be a wait_on_completion call.  This imbalance will lead to any
-future call to wait_for_completion here to return early, when the frames
-they sent may not have completed.  To correct this, we need to re-init
-the completion queue on every call to tpacket_snd before we enter the
-loop so as to ensure we wait properly for the frames we send in this
-iteration.
-
-	Change the timeout and interrupted gotos to out_put rather than
-out_status so that we don't try to free a non-existant skb
-	Clean up some extra newlines (Willem de Bruijn)
-
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
-Reported-by: Matteo Croce <mcroce@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 702a4879ec33 ("spi: bitbang: Let spi_bitbang_start() take a reference to master")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Axel Lin <axel.lin@ingics.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c |   20 +++++++++++++++++---
- net/packet/internal.h  |    1 +
- 2 files changed, 18 insertions(+), 3 deletions(-)
+ drivers/spi/spi-bitbang.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2399,6 +2399,9 @@ static void tpacket_destruct_skb(struct
+diff --git a/drivers/spi/spi-bitbang.c b/drivers/spi/spi-bitbang.c
+index dd9a8c54a693..be95be4fe985 100644
+--- a/drivers/spi/spi-bitbang.c
++++ b/drivers/spi/spi-bitbang.c
+@@ -403,7 +403,7 @@ int spi_bitbang_start(struct spi_bitbang *bitbang)
+ 	if (ret)
+ 		spi_master_put(master);
  
- 		ts = __packet_set_timestamp(po, ph, skb);
- 		__packet_set_status(po, ph, TP_STATUS_AVAILABLE | ts);
-+
-+		if (!packet_read_pending(&po->tx_ring))
-+			complete(&po->skb_completion);
- 	}
+-	return 0;
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(spi_bitbang_start);
  
- 	sock_wfree(skb);
-@@ -2629,7 +2632,7 @@ static int tpacket_parse_header(struct p
- 
- static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
- {
--	struct sk_buff *skb;
-+	struct sk_buff *skb = NULL;
- 	struct net_device *dev;
- 	struct virtio_net_hdr *vnet_hdr = NULL;
- 	struct sockcm_cookie sockc;
-@@ -2644,6 +2647,7 @@ static int tpacket_snd(struct packet_soc
- 	int len_sum = 0;
- 	int status = TP_STATUS_AVAILABLE;
- 	int hlen, tlen, copylen = 0;
-+	long timeo = 0;
- 
- 	mutex_lock(&po->pg_vec_lock);
- 
-@@ -2690,12 +2694,21 @@ static int tpacket_snd(struct packet_soc
- 	if ((size_max > dev->mtu + reserve + VLAN_HLEN) && !po->has_vnet_hdr)
- 		size_max = dev->mtu + reserve + VLAN_HLEN;
- 
-+	reinit_completion(&po->skb_completion);
-+
- 	do {
- 		ph = packet_current_frame(po, &po->tx_ring,
- 					  TP_STATUS_SEND_REQUEST);
- 		if (unlikely(ph == NULL)) {
--			if (need_wait && need_resched())
--				schedule();
-+			if (need_wait && skb) {
-+				timeo = sock_sndtimeo(&po->sk, msg->msg_flags & MSG_DONTWAIT);
-+				timeo = wait_for_completion_interruptible_timeout(&po->skb_completion, timeo);
-+				if (timeo <= 0) {
-+					err = !timeo ? -ETIMEDOUT : -ERESTARTSYS;
-+					goto out_put;
-+				}
-+			}
-+			/* check for additional frames */
- 			continue;
- 		}
- 
-@@ -3249,6 +3262,7 @@ static int packet_create(struct net *net
- 	sock_init_data(sock, sk);
- 
- 	po = pkt_sk(sk);
-+	init_completion(&po->skb_completion);
- 	sk->sk_family = PF_PACKET;
- 	po->num = proto;
- 	po->xmit = dev_queue_xmit;
---- a/net/packet/internal.h
-+++ b/net/packet/internal.h
-@@ -125,6 +125,7 @@ struct packet_sock {
- 	unsigned int		tp_hdrlen;
- 	unsigned int		tp_reserve;
- 	unsigned int		tp_tstamp;
-+	struct completion	skb_completion;
- 	struct net_device __rcu	*cached_dev;
- 	int			(*xmit)(struct sk_buff *skb);
- 	struct packet_type	prot_hook ____cacheline_aligned_in_smp;
+-- 
+2.20.1
+
 
 
