@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A92C6218C
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:17:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C34B6220B
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:22:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732765AbfGHPRL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:17:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40450 "EHLO mail.kernel.org"
+        id S2387797AbfGHPVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:21:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732759AbfGHPRL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:17:11 -0400
+        id S1730872AbfGHPVv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:21:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C685F216E3;
-        Mon,  8 Jul 2019 15:17:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42658214C6;
+        Mon,  8 Jul 2019 15:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599030;
-        bh=Hu1t/4h+tb7R4tQLWElMKX7KsisMy0tV2rRUWB3Rnak=;
+        s=default; t=1562599310;
+        bh=gYcXM05QtzrEOYFiNrsKVH+kE7kFAlgHouyFt0d7yuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1IC8X8eEWLf1srTR3SgNPjw9w9OahGb8x47qAvszLk3drsn3AogLr+H25yxoFRfUN
-         nC4cIzzfzo7l2TO9mwBxe3pIcFkQZuoa3tohaXxHx8tL6aoK9QQxYKX3CTwcJOQEA/
-         iGP9Rzbi10mnpFT9bhrvThQEjpyqM5WJ90V0YWLw=
+        b=R/c0gKh0bnKWcfrj3gFpK+GoWZZuVzedwMHJdx9NFuiL6POd5W51L7Am4qwxCKGZx
+         fyocvd5MQ+V3TozuiYp57znbU7MjKSWY58tJKbjcGgGmvtuHCqO3smSB5sDIoAEQbv
+         HfrogWqiEo8CY8iSI3KZXumFBnRP47hLoJ2VUBhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org,
+        Bader Ali - Saleh <bader.alisaleh@microsemi.com>,
+        Scott Teel <scott.teel@microsemi.com>,
+        Matt Perricone <matt.perricone@microsemi.com>,
+        Don Brace <don.brace@microsemi.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 55/73] ARC: Assume multiplier is always present
-Date:   Mon,  8 Jul 2019 17:13:05 +0200
-Message-Id: <20190708150524.259535132@linuxfoundation.org>
+Subject: [PATCH 4.9 073/102] scsi: hpsa: correct ioaccel2 chaining
+Date:   Mon,  8 Jul 2019 17:13:06 +0200
+Message-Id: <20190708150530.233613827@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-References: <20190708150513.136580595@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0eca6fdb3193410fbe66b6f064431cc394513e82 ]
+[ Upstream commit 625d7d3518875c4d303c652a198feaa13d9f52d9 ]
 
-It is unlikely that designs running Linux will not have multiplier.
-Further the current support is not complete as tool don't generate a
-multilib w/o multiplier.
+- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_LAST_SG for
+  the last s/g element.
 
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+- set ioaccel2_sg_element member 'chain_indicator' to IOACCEL2_CHAIN when
+  chaining.
+
+Reviewed-by: Bader Ali - Saleh <bader.alisaleh@microsemi.com>
+Reviewed-by: Scott Teel <scott.teel@microsemi.com>
+Reviewed-by: Matt Perricone <matt.perricone@microsemi.com>
+Signed-off-by: Don Brace <don.brace@microsemi.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/Kconfig        | 8 --------
- arch/arc/Makefile       | 4 ----
- arch/arc/kernel/setup.c | 2 --
- 3 files changed, 14 deletions(-)
+ drivers/scsi/hpsa.c     | 7 ++++++-
+ drivers/scsi/hpsa_cmd.h | 1 +
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arc/Kconfig b/arch/arc/Kconfig
-index e983f410135a..a5d8bef65911 100644
---- a/arch/arc/Kconfig
-+++ b/arch/arc/Kconfig
-@@ -278,14 +278,6 @@ config ARC_DCCM_BASE
- 	default "0xA0000000"
- 	depends on ARC_HAS_DCCM
+diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
+index 0b8db8a74d50..9f98c7211ec2 100644
+--- a/drivers/scsi/hpsa.c
++++ b/drivers/scsi/hpsa.c
+@@ -4815,7 +4815,7 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
+ 			curr_sg->reserved[0] = 0;
+ 			curr_sg->reserved[1] = 0;
+ 			curr_sg->reserved[2] = 0;
+-			curr_sg->chain_indicator = 0x80;
++			curr_sg->chain_indicator = IOACCEL2_CHAIN;
  
--config ARC_HAS_HW_MPY
--	bool "Use Hardware Multiplier (Normal or Faster XMAC)"
--	default y
--	help
--	  Influences how gcc generates code for MPY operations.
--	  If enabled, MPYxx insns are generated, provided by Standard/XMAC
--	  Multipler. Otherwise software multipy lib is used
--
- choice
- 	prompt "MMU Version"
- 	default ARC_MMU_V3 if ARC_CPU_770
-diff --git a/arch/arc/Makefile b/arch/arc/Makefile
-index fffaff9c7b2c..8f8d53f08141 100644
---- a/arch/arc/Makefile
-+++ b/arch/arc/Makefile
-@@ -72,10 +72,6 @@ ldflags-$(CONFIG_CPU_BIG_ENDIAN)	+= -EB
- # --build-id w/o "-marclinux". Default arc-elf32-ld is OK
- ldflags-$(upto_gcc44)			+= -marclinux
- 
--ifndef CONFIG_ARC_HAS_HW_MPY
--	cflags-y	+= -mno-mpy
--endif
--
- LIBGCC	:= $(shell $(CC) $(cflags-y) --print-libgcc-file-name)
- 
- # Modules with short calls might break for calls into builtin-kernel
-diff --git a/arch/arc/kernel/setup.c b/arch/arc/kernel/setup.c
-index 05131805aa33..3013f3f82b95 100644
---- a/arch/arc/kernel/setup.c
-+++ b/arch/arc/kernel/setup.c
-@@ -232,8 +232,6 @@ static char *arc_cpu_mumbojumbo(int cpu_id, char *buf, int len)
- 
- 			n += scnprintf(buf + n, len - n, "mpy[opt %d] ", opt);
+ 			curr_sg = h->ioaccel2_cmd_sg_list[c->cmdindex];
  		}
--		n += scnprintf(buf + n, len - n, "%s",
--			       IS_USED_CFG(CONFIG_ARC_HAS_HW_MPY));
- 	}
+@@ -4832,6 +4832,11 @@ static int hpsa_scsi_ioaccel2_queue_command(struct ctlr_info *h,
+ 			curr_sg++;
+ 		}
  
- 	n += scnprintf(buf + n, len - n, "%s%s%s%s%s%s%s%s\n",
++		/*
++		 * Set the last s/g element bit
++		 */
++		(curr_sg - 1)->chain_indicator = IOACCEL2_LAST_SG;
++
+ 		switch (cmd->sc_data_direction) {
+ 		case DMA_TO_DEVICE:
+ 			cp->direction &= ~IOACCEL2_DIRECTION_MASK;
+diff --git a/drivers/scsi/hpsa_cmd.h b/drivers/scsi/hpsa_cmd.h
+index 5961705eef76..39bcbec93c60 100644
+--- a/drivers/scsi/hpsa_cmd.h
++++ b/drivers/scsi/hpsa_cmd.h
+@@ -516,6 +516,7 @@ struct ioaccel2_sg_element {
+ 	u8 reserved[3];
+ 	u8 chain_indicator;
+ #define IOACCEL2_CHAIN 0x80
++#define IOACCEL2_LAST_SG 0x40
+ };
+ 
+ /*
 -- 
 2.20.1
 
