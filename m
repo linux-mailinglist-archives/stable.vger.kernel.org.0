@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AC1D6239E
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:37:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9DD862266
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390388AbfGHPdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:33:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35736 "EHLO mail.kernel.org"
+        id S1731518AbfGHPZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:25:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390398AbfGHPdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:33:36 -0400
+        id S2388621AbfGHPZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:25:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 483F720665;
-        Mon,  8 Jul 2019 15:33:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49B83204EC;
+        Mon,  8 Jul 2019 15:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562600015;
-        bh=II54N9oyz9p4+uMfs8XurpWIeyvXpBd2PwxshOEByrs=;
+        s=default; t=1562599534;
+        bh=XVuAWszYVeibjwhmGPgW2IVQzZdDJVBK+SeBtBXbb9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=imjfrNwRF+InIqtOfoetEWG3UYMn0eRijtSXQC20py5k3xPmwrP5uCPaWfPohimjB
-         y5nHASE6qZLtg6PCqOkT0j/hpAlJM/ajVJiDV+EVNb7ZTBNURdCmoC0BgtSoIyTyPH
-         UYE6Uei8X1VFQd271vInhxa2JG9+z+E6ClN/s7FI=
+        b=lzyUuYRU2paVRWcRwwVgEAw3Yo0jccYNNQ3YG9vVLsnLAQypmMqute3oNlHEgWgkG
+         LM3h0MLWwwnz0r9ilWcN9Yl7C4hUSCeYhdPa+IWm+VPNIj8YkCntRJZoHK/eZFqpr8
+         8Bsvx1sIIWMilFL5QytsvNKWiQ7W2XIaw4SsxR5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f7baccc38dcc1e094e77@syzkaller.appspotmail.com,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Eric Biggers <ebiggers@kernel.org>
-Subject: [PATCH 5.1 66/96] lib/mpi: Fix karactx leak in mpi_powm
+        stable@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Balbir Singh <sblbir@amzn.com>
+Subject: [PATCH 4.14 46/56] vhost: vsock: add weight support
 Date:   Mon,  8 Jul 2019 17:13:38 +0200
-Message-Id: <20190708150530.038193433@linuxfoundation.org>
+Message-Id: <20190708150523.850047024@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
-References: <20190708150526.234572443@linuxfoundation.org>
+In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
+References: <20190708150514.376317156@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Jason Wang <jasowang@redhat.com>
 
-commit c8ea9fce2baf7b643384f36f29e4194fa40d33a6 upstream.
+commit e79b431fb901ba1106670bcc80b9b617b25def7d upstream.
 
-Sometimes mpi_powm will leak karactx because a memory allocation
-failure causes a bail-out that skips the freeing of karactx.  This
-patch moves the freeing of karactx to the end of the function like
-everything else so that it can't be skipped.
+This patch will check the weight and exit the loop if we exceeds the
+weight. This is useful for preventing vsock kthread from hogging cpu
+which is guest triggerable. The weight can help to avoid starving the
+request from on direction while another direction is being processed.
 
-Reported-by: syzbot+f7baccc38dcc1e094e77@syzkaller.appspotmail.com
-Fixes: cdec9cb5167a ("crypto: GnuPG based MPI lib - source files...")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Eric Biggers <ebiggers@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+The value of weight is picked from vhost-net.
+
+This addresses CVE-2019-3900.
+
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Balbir Singh <sblbir@amzn.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/mpi/mpi-pow.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/vhost/vsock.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/lib/mpi/mpi-pow.c
-+++ b/lib/mpi/mpi-pow.c
-@@ -37,6 +37,7 @@
- int mpi_powm(MPI res, MPI base, MPI exp, MPI mod)
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -86,6 +86,7 @@ vhost_transport_do_send_pkt(struct vhost
+ 			    struct vhost_virtqueue *vq)
  {
- 	mpi_ptr_t mp_marker = NULL, bp_marker = NULL, ep_marker = NULL;
-+	struct karatsuba_ctx karactx = {};
- 	mpi_ptr_t xp_marker = NULL;
- 	mpi_ptr_t tspace = NULL;
- 	mpi_ptr_t rp, ep, mp, bp;
-@@ -163,13 +164,11 @@ int mpi_powm(MPI res, MPI base, MPI exp,
- 		int c;
- 		mpi_limb_t e;
- 		mpi_limb_t carry_limb;
--		struct karatsuba_ctx karactx;
+ 	struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
++	int pkts = 0, total_len = 0;
+ 	bool added = false;
+ 	bool restart_tx = false;
  
- 		xp = xp_marker = mpi_alloc_limb_space(2 * (msize + 1));
- 		if (!xp)
- 			goto enomem;
+@@ -97,7 +98,7 @@ vhost_transport_do_send_pkt(struct vhost
+ 	/* Avoid further vmexits, we're already processing the virtqueue */
+ 	vhost_disable_notify(&vsock->dev, vq);
  
--		memset(&karactx, 0, sizeof karactx);
- 		negative_result = (ep[0] & 1) && base->sign;
+-	for (;;) {
++	do {
+ 		struct virtio_vsock_pkt *pkt;
+ 		struct iov_iter iov_iter;
+ 		unsigned out, in;
+@@ -182,8 +183,9 @@ vhost_transport_do_send_pkt(struct vhost
+ 		 */
+ 		virtio_transport_deliver_tap_pkt(pkt);
  
- 		i = esize - 1;
-@@ -294,8 +293,6 @@ int mpi_powm(MPI res, MPI base, MPI exp,
- 		if (mod_shift_cnt)
- 			mpihelp_rshift(rp, rp, rsize, mod_shift_cnt);
- 		MPN_NORMALIZE(rp, rsize);
--
--		mpihelp_release_karatsuba_ctx(&karactx);
- 	}
++		total_len += pkt->len;
+ 		virtio_transport_free_pkt(pkt);
+-	}
++	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+ 	if (added)
+ 		vhost_signal(&vsock->dev, vq);
  
- 	if (negative_result && rsize) {
-@@ -312,6 +309,7 @@ int mpi_powm(MPI res, MPI base, MPI exp,
- leave:
- 	rc = 0;
- enomem:
-+	mpihelp_release_karatsuba_ctx(&karactx);
- 	if (assign_rp)
- 		mpi_assign_limb_space(res, rp, size);
- 	if (mp_marker)
+@@ -358,7 +360,7 @@ static void vhost_vsock_handle_tx_kick(s
+ 	struct vhost_vsock *vsock = container_of(vq->dev, struct vhost_vsock,
+ 						 dev);
+ 	struct virtio_vsock_pkt *pkt;
+-	int head;
++	int head, pkts = 0, total_len = 0;
+ 	unsigned int out, in;
+ 	bool added = false;
+ 
+@@ -368,7 +370,7 @@ static void vhost_vsock_handle_tx_kick(s
+ 		goto out;
+ 
+ 	vhost_disable_notify(&vsock->dev, vq);
+-	for (;;) {
++	do {
+ 		u32 len;
+ 
+ 		if (!vhost_vsock_more_replies(vsock)) {
+@@ -409,9 +411,11 @@ static void vhost_vsock_handle_tx_kick(s
+ 		else
+ 			virtio_transport_free_pkt(pkt);
+ 
+-		vhost_add_used(vq, head, sizeof(pkt->hdr) + len);
++		len += sizeof(pkt->hdr);
++		vhost_add_used(vq, head, len);
++		total_len += len;
+ 		added = true;
+-	}
++	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+ 
+ no_more_replies:
+ 	if (added)
 
 
