@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E89D662445
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:41:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68D87621AA
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733297AbfGHPlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:41:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54684 "EHLO mail.kernel.org"
+        id S1733011AbfGHPST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:18:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388907AbfGHP0t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:26:49 -0400
+        id S1733007AbfGHPSS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:18:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 917DE2166E;
-        Mon,  8 Jul 2019 15:26:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D500B21537;
+        Mon,  8 Jul 2019 15:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599609;
-        bh=RFVm29ryirTG0QEkrh8ZtTBCZywLkITGid4jBQ3+04s=;
+        s=default; t=1562599097;
+        bh=BWQn4Y4qK6HbYLiSOpGlpq0TsqilyQe9mQ1+O4E9Qk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WvLzFKDQJgxG2OE0wUQ/ceXg7pcVSaovfCaBsI19Fc24let90SaGeVeucqR7IzrBM
-         yhIjKi9uJW5r+NY4qRbAyBZ4hfstRzRwHu4qTq/Gu7XotVH0D9GlB0L0+CtGUXRVz5
-         KWknxCHXg9vxrvIbs2WQyS3yDld8mMpyaHp54UT4=
+        b=IUZeVz6HFh2BMrSSNRM8//lZIZMILlTFu94m9LjnNExMAh1rLJqc7aFiy12pUUp8G
+         qeJzPUz4GtUdVhynvf4NjX1B6237e1vmU7fkwyQCyKlH1gAOMN//KqsGO7D+kQmvhC
+         SD+JY4Ys2aUExTcF7k0kMTWFXY3V5MOkTLOeNDaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
-        CK Hu <ck.hu@mediatek.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 17/90] drm/mediatek: call mtk_dsi_stop() after mtk_drm_crtc_atomic_disable()
+        stable@vger.kernel.org,
+        Dominique Martinet <dominique.martinet@cea.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 34/73] 9p: p9dirent_read: check network-provided name length
 Date:   Mon,  8 Jul 2019 17:12:44 +0200
-Message-Id: <20190708150523.489858370@linuxfoundation.org>
+Message-Id: <20190708150523.138424521@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2458d9d6d94be982b917e93c61a89b4426f32e31 ]
+[ Upstream commit ef5305f1f72eb1cfcda25c382bb0368509c0385b ]
 
-mtk_dsi_stop() should be called after mtk_drm_crtc_atomic_disable(), which
-needs ovl irq for drm_crtc_wait_one_vblank(), since after mtk_dsi_stop() is
-called, ovl irq will be disabled. If drm_crtc_wait_one_vblank() is called
-after last irq, it will timeout with this message: "vblank wait timed out
-on crtc 0". This happens sometimes when turning off the screen.
+strcpy to dirent->d_name could overflow the buffer, use strscpy to check
+the provided string length and error out if the size was too big.
 
-In drm_atomic_helper.c#disable_outputs(),
-the calling sequence when turning off the screen is:
+While we are here, make the function return an error when the pdu
+parsing failed, instead of returning the pdu offset as if it had been a
+success...
 
-1. mtk_dsi_encoder_disable()
-     --> mtk_output_dsi_disable()
-       --> mtk_dsi_stop();  /* sometimes make vblank timeout in
-                               atomic_disable */
-       --> mtk_dsi_poweroff();
-2. mtk_drm_crtc_atomic_disable()
-     --> drm_crtc_wait_one_vblank();
-     ...
-       --> mtk_dsi_ddp_stop()
-         --> mtk_dsi_poweroff();
-
-mtk_dsi_poweroff() has reference count design, change to make
-mtk_dsi_stop() called in mtk_dsi_poweroff() when refcount is 0.
-
-Fixes: 0707632b5bac ("drm/mediatek: update DSI sub driver flow for sending commands to panel")
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Signed-off-by: CK Hu <ck.hu@mediatek.com>
+Link: http://lkml.kernel.org/r/1536339057-21974-4-git-send-email-asmadeus@codewreck.org
+Addresses-Coverity-ID: 139133 ("Copy into fixed size buffer")
+Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dsi.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ net/9p/protocol.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
-index 84bb66866631..0dd317ac5fe5 100644
---- a/drivers/gpu/drm/mediatek/mtk_dsi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
-@@ -630,6 +630,15 @@ static void mtk_dsi_poweroff(struct mtk_dsi *dsi)
- 	if (--dsi->refcount != 0)
- 		return;
- 
-+	/*
-+	 * mtk_dsi_stop() and mtk_dsi_start() is asymmetric, since
-+	 * mtk_dsi_stop() should be called after mtk_drm_crtc_atomic_disable(),
-+	 * which needs irq for vblank, and mtk_dsi_stop() will disable irq.
-+	 * mtk_dsi_start() needs to be called in mtk_output_dsi_enable(),
-+	 * after dsi is fully set.
-+	 */
-+	mtk_dsi_stop(dsi);
-+
- 	if (!mtk_dsi_switch_to_cmd_mode(dsi, VM_DONE_INT_FLAG, 500)) {
- 		if (dsi->panel) {
- 			if (drm_panel_unprepare(dsi->panel)) {
-@@ -696,7 +705,6 @@ static void mtk_output_dsi_disable(struct mtk_dsi *dsi)
- 		}
+diff --git a/net/9p/protocol.c b/net/9p/protocol.c
+index 7f1b45c082c9..ed1e39ccaebf 100644
+--- a/net/9p/protocol.c
++++ b/net/9p/protocol.c
+@@ -622,13 +622,19 @@ int p9dirent_read(struct p9_client *clnt, char *buf, int len,
+ 	if (ret) {
+ 		p9_debug(P9_DEBUG_9P, "<<< p9dirent_read failed: %d\n", ret);
+ 		trace_9p_protocol_dump(clnt, &fake_pdu);
+-		goto out;
++		return ret;
  	}
  
--	mtk_dsi_stop(dsi);
- 	mtk_dsi_poweroff(dsi);
+-	strcpy(dirent->d_name, nameptr);
++	ret = strscpy(dirent->d_name, nameptr, sizeof(dirent->d_name));
++	if (ret < 0) {
++		p9_debug(P9_DEBUG_ERROR,
++			 "On the wire dirent name too long: %s\n",
++			 nameptr);
++		kfree(nameptr);
++		return ret;
++	}
+ 	kfree(nameptr);
  
- 	dsi->enabled = false;
+-out:
+ 	return fake_pdu.offset;
+ }
+ EXPORT_SYMBOL(p9dirent_read);
 -- 
 2.20.1
 
