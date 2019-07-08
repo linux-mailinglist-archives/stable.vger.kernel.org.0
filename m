@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F39DC622B6
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:29:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8BA862529
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389262AbfGHP2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:28:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56774 "EHLO mail.kernel.org"
+        id S1731374AbfGHPs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:48:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727411AbfGHP2S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:28:18 -0400
+        id S1732799AbfGHPRX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:17:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4740721537;
-        Mon,  8 Jul 2019 15:28:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF29A21707;
+        Mon,  8 Jul 2019 15:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599697;
-        bh=GJ2QA1DpHyIugeLV5/Z3csKsem03r9RFdj3YMVeGLvk=;
+        s=default; t=1562599042;
+        bh=GOQxWeZsz605KEGKjrEskT5ZXPhExynzzn/kr1UpyCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=usZW2M6h4FNvMqPg4X6XyEAWQE5AmcVI2MpkIj38OWGE1HJ3ffmwoIvcHz2zqcTPr
-         GuF9PmqyWIFWXDFe7mVXKdSk3WL4O7U4Zl1Vq+AShJ2O2EQ8DV/WU5mj4bjWw/Xkku
-         r9ncEeVATjaAPl0SkH5ZFvWxPZ4ci/SQ0t8GgBLo=
+        b=RRodN9cErH0xoiryrMm8pQE3W3jh6tT4sVChZy5z+qa91clIN/cBEY8Ddi2Clrjwu
+         OTda9/8BuOni9yIphG4wnpqkI/bqGYes0zX3whd8UxqAhw3rIKspDv2AfUCIIKmRBP
+         BlVlhKX5h37bgRSFq8S8m0KLtBy5MJjSWN7VQkW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/90] drm/i915/dmc: protect against reading random memory
-Date:   Mon,  8 Jul 2019 17:13:07 +0200
-Message-Id: <20190708150524.596597353@linuxfoundation.org>
+Subject: [PATCH 4.4 58/73] mfd: omap-usb-tll: Fix register offsets
+Date:   Mon,  8 Jul 2019 17:13:08 +0200
+Message-Id: <20190708150524.402102929@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+References: <20190708150513.136580595@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,97 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit bc7b488b1d1c71dc4c5182206911127bc6c410d6 upstream.
+[ Upstream commit 993dc737c0996c163325961fb62a0ed9fd0308b4 ]
 
-While loading the DMC firmware we were double checking the headers made
-sense, but in no place we checked that we were actually reading memory
-we were supposed to. This could be wrong in case the firmware file is
-truncated or malformed.
+gcc-8 notices that the register number calculation is wrong
+when the offset is an 'u8' but the number is larger than 256:
 
-Before this patch:
-	# ls -l /lib/firmware/i915/icl_dmc_ver1_07.bin
-	-rw-r--r-- 1 root root  25716 Feb  1 12:26 icl_dmc_ver1_07.bin
-	# truncate -s 25700 /lib/firmware/i915/icl_dmc_ver1_07.bin
-	# modprobe i915
-	# dmesg| grep -i dmc
-	[drm:intel_csr_ucode_init [i915]] Loading i915/icl_dmc_ver1_07.bin
-	[drm] Finished loading DMC firmware i915/icl_dmc_ver1_07.bin (v1.7)
+drivers/mfd/omap-usb-tll.c: In function 'omap_tll_init':
+drivers/mfd/omap-usb-tll.c:90:46: error: overflow in conversion from 'int' to 'u8 {aka unsigned char}' chages value from 'i * 256 + 2070' to '22' [-Werror=overflow]
 
-i.e. it loads random data. Now it fails like below:
-	[drm:intel_csr_ucode_init [i915]] Loading i915/icl_dmc_ver1_07.bin
-	[drm:csr_load_work_fn [i915]] *ERROR* Truncated DMC firmware, rejecting.
-	i915 0000:00:02.0: Failed to load DMC firmware i915/icl_dmc_ver1_07.bin. Disabling runtime power management.
-	i915 0000:00:02.0: DMC firmware homepage: https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/tree/i915
+This addresses it by always using a 32-bit offset number for
+the register. This is apparently an old problem that previous
+compilers did not find.
 
-Before reading any part of the firmware file, validate the input first.
-
-Fixes: eb805623d8b1 ("drm/i915/skl: Add support to load SKL CSR firmware.")
-Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190605235535.17791-1-lucas.demarchi@intel.com
-(cherry picked from commit bc7b488b1d1c71dc4c5182206911127bc6c410d6)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-[ Lucas: backported to 4.9+ adjusting the context ]
-Cc: stable@vger.kernel.org # v4.9+
+Fixes: 16fa3dc75c22 ("mfd: omap-usb-tll: HOST TLL platform driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/intel_csr.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/mfd/omap-usb-tll.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/intel_csr.c b/drivers/gpu/drm/i915/intel_csr.c
-index cf9b600cca79..ca1a578d790d 100644
---- a/drivers/gpu/drm/i915/intel_csr.c
-+++ b/drivers/gpu/drm/i915/intel_csr.c
-@@ -282,10 +282,17 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
- 	uint32_t i;
- 	uint32_t *dmc_payload;
- 	uint32_t required_version;
-+	size_t fsize;
- 
- 	if (!fw)
- 		return NULL;
- 
-+	fsize = sizeof(struct intel_css_header) +
-+		sizeof(struct intel_package_header) +
-+		sizeof(struct intel_dmc_header);
-+	if (fsize > fw->size)
-+		goto error_truncated;
-+
- 	/* Extract CSS Header information*/
- 	css_header = (struct intel_css_header *)fw->data;
- 	if (sizeof(struct intel_css_header) !=
-@@ -360,6 +367,9 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
- 		return NULL;
- 	}
- 	readcount += dmc_offset;
-+	fsize += dmc_offset;
-+	if (fsize > fw->size)
-+		goto error_truncated;
- 
- 	/* Extract dmc_header information. */
- 	dmc_header = (struct intel_dmc_header *)&fw->data[readcount];
-@@ -391,6 +401,10 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
- 
- 	/* fw_size is in dwords, so multiplied by 4 to convert into bytes. */
- 	nbytes = dmc_header->fw_size * 4;
-+	fsize += nbytes;
-+	if (fsize > fw->size)
-+		goto error_truncated;
-+
- 	if (nbytes > CSR_MAX_FW_SIZE) {
- 		DRM_ERROR("DMC firmware too big (%u bytes)\n", nbytes);
- 		return NULL;
-@@ -404,6 +418,10 @@ static uint32_t *parse_csr_fw(struct drm_i915_private *dev_priv,
- 	}
- 
- 	return memcpy(dmc_payload, &fw->data[readcount], nbytes);
-+
-+error_truncated:
-+	DRM_ERROR("Truncated DMC firmware, rejecting.\n");
-+	return NULL;
+diff --git a/drivers/mfd/omap-usb-tll.c b/drivers/mfd/omap-usb-tll.c
+index fe51e9709210..1093d8ad232b 100644
+--- a/drivers/mfd/omap-usb-tll.c
++++ b/drivers/mfd/omap-usb-tll.c
+@@ -129,12 +129,12 @@ static inline u32 usbtll_read(void __iomem *base, u32 reg)
+ 	return readl_relaxed(base + reg);
  }
  
- static void csr_load_work_fn(struct work_struct *work)
+-static inline void usbtll_writeb(void __iomem *base, u8 reg, u8 val)
++static inline void usbtll_writeb(void __iomem *base, u32 reg, u8 val)
+ {
+ 	writeb_relaxed(val, base + reg);
+ }
+ 
+-static inline u8 usbtll_readb(void __iomem *base, u8 reg)
++static inline u8 usbtll_readb(void __iomem *base, u32 reg)
+ {
+ 	return readb_relaxed(base + reg);
+ }
 -- 
 2.20.1
 
