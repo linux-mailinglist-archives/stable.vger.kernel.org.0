@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4DCD62433
-	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:41:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56508624D4
+	for <lists+stable@lfdr.de>; Mon,  8 Jul 2019 17:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389042AbfGHP1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 11:27:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55504 "EHLO mail.kernel.org"
+        id S1731089AbfGHPqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 11:46:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389037AbfGHP1X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 11:27:23 -0400
+        id S2387491AbfGHPVQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 11:21:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F333321707;
-        Mon,  8 Jul 2019 15:27:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C7E62173C;
+        Mon,  8 Jul 2019 15:21:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562599642;
-        bh=0gXWFrXyBXhPUTTJEeNu7Me1/ks0oMn3bVNKP2vnyBg=;
+        s=default; t=1562599276;
+        bh=2SFi4Fqdpu8OLy4mfpNj84nLI+1c2zg3gYH+XC3PBEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=piJdnFhwAI+OSb0tbo5fWpu9spt7uzMEuxFcDTTwg2+e+g1VdDahX3l92568YQkp+
-         FgzQdxy+mBvc2IFH0SEQdOnz2QZT3JtYi4R2M9x5GOAS6XLI5ozqbkOk2OYRvTg5WZ
-         jAIM2EVxoGn9gaXOsHGnEyWT/PTPmbdYaDDFax8Q=
+        b=v+bSbra1jsJOw3uonHFM8xE3tM0+czpRWO4prVUoQ8H24Uj+rcy1IV7ONQXx+4CXd
+         QmbEsY1uazlCVCO4QQT1nV5PSy7aFZIovGQBC8OjUoxwjKDwP5f1o1btpZ0hQ4Msga
+         2LO6G7CBOLzMi572HZuwrPvHaDtRqYaswemywaXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/90] drm: panel-orientation-quirks: Add quirk for GPD MicroPC
+        stable@vger.kernel.org, Tom Herbert <tom@herbertland.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 4.9 062/102] bpf: udp: Avoid calling reuseports bpf_prog from udp_gro
 Date:   Mon,  8 Jul 2019 17:12:55 +0200
-Message-Id: <20190708150524.024858582@linuxfoundation.org>
+Message-Id: <20190708150529.667339334@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708150521.829733162@linuxfoundation.org>
-References: <20190708150521.829733162@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+References: <20190708150525.973820964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 652b8b086538c8a10de5aa5cbdaef79333b46358 ]
+From: Martin KaFai Lau <kafai@fb.com>
 
-GPD has done it again, make a nice device (good), use way too generic
-DMI strings (bad) and use a portrait screen rotated 90 degrees (ugly).
+commit 257a525fe2e49584842c504a92c27097407f778f upstream.
 
-Because of the too generic DMI strings this entry is also doing bios-date
-matching, so the gpd_micropc data struct may very well need to be updated
-with some extra bios-dates in the future.
+When the commit a6024562ffd7 ("udp: Add GRO functions to UDP socket")
+added udp[46]_lib_lookup_skb to the udp_gro code path, it broke
+the reuseport_select_sock() assumption that skb->data is pointing
+to the transport header.
 
-Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190524125759.14131-2-hdegoede@redhat.com
-(cherry picked from commit f2f2bb60d998abde10de7e483ef9e17639892450)
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch follows an earlier __udp6_lib_err() fix by
+passing a NULL skb to avoid calling the reuseport's bpf_prog.
+
+Fixes: a6024562ffd7 ("udp: Add GRO functions to UDP socket")
+Cc: Tom Herbert <tom@herbertland.com>
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ net/ipv4/udp.c |    6 +++++-
+ net/ipv6/udp.c |    2 +-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 088363675940..b44bed554211 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -42,6 +42,14 @@ static const struct drm_dmi_panel_orientation_data asus_t100ha = {
- 	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
- };
- 
-+static const struct drm_dmi_panel_orientation_data gpd_micropc = {
-+	.width = 720,
-+	.height = 1280,
-+	.bios_dates = (const char * const []){ "04/26/2019",
-+		NULL },
-+	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
-+};
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -569,7 +569,11 @@ static inline struct sock *__udp4_lib_lo
+ struct sock *udp4_lib_lookup_skb(struct sk_buff *skb,
+ 				 __be16 sport, __be16 dport)
+ {
+-	return __udp4_lib_lookup_skb(skb, sport, dport, &udp_table);
++	const struct iphdr *iph = ip_hdr(skb);
 +
- static const struct drm_dmi_panel_orientation_data gpd_pocket = {
- 	.width = 1200,
- 	.height = 1920,
-@@ -93,6 +101,14 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100HAN"),
- 		},
- 		.driver_data = (void *)&asus_t100ha,
-+	}, {	/* GPD MicroPC (generic strings, also match on bios date) */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Default string"),
-+		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Default string"),
-+		  DMI_EXACT_MATCH(DMI_BOARD_NAME, "Default string"),
-+		},
-+		.driver_data = (void *)&gpd_micropc,
- 	}, {	/*
- 		 * GPD Pocket, note that the the DMI data is less generic then
- 		 * it seems, devices with a board-vendor of "AMI Corporation"
--- 
-2.20.1
-
++	return __udp4_lib_lookup(dev_net(skb->dev), iph->saddr, sport,
++				 iph->daddr, dport, inet_iif(skb),
++				 &udp_table, NULL);
+ }
+ EXPORT_SYMBOL_GPL(udp4_lib_lookup_skb);
+ 
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -294,7 +294,7 @@ struct sock *udp6_lib_lookup_skb(struct
+ 
+ 	return __udp6_lib_lookup(dev_net(skb->dev), &iph->saddr, sport,
+ 				 &iph->daddr, dport, inet6_iif(skb),
+-				 &udp_table, skb);
++				 &udp_table, NULL);
+ }
+ EXPORT_SYMBOL_GPL(udp6_lib_lookup_skb);
+ 
 
 
