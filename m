@@ -2,71 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D68E62D67
-	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 03:31:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 746AF62D6B
+	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 03:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725941AbfGIBaB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 21:30:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34006 "EHLO mail.kernel.org"
+        id S1725905AbfGIBcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 21:32:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725886AbfGIBaB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 21:30:01 -0400
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        id S1725857AbfGIBcY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 21:32:24 -0400
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 667E421537;
-        Tue,  9 Jul 2019 01:30:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72F5221537;
+        Tue,  9 Jul 2019 01:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562635800;
-        bh=ad3uQLD2dB/YrTL4QBuQgs1ohLJES1Q7t/kkDshS8Ik=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=QY3av3dE07+y2dMsQhCjQ2wnckkX3zos3ofRPt1+pfrxDb/Ih2RV8BtHojXqg28fl
-         WwSrYW/1HiElZ3Udnv7UlaMEMBBw6uZBSkoTWX8RXOlNFiu/kWM0k7m+gUP/tH+QFt
-         Bp3lwzMjM5V8ry8quhfzaqWGKxMnwofCAmPyuqr8=
-Subject: Re: [PATCH 4.14 00/56] 4.14.133-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20190708150514.376317156@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <8ec266e2-ea45-2235-4c56-45ec2aac9a6e@kernel.org>
-Date:   Mon, 8 Jul 2019 19:29:59 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        s=default; t=1562635943;
+        bh=1nEB9DaQQGvQqSb9+kraJ2c4RLjffgEvXnpddtUDasA=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=J8Vcj8FDOdTt8oSww3K2HHnjCA8KCyLGXQVSYb0/4/R+lkWwweVXJS9+CjdhHnH3c
+         Li7+PczRjQWEutFh5EtPA+6ofmCOdPDQ2SFnoGCfpGOKAJ81QoHUDuD5AP3BA3GApC
+         iSE5ORqfSHtegLqpIwTAaEB07ENb03YcsUmUNsUM=
+Received: by mail-qt1-f169.google.com with SMTP id d17so18644185qtj.8;
+        Mon, 08 Jul 2019 18:32:23 -0700 (PDT)
+X-Gm-Message-State: APjAAAVMmGbqCSwfgCEFXghfX/JH7KNc9/VhL+5ZnbwFKuyn/sP/e1FQ
+        4NrnNjnJTYth3TV+9ERlRIe30oPFEwXKGCH8GQ==
+X-Google-Smtp-Source: APXvYqwb1wAjPpFfWA0crRufF6jYrA5s6sotYctEJVblBdQ4QiRnWCFDfGxSYiHma4Z26BSKnCyg6KDlsAlsA8esuXc=
+X-Received: by 2002:ac8:36b9:: with SMTP id a54mr16759649qtc.300.1562635942713;
+ Mon, 08 Jul 2019 18:32:22 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20190708150514.376317156@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20190706151900.14355-1-josua@solid-run.com> <20190706151900.14355-2-josua@solid-run.com>
+In-Reply-To: <20190706151900.14355-2-josua@solid-run.com>
+From:   Rob Herring <robh+dt@kernel.org>
+Date:   Mon, 8 Jul 2019 19:32:10 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqJJA6=2b=VzDzS1ipOatpRuVBUmReYoOMf-9p39=jyF8Q@mail.gmail.com>
+Message-ID: <CAL_JsqJJA6=2b=VzDzS1ipOatpRuVBUmReYoOMf-9p39=jyF8Q@mail.gmail.com>
+Subject: Re: [PATCH 1/4] dt-bindings: allow up to four clocks for orion-mdio
+To:     josua@solid-run.com
+Cc:     netdev <netdev@vger.kernel.org>, stable <stable@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Mark Rutland <mark.rutland@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/8/19 9:12 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.133 release.
-> There are 56 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed 10 Jul 2019 03:03:52 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.133-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Sat, Jul 6, 2019 at 9:31 AM <josua@solid-run.com> wrote:
+>
+> From: Josua Mayer <josua@solid-run.com>
+>
+> Armada 8040 needs four clocks to be enabled for MDIO accesses to work.
+> Update the binding to allow the extra clock to be specified.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 6d6a331f44a1 ("dt-bindings: allow up to three clocks for orion-mdio")
+> Signed-off-by: Josua Mayer <josua@solid-run.com>
+> ---
+>  Documentation/devicetree/bindings/net/marvell-orion-mdio.txt | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/Documentation/devicetree/bindings/net/marvell-orion-mdio.txt b/Documentation/devicetree/bindings/net/marvell-orion-mdio.txt
+> index 42cd81090a2c..3f3cfc1d8d4d 100644
+> --- a/Documentation/devicetree/bindings/net/marvell-orion-mdio.txt
+> +++ b/Documentation/devicetree/bindings/net/marvell-orion-mdio.txt
+> @@ -16,7 +16,7 @@ Required properties:
+>
+>  Optional properties:
+>  - interrupts: interrupt line number for the SMI error/done interrupt
+> -- clocks: phandle for up to three required clocks for the MDIO instance
+> +- clocks: phandle for up to four required clocks for the MDIO instance
 
-Compiled and booted on my test system. No dmesg regressions.
+This needs to enumerate exactly what the clocks are. Shouldn't there
+be an additional clock-names value too?
 
-thanks,
--- Shuah
+Rob
