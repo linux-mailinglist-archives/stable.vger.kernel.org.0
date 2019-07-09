@@ -2,78 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 746AF62D6B
-	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 03:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BBA762DF0
+	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 04:11:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725905AbfGIBcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 21:32:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34250 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725857AbfGIBcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 21:32:24 -0400
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72F5221537;
-        Tue,  9 Jul 2019 01:32:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562635943;
-        bh=1nEB9DaQQGvQqSb9+kraJ2c4RLjffgEvXnpddtUDasA=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=J8Vcj8FDOdTt8oSww3K2HHnjCA8KCyLGXQVSYb0/4/R+lkWwweVXJS9+CjdhHnH3c
-         Li7+PczRjQWEutFh5EtPA+6ofmCOdPDQ2SFnoGCfpGOKAJ81QoHUDuD5AP3BA3GApC
-         iSE5ORqfSHtegLqpIwTAaEB07ENb03YcsUmUNsUM=
-Received: by mail-qt1-f169.google.com with SMTP id d17so18644185qtj.8;
-        Mon, 08 Jul 2019 18:32:23 -0700 (PDT)
-X-Gm-Message-State: APjAAAVMmGbqCSwfgCEFXghfX/JH7KNc9/VhL+5ZnbwFKuyn/sP/e1FQ
-        4NrnNjnJTYth3TV+9ERlRIe30oPFEwXKGCH8GQ==
-X-Google-Smtp-Source: APXvYqwb1wAjPpFfWA0crRufF6jYrA5s6sotYctEJVblBdQ4QiRnWCFDfGxSYiHma4Z26BSKnCyg6KDlsAlsA8esuXc=
-X-Received: by 2002:ac8:36b9:: with SMTP id a54mr16759649qtc.300.1562635942713;
- Mon, 08 Jul 2019 18:32:22 -0700 (PDT)
+        id S1726394AbfGICLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 22:11:02 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:40126 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726371AbfGICLC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jul 2019 22:11:02 -0400
+Received: by mail-lf1-f66.google.com with SMTP id b17so8653119lff.7
+        for <stable@vger.kernel.org>; Mon, 08 Jul 2019 19:11:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=b2d61h/e8K7gOexBQzZ4oZE/XD/sRT3CTsvG5+H3A4Q=;
+        b=Az8wDUbxlJdsuRoTLXS8WpGGYc5jVO+MA1eR/qCcI5Mq8AhJqHP35faax/F5lL1Odb
+         bc/gcnb2WCIDMS0dF1vKT7pAXmPdkZ8wGfuyXw4ipLbUsprXxY4J3+k2AWCsAbkpfYkf
+         slwrauPARr48uLoKMmsABzbBSJCcvgFN6Ga7ytTObRW8nTBuYvCdQnS/wpO8oqzk5sxM
+         ZafCsFj1mg822AhxmBfU9Ji0DAMMgTPz4eEMlr4A94bnMO5oiq1hmVLTdjl33DzwUFAO
+         CJMKhYYxhBfWvhQIs2lyIPVVR8SrSPfqLPoZRGeK2rW0y5nGojy+NJK8yraVkfKw6iU2
+         b8cw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=b2d61h/e8K7gOexBQzZ4oZE/XD/sRT3CTsvG5+H3A4Q=;
+        b=FjJQLj62FH5CnU+EeDjJ0D69VlZIYjTSXwRUvhYkQWtb75l3glKsJPnNHlfNSNN0sZ
+         BkS51snri6xPx2mX+t5D/2OcGQo/BzmH3qWWSfh0i41w7MDWn3ER90X4zDsTZOiMINiX
+         QrIcW77Jzi4fQDVTISSHS2eURi4VCacP8KDcMOLJWO4VJ9E/7l2lmhdytSVFKsCUAmwM
+         /SAJYfqlHI/PDrcPCWyMt/W+lol3SaLt2LWSoOZcsYzbW5p+bGJPOqfw19OMLDVwNUHN
+         73Albasj3wmzzZY338yPMSgT9mvf5lZmHTBYmSJfy/jNkbAIzeOXqVdxBVp6WZ06/bYv
+         kTEQ==
+X-Gm-Message-State: APjAAAVqw31wswxwoTuCEO157FOW6QgtruS4is4yogYMtZq5wplemADM
+        WQlwdOGwZlppmJuDD/e6Gv1WUljA12HiTJ6eQwAyuQ==
+X-Google-Smtp-Source: APXvYqyEXn5Zj5tRUTNMBjRTanMF9aoy0uQ9svpDftElzBhGVu2a8UNMWA9QdZkDQjIELvV07tM+mUdIrOEmWBXmb08=
+X-Received: by 2002:a19:ed0c:: with SMTP id y12mr9946172lfy.191.1562638260033;
+ Mon, 08 Jul 2019 19:11:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190706151900.14355-1-josua@solid-run.com> <20190706151900.14355-2-josua@solid-run.com>
-In-Reply-To: <20190706151900.14355-2-josua@solid-run.com>
-From:   Rob Herring <robh+dt@kernel.org>
-Date:   Mon, 8 Jul 2019 19:32:10 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqJJA6=2b=VzDzS1ipOatpRuVBUmReYoOMf-9p39=jyF8Q@mail.gmail.com>
-Message-ID: <CAL_JsqJJA6=2b=VzDzS1ipOatpRuVBUmReYoOMf-9p39=jyF8Q@mail.gmail.com>
-Subject: Re: [PATCH 1/4] dt-bindings: allow up to four clocks for orion-mdio
-To:     josua@solid-run.com
-Cc:     netdev <netdev@vger.kernel.org>, stable <stable@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Mark Rutland <mark.rutland@arm.com>
+References: <20190708150525.973820964@linuxfoundation.org>
+In-Reply-To: <20190708150525.973820964@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 9 Jul 2019 07:40:48 +0530
+Message-ID: <CA+G9fYuRfaWnZ4x5PO6fPj9-8wQZkco-imJD8HGT35ePvAXqMA@mail.gmail.com>
+Subject: Re: [PATCH 4.9 000/102] 4.9.185-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 6, 2019 at 9:31 AM <josua@solid-run.com> wrote:
+On Mon, 8 Jul 2019 at 20:50, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> From: Josua Mayer <josua@solid-run.com>
+> This is the start of the stable review cycle for the 4.9.185 release.
+> There are 102 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> Armada 8040 needs four clocks to be enabled for MDIO accesses to work.
-> Update the binding to allow the extra clock to be specified.
+> Responses should be made by Wed 10 Jul 2019 03:03:52 PM UTC.
+> Anything received after that time might be too late.
 >
-> Cc: stable@vger.kernel.org
-> Fixes: 6d6a331f44a1 ("dt-bindings: allow up to three clocks for orion-mdio")
-> Signed-off-by: Josua Mayer <josua@solid-run.com>
-> ---
->  Documentation/devicetree/bindings/net/marvell-orion-mdio.txt | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.185-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
 >
-> diff --git a/Documentation/devicetree/bindings/net/marvell-orion-mdio.txt b/Documentation/devicetree/bindings/net/marvell-orion-mdio.txt
-> index 42cd81090a2c..3f3cfc1d8d4d 100644
-> --- a/Documentation/devicetree/bindings/net/marvell-orion-mdio.txt
-> +++ b/Documentation/devicetree/bindings/net/marvell-orion-mdio.txt
-> @@ -16,7 +16,7 @@ Required properties:
+> thanks,
 >
->  Optional properties:
->  - interrupts: interrupt line number for the SMI error/done interrupt
-> -- clocks: phandle for up to three required clocks for the MDIO instance
-> +- clocks: phandle for up to four required clocks for the MDIO instance
+> greg k-h
+>
 
-This needs to enumerate exactly what the clocks are. Shouldn't there
-be an additional clock-names value too?
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Rob
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.9.185-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: bb7044a09b6bd0f3b0a78afd25a4eb42ca85f50d
+git describe: v4.9.184-103-gbb7044a09b6b
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.184-103-gbb7044a09b6b
+
+
+No regressions (compared to build v4.9.184)
+
+No fixes (compared to build v4.9.184)
+
+
+Ran 23371 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-fs-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
