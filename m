@@ -2,93 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EBDB634C1
-	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 13:09:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F06D6355B
+	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 14:04:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726055AbfGILJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jul 2019 07:09:51 -0400
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:33935 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725947AbfGILJu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jul 2019 07:09:50 -0400
-Received: by mail-ed1-f67.google.com with SMTP id s49so17402480edb.1
-        for <stable@vger.kernel.org>; Tue, 09 Jul 2019 04:09:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=gehOANnmao3oV9pvw/seZIFQrg9raLUC+jG0ZPx31LY=;
-        b=if2Hz2BqVzUt4QQgiVKhPFAHrTuSwx++ynxvI9kucQ/hCQ4NKAdcr3h0NAqK0eo5un
-         G/Zuzdg1MF00I42wSwHPQzZyeIZTe6WwKyWUwAWshEQpNeKym5rVtg8DtE+Tjxjrnvt4
-         0vF1LQDXFN4uzZ0zRtlCqwXhHErUGFemvAS+gIQf00lfJ6Dxs2Q+fJ8X7gL2lFurldC/
-         Aqmx1/AhtP2Mrps0BxvJrKCkO6EaEkXTNnTdMn3JC+Gm9fhnAdtOFMS1s9RS9nl43mPH
-         PGHNFdBqklG3CP02tCEGBpnXCPX7Y8SeBIIdgCiUG8TvG/UdKjyQpi/eTgzgwZdxhgd9
-         sT7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=gehOANnmao3oV9pvw/seZIFQrg9raLUC+jG0ZPx31LY=;
-        b=K6YjoU8xflakys26FMCq/+mv4NbrQLzKsP6noGOKfFwVKZwUlMLjBas1eBYxs+WWo6
-         ubs7uh2o69XkqdSLhhlH7UPijv1p3vLQPTakOF5QS7ks4+fkc1uuzB+W17Nd66pNsskv
-         e9jcZXLzkXz8jj3PAyt9y/ZYkcADSSO+lAttj9gM6qICF+yvaShWPpZgOQVuidxR11xL
-         zt+wZWRR9e23kcHxPLmxTB/PsN7baxvwz+Id5OmDzIM2Z95so4MvwJW9XI4FMfiBdRo1
-         JHjv8XZxrx4cnomLwvv2yJK/DkV63DclioDYw0+Wu/D8H0fn8/L/kiwWcBxkpKqTfG9z
-         jGHA==
-X-Gm-Message-State: APjAAAXuQ7q3+tboCQW/fnW2uRsBW4GXG9z/mN366nuzGAdfxmF3Ulko
-        idb7q3vhLL568yWkUQZbSJVQ0Q==
-X-Google-Smtp-Source: APXvYqwXkn8xyad1jqyqlkrPyOu0b8MAuKCEqbDbhML8lngOBJTEn5Yb2Bt3BRofTOjHR1UNC8MRJQ==
-X-Received: by 2002:a17:906:f91:: with SMTP id q17mr21051364ejj.297.1562670589083;
-        Tue, 09 Jul 2019 04:09:49 -0700 (PDT)
-Received: from maco2.ams.corp.google.com (a83-162-234-235.adsl.xs4all.nl. [83.162.234.235])
-        by smtp.gmail.com with ESMTPSA id o21sm4494788edt.26.2019.07.09.04.09.48
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 09 Jul 2019 04:09:48 -0700 (PDT)
-From:   Martijn Coenen <maco@android.com>
-To:     gregkh@linuxfoundation.org, john.stultz@linaro.org,
-        tkjos@google.com, arve@android.com, amit.pundir@linaro.org
-Cc:     linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org,
-        maco@google.com, stable@vger.kernel.org,
-        Martijn Coenen <maco@android.com>
-Subject: [PATCH] binder: Set end of SG buffer area properly.
-Date:   Tue,  9 Jul 2019 13:09:23 +0200
-Message-Id: <20190709110923.220736-1-maco@android.com>
-X-Mailer: git-send-email 2.22.0.410.gd8fdbe21b5-goog
+        id S1726096AbfGIMEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jul 2019 08:04:14 -0400
+Received: from terminus.zytor.com ([198.137.202.136]:41425 "EHLO
+        terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726030AbfGIMEO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Jul 2019 08:04:14 -0400
+Received: from terminus.zytor.com (localhost [127.0.0.1])
+        by terminus.zytor.com (8.15.2/8.15.2) with ESMTPS id x69C3arr1902264
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
+        Tue, 9 Jul 2019 05:03:36 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 terminus.zytor.com x69C3arr1902264
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+        s=2019061801; t=1562673817;
+        bh=uURZ37HfIgMAvVVbO7RjyevVofVShrjM/dTDNFpp52g=;
+        h=Date:From:Cc:Reply-To:In-Reply-To:References:To:Subject:From;
+        b=dn6Irr6WMw8dBRn2unL2eS4nJN1J/IAYAUMi/p2WIKxmLuKUh0Us0Z0UtU6mFBLZX
+         UPXlP/IKXHp2nD5KE9aIR0epeZH9ihi76Tjc5TZqyJHQUCim1GbEkJXr6BfuBn6bPb
+         Mml03ooq6QAuZsnHsC1jiuVzFOqaM6i2OYuoBNJ+NV+Dzh2IllExQzPf/iSbBfWXgh
+         PNHESpVagF4e/PZvWmxaam4qvaT9cPZHTm1bhlEoOaTFdp9KausS5c3Sss20RyAn4E
+         QU1BbGeprX9/oHCC9N1n3/onw88hgWHYEVnl++oL49d12X7tmmtyumCv3/8tGsBCQJ
+         MRfd+ggk9APMg==
+Received: (from tipbot@localhost)
+        by terminus.zytor.com (8.15.2/8.15.2/Submit) id x69C3YGo1902260;
+        Tue, 9 Jul 2019 05:03:34 -0700
+Date:   Tue, 9 Jul 2019 05:03:34 -0700
+X-Authentication-Warning: terminus.zytor.com: tipbot set sender to tipbot@zytor.com using -f
+From:   tip-bot for Ross Zwisler <tipbot@zytor.com>
+Message-ID: <tip-013c66edf207ddb78422b8b636f56c87939c9e34@git.kernel.org>
+Cc:     zwisler@google.com, zwisler@chromium.org,
+        johannes.hirte@datenkhaos.de, tglx@linutronix.de, bp@alien8.de,
+        hpa@zytor.com, groeck@google.com, stable@vger.kernel.org,
+        mingo@kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, klaus.kusche@computerix.info,
+        groeck@chromium.org
+Reply-To: linux-kernel@vger.kernel.org, keescook@chromium.org,
+          groeck@google.com, stable@vger.kernel.org, mingo@kernel.org,
+          groeck@chromium.org, klaus.kusche@computerix.info,
+          zwisler@google.com, tglx@linutronix.de,
+          johannes.hirte@datenkhaos.de, zwisler@chromium.org, bp@alien8.de,
+          hpa@zytor.com
+In-Reply-To: <20190701155208.211815-1-zwisler@google.com>
+References: <20190701155208.211815-1-zwisler@google.com>
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip:x86/urgent] Revert "x86/build: Move _etext to actual end of
+ .text"
+Git-Commit-ID: 013c66edf207ddb78422b8b636f56c87939c9e34
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot.git.kernel.org>
+Robot-Unsubscribe: Contact <mailto:hpa@kernel.org> to get blacklisted from
+ these emails
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Disposition: inline
+X-Spam-Status: No, score=-1.2 required=5.0 tests=ALL_TRUSTED,BAYES_00,
+        DATE_IN_FUTURE_06_12,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,
+        DKIM_VALID_EF autolearn=ham autolearn_force=no version=3.4.2
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on terminus.zytor.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In case the target node requests a security context, the
-extra_buffers_size is increased with the size of the security context.
-But, that size is not available for use by regular scatter-gather
-buffers; make sure the ending of that buffer is marked correctly.
+Commit-ID:  013c66edf207ddb78422b8b636f56c87939c9e34
+Gitweb:     https://git.kernel.org/tip/013c66edf207ddb78422b8b636f56c87939c9e34
+Author:     Ross Zwisler <zwisler@chromium.org>
+AuthorDate: Mon, 1 Jul 2019 09:52:08 -0600
+Committer:  Ingo Molnar <mingo@kernel.org>
+CommitDate: Tue, 9 Jul 2019 13:57:31 +0200
 
-Acked-by: Todd Kjos <tkjos@google.com>
-Fixes: ec74136ded79 ("binder: create node flag to request sender's
-security context")
-Signed-off-by: Martijn Coenen <maco@android.com>
-Cc: stable@vger.kernel.org # 5.1+
+Revert "x86/build: Move _etext to actual end of .text"
+
+This reverts commit 392bef709659abea614abfe53cf228e7a59876a4.
+
+Per the discussion here:
+
+  https://lkml.kernel.org/r/201906201042.3BF5CD6@keescook
+
+the above referenced commit breaks kernel compilation with old GCC
+toolchains as well as current versions of the Gold linker.
+
+Revert it to fix the regression and to keep the ability to compile the
+kernel with these tools.
+
+Signed-off-by: Ross Zwisler <zwisler@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Cc: <stable@vger.kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Johannes Hirte <johannes.hirte@datenkhaos.de>
+Cc: Klaus Kusche <klaus.kusche@computerix.info>
+Cc: samitolvanen@google.com
+Cc: Guenter Roeck <groeck@google.com>
+Link: https://lkml.kernel.org/r/20190701155208.211815-1-zwisler@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 ---
- drivers/android/binder.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/vmlinux.lds.S | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 38a59a630cd4c..5bde08603fbc2 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -3239,7 +3239,8 @@ static void binder_transaction(struct binder_proc *proc,
- 	buffer_offset = off_start_offset;
- 	off_end_offset = off_start_offset + tr->offsets_size;
- 	sg_buf_offset = ALIGN(off_end_offset, sizeof(void *));
--	sg_buf_end_offset = sg_buf_offset + extra_buffers_size;
-+	sg_buf_end_offset = sg_buf_offset + extra_buffers_size -
-+		ALIGN(secctx_sz, sizeof(u64));
- 	off_min = 0;
- 	for (buffer_offset = off_start_offset; buffer_offset < off_end_offset;
- 	     buffer_offset += sizeof(binder_size_t)) {
--- 
-2.22.0.410.gd8fdbe21b5-goog
-
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 0850b5149345..4d1517022a14 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -141,10 +141,10 @@ SECTIONS
+ 		*(.text.__x86.indirect_thunk)
+ 		__indirect_thunk_end = .;
+ #endif
+-	} :text = 0x9090
+ 
+-	/* End of text section */
+-	_etext = .;
++		/* End of text section */
++		_etext = .;
++	} :text = 0x9090
+ 
+ 	NOTES :text :note
+ 
