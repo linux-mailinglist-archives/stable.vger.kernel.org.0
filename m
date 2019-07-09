@@ -2,71 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A19E162E3E
-	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 04:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EAA462E45
+	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 04:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727343AbfGIChR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jul 2019 22:37:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54526 "EHLO mail.kernel.org"
+        id S1725941AbfGIClt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jul 2019 22:41:49 -0400
+Received: from vps0.lunn.ch ([185.16.172.187]:33976 "EHLO vps0.lunn.ch"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726394AbfGIChR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jul 2019 22:37:17 -0400
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C75D20656;
-        Tue,  9 Jul 2019 02:37:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562639836;
-        bh=wmZ9Q6wtjbu9rhS8RxktNvseDKsV77/RdbFek751nYQ=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=iquTDN7I19IQFXC257pdAXBTkX+i70UHGMV620i/jq2uhNUJAHIRdSlOV/bqPAJZD
-         zQTyhN2vbiUHzUKd/BMRy0oEpdDvElfCOmVqlFDt6GBJ2Y4XUfVWY8USLqgQF7gVxB
-         zL4zffZ+FUKTCFrHCkm2oWPZzvNPR1xHYIf2pJaM=
-Subject: Re: [PATCH 4.4 00/73] 4.4.185-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20190708150513.136580595@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <dc11d342-db01-aa3e-f510-5207a7ce2454@kernel.org>
-Date:   Mon, 8 Jul 2019 20:37:15 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1725886AbfGIClt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jul 2019 22:41:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+        Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=EH71sYqDv6NdaTmNd15cw9qcQxPlCKm6HN9YqAorv90=; b=GAIrOdKT2PU7OmSCF/MKuypksi
+        c9GPZ5XPrClm6BO+tbMV7xe02Wegsinw+4n8ecMks6am1C+ieCYoDtOM8wQS6SL9ItjzNx3wRAhZ3
+        EfZ5kZXRz27Q9OqTEzIvHrefEW6dwUGMFHP2DJ5hzsS8roIuSPqXJdEoc+toTnaxLfYM=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.89)
+        (envelope-from <andrew@lunn.ch>)
+        id 1hkg4d-0006i2-Mw; Tue, 09 Jul 2019 04:41:43 +0200
+Date:   Tue, 9 Jul 2019 04:41:43 +0200
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Rob Herring <robh+dt@kernel.org>
+Cc:     josua@solid-run.com, netdev <netdev@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH 1/4] dt-bindings: allow up to four clocks for orion-mdio
+Message-ID: <20190709024143.GD5835@lunn.ch>
+References: <20190706151900.14355-1-josua@solid-run.com>
+ <20190706151900.14355-2-josua@solid-run.com>
+ <CAL_JsqJJA6=2b=VzDzS1ipOatpRuVBUmReYoOMf-9p39=jyF8Q@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAL_JsqJJA6=2b=VzDzS1ipOatpRuVBUmReYoOMf-9p39=jyF8Q@mail.gmail.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/8/19 9:12 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.185 release.
-> There are 73 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> >  Optional properties:
+> >  - interrupts: interrupt line number for the SMI error/done interrupt
+> > -- clocks: phandle for up to three required clocks for the MDIO instance
+> > +- clocks: phandle for up to four required clocks for the MDIO instance
 > 
-> Responses should be made by Wed 10 Jul 2019 03:03:52 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.185-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> This needs to enumerate exactly what the clocks are. Shouldn't there
+> be an additional clock-names value too?
 
-Compiled and booted on my test system. No dmesg regressions.
+Hi Rob
 
-thanks,
--- Shuah
+The driver does not care what they are called. It just turns them all
+on, and turns them off again when removed.
+
+    Andrew
