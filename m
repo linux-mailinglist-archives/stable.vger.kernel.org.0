@@ -2,85 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F1356368E
-	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 15:12:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED32F638C5
+	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 17:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726885AbfGINMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jul 2019 09:12:21 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:41989 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726501AbfGINMV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jul 2019 09:12:21 -0400
-Received: by mail-pf1-f193.google.com with SMTP id q10so9275067pff.9;
-        Tue, 09 Jul 2019 06:12:21 -0700 (PDT)
+        id S1726126AbfGIPkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jul 2019 11:40:07 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:38760 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726060AbfGIPkH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Jul 2019 11:40:07 -0400
+Received: by mail-lj1-f194.google.com with SMTP id r9so20024194ljg.5
+        for <stable@vger.kernel.org>; Tue, 09 Jul 2019 08:40:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=soAPOe6ih8tkO1SzpXlTIE8MerV+aOYsemjpB1yNW54=;
-        b=beBQHaBLCiFSzYk8Ibe8uqGODy8KGV8qIwkrArSb45PoZUYSSus8LpwBAohf0OVQa+
-         BE9qaM9q/OdBaJHBo0MJOuvaH5NLZWHXNTUEfQf0FKBRbKTKA6Q4xJ6pBegXH9Xa5/4V
-         B36xiaoNK3Dffe9RWTXTecU49B0c0+rhpICRMJuVQeMJ4ovTY+lYS4cVi2CEzGO5U/nN
-         pr2mo5DdDs9YgV+YB/EsTOPIKsK7oSyJMLplV5OOoYyHAYc+2RMdiAcINKQfK6GjnqrR
-         efim1dHzLlGiE0TukG3v1stTUHaB8MrMiUxDEnyNEo1rlrVvm47eZ5UkwX4FyFWj+1Oq
-         UKvw==
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=hSjbRdGhXfPpbL9rEnRhqmDFMe264yMY7+x8SyYMkDk=;
+        b=Py7UaoA+PQwuZHyVWC2opjer3XXQ/lVsfNPBD7dnNxN1EvBhtz6bUgRvMQAEWHa1Ft
+         lWEdVPKoOXP3Im8OtFoI+nv6z8B6JBGBVNBSNlTOn5X42ZTEOfmCZ3+NfTEBetjAtDUy
+         cRFvdUVoZ7acgcZXSXscZiGiihI9gInbcp4OsN8KEis/zP2CscFqJOSIZmxqUQ8DxiWY
+         eoVU7nCD3A17LsKZPvvaSZuPzbj+sfLcbQErpb5Z5nPx7F7bHk/Epha6D90Mp7KnXnek
+         D+xeNbFReneU4vR8U6RY0V9LC2Octecza136vCdIYPV4vwoRMInyyYzrGU3oy+y+/Bwy
+         Sekg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=soAPOe6ih8tkO1SzpXlTIE8MerV+aOYsemjpB1yNW54=;
-        b=TA8vDxgAKlPrMAH+I6XUjAOnzUnNPC0tde3wJXmWuRyFJEOKD7mdgQYHdNXuOlwWw6
-         EVXlzrDdxaa5SPWBtm/W++3wqFRoEFKNmYofQxPTCgAcQRz/hPQrsGzH8jDTA5754BYX
-         iIoL1AjugB3oq+GXqjMgrZEBRO1v8D5mKsOwz/WiPNVMrDt4uCbhTeWTkMK6JeoeCmdM
-         YIXlkANvEXZzX2HImwEDP8HW6tQ7lY4G+CBBlYk24fjuw6iVpRpB7Cd/FIwMCVlzASou
-         tidWqr84/saPq2La4Wz5Ob1t7aslQDojCshEQmIxV6+ojBLdXD9Gpx5cQm5L47Rhm7N2
-         tnNg==
-X-Gm-Message-State: APjAAAVUmiRZFWwQ/zAGdUejnLkSUb8M5NccoGIUJy6bO9N/+gYyyH++
-        ZGECoJHQOf9Pu8vQhrFb8Wc=
-X-Google-Smtp-Source: APXvYqx9kv8MNlJQO+z5Dn9rUVkyMoi69mfTi6wVP0m0DNBlh2lcfoeC8G/fMv4pNK0p74of+y8iQA==
-X-Received: by 2002:a63:3046:: with SMTP id w67mr31272984pgw.37.1562677940677;
-        Tue, 09 Jul 2019 06:12:20 -0700 (PDT)
-Received: from arch ([43.250.158.197])
-        by smtp.gmail.com with ESMTPSA id q7sm7103795pff.2.2019.07.09.06.12.16
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 09 Jul 2019 06:12:19 -0700 (PDT)
-Date:   Tue, 9 Jul 2019 18:42:14 +0530
-From:   Amol Surati <suratiamol@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.1 00/96] 5.1.17-stable review
-Message-ID: <20190709131214.GA32761@arch>
-References: <20190708150526.234572443@linuxfoundation.org>
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=hSjbRdGhXfPpbL9rEnRhqmDFMe264yMY7+x8SyYMkDk=;
+        b=NyzMjwq//F7I/P+9iUQ54G45mZCsutf6e5ym8kgipCnJ25MI+lIunqm82W53E++gMY
+         91LyQRlw1wleFkvnQtc/50F79tsBJzFMvV5IzbPj4/K4prXATlPa3jj7YqS6ngTCvy/M
+         UIuhzcgrG5dgjY6aguwcDIwYPnosSGdxjXv74w1XCJhrHX5hZ0XIygTYs5uhp0jo+4KD
+         MnklD+bX6YjY2ZYhkGEXXImaCeeG7qzZbiKNLmm0GgbX5o/9ERgCY9wzjn4kItGXMGnY
+         Jyd8y4nZ5ZNsyj8ynDglnLsVAWoPm9LCQiSaJrecCgg8CvQGdlQ/4VAUXZFc2TGJ0TPu
+         O7jw==
+X-Gm-Message-State: APjAAAWT8dE+IhZq+gdljbtj5W8h0YIC7Mfvy4Pys/FO5bTuRTV8PzMZ
+        dufGJ3bYZzBup2AcrzwdapZnrD+g1vG5qF8mXFg=
+X-Google-Smtp-Source: APXvYqzVeGCPxUu/d9um7Y7J5GqMSpZlHjlmgYJvElKRckWd2GAt+r1V9x73Dxg9crnitZ+8zTNkHktsN59VmJN3oWU=
+X-Received: by 2002:a2e:994:: with SMTP id 142mr13949569ljj.130.1562686805255;
+ Tue, 09 Jul 2019 08:40:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190708150526.234572443@linuxfoundation.org>
+Reply-To: Mohaiyani@alumnidirector.com
+Received: by 2002:a2e:874a:0:0:0:0:0 with HTTP; Tue, 9 Jul 2019 08:40:04 -0700 (PDT)
+From:   Mohaiyani binti Shamsudin <sanaousmanedg@gmail.com>
+Date:   Tue, 9 Jul 2019 17:40:04 +0200
+X-Google-Sender-Auth: VjUsfB3Ug9aAWlG86xtIwob2Hls
+Message-ID: <CABCFyk+AaeM8hW+tXZsjXOFYPCS+Wwi6u8DLhH7YuH6-NNnV=g@mail.gmail.com>
+Subject: =?UTF-8?B?VsOhxb5lbsO9IHBhbmUgbmVibyBwYW7DrSwgcG90xZllYnVqaSB2YcWhaSBwb21vYw==?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 08, 2019 at 05:12:32PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.1.17 release.
-> There are 96 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed 10 Jul 2019 03:03:52 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.17-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-
-Compiled, booted; no regressions between 5.1.16 and 5.1.17-rc1 for
-dmesg, and kselftests (at least those that did run in my environment).
+RHJhaMO9IHBhbmUgbmVibyBwYW7DrSwNCg0KSnNlbSBwYW7DrSBNb2hhaXlhbmkgYmludGkgU2hh
+bXN1ZGluLCBwcmFjdWplIHYgTUFZQkFOSyAoTWFsYWpzaWUpIGpha28NCm5lesOhdmlzbMO9IG5l
+dsO9a29ubsO9IMWZZWRpdGVsIGEgcMWZZWRzZWRhIE1heWJhbmsuIELEm2hlbSBuYcWhZWhvDQpw
+b3NsZWRuw61obyBiYW5rb3Zuw61obyBhdWRpdHUganNtZSB6amlzdGlsaSwgxb5lIG9wdcWhdMSb
+bsO9IMO6xI1ldCBwYXTFmcOtDQpqZWRub211IHogbmHFoWljaCBaYWhyYW5pxI1uw61obyBvZGNp
+emVuw6lobyB6w6FrYXpuw61rYS4gcMWZaSBuZWhvZMSbIG5hDQpzbHXFvmVibsOtIGNlc3TEmyB2
+ZSBGcmFuY2lpIHYgw7p0ZXLDvS4NCg0KUHJvamTEm3RlIHNpIHByb3PDrW0gdGVudG8gb2RrYXo6
+DQpodHRwczovL29ic2VydmVyLmNvbS8yMDE4LzA3L3dhbmctamlhbi1obmEtZm91bmRlci1kaWVz
+LXRyYWdpYy1mYWxsLw0KDQrCoENoY2kgcG/FvsOhZGF0IG8gdmHFoWkgcG9tb2MgcMWZaSBwxZll
+dm9kdSDEjcOhc3RreSAxNSAwMDAgMDAwLDAwIFVTRCAoMTUNCm1pbGlvbsWvIGFtZXJpY2vDvWNo
+IGRvbGFyxa8pIG5hIHbDocWhIMO6xI1ldCBqYWtvIHphaHJhbmnEjW7DrSBvYmNob2Ruw60NCnBh
+cnRuZXIgV2FuZyBKaWFuLCBrdGVyw70gaG9kbMOhbSB0ZW50byBmb25kIHBvdcW+w610IGsgaW52
+ZXN0b3bDoW7DrSB2ZQ0KcHJvc3DEm2NoIHZlxZllam5vc3RpLCBuw6FzbGVkdWplOw0KDQrCoMKg
+wqDCoDEuIFrFmcOtZGl0IGRvbW92IHNpcm90xI1pbmNlLCBrdGVyw70gcG9txa/FvmUgc2lyb3TE
+jcOtbSBkxJt0ZW0uDQrCoMKgwqDCoDIuIFBvc3RhdnRlIG5lbW9jbmljaSwga3RlcsOhIHBvbcWv
+xb5lIGNodWTDvW0uDQrCoMKgwqDCoDMuIFBvc3Rhdml0IHBlxI1vdmF0ZWxza8O9IGTFr20gcHJv
+IHN0YXLDqSBsaWRpIGEgYmV6ZG9tb3ZjZS4NCg0KwqDCoE1leml0w61tLCBuZcW+IGpzZW0gdsOh
+cyBrb250YWt0b3ZhbCwganNlbSBwcm92ZWRsIG9zb2Juw60gdnnFoWV0xZlvdsOhbsOtLA0KYWJ5
+Y2ggemppc3RpbCwgxb5lIHNlIGplZG7DoSBvIHDFmcOtYnV6bsOpIExhdGUgcGFuYSBXYW5nIEpp
+YW5hLCBrdGXFmcOtIG8NCsO6xI10dSB2xJtkw60sIGFsZSBqw6EganNlbSBwxZlpxaFlbCBuZcO6
+c3DEm8WhbsSbLiBTIHTDrW10byBmb25kZW0ganNlbSB2xaFhaw0KcMWZaWphbCB0b3RvIHJvemhv
+ZG51dMOtIG5hIHBvZHBvcnUgc2lyb3Rrxa8gYSBtw6luxJsgcHJpdmlsZWdvdmFuw71jaCBkxJt0
+w60sDQpwcm90b8W+ZSBuZWNoY2ksIGFieSBieWwgdGVudG8gZm9uZCBwxZlldmVkZW4gbmEgbsOh
+xaEgdmzDoWRuw60gcG9rbGFkbsOtDQrDusSNZXQgamFrbyBuZXZ5xb7DoWRhbsO9IGZvbmQuIEpz
+ZW0gb2Nob3RlbiBWw6FtIG5hYsOtZG5vdXQgMzAlIHogZm9uZHUgbmENCnBvZHBvcnUgYSBwb21v
+YyBwxZlpIHDFmWV2b2R1IGZvbmR1IG5hIHbDocWhIMO6xI1ldC4NCg0KVsOtY2UgaW5mb3JtYWPD
+rSB2w6FtIGJ1ZGUgemFzbMOhbm8sIGFieSB2w6FtIGJ5bG8gdnlzdsSbdGxlbm8sIGphayBidWRl
+DQpmb25kIHDFmWV2ZWRlbiBuYSB2w6FzLiBQb2tyYcSNdWp0ZSBwcm9zw61tIHYgZG9zYcW+ZW7D
+rSB0b2hvdG8gY8OtbGUuDQoNCsSMZWvDoW7DrSBuYSB2YcWhaSBuYWzDqWhhdm91IHJlYWtjaS4N
+CnMgcG96ZHJhdmVtDQpQYW7DrSBNb2hhaXlhbmkgQmludGkgU2hhbXN1ZGluLg0K
