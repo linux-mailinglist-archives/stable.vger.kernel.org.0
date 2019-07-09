@@ -2,64 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F13163C32
-	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 21:54:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0423B63CC4
+	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 22:35:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729434AbfGITyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jul 2019 15:54:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33658 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729129AbfGITyY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jul 2019 15:54:24 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38619214AF;
-        Tue,  9 Jul 2019 19:54:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562702063;
-        bh=GKsSuH6iNMH8ffm3zcAhlQSl9U+nHrSHsV9Oe0bfSPo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hBGLHKaGVorfYcgA67guusEoQj37A/1zq7wm+U/p1oX9DoCStyfJ+n2gZud8xUTL1
-         901ueFRXkd3ZRewBzJVbuF1ufXeskHDTiF4ZcdVISKbXoxUMmsEGlRxUWqUNjokk6v
-         MuL/30gzNmfIgEHpELASgRJCX+l14NElMEd1Hvdk=
-Date:   Tue, 9 Jul 2019 21:54:21 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.1 00/96] 5.1.17-stable review
-Message-ID: <20190709195421.GA17036@kroah.com>
-References: <20190708150526.234572443@linuxfoundation.org>
- <20190709184154.GD2656@roeck-us.net>
+        id S1729220AbfGIUfj convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 9 Jul 2019 16:35:39 -0400
+Received: from correo.step.es ([174.133.65.90]:35499 "EHLO empresas.step.es"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729179AbfGIUfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jul 2019 16:35:39 -0400
+X-Greylist: delayed 409 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Jul 2019 16:35:38 EDT
+Received: from empresas.step.es (empresas.step.es [127.0.0.1])
+        by empresas.step.es (8.13.8/8.13.8) with ESMTP id x69KPPZk007833
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO);
+        Tue, 9 Jul 2019 21:25:30 +0100
+Received: (from apache@localhost)
+        by empresas.step.es (8.13.8/8.13.1/Submit) id x69KP9GB007767;
+        Tue, 9 Jul 2019 21:25:09 +0100
+Received: from 185.234.218.233 ([185.234.218.233]) by webmail.step.es
+ (Horde Framework) with HTTP; Tue, 09 Jul 2019 21:25:08 +0100
+Message-ID: <20190709212508.12261cu19ws1a810@webmail.step.es>
+Date:   Tue, 09 Jul 2019 21:25:08 +0100
+From:   Wang jianlin <info@mail.org>
+Reply-to: wang-jianlinwang@yandex.com
+To:     undisclosed-recipients:;
+Subject: =?iso-8859-1?b?R3L832U=?= mein Freund
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+ charset=ISO-8859-1;
+ DelSp="Yes";
+ format="flowed"
 Content-Disposition: inline
-In-Reply-To: <20190709184154.GD2656@roeck-us.net>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: 8BIT
+User-Agent: Internet Messaging Program (IMP) H3 (4.3.9)
+X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (empresas.step.es [127.0.0.1]); Tue, 09 Jul 2019 21:25:33 +0100 (WEST)
+X-STEP-MailScanner-Information: Please contact the ISP for more information
+X-STEP-MailScanner-ID: x69KPPZk007833
+X-STEP-MailScanner: Found to be clean
+X-STEP-MailScanner-From: info@mail.org
+X-STEP-MailScanner-Watermark: 1563308733.8863@JWuemZN7IRj5Zr/N/e8JHQ
+X-Spam-Status: No
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 09, 2019 at 11:41:54AM -0700, Guenter Roeck wrote:
-> On Mon, Jul 08, 2019 at 05:12:32PM +0200, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.1.17 release.
-> > There are 96 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Wed 10 Jul 2019 03:03:52 PM UTC.
-> > Anything received after that time might be too late.
-> > 
-> 
-> Build results:
-> 	total: 159 pass: 159 fail: 0
-> Qemu test results:
-> 	total: 364 pass: 364 fail: 0
+Ich beabsichtige, Ihnen einen Teil meines Vermögens als freiwillige  
+finanzielle Spende zukommen zu lassen.
+Wang Jianlin
 
-Thanks for testing all of these and letting me know.
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.
 
-greg k-h
+-- 
+Este mensaje ha sido analizado por STEP On Line
+en busca de virus y otros contenidos peligrosos,
+y se considera que está limpio. 902 10 18 43
+
