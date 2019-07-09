@@ -2,60 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0423B63CC4
-	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 22:35:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2864F63DB2
+	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 00:03:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729220AbfGIUfj convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 9 Jul 2019 16:35:39 -0400
-Received: from correo.step.es ([174.133.65.90]:35499 "EHLO empresas.step.es"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729179AbfGIUfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jul 2019 16:35:39 -0400
-X-Greylist: delayed 409 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Jul 2019 16:35:38 EDT
-Received: from empresas.step.es (empresas.step.es [127.0.0.1])
-        by empresas.step.es (8.13.8/8.13.8) with ESMTP id x69KPPZk007833
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO);
-        Tue, 9 Jul 2019 21:25:30 +0100
-Received: (from apache@localhost)
-        by empresas.step.es (8.13.8/8.13.1/Submit) id x69KP9GB007767;
-        Tue, 9 Jul 2019 21:25:09 +0100
-Received: from 185.234.218.233 ([185.234.218.233]) by webmail.step.es
- (Horde Framework) with HTTP; Tue, 09 Jul 2019 21:25:08 +0100
-Message-ID: <20190709212508.12261cu19ws1a810@webmail.step.es>
-Date:   Tue, 09 Jul 2019 21:25:08 +0100
-From:   Wang jianlin <info@mail.org>
-Reply-to: wang-jianlinwang@yandex.com
-To:     undisclosed-recipients:;
-Subject: =?iso-8859-1?b?R3L832U=?= mein Freund
+        id S1726428AbfGIWDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jul 2019 18:03:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42144 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726605AbfGIWDm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jul 2019 18:03:42 -0400
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD6F620844;
+        Tue,  9 Jul 2019 22:03:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1562709820;
+        bh=EOfv0IJBF0t3DLIUgIhhzoRRwSja9eNG9rCjIupc6hc=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=hnT7DgxaLEp7aHxayOUXmsvnKgo/b7/ncGJoHze2v06LGOfyqY+wlRMPj3QUiFo7l
+         1KDC4Bh4iPFcNIq0Morfms7doWHJbsfZgziSPL2Ed4rL7D2aFuLd5fYg1hU+aXhMR4
+         IVkUvu6VIJZzIYAIq+EJ5crhos377adDwOpi27jg=
+Received: by mail-qk1-f169.google.com with SMTP id g18so360311qkl.3;
+        Tue, 09 Jul 2019 15:03:40 -0700 (PDT)
+X-Gm-Message-State: APjAAAUSvJ6KgT8E48D9v2vMgLWbLD7b+ihhKoHn3SJ5xRqEBbSsZLXX
+        NZel6aI/V8FdyP2A9tksUrOZ581OtgP9TWoWGA==
+X-Google-Smtp-Source: APXvYqy8ReY8DDK/lYnBtZlNqPX5UetguMX6SjWqmS0APLvDW2/mSIY6u/4Asc4OlVXYmBFHCoK3iI+KYQPf8t/AexI=
+X-Received: by 2002:a37:6944:: with SMTP id e65mr18734160qkc.119.1562709820077;
+ Tue, 09 Jul 2019 15:03:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=ISO-8859-1;
- DelSp="Yes";
- format="flowed"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Internet Messaging Program (IMP) H3 (4.3.9)
-X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (empresas.step.es [127.0.0.1]); Tue, 09 Jul 2019 21:25:33 +0100 (WEST)
-X-STEP-MailScanner-Information: Please contact the ISP for more information
-X-STEP-MailScanner-ID: x69KPPZk007833
-X-STEP-MailScanner: Found to be clean
-X-STEP-MailScanner-From: info@mail.org
-X-STEP-MailScanner-Watermark: 1563308733.8863@JWuemZN7IRj5Zr/N/e8JHQ
-X-Spam-Status: No
+References: <20190706151900.14355-1-josua@solid-run.com> <20190706151900.14355-2-josua@solid-run.com>
+ <CAL_JsqJJA6=2b=VzDzS1ipOatpRuVBUmReYoOMf-9p39=jyF8Q@mail.gmail.com> <20190709024143.GD5835@lunn.ch>
+In-Reply-To: <20190709024143.GD5835@lunn.ch>
+From:   Rob Herring <robh+dt@kernel.org>
+Date:   Tue, 9 Jul 2019 16:03:28 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqK=qpCi6whqmjW2L8O=3u4oZemH=czm60q9QnC09Gr_ig@mail.gmail.com>
+Message-ID: <CAL_JsqK=qpCi6whqmjW2L8O=3u4oZemH=czm60q9QnC09Gr_ig@mail.gmail.com>
+Subject: Re: [PATCH 1/4] dt-bindings: allow up to four clocks for orion-mdio
+To:     Andrew Lunn <andrew@lunn.ch>
+Cc:     josua@solid-run.com, netdev <netdev@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Mark Rutland <mark.rutland@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ich beabsichtige, Ihnen einen Teil meines Vermögens als freiwillige  
-finanzielle Spende zukommen zu lassen.
-Wang Jianlin
+On Mon, Jul 8, 2019 at 8:41 PM Andrew Lunn <andrew@lunn.ch> wrote:
+>
+> > >  Optional properties:
+> > >  - interrupts: interrupt line number for the SMI error/done interrupt
+> > > -- clocks: phandle for up to three required clocks for the MDIO instance
+> > > +- clocks: phandle for up to four required clocks for the MDIO instance
+> >
+> > This needs to enumerate exactly what the clocks are. Shouldn't there
+> > be an additional clock-names value too?
+>
+> Hi Rob
+>
+> The driver does not care what they are called. It just turns them all
+> on, and turns them off again when removed.
 
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
+That's fine for the driver to do, but this is the hardware description.
 
--- 
-Este mensaje ha sido analizado por STEP On Line
-en busca de virus y otros contenidos peligrosos,
-y se considera que está limpio. 902 10 18 43
+It's not just what they are called, but how many too. Is 1 clock in
+the DT valid? 0? It would be unusual for a given piece of h/w to
+function with a variable number of clocks.
 
+Rob
