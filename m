@@ -2,64 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D793863428
-	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 12:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EBDB634C1
+	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 13:09:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726401AbfGIKWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jul 2019 06:22:06 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:41625 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726108AbfGIKWF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jul 2019 06:22:05 -0400
-Received: by mail-pf1-f194.google.com with SMTP id m30so9065753pff.8
-        for <stable@vger.kernel.org>; Tue, 09 Jul 2019 03:22:05 -0700 (PDT)
+        id S1726055AbfGILJv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jul 2019 07:09:51 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:33935 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725947AbfGILJu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Jul 2019 07:09:50 -0400
+Received: by mail-ed1-f67.google.com with SMTP id s49so17402480edb.1
+        for <stable@vger.kernel.org>; Tue, 09 Jul 2019 04:09:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=LHn7sh6ZYwvh5+D/h2PrSTgVx9fde1Yu4h3Dr05pCsY=;
-        b=S6x8jcHvKJGfpw+Yld/kbXFq1TShqWb7H9Z+ZjTW7WXiQJY0xIFNau7xT+ZDdNqeNe
-         07H063fJx/xr2fqRFg+7gKq6ZfH9r1EzHTVrgJYwTZnQ79yv+mWP9P6vK2Dso8w9j+Fv
-         nP3mNJa/v/zaokDhy4yTfby3sgmKvu0R4hb0tMTPB8iG678pMO1ypho2UPvDZM4aPtac
-         YXZntBd9k5dQwwmnjHbpIFGowGjkhYiS8pzutGE9v6WXFeBwteBRmXrOdJYRQNEEkUl4
-         r73M7fho8QHRPAUrbSuG0UVKeYRPvS6adMCzBnDyqbCDRNdBfNZDeJK2j3LhcxaJmM+m
-         3Biw==
+        d=android.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=gehOANnmao3oV9pvw/seZIFQrg9raLUC+jG0ZPx31LY=;
+        b=if2Hz2BqVzUt4QQgiVKhPFAHrTuSwx++ynxvI9kucQ/hCQ4NKAdcr3h0NAqK0eo5un
+         G/Zuzdg1MF00I42wSwHPQzZyeIZTe6WwKyWUwAWshEQpNeKym5rVtg8DtE+Tjxjrnvt4
+         0vF1LQDXFN4uzZ0zRtlCqwXhHErUGFemvAS+gIQf00lfJ6Dxs2Q+fJ8X7gL2lFurldC/
+         Aqmx1/AhtP2Mrps0BxvJrKCkO6EaEkXTNnTdMn3JC+Gm9fhnAdtOFMS1s9RS9nl43mPH
+         PGHNFdBqklG3CP02tCEGBpnXCPX7Y8SeBIIdgCiUG8TvG/UdKjyQpi/eTgzgwZdxhgd9
+         sT7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=LHn7sh6ZYwvh5+D/h2PrSTgVx9fde1Yu4h3Dr05pCsY=;
-        b=QPrZS89CooI0ykyj2Pts6eeSmW8rCEjmGfSq4sHYfnrXWjVyEr3aSoqnGzAOmuB6vD
-         6O2+XZLV00V3N12AjMYZvc1xt1M5mZHVgAZAgAIxHpAPXpjPIH9I68O0hPApsMxHL3v6
-         A6fmqEaCWKJZt4plmpky8BuSi5mquNuwqtz1ZfzRHN2JZHO0stSyhRdtm/nwJYjq+vHD
-         +qjaKjVgkcI0TVAg9/v7CXaiVxGajYldogYRq/CesI02Dc8sAgq903cK5kzllrnjIMCw
-         cgH3Fi8cfANL7tJT1wctreAVsQ3rDPU7obO3d5WW0iYEErTX+FZLVkIXVu/YDUcL1UaW
-         6vzg==
-X-Gm-Message-State: APjAAAW+ubUHH3AUQi1PzQQqw7Y+gWW90ADrJHoUO9ISD91ZejyBYu/P
-        0A4t9jmu4Y2GXh+eWKYYHxrXAw==
-X-Google-Smtp-Source: APXvYqz2/A/8B3slXasDnqD46Tev0tlgqKN64vJiTn2jpY0EC4bOeSPI7mVKDxxtvIet/NlRgbVpyQ==
-X-Received: by 2002:a17:90a:2228:: with SMTP id c37mr32162607pje.9.1562667724503;
-        Tue, 09 Jul 2019 03:22:04 -0700 (PDT)
-Received: from localhost.localdomain (123-204-46-122.static.seed.net.tw. [123.204.46.122])
-        by smtp.gmail.com with ESMTPSA id j1sm40161849pgl.12.2019.07.09.03.22.00
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=gehOANnmao3oV9pvw/seZIFQrg9raLUC+jG0ZPx31LY=;
+        b=K6YjoU8xflakys26FMCq/+mv4NbrQLzKsP6noGOKfFwVKZwUlMLjBas1eBYxs+WWo6
+         ubs7uh2o69XkqdSLhhlH7UPijv1p3vLQPTakOF5QS7ks4+fkc1uuzB+W17Nd66pNsskv
+         e9jcZXLzkXz8jj3PAyt9y/ZYkcADSSO+lAttj9gM6qICF+yvaShWPpZgOQVuidxR11xL
+         zt+wZWRR9e23kcHxPLmxTB/PsN7baxvwz+Id5OmDzIM2Z95so4MvwJW9XI4FMfiBdRo1
+         JHjv8XZxrx4cnomLwvv2yJK/DkV63DclioDYw0+Wu/D8H0fn8/L/kiwWcBxkpKqTfG9z
+         jGHA==
+X-Gm-Message-State: APjAAAXuQ7q3+tboCQW/fnW2uRsBW4GXG9z/mN366nuzGAdfxmF3Ulko
+        idb7q3vhLL568yWkUQZbSJVQ0Q==
+X-Google-Smtp-Source: APXvYqwXkn8xyad1jqyqlkrPyOu0b8MAuKCEqbDbhML8lngOBJTEn5Yb2Bt3BRofTOjHR1UNC8MRJQ==
+X-Received: by 2002:a17:906:f91:: with SMTP id q17mr21051364ejj.297.1562670589083;
+        Tue, 09 Jul 2019 04:09:49 -0700 (PDT)
+Received: from maco2.ams.corp.google.com (a83-162-234-235.adsl.xs4all.nl. [83.162.234.235])
+        by smtp.gmail.com with ESMTPSA id o21sm4494788edt.26.2019.07.09.04.09.48
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 09 Jul 2019 03:22:03 -0700 (PDT)
-From:   Jian-Hong Pan <jian-hong@endlessm.com>
-To:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        David Laight <David.Laight@aculab.com>
-Cc:     linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux@endlessm.com,
-        Daniel Drake <drake@endlessm.com>,
-        Jian-Hong Pan <jian-hong@endlessm.com>, stable@vger.kernel.org
-Subject: [PATCH v2 1/2] rtw88: pci: Rearrange the memory usage for skb in RX ISR
-Date:   Tue,  9 Jul 2019 18:20:59 +0800
-Message-Id: <20190709102059.7036-1-jian-hong@endlessm.com>
-X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190708063252.4756-1-jian-hong@endlessm.com>
-References: <20190708063252.4756-1-jian-hong@endlessm.com>
+        Tue, 09 Jul 2019 04:09:48 -0700 (PDT)
+From:   Martijn Coenen <maco@android.com>
+To:     gregkh@linuxfoundation.org, john.stultz@linaro.org,
+        tkjos@google.com, arve@android.com, amit.pundir@linaro.org
+Cc:     linux-kernel@vger.kernel.org, devel@driverdev.osuosl.org,
+        maco@google.com, stable@vger.kernel.org,
+        Martijn Coenen <maco@android.com>
+Subject: [PATCH] binder: Set end of SG buffer area properly.
+Date:   Tue,  9 Jul 2019 13:09:23 +0200
+Message-Id: <20190709110923.220736-1-maco@android.com>
+X-Mailer: git-send-email 2.22.0.410.gd8fdbe21b5-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -67,120 +61,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Testing with RTL8822BE hardware, when available memory is low, we
-frequently see a kernel panic and system freeze.
+In case the target node requests a security context, the
+extra_buffers_size is increased with the size of the security context.
+But, that size is not available for use by regular scatter-gather
+buffers; make sure the ending of that buffer is marked correctly.
 
-First, rtw_pci_rx_isr encounters a memory allocation failure (trimmed):
-
-rx routine starvation
-WARNING: CPU: 7 PID: 9871 at drivers/net/wireless/realtek/rtw88/pci.c:822 rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
-[ 2356.580313] RIP: 0010:rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
-
-Then we see a variety of different error conditions and kernel panics,
-such as this one (trimmed):
-
-rtw_pci 0000:02:00.0: pci bus timeout, check dma status
-skbuff: skb_over_panic: text:00000000091b6e66 len:415 put:415 head:00000000d2880c6f data:000000007a02b1ea tail:0x1df end:0xc0 dev:<NULL>
-------------[ cut here ]------------
-kernel BUG at net/core/skbuff.c:105!
-invalid opcode: 0000 [#1] SMP NOPTI
-RIP: 0010:skb_panic+0x43/0x45
-
-When skb allocation fails and the "rx routine starvation" is hit, the
-function returns immediately without updating the RX ring. At this
-point, the RX ring may continue referencing an old skb which was already
-handed off to ieee80211_rx_irqsafe(). When it comes to be used again,
-bad things happen.
-
-This patch allocates a new, data-sized skb first in RX ISR. After
-copying the data in, we pass it to the upper layers. However, if skb
-allocation fails, we effectively drop the frame. In both cases, the
-original, full size ring skb is reused.
-
-In addition, to fixing the kernel crash, the RX routine should now
-generally behave better under low memory conditions.
-
-Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=204053
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Cc: <stable@vger.kernel.org>
+Acked-by: Todd Kjos <tkjos@google.com>
+Fixes: ec74136ded79 ("binder: create node flag to request sender's
+security context")
+Signed-off-by: Martijn Coenen <maco@android.com>
+Cc: stable@vger.kernel.org # 5.1+
 ---
- drivers/net/wireless/realtek/rtw88/pci.c | 49 +++++++++++-------------
- 1 file changed, 22 insertions(+), 27 deletions(-)
+ drivers/android/binder.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
-index cfe05ba7280d..e9fe3ad896c8 100644
---- a/drivers/net/wireless/realtek/rtw88/pci.c
-+++ b/drivers/net/wireless/realtek/rtw88/pci.c
-@@ -763,6 +763,7 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
- 	u32 pkt_offset;
- 	u32 pkt_desc_sz = chip->rx_pkt_desc_sz;
- 	u32 buf_desc_sz = chip->rx_buf_desc_sz;
-+	u32 new_len;
- 	u8 *rx_desc;
- 	dma_addr_t dma;
- 
-@@ -790,40 +791,34 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
- 		pkt_offset = pkt_desc_sz + pkt_stat.drv_info_sz +
- 			     pkt_stat.shift;
- 
--		if (pkt_stat.is_c2h) {
--			/* keep rx_desc, halmac needs it */
--			skb_put(skb, pkt_stat.pkt_len + pkt_offset);
-+		/* discard current skb if the new skb cannot be allocated as a
-+		 * new one in rx ring later
-+		 */
-+		new_len = pkt_stat.pkt_len + pkt_offset;
-+		new = dev_alloc_skb(new_len);
-+		if (WARN_ONCE(!new, "rx routine starvation\n"))
-+			goto next_rp;
-+
-+		/* put the DMA data including rx_desc from phy to new skb */
-+		skb_put_data(new, skb->data, new_len);
- 
--			/* pass offset for further operation */
--			*((u32 *)skb->cb) = pkt_offset;
--			skb_queue_tail(&rtwdev->c2h_queue, skb);
-+		if (pkt_stat.is_c2h) {
-+			 /* pass rx_desc & offset for further operation */
-+			*((u32 *)new->cb) = pkt_offset;
-+			skb_queue_tail(&rtwdev->c2h_queue, new);
- 			ieee80211_queue_work(rtwdev->hw, &rtwdev->c2h_work);
- 		} else {
--			/* remove rx_desc, maybe use skb_pull? */
--			skb_put(skb, pkt_stat.pkt_len);
--			skb_reserve(skb, pkt_offset);
--
--			/* alloc a smaller skb to mac80211 */
--			new = dev_alloc_skb(pkt_stat.pkt_len);
--			if (!new) {
--				new = skb;
--			} else {
--				skb_put_data(new, skb->data, skb->len);
--				dev_kfree_skb_any(skb);
--			}
--			/* TODO: merge into rx.c */
--			rtw_rx_stats(rtwdev, pkt_stat.vif, skb);
-+			/* remove rx_desc */
-+			skb_pull(new, pkt_offset);
-+
-+			rtw_rx_stats(rtwdev, pkt_stat.vif, new);
- 			memcpy(new->cb, &rx_status, sizeof(rx_status));
- 			ieee80211_rx_irqsafe(rtwdev->hw, new);
- 		}
- 
--		/* skb delivered to mac80211, alloc a new one in rx ring */
--		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
--		if (WARN(!new, "rx routine starvation\n"))
--			return;
--
--		ring->buf[cur_rp] = new;
--		rtw_pci_reset_rx_desc(rtwdev, new, ring, cur_rp, buf_desc_sz);
-+next_rp:
-+		/* new skb delivered to mac80211, re-enable original skb DMA */
-+		rtw_pci_reset_rx_desc(rtwdev, skb, ring, cur_rp, buf_desc_sz);
- 
- 		/* host read next element in ring */
- 		if (++cur_rp >= ring->r.len)
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index 38a59a630cd4c..5bde08603fbc2 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -3239,7 +3239,8 @@ static void binder_transaction(struct binder_proc *proc,
+ 	buffer_offset = off_start_offset;
+ 	off_end_offset = off_start_offset + tr->offsets_size;
+ 	sg_buf_offset = ALIGN(off_end_offset, sizeof(void *));
+-	sg_buf_end_offset = sg_buf_offset + extra_buffers_size;
++	sg_buf_end_offset = sg_buf_offset + extra_buffers_size -
++		ALIGN(secctx_sz, sizeof(u64));
+ 	off_min = 0;
+ 	for (buffer_offset = off_start_offset; buffer_offset < off_end_offset;
+ 	     buffer_offset += sizeof(binder_size_t)) {
 -- 
-2.22.0
+2.22.0.410.gd8fdbe21b5-goog
 
