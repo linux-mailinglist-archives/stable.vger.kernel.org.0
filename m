@@ -2,234 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DE8C6339A
-	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 11:42:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D793863428
+	for <lists+stable@lfdr.de>; Tue,  9 Jul 2019 12:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726008AbfGIJmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jul 2019 05:42:51 -0400
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:5568 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725989AbfGIJmu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jul 2019 05:42:50 -0400
-Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
-        by mx08-00178001.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x699cLYh003072;
-        Tue, 9 Jul 2019 11:42:27 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type :
- content-transfer-encoding; s=STMicroelectronics;
- bh=Hhmk6iW9AOz9YZht32O3NNPIHCz1mwLLYsAq3kZA/eQ=;
- b=NOa5eozY9SNJGT1VQCEUJRBC+EASTP/H01RPGT9EJiKuqy+jrUk+OzqJmqzp4zGXBoUC
- v/oTa9UjqFmZ+E5UXYVCVpEwTeIWzBOCgTFTw1oX9FwmCm4acMd2JzS/KWLxPgorvEIN
- lEUBWGV/pkMmwrSABRLD9mdvoyxqCixbJbupuhl3OpsYduWGuGXngRjccj+a9ubnZCY5
- K/Npm7q/rWObonHPpB69dnZ0XWuhxI7jOSjqwNb78uyMYj/DMYIwtk1vlQM00/FQnrmg
- wESPGThwGouh10OIcUiJTdTOvuv2OwMj4PHUJgvGSKsFBLtOWll2UibDTaIrii0jphlm SA== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx08-00178001.pphosted.com with ESMTP id 2tjgs9vnex-1
-        (version=TLSv1 cipher=ECDHE-RSA-AES256-SHA bits=256 verify=NOT);
-        Tue, 09 Jul 2019 11:42:27 +0200
-Received: from zeta.dmz-eu.st.com (zeta.dmz-eu.st.com [164.129.230.9])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 47D2E34;
-        Tue,  9 Jul 2019 09:42:26 +0000 (GMT)
-Received: from Webmail-eu.st.com (sfhdag6node2.st.com [10.75.127.17])
-        by zeta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 173FF2CE4;
-        Tue,  9 Jul 2019 09:42:26 +0000 (GMT)
-Received: from localhost (10.75.127.45) by SFHDAG6NODE2.st.com (10.75.127.17)
- with Microsoft SMTP Server (TLS) id 15.0.1347.2; Tue, 9 Jul 2019 11:42:25
- +0200
-From:   Christophe Kerello <christophe.kerello@st.com>
-To:     <miquel.raynal@bootlin.com>, <richard@nod.at>,
-        <dwmw2@infradead.org>, <computersforpeace@gmail.com>,
-        <marek.vasut@gmail.com>, <vigneshr@ti.com>
-CC:     <bbrezillon@kernel.org>, <linux-mtd@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        Christophe Kerello <christophe.kerello@st.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2] mtd: rawnand: stm32_fmc2: avoid warnings when building with W=1 option
-Date:   Tue, 9 Jul 2019 11:41:45 +0200
-Message-ID: <1562665305-31031-1-git-send-email-christophe.kerello@st.com>
-X-Mailer: git-send-email 1.9.1
+        id S1726401AbfGIKWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jul 2019 06:22:06 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:41625 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726108AbfGIKWF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Jul 2019 06:22:05 -0400
+Received: by mail-pf1-f194.google.com with SMTP id m30so9065753pff.8
+        for <stable@vger.kernel.org>; Tue, 09 Jul 2019 03:22:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=LHn7sh6ZYwvh5+D/h2PrSTgVx9fde1Yu4h3Dr05pCsY=;
+        b=S6x8jcHvKJGfpw+Yld/kbXFq1TShqWb7H9Z+ZjTW7WXiQJY0xIFNau7xT+ZDdNqeNe
+         07H063fJx/xr2fqRFg+7gKq6ZfH9r1EzHTVrgJYwTZnQ79yv+mWP9P6vK2Dso8w9j+Fv
+         nP3mNJa/v/zaokDhy4yTfby3sgmKvu0R4hb0tMTPB8iG678pMO1ypho2UPvDZM4aPtac
+         YXZntBd9k5dQwwmnjHbpIFGowGjkhYiS8pzutGE9v6WXFeBwteBRmXrOdJYRQNEEkUl4
+         r73M7fho8QHRPAUrbSuG0UVKeYRPvS6adMCzBnDyqbCDRNdBfNZDeJK2j3LhcxaJmM+m
+         3Biw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=LHn7sh6ZYwvh5+D/h2PrSTgVx9fde1Yu4h3Dr05pCsY=;
+        b=QPrZS89CooI0ykyj2Pts6eeSmW8rCEjmGfSq4sHYfnrXWjVyEr3aSoqnGzAOmuB6vD
+         6O2+XZLV00V3N12AjMYZvc1xt1M5mZHVgAZAgAIxHpAPXpjPIH9I68O0hPApsMxHL3v6
+         A6fmqEaCWKJZt4plmpky8BuSi5mquNuwqtz1ZfzRHN2JZHO0stSyhRdtm/nwJYjq+vHD
+         +qjaKjVgkcI0TVAg9/v7CXaiVxGajYldogYRq/CesI02Dc8sAgq903cK5kzllrnjIMCw
+         cgH3Fi8cfANL7tJT1wctreAVsQ3rDPU7obO3d5WW0iYEErTX+FZLVkIXVu/YDUcL1UaW
+         6vzg==
+X-Gm-Message-State: APjAAAW+ubUHH3AUQi1PzQQqw7Y+gWW90ADrJHoUO9ISD91ZejyBYu/P
+        0A4t9jmu4Y2GXh+eWKYYHxrXAw==
+X-Google-Smtp-Source: APXvYqz2/A/8B3slXasDnqD46Tev0tlgqKN64vJiTn2jpY0EC4bOeSPI7mVKDxxtvIet/NlRgbVpyQ==
+X-Received: by 2002:a17:90a:2228:: with SMTP id c37mr32162607pje.9.1562667724503;
+        Tue, 09 Jul 2019 03:22:04 -0700 (PDT)
+Received: from localhost.localdomain (123-204-46-122.static.seed.net.tw. [123.204.46.122])
+        by smtp.gmail.com with ESMTPSA id j1sm40161849pgl.12.2019.07.09.03.22.00
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 09 Jul 2019 03:22:03 -0700 (PDT)
+From:   Jian-Hong Pan <jian-hong@endlessm.com>
+To:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        David Laight <David.Laight@aculab.com>
+Cc:     linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux@endlessm.com,
+        Daniel Drake <drake@endlessm.com>,
+        Jian-Hong Pan <jian-hong@endlessm.com>, stable@vger.kernel.org
+Subject: [PATCH v2 1/2] rtw88: pci: Rearrange the memory usage for skb in RX ISR
+Date:   Tue,  9 Jul 2019 18:20:59 +0800
+Message-Id: <20190709102059.7036-1-jian-hong@endlessm.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20190708063252.4756-1-jian-hong@endlessm.com>
+References: <20190708063252.4756-1-jian-hong@endlessm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.75.127.45]
-X-ClientProxiedBy: SFHDAG2NODE2.st.com (10.75.127.5) To SFHDAG6NODE2.st.com
- (10.75.127.17)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-07-09_04:,,
- signatures=0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch solves warnings detected by setting W=1 when building.
+Testing with RTL8822BE hardware, when available memory is low, we
+frequently see a kernel panic and system freeze.
 
-Warnings type detected:
-drivers/mtd/nand/raw/stm32_fmc2_nand.c: In function ‘stm32_fmc2_calc_timings’:
-drivers/mtd/nand/raw/stm32_fmc2_nand.c:1417:23: warning: comparison is
-always false due to limited range of data type [-Wtype-limits]
-  else if (tims->twait > FMC2_PMEM_PATT_TIMING_MASK)
+First, rtw_pci_rx_isr encounters a memory allocation failure (trimmed):
 
-Signed-off-by: Christophe Kerello <christophe.kerello@st.com>
-Cc: stable@vger.kernel.org
-Fixes: 2cd457f328c1 ("mtd: rawnand: stm32_fmc2: add STM32 FMC2 NAND flash
-controller driver")
+rx routine starvation
+WARNING: CPU: 7 PID: 9871 at drivers/net/wireless/realtek/rtw88/pci.c:822 rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
+[ 2356.580313] RIP: 0010:rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
+
+Then we see a variety of different error conditions and kernel panics,
+such as this one (trimmed):
+
+rtw_pci 0000:02:00.0: pci bus timeout, check dma status
+skbuff: skb_over_panic: text:00000000091b6e66 len:415 put:415 head:00000000d2880c6f data:000000007a02b1ea tail:0x1df end:0xc0 dev:<NULL>
+------------[ cut here ]------------
+kernel BUG at net/core/skbuff.c:105!
+invalid opcode: 0000 [#1] SMP NOPTI
+RIP: 0010:skb_panic+0x43/0x45
+
+When skb allocation fails and the "rx routine starvation" is hit, the
+function returns immediately without updating the RX ring. At this
+point, the RX ring may continue referencing an old skb which was already
+handed off to ieee80211_rx_irqsafe(). When it comes to be used again,
+bad things happen.
+
+This patch allocates a new, data-sized skb first in RX ISR. After
+copying the data in, we pass it to the upper layers. However, if skb
+allocation fails, we effectively drop the frame. In both cases, the
+original, full size ring skb is reused.
+
+In addition, to fixing the kernel crash, the RX routine should now
+generally behave better under low memory conditions.
+
+Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=204053
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Cc: <stable@vger.kernel.org>
 ---
-Changes in v2:
-  - Fixes/stable tag added
+ drivers/net/wireless/realtek/rtw88/pci.c | 49 +++++++++++-------------
+ 1 file changed, 22 insertions(+), 27 deletions(-)
 
- drivers/mtd/nand/raw/stm32_fmc2_nand.c | 90 +++++++++++-----------------------
- 1 file changed, 29 insertions(+), 61 deletions(-)
-
-diff --git a/drivers/mtd/nand/raw/stm32_fmc2_nand.c b/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-index e63acc0..8cc852d 100644
---- a/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-+++ b/drivers/mtd/nand/raw/stm32_fmc2_nand.c
-@@ -1427,21 +1427,16 @@ static void stm32_fmc2_calc_timings(struct nand_chip *chip,
- 	struct stm32_fmc2_timings *tims = &nand->timings;
- 	unsigned long hclk = clk_get_rate(fmc2->clk);
- 	unsigned long hclkp = NSEC_PER_SEC / (hclk / 1000);
--	int tar, tclr, thiz, twait, tset_mem, tset_att, thold_mem, thold_att;
--
--	tar = hclkp;
--	if (tar < sdrt->tAR_min)
--		tar = sdrt->tAR_min;
--	tims->tar = DIV_ROUND_UP(tar, hclkp) - 1;
--	if (tims->tar > FMC2_PCR_TIMING_MASK)
--		tims->tar = FMC2_PCR_TIMING_MASK;
--
--	tclr = hclkp;
--	if (tclr < sdrt->tCLR_min)
--		tclr = sdrt->tCLR_min;
--	tims->tclr = DIV_ROUND_UP(tclr, hclkp) - 1;
--	if (tims->tclr > FMC2_PCR_TIMING_MASK)
--		tims->tclr = FMC2_PCR_TIMING_MASK;
-+	unsigned long timing, tar, tclr, thiz, twait;
-+	unsigned long tset_mem, tset_att, thold_mem, thold_att;
+diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
+index cfe05ba7280d..e9fe3ad896c8 100644
+--- a/drivers/net/wireless/realtek/rtw88/pci.c
++++ b/drivers/net/wireless/realtek/rtw88/pci.c
+@@ -763,6 +763,7 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
+ 	u32 pkt_offset;
+ 	u32 pkt_desc_sz = chip->rx_pkt_desc_sz;
+ 	u32 buf_desc_sz = chip->rx_buf_desc_sz;
++	u32 new_len;
+ 	u8 *rx_desc;
+ 	dma_addr_t dma;
+ 
+@@ -790,40 +791,34 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
+ 		pkt_offset = pkt_desc_sz + pkt_stat.drv_info_sz +
+ 			     pkt_stat.shift;
+ 
+-		if (pkt_stat.is_c2h) {
+-			/* keep rx_desc, halmac needs it */
+-			skb_put(skb, pkt_stat.pkt_len + pkt_offset);
++		/* discard current skb if the new skb cannot be allocated as a
++		 * new one in rx ring later
++		 */
++		new_len = pkt_stat.pkt_len + pkt_offset;
++		new = dev_alloc_skb(new_len);
++		if (WARN_ONCE(!new, "rx routine starvation\n"))
++			goto next_rp;
 +
-+	tar = max_t(unsigned long, hclkp, sdrt->tAR_min);
-+	timing = DIV_ROUND_UP(tar, hclkp) - 1;
-+	tims->tar = min_t(unsigned long, timing, FMC2_PCR_TIMING_MASK);
++		/* put the DMA data including rx_desc from phy to new skb */
++		skb_put_data(new, skb->data, new_len);
+ 
+-			/* pass offset for further operation */
+-			*((u32 *)skb->cb) = pkt_offset;
+-			skb_queue_tail(&rtwdev->c2h_queue, skb);
++		if (pkt_stat.is_c2h) {
++			 /* pass rx_desc & offset for further operation */
++			*((u32 *)new->cb) = pkt_offset;
++			skb_queue_tail(&rtwdev->c2h_queue, new);
+ 			ieee80211_queue_work(rtwdev->hw, &rtwdev->c2h_work);
+ 		} else {
+-			/* remove rx_desc, maybe use skb_pull? */
+-			skb_put(skb, pkt_stat.pkt_len);
+-			skb_reserve(skb, pkt_offset);
+-
+-			/* alloc a smaller skb to mac80211 */
+-			new = dev_alloc_skb(pkt_stat.pkt_len);
+-			if (!new) {
+-				new = skb;
+-			} else {
+-				skb_put_data(new, skb->data, skb->len);
+-				dev_kfree_skb_any(skb);
+-			}
+-			/* TODO: merge into rx.c */
+-			rtw_rx_stats(rtwdev, pkt_stat.vif, skb);
++			/* remove rx_desc */
++			skb_pull(new, pkt_offset);
 +
-+	tclr = max_t(unsigned long, hclkp, sdrt->tCLR_min);
-+	timing = DIV_ROUND_UP(tclr, hclkp) - 1;
-+	tims->tclr = min_t(unsigned long, timing, FMC2_PCR_TIMING_MASK);
++			rtw_rx_stats(rtwdev, pkt_stat.vif, new);
+ 			memcpy(new->cb, &rx_status, sizeof(rx_status));
+ 			ieee80211_rx_irqsafe(rtwdev->hw, new);
+ 		}
  
- 	tims->thiz = FMC2_THIZ;
- 	thiz = (tims->thiz + 1) * hclkp;
-@@ -1451,18 +1446,11 @@ static void stm32_fmc2_calc_timings(struct nand_chip *chip,
- 	 * tWAIT > tWP
- 	 * tWAIT > tREA + tIO
- 	 */
--	twait = hclkp;
--	if (twait < sdrt->tRP_min)
--		twait = sdrt->tRP_min;
--	if (twait < sdrt->tWP_min)
--		twait = sdrt->tWP_min;
--	if (twait < sdrt->tREA_max + FMC2_TIO)
--		twait = sdrt->tREA_max + FMC2_TIO;
--	tims->twait = DIV_ROUND_UP(twait, hclkp);
--	if (tims->twait == 0)
--		tims->twait = 1;
--	else if (tims->twait > FMC2_PMEM_PATT_TIMING_MASK)
--		tims->twait = FMC2_PMEM_PATT_TIMING_MASK;
-+	twait = max_t(unsigned long, hclkp, sdrt->tRP_min);
-+	twait = max_t(unsigned long, twait, sdrt->tWP_min);
-+	twait = max_t(unsigned long, twait, sdrt->tREA_max + FMC2_TIO);
-+	timing = DIV_ROUND_UP(twait, hclkp);
-+	tims->twait = clamp_val(timing, 1, FMC2_PMEM_PATT_TIMING_MASK);
+-		/* skb delivered to mac80211, alloc a new one in rx ring */
+-		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
+-		if (WARN(!new, "rx routine starvation\n"))
+-			return;
+-
+-		ring->buf[cur_rp] = new;
+-		rtw_pci_reset_rx_desc(rtwdev, new, ring, cur_rp, buf_desc_sz);
++next_rp:
++		/* new skb delivered to mac80211, re-enable original skb DMA */
++		rtw_pci_reset_rx_desc(rtwdev, skb, ring, cur_rp, buf_desc_sz);
  
- 	/*
- 	 * tSETUP_MEM > tCS - tWAIT
-@@ -1477,20 +1465,15 @@ static void stm32_fmc2_calc_timings(struct nand_chip *chip,
- 	if (twait > thiz && (sdrt->tDS_min > twait - thiz) &&
- 	    (tset_mem < sdrt->tDS_min - (twait - thiz)))
- 		tset_mem = sdrt->tDS_min - (twait - thiz);
--	tims->tset_mem = DIV_ROUND_UP(tset_mem, hclkp);
--	if (tims->tset_mem == 0)
--		tims->tset_mem = 1;
--	else if (tims->tset_mem > FMC2_PMEM_PATT_TIMING_MASK)
--		tims->tset_mem = FMC2_PMEM_PATT_TIMING_MASK;
-+	timing = DIV_ROUND_UP(tset_mem, hclkp);
-+	tims->tset_mem = clamp_val(timing, 1, FMC2_PMEM_PATT_TIMING_MASK);
- 
- 	/*
- 	 * tHOLD_MEM > tCH
- 	 * tHOLD_MEM > tREH - tSETUP_MEM
- 	 * tHOLD_MEM > max(tRC, tWC) - (tSETUP_MEM + tWAIT)
- 	 */
--	thold_mem = hclkp;
--	if (thold_mem < sdrt->tCH_min)
--		thold_mem = sdrt->tCH_min;
-+	thold_mem = max_t(unsigned long, hclkp, sdrt->tCH_min);
- 	if (sdrt->tREH_min > tset_mem &&
- 	    (thold_mem < sdrt->tREH_min - tset_mem))
- 		thold_mem = sdrt->tREH_min - tset_mem;
-@@ -1500,11 +1483,8 @@ static void stm32_fmc2_calc_timings(struct nand_chip *chip,
- 	if ((sdrt->tWC_min > tset_mem + twait) &&
- 	    (thold_mem < sdrt->tWC_min - (tset_mem + twait)))
- 		thold_mem = sdrt->tWC_min - (tset_mem + twait);
--	tims->thold_mem = DIV_ROUND_UP(thold_mem, hclkp);
--	if (tims->thold_mem == 0)
--		tims->thold_mem = 1;
--	else if (tims->thold_mem > FMC2_PMEM_PATT_TIMING_MASK)
--		tims->thold_mem = FMC2_PMEM_PATT_TIMING_MASK;
-+	timing = DIV_ROUND_UP(thold_mem, hclkp);
-+	tims->thold_mem = clamp_val(timing, 1, FMC2_PMEM_PATT_TIMING_MASK);
- 
- 	/*
- 	 * tSETUP_ATT > tCS - tWAIT
-@@ -1526,11 +1506,8 @@ static void stm32_fmc2_calc_timings(struct nand_chip *chip,
- 	if (twait > thiz && (sdrt->tDS_min > twait - thiz) &&
- 	    (tset_att < sdrt->tDS_min - (twait - thiz)))
- 		tset_att = sdrt->tDS_min - (twait - thiz);
--	tims->tset_att = DIV_ROUND_UP(tset_att, hclkp);
--	if (tims->tset_att == 0)
--		tims->tset_att = 1;
--	else if (tims->tset_att > FMC2_PMEM_PATT_TIMING_MASK)
--		tims->tset_att = FMC2_PMEM_PATT_TIMING_MASK;
-+	timing = DIV_ROUND_UP(tset_att, hclkp);
-+	tims->tset_att = clamp_val(timing, 1, FMC2_PMEM_PATT_TIMING_MASK);
- 
- 	/*
- 	 * tHOLD_ATT > tALH
-@@ -1545,17 +1522,11 @@ static void stm32_fmc2_calc_timings(struct nand_chip *chip,
- 	 * tHOLD_ATT > tRC - (tSETUP_ATT + tWAIT)
- 	 * tHOLD_ATT > tWC - (tSETUP_ATT + tWAIT)
- 	 */
--	thold_att = hclkp;
--	if (thold_att < sdrt->tALH_min)
--		thold_att = sdrt->tALH_min;
--	if (thold_att < sdrt->tCH_min)
--		thold_att = sdrt->tCH_min;
--	if (thold_att < sdrt->tCLH_min)
--		thold_att = sdrt->tCLH_min;
--	if (thold_att < sdrt->tCOH_min)
--		thold_att = sdrt->tCOH_min;
--	if (thold_att < sdrt->tDH_min)
--		thold_att = sdrt->tDH_min;
-+	thold_att = max_t(unsigned long, hclkp, sdrt->tALH_min);
-+	thold_att = max_t(unsigned long, thold_att, sdrt->tCH_min);
-+	thold_att = max_t(unsigned long, thold_att, sdrt->tCLH_min);
-+	thold_att = max_t(unsigned long, thold_att, sdrt->tCOH_min);
-+	thold_att = max_t(unsigned long, thold_att, sdrt->tDH_min);
- 	if ((sdrt->tWB_max + FMC2_TIO + FMC2_TSYNC > tset_mem) &&
- 	    (thold_att < sdrt->tWB_max + FMC2_TIO + FMC2_TSYNC - tset_mem))
- 		thold_att = sdrt->tWB_max + FMC2_TIO + FMC2_TSYNC - tset_mem;
-@@ -1574,11 +1545,8 @@ static void stm32_fmc2_calc_timings(struct nand_chip *chip,
- 	if ((sdrt->tWC_min > tset_att + twait) &&
- 	    (thold_att < sdrt->tWC_min - (tset_att + twait)))
- 		thold_att = sdrt->tWC_min - (tset_att + twait);
--	tims->thold_att = DIV_ROUND_UP(thold_att, hclkp);
--	if (tims->thold_att == 0)
--		tims->thold_att = 1;
--	else if (tims->thold_att > FMC2_PMEM_PATT_TIMING_MASK)
--		tims->thold_att = FMC2_PMEM_PATT_TIMING_MASK;
-+	timing = DIV_ROUND_UP(thold_att, hclkp);
-+	tims->thold_att = clamp_val(timing, 1, FMC2_PMEM_PATT_TIMING_MASK);
- }
- 
- static int stm32_fmc2_setup_interface(struct nand_chip *chip, int chipnr,
+ 		/* host read next element in ring */
+ 		if (++cur_rp >= ring->r.len)
 -- 
-1.9.1
+2.22.0
 
