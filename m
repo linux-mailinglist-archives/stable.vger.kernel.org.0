@@ -2,110 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EA6863E99
-	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 02:29:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69354640F0
+	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 08:11:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726898AbfGJA3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jul 2019 20:29:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46476 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726133AbfGJA3L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jul 2019 20:29:11 -0400
-Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6AB520645;
-        Wed, 10 Jul 2019 00:29:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562718549;
-        bh=bacaU1OxdOmT0R9cRxNDJ671Eey3dYdEH/+Uih4vI90=;
-        h=Date:From:To:Subject:From;
-        b=pZvCD4dKRJ7VNZySLnjoq7UJQ6WePRi0gr/KovMWAI6kgF+hIGRWGwzqKlLG6ckMT
-         QDKn87eu59a6WP3zFYB9MSZdHoX1s4FcnouVQP+wOeaknNYzFlH9VqLwbJi+kd7YVa
-         fmWCqsMj1qR9Ja06wl9eReUAaeimX+P5H8/94Ed8=
-Date:   Tue, 09 Jul 2019 17:29:09 -0700
-From:   akpm@linux-foundation.org
-To:     jgg@mellanox.com, jglisse@redhat.com,
-        kirill.shutemov@linux.intel.com, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, rcampbell@nvidia.com,
-        stable@vger.kernel.org
-Subject:  +
- mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch added to -mm tree
-Message-ID: <20190710002909.t9_-gS6wA%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726189AbfGJGLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jul 2019 02:11:06 -0400
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:1745 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725839AbfGJGLG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jul 2019 02:11:06 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d2581780000>; Tue, 09 Jul 2019 23:11:04 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Tue, 09 Jul 2019 23:11:05 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Tue, 09 Jul 2019 23:11:05 -0700
+Received: from [10.26.11.158] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 10 Jul
+ 2019 06:11:02 +0000
+Subject: Re: [PATCH 4.4 00/73] 4.4.185-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20190708150513.136580595@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <4b340df5-36db-4b90-4c9d-74e35df1f734@nvidia.com>
+Date:   Wed, 10 Jul 2019 07:10:59 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20190708150513.136580595@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL104.nvidia.com (172.18.146.11) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1562739064; bh=DpaeN74rUVMGKpqh507s+s0SiqHMjxA4g7BHKuhyO4I=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=omZeQEkXHWK6j8Qn2Zy7AkJVGwNoXxmkIY2DZG+JjW4i8AXvUUCzVkiyi9EOz88F+
+         p2HY0uiBkZKepGRgt+iLll7C85MQkkXbbEIcqpbymsINhjQ3p7BEEjX/PP3v/rMQSB
+         8cFNT1sfAtzkqRigK46P61yKleCuUTFe6PLyxplyOjA8ALxjFjhAZjjn15JCIlCa8+
+         ffVnVSbibCLG/W8upxOCM7Hsb+SAaIGUFpxo/OEBjKIu7qj+0IqsBQRIMsaWI4UtGY
+         z9Hov1NRJy2hBBgd8QaigcjdVmGzIXfjE+9IJgzle/Z5ONFsChQoriKFo6gAM22QBg
+         um6ESgYUeKVjA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/hmm: Fix bad subpage pointer in try_to_unmap_one
-has been added to the -mm tree.  Its filename is
-     mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch
+On 08/07/2019 16:12, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.185 release.
+> There are 73 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed 10 Jul 2019 03:03:52 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.185-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-hmm-fix-bad-subpage-pointer=
--in-try_to_unmap_one.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-hmm-fix-bad-subpage-pointer=
--in-try_to_unmap_one.patch
+All tests are passing for Tegra ...
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    19 tests:	19 pass, 0 fail
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing=
- your code ***
+Linux version:	4.4.185-rc1-g1ef1d6e05dcd
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Cheers
+Jon
 
-------------------------------------------------------
-=46rom: Ralph Campbell <rcampbell@nvidia.com>
-Subject: mm/hmm: Fix bad subpage pointer in try_to_unmap_one
-
-When migrating a ZONE device private page from device memory to system
-memory, the subpage pointer is initialized from a swap pte which computes
-an invalid page pointer. A kernel panic results such as:
-
-BUG: unable to handle page fault for address: ffffea1fffffffc8
-
-Initialize subpage correctly before calling page_remove_rmap().
-
-Link: http://lkml.kernel.org/r/20190709223556.28908-1-rcampbell@nvidia.com
-Fixes: a5430dda8a3a1c ("mm/migrate: support un-addressable ZONE_DEVICE page=
- in migration")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Cc: "J=C3=A9r=C3=B4me Glisse" <jglisse@redhat.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/rmap.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/mm/rmap.c~mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one
-+++ a/mm/rmap.c
-@@ -1476,6 +1476,7 @@ static bool try_to_unmap_one(struct page
- 			 * No need to invalidate here it will synchronize on
- 			 * against the special swap migration pte.
- 			 */
-+			subpage =3D page;
- 			goto discard;
- 		}
-=20
-_
-
-Patches currently in -mm which might be from rcampbell@nvidia.com are
-
-mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch
-
+-- 
+nvpublic
