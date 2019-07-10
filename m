@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9C26494F
-	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 17:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76FC164945
+	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 17:05:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728263AbfGJPF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728022AbfGJPF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 10 Jul 2019 11:05:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34750 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728015AbfGJPCz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jul 2019 11:02:55 -0400
+        id S1728018AbfGJPC4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Jul 2019 11:02:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF98A2064B;
-        Wed, 10 Jul 2019 15:02:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16C58208C4;
+        Wed, 10 Jul 2019 15:02:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562770974;
-        bh=LMO9SlGP21+nsQr6IidSCJbD4Vg7RTJcjTaiZ0yhzkI=;
+        s=default; t=1562770975;
+        bh=MEsC5u5pA+Siq1fVcMpg50vmQbSB3+gglKEm0muX+Hk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDDBcwz2cV0dsihAsC9uqu1/4RlcdrXBt504B0eJhcoU3LSwx0TUWB2MooTgd+gXz
-         s5cTmNe//iIUnCEOTINNO8HeRaOyfrAFmOMpNyQaKjElN0rnubcD9/QsjsknB8dRZO
-         wplQNDGvUBvwJgCINcQIS0QLlSWW7QjNGDpi+5yE=
+        b=tAJ6xIdow45Y0mRECb6zPXsVakfBedzlLxhbyOXeT42kk5sbky2koYiQ3uE4jft0q
+         lHBhCJvTV7IW0k35n1f7KbgIDLhP/m65lQZqxwPZ6VyM59VU2arxMI9+bAgaWbJziY
+         nYzOi8HXxQhGU0ARG6DW97aOSvJP4ToK0L+VkLLQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maurizio Lombardi <mlombard@redhat.com>,
-        Chris Leech <cleech@redhat.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 07/11] scsi: iscsi: set auth_protocol back to NULL if CHAP_A value is not supported
-Date:   Wed, 10 Jul 2019 11:02:34 -0400
-Message-Id: <20190710150240.6984-7-sashal@kernel.org>
+Cc:     Robert Beckett <bob.beckett@collabora.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.1 08/11] drm/imx: notify drm core before sending event during crtc disable
+Date:   Wed, 10 Jul 2019 11:02:35 -0400
+Message-Id: <20190710150240.6984-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190710150240.6984-1-sashal@kernel.org>
 References: <20190710150240.6984-1-sashal@kernel.org>
@@ -45,77 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Robert Beckett <bob.beckett@collabora.com>
 
-[ Upstream commit 5dd6c49339126c2c8df2179041373222362d6e49 ]
+[ Upstream commit 78c68e8f5cd24bd32ba4ca1cdfb0c30cf0642685 ]
 
-If the CHAP_A value is not supported, the chap_server_open() function
-should free the auth_protocol pointer and set it to NULL, or we will leave
-a dangling pointer around.
+Notify drm core before sending pending events during crtc disable.
+This fixes the first event after disable having an old stale timestamp
+by having drm_crtc_vblank_off update the timestamp to now.
 
-[   66.010905] Unsupported CHAP_A value
-[   66.011660] Security negotiation failed.
-[   66.012443] iSCSI Login negotiation failed.
-[   68.413924] general protection fault: 0000 [#1] SMP PTI
-[   68.414962] CPU: 0 PID: 1562 Comm: targetcli Kdump: loaded Not tainted 4.18.0-80.el8.x86_64 #1
-[   68.416589] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-[   68.417677] RIP: 0010:__kmalloc_track_caller+0xc2/0x210
+This was seen while debugging weston log message:
+Warning: computed repaint delay is insane: -8212 msec
 
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This occurred due to:
+1. driver starts up
+2. fbcon comes along and restores fbdev, enabling vblank
+3. vblank_disable_fn fires via timer disabling vblank, keeping vblank
+seq number and time set at current value
+(some time later)
+4. weston starts and does a modeset
+5. atomic commit disables crtc while it does the modeset
+6. ipu_crtc_atomic_disable sends vblank with old seq number and time
+
+Fixes: a474478642d5 ("drm/imx: fix crtc vblank state regression")
+
+Signed-off-by: Robert Beckett <bob.beckett@collabora.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/iscsi_target_auth.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/imx/ipuv3-crtc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/target/iscsi/iscsi_target_auth.c b/drivers/target/iscsi/iscsi_target_auth.c
-index 4e680d753941..e2fa3a3bc81d 100644
---- a/drivers/target/iscsi/iscsi_target_auth.c
-+++ b/drivers/target/iscsi/iscsi_target_auth.c
-@@ -89,6 +89,12 @@ static int chap_check_algorithm(const char *a_str)
- 	return CHAP_DIGEST_UNKNOWN;
- }
+diff --git a/drivers/gpu/drm/imx/ipuv3-crtc.c b/drivers/gpu/drm/imx/ipuv3-crtc.c
+index 54011df8c2e8..13d49002642b 100644
+--- a/drivers/gpu/drm/imx/ipuv3-crtc.c
++++ b/drivers/gpu/drm/imx/ipuv3-crtc.c
+@@ -91,14 +91,14 @@ static void ipu_crtc_atomic_disable(struct drm_crtc *crtc,
+ 	ipu_dc_disable(ipu);
+ 	ipu_prg_disable(ipu);
  
-+static void chap_close(struct iscsi_conn *conn)
-+{
-+	kfree(conn->auth_protocol);
-+	conn->auth_protocol = NULL;
-+}
++	drm_crtc_vblank_off(crtc);
 +
- static struct iscsi_chap *chap_server_open(
- 	struct iscsi_conn *conn,
- 	struct iscsi_node_auth *auth,
-@@ -126,7 +132,7 @@ static struct iscsi_chap *chap_server_open(
- 	case CHAP_DIGEST_UNKNOWN:
- 	default:
- 		pr_err("Unsupported CHAP_A value\n");
--		kfree(conn->auth_protocol);
-+		chap_close(conn);
- 		return NULL;
+ 	spin_lock_irq(&crtc->dev->event_lock);
+ 	if (crtc->state->event) {
+ 		drm_crtc_send_vblank_event(crtc, crtc->state->event);
+ 		crtc->state->event = NULL;
  	}
- 
-@@ -141,19 +147,13 @@ static struct iscsi_chap *chap_server_open(
- 	 * Generate Challenge.
- 	 */
- 	if (chap_gen_challenge(conn, 1, aic_str, aic_len) < 0) {
--		kfree(conn->auth_protocol);
-+		chap_close(conn);
- 		return NULL;
- 	}
- 
- 	return chap;
+ 	spin_unlock_irq(&crtc->dev->event_lock);
+-
+-	drm_crtc_vblank_off(crtc);
  }
  
--static void chap_close(struct iscsi_conn *conn)
--{
--	kfree(conn->auth_protocol);
--	conn->auth_protocol = NULL;
--}
--
- static int chap_server_compute_md5(
- 	struct iscsi_conn *conn,
- 	struct iscsi_node_auth *auth,
+ static void imx_drm_crtc_reset(struct drm_crtc *crtc)
 -- 
 2.20.1
 
