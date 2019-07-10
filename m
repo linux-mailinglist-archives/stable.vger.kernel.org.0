@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 681536491B
-	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 17:05:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F40A564921
+	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 17:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728325AbfGJPD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jul 2019 11:03:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36036 "EHLO mail.kernel.org"
+        id S1727623AbfGJPEF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jul 2019 11:04:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728320AbfGJPD4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jul 2019 11:03:56 -0400
+        id S1728328AbfGJPD6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Jul 2019 11:03:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E051216B7;
-        Wed, 10 Jul 2019 15:03:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63A6B214AF;
+        Wed, 10 Jul 2019 15:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562771036;
-        bh=vagWfom93lZcEVNEnCz2ecBgxebETkfjxM02bMwyzoo=;
+        s=default; t=1562771037;
+        bh=VJo6PCiUdFCgoao1ZcyIDX+DP+y9CInTMLCjljZzmtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PhUW+JiBv7CJLQU6y/G/Oh5rMz8SsT5628eFaOGA+ua5oHqVYzcE2b37XyNsrfzPG
-         HXlcLglOMkfYYNbArI8iTWY4fwiSvu6jXY7xGLXZzkMvRNmppnJiVJT/7C/o/jr23a
-         7+LcE0rHujU1tZkRgTxJ/TOZNRtNQc7S3D7hFvwc=
+        b=vDFKrRnCNnNZP2HlNAJ3OZgSF+fWNF535loRSkG6htWnTqOMy6I4bfEl/xppuzMvb
+         Gv9byGJH45h5ECauf/YM0mDL0QK72sxXX7lpyWCcTUjRcOic/l9Znnv8d+MmDYcV1g
+         CJiu1jbcJocx7wm+1RrAedOPbuaChRE+ei1mnJ78=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kevin Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>,
-        Jo-Philipp Wich <jo@mein.io>,
-        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 2/4] MIPS: fix build on non-linux hosts
-Date:   Wed, 10 Jul 2019 11:03:47 -0400
-Message-Id: <20190710150350.7501-2-sashal@kernel.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com,
+        Alexander Potapenko <glider@google.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 3/4] KVM: x86: degrade WARN to pr_warn_ratelimited
+Date:   Wed, 10 Jul 2019 11:03:48 -0400
+Message-Id: <20190710150350.7501-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190710150350.7501-1-sashal@kernel.org>
 References: <20190710150350.7501-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,64 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 1196364f21ffe5d1e6d83cafd6a2edb89404a3ae ]
+[ Upstream commit 3f16a5c318392cbb5a0c7a3d19dff8c8ef3c38ee ]
 
-calc_vmlinuz_load_addr.c requires SZ_64K to be defined for alignment
-purposes.  It included "../../../../include/linux/sizes.h" to define
-that size, however "sizes.h" tries to include <linux/const.h> which
-assumes linux system headers.  These may not exist eg. the following
-error was encountered when building Linux for OpenWrt under macOS:
+This warning can be triggered easily by userspace, so it should certainly not
+cause a panic if panic_on_warn is set.
 
-In file included from arch/mips/boot/compressed/calc_vmlinuz_load_addr.c:16:
-arch/mips/boot/compressed/../../../../include/linux/sizes.h:11:10: fatal error: 'linux/const.h' file not found
-         ^~~~~~~~~~
-
-Change makefile to force building on local linux headers instead of
-system headers.  Also change eye-watering relative reference in include
-file spec.
-
-Thanks to Jo-Philip Wich & Petr Štetiar for assistance in tracking this
-down & fixing.
-
-Suggested-by: Jo-Philipp Wich <jo@mein.io>
-Signed-off-by: Petr Štetiar <ynezz@true.cz>
-Signed-off-by: Kevin Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: linux-mips@vger.kernel.org
+Reported-by: syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com
+Suggested-by: Alexander Potapenko <glider@google.com>
+Acked-by: Alexander Potapenko <glider@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/boot/compressed/Makefile                 | 2 ++
- arch/mips/boot/compressed/calc_vmlinuz_load_addr.c | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
-index d5bdee115f22..d4918a2bca1b 100644
---- a/arch/mips/boot/compressed/Makefile
-+++ b/arch/mips/boot/compressed/Makefile
-@@ -66,6 +66,8 @@ OBJCOPYFLAGS_piggy.o := --add-section=.image=$(obj)/vmlinux.bin.z \
- $(obj)/piggy.o: $(obj)/dummy.o $(obj)/vmlinux.bin.z FORCE
- 	$(call if_changed,objcopy)
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 516d8b1562c8..d89000e48c34 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1293,7 +1293,7 @@ static int set_tsc_khz(struct kvm_vcpu *vcpu, u32 user_tsc_khz, bool scale)
+ 			vcpu->arch.tsc_always_catchup = 1;
+ 			return 0;
+ 		} else {
+-			WARN(1, "user requested TSC rate below hardware speed\n");
++			pr_warn_ratelimited("user requested TSC rate below hardware speed\n");
+ 			return -1;
+ 		}
+ 	}
+@@ -1303,8 +1303,8 @@ static int set_tsc_khz(struct kvm_vcpu *vcpu, u32 user_tsc_khz, bool scale)
+ 				user_tsc_khz, tsc_khz);
  
-+HOSTCFLAGS_calc_vmlinuz_load_addr.o += $(LINUXINCLUDE)
-+
- # Calculate the load address of the compressed kernel image
- hostprogs-y := calc_vmlinuz_load_addr
+ 	if (ratio == 0 || ratio >= kvm_max_tsc_scaling_ratio) {
+-		WARN_ONCE(1, "Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
+-			  user_tsc_khz);
++		pr_warn_ratelimited("Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
++			            user_tsc_khz);
+ 		return -1;
+ 	}
  
-diff --git a/arch/mips/boot/compressed/calc_vmlinuz_load_addr.c b/arch/mips/boot/compressed/calc_vmlinuz_load_addr.c
-index 542c3ede9722..d14f75ec8273 100644
---- a/arch/mips/boot/compressed/calc_vmlinuz_load_addr.c
-+++ b/arch/mips/boot/compressed/calc_vmlinuz_load_addr.c
-@@ -13,7 +13,7 @@
- #include <stdint.h>
- #include <stdio.h>
- #include <stdlib.h>
--#include "../../../../include/linux/sizes.h"
-+#include <linux/sizes.h>
- 
- int main(int argc, char *argv[])
- {
 -- 
 2.20.1
 
