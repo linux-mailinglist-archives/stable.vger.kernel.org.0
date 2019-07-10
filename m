@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A30286494B
-	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 17:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C9C26494F
+	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 17:06:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728003AbfGJPCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jul 2019 11:02:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34670 "EHLO mail.kernel.org"
+        id S1728263AbfGJPF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jul 2019 11:05:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727964AbfGJPCw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jul 2019 11:02:52 -0400
+        id S1728015AbfGJPCz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Jul 2019 11:02:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B17CC21530;
-        Wed, 10 Jul 2019 15:02:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF98A2064B;
+        Wed, 10 Jul 2019 15:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562770971;
-        bh=/tTCfsdxKc4/IJKdw22nCxXU0Y9hM+ovuTEz4TGz8OY=;
+        s=default; t=1562770974;
+        bh=LMO9SlGP21+nsQr6IidSCJbD4Vg7RTJcjTaiZ0yhzkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZ4Cm5+b9ogjQ15oXW2a1i+LFe1bgEVgVH+YknZKLpK1yt25fGNn27NMKDTN3MeH6
-         ZHgY7eB+pHN08JUzhCNdC6YDC80Lo78GcrWR+uJPSLekQs0o47A5WlRmMz8c+/AQCR
-         ff/i9F545GZpXKWyGDKxNe+PFqpSEPzeL2G4pNbM=
+        b=UDDBcwz2cV0dsihAsC9uqu1/4RlcdrXBt504B0eJhcoU3LSwx0TUWB2MooTgd+gXz
+         s5cTmNe//iIUnCEOTINNO8HeRaOyfrAFmOMpNyQaKjElN0rnubcD9/QsjsknB8dRZO
+         wplQNDGvUBvwJgCINcQIS0QLlSWW7QjNGDpi+5yE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 06/11] KVM: x86: degrade WARN to pr_warn_ratelimited
-Date:   Wed, 10 Jul 2019 11:02:33 -0400
-Message-Id: <20190710150240.6984-6-sashal@kernel.org>
+Cc:     Maurizio Lombardi <mlombard@redhat.com>,
+        Chris Leech <cleech@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 07/11] scsi: iscsi: set auth_protocol back to NULL if CHAP_A value is not supported
+Date:   Wed, 10 Jul 2019 11:02:34 -0400
+Message-Id: <20190710150240.6984-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190710150240.6984-1-sashal@kernel.org>
 References: <20190710150240.6984-1-sashal@kernel.org>
@@ -44,46 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit 3f16a5c318392cbb5a0c7a3d19dff8c8ef3c38ee ]
+[ Upstream commit 5dd6c49339126c2c8df2179041373222362d6e49 ]
 
-This warning can be triggered easily by userspace, so it should certainly not
-cause a panic if panic_on_warn is set.
+If the CHAP_A value is not supported, the chap_server_open() function
+should free the auth_protocol pointer and set it to NULL, or we will leave
+a dangling pointer around.
 
-Reported-by: syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com
-Suggested-by: Alexander Potapenko <glider@google.com>
-Acked-by: Alexander Potapenko <glider@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[   66.010905] Unsupported CHAP_A value
+[   66.011660] Security negotiation failed.
+[   66.012443] iSCSI Login negotiation failed.
+[   68.413924] general protection fault: 0000 [#1] SMP PTI
+[   68.414962] CPU: 0 PID: 1562 Comm: targetcli Kdump: loaded Not tainted 4.18.0-80.el8.x86_64 #1
+[   68.416589] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[   68.417677] RIP: 0010:__kmalloc_track_caller+0xc2/0x210
+
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Reviewed-by: Chris Leech <cleech@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/target/iscsi/iscsi_target_auth.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b07868eb1656..37028ea85d4c 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1547,7 +1547,7 @@ static int set_tsc_khz(struct kvm_vcpu *vcpu, u32 user_tsc_khz, bool scale)
- 			vcpu->arch.tsc_always_catchup = 1;
- 			return 0;
- 		} else {
--			WARN(1, "user requested TSC rate below hardware speed\n");
-+			pr_warn_ratelimited("user requested TSC rate below hardware speed\n");
- 			return -1;
- 		}
- 	}
-@@ -1557,8 +1557,8 @@ static int set_tsc_khz(struct kvm_vcpu *vcpu, u32 user_tsc_khz, bool scale)
- 				user_tsc_khz, tsc_khz);
+diff --git a/drivers/target/iscsi/iscsi_target_auth.c b/drivers/target/iscsi/iscsi_target_auth.c
+index 4e680d753941..e2fa3a3bc81d 100644
+--- a/drivers/target/iscsi/iscsi_target_auth.c
++++ b/drivers/target/iscsi/iscsi_target_auth.c
+@@ -89,6 +89,12 @@ static int chap_check_algorithm(const char *a_str)
+ 	return CHAP_DIGEST_UNKNOWN;
+ }
  
- 	if (ratio == 0 || ratio >= kvm_max_tsc_scaling_ratio) {
--		WARN_ONCE(1, "Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
--			  user_tsc_khz);
-+		pr_warn_ratelimited("Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
-+			            user_tsc_khz);
- 		return -1;
++static void chap_close(struct iscsi_conn *conn)
++{
++	kfree(conn->auth_protocol);
++	conn->auth_protocol = NULL;
++}
++
+ static struct iscsi_chap *chap_server_open(
+ 	struct iscsi_conn *conn,
+ 	struct iscsi_node_auth *auth,
+@@ -126,7 +132,7 @@ static struct iscsi_chap *chap_server_open(
+ 	case CHAP_DIGEST_UNKNOWN:
+ 	default:
+ 		pr_err("Unsupported CHAP_A value\n");
+-		kfree(conn->auth_protocol);
++		chap_close(conn);
+ 		return NULL;
  	}
  
+@@ -141,19 +147,13 @@ static struct iscsi_chap *chap_server_open(
+ 	 * Generate Challenge.
+ 	 */
+ 	if (chap_gen_challenge(conn, 1, aic_str, aic_len) < 0) {
+-		kfree(conn->auth_protocol);
++		chap_close(conn);
+ 		return NULL;
+ 	}
+ 
+ 	return chap;
+ }
+ 
+-static void chap_close(struct iscsi_conn *conn)
+-{
+-	kfree(conn->auth_protocol);
+-	conn->auth_protocol = NULL;
+-}
+-
+ static int chap_server_compute_md5(
+ 	struct iscsi_conn *conn,
+ 	struct iscsi_node_auth *auth,
 -- 
 2.20.1
 
