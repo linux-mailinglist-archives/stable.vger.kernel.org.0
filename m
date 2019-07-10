@@ -2,77 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BC7464DEC
-	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 23:12:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFB0C64E96
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 00:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727618AbfGJVMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jul 2019 17:12:31 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:42694 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727254AbfGJVMa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jul 2019 17:12:30 -0400
-Received: by mail-lj1-f196.google.com with SMTP id t28so3516637lje.9
-        for <stable@vger.kernel.org>; Wed, 10 Jul 2019 14:12:29 -0700 (PDT)
+        id S1727680AbfGJWGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jul 2019 18:06:32 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:51416 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726245AbfGJWGb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jul 2019 18:06:31 -0400
+Received: by mail-wm1-f66.google.com with SMTP id 207so3756489wma.1
+        for <stable@vger.kernel.org>; Wed, 10 Jul 2019 15:06:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gwvajVWMIb62q8wACGYhWs29kEXd/GDO5w+T3eFYJVQ=;
-        b=ix9E8oHqVOHHI7+NbnlUqfsJnN4HBLwyr0Jn9m3Tpk6LEOunHnYze3vGWP8/aAN+JQ
-         o8Xb6a4lS1X88VxaIJw7qDyL2rtrdl8yPiVKxFJVDlBDzUn/5GBcvnogmRiipUUSaZ2A
-         y62oVYOH++N07WuupIrdvk0x7owfObLe29Q5s=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=1a9rpnfcYOYsKIl+UyLzmikFdBxY9GyOWhqt3Pmtm3U=;
+        b=mQdqvrTUI3vtkfhFBjN8DENBaJL0KtFujF86sZbmE3c0dGToMIhcMfRoTz1e7TlfW9
+         /W9V/xr8fFoDt0a89QAkjbuKtOgWlaxgSr/yjYzQNNQncuj8Ke53VPDoYLC8RAFZFlNu
+         PqOHhrLf1pG1ywtNmKFb90d6yhgEHNPawdLtdkFLaM5YpyJr7cCoafrDTy1ibFSMVqaV
+         9natxxL1+y+WHciRF8afRWwyTepflULuBdE+FDFZWTLWheWFGfIN+WiUPvsMDrtunf9K
+         yRUoAl9+W4fpfSAApMEYuw57zpC26zLzW26VuzUSazikxDgFRoF6cltJLdw82cn0S6TY
+         ctWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gwvajVWMIb62q8wACGYhWs29kEXd/GDO5w+T3eFYJVQ=;
-        b=Me9cYKK44094hWQT+f3y04cORa7+RBpaFuDZhHoLNx8EoUBk1iWui7p/VpsiXz2fQV
-         og/EO8nBoaU4J4UZAvONFoKfXr6DFuS/tZVbGp1P/xZUAtfmNxyDBgqYUlQQRRp7aYAl
-         OuocyKvyZkBTarA/9s6mZ4aCnmwRJPujQT/yQrTOolMtuDGOKGf0onekiwbH/rmbRc8x
-         CdfJAcfgN9zw1iMZSDQqq80iq76t0gXZUUizr/2mXThjMBCUc5HYTNKKN4M20PfWjPLh
-         voa8O0AKDn38I1HVea49ksUMacNhEK5e4CucxEQuzwOxxJLwWR7mQKm+IFEk1mmildPy
-         t3WA==
-X-Gm-Message-State: APjAAAVNcILjdMp205BxpVA35gI+dqiksJX4kx4ZRtYHbir7n8x70zZU
-        he3O/LIFazDRVrkfYH68esTK90S8jU4=
-X-Google-Smtp-Source: APXvYqw56U6c7dSyPGNyHM5Iu7Dx1i9hi5lbKyp8ffigbpchp6FRsY5tKPdJ8KXQyOE/ylMLojHhXQ==
-X-Received: by 2002:a2e:9209:: with SMTP id k9mr175370ljg.96.1562793147976;
-        Wed, 10 Jul 2019 14:12:27 -0700 (PDT)
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com. [209.85.167.49])
-        by smtp.gmail.com with ESMTPSA id 63sm653575ljs.84.2019.07.10.14.12.25
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=1a9rpnfcYOYsKIl+UyLzmikFdBxY9GyOWhqt3Pmtm3U=;
+        b=jw7/wZrliqUE8vzj5hU6WHcEBkYFGNg8K827Ff4JAJYh9HcWkoML1WSO1TYrHHXG5p
+         S0V6HBvZPk/f0irNXRwY183hIweyU/lojyBf8Yv/fMqB5TmdVdt5+Qc7MjT/XCrwebzU
+         Jz5ICUBOEfaX0ts8YKdQ+z0AP9kne2GOIvczakmBRkb8qSY9QUUpWv1/OvQfIQMwpIpS
+         WM2uy3DJiYD/kyoscajMIwUffTCUGRaXdu7FLXmU9zQ7RKuYIJ1BgaQDzXBHUi/6Qb0U
+         qWyjXTkq9e4JzFJhzZhMV7g042xZL5uBEtbwOica7NRQMrQ/G4X5UAAdtpW43KsdKFtl
+         gg+w==
+X-Gm-Message-State: APjAAAXr6X5dsT9lOWUfnOqMjxHf9I4kD5KzAVtQC3QHrKCjm3i5ieLD
+        XMOZ2dZdrUKKUEyFFoGRK2eSN0jP+U0=
+X-Google-Smtp-Source: APXvYqySweBQ1+i8pPczjFsKwR0VV7oJfkICrWQqkSPTNQv60ONJfzbyQZoqceDzXrpLTusB5RCyHA==
+X-Received: by 2002:a1c:a985:: with SMTP id s127mr43301wme.163.1562796389642;
+        Wed, 10 Jul 2019 15:06:29 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id q7sm3526044wrx.6.2019.07.10.15.06.28
         for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Wed, 10 Jul 2019 14:12:26 -0700 (PDT)
-Received: by mail-lf1-f49.google.com with SMTP id c9so2578747lfh.4
-        for <stable@vger.kernel.org>; Wed, 10 Jul 2019 14:12:25 -0700 (PDT)
-X-Received: by 2002:a19:6519:: with SMTP id z25mr6190697lfb.42.1562793144979;
- Wed, 10 Jul 2019 14:12:24 -0700 (PDT)
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 10 Jul 2019 15:06:29 -0700 (PDT)
+Message-ID: <5d266165.1c69fb81.928b8.50dd@mx.google.com>
+Date:   Wed, 10 Jul 2019 15:06:29 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20190627003616.20767-1-sashal@kernel.org> <20190627003616.20767-14-sashal@kernel.org>
- <CA+ASDXPyGECiq9gZmFj8TU6Gmt2epQtuBqnGqRWad79DJT589w@mail.gmail.com> <20190710145112.GX10104@sasha-vm>
-In-Reply-To: <20190710145112.GX10104@sasha-vm>
-From:   Brian Norris <briannorris@chromium.org>
-Date:   Wed, 10 Jul 2019 14:12:12 -0700
-X-Gmail-Original-Message-ID: <CA+ASDXPseNZkud1vu9zaRH-vA0rJq8D_t6pFG1LTPQtdr8_eVA@mail.gmail.com>
-Message-ID: <CA+ASDXPseNZkud1vu9zaRH-vA0rJq8D_t6pFG1LTPQtdr8_eVA@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.19 14/60] mwifiex: Abort at too short BSS
- descriptor element
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Linux Kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Takashi Iwai <tiwai@suse.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        "<netdev@vger.kernel.org>" <netdev@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.133
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 123 boots: 3 failed,
+ 120 passed (v4.14.133)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 10, 2019 at 7:51 AM Sasha Levin <sashal@kernel.org> wrote:
-> I see that 63d7ef36103d didn't make it into 5.2, so I'll just drop this
-> for now.
+stable-rc/linux-4.14.y boot: 123 boots: 3 failed, 120 passed (v4.14.133)
 
-Yeah, I think it's stuck at net/master. Presumably it'll get into
-5.3-rc somewhere.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.133/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.133/
 
-Brian
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.133
+Git Commit: aea8526edf59da3ff5306ca408e13d8f6ab89b34
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 66 unique boards, 25 SoC families, 15 builds out of 201
+
+Boot Failures Detected:
+
+arm:
+    sunxi_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
+
+    multi_v7_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            rk3399-firefly: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
