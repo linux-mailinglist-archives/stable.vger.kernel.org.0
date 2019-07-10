@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CF87648DD
-	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 17:02:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 282B56494C
+	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 17:06:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725956AbfGJPCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jul 2019 11:02:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34552 "EHLO mail.kernel.org"
+        id S1727998AbfGJPCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jul 2019 11:02:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727964AbfGJPCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jul 2019 11:02:47 -0400
+        id S1727978AbfGJPCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Jul 2019 11:02:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 039F42064B;
-        Wed, 10 Jul 2019 15:02:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F988208C4;
+        Wed, 10 Jul 2019 15:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562770966;
-        bh=iDWaGuCyFWXcNVHxVD68Z0CNqAgj+ipuFl5jzHmj4kA=;
+        s=default; t=1562770969;
+        bh=pbuYZD7Ly2DA5k2hqthPW1CIEpMrmSqlO5hz8/6W+sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ry5jxnTIsLHN8kFUiyUPGvn8wgjYz4kNq7bT2vJRzmzCiK2OFkeI0K/AjwYhujbGu
-         pjl6z+HpwjjSZN+V9BONgpuiUyWoNrb7Jicd5EhYIf/8Xy9CsKrWF87Wp7qUyixY15
-         D9b2Q6KRH5JPdt9aY/t1XSLhkQRBS9Up+PwCHA1E=
+        b=0dUig1LrAwhgYhgxFaMqciUY6uoDDcteKVWnWLbTaiA8Dm62TIGHWWENj8bS7ZmIC
+         7AMaIzs8aZJLE4CmUDY96IC5OMZjD7RqSLLXZutoeQiIaDvHPMuI42PFPN6HpOcDhE
+         GneJd/F61QmSl2a87bkL+t69A2TJf+iH7uHs35cg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gerd Hoffmann <kraxel@redhat.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.1 03/11] drm/virtio: move drm_connector_update_edid_property() call
-Date:   Wed, 10 Jul 2019 11:02:30 -0400
-Message-Id: <20190710150240.6984-3-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Fangrui Song <maskray@google.com>,
+        Peter Smith <peter.smith@linaro.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.1 04/11] arm64/efi: Mark __efistub_stext_offset as an absolute symbol explicitly
+Date:   Wed, 10 Jul 2019 11:02:31 -0400
+Message-Id: <20190710150240.6984-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190710150240.6984-1-sashal@kernel.org>
 References: <20190710150240.6984-1-sashal@kernel.org>
@@ -46,42 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 41de4be6f6efa4132b29af51158cd672d93f2543 ]
+[ Upstream commit aa69fb62bea15126e744af2e02acc0d6cf3ed4da ]
 
-drm_connector_update_edid_property can sleep, we must not
-call it while holding a spinlock.  Move the callsite.
+After r363059 and r363928 in LLVM, a build using ld.lld as the linker
+with CONFIG_RANDOMIZE_BASE enabled fails like so:
 
-Fixes: b4b01b4995fb ("drm/virtio: add edid support")
-Reported-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Tested-by: Max Filippov <jcmvbkbc@gmail.com>
-Tested-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20190405044602.2334-1-kraxel@redhat.com
+ld.lld: error: relocation R_AARCH64_ABS32 cannot be used against symbol
+__efistub_stext_offset; recompile with -fPIC
+
+Fangrui and Peter figured out that ld.lld is incorrectly considering
+__efistub_stext_offset as a relative symbol because of the order in
+which symbols are evaluated. _text is treated as an absolute symbol
+and stext is a relative symbol, making __efistub_stext_offset a
+relative symbol.
+
+Adding ABSOLUTE will force ld.lld to evalute this expression in the
+right context and does not change ld.bfd's behavior. ld.lld will
+need to be fixed but the developers do not see a quick or simple fix
+without some research (see the linked issue for further explanation).
+Add this simple workaround so that ld.lld can continue to link kernels.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/561
+Link: https://github.com/llvm/llvm-project/commit/025a815d75d2356f2944136269aa5874721ec236
+Link: https://github.com/llvm/llvm-project/commit/249fde85832c33f8b06c6b4ac65d1c4b96d23b83
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Debugged-by: Fangrui Song <maskray@google.com>
+Debugged-by: Peter Smith <peter.smith@linaro.org>
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+[will: add comment]
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/image.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 6bc2008b0d0d..3ef24f89ef93 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -620,11 +620,11 @@ static void virtio_gpu_cmd_get_edid_cb(struct virtio_gpu_device *vgdev,
- 	output = vgdev->outputs + scanout;
+diff --git a/arch/arm64/kernel/image.h b/arch/arm64/kernel/image.h
+index 33f14e484040..b22e8ad071b1 100644
+--- a/arch/arm64/kernel/image.h
++++ b/arch/arm64/kernel/image.h
+@@ -78,7 +78,11 @@
  
- 	new_edid = drm_do_get_edid(&output->conn, virtio_get_edid_block, resp);
-+	drm_connector_update_edid_property(&output->conn, new_edid);
+ #ifdef CONFIG_EFI
  
- 	spin_lock(&vgdev->display_info_lock);
- 	old_edid = output->edid;
- 	output->edid = new_edid;
--	drm_connector_update_edid_property(&output->conn, output->edid);
- 	spin_unlock(&vgdev->display_info_lock);
+-__efistub_stext_offset = stext - _text;
++/*
++ * Use ABSOLUTE() to avoid ld.lld treating this as a relative symbol:
++ * https://github.com/ClangBuiltLinux/linux/issues/561
++ */
++__efistub_stext_offset = ABSOLUTE(stext - _text);
  
- 	kfree(old_edid);
+ /*
+  * The EFI stub has its own symbol namespace prefixed by __efistub_, to
 -- 
 2.20.1
 
