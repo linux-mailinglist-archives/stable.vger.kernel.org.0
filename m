@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8FA464905
-	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 17:05:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34A0264908
+	for <lists+stable@lfdr.de>; Wed, 10 Jul 2019 17:05:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728173AbfGJPD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jul 2019 11:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35448 "EHLO mail.kernel.org"
+        id S1728182AbfGJPDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jul 2019 11:03:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728167AbfGJPD2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jul 2019 11:03:28 -0400
+        id S1728172AbfGJPD3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Jul 2019 11:03:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66C7A2064A;
-        Wed, 10 Jul 2019 15:03:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2D9321655;
+        Wed, 10 Jul 2019 15:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562771007;
-        bh=CbmMWEeV6MOMCbYKjw+SxwbG0mG1v/wTHIyvOGV82N4=;
+        s=default; t=1562771008;
+        bh=nkIVLuUcip7zK4hli8E14iBflLln8ApaMqsmcZaY+Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wk+3KErBooiH15vwv4gT1Z4FFSdo2CSPaG+zmVbD5/GDsi7ytzKFqvljVZmNhEJae
-         TeSX+OYvaZ4pLWcp4eSmHVfUgQJbg2a/f1c6zyeOJigGQkjoFGFIq1vw9KK8tGxn6c
-         74zfg/QkWoh34N1MsSv9DTcMFs6ZKvkLM1qEjqeo=
+        b=j3Si3QUXL0kU1qVCp/tbw7A6oKk8EyU3fFTK3xh04ytoR2l5bZElRG3DLJKcSPFV5
+         ckIn8IteR/K/Fb/2KFHxZFdJ0/qOqTswFLiLqmN4vx7Ks2ZJjE2OuQZFl0f4iIfpv9
+         0xAIs8XfN01hcR8rRNO7NIEBucAWLarcAOMzJoXM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Fangrui Song <maskray@google.com>,
-        Peter Smith <peter.smith@linaro.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 3/8] arm64/efi: Mark __efistub_stext_offset as an absolute symbol explicitly
-Date:   Wed, 10 Jul 2019 11:03:13 -0400
-Message-Id: <20190710150319.7258-3-sashal@kernel.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com,
+        Alexander Potapenko <glider@google.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 4/8] KVM: x86: degrade WARN to pr_warn_ratelimited
+Date:   Wed, 10 Jul 2019 11:03:14 -0400
+Message-Id: <20190710150319.7258-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190710150319.7258-1-sashal@kernel.org>
 References: <20190710150319.7258-1-sashal@kernel.org>
@@ -46,60 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit aa69fb62bea15126e744af2e02acc0d6cf3ed4da ]
+[ Upstream commit 3f16a5c318392cbb5a0c7a3d19dff8c8ef3c38ee ]
 
-After r363059 and r363928 in LLVM, a build using ld.lld as the linker
-with CONFIG_RANDOMIZE_BASE enabled fails like so:
+This warning can be triggered easily by userspace, so it should certainly not
+cause a panic if panic_on_warn is set.
 
-ld.lld: error: relocation R_AARCH64_ABS32 cannot be used against symbol
-__efistub_stext_offset; recompile with -fPIC
-
-Fangrui and Peter figured out that ld.lld is incorrectly considering
-__efistub_stext_offset as a relative symbol because of the order in
-which symbols are evaluated. _text is treated as an absolute symbol
-and stext is a relative symbol, making __efistub_stext_offset a
-relative symbol.
-
-Adding ABSOLUTE will force ld.lld to evalute this expression in the
-right context and does not change ld.bfd's behavior. ld.lld will
-need to be fixed but the developers do not see a quick or simple fix
-without some research (see the linked issue for further explanation).
-Add this simple workaround so that ld.lld can continue to link kernels.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/561
-Link: https://github.com/llvm/llvm-project/commit/025a815d75d2356f2944136269aa5874721ec236
-Link: https://github.com/llvm/llvm-project/commit/249fde85832c33f8b06c6b4ac65d1c4b96d23b83
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Debugged-by: Fangrui Song <maskray@google.com>
-Debugged-by: Peter Smith <peter.smith@linaro.org>
-Suggested-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-[will: add comment]
-Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: syzbot+c03f30b4f4c46bdf8575@syzkaller.appspotmail.com
+Suggested-by: Alexander Potapenko <glider@google.com>
+Acked-by: Alexander Potapenko <glider@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/image.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/image.h b/arch/arm64/kernel/image.h
-index 40f9f0b078a4..12af2ba8d558 100644
---- a/arch/arm64/kernel/image.h
-+++ b/arch/arm64/kernel/image.h
-@@ -73,7 +73,11 @@
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 858dd0d89b02..a8526042d176 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1392,7 +1392,7 @@ static int set_tsc_khz(struct kvm_vcpu *vcpu, u32 user_tsc_khz, bool scale)
+ 			vcpu->arch.tsc_always_catchup = 1;
+ 			return 0;
+ 		} else {
+-			WARN(1, "user requested TSC rate below hardware speed\n");
++			pr_warn_ratelimited("user requested TSC rate below hardware speed\n");
+ 			return -1;
+ 		}
+ 	}
+@@ -1402,8 +1402,8 @@ static int set_tsc_khz(struct kvm_vcpu *vcpu, u32 user_tsc_khz, bool scale)
+ 				user_tsc_khz, tsc_khz);
  
- #ifdef CONFIG_EFI
+ 	if (ratio == 0 || ratio >= kvm_max_tsc_scaling_ratio) {
+-		WARN_ONCE(1, "Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
+-			  user_tsc_khz);
++		pr_warn_ratelimited("Invalid TSC scaling ratio - virtual-tsc-khz=%u\n",
++			            user_tsc_khz);
+ 		return -1;
+ 	}
  
--__efistub_stext_offset = stext - _text;
-+/*
-+ * Use ABSOLUTE() to avoid ld.lld treating this as a relative symbol:
-+ * https://github.com/ClangBuiltLinux/linux/issues/561
-+ */
-+__efistub_stext_offset = ABSOLUTE(stext - _text);
- 
- /*
-  * The EFI stub has its own symbol namespace prefixed by __efistub_, to
 -- 
 2.20.1
 
