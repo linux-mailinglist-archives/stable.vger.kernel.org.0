@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C95C65599
+	by mail.lfdr.de (Postfix) with ESMTP id 88A8F6559A
 	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 13:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728344AbfGKLbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 07:31:12 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:60053 "EHLO
+        id S1728354AbfGKLbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 07:31:17 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:43249 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728205AbfGKLbM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 07:31:12 -0400
+        by vger.kernel.org with ESMTP id S1728102AbfGKLbQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 07:31:16 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 0EE154FE;
-        Thu, 11 Jul 2019 07:31:09 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 11 Jul 2019 07:31:09 -0400
+        by mailout.west.internal (Postfix) with ESMTP id A1A924B5;
+        Thu, 11 Jul 2019 07:31:15 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 11 Jul 2019 07:31:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=TzQ4Lm
-        IoZUPaoMMOPZ52lNEnNLxOD1cQ+E5VQ4DyqA4=; b=ybSS/MtD5VNtjLFWGBILG7
-        kPmNdI4KixHixfnRDyG+neEKA/MImi4Ik+qXYlGJsluw5k3K9Oim5b8DT+c/vZ/k
-        wuflgQRaLS5dWdV7DlXYqkq9EqF+fqL/jRkLjyvneOoSq/DHO86f0cZ3bvXAo8TV
-        /FpvGOUtdfFRD5LHEwZNwa+MduPoJymzmJ6+vUlgR19pf9eKBiWwD8juixOKJpqq
-        5fb6cj7X99mKuFDG3OZS2u6qUt2vdIbAj3CXfQEsv4sUKrDVtTNr892lV6jCufHE
-        JzDD+KNmUcLLhvvlF7Lg60L/fVgldom8Rb2gTL5vggN0zfduIT+w0O4C9mbnIzIQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=CxCn5o
+        FsAV4PwZgyV77WxPFsXqJt6xFz51Addt7AM/Q=; b=YeIZPIDiqRyLj7yMRbK2o4
+        4xEKqZUtldi6TSyH7BxUeQ0TMlyG1EF2wJSKMYuVH51Rpkdz5fBK+mbsovBrtE80
+        dPNlj07TVH10y7zSdhzK/CZIJIVscWJnDDY7RFqzbaIt7Di2qxxIc9n8KDjrUrws
+        SWFoYVK7xczoEfRl3AXGHmMNmAhAyH8ZjmyxskG3yA4qShQm7rtNTKlRcKc//X97
+        fFnIAJyxUPsqa6iTH8alWLwi2ly2DnH5mwo0BOLC2xhtdeb/tv0t48wit/k1ZnwX
+        10L9nBjHcbuHtLMpvCtDs2cB2fDieb3Gfre+OsDj7h6QNUanv/duU2Ri+NxGo7Gg
         ==
-X-ME-Sender: <xms:_B0nXfrVt6cbfX377CI2SI1YW4gyJt8sy-Kq7Pnw9yTrbbybrvBGOg>
+X-ME-Sender: <xms:Ax4nXcLQlUrjV-Gfq1FSn9VmptiqD2sMunwea99tmT9q7GNt01w94w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrgeekgdegfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:_B0nXaYV05x77OnlKD2cLSeg9PYe0QTBGAU1jznU1GwWg_HAWyWDZQ>
-    <xmx:_B0nXQCbUOggw-FfbcD8LzZjSopDNuqNqvf0idDLdfFH5o15tJ7QNg>
-    <xmx:_B0nXUetrZN6W0o7i1pUX6k59qrd8RmrCrE9q1Kav2xIKoXXi1fLig>
-    <xmx:_B0nXbiMLQCfzgT8wJW-w8OA0MNLoun00i98DgLwC7n_ReQ3JVc-PQ>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:Ax4nXU89i1oFXpnppeRRbmkqIlZF58KQyU4sKTyCrhJ03mMvOlkoUg>
+    <xmx:Ax4nXTQCWT3n3193nclCmM9iaqDppx0hh_6X-DpR_6m4KINwu3icuw>
+    <xmx:Ax4nXWw91CZjy5Cv37LZXKFYTTBPbYFShi5ONqZIOZiBICSAChuwxA>
+    <xmx:Ax4nXZrALkX-vBHw6OHStwQ_jpik8_Amzg-s6jQ78u-CqQfSEHqrEw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 298133800B9;
-        Thu, 11 Jul 2019 07:31:06 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] fscrypt: don't set policy for a dead directory" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id D8B0D80064;
+        Thu, 11 Jul 2019 07:31:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] fscrypt: don't set policy for a dead directory" failed to apply to 4.4-stable tree
 To:     hongjiefang@asrmicro.com, ebiggers@google.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 11 Jul 2019 13:31:04 +0200
-Message-ID: <15628446641298@kroah.com>
+Message-ID: <1562844664145128@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
