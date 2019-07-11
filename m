@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79641655CE
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 13:35:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F70655CF
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 13:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728102AbfGKLf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 07:35:28 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:33439 "EHLO
+        id S1728178AbfGKLfa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 07:35:30 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:51553 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728026AbfGKLf2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 07:35:28 -0400
+        by vger.kernel.org with ESMTP id S1728147AbfGKLf3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 07:35:29 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id E0BE14C4;
-        Thu, 11 Jul 2019 07:35:26 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id CCFF94BE;
+        Thu, 11 Jul 2019 07:35:28 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 11 Jul 2019 07:35:27 -0400
+  by compute6.internal (MEProxy); Thu, 11 Jul 2019 07:35:29 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=kp5Vrr
-        PcoT5tyiJcQ4Bj2lY0+dqgJzcepuiV+ZzgQWs=; b=XDmKx/TerYswW0ItBIzsms
-        jkIQJfZtqnzKikjPbyMQGitVIoG3PlZsWqVYf54nWttSVQ8/YPysLVqCZLienzPn
-        XVCtSGvDw+OTtDZzG4Q0PTdzNYHr7dg/F/Ka0hUhyCzhx5AGR/1jz+DRTlRmeRJE
-        hpRSQa9pjJfJcdxC8so2VXVbHI81P4anx0AC7zOPTmc7NRYBeUL+gumxPorm5gwX
-        I1fN969XNNff8psxCmBeFc1SLiM9mjesKh13GLHv9/nEKsNnK+n4jKckFzxjC9RC
-        MXUJWH/dx8v7ReeQcAZbjN7RisTY7oqUeZzY6b+roPOMBeqBvBs+AQf0sMW555tw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=K/a/OC
+        3E4WUTRStR2pAcpFQZ0e01R+eXZImQKfNsXw0=; b=NO6eigrFIE0TIhacrL43I/
+        HmUFBDdStJN9trpX7j6eqO1ryqX/U4KOhC26JGyER+tNSo16ITP/Cbq5ROOf93dh
+        ScRjdILjQHQVGZV0E0M9dl0po7Ed3EQV5/BfhVN9Q5PCBwtNls/85chYILJ7eaJm
+        E6/8Mt2kNhLaoZ6uwca8hu6znItzzjxX5/AcoIeqDYDxLG6qRGArlZdEkjQmxnca
+        CwBROgZZ5N+qk8JnpJN2x16bzt0jP5I6jmODy/dSTaDuj5bdsXD6Bncf1r5KAvxr
+        EgTYNoG0mVle1mBm7LyiPFVFPPXBHStTkJa5MpWTAoAR99a5ifzfRrtbNWpapoQQ
         ==
-X-ME-Sender: <xms:_h4nXUyvI6EP5N8InIPrnIlgSUbnMRkss-CibDvoiNLSpMjhX4P8ig>
+X-ME-Sender: <xms:AB8nXXCmWFXI44Qj9ijSyM6EDOl-Hc4fCeOKOCHSUes5Jda--Z6cmA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrgeekgdegfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
     hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeei
-X-ME-Proxy: <xmx:_h4nXVdC-EMdjsxr4NAz-YjjtLoL-dC8Aa454eTxGUjGBLrm73LyYw>
-    <xmx:_h4nXa3hOY5jzGK1wJO1ROGXbSw2H5wXeWmoQBQcVl-pKEh241ejsw>
-    <xmx:_h4nXeuLq7Y9DOGehsC2wuZ9fVGBCl5IFYKewXhydot-J1QOw9gI-A>
-    <xmx:_h4nXQYSjkeSXUHLQxkzDe-GPsZmzQ-3Ys6_d_OjiAmv9aJ_tSAhGQ>
+X-ME-Proxy: <xmx:AB8nXRxzrCwOEvRuaEUgLisR9azFUhe4r7t7JvpIgog9AlRPFKwCVg>
+    <xmx:AB8nXdkXUxxyJ9ood38l3RABvTY7fBbBTqhNQgK3iOQlsPUH509eYA>
+    <xmx:AB8nXeEm2e_ZpEK7wqcXt7GlE6RreOR1oSQCX9kfXlM-IzzW3b0KcA>
+    <xmx:AB8nXbQLiwOcnYPbZ3vytZSkqQJwimuyrc0WPVWlRfZ2AATlZj7mbQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 063138005C;
-        Thu, 11 Jul 2019 07:35:25 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E23618005B;
+        Thu, 11 Jul 2019 07:35:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM" failed to apply to 4.9-stable tree
 To:     sukhomlinov@google.com, dianders@chromium.org,
         jarkko.sakkinen@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 11 Jul 2019 13:35:16 +0200
-Message-ID: <1562844916127106@kroah.com>
+Message-ID: <1562844916186241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
