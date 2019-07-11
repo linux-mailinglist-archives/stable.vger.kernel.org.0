@@ -2,91 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 116FF65B91
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 18:30:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51EC465BA4
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 18:39:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728463AbfGKQak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 12:30:40 -0400
-Received: from mail-io1-f65.google.com ([209.85.166.65]:35005 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728405AbfGKQak (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 12:30:40 -0400
-Received: by mail-io1-f65.google.com with SMTP id m24so13934458ioo.2
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 09:30:40 -0700 (PDT)
+        id S1728462AbfGKQjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 12:39:18 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:40250 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728194AbfGKQjR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 12:39:17 -0400
+Received: by mail-qt1-f195.google.com with SMTP id a15so4937733qtn.7
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 09:39:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=s1PNfjIv4q2GKA580mQ1tu3y5QbK1n3IiJClY5acdEk=;
-        b=emCfsojTl6dG/z/5g7abKUQutN+YQtndfLO3yBka4B3iPwm5jW1o05k2OwxAUygHu9
-         10yxZTFEN29FWIFogXE0kbIKpvoECgnzre+66+JWLypIfUitA2mBnQoAs2rwOXAiz2jb
-         tkYL7hPVTfvxi497J2aaes2OP3OVFCWa3b+sM=
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=Mj93UacmkzQe96ed++HjZVIA+pCGmuSxqYKJ2BWCrk0=;
+        b=Fa0qunXPrrvUdJqQlSgGirR3Zr+WVsVhNsR+rmMcf3D5BamxiQBpIYX65/x01QkMXp
+         /Mc/0ba/+7YGrfOkAyoEbnxD2c7Acd6DNyFTqeo7zi6+nl/CIf4+8/auhuzEajAwsLQB
+         UGt3/rRSC/G7JoxdNuEiJ+FuQ4ut6RRCdTeG8NmEFAyeO7zv87RCw+BTuvY6UG/lW3NF
+         wu3DwtoN+a+EO8C/dJxo9r/9GmbFrBE1t5Y7TCE/XKioP01CcI799uUjDtbMFkOrWUtt
+         c+EscNf6f9P49QWOaYT3P35eNQ4w+Fzuxfh3uolb/r+cJo4Bg8M2zVEj33O9alrDK/Rk
+         lROg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=s1PNfjIv4q2GKA580mQ1tu3y5QbK1n3IiJClY5acdEk=;
-        b=K8ec4fzumf+PesnXjmCd83JRkxxVhIyUlceE0K2ddPJ0IHcNmX/rpgxcNM48YbkNGT
-         0A0hGTt77Y4yBtHVWDAo+FJWwXfh7w7waDvdlxcXXaw04g+4qiW8KoOfEIlTUVlCCQQC
-         giAXdyLPEZ6T3UOg2rZBAqG2lX3mWXGDnCVXfR5Nqzp6tLKiS0+LJtZ1o+qsk0aYxYB0
-         O9OT14NyODBJr4u2pmve3F46dyatwGwQ31M3FAABvUc4EFFKOq+2jw/TNmnvp6qhYiBb
-         hW7grRjwhQtbsE4MjF5pARrWwuBDMjFMEe0EVzTH7+6Lc5M/6OniAT20Mcm1owFuWyS2
-         gJzA==
-X-Gm-Message-State: APjAAAVufuVVhpcNCr2Ati/ZfKIT37QrbVdv9VpgX+irXk9y3z4FVb4I
-        y9ZuC1qRBPY43TJljVN1Ya9C9RlsY/s=
-X-Google-Smtp-Source: APXvYqxE8fwcd1raFim5LV8QMa67zQ1LZ/Y1ocG+xFyumWgKX74IhBWttzYnmK6pa0kYYXiMhn/N6Q==
-X-Received: by 2002:a6b:621a:: with SMTP id f26mr870491iog.127.1562862639305;
-        Thu, 11 Jul 2019 09:30:39 -0700 (PDT)
-Received: from mail-io1-f54.google.com (mail-io1-f54.google.com. [209.85.166.54])
-        by smtp.gmail.com with ESMTPSA id c81sm7763805iof.28.2019.07.11.09.30.38
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 09:30:39 -0700 (PDT)
-Received: by mail-io1-f54.google.com with SMTP id s7so13812311iob.11
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 09:30:38 -0700 (PDT)
-X-Received: by 2002:a5d:885a:: with SMTP id t26mr1922506ios.218.1562862638257;
- Thu, 11 Jul 2019 09:30:38 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Mj93UacmkzQe96ed++HjZVIA+pCGmuSxqYKJ2BWCrk0=;
+        b=qQZIi/luiSaUuythhd2JsxBUFGqZTO7mvJ0RjIRCbG0M35BpBfuITjIB52633FvEXJ
+         shnr4YGvuzPr5AKwUgoJoY0oRemrwioHmrK+yceTBfMMpQEu6HyXpTC8/tIBqJu+7fW2
+         EtMJP8JWmfD+Ikbvj1x2IRj9W1MWT2bsywHQCY8YNFriDGntPKg35k1bAZfd7PSxSxRz
+         xGaeU6TdWf2aNYU+UuMuT0LJKVtE6i45OMge1PPnUEXBGtuY8L5k/ieoHYGHUXxyUOYr
+         EhLvJEuMreHa4jnu6Iovr2wTkbHWhNcp/Tku8FnQVcNowczbz74uQF5xXpFO5orsN9yO
+         b0Sw==
+X-Gm-Message-State: APjAAAUYPPUeOKVbCY1jPUXwXPdG3jDSKW8gpUZ0mvp7cxMVzj9/7Jhk
+        NvYtg5O3hLG4QqUxcg2VexIcwg==
+X-Google-Smtp-Source: APXvYqzRA6gOJgy5jfVeGRE9t/Q0rKMwpDaSdQKc9GDPkpbiD9jd23Z8g2RuP9kl01lLIzgycVN08A==
+X-Received: by 2002:a0c:df12:: with SMTP id g18mr2550145qvl.34.1562863156616;
+        Thu, 11 Jul 2019 09:39:16 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-156-34-55-100.dhcp-dynamic.fibreop.ns.bellaliant.net. [156.34.55.100])
+        by smtp.gmail.com with ESMTPSA id y3sm2453464qtj.46.2019.07.11.09.39.16
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 11 Jul 2019 09:39:16 -0700 (PDT)
+Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1hlc6F-0007c3-Mh; Thu, 11 Jul 2019 13:39:15 -0300
+Date:   Thu, 11 Jul 2019 13:39:15 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Douglas Anderson <dianders@chromium.org>
+Cc:     stable@vger.kernel.org, groeck@chromium.org,
+        gregkh@linuxfoundation.org, sukhomlinov@google.com,
+        jarkko.sakkinen@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
+        Peter Huewe <peterhuewe@gmx.de>, linux-kernel@vger.kernel.org,
+        linux-integrity@vger.kernel.org
+Subject: Re: [PATCH] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM
+ operations
+Message-ID: <20190711163915.GD25807@ziepe.ca>
+References: <20190711162919.23813-1-dianders@chromium.org>
 MIME-Version: 1.0
-References: <1562844916142167@kroah.com>
-In-Reply-To: <1562844916142167@kroah.com>
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Thu, 11 Jul 2019 09:30:25 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=XEE1J6Kx28eV_zi8_oV68qQsmKW8Os2A3_ade1KsBFdg@mail.gmail.com>
-Message-ID: <CAD=FV=XEE1J6Kx28eV_zi8_oV68qQsmKW8Os2A3_ade1KsBFdg@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] tpm: Fix TPM 1.2 Shutdown sequence to
- prevent future TPM" failed to apply to 4.19-stable tree
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Vadim Sukhomlinov <sukhomlinov@google.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        "# 4.0+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190711162919.23813-1-dianders@chromium.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-On Thu, Jul 11, 2019 at 4:35 AM <gregkh@linuxfoundation.org> wrote:
->
->
-> The patch below does not apply to the 4.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
->
-> thanks,
->
-> greg k-h
->
-> ------------------ original commit in Linus's tree ------------------
->
-> From db4d8cb9c9f2af71c4d087817160d866ed572cc9 Mon Sep 17 00:00:00 2001
+On Thu, Jul 11, 2019 at 09:29:19AM -0700, Douglas Anderson wrote:
 > From: Vadim Sukhomlinov <sukhomlinov@google.com>
-> Date: Mon, 10 Jun 2019 15:01:18 -0700
-> Subject: [PATCH] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM
->  operations
+> 
+> commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream.
+> 
+> TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
+> future TPM operations. TPM 1.2 behavior was different, future TPM
+> operations weren't disabled, causing rare issues. This patch ensures
+> that future TPM operations are disabled.
+> 
+> Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
+> [dianders: resolved merge conflicts with mainline]
+> Signed-off-by: Douglas Anderson <dianders@chromium.org>
+> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> This is the backport of the patch referenced above to 4.19 as was done
+> in Chrome OS.  See <https://crrev.com/c/1495114> for details.  It
+> presumably applies to some older kernels.  NOTE that the problem
+> itself has existed for a long time, but continuing to backport this
+> exact solution to super old kernels is out of scope for me.  For those
+> truly interested feel free to reference the past discussion [1].
+> 
+> Reason for backport: mainline has commit a3fbfae82b4c ("tpm: take TPM
+> chip power gating out of tpm_transmit()") and commit 719b7d81f204
+> ("tpm: introduce tpm_chip_start() and tpm_chip_stop()") and it didn't
+> seem like a good idea to backport 17 patches to avoid the conflict.
 
-Posted at:
+Careful with this, you can't backport this to any kernels that don't
+have the sysfs ops locking changes or they will crash in sysfs code.
 
-https://lkml.kernel.org/r/20190711162919.23813-1-dianders@chromium.org
+Jason
