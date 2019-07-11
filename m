@@ -2,87 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D27D064FB1
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 02:47:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9377165064
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 05:08:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727708AbfGKArB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jul 2019 20:47:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34390 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726627AbfGKArB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jul 2019 20:47:01 -0400
-Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 412F320872;
-        Thu, 11 Jul 2019 00:47:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562806020;
-        bh=NvN3UIAfMs62DjYHuxYacaeaVxpTiaNi/XfAtuERSeM=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=KhF8u16rxeRH9pS8l9u367xxpVi0SiaEolU+T4XcKSNjuPMz+8dbsZlSXAMyR5ZbJ
-         S5dXcrSmile8IptZ+YeHUBw+P1V+N+qc/CXO76jDyL8cmApH8LSJuUyjFImpakvGzP
-         D/8yh9Fw3hHegmnBbuY378lGmdES37xShz/xsfkE=
-Date:   Wed, 10 Jul 2019 17:46:59 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Shakeel Butt <shakeelb@google.com>
-Cc:     Henry Burns <henryburns@google.com>,
-        Jonathan Adams <jwadams@google.com>,
-        mm-commits@vger.kernel.org, David Rientjes <rientjes@google.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        stable@vger.kernel.org, Vitaly Vul <vitaly.vul@sony.com>,
-        Vitaly Wool <vitalywool@gmail.com>,
-        Xidong Wang <wangxidong_97@163.com>
-Subject: Re: + mm-z3foldc-lock-z3fold-page-before-__setpagemovable.patch
- added to -mm tree
-Message-Id: <20190710174659.644a72bb36dd104d6c83c259@linux-foundation.org>
-In-Reply-To: <CALvZod5H0DzzVJanoB0HV3M7g-7c9-nLUyv0S1USKU-VF_GS2Q@mail.gmail.com>
-References: <20190704210640._1tth6_R-%akpm@linux-foundation.org>
-        <CALvZod5H0DzzVJanoB0HV3M7g-7c9-nLUyv0S1USKU-VF_GS2Q@mail.gmail.com>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S1727767AbfGKDI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jul 2019 23:08:58 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:40430 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726353AbfGKDI6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jul 2019 23:08:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=kCf95klSl4II9ASRgUO/dZ/BhEcTH5foAFI3YRAMrm8=; b=J6mQidU9Nu9jXP6cFQwFeAnGJ
+        xO6UGwej3f3LcKNTSHthSc5l6QnV9t/41sADhbPOtxwGJhusuqcizgdLeP6A0kw3iBBfdHJRpSfmH
+        HrFk1NE5ZhA60nEQ0f9kRYvHq9qW4BMY+rJnC41EK3bl1XcDYqvjRceaeLT967PsfjjZyFP2zaJz6
+        JsAXd3+NxpWOEegHY72GEy27CsmwX4tUoVZUaBek+uXF7HqnCAJ/0iblm1DktLNdt2bQUMAAZXlWZ
+        wXzYdRlP5JKjh9XlOpX3EA+YNRBDQAp0jhOLmGIXk/bqCHYDMwnqNSrVanzspV5s9nVHue31DN4lb
+        MtQRKZtSA==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
+        id 1hlPS3-0000Cr-Jj; Thu, 11 Jul 2019 03:08:55 +0000
+Date:   Wed, 10 Jul 2019 20:08:55 -0700
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Boaz Harrosh <openosd@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Robert Barror <robert.barror@intel.com>,
+        Seema Pandit <seema.pandit@intel.com>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] dax: Fix missed PMD wakeups
+Message-ID: <20190711030855.GO32320@bombadil.infradead.org>
+References: <CAPcyv4jgs5LTtTXR+2CyfbjJE85B_eoPFuXQsGBDnVMo41Jawg@mail.gmail.com>
+ <20190703195302.GJ1729@bombadil.infradead.org>
+ <CAPcyv4iPNz=oJyc_EoE-mC11=gyBzwMKbmj1ZY_Yna54=cC=Mg@mail.gmail.com>
+ <20190704032728.GK1729@bombadil.infradead.org>
+ <20190704165450.GH31037@quack2.suse.cz>
+ <20190704191407.GM1729@bombadil.infradead.org>
+ <CAPcyv4gUiDw8Ma9mvbW5BamQtGZxWVuvBW7UrOLa2uijrXUWaw@mail.gmail.com>
+ <20190705191004.GC32320@bombadil.infradead.org>
+ <CAPcyv4jVARa38Qc4NjQ04wJ4ZKJ6On9BbJgoL95wQqU-p-Xp_w@mail.gmail.com>
+ <20190710190204.GB14701@quack2.suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190710190204.GB14701@quack2.suse.cz>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 10 Jul 2019 17:20:56 -0700 Shakeel Butt <shakeelb@google.com> wrote:
+On Wed, Jul 10, 2019 at 09:02:04PM +0200, Jan Kara wrote:
+> @@ -848,7 +853,7 @@ static int dax_writeback_one(struct xa_state *xas, struct dax_device *dax_dev,
+>  	if (unlikely(dax_is_locked(entry))) {
+>  		void *old_entry = entry;
+>  
+> -		entry = get_unlocked_entry(xas);
+> +		entry = get_unlocked_entry(xas, 0);
+>  
+>  		/* Entry got punched out / reallocated? */
+>  		if (!entry || WARN_ON_ONCE(!xa_is_value(entry)))
 
-> > --- a/mm/z3fold.c~mm-z3foldc-lock-z3fold-page-before-__setpagemovable
-> > +++ a/mm/z3fold.c
-> > @@ -924,7 +924,16 @@ retry:
-> >                 set_bit(PAGE_HEADLESS, &page->private);
-> >                 goto headless;
-> >         }
-> > -       __SetPageMovable(page, pool->inode->i_mapping);
-> > +       if (can_sleep) {
-> > +               lock_page(page);
-> > +               __SetPageMovable(page, pool->inode->i_mapping);
-> > +               unlock_page(page);
-> > +       } else {
-> > +               if (!trylock_page(page)) {
-> 
-> Oops, the above should be just trylock_page() without the '!'.
+I'm not sure about this one.  Are we sure there will never be a dirty
+PMD entry?  Even if we can't create one today, it feels like a bit of
+a landmine to leave for someone who creates one in the future.
 
-Sigh.
-
---- a/include/linux/pagemap.h~a
-+++ a/include/linux/pagemap.h
-@@ -451,6 +451,9 @@ extern int __lock_page_or_retry(struct p
- 				unsigned int flags);
- extern void unlock_page(struct page *page);
- 
-+/*
-+ * Return true if the page was successfully locked
-+ */
- static inline int trylock_page(struct page *page)
- {
- 	page = compound_head(page);
-
-> Andrew,
-> can you please fix this in-place or do you want a new version to be
-> posted.
-
-Thanks, I'll fix.
