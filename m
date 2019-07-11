@@ -2,105 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E88BD6585F
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 16:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 549FE65895
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 16:13:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728344AbfGKOAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 10:00:18 -0400
-Received: from mx2.suse.de ([195.135.220.15]:51082 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728102AbfGKOAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jul 2019 10:00:18 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id F3AB4AF57;
-        Thu, 11 Jul 2019 14:00:16 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 2E77A1E43CE; Thu, 11 Jul 2019 16:00:16 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     <linux-fsdevel@vger.kernel.org>
-Cc:     <linux-mm@kvack.org>, <linux-xfs@vger.kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Boaz Harrosh <boaz@plexistor.com>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: [PATCH 3/3] xfs: Fix stale data exposure when readahead races with hole punch
-Date:   Thu, 11 Jul 2019 16:00:12 +0200
-Message-Id: <20190711140012.1671-4-jack@suse.cz>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20190711140012.1671-1-jack@suse.cz>
-References: <20190711140012.1671-1-jack@suse.cz>
+        id S1728298AbfGKONw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 10:13:52 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:59354 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726116AbfGKONw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 10:13:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=A+M9EKycY4/Na49/3ZTutvW03nTdeCovAhe5sPEc738=; b=DWaYAaHL39mYbsCRqEJ3S1QQ7
+        P02squV/NBUTgulBtI4yUhtjhZPbXviXwn5cZ64a18nBrxMDqHZ9sjyzYhy8rrWsIGViUL4cuiFNR
+        13jc9CGjCkCg9vUQQobNtgkPofyl56m4PinPfQAT8yXfkSrKa7TQw4y6e8ow4U8TMK37DxOKX3CX3
+        TtYqXc/uTk7W5yiypMbcKX93JyA6IotJW3FcTmtHuDWAS30qOioSZlpdonSH/3GJq3YRLQ3nWrWuK
+        /tXAoQynuvEE2hyzve6v52C027MqCmg4zh1ItcUY/JouC54bRwId30BRrUhafL+gbKxIhAS5QCvkO
+        4gn8QmF5Q==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
+        id 1hlZpW-0001Os-V6; Thu, 11 Jul 2019 14:13:50 +0000
+Date:   Thu, 11 Jul 2019 07:13:50 -0700
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Boaz Harrosh <openosd@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Robert Barror <robert.barror@intel.com>,
+        Seema Pandit <seema.pandit@intel.com>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] dax: Fix missed PMD wakeups
+Message-ID: <20190711141350.GS32320@bombadil.infradead.org>
+References: <CAPcyv4iPNz=oJyc_EoE-mC11=gyBzwMKbmj1ZY_Yna54=cC=Mg@mail.gmail.com>
+ <20190704032728.GK1729@bombadil.infradead.org>
+ <20190704165450.GH31037@quack2.suse.cz>
+ <20190704191407.GM1729@bombadil.infradead.org>
+ <CAPcyv4gUiDw8Ma9mvbW5BamQtGZxWVuvBW7UrOLa2uijrXUWaw@mail.gmail.com>
+ <20190705191004.GC32320@bombadil.infradead.org>
+ <CAPcyv4jVARa38Qc4NjQ04wJ4ZKJ6On9BbJgoL95wQqU-p-Xp_w@mail.gmail.com>
+ <20190710190204.GB14701@quack2.suse.cz>
+ <20190710201539.GN32320@bombadil.infradead.org>
+ <20190710202647.GA7269@quack2.suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190710202647.GA7269@quack2.suse.cz>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hole puching currently evicts pages from page cache and then goes on to
-remove blocks from the inode. This happens under both XFS_IOLOCK_EXCL
-and XFS_MMAPLOCK_EXCL which provides appropriate serialization with
-racing reads or page faults. However there is currently nothing that
-prevents readahead triggered by fadvise() or madvise() from racing with
-the hole punch and instantiating page cache page after hole punching has
-evicted page cache in xfs_flush_unmap_range() but before it has removed
-blocks from the inode. This page cache page will be mapping soon to be
-freed block and that can lead to returning stale data to userspace or
-even filesystem corruption.
+On Wed, Jul 10, 2019 at 10:26:47PM +0200, Jan Kara wrote:
+> On Wed 10-07-19 13:15:39, Matthew Wilcox wrote:
+> > On Wed, Jul 10, 2019 at 09:02:04PM +0200, Jan Kara wrote:
+> > > +#define DAX_ENTRY_CONFLICT dax_make_entry(pfn_to_pfn_t(1), DAX_EMPTY)
+> > 
+> > I was hoping to get rid of DAX_EMPTY ... it's almost unused now.  Once
+> > we switch to having a single DAX_LOCK value instead of a single bit,
+> > I think it can go away, freeing up two bits.
+> > 
+> > If you really want a special DAX_ENTRY_CONFLICT, I think we can make
+> > one in the 2..4094 range.
+> > 
+> > That aside, this looks pretty similar to the previous patch I sent, so
+> > if you're now happy with this, let's add
+> > 
+> > #define XA_DAX_CONFLICT_ENTRY xa_mk_internal(258)
+> > 
+> > to xarray.h and do it that way?
+> 
+> Yeah, that would work for me as well. The chosen value for DAX_ENTRY_CONFLICT
+> was pretty arbitrary. Or we could possibly use:
+> 
+> #define DAX_ENTRY_CONFLICT XA_ZERO_ENTRY
+> 
+> so that we don't leak DAX-specific internal definition into xarray.h?
 
-Fix the problem by protecting handling of readahead requests by
-XFS_IOLOCK_SHARED similarly as we protect reads.
+I don't want to use the ZERO entry as our conflict marker because that
+could legitimately appear in an XArray.  Not the i_pages XArray today,
+but I hold out hope for using that in place of the DAX_ZERO_PAGE bit too.
+That's going to be a bit more tricky since we currently distinguish
+between DAX_ZERO_PAGE and DAX_ZERO_PAGE | DAX_PMD.
 
-CC: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-fsdevel/CAOQ4uxjQNmxqmtA_VbYW0Su9rKRk2zobJmahcyeaEVOFKVQ5dw@mail.gmail.com/
-Reported-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/xfs/xfs_file.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
-
-diff --git a/fs/xfs/xfs_file.c b/fs/xfs/xfs_file.c
-index 76748255f843..88fe3dbb3ba2 100644
---- a/fs/xfs/xfs_file.c
-+++ b/fs/xfs/xfs_file.c
-@@ -33,6 +33,7 @@
- #include <linux/pagevec.h>
- #include <linux/backing-dev.h>
- #include <linux/mman.h>
-+#include <linux/fadvise.h>
- 
- static const struct vm_operations_struct xfs_file_vm_ops;
- 
-@@ -939,6 +940,24 @@ xfs_file_fallocate(
- 	return error;
- }
- 
-+STATIC int
-+xfs_file_fadvise(
-+	struct file *file,
-+	loff_t start,
-+	loff_t end,
-+	int advice)
-+{
-+	struct xfs_inode *ip = XFS_I(file_inode(file));
-+	int ret;
-+
-+	/* Readahead needs protection from hole punching and similar ops */
-+	if (advice == POSIX_FADV_WILLNEED)
-+		xfs_ilock(ip, XFS_IOLOCK_SHARED);
-+	ret = generic_fadvise(file, start, end, advice);
-+	if (advice == POSIX_FADV_WILLNEED)
-+		xfs_iunlock(ip, XFS_IOLOCK_SHARED);
-+	return ret;
-+}
- 
- STATIC loff_t
- xfs_file_remap_range(
-@@ -1235,6 +1254,7 @@ const struct file_operations xfs_file_operations = {
- 	.fsync		= xfs_file_fsync,
- 	.get_unmapped_area = thp_get_unmapped_area,
- 	.fallocate	= xfs_file_fallocate,
-+	.fadvise	= xfs_file_fadvise,
- 	.remap_file_range = xfs_file_remap_range,
- };
- 
--- 
-2.16.4
-
+However, the XA_RETRY_ENTRY might be a good choice.  It doesn't normally
+appear in an XArray (it may appear if you're looking at a deleted node,
+but since we're holding the lock, we can't see deleted nodes).
