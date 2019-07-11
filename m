@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB733655C7
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 13:33:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72233655C6
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 13:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728415AbfGKLdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 07:33:20 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:46967 "EHLO
+        id S1728413AbfGKLdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 07:33:18 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:37691 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728026AbfGKLdU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 07:33:20 -0400
+        by vger.kernel.org with ESMTP id S1728026AbfGKLdS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 07:33:18 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 2EE213FE;
-        Thu, 11 Jul 2019 07:33:19 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 11 Jul 2019 07:33:19 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 3A1714C0;
+        Thu, 11 Jul 2019 07:33:17 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 11 Jul 2019 07:33:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aajy04
-        hUindM6IhHSkSwAEKdWd+TVEEEDZUwjcaa4bY=; b=rI0n+ZiqB8/rVWiuO5gEYh
-        h5WvmA4B/VkUj+Xp+8tvMXSYTNNDXizNcfmhD+wQwLKiMiKSwoej6UQjCGCfq208
-        OE39WErdnk1/oZV+TmwtcJPuXnPasAWCseN/EaNQ3ohT7oVUlRhiAqN3CwAEfz6E
-        xgWCsT4eJBuZ3dosm99h+ruoDoZ76DFI54weLDnWrMyYxXdcxZQqwfWET6hDYG76
-        lOVlvW5y77HhnUoAwcDqNf0G5XTuDHjj5grtjasXd6SdG/LtvxLy91Wi/Cp7eZqx
-        TyIbJiz+xt+vKyVVORHjo+loS9l4b9SGp0zeT69HFsDtisHhgOPgqc+8RSsepyIQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+VwJtc
+        JGoMQBhYHc/T34TeFDAEw31JGr9gJwWda83Ks=; b=XXhmcaNRxPf5CT0wWboE12
+        1IQrCjGjg33hI3sTigAszZeZsroxJ1pn2D82G/bLez00RkFmnd37RRzt/CoEvE1A
+        8mXOmuoayGcWgHHOStEgAhVv1xtqRLZzgy4bdY2Fqe8Qf8C+taFecLWgSQslezPZ
+        InXyxtaetkHqrhZuS3I/vxPohbTGPCOUVI0cdTmNxYmvqPh8IXlRU8XOqaU9iQi/
+        MFZrA2itLKMrG+r++lN6BxX7MRXqBx9axcSQIFyF8nZiK7yUg4t+rmjEUehqB81p
+        saOBz5SZRADV5nVMwoA4PzlDQvdwXNJQ6I5k7sVDxlxd0GeeFBoYNFmVsKMeeRLw
         ==
-X-ME-Sender: <xms:fh4nXXwLjwy2Y7YMI0Z6lAlyuxVVI8bsARPUTTZunZs6ey0z5Kl2Sg>
+X-ME-Sender: <xms:fB4nXeQLcHR4JwlnV_DeTdKRf7hcZJudhvsQoHim53rdm4ht8Z13Hg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrgeekgdegfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
     hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeef
-X-ME-Proxy: <xmx:fh4nXVzBFe3U5POCCVkY9vEluDF5iI1o457HTJx54p7kBfISq8Q_vA>
-    <xmx:fh4nXUidyOVUiXQHAZez081ILuyFDc8B8hSIL1Sa6M1bbZqQBLjPtA>
-    <xmx:fh4nXbg8esALUxqmA8fPbyAB5SSibaNavrRKO07CFq8e9wYL1-A8hQ>
-    <xmx:fh4nXa31nngp4T-r-OU-6g9fabcmYBtXXvRidoujghFFzEnWN4jDsg>
+X-ME-Proxy: <xmx:fB4nXa_HTr2dsQmv_qDLA68JN2tPiqNLYdgQEKY4WirH_RzHvg0dsg>
+    <xmx:fB4nXeFCeCS-0IlRLgCEmwJ-ULaEU_Zpnovz7bElbcuEkVQMIxLBkA>
+    <xmx:fB4nXS34nKGOG92FeWuLh6fJECxcRhrAZ8gIFs5tqz_Er22QM3Gv0A>
+    <xmx:fB4nXWg8aeNVYriWtZI_M-4oGvFnhvC1S9zYVLo9p-bTgcvTtYQi8A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 46D0B380079;
-        Thu, 11 Jul 2019 07:33:18 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Fix parse of UAC2 Extension Units" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4D9E68005B;
+        Thu, 11 Jul 2019 07:33:16 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Fix parse of UAC2 Extension Units" failed to apply to 4.4-stable tree
 To:     tiwai@suse.de, ensonic@hora-obscura.de, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 11 Jul 2019 13:33:07 +0200
-Message-ID: <15628447874104@kroah.com>
+Message-ID: <15628447875983@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
