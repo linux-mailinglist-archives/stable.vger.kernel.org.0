@@ -2,95 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 272A466045
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 21:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16DB96618A
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 00:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728738AbfGKTze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 15:55:34 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:36187 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728595AbfGKTzd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 15:55:33 -0400
-Received: by mail-io1-f67.google.com with SMTP id o9so15316796iom.3
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 12:55:33 -0700 (PDT)
+        id S1728730AbfGKWWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 18:22:55 -0400
+Received: from mail-pl1-f202.google.com ([209.85.214.202]:49617 "EHLO
+        mail-pl1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726880AbfGKWWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 18:22:55 -0400
+Received: by mail-pl1-f202.google.com with SMTP id 65so4000361plf.16
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 15:22:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lKEGvB7hbPfo85nCRcTIzY9GkrcRv222RzSOPFab/us=;
-        b=QSFcdsCwzkkOtVTYGSJYNE6+HBuA3J1EbnAKN2dFJngEjaIMob6GJDSNuJ/GesoNxR
-         5dswstzk1JkVPKkVWmoqvsIUODWvMjgcPYH1MCRPpOLAnmuu+A/eCr0svcIL8ES1+ovy
-         WN3fyp89Zmgvy2pJg4/RFbtwItAgfHMqg1G1w=
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=mCycy9aqqdoaUABFG6E8LVTO4jk0v6n9tUe0m2UvIH8=;
+        b=HkL0uG42CEBeEhg6hS9/u6ABaO3yYAxIoLdzuP23ZxU4EmFxGd3Gu7dmmjU4FuR5X4
+         mPIJOhxlBiAXZYDpBlFxab4xok2wit/P5O5VdMXYUHWJ29iB1OL0LT1JLbDNF3+42Nlt
+         kkpz+eBu8GmUjK54/LWdIdiapjPBz6bhtvdk7rXQHLtknVrVgKvSpOth4IYgk9C/koQK
+         /bDy2iN8yGoxcb+aokz0wlTlRIS974y28FXxl3MSxvvfO6R1+HhOLGnuR2s0I/mOVFvQ
+         jiYsMZ1qYOgihwz16+4658CM4V036Dj/nAEGU2LwNxnOjJCzQpEeybLuui0swsvyEjfo
+         BpQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lKEGvB7hbPfo85nCRcTIzY9GkrcRv222RzSOPFab/us=;
-        b=W2dOoHbQ3o8LMT6BwfNIb5GcwB6FXyiNan2yPLZThitgbHIH7X0ypXzHBqgd0FnCq9
-         /5ou9bFRLNXQkA2Ukyebu7LL3RrMdz1sx1GZwbeRDhw/EI1NBYi+MIaOwe+vtuJnZjqF
-         W1Nr2HY2EtIGkB1HcslnLRvije8PCtE0O+xRB8lkQN+UsL+5xSfete+hpmgAUhFy+kam
-         BBIezE2nfX0O2X7ZU5EmZo/XlaT3k28f2peMRbx7iV1TIWnHzL8QpzwjbVoX1dzJep8E
-         3deVRc/QA0/MG56aX7EMkrHDGEClCjDcSHLZMVbmdQGHH6IWs5+6Hv+iMRuWCScVRPhl
-         6P7A==
-X-Gm-Message-State: APjAAAU5MZs+6Npng5vVc4BaEhGc8Ctv0SFz1uZsFrUrHjZMAkPWiG3G
-        R+zZlEny5BL4ZqWtj+2MUis1TuQGc9w=
-X-Google-Smtp-Source: APXvYqx5+iTSNvT5l8DZ7NsB1kiiTKkkqfI5PXldJuUoIgHwNCjzjEUlBG9yf/Zu4RHTN+UnZ4X08w==
-X-Received: by 2002:a6b:f406:: with SMTP id i6mr4941298iog.110.1562874932822;
-        Thu, 11 Jul 2019 12:55:32 -0700 (PDT)
-Received: from mail-io1-f42.google.com (mail-io1-f42.google.com. [209.85.166.42])
-        by smtp.gmail.com with ESMTPSA id d25sm6799506iom.52.2019.07.11.12.55.32
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 12:55:32 -0700 (PDT)
-Received: by mail-io1-f42.google.com with SMTP id h6so15242012iom.7
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 12:55:32 -0700 (PDT)
-X-Received: by 2002:a6b:5103:: with SMTP id f3mr2268109iob.142.1562874931799;
- Thu, 11 Jul 2019 12:55:31 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190711162919.23813-1-dianders@chromium.org> <20190711163915.GD25807@ziepe.ca>
- <20190711183533.lypj2gwffwheq3qu@linux.intel.com> <20190711194313.3w6gkbayq7yifvgg@linux.intel.com>
-In-Reply-To: <20190711194313.3w6gkbayq7yifvgg@linux.intel.com>
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Thu, 11 Jul 2019 12:55:18 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=Vja80tuLkojoCbrE=vfqvD8EMnzgKiQ1SGcM-2jMGZUw@mail.gmail.com>
-Message-ID: <CAD=FV=Vja80tuLkojoCbrE=vfqvD8EMnzgKiQ1SGcM-2jMGZUw@mail.gmail.com>
-Subject: Re: [PATCH] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM operations
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>, "# 4.0+" <stable@vger.kernel.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Vadim Sukhomlinov <sukhomlinov@google.com>,
-        Arnd Bergmann <arnd@arndb.de>, Peter Huewe <peterhuewe@gmx.de>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-integrity@vger.kernel.org, Andrey Pronin <apronin@google.com>
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=mCycy9aqqdoaUABFG6E8LVTO4jk0v6n9tUe0m2UvIH8=;
+        b=YoV8sQ4OA8u6PPjloN4bmqgIDhudM/gV5GW5lhN763+zdKPR1YCCJBOno8OwBhB82y
+         XwltgaRWZhE4A4C3SrGi0IcKcOCVG0wocvjPlFEGadnkk9bqlTh/iMdr5fsnFuSYXrP8
+         fCYvwaX/QbPOid1eVBiCaBORVN/j/BuqnVTKJniC3l4lduLqMPzbX0b+W7tYFuDATgPS
+         wBjBwfvyRw9Cx0TPg6pvbj1tzMD0SEKq1Si2fJwl7kUWgiuAJ6lo5O+gwXWFBKPEum8P
+         zQIhJ+WZ4eY+O5ce26HbFx098n5x82a6AdhX4JPrs2OJpCCMaawW2xSgpwvFFoGKAt2t
+         i+aA==
+X-Gm-Message-State: APjAAAUwgXA/FiHSw9IH087VXXhW1klfQrdu7ydDmQbyrkuVzJAfF/2I
+        W3tKhVUkt3VfCttfpxaGy/SInJKXzH1WSM5zewP21g==
+X-Google-Smtp-Source: APXvYqy5sjDWnwnDUx+ybLSMmSX8KEPpA4NxNZqe/W7zE/QllNvWY6BNMsUoC04BN3sj4nREBDcN/q/+xxfQ+PGXHhKIHg==
+X-Received: by 2002:a63:1645:: with SMTP id 5mr6730418pgw.175.1562883774729;
+ Thu, 11 Jul 2019 15:22:54 -0700 (PDT)
+Date:   Thu, 11 Jul 2019 15:22:32 -0700
+Message-Id: <20190711222232.77701-1-granthernandez@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.22.0.410.gd8fdbe21b5-goog
+Subject: [PATCH] Input: gtco - bounds check collection indent level
+From:   Grant Hernandez <granthernandez@google.com>
+To:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc:     linux-usb@vger.kernel.org,
+        Grant Hernandez <granthernandez@google.com>,
+        stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+The GTCO tablet input driver configures itself from an HID report sent
+via USB during the initial enumeration process. Some debugging messages
+are generated during the parsing. A debugging message indentation
+counter is not bounds checked, leading to the ability for a specially
+crafted HID report to cause '-' and null bytes be written past the end
+of the indentation array. As long as the kernel has CONFIG_DYNAMIC_DEBUG
+enabled, this code will not be optimized out.  This was discovered
+during code review after a previous syzkaller bug was found in this
+driver.
 
-On Thu, Jul 11, 2019 at 12:43 PM Jarkko Sakkinen
-<jarkko.sakkinen@linux.intel.com> wrote:
->
-> On Thu, Jul 11, 2019 at 09:35:33PM +0300, Jarkko Sakkinen wrote:
-> > > Careful with this, you can't backport this to any kernels that don't
-> > > have the sysfs ops locking changes or they will crash in sysfs code.
-> >
-> > Oops, I was way too fast! Thanks Jason.
->
-> Hmm... hold on a second.
->
-> How would the crash realize? I mean this is at the point when user space
-> should not be active. Secondly, why the crash would not realize with
-> TPM2? The only thing the fix is doing is to do the same thing with TPM1
-> essentially.
+Cc: stable@vger.kernel.org
+Signed-off-by: Grant Hernandez <granthernandez@google.com>
+---
+ drivers/input/tablet/gtco.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-I will continue to remind that I'm pretty TPM-clueless (mostly I just
-took someone else's patch and posted it), but I will note that people
-on the Chrome OS team seemed concerned by the sysfs locking too.
-After seeing Jason's message this morning I dug a little bit and found
-<https://crbug.com/819265>
+diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
+index 4b8b9d7aa75e..9771052ed027 100644
+--- a/drivers/input/tablet/gtco.c
++++ b/drivers/input/tablet/gtco.c
+@@ -78,6 +78,7 @@ Scott Hill shill@gtcocalcomp.com
+ 
+ /* Max size of a single report */
+ #define REPORT_MAX_SIZE       10
++#define MAX_COLLECTION_LEVELS  10
+ 
+ 
+ /* Bitmask whether pen is in range */
+@@ -223,8 +224,7 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
+ 	char  maintype = 'x';
+ 	char  globtype[12];
+ 	int   indent = 0;
+-	char  indentstr[10] = "";
+-
++	char  indentstr[MAX_COLLECTION_LEVELS+1] = {0};
+ 
+ 	dev_dbg(ddev, "======>>>>>>PARSE<<<<<<======\n");
+ 
+@@ -350,6 +350,12 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
+ 			case TAG_MAIN_COL_START:
+ 				maintype = 'S';
+ 
++				if (indent == MAX_COLLECTION_LEVELS) {
++					dev_err(ddev, "Collection level %d would exceed limit of %d\n",
++						indent+1, MAX_COLLECTION_LEVELS);
++					break;
++				}
++
+ 				if (data == 0) {
+ 					dev_dbg(ddev, "======>>>>>> Physical\n");
+ 					strcpy(globtype, "Physical");
+@@ -369,8 +375,15 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
+ 				break;
+ 
+ 			case TAG_MAIN_COL_END:
+-				dev_dbg(ddev, "<<<<<<======\n");
+ 				maintype = 'E';
++
++				if (indent == 0) {
++					dev_err(ddev, "Collection level already at zero\n");
++					break;
++				}
++
++				dev_dbg(ddev, "<<<<<<======\n");
++
+ 				indent--;
+ 				for (x = 0; x < indent; x++)
+ 					indentstr[x] = '-';
+-- 
+2.22.0.410.gd8fdbe21b5-goog
 
--Doug
