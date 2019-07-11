@@ -2,119 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A79E765B8D
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 18:29:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 116FF65B91
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 18:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728335AbfGKQ3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 12:29:32 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:41126 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728463AbfGKQ32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 12:29:28 -0400
-Received: by mail-pg1-f195.google.com with SMTP id q4so3187263pgj.8
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 09:29:27 -0700 (PDT)
+        id S1728463AbfGKQak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 12:30:40 -0400
+Received: from mail-io1-f65.google.com ([209.85.166.65]:35005 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728405AbfGKQak (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 12:30:40 -0400
+Received: by mail-io1-f65.google.com with SMTP id m24so13934458ioo.2
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 09:30:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/cvu3lP4uYGQ0nzTJkCmI3lypOqpPvgnq8xhQZDKGwQ=;
-        b=QRHANFv3oWTVZzIwwbHZJ+G2G4uGVCd81kkae1vUvDdfh0Z59tW9LCC3oPbUm1+6w1
-         s9yt+T2pO64KQYCgFLYrPuq5XcUyc3eh22Ks0tkceEyUTmLY0kzDkSHqpvOSQAKW5VVB
-         5paq3pRo21kz7QIpEDCeY0LyRoV/sxazA/tko=
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=s1PNfjIv4q2GKA580mQ1tu3y5QbK1n3IiJClY5acdEk=;
+        b=emCfsojTl6dG/z/5g7abKUQutN+YQtndfLO3yBka4B3iPwm5jW1o05k2OwxAUygHu9
+         10yxZTFEN29FWIFogXE0kbIKpvoECgnzre+66+JWLypIfUitA2mBnQoAs2rwOXAiz2jb
+         tkYL7hPVTfvxi497J2aaes2OP3OVFCWa3b+sM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/cvu3lP4uYGQ0nzTJkCmI3lypOqpPvgnq8xhQZDKGwQ=;
-        b=cPtzRO15qZir0v0E7plEexGPy6/7biq8AmLlLueTEMrqB6AJ4LtU7Ffo/f1ZOqY+5a
-         b3L+JYnzboFWzjY+47YfGomfPCH8UiuK20T/a1nnPO/ohPrdlPu7hODRj1aqA1f6Y2sm
-         hQq7gsjCLCaMWOfGCX8Tu72dUw1eZ5Ev+/16xqltpXKt1R4qBqiyk1TDuYJ6wgzhC/9G
-         ROYa0/VitzfKgxABY8foHgah7c2MYGZ3ejkYoT9MLaGe8nU107tygwqpi2UGJXwBcOUD
-         CQ707IqTweRRv58Mm4Ot9tXF6sPBbXor+cOhdbVBEoPN6FtF9e14efFvezbP2H7siLII
-         g9Dg==
-X-Gm-Message-State: APjAAAVBoiEgo3z0koH5nOgFP621fIBZpLguY0XSMo3wN1B+fIrhxICC
-        WL75zupHJs9pWjtkTVm/p+L/uDSSxJU=
-X-Google-Smtp-Source: APXvYqxas7q8ZzI8Hp7bOoO1Sdw4IufzVXuoHWliNFro0YM4+XyheGLisLQYJ2sSMb//6VjjushIpw==
-X-Received: by 2002:a17:90b:8e:: with SMTP id bb14mr5861467pjb.19.1562862567357;
-        Thu, 11 Jul 2019 09:29:27 -0700 (PDT)
-Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:24fa:e766:52c9:e3b2])
-        by smtp.gmail.com with ESMTPSA id b6sm5854073pgq.26.2019.07.11.09.29.26
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Thu, 11 Jul 2019 09:29:26 -0700 (PDT)
-From:   Douglas Anderson <dianders@chromium.org>
-To:     stable@vger.kernel.org
-Cc:     groeck@chromium.org, gregkh@linuxfoundation.org,
-        sukhomlinov@google.com, jarkko.sakkinen@linux.intel.com,
-        Douglas Anderson <dianders@chromium.org>,
-        Arnd Bergmann <arnd@arndb.de>, Peter Huewe <peterhuewe@gmx.de>,
-        linux-kernel@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>,
-        linux-integrity@vger.kernel.org
-Subject: [PATCH] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM operations
-Date:   Thu, 11 Jul 2019 09:29:19 -0700
-Message-Id: <20190711162919.23813-1-dianders@chromium.org>
-X-Mailer: git-send-email 2.22.0.410.gd8fdbe21b5-goog
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=s1PNfjIv4q2GKA580mQ1tu3y5QbK1n3IiJClY5acdEk=;
+        b=K8ec4fzumf+PesnXjmCd83JRkxxVhIyUlceE0K2ddPJ0IHcNmX/rpgxcNM48YbkNGT
+         0A0hGTt77Y4yBtHVWDAo+FJWwXfh7w7waDvdlxcXXaw04g+4qiW8KoOfEIlTUVlCCQQC
+         giAXdyLPEZ6T3UOg2rZBAqG2lX3mWXGDnCVXfR5Nqzp6tLKiS0+LJtZ1o+qsk0aYxYB0
+         O9OT14NyODBJr4u2pmve3F46dyatwGwQ31M3FAABvUc4EFFKOq+2jw/TNmnvp6qhYiBb
+         hW7grRjwhQtbsE4MjF5pARrWwuBDMjFMEe0EVzTH7+6Lc5M/6OniAT20Mcm1owFuWyS2
+         gJzA==
+X-Gm-Message-State: APjAAAVufuVVhpcNCr2Ati/ZfKIT37QrbVdv9VpgX+irXk9y3z4FVb4I
+        y9ZuC1qRBPY43TJljVN1Ya9C9RlsY/s=
+X-Google-Smtp-Source: APXvYqxE8fwcd1raFim5LV8QMa67zQ1LZ/Y1ocG+xFyumWgKX74IhBWttzYnmK6pa0kYYXiMhn/N6Q==
+X-Received: by 2002:a6b:621a:: with SMTP id f26mr870491iog.127.1562862639305;
+        Thu, 11 Jul 2019 09:30:39 -0700 (PDT)
+Received: from mail-io1-f54.google.com (mail-io1-f54.google.com. [209.85.166.54])
+        by smtp.gmail.com with ESMTPSA id c81sm7763805iof.28.2019.07.11.09.30.38
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Thu, 11 Jul 2019 09:30:39 -0700 (PDT)
+Received: by mail-io1-f54.google.com with SMTP id s7so13812311iob.11
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 09:30:38 -0700 (PDT)
+X-Received: by 2002:a5d:885a:: with SMTP id t26mr1922506ios.218.1562862638257;
+ Thu, 11 Jul 2019 09:30:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <1562844916142167@kroah.com>
+In-Reply-To: <1562844916142167@kroah.com>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Thu, 11 Jul 2019 09:30:25 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=XEE1J6Kx28eV_zi8_oV68qQsmKW8Os2A3_ade1KsBFdg@mail.gmail.com>
+Message-ID: <CAD=FV=XEE1J6Kx28eV_zi8_oV68qQsmKW8Os2A3_ade1KsBFdg@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] tpm: Fix TPM 1.2 Shutdown sequence to
+ prevent future TPM" failed to apply to 4.19-stable tree
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Vadim Sukhomlinov <sukhomlinov@google.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Sukhomlinov <sukhomlinov@google.com>
+Hi,
 
-commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream.
+On Thu, Jul 11, 2019 at 4:35 AM <gregkh@linuxfoundation.org> wrote:
+>
+>
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+>
+> thanks,
+>
+> greg k-h
+>
+> ------------------ original commit in Linus's tree ------------------
+>
+> From db4d8cb9c9f2af71c4d087817160d866ed572cc9 Mon Sep 17 00:00:00 2001
+> From: Vadim Sukhomlinov <sukhomlinov@google.com>
+> Date: Mon, 10 Jun 2019 15:01:18 -0700
+> Subject: [PATCH] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM
+>  operations
 
-TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
-future TPM operations. TPM 1.2 behavior was different, future TPM
-operations weren't disabled, causing rare issues. This patch ensures
-that future TPM operations are disabled.
+Posted at:
 
-Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
-[dianders: resolved merge conflicts with mainline]
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
----
-This is the backport of the patch referenced above to 4.19 as was done
-in Chrome OS.  See <https://crrev.com/c/1495114> for details.  It
-presumably applies to some older kernels.  NOTE that the problem
-itself has existed for a long time, but continuing to backport this
-exact solution to super old kernels is out of scope for me.  For those
-truly interested feel free to reference the past discussion [1].
-
-Reason for backport: mainline has commit a3fbfae82b4c ("tpm: take TPM
-chip power gating out of tpm_transmit()") and commit 719b7d81f204
-("tpm: introduce tpm_chip_start() and tpm_chip_stop()") and it didn't
-seem like a good idea to backport 17 patches to avoid the conflict.
-
-[1] https://lkml.kernel.org/r/CAD=FV=UoSV9LKOTMuXKRfgFir+7_qPkuhSLN6XJEKPiRPuJJwg@mail.gmail.com
-
- drivers/char/tpm/tpm-chip.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-index 46caadca916a..f784b6fd93b4 100644
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -187,12 +187,11 @@ static int tpm_class_shutdown(struct device *dev)
- {
- 	struct tpm_chip *chip = container_of(dev, struct tpm_chip, dev);
- 
--	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
--		down_write(&chip->ops_sem);
-+	down_write(&chip->ops_sem);
-+	if (chip->flags & TPM_CHIP_FLAG_TPM2)
- 		tpm2_shutdown(chip, TPM2_SU_CLEAR);
--		chip->ops = NULL;
--		up_write(&chip->ops_sem);
--	}
-+	chip->ops = NULL;
-+	up_write(&chip->ops_sem);
- 
- 	return 0;
- }
--- 
-2.22.0.410.gd8fdbe21b5-goog
-
+https://lkml.kernel.org/r/20190711162919.23813-1-dianders@chromium.org
