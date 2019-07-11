@@ -2,85 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D5D56534F
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 10:47:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 274FE653B2
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 11:23:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728107AbfGKIrG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 04:47:06 -0400
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:37104 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727991AbfGKIrG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 04:47:06 -0400
-Received: by mail-ot1-f66.google.com with SMTP id s20so5056158otp.4;
-        Thu, 11 Jul 2019 01:47:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=InDqlUc6M2ei9HBm2FeFX9lOv0/+G+KcR9Zyp274VQk=;
-        b=uiD/6nAox5sf9MyASGX/o8MZNGjuDt893GGhyZyM0yokbC0BwLgxzh/3WK+53keFSE
-         21IDYx5JLMMn4D5a34N5oh0DcoVG//K54a8ht7uS4G0hKd0tnxG6dFAi2g1wur/GIF33
-         IIuoMEYVzg/KxZzINyg7LmKOQ2fqOtfhL8kMUNSTvsBEC7Su4hPtcoZ52iPVsoyKhjx4
-         F0E+pQd9lahOPvuFHPGBPlj3rLyf9MtZOebwrEK4YXvBYetmqFGhN6TPM3XJmOHrv7FF
-         Q6V8tPjdfaU/FXzCirYho8CNPjaqufTtj8cb8LwBX6xBss9z6hR9CRvHX/dFdm8h5thB
-         EP1g==
-X-Gm-Message-State: APjAAAXIDrYY5KQ8EF59BakSuln7Dv+mUIM55WLqkBUvusznFiABacn+
-        Mv1K6KAB18aZKXY+avo4onV0L5qJw3WfO2By5HBI1w==
-X-Google-Smtp-Source: APXvYqwz2SDh16EiNuG+bu35TpYvKuhn+aH+jK0by5wsHLtJnFoiw9CZshX3kBSUqbf5RMDgYOc6TuQLMHpZjylKYxI=
-X-Received: by 2002:a9d:69ce:: with SMTP id v14mr2507066oto.39.1562834825315;
- Thu, 11 Jul 2019 01:47:05 -0700 (PDT)
+        id S1727972AbfGKJXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 05:23:00 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:53906 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727595AbfGKJXA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 05:23:00 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 17217793-1500050 
+        for multiple; Thu, 11 Jul 2019 10:22:55 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915: Revert "drm/i915: Enable PSR2 by default"
+Date:   Thu, 11 Jul 2019 10:22:54 +0100
+Message-Id: <20190711092254.1719-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.22.0
 MIME-Version: 1.0
-References: <20190711082936.8706-1-brgl@bgdev.pl>
-In-Reply-To: <20190711082936.8706-1-brgl@bgdev.pl>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Thu, 11 Jul 2019 10:46:54 +0200
-Message-ID: <CAMuHMdWzEOVLUZM_rFfMKqF_G_gZXBpV7TC-OXmN8YKw6_occQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] gpio: em: remove the gpiochip before removing the
- irq domain
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Phil Reid <preid@electromag.com.au>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        stable <stable@vger.kernel.org>,
-        =?UTF-8?Q?Niklas_S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-CC Niklas, who has the hardware
+Multiple users are reporting black screens upon boot, after resume, or
+frozen after a short period of idleness. A black screen on boot is a
+critical issue so disable psr2 again until resolved.
 
-On Thu, Jul 11, 2019 at 10:29 AM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->
-> In commit 8764c4ca5049 ("gpio: em: use the managed version of
-> gpiochip_add_data()") we implicitly altered the ordering of resource
-> freeing: since gpiochip_remove() calls gpiochip_irqchip_remove()
-> internally, we now can potentially use the irq_domain after it was
-> destroyed in the remove() callback (as devm resources are freed after
-> remove() has returned).
->
-> Use devm_add_action_or_reset() to keep the ordering right and entirely
-> kill the remove() callback in the driver.
->
-> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Fixes: 8764c4ca5049 ("gpio: em: use the managed version of gpiochip_add_data()")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+This reverts commit 8f6e87d6d561f10cfa48a687345512419839b6d8.
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111088
+Fixes: 8f6e87d6d561 ("drm/i915: Enable PSR2 by default")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Dhinakaran Pandiyan <dhinakaran.pandiyan@intel.com>
+Cc: José Roberto de Souza <jose.souza@intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: stable@vger.kernel.org #v5.2
+---
+ drivers/gpu/drm/i915/display/intel_psr.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
+diff --git a/drivers/gpu/drm/i915/display/intel_psr.c b/drivers/gpu/drm/i915/display/intel_psr.c
+index 69d908e6a050..ddde4da2de33 100644
+--- a/drivers/gpu/drm/i915/display/intel_psr.c
++++ b/drivers/gpu/drm/i915/display/intel_psr.c
+@@ -83,6 +83,9 @@ static bool intel_psr2_enabled(struct drm_i915_private *dev_priv,
+ 	case I915_PSR_DEBUG_DISABLE:
+ 	case I915_PSR_DEBUG_FORCE_PSR1:
+ 		return false;
++	case I915_PSR_DEBUG_DEFAULT:
++		if (i915_modparams.enable_psr <= 0)
++			return false;
+ 	default:
+ 		return crtc_state->has_psr2;
+ 	}
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+2.22.0
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
