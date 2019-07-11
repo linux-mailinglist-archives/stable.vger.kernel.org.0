@@ -2,113 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC7AE652E0
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 10:10:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2282D6532D
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 10:29:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728197AbfGKIKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 04:10:38 -0400
-Received: from mx2.suse.de ([195.135.220.15]:38514 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728055AbfGKIKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jul 2019 04:10:37 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 039EBADEC;
-        Thu, 11 Jul 2019 08:10:35 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 8129F1E43B9; Thu, 11 Jul 2019 10:06:49 +0200 (CEST)
-Date:   Thu, 11 Jul 2019 10:06:49 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Boaz Harrosh <openosd@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Robert Barror <robert.barror@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dax: Fix missed PMD wakeups
-Message-ID: <20190711080649.GB8727@quack2.suse.cz>
-References: <20190703195302.GJ1729@bombadil.infradead.org>
- <CAPcyv4iPNz=oJyc_EoE-mC11=gyBzwMKbmj1ZY_Yna54=cC=Mg@mail.gmail.com>
- <20190704032728.GK1729@bombadil.infradead.org>
- <20190704165450.GH31037@quack2.suse.cz>
- <20190704191407.GM1729@bombadil.infradead.org>
- <CAPcyv4gUiDw8Ma9mvbW5BamQtGZxWVuvBW7UrOLa2uijrXUWaw@mail.gmail.com>
- <20190705191004.GC32320@bombadil.infradead.org>
- <CAPcyv4jVARa38Qc4NjQ04wJ4ZKJ6On9BbJgoL95wQqU-p-Xp_w@mail.gmail.com>
- <20190710190204.GB14701@quack2.suse.cz>
- <20190711033555.GP32320@bombadil.infradead.org>
+        id S1728257AbfGKI3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 04:29:45 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:38231 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728102AbfGKI3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 04:29:45 -0400
+Received: by mail-wr1-f68.google.com with SMTP id g17so5268985wrr.5
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 01:29:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=FdHUqoEiI/8PFzP+nb28CeapgJPIaOc+zD/Fqu3mxsA=;
+        b=hDRkpqgQiAzNXdREpgCryNPTTpkPxbaw2kKafW0BWjDICnyBpzULAh4PkGTmfT/Qb+
+         OxHtAeKq6KLpAH+7IBPhIpFhpjblmzu3ovCNDSEhBaF9Ysa+VCyYTxIb+Wev658fvedi
+         /ODbN7gEOOBry0AtyeoYvGDzvFYpiPGE0nyji8nrrCO2pRi3UqbLr61ee30Z3rWlfR6Q
+         60g1qCgqxDvqQbfHLDkz+aX9Shl7IkFYfeI5cKjnjIVi8IETiVrQns/g/HSvFCDnNj8H
+         xtq6UwHdRMxmNGfWNmhVLHeJiRNZI4niFsR4L/9sxg20TIAcJq2G7WgC2a5lJ4U/jgTm
+         943A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=FdHUqoEiI/8PFzP+nb28CeapgJPIaOc+zD/Fqu3mxsA=;
+        b=sQFWrzTwK0jmeJN8oWNodAK7PkTeZHMWsEz2AhW4YDSVKw3WfpzoZrUA1rg/L+hFSr
+         sCQE3qNwP3n+B799BAweKOGPrXqwKJYi3fNUxitTSd6kqmMc+DmzsHI+moMe3lQWW4O/
+         3VobL2b+iga8jCdpIDuoBr3D7kKEJdRy6MctGV7VFoLfWAZj+4PX9qYdPH4eDKJ/Q7Fd
+         66QrCNDqgcKnelOsCtRrrMOHCi1JrnNZtHaFhZhNjPUhtr7jetuMkuxIW1GTCRQNqXSV
+         vjZNzIQL4oRoZZypMVxmM8paVlCUKVtMYhTJd22EQrVy4oH71Kwqknl/gUv1ex+OZ0K/
+         O9Yw==
+X-Gm-Message-State: APjAAAVjZabs/Eb3qatK7fBbIAjyrFb/IbRAV9WSyvKx9CBw0WCThQZk
+        5d9DaNK4riegde+OtmbTFAA=
+X-Google-Smtp-Source: APXvYqwchytOtZ9tsjAn0HXoKcFxOTCKPL1ct7E9RABxwigkhJc8CkAKO3nNjvDrpBZVqamEnzg7bw==
+X-Received: by 2002:adf:f888:: with SMTP id u8mr3343527wrp.238.1562833782970;
+        Thu, 11 Jul 2019 01:29:42 -0700 (PDT)
+Received: from localhost.localdomain (amontpellier-652-1-281-69.w109-210.abo.wanadoo.fr. [109.210.96.69])
+        by smtp.gmail.com with ESMTPSA id x20sm9374781wrg.10.2019.07.11.01.29.41
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Thu, 11 Jul 2019 01:29:42 -0700 (PDT)
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+To:     Linus Walleij <linus.walleij@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Phil Reid <preid@electromag.com.au>
+Cc:     linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/2] gpio: em: remove the gpiochip before removing the irq domain
+Date:   Thu, 11 Jul 2019 10:29:35 +0200
+Message-Id: <20190711082936.8706-1-brgl@bgdev.pl>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190711033555.GP32320@bombadil.infradead.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 10-07-19 20:35:55, Matthew Wilcox wrote:
-> On Wed, Jul 10, 2019 at 09:02:04PM +0200, Jan Kara wrote:
-> > So how about the attached patch? That keeps the interface sane and passes a
-> > smoketest for me (full fstest run running). Obviously it also needs a
-> > proper changelog...
-> 
-> Changelog and slightly massaged version along the lines of my two comments
-> attached.
-> 
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-> From 57b63fdd38e7bea7eb8d6332f0163fb028570def Mon Sep 17 00:00:00 2001
-> From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-> Date: Wed, 3 Jul 2019 23:21:25 -0400
-> Subject: [PATCH] dax: Fix missed wakeup with PMD faults
-> 
-> RocksDB can hang indefinitely when using a DAX file.  This is due to
-> a bug in the XArray conversion when handling a PMD fault and finding a
-> PTE entry.  We use the wrong index in the hash and end up waiting on
-> the wrong waitqueue.
-> 
-> There's actually no need to wait; if we find a PTE entry while looking
-> for a PMD entry, we can return immediately as we know we should fall
-> back to a PTE fault (which may not conflict with the lock held).
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: b15cd800682f ("dax: Convert page fault handlers to XArray")
-> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+In commit 8764c4ca5049 ("gpio: em: use the managed version of
+gpiochip_add_data()") we implicitly altered the ordering of resource
+freeing: since gpiochip_remove() calls gpiochip_irqchip_remove()
+internally, we now can potentially use the irq_domain after it was
+destroyed in the remove() callback (as devm resources are freed after
+remove() has returned).
 
-Just one nit below. Otherwise feel free to add:
+Use devm_add_action_or_reset() to keep the ordering right and entirely
+kill the remove() callback in the driver.
 
-Reviewed-by: Jan Kara <jack@suse.cz>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: 8764c4ca5049 ("gpio: em: use the managed version of gpiochip_add_data()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+v1 -> v2:
+- use devm_add_action_or_reset() to automatically remove the domain if
+  the underlying devm_add_action() fails
 
-> diff --git a/include/linux/xarray.h b/include/linux/xarray.h
-> index 052e06ff4c36..fb25452bcfa4 100644
-> --- a/include/linux/xarray.h
-> +++ b/include/linux/xarray.h
-> @@ -169,7 +169,9 @@ static inline bool xa_is_internal(const void *entry)
->  	return ((unsigned long)entry & 3) == 2;
->  }
->  
-> +#define XA_RETRY_ENTRY		xa_mk_internal(256)
->  #define XA_ZERO_ENTRY		xa_mk_internal(257)
-> +#define XA_DAX_CONFLICT_ENTRY	xa_mk_internal(258)
->  
->  /**
->   * xa_is_zero() - Is the entry a zero entry?
+ drivers/gpio/gpio-em.c | 33 +++++++++++++++------------------
+ 1 file changed, 15 insertions(+), 18 deletions(-)
 
-As I wrote in my previous email, won't it be nicer if we just defined
-DAX_CONFLICT_ENTRY (or however we name it) inside dax code say to
-XA_ZERO_ENTRY?  Generic xarray code just doesn't care about that value and
-I can imagine in future there'll be other xarray user's who'd like to have
-some special value(s) for use similarly to DAX and we don't want to clutter
-xarray definitions with those as well. If you don't like XA_ZERO_ENTRY, I
-could also imagine having XA_USER_RESERVED value that's guaranteed to be
-unused by xarray and we'd define DAX_CONFLICT_ENTRY to it. Overall I don't
-care too much so I can live even with what you have now but it would seem
-cleaner that way to me.
-
-								Honza
+diff --git a/drivers/gpio/gpio-em.c b/drivers/gpio/gpio-em.c
+index b6af705a4e5f..a87951293aaa 100644
+--- a/drivers/gpio/gpio-em.c
++++ b/drivers/gpio/gpio-em.c
+@@ -259,6 +259,13 @@ static const struct irq_domain_ops em_gio_irq_domain_ops = {
+ 	.xlate	= irq_domain_xlate_twocell,
+ };
+ 
++static void em_gio_irq_domain_remove(void *data)
++{
++	struct irq_domain *domain = data;
++
++	irq_domain_remove(domain);
++}
++
+ static int em_gio_probe(struct platform_device *pdev)
+ {
+ 	struct em_gio_priv *p;
+@@ -333,39 +340,30 @@ static int em_gio_probe(struct platform_device *pdev)
+ 		return -ENXIO;
+ 	}
+ 
++	ret = devm_add_action_or_reset(&pdev->dev, em_gio_irq_domain_remove,
++				       p->irq_domain);
++	if (ret)
++		return ret;
++
+ 	if (devm_request_irq(&pdev->dev, irq[0]->start,
+ 			     em_gio_irq_handler, 0, name, p)) {
+ 		dev_err(&pdev->dev, "failed to request low IRQ\n");
+-		ret = -ENOENT;
+-		goto err1;
++		return -ENOENT;
+ 	}
+ 
+ 	if (devm_request_irq(&pdev->dev, irq[1]->start,
+ 			     em_gio_irq_handler, 0, name, p)) {
+ 		dev_err(&pdev->dev, "failed to request high IRQ\n");
+-		ret = -ENOENT;
+-		goto err1;
++		return -ENOENT;
+ 	}
+ 
+ 	ret = devm_gpiochip_add_data(&pdev->dev, gpio_chip, p);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to add GPIO controller\n");
+-		goto err1;
++		return ret;
+ 	}
+ 
+ 	return 0;
+-
+-err1:
+-	irq_domain_remove(p->irq_domain);
+-	return ret;
+-}
+-
+-static int em_gio_remove(struct platform_device *pdev)
+-{
+-	struct em_gio_priv *p = platform_get_drvdata(pdev);
+-
+-	irq_domain_remove(p->irq_domain);
+-	return 0;
+ }
+ 
+ static const struct of_device_id em_gio_dt_ids[] = {
+@@ -376,7 +374,6 @@ MODULE_DEVICE_TABLE(of, em_gio_dt_ids);
+ 
+ static struct platform_driver em_gio_device_driver = {
+ 	.probe		= em_gio_probe,
+-	.remove		= em_gio_remove,
+ 	.driver		= {
+ 		.name	= "em_gio",
+ 		.of_match_table = em_gio_dt_ids,
 -- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+2.21.0
+
