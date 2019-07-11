@@ -2,87 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2968657E3
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 15:28:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B72C6583D
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 15:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728107AbfGKN2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 09:28:39 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:49064 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727956AbfGKN2j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 09:28:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=qQDTG34nBen/nM9O8f+a+MBGBH0+G5+6en1FIsdsBzQ=; b=W+v4En8WpGKHHhb5uk9cn5YEj
-        gMBk1sMls9oDVSUMnffjOdYoC42wy0L2mrdb8o+2nRCt3WJcfJWdpJmZdwFH7zES2pWupJCUFZdpd
-        +I0ZEZ52/7VuJmRzXFkuCHrqNnocufRvwVqTWFL84Zv2FBGtFMXone6sHQPuWsD3NHowMNRs2z0f7
-        EEm1jKIO9RQ8O8rAIcVGKaJlZ7YjDe4dFqP6S38khRcqg/4f/fhU2/h5XGx35pJ4tyHd/WIhuiZAS
-        fepWgCd+ombLf62ZVAnnAYieZTutsx+4AKG4jD7zCntmeAryEPk4KQ+vNqva9zXi8VGg4PP5+X3Ao
-        VyIPQLmeg==;
-Received: from willy by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
-        id 1hlZ7k-0002ft-Fx; Thu, 11 Jul 2019 13:28:36 +0000
-Date:   Thu, 11 Jul 2019 06:28:36 -0700
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Jan Kara <jack@suse.cz>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Boaz Harrosh <openosd@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Robert Barror <robert.barror@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dax: Fix missed PMD wakeups
-Message-ID: <20190711132836.GR32320@bombadil.infradead.org>
-References: <CAPcyv4iPNz=oJyc_EoE-mC11=gyBzwMKbmj1ZY_Yna54=cC=Mg@mail.gmail.com>
- <20190704032728.GK1729@bombadil.infradead.org>
- <20190704165450.GH31037@quack2.suse.cz>
- <20190704191407.GM1729@bombadil.infradead.org>
- <CAPcyv4gUiDw8Ma9mvbW5BamQtGZxWVuvBW7UrOLa2uijrXUWaw@mail.gmail.com>
- <20190705191004.GC32320@bombadil.infradead.org>
- <CAPcyv4jVARa38Qc4NjQ04wJ4ZKJ6On9BbJgoL95wQqU-p-Xp_w@mail.gmail.com>
- <20190710190204.GB14701@quack2.suse.cz>
- <20190711030855.GO32320@bombadil.infradead.org>
- <20190711074859.GA8727@quack2.suse.cz>
+        id S1728298AbfGKN5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 09:57:45 -0400
+Received: from foss.arm.com ([217.140.110.172]:46408 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728275AbfGKN5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Jul 2019 09:57:45 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9B3BA2B;
+        Thu, 11 Jul 2019 06:57:44 -0700 (PDT)
+Received: from [10.1.197.45] (e112298-lin.cambridge.arm.com [10.1.197.45])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8A7BF3F59C;
+        Thu, 11 Jul 2019 06:57:42 -0700 (PDT)
+Subject: Re: [PATCH v4.4 00/45] V4.4 backport of arm64 Spectre patches
+To:     Viresh Kumar <viresh.kumar@linaro.org>,
+        linux-arm-kernel@lists.infradead.org
+Cc:     stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com
+References: <cover.1560480942.git.viresh.kumar@linaro.org>
+From:   Julien Thierry <julien.thierry@arm.com>
+Message-ID: <19247d89-8f83-f5f7-dc03-0f6106c6e28e@arm.com>
+Date:   Thu, 11 Jul 2019 14:57:40 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190711074859.GA8727@quack2.suse.cz>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <cover.1560480942.git.viresh.kumar@linaro.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 11, 2019 at 09:48:59AM +0200, Jan Kara wrote:
-> On Wed 10-07-19 20:08:55, Matthew Wilcox wrote:
-> > On Wed, Jul 10, 2019 at 09:02:04PM +0200, Jan Kara wrote:
-> > > @@ -848,7 +853,7 @@ static int dax_writeback_one(struct xa_state *xas, struct dax_device *dax_dev,
-> > >  	if (unlikely(dax_is_locked(entry))) {
-> > >  		void *old_entry = entry;
-> > >  
-> > > -		entry = get_unlocked_entry(xas);
-> > > +		entry = get_unlocked_entry(xas, 0);
-> > >  
-> > >  		/* Entry got punched out / reallocated? */
-> > >  		if (!entry || WARN_ON_ONCE(!xa_is_value(entry)))
-> > 
-> > I'm not sure about this one.  Are we sure there will never be a dirty
-> > PMD entry?  Even if we can't create one today, it feels like a bit of
-> > a landmine to leave for someone who creates one in the future.
+Hi Viresh,
+
+On 14/06/2019 04:07, Viresh Kumar wrote:
+> Hello,
 > 
-> I was thinking about this but dax_writeback_one() doesn't really care what
-> entry it gets. Yes, in theory it could get a PMD when previously there was
-> PTE or vice-versa but we check that PFN's match and if they really do
-> match, there's no harm in doing the flushing whatever entry we got back...
-> And the checks are simpler this way.
+> Here is an attempt to backport arm64 spectre patches to v4.4 stable
+> tree.
+> 
+> I have started this backport with Mark Rutland's backport of Spectre to
+> 4.9 [1] and tried applying the upstream version of them over 4.4 and
+> resolved conflicts by checking how they have been resolved in 4.9.
+> 
+> I had to pick few extra upstream patches to avoid unnecessary conflicts
+> (upstream commit ids mentioned):
+> 
+>   a842789837c0 arm64: remove duplicate macro __KERNEL__ check
+>   64f8ebaf115b mm/kasan: add API to check memory regions
+>   bffe1baff5d5 arm64: kasan: instrument user memory access API
+>   92406f0cc9e3 arm64: cpufeature: Add scope for capability check
+>   9eb8a2cdf65c arm64: cputype info for Broadcom Vulcan
+>   0d90718871fe arm64: cputype: Add MIDR values for Cavium ThunderX2 CPUs
+>   98dd64f34f47 ARM: 8478/2: arm/arm64: add arm-smccc
+> 
+> 
+> I had to drop few patches as well as they weren't getting applied
+> properly due to missing files/features (upstream commit id mentioned):
+> 
+>   93f339ef4175 arm64: cpufeature: __this_cpu_has_cap() shouldn't stop early
+>   3c31fa5a06b4 arm64: Run enable method for errata work arounds on late CPUs
+>   6840bdd73d07 arm64: KVM: Use per-CPU vector when BP hardening is enabled
+>   90348689d500 arm64: KVM: Make PSCI_VERSION a fast path
+> 
+> 
+> Since v4.4 doesn't contain arch/arm/kvm/hyp/switch.c file, changes for
+> it are dropped from some of the patches. The commit log of specific
+> patches are updated with this information.
+> 
+> Also for commit id (from 4.9 stable):
+>   c24c205d2528 arm64: Add ARM_SMCCC_ARCH_WORKAROUND_1 BP hardening support
+> 
+> I have dropped arch/arm64/crypto/sha256-core.S and sha512-core.S files
+> as they weren't part of the upstream commit. Not sure why it was
+> included by Mark as the commit log doesn't provide any reasoning for it.
+> 
+> The patches in this series are pushed here [2].
+> 
+> This is only build/boot tested by me as I don't have access to the
+> required test-suite which can verify spectre mitigations.
+> 
+> @Julien: Can you please help reviewing / testing them ? Thanks.
+> 
 
-That's fair.  I'll revert this part to the way you had it.
+Since there were seems to be a lot of changes between the current branch
+and the patch series you posted, it would probably be good to post a new
+version on the mailing list once you believe you have them in a good shape.
 
-I actually want to get rid of the PFN match check too; it doesn't really
-buy us much.  We already check whether the TOWRITE bit is set, and that
-should accomplish the same thing.
+Testing the branch is fine, but reviewing is definitely something that
+should happen on patches posted on the mailing list.
+
+Thanks,
+
+-- 
+Julien Thierry
