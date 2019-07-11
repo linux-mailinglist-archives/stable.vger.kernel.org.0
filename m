@@ -2,74 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FAAE65521
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 13:23:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C95C65599
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 13:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728335AbfGKLXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 07:23:52 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:45028 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728286AbfGKLXw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jul 2019 07:23:52 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 533C286663;
-        Thu, 11 Jul 2019 11:23:51 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 038845D720;
-        Thu, 11 Jul 2019 11:23:51 +0000 (UTC)
-Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 1BF88206D1;
-        Thu, 11 Jul 2019 11:23:50 +0000 (UTC)
-Date:   Thu, 11 Jul 2019 07:23:50 -0400 (EDT)
-From:   Veronika Kabatova <vkabatov@redhat.com>
-To:     automated-testing@yoctoproject.org, stable@vger.kernel.org,
-        info@kernelci.org, syzkaller@googlegroups.com
-Cc:     CKI Project <cki-project@redhat.com>
-Message-ID: <2040631087.30112122.1562844229994.JavaMail.zimbra@redhat.com>
-In-Reply-To: <2127767505.30109597.1562843554087.JavaMail.zimbra@redhat.com>
-Subject: CKI Plumbers hackfest location and schedule
+        id S1728344AbfGKLbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 07:31:12 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:60053 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728205AbfGKLbM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 07:31:12 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 0EE154FE;
+        Thu, 11 Jul 2019 07:31:09 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 11 Jul 2019 07:31:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=TzQ4Lm
+        IoZUPaoMMOPZ52lNEnNLxOD1cQ+E5VQ4DyqA4=; b=ybSS/MtD5VNtjLFWGBILG7
+        kPmNdI4KixHixfnRDyG+neEKA/MImi4Ik+qXYlGJsluw5k3K9Oim5b8DT+c/vZ/k
+        wuflgQRaLS5dWdV7DlXYqkq9EqF+fqL/jRkLjyvneOoSq/DHO86f0cZ3bvXAo8TV
+        /FpvGOUtdfFRD5LHEwZNwa+MduPoJymzmJ6+vUlgR19pf9eKBiWwD8juixOKJpqq
+        5fb6cj7X99mKuFDG3OZS2u6qUt2vdIbAj3CXfQEsv4sUKrDVtTNr892lV6jCufHE
+        JzDD+KNmUcLLhvvlF7Lg60L/fVgldom8Rb2gTL5vggN0zfduIT+w0O4C9mbnIzIQ
+        ==
+X-ME-Sender: <xms:_B0nXfrVt6cbfX377CI2SI1YW4gyJt8sy-Kq7Pnw9yTrbbybrvBGOg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrgeekgdegfecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:_B0nXaYV05x77OnlKD2cLSeg9PYe0QTBGAU1jznU1GwWg_HAWyWDZQ>
+    <xmx:_B0nXQCbUOggw-FfbcD8LzZjSopDNuqNqvf0idDLdfFH5o15tJ7QNg>
+    <xmx:_B0nXUetrZN6W0o7i1pUX6k59qrd8RmrCrE9q1Kav2xIKoXXi1fLig>
+    <xmx:_B0nXbiMLQCfzgT8wJW-w8OA0MNLoun00i98DgLwC7n_ReQ3JVc-PQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 298133800B9;
+        Thu, 11 Jul 2019 07:31:06 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] fscrypt: don't set policy for a dead directory" failed to apply to 4.9-stable tree
+To:     hongjiefang@asrmicro.com, ebiggers@google.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 11 Jul 2019 13:31:04 +0200
+Message-ID: <15628446641298@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.40.204.181, 10.4.195.24]
-Thread-Topic: CKI Plumbers hackfest location and schedule
-Thread-Index: D832DBfYLvl3I8+AKGtidI3MRyykaQ==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Thu, 11 Jul 2019 11:23:52 +0000 (UTC)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Hello,
+thanks,
 
-(I tried to put everyone who signed up into bcc so hopefully it works)
+greg k-h
 
-We've just published the detailed information about the CKI Plumbers
-hackfest at our blog [0]. We've tried to put the sessions interesting to
-kernel developers and maintainers to the second day to not collide with
-the maintainers summit.
+------------------ original commit in Linus's tree ------------------
 
-In case of schedule changes we'll just edit that post, unless it's a
-more important change in which case I'll send out another notification
-email.
+From 5858bdad4d0d0fc18bf29f34c3ac836e0b59441f Mon Sep 17 00:00:00 2001
+From: Hongjie Fang <hongjiefang@asrmicro.com>
+Date: Wed, 22 May 2019 10:02:53 +0800
+Subject: [PATCH] fscrypt: don't set policy for a dead directory
 
+The directory may have been removed when entering
+fscrypt_ioctl_set_policy().  If so, the empty_dir() check will return
+error for ext4 file system.
 
-In case someone else is interested to attend, we are still able to
-squeeze in a few more people. For more info you can find the original
-invite in the mail archive [1].
+ext4_rmdir() sets i_size = 0, then ext4_empty_dir() reports an error
+because 'inode->i_size < EXT4_DIR_REC_LEN(1) + EXT4_DIR_REC_LEN(2)'.  If
+the fs is mounted with errors=panic, it will trigger a panic issue.
 
+Add the check IS_DEADDIR() to fix this problem.
 
-Let us know if you have any questions!
+Fixes: 9bd8212f981e ("ext4 crypto: add encryption policy and password salt support")
+Cc: <stable@vger.kernel.org> # v4.1+
+Signed-off-by: Hongjie Fang <hongjiefang@asrmicro.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 
-Veronika
-CKI Project
+diff --git a/fs/crypto/policy.c b/fs/crypto/policy.c
+index d536889ac31b..4941fe8471ce 100644
+--- a/fs/crypto/policy.c
++++ b/fs/crypto/policy.c
+@@ -81,6 +81,8 @@ int fscrypt_ioctl_set_policy(struct file *filp, const void __user *arg)
+ 	if (ret == -ENODATA) {
+ 		if (!S_ISDIR(inode->i_mode))
+ 			ret = -ENOTDIR;
++		else if (IS_DEADDIR(inode))
++			ret = -ENOENT;
+ 		else if (!inode->i_sb->s_cop->empty_dir(inode))
+ 			ret = -ENOTEMPTY;
+ 		else
 
-
-
-[0] https://cki-project.org/posts/hackfest-agenda/
-[1] https://lists.linaro.org/pipermail/linux-stable-mirror/2019-May/108164.html
