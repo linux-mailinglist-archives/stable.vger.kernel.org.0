@@ -2,174 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1516E65155
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 07:04:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75E3D65162
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 07:25:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727946AbfGKFE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 01:04:28 -0400
-Received: from mail-eopbgr150089.outbound.protection.outlook.com ([40.107.15.89]:43843
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727874AbfGKFE2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jul 2019 01:04:28 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LSPuR28l3ofDQ3z0SOUE+WzxxlcZ6rRwP5jqd42xIWPHUf5KqeotlnUQm5CBcq+r4iutrDUfA1sPuVJNeNMXZ39Tff4OFwRS2q5IPBgXyIQIU6i1Ltzool+mD6KDTLdqyb5g9khrAT3bsZAIxkiUOiqopn4TXHupIAoeRFYZWHF0qtElX5O05GpQ6H9iLnEJFThMfw71Cte61V3h7+Lzl82uFcNn0yyUiziONYFLKv1gZfHRcWk2GVk4cA87tdLDGFeoqqtQoJSh/AuwYT4MzIZRkZrF7IPi6AFvYts2PCs+yK7MnJ3QHfrAyqhrO5tPL/s+eaTSxeeks/5WJ22RXg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Z83sYZqk2O9DenZ4DwcWHPJCV0wSkM683OltWOosMNw=;
- b=gp0i0o6qUZF2hvrsA8zb8IE4sR7Np5b9u93TtSAalIYMfDVESb2D0H2kZfhIJVLYUJqCGwve7e7dcVgd27c4CcSC+zRXP9Oe8Kq0FnGW7v3qq5MXF/NkByzycGY4bLyxR+vSJoJlI+rW4+xf8WTaqduJFsa8NG3+vVDzbumGpaBVywYq7bznGjaYUEoz/sMoQGBNmeztcmXQookf3kc1pJA4mcplCOhm9F+t6dMCNocYEcSf163XBMZ7+x/q9CXrWE1cesXGHAwZKXB83r9U76Djz6QSslElPYwU1FbLdX6p8LB8Jd99KgUPnE3iRfikbci8YhKpHG/IJeFIlOfDRg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1;spf=pass
- smtp.mailfrom=nxp.com;dmarc=pass action=none header.from=nxp.com;dkim=pass
- header.d=nxp.com;arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Z83sYZqk2O9DenZ4DwcWHPJCV0wSkM683OltWOosMNw=;
- b=Vhqt5ttHTEf0Q+DjhGgST+3WfXljqdZYNGgeSjcK9JpOi7bIn83RY2UTDZYoEkp2LNB9ESySNuVY71M46s+QnnXm0ttUVn9FrGqKLbFA2CEc+X7EnAQr6BeKrA1AayHflV5e2NvQHRRtql2e1PQ/m8hWblDjOGcQG6rLawi8N+U=
-Received: from DB8PR04MB6826.eurprd04.prod.outlook.com (52.133.240.82) by
- DB8PR04MB7035.eurprd04.prod.outlook.com (52.135.61.145) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2073.10; Thu, 11 Jul 2019 05:04:24 +0000
-Received: from DB8PR04MB6826.eurprd04.prod.outlook.com
- ([fe80::a5a4:22ca:7b9b:2d92]) by DB8PR04MB6826.eurprd04.prod.outlook.com
- ([fe80::a5a4:22ca:7b9b:2d92%2]) with mapi id 15.20.2073.008; Thu, 11 Jul 2019
- 05:04:24 +0000
-From:   Ran Wang <ran.wang_1@nxp.com>
-To:     Sasha Levin <sashal@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     Shawn Guo <shawnguo@kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        Xiaobo Xie <xiaobo.xie@nxp.com>
-Subject: RE: [PATCH AUTOSEL 5.1 08/39] arm64: dts: ls1028a: Fix CPU idle fail.
-Thread-Topic: [PATCH AUTOSEL 5.1 08/39] arm64: dts: ls1028a: Fix CPU idle
- fail.
-Thread-Index: AQHVMUUufyAeHKyv8U6/zS4ZNHbUTabE4czg
-Date:   Thu, 11 Jul 2019 05:04:24 +0000
-Message-ID: <DB8PR04MB6826A4A8CE604F2570DC1EA7F1F30@DB8PR04MB6826.eurprd04.prod.outlook.com>
-References: <20190703021514.17727-1-sashal@kernel.org>
- <20190703021514.17727-8-sashal@kernel.org>
-In-Reply-To: <20190703021514.17727-8-sashal@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=ran.wang_1@nxp.com; 
-x-originating-ip: [92.121.36.197]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: e889ede0-7180-452b-a62e-08d705bd3df9
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:DB8PR04MB7035;
-x-ms-traffictypediagnostic: DB8PR04MB7035:
-x-microsoft-antispam-prvs: <DB8PR04MB7035A9EBDDB88F00515DBD48F1F30@DB8PR04MB7035.eurprd04.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:660;
-x-forefront-prvs: 0095BCF226
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(346002)(396003)(136003)(376002)(366004)(39860400002)(199004)(189003)(13464003)(3846002)(14454004)(64756008)(8676002)(6116002)(2501003)(33656002)(6436002)(4326008)(7696005)(229853002)(8936002)(26005)(5660300002)(2906002)(25786009)(256004)(6246003)(14444005)(53936002)(55016002)(66446008)(76176011)(76116006)(66946007)(66556008)(66476007)(81156014)(9686003)(52536014)(81166006)(186003)(66066001)(71190400001)(71200400001)(110136005)(478600001)(102836004)(486006)(316002)(2201001)(68736007)(305945005)(74316002)(7736002)(11346002)(446003)(86362001)(53546011)(6506007)(476003)(54906003)(99286004);DIR:OUT;SFP:1101;SCL:1;SRVR:DB8PR04MB7035;H:DB8PR04MB6826.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: yF0BlUXJgMnAysfugLru/A66Z5W/NLYRwzUIKnogo4w2rnxt3xEIRvoD7jHJn/POQthHXEJLdYL02hzNSlMknAxpbQ7mK0VX4fJJEWdBnU/ugOA4ZnUBPNcpyd0BxeVG32YfukgiEelSXMRk+SAmTFI5ABtaoNyVyrl9g17pp1ho6R4jekHgDEnxTcbJl0UjOnzkiISGm+sbMQDqx0ymmmu1UyXdTJL/+JcngMzX1Z6GezS7iAesHTc4djg0si0TSiBTjTI055s/U8GDIh1MPJ9jMsgiHhvy1Px+uuUbLYRKnP4J4hrXZ+Pydmcx4soQkmDiYuEp2JQPeASRmwxXd4nrh+kAHQHWG/JqUDmR+MMcQ8OTuwctAA+XVg432cnfJKh0XeoVLHaK0ADH6BlSPGW+MDAVIXMIJbDyqkoa7X4=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S1727929AbfGKFZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 01:25:07 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:38319 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727470AbfGKFZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 01:25:07 -0400
+Received: by mail-pl1-f194.google.com with SMTP id az7so2395586plb.5
+        for <stable@vger.kernel.org>; Wed, 10 Jul 2019 22:25:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=iAzKw0BoNuWYvRIzrLeTPP6dDrFST9kyO0Xv/W2qtaU=;
+        b=E/e3PBgQ9/O1mYNDctMgvQ9JP5Ck/4I3S80VZF4toBAPiVDAgrviyTwC2sZQvNSJ+8
+         rqBc9CSd+ScNVhuNdBxOzkoP/GY7op2PfRpfumWFKvyNfYd+2WJZFsK7sB3z1cURxgl0
+         uEmaJE4HpYFWhom5pmmYwT/Fd/cHzso1rmGL9J7mv2hpFfeSGo+ncCGrCLjqDp8psUAf
+         cuowLO5rLG0RFtKJHWOX4VAHvMNRblY7QbYQ7YtbKAHNhPg1o5zod0LM8I8oy3PixRg8
+         2YGfEGPhDll9EPsFbfAp2CIDgqoluJP0sp/xyDLe93LooAdg+y7uAqGK0s6oQgU+Mvjk
+         r8nw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=iAzKw0BoNuWYvRIzrLeTPP6dDrFST9kyO0Xv/W2qtaU=;
+        b=U4DoDWYxAdSo63DZA8EBWLPLgGuyildSqBYXRvDG4WtQp6uDX+ya9kZabdgVG8qO93
+         idJcuodTHYjc7l2DDKkx98WFV04QTu717eSRpdFimCE2hOrnGYdnmlLTy4qTBu4yM4zy
+         FG35YQ74GB1hAhY5f3lfTSu5np0nUa+ZOaCC3PqSuFuTktRr+W+IlDPHfSGEC9xkpq75
+         7vhzN0dGkEImZz5BMn+hcM8N1W894eqhneMOOA3wls/rBH42/qu87DGAKVqngXlDq0iK
+         5DpnhTDHM+Et8lmu4ZIqVPAdtW7PoEBBDpjBomAy3Q4e1KG3szrIqgQHXVmIqMlKZaqt
+         t51Q==
+X-Gm-Message-State: APjAAAUam9tVJ96HrWajBnWeIDXP5aV1reOgo6zgAxwgkTmaP5rwJT/L
+        d04vcvTSQaHzjIuhnythV0CTDw==
+X-Google-Smtp-Source: APXvYqxGCI9u1oZOuUKhbEq8FgFw3q63JFEadaGNOb5TRxahHVBCraKfOKWLZ0+otd5GC8em7POraQ==
+X-Received: by 2002:a17:902:b68f:: with SMTP id c15mr2535175pls.104.1562822705862;
+        Wed, 10 Jul 2019 22:25:05 -0700 (PDT)
+Received: from localhost.localdomain (123-204-46-122.static.seed.net.tw. [123.204.46.122])
+        by smtp.gmail.com with ESMTPSA id 201sm5471345pfz.24.2019.07.10.22.25.02
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Wed, 10 Jul 2019 22:25:05 -0700 (PDT)
+From:   Jian-Hong Pan <jian-hong@endlessm.com>
+To:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        David Laight <David.Laight@aculab.com>,
+        Christoph Hellwig <hch@infradead.org>
+Cc:     linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux@endlessm.com,
+        Daniel Drake <drake@endlessm.com>,
+        Jian-Hong Pan <jian-hong@endlessm.com>, stable@vger.kernel.org
+Subject: [PATCH v4 1/2] rtw88: pci: Rearrange the memory usage for skb in RX ISR
+Date:   Thu, 11 Jul 2019 13:24:26 +0800
+Message-Id: <20190711052427.5582-1-jian-hong@endlessm.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <CAPpJ_edDcaBq+0DocPmS-yYM10B4MkWvBn=f6wwbYdqzSGmp_g@mail.gmail.com>
+References: <CAPpJ_edDcaBq+0DocPmS-yYM10B4MkWvBn=f6wwbYdqzSGmp_g@mail.gmail.com>
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e889ede0-7180-452b-a62e-08d705bd3df9
-X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Jul 2019 05:04:24.1942
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: ran.wang_1@nxp.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8PR04MB7035
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,=20
+Testing with RTL8822BE hardware, when available memory is low, we
+frequently see a kernel panic and system freeze.
 
-    Thanks for helping port this patch to stable.
-    May I know if I can submit other bug fixes which has been accepted by u=
-pstream to stable by myself?
-    If yes, where I can find related process for reference?
+First, rtw_pci_rx_isr encounters a memory allocation failure (trimmed):
 
-Thanks & Regards,
-Ran
+rx routine starvation
+WARNING: CPU: 7 PID: 9871 at drivers/net/wireless/realtek/rtw88/pci.c:822 rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
+[ 2356.580313] RIP: 0010:rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
 
-> -----Original Message-----
-> From: Sasha Levin <sashal@kernel.org>
-> Sent: Wednesday, July 03, 2019 10:15
-> To: linux-kernel@vger.kernel.org; stable@vger.kernel.org
-> Cc: Ran Wang <ran.wang_1@nxp.com>; Shawn Guo <shawnguo@kernel.org>;
-> Sasha Levin <sashal@kernel.org>; devicetree@vger.kernel.org
-> Subject: [PATCH AUTOSEL 5.1 08/39] arm64: dts: ls1028a: Fix CPU idle fail=
-.
->=20
-> From: Ran Wang <ran.wang_1@nxp.com>
->=20
-> [ Upstream commit 53f2ac9d3aa881ed419054076042898b77c27ee4 ]
->=20
-> PSCI spec define 1st parameter's bit 16 of function CPU_SUSPEND to indica=
-te
-> CPU State Type: 0 for standby, 1 for power down. In this case, we want to=
- select
-> standby for CPU idle feature. But current setting wrongly select power do=
-wn and
-> cause CPU SUSPEND fail every time. Need this fix.
->=20
-> Fixes: 8897f3255c9c ("arm64: dts: Add support for NXP LS1028A SoC")
-> Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
-> Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
->=20
-> diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-> b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-> index 2896bbcfa3bb..228872549f01 100644
-> --- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-> +++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
-> @@ -28,7 +28,7 @@
->  			enable-method =3D "psci";
->  			clocks =3D <&clockgen 1 0>;
->  			next-level-cache =3D <&l2>;
-> -			cpu-idle-states =3D <&CPU_PH20>;
-> +			cpu-idle-states =3D <&CPU_PW20>;
->  		};
->=20
->  		cpu1: cpu@1 {
-> @@ -38,7 +38,7 @@
->  			enable-method =3D "psci";
->  			clocks =3D <&clockgen 1 0>;
->  			next-level-cache =3D <&l2>;
-> -			cpu-idle-states =3D <&CPU_PH20>;
-> +			cpu-idle-states =3D <&CPU_PW20>;
->  		};
->=20
->  		l2: l2-cache {
-> @@ -53,13 +53,13 @@
->  		 */
->  		entry-method =3D "arm,psci";
->=20
-> -		CPU_PH20: cpu-ph20 {
-> -			compatible =3D "arm,idle-state";
-> -			idle-state-name =3D "PH20";
-> -			arm,psci-suspend-param =3D <0x00010000>;
-> -			entry-latency-us =3D <1000>;
-> -			exit-latency-us =3D <1000>;
-> -			min-residency-us =3D <3000>;
-> +		CPU_PW20: cpu-pw20 {
-> +			  compatible =3D "arm,idle-state";
-> +			  idle-state-name =3D "PW20";
-> +			  arm,psci-suspend-param =3D <0x0>;
-> +			  entry-latency-us =3D <2000>;
-> +			  exit-latency-us =3D <2000>;
-> +			  min-residency-us =3D <6000>;
->  		};
->  	};
->=20
-> --
-> 2.20.1
+Then we see a variety of different error conditions and kernel panics,
+such as this one (trimmed):
+
+rtw_pci 0000:02:00.0: pci bus timeout, check dma status
+skbuff: skb_over_panic: text:00000000091b6e66 len:415 put:415 head:00000000d2880c6f data:000000007a02b1ea tail:0x1df end:0xc0 dev:<NULL>
+------------[ cut here ]------------
+kernel BUG at net/core/skbuff.c:105!
+invalid opcode: 0000 [#1] SMP NOPTI
+RIP: 0010:skb_panic+0x43/0x45
+
+When skb allocation fails and the "rx routine starvation" is hit, the
+function returns immediately without updating the RX ring. At this
+point, the RX ring may continue referencing an old skb which was already
+handed off to ieee80211_rx_irqsafe(). When it comes to be used again,
+bad things happen.
+
+This patch allocates a new, data-sized skb first in RX ISR. After
+copying the data in, we pass it to the upper layers. However, if skb
+allocation fails, we effectively drop the frame. In both cases, the
+original, full size ring skb is reused.
+
+In addition, to fixing the kernel crash, the RX routine should now
+generally behave better under low memory conditions.
+
+Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=204053
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Cc: <stable@vger.kernel.org>
+---
+ drivers/net/wireless/realtek/rtw88/pci.c | 49 +++++++++++-------------
+ 1 file changed, 22 insertions(+), 27 deletions(-)
+
+diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
+index cfe05ba7280d..c415f5e94fed 100644
+--- a/drivers/net/wireless/realtek/rtw88/pci.c
++++ b/drivers/net/wireless/realtek/rtw88/pci.c
+@@ -763,6 +763,7 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
+ 	u32 pkt_offset;
+ 	u32 pkt_desc_sz = chip->rx_pkt_desc_sz;
+ 	u32 buf_desc_sz = chip->rx_buf_desc_sz;
++	u32 new_len;
+ 	u8 *rx_desc;
+ 	dma_addr_t dma;
+ 
+@@ -790,40 +791,34 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, struct rtw_pci *rtwpci,
+ 		pkt_offset = pkt_desc_sz + pkt_stat.drv_info_sz +
+ 			     pkt_stat.shift;
+ 
+-		if (pkt_stat.is_c2h) {
+-			/* keep rx_desc, halmac needs it */
+-			skb_put(skb, pkt_stat.pkt_len + pkt_offset);
++		/* allocate a new skb for this frame,
++		 * discard the frame if none available
++		 */
++		new_len = pkt_stat.pkt_len + pkt_offset;
++		new = dev_alloc_skb(new_len);
++		if (WARN_ONCE(!new, "rx routine starvation\n"))
++			goto next_rp;
++
++		/* put the DMA data including rx_desc from phy to new skb */
++		skb_put_data(new, skb->data, new_len);
+ 
+-			/* pass offset for further operation */
+-			*((u32 *)skb->cb) = pkt_offset;
+-			skb_queue_tail(&rtwdev->c2h_queue, skb);
++		if (pkt_stat.is_c2h) {
++			 /* pass rx_desc & offset for further operation */
++			*((u32 *)new->cb) = pkt_offset;
++			skb_queue_tail(&rtwdev->c2h_queue, new);
+ 			ieee80211_queue_work(rtwdev->hw, &rtwdev->c2h_work);
+ 		} else {
+-			/* remove rx_desc, maybe use skb_pull? */
+-			skb_put(skb, pkt_stat.pkt_len);
+-			skb_reserve(skb, pkt_offset);
+-
+-			/* alloc a smaller skb to mac80211 */
+-			new = dev_alloc_skb(pkt_stat.pkt_len);
+-			if (!new) {
+-				new = skb;
+-			} else {
+-				skb_put_data(new, skb->data, skb->len);
+-				dev_kfree_skb_any(skb);
+-			}
+-			/* TODO: merge into rx.c */
+-			rtw_rx_stats(rtwdev, pkt_stat.vif, skb);
++			/* remove rx_desc */
++			skb_pull(new, pkt_offset);
++
++			rtw_rx_stats(rtwdev, pkt_stat.vif, new);
+ 			memcpy(new->cb, &rx_status, sizeof(rx_status));
+ 			ieee80211_rx_irqsafe(rtwdev->hw, new);
+ 		}
+ 
+-		/* skb delivered to mac80211, alloc a new one in rx ring */
+-		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
+-		if (WARN(!new, "rx routine starvation\n"))
+-			return;
+-
+-		ring->buf[cur_rp] = new;
+-		rtw_pci_reset_rx_desc(rtwdev, new, ring, cur_rp, buf_desc_sz);
++next_rp:
++		/* new skb delivered to mac80211, re-enable original skb DMA */
++		rtw_pci_reset_rx_desc(rtwdev, skb, ring, cur_rp, buf_desc_sz);
+ 
+ 		/* host read next element in ring */
+ 		if (++cur_rp >= ring->r.len)
+-- 
+2.22.0
 
