@@ -2,111 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C3A965DA2
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 18:41:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2E665DB5
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 18:42:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728335AbfGKQlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 12:41:47 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:42015 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728178AbfGKQlr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 12:41:47 -0400
-Received: by mail-io1-f68.google.com with SMTP id u19so13909632ior.9
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 09:41:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=U26HbtI3jD7UvXKWDY+AWCy2gh8PUZwa9sGU1JIWjXQ=;
-        b=aVidaIVveN3OJ/2S+w//Bv7p73J9McnzDaalFESTX16MVbFCzrt6QOiQQRBEOtIbKz
-         WneY/yV0yMxn0tfb0iuB84iYzx31K19msCtykgFVvKZUHsAw1sNsO+mGPwshtF92J59G
-         iY2azj0chu6DOUjxW8Ps71Y11Bw/YPgwBuNVo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=U26HbtI3jD7UvXKWDY+AWCy2gh8PUZwa9sGU1JIWjXQ=;
-        b=ean4vVghX/AM3OXaQ39sD+9HOVZA1XOCXzOLHMXK6iNstScRrHWmap99L8AtEEGUnC
-         6E2/qyfaYKnVCn8svGyWpv9KOrz0inpgOV791NQqvJHE87KNo8Ev3ctZWOaNrqHqX/t7
-         8uI6NzAEIntdhQpeJn628MhBvsFFnmnC1lz0dtmfpz4sGN84+dLp7HBl66z72z+C1pgr
-         +m2n1TTJkxQWjroZE4POm/3m2Q1HB6YoKIn92t1I3jmEsRnFCj7RA7Uu7zyzU3cT5pIY
-         8mY9BbhEGGxx48U/jqnBMpdYFBX4xEPEgpr63xuBOCkWgQ1E5vjyFRT05O8hhHOfQH/L
-         8QJQ==
-X-Gm-Message-State: APjAAAVVQ6J6oEGB1EGiIIjxjEbl6aKJTEAfXD+F7Bocvb3HYJUGgIgb
-        7s2EcaIDY4lDYF/tTgJtKXnbwxrUOps=
-X-Google-Smtp-Source: APXvYqwy1jLtUTUu+8HFkzlujhxIek9XXW1/pIoxcGPiKISIbO9TCY5/5Uqw+IKLEbauZSN+WMX5mA==
-X-Received: by 2002:a6b:8b8b:: with SMTP id n133mr5182641iod.183.1562863306440;
-        Thu, 11 Jul 2019 09:41:46 -0700 (PDT)
-Received: from mail-io1-f49.google.com (mail-io1-f49.google.com. [209.85.166.49])
-        by smtp.gmail.com with ESMTPSA id j14sm6110619ioa.78.2019.07.11.09.41.45
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 09:41:45 -0700 (PDT)
-Received: by mail-io1-f49.google.com with SMTP id u19so13909496ior.9
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 09:41:45 -0700 (PDT)
-X-Received: by 2002:a02:a703:: with SMTP id k3mr5538997jam.12.1562863305402;
- Thu, 11 Jul 2019 09:41:45 -0700 (PDT)
+        id S1728224AbfGKQmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 12:42:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42626 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727956AbfGKQmc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Jul 2019 12:42:32 -0400
+Received: from ebiggers-linuxstation.mtv.corp.google.com (unknown [104.132.1.77])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D19B20645;
+        Thu, 11 Jul 2019 16:42:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1562863351;
+        bh=t+RQdvIlnVhDX/y3CGE90bf3GuwXi2zUS5ztKj+Lk6E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=14BWxgB5+U6BuR6/OjX9nHMx52EQeKnG7ttRcy2GrOfMpSDNEfY0YUvHOPmlCrN5F
+         r+hFIQ1MSlWdGjshyL2kVP440Kr1YEZK/H3gWvKH2ZXvPq+Lk/BqFDQw6yK8XT+he2
+         V/MoSXobUD+7ZFi8Gu/z9Ntd3JIEr4ul4nxaGhYg=
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
+Cc:     linux-fscrypt@vger.kernel.org,
+        Hongjie Fang <hongjiefang@asrmicro.com>
+Subject: [PATCH 4.9] fscrypt: don't set policy for a dead directory
+Date:   Thu, 11 Jul 2019 09:41:48 -0700
+Message-Id: <20190711164148.230281-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.22.0.410.gd8fdbe21b5-goog
 MIME-Version: 1.0
-References: <20190711162919.23813-1-dianders@chromium.org> <20190711163915.GD25807@ziepe.ca>
-In-Reply-To: <20190711163915.GD25807@ziepe.ca>
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Thu, 11 Jul 2019 09:41:33 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=XuDns7n_tShzEUnzJ3te92kkV8+2=QxtekSGdKV645hw@mail.gmail.com>
-Message-ID: <CAD=FV=XuDns7n_tShzEUnzJ3te92kkV8+2=QxtekSGdKV645hw@mail.gmail.com>
-Subject: Re: [PATCH] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM operations
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-Cc:     "# 4.0+" <stable@vger.kernel.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Vadim Sukhomlinov <sukhomlinov@google.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>, Peter Huewe <peterhuewe@gmx.de>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-integrity@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Hongjie Fang <hongjiefang@asrmicro.com>
 
-On Thu, Jul 11, 2019 at 9:39 AM Jason Gunthorpe <jgg@ziepe.ca> wrote:
->
-> On Thu, Jul 11, 2019 at 09:29:19AM -0700, Douglas Anderson wrote:
-> > From: Vadim Sukhomlinov <sukhomlinov@google.com>
-> >
-> > commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream.
-> >
-> > TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
-> > future TPM operations. TPM 1.2 behavior was different, future TPM
-> > operations weren't disabled, causing rare issues. This patch ensures
-> > that future TPM operations are disabled.
-> >
-> > Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
-> > [dianders: resolved merge conflicts with mainline]
-> > Signed-off-by: Douglas Anderson <dianders@chromium.org>
-> > Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> > This is the backport of the patch referenced above to 4.19 as was done
-> > in Chrome OS.  See <https://crrev.com/c/1495114> for details.  It
-> > presumably applies to some older kernels.  NOTE that the problem
-> > itself has existed for a long time, but continuing to backport this
-> > exact solution to super old kernels is out of scope for me.  For those
-> > truly interested feel free to reference the past discussion [1].
-> >
-> > Reason for backport: mainline has commit a3fbfae82b4c ("tpm: take TPM
-> > chip power gating out of tpm_transmit()") and commit 719b7d81f204
-> > ("tpm: introduce tpm_chip_start() and tpm_chip_stop()") and it didn't
-> > seem like a good idea to backport 17 patches to avoid the conflict.
->
-> Careful with this, you can't backport this to any kernels that don't
-> have the sysfs ops locking changes or they will crash in sysfs code.
+commit 5858bdad4d0d0fc18bf29f34c3ac836e0b59441f upstream.
+[Please apply to 4.9-stable.]
 
-Ah, got it.  Thanks for catching!  Should we just give up on trying to
-get this to stable then, or are the sysfs ops locking patches also
-easy to queue up?
+The directory may have been removed when entering
+fscrypt_ioctl_set_policy().  If so, the empty_dir() check will return
+error for ext4 file system.
 
--Doug
+ext4_rmdir() sets i_size = 0, then ext4_empty_dir() reports an error
+because 'inode->i_size < EXT4_DIR_REC_LEN(1) + EXT4_DIR_REC_LEN(2)'.  If
+the fs is mounted with errors=panic, it will trigger a panic issue.
+
+Add the check IS_DEADDIR() to fix this problem.
+
+Fixes: 9bd8212f981e ("ext4 crypto: add encryption policy and password salt support")
+Cc: <stable@vger.kernel.org> # v4.1+
+Signed-off-by: Hongjie Fang <hongjiefang@asrmicro.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ fs/crypto/policy.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/fs/crypto/policy.c b/fs/crypto/policy.c
+index c160d2d0e18d77..57a97b38a2fa2c 100644
+--- a/fs/crypto/policy.c
++++ b/fs/crypto/policy.c
+@@ -114,6 +114,8 @@ int fscrypt_process_policy(struct file *filp,
+ 	if (!inode_has_encryption_context(inode)) {
+ 		if (!S_ISDIR(inode->i_mode))
+ 			ret = -ENOTDIR;
++		else if (IS_DEADDIR(inode))
++			ret = -ENOENT;
+ 		else if (!inode->i_sb->s_cop->empty_dir)
+ 			ret = -EOPNOTSUPP;
+ 		else if (!inode->i_sb->s_cop->empty_dir(inode))
+-- 
+2.22.0.410.gd8fdbe21b5-goog
+
