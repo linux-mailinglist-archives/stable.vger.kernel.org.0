@@ -2,74 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65EAA65786
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 15:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2968657E3
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 15:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728631AbfGKNBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 09:01:34 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:60602 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728490AbfGKNBd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jul 2019 09:01:33 -0400
-Received: from mchehab by www.linuxtv.org with local (Exim 4.84_2)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1hlYhX-0008Bg-3J; Thu, 11 Jul 2019 13:01:31 +0000
-From:   Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Date:   Thu, 11 Jul 2019 13:00:38 +0000
-Subject: [git:media_tree/master] media: videodev2.h: change V4L2_PIX_FMT_BGRA444 define: fourcc was already in use
-To:     linuxtv-commits@linuxtv.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        stable@vger.kernel.org
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1hlYhX-0008Bg-3J@www.linuxtv.org>
+        id S1728107AbfGKN2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 09:28:39 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:49064 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727956AbfGKN2j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 09:28:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=qQDTG34nBen/nM9O8f+a+MBGBH0+G5+6en1FIsdsBzQ=; b=W+v4En8WpGKHHhb5uk9cn5YEj
+        gMBk1sMls9oDVSUMnffjOdYoC42wy0L2mrdb8o+2nRCt3WJcfJWdpJmZdwFH7zES2pWupJCUFZdpd
+        +I0ZEZ52/7VuJmRzXFkuCHrqNnocufRvwVqTWFL84Zv2FBGtFMXone6sHQPuWsD3NHowMNRs2z0f7
+        EEm1jKIO9RQ8O8rAIcVGKaJlZ7YjDe4dFqP6S38khRcqg/4f/fhU2/h5XGx35pJ4tyHd/WIhuiZAS
+        fepWgCd+ombLf62ZVAnnAYieZTutsx+4AKG4jD7zCntmeAryEPk4KQ+vNqva9zXi8VGg4PP5+X3Ao
+        VyIPQLmeg==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
+        id 1hlZ7k-0002ft-Fx; Thu, 11 Jul 2019 13:28:36 +0000
+Date:   Thu, 11 Jul 2019 06:28:36 -0700
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Boaz Harrosh <openosd@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Robert Barror <robert.barror@intel.com>,
+        Seema Pandit <seema.pandit@intel.com>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] dax: Fix missed PMD wakeups
+Message-ID: <20190711132836.GR32320@bombadil.infradead.org>
+References: <CAPcyv4iPNz=oJyc_EoE-mC11=gyBzwMKbmj1ZY_Yna54=cC=Mg@mail.gmail.com>
+ <20190704032728.GK1729@bombadil.infradead.org>
+ <20190704165450.GH31037@quack2.suse.cz>
+ <20190704191407.GM1729@bombadil.infradead.org>
+ <CAPcyv4gUiDw8Ma9mvbW5BamQtGZxWVuvBW7UrOLa2uijrXUWaw@mail.gmail.com>
+ <20190705191004.GC32320@bombadil.infradead.org>
+ <CAPcyv4jVARa38Qc4NjQ04wJ4ZKJ6On9BbJgoL95wQqU-p-Xp_w@mail.gmail.com>
+ <20190710190204.GB14701@quack2.suse.cz>
+ <20190711030855.GO32320@bombadil.infradead.org>
+ <20190711074859.GA8727@quack2.suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190711074859.GA8727@quack2.suse.cz>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+On Thu, Jul 11, 2019 at 09:48:59AM +0200, Jan Kara wrote:
+> On Wed 10-07-19 20:08:55, Matthew Wilcox wrote:
+> > On Wed, Jul 10, 2019 at 09:02:04PM +0200, Jan Kara wrote:
+> > > @@ -848,7 +853,7 @@ static int dax_writeback_one(struct xa_state *xas, struct dax_device *dax_dev,
+> > >  	if (unlikely(dax_is_locked(entry))) {
+> > >  		void *old_entry = entry;
+> > >  
+> > > -		entry = get_unlocked_entry(xas);
+> > > +		entry = get_unlocked_entry(xas, 0);
+> > >  
+> > >  		/* Entry got punched out / reallocated? */
+> > >  		if (!entry || WARN_ON_ONCE(!xa_is_value(entry)))
+> > 
+> > I'm not sure about this one.  Are we sure there will never be a dirty
+> > PMD entry?  Even if we can't create one today, it feels like a bit of
+> > a landmine to leave for someone who creates one in the future.
+> 
+> I was thinking about this but dax_writeback_one() doesn't really care what
+> entry it gets. Yes, in theory it could get a PMD when previously there was
+> PTE or vice-versa but we check that PFN's match and if they really do
+> match, there's no harm in doing the flushing whatever entry we got back...
+> And the checks are simpler this way.
 
-Subject: media: videodev2.h: change V4L2_PIX_FMT_BGRA444 define: fourcc was already in use
-Author:  Hans Verkuil <hverkuil@xs4all.nl>
-Date:    Thu Jul 11 04:53:25 2019 -0400
+That's fair.  I'll revert this part to the way you had it.
 
-The V4L2_PIX_FMT_BGRA444 define clashed with the pre-existing V4L2_PIX_FMT_SGRBG12
-which strangely enough used the same fourcc, even though that fourcc made no sense
-for a Bayer format. In any case, you can't have duplicates, so change the fourcc of
-V4L2_PIX_FMT_BGRA444.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: <stable@vger.kernel.org>      # for v5.2 and up
-Fixes: 6c84f9b1d2900 ("media: v4l: Add definitions for missing 16-bit RGB4444 formats")
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-
- include/uapi/linux/videodev2.h | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
----
-
-diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
-index 9d9705ceda76..2427bc4d8eba 100644
---- a/include/uapi/linux/videodev2.h
-+++ b/include/uapi/linux/videodev2.h
-@@ -518,7 +518,13 @@ struct v4l2_pix_format {
- #define V4L2_PIX_FMT_RGBX444 v4l2_fourcc('R', 'X', '1', '2') /* 16  rrrrgggg bbbbxxxx */
- #define V4L2_PIX_FMT_ABGR444 v4l2_fourcc('A', 'B', '1', '2') /* 16  aaaabbbb ggggrrrr */
- #define V4L2_PIX_FMT_XBGR444 v4l2_fourcc('X', 'B', '1', '2') /* 16  xxxxbbbb ggggrrrr */
--#define V4L2_PIX_FMT_BGRA444 v4l2_fourcc('B', 'A', '1', '2') /* 16  bbbbgggg rrrraaaa */
-+
-+/*
-+ * Originally this had 'BA12' as fourcc, but this clashed with the older
-+ * V4L2_PIX_FMT_SGRBG12 which inexplicably used that same fourcc.
-+ * So use 'GA12' instead for V4L2_PIX_FMT_BGRA444.
-+ */
-+#define V4L2_PIX_FMT_BGRA444 v4l2_fourcc('G', 'A', '1', '2') /* 16  bbbbgggg rrrraaaa */
- #define V4L2_PIX_FMT_BGRX444 v4l2_fourcc('B', 'X', '1', '2') /* 16  bbbbgggg rrrrxxxx */
- #define V4L2_PIX_FMT_RGB555  v4l2_fourcc('R', 'G', 'B', 'O') /* 16  RGB-5-5-5     */
- #define V4L2_PIX_FMT_ARGB555 v4l2_fourcc('A', 'R', '1', '5') /* 16  ARGB-1-5-5-5  */
+I actually want to get rid of the PFN match check too; it doesn't really
+buy us much.  We already check whether the TOWRITE bit is set, and that
+should accomplish the same thing.
