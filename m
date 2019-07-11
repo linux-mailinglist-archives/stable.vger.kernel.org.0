@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C352B65666
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 14:12:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81845656BB
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 14:21:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728194AbfGKMMI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 08:12:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48130 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727974AbfGKMMI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jul 2019 08:12:08 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DC1220665;
-        Thu, 11 Jul 2019 12:12:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562847127;
-        bh=e/K/5AFD7ZJzrczehcbJ6cmCV0hihMHe4GYW1tV1PmQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=O2zT9mEX1OCHyMkE4Wj//S23gqPeC+O209ffvro8jKhLFqkq21COMNMLo0TJ+y7vS
-         tfo04K1nn/iFNAhPzjREayfcnBqPVsjarEtafP7fKdvBIbMyq1ED1HsNnA7STrFCDp
-         PGKLAo2G6T6O4tXMNHk9Sc9/pLKkrd1OpmJES6Kw=
-Date:   Thu, 11 Jul 2019 08:12:06 -0400
-From:   Sasha Levin <sashal@kernel.org>
+        id S1726116AbfGKMVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 08:21:42 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:48942 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726061AbfGKMVm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jul 2019 08:21:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=L126jU2Qut/Cmlk8jA+23vne4GbXn8MhE5v9IRsKS9M=; b=AecyH3z7vXeAN3yErZeLBcVM3
+        1CLnyldEBELmTQSTRbZnMXHcVP9G88OdSk1+qmHTAzrHYdGK6X2RBRD0m2YVGIGHAhmvw13muh6/p
+        9GJhsJ49riwz9Ag6bx0hTFzZYSl0jfVOBOMIry49pOuciDHVGQ7pzTLM2m17QhjRIBw0OWSHwj0y8
+        SHzS2FYUdGLPdvuk6K4xOqnCow8cHyWcCtbbjGiw5fnl9K/i3o+rf9fe+PcsQ4GGcMlQuYpDnf5VA
+        zH4XaiqGEASDw2heBdtp6+vsTsZ78FrTtrkq+MYhRoH1tDLtqqJyc0CD3vB47FXtgmF24olza0mDX
+        dgvffZEKQ==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
+        id 1hlY4m-00032z-35; Thu, 11 Jul 2019 12:21:28 +0000
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 801AC20B2B4DF; Thu, 11 Jul 2019 14:21:26 +0200 (CEST)
+Date:   Thu, 11 Jul 2019 14:21:26 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
 To:     Steven Rostedt <rostedt@goodmis.org>
 Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@kernel.org>,
         "H. Peter Anvin" <hpa@zytor.com>,
@@ -38,9 +42,10 @@ Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         He Zhe <zhe.he@windriver.com>,
         Joel Fernandes <joel@joelfernandes.org>, devel@etsukata.com,
         stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
 Subject: Re: [PATCH v2 5/7] x86/mm, tracing: Fix CR2 corruption
-Message-ID: <20190711121206.GY10104@sasha-vm>
+Message-ID: <20190711122126.GN3419@hirez.programming.kicks-ass.net>
 References: <20190704195555.580363209@infradead.org>
  <20190704200050.534802824@infradead.org>
  <CALCETrXvTvFBaQB-kEe4cRTCXUyTbWLbcveWsH-kX4j915c_=w@mail.gmail.com>
@@ -48,7 +53,7 @@ References: <20190704195555.580363209@infradead.org>
  <CAHk-=wh+J7ts6OrzzscMj5FONd3TRAwAKPZ=BQmEb2E8_-RXTA@mail.gmail.com>
  <20190710162709.1c306f8a@gandalf.local.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20190710162709.1c306f8a@gandalf.local.home>
 User-Agent: Mutt/1.10.1 (2018-07-13)
@@ -58,43 +63,11 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On Wed, Jul 10, 2019 at 04:27:09PM -0400, Steven Rostedt wrote:
->
->[ added stable folks ]
->
->On Sun, 7 Jul 2019 11:17:09 -0700
->Linus Torvalds <torvalds@linux-foundation.org> wrote:
->
->> On Sun, Jul 7, 2019 at 8:11 AM Andy Lutomirski <luto@kernel.org> wrote:
->> >
->> > FWIW, I'm leaning toward suggesting that we apply the trivial tracing
->> > fix and backport *that*.  Then, in -tip, we could revert it and apply
->> > this patch instead.
->>
->> You don't have to have the same fix in stable as in -tip.
->>
->> It's fine to send something to stable that says "Fixed differently by
->> commit XYZ upstream". The main thing is to make sure that stable
->> doesn't have fixes that then get lost upstream (which we used to have
->> long long ago).
->>
->
->But isn't it easier for them to just pull the quick fix in, if it is in
->your tree? That is, it shouldn't be too hard to make the "quick fix"
->that gets backported on your tree (and probably better testing), and
->then add the proper fix on top of it. The stable folks will then just
->use the commit sha to know what to take, and feel more confident about
->taking it.
 
-I'd say that if the "final" fix is significantly different than what
-we'll end up with upstream then just do as Linus said and send us a
-separate backport.
+> But isn't it easier for them to just pull the quick fix in, if it is in
 
-If we try doing the apply fix/revert etc games it'll just be more
-difficult later on to parse what has happened. On the other hand, if we
-have a clear explanation in the backported commit as to how it's
-different from upstream and the reasons for doing so it'll make future
-us happy when we try to apply fixes on top of it.
+Steve, I've not yet seen a quick fix that actually fixes all the
+problems.
 
---
-Thanks,
-Sasha
+Your initial one only fixes the IRQ tracing one, but leaves the context
+tracking one wide open.
