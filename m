@@ -2,267 +2,252 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D516E650A2
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 05:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 553F9650B5
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 05:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727783AbfGKDf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jul 2019 23:35:58 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:54500 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725977AbfGKDf6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jul 2019 23:35:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=2rys8I+g8LpMH+brWS98EAq+IiVVyucZRNf2IArRfdc=; b=CBngnoUImE532f2z4VYEL4/Xk
-        YPDcE6PCY9MTxnphzbUz9ZsRnmCrynW55jbFy/dtajUkY1LWsSoZTeHJzdxE4zAS9dxGTCNa6WYR6
-        gM4CHcbgrLrQbps762uYA774ZN2lGCEhMtDxbQIoMi0LYm0BnfF81refInBQnIRaYRgjwojtieMjv
-        +vqF8LE6+S9arIDUZgY37MSHYyvkohjWJJp7wRJVMJ85dqUbiyfPSaT4wZLrRHgCQfGBrzQQ1Wrwe
-        zCDM3B10vxZgwU1LT/XKmMWwaLYxwXXD4AisqhkaHhDJa4vS4cl2xJfUk47xpMYqMXq19neyAjT7/
-        B/SVf1WwQ==;
-Received: from willy by bombadil.infradead.org with local (Exim 4.92 #3 (Red Hat Linux))
-        id 1hlPsB-0002of-BW; Thu, 11 Jul 2019 03:35:55 +0000
-Date:   Wed, 10 Jul 2019 20:35:55 -0700
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Jan Kara <jack@suse.cz>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Boaz Harrosh <openosd@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Robert Barror <robert.barror@intel.com>,
-        Seema Pandit <seema.pandit@intel.com>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dax: Fix missed PMD wakeups
-Message-ID: <20190711033555.GP32320@bombadil.infradead.org>
-References: <CAPcyv4jgs5LTtTXR+2CyfbjJE85B_eoPFuXQsGBDnVMo41Jawg@mail.gmail.com>
- <20190703195302.GJ1729@bombadil.infradead.org>
- <CAPcyv4iPNz=oJyc_EoE-mC11=gyBzwMKbmj1ZY_Yna54=cC=Mg@mail.gmail.com>
- <20190704032728.GK1729@bombadil.infradead.org>
- <20190704165450.GH31037@quack2.suse.cz>
- <20190704191407.GM1729@bombadil.infradead.org>
- <CAPcyv4gUiDw8Ma9mvbW5BamQtGZxWVuvBW7UrOLa2uijrXUWaw@mail.gmail.com>
- <20190705191004.GC32320@bombadil.infradead.org>
- <CAPcyv4jVARa38Qc4NjQ04wJ4ZKJ6On9BbJgoL95wQqU-p-Xp_w@mail.gmail.com>
- <20190710190204.GB14701@quack2.suse.cz>
+        id S1727927AbfGKDv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jul 2019 23:51:29 -0400
+Received: from mail-io1-f66.google.com ([209.85.166.66]:44620 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727693AbfGKDv2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jul 2019 23:51:28 -0400
+Received: by mail-io1-f66.google.com with SMTP id s7so9429535iob.11
+        for <stable@vger.kernel.org>; Wed, 10 Jul 2019 20:51:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=DcUphRJE8VDWWswonMjwWOgY+XW0K1YIqgJ7+SpeBD4=;
+        b=saY8bvMHnYCBiCzIcn9nYBAa2oFai2VGDCb5sU0DOkA0z8eFKTf7FamhLNlObwGORt
+         VR9zXgjgI1MgraHLdO/ByNu5qQILsQprOJiQYvRcFUa8+k+azErnFtCAN9KS8X4yIvwy
+         nrsTNfQr4U1oTthVkRRaD61Pv/zr0NWhUDSZsCfIGNj2YjlxCUJew+UfzkkMj+F1VMAX
+         kCYmdjj5nGuc6O8B3iyb44aBvwFcq851AXqdsV4AgSEOWl43wDH9xleDtLExgWNpXCx/
+         n8sGe7OHuul7GGqwPWz8DAjgVFYKMvzh4Yw7nDzfERlDXMJEe7puicT2byJgaVeNfZ0L
+         n/VQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=DcUphRJE8VDWWswonMjwWOgY+XW0K1YIqgJ7+SpeBD4=;
+        b=MfAaP3oXGrTVhNxqzNn2/LlC5csC/1mwVnJ0KLABgvp4OEG5XRZM9+mHPhjDFn5pG1
+         AcES/aKPtg9sKWfUa9kFuNDstv/HzT53TmEYzS6U5NTQVFKKADnLGpdMGDD3Bqc+UJAU
+         7Q3O4xxfczLUWpsCQGp09veK6ag6MHPqzCmAy13YJm/i5hTPLERGH91SAu3jKrOA+27j
+         j5yqUKTaruphFeDzTxuWRKRHcF56PDlITWlaC1ftg+gPnlnYITuWuBoDR/FULBzpFryU
+         4mOXUaY+ay0rW0P+6YgRL1NAETCs/Zl31GVJepkvnaaYpaoRRjQ+mdeJuQApMH4K2yOV
+         E28g==
+X-Gm-Message-State: APjAAAVOvm1zcH2MYicZqcTc8PrHZoztly9NAfv3oNZzksaVoIT72Z88
+        jFlbFtJeHR1/P10NjmrXKwjreQ9eMGawMOE0XqyEuw==
+X-Google-Smtp-Source: APXvYqwKB8Dp5TQtyW9x2EbGV/t1Ec8ya9ucu+Ar38Ip3ApPlTT9c2GRddxstUEIwOEc7etUK9RGbVuF+mI33ju2BaM=
+X-Received: by 2002:a05:6602:2413:: with SMTP id s19mr1922145ioa.161.1562817087451;
+ Wed, 10 Jul 2019 20:51:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="J/dobhs11T7y2rNN"
-Content-Disposition: inline
-In-Reply-To: <20190710190204.GB14701@quack2.suse.cz>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+References: <20190709161550.GA8703@infradead.org> <20190710083825.7115-1-jian-hong@endlessm.com>
+ <81a2b91c4b084617bab8656fca932f6d@AcuMS.aculab.com>
+In-Reply-To: <81a2b91c4b084617bab8656fca932f6d@AcuMS.aculab.com>
+From:   Jian-Hong Pan <jian-hong@endlessm.com>
+Date:   Thu, 11 Jul 2019 11:50:50 +0800
+Message-ID: <CAPpJ_edDcaBq+0DocPmS-yYM10B4MkWvBn=f6wwbYdqzSGmp_g@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] rtw88: pci: Rearrange the memory usage for skb in
+ RX ISR
+To:     David Laight <David.Laight@aculab.com>
+Cc:     Yan-Hsuan Chuang <yhchuang@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Christoph Hellwig <hch@infradead.org>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux@endlessm.com" <linux@endlessm.com>,
+        Daniel Drake <drake@endlessm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+David Laight <David.Laight@aculab.com> =E6=96=BC 2019=E5=B9=B47=E6=9C=8810=
+=E6=97=A5 =E9=80=B1=E4=B8=89 =E4=B8=8B=E5=8D=884:57=E5=AF=AB=E9=81=93=EF=BC=
+=9A
+>
+> From: Jian-Hong Pan
+> > Sent: 10 July 2019 09:38
+> >
+> > Testing with RTL8822BE hardware, when available memory is low, we
+> > frequently see a kernel panic and system freeze.
+> >
+> > First, rtw_pci_rx_isr encounters a memory allocation failure (trimmed):
+> >
+> > rx routine starvation
+> > WARNING: CPU: 7 PID: 9871 at drivers/net/wireless/realtek/rtw88/pci.c:8=
+22
+> > rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
+> > [ 2356.580313] RIP: 0010:rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpc=
+i]
+> >
+> > Then we see a variety of different error conditions and kernel panics,
+> > such as this one (trimmed):
+> >
+> > rtw_pci 0000:02:00.0: pci bus timeout, check dma status
+> > skbuff: skb_over_panic: text:00000000091b6e66 len:415 put:415 head:0000=
+0000d2880c6f
+> > data:000000007a02b1ea tail:0x1df end:0xc0 dev:<NULL>
+> > ------------[ cut here ]------------
+> > kernel BUG at net/core/skbuff.c:105!
+> > invalid opcode: 0000 [#1] SMP NOPTI
+> > RIP: 0010:skb_panic+0x43/0x45
+> >
+> > When skb allocation fails and the "rx routine starvation" is hit, the
+> > function returns immediately without updating the RX ring. At this
+> > point, the RX ring may continue referencing an old skb which was alread=
+y
+> > handed off to ieee80211_rx_irqsafe(). When it comes to be used again,
+> > bad things happen.
+> >
+> > This patch allocates a new, data-sized skb first in RX ISR. After
+> > copying the data in, we pass it to the upper layers. However, if skb
+> > allocation fails, we effectively drop the frame. In both cases, the
+> > original, full size ring skb is reused.
+> >
+> > In addition, by fixing the kernel crash, the RX routine should now
+> > generally behave better under low memory conditions.
+>
+> A couple of minor nits (see below).
+> You may want to do a followup patch that changes the rx buffers
+> (used by the hardware) to by just memory buffers.
+> Nothing (probably) relies on them being skb with all the accociated
+> baggage.
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It is a good idea for later commit.
 
-On Wed, Jul 10, 2019 at 09:02:04PM +0200, Jan Kara wrote:
-> So how about the attached patch? That keeps the interface sane and passes a
-> smoketest for me (full fstest run running). Obviously it also needs a
-> proper changelog...
+>         David
+>
+> >
+> > Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=3D204053
+> > Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+> > Cc: <stable@vger.kernel.org>
+> > ---
+> > v2:
+> >  - Allocate new data-sized skb and put data into it, then pass it to
+> >    mac80211. Reuse the original skb in RX ring by DMA sync.
+> >  - Modify the commit message.
+> >  - Introduce following [PATCH v3 2/2] rtw88: pci: Use DMA sync instead
+> >    of remapping in RX ISR.
+> >
+> > v3:
+> >  - Same as v2.
+> >
+> >  drivers/net/wireless/realtek/rtw88/pci.c | 49 +++++++++++-------------
+> >  1 file changed, 22 insertions(+), 27 deletions(-)
+> >
+> > diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wir=
+eless/realtek/rtw88/pci.c
+> > index cfe05ba7280d..e9fe3ad896c8 100644
+> > --- a/drivers/net/wireless/realtek/rtw88/pci.c
+> > +++ b/drivers/net/wireless/realtek/rtw88/pci.c
+> > @@ -763,6 +763,7 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev, =
+struct rtw_pci *rtwpci,
+> >       u32 pkt_offset;
+> >       u32 pkt_desc_sz =3D chip->rx_pkt_desc_sz;
+> >       u32 buf_desc_sz =3D chip->rx_buf_desc_sz;
+> > +     u32 new_len;
+> >       u8 *rx_desc;
+> >       dma_addr_t dma;
+> >
+> > @@ -790,40 +791,34 @@ static void rtw_pci_rx_isr(struct rtw_dev *rtwdev=
+, struct rtw_pci *rtwpci,
+> >               pkt_offset =3D pkt_desc_sz + pkt_stat.drv_info_sz +
+> >                            pkt_stat.shift;
+> >
+> > -             if (pkt_stat.is_c2h) {
+> > -                     /* keep rx_desc, halmac needs it */
+> > -                     skb_put(skb, pkt_stat.pkt_len + pkt_offset);
+> > +             /* discard current skb if the new skb cannot be allocated=
+ as a
+> > +              * new one in rx ring later
+> > +              */
+>
+> That comment isn't quite right.
+> maybe: "Allocate a new skb for this frame, discard if none available"
 
-Changelog and slightly massaged version along the lines of my two comments
-attached.
+Thanks!  I will tweak it.
 
+> > +             new_len =3D pkt_stat.pkt_len + pkt_offset;
+> > +             new =3D dev_alloc_skb(new_len);
+> > +             if (WARN_ONCE(!new, "rx routine starvation\n"))
+>
+> I think you should count these??
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="0001-dax-Fix-missed-wakeup-with-PMD-faults.patch"
+Larry has a different idea here. [1]
+I agree with Larry that just need to know not enough memory here.
 
-From 57b63fdd38e7bea7eb8d6332f0163fb028570def Mon Sep 17 00:00:00 2001
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Date: Wed, 3 Jul 2019 23:21:25 -0400
-Subject: [PATCH] dax: Fix missed wakeup with PMD faults
+[1] https://lkml.org/lkml/2019/7/8/1049
 
-RocksDB can hang indefinitely when using a DAX file.  This is due to
-a bug in the XArray conversion when handling a PMD fault and finding a
-PTE entry.  We use the wrong index in the hash and end up waiting on
-the wrong waitqueue.
+Jian-Hong Pan
 
-There's actually no need to wait; if we find a PTE entry while looking
-for a PMD entry, we can return immediately as we know we should fall
-back to a PTE fault (which may not conflict with the lock held).
-
-Cc: stable@vger.kernel.org
-Fixes: b15cd800682f ("dax: Convert page fault handlers to XArray")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
----
- fs/dax.c               | 47 ++++++++++++++++++++++++------------------
- include/linux/xarray.h |  4 ++--
- 2 files changed, 29 insertions(+), 22 deletions(-)
-
-diff --git a/fs/dax.c b/fs/dax.c
-index 2e48c7ebb973..1ce1059af266 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -195,11 +195,13 @@ static void dax_wake_entry(struct xa_state *xas, void *entry, bool wake_all)
-  * Look up entry in page cache, wait for it to become unlocked if it
-  * is a DAX entry and return it.  The caller must subsequently call
-  * put_unlocked_entry() if it did not lock the entry or dax_unlock_entry()
-- * if it did.
-+ * if it did.  The entry returned may have a larger order than @order.
-+ * If @order is larger than the order of the entry found in i_pages, this
-+ * function returns a CONFLICT entry.
-  *
-  * Must be called with the i_pages lock held.
-  */
--static void *get_unlocked_entry(struct xa_state *xas)
-+static void *get_unlocked_entry(struct xa_state *xas, unsigned int order)
- {
- 	void *entry;
- 	struct wait_exceptional_entry_queue ewait;
-@@ -210,6 +212,8 @@ static void *get_unlocked_entry(struct xa_state *xas)
- 
- 	for (;;) {
- 		entry = xas_find_conflict(xas);
-+		if (dax_entry_order(entry) < order)
-+			return XA_DAX_CONFLICT_ENTRY;
- 		if (!entry || WARN_ON_ONCE(!xa_is_value(entry)) ||
- 				!dax_is_locked(entry))
- 			return entry;
-@@ -254,7 +258,7 @@ static void wait_entry_unlocked(struct xa_state *xas, void *entry)
- static void put_unlocked_entry(struct xa_state *xas, void *entry)
- {
- 	/* If we were the only waiter woken, wake the next one */
--	if (entry)
-+	if (entry && entry != XA_DAX_CONFLICT_ENTRY)
- 		dax_wake_entry(xas, entry, false);
- }
- 
-@@ -461,7 +465,7 @@ void dax_unlock_page(struct page *page, dax_entry_t cookie)
-  * overlap with xarray value entries.
-  */
- static void *grab_mapping_entry(struct xa_state *xas,
--		struct address_space *mapping, unsigned long size_flag)
-+		struct address_space *mapping, unsigned int order)
- {
- 	unsigned long index = xas->xa_index;
- 	bool pmd_downgrade = false; /* splitting PMD entry into PTE entries? */
-@@ -469,20 +473,17 @@ static void *grab_mapping_entry(struct xa_state *xas,
- 
- retry:
- 	xas_lock_irq(xas);
--	entry = get_unlocked_entry(xas);
-+	entry = get_unlocked_entry(xas, order);
- 
- 	if (entry) {
-+		if (entry == XA_DAX_CONFLICT_ENTRY)
-+			goto fallback;
- 		if (!xa_is_value(entry)) {
- 			xas_set_err(xas, EIO);
- 			goto out_unlock;
- 		}
- 
--		if (size_flag & DAX_PMD) {
--			if (dax_is_pte_entry(entry)) {
--				put_unlocked_entry(xas, entry);
--				goto fallback;
--			}
--		} else { /* trying to grab a PTE entry */
-+		if (order == 0) {
- 			if (dax_is_pmd_entry(entry) &&
- 			    (dax_is_zero_entry(entry) ||
- 			     dax_is_empty_entry(entry))) {
-@@ -523,7 +524,11 @@ static void *grab_mapping_entry(struct xa_state *xas,
- 	if (entry) {
- 		dax_lock_entry(xas, entry);
- 	} else {
--		entry = dax_make_entry(pfn_to_pfn_t(0), size_flag | DAX_EMPTY);
-+		unsigned long flags = DAX_EMPTY;
-+
-+		if (order > 0)
-+			flags |= DAX_PMD;
-+		entry = dax_make_entry(pfn_to_pfn_t(0), flags);
- 		dax_lock_entry(xas, entry);
- 		if (xas_error(xas))
- 			goto out_unlock;
-@@ -594,7 +599,7 @@ struct page *dax_layout_busy_page(struct address_space *mapping)
- 		if (WARN_ON_ONCE(!xa_is_value(entry)))
- 			continue;
- 		if (unlikely(dax_is_locked(entry)))
--			entry = get_unlocked_entry(&xas);
-+			entry = get_unlocked_entry(&xas, 0);
- 		if (entry)
- 			page = dax_busy_page(entry);
- 		put_unlocked_entry(&xas, entry);
-@@ -621,7 +626,7 @@ static int __dax_invalidate_entry(struct address_space *mapping,
- 	void *entry;
- 
- 	xas_lock_irq(&xas);
--	entry = get_unlocked_entry(&xas);
-+	entry = get_unlocked_entry(&xas, 0);
- 	if (!entry || WARN_ON_ONCE(!xa_is_value(entry)))
- 		goto out;
- 	if (!trunc &&
-@@ -849,8 +854,11 @@ static int dax_writeback_one(struct xa_state *xas, struct dax_device *dax_dev,
- 	if (unlikely(dax_is_locked(entry))) {
- 		void *old_entry = entry;
- 
--		entry = get_unlocked_entry(xas);
-+		entry = get_unlocked_entry(xas, dax_entry_order(entry));
- 
-+		/* Did a PMD entry get split? */
-+		if (entry == XA_DAX_CONFLICT_ENTRY)
-+			goto put_unlocked;
- 		/* Entry got punched out / reallocated? */
- 		if (!entry || WARN_ON_ONCE(!xa_is_value(entry)))
- 			goto put_unlocked;
-@@ -1510,7 +1518,7 @@ static vm_fault_t dax_iomap_pmd_fault(struct vm_fault *vmf, pfn_t *pfnp,
- 	 * entry is already in the array, for instance), it will return
- 	 * VM_FAULT_FALLBACK.
- 	 */
--	entry = grab_mapping_entry(&xas, mapping, DAX_PMD);
-+	entry = grab_mapping_entry(&xas, mapping, PMD_ORDER);
- 	if (xa_is_internal(entry)) {
- 		result = xa_to_internal(entry);
- 		goto fallback;
-@@ -1659,11 +1667,10 @@ dax_insert_pfn_mkwrite(struct vm_fault *vmf, pfn_t pfn, unsigned int order)
- 	vm_fault_t ret;
- 
- 	xas_lock_irq(&xas);
--	entry = get_unlocked_entry(&xas);
-+	entry = get_unlocked_entry(&xas, order);
- 	/* Did we race with someone splitting entry or so? */
--	if (!entry ||
--	    (order == 0 && !dax_is_pte_entry(entry)) ||
--	    (order == PMD_ORDER && !dax_is_pmd_entry(entry))) {
-+	if (!entry || entry == XA_DAX_CONFLICT_ENTRY ||
-+	    (order == 0 && !dax_is_pte_entry(entry))) {
- 		put_unlocked_entry(&xas, entry);
- 		xas_unlock_irq(&xas);
- 		trace_dax_insert_pfn_mkwrite_no_entry(mapping->host, vmf,
-diff --git a/include/linux/xarray.h b/include/linux/xarray.h
-index 052e06ff4c36..fb25452bcfa4 100644
---- a/include/linux/xarray.h
-+++ b/include/linux/xarray.h
-@@ -169,7 +169,9 @@ static inline bool xa_is_internal(const void *entry)
- 	return ((unsigned long)entry & 3) == 2;
- }
- 
-+#define XA_RETRY_ENTRY		xa_mk_internal(256)
- #define XA_ZERO_ENTRY		xa_mk_internal(257)
-+#define XA_DAX_CONFLICT_ENTRY	xa_mk_internal(258)
- 
- /**
-  * xa_is_zero() - Is the entry a zero entry?
-@@ -1213,8 +1215,6 @@ static inline bool xa_is_sibling(const void *entry)
- 		(entry < xa_mk_sibling(XA_CHUNK_SIZE - 1));
- }
- 
--#define XA_RETRY_ENTRY		xa_mk_internal(256)
--
- /**
-  * xa_is_retry() - Is the entry a retry entry?
-  * @entry: Entry retrieved from the XArray
--- 
-2.20.1
-
-
---J/dobhs11T7y2rNN--
+> > +                     goto next_rp;
+> > +
+> > +             /* put the DMA data including rx_desc from phy to new skb=
+ */
+> > +             skb_put_data(new, skb->data, new_len);
+> >
+> > -                     /* pass offset for further operation */
+> > -                     *((u32 *)skb->cb) =3D pkt_offset;
+> > -                     skb_queue_tail(&rtwdev->c2h_queue, skb);
+> > +             if (pkt_stat.is_c2h) {
+> > +                      /* pass rx_desc & offset for further operation *=
+/
+> > +                     *((u32 *)new->cb) =3D pkt_offset;
+> > +                     skb_queue_tail(&rtwdev->c2h_queue, new);
+> >                       ieee80211_queue_work(rtwdev->hw, &rtwdev->c2h_wor=
+k);
+> >               } else {
+> > -                     /* remove rx_desc, maybe use skb_pull? */
+> > -                     skb_put(skb, pkt_stat.pkt_len);
+> > -                     skb_reserve(skb, pkt_offset);
+> > -
+> > -                     /* alloc a smaller skb to mac80211 */
+> > -                     new =3D dev_alloc_skb(pkt_stat.pkt_len);
+> > -                     if (!new) {
+> > -                             new =3D skb;
+> > -                     } else {
+> > -                             skb_put_data(new, skb->data, skb->len);
+> > -                             dev_kfree_skb_any(skb);
+> > -                     }
+> > -                     /* TODO: merge into rx.c */
+> > -                     rtw_rx_stats(rtwdev, pkt_stat.vif, skb);
+> > +                     /* remove rx_desc */
+> > +                     skb_pull(new, pkt_offset);
+> > +
+> > +                     rtw_rx_stats(rtwdev, pkt_stat.vif, new);
+> >                       memcpy(new->cb, &rx_status, sizeof(rx_status));
+> >                       ieee80211_rx_irqsafe(rtwdev->hw, new);
+> >               }
+> >
+> > -             /* skb delivered to mac80211, alloc a new one in rx ring =
+*/
+> > -             new =3D dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
+> > -             if (WARN(!new, "rx routine starvation\n"))
+> > -                     return;
+> > -
+> > -             ring->buf[cur_rp] =3D new;
+> > -             rtw_pci_reset_rx_desc(rtwdev, new, ring, cur_rp, buf_desc=
+_sz);
+> > +next_rp:
+> > +             /* new skb delivered to mac80211, re-enable original skb =
+DMA */
+> > +             rtw_pci_reset_rx_desc(rtwdev, skb, ring, cur_rp, buf_desc=
+_sz);
+> >
+> >               /* host read next element in ring */
+> >               if (++cur_rp >=3D ring->r.len)
+> > --
+> > 2.22.0
+>
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1=
+ 1PT, UK
+> Registration No: 1397386 (Wales)
+>
