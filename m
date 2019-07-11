@@ -2,277 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A534B65779
-	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 14:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65EAA65786
+	for <lists+stable@lfdr.de>; Thu, 11 Jul 2019 15:01:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728553AbfGKM6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jul 2019 08:58:46 -0400
-Received: from mx2.suse.de ([195.135.220.15]:34520 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725971AbfGKM6q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jul 2019 08:58:46 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 0D8C6B12A;
-        Thu, 11 Jul 2019 12:58:45 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 3734F1E43CB; Thu, 11 Jul 2019 14:58:44 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     <linux-mm@kvack.org>
-Cc:     mgorman@suse.de, mhocko@suse.cz,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
-Subject: [PATCH RFC] mm: migrate: Fix races of __find_get_block() and page migration
-Date:   Thu, 11 Jul 2019 14:58:38 +0200
-Message-Id: <20190711125838.32565-1-jack@suse.cz>
-X-Mailer: git-send-email 2.16.4
+        id S1728631AbfGKNBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jul 2019 09:01:34 -0400
+Received: from www.linuxtv.org ([130.149.80.248]:60602 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728490AbfGKNBd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Jul 2019 09:01:33 -0400
+Received: from mchehab by www.linuxtv.org with local (Exim 4.84_2)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1hlYhX-0008Bg-3J; Thu, 11 Jul 2019 13:01:31 +0000
+From:   Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Date:   Thu, 11 Jul 2019 13:00:38 +0000
+Subject: [git:media_tree/master] media: videodev2.h: change V4L2_PIX_FMT_BGRA444 define: fourcc was already in use
+To:     linuxtv-commits@linuxtv.org
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1hlYhX-0008Bg-3J@www.linuxtv.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-buffer_migrate_page_norefs() can race with bh users in a following way:
+This is an automatic generated email to let you know that the following patch were queued:
 
-CPU1					CPU2
-buffer_migrate_page_norefs()
-  buffer_migrate_lock_buffers()
-  checks bh refs
-  spin_unlock(&mapping->private_lock)
-					__find_get_block()
-					  spin_lock(&mapping->private_lock)
-					  grab bh ref
-					  spin_unlock(&mapping->private_lock)
-  move page				  do bh work
+Subject: media: videodev2.h: change V4L2_PIX_FMT_BGRA444 define: fourcc was already in use
+Author:  Hans Verkuil <hverkuil@xs4all.nl>
+Date:    Thu Jul 11 04:53:25 2019 -0400
 
-This can result in various issues like lost updates to buffers (i.e.
-metadata corruption) or use after free issues for the old page.
+The V4L2_PIX_FMT_BGRA444 define clashed with the pre-existing V4L2_PIX_FMT_SGRBG12
+which strangely enough used the same fourcc, even though that fourcc made no sense
+for a Bayer format. In any case, you can't have duplicates, so change the fourcc of
+V4L2_PIX_FMT_BGRA444.
 
-Closing this race window is relatively difficult. We could hold
-mapping->private_lock in buffer_migrate_page_norefs() until we are
-finished with migrating the page but the lock hold times would be rather
-big. So let's revert to a more careful variant of page migration requiring
-eviction of buffers on migrated page. This is effectively
-fallback_migrate_page() that additionally invalidates bh LRUs in case
-try_to_free_buffers() failed.
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: <stable@vger.kernel.org>      # for v5.2 and up
+Fixes: 6c84f9b1d2900 ("media: v4l: Add definitions for missing 16-bit RGB4444 formats")
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-CC: stable@vger.kernel.org
-Fixes: 89cb0888ca14 "mm: migrate: provide buffer_migrate_page_norefs()"
-Signed-off-by: Jan Kara <jack@suse.cz>
+ include/uapi/linux/videodev2.h | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
 ---
- mm/migrate.c | 161 +++++++++++++++++++++++++++++------------------------------
- 1 file changed, 78 insertions(+), 83 deletions(-)
 
-I've lightly tested this with config-workload-thpfioscale which didn't
-show any obvious issue but the patch probably needs more testing (especially
-to verify that memory unplug is still able to succeed in reasonable time).
-That's why this is RFC.
-
-diff --git a/mm/migrate.c b/mm/migrate.c
-index e9594bc0d406..893698d37d50 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -697,6 +697,47 @@ int migrate_page(struct address_space *mapping,
- }
- EXPORT_SYMBOL(migrate_page);
- 
+diff --git a/include/uapi/linux/videodev2.h b/include/uapi/linux/videodev2.h
+index 9d9705ceda76..2427bc4d8eba 100644
+--- a/include/uapi/linux/videodev2.h
++++ b/include/uapi/linux/videodev2.h
+@@ -518,7 +518,13 @@ struct v4l2_pix_format {
+ #define V4L2_PIX_FMT_RGBX444 v4l2_fourcc('R', 'X', '1', '2') /* 16  rrrrgggg bbbbxxxx */
+ #define V4L2_PIX_FMT_ABGR444 v4l2_fourcc('A', 'B', '1', '2') /* 16  aaaabbbb ggggrrrr */
+ #define V4L2_PIX_FMT_XBGR444 v4l2_fourcc('X', 'B', '1', '2') /* 16  xxxxbbbb ggggrrrr */
+-#define V4L2_PIX_FMT_BGRA444 v4l2_fourcc('B', 'A', '1', '2') /* 16  bbbbgggg rrrraaaa */
++
 +/*
-+ * Writeback a page to clean the dirty state
++ * Originally this had 'BA12' as fourcc, but this clashed with the older
++ * V4L2_PIX_FMT_SGRBG12 which inexplicably used that same fourcc.
++ * So use 'GA12' instead for V4L2_PIX_FMT_BGRA444.
 + */
-+static int writeout(struct address_space *mapping, struct page *page)
-+{
-+	struct writeback_control wbc = {
-+		.sync_mode = WB_SYNC_NONE,
-+		.nr_to_write = 1,
-+		.range_start = 0,
-+		.range_end = LLONG_MAX,
-+		.for_reclaim = 1
-+	};
-+	int rc;
-+
-+	if (!mapping->a_ops->writepage)
-+		/* No write method for the address space */
-+		return -EINVAL;
-+
-+	if (!clear_page_dirty_for_io(page))
-+		/* Someone else already triggered a write */
-+		return -EAGAIN;
-+
-+	/*
-+	 * A dirty page may imply that the underlying filesystem has
-+	 * the page on some queue. So the page must be clean for
-+	 * migration. Writeout may mean we loose the lock and the
-+	 * page state is no longer what we checked for earlier.
-+	 * At this point we know that the migration attempt cannot
-+	 * be successful.
-+	 */
-+	remove_migration_ptes(page, page, false);
-+
-+	rc = mapping->a_ops->writepage(page, &wbc);
-+
-+	if (rc != AOP_WRITEPAGE_ACTIVATE)
-+		/* unlocked. Relock */
-+		lock_page(page);
-+
-+	return (rc < 0) ? -EIO : -EAGAIN;
-+}
-+
- #ifdef CONFIG_BLOCK
- /* Returns true if all buffers are successfully locked */
- static bool buffer_migrate_lock_buffers(struct buffer_head *head,
-@@ -736,9 +777,14 @@ static bool buffer_migrate_lock_buffers(struct buffer_head *head,
- 	return true;
- }
- 
--static int __buffer_migrate_page(struct address_space *mapping,
--		struct page *newpage, struct page *page, enum migrate_mode mode,
--		bool check_refs)
-+/*
-+ * Migration function for pages with buffers. This function can only be used
-+ * if the underlying filesystem guarantees that no other references to "page"
-+ * exist. For example attached buffer heads are accessed only under page lock.
-+ */
-+int buffer_migrate_page(struct address_space *mapping,
-+			struct page *newpage, struct page *page,
-+			enum migrate_mode mode)
- {
- 	struct buffer_head *bh, *head;
- 	int rc;
-@@ -756,33 +802,6 @@ static int __buffer_migrate_page(struct address_space *mapping,
- 	if (!buffer_migrate_lock_buffers(head, mode))
- 		return -EAGAIN;
- 
--	if (check_refs) {
--		bool busy;
--		bool invalidated = false;
--
--recheck_buffers:
--		busy = false;
--		spin_lock(&mapping->private_lock);
--		bh = head;
--		do {
--			if (atomic_read(&bh->b_count)) {
--				busy = true;
--				break;
--			}
--			bh = bh->b_this_page;
--		} while (bh != head);
--		spin_unlock(&mapping->private_lock);
--		if (busy) {
--			if (invalidated) {
--				rc = -EAGAIN;
--				goto unlock_buffers;
--			}
--			invalidate_bh_lrus();
--			invalidated = true;
--			goto recheck_buffers;
--		}
--	}
--
- 	rc = migrate_page_move_mapping(mapping, newpage, page, mode, 0);
- 	if (rc != MIGRATEPAGE_SUCCESS)
- 		goto unlock_buffers;
-@@ -818,72 +837,48 @@ static int __buffer_migrate_page(struct address_space *mapping,
- 
- 	return rc;
- }
--
--/*
-- * Migration function for pages with buffers. This function can only be used
-- * if the underlying filesystem guarantees that no other references to "page"
-- * exist. For example attached buffer heads are accessed only under page lock.
-- */
--int buffer_migrate_page(struct address_space *mapping,
--		struct page *newpage, struct page *page, enum migrate_mode mode)
--{
--	return __buffer_migrate_page(mapping, newpage, page, mode, false);
--}
- EXPORT_SYMBOL(buffer_migrate_page);
- 
- /*
-- * Same as above except that this variant is more careful and checks that there
-- * are also no buffer head references. This function is the right one for
-- * mappings where buffer heads are directly looked up and referenced (such as
-- * block device mappings).
-+ * Same as above except that this variant is more careful.  This function is
-+ * the right one for mappings where buffer heads are directly looked up and
-+ * referenced (such as block device mappings).
-  */
- int buffer_migrate_page_norefs(struct address_space *mapping,
- 		struct page *newpage, struct page *page, enum migrate_mode mode)
- {
--	return __buffer_migrate_page(mapping, newpage, page, mode, true);
--}
--#endif
--
--/*
-- * Writeback a page to clean the dirty state
-- */
--static int writeout(struct address_space *mapping, struct page *page)
--{
--	struct writeback_control wbc = {
--		.sync_mode = WB_SYNC_NONE,
--		.nr_to_write = 1,
--		.range_start = 0,
--		.range_end = LLONG_MAX,
--		.for_reclaim = 1
--	};
--	int rc;
--
--	if (!mapping->a_ops->writepage)
--		/* No write method for the address space */
--		return -EINVAL;
-+	bool invalidated = false;
- 
--	if (!clear_page_dirty_for_io(page))
--		/* Someone else already triggered a write */
--		return -EAGAIN;
-+	if (PageDirty(page)) {
-+		/* Only writeback pages in full synchronous migration */
-+		switch (mode) {
-+		case MIGRATE_SYNC:
-+		case MIGRATE_SYNC_NO_COPY:
-+			break;
-+		default:
-+			return -EBUSY;
-+		}
-+		return writeout(mapping, page);
-+	}
- 
-+retry:
- 	/*
--	 * A dirty page may imply that the underlying filesystem has
--	 * the page on some queue. So the page must be clean for
--	 * migration. Writeout may mean we loose the lock and the
--	 * page state is no longer what we checked for earlier.
--	 * At this point we know that the migration attempt cannot
--	 * be successful.
-+	 * Buffers may be managed in a filesystem specific way.
-+	 * We must have no buffers or drop them.
- 	 */
--	remove_migration_ptes(page, page, false);
--
--	rc = mapping->a_ops->writepage(page, &wbc);
--
--	if (rc != AOP_WRITEPAGE_ACTIVATE)
--		/* unlocked. Relock */
--		lock_page(page);
-+	if (page_has_private(page) &&
-+	    !try_to_release_page(page, GFP_KERNEL)) {
-+		if (!invalidated) {
-+			invalidate_bh_lrus();
-+			invalidated = true;
-+			goto retry;
-+		}
-+		return mode == MIGRATE_SYNC ? -EAGAIN : -EBUSY;
-+	}
- 
--	return (rc < 0) ? -EIO : -EAGAIN;
-+	return migrate_page(mapping, newpage, page, mode);
- }
-+#endif
- 
- /*
-  * Default handling if a filesystem does not provide a migration function.
--- 
-2.16.4
-
++#define V4L2_PIX_FMT_BGRA444 v4l2_fourcc('G', 'A', '1', '2') /* 16  bbbbgggg rrrraaaa */
+ #define V4L2_PIX_FMT_BGRX444 v4l2_fourcc('B', 'X', '1', '2') /* 16  bbbbgggg rrrrxxxx */
+ #define V4L2_PIX_FMT_RGB555  v4l2_fourcc('R', 'G', 'B', 'O') /* 16  RGB-5-5-5     */
+ #define V4L2_PIX_FMT_ARGB555 v4l2_fourcc('A', 'R', '1', '5') /* 16  ARGB-1-5-5-5  */
