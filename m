@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C620E66CD3
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67BD466CD6
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727632AbfGLMXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:23:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59394 "EHLO mail.kernel.org"
+        id S1727459AbfGLMXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:23:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727964AbfGLMXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:23:35 -0400
+        id S1727976AbfGLMXl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:23:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65031208E4;
-        Fri, 12 Jul 2019 12:23:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C591F208E4;
+        Fri, 12 Jul 2019 12:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934214;
-        bh=kkrwADmsFdGw9iAWHFHMsOpjY/8rQPkoENMN+/bHssM=;
+        s=default; t=1562934220;
+        bh=mOI4f+8M6MD8y67Qh6fR5ZdRMmZi5fzudA5PS0kp1Ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RZTHOCgTkNaUjtg6FpfyOP+VWlXPOOhmWohgvyNrvNprWd9UkJrygMEKstKm2QVk1
-         4/l1nHQq1YdfJpR5Fex0UJ3GOVFAObwjRXDO01FaZinV5GDlbyPxwGI01V3xaEpKpF
-         1oEtqWsAPIwC55MRmrc33Uw5PcLv+hYV1EStF11A=
+        b=BbPoWjwoRS92mjjxEA4baREXbwb8Og2maANfMcCFU11Si47FrG0RK5YyHnQrfZiTT
+         uS1sgEoXvMecXAajuOkQePi6Q+1xQ0ehH9SkfHs5D2t+JNh3CwDWcCg8cHYQ1C4xA1
+         jkzOjWTl8XCdQ0PZoVnQHHIMEdHmK7BSVYsODbrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kiruthika Varadarajan <Kiruthika.Varadarajan@harman.com>,
+        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: [PATCH 4.19 73/91] usb: gadget: ether: Fix race between gether_disconnect and rx_submit
-Date:   Fri, 12 Jul 2019 14:19:16 +0200
-Message-Id: <20190712121625.737094366@linuxfoundation.org>
+Subject: [PATCH 4.19 74/91] usb: dwc2: use a longer AHB idle timeout in dwc2_core_reset()
+Date:   Fri, 12 Jul 2019 14:19:17 +0200
+Message-Id: <20190712121625.792023602@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -44,50 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kiruthika Varadarajan <Kiruthika.Varadarajan@harman.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit d29fcf7078bc8be2b6366cbd4418265b53c94fac upstream.
+commit dfc4fdebc5d62ac4e2fe5428e59b273675515fb2 upstream.
 
-On spin lock release in rx_submit, gether_disconnect get a chance to
-run, it makes port_usb NULL, rx_submit access NULL port USB, hence null
-pointer crash.
+Use a 10000us AHB idle timeout in dwc2_core_reset() and make it
+consistent with the other "wait for AHB master IDLE state" ocurrences.
 
-Fixed by releasing the lock in rx_submit after port_usb is used.
+This fixes a problem for me where dwc2 would not want to initialize when
+updating to 4.19 on a MIPS Lantiq VRX200 SoC. dwc2 worked fine with
+4.14.
+Testing on my board shows that it takes 180us until AHB master IDLE
+state is signalled. The very old vendor driver for this SoC (ifxhcd)
+used a 1 second timeout.
+Use the same timeout that is used everywhere when polling for
+GRSTCTL_AHBIDLE instead of using a timeout that "works for one board"
+(180us in my case) to have consistent behavior across the dwc2 driver.
 
-Fixes: 2b3d942c4878 ("usb ethernet gadget: split out network core")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Kiruthika Varadarajan <Kiruthika.Varadarajan@harman.com>
+Cc: linux-stable <stable@vger.kernel.org> # 4.19+
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/u_ether.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/dwc2/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -186,11 +186,12 @@ rx_submit(struct eth_dev *dev, struct us
- 		out = dev->port_usb->out_ep;
- 	else
- 		out = NULL;
--	spin_unlock_irqrestore(&dev->lock, flags);
+--- a/drivers/usb/dwc2/core.c
++++ b/drivers/usb/dwc2/core.c
+@@ -531,7 +531,7 @@ int dwc2_core_reset(struct dwc2_hsotg *h
+ 	}
  
- 	if (!out)
-+	{
-+		spin_unlock_irqrestore(&dev->lock, flags);
- 		return -ENOTCONN;
--
-+	}
- 
- 	/* Padding up to RX_EXTRA handles minor disagreements with host.
- 	 * Normally we use the USB "terminate on short read" convention;
-@@ -214,6 +215,7 @@ rx_submit(struct eth_dev *dev, struct us
- 
- 	if (dev->port_usb->is_fixed)
- 		size = max_t(size_t, size, dev->port_usb->fixed_out_len);
-+	spin_unlock_irqrestore(&dev->lock, flags);
- 
- 	skb = __netdev_alloc_skb(dev->net, size + NET_IP_ALIGN, gfp_flags);
- 	if (skb == NULL) {
+ 	/* Wait for AHB master IDLE state */
+-	if (dwc2_hsotg_wait_bit_set(hsotg, GRSTCTL, GRSTCTL_AHBIDLE, 50)) {
++	if (dwc2_hsotg_wait_bit_set(hsotg, GRSTCTL, GRSTCTL_AHBIDLE, 10000)) {
+ 		dev_warn(hsotg->dev, "%s: HANG! AHB Idle timeout GRSTCTL GRSTCTL_AHBIDLE\n",
+ 			 __func__);
+ 		return -EBUSY;
 
 
