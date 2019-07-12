@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05F6866CA4
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:22:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EACF66D3D
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727699AbfGLMV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:21:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56486 "EHLO mail.kernel.org"
+        id S1728711AbfGLM1y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:27:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727268AbfGLMV6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:21:58 -0400
+        id S1728694AbfGLM1w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:27:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60163216E3;
-        Fri, 12 Jul 2019 12:21:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77C8D2084B;
+        Fri, 12 Jul 2019 12:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934117;
-        bh=qp2QdYXM+NBo8M8cyO+n/PU1Mq/At1HHVJtHKxe6KoQ=;
+        s=default; t=1562934472;
+        bh=IK2zhGaF/SO+co1gOpELFAiaA54IetBWtJdanPhix90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WSG+UQNjMYArPZ0MD4SFCCdGyJb/w0L1rzQJ/pVXJTD+Z3h4kJbTMdAxFJ6U6//AJ
-         3J8KlUAxC/g89bJo6/PJemO/iYdGYDUwJS2V6893OzAfwE04F/DboXy/4iYpL+cDlU
-         tkyfSf0nwZaPGFSYPwccgNFdf/okErxXfLeCa0Ic=
+        b=FWcEdRjfFWYy1lVcg4xY0XkcdxVhOS9c4NyaZodiX9Oi6EdaqewWyX24/b2g/Jn84
+         pkbX5kM92567Lfe9uAU9jSs1hiUbWPs668GrbEU99vPp/8NTTnD4vIFofWBwuwO7Wq
+         TBxUAe5o5niTaN21TXUNbaOK9uSdijSMXLaO/agw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        Toshiaki Makita <toshiaki.makita1@gmail.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 45/91] mmc: core: complete HS400 before checking status
-Date:   Fri, 12 Jul 2019 14:18:48 +0200
-Message-Id: <20190712121623.964532029@linuxfoundation.org>
+Subject: [PATCH 5.1 065/138] bpf, devmap: Add missing bulk queue free
+Date:   Fri, 12 Jul 2019 14:18:49 +0200
+Message-Id: <20190712121631.168716634@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
-References: <20190712121621.422224300@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +46,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b0e370b95a3b231d0fb5d1958cce85ef57196fe6 ]
+[ Upstream commit edabf4d9dd905acd60048ea1579943801e3a4876 ]
 
-We don't have a reproducible error case, yet our BSP team suggested that
-the mmc_switch_status() command in mmc_select_hs400() should come after
-the callback into the driver completing HS400 setup. It makes sense to
-me because we want the status of a fully setup HS400, so it will
-increase the reliability of the mmc_switch_status() command.
+dev_map_free() forgot to free bulk queue when freeing its entries.
 
-Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Fixes: ba6c7ac3a2f4 ("mmc: core: more fine-grained hooks for HS400 tuning")
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 5d053f9da431 ("bpf: devmap prepare xdp frames for bulking")
+Signed-off-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/mmc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/bpf/devmap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
-index 55997cf84b39..f1fe446eee66 100644
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -1209,13 +1209,13 @@ static int mmc_select_hs400(struct mmc_card *card)
- 	mmc_set_timing(host, MMC_TIMING_MMC_HS400);
- 	mmc_set_bus_speed(card);
+diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
+index e001fb1a96b1..a126d95d12de 100644
+--- a/kernel/bpf/devmap.c
++++ b/kernel/bpf/devmap.c
+@@ -186,6 +186,7 @@ static void dev_map_free(struct bpf_map *map)
+ 		if (!dev)
+ 			continue;
  
-+	if (host->ops->hs400_complete)
-+		host->ops->hs400_complete(host);
-+
- 	err = mmc_switch_status(card);
- 	if (err)
- 		goto out_err;
- 
--	if (host->ops->hs400_complete)
--		host->ops->hs400_complete(host);
--
- 	return 0;
- 
- out_err:
++		free_percpu(dev->bulkq);
+ 		dev_put(dev->dev);
+ 		kfree(dev);
+ 	}
 -- 
 2.20.1
 
