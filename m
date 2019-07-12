@@ -2,109 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E8C66A44
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 11:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70CAE66AC8
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 12:10:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725989AbfGLJpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 05:45:20 -0400
-Received: from ozlabs.ru ([107.173.13.209]:59284 "EHLO ozlabs.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725987AbfGLJpU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 05:45:20 -0400
-Received: from fstn1-p1.ozlabs.ibm.com (localhost [IPv6:::1])
-        by ozlabs.ru (Postfix) with ESMTP id 27987AE80597;
-        Fri, 12 Jul 2019 05:45:15 -0400 (EDT)
-From:   Alexey Kardashevskiy <aik@ozlabs.ru>
-To:     linuxppc-dev@lists.ozlabs.org
-Cc:     "Oliver O'Halloran" <oohall@gmail.com>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Sam Bobroff <sbobroff@linux.ibm.com>,
-        Alistair Popple <alistair@popple.id.au>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>, stable@vger.kernel.org
-Subject: [PATCH kernel v4 1/4] powerpc/powernv/ioda: Fix race in TCE level allocation
-Date:   Fri, 12 Jul 2019 19:45:06 +1000
-Message-Id: <20190712094509.56695-2-aik@ozlabs.ru>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190712094509.56695-1-aik@ozlabs.ru>
-References: <20190712094509.56695-1-aik@ozlabs.ru>
+        id S1726069AbfGLKKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 06:10:47 -0400
+Received: from mx2.suse.de ([195.135.220.15]:45264 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726002AbfGLKKq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 06:10:46 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id E308FAEBF;
+        Fri, 12 Jul 2019 10:10:44 +0000 (UTC)
+Date:   Fri, 12 Jul 2019 11:10:43 +0100
+From:   Mel Gorman <mgorman@suse.de>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        mhocko@suse.cz, stable@vger.kernel.org
+Subject: Re: [PATCH RFC] mm: migrate: Fix races of __find_get_block() and
+ page migration
+Message-ID: <20190712101042.GJ13484@suse.de>
+References: <20190711125838.32565-1-jack@suse.cz>
+ <20190711170455.5a9ae6e659cab1a85f9aa30c@linux-foundation.org>
+ <20190712091746.GB906@quack2.suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20190712091746.GB906@quack2.suse.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-pnv_tce() returns a pointer to a TCE entry and originally a TCE table
-would be pre-allocated. For the default case of 2GB window the table
-needs only a single level and that is fine. However if more levels are
-requested, it is possible to get a race when 2 threads want a pointer
-to a TCE entry from the same page of TCEs.
+On Fri, Jul 12, 2019 at 11:17:46AM +0200, Jan Kara wrote:
+> On Thu 11-07-19 17:04:55, Andrew Morton wrote:
+> > On Thu, 11 Jul 2019 14:58:38 +0200 Jan Kara <jack@suse.cz> wrote:
+> > 
+> > > buffer_migrate_page_norefs() can race with bh users in a following way:
+> > > 
+> > > CPU1					CPU2
+> > > buffer_migrate_page_norefs()
+> > >   buffer_migrate_lock_buffers()
+> > >   checks bh refs
+> > >   spin_unlock(&mapping->private_lock)
+> > > 					__find_get_block()
+> > > 					  spin_lock(&mapping->private_lock)
+> > > 					  grab bh ref
+> > > 					  spin_unlock(&mapping->private_lock)
+> > >   move page				  do bh work
+> > > 
+> > > This can result in various issues like lost updates to buffers (i.e.
+> > > metadata corruption) or use after free issues for the old page.
+> > > 
+> > > Closing this race window is relatively difficult. We could hold
+> > > mapping->private_lock in buffer_migrate_page_norefs() until we are
+> > > finished with migrating the page but the lock hold times would be rather
+> > > big. So let's revert to a more careful variant of page migration requiring
+> > > eviction of buffers on migrated page. This is effectively
+> > > fallback_migrate_page() that additionally invalidates bh LRUs in case
+> > > try_to_free_buffers() failed.
+> > 
+> > Is this premature optimization?  Holding ->private_lock while messing
+> > with the buffers would be the standard way of addressing this.  The
+> > longer hold times *might* be an issue, but we don't know this, do we? 
+> > If there are indeed such problems then they could be improved by, say,
+> > doing more of the newpage preparation prior to taking ->private_lock.
+> 
+> I didn't check how long the private_lock hold times would actually be, it
+> just seems there's a lot of work done before the page is fully migrated a
+> we could release the lock. And since the lock blocks bh lookup,
+> set_page_dirty(), etc. for the whole device, it just seemed as a bad idea.
+> I don't think much of a newpage setup can be moved outside of private_lock
+> - in particular page cache replacement, page copying, page state migration
+> all need to be there so that bh code doesn't get confused.
+> 
+> But I guess it's fair to measure at least ballpark numbers of what the lock
+> hold times would be to get idea whether the contention concern is
+> substantiated or not.
+> 
 
-This adds cmpxchg to handle the race. Note that once TCE is non-zero,
-it cannot become zero again.
+I think it would be tricky to measure and quantify how much the contention
+is an issue. While it would be possible to construct a microbenchmark that
+should illustrate the problem, it would tell us relatively little about
+how much of a problem it is generally. It would be relatively difficult
+to detect the contention and stalls in block lookups due to migration
+would be tricky to spot. Careful use of lock_stat might help but
+enabling that has consequences of its own.
 
-CC: stable@vger.kernel.org # v4.19+
-Fixes: a68bd1267b72 ("powerpc/powernv/ioda: Allocate indirect TCE levels on demand")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
----
+However, a rise in allocation failures due to dirty pages not being
+migrated is relatively easy to detect and the consequences are relatively
+benign -- failed high-order allocation that is usually ok versus a stall
+on block lookups that could have a wider general impact.
 
-The race occurs about 30 times in the first 3 minutes of copying files
-via rsync and that's about it.
+On that basis, I think the patch you proposed is the more appropriate as
+a fix for the race which has the potential for data corruption. So;
 
-This fixes EEH's from
-https://patchwork.ozlabs.org/project/linuxppc-dev/list/?series=110810
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
 
----
-Changes:
-v2:
-* replaced spin_lock with cmpxchg+readonce
----
- arch/powerpc/platforms/powernv/pci-ioda-tce.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+> Finally, I guess I should mention there's one more approach to the problem
+> I was considering: Modify bh code to fully rely on page lock instead of
+> private_lock for bh lookup. That would make sense scalability-wise on its
+> own. The problem with it is that __find_get_block() would become a sleeping
+> function. There aren't that many places calling the function and most of
+> them seem fine with it but still it is non-trivial amount of work to do the
+> conversion and it can have some fallout so it didn't seem like a good
+> solution for a data-corruption issue that needs to go to stable...
+> 
 
-diff --git a/arch/powerpc/platforms/powernv/pci-ioda-tce.c b/arch/powerpc/platforms/powernv/pci-ioda-tce.c
-index e28f03e1eb5e..8d6569590161 100644
---- a/arch/powerpc/platforms/powernv/pci-ioda-tce.c
-+++ b/arch/powerpc/platforms/powernv/pci-ioda-tce.c
-@@ -48,6 +48,9 @@ static __be64 *pnv_alloc_tce_level(int nid, unsigned int shift)
- 	return addr;
- }
- 
-+static void pnv_pci_ioda2_table_do_free_pages(__be64 *addr,
-+		unsigned long size, unsigned int levels);
-+
- static __be64 *pnv_tce(struct iommu_table *tbl, bool user, long idx, bool alloc)
- {
- 	__be64 *tmp = user ? tbl->it_userspace : (__be64 *) tbl->it_base;
-@@ -57,9 +60,9 @@ static __be64 *pnv_tce(struct iommu_table *tbl, bool user, long idx, bool alloc)
- 
- 	while (level) {
- 		int n = (idx & mask) >> (level * shift);
--		unsigned long tce;
-+		unsigned long oldtce, tce = be64_to_cpu(READ_ONCE(tmp[n]));
- 
--		if (tmp[n] == 0) {
-+		if (!tce) {
- 			__be64 *tmp2;
- 
- 			if (!alloc)
-@@ -70,10 +73,15 @@ static __be64 *pnv_tce(struct iommu_table *tbl, bool user, long idx, bool alloc)
- 			if (!tmp2)
- 				return NULL;
- 
--			tmp[n] = cpu_to_be64(__pa(tmp2) |
--					TCE_PCI_READ | TCE_PCI_WRITE);
-+			tce = __pa(tmp2) | TCE_PCI_READ | TCE_PCI_WRITE;
-+			oldtce = be64_to_cpu(cmpxchg(&tmp[n], 0,
-+					cpu_to_be64(tce)));
-+			if (oldtce) {
-+				pnv_pci_ioda2_table_do_free_pages(tmp2,
-+					ilog2(tbl->it_level_size) + 3, 1);
-+				tce = oldtce;
-+			}
- 		}
--		tce = be64_to_cpu(tmp[n]);
- 
- 		tmp = __va(tce & ~(TCE_PCI_READ | TCE_PCI_WRITE));
- 		idx &= ~mask;
+Maybe *if* it's shown there is a major issue with increased high-order
+allocation failures, it would be worth looking into but right now, I
+think it's overkill with relatively high risk and closing the potential
+race is more important.
+
 -- 
-2.17.1
-
+Mel Gorman
+SUSE Labs
