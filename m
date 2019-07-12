@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B8166D38
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:27:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A3666C99
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:22:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728661AbfGLM1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:27:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40662 "EHLO mail.kernel.org"
+        id S1727615AbfGLMVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:21:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728658AbfGLM1n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:27:43 -0400
+        id S1727627AbfGLMVi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:21:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E4772084B;
-        Fri, 12 Jul 2019 12:27:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE5DF20863;
+        Fri, 12 Jul 2019 12:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934463;
-        bh=dp4M8rQrAaTgjPwwffn68Wo9uAGJPQymsN7j5QJ7dO4=;
+        s=default; t=1562934098;
+        bh=VsZms4Ebu41p9h8mUbbIv4O/kyaymEWAYms16wI9iH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dSdN3wOQnM/pKqlFzoQUSPRp38Ztc/2athyZ7rPGpiOZFu7q/C9vp0aQ0hVb+UpxH
-         n8XVTn9Sgx7jpQaM3qA7uICo1IR4ufdaZe57sAii3Bv1Gl8OPCS3//38X3IBtgEm8H
-         dR+6Fa/DIgvA0BbEqyneYpJ9jxYl4AZvOreDbLsQ=
+        b=j+VT5OGJUmPX7DvTXe9alYqGFSpl6/btBkEj4rCM2kIwOuL2MZgwuK7orDi3C/yLH
+         btIcEzZ50W2+AzmOEXJFCzWTDOlCgWqx5vBpf+E2b9WbnUJ8jgEhtOuk0NARt7VAvW
+         lSqjQSjgZxNN1CMQ1RKT/06ZnHFGriGDpffOQfWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mordechay Goodstein <mordechay.goodstein@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Reinhard Speyerer <rspmn@arcor.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 062/138] cfg80211: util: fix bit count off by one
+Subject: [PATCH 4.19 43/91] qmi_wwan: avoid RCU stalls on device disconnect when in QMAP mode
 Date:   Fri, 12 Jul 2019 14:18:46 +0200
-Message-Id: <20190712121631.057125752@linuxfoundation.org>
+Message-Id: <20190712121623.814315766@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
+References: <20190712121621.422224300@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1a473d6092d5d182914bea854ce0b21e6d12519d ]
+[ Upstream commit a8fdde1cb830e560208af42b6c10750137f53eb3 ]
 
-The bits of Rx MCS Map in VHT capability were enumerated
-with index transform - index i -> (i + 1) bit => nss i. BUG!
-while it should be -   index i -> (i + 1) bit => (i + 1) nss.
+Switch qmimux_unregister_device() and qmi_wwan_disconnect() to
+use unregister_netdevice_queue() and unregister_netdevice_many()
+instead of unregister_netdevice(). This avoids RCU stalls which
+have been observed on device disconnect in certain setups otherwise.
 
-The bug was exposed in commit a53b2a0b1245 ("iwlwifi: mvm: implement VHT
-extended NSS support in rs.c"), where iwlwifi started using the
-function.
-
-Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Fixes: b0aa75f0b1b2 ("ieee80211: add new VHT capability fields/parsing")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: c6adf77953bc ("net: usb: qmi_wwan: add qmap mux protocol support")
+Cc: Daniele Palmas <dnlplm@gmail.com>
+Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/util.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/net/wireless/util.c b/net/wireless/util.c
-index 5a03f38788e7..5ac66a571e33 100644
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -1989,7 +1989,7 @@ int ieee80211_get_vht_max_nss(struct ieee80211_vht_cap *cap,
- 			continue;
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 090227118d3d..44ada5c38756 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -247,13 +247,14 @@ static int qmimux_register_device(struct net_device *real_dev, u8 mux_id)
+ 	return err;
+ }
  
- 		if (supp >= mcs_encoding) {
--			max_vht_nss = i;
-+			max_vht_nss = i + 1;
- 			break;
+-static void qmimux_unregister_device(struct net_device *dev)
++static void qmimux_unregister_device(struct net_device *dev,
++				     struct list_head *head)
+ {
+ 	struct qmimux_priv *priv = netdev_priv(dev);
+ 	struct net_device *real_dev = priv->real_dev;
+ 
+ 	netdev_upper_dev_unlink(real_dev, dev);
+-	unregister_netdevice(dev);
++	unregister_netdevice_queue(dev, head);
+ 
+ 	/* Get rid of the reference to real_dev */
+ 	dev_put(real_dev);
+@@ -424,7 +425,7 @@ static ssize_t del_mux_store(struct device *d,  struct device_attribute *attr, c
+ 		ret = -EINVAL;
+ 		goto err;
+ 	}
+-	qmimux_unregister_device(del_dev);
++	qmimux_unregister_device(del_dev, NULL);
+ 
+ 	if (!qmimux_has_slaves(dev))
+ 		info->flags &= ~QMI_WWAN_FLAG_MUX;
+@@ -1434,6 +1435,7 @@ static void qmi_wwan_disconnect(struct usb_interface *intf)
+ 	struct qmi_wwan_state *info;
+ 	struct list_head *iter;
+ 	struct net_device *ldev;
++	LIST_HEAD(list);
+ 
+ 	/* called twice if separate control and data intf */
+ 	if (!dev)
+@@ -1446,8 +1448,9 @@ static void qmi_wwan_disconnect(struct usb_interface *intf)
  		}
+ 		rcu_read_lock();
+ 		netdev_for_each_upper_dev_rcu(dev->net, ldev, iter)
+-			qmimux_unregister_device(ldev);
++			qmimux_unregister_device(ldev, &list);
+ 		rcu_read_unlock();
++		unregister_netdevice_many(&list);
+ 		rtnl_unlock();
+ 		info->flags &= ~QMI_WWAN_FLAG_MUX;
  	}
 -- 
 2.20.1
