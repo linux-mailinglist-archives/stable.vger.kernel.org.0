@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02A16675F8
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 22:36:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F685675F9
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 22:36:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727582AbfGLUgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 16:36:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56198 "EHLO mail.kernel.org"
+        id S1727592AbfGLUgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 16:36:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727118AbfGLUgi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 16:36:38 -0400
+        id S1727118AbfGLUgl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 16:36:41 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A71702146E;
-        Fri, 12 Jul 2019 20:36:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB0F7217D4;
+        Fri, 12 Jul 2019 20:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562963798;
-        bh=5WMszptJBwnHN36/61phnpjNGtxYJ/EdPNiTjC3TD34=;
+        s=default; t=1562963799;
+        bh=iR7dMCSXjJ7LjcyHRfuHBHJMcI0Y/YC1058yuIdMVOE=;
         h=Date:From:To:Subject:From;
-        b=gge4hIpAWqVM7JJir07AmumijiJeE7tM/g6YWwjlNz14Ls092hRxXt32p+hSOmat+
-         x161a4Ju7stm2abk/PvFqLI7151e1KFIMYua52wdwi5IxZrstyFpWAQQS3t4U/x5li
-         j3aHs9Cv+rp7TGs+2ziGyrqRt1edUfZQT2k6e0dc=
-Date:   Fri, 12 Jul 2019 13:36:37 -0700
+        b=M1PsKowrjVTRrha9rBjvNvFs0Zfdt/S+RmuPS7GthLV27kstBWB2Qa+lMz9oUlWWb
+         5EdHIjiF7truRipWXaQl9mpvTONT0xiLLit9c/MRAELUaz76YpqVkOgPyQlh5l67eP
+         FWmR47sMmZfdT0iPBBo9aMQaBRNscTC0ZUQ8eLis=
+Date:   Fri, 12 Jul 2019 13:36:39 -0700
 From:   akpm@linux-foundation.org
-To:     henryburns@google.com, jwadams@google.com,
-        mm-commits@vger.kernel.org, rientjes@google.com,
-        rppt@linux.vnet.ibm.com, shakeelb@google.com,
-        stable@vger.kernel.org, vitaly.vul@sony.com, vitalywool@gmail.com,
-        wangxidong_97@163.com
+To:     arnd@arndb.de, gregkh@linuxfoundation.org, joe@perches.com,
+        konishi.ryusuke@gmail.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, yamada.masahiro@socionext.com
 Subject:  [merged]
- mm-z3foldc-lock-z3fold-page-before-__setpagemovable.patch removed from -mm
- tree
-Message-ID: <20190712203637.ur7pcnFfd%akpm@linux-foundation.org>
+ nilfs2-do-not-use-unexported-cpu_to_le32-le32_to_cpu-in-uapi-header.patch
+ removed from -mm tree
+Message-ID: <20190712203639.rqDUzsCwl%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -42,70 +40,138 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/z3fold.c: lock z3fold page before  __SetPageMovable()
+     Subject: nilfs2: do not use unexported cpu_to_le32()/le32_to_cpu() in uapi header
 has been removed from the -mm tree.  Its filename was
-     mm-z3foldc-lock-z3fold-page-before-__setpagemovable.patch
+     nilfs2-do-not-use-unexported-cpu_to_le32-le32_to_cpu-in-uapi-header.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Henry Burns <henryburns@google.com>
-Subject: mm/z3fold.c: lock z3fold page before  __SetPageMovable()
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Subject: nilfs2: do not use unexported cpu_to_le32()/le32_to_cpu() in uapi header
 
-Following zsmalloc.c's example we call trylock_page() and unlock_page().
-Also make z3fold_page_migrate() assert that newpage is passed in locked,
-as per the documentation.
+cpu_to_le32/le32_to_cpu is defined in include/linux/byteorder/generic.h,
+which is not exported to user-space.
 
-[akpm@linux-foundation.org: fix trylock_page return value test, per Shakeel]
-Link: http://lkml.kernel.org/r/20190702005122.41036-1-henryburns@google.com
-Link: http://lkml.kernel.org/r/20190702233538.52793-1-henryburns@google.com
-Signed-off-by: Henry Burns <henryburns@google.com>
-Suggested-by: Vitaly Wool <vitalywool@gmail.com>
-Acked-by: Vitaly Wool <vitalywool@gmail.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Vitaly Vul <vitaly.vul@sony.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Xidong Wang <wangxidong_97@163.com>
-Cc: Jonathan Adams <jwadams@google.com>
-Cc: <stable@vger.kernel.org>
+UAPI headers must use the ones prefixed with double-underscore.
+
+Detected by compile-testing exported headers:
+
+./usr/include/linux/nilfs2_ondisk.h: In function `nilfs_checkpoint_set_snapshot':
+./usr/include/linux/nilfs2_ondisk.h:536:17: error: implicit declaration of function `cpu_to_le32' [-Werror=implicit-function-declaration]
+  cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) |  \
+                 ^
+./usr/include/linux/nilfs2_ondisk.h:552:1: note: in expansion of macro `NILFS_CHECKPOINT_FNS'
+ NILFS_CHECKPOINT_FNS(SNAPSHOT, snapshot)
+ ^~~~~~~~~~~~~~~~~~~~
+./usr/include/linux/nilfs2_ondisk.h:536:29: error: implicit declaration of function `le32_to_cpu' [-Werror=implicit-function-declaration]
+  cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) |  \
+                             ^
+./usr/include/linux/nilfs2_ondisk.h:552:1: note: in expansion of macro `NILFS_CHECKPOINT_FNS'
+ NILFS_CHECKPOINT_FNS(SNAPSHOT, snapshot)
+ ^~~~~~~~~~~~~~~~~~~~
+./usr/include/linux/nilfs2_ondisk.h: In function `nilfs_segment_usage_set_clean':
+./usr/include/linux/nilfs2_ondisk.h:622:19: error: implicit declaration of function `cpu_to_le64' [-Werror=implicit-function-declaration]
+  su->su_lastmod = cpu_to_le64(0);
+                   ^~~~~~~~~~~
+
+Link: http://lkml.kernel.org/r/20190605053006.14332-1-yamada.masahiro@socionext.com
+Fixes: e63e88bc53ba ("nilfs2: move ioctl interface and disk layout to uapi separately")
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Joe Perches <joe@perches.com>
+Cc: <stable@vger.kernel.org>	[4.9+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/z3fold.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ include/uapi/linux/nilfs2_ondisk.h |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/mm/z3fold.c~mm-z3foldc-lock-z3fold-page-before-__setpagemovable
-+++ a/mm/z3fold.c
-@@ -924,7 +924,16 @@ retry:
- 		set_bit(PAGE_HEADLESS, &page->private);
- 		goto headless;
- 	}
--	__SetPageMovable(page, pool->inode->i_mapping);
-+	if (can_sleep) {
-+		lock_page(page);
-+		__SetPageMovable(page, pool->inode->i_mapping);
-+		unlock_page(page);
-+	} else {
-+		if (trylock_page(page)) {
-+			__SetPageMovable(page, pool->inode->i_mapping);
-+			unlock_page(page);
-+		}
-+	}
- 	z3fold_page_lock(zhdr);
+--- a/include/uapi/linux/nilfs2_ondisk.h~nilfs2-do-not-use-unexported-cpu_to_le32-le32_to_cpu-in-uapi-header
++++ a/include/uapi/linux/nilfs2_ondisk.h
+@@ -29,7 +29,7 @@
  
- found:
-@@ -1331,6 +1340,7 @@ static int z3fold_page_migrate(struct ad
+ #include <linux/types.h>
+ #include <linux/magic.h>
+-
++#include <asm/byteorder.h>
  
- 	VM_BUG_ON_PAGE(!PageMovable(page), page);
- 	VM_BUG_ON_PAGE(!PageIsolated(page), page);
-+	VM_BUG_ON_PAGE(!PageLocked(newpage), newpage);
+ #define NILFS_INODE_BMAP_SIZE	7
  
- 	zhdr = page_address(page);
- 	pool = zhdr_to_pool(zhdr);
+@@ -533,19 +533,19 @@ enum {
+ static inline void							\
+ nilfs_checkpoint_set_##name(struct nilfs_checkpoint *cp)		\
+ {									\
+-	cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) |		\
+-				   (1UL << NILFS_CHECKPOINT_##flag));	\
++	cp->cp_flags = __cpu_to_le32(__le32_to_cpu(cp->cp_flags) |	\
++				     (1UL << NILFS_CHECKPOINT_##flag));	\
+ }									\
+ static inline void							\
+ nilfs_checkpoint_clear_##name(struct nilfs_checkpoint *cp)		\
+ {									\
+-	cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) &		\
++	cp->cp_flags = __cpu_to_le32(__le32_to_cpu(cp->cp_flags) &	\
+ 				   ~(1UL << NILFS_CHECKPOINT_##flag));	\
+ }									\
+ static inline int							\
+ nilfs_checkpoint_##name(const struct nilfs_checkpoint *cp)		\
+ {									\
+-	return !!(le32_to_cpu(cp->cp_flags) &				\
++	return !!(__le32_to_cpu(cp->cp_flags) &				\
+ 		  (1UL << NILFS_CHECKPOINT_##flag));			\
+ }
+ 
+@@ -595,20 +595,20 @@ enum {
+ static inline void							\
+ nilfs_segment_usage_set_##name(struct nilfs_segment_usage *su)		\
+ {									\
+-	su->su_flags = cpu_to_le32(le32_to_cpu(su->su_flags) |		\
++	su->su_flags = __cpu_to_le32(__le32_to_cpu(su->su_flags) |	\
+ 				   (1UL << NILFS_SEGMENT_USAGE_##flag));\
+ }									\
+ static inline void							\
+ nilfs_segment_usage_clear_##name(struct nilfs_segment_usage *su)	\
+ {									\
+ 	su->su_flags =							\
+-		cpu_to_le32(le32_to_cpu(su->su_flags) &			\
++		__cpu_to_le32(__le32_to_cpu(su->su_flags) &		\
+ 			    ~(1UL << NILFS_SEGMENT_USAGE_##flag));      \
+ }									\
+ static inline int							\
+ nilfs_segment_usage_##name(const struct nilfs_segment_usage *su)	\
+ {									\
+-	return !!(le32_to_cpu(su->su_flags) &				\
++	return !!(__le32_to_cpu(su->su_flags) &				\
+ 		  (1UL << NILFS_SEGMENT_USAGE_##flag));			\
+ }
+ 
+@@ -619,15 +619,15 @@ NILFS_SEGMENT_USAGE_FNS(ERROR, error)
+ static inline void
+ nilfs_segment_usage_set_clean(struct nilfs_segment_usage *su)
+ {
+-	su->su_lastmod = cpu_to_le64(0);
+-	su->su_nblocks = cpu_to_le32(0);
+-	su->su_flags = cpu_to_le32(0);
++	su->su_lastmod = __cpu_to_le64(0);
++	su->su_nblocks = __cpu_to_le32(0);
++	su->su_flags = __cpu_to_le32(0);
+ }
+ 
+ static inline int
+ nilfs_segment_usage_clean(const struct nilfs_segment_usage *su)
+ {
+-	return !le32_to_cpu(su->su_flags);
++	return !__le32_to_cpu(su->su_flags);
+ }
+ 
+ /**
 _
 
-Patches currently in -mm which might be from henryburns@google.com are
+Patches currently in -mm which might be from yamada.masahiro@socionext.com are
 
-mm-z3foldc-remove-z3fold_migration-trylock.patch
+linux-bitsh-make-bit-genmask-and-friends-available-in-assembly.patch
+arch-replace-_bitul-in-kernel-space-headers-with-bit.patch
 
