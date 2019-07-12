@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FB3C66EC4
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A3AC66EBF
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727528AbfGLMlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:41:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32864 "EHLO mail.kernel.org"
+        id S1728112AbfGLMY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:24:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728039AbfGLMYW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:24:22 -0400
+        id S1728108AbfGLMY0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:24:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F08242084B;
-        Fri, 12 Jul 2019 12:24:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DC8B208E4;
+        Fri, 12 Jul 2019 12:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934261;
-        bh=pm8q++Y9dYFYoF/2eqrnoIc+x6cNiUOwX1h3tqzg3uY=;
+        s=default; t=1562934264;
+        bh=LOu9gpXwDt0xriCWK3knQMKIaK3cMl0hEygW7ULkYuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irMKK96X5Ak+MxIqwyrTWFyhKMK6yZ/4oARFXQTi+JHe0fslQqCaNfg2mHkEj9hgR
-         TZB/dZHgTfny74465mroSWdMl5X0TmmuJzquj5wBc1tKL0dZZa5he3Efn/Bp0ANJG3
-         ZZpI+BVgmwZnETc+cJx/ueGKJY92VEy7aodRvas4=
+        b=v7YcYilzlt64fZj0R4kXHwUwwtaYwP+6zj4oEXFJGie5J1Ji9Bwo3n9rzMTnw7vML
+         PDbOyY+iYpSw77GwCXopu4Xor5IygcmB3r5CNH1VGaDV2BC6tsMYoUU7BCyo/hEK/y
+         k5+EqEed2dBZNVS6YKuXo4Gue4as9Z9zyEluxuzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Stefan Wahren <wahrenst@gmx.net>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.19 87/91] staging: bcm2835-camera: Replace spinlock protecting context_map with mutex
-Date:   Fri, 12 Jul 2019 14:19:30 +0200
-Message-Id: <20190712121626.390070383@linuxfoundation.org>
+Subject: [PATCH 4.19 88/91] staging: bcm2835-camera: Ensure all buffers are returned on disable
+Date:   Fri, 12 Jul 2019 14:19:31 +0200
+Message-Id: <20190712121626.436694777@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -48,18 +48,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Stevenson <dave.stevenson@raspberrypi.org>
 
-commit 8dedab2903f152aa3cee9ae3d57c828dea0d356e upstream.
+commit 70ec64ccdaac5d8f634338e33b016c1c99831499 upstream.
 
-The commit "staging: bcm2835-camera: Replace open-coded idr with a struct idr."
-replaced an internal implementation of an idr with the standard functions
-and a spinlock. idr_alloc(GFP_KERNEL) can sleep whilst calling kmem_cache_alloc
-to allocate the new node, but this is not valid whilst in an atomic context
-due to the spinlock.
+With the recent change to match MMAL and V4L2 buffers there
+is a need to wait for all MMAL buffers to be returned during
+stop_streaming.
 
-There is no need for this to be a spinlock as a standard mutex is
-sufficient.
-
-Fixes: 950fd867c635 ("staging: bcm2835-camera: Replace open-coded idr with a struct idr.")
+Fixes: 938416707071 ("staging: bcm2835-camera: Remove V4L2/MMAL buffer remapping")
 Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.org>
 Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
 Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
@@ -67,54 +62,87 @@ Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c |   22 +++++++---
+ drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c     |    4 +
+ drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.h     |    3 +
+ 3 files changed, 23 insertions(+), 6 deletions(-)
 
+--- a/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
++++ b/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
+@@ -582,6 +582,7 @@ static void stop_streaming(struct vb2_qu
+ 	int ret;
+ 	unsigned long timeout;
+ 	struct bm2835_mmal_dev *dev = vb2_get_drv_priv(vq);
++	struct vchiq_mmal_port *port = dev->capture.port;
+ 
+ 	v4l2_dbg(1, bcm2835_v4l2_debug, &dev->v4l2_dev, "%s: dev:%p\n",
+ 		 __func__, dev);
+@@ -605,12 +606,6 @@ static void stop_streaming(struct vb2_qu
+ 				      &dev->capture.frame_count,
+ 				      sizeof(dev->capture.frame_count));
+ 
+-	/* wait for last frame to complete */
+-	timeout = wait_for_completion_timeout(&dev->capture.frame_cmplt, HZ);
+-	if (timeout == 0)
+-		v4l2_err(&dev->v4l2_dev,
+-			 "timed out waiting for frame completion\n");
+-
+ 	v4l2_dbg(1, bcm2835_v4l2_debug, &dev->v4l2_dev,
+ 		 "disabling connection\n");
+ 
+@@ -625,6 +620,21 @@ static void stop_streaming(struct vb2_qu
+ 			 ret);
+ 	}
+ 
++	/* wait for all buffers to be returned */
++	while (atomic_read(&port->buffers_with_vpu)) {
++		v4l2_dbg(1, bcm2835_v4l2_debug, &dev->v4l2_dev,
++			 "%s: Waiting for buffers to be returned - %d outstanding\n",
++			 __func__, atomic_read(&port->buffers_with_vpu));
++		timeout = wait_for_completion_timeout(&dev->capture.frame_cmplt,
++						      HZ);
++		if (timeout == 0) {
++			v4l2_err(&dev->v4l2_dev, "%s: Timeout waiting for buffers to be returned - %d outstanding\n",
++				 __func__,
++				 atomic_read(&port->buffers_with_vpu));
++			break;
++		}
++	}
++
+ 	if (disable_camera(dev) < 0)
+ 		v4l2_err(&dev->v4l2_dev, "Failed to disable camera\n");
+ }
 --- a/drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c
 +++ b/drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c
-@@ -162,7 +162,8 @@ struct vchiq_mmal_instance {
- 	void *bulk_scratch;
+@@ -241,6 +241,8 @@ static void buffer_work_cb(struct work_s
+ 	struct mmal_msg_context *msg_context =
+ 		container_of(work, struct mmal_msg_context, u.bulk.work);
  
- 	struct idr context_map;
--	spinlock_t context_map_lock;
-+	/* protect accesses to context_map */
-+	struct mutex context_map_lock;
++	atomic_dec(&msg_context->u.bulk.port->buffers_with_vpu);
++
+ 	msg_context->u.bulk.port->buffer_cb(msg_context->u.bulk.instance,
+ 					    msg_context->u.bulk.port,
+ 					    msg_context->u.bulk.status,
+@@ -381,6 +383,8 @@ buffer_from_host(struct vchiq_mmal_insta
+ 	/* initialise work structure ready to schedule callback */
+ 	INIT_WORK(&msg_context->u.bulk.work, buffer_work_cb);
  
- 	/* component to use next */
- 	int component_idx;
-@@ -185,10 +186,10 @@ get_msg_context(struct vchiq_mmal_instan
- 	 * that when we service the VCHI reply, we can look up what
- 	 * message is being replied to.
- 	 */
--	spin_lock(&instance->context_map_lock);
-+	mutex_lock(&instance->context_map_lock);
- 	handle = idr_alloc(&instance->context_map, msg_context,
- 			   0, 0, GFP_KERNEL);
--	spin_unlock(&instance->context_map_lock);
-+	mutex_unlock(&instance->context_map_lock);
++	atomic_inc(&port->buffers_with_vpu);
++
+ 	/* prep the buffer from host message */
+ 	memset(&m, 0xbc, sizeof(m));	/* just to make debug clearer */
  
- 	if (handle < 0) {
- 		kfree(msg_context);
-@@ -212,9 +213,9 @@ release_msg_context(struct mmal_msg_cont
- {
- 	struct vchiq_mmal_instance *instance = msg_context->instance;
- 
--	spin_lock(&instance->context_map_lock);
-+	mutex_lock(&instance->context_map_lock);
- 	idr_remove(&instance->context_map, msg_context->handle);
--	spin_unlock(&instance->context_map_lock);
-+	mutex_unlock(&instance->context_map_lock);
- 	kfree(msg_context);
- }
- 
-@@ -1854,7 +1855,7 @@ int vchiq_mmal_init(struct vchiq_mmal_in
- 
- 	instance->bulk_scratch = vmalloc(PAGE_SIZE);
- 
--	spin_lock_init(&instance->context_map_lock);
-+	mutex_init(&instance->context_map_lock);
- 	idr_init_base(&instance->context_map, 1);
- 
- 	params.callback_param = instance;
+--- a/drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.h
++++ b/drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.h
+@@ -71,6 +71,9 @@ struct vchiq_mmal_port {
+ 	struct list_head buffers;
+ 	/* lock to serialise adding and removing buffers from list */
+ 	spinlock_t slock;
++
++	/* Count of buffers the VPU has yet to return */
++	atomic_t buffers_with_vpu;
+ 	/* callback on buffer completion */
+ 	vchiq_mmal_buffer_cb buffer_cb;
+ 	/* callback context */
 
 
