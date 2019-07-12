@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BBB366EAA
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:40:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD56C66EE6
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:42:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728163AbfGLMYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:24:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33988 "EHLO mail.kernel.org"
+        id S1727461AbfGLMWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:22:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728180AbfGLMYu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:24:50 -0400
+        id S1727305AbfGLMWc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:22:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5229D2084B;
-        Fri, 12 Jul 2019 12:24:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22ADD21019;
+        Fri, 12 Jul 2019 12:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934289;
-        bh=kD7Fglm7ijDxctsdE46ohXgEikesjUR13C+dfx4w0IA=;
+        s=default; t=1562934151;
+        bh=qp2QdYXM+NBo8M8cyO+n/PU1Mq/At1HHVJtHKxe6KoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0RiIgUz6+66Mos+BiN22OEhVIPEyIY5MHAc6E307ujmo8kXiruqLFLmLiNkvNqOTI
-         wEqcceS9FE19Gx4IlW3TNOIbY8eG077nbGDEgfbbrk8aLgeJg1F5dZ7d5S3vAROxzm
-         dsvoIWtfxujwidoivgs0kw0x/00NezOYnIj9TVpI=
+        b=1MEQdaJh7VFYiuJQl29nak/qNqAWcvqsI4kNSvvHUCJ3HdtoTJoxplaYbYak0xYzs
+         clb1u7ivYrC1juBqYxpMPTDEXhfzZxkaP70vTwIdRNJkWdrTESQHJhHEYciukJiXF1
+         B4eFHQPZHxxBrKObbmb2XnWOCHSlJZwoRK/+wvwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Reinhard Speyerer <rspmn@arcor.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 44/91] qmi_wwan: extend permitted QMAP mux_id value range
-Date:   Fri, 12 Jul 2019 14:18:47 +0200
-Message-Id: <20190712121623.887647543@linuxfoundation.org>
+Subject: [PATCH 4.19 45/91] mmc: core: complete HS400 before checking status
+Date:   Fri, 12 Jul 2019 14:18:48 +0200
+Message-Id: <20190712121623.964532029@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -45,56 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 36815b416fa48766ac5a98e4b2dc3ebc5887222e ]
+[ Upstream commit b0e370b95a3b231d0fb5d1958cce85ef57196fe6 ]
 
-Permit mux_id values up to 254 to be used in qmimux_register_device()
-for compatibility with ip(8) and the rmnet driver.
+We don't have a reproducible error case, yet our BSP team suggested that
+the mmc_switch_status() command in mmc_select_hs400() should come after
+the callback into the driver completing HS400 setup. It makes sense to
+me because we want the status of a fully setup HS400, so it will
+increase the reliability of the mmc_switch_status() command.
 
-Fixes: c6adf77953bc ("net: usb: qmi_wwan: add qmap mux protocol support")
-Cc: Daniele Palmas <dnlplm@gmail.com>
-Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Fixes: ba6c7ac3a2f4 ("mmc: core: more fine-grained hooks for HS400 tuning")
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/ABI/testing/sysfs-class-net-qmi | 4 ++--
- drivers/net/usb/qmi_wwan.c                    | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/mmc/core/mmc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-class-net-qmi b/Documentation/ABI/testing/sysfs-class-net-qmi
-index 7122d6264c49..c310db4ccbc2 100644
---- a/Documentation/ABI/testing/sysfs-class-net-qmi
-+++ b/Documentation/ABI/testing/sysfs-class-net-qmi
-@@ -29,7 +29,7 @@ Contact:	Bjørn Mork <bjorn@mork.no>
- Description:
- 		Unsigned integer.
+diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
+index 55997cf84b39..f1fe446eee66 100644
+--- a/drivers/mmc/core/mmc.c
++++ b/drivers/mmc/core/mmc.c
+@@ -1209,13 +1209,13 @@ static int mmc_select_hs400(struct mmc_card *card)
+ 	mmc_set_timing(host, MMC_TIMING_MMC_HS400);
+ 	mmc_set_bus_speed(card);
  
--		Write a number ranging from 1 to 127 to add a qmap mux
-+		Write a number ranging from 1 to 254 to add a qmap mux
- 		based network device, supported by recent Qualcomm based
- 		modems.
++	if (host->ops->hs400_complete)
++		host->ops->hs400_complete(host);
++
+ 	err = mmc_switch_status(card);
+ 	if (err)
+ 		goto out_err;
  
-@@ -46,5 +46,5 @@ Contact:	Bjørn Mork <bjorn@mork.no>
- Description:
- 		Unsigned integer.
+-	if (host->ops->hs400_complete)
+-		host->ops->hs400_complete(host);
+-
+ 	return 0;
  
--		Write a number ranging from 1 to 127 to delete a previously
-+		Write a number ranging from 1 to 254 to delete a previously
- 		created qmap mux based network device.
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 44ada5c38756..128c8a327d8e 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -363,8 +363,8 @@ static ssize_t add_mux_store(struct device *d,  struct device_attribute *attr, c
- 	if (kstrtou8(buf, 0, &mux_id))
- 		return -EINVAL;
- 
--	/* mux_id [1 - 0x7f] range empirically found */
--	if (mux_id < 1 || mux_id > 0x7f)
-+	/* mux_id [1 - 254] for compatibility with ip(8) and the rmnet driver */
-+	if (mux_id < 1 || mux_id > 254)
- 		return -EINVAL;
- 
- 	if (!rtnl_trylock())
+ out_err:
 -- 
 2.20.1
 
