@@ -2,82 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7597967263
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 17:31:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90A6D672B9
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 17:47:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727077AbfGLPbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 11:31:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34808 "EHLO mail.kernel.org"
+        id S1727086AbfGLPrM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 11:47:12 -0400
+Received: from mga07.intel.com ([134.134.136.100]:50301 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726602AbfGLPbM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 11:31:12 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FB1F208E4;
-        Fri, 12 Jul 2019 15:31:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562945471;
-        bh=3t+6wjpJFOQt0JVl6oztKApAO9yZH1Bl74JWDDgu/kk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OY22DrZk1GEUN/LX3LkHcHgRDlZdhb565nA0K6nQyluWxpdrUnF1G6g25c1GP/MN2
-         mtuXWyd0UJMXvuBrt6XGtRpIE+Rjzg5LfpxBiv7/QVawXu+RYmnmwCXgiVJgaz0dJN
-         G7+ZtPLT4QjwEWRUtU1sR7pVqFCVoopac3030Fys=
-Date:   Fri, 12 Jul 2019 17:31:08 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        linux-tegra <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.2 00/61] 5.2.1-stable review
-Message-ID: <20190712153108.GD13940@kroah.com>
-References: <20190712121620.632595223@linuxfoundation.org>
- <a1ae16a7-e8f7-b6fc-df4e-46079bebf9b3@nvidia.com>
+        id S1726867AbfGLPrM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 11:47:12 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Jul 2019 08:47:11 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,483,1557212400"; 
+   d="scan'208";a="318032328"
+Received: from yanbeibe-mobl2.ger.corp.intel.com ([10.249.32.118])
+  by orsmga004.jf.intel.com with ESMTP; 12 Jul 2019 08:47:06 -0700
+Message-ID: <40bf8745601c1d775f67f4e85eb0a98dc6d25200.camel@linux.intel.com>
+Subject: Re: [PATCH] tpm: Fix TPM 1.2 Shutdown sequence to prevent future
+ TPM operations
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Doug Anderson <dianders@chromium.org>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     Jason Gunthorpe <jgg@ziepe.ca>, "# 4.0+" <stable@vger.kernel.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Vadim Sukhomlinov <sukhomlinov@google.com>,
+        Arnd Bergmann <arnd@arndb.de>, Peter Huewe <peterhuewe@gmx.de>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-integrity@vger.kernel.org
+Date:   Fri, 12 Jul 2019 18:47:04 +0300
+In-Reply-To: <CAD=FV=UBOWHrEFQRhxsnK-PmVkFjcvnEruuy0sYHh0p-Qnk8pA@mail.gmail.com>
+References: <20190711162919.23813-1-dianders@chromium.org>
+         <20190711163915.GD25807@ziepe.ca> <20190711170437.GA7544@kroah.com>
+         <20190711171726.GE25807@ziepe.ca> <20190711172630.GA11371@kroah.com>
+         <CAD=FV=U0ue_4FyS7MO+iaKQ5gr0PhuLZaTV1adPY3ZtNhKTmHA@mail.gmail.com>
+         <20190712115025.GA8221@kroah.com>
+         <CAD=FV=UBOWHrEFQRhxsnK-PmVkFjcvnEruuy0sYHh0p-Qnk8pA@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.1-2 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a1ae16a7-e8f7-b6fc-df4e-46079bebf9b3@nvidia.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 12, 2019 at 02:36:29PM +0100, Jon Hunter wrote:
+On Fri, 2019-07-12 at 08:00 -0700, Doug Anderson wrote:
+> * On 5.2 / 5.1: you've already got this picked to stable.  Good
 > 
-> On 12/07/2019 13:19, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.2.1 release.
-> > There are 61 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sun 14 Jul 2019 12:14:36 PM UTC.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.1-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
+> * On 4.14 / 4.19: Jarkko will look at in 2 weeks.
 > 
-> All tests are passing for Tegra ...
-> 
-> Test results for stable-v5.2:
->     12 builds:	12 pass, 0 fail
->     22 boots:	22 pass, 0 fail
->     38 tests:	38 pass, 0 fail
-> 
-> Linux version:	5.2.1-rc1-g61731e8fe278
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra30-cardhu-a04
+> * On 4.9 and older: I'd propose skipping unless someone is known to
+> need a solution here.
 
-That was fast, thanks for testing all of these.
+I'll prioritize 4.14 and 4.19.
 
-greg k-h
+If it doesn't become a too big struggle, I'll try to fix also older
+but no final word on that at this point.
+
+/Jarkko
+
