@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29D7166E5C
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B54B66E19
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:36:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728453AbfGLM3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:29:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43682 "EHLO mail.kernel.org"
+        id S1729205AbfGLMch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:32:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728930AbfGLM3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:29:04 -0400
+        id S1729484AbfGLMcc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:32:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10CD6216B7;
-        Fri, 12 Jul 2019 12:29:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F366821019;
+        Fri, 12 Jul 2019 12:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934543;
-        bh=rpOhO19P5RxT3c4tT3PD9onp8/BeCGDabR7yxt779pI=;
+        s=default; t=1562934751;
+        bh=Uzkd6LOgljI4X7EBGkkIDUfmgL0ygBzTNggI5WAp9F4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o14FGZYNhuU6VuRT+RVqO8E8nKpxkFsmuq8fH+CKk80jmymHUZ2qxR5v0zYOsIqTW
-         RSHKUiDKRPEiz2GiMAKkL9xllE1BFxxH7LdATZn+34o0lPBmhBu3ama+kGpSSpAyXL
-         m5PvGkfpDSE+ldfKakTBAOWUkppT7NX0l5MHKT/M=
+        b=0TFGpfXD33sIh76tZnhTISS/oLKTPYNJ1HsiiTw5hPgxnHN3kEze5djvjKPTpuaqK
+         m2/128hwIfXCaYhjV0/zSRAifDUen2rOgbyuizvf+P/UqRxwze+kOvEWnCHa1EPeE1
+         A1QfXUIGcuWWg/PhxFznkzZ4wuaanR0TFf3tnWZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Sauer <ensonic@hora-obscura.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.1 091/138] ALSA: usb-audio: Fix parse of UAC2 Extension Units
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.2 02/61] crypto: lrw - use correct alignmask
 Date:   Fri, 12 Jul 2019 14:19:15 +0200
-Message-Id: <20190712121632.252081640@linuxfoundation.org>
+Message-Id: <20190712121620.745996240@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,133 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Eric Biggers <ebiggers@google.com>
 
-commit ca95c7bf3d29716916baccdc77c3c2284b703069 upstream.
+commit 20a0f9761343fba9b25ea46bd3a3e5e533d974f8 upstream.
 
-Extension Unit (XU) is used to have a compatible layout with
-Processing Unit (PU) on UAC1, and the usb-audio driver code assumed it
-for parsing the descriptors.  Meanwhile, on UAC2, XU became slightly
-incompatible with PU; namely, XU has a one-byte bmControls bitmap
-while PU has two bytes bmControls bitmap.  This incompatibility
-results in the read of a wrong address for the last iExtension field,
-which ended up with an incorrect string for the mixer element name, as
-recently reported for Focusrite Scarlett 18i20 device.
+Commit c778f96bf347 ("crypto: lrw - Optimize tweak computation")
+incorrectly reduced the alignmask of LRW instances from
+'__alignof__(u64) - 1' to '__alignof__(__be32) - 1'.
 
-This patch corrects this misalignment by introducing a couple of new
-macros and calling them depending on the descriptor type.
+However, xor_tweak() and setkey() assume that the data and key,
+respectively, are aligned to 'be128', which has u64 alignment.
 
-Fixes: 23caaf19b11e ("ALSA: usb-mixer: Add support for Audio Class v2.0")
-Reported-by: Stefan Sauer <ensonic@hora-obscura.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fix the alignmask to be at least '__alignof__(be128) - 1'.
+
+Fixes: c778f96bf347 ("crypto: lrw - Optimize tweak computation")
+Cc: <stable@vger.kernel.org> # v4.20+
+Cc: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/uapi/linux/usb/audio.h |   37 +++++++++++++++++++++++++++++++++++++
- sound/usb/mixer.c              |   16 ++++++++++------
- 2 files changed, 47 insertions(+), 6 deletions(-)
+ crypto/lrw.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/uapi/linux/usb/audio.h
-+++ b/include/uapi/linux/usb/audio.h
-@@ -450,6 +450,43 @@ static inline __u8 *uac_processing_unit_
- 	}
- }
+--- a/crypto/lrw.c
++++ b/crypto/lrw.c
+@@ -384,7 +384,7 @@ static int create(struct crypto_template
+ 	inst->alg.base.cra_priority = alg->base.cra_priority;
+ 	inst->alg.base.cra_blocksize = LRW_BLOCK_SIZE;
+ 	inst->alg.base.cra_alignmask = alg->base.cra_alignmask |
+-				       (__alignof__(__be32) - 1);
++				       (__alignof__(be128) - 1);
  
-+/*
-+ * Extension Unit (XU) has almost compatible layout with Processing Unit, but
-+ * on UAC2, it has a different bmControls size (bControlSize); it's 1 byte for
-+ * XU while 2 bytes for PU.  The last iExtension field is a one-byte index as
-+ * well as iProcessing field of PU.
-+ */
-+static inline __u8 uac_extension_unit_bControlSize(struct uac_processing_unit_descriptor *desc,
-+						   int protocol)
-+{
-+	switch (protocol) {
-+	case UAC_VERSION_1:
-+		return desc->baSourceID[desc->bNrInPins + 4];
-+	case UAC_VERSION_2:
-+		return 1; /* in UAC2, this value is constant */
-+	case UAC_VERSION_3:
-+		return 4; /* in UAC3, this value is constant */
-+	default:
-+		return 1;
-+	}
-+}
-+
-+static inline __u8 uac_extension_unit_iExtension(struct uac_processing_unit_descriptor *desc,
-+						 int protocol)
-+{
-+	__u8 control_size = uac_extension_unit_bControlSize(desc, protocol);
-+
-+	switch (protocol) {
-+	case UAC_VERSION_1:
-+	case UAC_VERSION_2:
-+	default:
-+		return *(uac_processing_unit_bmControls(desc, protocol)
-+			 + control_size);
-+	case UAC_VERSION_3:
-+		return 0; /* UAC3 does not have this field */
-+	}
-+}
-+
- /* 4.5.2 Class-Specific AS Interface Descriptor */
- struct uac1_as_header_descriptor {
- 	__u8  bLength;			/* in bytes: 7 */
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -2318,7 +2318,7 @@ static struct procunit_info extunits[] =
-  */
- static int build_audio_procunit(struct mixer_build *state, int unitid,
- 				void *raw_desc, struct procunit_info *list,
--				char *name)
-+				bool extension_unit)
- {
- 	struct uac_processing_unit_descriptor *desc = raw_desc;
- 	int num_ins;
-@@ -2335,6 +2335,8 @@ static int build_audio_procunit(struct m
- 	static struct procunit_info default_info = {
- 		0, NULL, default_value_info
- 	};
-+	const char *name = extension_unit ?
-+		"Extension Unit" : "Processing Unit";
- 
- 	if (desc->bLength < 13) {
- 		usb_audio_err(state->chip, "invalid %s descriptor (id %d)\n", name, unitid);
-@@ -2448,7 +2450,10 @@ static int build_audio_procunit(struct m
- 		} else if (info->name) {
- 			strlcpy(kctl->id.name, info->name, sizeof(kctl->id.name));
- 		} else {
--			nameid = uac_processing_unit_iProcessing(desc, state->mixer->protocol);
-+			if (extension_unit)
-+				nameid = uac_extension_unit_iExtension(desc, state->mixer->protocol);
-+			else
-+				nameid = uac_processing_unit_iProcessing(desc, state->mixer->protocol);
- 			len = 0;
- 			if (nameid)
- 				len = snd_usb_copy_string_desc(state->chip,
-@@ -2481,10 +2486,10 @@ static int parse_audio_processing_unit(s
- 	case UAC_VERSION_2:
- 	default:
- 		return build_audio_procunit(state, unitid, raw_desc,
--				procunits, "Processing Unit");
-+					    procunits, false);
- 	case UAC_VERSION_3:
- 		return build_audio_procunit(state, unitid, raw_desc,
--				uac3_procunits, "Processing Unit");
-+					    uac3_procunits, false);
- 	}
- }
- 
-@@ -2495,8 +2500,7 @@ static int parse_audio_extension_unit(st
- 	 * Note that we parse extension units with processing unit descriptors.
- 	 * That's ok as the layout is the same.
- 	 */
--	return build_audio_procunit(state, unitid, raw_desc,
--				    extunits, "Extension Unit");
-+	return build_audio_procunit(state, unitid, raw_desc, extunits, true);
- }
- 
- /*
+ 	inst->alg.ivsize = LRW_BLOCK_SIZE;
+ 	inst->alg.min_keysize = crypto_skcipher_alg_min_keysize(alg) +
 
 
