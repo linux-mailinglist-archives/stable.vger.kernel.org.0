@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86CAD66E52
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:38:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A731C66DA4
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:32:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728435AbfGLM3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:29:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
+        id S1728538AbfGLMcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:32:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727141AbfGLM3i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:29:38 -0400
+        id S1727685AbfGLMcL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:32:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2AB921019;
-        Fri, 12 Jul 2019 12:29:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A8C2216C8;
+        Fri, 12 Jul 2019 12:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934577;
-        bh=qDtEx3JBcoiN7jc5fyaWwXQltue7M5cegdGziK7DBV8=;
+        s=default; t=1562934730;
+        bh=+e9Edw7YbeCFDvCcDZYcLDS9Se8nRrWp5jfEKv9W+I4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rSbSgNuFPs2L6pMu59YoFvWcqrjDNummywq1soA/cmm3SEzR77OeRZjI37i9C6y9g
-         Nr1sJ9L7z8VpvcO1H5NVlSiXXOZH0AAw8ShPNh3DUypjBMzm9yOY7eukqYZJ5FCS0p
-         D5UBekKy5yU2weFo5tKcieQCkPndjuSHzD0neQ7E=
+        b=ftEbICo3hQ5tnf4oSYxa17spPBJPiFGeb+APZIS0uBq48ZPQEjFCzVk0rG0W9uNju
+         YQ97XPoVN9Uj7Ad8yjVvhZcbCP2IRXWSlPe1xhqHAVuopnzwUTPV+DA3NtNnPU3YOn
+         aRaEVCnXPsVC5pgaJdsYStTOj4VzQAfrZW7BTvS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Carrillo Cisneros <davidca@fb.com>,
-        Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>, kernel-team@fb.com
-Subject: [PATCH 5.1 101/138] perf header: Assign proper ff->ph in perf_event__synthesize_features()
-Date:   Fri, 12 Jul 2019 14:19:25 +0200
-Message-Id: <20190712121632.639643452@linuxfoundation.org>
+        Jiri Olsa <jolsa@redhat.com>
+Subject: [PATCH 5.2 13/61] perf intel-pt: Fix itrace defaults for perf script
+Date:   Fri, 12 Jul 2019 14:19:26 +0200
+Message-Id: <20190712121621.327039153@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit c952b35f4b15dd1b83e952718dec3307256383ef upstream.
+commit 26f19c2eb7e54015564ff133b91983a74e84541b upstream.
 
-bpf/btf write_* functions need ff->ph->env.
+Commit 4eb068157121 ("perf script: Make itrace script default to all
+calls") does not work because 'use_browser' is being used to determine
+whether to default to periodic sampling (i.e. better for perf report).
+The result is that nothing but CBR events display for perf script when
+no --itrace option is specified.
 
-With this missing, pipe-mode (perf record -o -)  would crash like:
+Fix by using 'default_no_sample' and 'inject' instead.
 
-Program terminated with signal SIGSEGV, Segmentation fault.
+Example:
 
-This patch assign proper ph value to ff.
+ Before:
 
-Committer testing:
+  $ perf record -e intel_pt/cyc/u ls
+  $ perf script > cmp1.txt
+  $ perf script --itrace=cepwx > cmp2.txt
+  $ diff -sq cmp1.txt cmp2.txt
+  Files cmp1.txt and cmp2.txt differ
 
-  (gdb) run record -o -
-  Starting program: /root/bin/perf record -o -
-  PERFILE2
-  <SNIP start of perf.data headers>
-  Thread 1 "perf" received signal SIGSEGV, Segmentation fault.
-  __do_write_buf (size=4, buf=0x160, ff=0x7fffffff8f80) at util/header.c:126
-  126		memcpy(ff->buf + ff->offset, buf, size);
-  (gdb) bt
-  #0  __do_write_buf (size=4, buf=0x160, ff=0x7fffffff8f80) at util/header.c:126
-  #1  do_write (ff=ff@entry=0x7fffffff8f80, buf=buf@entry=0x160, size=4) at util/header.c:137
-  #2  0x00000000004eddba in write_bpf_prog_info (ff=0x7fffffff8f80, evlist=<optimized out>) at util/header.c:912
-  #3  0x00000000004f69d7 in perf_event__synthesize_features (tool=tool@entry=0x97cc00 <record>, session=session@entry=0x7fffe9c6d010,
-      evlist=0x7fffe9cae010, process=process@entry=0x4435d0 <process_synthesized_event>) at util/header.c:3695
-  #4  0x0000000000443c79 in record__synthesize (tail=tail@entry=false, rec=0x97cc00 <record>) at builtin-record.c:1214
-  #5  0x0000000000444ec9 in __cmd_record (rec=0x97cc00 <record>, argv=<optimized out>, argc=0) at builtin-record.c:1435
-  #6  cmd_record (argc=0, argv=<optimized out>) at builtin-record.c:2450
-  #7  0x00000000004ae3e9 in run_builtin (p=p@entry=0x98e058 <commands+216>, argc=argc@entry=3, argv=0x7fffffffd670) at perf.c:304
-  #8  0x000000000042eded in handle_internal_command (argv=<optimized out>, argc=<optimized out>) at perf.c:356
-  #9  run_argv (argcp=<optimized out>, argv=<optimized out>) at perf.c:400
-  #10 main (argc=3, argv=<optimized out>) at perf.c:522
-  (gdb)
+ After:
 
-After the patch the SEGSEGV is gone.
+  $ perf script > cmp1.txt
+  $ perf script --itrace=cepwx > cmp2.txt
+  $ diff -sq cmp1.txt cmp2.txt
+  Files cmp1.txt and cmp2.txt are identical
 
-Reported-by: David Carrillo Cisneros <davidca@fb.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: kernel-team@fb.com
-Cc: stable@vger.kernel.org # v5.1+
-Fixes: 606f972b1361 ("perf bpf: Save bpf_prog_info information as headers to perf.data")
-Link: http://lkml.kernel.org/r/20190620010453.4118689-1-songliubraving@fb.com
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org # v4.20+
+Fixes: 90e457f7be08 ("perf tools: Add Intel PT support")
+Link: http://lkml.kernel.org/r/20190520113728.14389-2-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/header.c |    1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/util/intel-pt.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -3549,6 +3549,7 @@ int perf_event__synthesize_features(stru
- 		return -ENOMEM;
- 
- 	ff.size = sz - sz_hdr;
-+	ff.ph = &session->header;
- 
- 	for_each_set_bit(feat, header->adds_features, HEADER_FEAT_BITS) {
- 		if (!feat_ops[feat].synthesize) {
+--- a/tools/perf/util/intel-pt.c
++++ b/tools/perf/util/intel-pt.c
+@@ -2579,7 +2579,8 @@ int intel_pt_process_auxtrace_info(union
+ 	} else {
+ 		itrace_synth_opts__set_default(&pt->synth_opts,
+ 				session->itrace_synth_opts->default_no_sample);
+-		if (use_browser != -1) {
++		if (!session->itrace_synth_opts->default_no_sample &&
++		    !session->itrace_synth_opts->inject) {
+ 			pt->synth_opts.branches = false;
+ 			pt->synth_opts.callchain = true;
+ 		}
 
 
