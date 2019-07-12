@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 608D666C96
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 813CC66D35
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:27:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727574AbfGLMVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:21:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55744 "EHLO mail.kernel.org"
+        id S1728103AbfGLM1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:27:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727603AbfGLMVd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:21:33 -0400
+        id S1728629AbfGLM1h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:27:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBA382166E;
-        Fri, 12 Jul 2019 12:21:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 646B82084B;
+        Fri, 12 Jul 2019 12:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934092;
-        bh=OvbvFkyE34k4KA5hu18PaS7ONOKp/sWbrgnjM8pDRxY=;
+        s=default; t=1562934456;
+        bh=WlUI2zBQ37TDeNkfKHsamyvVlp/7aovcYPTzZDhUYwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qY5YwFey3QRy7giFFeNuaGL8b6yx6T1WZ6r2KpzWC94+YfiJlKqhcdTOW8P6yTXpU
-         lXnF5ZOLoRvynPPldQFQhRA+gZqb1gdcvjIc8KdbIUYty0qcJPoYQV53lTK1hpp0QY
-         c6gwD0nI1X441kikGoG0IcJvk7cqeCxTcxwvtVXk=
+        b=qyZWZjRwClSGHrSrxXliiJd4b4AWBbwRu/2pBRGRHOiirAIxF/9cfP/1w9ZnsBfQh
+         aXCkjXZprqFUMgNEwRV7P481hCepgu+JjZOIU669hKJ2i95+8hXF30nHZp4WtraHu0
+         rnszobMS9BYKJBt98fbzegdqFL5CWAvD1JjBHrEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Zhi Chen <zhichen@codeaurora.org>,
+        Yibo Zhao <yiboz@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 41/91] bpf, x64: fix stack layout of JITed bpf code
+Subject: [PATCH 5.1 060/138] mac80211: only warn once on chanctx_conf being NULL
 Date:   Fri, 12 Jul 2019 14:18:44 +0200
-Message-Id: <20190712121623.675904684@linuxfoundation.org>
+Message-Id: <20190712121630.981021750@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
-References: <20190712121621.422224300@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,135 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fe8d9571dc50232b569242fac7ea6332a654f186 ]
+[ Upstream commit 563572340173865a9a356e6bb02579e6998a876d ]
 
-Since commit 177366bf7ceb the %rbp stopped pointing to %rbp of the
-previous stack frame. That broke frame pointer based stack unwinding.
-This commit is a partial revert of it.
-Note that the location of tail_call_cnt is fixed, since the verifier
-enforces MAX_BPF_STACK stack size for programs with tail calls.
+In multiple SSID cases, it takes time to prepare every AP interface
+to be ready in initializing phase. If a sta already knows everything it
+needs to join one of the APs and sends authentication to the AP which
+is not fully prepared at this point of time, AP's channel context
+could be NULL. As a result, warning message occurs.
 
-Fixes: 177366bf7ceb ("bpf: change x86 JITed program stack layout")
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Even worse, if the AP is under attack via tools such as MDK3 and massive
+authentication requests are received in a very short time, console will
+be hung due to kernel warning messages.
+
+WARN_ON_ONCE() could be a better way for indicating warning messages
+without duplicate messages to flood the console.
+
+Johannes: We still need to address the underlying problem, but we
+          don't really have a good handle on it yet. Suppress the
+          worst side-effects for now.
+
+Signed-off-by: Zhi Chen <zhichen@codeaurora.org>
+Signed-off-by: Yibo Zhao <yiboz@codeaurora.org>
+[johannes: add note, change subject]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/net/bpf_jit_comp.c | 74 +++++++++++--------------------------
- 1 file changed, 21 insertions(+), 53 deletions(-)
+ net/mac80211/ieee80211_i.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index 2580cd2e98b1..a32fc3d99407 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -190,9 +190,7 @@ struct jit_context {
- #define BPF_MAX_INSN_SIZE	128
- #define BPF_INSN_SAFETY		64
+diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
+index c875d45f1e1d..4118704cb0e7 100644
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -1434,7 +1434,7 @@ ieee80211_get_sband(struct ieee80211_sub_if_data *sdata)
+ 	rcu_read_lock();
+ 	chanctx_conf = rcu_dereference(sdata->vif.chanctx_conf);
  
--#define AUX_STACK_SPACE		40 /* Space for RBX, R13, R14, R15, tailcnt */
--
--#define PROLOGUE_SIZE		37
-+#define PROLOGUE_SIZE		20
- 
- /*
-  * Emit x86-64 prologue code for BPF program and check its size.
-@@ -203,44 +201,19 @@ static void emit_prologue(u8 **pprog, u32 stack_depth, bool ebpf_from_cbpf)
- 	u8 *prog = *pprog;
- 	int cnt = 0;
- 
--	/* push rbp */
--	EMIT1(0x55);
--
--	/* mov rbp,rsp */
--	EMIT3(0x48, 0x89, 0xE5);
--
--	/* sub rsp, rounded_stack_depth + AUX_STACK_SPACE */
--	EMIT3_off32(0x48, 0x81, 0xEC,
--		    round_up(stack_depth, 8) + AUX_STACK_SPACE);
--
--	/* sub rbp, AUX_STACK_SPACE */
--	EMIT4(0x48, 0x83, 0xED, AUX_STACK_SPACE);
--
--	/* mov qword ptr [rbp+0],rbx */
--	EMIT4(0x48, 0x89, 0x5D, 0);
--	/* mov qword ptr [rbp+8],r13 */
--	EMIT4(0x4C, 0x89, 0x6D, 8);
--	/* mov qword ptr [rbp+16],r14 */
--	EMIT4(0x4C, 0x89, 0x75, 16);
--	/* mov qword ptr [rbp+24],r15 */
--	EMIT4(0x4C, 0x89, 0x7D, 24);
--
-+	EMIT1(0x55);             /* push rbp */
-+	EMIT3(0x48, 0x89, 0xE5); /* mov rbp, rsp */
-+	/* sub rsp, rounded_stack_depth */
-+	EMIT3_off32(0x48, 0x81, 0xEC, round_up(stack_depth, 8));
-+	EMIT1(0x53);             /* push rbx */
-+	EMIT2(0x41, 0x55);       /* push r13 */
-+	EMIT2(0x41, 0x56);       /* push r14 */
-+	EMIT2(0x41, 0x57);       /* push r15 */
- 	if (!ebpf_from_cbpf) {
--		/*
--		 * Clear the tail call counter (tail_call_cnt): for eBPF tail
--		 * calls we need to reset the counter to 0. It's done in two
--		 * instructions, resetting RAX register to 0, and moving it
--		 * to the counter location.
--		 */
--
--		/* xor eax, eax */
--		EMIT2(0x31, 0xc0);
--		/* mov qword ptr [rbp+32], rax */
--		EMIT4(0x48, 0x89, 0x45, 32);
--
-+		/* zero init tail_call_cnt */
-+		EMIT2(0x6a, 0x00);
- 		BUILD_BUG_ON(cnt != PROLOGUE_SIZE);
+-	if (WARN_ON(!chanctx_conf)) {
++	if (WARN_ON_ONCE(!chanctx_conf)) {
+ 		rcu_read_unlock();
+ 		return NULL;
  	}
--
- 	*pprog = prog;
- }
- 
-@@ -285,13 +258,13 @@ static void emit_bpf_tail_call(u8 **pprog)
- 	 * if (tail_call_cnt > MAX_TAIL_CALL_CNT)
- 	 *	goto out;
- 	 */
--	EMIT2_off32(0x8B, 0x85, 36);              /* mov eax, dword ptr [rbp + 36] */
-+	EMIT2_off32(0x8B, 0x85, -36 - MAX_BPF_STACK); /* mov eax, dword ptr [rbp - 548] */
- 	EMIT3(0x83, 0xF8, MAX_TAIL_CALL_CNT);     /* cmp eax, MAX_TAIL_CALL_CNT */
- #define OFFSET2 (30 + RETPOLINE_RAX_BPF_JIT_SIZE)
- 	EMIT2(X86_JA, OFFSET2);                   /* ja out */
- 	label2 = cnt;
- 	EMIT3(0x83, 0xC0, 0x01);                  /* add eax, 1 */
--	EMIT2_off32(0x89, 0x85, 36);              /* mov dword ptr [rbp + 36], eax */
-+	EMIT2_off32(0x89, 0x85, -36 - MAX_BPF_STACK); /* mov dword ptr [rbp -548], eax */
- 
- 	/* prog = array->ptrs[index]; */
- 	EMIT4_off32(0x48, 0x8B, 0x84, 0xD6,       /* mov rax, [rsi + rdx * 8 + offsetof(...)] */
-@@ -1006,19 +979,14 @@ xadd:			if (is_imm8(insn->off))
- 			seen_exit = true;
- 			/* Update cleanup_addr */
- 			ctx->cleanup_addr = proglen;
--			/* mov rbx, qword ptr [rbp+0] */
--			EMIT4(0x48, 0x8B, 0x5D, 0);
--			/* mov r13, qword ptr [rbp+8] */
--			EMIT4(0x4C, 0x8B, 0x6D, 8);
--			/* mov r14, qword ptr [rbp+16] */
--			EMIT4(0x4C, 0x8B, 0x75, 16);
--			/* mov r15, qword ptr [rbp+24] */
--			EMIT4(0x4C, 0x8B, 0x7D, 24);
--
--			/* add rbp, AUX_STACK_SPACE */
--			EMIT4(0x48, 0x83, 0xC5, AUX_STACK_SPACE);
--			EMIT1(0xC9); /* leave */
--			EMIT1(0xC3); /* ret */
-+			if (!bpf_prog_was_classic(bpf_prog))
-+				EMIT1(0x5B); /* get rid of tail_call_cnt */
-+			EMIT2(0x41, 0x5F);   /* pop r15 */
-+			EMIT2(0x41, 0x5E);   /* pop r14 */
-+			EMIT2(0x41, 0x5D);   /* pop r13 */
-+			EMIT1(0x5B);         /* pop rbx */
-+			EMIT1(0xC9);         /* leave */
-+			EMIT1(0xC3);         /* ret */
- 			break;
- 
- 		default:
 -- 
 2.20.1
 
