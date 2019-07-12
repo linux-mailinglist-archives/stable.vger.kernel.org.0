@@ -2,43 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66CCA66E56
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C2266DA9
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:32:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727427AbfGLMiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:38:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45118 "EHLO mail.kernel.org"
+        id S1729465AbfGLMcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:32:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727610AbfGLM3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:29:54 -0400
+        id S1729212AbfGLMcT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:32:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93C57208E4;
-        Fri, 12 Jul 2019 12:29:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D42D21721;
+        Fri, 12 Jul 2019 12:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934593;
-        bh=xxRtUTDCKhzXdeTgs0S5YKCWNASaZOqK2PANmHf8px8=;
+        s=default; t=1562934738;
+        bh=dqGDFDIi2rDPmFMdQfVLnotYxhySOqw8XaoV8MfvQW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSODTSO+wG8kk636QnZzDojug75nlV/NTVjRMMyRJbFNp6Vty4AVuAS/6dpIIpj9T
-         D0g1fhwYLrxBHw+2BKF0frlNgDOr5oc69THZGwLn1udyZsLeHIhgwb0d3H/E3FncHN
-         QW6KooajjVYmPTbkwE2UZYliqNM86pJOogpB++LM=
+        b=Ioiq6VlD+LyXA18llH1tE1Gj8kIF4zwwWbMTKxxdNLs+ZNW5ccZMsvoskwjAn8oVN
+         yyeSwyQ3cIBOuOhBzFLmPMgbHTqYv+ZtZznQfe2mdyUFMePLGFx0oRKvRO4aGc34g3
+         M/qcabHlZB3DW1NyVj1TfiOkuSyBrImlX69cniyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Kees Cook <keescook@chromium.org>,
-        Florian Weimer <fweimer@redhat.com>,
-        Jann Horn <jannh@google.com>, Borislav Petkov <bp@alien8.de>,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 5.1 105/138] Documentation/admin: Remove the vsyscall=native documentation
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ben Hutchings <ben@decadent.org.uk>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Shaokun Zhang <zhangshaokun@hisilicon.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        linux-arm-kernel@lists.infradead.org, linuxarm@huawei.com,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.2 16/61] perf pmu: Fix uncore PMU alias list for ARM64
 Date:   Fri, 12 Jul 2019 14:19:29 +0200
-Message-Id: <20190712121632.793176749@linuxfoundation.org>
+Message-Id: <20190712121621.508627544@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,43 +56,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: John Garry <john.garry@huawei.com>
 
-commit d974ffcfb7447db5f29a4b662a3eaf99a4e1109e upstream.
+commit 599ee18f0740d7661b8711249096db94c09bc508 upstream.
 
-The vsyscall=native feature is gone -- remove the docs.
+In commit 292c34c10249 ("perf pmu: Fix core PMU alias list for X86
+platform"), we fixed the issue of CPU events being aliased to uncore
+events.
 
-Fixes: 076ca272a14c ("x86/vsyscall/64: Drop "native" vsyscalls")
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Kees Cook <keescook@chromium.org>
-Cc: Florian Weimer <fweimer@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: stable@vger.kernel.org
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>
+Fix this same issue for ARM64, since the said commit left the (broken)
+behaviour untouched for ARM64.
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ben Hutchings <ben@decadent.org.uk>
+Cc: Hendrik Brueckner <brueckner@linux.ibm.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/d77c7105eb4c57c1a95a95b6a5b8ba194a18e764.1561610354.git.luto@kernel.org
+Cc: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxarm@huawei.com
+Cc: stable@vger.kernel.org
+Fixes: 292c34c10249 ("perf pmu: Fix core PMU alias list for X86 platform")
+Link: http://lkml.kernel.org/r/1560521283-73314-2-git-send-email-john.garry@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/admin-guide/kernel-parameters.txt |    6 ------
- 1 file changed, 6 deletions(-)
+ tools/perf/util/pmu.c |   28 ++++++++++++----------------
+ 1 file changed, 12 insertions(+), 16 deletions(-)
 
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -5074,12 +5074,6 @@
- 			emulate     [default] Vsyscalls turn into traps and are
- 			            emulated reasonably safely.
+--- a/tools/perf/util/pmu.c
++++ b/tools/perf/util/pmu.c
+@@ -709,9 +709,7 @@ static void pmu_add_cpu_aliases(struct l
+ {
+ 	int i;
+ 	struct pmu_events_map *map;
+-	struct pmu_event *pe;
+ 	const char *name = pmu->name;
+-	const char *pname;
  
--			native      Vsyscalls are native syscall instructions.
--			            This is a little bit faster than trapping
--			            and makes a few dynamic recompilers work
--			            better than they would in emulation mode.
--			            It also makes exploits much easier to write.
+ 	map = perf_pmu__find_map(pmu);
+ 	if (!map)
+@@ -722,28 +720,26 @@ static void pmu_add_cpu_aliases(struct l
+ 	 */
+ 	i = 0;
+ 	while (1) {
++		const char *cpu_name = is_arm_pmu_core(name) ? name : "cpu";
++		struct pmu_event *pe = &map->table[i++];
++		const char *pname = pe->pmu ? pe->pmu : cpu_name;
+ 
+-		pe = &map->table[i++];
+ 		if (!pe->name) {
+ 			if (pe->metric_group || pe->metric_name)
+ 				continue;
+ 			break;
+ 		}
+ 
+-		if (!is_arm_pmu_core(name)) {
+-			pname = pe->pmu ? pe->pmu : "cpu";
++		/*
++		 * uncore alias may be from different PMU
++		 * with common prefix
++		 */
++		if (pmu_is_uncore(name) &&
++		    !strncmp(pname, name, strlen(pname)))
++			goto new_alias;
+ 
+-			/*
+-			 * uncore alias may be from different PMU
+-			 * with common prefix
+-			 */
+-			if (pmu_is_uncore(name) &&
+-			    !strncmp(pname, name, strlen(pname)))
+-				goto new_alias;
 -
- 			none        Vsyscalls don't work at all.  This makes
- 			            them quite hard to use for exploits but
- 			            might break your system.
+-			if (strcmp(pname, name))
+-				continue;
+-		}
++		if (strcmp(pname, name))
++			continue;
+ 
+ new_alias:
+ 		/* need type casts to override 'const' */
 
 
