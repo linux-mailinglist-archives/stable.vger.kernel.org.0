@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB7E066D93
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E2166DFB
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729173AbfGLMbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:31:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48286 "EHLO mail.kernel.org"
+        id S1728674AbfGLMfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:35:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728436AbfGLMba (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:31:30 -0400
+        id S1729820AbfGLMe7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:34:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB27D208E4;
-        Fri, 12 Jul 2019 12:31:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACA8520645;
+        Fri, 12 Jul 2019 12:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934689;
-        bh=8Ofvv33rPGmjDL2rDLnBVau085DetjhXDbhPidErydk=;
+        s=default; t=1562934898;
+        bh=yoCpDKEXgc/jPOEZGenf4VgfdDgWReN7+VHm3FbOkeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhYmzWZMsdmqtx0VzCpciEJuatd1Br2QCIvYnwGenlkC4owCFlujmq4QR9OjRfo9v
-         W4rp6giGGnxG4/qGnGZQ87Y6w/VWBiqXrGVfd0heLVcxNQhs9wWuG94bc4eYzK3gIZ
-         xcFJB2+XAedOESW3daEWDSgXDDnLm1O51caV/s5A=
+        b=N463X+L9vfjFGkjBAOGX28RRkXGFotwmiAD66p5b/Hx/sGXsDsCuCwTAlfnPk9VBu
+         mA4jFHjyQmU8qNXGeX1P4nrkRdWMRVvqemK7J0nJ3fnAGfCL6tl2v845TkwiL2ArHj
+         +8M/IqpcGC/v2cPoFVNkFl1tUWyoBN1Irb8bh89k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5.1 138/138] staging: rtl8712: reduce stack usage, again
-Date:   Fri, 12 Jul 2019 14:20:02 +0200
-Message-Id: <20190712121634.003789371@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.2 50/61] carl9170: fix misuse of device driver API
+Date:   Fri, 12 Jul 2019 14:20:03 +0200
+Message-Id: <20190712121623.365676357@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,205 +44,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-commit fbd6b25009ac76b2034168cd21d5e01f8c2d83d1 upstream.
+commit feb09b2933275a70917a869989ea2823e7356be8 upstream.
 
-An earlier patch I sent reduced the stack usage enough to get
-below the warning limit, and I could show this was safe, but with
-GCC_PLUGIN_STRUCTLEAK_BYREF_ALL, it gets worse again because large stack
-variables in the same function no longer overlap:
+This patch follows Alan Stern's recent patch:
+"p54: Fix race between disconnect and firmware loading"
 
-drivers/staging/rtl8712/rtl871x_ioctl_linux.c: In function 'translate_scan.isra.2':
-drivers/staging/rtl8712/rtl871x_ioctl_linux.c:322:1: error: the frame size of 1200 bytes is larger than 1024 bytes [-Werror=frame-larger-than=]
+that overhauled carl9170 buggy firmware loading and driver
+unbinding procedures.
 
-Split out the largest two blocks in the affected function into two
-separate functions and mark those noinline_for_stack.
+Since the carl9170 code was adapted from p54 it uses the
+same functions and is likely to have the same problem, but
+it's just that the syzbot hasn't reproduce them (yet).
 
-Fixes: 8c5af16f7953 ("staging: rtl8712: reduce stack usage")
-Fixes: 81a56f6dcd20 ("gcc-plugins: structleak: Generalize to all variable types")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+a summary from the changes (copied from the p54 patch):
+ * Call usb_driver_release_interface() rather than
+   device_release_driver().
+
+ * Lock udev (the interface's parent) before unbinding the
+   driver instead of locking udev->parent.
+
+ * During the firmware loading process, take a reference
+   to the USB interface instead of the USB device.
+
+ * Don't take an unnecessary reference to the device during
+   probe (and then don't drop it during disconnect).
+
+and
+
+ * Make sure to prevent use-after-free bugs by explicitly
+   setting the driver context to NULL after signaling the
+   completion.
+
+Cc: <stable@vger.kernel.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8712/rtl871x_ioctl_linux.c |  159 ++++++++++++++------------
- 1 file changed, 89 insertions(+), 70 deletions(-)
+ drivers/net/wireless/ath/carl9170/usb.c |   39 +++++++++++++-------------------
+ 1 file changed, 17 insertions(+), 22 deletions(-)
 
---- a/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
-+++ b/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
-@@ -124,10 +124,91 @@ static inline void handle_group_key(stru
- 	}
+--- a/drivers/net/wireless/ath/carl9170/usb.c
++++ b/drivers/net/wireless/ath/carl9170/usb.c
+@@ -128,6 +128,8 @@ static const struct usb_device_id carl91
+ };
+ MODULE_DEVICE_TABLE(usb, carl9170_usb_ids);
+ 
++static struct usb_driver carl9170_driver;
++
+ static void carl9170_usb_submit_data_urb(struct ar9170 *ar)
+ {
+ 	struct urb *urb;
+@@ -966,32 +968,28 @@ err_out:
+ 
+ static void carl9170_usb_firmware_failed(struct ar9170 *ar)
+ {
+-	struct device *parent = ar->udev->dev.parent;
+-	struct usb_device *udev;
+-
+-	/*
+-	 * Store a copy of the usb_device pointer locally.
+-	 * This is because device_release_driver initiates
+-	 * carl9170_usb_disconnect, which in turn frees our
+-	 * driver context (ar).
++	/* Store a copies of the usb_interface and usb_device pointer locally.
++	 * This is because release_driver initiates carl9170_usb_disconnect,
++	 * which in turn frees our driver context (ar).
+ 	 */
+-	udev = ar->udev;
++	struct usb_interface *intf = ar->intf;
++	struct usb_device *udev = ar->udev;
+ 
+ 	complete(&ar->fw_load_wait);
++	/* at this point 'ar' could be already freed. Don't use it anymore */
++	ar = NULL;
+ 
+ 	/* unbind anything failed */
+-	if (parent)
+-		device_lock(parent);
+-
+-	device_release_driver(&udev->dev);
+-	if (parent)
+-		device_unlock(parent);
++	usb_lock_device(udev);
++	usb_driver_release_interface(&carl9170_driver, intf);
++	usb_unlock_device(udev);
+ 
+-	usb_put_dev(udev);
++	usb_put_intf(intf);
  }
  
--static noinline_for_stack char *translate_scan(struct _adapter *padapter,
--				   struct iw_request_info *info,
--				   struct wlan_network *pnetwork,
--				   char *start, char *stop)
-+static noinline_for_stack char *translate_scan_wpa(struct iw_request_info *info,
-+						   struct wlan_network *pnetwork,
-+						   struct iw_event *iwe,
-+						   char *start, char *stop)
-+{
-+	/* parsing WPA/WPA2 IE */
-+	u8 buf[MAX_WPA_IE_LEN];
-+	u8 wpa_ie[255], rsn_ie[255];
-+	u16 wpa_len = 0, rsn_len = 0;
-+	int n, i;
-+
-+	r8712_get_sec_ie(pnetwork->network.IEs,
-+			 pnetwork->network.IELength, rsn_ie, &rsn_len,
-+			 wpa_ie, &wpa_len);
-+	if (wpa_len > 0) {
-+		memset(buf, 0, MAX_WPA_IE_LEN);
-+		n = sprintf(buf, "wpa_ie=");
-+		for (i = 0; i < wpa_len; i++) {
-+			n += snprintf(buf + n, MAX_WPA_IE_LEN - n,
-+						"%02x", wpa_ie[i]);
-+			if (n >= MAX_WPA_IE_LEN)
-+				break;
-+		}
-+		memset(iwe, 0, sizeof(*iwe));
-+		iwe->cmd = IWEVCUSTOM;
-+		iwe->u.data.length = (u16)strlen(buf);
-+		start = iwe_stream_add_point(info, start, stop,
-+			iwe, buf);
-+		memset(iwe, 0, sizeof(*iwe));
-+		iwe->cmd = IWEVGENIE;
-+		iwe->u.data.length = (u16)wpa_len;
-+		start = iwe_stream_add_point(info, start, stop,
-+			iwe, wpa_ie);
-+	}
-+	if (rsn_len > 0) {
-+		memset(buf, 0, MAX_WPA_IE_LEN);
-+		n = sprintf(buf, "rsn_ie=");
-+		for (i = 0; i < rsn_len; i++) {
-+			n += snprintf(buf + n, MAX_WPA_IE_LEN - n,
-+						"%02x", rsn_ie[i]);
-+			if (n >= MAX_WPA_IE_LEN)
-+				break;
-+		}
-+		memset(iwe, 0, sizeof(*iwe));
-+		iwe->cmd = IWEVCUSTOM;
-+		iwe->u.data.length = strlen(buf);
-+		start = iwe_stream_add_point(info, start, stop,
-+			iwe, buf);
-+		memset(iwe, 0, sizeof(*iwe));
-+		iwe->cmd = IWEVGENIE;
-+		iwe->u.data.length = rsn_len;
-+		start = iwe_stream_add_point(info, start, stop, iwe,
-+			rsn_ie);
-+	}
-+
-+	return start;
-+}
-+
-+static noinline_for_stack char *translate_scan_wps(struct iw_request_info *info,
-+						   struct wlan_network *pnetwork,
-+						   struct iw_event *iwe,
-+						   char *start, char *stop)
-+{
-+	/* parsing WPS IE */
-+	u8 wps_ie[512];
-+	uint wps_ielen;
-+
-+	if (r8712_get_wps_ie(pnetwork->network.IEs,
-+	    pnetwork->network.IELength,
-+	    wps_ie, &wps_ielen)) {
-+		if (wps_ielen > 2) {
-+			iwe->cmd = IWEVGENIE;
-+			iwe->u.data.length = (u16)wps_ielen;
-+			start = iwe_stream_add_point(info, start, stop,
-+				iwe, wps_ie);
-+		}
-+	}
-+
-+	return start;
-+}
-+
-+static char *translate_scan(struct _adapter *padapter,
-+			    struct iw_request_info *info,
-+			    struct wlan_network *pnetwork,
-+			    char *start, char *stop)
+ static void carl9170_usb_firmware_finish(struct ar9170 *ar)
  {
- 	struct iw_event iwe;
- 	struct ieee80211_ht_cap *pht_capie;
-@@ -240,73 +321,11 @@ static noinline_for_stack char *translat
- 	/* Check if we added any event */
- 	if ((current_val - start) > iwe_stream_lcp_len(info))
- 		start = current_val;
--	/* parsing WPA/WPA2 IE */
--	{
--		u8 buf[MAX_WPA_IE_LEN];
--		u8 wpa_ie[255], rsn_ie[255];
--		u16 wpa_len = 0, rsn_len = 0;
--		int n;
--
--		r8712_get_sec_ie(pnetwork->network.IEs,
--				 pnetwork->network.IELength, rsn_ie, &rsn_len,
--				 wpa_ie, &wpa_len);
--		if (wpa_len > 0) {
--			memset(buf, 0, MAX_WPA_IE_LEN);
--			n = sprintf(buf, "wpa_ie=");
--			for (i = 0; i < wpa_len; i++) {
--				n += snprintf(buf + n, MAX_WPA_IE_LEN - n,
--							"%02x", wpa_ie[i]);
--				if (n >= MAX_WPA_IE_LEN)
--					break;
--			}
--			memset(&iwe, 0, sizeof(iwe));
--			iwe.cmd = IWEVCUSTOM;
--			iwe.u.data.length = (u16)strlen(buf);
--			start = iwe_stream_add_point(info, start, stop,
--				&iwe, buf);
--			memset(&iwe, 0, sizeof(iwe));
--			iwe.cmd = IWEVGENIE;
--			iwe.u.data.length = (u16)wpa_len;
--			start = iwe_stream_add_point(info, start, stop,
--				&iwe, wpa_ie);
--		}
--		if (rsn_len > 0) {
--			memset(buf, 0, MAX_WPA_IE_LEN);
--			n = sprintf(buf, "rsn_ie=");
--			for (i = 0; i < rsn_len; i++) {
--				n += snprintf(buf + n, MAX_WPA_IE_LEN - n,
--							"%02x", rsn_ie[i]);
--				if (n >= MAX_WPA_IE_LEN)
--					break;
--			}
--			memset(&iwe, 0, sizeof(iwe));
--			iwe.cmd = IWEVCUSTOM;
--			iwe.u.data.length = strlen(buf);
--			start = iwe_stream_add_point(info, start, stop,
--				&iwe, buf);
--			memset(&iwe, 0, sizeof(iwe));
--			iwe.cmd = IWEVGENIE;
--			iwe.u.data.length = rsn_len;
--			start = iwe_stream_add_point(info, start, stop, &iwe,
--				rsn_ie);
--		}
--	}
++	struct usb_interface *intf = ar->intf;
+ 	int err;
  
--	{ /* parsing WPS IE */
--		u8 wps_ie[512];
--		uint wps_ielen;
--
--		if (r8712_get_wps_ie(pnetwork->network.IEs,
--		    pnetwork->network.IELength,
--		    wps_ie, &wps_ielen)) {
--			if (wps_ielen > 2) {
--				iwe.cmd = IWEVGENIE;
--				iwe.u.data.length = (u16)wps_ielen;
--				start = iwe_stream_add_point(info, start, stop,
--					&iwe, wps_ie);
--			}
--		}
--	}
-+	start = translate_scan_wpa(info, pnetwork, &iwe, start, stop);
-+
-+	start = translate_scan_wps(info, pnetwork, &iwe, start, stop);
-+
- 	/* Add quality statistics */
- 	iwe.cmd = IWEVQUAL;
- 	rssi = r8712_signal_scale_mapping(pnetwork->network.Rssi);
+ 	err = carl9170_parse_firmware(ar);
+@@ -1009,7 +1007,7 @@ static void carl9170_usb_firmware_finish
+ 		goto err_unrx;
+ 
+ 	complete(&ar->fw_load_wait);
+-	usb_put_dev(ar->udev);
++	usb_put_intf(intf);
+ 	return;
+ 
+ err_unrx:
+@@ -1052,7 +1050,6 @@ static int carl9170_usb_probe(struct usb
+ 		return PTR_ERR(ar);
+ 
+ 	udev = interface_to_usbdev(intf);
+-	usb_get_dev(udev);
+ 	ar->udev = udev;
+ 	ar->intf = intf;
+ 	ar->features = id->driver_info;
+@@ -1094,15 +1091,14 @@ static int carl9170_usb_probe(struct usb
+ 	atomic_set(&ar->rx_anch_urbs, 0);
+ 	atomic_set(&ar->rx_pool_urbs, 0);
+ 
+-	usb_get_dev(ar->udev);
++	usb_get_intf(intf);
+ 
+ 	carl9170_set_state(ar, CARL9170_STOPPED);
+ 
+ 	err = request_firmware_nowait(THIS_MODULE, 1, CARL9170FW_NAME,
+ 		&ar->udev->dev, GFP_KERNEL, ar, carl9170_usb_firmware_step2);
+ 	if (err) {
+-		usb_put_dev(udev);
+-		usb_put_dev(udev);
++		usb_put_intf(intf);
+ 		carl9170_free(ar);
+ 	}
+ 	return err;
+@@ -1131,7 +1127,6 @@ static void carl9170_usb_disconnect(stru
+ 
+ 	carl9170_release_firmware(ar);
+ 	carl9170_free(ar);
+-	usb_put_dev(udev);
+ }
+ 
+ #ifdef CONFIG_PM
 
 
