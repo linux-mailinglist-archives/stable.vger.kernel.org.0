@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D42B766DAF
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:32:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2FCE66D75
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:30:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728971AbfGLMcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:32:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50762 "EHLO mail.kernel.org"
+        id S1729183AbfGLMaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:30:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728956AbfGLMcf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:32:35 -0400
+        id S1729080AbfGLMaG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:30:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69F42216E3;
-        Fri, 12 Jul 2019 12:32:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA29F21670;
+        Fri, 12 Jul 2019 12:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934754;
-        bh=c9LPplSzz/uVr4cX4W0O58ybJ3HneGqBkRGgS8Tz5aI=;
+        s=default; t=1562934605;
+        bh=s77BrHJDsy+KnVUeQoS4PPzQPNBJKEn+JM1Jp9LqINs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ogENqcf+lRVGgQOWcH/ehQMt/6CT9VcmlCrfq9dLaTaehRFMBMsbS4pkk6lZ66/jD
-         gB36AkJqvelw4UrSCiJgQtXjbnvqTa2ltY7T5A9fmJL9c2A8/ekGBLW1wZ+guEUhiQ
-         r6LkLzJ+GlpYN7ai+xqr8N6E64kpZ4foeoR1Eqbo=
+        b=FBN4H+Y9J+BN+fpfz6GuM5JD+jSKUqXT0PxWuFqjR5FfbjEUF+e1c7rghdSz4eCgG
+         fopUglDcWWfpBxjuhM05eV1NnX9SaSv5JA67ktBgtKSUanI8gzlCK0lG+R9bCzAAuC
+         HtpYvSQDKIMfhJ9jq6532VgJnnn8GJnpXlvNfOVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dianzhang Chen <dianzhangchen0@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
-        hpa@zytor.com
-Subject: [PATCH 5.2 20/61] x86/tls: Fix possible spectre-v1 in do_get_thread_area()
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=B6rgen=20Storvist?= <jorgen.storvist@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.1 109/138] USB: serial: option: add support for GosunCn ME3630 RNDIS mode
 Date:   Fri, 12 Jul 2019 14:19:33 +0200
-Message-Id: <20190712121621.731120287@linuxfoundation.org>
+Message-Id: <20190712121632.941823049@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
-References: <20190712121620.632595223@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dianzhang Chen <dianzhangchen0@gmail.com>
+From: Jörgen Storvist <jorgen.storvist@gmail.com>
 
-commit 993773d11d45c90cb1c6481c2638c3d9f092ea5b upstream.
+commit aed2a26283528fb69c38e414f649411aa48fb391 upstream.
 
-The index to access the threads tls array is controlled by userspace
-via syscall: sys_ptrace(), hence leading to a potential exploitation
-of the Spectre variant 1 vulnerability.
+Added USB IDs for GosunCn ME3630 cellular module in RNDIS mode.
 
-The index can be controlled from:
-        ptrace -> arch_ptrace -> do_get_thread_area.
+T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=03 Dev#= 18 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=0601 Rev=03.18
+S:  Manufacturer=Android
+S:  Product=Android
+S:  SerialNumber=b950269c
+C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=e0(wlcon) Sub=01 Prot=03 Driver=rndis_host
+I:  If#=0x1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
+I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
 
-Fix this by sanitizing the user supplied index before using it to access
-the p->thread.tls_array.
-
-Signed-off-by: Dianzhang Chen <dianzhangchen0@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: bp@alien8.de
-Cc: hpa@zytor.com
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1561524630-3642-1-git-send-email-dianzhangchen0@gmail.com
+Signed-off-by: Jörgen Storvist <jorgen.storvist@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/tls.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kernel/tls.c
-+++ b/arch/x86/kernel/tls.c
-@@ -5,6 +5,7 @@
- #include <linux/user.h>
- #include <linux/regset.h>
- #include <linux/syscalls.h>
-+#include <linux/nospec.h>
- 
- #include <linux/uaccess.h>
- #include <asm/desc.h>
-@@ -220,6 +221,7 @@ int do_get_thread_area(struct task_struc
- 		       struct user_desc __user *u_info)
- {
- 	struct user_desc info;
-+	int index;
- 
- 	if (idx == -1 && get_user(idx, &u_info->entry_number))
- 		return -EFAULT;
-@@ -227,8 +229,11 @@ int do_get_thread_area(struct task_struc
- 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
- 		return -EINVAL;
- 
--	fill_user_desc(&info, idx,
--		       &p->thread.tls_array[idx - GDT_ENTRY_TLS_MIN]);
-+	index = idx - GDT_ENTRY_TLS_MIN;
-+	index = array_index_nospec(index,
-+			GDT_ENTRY_TLS_MAX - GDT_ENTRY_TLS_MIN + 1);
-+
-+	fill_user_desc(&info, idx, &p->thread.tls_array[index]);
- 
- 	if (copy_to_user(u_info, &info, sizeof(info)))
- 		return -EFAULT;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1343,6 +1343,7 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0414, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0417, 0xff, 0xff, 0xff) },
++	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x0601, 0xff) },	/* GosunCn ZTE WeLink ME3630 (RNDIS mode) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x0602, 0xff) },	/* GosunCn ZTE WeLink ME3630 (MBIM mode) */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1008, 0xff, 0xff, 0xff),
+ 	  .driver_info = RSVD(4) },
 
 
