@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9DD66C72
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:20:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B525A66D06
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727284AbfGLMUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:20:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53438 "EHLO mail.kernel.org"
+        id S1728303AbfGLMZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727275AbfGLMUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:20:18 -0400
+        id S1727348AbfGLMZj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:25:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7B5A20863;
-        Fri, 12 Jul 2019 12:20:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47EFE2084B;
+        Fri, 12 Jul 2019 12:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934017;
-        bh=N+Y9qxi6MPnG3VpMI98wdfm1lWSTyn7eeINjyhf+uY0=;
+        s=default; t=1562934338;
+        bh=YYFitS3QpqRD8iXyGV2rKGoD5UzuSNyUVuK+t1RAXDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBc6kXVeJhCDegSjA+Geu7RgypwJnoDc0FozcvWI0d5fvopZ54Midn6oD9Z/ShSFh
-         lmRJeqKg2iYbTlshkHIWqegMZtjJ9LoFBAC7W5AOXVl5oyN6AQ8v7GjRNMTWa+wLeC
-         0mAv9ygv/3OIA4wwqlEah5GCb+dFfCKARRXoC5MI=
+        b=jvFpOJ1X6dmxGxNoKD+JxeNywVwdPnI9YBISyfj1pHW0btK+adu4TDakuDnUAAzqv
+         wamORtYt4GYYOdNgIbDJYFNSHSf35jyEvu4BxBnIxYQqdv9QN17jL/GSVj2Jmha4fV
+         46MwPWqkopNaSwa6lCc7+iCm2EKaqIw3kH+0kHa0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 02/91] crypto: talitos - rename alternative AEAD algos.
-Date:   Fri, 12 Jul 2019 14:18:05 +0200
-Message-Id: <20190712121621.559649153@linuxfoundation.org>
+        stable@vger.kernel.org, huangwen <huangwen@venustech.com.cn>,
+        Takashi Iwai <tiwai@suse.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 022/138] mwifiex: Fix possible buffer overflows at parsing bss descriptor
+Date:   Fri, 12 Jul 2019 14:18:06 +0200
+Message-Id: <20190712121629.561168990@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
-References: <20190712121621.422224300@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,98 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+[ Upstream commit 13ec7f10b87f5fc04c4ccbd491c94c7980236a74 ]
 
-commit a1a42f84011fae6ff08441a91aefeb7febc984fc upstream.
+mwifiex_update_bss_desc_with_ie() calls memcpy() unconditionally in
+a couple places without checking the destination size.  Since the
+source is given from user-space, this may trigger a heap buffer
+overflow.
 
-The talitos driver has two ways to perform AEAD depending on the
-HW capability. Some HW support both. It is needed to give them
-different names to distingish which one it is for instance when
-a test fails.
+Fix it by putting the length check before performing memcpy().
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Fixes: 7405c8d7ff97 ("crypto: talitos - templates for AEAD using HMAC_SNOOP_NO_AFEU")
-Cc: stable@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This fix addresses CVE-2019-3846.
 
+Reported-by: huangwen <huangwen@venustech.com.cn>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/talitos.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/scan.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -2299,7 +2299,7 @@ static struct talitos_alg_template drive
- 			.base = {
- 				.cra_name = "authenc(hmac(sha1),cbc(aes))",
- 				.cra_driver_name = "authenc-hmac-sha1-"
--						   "cbc-aes-talitos",
-+						   "cbc-aes-talitos-hsna",
- 				.cra_blocksize = AES_BLOCK_SIZE,
- 				.cra_flags = CRYPTO_ALG_ASYNC,
- 			},
-@@ -2343,7 +2343,7 @@ static struct talitos_alg_template drive
- 				.cra_name = "authenc(hmac(sha1),"
- 					    "cbc(des3_ede))",
- 				.cra_driver_name = "authenc-hmac-sha1-"
--						   "cbc-3des-talitos",
-+						   "cbc-3des-talitos-hsna",
- 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
- 				.cra_flags = CRYPTO_ALG_ASYNC,
- 			},
-@@ -2385,7 +2385,7 @@ static struct talitos_alg_template drive
- 			.base = {
- 				.cra_name = "authenc(hmac(sha224),cbc(aes))",
- 				.cra_driver_name = "authenc-hmac-sha224-"
--						   "cbc-aes-talitos",
-+						   "cbc-aes-talitos-hsna",
- 				.cra_blocksize = AES_BLOCK_SIZE,
- 				.cra_flags = CRYPTO_ALG_ASYNC,
- 			},
-@@ -2429,7 +2429,7 @@ static struct talitos_alg_template drive
- 				.cra_name = "authenc(hmac(sha224),"
- 					    "cbc(des3_ede))",
- 				.cra_driver_name = "authenc-hmac-sha224-"
--						   "cbc-3des-talitos",
-+						   "cbc-3des-talitos-hsna",
- 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
- 				.cra_flags = CRYPTO_ALG_ASYNC,
- 			},
-@@ -2471,7 +2471,7 @@ static struct talitos_alg_template drive
- 			.base = {
- 				.cra_name = "authenc(hmac(sha256),cbc(aes))",
- 				.cra_driver_name = "authenc-hmac-sha256-"
--						   "cbc-aes-talitos",
-+						   "cbc-aes-talitos-hsna",
- 				.cra_blocksize = AES_BLOCK_SIZE,
- 				.cra_flags = CRYPTO_ALG_ASYNC,
- 			},
-@@ -2515,7 +2515,7 @@ static struct talitos_alg_template drive
- 				.cra_name = "authenc(hmac(sha256),"
- 					    "cbc(des3_ede))",
- 				.cra_driver_name = "authenc-hmac-sha256-"
--						   "cbc-3des-talitos",
-+						   "cbc-3des-talitos-hsna",
- 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
- 				.cra_flags = CRYPTO_ALG_ASYNC,
- 			},
-@@ -2641,7 +2641,7 @@ static struct talitos_alg_template drive
- 			.base = {
- 				.cra_name = "authenc(hmac(md5),cbc(aes))",
- 				.cra_driver_name = "authenc-hmac-md5-"
--						   "cbc-aes-talitos",
-+						   "cbc-aes-talitos-hsna",
- 				.cra_blocksize = AES_BLOCK_SIZE,
- 				.cra_flags = CRYPTO_ALG_ASYNC,
- 			},
-@@ -2683,7 +2683,7 @@ static struct talitos_alg_template drive
- 			.base = {
- 				.cra_name = "authenc(hmac(md5),cbc(des3_ede))",
- 				.cra_driver_name = "authenc-hmac-md5-"
--						   "cbc-3des-talitos",
-+						   "cbc-3des-talitos-hsna",
- 				.cra_blocksize = DES3_EDE_BLOCK_SIZE,
- 				.cra_flags = CRYPTO_ALG_ASYNC,
- 			},
+diff --git a/drivers/net/wireless/marvell/mwifiex/scan.c b/drivers/net/wireless/marvell/mwifiex/scan.c
+index 935778ec9a1b..64ab6fe78c0d 100644
+--- a/drivers/net/wireless/marvell/mwifiex/scan.c
++++ b/drivers/net/wireless/marvell/mwifiex/scan.c
+@@ -1247,6 +1247,8 @@ int mwifiex_update_bss_desc_with_ie(struct mwifiex_adapter *adapter,
+ 		}
+ 		switch (element_id) {
+ 		case WLAN_EID_SSID:
++			if (element_len > IEEE80211_MAX_SSID_LEN)
++				return -EINVAL;
+ 			bss_entry->ssid.ssid_len = element_len;
+ 			memcpy(bss_entry->ssid.ssid, (current_ptr + 2),
+ 			       element_len);
+@@ -1256,6 +1258,8 @@ int mwifiex_update_bss_desc_with_ie(struct mwifiex_adapter *adapter,
+ 			break;
+ 
+ 		case WLAN_EID_SUPP_RATES:
++			if (element_len > MWIFIEX_SUPPORTED_RATES)
++				return -EINVAL;
+ 			memcpy(bss_entry->data_rates, current_ptr + 2,
+ 			       element_len);
+ 			memcpy(bss_entry->supported_rates, current_ptr + 2,
+-- 
+2.20.1
+
 
 
