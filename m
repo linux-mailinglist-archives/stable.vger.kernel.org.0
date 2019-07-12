@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B16666650
+	by mail.lfdr.de (Postfix) with ESMTP id B988E66651
 	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725846AbfGLFao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 01:30:44 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:35724 "EHLO
+        id S1725899AbfGLFar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 01:30:47 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:34463 "EHLO
         mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbfGLFao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:30:44 -0400
-Received: by mail-pl1-f193.google.com with SMTP id w24so4215733plp.2
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:30:43 -0700 (PDT)
+        with ESMTP id S1725791AbfGLFar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:30:47 -0400
+Received: by mail-pl1-f193.google.com with SMTP id i2so4216651plt.1
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:30:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=8FgYZ0lVoh76yEFRGdkiTuXxRHgDjc15a9Db0UAG0RM=;
-        b=uXGGypMHVt8OBJK0oz1SIqeyivCTwb+XosVqZO6Z8pfXIWt3o9Wse0MliB8FJK7coj
-         i9zDUx0ssuhIq5bOu1lXzTuwwGoV/cD3u+E+njn76T5BvHXKUm2mKq9DJ9v0NaHXafh1
-         xwS3cCczzJUArfTjM38b4vB7QivwtkEkDa+Z7k7BJXIjHGE8S1lnPd7GmGCI+/6RfWa2
-         gV5qZ6dfkwSAF6u5lem0YH7L9RG1d2OKyrWCNhZbDfsBt1q5ZG9zF61cQJhOgEpLSqb7
-         87zCh43s6vgHb6eZiBjhnREIh4CkzuMShDQt7xfDoKjO7CTAqyP0bKUIyYOzhfk6AVy7
-         8PKQ==
+        bh=QAkAWOSid7lK0+CYFipQ6VxUVVXehQyD0WFI7UyGT+o=;
+        b=rbBb9SC7giz0oauYvdP9cYHAqoGTPD+ykkopvCPSbIgttQxtYQqn1F6B5rA5OjrbOf
+         MOKCdYW04llywRPGqJfvEeh4VcYLl/+4Ru/hdae+vjnPM0Uuiuryp5dNor6Mx9/RykRk
+         GcmAEq29koH5jLv1c1LQTyqkDgH46WVu30cCdcE2YJLHSXjx9FUwtVjqTRvKB5UqbxaK
+         xQGQvV+NE6OdjeTjcJxJAv19LEEVjuHp3lKY/t6Dj3nFj6ARNGu/5tp09Z5HmUjEJY0f
+         hyWya3YF02NzZU6T23Q4MHmEjDyyq45W8aEu2vmZIcEosQ2QD0Nl0IP2BkclGU/e/7hE
+         OHFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=8FgYZ0lVoh76yEFRGdkiTuXxRHgDjc15a9Db0UAG0RM=;
-        b=gd4SHa+IngRhfA5dAwZXRXhpncKdL+g3vU5MTrTBLiVPByQowLBibXZFfORf4plHwc
-         PbMEil/93JNj+05OkSsd51JnV0YoHBFK+mQ/6W3pm7/2FkssgaIgUfuk0siZUa7w5Kcz
-         vRDS5m7OzQsjsN5yA8Ul7ACENZUvsCUDOPg2dGnjzJUCTn+S5P68KT5RY1K0mtbKCIGO
-         iIh1X5d7DSE3GqES2SjbBXGgdmmVv4UE1VziInNmtf4FAMOcbQL73BRVrqrbolP4KCrd
-         k0AsNxcYBw5Ro9dJnx8BfIKjZN0+tmP6IpY/iZB4KkAXmRC5OV43n/ujK//Z/lSjOO2l
-         LopQ==
-X-Gm-Message-State: APjAAAUlgMjWYE5GrozAbeTGXZayZaUv1vMZFd3811dE6qHcZgeTF1UG
-        fyt0eYsGW08NShtX4v9+G5WfkLlI6zc=
-X-Google-Smtp-Source: APXvYqxs8UJgggtAwgQjkHpcRT3vYvVXaP1JzuNj82P3Zg5LujFIIGV7U3Q0NXeD7H0YgE5qz2yCug==
-X-Received: by 2002:a17:902:a40c:: with SMTP id p12mr9159340plq.146.1562909443260;
-        Thu, 11 Jul 2019 22:30:43 -0700 (PDT)
+        bh=QAkAWOSid7lK0+CYFipQ6VxUVVXehQyD0WFI7UyGT+o=;
+        b=XIfPQmCBWxj4CS7rXvIyMa6VjWKnVf/u059etTIub2yr0HS+H+USdyK6VE7WtImUjd
+         VVrya3q1+rcVqAD7G/8shKNAOHVdOPzRw8alCPBfvGuw1wRdkxdDuJCJAu9wjo4S4ZRK
+         1t9d4adgK1iQTaIHeSyfugVlpG50l6QXmMLr0TE47W5bsuAf0amw/3zNoTfdEJRAixsE
+         LvCUa2mjsadraZyTU+U0bAGdK+m6zAIeZkIzFS7JKv2Gl19r43dhWchjfy7sNcxQixtP
+         K6i4xCb2CAIWbOj+G6we/l20AvNFP6uQVe4IBLM//eIDuuRoxHAX1P/XFdIRr69SuRYD
+         BQtA==
+X-Gm-Message-State: APjAAAUwoa8dgXJCtRa5u6qys4skLOYM5tlb3ou6q4QxB8hJPC39VSiG
+        rl2G4WEfsdVipa4Umlrl0pXwuXjihHM=
+X-Google-Smtp-Source: APXvYqzQUr91c7RMVVSjz4gI1vWy+u6byT52DlkWRpIc8d/4BmB+KBzszkR1LOCHuFRYN4uI2KTgjg==
+X-Received: by 2002:a17:902:24c:: with SMTP id 70mr9134247plc.2.1562909446241;
+        Thu, 11 Jul 2019 22:30:46 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id n19sm7333448pfa.11.2019.07.11.22.30.42
+        by smtp.gmail.com with ESMTPSA id b3sm11909341pfp.65.2019.07.11.22.30.45
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 22:30:42 -0700 (PDT)
+        Thu, 11 Jul 2019 22:30:45 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 V2 38/43] firmware/psci: Expose SMCCC version through psci_ops
-Date:   Fri, 12 Jul 2019 10:58:26 +0530
-Message-Id: <420f2392296122b9a375194e74d212422b00d673.1562908075.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 V2 39/43] arm/arm64: smccc: Make function identifiers an unsigned quantity
+Date:   Fri, 12 Jul 2019 10:58:27 +0530
+Message-Id: <22d449cd63d5d718d3aec3e55b4805c03592b265.1562908075.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
 References: <cover.1562908074.git.viresh.kumar@linaro.org>
@@ -70,108 +70,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit e78eef554a912ef6c1e0bbf97619dafbeae3339f upstream.
+commit ded4c39e93f3b72968fdb79baba27f3b83dad34c upstream.
 
-Since PSCI 1.0 allows the SMCCC version to be (indirectly) probed,
-let's do that at boot time, and expose the version of the calling
-convention as part of the psci_ops structure.
+Function identifiers are a 32bit, unsigned quantity. But we never
+tell so to the compiler, resulting in the following:
 
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+ 4ac:   b26187e0        mov     x0, #0xffffffff80000001
+
+We thus rely on the firmware narrowing it for us, which is not
+always a reasonable expectation.
+
+Cc: stable@vger.kernel.org
+Reported-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Reviewed-by: Robin Murphy <robin.murphy@arm.com>
 Tested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-[ v4.4: Included arm-smccc.h ]
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- drivers/firmware/psci.c | 28 ++++++++++++++++++++++++++++
- include/linux/psci.h    |  6 ++++++
- 2 files changed, 34 insertions(+)
+ include/linux/arm-smccc.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/psci.c b/drivers/firmware/psci.c
-index 7b2665f6b38d..0809a48e8089 100644
---- a/drivers/firmware/psci.c
-+++ b/drivers/firmware/psci.c
-@@ -13,6 +13,7 @@
+diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
+index 1f02e4045a9e..4c45fd75db5d 100644
+--- a/include/linux/arm-smccc.h
++++ b/include/linux/arm-smccc.h
+@@ -16,6 +16,7 @@
  
- #define pr_fmt(fmt) "psci: " fmt
- 
-+#include <linux/arm-smccc.h>
- #include <linux/errno.h>
  #include <linux/linkage.h>
- #include <linux/of.h>
-@@ -56,6 +57,7 @@ bool psci_tos_resident_on(int cpu)
+ #include <linux/types.h>
++#include <uapi/linux/const.h>
  
- struct psci_operations psci_ops = {
- 	.conduit = PSCI_CONDUIT_NONE,
-+	.smccc_version = SMCCC_VERSION_1_0,
- };
+ /*
+  * This file provides common defines for ARM SMC Calling Convention as
+@@ -23,8 +24,8 @@
+  * http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
+  */
  
- typedef unsigned long (psci_fn)(unsigned long, unsigned long,
-@@ -320,6 +322,31 @@ static void __init psci_init_migrate(void)
- 	pr_info("Trusted OS resident on physical CPU 0x%lx\n", cpuid);
- }
+-#define ARM_SMCCC_STD_CALL		0
+-#define ARM_SMCCC_FAST_CALL		1
++#define ARM_SMCCC_STD_CALL	        _AC(0,U)
++#define ARM_SMCCC_FAST_CALL	        _AC(1,U)
+ #define ARM_SMCCC_TYPE_SHIFT		31
  
-+static void __init psci_init_smccc(void)
-+{
-+	u32 ver = ARM_SMCCC_VERSION_1_0;
-+	int feature;
-+
-+	feature = psci_features(ARM_SMCCC_VERSION_FUNC_ID);
-+
-+	if (feature != PSCI_RET_NOT_SUPPORTED) {
-+		u32 ret;
-+		ret = invoke_psci_fn(ARM_SMCCC_VERSION_FUNC_ID, 0, 0, 0);
-+		if (ret == ARM_SMCCC_VERSION_1_1) {
-+			psci_ops.smccc_version = SMCCC_VERSION_1_1;
-+			ver = ret;
-+		}
-+	}
-+
-+	/*
-+	 * Conveniently, the SMCCC and PSCI versions are encoded the
-+	 * same way. No, this isn't accidental.
-+	 */
-+	pr_info("SMC Calling Convention v%d.%d\n",
-+		PSCI_VERSION_MAJOR(ver), PSCI_VERSION_MINOR(ver));
-+
-+}
-+
- static void __init psci_0_2_set_functions(void)
- {
- 	pr_info("Using standard PSCI v0.2 function IDs\n");
-@@ -368,6 +395,7 @@ static int __init psci_probe(void)
- 	psci_init_migrate();
- 
- 	if (PSCI_VERSION_MAJOR(ver) >= 1) {
-+		psci_init_smccc();
- 		psci_init_cpu_suspend();
- 		psci_init_system_suspend();
- 	}
-diff --git a/include/linux/psci.h b/include/linux/psci.h
-index e071a1b8ddb5..e5c3277bfd78 100644
---- a/include/linux/psci.h
-+++ b/include/linux/psci.h
-@@ -30,6 +30,11 @@ enum psci_conduit {
- 	PSCI_CONDUIT_HVC,
- };
- 
-+enum smccc_version {
-+	SMCCC_VERSION_1_0,
-+	SMCCC_VERSION_1_1,
-+};
-+
- struct psci_operations {
- 	u32 (*get_version)(void);
- 	int (*cpu_suspend)(u32 state, unsigned long entry_point);
-@@ -40,6 +45,7 @@ struct psci_operations {
- 			unsigned long lowest_affinity_level);
- 	int (*migrate_info_type)(void);
- 	enum psci_conduit conduit;
-+	enum smccc_version smccc_version;
- };
- 
- extern struct psci_operations psci_ops;
+ #define ARM_SMCCC_SMC_32		0
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
