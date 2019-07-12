@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC0AF66D39
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:27:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05F6866CA4
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728670AbfGLM1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:27:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40784 "EHLO mail.kernel.org"
+        id S1727699AbfGLMV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:21:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728666AbfGLM1q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:27:46 -0400
+        id S1727268AbfGLMV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:21:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D36A2084B;
-        Fri, 12 Jul 2019 12:27:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60163216E3;
+        Fri, 12 Jul 2019 12:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934465;
-        bh=Z2D7VmgLRn4bBj7uuHlx3DG9p9aGq6l3mqAOp7Iv3BE=;
+        s=default; t=1562934117;
+        bh=qp2QdYXM+NBo8M8cyO+n/PU1Mq/At1HHVJtHKxe6KoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wRa/EMxSj0rRejAqfIHcLOd/Fi3C/LMCQW+euLmQ0juAmOqPbGzwFFz3/tUO/3Z88
-         Gp39LRKGjXXYWVuXVjZEXGfhl+4Ilv+BlC9d9xFTIF5P4Ad1Nqypev9LZuRkKwktR5
-         JlOA1j/LhcwCc9NkFLdHfxrQCpf2K400oXj7EuYs=
+        b=WSG+UQNjMYArPZ0MD4SFCCdGyJb/w0L1rzQJ/pVXJTD+Z3h4kJbTMdAxFJ6U6//AJ
+         3J8KlUAxC/g89bJo6/PJemO/iYdGYDUwJS2V6893OzAfwE04F/DboXy/4iYpL+cDlU
+         tkyfSf0nwZaPGFSYPwccgNFdf/okErxXfLeCa0Ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 063/138] cfg80211: report measurement start TSF correctly
-Date:   Fri, 12 Jul 2019 14:18:47 +0200
-Message-Id: <20190712121631.095478375@linuxfoundation.org>
+Subject: [PATCH 4.19 45/91] mmc: core: complete HS400 before checking status
+Date:   Fri, 12 Jul 2019 14:18:48 +0200
+Message-Id: <20190712121623.964532029@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
+References: <20190712121621.422224300@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b65842025335711e2a0259feb4dbadb0c9ffb6d9 ]
+[ Upstream commit b0e370b95a3b231d0fb5d1958cce85ef57196fe6 ]
 
-Instead of reporting the AP's TSF, host time was reported. Fix it.
+We don't have a reproducible error case, yet our BSP team suggested that
+the mmc_switch_status() command in mmc_select_hs400() should come after
+the callback into the driver completing HS400 setup. It makes sense to
+me because we want the status of a fully setup HS400, so it will
+increase the reliability of the mmc_switch_status() command.
 
-Signed-off-by: Avraham Stern <avraham.stern@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Fixes: ba6c7ac3a2f4 ("mmc: core: more fine-grained hooks for HS400 tuning")
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/pmsr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mmc/core/mmc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/wireless/pmsr.c b/net/wireless/pmsr.c
-index 5e2ab01d325c..d06d514f0bba 100644
---- a/net/wireless/pmsr.c
-+++ b/net/wireless/pmsr.c
-@@ -1,6 +1,6 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- /*
-- * Copyright (C) 2018 Intel Corporation
-+ * Copyright (C) 2018 - 2019 Intel Corporation
-  */
- #ifndef __PMSR_H
- #define __PMSR_H
-@@ -446,7 +446,7 @@ static int nl80211_pmsr_send_result(struct sk_buff *msg,
+diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
+index 55997cf84b39..f1fe446eee66 100644
+--- a/drivers/mmc/core/mmc.c
++++ b/drivers/mmc/core/mmc.c
+@@ -1209,13 +1209,13 @@ static int mmc_select_hs400(struct mmc_card *card)
+ 	mmc_set_timing(host, MMC_TIMING_MMC_HS400);
+ 	mmc_set_bus_speed(card);
  
- 	if (res->ap_tsf_valid &&
- 	    nla_put_u64_64bit(msg, NL80211_PMSR_RESP_ATTR_AP_TSF,
--			      res->host_time, NL80211_PMSR_RESP_ATTR_PAD))
-+			      res->ap_tsf, NL80211_PMSR_RESP_ATTR_PAD))
- 		goto error;
++	if (host->ops->hs400_complete)
++		host->ops->hs400_complete(host);
++
+ 	err = mmc_switch_status(card);
+ 	if (err)
+ 		goto out_err;
  
- 	if (res->final && nla_put_flag(msg, NL80211_PMSR_RESP_ATTR_FINAL))
+-	if (host->ops->hs400_complete)
+-		host->ops->hs400_complete(host);
+-
+ 	return 0;
+ 
+ out_err:
 -- 
 2.20.1
 
