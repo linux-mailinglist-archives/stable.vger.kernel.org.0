@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EACF66D3D
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:29:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A639466CC6
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:23:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728711AbfGLM1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:27:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41056 "EHLO mail.kernel.org"
+        id S1727250AbfGLMXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:23:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728694AbfGLM1w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:27:52 -0400
+        id S1727392AbfGLMXF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:23:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77C8D2084B;
-        Fri, 12 Jul 2019 12:27:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1664D2166E;
+        Fri, 12 Jul 2019 12:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934472;
-        bh=IK2zhGaF/SO+co1gOpELFAiaA54IetBWtJdanPhix90=;
+        s=default; t=1562934184;
+        bh=y3yWtVsCHlxMsBst28BjeDBwjii2Q7nE/4JZNMMLwLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWcEdRjfFWYy1lVcg4xY0XkcdxVhOS9c4NyaZodiX9Oi6EdaqewWyX24/b2g/Jn84
-         pkbX5kM92567Lfe9uAU9jSs1hiUbWPs668GrbEU99vPp/8NTTnD4vIFofWBwuwO7Wq
-         TBxUAe5o5niTaN21TXUNbaOK9uSdijSMXLaO/agw=
+        b=xQ1eizGjZQ5m8q6rwZV1F7bXB+zu6pbyH/iZYMfNw54+CYIVRhhfA60V7Vz6l6DKA
+         TKiqG99A4vyUbaDfpQaR/SmC07QG/TDIlST4A85ChSRb3VUkWvnoMKDniVriRQvIZ+
+         sbsstxHupi8oFUmtnvt+CL6XglMThQM1UK2RjAGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Toshiaki Makita <toshiaki.makita1@gmail.com>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 065/138] bpf, devmap: Add missing bulk queue free
+Subject: [PATCH 4.19 46/91] md: fix for divide error in status_resync
 Date:   Fri, 12 Jul 2019 14:18:49 +0200
-Message-Id: <20190712121631.168716634@linuxfoundation.org>
+Message-Id: <20190712121624.038339340@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
+References: <20190712121621.422224300@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,31 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit edabf4d9dd905acd60048ea1579943801e3a4876 ]
+[ Upstream commit 9642fa73d073527b0cbc337cc17a47d545d82cd2 ]
 
-dev_map_free() forgot to free bulk queue when freeing its entries.
+Stopping external metadata arrays during resync/recovery causes
+retries, loop of interrupting and starting reconstruction, until it
+hit at good moment to stop completely. While these retries
+curr_mark_cnt can be small- especially on HDD drives, so subtraction
+result can be smaller than 0. However it is casted to uint without
+checking. As a result of it the status bar in /proc/mdstat while stopping
+is strange (it jumps between 0% and 99%).
 
-Fixes: 5d053f9da431 ("bpf: devmap prepare xdp frames for bulking")
-Signed-off-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+The real problem occurs here after commit 72deb455b5ec ("block: remove
+CONFIG_LBDAF"). Sector_div() macro has been changed, now the
+divisor is casted to uint32. For db = -8 the divisior(db/32-1) becomes 0.
+
+Check if db value can be really counted and replace these macro by
+div64_u64() inline.
+
+Signed-off-by: Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/devmap.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/md.c | 36 ++++++++++++++++++++++--------------
+ 1 file changed, 22 insertions(+), 14 deletions(-)
 
-diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
-index e001fb1a96b1..a126d95d12de 100644
---- a/kernel/bpf/devmap.c
-+++ b/kernel/bpf/devmap.c
-@@ -186,6 +186,7 @@ static void dev_map_free(struct bpf_map *map)
- 		if (!dev)
- 			continue;
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index b924f62e2cd5..fb5d702e43b5 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -7625,9 +7625,9 @@ static void status_unused(struct seq_file *seq)
+ static int status_resync(struct seq_file *seq, struct mddev *mddev)
+ {
+ 	sector_t max_sectors, resync, res;
+-	unsigned long dt, db;
+-	sector_t rt;
+-	int scale;
++	unsigned long dt, db = 0;
++	sector_t rt, curr_mark_cnt, resync_mark_cnt;
++	int scale, recovery_active;
+ 	unsigned int per_milli;
  
-+		free_percpu(dev->bulkq);
- 		dev_put(dev->dev);
- 		kfree(dev);
- 	}
+ 	if (test_bit(MD_RECOVERY_SYNC, &mddev->recovery) ||
+@@ -7716,22 +7716,30 @@ static int status_resync(struct seq_file *seq, struct mddev *mddev)
+ 	 * db: blocks written from mark until now
+ 	 * rt: remaining time
+ 	 *
+-	 * rt is a sector_t, so could be 32bit or 64bit.
+-	 * So we divide before multiply in case it is 32bit and close
+-	 * to the limit.
+-	 * We scale the divisor (db) by 32 to avoid losing precision
+-	 * near the end of resync when the number of remaining sectors
+-	 * is close to 'db'.
+-	 * We then divide rt by 32 after multiplying by db to compensate.
+-	 * The '+1' avoids division by zero if db is very small.
++	 * rt is a sector_t, which is always 64bit now. We are keeping
++	 * the original algorithm, but it is not really necessary.
++	 *
++	 * Original algorithm:
++	 *   So we divide before multiply in case it is 32bit and close
++	 *   to the limit.
++	 *   We scale the divisor (db) by 32 to avoid losing precision
++	 *   near the end of resync when the number of remaining sectors
++	 *   is close to 'db'.
++	 *   We then divide rt by 32 after multiplying by db to compensate.
++	 *   The '+1' avoids division by zero if db is very small.
+ 	 */
+ 	dt = ((jiffies - mddev->resync_mark) / HZ);
+ 	if (!dt) dt++;
+-	db = (mddev->curr_mark_cnt - atomic_read(&mddev->recovery_active))
+-		- mddev->resync_mark_cnt;
++
++	curr_mark_cnt = mddev->curr_mark_cnt;
++	recovery_active = atomic_read(&mddev->recovery_active);
++	resync_mark_cnt = mddev->resync_mark_cnt;
++
++	if (curr_mark_cnt >= (recovery_active + resync_mark_cnt))
++		db = curr_mark_cnt - (recovery_active + resync_mark_cnt);
+ 
+ 	rt = max_sectors - resync;    /* number of remaining sectors */
+-	sector_div(rt, db/32+1);
++	rt = div64_u64(rt, db/32+1);
+ 	rt *= dt;
+ 	rt >>= 5;
+ 
 -- 
 2.20.1
 
