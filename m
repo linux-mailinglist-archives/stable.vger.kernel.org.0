@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D4E466634
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:29:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3875666635
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:29:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726070AbfGLF3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 01:29:48 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:40580 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbfGLF3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:29:48 -0400
-Received: by mail-pg1-f195.google.com with SMTP id w10so4000352pgj.7
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:29:48 -0700 (PDT)
+        id S1726071AbfGLF3v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 01:29:51 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:38025 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725791AbfGLF3v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:29:51 -0400
+Received: by mail-pl1-f194.google.com with SMTP id az7so4204055plb.5
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:29:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ZUdOby9mUIJ5g7nxMiQ+DmGQefEZUa89WzEBGK5DmD0=;
-        b=AboBRh8MfdxTXoZvpkpTrMwzfGFExqOWODf+W95I9f1LqpR4v4X8RaMAGhzpU6Ldgf
-         2Of4QPmJ9YYALJILmxz5mvoF72Cb05nUdoAuIoQaQofPG/N0Nw+Ctfgyedb0ir8iZXSA
-         4zPXQvhExq3s5lZ2QugOie5u+LJIPNowtWVI0SffAIDa0pLiaUNxABiL+D5LEdeI1kKp
-         JE195sEj3U6FYu5xp+L7eP4HidL2n1RYqK53wr6NsJ+93QygtBZXR9dASgjQugtleC36
-         4K5FCgyTIQATBRO7g+oeAv5Jd54b/v07lziyQEgJ+ncoW4fJ9sYkopNRz4NZ3ihrMvaQ
-         JZbA==
+        bh=j1PYP8TRl6+XUUI1RLnfOfH8okdoaEeO+GZk5UMu4vo=;
+        b=Z1T5KKS7sNDEi/IQxRwePvThY79cxIuM8jVZotuq2NGxiAwXonzL71TrDAJ+NOINcG
+         XZEZcoUvnOL6p6bVAsApeEUEJ2SRm48nlUNF/YI+vGkAsgf/11vLcuA0ATE52MAD2Mgq
+         WYBorAqWtx07SV7NeE0CJab0OvNwmz+fzL/nv4FSJ5OrVmnjIZt0gr053dkDbju6rj+3
+         1hohWEUv3vywAFgyEJO1XbsXgCrOX1fRca34QJzZnsXWb/Kjj0tpzXEPClRemW1sZmuO
+         JsFW3P+l/mMUJXBEB+391WuDVUOttFRi05A1CJ0ynJSojO3RMFtfCjL/fqO3zp9hfBrC
+         uP1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ZUdOby9mUIJ5g7nxMiQ+DmGQefEZUa89WzEBGK5DmD0=;
-        b=XVkQ49ylrH4ZU2yFjxrnQiMv+ZVI5i+fFDNy0MdYogH+L7lVYKLolwZPfg/4jIoMwW
-         6KQePH4T1VKg9AlWZjX4iqXS5ElklJEsdiHz54Iy3BHDCKFOTdC9Vq2uYmb8k267CrMB
-         pgcKOZUpFVkZsit5vEczffHtsptiqJzB7V7aAz8Gjn/yZFjPQp4fGO/Q5rwHwgFEoKIm
-         5HgISjNAUIWGCf+I0rxejHUwPw1M+O1egfHhI0rQzyY+Bk+De7Mu2UeigTEZgZheaYma
-         1ZeOnEZZ8erxqCdP0qF8SX2/PSErI1aUF2yJLlBnaGx02bLxI6J3SC0DOAX5SSKT05IU
-         MwUA==
-X-Gm-Message-State: APjAAAUWjhlhvSLjjc+c1otyjPoRV63jNCIPQZ76xaNegUioGb3+CSgq
-        +Lx+etCnmqYJwk6V5fIul71Uk56W3sE=
-X-Google-Smtp-Source: APXvYqwSjyqxaUdjbcdf8HLu32WhC1K/AZ7yPdKlvWPW5ICuoruk/scKndDoeJVHSUCUHFOYRicFgQ==
-X-Received: by 2002:a63:ed06:: with SMTP id d6mr8600073pgi.267.1562909387463;
-        Thu, 11 Jul 2019 22:29:47 -0700 (PDT)
+        bh=j1PYP8TRl6+XUUI1RLnfOfH8okdoaEeO+GZk5UMu4vo=;
+        b=ud94CksOx8avSmqOIUERL70aQCbWfmG7K4I8BQRuDb3Afx+8BLC3m2jHMGXrl3jEdc
+         uVMMOqrtVTWk8ZSYLdLAbw4WT2rN6pitO+e4/hZopzh1Wm2F/FFcg39AL4feFnAKN/nN
+         fexmo/q9heRQISeB1sQplTdtJgF2ULXM5GmJXidd/PKNK6X1B2qUTGH5WZDw56TOr8Af
+         ujWEEIFeYV30pQyJM0Cqs2JBKeVzLy9Q3X+73nf+2Q4dFhDpM23pnXARYdFfkUIn5RME
+         +0yf2nffy1XWiN5gw8LB/PVWXJzCEtK2Yvzbji31dhyUBusJ5TryE+EFoGkG55PGBqT1
+         TClA==
+X-Gm-Message-State: APjAAAWqMg+9Uxqry/Jt5zyhzKEa+pJbNzcbfuD8rzagL3SubHfUSEEq
+        psmhRS0pDC6BjQuOXdI0oBluz2oUp5I=
+X-Google-Smtp-Source: APXvYqys8vWhmpina70E9EPffNv7bS/Q2ML/2o1J+YDBZzLoEePJaZ+nGpFWn/W9ZeEm8KAc288M4A==
+X-Received: by 2002:a17:902:9688:: with SMTP id n8mr8940813plp.227.1562909390040;
+        Thu, 11 Jul 2019 22:29:50 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id r2sm9904015pfl.67.2019.07.11.22.29.46
+        by smtp.gmail.com with ESMTPSA id 33sm13037930pgy.22.2019.07.11.22.29.49
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 22:29:47 -0700 (PDT)
+        Thu, 11 Jul 2019 22:29:49 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 V2 18/43] arm64: Rearrange CPU errata workaround checks
-Date:   Fri, 12 Jul 2019 10:58:06 +0530
-Message-Id: <4c595dbb19c7b70c007b6bfa068c1b22dca4bdec.1562908075.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 V2 19/43] arm64: Run enable method for errata work arounds on late CPUs
+Date:   Fri, 12 Jul 2019 10:58:07 +0530
+Message-Id: <3da005579bba7e4b225408b18c6aff7400933bd5.1562908075.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
 References: <cover.1562908074.git.viresh.kumar@linaro.org>
@@ -70,153 +70,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit c47a1900ad710fd2c97127e2ba19da1df79cf733 upstream.
+commit 55b35d070c2534dfb714b883f3c3ae05d02032da upstream.
 
-Right now we run through the work around checks on a CPU
-from __cpuinfo_store_cpu. There are some problems with that:
+When a CPU is brought up after we have finalised the system
+wide capabilities (i.e, features and errata), we make sure the
+new CPU doesn't need a new errata work around which has not been
+detected already. However we don't run enable() method on the new
+CPU for the errata work arounds already detected. This could
+cause the new CPU running without potential work arounds.
+It is upto the "enable()" method to decide if this CPU should
+do something about the errata.
 
-1) We initialise the system wide CPU feature registers only after the
-Boot CPU updates its cpuinfo. Now, if a work around depends on the
-variance of a CPU ID feature (e.g, check for Cache Line size mismatch),
-we have no way of performing it cleanly for the boot CPU.
-
-2) It is out of place, invoked from __cpuinfo_store_cpu() in cpuinfo.c. It
-is not an obvious place for that.
-
-This patch rearranges the CPU specific capability(aka work around) checks.
-
-1) At the moment we use verify_local_cpu_capabilities() to check if a new
-CPU has all the system advertised features. Use this for the secondary CPUs
-to perform the work around check. For that we rename
-  verify_local_cpu_capabilities() => check_local_cpu_capabilities()
-which:
-
-   If the system wide capabilities haven't been initialised (i.e, the CPU
-   is activated at the boot), update the system wide detected work arounds.
-
-   Otherwise (i.e a CPU hotplugged in later) verify that this CPU conforms to the
-   system wide capabilities.
-
-2) Boot CPU updates the work arounds from smp_prepare_boot_cpu() after we have
-initialised the system wide CPU feature values.
-
+Fixes: commit 6a6efbb45b7d95c84 ("arm64: Verify CPU errata work arounds on hotplugged CPU")
+Cc: Will Deacon <will.deacon@arm.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Andre Przywara <andre.przywara@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Dave Martin <dave.martin@arm.com>
 Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/include/asm/cpufeature.h |  8 +-------
- arch/arm64/kernel/cpufeature.c      | 23 +++++++++++++++--------
- arch/arm64/kernel/cpuinfo.c         |  2 --
- arch/arm64/kernel/smp.c             |  8 +++++++-
- 4 files changed, 23 insertions(+), 18 deletions(-)
+ arch/arm64/kernel/cpu_errata.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
-index 0267bab6ac18..1bc51f8835e5 100644
---- a/arch/arm64/include/asm/cpufeature.h
-+++ b/arch/arm64/include/asm/cpufeature.h
-@@ -177,13 +177,7 @@ void __init enable_errata_workarounds(void);
- 
- void verify_local_cpu_errata(void);
- 
--#ifdef CONFIG_HOTPLUG_CPU
--void verify_local_cpu_capabilities(void);
--#else
--static inline void verify_local_cpu_capabilities(void)
--{
--}
--#endif
-+void check_local_cpu_capabilities(void);
- 
- u64 read_system_reg(u32 id);
- 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 7773bea6927e..c74df3ca000e 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -860,18 +860,11 @@ static inline void set_sys_caps_initialised(void)
-  * cannot do anything to fix it up and could cause unexpected failures. So
-  * we park the CPU.
-  */
--void verify_local_cpu_capabilities(void)
-+static void verify_local_cpu_capabilities(void)
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index d9f095439011..047f1da59cb1 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -125,15 +125,18 @@ void verify_local_cpu_errata(void)
  {
- 	int i;
- 	const struct arm64_cpu_capabilities *caps;
+ 	const struct arm64_cpu_capabilities *caps = arm64_errata;
  
--	/*
--	 * If we haven't computed the system capabilities, there is nothing
--	 * to verify.
--	 */
--	if (!sys_caps_initialised)
--		return;
--
- 	verify_local_cpu_errata();
- 
- 	caps = arm64_features;
-@@ -902,6 +895,20 @@ void verify_local_cpu_capabilities(void)
- 	}
+-	for (; caps->matches; caps++)
+-		if (!cpus_have_cap(caps->capability) &&
+-			caps->matches(caps, SCOPE_LOCAL_CPU)) {
++	for (; caps->matches; caps++) {
++		if (cpus_have_cap(caps->capability)) {
++			if (caps->enable)
++				caps->enable((void *)caps);
++		} else if (caps->matches(caps, SCOPE_LOCAL_CPU)) {
+ 			pr_crit("CPU%d: Requires work around for %s, not detected"
+ 					" at boot time\n",
+ 				smp_processor_id(),
+ 				caps->desc ? : "an erratum");
+ 			cpu_die_early();
+ 		}
++	}
  }
  
-+void check_local_cpu_capabilities(void)
-+{
-+	/*
-+	 * If we haven't finalised the system capabilities, this CPU gets
-+	 * a chance to update the errata work arounds.
-+	 * Otherwise, this CPU should verify that it has all the system
-+	 * advertised capabilities.
-+	 */
-+	if (!sys_caps_initialised)
-+		check_local_cpu_errata();
-+	else
-+		verify_local_cpu_capabilities();
-+}
-+
- #else	/* !CONFIG_HOTPLUG_CPU */
- 
- static inline void set_sys_caps_initialised(void)
-diff --git a/arch/arm64/kernel/cpuinfo.c b/arch/arm64/kernel/cpuinfo.c
-index 0166cfbc866c..13e659fda04a 100644
---- a/arch/arm64/kernel/cpuinfo.c
-+++ b/arch/arm64/kernel/cpuinfo.c
-@@ -239,8 +239,6 @@ static void __cpuinfo_store_cpu(struct cpuinfo_arm64 *info)
- 	info->reg_mvfr2 = read_cpuid(MVFR2_EL1);
- 
- 	cpuinfo_detect_icache_policy(info);
--
--	check_local_cpu_errata();
- }
- 
- void cpuinfo_store_cpu(void)
-diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-index 752b53daac23..7a9eff0d1ebe 100644
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -161,7 +161,7 @@ asmlinkage notrace void secondary_start_kernel(void)
- 	 * this CPU ticks all of those. If it doesn't, the CPU will
- 	 * fail to come online.
- 	 */
--	verify_local_cpu_capabilities();
-+	check_local_cpu_capabilities();
- 
- 	if (cpu_ops[cpu]->cpu_postboot)
- 		cpu_ops[cpu]->cpu_postboot();
-@@ -360,6 +360,12 @@ void __init smp_prepare_boot_cpu(void)
- {
- 	set_my_cpu_offset(per_cpu_offset(smp_processor_id()));
- 	cpuinfo_store_boot_cpu();
-+	/*
-+	 * Run the errata work around checks on the boot CPU, once we have
-+	 * initialised the cpu feature infrastructure from
-+	 * cpuinfo_store_boot_cpu() above.
-+	 */
-+	check_local_cpu_errata();
- }
- 
- static u64 __init of_get_cpu_mpidr(struct device_node *dn)
+ void check_local_cpu_errata(void)
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
