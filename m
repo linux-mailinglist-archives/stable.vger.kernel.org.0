@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F6FF66CC0
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:23:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A512066CC3
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:23:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727504AbfGLMW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:22:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58012 "EHLO mail.kernel.org"
+        id S1727017AbfGLMXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:23:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727797AbfGLMW4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:22:56 -0400
+        id S1727839AbfGLMXC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:23:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA4FD216C8;
-        Fri, 12 Jul 2019 12:22:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B616E21670;
+        Fri, 12 Jul 2019 12:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934175;
-        bh=caejsQlaNCrlDBC0X1+3FAOTu6ZlHEoNFTP/ZxOvTP4=;
+        s=default; t=1562934181;
+        bh=jIGF3tGsUd16gUWn6GBhxSJaxsz9nGgZeR+K3j5UKXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RSSuDbmA7s6f1NKW7l07YfFbNdcrDi/1C1nE7LUMQ/wLLrOphPe53kBWynEvXIcwS
-         XCNO6y7IvXvKBEQRcsYRMnCdYB+ypBl1QUfSb1SKDpjfNzTVLn9K25IGavSfpcNlVE
-         wESyZcSdWXjUEQdyA6FvfHu07yd34o2NhDmMfCX8=
+        b=jTqI2qMiYmi1LdotQD+nfmCq5vobwtwI+FKxWDJJIsAN7VhGUh/mcLisMBltB8gmn
+         0ymuUuATPBCXvkqTzPO759RoegR0csv7ADvKrvWDG9r26Mdsfila7NK8zBF3qk2Px7
+         Xux5wnRaLLeJLqBsNJ4dj+VslLVDvzwTGdKbHAGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Valente <paolo.valente@unimore.it>,
-        Douglas Anderson <dianders@chromium.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 61/91] block, bfq: NULL out the bic when its no longer valid
-Date:   Fri, 12 Jul 2019 14:19:04 +0200
-Message-Id: <20190712121625.112910691@linuxfoundation.org>
+        stable@vger.kernel.org, Dianzhang Chen <dianzhangchen0@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
+        hpa@zytor.com
+Subject: [PATCH 4.19 63/91] x86/ptrace: Fix possible spectre-v1 in ptrace_get_debugreg()
+Date:   Fri, 12 Jul 2019 14:19:06 +0200
+Message-Id: <20190712121625.214928205@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -44,78 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Dianzhang Chen <dianzhangchen0@gmail.com>
 
-commit dbc3117d4ca9e17819ac73501e914b8422686750 upstream.
+commit 31a2fbb390fee4231281b939e1979e810f945415 upstream.
 
-In reboot tests on several devices we were seeing a "use after free"
-when slub_debug or KASAN was enabled.  The kernel complained about:
+The index to access the threads ptrace_bps is controlled by userspace via
+syscall: sys_ptrace(), hence leading to a potential exploitation of the
+Spectre variant 1 vulnerability.
 
-  Unable to handle kernel paging request at virtual address 6b6b6c2b
+The index can be controlled from:
+    ptrace -> arch_ptrace -> ptrace_get_debugreg.
 
-...which is a classic sign of use after free under slub_debug.  The
-stack crawl in kgdb looked like:
+Fix this by sanitizing the user supplied index before using it access
+thread->ptrace_bps.
 
- 0  test_bit (addr=<optimized out>, nr=<optimized out>)
- 1  bfq_bfqq_busy (bfqq=<optimized out>)
- 2  bfq_select_queue (bfqd=<optimized out>)
- 3  __bfq_dispatch_request (hctx=<optimized out>)
- 4  bfq_dispatch_request (hctx=<optimized out>)
- 5  0xc056ef00 in blk_mq_do_dispatch_sched (hctx=0xed249440)
- 6  0xc056f728 in blk_mq_sched_dispatch_requests (hctx=0xed249440)
- 7  0xc0568d24 in __blk_mq_run_hw_queue (hctx=0xed249440)
- 8  0xc0568d94 in blk_mq_run_work_fn (work=<optimized out>)
- 9  0xc024c5c4 in process_one_work (worker=0xec6d4640, work=0xed249480)
- 10 0xc024cff4 in worker_thread (__worker=0xec6d4640)
-
-Digging in kgdb, it could be found that, though bfqq looked fine,
-bfqq->bic had been freed.
-
-Through further digging, I postulated that perhaps it is illegal to
-access a "bic" (AKA an "icq") after bfq_exit_icq() had been called
-because the "bic" can be freed at some point in time after this call
-is made.  I confirmed that there certainly were cases where the exact
-crashing code path would access the "bic" after bfq_exit_icq() had
-been called.  Sspecifically I set the "bfqq->bic" to (void *)0x7 and
-saw that the bic was 0x7 at the time of the crash.
-
-To understand a bit more about why this crash was fairly uncommon (I
-saw it only once in a few hundred reboots), you can see that much of
-the time bfq_exit_icq_fbqq() fully frees the bfqq and thus it can't
-access the ->bic anymore.  The only case it doesn't is if
-bfq_put_queue() sees a reference still held.
-
-However, even in the case when bfqq isn't freed, the crash is still
-rare.  Why?  I tracked what happened to the "bic" after the exit
-routine.  It doesn't get freed right away.  Rather,
-put_io_context_active() eventually called put_io_context() which
-queued up freeing on a workqueue.  The freeing then actually happened
-later than that through call_rcu().  Despite all these delays, some
-extra debugging showed that all the hoops could be jumped through in
-time and the memory could be freed causing the original crash.  Phew!
-
-To make a long story short, assuming it truly is illegal to access an
-icq after the "exit_icq" callback is finished, this patch is needed.
-
+Signed-off-by: Dianzhang Chen <dianzhangchen0@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: bp@alien8.de
+Cc: hpa@zytor.com
 Cc: stable@vger.kernel.org
-Reviewed-by: Paolo Valente <paolo.valente@unimore.it>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/1561476617-3759-1-git-send-email-dianzhangchen0@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/bfq-iosched.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/ptrace.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -4116,6 +4116,7 @@ static void bfq_exit_icq_bfqq(struct bfq
- 		unsigned long flags;
+--- a/arch/x86/kernel/ptrace.c
++++ b/arch/x86/kernel/ptrace.c
+@@ -24,6 +24,7 @@
+ #include <linux/rcupdate.h>
+ #include <linux/export.h>
+ #include <linux/context_tracking.h>
++#include <linux/nospec.h>
  
- 		spin_lock_irqsave(&bfqd->lock, flags);
-+		bfqq->bic = NULL;
- 		bfq_exit_bfqq(bfqd, bfqq);
- 		bic_set_bfqq(bic, NULL, is_sync);
- 		spin_unlock_irqrestore(&bfqd->lock, flags);
+ #include <linux/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -651,9 +652,11 @@ static unsigned long ptrace_get_debugreg
+ {
+ 	struct thread_struct *thread = &tsk->thread;
+ 	unsigned long val = 0;
++	int index = n;
+ 
+ 	if (n < HBP_NUM) {
+-		struct perf_event *bp = thread->ptrace_bps[n];
++		index = array_index_nospec(index, HBP_NUM);
++		struct perf_event *bp = thread->ptrace_bps[index];
+ 
+ 		if (bp)
+ 			val = bp->hw.info.address;
 
 
