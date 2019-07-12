@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E92C766D27
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:27:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9406466C88
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728511AbfGLM1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:27:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38872 "EHLO mail.kernel.org"
+        id S1727485AbfGLMU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:20:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728531AbfGLM1A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:27:00 -0400
+        id S1727482AbfGLMU4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:20:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C19621019;
-        Fri, 12 Jul 2019 12:26:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8D31208E4;
+        Fri, 12 Jul 2019 12:20:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934419;
-        bh=Rq1qE4Q+NB15mQzhFLDDE6hKkM47OvHr+VRz5Ui1n4U=;
+        s=default; t=1562934055;
+        bh=AyMrDlvK9JOOsXx47vtxuqCDRX8Yg+Jq+LLv0NVejhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHOKmxoqntiKzBWzqQJrp642TfS/pKrHtdFK+oatXRsXXpkoFHSX0NaW6JOio993f
-         CkDweI0fryafF/m/WhuwY/HJxabf2iVGWnnjDE7sDgz1orTXLXpHE5M5ELF+L0E99V
-         zih9jZyvAFaLBVcKuUm+yzR1OJ/F9IpqvkSuNNis=
+        b=2n+iyTbdl3wElYHCXQAuyDVu22w1mpU+gE9IM9XvY/5dQ7D0ZdNhFNWdKjiKJhZ9H
+         q97Sh9Xo9oX7ZTTd3eaMSJo1C8dJKycHM0ZAt+HUTSGkCu/txcqTvXHpQClqReoyye
+         Gfr6LN9xvPTsG+DP2sFk1w2EBB9GoAOGA+O8KS9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Nick Hu <nickhu@andestech.com>,
+        Palmer Dabbelt <palmer@sifive.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 049/138] Input: imx_keypad - make sure keyboard can always wake up system
+Subject: [PATCH 4.19 30/91] riscv: Fix udelay in RV32.
 Date:   Fri, 12 Jul 2019 14:18:33 +0200
-Message-Id: <20190712121630.544937655@linuxfoundation.org>
+Message-Id: <20190712121622.986765867@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
+References: <20190712121621.422224300@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ce9a53eb3dbca89e7ad86673d94ab886e9bea704 ]
+[ Upstream commit d0e1f2110a5eeb6e410b2dd37d98bc5b30da7bc7 ]
 
-There are several scenarios that keyboard can NOT wake up system
-from suspend, e.g., if a keyboard is depressed between system
-device suspend phase and device noirq suspend phase, the keyboard
-ISR will be called and both keyboard depress and release interrupts
-will be disabled, then keyboard will no longer be able to wake up
-system. Another scenario would be, if a keyboard is kept depressed,
-and then system goes into suspend, the expected behavior would be
-when keyboard is released, system will be waked up, but current
-implementation can NOT achieve that, because both depress and release
-interrupts are disabled in ISR, and the event check is still in
-progress.
+In RV32, udelay would delay the wrong cycle. When it shifts right
+"UDELAY_SHIFT" bits, it either delays 0 cycle or 1 cycle. It only works
+correctly in RV64. Because the 'ucycles' always needs to be 64 bits
+variable.
 
-To fix these issues, need to make sure keyboard's depress or release
-interrupt is enabled after noirq device suspend phase, this patch
-moves the suspend/resume callback to noirq suspend/resume phase, and
-enable the corresponding interrupt according to current keyboard status.
-
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Nick Hu <nickhu@andestech.com>
+Reviewed-by: Palmer Dabbelt <palmer@sifive.com>
+[paul.walmsley@sifive.com: fixed minor spelling error]
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/imx_keypad.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ arch/riscv/lib/delay.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index 539cb670de41..ae9c51cc85f9 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -526,11 +526,12 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/arch/riscv/lib/delay.c b/arch/riscv/lib/delay.c
+index dce8ae24c6d3..ee6853c1e341 100644
+--- a/arch/riscv/lib/delay.c
++++ b/arch/riscv/lib/delay.c
+@@ -88,7 +88,7 @@ EXPORT_SYMBOL(__delay);
  
--static int __maybe_unused imx_kbd_suspend(struct device *dev)
-+static int __maybe_unused imx_kbd_noirq_suspend(struct device *dev)
+ void udelay(unsigned long usecs)
  {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
- 	struct input_dev *input_dev = kbd->input_dev;
-+	unsigned short reg_val = readw(kbd->mmio_base + KPSR);
+-	unsigned long ucycles = usecs * lpj_fine * UDELAY_MULT;
++	u64 ucycles = (u64)usecs * lpj_fine * UDELAY_MULT;
  
- 	/* imx kbd can wake up system even clock is disabled */
- 	mutex_lock(&input_dev->mutex);
-@@ -540,13 +541,20 @@ static int __maybe_unused imx_kbd_suspend(struct device *dev)
- 
- 	mutex_unlock(&input_dev->mutex);
- 
--	if (device_may_wakeup(&pdev->dev))
-+	if (device_may_wakeup(&pdev->dev)) {
-+		if (reg_val & KBD_STAT_KPKD)
-+			reg_val |= KBD_STAT_KRIE;
-+		if (reg_val & KBD_STAT_KPKR)
-+			reg_val |= KBD_STAT_KDIE;
-+		writew(reg_val, kbd->mmio_base + KPSR);
-+
- 		enable_irq_wake(kbd->irq);
-+	}
- 
- 	return 0;
- }
- 
--static int __maybe_unused imx_kbd_resume(struct device *dev)
-+static int __maybe_unused imx_kbd_noirq_resume(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
-@@ -570,7 +578,9 @@ static int __maybe_unused imx_kbd_resume(struct device *dev)
- 	return ret;
- }
- 
--static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
-+static const struct dev_pm_ops imx_kbd_pm_ops = {
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(imx_kbd_noirq_suspend, imx_kbd_noirq_resume)
-+};
- 
- static struct platform_driver imx_keypad_driver = {
- 	.driver		= {
+ 	if (unlikely(usecs > MAX_UDELAY_US)) {
+ 		__delay((u64)usecs * riscv_timebase / 1000000ULL);
 -- 
 2.20.1
 
