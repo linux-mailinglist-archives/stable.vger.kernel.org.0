@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3458F66652
+	by mail.lfdr.de (Postfix) with ESMTP id A317B66653
 	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:32:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725939AbfGLFau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 01:30:50 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:32820 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbfGLFau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:30:50 -0400
-Received: by mail-pf1-f196.google.com with SMTP id g2so3805217pfq.0
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:30:49 -0700 (PDT)
+        id S1726100AbfGLFax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 01:30:53 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:32821 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725791AbfGLFaw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:30:52 -0400
+Received: by mail-pf1-f194.google.com with SMTP id g2so3805248pfq.0
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:30:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=kulBovnYLz4YjgSJ0sOniJhX8Qcc8ljUXoag6+mJQMI=;
-        b=IB3JJQIuHZFizIZtXA/n0rZ+jWpJAoAWsj6UXhog4Cu3WwWA4r+1mzjeDP0UWlYyUU
-         RFgL0SloPebXsJu8mt3U4ylWXkjD0MJNtbkYp9JE+8QRnpYTZP8ktiBEND77wvW48kDA
-         mfANFSESMn2tuCqWkTeSZiRxstk71UyJPH9T37bM+5q6NhtpdUY6OPy3sLW/7DxsBZBn
-         M3PpWUIWD06CMpTvCRIceM6rg/cDgGnBDL50UycxLRERqYJyaks0hMMG+rn2pM4q06ir
-         d6GmHDoIntf3zGW150E8QhXpG8GxOvmvt2DA+7THz23z808tE2wLjSqM2eqlwTlRAh87
-         aBbg==
+        bh=TheFOcfsNrP/iCpBXsyGMi/69Bi3Htfiid5k4ekGSX4=;
+        b=S8LXzzvbI4rWMCXL7mWrFYvVfsews0FiJkZ2UXCAhQNQUjpLk9GU7zgejZMVjgH9iV
+         htjoAr+3aupsFge2hy/0Ua2bROlHQTKyDR2UzFxqQGhxwUdLHi5TMnwo8h7GnfS1gO6g
+         1tdisu+r2I8jF43Vz5pX8v5en24zOq+xhFg9ffc91JvR4iUdAyg6fULVG9DqRx2E95/c
+         bx06kZxy7ORzT8nPxeatSFSe1p3Mdav2Kv1aQbPgVAlbm2hMp5qf8q3PIbbydwx+EIC3
+         svzlMq16thEQxT1mlh2lSd2//A5bWlupAEeGZW7/jQTGiX4WaItDLULAvDbfc07dT1CZ
+         3EqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=kulBovnYLz4YjgSJ0sOniJhX8Qcc8ljUXoag6+mJQMI=;
-        b=bIC35pFh8TbVTaxqZGU6wqhMDsaEg5nEH+fuemXUcQQ1HRwqYnYca3lLTdstS2LPwg
-         oVll+F5iN9kF3MMMhNcNaqFpNKIoXQc96dCx+VZ0PGy9DrJiJpUQ80JY4bWcWF8jbLWm
-         3zTyLDvQs1aJi1MDttKOatFs9eD0pjrtFMylZqJzd9fyRqOG7zW6/x/gthbUWqBpk18u
-         Isge7rWT2kA1oFpQJEHtaCeZ+ylmJdzi+mxAS4z1tVhdIKve6xrgao4t812HSp9M7vzb
-         pgwnilXMoUdydFOmwA7AsbOM5Ozgz9ThHz4wLRo7fbhux6dYJzIYk8/If1YJxsiPZuxH
-         LjcQ==
-X-Gm-Message-State: APjAAAXtYAQlp/lczThPxNafaDBXFevHfmkVYm1r/I4jNfJHZP6Jbmgw
-        rg0Hn/BesIURA7ON+XPoGU+uGT1m74M=
-X-Google-Smtp-Source: APXvYqxFe8SfYDoYItw/9l5tX/pgSbvqEkxP9M6QI723BPi8dETseXhkxaRL+cByXVGGA9lgrPMsxA==
-X-Received: by 2002:a63:7455:: with SMTP id e21mr2804274pgn.439.1562909448746;
-        Thu, 11 Jul 2019 22:30:48 -0700 (PDT)
+        bh=TheFOcfsNrP/iCpBXsyGMi/69Bi3Htfiid5k4ekGSX4=;
+        b=l0azv6u2IdAPoer5+HdVqyQDqGRSpIAwkpfIZPpkvWMEeV7X2YiGBzbSqO8m9Qg4Ut
+         BRlSkekCrjsETmO/eYmsC+j4HZVlGdH3Ht3ChU94lky6WNX1soMrK1dvhjTz7WwZZDyz
+         FGOEMz8+alBgBhDtwq3SmsyE8SITs+vJKlWEShP3m+2zpdDMbCTGKj27pnmnvcgg7FN3
+         qhs9TD6cwWxhhzXyYzAZ8ZQI2SDrgMpigQD9TXeFrhqKuKpP+M+Qx7WP1iQtS7BnZIlp
+         X4fntMjjgVSFEBUdxaqlZym5rJh1M/p1rEH2tnqTquMDv7ykTsbUsECgsxQU2gvTECMe
+         X2yg==
+X-Gm-Message-State: APjAAAX9oTcP0nIWRWKniib4vZag/q/Jcy5rb7r0IMIyDiojXAURgGHS
+        b4ohs7fNFFqC8lPZM5aGQQh/K8EJKHc=
+X-Google-Smtp-Source: APXvYqynTgjG5jrTrFdm24BnWVQTnLj/8zTYo8O5YIArivs9WOSENZ5D9TiehV4+zqv/AWcxAXOBfg==
+X-Received: by 2002:a63:4c19:: with SMTP id z25mr8804010pga.47.1562909451445;
+        Thu, 11 Jul 2019 22:30:51 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id u134sm6825242pfc.19.2019.07.11.22.30.47
+        by smtp.gmail.com with ESMTPSA id l124sm7218418pgl.54.2019.07.11.22.30.50
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 22:30:48 -0700 (PDT)
+        Thu, 11 Jul 2019 22:30:50 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 V2 40/43] arm/arm64: smccc: Implement SMCCC v1.1 inline primitive
-Date:   Fri, 12 Jul 2019 10:58:28 +0530
-Message-Id: <ed53e9e0d2f7eb7fb59f7fd78dc455e7eb4bb106.1562908075.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 V2 41/43] arm64: Add ARM_SMCCC_ARCH_WORKAROUND_1 BP hardening support
+Date:   Fri, 12 Jul 2019 10:58:29 +0530
+Message-Id: <a09bb6e7e7eb204003dea9832b10ef4cc70889a7.1562908075.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
 References: <cover.1562908074.git.viresh.kumar@linaro.org>
@@ -70,174 +70,158 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit f2d3b2e8759a5833df6f022e42df2d581e6d843c upstream.
+commit b092201e0020614127f495c092e0a12d26a2116e upstream.
 
-One of the major improvement of SMCCC v1.1 is that it only clobbers
-the first 4 registers, both on 32 and 64bit. This means that it
-becomes very easy to provide an inline version of the SMC call
-primitive, and avoid performing a function call to stash the
-registers that would otherwise be clobbered by SMCCC v1.0.
+Add the detection and runtime code for ARM_SMCCC_ARCH_WORKAROUND_1.
+It is lovely. Really.
 
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
 Tested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- include/linux/arm-smccc.h | 141 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 141 insertions(+)
+ arch/arm64/kernel/bpi.S        | 20 ++++++++++
+ arch/arm64/kernel/cpu_errata.c | 68 +++++++++++++++++++++++++++++++++-
+ 2 files changed, 87 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
-index 4c45fd75db5d..60c2ad6316d8 100644
---- a/include/linux/arm-smccc.h
-+++ b/include/linux/arm-smccc.h
-@@ -122,5 +122,146 @@ asmlinkage void arm_smccc_hvc(unsigned long a0, unsigned long a1,
- 			unsigned long a5, unsigned long a6, unsigned long a7,
- 			struct arm_smccc_res *res);
+diff --git a/arch/arm64/kernel/bpi.S b/arch/arm64/kernel/bpi.S
+index dec95bd82e31..c72f261f4b64 100644
+--- a/arch/arm64/kernel/bpi.S
++++ b/arch/arm64/kernel/bpi.S
+@@ -17,6 +17,7 @@
+  */
  
-+/* SMCCC v1.1 implementation madness follows */
-+#ifdef CONFIG_ARM64
+ #include <linux/linkage.h>
++#include <linux/arm-smccc.h>
+ 
+ .macro ventry target
+ 	.rept 31
+@@ -77,3 +78,22 @@ ENTRY(__psci_hyp_bp_inval_start)
+ 	ldp	x0, x1, [sp, #(16 * 8)]
+ 	add	sp, sp, #(8 * 18)
+ ENTRY(__psci_hyp_bp_inval_end)
 +
-+#define SMCCC_SMC_INST	"smc	#0"
-+#define SMCCC_HVC_INST	"hvc	#0"
++.macro smccc_workaround_1 inst
++	sub	sp, sp, #(8 * 4)
++	stp	x2, x3, [sp, #(8 * 0)]
++	stp	x0, x1, [sp, #(8 * 2)]
++	mov	w0, #ARM_SMCCC_ARCH_WORKAROUND_1
++	\inst	#0
++	ldp	x2, x3, [sp, #(8 * 0)]
++	ldp	x0, x1, [sp, #(8 * 2)]
++	add	sp, sp, #(8 * 4)
++.endm
 +
-+#elif defined(CONFIG_ARM)
-+#include <asm/opcodes-sec.h>
-+#include <asm/opcodes-virt.h>
++ENTRY(__smccc_workaround_1_smc_start)
++	smccc_workaround_1	smc
++ENTRY(__smccc_workaround_1_smc_end)
 +
-+#define SMCCC_SMC_INST	__SMC(0)
-+#define SMCCC_HVC_INST	__HVC(0)
++ENTRY(__smccc_workaround_1_hvc_start)
++	smccc_workaround_1	hvc
++ENTRY(__smccc_workaround_1_hvc_end)
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index ff22915a2865..d5fd7be563bc 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -51,6 +51,10 @@ DEFINE_PER_CPU_READ_MOSTLY(struct bp_hardening_data, bp_hardening_data);
+ 
+ #ifdef CONFIG_KVM
+ extern char __psci_hyp_bp_inval_start[], __psci_hyp_bp_inval_end[];
++extern char __smccc_workaround_1_smc_start[];
++extern char __smccc_workaround_1_smc_end[];
++extern char __smccc_workaround_1_hvc_start[];
++extern char __smccc_workaround_1_hvc_end[];
+ 
+ static void __copy_hyp_vect_bpi(int slot, const char *hyp_vecs_start,
+ 				const char *hyp_vecs_end)
+@@ -95,6 +99,10 @@ static void __install_bp_hardening_cb(bp_hardening_cb_t fn,
+ #else
+ #define __psci_hyp_bp_inval_start	NULL
+ #define __psci_hyp_bp_inval_end		NULL
++#define __smccc_workaround_1_smc_start		NULL
++#define __smccc_workaround_1_smc_end		NULL
++#define __smccc_workaround_1_hvc_start		NULL
++#define __smccc_workaround_1_hvc_end		NULL
+ 
+ static void __install_bp_hardening_cb(bp_hardening_cb_t fn,
+ 				      const char *hyp_vecs_start,
+@@ -121,17 +129,75 @@ static void  install_bp_hardening_cb(const struct arm64_cpu_capabilities *entry,
+ 	__install_bp_hardening_cb(fn, hyp_vecs_start, hyp_vecs_end);
+ }
+ 
++#include <uapi/linux/psci.h>
++#include <linux/arm-smccc.h>
+ #include <linux/psci.h>
+ 
++static void call_smc_arch_workaround_1(void)
++{
++	arm_smccc_1_1_smc(ARM_SMCCC_ARCH_WORKAROUND_1, NULL);
++}
 +
-+#endif
++static void call_hvc_arch_workaround_1(void)
++{
++	arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_WORKAROUND_1, NULL);
++}
 +
-+#define ___count_args(_0, _1, _2, _3, _4, _5, _6, _7, _8, x, ...) x
++static bool check_smccc_arch_workaround_1(const struct arm64_cpu_capabilities *entry)
++{
++	bp_hardening_cb_t cb;
++	void *smccc_start, *smccc_end;
++	struct arm_smccc_res res;
 +
-+#define __count_args(...)						\
-+	___count_args(__VA_ARGS__, 7, 6, 5, 4, 3, 2, 1, 0)
++	if (!entry->matches(entry, SCOPE_LOCAL_CPU))
++		return false;
 +
-+#define __constraint_write_0						\
-+	"+r" (r0), "=&r" (r1), "=&r" (r2), "=&r" (r3)
-+#define __constraint_write_1						\
-+	"+r" (r0), "+r" (r1), "=&r" (r2), "=&r" (r3)
-+#define __constraint_write_2						\
-+	"+r" (r0), "+r" (r1), "+r" (r2), "=&r" (r3)
-+#define __constraint_write_3						\
-+	"+r" (r0), "+r" (r1), "+r" (r2), "+r" (r3)
-+#define __constraint_write_4	__constraint_write_3
-+#define __constraint_write_5	__constraint_write_4
-+#define __constraint_write_6	__constraint_write_5
-+#define __constraint_write_7	__constraint_write_6
++	if (psci_ops.smccc_version == SMCCC_VERSION_1_0)
++		return false;
 +
-+#define __constraint_read_0
-+#define __constraint_read_1
-+#define __constraint_read_2
-+#define __constraint_read_3
-+#define __constraint_read_4	"r" (r4)
-+#define __constraint_read_5	__constraint_read_4, "r" (r5)
-+#define __constraint_read_6	__constraint_read_5, "r" (r6)
-+#define __constraint_read_7	__constraint_read_6, "r" (r7)
++	switch (psci_ops.conduit) {
++	case PSCI_CONDUIT_HVC:
++		arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
++				  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
++		if (res.a0)
++			return false;
++		cb = call_hvc_arch_workaround_1;
++		smccc_start = __smccc_workaround_1_hvc_start;
++		smccc_end = __smccc_workaround_1_hvc_end;
++		break;
 +
-+#define __declare_arg_0(a0, res)					\
-+	struct arm_smccc_res   *___res = res;				\
-+	register u32           r0 asm("r0") = a0;			\
-+	register unsigned long r1 asm("r1");				\
-+	register unsigned long r2 asm("r2");				\
-+	register unsigned long r3 asm("r3")
++	case PSCI_CONDUIT_SMC:
++		arm_smccc_1_1_smc(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
++				  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
++		if (res.a0)
++			return false;
++		cb = call_smc_arch_workaround_1;
++		smccc_start = __smccc_workaround_1_smc_start;
++		smccc_end = __smccc_workaround_1_smc_end;
++		break;
 +
-+#define __declare_arg_1(a0, a1, res)					\
-+	struct arm_smccc_res   *___res = res;				\
-+	register u32           r0 asm("r0") = a0;			\
-+	register typeof(a1)    r1 asm("r1") = a1;			\
-+	register unsigned long r2 asm("r2");				\
-+	register unsigned long r3 asm("r3")
++	default:
++		return false;
++	}
 +
-+#define __declare_arg_2(a0, a1, a2, res)				\
-+	struct arm_smccc_res   *___res = res;				\
-+	register u32           r0 asm("r0") = a0;			\
-+	register typeof(a1)    r1 asm("r1") = a1;			\
-+	register typeof(a2)    r2 asm("r2") = a2;			\
-+	register unsigned long r3 asm("r3")
++	install_bp_hardening_cb(entry, cb, smccc_start, smccc_end);
 +
-+#define __declare_arg_3(a0, a1, a2, a3, res)				\
-+	struct arm_smccc_res   *___res = res;				\
-+	register u32           r0 asm("r0") = a0;			\
-+	register typeof(a1)    r1 asm("r1") = a1;			\
-+	register typeof(a2)    r2 asm("r2") = a2;			\
-+	register typeof(a3)    r3 asm("r3") = a3
++	return true;
++}
 +
-+#define __declare_arg_4(a0, a1, a2, a3, a4, res)			\
-+	__declare_arg_3(a0, a1, a2, a3, res);				\
-+	register typeof(a4) r4 asm("r4") = a4
+ static int enable_psci_bp_hardening(void *data)
+ {
+ 	const struct arm64_cpu_capabilities *entry = data;
+ 
+-	if (psci_ops.get_version)
++	if (psci_ops.get_version) {
++		if (check_smccc_arch_workaround_1(entry))
++			return 0;
 +
-+#define __declare_arg_5(a0, a1, a2, a3, a4, a5, res)			\
-+	__declare_arg_4(a0, a1, a2, a3, a4, res);			\
-+	register typeof(a5) r5 asm("r5") = a5
-+
-+#define __declare_arg_6(a0, a1, a2, a3, a4, a5, a6, res)		\
-+	__declare_arg_5(a0, a1, a2, a3, a4, a5, res);			\
-+	register typeof(a6) r6 asm("r6") = a6
-+
-+#define __declare_arg_7(a0, a1, a2, a3, a4, a5, a6, a7, res)		\
-+	__declare_arg_6(a0, a1, a2, a3, a4, a5, a6, res);		\
-+	register typeof(a7) r7 asm("r7") = a7
-+
-+#define ___declare_args(count, ...) __declare_arg_ ## count(__VA_ARGS__)
-+#define __declare_args(count, ...)  ___declare_args(count, __VA_ARGS__)
-+
-+#define ___constraints(count)						\
-+	: __constraint_write_ ## count					\
-+	: __constraint_read_ ## count					\
-+	: "memory"
-+#define __constraints(count)	___constraints(count)
-+
-+/*
-+ * We have an output list that is not necessarily used, and GCC feels
-+ * entitled to optimise the whole sequence away. "volatile" is what
-+ * makes it stick.
-+ */
-+#define __arm_smccc_1_1(inst, ...)					\
-+	do {								\
-+		__declare_args(__count_args(__VA_ARGS__), __VA_ARGS__);	\
-+		asm volatile(inst "\n"					\
-+			     __constraints(__count_args(__VA_ARGS__)));	\
-+		if (___res)						\
-+			*___res = (typeof(*___res)){r0, r1, r2, r3};	\
-+	} while (0)
-+
-+/*
-+ * arm_smccc_1_1_smc() - make an SMCCC v1.1 compliant SMC call
-+ *
-+ * This is a variadic macro taking one to eight source arguments, and
-+ * an optional return structure.
-+ *
-+ * @a0-a7: arguments passed in registers 0 to 7
-+ * @res: result values from registers 0 to 3
-+ *
-+ * This macro is used to make SMC calls following SMC Calling Convention v1.1.
-+ * The content of the supplied param are copied to registers 0 to 7 prior
-+ * to the SMC instruction. The return values are updated with the content
-+ * from register 0 to 3 on return from the SMC instruction if not NULL.
-+ */
-+#define arm_smccc_1_1_smc(...)	__arm_smccc_1_1(SMCCC_SMC_INST, __VA_ARGS__)
-+
-+/*
-+ * arm_smccc_1_1_hvc() - make an SMCCC v1.1 compliant HVC call
-+ *
-+ * This is a variadic macro taking one to eight source arguments, and
-+ * an optional return structure.
-+ *
-+ * @a0-a7: arguments passed in registers 0 to 7
-+ * @res: result values from registers 0 to 3
-+ *
-+ * This macro is used to make HVC calls following SMC Calling Convention v1.1.
-+ * The content of the supplied param are copied to registers 0 to 7 prior
-+ * to the HVC instruction. The return values are updated with the content
-+ * from register 0 to 3 on return from the HVC instruction if not NULL.
-+ */
-+#define arm_smccc_1_1_hvc(...)	__arm_smccc_1_1(SMCCC_HVC_INST, __VA_ARGS__)
-+
- #endif /*__ASSEMBLY__*/
- #endif /*__LINUX_ARM_SMCCC_H*/
+ 		install_bp_hardening_cb(entry,
+ 				       (bp_hardening_cb_t)psci_ops.get_version,
+ 				       __psci_hyp_bp_inval_start,
+ 				       __psci_hyp_bp_inval_end);
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
