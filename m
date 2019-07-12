@@ -2,120 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70CAE66AC8
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 12:10:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D802D66B20
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 12:53:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726069AbfGLKKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 06:10:47 -0400
-Received: from mx2.suse.de ([195.135.220.15]:45264 "EHLO mx1.suse.de"
+        id S1726057AbfGLKxu convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 12 Jul 2019 06:53:50 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:2420 "EHLO huawei.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726002AbfGLKKq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 06:10:46 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id E308FAEBF;
-        Fri, 12 Jul 2019 10:10:44 +0000 (UTC)
-Date:   Fri, 12 Jul 2019 11:10:43 +0100
-From:   Mel Gorman <mgorman@suse.de>
-To:     Jan Kara <jack@suse.cz>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        mhocko@suse.cz, stable@vger.kernel.org
-Subject: Re: [PATCH RFC] mm: migrate: Fix races of __find_get_block() and
- page migration
-Message-ID: <20190712101042.GJ13484@suse.de>
-References: <20190711125838.32565-1-jack@suse.cz>
- <20190711170455.5a9ae6e659cab1a85f9aa30c@linux-foundation.org>
- <20190712091746.GB906@quack2.suse.cz>
+        id S1726050AbfGLKxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 06:53:49 -0400
+Received: from DGGEMM406-HUB.china.huawei.com (unknown [172.30.72.57])
+        by Forcepoint Email with ESMTP id BF800D2E2BFB2E395BE4;
+        Fri, 12 Jul 2019 18:53:46 +0800 (CST)
+Received: from dggeme757-chm.china.huawei.com (10.3.19.103) by
+ DGGEMM406-HUB.china.huawei.com (10.3.20.214) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Fri, 12 Jul 2019 18:53:46 +0800
+Received: from dggeme758-chm.china.huawei.com (10.3.19.104) by
+ dggeme757-chm.china.huawei.com (10.3.19.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1591.10; Fri, 12 Jul 2019 18:53:45 +0800
+Received: from dggeme758-chm.china.huawei.com ([10.6.80.69]) by
+ dggeme758-chm.china.huawei.com ([10.6.80.69]) with mapi id 15.01.1591.008;
+ Fri, 12 Jul 2019 18:53:46 +0800
+From:   "chenjianhong (A)" <chenjianhong2@huawei.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+CC:     Michel Lespinasse <walken@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "mhocko@suse.com" <mhocko@suse.com>,
+        "Vlastimil Babka" <vbabka@suse.cz>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        "jannh@google.com" <jannh@google.com>,
+        "steve.capper@arm.com" <steve.capper@arm.com>,
+        "tiny.windzz@gmail.com" <tiny.windzz@gmail.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "willy@infradead.org" <willy@infradead.org>,
+        "wangle (H)" <wangle6@huawei.com>,
+        "Chengang (L)" <cg.chen@huawei.com>
+Subject: RE: [PATCH] mm/mmap: fix the adjusted length error
+Thread-Topic: [PATCH] mm/mmap: fix the adjusted length error
+Thread-Index: AQHVDHYdPcl0kS4eg0Wb8Sh+xIS/waZvfcqAgADBHlCAVcHrAIAAiW9w
+Date:   Fri, 12 Jul 2019 10:53:45 +0000
+Message-ID: <71c4329e246344eeb38c8ac25c63c09d@huawei.com>
+References: <1558073209-79549-1-git-send-email-chenjianhong2@huawei.com>
+        <CANN689G6mGLSOkyj31ympGgnqxnJosPVc4EakW5gYGtA_45L7g@mail.gmail.com>
+        <df001b6fbe2a4bdc86999c78933dab7f@huawei.com>
+ <20190711182002.9bb943006da6b61ab66b95fd@linux-foundation.org>
+In-Reply-To: <20190711182002.9bb943006da6b61ab66b95fd@linux-foundation.org>
+Accept-Language: en-US
+Content-Language: zh-CN
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.65.79.126]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <20190712091746.GB906@quack2.suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 12, 2019 at 11:17:46AM +0200, Jan Kara wrote:
-> On Thu 11-07-19 17:04:55, Andrew Morton wrote:
-> > On Thu, 11 Jul 2019 14:58:38 +0200 Jan Kara <jack@suse.cz> wrote:
-> > 
-> > > buffer_migrate_page_norefs() can race with bh users in a following way:
-> > > 
-> > > CPU1					CPU2
-> > > buffer_migrate_page_norefs()
-> > >   buffer_migrate_lock_buffers()
-> > >   checks bh refs
-> > >   spin_unlock(&mapping->private_lock)
-> > > 					__find_get_block()
-> > > 					  spin_lock(&mapping->private_lock)
-> > > 					  grab bh ref
-> > > 					  spin_unlock(&mapping->private_lock)
-> > >   move page				  do bh work
-> > > 
-> > > This can result in various issues like lost updates to buffers (i.e.
-> > > metadata corruption) or use after free issues for the old page.
-> > > 
-> > > Closing this race window is relatively difficult. We could hold
-> > > mapping->private_lock in buffer_migrate_page_norefs() until we are
-> > > finished with migrating the page but the lock hold times would be rather
-> > > big. So let's revert to a more careful variant of page migration requiring
-> > > eviction of buffers on migrated page. This is effectively
-> > > fallback_migrate_page() that additionally invalidates bh LRUs in case
-> > > try_to_free_buffers() failed.
-> > 
-> > Is this premature optimization?  Holding ->private_lock while messing
-> > with the buffers would be the standard way of addressing this.  The
-> > longer hold times *might* be an issue, but we don't know this, do we? 
-> > If there are indeed such problems then they could be improved by, say,
-> > doing more of the newpage preparation prior to taking ->private_lock.
+Thank you for your reply! 
+> How significant is this problem in real-world use cases?  How much trouble is it causing?
+   In my opinion, this problem is very rare in real-world use cases. In arm64
+   or x86 environment, the virtual memory is enough. In arm32 environment,
+   each process has only 3G or 4G or less, but we seldom use out all of the virtual memory,
+   it only happens in some special environment. They almost use out all the virtual memory, and
+   in some moment, they will change their working mode so they will release and allocate
+   memory again. This current length limitation will cause this problem. I explain it's the memory
+   length limitation. But they can't accept the reason, it is unreasonable that we fail to allocate
+   memory even though the memory gap is enough.
+
+> Have you looked further into this?  Michel is concerned about the performance cost of the current solution.
+   The current algorithm(change before) is wonderful, and it has been used for a long time, I don't
+   think it is worthy to change the whole algorithm in order to fix this problem. Therefore, I just
+   adjust the gap_start and gap_end value in place of the length. My change really affects the
+   performance because I calculate the gap_start and gap_end value again and again. Does it affect
+   too much performance?  I have no complex environment, so I can't test it, but I don't think it will cause
+   too much performance loss. First, I don't change the whole algorithm. Second, unmapped_area and
+   unmapped_area_topdown function aren't used frequently. Maybe there are some big performance problems
+   I'm not concerned about. But I think if that's not a problem, there should be a limitation description.
+
+-----Original Message-----
+From: Andrew Morton [mailto:akpm@linux-foundation.org] 
+Sent: Friday, July 12, 2019 9:20 AM
+To: chenjianhong (A) <chenjianhong2@huawei.com>
+Cc: Michel Lespinasse <walken@google.com>; Greg Kroah-Hartman <gregkh@linuxfoundation.org>; mhocko@suse.com; Vlastimil Babka <vbabka@suse.cz>; Kirill A. Shutemov <kirill.shutemov@linux.intel.com>; Yang Shi <yang.shi@linux.alibaba.com>; jannh@google.com; steve.capper@arm.com; tiny.windzz@gmail.com; LKML <linux-kernel@vger.kernel.org>; linux-mm <linux-mm@kvack.org>; stable@vger.kernel.org; willy@infradead.org
+Subject: Re: [PATCH] mm/mmap: fix the adjusted length error
+
+On Sat, 18 May 2019 07:05:07 +0000 "chenjianhong (A)" <chenjianhong2@huawei.com> wrote:
+
+> I explain my test code and the problem in detail. This problem is 
+> found in 32-bit user process, because its virtual is limited, 3G or 4G.
 > 
-> I didn't check how long the private_lock hold times would actually be, it
-> just seems there's a lot of work done before the page is fully migrated a
-> we could release the lock. And since the lock blocks bh lookup,
-> set_page_dirty(), etc. for the whole device, it just seemed as a bad idea.
-> I don't think much of a newpage setup can be moved outside of private_lock
-> - in particular page cache replacement, page copying, page state migration
-> all need to be there so that bh code doesn't get confused.
+> First, I explain the bug I found. Function unmapped_area and 
+> unmapped_area_topdowns adjust search length to account for worst case 
+> alignment overhead, the code is ' length = info->length + info->align_mask; '.
+> The variable info->length is the length we allocate and the variable
+> info->align_mask accounts for the alignment, because the gap_start  or 
+> info->gap_end
+> value also should be an alignment address, but we can't know the alignment offset.
+> So in the current algorithm, it uses the max alignment offset, this 
+> value maybe zero or other(0x1ff000 for shmat function).
+> Is it reasonable way? The required value is longer than what I allocate.
+> What's more,  why for the first time I can allocate the memory 
+> successfully Via shmat, but after releasing the memory via shmdt and I 
+> want to attach again, it fails. This is not acceptable for many people.
 > 
-> But I guess it's fair to measure at least ballpark numbers of what the lock
-> hold times would be to get idea whether the contention concern is
-> substantiated or not.
-> 
+> Second, I explain my test code. The code I have sent an email. The 
+> following is the step. I don't think it's something unusual or 
+> unreasonable, because the virtual memory space is enough, but the 
+> process can allocate from it. And we can't pass explicit addresses to 
+> function mmap or shmat, the address is getting from the left vma gap.
+>  1, we allocat large virtual memory;
+>  2, we allocate hugepage memory via shmat, and release one  of the 
+> hugepage memory block;  3, we allocate hugepage memory by shmat again, 
+> this will fail.
 
-I think it would be tricky to measure and quantify how much the contention
-is an issue. While it would be possible to construct a microbenchmark that
-should illustrate the problem, it would tell us relatively little about
-how much of a problem it is generally. It would be relatively difficult
-to detect the contention and stalls in block lookups due to migration
-would be tricky to spot. Careful use of lock_stat might help but
-enabling that has consequences of its own.
+How significant is this problem in real-world use cases?  How much trouble is it causing?
 
-However, a rise in allocation failures due to dirty pages not being
-migrated is relatively easy to detect and the consequences are relatively
-benign -- failed high-order allocation that is usually ok versus a stall
-on block lookups that could have a wider general impact.
+> Third, I want to introduce my change in the current algorithm. I don't 
+> change the current algorithm. Also, I think there maybe a better way 
+> to fix this error. Nowadays, I can just adjust the gap_start value.
 
-On that basis, I think the patch you proposed is the more appropriate as
-a fix for the race which has the potential for data corruption. So;
+Have you looked further into this?  Michel is concerned about the performance cost of the current solution.
 
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-
-> Finally, I guess I should mention there's one more approach to the problem
-> I was considering: Modify bh code to fully rely on page lock instead of
-> private_lock for bh lookup. That would make sense scalability-wise on its
-> own. The problem with it is that __find_get_block() would become a sleeping
-> function. There aren't that many places calling the function and most of
-> them seem fine with it but still it is non-trivial amount of work to do the
-> conversion and it can have some fallout so it didn't seem like a good
-> solution for a data-corruption issue that needs to go to stable...
-> 
-
-Maybe *if* it's shown there is a major issue with increased high-order
-allocation failures, it would be worth looking into but right now, I
-think it's overkill with relatively high risk and closing the potential
-race is more important.
-
--- 
-Mel Gorman
-SUSE Labs
