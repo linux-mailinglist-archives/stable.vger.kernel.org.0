@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC4666C93
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:21:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3371D66CAA
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:22:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727141AbfGLMV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:21:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55570 "EHLO mail.kernel.org"
+        id S1727627AbfGLMVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:21:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727587AbfGLMV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:21:26 -0400
+        id S1727641AbfGLMVm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:21:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3446216B7;
-        Fri, 12 Jul 2019 12:21:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B62E20863;
+        Fri, 12 Jul 2019 12:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934086;
-        bh=vQBdzWuLn1sqfRcFF+gUmWpDuYA8gg4YVK5T3Ukjz2A=;
+        s=default; t=1562934101;
+        bh=Ewvu7yBZJuIvAVOWtuvGiUggubBsAHhQ5bcCtB13j7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iSze9Z1v/5fheVlIlHvOxaUnigq8Eo0m6CmLuogfE/izd5uwPlFahZ9koo9ylC8Dq
-         qNTwhBSJif/AU3A/5T/28V9faN5kYE4N9GAl9gtIr59p7Y+UEkl4IcywgT6Fbrtl2i
-         JpYUZsDUf9r5flWJEDYJ42Y4KQo4LLDK8/AroAuY=
+        b=WR3Wqhwx13TGoL55FCxOXUOIk7+V5/IjBt6Vw0FwUAzcr/OH2ryksEgrX3WZKmCX7
+         orv9kSldezWE+R3sxGzqlLi4NN45PYs5EhqIFJMu3m4gpUrN4fQZ/shUhN53xrKg/w
+         eLZOBWtoRKBriMO073pB1ALjAzGqpa/iiCoM17mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/91] soc: bcm: brcmstb: biuctrl: Register writes require a barrier
-Date:   Fri, 12 Jul 2019 14:18:07 +0200
-Message-Id: <20190712121621.662954237@linuxfoundation.org>
+Subject: [PATCH 4.19 05/91] Input: elantech - enable middle button support on 2 ThinkPads
+Date:   Fri, 12 Jul 2019 14:18:08 +0200
+Message-Id: <20190712121621.715248747@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -43,33 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6b23af0783a54efb348f0bd781b7850636023dbb ]
+[ Upstream commit aa440de3058a3ef530851f9ef373fbb5f694dbc3 ]
 
-The BIUCTRL register writes require that a data barrier be inserted
-after comitting the write to the register for the block to latch in the
-recently written values. Reads have no such requirement and are not
-changed.
+Adding 2 new touchpad PNPIDs to enable middle button support.
 
-Fixes: 34642650e5bc ("soc: Move brcmstb to bcm/brcmstb")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/bcm/brcmstb/biuctrl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/elantech.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/soc/bcm/brcmstb/biuctrl.c b/drivers/soc/bcm/brcmstb/biuctrl.c
-index c16273b31b94..20b63bee5b09 100644
---- a/drivers/soc/bcm/brcmstb/biuctrl.c
-+++ b/drivers/soc/bcm/brcmstb/biuctrl.c
-@@ -56,7 +56,7 @@ static inline void cbc_writel(u32 val, int reg)
- 	if (offset == -1)
- 		return;
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index a7f8b1614559..530142b5a115 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1189,6 +1189,8 @@ static const char * const middle_button_pnp_ids[] = {
+ 	"LEN2132", /* ThinkPad P52 */
+ 	"LEN2133", /* ThinkPad P72 w/ NFC */
+ 	"LEN2134", /* ThinkPad P72 */
++	"LEN0407",
++	"LEN0408",
+ 	NULL
+ };
  
--	writel_relaxed(val,  cpubiuctrl_base + offset);
-+	writel(val, cpubiuctrl_base + offset);
- }
- 
- enum cpubiuctrl_regs {
 -- 
 2.20.1
 
