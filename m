@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4599A66E2A
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:37:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A66466DC5
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728852AbfGLMg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:36:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48582 "EHLO mail.kernel.org"
+        id S1729606AbfGLMd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:33:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729021AbfGLMbj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:31:39 -0400
+        id S1729208AbfGLMdZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:33:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 730D7208E4;
-        Fri, 12 Jul 2019 12:31:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 458DF216C4;
+        Fri, 12 Jul 2019 12:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934698;
-        bh=XM4AwhK2dtQj/AFv85BsUsMC9DuD87c4q9CcfU+CFOw=;
+        s=default; t=1562934804;
+        bh=t5280lZFvII97lEhHEy/0FVCtgfXs0UW8Pa4O96y/hI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwArzJb/8nd4TDLBY1+5jkQmVg9yvsFnztJC+QZbhGT3GtrKcetzkpLiRZTFdHMwX
-         KosExjt2u9L3SLVTO5eWDXvsxY8s5KMb8J998/wUsiWTZtxiaUNQuVmUzLcgUo5Lgu
-         BVSHKhmq+rfPGe1zwAIYw4PAESkVS3cV/6bu+TLk=
+        b=U/XjRu3BhRa+eGL0FBQaUUekgzX61sWlJVHhLGKoANuamW78mL9jpkbZwp7K6ZjpA
+         fqTWDV/9ejFDKZofR9CpGxcAOHcH6yJoX0e2eQW8vmRFuTjTVRomglsYSO/Jq6mhT/
+         EE5mXEwHdIh2YUjQlak0TyRHBqHXjGJ9l6JbZLC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.1 123/138] HID: Add another Primax PIXART OEM mouse quirk
-Date:   Fri, 12 Jul 2019 14:19:47 +0200
-Message-Id: <20190712121633.460623662@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.2 35/61] staging: comedi: dt282x: fix a null pointer deref on interrupt
+Date:   Fri, 12 Jul 2019 14:19:48 +0200
+Message-Id: <20190712121622.493069211@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Parschauer <s.parschauer@gmx.de>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit 4c12954965fdf33d8ae3883c1931fc29ca023cfb upstream.
+commit b8336be66dec06bef518030a0df9847122053ec5 upstream.
 
-The PixArt OEM mice are known for disconnecting every minute in
-runlevel 1 or 3 if they are not always polled. So add quirk
-ALWAYS_POLL for this Alienware branded Primax mouse as well.
+The interrupt handler `dt282x_interrupt()` causes a null pointer
+dereference for those supported boards that have no analog output
+support.  For these boards, `dev->write_subdev` will be `NULL` and
+therefore the `s_ao` subdevice pointer variable will be `NULL`.  In that
+case, the following call near the end of the interrupt handler results
+in a null pointer dereference:
 
-Daniel Schepler (@dschepler) reported and tested the quirk.
-Reference: https://github.com/sriemer/fix-linux-mouse/issues/15
+	comedi_handle_events(dev, s_ao);
 
-Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
-CC: stable@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fix it by only calling the above function if `s_ao` is valid.
+
+(There are other uses of `s_ao` by the interrupt handler that may or may
+not be reached depending on values of hardware registers.  Trust that
+they are reliable for now.)
+
+Note:
+commit 4f6f009b204f ("staging: comedi: dt282x: use comedi_handle_events()")
+propagates an earlier error from
+commit f21c74fa4cfe ("staging: comedi: dt282x: use cfc_handle_events()").
+
+Fixes: 4f6f009b204f ("staging: comedi: dt282x: use comedi_handle_events()")
+Cc: <stable@vger.kernel.org> # v3.19+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-ids.h    |    1 +
- drivers/hid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/staging/comedi/drivers/dt282x.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1235,6 +1235,7 @@
- #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
- #define USB_DEVICE_ID_PRIMAX_REZEL	0x4e72
- #define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F	0x4d0f
-+#define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D65	0x4d65
- #define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4E22	0x4e22
+--- a/drivers/staging/comedi/drivers/dt282x.c
++++ b/drivers/staging/comedi/drivers/dt282x.c
+@@ -557,7 +557,8 @@ static irqreturn_t dt282x_interrupt(int
+ 	}
+ #endif
+ 	comedi_handle_events(dev, s);
+-	comedi_handle_events(dev, s_ao);
++	if (s_ao)
++		comedi_handle_events(dev, s_ao);
  
- 
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -132,6 +132,7 @@ static const struct hid_device_id hid_qu
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4D22), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D65), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4E22), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001), HID_QUIRK_NOGET },
+ 	return IRQ_RETVAL(handled);
+ }
 
 
