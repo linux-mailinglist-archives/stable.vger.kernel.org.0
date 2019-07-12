@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56F2366D50
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:29:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B84E366C9D
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:22:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728316AbfGLM2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:28:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42664 "EHLO mail.kernel.org"
+        id S1727239AbfGLMVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:21:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728831AbfGLM2e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:28:34 -0400
+        id S1727656AbfGLMVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:21:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03950216E3;
-        Fri, 12 Jul 2019 12:28:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 518232166E;
+        Fri, 12 Jul 2019 12:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934514;
-        bh=tfB0Yjzx+vKSU/qmFD3zv4coZikWMkBZyaZVhmcmguU=;
+        s=default; t=1562934106;
+        bh=Og0B92RChDsexTGGF7iAM2MlgY+ABlNAMFN0aun9bEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0ycGOlGBNZENjJO883CVXq7H9v7ufRUJvxbWiqRTlcXBQuTZE7iSdM2GANnWzYdQ
-         Ah5sVbEMMBNnk9HEQqPUBnSdlanyJAOVr162Zt/OMfaBCz/ZJl/pwHC7GJp0FkWfya
-         R+oXZf2Uxt7wEBb9ZVcudUVI2bjMCXxp9uRKYJ58=
+        b=Bo78s/iM2p096FyIlCHXNKvpRQNuPm3e+asVk1wekCbVo6DUuJpENhQbkjUlW6ABt
+         p1UmXn1aGiwechV2WoZwXyxzMbEkZyHkpKnSG95lLm6w7u4u3Rb+Cv3ARLZWd0DUpT
+         sZXVToaySA7knzl99IMygCyqzD9VK+EyMf4gkJLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Chen <matt.chen@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 026/138] iwlwifi: fix AX201 killer sku loading firmware issue
+Subject: [PATCH 4.19 07/91] samples, bpf: suppress compiler warning
 Date:   Fri, 12 Jul 2019 14:18:10 +0200
-Message-Id: <20190712121629.706800471@linuxfoundation.org>
+Message-Id: <20190712121621.812244165@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
+References: <20190712121621.422224300@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b17dc0632a17fbfe66b34ee7c24e1cc10cfc503e ]
+[ Upstream commit a195cefff49f60054998333e81ee95170ce8bf92 ]
 
-When try to bring up the AX201 2 killer sku, we
-run into:
-[81261.392463] iwlwifi 0000:01:00.0: loaded firmware version 46.8c20f243.0 op_mode iwlmvm
-[81261.407407] iwlwifi 0000:01:00.0: Detected Intel(R) Dual Band Wireless AX 22000, REV=0x340
-[81262.424778] iwlwifi 0000:01:00.0: Collecting data: trigger 16 fired.
-[81262.673359] iwlwifi 0000:01:00.0: Start IWL Error Log Dump:
-[81262.673365] iwlwifi 0000:01:00.0: Status: 0x00000000, count: -906373681
-[81262.673368] iwlwifi 0000:01:00.0: Loaded firmware version: 46.8c20f243.0
-[81262.673371] iwlwifi 0000:01:00.0: 0x507C015D | ADVANCED_SYSASSERT
+GCC 9 fails to calculate the size of local constant strings and produces a
+false positive:
 
-Fix this issue by adding 2 more cfg to avoid modifying the
-original cfg configuration.
+samples/bpf/task_fd_query_user.c: In function ‘test_debug_fs_uprobe’:
+samples/bpf/task_fd_query_user.c:242:67: warning: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size 215 [-Wformat-truncation=]
+  242 |  snprintf(buf, sizeof(buf), "/sys/kernel/debug/tracing/events/%ss/%s/id",
+      |                                                                   ^~
+  243 |    event_type, event_alias);
+      |                ~~~~~~~~~~~
+samples/bpf/task_fd_query_user.c:242:2: note: ‘snprintf’ output between 45 and 300 bytes into a destination of size 256
+  242 |  snprintf(buf, sizeof(buf), "/sys/kernel/debug/tracing/events/%ss/%s/id",
+      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  243 |    event_type, event_alias);
+      |    ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Signed-off-by: Matt Chen <matt.chen@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Workaround this by lowering the buffer size to a reasonable value.
+Related GCC Bugzilla: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=83431
+
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ samples/bpf/task_fd_query_user.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-index 2a03d34afa3b..80695584e406 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
-@@ -3585,7 +3585,9 @@ struct iwl_trans *iwl_trans_pcie_alloc(struct pci_dev *pdev,
- 		}
- 	} else if (CSR_HW_RF_ID_TYPE_CHIP_ID(trans->hw_rf_id) ==
- 		   CSR_HW_RF_ID_TYPE_CHIP_ID(CSR_HW_RF_ID_TYPE_HR) &&
--		   (trans->cfg != &iwl_ax200_cfg_cc ||
-+		   ((trans->cfg != &iwl_ax200_cfg_cc &&
-+		    trans->cfg != &killer1650x_2ax_cfg &&
-+		    trans->cfg != &killer1650w_2ax_cfg) ||
- 		    trans->hw_rev == CSR_HW_REV_TYPE_QNJ_B0)) {
- 		u32 hw_status;
- 
+diff --git a/samples/bpf/task_fd_query_user.c b/samples/bpf/task_fd_query_user.c
+index 8381d792f138..06957f0fbe83 100644
+--- a/samples/bpf/task_fd_query_user.c
++++ b/samples/bpf/task_fd_query_user.c
+@@ -216,7 +216,7 @@ static int test_debug_fs_uprobe(char *binary_path, long offset, bool is_return)
+ {
+ 	const char *event_type = "uprobe";
+ 	struct perf_event_attr attr = {};
+-	char buf[256], event_alias[256];
++	char buf[256], event_alias[sizeof("test_1234567890")];
+ 	__u64 probe_offset, probe_addr;
+ 	__u32 len, prog_id, fd_type;
+ 	int err, res, kfd, efd;
 -- 
 2.20.1
 
