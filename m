@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 032A366E09
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:36:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91B0466E40
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:37:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729665AbfGLMdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:33:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53320 "EHLO mail.kernel.org"
+        id S1728029AbfGLMbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:31:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728879AbfGLMdu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:33:50 -0400
+        id S1729322AbfGLMbL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:31:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4912B216E3;
-        Fri, 12 Jul 2019 12:33:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF589216C4;
+        Fri, 12 Jul 2019 12:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934829;
-        bh=6gxEAhsO1HLcQtZavycbTcyuT3ldIhrjwIC4kk7XOas=;
+        s=default; t=1562934670;
+        bh=58trNl1YYzPIQ7PWuKmscffVcuOf21ZviBY7mfAQ7eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TV280/KZEw6edpQP94ONo1kDjs3lcRO70qoAfQ78P0QAjRaimB8Qx5Oo7QSCt2fQ1
-         /7EhjU5Xx/yrPA5+iURZ8H42wNEC6+omcULvPW7frcP1lbwZHACw0Va0o/1zJ/B3yp
-         2au8grp5QIS2mIdOG+fFySi1JBUr+qK2IP1t0dko=
+        b=vhy8tpumsKmCr4JywDP/3OprOywY90itBom6XytgePNQspJ4GHG7/bBMd/fBdXJM5
+         /az1iR0hoKJf0gG5pKLnkB4QfmfrChrT0JDTK3bJy9De0ODJcGZk5lBm7IuMzk5dCe
+         ZvfTPKXrafILitm1qzqQURVrTYLOJezcZSo79qOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+182ce46596c3f2e1eb24@syzkaller.appspotmail.com,
-        Todd Kjos <tkjos@google.com>
-Subject: [PATCH 5.2 42/61] binder: fix memory leak in error path
-Date:   Fri, 12 Jul 2019 14:19:55 +0200
-Message-Id: <20190712121622.886842397@linuxfoundation.org>
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Stefan Wahren <stefan.wahren@i2se.com>
+Subject: [PATCH 5.1 132/138] staging: vchiq: make wait events interruptible
+Date:   Fri, 12 Jul 2019 14:19:56 +0200
+Message-Id: <20190712121633.785406931@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
-References: <20190712121620.632595223@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@android.com>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-commit 1909a671dbc3606685b1daf8b22a16f65ea7edda upstream.
+commit 77cf3f5dcf35c8f547f075213dbc15146d44cc76 upstream.
 
-syzkallar found a 32-byte memory leak in a rarely executed error
-case. The transaction complete work item was not freed if put_user()
-failed when writing the BR_TRANSACTION_COMPLETE to the user command
-buffer. Fixed by freeing it before put_user() is called.
+The killable version of wait_event() is meant to be used on situations
+where it should not fail at all costs, but still have the convenience of
+being able to kill it if really necessary. Wait events in VCHIQ doesn't
+fit this criteria, as it's mainly used as an interface to V4L2 and ALSA
+devices.
 
-Reported-by: syzbot+182ce46596c3f2e1eb24@syzkaller.appspotmail.com
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Cc: stable <stable@vger.kernel.org>
+Fixes: 852b2876a8a8 ("staging: vchiq: rework remove_event handling")
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/android/binder.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -4268,6 +4268,8 @@ retry:
- 		case BINDER_WORK_TRANSACTION_COMPLETE: {
- 			binder_inner_proc_unlock(proc);
- 			cmd = BR_TRANSACTION_COMPLETE;
-+			kfree(w);
-+			binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
- 			if (put_user(cmd, (uint32_t __user *)ptr))
- 				return -EFAULT;
- 			ptr += sizeof(uint32_t);
-@@ -4276,8 +4278,6 @@ retry:
- 			binder_debug(BINDER_DEBUG_TRANSACTION_COMPLETE,
- 				     "%d:%d BR_TRANSACTION_COMPLETE\n",
- 				     proc->pid, thread->pid);
--			kfree(w);
--			binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
- 		} break;
- 		case BINDER_WORK_NODE: {
- 			struct binder_node *node = container_of(w, struct binder_node, work);
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
+@@ -425,13 +425,21 @@ remote_event_create(wait_queue_head_t *w
+ 	init_waitqueue_head(wq);
+ }
+ 
++/*
++ * All the event waiting routines in VCHIQ used a custom semaphore
++ * implementation that filtered most signals. This achieved a behaviour similar
++ * to the "killable" family of functions. While cleaning up this code all the
++ * routines where switched to the "interruptible" family of functions, as the
++ * former was deemed unjustified and the use "killable" set all VCHIQ's
++ * threads in D state.
++ */
+ static inline int
+ remote_event_wait(wait_queue_head_t *wq, struct remote_event *event)
+ {
+ 	if (!event->fired) {
+ 		event->armed = 1;
+ 		dsb(sy);
+-		if (wait_event_killable(*wq, event->fired)) {
++		if (wait_event_interruptible(*wq, event->fired)) {
+ 			event->armed = 0;
+ 			return 0;
+ 		}
 
 
