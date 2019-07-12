@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C5966F02
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:43:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1631F66F03
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:43:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727118AbfGLMT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727116AbfGLMT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 12 Jul 2019 08:19:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52774 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726861AbfGLMTy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:19:54 -0400
+        id S1727102AbfGLMT5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:19:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 607A021019;
-        Fri, 12 Jul 2019 12:19:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F53D208E4;
+        Fri, 12 Jul 2019 12:19:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562933993;
-        bh=hPiOEE3aP3BAFin4qgmFvb5KHgzvJNUIaMCkGB9eM5A=;
+        s=default; t=1562933996;
+        bh=mdVvnt0NyxZLQyR9PhJ/fUSa2WrIrj/Buq46zg1LSgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1isATAp046eaF2AVyQG5LLCY6m74LJe7YsyIUh3/MzvcxNUeL/xJmjmQaD48AOwM
-         MphoGPcaxF2Gi0o6MD67ZXE2QEeB4W9NcqfO6moos/wvg14U8r88lmzyBXFrN+koc0
-         y3zBWn1NpiiDt3bj6svQ4XhBxDF+g3gMQ4yA3rao=
+        b=RLR9PpXEg4FU2WI+At+VC58QrKGLnCbmJoqFmO37QuCan1WOE8ZKRwsU9TTnCP7jL
+         ccWkdMJ+97rYR0+5p8qNTYcYTSd27Le5fhjcwlc1B60do+6dS8it64m8aQFgSxfg+I
+         W9bEF/8yRy791D6fFnA6RDzJvZgUMEZWfKg8dJGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Pedersen <thomas@eero.com>,
+        stable@vger.kernel.org,
+        Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>,
         Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/91] mac80211: mesh: fix RCU warning
-Date:   Fri, 12 Jul 2019 14:18:15 +0200
-Message-Id: <20190712121622.064743921@linuxfoundation.org>
+Subject: [PATCH 4.19 13/91] mac80211: free peer keys before vif down in mesh
+Date:   Fri, 12 Jul 2019 14:18:16 +0200
+Message-Id: <20190712121622.115217809@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -44,60 +45,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 551842446ed695641a00782cd118cbb064a416a1 ]
+[ Upstream commit 0112fa557c3bb3a002bc85760dc3761d737264d3 ]
 
-ifmsh->csa is an RCU-protected pointer. The writer context
-in ieee80211_mesh_finish_csa() is already mutually
-exclusive with wdev->sdata.mtx, but the RCU checker did
-not know this. Use rcu_dereference_protected() to avoid a
-warning.
+freeing peer keys after vif down is resulting in peer key uninstall
+to fail due to interface lookup failure. so fix that.
 
-fixes the following warning:
-
-[   12.519089] =============================
-[   12.520042] WARNING: suspicious RCU usage
-[   12.520652] 5.1.0-rc7-wt+ #16 Tainted: G        W
-[   12.521409] -----------------------------
-[   12.521972] net/mac80211/mesh.c:1223 suspicious rcu_dereference_check() usage!
-[   12.522928] other info that might help us debug this:
-[   12.523984] rcu_scheduler_active = 2, debug_locks = 1
-[   12.524855] 5 locks held by kworker/u8:2/152:
-[   12.525438]  #0: 00000000057be08c ((wq_completion)phy0){+.+.}, at: process_one_work+0x1a2/0x620
-[   12.526607]  #1: 0000000059c6b07a ((work_completion)(&sdata->csa_finalize_work)){+.+.}, at: process_one_work+0x1a2/0x620
-[   12.528001]  #2: 00000000f184ba7d (&wdev->mtx){+.+.}, at: ieee80211_csa_finalize_work+0x2f/0x90
-[   12.529116]  #3: 00000000831a1f54 (&local->mtx){+.+.}, at: ieee80211_csa_finalize_work+0x47/0x90
-[   12.530233]  #4: 00000000fd06f988 (&local->chanctx_mtx){+.+.}, at: ieee80211_csa_finalize_work+0x51/0x90
-
-Signed-off-by: Thomas Pedersen <thomas@eero.com>
+Signed-off-by: Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/mac80211/mesh.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/net/mac80211/mesh.c b/net/mac80211/mesh.c
-index d51da26e9c18..0f9446ab7e4f 100644
+index 0f9446ab7e4f..3162f955f3ae 100644
 --- a/net/mac80211/mesh.c
 +++ b/net/mac80211/mesh.c
-@@ -1212,7 +1212,8 @@ int ieee80211_mesh_finish_csa(struct ieee80211_sub_if_data *sdata)
- 	ifmsh->chsw_ttl = 0;
+@@ -923,6 +923,7 @@ void ieee80211_stop_mesh(struct ieee80211_sub_if_data *sdata)
  
- 	/* Remove the CSA and MCSP elements from the beacon */
--	tmp_csa_settings = rcu_dereference(ifmsh->csa);
-+	tmp_csa_settings = rcu_dereference_protected(ifmsh->csa,
-+					    lockdep_is_held(&sdata->wdev.mtx));
- 	RCU_INIT_POINTER(ifmsh->csa, NULL);
- 	if (tmp_csa_settings)
- 		kfree_rcu(tmp_csa_settings, rcu_head);
-@@ -1234,6 +1235,8 @@ int ieee80211_mesh_csa_beacon(struct ieee80211_sub_if_data *sdata,
- 	struct mesh_csa_settings *tmp_csa_settings;
- 	int ret = 0;
+ 	/* flush STAs and mpaths on this iface */
+ 	sta_info_flush(sdata);
++	ieee80211_free_keys(sdata, true);
+ 	mesh_path_flush_by_iface(sdata);
  
-+	lockdep_assert_held(&sdata->wdev.mtx);
-+
- 	tmp_csa_settings = kmalloc(sizeof(*tmp_csa_settings),
- 				   GFP_ATOMIC);
- 	if (!tmp_csa_settings)
+ 	/* stop the beacon */
 -- 
 2.20.1
 
