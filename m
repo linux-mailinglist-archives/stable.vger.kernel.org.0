@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7ABD66978
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 10:58:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E81966992
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 11:06:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725993AbfGLI6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 04:58:13 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:46147 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725929AbfGLI6N (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Fri, 12 Jul 2019 04:58:13 -0400
+        id S1725987AbfGLJF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 05:05:59 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:56003 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725913AbfGLJF7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 05:05:59 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 049D62224E;
-        Fri, 12 Jul 2019 04:58:13 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 92A4121F32;
+        Fri, 12 Jul 2019 05:05:57 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 12 Jul 2019 04:58:13 -0400
+  by compute6.internal (MEProxy); Fri, 12 Jul 2019 05:05:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aH2GSX
-        3SidOvKOaTovgSBImWJz7I6qxXds/3mutrJJk=; b=1PTFCGao/1rbpUIhoTExg/
-        RUrUyOfGtR0szf9JKBPS+Qo7bmsiEQ0m4nZeSUhSdV2F7Gu/H3F8LxQhOkMXHosh
-        2cdVlLkM0J59vqjEOjBOuVbkfWWJYi+XkdQzYwVh3K4gn2Na1Y3JYG36DGj2FARH
-        cgQOJxhuWfbfIbi8PSM7+VDCEcaS2QoQ3azjmaX7DZ9MrR1vx82uAv8rKGgZbVuG
-        vI1JjwYtMMd3si26+4UHYFwUWUpiKLYi8dX1Hb1YhRk48Y+5B8Chy4U9o+WcZM12
-        5YkQ5CEOEBxKSyVspi7RzcXKGb7rCO2YsVhIaF40D7cgMSTK2/ao/5CmvBWoKp/w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=q2Bbol
+        4CjHeKLclDRDH8DCihYrWMLEeLmEvMhTUosoE=; b=Qcs3rSMfASF86lFOG58YnO
+        cZnEEg3kVmjzfGNwZ251CEj6UEellbVKakygVIYl1ESIFBq6/xyVAB51CeSVGX1h
+        mUAU3R6JEK4l83YFlTPbzcnLzW9j/Cms3k2vHkVmmEiCqcE40rpnQyw2y2HZgxxO
+        4B2lZx5wiiU2m0zAGJVhOdzjpvPXj9HrKpa79e/wpi1Haht3XZNlr/rOuCOjHZe/
+        v5TqopZL+/LktT1LikkucOFY+tS7SA3/MiMEpLdtJndOmcr3ZOwaUW+V53Q0lk9E
+        cXo36AMCw8ziUzLQIBXLP9JPmaGBDwR2BD6nLPS8QWzLFgFEl6E1ojzHqJBftkYg
         ==
-X-ME-Sender: <xms:pEsoXewlaLmqZnQM7owu0bSTa2kLyk1-7fGKQHSvh_fT3yITTrfCOA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrhedtgddtkecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:dU0oXauEj0k8txApLXfBf0ZGYCEXtnLXvYqFogr4v7WD-WY28e2GZw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrhedtgddutdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:pEsoXWkapeIjSycneOWa5VBYbvMaMQvqgvbT1VDvZLzuOqYDgUF49A>
-    <xmx:pEsoXTGe0UvwAKRSo1UwB-zfPwQSn2S6ONhQ26oS4QxLmftTFKr7Lw>
-    <xmx:pEsoXWUAIMh88y7tDOs7oAlCqc5Q6ItBspxRcvWzZkfiPiXqB0wNvw>
-    <xmx:pEsoXUTQhFKA9OyPMop_81_f1TegCt0TNvs6N0And_UB9KZ_N_ELpw>
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:dU0oXS_UyBDta1GN2zEx9h2ShWhLvCKLk2UCLxFIvAWixKJMbIshgw>
+    <xmx:dU0oXchsyD_qmR_PfQBW0IQnufnW0qofh73Up_pDS22go0HUH2Wg0w>
+    <xmx:dU0oXTf-NMbAlZso4VU8nicVj6_PjtYLfl8IiCf7G37fBmJpwb-2AA>
+    <xmx:dU0oXWj9hJcpwYb2QW64aT0Ep3qcmTrCN7ZCKaYa5PYmr8eyOOk90Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6A3C880060;
-        Fri, 12 Jul 2019 04:58:12 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iio: adc: stm32-adc: add missing vdda-supply" failed to apply to 4.19-stable tree
-To:     fabrice.gasnier@st.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id A83FA8005B;
+        Fri, 12 Jul 2019 05:05:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] coresight: etb10: Do not call smp_processor_id from" failed to apply to 5.1-stable tree
+To:     suzuki.poulose@arm.com, gregkh@linuxfoundation.org,
+        mathieu.poirier@linaro.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Jul 2019 10:58:02 +0200
-Message-ID: <156292188238246@kroah.com>
+Date:   Fri, 12 Jul 2019 11:05:55 +0200
+Message-ID: <1562922355199230@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,88 +69,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7685010fca2ba0284f31fd1380df3cffc96d847e Mon Sep 17 00:00:00 2001
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
-Date: Wed, 19 Jun 2019 14:29:55 +0200
-Subject: [PATCH] iio: adc: stm32-adc: add missing vdda-supply
+From 730766bae3280a25d40ea76a53dc6342e84e6513 Mon Sep 17 00:00:00 2001
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+Date: Thu, 20 Jun 2019 16:12:36 -0600
+Subject: [PATCH] coresight: etb10: Do not call smp_processor_id from
+ preemptible
 
-Add missing vdda-supply, analog power supply, to STM32 ADC. When vdda is
-an independent supply, it needs to be properly turned on or off to supply
-the ADC.
+During a perf session we try to allocate buffers on the "node" associated
+with the CPU the event is bound to. If it is not bound to a CPU, we
+use the current CPU node, using smp_processor_id(). However this is unsafe
+in a pre-emptible context and could generate the splats as below :
 
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Fixes: 1add69880240 ("iio: adc: Add support for STM32 ADC core").
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+ BUG: using smp_processor_id() in preemptible [00000000] code: perf/2544
 
-diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
-index 2327ec18b40c..1f7ce5186dfc 100644
---- a/drivers/iio/adc/stm32-adc-core.c
-+++ b/drivers/iio/adc/stm32-adc-core.c
-@@ -87,6 +87,7 @@ struct stm32_adc_priv_cfg {
-  * @domain:		irq domain reference
-  * @aclk:		clock reference for the analog circuitry
-  * @bclk:		bus clock common for all ADCs, depends on part used
-+ * @vdda:		vdda analog supply reference
-  * @vref:		regulator reference
-  * @cfg:		compatible configuration data
-  * @common:		common data for all ADC instances
-@@ -97,6 +98,7 @@ struct stm32_adc_priv {
- 	struct irq_domain		*domain;
- 	struct clk			*aclk;
- 	struct clk			*bclk;
-+	struct regulator		*vdda;
- 	struct regulator		*vref;
- 	const struct stm32_adc_priv_cfg	*cfg;
- 	struct stm32_adc_common		common;
-@@ -394,10 +396,16 @@ static int stm32_adc_core_hw_start(struct device *dev)
- 	struct stm32_adc_priv *priv = to_stm32_adc_priv(common);
- 	int ret;
+Use NUMA_NO_NODE hint instead of using the current node for events
+not bound to CPUs.
+
+Fixes: 2997aa4063d97fdb39 ("coresight: etb10: implementing AUX API")
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: stable <stable@vger.kernel.org> # 4.6+
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20190620221237.3536-5-mathieu.poirier@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/hwtracing/coresight/coresight-etb10.c b/drivers/hwtracing/coresight/coresight-etb10.c
+index d5b9edecf76e..3810290e6d07 100644
+--- a/drivers/hwtracing/coresight/coresight-etb10.c
++++ b/drivers/hwtracing/coresight/coresight-etb10.c
+@@ -374,12 +374,10 @@ static void *etb_alloc_buffer(struct coresight_device *csdev,
+ 			      struct perf_event *event, void **pages,
+ 			      int nr_pages, bool overwrite)
+ {
+-	int node, cpu = event->cpu;
++	int node;
+ 	struct cs_buffers *buf;
  
-+	ret = regulator_enable(priv->vdda);
-+	if (ret < 0) {
-+		dev_err(dev, "vdda enable failed %d\n", ret);
-+		return ret;
-+	}
-+
- 	ret = regulator_enable(priv->vref);
- 	if (ret < 0) {
- 		dev_err(dev, "vref enable failed\n");
--		return ret;
-+		goto err_vdda_disable;
- 	}
+-	if (cpu == -1)
+-		cpu = smp_processor_id();
+-	node = cpu_to_node(cpu);
++	node = (event->cpu == -1) ? NUMA_NO_NODE : cpu_to_node(event->cpu);
  
- 	if (priv->bclk) {
-@@ -425,6 +433,8 @@ static int stm32_adc_core_hw_start(struct device *dev)
- 		clk_disable_unprepare(priv->bclk);
- err_regulator_disable:
- 	regulator_disable(priv->vref);
-+err_vdda_disable:
-+	regulator_disable(priv->vdda);
- 
- 	return ret;
- }
-@@ -441,6 +451,7 @@ static void stm32_adc_core_hw_stop(struct device *dev)
- 	if (priv->bclk)
- 		clk_disable_unprepare(priv->bclk);
- 	regulator_disable(priv->vref);
-+	regulator_disable(priv->vdda);
- }
- 
- static int stm32_adc_probe(struct platform_device *pdev)
-@@ -468,6 +479,14 @@ static int stm32_adc_probe(struct platform_device *pdev)
- 		return PTR_ERR(priv->common.base);
- 	priv->common.phys_base = res->start;
- 
-+	priv->vdda = devm_regulator_get(&pdev->dev, "vdda");
-+	if (IS_ERR(priv->vdda)) {
-+		ret = PTR_ERR(priv->vdda);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "vdda get failed, %d\n", ret);
-+		return ret;
-+	}
-+
- 	priv->vref = devm_regulator_get(&pdev->dev, "vref");
- 	if (IS_ERR(priv->vref)) {
- 		ret = PTR_ERR(priv->vref);
+ 	buf = kzalloc_node(sizeof(struct cs_buffers), GFP_KERNEL, node);
+ 	if (!buf)
 
