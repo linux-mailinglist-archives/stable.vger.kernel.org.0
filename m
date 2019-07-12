@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D582966D44
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:29:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B2866CEF
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:25:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728179AbfGLM2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:28:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41364 "EHLO mail.kernel.org"
+        id S1728146AbfGLMYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:24:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728280AbfGLM2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:28:02 -0400
+        id S1728144AbfGLMYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:24:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B38B208E4;
-        Fri, 12 Jul 2019 12:28:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 590122084B;
+        Fri, 12 Jul 2019 12:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934481;
-        bh=OEUtpqy8TaVlC4ATZK6ZIDpbuemkRobvqkRMAEHHcho=;
+        s=default; t=1562934273;
+        bh=jJIdsp0EhhdWqql7R9UjK47yBHa1g72/qTxDgzXP6Lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aKyvu595hlt6IDeSvhvhkedumA75T7ep6SyWFJHq73ckcyxFdA1XQhLY9zW0yCIX1
-         p5+z2PnIPint6SUvD951OCNOWi5xVPOAZqK5aWHjpEWbXlbOcnSfL9B/Rnz+0BB8Og
-         b3xIw7k8wMKHJMDJ+cavjH/9CP0Ar6jR6EIUB6eE=
+        b=Ynkro9EYy9LTk+cnDNAKKuNUwUE9iqbxg5s9P4O5Jrtr7clhX57RGDm8W36S8nxhG
+         pRjPGukFhx/TxMdK3KdjWwOXmX01i5rM5aoYL8JmDdr800X6bJgvB7sOdtFGy/TGtc
+         gWhlMCNcEgquZ/Mv09q4g2laD1dXr70N2PqhIpTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 067/138] bpf, x64: fix stack layout of JITed bpf code
-Date:   Fri, 12 Jul 2019 14:18:51 +0200
-Message-Id: <20190712121631.241175596@linuxfoundation.org>
+Subject: [PATCH 4.19 49/91] ip6_tunnel: allow not to count pkts on tstats by passing dev as NULL
+Date:   Fri, 12 Jul 2019 14:18:52 +0200
+Message-Id: <20190712121624.257889987@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
+References: <20190712121621.422224300@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,135 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fe8d9571dc50232b569242fac7ea6332a654f186 ]
+[ Upstream commit 6f6a8622057c92408930c31698394fae1557b188 ]
 
-Since commit 177366bf7ceb the %rbp stopped pointing to %rbp of the
-previous stack frame. That broke frame pointer based stack unwinding.
-This commit is a partial revert of it.
-Note that the location of tail_call_cnt is fixed, since the verifier
-enforces MAX_BPF_STACK stack size for programs with tail calls.
+A similar fix to Patch "ip_tunnel: allow not to count pkts on tstats by
+setting skb's dev to NULL" is also needed by ip6_tunnel.
 
-Fixes: 177366bf7ceb ("bpf: change x86 JITed program stack layout")
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/net/bpf_jit_comp.c | 74 +++++++++++--------------------------
- 1 file changed, 21 insertions(+), 53 deletions(-)
+ include/net/ip6_tunnel.h | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
-index afabf597c855..d88bc0935886 100644
---- a/arch/x86/net/bpf_jit_comp.c
-+++ b/arch/x86/net/bpf_jit_comp.c
-@@ -190,9 +190,7 @@ struct jit_context {
- #define BPF_MAX_INSN_SIZE	128
- #define BPF_INSN_SAFETY		64
- 
--#define AUX_STACK_SPACE		40 /* Space for RBX, R13, R14, R15, tailcnt */
--
--#define PROLOGUE_SIZE		37
-+#define PROLOGUE_SIZE		20
- 
- /*
-  * Emit x86-64 prologue code for BPF program and check its size.
-@@ -203,44 +201,19 @@ static void emit_prologue(u8 **pprog, u32 stack_depth, bool ebpf_from_cbpf)
- 	u8 *prog = *pprog;
- 	int cnt = 0;
- 
--	/* push rbp */
--	EMIT1(0x55);
--
--	/* mov rbp,rsp */
--	EMIT3(0x48, 0x89, 0xE5);
--
--	/* sub rsp, rounded_stack_depth + AUX_STACK_SPACE */
--	EMIT3_off32(0x48, 0x81, 0xEC,
--		    round_up(stack_depth, 8) + AUX_STACK_SPACE);
--
--	/* sub rbp, AUX_STACK_SPACE */
--	EMIT4(0x48, 0x83, 0xED, AUX_STACK_SPACE);
--
--	/* mov qword ptr [rbp+0],rbx */
--	EMIT4(0x48, 0x89, 0x5D, 0);
--	/* mov qword ptr [rbp+8],r13 */
--	EMIT4(0x4C, 0x89, 0x6D, 8);
--	/* mov qword ptr [rbp+16],r14 */
--	EMIT4(0x4C, 0x89, 0x75, 16);
--	/* mov qword ptr [rbp+24],r15 */
--	EMIT4(0x4C, 0x89, 0x7D, 24);
--
-+	EMIT1(0x55);             /* push rbp */
-+	EMIT3(0x48, 0x89, 0xE5); /* mov rbp, rsp */
-+	/* sub rsp, rounded_stack_depth */
-+	EMIT3_off32(0x48, 0x81, 0xEC, round_up(stack_depth, 8));
-+	EMIT1(0x53);             /* push rbx */
-+	EMIT2(0x41, 0x55);       /* push r13 */
-+	EMIT2(0x41, 0x56);       /* push r14 */
-+	EMIT2(0x41, 0x57);       /* push r15 */
- 	if (!ebpf_from_cbpf) {
--		/*
--		 * Clear the tail call counter (tail_call_cnt): for eBPF tail
--		 * calls we need to reset the counter to 0. It's done in two
--		 * instructions, resetting RAX register to 0, and moving it
--		 * to the counter location.
--		 */
--
--		/* xor eax, eax */
--		EMIT2(0x31, 0xc0);
--		/* mov qword ptr [rbp+32], rax */
--		EMIT4(0x48, 0x89, 0x45, 32);
--
-+		/* zero init tail_call_cnt */
-+		EMIT2(0x6a, 0x00);
- 		BUILD_BUG_ON(cnt != PROLOGUE_SIZE);
- 	}
--
- 	*pprog = prog;
+diff --git a/include/net/ip6_tunnel.h b/include/net/ip6_tunnel.h
+index 236e40ba06bf..f594eb71c274 100644
+--- a/include/net/ip6_tunnel.h
++++ b/include/net/ip6_tunnel.h
+@@ -156,9 +156,12 @@ static inline void ip6tunnel_xmit(struct sock *sk, struct sk_buff *skb,
+ 	memset(skb->cb, 0, sizeof(struct inet6_skb_parm));
+ 	pkt_len = skb->len - skb_inner_network_offset(skb);
+ 	err = ip6_local_out(dev_net(skb_dst(skb)->dev), sk, skb);
+-	if (unlikely(net_xmit_eval(err)))
+-		pkt_len = -1;
+-	iptunnel_xmit_stats(dev, pkt_len);
++
++	if (dev) {
++		if (unlikely(net_xmit_eval(err)))
++			pkt_len = -1;
++		iptunnel_xmit_stats(dev, pkt_len);
++	}
  }
- 
-@@ -285,13 +258,13 @@ static void emit_bpf_tail_call(u8 **pprog)
- 	 * if (tail_call_cnt > MAX_TAIL_CALL_CNT)
- 	 *	goto out;
- 	 */
--	EMIT2_off32(0x8B, 0x85, 36);              /* mov eax, dword ptr [rbp + 36] */
-+	EMIT2_off32(0x8B, 0x85, -36 - MAX_BPF_STACK); /* mov eax, dword ptr [rbp - 548] */
- 	EMIT3(0x83, 0xF8, MAX_TAIL_CALL_CNT);     /* cmp eax, MAX_TAIL_CALL_CNT */
- #define OFFSET2 (30 + RETPOLINE_RAX_BPF_JIT_SIZE)
- 	EMIT2(X86_JA, OFFSET2);                   /* ja out */
- 	label2 = cnt;
- 	EMIT3(0x83, 0xC0, 0x01);                  /* add eax, 1 */
--	EMIT2_off32(0x89, 0x85, 36);              /* mov dword ptr [rbp + 36], eax */
-+	EMIT2_off32(0x89, 0x85, -36 - MAX_BPF_STACK); /* mov dword ptr [rbp -548], eax */
- 
- 	/* prog = array->ptrs[index]; */
- 	EMIT4_off32(0x48, 0x8B, 0x84, 0xD6,       /* mov rax, [rsi + rdx * 8 + offsetof(...)] */
-@@ -1040,19 +1013,14 @@ xadd:			if (is_imm8(insn->off))
- 			seen_exit = true;
- 			/* Update cleanup_addr */
- 			ctx->cleanup_addr = proglen;
--			/* mov rbx, qword ptr [rbp+0] */
--			EMIT4(0x48, 0x8B, 0x5D, 0);
--			/* mov r13, qword ptr [rbp+8] */
--			EMIT4(0x4C, 0x8B, 0x6D, 8);
--			/* mov r14, qword ptr [rbp+16] */
--			EMIT4(0x4C, 0x8B, 0x75, 16);
--			/* mov r15, qword ptr [rbp+24] */
--			EMIT4(0x4C, 0x8B, 0x7D, 24);
--
--			/* add rbp, AUX_STACK_SPACE */
--			EMIT4(0x48, 0x83, 0xC5, AUX_STACK_SPACE);
--			EMIT1(0xC9); /* leave */
--			EMIT1(0xC3); /* ret */
-+			if (!bpf_prog_was_classic(bpf_prog))
-+				EMIT1(0x5B); /* get rid of tail_call_cnt */
-+			EMIT2(0x41, 0x5F);   /* pop r15 */
-+			EMIT2(0x41, 0x5E);   /* pop r14 */
-+			EMIT2(0x41, 0x5D);   /* pop r13 */
-+			EMIT1(0x5B);         /* pop rbx */
-+			EMIT1(0xC9);         /* leave */
-+			EMIT1(0xC3);         /* ret */
- 			break;
- 
- 		default:
+ #endif
+ #endif
 -- 
 2.20.1
 
