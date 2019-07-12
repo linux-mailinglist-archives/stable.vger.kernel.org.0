@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57141675F4
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 22:36:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57362675F5
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 22:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727555AbfGLUgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 16:36:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56024 "EHLO mail.kernel.org"
+        id S1727561AbfGLUgf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 16:36:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727118AbfGLUgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 16:36:32 -0400
+        id S1727118AbfGLUgf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 16:36:35 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CBE9217D4;
-        Fri, 12 Jul 2019 20:36:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E7DD217D4;
+        Fri, 12 Jul 2019 20:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562963791;
-        bh=B66gEl3ogCzn0OtTHmwtFnNnLMEKnZRvrt03dnRbErc=;
+        s=default; t=1562963794;
+        bh=vJU5FAH4tG8BCiKiIzzL/ErKvVmGRqLWGMrIucnfuNc=;
         h=Date:From:To:Subject:From;
-        b=PrY69uB3phOo8T0RORSw4Y2fEZcC+XxRbx+N8oS5vXBOEYwx5vIZy70lqUgV/D9N2
-         hukwPCWBtVyKfeYs/8Keo4lxD3KaDyXLZY0QinpGGmyAsNch8BaBMxU8AFm+B28QEU
-         QZfrX/vUFkdtNAFHRkV2lTztuDFSxw+V2EHwKl18=
-Date:   Fri, 12 Jul 2019 13:36:31 -0700
+        b=M6jYs+2B0kA0aLhNTI1ev9EsQGGQ35ycdSc8D3nwo4xXaEk4hJSeUCjLge1pNz3gm
+         Z069FpsN7LR0q+vVqUWRMbiFAOLvUJGFxSw/D2B6ndxkp30JtHE31fF4lHo5xzcHv6
+         vg6gGUG0UNr5IqYAWWwzWBt13V6weZs5oT4lorpo=
+Date:   Fri, 12 Jul 2019 13:36:34 -0700
 From:   akpm@linux-foundation.org
-To:     aneesh.kumar@linux.ibm.com, dan.j.williams@intel.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
+To:     hannes@cmpxchg.org, laoar.shao@gmail.com, mhocko@suse.com,
+        mm-commits@vger.kernel.org, shakeelb@google.com,
+        shaoyafang@didiglobal.com, stable@vger.kernel.org
 Subject:  [merged]
- mm-nvdimm-add-is_ioremap_addr-and-use-that-to-check-ioremap-address.patch
- removed from -mm tree
-Message-ID: <20190712203631.1Wr2Hqlim%akpm@linux-foundation.org>
+ mm-memcontrol-fix-wrong-statistics-in-memorystat.patch removed from -mm
+ tree
+Message-ID: <20190712203634.wogAkdpIe%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -39,87 +40,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/nvdimm: add is_ioremap_addr and use that to check ioremap address
+     Subject: mm/memcontrol: fix wrong statistics in memory.stat
 has been removed from the -mm tree.  Its filename was
-     mm-nvdimm-add-is_ioremap_addr-and-use-that-to-check-ioremap-address.patch
+     mm-memcontrol-fix-wrong-statistics-in-memorystat.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: mm/nvdimm: add is_ioremap_addr and use that to check ioremap address
+From: Yafang Shao <laoar.shao@gmail.com>
+Subject: mm/memcontrol: fix wrong statistics in memory.stat
 
-Architectures like powerpc use different address range to map ioremap and
-vmalloc range.  The memunmap() check used by the nvdimm layer was wrongly
-using is_vmalloc_addr() to check for ioremap range which fails for ppc64. 
-This result in ppc64 not freeing the ioremap mapping.  The side effect of
-this is an unbind failure during module unload with papr_scm nvdimm driver
+When we calculate total statistics for memcg1_stats and memcg1_events, we
+use the the index 'i' in the for loop as the events index.  Actually we
+should use memcg1_stats[i] and memcg1_events[i] as the events index.
 
-Link: http://lkml.kernel.org/r/20190701134038.14165-1-aneesh.kumar@linux.ibm.com
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Fixes: b5beae5e224f ("powerpc/pseries: Add driver for PAPR SCM regions")
-Cc: Dan Williams <dan.j.williams@intel.com>
+Link: http://lkml.kernel.org/r/1562116978-19539-1-git-send-email-laoar.shao@gmail.com
+Fixes: 42a300353577 ("mm: memcontrol: fix recursive statistics correctness & scalabilty").
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Yafang Shao <shaoyafang@didiglobal.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- arch/powerpc/include/asm/pgtable.h |   14 ++++++++++++++
- include/linux/mm.h                 |    5 +++++
- kernel/iomem.c                     |    2 +-
- 3 files changed, 20 insertions(+), 1 deletion(-)
+ mm/memcontrol.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/include/asm/pgtable.h~mm-nvdimm-add-is_ioremap_addr-and-use-that-to-check-ioremap-address
-+++ a/arch/powerpc/include/asm/pgtable.h
-@@ -140,6 +140,20 @@ static inline void pte_frag_set(mm_conte
- }
- #endif
+--- a/mm/memcontrol.c~mm-memcontrol-fix-wrong-statistics-in-memorystat
++++ a/mm/memcontrol.c
+@@ -3523,12 +3523,13 @@ static int memcg_stat_show(struct seq_fi
+ 		if (memcg1_stats[i] == MEMCG_SWAP && !do_memsw_account())
+ 			continue;
+ 		seq_printf(m, "total_%s %llu\n", memcg1_stat_names[i],
+-			   (u64)memcg_page_state(memcg, i) * PAGE_SIZE);
++			   (u64)memcg_page_state(memcg, memcg1_stats[i]) *
++			   PAGE_SIZE);
+ 	}
  
-+#ifdef CONFIG_PPC64
-+#define is_ioremap_addr is_ioremap_addr
-+static inline bool is_ioremap_addr(const void *x)
-+{
-+#ifdef CONFIG_MMU
-+	unsigned long addr = (unsigned long)x;
-+
-+	return addr >= IOREMAP_BASE && addr < IOREMAP_END;
-+#else
-+	return false;
-+#endif
-+}
-+#endif /* CONFIG_PPC64 */
-+
- #endif /* __ASSEMBLY__ */
+ 	for (i = 0; i < ARRAY_SIZE(memcg1_events); i++)
+ 		seq_printf(m, "total_%s %llu\n", memcg1_event_names[i],
+-			   (u64)memcg_events(memcg, i));
++			   (u64)memcg_events(memcg, memcg1_events[i]));
  
- #endif /* _ASM_POWERPC_PGTABLE_H */
---- a/include/linux/mm.h~mm-nvdimm-add-is_ioremap_addr-and-use-that-to-check-ioremap-address
-+++ a/include/linux/mm.h
-@@ -633,6 +633,11 @@ static inline bool is_vmalloc_addr(const
- 	return false;
- #endif
- }
-+
-+#ifndef is_ioremap_addr
-+#define is_ioremap_addr(x) is_vmalloc_addr(x)
-+#endif
-+
- #ifdef CONFIG_MMU
- extern int is_vmalloc_or_module_addr(const void *x);
- #else
---- a/kernel/iomem.c~mm-nvdimm-add-is_ioremap_addr-and-use-that-to-check-ioremap-address
-+++ a/kernel/iomem.c
-@@ -121,7 +121,7 @@ EXPORT_SYMBOL(memremap);
- 
- void memunmap(void *addr)
- {
--	if (is_vmalloc_addr(addr))
-+	if (is_ioremap_addr(addr))
- 		iounmap((void __iomem *) addr);
- }
- EXPORT_SYMBOL(memunmap);
+ 	for (i = 0; i < NR_LRU_LISTS; i++)
+ 		seq_printf(m, "total_%s %llu\n", mem_cgroup_lru_names[i],
 _
 
-Patches currently in -mm which might be from aneesh.kumar@linux.ibm.com are
+Patches currently in -mm which might be from laoar.shao@gmail.com are
 
-mm-move-map_sync-to-asm-generic-mman-commonh.patch
-mm-mmap-move-common-defines-to-mman-commonh.patch
+mm-vmscan-expose-cgroup_ino-for-memcg-reclaim-tracepoints.patch
+mm-memcontrol-keep-local-vm-counters-in-sync-with-the-hierarchical-ones.patch
+mm-vmscan-add-a-new-member-reclaim_state-in-struct-shrink_control.patch
+mm-vmscan-add-a-new-member-reclaim_state-in-struct-shrink_control-fix.patch
+mm-vmscan-calculate-reclaimed-slab-caches-in-all-reclaim-paths.patch
 
