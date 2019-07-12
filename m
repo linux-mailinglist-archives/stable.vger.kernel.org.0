@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA49866CDB
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:23:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1112366CDF
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:24:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727995AbfGLMXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:23:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59968 "EHLO mail.kernel.org"
+        id S1728011AbfGLMYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:24:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727991AbfGLMXv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:23:51 -0400
+        id S1728017AbfGLMYB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:24:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81D2A216E3;
-        Fri, 12 Jul 2019 12:23:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8B392166E;
+        Fri, 12 Jul 2019 12:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934231;
-        bh=t5280lZFvII97lEhHEy/0FVCtgfXs0UW8Pa4O96y/hI=;
+        s=default; t=1562934240;
+        bh=iq7WBELuSJXsDQXHqcYVhtzeWRxVPYpR2skCXKG3gus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R83u+4c+KrbQk0CCS3rCU18V3LAD3UVTtQb6I6nEnPYpcArFIVqAF4jwV8OmfpqD5
-         iikatL381LlJaPz3cwTIrVJ7UaXrx7/i2r9WPyCYgCAf+rdAKl4AqJDZOQbWpNK1rZ
-         7gDsPn4MddU5uypHQFJUyOqZp1PdN4ixQogDO3Z8=
+        b=EHAhzlqwLPhlgFaNabuOE2QkdXhoV+JfI/HxA5BmV35QJXHfqx4AaSAyoMwuby/lT
+         8+ATQ3bzu4iddJ6DZPr1nuhaVQxUIkw3i6DsBZUAaeTOq2SAvigNLAZ94zOJ0c/aM+
+         L4crZmFmMxcLZnll25zb5+5B2dJRryVM6drqmQTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.19 78/91] staging: comedi: dt282x: fix a null pointer deref on interrupt
-Date:   Fri, 12 Jul 2019 14:19:21 +0200
-Message-Id: <20190712121625.991361986@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Alan Modra <amodra@gmail.com>,
+        Jordan Rupprect <rupprecht@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 4.19 81/91] lkdtm: support llvm-objcopy
+Date:   Fri, 12 Jul 2019 14:19:24 +0200
+Message-Id: <20190712121626.129401231@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -42,50 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit b8336be66dec06bef518030a0df9847122053ec5 upstream.
+commit e9e08a07385e08f1a7f85c5d1e345c21c9564963 upstream.
 
-The interrupt handler `dt282x_interrupt()` causes a null pointer
-dereference for those supported boards that have no analog output
-support.  For these boards, `dev->write_subdev` will be `NULL` and
-therefore the `s_ao` subdevice pointer variable will be `NULL`.  In that
-case, the following call near the end of the interrupt handler results
-in a null pointer dereference:
+With CONFIG_LKDTM=y and make OBJCOPY=llvm-objcopy, llvm-objcopy errors:
+llvm-objcopy: error: --set-section-flags=.text conflicts with
+--rename-section=.text=.rodata
 
-	comedi_handle_events(dev, s_ao);
+Rather than support setting flags then renaming sections vs renaming
+then setting flags, it's simpler to just change both at the same time
+via --rename-section. Adding the load flag is required for GNU objcopy
+to mark .rodata Type as PROGBITS after the rename.
 
-Fix it by only calling the above function if `s_ao` is valid.
+This can be verified with:
+$ readelf -S drivers/misc/lkdtm/rodata_objcopy.o
+...
+Section Headers:
+  [Nr] Name              Type             Address           Offset
+       Size              EntSize          Flags  Link  Info  Align
+...
+  [ 1] .rodata           PROGBITS         0000000000000000  00000040
+       0000000000000004  0000000000000000   A       0     0     4
+...
 
-(There are other uses of `s_ao` by the interrupt handler that may or may
-not be reached depending on values of hardware registers.  Trust that
-they are reliable for now.)
+Which shows that .text is now renamed .rodata, the alloc flag A is set,
+the type is PROGBITS, and the section is not flagged as writeable W.
 
-Note:
-commit 4f6f009b204f ("staging: comedi: dt282x: use comedi_handle_events()")
-propagates an earlier error from
-commit f21c74fa4cfe ("staging: comedi: dt282x: use cfc_handle_events()").
-
-Fixes: 4f6f009b204f ("staging: comedi: dt282x: use comedi_handle_events()")
-Cc: <stable@vger.kernel.org> # v3.19+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Cc: stable@vger.kernel.org
+Link: https://sourceware.org/bugzilla/show_bug.cgi?id=24554
+Link: https://github.com/ClangBuiltLinux/linux/issues/448
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Suggested-by: Alan Modra <amodra@gmail.com>
+Suggested-by: Jordan Rupprect <rupprecht@google.com>
+Suggested-by: Kees Cook <keescook@chromium.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/dt282x.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/misc/lkdtm/Makefile |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/staging/comedi/drivers/dt282x.c
-+++ b/drivers/staging/comedi/drivers/dt282x.c
-@@ -557,7 +557,8 @@ static irqreturn_t dt282x_interrupt(int
- 	}
- #endif
- 	comedi_handle_events(dev, s);
--	comedi_handle_events(dev, s_ao);
-+	if (s_ao)
-+		comedi_handle_events(dev, s_ao);
+--- a/drivers/misc/lkdtm/Makefile
++++ b/drivers/misc/lkdtm/Makefile
+@@ -13,8 +13,7 @@ KCOV_INSTRUMENT_rodata.o	:= n
  
- 	return IRQ_RETVAL(handled);
- }
+ OBJCOPYFLAGS :=
+ OBJCOPYFLAGS_rodata_objcopy.o	:= \
+-			--set-section-flags .text=alloc,readonly \
+-			--rename-section .text=.rodata
++			--rename-section .text=.rodata,alloc,readonly,load
+ targets += rodata.o rodata_objcopy.o
+ $(obj)/rodata_objcopy.o: $(obj)/rodata.o FORCE
+ 	$(call if_changed,objcopy)
 
 
