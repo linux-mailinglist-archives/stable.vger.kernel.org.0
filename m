@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36B2866CEF
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:25:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 919BA66CB5
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:22:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728146AbfGLMYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:24:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33326 "EHLO mail.kernel.org"
+        id S1727427AbfGLMWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:22:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728144AbfGLMYe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:24:34 -0400
+        id S1727305AbfGLMWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:22:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 590122084B;
-        Fri, 12 Jul 2019 12:24:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD59E208E4;
+        Fri, 12 Jul 2019 12:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934273;
-        bh=jJIdsp0EhhdWqql7R9UjK47yBHa1g72/qTxDgzXP6Lc=;
+        s=default; t=1562934154;
+        bh=YRtuN/2H0rgjM6ilhMgMIYYR1DuAJ8TUFcq6UJ9NsLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ynkro9EYy9LTk+cnDNAKKuNUwUE9iqbxg5s9P4O5Jrtr7clhX57RGDm8W36S8nxhG
-         pRjPGukFhx/TxMdK3KdjWwOXmX01i5rM5aoYL8JmDdr800X6bJgvB7sOdtFGy/TGtc
-         gWhlMCNcEgquZ/Mv09q4g2laD1dXr70N2PqhIpTs=
+        b=z8tJXjHPgCyJNnfHCeLG/veWiefpnIfRGen6i/vX5pT0ZNI71D3IPs8KirsBWzGWl
+         9Ajry+VENawxGsjK5taB9T0Kq+SdL3RChbV77DnzedzqzTgHwEAHtIRd0Jcdlkc5NZ
+         BbSK3NrOMnQRYN7QP8ijmxd8McV/ZgwszdjgOxZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Trond Myklebust <trondmy@hammerspace.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 49/91] ip6_tunnel: allow not to count pkts on tstats by passing dev as NULL
-Date:   Fri, 12 Jul 2019 14:18:52 +0200
-Message-Id: <20190712121624.257889987@linuxfoundation.org>
+Subject: [PATCH 4.19 54/91] NFS4: Only set creation opendata if O_CREAT
+Date:   Fri, 12 Jul 2019 14:18:57 +0200
+Message-Id: <20190712121624.573994260@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -44,38 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6f6a8622057c92408930c31698394fae1557b188 ]
+[ Upstream commit 909105199a682cb09c500acd443d34b182846c9c ]
 
-A similar fix to Patch "ip_tunnel: allow not to count pkts on tstats by
-setting skb's dev to NULL" is also needed by ip6_tunnel.
+We can end up in nfs4_opendata_alloc during task exit, in which case
+current->fs has already been cleaned up.  This leads to a crash in
+current_umask().
 
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by only setting creation opendata if we are actually doing an open
+with O_CREAT.  We can drop the check for NULL nfs4_open_createattrs, since
+O_CREAT will never be set for the recovery path.
+
+Suggested-by: Trond Myklebust <trondmy@hammerspace.com>
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip6_tunnel.h | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/nfs/nfs4proc.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/include/net/ip6_tunnel.h b/include/net/ip6_tunnel.h
-index 236e40ba06bf..f594eb71c274 100644
---- a/include/net/ip6_tunnel.h
-+++ b/include/net/ip6_tunnel.h
-@@ -156,9 +156,12 @@ static inline void ip6tunnel_xmit(struct sock *sk, struct sk_buff *skb,
- 	memset(skb->cb, 0, sizeof(struct inet6_skb_parm));
- 	pkt_len = skb->len - skb_inner_network_offset(skb);
- 	err = ip6_local_out(dev_net(skb_dst(skb)->dev), sk, skb);
--	if (unlikely(net_xmit_eval(err)))
--		pkt_len = -1;
--	iptunnel_xmit_stats(dev, pkt_len);
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 53cf8599a46e..1de855e0ae61 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1243,10 +1243,20 @@ static struct nfs4_opendata *nfs4_opendata_alloc(struct dentry *dentry,
+ 	atomic_inc(&sp->so_count);
+ 	p->o_arg.open_flags = flags;
+ 	p->o_arg.fmode = fmode & (FMODE_READ|FMODE_WRITE);
+-	p->o_arg.umask = current_umask();
+ 	p->o_arg.claim = nfs4_map_atomic_open_claim(server, claim);
+ 	p->o_arg.share_access = nfs4_map_atomic_open_share(server,
+ 			fmode, flags);
++	if (flags & O_CREAT) {
++		p->o_arg.umask = current_umask();
++		p->o_arg.label = nfs4_label_copy(p->a_label, label);
++		if (c->sattr != NULL && c->sattr->ia_valid != 0) {
++			p->o_arg.u.attrs = &p->attrs;
++			memcpy(&p->attrs, c->sattr, sizeof(p->attrs));
 +
-+	if (dev) {
-+		if (unlikely(net_xmit_eval(err)))
-+			pkt_len = -1;
-+		iptunnel_xmit_stats(dev, pkt_len);
++			memcpy(p->o_arg.u.verifier.data, c->verf,
++					sizeof(p->o_arg.u.verifier.data));
++		}
 +	}
- }
- #endif
- #endif
+ 	/* don't put an ACCESS op in OPEN compound if O_EXCL, because ACCESS
+ 	 * will return permission denied for all bits until close */
+ 	if (!(flags & O_EXCL)) {
+@@ -1270,7 +1280,6 @@ static struct nfs4_opendata *nfs4_opendata_alloc(struct dentry *dentry,
+ 	p->o_arg.server = server;
+ 	p->o_arg.bitmask = nfs4_bitmask(server, label);
+ 	p->o_arg.open_bitmap = &nfs4_fattr_bitmap[0];
+-	p->o_arg.label = nfs4_label_copy(p->a_label, label);
+ 	switch (p->o_arg.claim) {
+ 	case NFS4_OPEN_CLAIM_NULL:
+ 	case NFS4_OPEN_CLAIM_DELEGATE_CUR:
+@@ -1283,13 +1292,6 @@ static struct nfs4_opendata *nfs4_opendata_alloc(struct dentry *dentry,
+ 	case NFS4_OPEN_CLAIM_DELEG_PREV_FH:
+ 		p->o_arg.fh = NFS_FH(d_inode(dentry));
+ 	}
+-	if (c != NULL && c->sattr != NULL && c->sattr->ia_valid != 0) {
+-		p->o_arg.u.attrs = &p->attrs;
+-		memcpy(&p->attrs, c->sattr, sizeof(p->attrs));
+-
+-		memcpy(p->o_arg.u.verifier.data, c->verf,
+-				sizeof(p->o_arg.u.verifier.data));
+-	}
+ 	p->c_arg.fh = &p->o_res.fh;
+ 	p->c_arg.stateid = &p->o_res.stateid;
+ 	p->c_arg.seqid = p->o_arg.seqid;
 -- 
 2.20.1
 
