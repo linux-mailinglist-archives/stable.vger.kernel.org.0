@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B84E366C9D
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:22:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C8E166C9E
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:22:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727239AbfGLMVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:21:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56194 "EHLO mail.kernel.org"
+        id S1727233AbfGLMVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727656AbfGLMVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:21:47 -0400
+        id S1727663AbfGLMVu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:21:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 518232166E;
-        Fri, 12 Jul 2019 12:21:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AA6A21670;
+        Fri, 12 Jul 2019 12:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934106;
-        bh=Og0B92RChDsexTGGF7iAM2MlgY+ABlNAMFN0aun9bEY=;
+        s=default; t=1562934109;
+        bh=pUKI/A5Oz7rfvis28dXWUiv9SGLePMjDtVFHxg5NV/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bo78s/iM2p096FyIlCHXNKvpRQNuPm3e+asVk1wekCbVo6DUuJpENhQbkjUlW6ABt
-         p1UmXn1aGiwechV2WoZwXyxzMbEkZyHkpKnSG95lLm6w7u4u3Rb+Cv3ARLZWd0DUpT
-         sZXVToaySA7knzl99IMygCyqzD9VK+EyMf4gkJLY=
+        b=06UH63RHVWcBxDTfP6QapZLhLs7cFPfIrb+u/qimnrn/3ZkQoNORtPnzB0A0LCAkM
+         to8BvrKkVo5faJ4FEiWZdo0jKUjyoBq2todFxFoXzRHSTiDxMH+eNy0ogDmo8dfalA
+         lbNKAC83TAyLT8iCx2MsQ+qQ3gcowVEDP/5JsY7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        Shashidhar Lakkavalli <slakkavalli@datto.com>,
+        John Crispin <john@phrozen.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/91] samples, bpf: suppress compiler warning
-Date:   Fri, 12 Jul 2019 14:18:10 +0200
-Message-Id: <20190712121621.812244165@linuxfoundation.org>
+Subject: [PATCH 4.19 08/91] mac80211: fix rate reporting inside cfg80211_calculate_bitrate_he()
+Date:   Fri, 12 Jul 2019 14:18:11 +0200
+Message-Id: <20190712121621.865066947@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -44,46 +46,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a195cefff49f60054998333e81ee95170ce8bf92 ]
+[ Upstream commit 25d16d124a5e249e947c0487678b61dcff25cf8b ]
 
-GCC 9 fails to calculate the size of local constant strings and produces a
-false positive:
+The reported rate is not scaled down correctly. After applying this patch,
+the function will behave just like the v/ht equivalents.
 
-samples/bpf/task_fd_query_user.c: In function ‘test_debug_fs_uprobe’:
-samples/bpf/task_fd_query_user.c:242:67: warning: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size 215 [-Wformat-truncation=]
-  242 |  snprintf(buf, sizeof(buf), "/sys/kernel/debug/tracing/events/%ss/%s/id",
-      |                                                                   ^~
-  243 |    event_type, event_alias);
-      |                ~~~~~~~~~~~
-samples/bpf/task_fd_query_user.c:242:2: note: ‘snprintf’ output between 45 and 300 bytes into a destination of size 256
-  242 |  snprintf(buf, sizeof(buf), "/sys/kernel/debug/tracing/events/%ss/%s/id",
-      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  243 |    event_type, event_alias);
-      |    ~~~~~~~~~~~~~~~~~~~~~~~~
-
-Workaround this by lowering the buffer size to a reasonable value.
-Related GCC Bugzilla: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=83431
-
-Signed-off-by: Matteo Croce <mcroce@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Shashidhar Lakkavalli <slakkavalli@datto.com>
+Signed-off-by: John Crispin <john@phrozen.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/task_fd_query_user.c | 2 +-
+ net/wireless/util.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/samples/bpf/task_fd_query_user.c b/samples/bpf/task_fd_query_user.c
-index 8381d792f138..06957f0fbe83 100644
---- a/samples/bpf/task_fd_query_user.c
-+++ b/samples/bpf/task_fd_query_user.c
-@@ -216,7 +216,7 @@ static int test_debug_fs_uprobe(char *binary_path, long offset, bool is_return)
- {
- 	const char *event_type = "uprobe";
- 	struct perf_event_attr attr = {};
--	char buf[256], event_alias[256];
-+	char buf[256], event_alias[sizeof("test_1234567890")];
- 	__u64 probe_offset, probe_addr;
- 	__u32 len, prog_id, fd_type;
- 	int err, res, kfd, efd;
+diff --git a/net/wireless/util.c b/net/wireless/util.c
+index aad1c8e858e5..d57e2f679a3e 100644
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -1219,7 +1219,7 @@ static u32 cfg80211_calculate_bitrate_he(struct rate_info *rate)
+ 	if (rate->he_dcm)
+ 		result /= 2;
+ 
+-	return result;
++	return result / 10000;
+ }
+ 
+ u32 cfg80211_calculate_bitrate(struct rate_info *rate)
 -- 
 2.20.1
 
