@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7080E66E22
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:37:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 430A666DC1
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:33:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728972AbfGLMbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:31:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48388 "EHLO mail.kernel.org"
+        id S1729593AbfGLMdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:33:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728810AbfGLMbd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:31:33 -0400
+        id S1729590AbfGLMdP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:33:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B73521670;
-        Fri, 12 Jul 2019 12:31:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6F732084B;
+        Fri, 12 Jul 2019 12:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934692;
-        bh=vaXuefLnQVX1WIZfUStZejGF9m9Z62dsxQs1bUacwK8=;
+        s=default; t=1562934795;
+        bh=LBmyqgbnBKkr9u56Jmv6B6Cb4CS4Txs8SH1cF9sv1D0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KHSAbjcUSujp5QySTbkRwKHmu/D90R6Vlrg+MAgQ8g9xIOGVGmtZr3PMu+CGrRqRA
-         UDmW4UhIcWVxV95LATg9/EhVEHKGSW78vybbwW+v6L5WjWeRvZYl4pr365Velg5aO2
-         dgDYVj8iWDFjog2qv7ac6Jwa/PsP60pq43m4dzYU=
+        b=VQxU4CqaM4lo/JV7fY2aHWtUnftCBZT358D7p5zhXAXMfgjH03Elu72AyD5DENYpW
+         uPZwWFf81forblds5bKbJ07OxVmJK5CEw2cS8uLF4y+0ftMtIXR6AktpEAU5PAvdb0
+         BC8XAkRZUBksBzmml+vhGxxspm1ooXzosZCGNIW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.1 121/138] staging: comedi: amplc_pci230: fix null pointer deref on interrupt
+        stable@vger.kernel.org,
+        Nikolaus Voss <nikolaus.voss@loewensteinmedical.de>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 5.2 32/61] drivers/usb/typec/tps6598x.c: fix portinfo width
 Date:   Fri, 12 Jul 2019 14:19:45 +0200
-Message-Id: <20190712121633.386162164@linuxfoundation.org>
+Message-Id: <20190712121622.324355537@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Nikolaus Voss <nikolaus.voss@loewensteinmedical.de>
 
-commit 7379e6baeddf580d01feca650ec1ad508b6ea8ee upstream.
+commit 05da75fc651138e51ff74ace97174349910463f5 upstream.
 
-The interrupt handler `pci230_interrupt()` causes a null pointer
-dereference for a PCI260 card.  There is no analog output subdevice for
-a PCI260.  The `dev->write_subdev` subdevice pointer and therefore the
-`s_ao` subdevice pointer variable will be `NULL` for a PCI260.  The
-following call near the end of the interrupt handler results in the null
-pointer dereference for a PCI260:
+Portinfo bit field is 3 bits wide, not 2 bits. This led to
+a wrong driver configuration for some tps6598x configurations.
 
-	comedi_handle_events(dev, s_ao);
-
-Fix it by only calling the above function if `s_ao` is valid.
-
-Note that the other uses of `s_ao` in the calls
-`pci230_handle_ao_nofifo(dev, s_ao);` and `pci230_handle_ao_fifo(dev,
-s_ao);` will never be reached for a PCI260, so they are safe.
-
-Fixes: 39064f23284c ("staging: comedi: amplc_pci230: use comedi_handle_events()")
-Cc: <stable@vger.kernel.org> # v3.19+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Fixes: 0a4c005bd171 ("usb: typec: driver for TI TPS6598x USB Power Delivery controllers")
+Signed-off-by: Nikolaus Voss <nikolaus.voss@loewensteinmedical.de>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/amplc_pci230.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/typec/tps6598x.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/amplc_pci230.c
-+++ b/drivers/staging/comedi/drivers/amplc_pci230.c
-@@ -2330,7 +2330,8 @@ static irqreturn_t pci230_interrupt(int
- 	devpriv->intr_running = false;
- 	spin_unlock_irqrestore(&devpriv->isr_spinlock, irqflags);
+--- a/drivers/usb/typec/tps6598x.c
++++ b/drivers/usb/typec/tps6598x.c
+@@ -41,7 +41,7 @@
+ #define TPS_STATUS_VCONN(s)		(!!((s) & BIT(7)))
  
--	comedi_handle_events(dev, s_ao);
-+	if (s_ao)
-+		comedi_handle_events(dev, s_ao);
- 	comedi_handle_events(dev, s_ai);
+ /* TPS_REG_SYSTEM_CONF bits */
+-#define TPS_SYSCONF_PORTINFO(c)		((c) & 3)
++#define TPS_SYSCONF_PORTINFO(c)		((c) & 7)
  
- 	return IRQ_HANDLED;
+ enum {
+ 	TPS_PORTINFO_SINK,
 
 
