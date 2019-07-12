@@ -2,51 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17B2E66E51
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:38:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58CC366D9F
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728524AbfGLM3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:29:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44414 "EHLO mail.kernel.org"
+        id S1729414AbfGLMcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:32:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728435AbfGLM3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:29:31 -0400
+        id S1729406AbfGLMcC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:32:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DEE02084B;
-        Fri, 12 Jul 2019 12:29:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8443208E4;
+        Fri, 12 Jul 2019 12:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934570;
-        bh=dqGDFDIi2rDPmFMdQfVLnotYxhySOqw8XaoV8MfvQW0=;
+        s=default; t=1562934721;
+        bh=35RjaOTv9XUZx+sNu8hFuf1ozgVxkFK9PYlWbl647MI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HlZ6YAsk3Xx9CSqYc06bvq11lgcRqzLIjr7gbNUOZ7ji+z5csg6tGZOKhBY+E8EA6
-         XOgRXdG2v+Lmz4cKlTzW8n/G2KZ2IOdtxNAqJZWQPi3aw8/07ffZ9lQV0Rb3990/a7
-         6j56BlcqHHe1Y4McfremD3hq2v4IMkiZKC0N/560=
+        b=NTPFM7yff/F7XCalrB7i9sjmi6HzIjlXEveaM9/WncPfEjgoa9LGTaDHE2cW2Ibtb
+         LqvAVY+6i9Z+CTqOIH67bgReVyTlTr0i8H3seG76ZwWNr+MANxKikI1My3HB3qqe3T
+         DzozYZ9U2ZWKW7lOCwzCLOcMUmNn5Psx7QftYLtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ben Hutchings <ben@decadent.org.uk>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        linux-arm-kernel@lists.infradead.org, linuxarm@huawei.com,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.1 099/138] perf pmu: Fix uncore PMU alias list for ARM64
+        stable@vger.kernel.org, Vadim Sukhomlinov <sukhomlinov@google.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: [PATCH 5.2 10/61] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM operations
 Date:   Fri, 12 Jul 2019 14:19:23 +0200
-Message-Id: <20190712121632.564396373@linuxfoundation.org>
+Message-Id: <20190712121621.178900529@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,94 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Vadim Sukhomlinov <sukhomlinov@google.com>
 
-commit 599ee18f0740d7661b8711249096db94c09bc508 upstream.
+commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream.
 
-In commit 292c34c10249 ("perf pmu: Fix core PMU alias list for X86
-platform"), we fixed the issue of CPU events being aliased to uncore
-events.
+TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
+future TPM operations. TPM 1.2 behavior was different, future TPM
+operations weren't disabled, causing rare issues. This patch ensures
+that future TPM operations are disabled.
 
-Fix this same issue for ARM64, since the said commit left the (broken)
-behaviour untouched for ARM64.
-
-Signed-off-by: John Garry <john.garry@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ben Hutchings <ben@decadent.org.uk>
-Cc: Hendrik Brueckner <brueckner@linux.ibm.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linuxarm@huawei.com
+Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
 Cc: stable@vger.kernel.org
-Fixes: 292c34c10249 ("perf pmu: Fix core PMU alias list for X86 platform")
-Link: http://lkml.kernel.org/r/1560521283-73314-2-git-send-email-john.garry@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
+[dianders: resolved merge conflicts with mainline]
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/pmu.c |   28 ++++++++++++----------------
- 1 file changed, 12 insertions(+), 16 deletions(-)
+ drivers/char/tpm/tpm-chip.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/tools/perf/util/pmu.c
-+++ b/tools/perf/util/pmu.c
-@@ -709,9 +709,7 @@ static void pmu_add_cpu_aliases(struct l
+--- a/drivers/char/tpm/tpm-chip.c
++++ b/drivers/char/tpm/tpm-chip.c
+@@ -289,15 +289,15 @@ static int tpm_class_shutdown(struct dev
  {
- 	int i;
- 	struct pmu_events_map *map;
--	struct pmu_event *pe;
- 	const char *name = pmu->name;
--	const char *pname;
+ 	struct tpm_chip *chip = container_of(dev, struct tpm_chip, dev);
  
- 	map = perf_pmu__find_map(pmu);
- 	if (!map)
-@@ -722,28 +720,26 @@ static void pmu_add_cpu_aliases(struct l
- 	 */
- 	i = 0;
- 	while (1) {
-+		const char *cpu_name = is_arm_pmu_core(name) ? name : "cpu";
-+		struct pmu_event *pe = &map->table[i++];
-+		const char *pname = pe->pmu ? pe->pmu : cpu_name;
- 
--		pe = &map->table[i++];
- 		if (!pe->name) {
- 			if (pe->metric_group || pe->metric_name)
- 				continue;
- 			break;
++	down_write(&chip->ops_sem);
+ 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+-		down_write(&chip->ops_sem);
+ 		if (!tpm_chip_start(chip)) {
+ 			tpm2_shutdown(chip, TPM2_SU_CLEAR);
+ 			tpm_chip_stop(chip);
  		}
+-		chip->ops = NULL;
+-		up_write(&chip->ops_sem);
+ 	}
++	chip->ops = NULL;
++	up_write(&chip->ops_sem);
  
--		if (!is_arm_pmu_core(name)) {
--			pname = pe->pmu ? pe->pmu : "cpu";
-+		/*
-+		 * uncore alias may be from different PMU
-+		 * with common prefix
-+		 */
-+		if (pmu_is_uncore(name) &&
-+		    !strncmp(pname, name, strlen(pname)))
-+			goto new_alias;
- 
--			/*
--			 * uncore alias may be from different PMU
--			 * with common prefix
--			 */
--			if (pmu_is_uncore(name) &&
--			    !strncmp(pname, name, strlen(pname)))
--				goto new_alias;
--
--			if (strcmp(pname, name))
--				continue;
--		}
-+		if (strcmp(pname, name))
-+			continue;
- 
- new_alias:
- 		/* need type casts to override 'const' */
+ 	return 0;
+ }
 
 
