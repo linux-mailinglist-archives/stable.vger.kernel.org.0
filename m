@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6D067030
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 15:36:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2C7367035
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 15:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727291AbfGLNgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 09:36:21 -0400
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:19933 "EHLO
-        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727289AbfGLNgU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 09:36:20 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d288cce0000>; Fri, 12 Jul 2019 06:36:14 -0700
+        id S1727816AbfGLNgf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 09:36:35 -0400
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:4223 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727809AbfGLNgf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 09:36:35 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d288ce00002>; Fri, 12 Jul 2019 06:36:32 -0700
 Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Fri, 12 Jul 2019 06:36:19 -0700
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Fri, 12 Jul 2019 06:36:34 -0700
 X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Fri, 12 Jul 2019 06:36:19 -0700
+        by hqpgpgate101.nvidia.com on Fri, 12 Jul 2019 06:36:34 -0700
 Received: from [10.26.11.231] (172.20.13.39) by HQMAIL107.nvidia.com
  (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 12 Jul
- 2019 13:36:17 +0000
-Subject: Re: [PATCH 4.19 00/91] 4.19.59-stable review
+ 2019 13:36:31 +0000
+Subject: Re: [PATCH 5.2 00/61] 5.2.1-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <linux-kernel@vger.kernel.org>
 CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
         <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
         <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
         <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20190712121621.422224300@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <0c71dac3-fab5-4761-968b-ed2846aa0fbd@nvidia.com>
-Date:   Fri, 12 Jul 2019 14:36:11 +0100
+Message-ID: <a1ae16a7-e8f7-b6fc-df4e-46079bebf9b3@nvidia.com>
+Date:   Fri, 12 Jul 2019 14:36:29 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.2
 MIME-Version: 1.0
-In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
 X-Originating-IP: [172.20.13.39]
 X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
  HQMAIL107.nvidia.com (172.20.187.13)
@@ -43,26 +43,26 @@ Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1562938574; bh=LR7LVePXjDKHk1YaeFa2n0w4nrEixqdKTZ1N5v/iEdw=;
+        t=1562938593; bh=/1TRc1hGYrgGFTfD0KPEXIyozbkND1tNhD4Nt2U2u2Q=;
         h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
          User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
          X-ClientProxiedBy:Content-Type:Content-Language:
          Content-Transfer-Encoding;
-        b=jzBod7XeJUlP1klulNwFeUY1L3VqiXKkiLkqQG8rQk1iW0oxY0teNkBrylwJFGEm+
-         c78aw8k4WdbaMkiq775i0Xz8Wlj+AEYPzREaJAqFVumKExu6L6So4a+JA22NPlI5OU
-         ASTn3IyQfVsI4F1s/rDkFyziwwBbLDvZt7kf20rRDnUF3cIGL+DguSodlmvFO+UmHt
-         WnOUVlmdwSS24F16J7zQ9p0gecvYa6+gyaKQQCWaV5bDdeLj0CDEKAoa5LgrC3cCl3
-         S3Iy29G3JgfbHSrQucd30FoIshUne/WK2WWFrPRjK+qrj6ghgn7TdkA0Ymyb/eTP54
-         AFdoMwGi1QMEQ==
+        b=eXa/52mHFSt0kO5cpVt8+0yDiTkJzI78XqpXmz1a6/LJ1y9Yb4TC5anz4iHyLelAG
+         6obpY2Jx/c27aqo85dLp7LBwmJRkygz5tjB6ABlmnIZK/6yMuBdXmmeGASaaRVgOKK
+         6r/uij5smCafeKQxNKxFb6AZgi1c4b4CgWWIZykHjzkTflmhW4qQl2VTPAOu0ysbEq
+         SSUHn8HKgl9FB7YgHm+FNTfgmJoBQqMNRbjcN0NWooBiwu2PLIu1nf3b7qTN29Je0d
+         NEpC/FZFpokTijKf+2iw7gMIyh3JOWs+Qqls3Zvjv6Yy9v1TvZHAImSMPj+Xk661X5
+         kuu0MI6iTWvGQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-On 12/07/2019 13:18, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.59 release.
-> There are 91 patches in this series, all will be posted as a response
+On 12/07/2019 13:19, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.2.1 release.
+> There are 61 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -70,9 +70,9 @@ On 12/07/2019 13:18, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.59-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.1-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -81,12 +81,12 @@ On 12/07/2019 13:18, Greg Kroah-Hartman wrote:
 
 All tests are passing for Tegra ...
 
-Test results for stable-v4.19:
+Test results for stable-v5.2:
     12 builds:	12 pass, 0 fail
     22 boots:	22 pass, 0 fail
-    32 tests:	32 pass, 0 fail
+    38 tests:	38 pass, 0 fail
 
-Linux version:	4.19.59-rc1-gd66f8e7f112f
+Linux version:	5.2.1-rc1-g61731e8fe278
 Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
                 tegra194-p2972-0000, tegra20-ventana,
                 tegra210-p2371-2180, tegra30-cardhu-a04
