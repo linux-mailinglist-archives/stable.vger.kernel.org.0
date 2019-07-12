@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6524866DAC
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:32:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADABB66D72
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:30:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728425AbfGLMc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:32:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50420 "EHLO mail.kernel.org"
+        id S1728508AbfGLMaA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:30:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729474AbfGLMc0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:32:26 -0400
+        id S1728739AbfGLMaA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:30:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C71821019;
-        Fri, 12 Jul 2019 12:32:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0A542166E;
+        Fri, 12 Jul 2019 12:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934745;
-        bh=FShXrtKdc4YHViZDililVx7/5jefip73CbYnbQAZJxg=;
+        s=default; t=1562934599;
+        bh=Z6VkdeKrpVIqK7Z0F2De/eKSsoc/56RftiXPYgzJr24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CUR8qLXawgAl5dYx6TCWYi+Wg9gD6PbwVEAbloF7b4wchJ8UN5bV9gt9xY+wMUwUE
-         nncnBm1LFruhuxq6SLgCCEsH+mZzxEYJGq9DCHPg1KPQfVQh04V2i3CGKdLr+J+yHb
-         TQTmiA4u6FQfcyXtzftvBE2NdbfJ3CkUVbTZyab4=
+        b=klBO/en4ywXmQgyczNsq8oH/8l2GOuiITDKNKxKL8eQqRYElZ0DafL3fjVSs2FZme
+         qrSUI2cRWuAS/qYH4+dDvXmdKn64CenF7jIKqGAzLYINOyE2eak+bUaR/9XZJelpwy
+         jAPP+HpXWmSDOIvvzqhh5zmzlhmiH32ZL/Fvu/g4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Carrillo Cisneros <davidca@fb.com>,
-        Song Liu <songliubraving@fb.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>, kernel-team@fb.com
-Subject: [PATCH 5.2 18/61] perf header: Assign proper ff->ph in perf_event__synthesize_features()
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.1 107/138] mwifiex: Dont abort on small, spec-compliant vendor IEs
 Date:   Fri, 12 Jul 2019 14:19:31 +0200
-Message-Id: <20190712121621.620616765@linuxfoundation.org>
+Message-Id: <20190712121632.868271635@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
-References: <20190712121620.632595223@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +44,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit c952b35f4b15dd1b83e952718dec3307256383ef upstream.
+commit 63d7ef36103d26f20325a921ecc96a3288560146 upstream.
 
-bpf/btf write_* functions need ff->ph->env.
+Per the 802.11 specification, vendor IEs are (at minimum) only required
+to contain an OUI. A type field is also included in ieee80211.h (struct
+ieee80211_vendor_ie) but doesn't appear in the specification. The
+remaining fields (subtype, version) are a convention used in WMM
+headers.
 
-With this missing, pipe-mode (perf record -o -)  would crash like:
+Thus, we should not reject vendor-specific IEs that have only the
+minimum length (3 bytes) -- we should skip over them (since we only want
+to match longer IEs, that match either WMM or WPA formats). We can
+reject elements that don't have the minimum-required 3 byte OUI.
 
-Program terminated with signal SIGSEGV, Segmentation fault.
+While we're at it, move the non-standard subtype and version fields into
+the WMM structs, to avoid this confusion in the future about generic
+"vendor header" attributes.
 
-This patch assign proper ph value to ff.
-
-Committer testing:
-
-  (gdb) run record -o -
-  Starting program: /root/bin/perf record -o -
-  PERFILE2
-  <SNIP start of perf.data headers>
-  Thread 1 "perf" received signal SIGSEGV, Segmentation fault.
-  __do_write_buf (size=4, buf=0x160, ff=0x7fffffff8f80) at util/header.c:126
-  126		memcpy(ff->buf + ff->offset, buf, size);
-  (gdb) bt
-  #0  __do_write_buf (size=4, buf=0x160, ff=0x7fffffff8f80) at util/header.c:126
-  #1  do_write (ff=ff@entry=0x7fffffff8f80, buf=buf@entry=0x160, size=4) at util/header.c:137
-  #2  0x00000000004eddba in write_bpf_prog_info (ff=0x7fffffff8f80, evlist=<optimized out>) at util/header.c:912
-  #3  0x00000000004f69d7 in perf_event__synthesize_features (tool=tool@entry=0x97cc00 <record>, session=session@entry=0x7fffe9c6d010,
-      evlist=0x7fffe9cae010, process=process@entry=0x4435d0 <process_synthesized_event>) at util/header.c:3695
-  #4  0x0000000000443c79 in record__synthesize (tail=tail@entry=false, rec=0x97cc00 <record>) at builtin-record.c:1214
-  #5  0x0000000000444ec9 in __cmd_record (rec=0x97cc00 <record>, argv=<optimized out>, argc=0) at builtin-record.c:1435
-  #6  cmd_record (argc=0, argv=<optimized out>) at builtin-record.c:2450
-  #7  0x00000000004ae3e9 in run_builtin (p=p@entry=0x98e058 <commands+216>, argc=argc@entry=3, argv=0x7fffffffd670) at perf.c:304
-  #8  0x000000000042eded in handle_internal_command (argv=<optimized out>, argc=<optimized out>) at perf.c:356
-  #9  run_argv (argcp=<optimized out>, argv=<optimized out>) at perf.c:400
-  #10 main (argc=3, argv=<optimized out>) at perf.c:522
-  (gdb)
-
-After the patch the SEGSEGV is gone.
-
-Reported-by: David Carrillo Cisneros <davidca@fb.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: kernel-team@fb.com
-Cc: stable@vger.kernel.org # v5.1+
-Fixes: 606f972b1361 ("perf bpf: Save bpf_prog_info information as headers to perf.data")
-Link: http://lkml.kernel.org/r/20190620010453.4118689-1-songliubraving@fb.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 685c9b7750bf ("mwifiex: Abort at too short BSS descriptor element")
+Cc: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/header.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/marvell/mwifiex/fw.h        |   12 +++++++++---
+ drivers/net/wireless/marvell/mwifiex/scan.c      |   18 +++++++++++-------
+ drivers/net/wireless/marvell/mwifiex/sta_ioctl.c |    4 ++--
+ drivers/net/wireless/marvell/mwifiex/wmm.c       |    2 +-
+ 4 files changed, 23 insertions(+), 13 deletions(-)
 
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -3602,6 +3602,7 @@ int perf_event__synthesize_features(stru
- 		return -ENOMEM;
+--- a/drivers/net/wireless/marvell/mwifiex/fw.h
++++ b/drivers/net/wireless/marvell/mwifiex/fw.h
+@@ -1759,9 +1759,10 @@ struct mwifiex_ie_types_wmm_queue_status
+ struct ieee_types_vendor_header {
+ 	u8 element_id;
+ 	u8 len;
+-	u8 oui[4];	/* 0~2: oui, 3: oui_type */
+-	u8 oui_subtype;
+-	u8 version;
++	struct {
++		u8 oui[3];
++		u8 oui_type;
++	} __packed oui;
+ } __packed;
  
- 	ff.size = sz - sz_hdr;
-+	ff.ph = &session->header;
+ struct ieee_types_wmm_parameter {
+@@ -1775,6 +1776,9 @@ struct ieee_types_wmm_parameter {
+ 	 *   Version     [1]
+ 	 */
+ 	struct ieee_types_vendor_header vend_hdr;
++	u8 oui_subtype;
++	u8 version;
++
+ 	u8 qos_info_bitmap;
+ 	u8 reserved;
+ 	struct ieee_types_wmm_ac_parameters ac_params[IEEE80211_NUM_ACS];
+@@ -1792,6 +1796,8 @@ struct ieee_types_wmm_info {
+ 	 *   Version     [1]
+ 	 */
+ 	struct ieee_types_vendor_header vend_hdr;
++	u8 oui_subtype;
++	u8 version;
  
- 	for_each_set_bit(feat, header->adds_features, HEADER_FEAT_BITS) {
- 		if (!feat_ops[feat].synthesize) {
+ 	u8 qos_info_bitmap;
+ } __packed;
+--- a/drivers/net/wireless/marvell/mwifiex/scan.c
++++ b/drivers/net/wireless/marvell/mwifiex/scan.c
+@@ -1361,21 +1361,25 @@ int mwifiex_update_bss_desc_with_ie(stru
+ 			break;
+ 
+ 		case WLAN_EID_VENDOR_SPECIFIC:
+-			if (element_len + 2 < sizeof(vendor_ie->vend_hdr))
+-				return -EINVAL;
+-
+ 			vendor_ie = (struct ieee_types_vendor_specific *)
+ 					current_ptr;
+ 
+-			if (!memcmp
+-			    (vendor_ie->vend_hdr.oui, wpa_oui,
+-			     sizeof(wpa_oui))) {
++			/* 802.11 requires at least 3-byte OUI. */
++			if (element_len < sizeof(vendor_ie->vend_hdr.oui.oui))
++				return -EINVAL;
++
++			/* Not long enough for a match? Skip it. */
++			if (element_len < sizeof(wpa_oui))
++				break;
++
++			if (!memcmp(&vendor_ie->vend_hdr.oui, wpa_oui,
++				    sizeof(wpa_oui))) {
+ 				bss_entry->bcn_wpa_ie =
+ 					(struct ieee_types_vendor_specific *)
+ 					current_ptr;
+ 				bss_entry->wpa_offset = (u16)
+ 					(current_ptr - bss_entry->beacon_buf);
+-			} else if (!memcmp(vendor_ie->vend_hdr.oui, wmm_oui,
++			} else if (!memcmp(&vendor_ie->vend_hdr.oui, wmm_oui,
+ 				    sizeof(wmm_oui))) {
+ 				if (total_ie_len ==
+ 				    sizeof(struct ieee_types_wmm_parameter) ||
+--- a/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
++++ b/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
+@@ -1351,7 +1351,7 @@ mwifiex_set_gen_ie_helper(struct mwifiex
+ 			/* Test to see if it is a WPA IE, if not, then
+ 			 * it is a gen IE
+ 			 */
+-			if (!memcmp(pvendor_ie->oui, wpa_oui,
++			if (!memcmp(&pvendor_ie->oui, wpa_oui,
+ 				    sizeof(wpa_oui))) {
+ 				/* IE is a WPA/WPA2 IE so call set_wpa function
+ 				 */
+@@ -1361,7 +1361,7 @@ mwifiex_set_gen_ie_helper(struct mwifiex
+ 				goto next_ie;
+ 			}
+ 
+-			if (!memcmp(pvendor_ie->oui, wps_oui,
++			if (!memcmp(&pvendor_ie->oui, wps_oui,
+ 				    sizeof(wps_oui))) {
+ 				/* Test to see if it is a WPS IE,
+ 				 * if so, enable wps session flag
+--- a/drivers/net/wireless/marvell/mwifiex/wmm.c
++++ b/drivers/net/wireless/marvell/mwifiex/wmm.c
+@@ -240,7 +240,7 @@ mwifiex_wmm_setup_queue_priorities(struc
+ 	mwifiex_dbg(priv->adapter, INFO,
+ 		    "info: WMM Parameter IE: version=%d,\t"
+ 		    "qos_info Parameter Set Count=%d, Reserved=%#x\n",
+-		    wmm_ie->vend_hdr.version, wmm_ie->qos_info_bitmap &
++		    wmm_ie->version, wmm_ie->qos_info_bitmap &
+ 		    IEEE80211_WMM_IE_AP_QOSINFO_PARAM_SET_CNT_MASK,
+ 		    wmm_ie->reserved);
+ 
 
 
