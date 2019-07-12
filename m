@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 117CD66E17
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:36:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6524866DAC
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:32:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728574AbfGLMcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50306 "EHLO mail.kernel.org"
+        id S1728425AbfGLMc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:32:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728486AbfGLMcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:32:24 -0400
+        id S1729474AbfGLMc0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:32:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF56B216B7;
-        Fri, 12 Jul 2019 12:32:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C71821019;
+        Fri, 12 Jul 2019 12:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934743;
-        bh=GO2askRPykBuz2nK6WHZZivEhbrZ6p88iK9uv2cwLXE=;
+        s=default; t=1562934745;
+        bh=FShXrtKdc4YHViZDililVx7/5jefip73CbYnbQAZJxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ll2aJklUJOiF9IxQI9ej7iiPCOvH/FlmaZhF1CLXnDtBZOYIhWSWs2/MGsSsO8n2g
-         t6/SBfpRl73lyTnL8ctgNMNhb5sNp+yIIXT442CBeZUgIwJw6Dx6S125gZzNOOUoOD
-         9xYzsbJI+vvl3rL6wV8bgDxRn8HFvCFNUsqvXa7s=
+        b=CUR8qLXawgAl5dYx6TCWYi+Wg9gD6PbwVEAbloF7b4wchJ8UN5bV9gt9xY+wMUwUE
+         nncnBm1LFruhuxq6SLgCCEsH+mZzxEYJGq9DCHPg1KPQfVQh04V2i3CGKdLr+J+yHb
+         TQTmiA4u6FQfcyXtzftvBE2NdbfJ3CkUVbTZyab4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org, David Carrillo Cisneros <davidca@fb.com>,
+        Song Liu <songliubraving@fb.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>
-Subject: [PATCH 5.2 17/61] perf thread-stack: Fix thread stack return from kernel for kernel-only case
-Date:   Fri, 12 Jul 2019 14:19:30 +0200
-Message-Id: <20190712121621.561580405@linuxfoundation.org>
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>, kernel-team@fb.com
+Subject: [PATCH 5.2 18/61] perf header: Assign proper ff->ph in perf_event__synthesize_features()
+Date:   Fri, 12 Jul 2019 14:19:31 +0200
+Message-Id: <20190712121621.620616765@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
 References: <20190712121620.632595223@linuxfoundation.org>
@@ -44,184 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Song Liu <songliubraving@fb.com>
 
-commit 97860b483c5597663a174ff7405be957b4838391 upstream.
+commit c952b35f4b15dd1b83e952718dec3307256383ef upstream.
 
-Commit f08046cb3082 ("perf thread-stack: Represent jmps to the start of a
-different symbol") had the side-effect of introducing more stack entries
-before return from kernel space.
+bpf/btf write_* functions need ff->ph->env.
 
-When user space is also traced, those entries are popped before entry to
-user space, but when user space is not traced, they get stuck at the
-bottom of the stack, making the stack grow progressively larger.
+With this missing, pipe-mode (perf record -o -)  would crash like:
 
-Fix by detecting a return-from-kernel branch type, and popping kernel
-addresses from the stack then.
+Program terminated with signal SIGSEGV, Segmentation fault.
 
-Note, the problem and fix affect the exported Call Graph / Tree but not
-the callindent option used by "perf script --call-trace".
+This patch assign proper ph value to ff.
 
-Example:
+Committer testing:
 
-  perf-with-kcore record example -e intel_pt//k -- ls
-  perf-with-kcore script example --itrace=bep -s ~/libexec/perf-core/scripts/python/export-to-sqlite.py example.db branches calls
-  ~/libexec/perf-core/scripts/python/exported-sql-viewer.py example.db
+  (gdb) run record -o -
+  Starting program: /root/bin/perf record -o -
+  PERFILE2
+  <SNIP start of perf.data headers>
+  Thread 1 "perf" received signal SIGSEGV, Segmentation fault.
+  __do_write_buf (size=4, buf=0x160, ff=0x7fffffff8f80) at util/header.c:126
+  126		memcpy(ff->buf + ff->offset, buf, size);
+  (gdb) bt
+  #0  __do_write_buf (size=4, buf=0x160, ff=0x7fffffff8f80) at util/header.c:126
+  #1  do_write (ff=ff@entry=0x7fffffff8f80, buf=buf@entry=0x160, size=4) at util/header.c:137
+  #2  0x00000000004eddba in write_bpf_prog_info (ff=0x7fffffff8f80, evlist=<optimized out>) at util/header.c:912
+  #3  0x00000000004f69d7 in perf_event__synthesize_features (tool=tool@entry=0x97cc00 <record>, session=session@entry=0x7fffe9c6d010,
+      evlist=0x7fffe9cae010, process=process@entry=0x4435d0 <process_synthesized_event>) at util/header.c:3695
+  #4  0x0000000000443c79 in record__synthesize (tail=tail@entry=false, rec=0x97cc00 <record>) at builtin-record.c:1214
+  #5  0x0000000000444ec9 in __cmd_record (rec=0x97cc00 <record>, argv=<optimized out>, argc=0) at builtin-record.c:1435
+  #6  cmd_record (argc=0, argv=<optimized out>) at builtin-record.c:2450
+  #7  0x00000000004ae3e9 in run_builtin (p=p@entry=0x98e058 <commands+216>, argc=argc@entry=3, argv=0x7fffffffd670) at perf.c:304
+  #8  0x000000000042eded in handle_internal_command (argv=<optimized out>, argc=<optimized out>) at perf.c:356
+  #9  run_argv (argcp=<optimized out>, argv=<optimized out>) at perf.c:400
+  #10 main (argc=3, argv=<optimized out>) at perf.c:522
+  (gdb)
 
-  Menu option: Reports -> Context-Sensitive Call Graph
+After the patch the SEGSEGV is gone.
 
-  Before: (showing Call Path column only)
-
-    Call Path
-    ▶ perf
-    ▼ ls
-      ▼ 12111:12111
-        ▶ setup_new_exec
-        ▶ __task_pid_nr_ns
-        ▶ perf_event_pid_type
-        ▶ perf_event_comm_output
-        ▶ perf_iterate_ctx
-        ▶ perf_iterate_sb
-        ▶ perf_event_comm
-        ▶ __set_task_comm
-        ▶ load_elf_binary
-        ▶ search_binary_handler
-        ▶ __do_execve_file.isra.41
-        ▶ __x64_sys_execve
-        ▶ do_syscall_64
-        ▼ entry_SYSCALL_64_after_hwframe
-          ▼ swapgs_restore_regs_and_return_to_usermode
-            ▼ native_iret
-              ▶ error_entry
-              ▶ do_page_fault
-              ▼ error_exit
-                ▼ retint_user
-                  ▶ prepare_exit_to_usermode
-                  ▼ native_iret
-                    ▶ error_entry
-                    ▶ do_page_fault
-                    ▼ error_exit
-                      ▼ retint_user
-                        ▶ prepare_exit_to_usermode
-                        ▼ native_iret
-                          ▶ error_entry
-                          ▶ do_page_fault
-                          ▼ error_exit
-                            ▼ retint_user
-                              ▶ prepare_exit_to_usermode
-                              ▶ native_iret
-
-  After: (showing Call Path column only)
-
-    Call Path
-    ▶ perf
-    ▼ ls
-      ▼ 12111:12111
-        ▶ setup_new_exec
-        ▶ __task_pid_nr_ns
-        ▶ perf_event_pid_type
-        ▶ perf_event_comm_output
-        ▶ perf_iterate_ctx
-        ▶ perf_iterate_sb
-        ▶ perf_event_comm
-        ▶ __set_task_comm
-        ▶ load_elf_binary
-        ▶ search_binary_handler
-        ▶ __do_execve_file.isra.41
-        ▶ __x64_sys_execve
-        ▶ do_syscall_64
-        ▶ entry_SYSCALL_64_after_hwframe
-        ▶ page_fault
-        ▼ entry_SYSCALL_64
-          ▼ do_syscall_64
-            ▶ __x64_sys_brk
-            ▶ __x64_sys_access
-            ▶ __x64_sys_openat
-            ▶ __x64_sys_newfstat
-            ▶ __x64_sys_mmap
-            ▶ __x64_sys_close
-            ▶ __x64_sys_read
-            ▶ __x64_sys_mprotect
-            ▶ __x64_sys_arch_prctl
-            ▶ __x64_sys_munmap
-            ▶ exit_to_usermode_loop
-            ▶ __x64_sys_set_tid_address
-            ▶ __x64_sys_set_robust_list
-            ▶ __x64_sys_rt_sigaction
-            ▶ __x64_sys_rt_sigprocmask
-            ▶ __x64_sys_prlimit64
-            ▶ __x64_sys_statfs
-            ▶ __x64_sys_ioctl
-            ▶ __x64_sys_getdents64
-            ▶ __x64_sys_write
-            ▶ __x64_sys_exit_group
-
-Committer notes:
-
-The first arg to the perf-with-kcore needs to be the same for the
-'record' and 'script' lines, otherwise we'll record the perf.data file
-and kcore_dir/ files in one directory ('example') to then try to use it
-from the 'bep' directory, fix the instructions above it so that both use
-'example'.
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Reported-by: David Carrillo Cisneros <davidca@fb.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: f08046cb3082 ("perf thread-stack: Represent jmps to the start of a different symbol")
-Link: http://lkml.kernel.org/r/20190619064429.14940-2-adrian.hunter@intel.com
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: kernel-team@fb.com
+Cc: stable@vger.kernel.org # v5.1+
+Fixes: 606f972b1361 ("perf bpf: Save bpf_prog_info information as headers to perf.data")
+Link: http://lkml.kernel.org/r/20190620010453.4118689-1-songliubraving@fb.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/thread-stack.c |   30 +++++++++++++++++++++++++++++-
- 1 file changed, 29 insertions(+), 1 deletion(-)
+ tools/perf/util/header.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/perf/util/thread-stack.c
-+++ b/tools/perf/util/thread-stack.c
-@@ -616,6 +616,23 @@ static int thread_stack__bottom(struct t
- 				     true, false);
- }
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -3602,6 +3602,7 @@ int perf_event__synthesize_features(stru
+ 		return -ENOMEM;
  
-+static int thread_stack__pop_ks(struct thread *thread, struct thread_stack *ts,
-+				struct perf_sample *sample, u64 ref)
-+{
-+	u64 tm = sample->time;
-+	int err;
-+
-+	/* Return to userspace, so pop all kernel addresses */
-+	while (thread_stack__in_kernel(ts)) {
-+		err = thread_stack__call_return(thread, ts, --ts->cnt,
-+						tm, ref, true);
-+		if (err)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
- static int thread_stack__no_call_return(struct thread *thread,
- 					struct thread_stack *ts,
- 					struct perf_sample *sample,
-@@ -896,7 +913,18 @@ int thread_stack__process(struct thread
- 			ts->rstate = X86_RETPOLINE_DETECTED;
+ 	ff.size = sz - sz_hdr;
++	ff.ph = &session->header;
  
- 	} else if (sample->flags & PERF_IP_FLAG_RETURN) {
--		if (!sample->ip || !sample->addr)
-+		if (!sample->addr) {
-+			u32 return_from_kernel = PERF_IP_FLAG_SYSCALLRET |
-+						 PERF_IP_FLAG_INTERRUPT;
-+
-+			if (!(sample->flags & return_from_kernel))
-+				return 0;
-+
-+			/* Pop kernel stack */
-+			return thread_stack__pop_ks(thread, ts, sample, ref);
-+		}
-+
-+		if (!sample->ip)
- 			return 0;
- 
- 		/* x86 retpoline 'return' doesn't match the stack */
+ 	for_each_set_bit(feat, header->adds_features, HEADER_FEAT_BITS) {
+ 		if (!feat_ops[feat].synthesize) {
 
 
