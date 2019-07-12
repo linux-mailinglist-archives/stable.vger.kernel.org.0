@@ -2,97 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2C7367035
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 15:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3FFD6711E
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 16:16:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727816AbfGLNgf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 09:36:35 -0400
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:4223 "EHLO
-        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727809AbfGLNgf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 09:36:35 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d288ce00002>; Fri, 12 Jul 2019 06:36:32 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Fri, 12 Jul 2019 06:36:34 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Fri, 12 Jul 2019 06:36:34 -0700
-Received: from [10.26.11.231] (172.20.13.39) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 12 Jul
- 2019 13:36:31 +0000
-Subject: Re: [PATCH 5.2 00/61] 5.2.1-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20190712121620.632595223@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <a1ae16a7-e8f7-b6fc-df4e-46079bebf9b3@nvidia.com>
-Date:   Fri, 12 Jul 2019 14:36:29 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1727087AbfGLOQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 10:16:51 -0400
+Received: from smtp83.iad3a.emailsrvr.com ([173.203.187.83]:36433 "EHLO
+        smtp83.iad3a.emailsrvr.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726266AbfGLOQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 10:16:51 -0400
+X-Greylist: delayed 576 seconds by postgrey-1.27 at vger.kernel.org; Fri, 12 Jul 2019 10:16:50 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
+        s=20190130-41we5z8j; t=1562940434;
+        bh=gAojXNZ2cNQpLvWeWyGjMSCIl23Z99miYv5ewY99jYA=;
+        h=From:To:Subject:Date:From;
+        b=Axd+8Xx/lT79b0kQ8GZqyT1hDREosCO21BqTLoi2y+jbyfe73BhnKu9Cmf9v2fspF
+         zyJvv1GZg8k5OD+ruZjIjvE5Il6IXPpwv+A0E80IWFuqW7oDMpvgM3ymZqv134gZ9G
+         A6d8OA1zExv4vkJzBmfY+BCREyMiDQ2RR8zThdx8=
+X-Auth-ID: abbotti@mev.co.uk
+Received: by smtp19.relay.iad3a.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 887474E04;
+        Fri, 12 Jul 2019 10:07:13 -0400 (EDT)
+X-Sender-Id: abbotti@mev.co.uk
+Received: from ian-deb.inside.mev.co.uk (remote.quintadena.com [81.133.34.160])
+        (using TLSv1.2 with cipher DHE-RSA-AES128-GCM-SHA256)
+        by 0.0.0.0:465 (trex/5.7.12);
+        Fri, 12 Jul 2019 10:07:14 -0400
+From:   Ian Abbott <abbotti@mev.co.uk>
+To:     stable@vger.kernel.org
+Cc:     Ben Hutchings <ben@decadent.org.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ian Abbott <abbotti@mev.co.uk>,
+        H Hartley Sweeten <hsweeten@visionengravers.com>
+Subject: [PATCH stable 3.15 to 3.18] staging: comedi: dt282x: fix a null pointer deref on interrupt
+Date:   Fri, 12 Jul 2019 15:02:37 +0100
+Message-Id: <20190712140237.15847-1-abbotti@mev.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1562938593; bh=/1TRc1hGYrgGFTfD0KPEXIyozbkND1tNhD4Nt2U2u2Q=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=eXa/52mHFSt0kO5cpVt8+0yDiTkJzI78XqpXmz1a6/LJ1y9Yb4TC5anz4iHyLelAG
-         6obpY2Jx/c27aqo85dLp7LBwmJRkygz5tjB6ABlmnIZK/6yMuBdXmmeGASaaRVgOKK
-         6r/uij5smCafeKQxNKxFb6AZgi1c4b4CgWWIZykHjzkTflmhW4qQl2VTPAOu0ysbEq
-         SSUHn8HKgl9FB7YgHm+FNTfgmJoBQqMNRbjcN0NWooBiwu2PLIu1nf3b7qTN29Je0d
-         NEpC/FZFpokTijKf+2iw7gMIyh3JOWs+Qqls3Zvjv6Yy9v1TvZHAImSMPj+Xk661X5
-         kuu0MI6iTWvGQ==
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit b8336be66dec06bef518030a0df9847122053ec5 upstream.
 
-On 12/07/2019 13:19, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.2.1 release.
-> There are 61 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun 14 Jul 2019 12:14:36 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.1-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+The interrupt handler `dt282x_interrupt()` causes a null pointer
+dereference for those supported boards that have no analog output
+support.  For these boards, `dev->write_subdev` will be `NULL` and
+therefore the `s_ao` subdevice pointer variable will be `NULL`.  In that
+case, the following call near the end of the interrupt handler results
+in a null pointer dereference:
 
-All tests are passing for Tegra ...
+	cfc_handle_events(dev, s_ao);
 
-Test results for stable-v5.2:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
+[ Upstream equivalent:
+	comedi_handle_events(dev, s_ao);
+  -- IA ]
 
-Linux version:	5.2.1-rc1-g61731e8fe278
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+Fix it by only calling the above function if `s_ao` is valid.
 
-Cheers
-Jon
+(There are other uses of `s_ao` by the interrupt handler that may or may
+not be reached depending on values of hardware registers.  Trust that
+they are reliable for now.)
 
+Fixes: f21c74fa4cfe ("staging: comedi: dt282x: use cfc_handle_events()")
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/comedi/drivers/dt282x.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/comedi/drivers/dt282x.c b/drivers/staging/comedi/drivers/dt282x.c
+index c2a66dcf99fe..6a1222c45d35 100644
+--- a/drivers/staging/comedi/drivers/dt282x.c
++++ b/drivers/staging/comedi/drivers/dt282x.c
+@@ -483,7 +483,8 @@ static irqreturn_t dt282x_interrupt(int irq, void *d)
+ 	}
+ #endif
+ 	cfc_handle_events(dev, s);
+-	cfc_handle_events(dev, s_ao);
++	if (s_ao)
++		cfc_handle_events(dev, s_ao);
+ 
+ 	return IRQ_RETVAL(handled);
+ }
 -- 
-nvpublic
+2.20.1
+
