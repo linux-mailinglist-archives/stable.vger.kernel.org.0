@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF3FE66D70
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:30:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 117CD66E17
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:36:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728712AbfGLM35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:29:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45200 "EHLO mail.kernel.org"
+        id S1728574AbfGLMcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:32:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728737AbfGLM34 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:29:56 -0400
+        id S1728486AbfGLMcY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:32:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43C3E21019;
-        Fri, 12 Jul 2019 12:29:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF56B216B7;
+        Fri, 12 Jul 2019 12:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934595;
-        bh=RVgPEGVOeNx+ij6xhozVkER82F9/IjUOHeJY0SL9jbQ=;
+        s=default; t=1562934743;
+        bh=GO2askRPykBuz2nK6WHZZivEhbrZ6p88iK9uv2cwLXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YhXOtz2fkhWIcdW9b3FUibUV9kmVVpad9QNrXhtGodD1j6K47fXHMUPsgkvxFyLCh
-         qRDlX5CmHGVkPa3GtnxmMxdwvACs3ZNlHvyRGL9yuAaSOTedOOkdBezc+3SQfg3t/T
-         W2F+LVu/CoN26Ee4MHbIoew9qICvpnbXcF4nCNRU=
+        b=Ll2aJklUJOiF9IxQI9ej7iiPCOvH/FlmaZhF1CLXnDtBZOYIhWSWs2/MGsSsO8n2g
+         t6/SBfpRl73lyTnL8ctgNMNhb5sNp+yIIXT442CBeZUgIwJw6Dx6S125gZzNOOUoOD
+         9xYzsbJI+vvl3rL6wV8bgDxRn8HFvCFNUsqvXa7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.1 106/138] mwifiex: Abort at too short BSS descriptor element
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>
+Subject: [PATCH 5.2 17/61] perf thread-stack: Fix thread stack return from kernel for kernel-only case
 Date:   Fri, 12 Jul 2019 14:19:30 +0200
-Message-Id: <20190712121632.831241159@linuxfoundation.org>
+Message-Id: <20190712121621.561580405@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +44,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 685c9b7750bfacd6fc1db50d86579980593b7869 upstream.
+commit 97860b483c5597663a174ff7405be957b4838391 upstream.
 
-Currently mwifiex_update_bss_desc_with_ie() implicitly assumes that
-the source descriptor entries contain the enough size for each type
-and performs copying without checking the source size.  This may lead
-to read over boundary.
+Commit f08046cb3082 ("perf thread-stack: Represent jmps to the start of a
+different symbol") had the side-effect of introducing more stack entries
+before return from kernel space.
 
-Fix this by putting the source size check in appropriate places.
+When user space is also traced, those entries are popped before entry to
+user space, but when user space is not traced, they get stuck at the
+bottom of the stack, making the stack grow progressively larger.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fix by detecting a return-from-kernel branch type, and popping kernel
+addresses from the stack then.
+
+Note, the problem and fix affect the exported Call Graph / Tree but not
+the callindent option used by "perf script --call-trace".
+
+Example:
+
+  perf-with-kcore record example -e intel_pt//k -- ls
+  perf-with-kcore script example --itrace=bep -s ~/libexec/perf-core/scripts/python/export-to-sqlite.py example.db branches calls
+  ~/libexec/perf-core/scripts/python/exported-sql-viewer.py example.db
+
+  Menu option: Reports -> Context-Sensitive Call Graph
+
+  Before: (showing Call Path column only)
+
+    Call Path
+    ▶ perf
+    ▼ ls
+      ▼ 12111:12111
+        ▶ setup_new_exec
+        ▶ __task_pid_nr_ns
+        ▶ perf_event_pid_type
+        ▶ perf_event_comm_output
+        ▶ perf_iterate_ctx
+        ▶ perf_iterate_sb
+        ▶ perf_event_comm
+        ▶ __set_task_comm
+        ▶ load_elf_binary
+        ▶ search_binary_handler
+        ▶ __do_execve_file.isra.41
+        ▶ __x64_sys_execve
+        ▶ do_syscall_64
+        ▼ entry_SYSCALL_64_after_hwframe
+          ▼ swapgs_restore_regs_and_return_to_usermode
+            ▼ native_iret
+              ▶ error_entry
+              ▶ do_page_fault
+              ▼ error_exit
+                ▼ retint_user
+                  ▶ prepare_exit_to_usermode
+                  ▼ native_iret
+                    ▶ error_entry
+                    ▶ do_page_fault
+                    ▼ error_exit
+                      ▼ retint_user
+                        ▶ prepare_exit_to_usermode
+                        ▼ native_iret
+                          ▶ error_entry
+                          ▶ do_page_fault
+                          ▼ error_exit
+                            ▼ retint_user
+                              ▶ prepare_exit_to_usermode
+                              ▶ native_iret
+
+  After: (showing Call Path column only)
+
+    Call Path
+    ▶ perf
+    ▼ ls
+      ▼ 12111:12111
+        ▶ setup_new_exec
+        ▶ __task_pid_nr_ns
+        ▶ perf_event_pid_type
+        ▶ perf_event_comm_output
+        ▶ perf_iterate_ctx
+        ▶ perf_iterate_sb
+        ▶ perf_event_comm
+        ▶ __set_task_comm
+        ▶ load_elf_binary
+        ▶ search_binary_handler
+        ▶ __do_execve_file.isra.41
+        ▶ __x64_sys_execve
+        ▶ do_syscall_64
+        ▶ entry_SYSCALL_64_after_hwframe
+        ▶ page_fault
+        ▼ entry_SYSCALL_64
+          ▼ do_syscall_64
+            ▶ __x64_sys_brk
+            ▶ __x64_sys_access
+            ▶ __x64_sys_openat
+            ▶ __x64_sys_newfstat
+            ▶ __x64_sys_mmap
+            ▶ __x64_sys_close
+            ▶ __x64_sys_read
+            ▶ __x64_sys_mprotect
+            ▶ __x64_sys_arch_prctl
+            ▶ __x64_sys_munmap
+            ▶ exit_to_usermode_loop
+            ▶ __x64_sys_set_tid_address
+            ▶ __x64_sys_set_robust_list
+            ▶ __x64_sys_rt_sigaction
+            ▶ __x64_sys_rt_sigprocmask
+            ▶ __x64_sys_prlimit64
+            ▶ __x64_sys_statfs
+            ▶ __x64_sys_ioctl
+            ▶ __x64_sys_getdents64
+            ▶ __x64_sys_write
+            ▶ __x64_sys_exit_group
+
+Committer notes:
+
+The first arg to the perf-with-kcore needs to be the same for the
+'record' and 'script' lines, otherwise we'll record the perf.data file
+and kcore_dir/ files in one directory ('example') to then try to use it
+from the 'bep' directory, fix the instructions above it so that both use
+'example'.
+
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: f08046cb3082 ("perf thread-stack: Represent jmps to the start of a different symbol")
+Link: http://lkml.kernel.org/r/20190619064429.14940-2-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/marvell/mwifiex/scan.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ tools/perf/util/thread-stack.c |   30 +++++++++++++++++++++++++++++-
+ 1 file changed, 29 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/scan.c
-+++ b/drivers/net/wireless/marvell/mwifiex/scan.c
-@@ -1269,6 +1269,8 @@ int mwifiex_update_bss_desc_with_ie(stru
- 			break;
+--- a/tools/perf/util/thread-stack.c
++++ b/tools/perf/util/thread-stack.c
+@@ -616,6 +616,23 @@ static int thread_stack__bottom(struct t
+ 				     true, false);
+ }
  
- 		case WLAN_EID_FH_PARAMS:
-+			if (element_len + 2 < sizeof(*fh_param_set))
-+				return -EINVAL;
- 			fh_param_set =
- 				(struct ieee_types_fh_param_set *) current_ptr;
- 			memcpy(&bss_entry->phy_param_set.fh_param_set,
-@@ -1277,6 +1279,8 @@ int mwifiex_update_bss_desc_with_ie(stru
- 			break;
- 
- 		case WLAN_EID_DS_PARAMS:
-+			if (element_len + 2 < sizeof(*ds_param_set))
-+				return -EINVAL;
- 			ds_param_set =
- 				(struct ieee_types_ds_param_set *) current_ptr;
- 
-@@ -1288,6 +1292,8 @@ int mwifiex_update_bss_desc_with_ie(stru
- 			break;
- 
- 		case WLAN_EID_CF_PARAMS:
-+			if (element_len + 2 < sizeof(*cf_param_set))
-+				return -EINVAL;
- 			cf_param_set =
- 				(struct ieee_types_cf_param_set *) current_ptr;
- 			memcpy(&bss_entry->ss_param_set.cf_param_set,
-@@ -1296,6 +1302,8 @@ int mwifiex_update_bss_desc_with_ie(stru
- 			break;
- 
- 		case WLAN_EID_IBSS_PARAMS:
-+			if (element_len + 2 < sizeof(*ibss_param_set))
-+				return -EINVAL;
- 			ibss_param_set =
- 				(struct ieee_types_ibss_param_set *)
- 				current_ptr;
-@@ -1305,10 +1313,14 @@ int mwifiex_update_bss_desc_with_ie(stru
- 			break;
- 
- 		case WLAN_EID_ERP_INFO:
-+			if (!element_len)
-+				return -EINVAL;
- 			bss_entry->erp_flags = *(current_ptr + 2);
- 			break;
- 
- 		case WLAN_EID_PWR_CONSTRAINT:
-+			if (!element_len)
-+				return -EINVAL;
- 			bss_entry->local_constraint = *(current_ptr + 2);
- 			bss_entry->sensed_11h = true;
- 			break;
-@@ -1349,6 +1361,9 @@ int mwifiex_update_bss_desc_with_ie(stru
- 			break;
- 
- 		case WLAN_EID_VENDOR_SPECIFIC:
-+			if (element_len + 2 < sizeof(vendor_ie->vend_hdr))
-+				return -EINVAL;
++static int thread_stack__pop_ks(struct thread *thread, struct thread_stack *ts,
++				struct perf_sample *sample, u64 ref)
++{
++	u64 tm = sample->time;
++	int err;
 +
- 			vendor_ie = (struct ieee_types_vendor_specific *)
- 					current_ptr;
++	/* Return to userspace, so pop all kernel addresses */
++	while (thread_stack__in_kernel(ts)) {
++		err = thread_stack__call_return(thread, ts, --ts->cnt,
++						tm, ref, true);
++		if (err)
++			return err;
++	}
++
++	return 0;
++}
++
+ static int thread_stack__no_call_return(struct thread *thread,
+ 					struct thread_stack *ts,
+ 					struct perf_sample *sample,
+@@ -896,7 +913,18 @@ int thread_stack__process(struct thread
+ 			ts->rstate = X86_RETPOLINE_DETECTED;
  
+ 	} else if (sample->flags & PERF_IP_FLAG_RETURN) {
+-		if (!sample->ip || !sample->addr)
++		if (!sample->addr) {
++			u32 return_from_kernel = PERF_IP_FLAG_SYSCALLRET |
++						 PERF_IP_FLAG_INTERRUPT;
++
++			if (!(sample->flags & return_from_kernel))
++				return 0;
++
++			/* Pop kernel stack */
++			return thread_stack__pop_ks(thread, ts, sample, ref);
++		}
++
++		if (!sample->ip)
+ 			return 0;
+ 
+ 		/* x86 retpoline 'return' doesn't match the stack */
 
 
