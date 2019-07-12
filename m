@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3233366629
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:29:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46FBF6662A
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:29:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726050AbfGLF3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 01:29:22 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:42447 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbfGLF3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:29:22 -0400
-Received: by mail-pl1-f196.google.com with SMTP id ay6so4195749plb.9
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:29:21 -0700 (PDT)
+        id S1726055AbfGLF3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 01:29:24 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:41521 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725791AbfGLF3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:29:24 -0400
+Received: by mail-pf1-f194.google.com with SMTP id m30so3786736pff.8
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:29:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Lt3w372XAiP2T5A3AE8p2nBAFVuCKsgxbI6J0UJSdP8=;
-        b=LaE/Kno7nEObxeBKxYf9ds5SR/CXNWhXinMc3wcULfDJoYCm/+NNy5aliYFycyp/Pd
-         xQjNCTX3R2Lq+L+RC/SMO5qnlzYoPN7ZrN0vVtlR6eZ+5ScFKAuQmQ3TO7j8mSsmt4Xd
-         YlVHx3iK1DZkTJj5xP/b+JuDVFC6zP4989JLcd7xMAHJNgpFr3BPj89s9hC2xYMMV8up
-         Aa7U2CtFy3VMya7CPReBDeY64SUW9PmXWPcFPrYDtu8vg5DZYAHcIBmCQyWoU3HVghK3
-         cMB2NDUennZ7lH8fyvKlDMyuCzU87oRy6E6zBmLCUtu5VqBlG9PrA3ZfPYCxqfgtFQwy
-         qZAA==
+        bh=+i1PP70VM4gp+yGXoK79tVzWNeTCN5YHgyu+1fomQgA=;
+        b=LtvPtrcrU4nwJykst8A48fEuE3P2blvqxFdxg8DC+CmmLab12J4Rvsuf4DNsV/4r4L
+         G9sOtdUSY0tXKPqUQYw9hUhneYuPKUq95ApUFd2QFvgr/soFj9RSY3703vLrgLc/Cqrt
+         M1AnQwz3IqtIKK0fKC2O7ULga6D6GzcMfhtryK7DmnSihcgVJl0/36Jrz0ikXiXUC+E6
+         jSCOknmaouHblQ2fAkBIkVUObQ/zy3pt02ELF/ZGmL88Z1O6hUNpFXLNybKwctEPuQfY
+         dcq/4E+tsfvBSfgCHxENCqS2nN/Ix9N7UgkgYNbOQZ6V5oXRbq4We4ZksjVKg4RvVXcd
+         29Iw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Lt3w372XAiP2T5A3AE8p2nBAFVuCKsgxbI6J0UJSdP8=;
-        b=HrPt6lo+NFUohSAosWXfwTzQ4PQf7dSfDWdfPch2P2zqSIq/EPCE8p6U9EO1R4yhPs
-         4l8a19m700r242cwTvPRC/lYH0dtNp6wQOOgRyLBGDeft5WWXfXSGt51xFxJmtGU67x5
-         WoIZRRIr1Rx7fpEMfQzQ09HQgvnlbRVZB5GGZnsZLXRFTt4ThbVoma9Lram3KtNSd/F8
-         F7Tm0ZpSsDMWg5Is69207BUluTtLV1ILD2bdx3lSF1AF/tS64FpsYQcjdac7Cn6qvn4w
-         6UZ0TM3MbCWvHGr6LEIjPJZlK5vW80oLZmtr2RaYOTgodm6sxbh6LoiJJL9WaJI7yFh+
-         ddnQ==
-X-Gm-Message-State: APjAAAVBC+qeMoRh3sXaKb9uR7rwW/eXoNiWu9ObX3SNtT1mNHBkWU+X
-        uiNpd8qYG15qWls2x16tKDk70t30Vso=
-X-Google-Smtp-Source: APXvYqy+YMBCnzRev3jaZPHfse2C8wO9lwEcMprVQCQotJMBsfZrRuTvaa8irwpOYdzmn8sp5OvWIQ==
-X-Received: by 2002:a17:902:8509:: with SMTP id bj9mr9229479plb.79.1562909360992;
-        Thu, 11 Jul 2019 22:29:20 -0700 (PDT)
+        bh=+i1PP70VM4gp+yGXoK79tVzWNeTCN5YHgyu+1fomQgA=;
+        b=UWEGLa5dVPmRpPUMLQwNOrd9q8YjzQCAUlMJGzapeNN37HxFSo32IRCrblf5Js0F7s
+         UURq0LTyiyWVTqFhEgRy4L7g12YzsadrWcAlbEi55fyjGSGiRw4FrUUoH9Bsu6ADtTPJ
+         GiQw7MSpotBz/BR++Zbty2ZdlQ6nMp6aXe1e58gFxuUJEY1vmaAVM8ApoQ0yFvLTzD7+
+         rYR3Q9+9I2HKIYhwu7mUTqA+Y75kAx+lDzhFGDj/qZ9VOEo72VKL5WGdRy/0fNcS6iPw
+         OuWHDQNkBrrm/btJ/2F88VwviqjF5WRVGz3w7bhxPtC+nCjUJAAemXq7oLouYlVqj+kq
+         NrgQ==
+X-Gm-Message-State: APjAAAWocAqFdaI+xmwifo2HCJQOEEZo0lDipfTQTjGK31yC4fkqdUgp
+        NZl+bCYAK97BGvKjUd3gxBKZu70FjrI=
+X-Google-Smtp-Source: APXvYqy6laduSzW4J2fHIwGuSgLVFtG+of8Xeu9hr2v3uq9ggFfUKWP4KUK0kFGztZINIO7uuxCp5w==
+X-Received: by 2002:a17:90a:db44:: with SMTP id u4mr9411661pjx.52.1562909363505;
+        Thu, 11 Jul 2019 22:29:23 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id 196sm7991977pfy.167.2019.07.11.22.29.20
+        by smtp.gmail.com with ESMTPSA id b26sm10186974pfo.129.2019.07.11.22.29.22
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 22:29:20 -0700 (PDT)
+        Thu, 11 Jul 2019 22:29:23 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 V2 08/43] arm64: uaccess: Don't bother eliding access_ok checks in __{get, put}_user
-Date:   Fri, 12 Jul 2019 10:57:56 +0530
-Message-Id: <61ec4192da912ef3c49e2e40670ddc76d9583683.1562908075.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 V2 09/43] mm/kasan: add API to check memory regions
+Date:   Fri, 12 Jul 2019 10:57:57 +0530
+Message-Id: <45ff1598be62861928069f5907f6b41d3eb05c68.1562908075.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
 References: <cover.1562908074.git.viresh.kumar@linaro.org>
@@ -68,130 +68,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
 
-commit 84624087dd7e3b482b7b11c170ebc1f329b3a218 upstream.
+commit 64f8ebaf115bcddc4aaa902f981c57ba6506bc42 upstream.
 
-access_ok isn't an expensive operation once the addr_limit for the current
-thread has been loaded into the cache. Given that the initial access_ok
-check preceding a sequence of __{get,put}_user operations will take
-the brunt of the miss, we can make the __* variants identical to the
-full-fat versions, which brings with it the benefits of address masking.
+Memory access coded in an assembly won't be seen by KASAN as a compiler
+can instrument only C code.  Add kasan_check_[read,write]() API which is
+going to be used to check a certain memory range.
 
-The likely cost in these sequences will be from toggling PAN/UAO, which
-we can address later by implementing the *_unsafe versions.
-
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-[ v4.4: Fixed conflicts around {__get_user|__put_user}_unaligned macros ]
+Link: http://lkml.kernel.org/r/1462538722-1574-3-git-send-email-aryabinin@virtuozzo.com
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Acked-by: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[ v4.4: Fixed MAINTAINERS conflict and added whole kasan entry. Drop 4th
+	argument to check_memory_region(). ]
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/include/asm/uaccess.h | 62 ++++++++++++++++++--------------
- 1 file changed, 36 insertions(+), 26 deletions(-)
+ MAINTAINERS                  | 14 ++++++++++++++
+ include/linux/kasan-checks.h | 12 ++++++++++++
+ mm/kasan/kasan.c             | 12 ++++++++++++
+ 3 files changed, 38 insertions(+)
+ create mode 100644 include/linux/kasan-checks.h
 
-diff --git a/arch/arm64/include/asm/uaccess.h b/arch/arm64/include/asm/uaccess.h
-index fc11c50af558..a34324436ce1 100644
---- a/arch/arm64/include/asm/uaccess.h
-+++ b/arch/arm64/include/asm/uaccess.h
-@@ -200,30 +200,35 @@ do {									\
- 			CONFIG_ARM64_PAN));				\
- } while (0)
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f4d4a5544dc1..2a8826732967 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -5982,6 +5982,20 @@ S:	Maintained
+ F:	Documentation/hwmon/k8temp
+ F:	drivers/hwmon/k8temp.c
  
--#define __get_user(x, ptr)						\
-+#define __get_user_check(x, ptr, err)					\
- ({									\
--	int __gu_err = 0;						\
--	__get_user_err((x), (ptr), __gu_err);				\
--	__gu_err;							\
-+	__typeof__(*(ptr)) __user *__p = (ptr);				\
-+	might_fault();							\
-+	if (access_ok(VERIFY_READ, __p, sizeof(*__p))) {		\
-+		__p = uaccess_mask_ptr(__p);				\
-+		__get_user_err((x), __p, (err));			\
-+	} else {							\
-+		(x) = 0; (err) = -EFAULT;				\
-+	}								\
- })
- 
- #define __get_user_error(x, ptr, err)					\
- ({									\
--	__get_user_err((x), (ptr), (err));				\
-+	__get_user_check((x), (ptr), (err));				\
- 	(void)0;							\
- })
- 
--#define __get_user_unaligned __get_user
--
--#define get_user(x, ptr)						\
-+#define __get_user(x, ptr)						\
- ({									\
--	__typeof__(*(ptr)) __user *__p = (ptr);				\
--	might_fault();							\
--	access_ok(VERIFY_READ, __p, sizeof(*__p)) ?			\
--		__p = uaccess_mask_ptr(__p), __get_user((x), __p) :	\
--		((x) = 0, -EFAULT);					\
-+	int __gu_err = 0;						\
-+	__get_user_check((x), (ptr), __gu_err);				\
-+	__gu_err;							\
- })
- 
-+#define __get_user_unaligned __get_user
++KASAN
++M:	Andrey Ryabinin <aryabinin@virtuozzo.com>
++R:	Alexander Potapenko <glider@google.com>
++R:	Dmitry Vyukov <dvyukov@google.com>
++L:	kasan-dev@googlegroups.com
++S:	Maintained
++F:	arch/*/include/asm/kasan.h
++F:	arch/*/mm/kasan_init*
++F:	Documentation/kasan.txt
++F:	include/linux/kasan*.h
++F:	lib/test_kasan.c
++F:	mm/kasan/
++F:	scripts/Makefile.kasan
 +
-+#define get_user	__get_user
+ KCONFIG
+ M:	"Yann E. MORIN" <yann.morin.1998@free.fr>
+ L:	linux-kbuild@vger.kernel.org
+diff --git a/include/linux/kasan-checks.h b/include/linux/kasan-checks.h
+new file mode 100644
+index 000000000000..b7f8aced7870
+--- /dev/null
++++ b/include/linux/kasan-checks.h
+@@ -0,0 +1,12 @@
++#ifndef _LINUX_KASAN_CHECKS_H
++#define _LINUX_KASAN_CHECKS_H
 +
- #define __put_user_asm(instr, reg, x, addr, err)			\
- 	asm volatile(							\
- 	"1:	" instr "	" reg "1, [%2]\n"			\
-@@ -266,30 +271,35 @@ do {									\
- 			CONFIG_ARM64_PAN));				\
- } while (0)
- 
--#define __put_user(x, ptr)						\
-+#define __put_user_check(x, ptr, err)					\
- ({									\
--	int __pu_err = 0;						\
--	__put_user_err((x), (ptr), __pu_err);				\
--	__pu_err;							\
-+	__typeof__(*(ptr)) __user *__p = (ptr);				\
-+	might_fault();							\
-+	if (access_ok(VERIFY_WRITE, __p, sizeof(*__p))) {		\
-+		__p = uaccess_mask_ptr(__p);				\
-+		__put_user_err((x), __p, (err));			\
-+	} else	{							\
-+		(err) = -EFAULT;					\
-+	}								\
- })
- 
- #define __put_user_error(x, ptr, err)					\
- ({									\
--	__put_user_err((x), (ptr), (err));				\
-+	__put_user_check((x), (ptr), (err));				\
- 	(void)0;							\
- })
- 
--#define __put_user_unaligned __put_user
--
--#define put_user(x, ptr)						\
-+#define __put_user(x, ptr)						\
- ({									\
--	__typeof__(*(ptr)) __user *__p = (ptr);				\
--	might_fault();							\
--	access_ok(VERIFY_WRITE, __p, sizeof(*__p)) ?			\
--		__p = uaccess_mask_ptr(__p), __put_user((x), __p) :	\
--		-EFAULT;						\
-+	int __pu_err = 0;						\
-+	__put_user_check((x), (ptr), __pu_err);				\
-+	__pu_err;							\
- })
- 
-+#define __put_user_unaligned __put_user
++#ifdef CONFIG_KASAN
++void kasan_check_read(const void *p, unsigned int size);
++void kasan_check_write(const void *p, unsigned int size);
++#else
++static inline void kasan_check_read(const void *p, unsigned int size) { }
++static inline void kasan_check_write(const void *p, unsigned int size) { }
++#endif
 +
-+#define put_user	__put_user
++#endif
+diff --git a/mm/kasan/kasan.c b/mm/kasan/kasan.c
+index b7397b459960..1cdcab0c976a 100644
+--- a/mm/kasan/kasan.c
++++ b/mm/kasan/kasan.c
+@@ -274,6 +274,18 @@ static __always_inline void check_memory_region(unsigned long addr,
+ void __asan_loadN(unsigned long addr, size_t size);
+ void __asan_storeN(unsigned long addr, size_t size);
+ 
++void kasan_check_read(const void *p, unsigned int size)
++{
++	check_memory_region((unsigned long)p, size, false);
++}
++EXPORT_SYMBOL(kasan_check_read);
 +
- extern unsigned long __must_check __copy_from_user(void *to, const void __user *from, unsigned long n);
- extern unsigned long __must_check __copy_to_user(void __user *to, const void *from, unsigned long n);
- extern unsigned long __must_check __copy_in_user(void __user *to, const void __user *from, unsigned long n);
++void kasan_check_write(const void *p, unsigned int size)
++{
++	check_memory_region((unsigned long)p, size, true);
++}
++EXPORT_SYMBOL(kasan_check_write);
++
+ #undef memset
+ void *memset(void *addr, int c, size_t len)
+ {
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
