@@ -2,80 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B45C466907
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 10:20:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 865C566977
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 10:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726254AbfGLIUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 04:20:15 -0400
-Received: from mga12.intel.com ([192.55.52.136]:4196 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726192AbfGLIUP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 04:20:15 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Jul 2019 01:20:15 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,481,1557212400"; 
-   d="scan'208";a="177438654"
-Received: from slisovsk-lenovo-ideapad-720s-13ikb.fi.intel.com ([10.237.66.154])
-  by orsmga002.jf.intel.com with ESMTP; 12 Jul 2019 01:20:12 -0700
-From:   Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     martin.peres@intel.com, maarten.lankhorst@linux.intel.com,
-        ville.syrjala@linux.intel.com, jani.saarinen@intel.com,
-        stanislav.lisovskiy@intel.com, jani.nikula@intel.com,
-        vandita.kulkarni@intel.com, stable@vger.kernel.org
-Subject: [PATCH v3] drm/i915: Fix wrong escape clock divisor init for GLK
-Date:   Fri, 12 Jul 2019 11:19:38 +0300
-Message-Id: <20190712081938.14185-1-stanislav.lisovskiy@intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S1725966AbfGLI6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 04:58:06 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:55643 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725929AbfGLI6G (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Fri, 12 Jul 2019 04:58:06 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 74E9F222E7;
+        Fri, 12 Jul 2019 04:58:05 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 12 Jul 2019 04:58:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=1X2UFY
+        eBGNYanYHRO4XIMBq5hzck2ZBwP/NCJucx8dc=; b=V9B+taZAwEB828lx1jS5u2
+        owPn1TeC83CtKcduBqE9Il5tIvLg8qRBRHtuvntvLzaMv9/DNAApageOT7YtxEPj
+        eWGTnJ6TDEf0V6SD3tdr1XPAeaxayh+3DQd2UZV/gZGYXNqfmASZLoCX069Ehh4M
+        9szGvZgrHG0jta871+SevafDapNqpIDHSfbeSYyvVraQOSUf2YWDSnrdsBPzR57v
+        CynAQuFe3/tsSsuDpkG5EtjnT7hEP2JBn5ILWqYVYiwxrRoySRX29plqNGcThbVX
+        fBbLcUrI55kM5QksI64Ngc7Nad3q3KtligJGTtP0V3Ryj3bfRN1a0BN6qGOocDXw
+        ==
+X-ME-Sender: <xms:nEsoXQ7JikkVvv8kyzjuBedZaH4Rm5p4xdwonguuUNFOrgVm9qIiIw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrhedtgddtkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:nEsoXSLkQ0hbgOwCeg3SkP-C43ohjHeRpbAoxdMt-oIl86Ee_21bUg>
+    <xmx:nEsoXYVhZQmxiBqruNZm-jdZz4JIQgEp8BFElb7gaUZ2LlJc5si0PQ>
+    <xmx:nEsoXZDo0YRwPPs1TzRM64yRQSfBDmdRkuEU_gbk9Ff_u9cX6VUKjw>
+    <xmx:nUsoXQTAVN33eEkgvMQGy6Mcgbkm4LVQ4IfsVA22CsIYbnQAC3GYkw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 37870380076;
+        Fri, 12 Jul 2019 04:58:04 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iio: adc: stm32-adc: add missing vdda-supply" failed to apply to 4.14-stable tree
+To:     fabrice.gasnier@st.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 12 Jul 2019 10:58:02 +0200
+Message-ID: <1562921882143104@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-According to Bspec clock divisor registers in GeminiLake
-should be initialized by shifting 1(<<) to amount of correspondent
-divisor. While i915 was writing all this time that value as is.
 
-Surprisingly that it by accident worked, until we met some issues
-with Microtech Etab.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-v2: Added Fixes tag and cc
-v3: Added stable to cc as well.
+thanks,
 
-Signed-off-by: stanislav.lisovskiy@intel.com
-Reviewed-by: Vandita Kulkarni <vandita.kulkarni@intel.com>
-Fixes: https://bugs.freedesktop.org/show_bug.cgi?id=108826
-Fixes: bcc657004841 ("drm/i915/glk: Program txesc clock divider for GLK")
-Cc: Deepak M <m.deepak@intel.com>
-Cc: Madhav Chauhan <madhav.chauhan@intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: stable@vger.kernel.org
----
- drivers/gpu/drm/i915/display/vlv_dsi_pll.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+greg k-h
 
-diff --git a/drivers/gpu/drm/i915/display/vlv_dsi_pll.c b/drivers/gpu/drm/i915/display/vlv_dsi_pll.c
-index 99cc3e2e9c2c..f016a776a39e 100644
---- a/drivers/gpu/drm/i915/display/vlv_dsi_pll.c
-+++ b/drivers/gpu/drm/i915/display/vlv_dsi_pll.c
-@@ -396,8 +396,8 @@ static void glk_dsi_program_esc_clock(struct drm_device *dev,
- 	else
- 		txesc2_div = 10;
+------------------ original commit in Linus's tree ------------------
+
+From 7685010fca2ba0284f31fd1380df3cffc96d847e Mon Sep 17 00:00:00 2001
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
+Date: Wed, 19 Jun 2019 14:29:55 +0200
+Subject: [PATCH] iio: adc: stm32-adc: add missing vdda-supply
+
+Add missing vdda-supply, analog power supply, to STM32 ADC. When vdda is
+an independent supply, it needs to be properly turned on or off to supply
+the ADC.
+
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Fixes: 1add69880240 ("iio: adc: Add support for STM32 ADC core").
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+
+diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
+index 2327ec18b40c..1f7ce5186dfc 100644
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -87,6 +87,7 @@ struct stm32_adc_priv_cfg {
+  * @domain:		irq domain reference
+  * @aclk:		clock reference for the analog circuitry
+  * @bclk:		bus clock common for all ADCs, depends on part used
++ * @vdda:		vdda analog supply reference
+  * @vref:		regulator reference
+  * @cfg:		compatible configuration data
+  * @common:		common data for all ADC instances
+@@ -97,6 +98,7 @@ struct stm32_adc_priv {
+ 	struct irq_domain		*domain;
+ 	struct clk			*aclk;
+ 	struct clk			*bclk;
++	struct regulator		*vdda;
+ 	struct regulator		*vref;
+ 	const struct stm32_adc_priv_cfg	*cfg;
+ 	struct stm32_adc_common		common;
+@@ -394,10 +396,16 @@ static int stm32_adc_core_hw_start(struct device *dev)
+ 	struct stm32_adc_priv *priv = to_stm32_adc_priv(common);
+ 	int ret;
  
--	I915_WRITE(MIPIO_TXESC_CLK_DIV1, txesc1_div & GLK_TX_ESC_CLK_DIV1_MASK);
--	I915_WRITE(MIPIO_TXESC_CLK_DIV2, txesc2_div & GLK_TX_ESC_CLK_DIV2_MASK);
-+	I915_WRITE(MIPIO_TXESC_CLK_DIV1, (1 << (txesc1_div - 1)) & GLK_TX_ESC_CLK_DIV1_MASK);
-+	I915_WRITE(MIPIO_TXESC_CLK_DIV2, (1 << (txesc2_div - 1)) & GLK_TX_ESC_CLK_DIV2_MASK);
++	ret = regulator_enable(priv->vdda);
++	if (ret < 0) {
++		dev_err(dev, "vdda enable failed %d\n", ret);
++		return ret;
++	}
++
+ 	ret = regulator_enable(priv->vref);
+ 	if (ret < 0) {
+ 		dev_err(dev, "vref enable failed\n");
+-		return ret;
++		goto err_vdda_disable;
+ 	}
+ 
+ 	if (priv->bclk) {
+@@ -425,6 +433,8 @@ static int stm32_adc_core_hw_start(struct device *dev)
+ 		clk_disable_unprepare(priv->bclk);
+ err_regulator_disable:
+ 	regulator_disable(priv->vref);
++err_vdda_disable:
++	regulator_disable(priv->vdda);
+ 
+ 	return ret;
+ }
+@@ -441,6 +451,7 @@ static void stm32_adc_core_hw_stop(struct device *dev)
+ 	if (priv->bclk)
+ 		clk_disable_unprepare(priv->bclk);
+ 	regulator_disable(priv->vref);
++	regulator_disable(priv->vdda);
  }
  
- /* Program BXT Mipi clocks and dividers */
--- 
-2.17.1
+ static int stm32_adc_probe(struct platform_device *pdev)
+@@ -468,6 +479,14 @@ static int stm32_adc_probe(struct platform_device *pdev)
+ 		return PTR_ERR(priv->common.base);
+ 	priv->common.phys_base = res->start;
+ 
++	priv->vdda = devm_regulator_get(&pdev->dev, "vdda");
++	if (IS_ERR(priv->vdda)) {
++		ret = PTR_ERR(priv->vdda);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "vdda get failed, %d\n", ret);
++		return ret;
++	}
++
+ 	priv->vref = devm_regulator_get(&pdev->dev, "vref");
+ 	if (IS_ERR(priv->vref)) {
+ 		ret = PTR_ERR(priv->vref);
 
