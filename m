@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8998966C78
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E08F66C7A
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:20:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727328AbfGLMU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:20:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53698 "EHLO mail.kernel.org"
+        id S1727348AbfGLMUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:20:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727319AbfGLMU1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:20:27 -0400
+        id S1727339AbfGLMUb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:20:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2D702166E;
-        Fri, 12 Jul 2019 12:20:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CBE12166E;
+        Fri, 12 Jul 2019 12:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934026;
-        bh=lNIW06PdV4Mggwnkyoq5rXknBfOd4SwzD8KlbvSXEMk=;
+        s=default; t=1562934030;
+        bh=JcVTYSmEquGqUaaH+cWCIyPJmKR2psxEv0qovG255wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gv7eYgn5hp3SLFevFWLZKEpxp1X5pt2G0lO8DUoT80Vq+f4/mRTRoZ2YKVCUTeB2H
-         OSdzhLR+YjihRzxwVXPDrV1WnuV4gnHqjBnizQn0DmeCZGvgsYK3tMfZYp84P9WNKx
-         IrNFOxlDW30dSaChKGqgehCN98QdY0ptjLYuNwLA=
+        b=U/DsrS9KfJ2jB4uOT7dk+cqwHuyu2lmdRLXWl1DRv5bqAPHgOuq5pfa/L8f5lhEmU
+         6bKGh4OTcCno4VmQYOQe5SukmyT7eaVnyeJBAuZMRIZksl4bu8OkijqvctHOWHxYg7
+         QyNoY47C160b8XirKKpqC4uZJoT9RtK0/q+GUF5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/91] net: phy: rename Asix Electronics PHY driver
-Date:   Fri, 12 Jul 2019 14:18:25 +0200
-Message-Id: <20190712121622.586366470@linuxfoundation.org>
+Subject: [PATCH 4.19 23/91] ibmvnic: Do not close unopened driver during reset
+Date:   Fri, 12 Jul 2019 14:18:26 +0200
+Message-Id: <20190712121622.637816904@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -45,77 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a9520543b123bbd7275a0ab8d0375a5412683b41 ]
+[ Upstream commit 1f94608b0ce141be5286dde31270590bdf35b86a ]
 
-[Resent to net instead of net-next - may clash with Anders Roxell's patch
-series addressing duplicate module names]
+Check driver state before halting it during a reset. If the driver is
+not running, do nothing. Otherwise, a request to deactivate a down link
+can cause an error and the reset will fail.
 
-Commit 31dd83b96641 ("net-next: phy: new Asix Electronics PHY driver")
-introduced a new PHY driver drivers/net/phy/asix.c that causes a module
-name conflict with a pre-existiting driver (drivers/net/usb/asix.c).
-
-The PHY driver is used by the X-Surf 100 ethernet card driver, and loaded
-by that driver via its PHY ID. A rename of the driver looks unproblematic.
-
-Rename PHY driver to ax88796b.c in order to resolve name conflict.
-
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Fixes: 31dd83b96641 ("net-next: phy: new Asix Electronics PHY driver")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/8390/Kconfig      | 2 +-
- drivers/net/phy/Kconfig                | 2 +-
- drivers/net/phy/Makefile               | 2 +-
- drivers/net/phy/{asix.c => ax88796b.c} | 0
- 4 files changed, 3 insertions(+), 3 deletions(-)
- rename drivers/net/phy/{asix.c => ax88796b.c} (100%)
+ drivers/net/ethernet/ibm/ibmvnic.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/8390/Kconfig b/drivers/net/ethernet/8390/Kconfig
-index f2f0264c58ba..443b34e2725f 100644
---- a/drivers/net/ethernet/8390/Kconfig
-+++ b/drivers/net/ethernet/8390/Kconfig
-@@ -49,7 +49,7 @@ config XSURF100
- 	tristate "Amiga XSurf 100 AX88796/NE2000 clone support"
- 	depends on ZORRO
- 	select AX88796
--	select ASIX_PHY
-+	select AX88796B_PHY
- 	help
- 	  This driver is for the Individual Computers X-Surf 100 Ethernet
- 	  card (based on the Asix AX88796 chip). If you have such a card,
-diff --git a/drivers/net/phy/Kconfig b/drivers/net/phy/Kconfig
-index 82070792edbb..1f5fd24cd749 100644
---- a/drivers/net/phy/Kconfig
-+++ b/drivers/net/phy/Kconfig
-@@ -227,7 +227,7 @@ config AQUANTIA_PHY
- 	---help---
- 	  Currently supports the Aquantia AQ1202, AQ2104, AQR105, AQR405
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 426789e2c23d..bf0a5fe0da17 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1754,7 +1754,8 @@ static int do_reset(struct ibmvnic_adapter *adapter,
  
--config ASIX_PHY
-+config AX88796B_PHY
- 	tristate "Asix PHYs"
- 	help
- 	  Currently supports the Asix Electronics PHY found in the X-Surf 100
-diff --git a/drivers/net/phy/Makefile b/drivers/net/phy/Makefile
-index 5805c0b7d60e..f21cda9d865e 100644
---- a/drivers/net/phy/Makefile
-+++ b/drivers/net/phy/Makefile
-@@ -46,7 +46,7 @@ obj-y				+= $(sfp-obj-y) $(sfp-obj-m)
+ 	ibmvnic_cleanup(netdev);
  
- obj-$(CONFIG_AMD_PHY)		+= amd.o
- obj-$(CONFIG_AQUANTIA_PHY)	+= aquantia.o
--obj-$(CONFIG_ASIX_PHY)		+= asix.o
-+obj-$(CONFIG_AX88796B_PHY)	+= ax88796b.o
- obj-$(CONFIG_AT803X_PHY)	+= at803x.o
- obj-$(CONFIG_BCM63XX_PHY)	+= bcm63xx.o
- obj-$(CONFIG_BCM7XXX_PHY)	+= bcm7xxx.o
-diff --git a/drivers/net/phy/asix.c b/drivers/net/phy/ax88796b.c
-similarity index 100%
-rename from drivers/net/phy/asix.c
-rename to drivers/net/phy/ax88796b.c
+-	if (adapter->reset_reason != VNIC_RESET_MOBILITY &&
++	if (reset_state == VNIC_OPEN &&
++	    adapter->reset_reason != VNIC_RESET_MOBILITY &&
+ 	    adapter->reset_reason != VNIC_RESET_FAILOVER) {
+ 		rc = __ibmvnic_close(netdev);
+ 		if (rc)
 -- 
 2.20.1
 
