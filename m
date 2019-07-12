@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D5AB66EC6
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C503066EAD
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:40:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728039AbfGLMlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:41:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36792 "EHLO mail.kernel.org"
+        id S1728210AbfGLMY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:24:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728042AbfGLM0E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:26:04 -0400
+        id S1727368AbfGLMY7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:24:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EDB9208E4;
-        Fri, 12 Jul 2019 12:26:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E741E21019;
+        Fri, 12 Jul 2019 12:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934363;
-        bh=cWPcw6h9DHowQiZYU03G9tXISuDsNEaXKAX0VKfkxiI=;
+        s=default; t=1562934298;
+        bh=Ewvu7yBZJuIvAVOWtuvGiUggubBsAHhQ5bcCtB13j7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BbwaeTEVEm+4bnADiGuQd4b0Mw6dLzVP3gN4A6znUtqFSP0z9RCUopuOAscDCXkNI
-         uHTi1StGK+ySEG61PpuFvJW1aiuFQZNSJIzgTQQzSEf7IBGx4iDzogaIh90LZlTQzf
-         Y5dIo2fEWbVbtnJQIXka39ZM+j5Lc9DXANej3wv0=
+        b=w9Hj+7HRZWLY7g6eMnaIN9sg391ASjo+EP3RrQpk2ok0KGpy1EafWjE3SnTlClCBA
+         SjrHVZYYZl5m0qVoolgiU+6ecrVVqRiuyBp5Ij4RQeit5g2TjiZ+67EK4+q/19h81Q
+         RXLdKcWbb6JxDkKytB0tLBftogNlYf4FicSMdM2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 008/138] soc: brcmstb: Fix error path for unsupported CPUs
-Date:   Fri, 12 Jul 2019 14:17:52 +0200
-Message-Id: <20190712121629.035725171@linuxfoundation.org>
+Subject: [PATCH 5.1 010/138] Input: elantech - enable middle button support on 2 ThinkPads
+Date:   Fri, 12 Jul 2019 14:17:54 +0200
+Message-Id: <20190712121629.108971528@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
 References: <20190712121628.731888964@linuxfoundation.org>
@@ -43,36 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 490cad5a3ad6ef0bfd3168a5063140b982f3b22a ]
+[ Upstream commit aa440de3058a3ef530851f9ef373fbb5f694dbc3 ]
 
-In case setup_hifcpubiuctrl_regs() returns an error, because of e.g:
-an unsupported CPU type, just catch that error and return instead of
-blindly continuing with the initialization. This fixes a NULL pointer
-de-reference with the code continuing without having a proper array of
-registers to use.
+Adding 2 new touchpad PNPIDs to enable middle button support.
 
-Fixes: 22f7a9116eba ("soc: brcmstb: Correct CPU_CREDIT_REG offset for Brahma-B53 CPUs")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/bcm/brcmstb/biuctrl.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/mouse/elantech.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/soc/bcm/brcmstb/biuctrl.c b/drivers/soc/bcm/brcmstb/biuctrl.c
-index 6d89ebf13b8a..c16273b31b94 100644
---- a/drivers/soc/bcm/brcmstb/biuctrl.c
-+++ b/drivers/soc/bcm/brcmstb/biuctrl.c
-@@ -246,7 +246,9 @@ static int __init brcmstb_biuctrl_init(void)
- 	if (!np)
- 		return 0;
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index a7f8b1614559..530142b5a115 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1189,6 +1189,8 @@ static const char * const middle_button_pnp_ids[] = {
+ 	"LEN2132", /* ThinkPad P52 */
+ 	"LEN2133", /* ThinkPad P72 w/ NFC */
+ 	"LEN2134", /* ThinkPad P72 */
++	"LEN0407",
++	"LEN0408",
+ 	NULL
+ };
  
--	setup_hifcpubiuctrl_regs(np);
-+	ret = setup_hifcpubiuctrl_regs(np);
-+	if (ret)
-+		return ret;
- 
- 	ret = mcp_write_pairing_set();
- 	if (ret) {
 -- 
 2.20.1
 
