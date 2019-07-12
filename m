@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A512066CC3
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:23:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C615766D51
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:29:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727017AbfGLMXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:23:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58196 "EHLO mail.kernel.org"
+        id S1728863AbfGLM2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:28:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727839AbfGLMXC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:23:02 -0400
+        id S1728855AbfGLM2k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:28:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B616E21670;
-        Fri, 12 Jul 2019 12:23:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5440B21019;
+        Fri, 12 Jul 2019 12:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934181;
-        bh=jIGF3tGsUd16gUWn6GBhxSJaxsz9nGgZeR+K3j5UKXQ=;
+        s=default; t=1562934519;
+        bh=Huy+6T0Z/+vZR/qnaWHnDnSRRDB/9X1XLztqf99k3Mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jTqI2qMiYmi1LdotQD+nfmCq5vobwtwI+FKxWDJJIsAN7VhGUh/mcLisMBltB8gmn
-         0ymuUuATPBCXvkqTzPO759RoegR0csv7ADvKrvWDG9r26Mdsfila7NK8zBF3qk2Px7
-         Xux5wnRaLLeJLqBsNJ4dj+VslLVDvzwTGdKbHAGw=
+        b=mhN5SU+htRZD3zlHwhVbpk+/3EakAMfaNzgp3az4pjJpj09xFfTA3lrTMqVBeK319
+         z3Xj2KScZ4RJddnEmvFrGK3OYqzj4TBmm7JNxQLfb0we4lAtKg4dwymW2bVqUc1q9q
+         kM3F/OOtBaUrdK1i6rTolW+lRwB4UZlpiGepgBTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dianzhang Chen <dianzhangchen0@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
-        hpa@zytor.com
-Subject: [PATCH 4.19 63/91] x86/ptrace: Fix possible spectre-v1 in ptrace_get_debugreg()
-Date:   Fri, 12 Jul 2019 14:19:06 +0200
-Message-Id: <20190712121625.214928205@linuxfoundation.org>
+        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Christoph Hellwig <hch@lst.de>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 083/138] powerpc: enable a 30-bit ZONE_DMA for 32-bit pmac
+Date:   Fri, 12 Jul 2019 14:19:07 +0200
+Message-Id: <20190712121631.924549848@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
-References: <20190712121621.422224300@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dianzhang Chen <dianzhangchen0@gmail.com>
+[ Upstream commit 9739ab7eda459f0669ec9807e0d9be5020bab88c ]
 
-commit 31a2fbb390fee4231281b939e1979e810f945415 upstream.
+With the strict dma mask checking introduced with the switch to
+the generic DMA direct code common wifi chips on 32-bit powerbooks
+stopped working.  Add a 30-bit ZONE_DMA to the 32-bit pmac builds
+to allow them to reliably allocate dma coherent memory.
 
-The index to access the threads ptrace_bps is controlled by userspace via
-syscall: sys_ptrace(), hence leading to a potential exploitation of the
-Spectre variant 1 vulnerability.
-
-The index can be controlled from:
-    ptrace -> arch_ptrace -> ptrace_get_debugreg.
-
-Fix this by sanitizing the user supplied index before using it access
-thread->ptrace_bps.
-
-Signed-off-by: Dianzhang Chen <dianzhangchen0@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: bp@alien8.de
-Cc: hpa@zytor.com
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1561476617-3759-1-git-send-email-dianzhangchen0@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 65a21b71f948 ("powerpc/dma: remove dma_nommu_dma_supported")
+Reported-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Tested-by: Larry Finger <Larry.Finger@lwfinger.net>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Tested-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/ptrace.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/page.h         | 7 +++++++
+ arch/powerpc/mm/mem.c                   | 3 ++-
+ arch/powerpc/platforms/powermac/Kconfig | 1 +
+ 3 files changed, 10 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/ptrace.c
-+++ b/arch/x86/kernel/ptrace.c
-@@ -24,6 +24,7 @@
- #include <linux/rcupdate.h>
- #include <linux/export.h>
- #include <linux/context_tracking.h>
-+#include <linux/nospec.h>
+diff --git a/arch/powerpc/include/asm/page.h b/arch/powerpc/include/asm/page.h
+index ed870468ef6f..d408711d09fb 100644
+--- a/arch/powerpc/include/asm/page.h
++++ b/arch/powerpc/include/asm/page.h
+@@ -330,6 +330,13 @@ struct vm_area_struct;
+ #endif /* __ASSEMBLY__ */
+ #include <asm/slice.h>
  
- #include <linux/uaccess.h>
- #include <asm/pgtable.h>
-@@ -651,9 +652,11 @@ static unsigned long ptrace_get_debugreg
- {
- 	struct thread_struct *thread = &tsk->thread;
- 	unsigned long val = 0;
-+	int index = n;
++/*
++ * Allow 30-bit DMA for very limited Broadcom wifi chips on many powerbooks.
++ */
++#ifdef CONFIG_PPC32
++#define ARCH_ZONE_DMA_BITS 30
++#else
+ #define ARCH_ZONE_DMA_BITS 31
++#endif
  
- 	if (n < HBP_NUM) {
--		struct perf_event *bp = thread->ptrace_bps[n];
-+		index = array_index_nospec(index, HBP_NUM);
-+		struct perf_event *bp = thread->ptrace_bps[index];
+ #endif /* _ASM_POWERPC_PAGE_H */
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index f6787f90e158..b98ce400a889 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -255,7 +255,8 @@ void __init paging_init(void)
+ 	       (long int)((top_of_ram - total_ram) >> 20));
  
- 		if (bp)
- 			val = bp->hw.info.address;
+ #ifdef CONFIG_ZONE_DMA
+-	max_zone_pfns[ZONE_DMA]	= min(max_low_pfn, 0x7fffffffUL >> PAGE_SHIFT);
++	max_zone_pfns[ZONE_DMA]	= min(max_low_pfn,
++			((1UL << ARCH_ZONE_DMA_BITS) - 1) >> PAGE_SHIFT);
+ #endif
+ 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+ #ifdef CONFIG_HIGHMEM
+diff --git a/arch/powerpc/platforms/powermac/Kconfig b/arch/powerpc/platforms/powermac/Kconfig
+index f834a19ed772..c02d8c503b29 100644
+--- a/arch/powerpc/platforms/powermac/Kconfig
++++ b/arch/powerpc/platforms/powermac/Kconfig
+@@ -7,6 +7,7 @@ config PPC_PMAC
+ 	select PPC_INDIRECT_PCI if PPC32
+ 	select PPC_MPC106 if PPC32
+ 	select PPC_NATIVE
++	select ZONE_DMA if PPC32
+ 	default y
+ 
+ config PPC_PMAC64
+-- 
+2.20.1
+
 
 
