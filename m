@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4245A66CED
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:25:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20CC366E89
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:39:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728135AbfGLMYc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:24:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33222 "EHLO mail.kernel.org"
+        id S1727212AbfGLMjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:39:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727349AbfGLMYb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:24:31 -0400
+        id S1727334AbfGLM0s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:26:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3CA7208E4;
-        Fri, 12 Jul 2019 12:24:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A66E02084B;
+        Fri, 12 Jul 2019 12:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934271;
-        bh=spKQvzBkCz2p7uUyWcQ59xxgGjgybE/oLIuwZnEgBBg=;
+        s=default; t=1562934407;
+        bh=PNQabgyv3VOnJiq0fbNhX/nvuOY9v4LsybKLuBuLFGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vBOrYqNO7r8hqpT1ObMqn54NS7Qx9rVtgdP5lOtkL5toWNIfQavMjRUcY9093Suyj
-         ufM5NoiVclKbCUlQQ+3vw5P8Evo4cK8OT3ZEt2rwRDbWTSVLfP3xkwYfvN1CjBQckL
-         LTjExfmTh8BCdiDF0P8cB3Wocjvukxiq7DX/jKNQ=
+        b=CUfup2tab2CnwlLxmAjlJWpJLWVZTvbDLFNll/xzTLr0k/PVxWnOYeEMC2cxuC82T
+         6nyoL5VsytomvJaGqNIX/s/5oatTAnyq7MeuorzN4Ktm9zoZP7OOaZI2a4WSMcVp2j
+         9WXe2BoFSLGAOB59I2c7ZQHLsuTE7C57DJG0w0ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.org>,
-        Stefan Wahren <wahrenst@gmx.net>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.19 90/91] staging: bcm2835-camera: Handle empty EOS buffers whilst streaming
-Date:   Fri, 12 Jul 2019 14:19:33 +0200
-Message-Id: <20190712121626.527633294@linuxfoundation.org>
+        stable@vger.kernel.org, huangwen <huangwen@venustech.com.cn>,
+        Takashi Iwai <tiwai@suse.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 028/138] mwifiex: Fix heap overflow in mwifiex_uap_parse_tail_ies()
+Date:   Fri, 12 Jul 2019 14:18:12 +0200
+Message-Id: <20190712121629.781419565@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
-References: <20190712121621.422224300@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,91 +45,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Stevenson <dave.stevenson@raspberrypi.org>
+[ Upstream commit 69ae4f6aac1578575126319d3f55550e7e440449 ]
 
-commit a26be06d6d96c10a9ab005e99d93fbb5d3babd98 upstream.
+A few places in mwifiex_uap_parse_tail_ies() perform memcpy()
+unconditionally, which may lead to either buffer overflow or read over
+boundary.
 
-The change to mapping V4L2 to MMAL buffers 1:1 didn't handle
-the condition we get with raw pixel buffers (eg YUV and RGB)
-direct from the camera's stills port. That sends the pixel buffer
-and then an empty buffer with the EOS flag set. The EOS buffer
-wasn't handled and returned an error up the stack.
+This patch addresses the issues by checking the read size and the
+destination size at each place more properly.  Along with the fixes,
+the patch cleans up the code slightly by introducing a temporary
+variable for the token size, and unifies the error path with the
+standard goto statement.
 
-Handle the condition correctly by returning it to the component
-if streaming, or returning with an error if stopping streaming.
-
-Fixes: 938416707071 ("staging: bcm2835-camera: Remove V4L2/MMAL buffer remapping")
-Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.org>
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: huangwen <huangwen@venustech.com.cn>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c |   21 +++++-----
- drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c     |    5 +-
- 2 files changed, 15 insertions(+), 11 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/ie.c | 47 +++++++++++++++--------
+ 1 file changed, 31 insertions(+), 16 deletions(-)
 
---- a/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
-+++ b/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
-@@ -342,16 +342,13 @@ static void buffer_cb(struct vchiq_mmal_
- 		return;
- 	} else if (length == 0) {
- 		/* stream ended */
--		if (buf) {
--			/* this should only ever happen if the port is
--			 * disabled and there are buffers still queued
-+		if (dev->capture.frame_count) {
-+			/* empty buffer whilst capturing - expected to be an
-+			 * EOS, so grab another frame
- 			 */
--			vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
--			pr_debug("Empty buffer");
--		} else if (dev->capture.frame_count) {
--			/* grab another frame */
- 			if (is_capturing(dev)) {
--				pr_debug("Grab another frame");
-+				v4l2_dbg(1, bcm2835_v4l2_debug, &dev->v4l2_dev,
-+					 "Grab another frame");
- 				vchiq_mmal_port_parameter_set(
- 					instance,
- 					dev->capture.camera_port,
-@@ -359,8 +356,14 @@ static void buffer_cb(struct vchiq_mmal_
- 					&dev->capture.frame_count,
- 					sizeof(dev->capture.frame_count));
- 			}
-+			if (vchiq_mmal_submit_buffer(instance, port, buf))
-+				v4l2_dbg(1, bcm2835_v4l2_debug, &dev->v4l2_dev,
-+					 "Failed to return EOS buffer");
- 		} else {
--			/* signal frame completion */
-+			/* stopping streaming.
-+			 * return buffer, and signal frame completion
-+			 */
-+			vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
- 			complete(&dev->capture.frame_cmplt);
+diff --git a/drivers/net/wireless/marvell/mwifiex/ie.c b/drivers/net/wireless/marvell/mwifiex/ie.c
+index 6845eb57b39a..653d347a9a19 100644
+--- a/drivers/net/wireless/marvell/mwifiex/ie.c
++++ b/drivers/net/wireless/marvell/mwifiex/ie.c
+@@ -329,6 +329,8 @@ static int mwifiex_uap_parse_tail_ies(struct mwifiex_private *priv,
+ 	struct ieee80211_vendor_ie *vendorhdr;
+ 	u16 gen_idx = MWIFIEX_AUTO_IDX_MASK, ie_len = 0;
+ 	int left_len, parsed_len = 0;
++	unsigned int token_len;
++	int err = 0;
+ 
+ 	if (!info->tail || !info->tail_len)
+ 		return 0;
+@@ -344,6 +346,12 @@ static int mwifiex_uap_parse_tail_ies(struct mwifiex_private *priv,
+ 	 */
+ 	while (left_len > sizeof(struct ieee_types_header)) {
+ 		hdr = (void *)(info->tail + parsed_len);
++		token_len = hdr->len + sizeof(struct ieee_types_header);
++		if (token_len > left_len) {
++			err = -EINVAL;
++			goto out;
++		}
++
+ 		switch (hdr->element_id) {
+ 		case WLAN_EID_SSID:
+ 		case WLAN_EID_SUPP_RATES:
+@@ -361,17 +369,20 @@ static int mwifiex_uap_parse_tail_ies(struct mwifiex_private *priv,
+ 			if (cfg80211_find_vendor_ie(WLAN_OUI_MICROSOFT,
+ 						    WLAN_OUI_TYPE_MICROSOFT_WMM,
+ 						    (const u8 *)hdr,
+-						    hdr->len + sizeof(struct ieee_types_header)))
++						    token_len))
+ 				break;
+ 			/* fall through */
+ 		default:
+-			memcpy(gen_ie->ie_buffer + ie_len, hdr,
+-			       hdr->len + sizeof(struct ieee_types_header));
+-			ie_len += hdr->len + sizeof(struct ieee_types_header);
++			if (ie_len + token_len > IEEE_MAX_IE_SIZE) {
++				err = -EINVAL;
++				goto out;
++			}
++			memcpy(gen_ie->ie_buffer + ie_len, hdr, token_len);
++			ie_len += token_len;
+ 			break;
  		}
- 	} else {
---- a/drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c
-+++ b/drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c
-@@ -291,8 +291,6 @@ static int bulk_receive(struct vchiq_mma
- 
- 	/* store length */
- 	msg_context->u.bulk.buffer_used = rd_len;
--	msg_context->u.bulk.mmal_flags =
--	    msg->u.buffer_from_host.buffer_header.flags;
- 	msg_context->u.bulk.dts = msg->u.buffer_from_host.buffer_header.dts;
- 	msg_context->u.bulk.pts = msg->u.buffer_from_host.buffer_header.pts;
- 
-@@ -453,6 +451,9 @@ static void buffer_to_host_cb(struct vch
- 		return;
+-		left_len -= hdr->len + sizeof(struct ieee_types_header);
+-		parsed_len += hdr->len + sizeof(struct ieee_types_header);
++		left_len -= token_len;
++		parsed_len += token_len;
  	}
  
-+	msg_context->u.bulk.mmal_flags =
-+				msg->u.buffer_from_host.buffer_header.flags;
+ 	/* parse only WPA vendor IE from tail, WMM IE is configured by
+@@ -381,15 +392,17 @@ static int mwifiex_uap_parse_tail_ies(struct mwifiex_private *priv,
+ 						    WLAN_OUI_TYPE_MICROSOFT_WPA,
+ 						    info->tail, info->tail_len);
+ 	if (vendorhdr) {
+-		memcpy(gen_ie->ie_buffer + ie_len, vendorhdr,
+-		       vendorhdr->len + sizeof(struct ieee_types_header));
+-		ie_len += vendorhdr->len + sizeof(struct ieee_types_header);
++		token_len = vendorhdr->len + sizeof(struct ieee_types_header);
++		if (ie_len + token_len > IEEE_MAX_IE_SIZE) {
++			err = -EINVAL;
++			goto out;
++		}
++		memcpy(gen_ie->ie_buffer + ie_len, vendorhdr, token_len);
++		ie_len += token_len;
+ 	}
+ 
+-	if (!ie_len) {
+-		kfree(gen_ie);
+-		return 0;
+-	}
++	if (!ie_len)
++		goto out;
+ 
+ 	gen_ie->ie_index = cpu_to_le16(gen_idx);
+ 	gen_ie->mgmt_subtype_mask = cpu_to_le16(MGMT_MASK_BEACON |
+@@ -399,13 +412,15 @@ static int mwifiex_uap_parse_tail_ies(struct mwifiex_private *priv,
+ 
+ 	if (mwifiex_update_uap_custom_ie(priv, gen_ie, &gen_idx, NULL, NULL,
+ 					 NULL, NULL)) {
+-		kfree(gen_ie);
+-		return -1;
++		err = -EINVAL;
++		goto out;
+ 	}
+ 
+ 	priv->gen_idx = gen_idx;
 +
- 	if (msg->h.status != MMAL_MSG_STATUS_SUCCESS) {
- 		/* message reception had an error */
- 		pr_warn("error %d in reply\n", msg->h.status);
++ out:
+ 	kfree(gen_ie);
+-	return 0;
++	return err;
+ }
+ 
+ /* This function parses different IEs-head & tail IEs, beacon IEs,
+-- 
+2.20.1
+
 
 
