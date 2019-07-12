@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D81766ED2
+	by mail.lfdr.de (Postfix) with ESMTP id F3D8666ED4
 	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728008AbfGLMX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:23:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60152 "EHLO mail.kernel.org"
+        id S1727991AbfGLMYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:24:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726449AbfGLMX5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:23:57 -0400
+        id S1728021AbfGLMYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:24:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E2862166E;
-        Fri, 12 Jul 2019 12:23:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80F342084B;
+        Fri, 12 Jul 2019 12:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934236;
-        bh=S8OJE4dmMOXk0Hedyoghw3G15wcBYwwVaW9O18Idrg0=;
+        s=default; t=1562934243;
+        bh=/pzwLKBAff43M8fs3y8Rlov95R2XE42Zl7umpWphhoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rj90+PlYO68Te+W4/2rO0Uf6yTw9Evyq+T3yj0xz54fNpuwx2mR2pakLCOvtaSFI2
-         pzqjBZsnfShsqv1rPGmzC3hGQ6CC0RSfeEoFHQ7eVs7LXGyOOIt17TgBYD2gyz/iFG
-         dc3doFfiOmfCZ9TIMvxpBt3MXvlEq9YTivK4QK7E=
+        b=Dnh91HCgJXgDkVqqx8JhLS7R+31w/y3V1RQoJlo+Jr7GwuR51uZJ1M8e+cygzX+Tz
+         Xf/WbFkFqArzgAMPbB/jRc70YQ5ZvMQ5g2NWo7ifxOR/Q3hkDuatv6IvfcqJ+dVMjh
+         1+31rc9ellTq0dUWKZssfKWC6351A7d31msjf1zw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Parschauer <s.parschauer@gmx.de>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.19 80/91] HID: Add another Primax PIXART OEM mouse quirk
-Date:   Fri, 12 Jul 2019 14:19:23 +0200
-Message-Id: <20190712121626.083727374@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+182ce46596c3f2e1eb24@syzkaller.appspotmail.com,
+        Todd Kjos <tkjos@google.com>
+Subject: [PATCH 4.19 82/91] binder: fix memory leak in error path
+Date:   Fri, 12 Jul 2019 14:19:25 +0200
+Message-Id: <20190712121626.177607735@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -43,46 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Parschauer <s.parschauer@gmx.de>
+From: Todd Kjos <tkjos@android.com>
 
-commit 4c12954965fdf33d8ae3883c1931fc29ca023cfb upstream.
+commit 1909a671dbc3606685b1daf8b22a16f65ea7edda upstream.
 
-The PixArt OEM mice are known for disconnecting every minute in
-runlevel 1 or 3 if they are not always polled. So add quirk
-ALWAYS_POLL for this Alienware branded Primax mouse as well.
+syzkallar found a 32-byte memory leak in a rarely executed error
+case. The transaction complete work item was not freed if put_user()
+failed when writing the BR_TRANSACTION_COMPLETE to the user command
+buffer. Fixed by freeing it before put_user() is called.
 
-Daniel Schepler (@dschepler) reported and tested the quirk.
-Reference: https://github.com/sriemer/fix-linux-mouse/issues/15
-
-Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
-CC: stable@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reported-by: syzbot+182ce46596c3f2e1eb24@syzkaller.appspotmail.com
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-ids.h    |    1 +
- drivers/hid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/android/binder.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1212,6 +1212,7 @@
- #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
- #define USB_DEVICE_ID_PRIMAX_REZEL	0x4e72
- #define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F	0x4d0f
-+#define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D65	0x4d65
- #define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4E22	0x4e22
- 
- 
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -131,6 +131,7 @@ static const struct hid_device_id hid_qu
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_MOUSE_4D22), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D65), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4E22), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PRODIGE, USB_DEVICE_ID_PRODIGE_CORDLESS), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_QUANTA, USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001), HID_QUIRK_NOGET },
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -3936,6 +3936,8 @@ retry:
+ 		case BINDER_WORK_TRANSACTION_COMPLETE: {
+ 			binder_inner_proc_unlock(proc);
+ 			cmd = BR_TRANSACTION_COMPLETE;
++			kfree(w);
++			binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
+ 			if (put_user(cmd, (uint32_t __user *)ptr))
+ 				return -EFAULT;
+ 			ptr += sizeof(uint32_t);
+@@ -3944,8 +3946,6 @@ retry:
+ 			binder_debug(BINDER_DEBUG_TRANSACTION_COMPLETE,
+ 				     "%d:%d BR_TRANSACTION_COMPLETE\n",
+ 				     proc->pid, thread->pid);
+-			kfree(w);
+-			binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
+ 		} break;
+ 		case BINDER_WORK_NODE: {
+ 			struct binder_node *node = container_of(w, struct binder_node, work);
 
 
