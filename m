@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46FBF6662A
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B09D6662B
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:29:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726055AbfGLF3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 01:29:24 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:41521 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbfGLF3Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:29:24 -0400
-Received: by mail-pf1-f194.google.com with SMTP id m30so3786736pff.8
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:29:24 -0700 (PDT)
+        id S1726057AbfGLF31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 01:29:27 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:37993 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725791AbfGLF31 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:29:27 -0400
+Received: by mail-pl1-f195.google.com with SMTP id az7so4203660plb.5
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:29:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=+i1PP70VM4gp+yGXoK79tVzWNeTCN5YHgyu+1fomQgA=;
-        b=LtvPtrcrU4nwJykst8A48fEuE3P2blvqxFdxg8DC+CmmLab12J4Rvsuf4DNsV/4r4L
-         G9sOtdUSY0tXKPqUQYw9hUhneYuPKUq95ApUFd2QFvgr/soFj9RSY3703vLrgLc/Cqrt
-         M1AnQwz3IqtIKK0fKC2O7ULga6D6GzcMfhtryK7DmnSihcgVJl0/36Jrz0ikXiXUC+E6
-         jSCOknmaouHblQ2fAkBIkVUObQ/zy3pt02ELF/ZGmL88Z1O6hUNpFXLNybKwctEPuQfY
-         dcq/4E+tsfvBSfgCHxENCqS2nN/Ix9N7UgkgYNbOQZ6V5oXRbq4We4ZksjVKg4RvVXcd
-         29Iw==
+        bh=t0RCljGeD4tzeQJetzsGgy9r5JSUQjn098IzF6ZdUW0=;
+        b=ulsmDQGtyVvfNWx5Zo0lXZZXUOf82ZFYWRtPMKIzeKLZEz3LQdiCR03FjQzHTfdy2y
+         CVjPXKLsSc0BgptX/fOwvMXV/U9uYVWZPsOP6DSSK7qGV9y5XBFEE3Pl4RLNu9xM2Hiz
+         aA93Dd4vN6TllQNFpdPXbuiNRhxznOnFXjR8QAAwWi5InfpDVW+WOmdoYdcTlh+jzpYl
+         CdBsIhCwsbEhYpNbir1K/g17O/lo/RhqM0EXfdpc0VMCMturMeqfnMissX3VFQ0uFXkJ
+         yeN4bjHfyYOnfNuhtfagMnkRzxUwAoLJcx3tMa3xFMxbb55lt8o598rojMNtEOxT6aG3
+         zNLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=+i1PP70VM4gp+yGXoK79tVzWNeTCN5YHgyu+1fomQgA=;
-        b=UWEGLa5dVPmRpPUMLQwNOrd9q8YjzQCAUlMJGzapeNN37HxFSo32IRCrblf5Js0F7s
-         UURq0LTyiyWVTqFhEgRy4L7g12YzsadrWcAlbEi55fyjGSGiRw4FrUUoH9Bsu6ADtTPJ
-         GiQw7MSpotBz/BR++Zbty2ZdlQ6nMp6aXe1e58gFxuUJEY1vmaAVM8ApoQ0yFvLTzD7+
-         rYR3Q9+9I2HKIYhwu7mUTqA+Y75kAx+lDzhFGDj/qZ9VOEo72VKL5WGdRy/0fNcS6iPw
-         OuWHDQNkBrrm/btJ/2F88VwviqjF5WRVGz3w7bhxPtC+nCjUJAAemXq7oLouYlVqj+kq
-         NrgQ==
-X-Gm-Message-State: APjAAAWocAqFdaI+xmwifo2HCJQOEEZo0lDipfTQTjGK31yC4fkqdUgp
-        NZl+bCYAK97BGvKjUd3gxBKZu70FjrI=
-X-Google-Smtp-Source: APXvYqy6laduSzW4J2fHIwGuSgLVFtG+of8Xeu9hr2v3uq9ggFfUKWP4KUK0kFGztZINIO7uuxCp5w==
-X-Received: by 2002:a17:90a:db44:: with SMTP id u4mr9411661pjx.52.1562909363505;
-        Thu, 11 Jul 2019 22:29:23 -0700 (PDT)
+        bh=t0RCljGeD4tzeQJetzsGgy9r5JSUQjn098IzF6ZdUW0=;
+        b=ZdRCY5YOWX3rqSjqLaMcIBzCacw4+5nU/xss9ziiDWmw09UqCzYIl4k+41Bh1Nd8sY
+         iAsVRdQggb+3WeC9G55YThSpwX9QZFbPIZwy9eEh3TEkfCkP40xaMg1djLsS+2lWk5G+
+         jy18mfP0lGfe1Kd+g84bzk5Z5NtsG2FBkEsvjKZQ+SnuQ+6sNqzo1pjNnVn1Ow3WXT3O
+         XA74YrYIjNQXd4HITIg1yfO7L+JGbL1Wg9MikN3YpCRI0KepFCEi1aImSVtVhQR7XL4X
+         9xQ2EP8mtjBF83nwD5MUkxCt3nzkjHJDpxiEtvJ/9UXbZDf68lhGkQXvN8xHOOAYAPIn
+         DpwA==
+X-Gm-Message-State: APjAAAU2vaG5stHMvPdUifpzWOCXFJO5uvFcn7tYtkoZfj3zyOY0guf4
+        XGmdxXmBIogfr5iYJg8bJpO2v6tUfaA=
+X-Google-Smtp-Source: APXvYqyUB0WGysAwEjCSP5uT8/Jz9S7uh5PgzrZ/l7+QJJDz49N6ZdtoP3typjucGn2JE499R9idNA==
+X-Received: by 2002:a17:902:a612:: with SMTP id u18mr8864924plq.181.1562909365963;
+        Thu, 11 Jul 2019 22:29:25 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id b26sm10186974pfo.129.2019.07.11.22.29.22
+        by smtp.gmail.com with ESMTPSA id p23sm7571929pfn.10.2019.07.11.22.29.25
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 22:29:23 -0700 (PDT)
+        Thu, 11 Jul 2019 22:29:25 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 V2 09/43] mm/kasan: add API to check memory regions
-Date:   Fri, 12 Jul 2019 10:57:57 +0530
-Message-Id: <45ff1598be62861928069f5907f6b41d3eb05c68.1562908075.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 V2 10/43] arm64: kasan: instrument user memory access API
+Date:   Fri, 12 Jul 2019 10:57:58 +0530
+Message-Id: <8df1bde82656584cb537f322ae744836a41b597a.1562908075.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
 References: <cover.1562908074.git.viresh.kumar@linaro.org>
@@ -68,99 +68,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Ryabinin <aryabinin@virtuozzo.com>
+From: Yang Shi <yang.shi@linaro.org>
 
-commit 64f8ebaf115bcddc4aaa902f981c57ba6506bc42 upstream.
+commit bffe1baff5d57521b0c41b6997c41ff1993e9818 upstream.
 
-Memory access coded in an assembly won't be seen by KASAN as a compiler
-can instrument only C code.  Add kasan_check_[read,write]() API which is
-going to be used to check a certain memory range.
+The upstream commit 1771c6e1a567ea0ba2cccc0a4ffe68a1419fd8ef
+("x86/kasan: instrument user memory access API") added KASAN instrument to
+x86 user memory access API, so added such instrument to ARM64 too.
 
-Link: http://lkml.kernel.org/r/1462538722-1574-3-git-send-email-aryabinin@virtuozzo.com
-Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Acked-by: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[ v4.4: Fixed MAINTAINERS conflict and added whole kasan entry. Drop 4th
-	argument to check_memory_region(). ]
+Define __copy_to/from_user in C in order to add kasan_check_read/write call,
+rename assembly implementation to __arch_copy_to/from_user.
+
+Tested by test_kasan module.
+
+Acked-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Tested-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Yang Shi <yang.shi@linaro.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- MAINTAINERS                  | 14 ++++++++++++++
- include/linux/kasan-checks.h | 12 ++++++++++++
- mm/kasan/kasan.c             | 12 ++++++++++++
- 3 files changed, 38 insertions(+)
- create mode 100644 include/linux/kasan-checks.h
+ arch/arm64/include/asm/uaccess.h | 25 +++++++++++++++++++++----
+ arch/arm64/kernel/arm64ksyms.c   |  4 ++--
+ arch/arm64/lib/copy_from_user.S  |  4 ++--
+ arch/arm64/lib/copy_to_user.S    |  4 ++--
+ 4 files changed, 27 insertions(+), 10 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index f4d4a5544dc1..2a8826732967 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -5982,6 +5982,20 @@ S:	Maintained
- F:	Documentation/hwmon/k8temp
- F:	drivers/hwmon/k8temp.c
+diff --git a/arch/arm64/include/asm/uaccess.h b/arch/arm64/include/asm/uaccess.h
+index a34324436ce1..693a0d784534 100644
+--- a/arch/arm64/include/asm/uaccess.h
++++ b/arch/arm64/include/asm/uaccess.h
+@@ -22,6 +22,7 @@
+  * User space memory access functions
+  */
+ #include <linux/bitops.h>
++#include <linux/kasan-checks.h>
+ #include <linux/string.h>
+ #include <linux/thread_info.h>
  
-+KASAN
-+M:	Andrey Ryabinin <aryabinin@virtuozzo.com>
-+R:	Alexander Potapenko <glider@google.com>
-+R:	Dmitry Vyukov <dvyukov@google.com>
-+L:	kasan-dev@googlegroups.com
-+S:	Maintained
-+F:	arch/*/include/asm/kasan.h
-+F:	arch/*/mm/kasan_init*
-+F:	Documentation/kasan.txt
-+F:	include/linux/kasan*.h
-+F:	lib/test_kasan.c
-+F:	mm/kasan/
-+F:	scripts/Makefile.kasan
-+
- KCONFIG
- M:	"Yann E. MORIN" <yann.morin.1998@free.fr>
- L:	linux-kbuild@vger.kernel.org
-diff --git a/include/linux/kasan-checks.h b/include/linux/kasan-checks.h
-new file mode 100644
-index 000000000000..b7f8aced7870
---- /dev/null
-+++ b/include/linux/kasan-checks.h
-@@ -0,0 +1,12 @@
-+#ifndef _LINUX_KASAN_CHECKS_H
-+#define _LINUX_KASAN_CHECKS_H
-+
-+#ifdef CONFIG_KASAN
-+void kasan_check_read(const void *p, unsigned int size);
-+void kasan_check_write(const void *p, unsigned int size);
-+#else
-+static inline void kasan_check_read(const void *p, unsigned int size) { }
-+static inline void kasan_check_write(const void *p, unsigned int size) { }
-+#endif
-+
-+#endif
-diff --git a/mm/kasan/kasan.c b/mm/kasan/kasan.c
-index b7397b459960..1cdcab0c976a 100644
---- a/mm/kasan/kasan.c
-+++ b/mm/kasan/kasan.c
-@@ -274,6 +274,18 @@ static __always_inline void check_memory_region(unsigned long addr,
- void __asan_loadN(unsigned long addr, size_t size);
- void __asan_storeN(unsigned long addr, size_t size);
+@@ -300,15 +301,29 @@ do {									\
  
-+void kasan_check_read(const void *p, unsigned int size)
+ #define put_user	__put_user
+ 
+-extern unsigned long __must_check __copy_from_user(void *to, const void __user *from, unsigned long n);
+-extern unsigned long __must_check __copy_to_user(void __user *to, const void *from, unsigned long n);
++extern unsigned long __must_check __arch_copy_from_user(void *to, const void __user *from, unsigned long n);
++extern unsigned long __must_check __arch_copy_to_user(void __user *to, const void *from, unsigned long n);
+ extern unsigned long __must_check __copy_in_user(void __user *to, const void __user *from, unsigned long n);
+ extern unsigned long __must_check __clear_user(void __user *addr, unsigned long n);
+ 
++static inline unsigned long __must_check __copy_from_user(void *to, const void __user *from, unsigned long n)
 +{
-+	check_memory_region((unsigned long)p, size, false);
++	kasan_check_write(to, n);
++	return  __arch_copy_from_user(to, from, n);
 +}
-+EXPORT_SYMBOL(kasan_check_read);
 +
-+void kasan_check_write(const void *p, unsigned int size)
++static inline unsigned long __must_check __copy_to_user(void __user *to, const void *from, unsigned long n)
 +{
-+	check_memory_region((unsigned long)p, size, true);
++	kasan_check_read(from, n);
++	return  __arch_copy_to_user(to, from, n);
 +}
-+EXPORT_SYMBOL(kasan_check_write);
 +
- #undef memset
- void *memset(void *addr, int c, size_t len)
+ static inline unsigned long __must_check copy_from_user(void *to, const void __user *from, unsigned long n)
  {
++	kasan_check_write(to, n);
++
+ 	if (access_ok(VERIFY_READ, from, n))
+-		n = __copy_from_user(to, from, n);
++		n = __arch_copy_from_user(to, from, n);
+ 	else /* security hole - plug it */
+ 		memset(to, 0, n);
+ 	return n;
+@@ -316,8 +331,10 @@ static inline unsigned long __must_check copy_from_user(void *to, const void __u
+ 
+ static inline unsigned long __must_check copy_to_user(void __user *to, const void *from, unsigned long n)
+ {
++	kasan_check_read(from, n);
++
+ 	if (access_ok(VERIFY_WRITE, to, n))
+-		n = __copy_to_user(to, from, n);
++		n = __arch_copy_to_user(to, from, n);
+ 	return n;
+ }
+ 
+diff --git a/arch/arm64/kernel/arm64ksyms.c b/arch/arm64/kernel/arm64ksyms.c
+index 3b6d8cc9dfe0..c654df05b7d7 100644
+--- a/arch/arm64/kernel/arm64ksyms.c
++++ b/arch/arm64/kernel/arm64ksyms.c
+@@ -33,8 +33,8 @@ EXPORT_SYMBOL(copy_page);
+ EXPORT_SYMBOL(clear_page);
+ 
+ 	/* user mem (segment) */
+-EXPORT_SYMBOL(__copy_from_user);
+-EXPORT_SYMBOL(__copy_to_user);
++EXPORT_SYMBOL(__arch_copy_from_user);
++EXPORT_SYMBOL(__arch_copy_to_user);
+ EXPORT_SYMBOL(__clear_user);
+ EXPORT_SYMBOL(__copy_in_user);
+ 
+diff --git a/arch/arm64/lib/copy_from_user.S b/arch/arm64/lib/copy_from_user.S
+index 4699cd74f87e..281e75db899a 100644
+--- a/arch/arm64/lib/copy_from_user.S
++++ b/arch/arm64/lib/copy_from_user.S
+@@ -66,7 +66,7 @@
+ 	.endm
+ 
+ end	.req	x5
+-ENTRY(__copy_from_user)
++ENTRY(__arch_copy_from_user)
+ ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(0)), ARM64_HAS_PAN, \
+ 	    CONFIG_ARM64_PAN)
+ 	add	end, x0, x2
+@@ -75,7 +75,7 @@ ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_HAS_PAN, \
+ 	    CONFIG_ARM64_PAN)
+ 	mov	x0, #0				// Nothing to copy
+ 	ret
+-ENDPROC(__copy_from_user)
++ENDPROC(__arch_copy_from_user)
+ 
+ 	.section .fixup,"ax"
+ 	.align	2
+diff --git a/arch/arm64/lib/copy_to_user.S b/arch/arm64/lib/copy_to_user.S
+index 7512bbbc07ac..db4d187de61f 100644
+--- a/arch/arm64/lib/copy_to_user.S
++++ b/arch/arm64/lib/copy_to_user.S
+@@ -65,7 +65,7 @@
+ 	.endm
+ 
+ end	.req	x5
+-ENTRY(__copy_to_user)
++ENTRY(__arch_copy_to_user)
+ ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(0)), ARM64_HAS_PAN, \
+ 	    CONFIG_ARM64_PAN)
+ 	add	end, x0, x2
+@@ -74,7 +74,7 @@ ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_HAS_PAN, \
+ 	    CONFIG_ARM64_PAN)
+ 	mov	x0, #0
+ 	ret
+-ENDPROC(__copy_to_user)
++ENDPROC(__arch_copy_to_user)
+ 
+ 	.section .fixup,"ax"
+ 	.align	2
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
