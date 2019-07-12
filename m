@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09C4366CFE
+	by mail.lfdr.de (Postfix) with ESMTP id F0F3266D00
 	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:25:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727959AbfGLMZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:25:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35116 "EHLO mail.kernel.org"
+        id S1727665AbfGLMZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:25:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728254AbfGLMZS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:25:18 -0400
+        id S1728266AbfGLMZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:25:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5402921721;
-        Fri, 12 Jul 2019 12:25:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BA382084B;
+        Fri, 12 Jul 2019 12:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934316;
-        bh=pN1VIaFp/A6iSBg6XUkeVTqyYKGNIO4fMOdnyanPy3M=;
+        s=default; t=1562934323;
+        bh=cbA3rxIacYN8iqW5ScCQuOlVk3Ps2vZiVALTOwYiYOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LaBwmwUEvnLi8LfxosUMUof9OHQ+NeXgzgtKhZtxCDRYrf9jFDxP//4rDNO68XMfu
-         TrEpvl7+GVFT6/G0+k3Ze6ZmeEt2rIMtUgGhcOPknSRDviOtygL/Hxgi+xFBIPhDPu
-         Kj0qyRm+DKelU7zJPLJG4dj2/81gX5ch77XOHbV4=
+        b=vhbkdlhWJoovnSjIdgWEWw4X+afTyZ0FVH+Feh1//M5aqpoX713HFig30nL5H7Y6q
+         T/GlTm3hpFvAhrZireFnBL3EVoi1jAIg7ACbKQON96KswmIOJUrysMOohXB9+/5aR4
+         OgLTh6hhX3xsftJxAtCfjaCVTP0I+Usa5ax2Zs54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Melissa Wen <melissa.srw@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 016/138] bpf: sockmap, fix use after free from sleep in psock backlog workqueue
-Date:   Fri, 12 Jul 2019 14:18:00 +0200
-Message-Id: <20190712121629.344998292@linuxfoundation.org>
+Subject: [PATCH 5.1 018/138] staging:iio:ad7150: fix threshold mode config bit
+Date:   Fri, 12 Jul 2019 14:18:02 +0200
+Message-Id: <20190712121629.417081578@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
 References: <20190712121628.731888964@linuxfoundation.org>
@@ -45,86 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bd95e678e0f6e18351ecdc147ca819145db9ed7b ]
+[ Upstream commit df4d737ee4d7205aaa6275158aeebff87fd14488 ]
 
-Backlog work for psock (sk_psock_backlog) might sleep while waiting
-for memory to free up when sending packets. However, while sleeping
-the socket may be closed and removed from the map by the user space
-side.
+According to the AD7150 configuration register description, bit 7 assumes
+value 1 when the threshold mode is fixed and 0 when it is adaptive,
+however, the operation that identifies this mode was considering the
+opposite values.
 
-This breaks an assumption in sk_stream_wait_memory, which expects the
-wait queue to be still there when it wakes up resulting in a
-use-after-free shown below. To fix his mark sendmsg as MSG_DONTWAIT
-to avoid the sleep altogether. We already set the flag for the
-sendpage case but we missed the case were sendmsg is used.
-Sockmap is currently the only user of skb_send_sock_locked() so only
-the sockmap paths should be impacted.
+This patch renames the boolean variable to describe it correctly and
+properly replaces it in the places where it is used.
 
-==================================================================
-BUG: KASAN: use-after-free in remove_wait_queue+0x31/0x70
-Write of size 8 at addr ffff888069a0c4e8 by task kworker/0:2/110
-
-CPU: 0 PID: 110 Comm: kworker/0:2 Not tainted 5.0.0-rc2-00335-g28f9d1a3d4fe-dirty #14
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-2.fc27 04/01/2014
-Workqueue: events sk_psock_backlog
-Call Trace:
- print_address_description+0x6e/0x2b0
- ? remove_wait_queue+0x31/0x70
- kasan_report+0xfd/0x177
- ? remove_wait_queue+0x31/0x70
- ? remove_wait_queue+0x31/0x70
- remove_wait_queue+0x31/0x70
- sk_stream_wait_memory+0x4dd/0x5f0
- ? sk_stream_wait_close+0x1b0/0x1b0
- ? wait_woken+0xc0/0xc0
- ? tcp_current_mss+0xc5/0x110
- tcp_sendmsg_locked+0x634/0x15d0
- ? tcp_set_state+0x2e0/0x2e0
- ? __kasan_slab_free+0x1d1/0x230
- ? kmem_cache_free+0x70/0x140
- ? sk_psock_backlog+0x40c/0x4b0
- ? process_one_work+0x40b/0x660
- ? worker_thread+0x82/0x680
- ? kthread+0x1b9/0x1e0
- ? ret_from_fork+0x1f/0x30
- ? check_preempt_curr+0xaf/0x130
- ? iov_iter_kvec+0x5f/0x70
- ? kernel_sendmsg_locked+0xa0/0xe0
- skb_send_sock_locked+0x273/0x3c0
- ? skb_splice_bits+0x180/0x180
- ? start_thread+0xe0/0xe0
- ? update_min_vruntime.constprop.27+0x88/0xc0
- sk_psock_backlog+0xb3/0x4b0
- ? strscpy+0xbf/0x1e0
- process_one_work+0x40b/0x660
- worker_thread+0x82/0x680
- ? process_one_work+0x660/0x660
- kthread+0x1b9/0x1e0
- ? __kthread_create_on_node+0x250/0x250
- ret_from_fork+0x1f/0x30
-
-Fixes: 20bf50de3028c ("skbuff: Function to send an skbuf on a socket")
-Reported-by: Jakub Sitnicki <jakub@cloudflare.com>
-Tested-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Fixes: 531efd6aa0991 ("staging:iio:adc:ad7150: chan_spec conv + i2c_smbus commands + drop unused poweroff timeout control.")
+Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/iio/cdc/ad7150.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index e5bfd42fd083..4ea96fbf3b49 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -2309,6 +2309,7 @@ int skb_send_sock_locked(struct sock *sk, struct sk_buff *skb, int offset,
- 		kv.iov_base = skb->data + offset;
- 		kv.iov_len = slen;
- 		memset(&msg, 0, sizeof(msg));
-+		msg.msg_flags = MSG_DONTWAIT;
+diff --git a/drivers/staging/iio/cdc/ad7150.c b/drivers/staging/iio/cdc/ad7150.c
+index 24f74ce60f80..14596aa7eaf1 100644
+--- a/drivers/staging/iio/cdc/ad7150.c
++++ b/drivers/staging/iio/cdc/ad7150.c
+@@ -6,6 +6,7 @@
+  * Licensed under the GPL-2 or later.
+  */
  
- 		ret = kernel_sendmsg_locked(sk, &msg, &kv, 1, slen);
- 		if (ret <= 0)
++#include <linux/bitfield.h>
+ #include <linux/interrupt.h>
+ #include <linux/device.h>
+ #include <linux/kernel.h>
+@@ -131,7 +132,7 @@ static int ad7150_read_event_config(struct iio_dev *indio_dev,
+ {
+ 	int ret;
+ 	u8 threshtype;
+-	bool adaptive;
++	bool thrfixed;
+ 	struct ad7150_chip_info *chip = iio_priv(indio_dev);
+ 
+ 	ret = i2c_smbus_read_byte_data(chip->client, AD7150_CFG);
+@@ -139,21 +140,23 @@ static int ad7150_read_event_config(struct iio_dev *indio_dev,
+ 		return ret;
+ 
+ 	threshtype = (ret >> 5) & 0x03;
+-	adaptive = !!(ret & 0x80);
++
++	/*check if threshold mode is fixed or adaptive*/
++	thrfixed = FIELD_GET(AD7150_CFG_FIX, ret);
+ 
+ 	switch (type) {
+ 	case IIO_EV_TYPE_MAG_ADAPTIVE:
+ 		if (dir == IIO_EV_DIR_RISING)
+-			return adaptive && (threshtype == 0x1);
+-		return adaptive && (threshtype == 0x0);
++			return !thrfixed && (threshtype == 0x1);
++		return !thrfixed && (threshtype == 0x0);
+ 	case IIO_EV_TYPE_THRESH_ADAPTIVE:
+ 		if (dir == IIO_EV_DIR_RISING)
+-			return adaptive && (threshtype == 0x3);
+-		return adaptive && (threshtype == 0x2);
++			return !thrfixed && (threshtype == 0x3);
++		return !thrfixed && (threshtype == 0x2);
+ 	case IIO_EV_TYPE_THRESH:
+ 		if (dir == IIO_EV_DIR_RISING)
+-			return !adaptive && (threshtype == 0x1);
+-		return !adaptive && (threshtype == 0x0);
++			return thrfixed && (threshtype == 0x1);
++		return thrfixed && (threshtype == 0x0);
+ 	default:
+ 		break;
+ 	}
 -- 
 2.20.1
 
