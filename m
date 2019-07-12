@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E2166DFB
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBCA266DEF
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728674AbfGLMfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729393AbfGLMfE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 12 Jul 2019 08:35:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55238 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729820AbfGLMe7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:34:59 -0400
+        id S1729212AbfGLMfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:35:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACA8520645;
-        Fri, 12 Jul 2019 12:34:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AEA9216B7;
+        Fri, 12 Jul 2019 12:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934898;
-        bh=yoCpDKEXgc/jPOEZGenf4VgfdDgWReN7+VHm3FbOkeQ=;
+        s=default; t=1562934900;
+        bh=TyjZHA5J/rjfmvLhvSpZtxGosN4QLpv8RgvSBHoXeK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N463X+L9vfjFGkjBAOGX28RRkXGFotwmiAD66p5b/Hx/sGXsDsCuCwTAlfnPk9VBu
-         mA4jFHjyQmU8qNXGeX1P4nrkRdWMRVvqemK7J0nJ3fnAGfCL6tl2v845TkwiL2ArHj
-         +8M/IqpcGC/v2cPoFVNkFl1tUWyoBN1Irb8bh89k=
+        b=CoUK+qp+Thxv/rn0U4SUZSkmO9g7qT9uGQGRViZZXSCsorjfdjJYNG3dcjtQZ8tDx
+         xuL8SlzZS/4V9K/UE31YvCv4VKyv2FzI67IdM10MuRjuoailGRauHJd3yJZu2j59qY
+         gBcIXWySFusRkb9uun/EeYfY1cy1XkuTrQmWGmjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.2 50/61] carl9170: fix misuse of device driver API
-Date:   Fri, 12 Jul 2019 14:20:03 +0200
-Message-Id: <20190712121623.365676357@linuxfoundation.org>
+        stable@vger.kernel.org, Ross Zwisler <zwisler@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Guenter Roeck <groeck@chromium.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>,
+        Kees Cook <keescook@chromium.org>,
+        Johannes Hirte <johannes.hirte@datenkhaos.de>,
+        Klaus Kusche <klaus.kusche@computerix.info>,
+        samitolvanen@google.com, Guenter Roeck <groeck@google.com>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.2 51/61] Revert "x86/build: Move _etext to actual end of .text"
+Date:   Fri, 12 Jul 2019 14:20:04 +0200
+Message-Id: <20190712121623.439584746@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
 References: <20190712121620.632595223@linuxfoundation.org>
@@ -44,148 +50,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Ross Zwisler <zwisler@chromium.org>
 
-commit feb09b2933275a70917a869989ea2823e7356be8 upstream.
+commit 013c66edf207ddb78422b8b636f56c87939c9e34 upstream.
 
-This patch follows Alan Stern's recent patch:
-"p54: Fix race between disconnect and firmware loading"
+This reverts commit 392bef709659abea614abfe53cf228e7a59876a4.
 
-that overhauled carl9170 buggy firmware loading and driver
-unbinding procedures.
+Per the discussion here:
 
-Since the carl9170 code was adapted from p54 it uses the
-same functions and is likely to have the same problem, but
-it's just that the syzbot hasn't reproduce them (yet).
+  https://lkml.kernel.org/r/201906201042.3BF5CD6@keescook
 
-a summary from the changes (copied from the p54 patch):
- * Call usb_driver_release_interface() rather than
-   device_release_driver().
+the above referenced commit breaks kernel compilation with old GCC
+toolchains as well as current versions of the Gold linker.
 
- * Lock udev (the interface's parent) before unbinding the
-   driver instead of locking udev->parent.
+Revert it to fix the regression and to keep the ability to compile the
+kernel with these tools.
 
- * During the firmware loading process, take a reference
-   to the USB interface instead of the USB device.
-
- * Don't take an unnecessary reference to the device during
-   probe (and then don't drop it during disconnect).
-
-and
-
- * Make sure to prevent use-after-free bugs by explicitly
-   setting the driver context to NULL after signaling the
-   completion.
-
+Signed-off-by: Ross Zwisler <zwisler@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
 Cc: <stable@vger.kernel.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Johannes Hirte <johannes.hirte@datenkhaos.de>
+Cc: Klaus Kusche <klaus.kusche@computerix.info>
+Cc: samitolvanen@google.com
+Cc: Guenter Roeck <groeck@google.com>
+Link: https://lkml.kernel.org/r/20190701155208.211815-1-zwisler@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/carl9170/usb.c |   39 +++++++++++++-------------------
- 1 file changed, 17 insertions(+), 22 deletions(-)
+ arch/x86/kernel/vmlinux.lds.S |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/ath/carl9170/usb.c
-+++ b/drivers/net/wireless/ath/carl9170/usb.c
-@@ -128,6 +128,8 @@ static const struct usb_device_id carl91
- };
- MODULE_DEVICE_TABLE(usb, carl9170_usb_ids);
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -141,10 +141,10 @@ SECTIONS
+ 		*(.text.__x86.indirect_thunk)
+ 		__indirect_thunk_end = .;
+ #endif
+-	} :text = 0x9090
  
-+static struct usb_driver carl9170_driver;
-+
- static void carl9170_usb_submit_data_urb(struct ar9170 *ar)
- {
- 	struct urb *urb;
-@@ -966,32 +968,28 @@ err_out:
+-	/* End of text section */
+-	_etext = .;
++		/* End of text section */
++		_etext = .;
++	} :text = 0x9090
  
- static void carl9170_usb_firmware_failed(struct ar9170 *ar)
- {
--	struct device *parent = ar->udev->dev.parent;
--	struct usb_device *udev;
--
--	/*
--	 * Store a copy of the usb_device pointer locally.
--	 * This is because device_release_driver initiates
--	 * carl9170_usb_disconnect, which in turn frees our
--	 * driver context (ar).
-+	/* Store a copies of the usb_interface and usb_device pointer locally.
-+	 * This is because release_driver initiates carl9170_usb_disconnect,
-+	 * which in turn frees our driver context (ar).
- 	 */
--	udev = ar->udev;
-+	struct usb_interface *intf = ar->intf;
-+	struct usb_device *udev = ar->udev;
+ 	NOTES :text :note
  
- 	complete(&ar->fw_load_wait);
-+	/* at this point 'ar' could be already freed. Don't use it anymore */
-+	ar = NULL;
- 
- 	/* unbind anything failed */
--	if (parent)
--		device_lock(parent);
--
--	device_release_driver(&udev->dev);
--	if (parent)
--		device_unlock(parent);
-+	usb_lock_device(udev);
-+	usb_driver_release_interface(&carl9170_driver, intf);
-+	usb_unlock_device(udev);
- 
--	usb_put_dev(udev);
-+	usb_put_intf(intf);
- }
- 
- static void carl9170_usb_firmware_finish(struct ar9170 *ar)
- {
-+	struct usb_interface *intf = ar->intf;
- 	int err;
- 
- 	err = carl9170_parse_firmware(ar);
-@@ -1009,7 +1007,7 @@ static void carl9170_usb_firmware_finish
- 		goto err_unrx;
- 
- 	complete(&ar->fw_load_wait);
--	usb_put_dev(ar->udev);
-+	usb_put_intf(intf);
- 	return;
- 
- err_unrx:
-@@ -1052,7 +1050,6 @@ static int carl9170_usb_probe(struct usb
- 		return PTR_ERR(ar);
- 
- 	udev = interface_to_usbdev(intf);
--	usb_get_dev(udev);
- 	ar->udev = udev;
- 	ar->intf = intf;
- 	ar->features = id->driver_info;
-@@ -1094,15 +1091,14 @@ static int carl9170_usb_probe(struct usb
- 	atomic_set(&ar->rx_anch_urbs, 0);
- 	atomic_set(&ar->rx_pool_urbs, 0);
- 
--	usb_get_dev(ar->udev);
-+	usb_get_intf(intf);
- 
- 	carl9170_set_state(ar, CARL9170_STOPPED);
- 
- 	err = request_firmware_nowait(THIS_MODULE, 1, CARL9170FW_NAME,
- 		&ar->udev->dev, GFP_KERNEL, ar, carl9170_usb_firmware_step2);
- 	if (err) {
--		usb_put_dev(udev);
--		usb_put_dev(udev);
-+		usb_put_intf(intf);
- 		carl9170_free(ar);
- 	}
- 	return err;
-@@ -1131,7 +1127,6 @@ static void carl9170_usb_disconnect(stru
- 
- 	carl9170_release_firmware(ar);
- 	carl9170_free(ar);
--	usb_put_dev(udev);
- }
- 
- #ifdef CONFIG_PM
 
 
