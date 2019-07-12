@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD33266CD1
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:23:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B74166CD2
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727616AbfGLMXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:23:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59134 "EHLO mail.kernel.org"
+        id S1727955AbfGLMXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:23:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727947AbfGLMXa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:23:30 -0400
+        id S1727936AbfGLMXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:23:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4361208E4;
-        Fri, 12 Jul 2019 12:23:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 527BA216B7;
+        Fri, 12 Jul 2019 12:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934209;
-        bh=nkZ6Tz3khAsmsQ82x8OX7tgmPnhebC4vG3Vhlk1ApSY=;
+        s=default; t=1562934211;
+        bh=WHvY5Cz+pgA9vaRQy2Ye+g0t67s/zZ5GMTSqSjvljgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0vxn/GchkZ4OYdhfDFgOx5Q2QehyE18dvOeoYsrtoOtU/sOaojLxFITLJrAo1Jr9w
-         cgAuIHAPVaCxvYgur7qY79W/vjpREtkR9FfUbkyDGpCH1TGdwcamyl46kKLtIgbbDc
-         PEenImo8omkYsyoJvUd8aOXy3d4xexpw0+FDkaIc=
+        b=s7/PVy7rsc1zH2XzyT+HEMYYYcfL6iST8OTj3bZlxlyEOIl1gEQGIRTWGmNEE2hfZ
+         R2Wv8fAFX1lKB9H3IjK+8DjCn7mFnI3tl/HfGRJfY+zCqklo0GSCKo674U9s8eeAkR
+         h0bg48uyiFROOa/TmaWiQf0TLKNtld0d0f+QvRTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Barta <o.barta89@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.19 71/91] Revert "serial: 8250: Dont service RX FIFO if interrupts are disabled"
-Date:   Fri, 12 Jul 2019 14:19:14 +0200
-Message-Id: <20190712121625.646079100@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        syzbot+200d4bb11b23d929335f@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 72/91] p54usb: Fix race between disconnect and firmware loading
+Date:   Fri, 12 Jul 2019 14:19:15 +0200
+Message-Id: <20190712121625.693183812@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -43,39 +45,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Barta <o.barta89@gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 3f2640ed7be838c3f05c0d2b0f7c7508e7431e48 upstream.
+commit 6e41e2257f1094acc37618bf6c856115374c6922 upstream.
 
-This reverts commit 2e9fe539108320820016f78ca7704a7342788380.
+The syzbot fuzzer found a bug in the p54 USB wireless driver.  The
+issue involves a race between disconnect and the firmware-loader
+callback routine, and it has several aspects.
 
-Reading LSR unconditionally but processing the error flags only if
-UART_IIR_RDI bit was set before in IIR may lead to a loss of transmission
-error information on UARTs where the transmission error flags are cleared
-by a read of LSR. Information are lost in case an error is detected right
-before the read of LSR while processing e.g. an UART_IIR_THRI interrupt.
+One big problem is that when the firmware can't be loaded, the
+callback routine tries to unbind the driver from the USB _device_ (by
+calling device_release_driver) instead of from the USB _interface_ to
+which it is actually bound (by calling usb_driver_release_interface).
 
-Signed-off-by: Oliver Barta <o.barta89@gmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Fixes: 2e9fe5391083 ("serial: 8250: Don't service RX FIFO if interrupts are disabled")
-Cc: stable <stable@vger.kernel.org>
+The race involves access to the private data structure.  The driver's
+disconnect handler waits for a completion that is signalled by the
+firmware-loader callback routine.  As soon as the completion is
+signalled, you have to assume that the private data structure may have
+been deallocated by the disconnect handler -- even if the firmware was
+loaded without errors.  However, the callback routine does access the
+private data several times after that point.
+
+Another problem is that, in order to ensure that the USB device
+structure hasn't been freed when the callback routine runs, the driver
+takes a reference to it.  This isn't good enough any more, because now
+that the callback routine calls usb_driver_release_interface, it has
+to ensure that the interface structure hasn't been freed.
+
+Finally, the driver takes an unnecessary reference to the USB device
+structure in the probe function and drops the reference in the
+disconnect handler.  This extra reference doesn't accomplish anything,
+because the USB core already guarantees that a device structure won't
+be deallocated while a driver is still bound to any of its interfaces.
+
+To fix these problems, this patch makes the following changes:
+
+	Call usb_driver_release_interface() rather than
+	device_release_driver().
+
+	Don't signal the completion until after the important
+	information has been copied out of the private data structure,
+	and don't refer to the private data at all thereafter.
+
+	Lock udev (the interface's parent) before unbinding the driver
+	instead of locking udev->parent.
+
+	During the firmware loading process, take a reference to the
+	USB interface instead of the USB device.
+
+	Don't take an unnecessary reference to the device during probe
+	(and then don't drop it during disconnect).
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+200d4bb11b23d929335f@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
+Acked-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/8250/8250_port.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/intersil/p54/p54usb.c |   43 ++++++++++++-----------------
+ 1 file changed, 18 insertions(+), 25 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1869,8 +1869,7 @@ int serial8250_handle_irq(struct uart_po
+--- a/drivers/net/wireless/intersil/p54/p54usb.c
++++ b/drivers/net/wireless/intersil/p54/p54usb.c
+@@ -33,6 +33,8 @@ MODULE_ALIAS("prism54usb");
+ MODULE_FIRMWARE("isl3886usb");
+ MODULE_FIRMWARE("isl3887usb");
  
- 	status = serial_port_in(port, UART_LSR);
++static struct usb_driver p54u_driver;
++
+ /*
+  * Note:
+  *
+@@ -921,9 +923,9 @@ static void p54u_load_firmware_cb(const
+ {
+ 	struct p54u_priv *priv = context;
+ 	struct usb_device *udev = priv->udev;
++	struct usb_interface *intf = priv->intf;
+ 	int err;
  
--	if (status & (UART_LSR_DR | UART_LSR_BI) &&
--	    iir & UART_IIR_RDI) {
-+	if (status & (UART_LSR_DR | UART_LSR_BI)) {
- 		if (!up->dma || handle_rx_dma(up, iir))
- 			status = serial8250_rx_chars(up, status);
+-	complete(&priv->fw_wait_load);
+ 	if (firmware) {
+ 		priv->fw = firmware;
+ 		err = p54u_start_ops(priv);
+@@ -932,26 +934,22 @@ static void p54u_load_firmware_cb(const
+ 		dev_err(&udev->dev, "Firmware not found.\n");
  	}
+ 
+-	if (err) {
+-		struct device *parent = priv->udev->dev.parent;
+-
+-		dev_err(&udev->dev, "failed to initialize device (%d)\n", err);
+-
+-		if (parent)
+-			device_lock(parent);
++	complete(&priv->fw_wait_load);
++	/*
++	 * At this point p54u_disconnect may have already freed
++	 * the "priv" context. Do not use it anymore!
++	 */
++	priv = NULL;
+ 
+-		device_release_driver(&udev->dev);
+-		/*
+-		 * At this point p54u_disconnect has already freed
+-		 * the "priv" context. Do not use it anymore!
+-		 */
+-		priv = NULL;
++	if (err) {
++		dev_err(&intf->dev, "failed to initialize device (%d)\n", err);
+ 
+-		if (parent)
+-			device_unlock(parent);
++		usb_lock_device(udev);
++		usb_driver_release_interface(&p54u_driver, intf);
++		usb_unlock_device(udev);
+ 	}
+ 
+-	usb_put_dev(udev);
++	usb_put_intf(intf);
+ }
+ 
+ static int p54u_load_firmware(struct ieee80211_hw *dev,
+@@ -972,14 +970,14 @@ static int p54u_load_firmware(struct iee
+ 	dev_info(&priv->udev->dev, "Loading firmware file %s\n",
+ 	       p54u_fwlist[i].fw);
+ 
+-	usb_get_dev(udev);
++	usb_get_intf(intf);
+ 	err = request_firmware_nowait(THIS_MODULE, 1, p54u_fwlist[i].fw,
+ 				      device, GFP_KERNEL, priv,
+ 				      p54u_load_firmware_cb);
+ 	if (err) {
+ 		dev_err(&priv->udev->dev, "(p54usb) cannot load firmware %s "
+ 					  "(%d)!\n", p54u_fwlist[i].fw, err);
+-		usb_put_dev(udev);
++		usb_put_intf(intf);
+ 	}
+ 
+ 	return err;
+@@ -1011,8 +1009,6 @@ static int p54u_probe(struct usb_interfa
+ 	skb_queue_head_init(&priv->rx_queue);
+ 	init_usb_anchor(&priv->submitted);
+ 
+-	usb_get_dev(udev);
+-
+ 	/* really lazy and simple way of figuring out if we're a 3887 */
+ 	/* TODO: should just stick the identification in the device table */
+ 	i = intf->altsetting->desc.bNumEndpoints;
+@@ -1053,10 +1049,8 @@ static int p54u_probe(struct usb_interfa
+ 		priv->upload_fw = p54u_upload_firmware_net2280;
+ 	}
+ 	err = p54u_load_firmware(dev, intf);
+-	if (err) {
+-		usb_put_dev(udev);
++	if (err)
+ 		p54_free_common(dev);
+-	}
+ 	return err;
+ }
+ 
+@@ -1072,7 +1066,6 @@ static void p54u_disconnect(struct usb_i
+ 	wait_for_completion(&priv->fw_wait_load);
+ 	p54_unregister_common(dev);
+ 
+-	usb_put_dev(interface_to_usbdev(intf));
+ 	release_firmware(priv->fw);
+ 	p54_free_common(dev);
+ }
 
 
