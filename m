@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BD9A66621
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:29:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F4C366622
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:29:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725871AbfGLF3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 01:29:05 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:44174 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbfGLF3E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:29:04 -0400
-Received: by mail-pl1-f195.google.com with SMTP id t14so4186401plr.11
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:29:04 -0700 (PDT)
+        id S1726025AbfGLF3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 01:29:09 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:33239 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725791AbfGLF3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:29:09 -0400
+Received: by mail-pg1-f195.google.com with SMTP id m4so4010527pgk.0
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:29:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=QZmd1kVLh8a0enxFfoIC/p5hW82ft4CjkM7ASI4iKD4=;
-        b=JprPlE3jWUXLSHH6IEYKpZVLFEmbjwTJ1SlcNpUv0d1GSCe8JK/f0tNUq3RBbyxDEh
-         YaDWpMtRy3kUkllP6k3WuFY7bT6cKPm4KygCT/04Oos2vO+SVgCzlgkPuZ6Xu86jBZYL
-         +joRbYQT8HwYfhxbbhQOeFxZKodJnr7G//LB9Lgd6sS6X7pnWILRwWrvwv7pwn92phHu
-         2BN/4SfoVMRM1fdlzw8BG9jH+cYIHFnui69Xb6O7cq93/IiqXBB7NpgD6CYe2XA87Kb0
-         /vcznTUHRGLdUeHKNW20eSp7yGm7eew+5xU0ZVYuqZO7qU5Kqb4wNcP5DHcXhFQGpWi5
-         YpzQ==
+        bh=ES6KJwQvdOYp/ZF0zdgUUsDi+h2pkDI/v1RQA0OQPVY=;
+        b=tmwltFcg11BComY5zOAw8U//kYuDnhwsBHYjvOdsbZqTgJ5Id3gL5+Ajk+Nf+99t0v
+         cKAm1+okktz4oy5g8Y9Qt81vbaUbIQ7noZVvtk3HSxB72w6+rHQbtYFoPBtZRofPyPWm
+         aqeqe59em/UaytGZ/SM2ScjksqxhmXmTvYgumAVaWkGB5Z3moF0IqDRMQ0GJOq+ZdauP
+         fqSwueqQT5umFL1tyGAjyiRNH4En80WhQzaeubt+gxBunRvZlUql1u8KzNqFMCLgq5I7
+         sJ7C7MHmGv4nOeGxmoQgWcXAJ6eF4sgorFYTdfnY55ZMgGVDv3zTCHNCEnJsJUPoYtBh
+         sGvw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=QZmd1kVLh8a0enxFfoIC/p5hW82ft4CjkM7ASI4iKD4=;
-        b=LZbVTkiTdDTvwVtCmkIw74gX9ve0ymqh4Moxka8OBhpCC3LhmqJofSC5jdwJxgaIoD
-         mgnF4FDQtWGXjULE0SPTaHSdMHvSjBUKPmfNbhf3f71xcctuMWpbsRAcRyVzvkuy93g7
-         C7I0v3s8FKpkSOQWvx0C3ElXAKPHuVjYqd7+XbOztBD75GZS1gv2OHFV/DJ9yjgr0GWS
-         PFSa/eaadpWEpD8u3cICteBxNAqKWdbtkN1DWw23wmBAyi6OFcwVgAFRy6uOBu60UnB8
-         OrHc8Nh2Q4XVWVRTteWKneu8jIfswmPZsUHC8CPKuNBPioYYUbWS0POWumVYRhJwoBdf
-         qO6g==
-X-Gm-Message-State: APjAAAWKTa6Hc8W7jsZPM07AHiJGr4Ts9u/3RGC/HHt+UU6Ya2Mb3Iqc
-        9uhdBmbifLBN5LNC8mdkEtyFBY95csY=
-X-Google-Smtp-Source: APXvYqwHFaJB9Zpe8zTLxMInqnlwGqfIubCK1hUjti0PbcCUDUDRHDy2zd/5RP37X/vJwDpSxuvK+Q==
-X-Received: by 2002:a17:902:7043:: with SMTP id h3mr9559497plt.10.1562909344101;
-        Thu, 11 Jul 2019 22:29:04 -0700 (PDT)
+        bh=ES6KJwQvdOYp/ZF0zdgUUsDi+h2pkDI/v1RQA0OQPVY=;
+        b=frlIwpVFxitpz4AJZIiBTHwf78z0tLAnXNEM4h0A1TIyzv5LxVgq0TMxHgfHBBDxsN
+         dUbnEZcUKGy8DYfLcXvHPSCBDvfESuOquWm1Qe15i9itkqplmc7Lfons2pcmfLTzSm4+
+         yP/wy3JTmpJCoJHQGYHCpMZ/A2MGCEY1NRc+onFLdIOQ4TeDg4sjJO3fJNMlfUyLQjYe
+         /dmJhpniNKdgdB4SGvIZwXqA+ObopUZD8QQd64Ik+0QGHcoAPN8v9P6F8KTfr2eORf+E
+         lRLQcvcPLJJI6hKUuCb59UzsJbbK3fi0NX13lb8s/yMrNXyABYicsCvmFwLUQFcwYCOJ
+         CHag==
+X-Gm-Message-State: APjAAAWvNAn5Ez2L42jcW2ttyNUV5L28XqJU7Qhyv9mgHpZH99tSAWWF
+        yYnEuOztLsxYspgYgCGgyg70pmZJwgQ=
+X-Google-Smtp-Source: APXvYqzAbSLyLsROez7wch0OL8jIX2SSoeyNRYw8RM5zbUv/l35K5aOpVmAs/r+nr2xuTMZT6TZtFg==
+X-Received: by 2002:a17:90a:eb08:: with SMTP id j8mr9632470pjz.72.1562909347630;
+        Thu, 11 Jul 2019 22:29:07 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id b37sm14696355pjc.15.2019.07.11.22.29.03
+        by smtp.gmail.com with ESMTPSA id a25sm6920396pfn.1.2019.07.11.22.29.05
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 22:29:03 -0700 (PDT)
+        Thu, 11 Jul 2019 22:29:06 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 V2 02/43] arm64: Implement array_index_mask_nospec()
-Date:   Fri, 12 Jul 2019 10:57:50 +0530
-Message-Id: <271b3de6a35cd1d184f8c0a21afc0d801bc0b250.1562908074.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 V2 03/43] arm64: move TASK_* definitions to <asm/processor.h>
+Date:   Fri, 12 Jul 2019 10:57:51 +0530
+Message-Id: <d1358018a1c0558cf775865f5a497f689f1c0beb.1562908074.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
 References: <cover.1562908074.git.viresh.kumar@linaro.org>
@@ -68,59 +68,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Yury Norov <ynorov@caviumnetworks.com>
 
-commit 022620eed3d0bc4bf2027326f599f5ad71c2ea3f upstream.
+commit eef94a3d09aab437c8c254de942d8b1aa76455e2 upstream.
 
-Provide an optimised, assembly implementation of array_index_mask_nospec()
-for arm64 so that the compiler is not in a position to transform the code
-in ways which affect its ability to inhibit speculation (e.g. by introducing
-conditional branches).
+ILP32 series [1] introduces the dependency on <asm/is_compat.h> for
+TASK_SIZE macro. Which in turn requires <asm/thread_info.h>, and
+<asm/thread_info.h> include <asm/memory.h>, giving a circular dependency,
+because TASK_SIZE is currently located in <asm/memory.h>.
 
-This is similar to the sequence used by x86, modulo architectural differences
-in the carry/borrow flags.
+In other architectures, TASK_SIZE is defined in <asm/processor.h>, and
+moving TASK_SIZE there fixes the problem.
 
-Reviewed-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Discussion: https://patchwork.kernel.org/patch/9929107/
+
+[1] https://github.com/norov/linux/tree/ilp32-next
+
+CC: Will Deacon <will.deacon@arm.com>
+CC: Laura Abbott <labbott@redhat.com>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Suggested-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Yury Norov <ynorov@caviumnetworks.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/include/asm/barrier.h | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ arch/arm64/include/asm/memory.h    | 15 ---------------
+ arch/arm64/include/asm/processor.h | 21 +++++++++++++++++++++
+ arch/arm64/kernel/entry.S          |  2 +-
+ 3 files changed, 22 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm64/include/asm/barrier.h b/arch/arm64/include/asm/barrier.h
-index 574486634c62..7c25e3e11b6d 100644
---- a/arch/arm64/include/asm/barrier.h
-+++ b/arch/arm64/include/asm/barrier.h
-@@ -37,6 +37,27 @@
- #define dma_rmb()	dmb(oshld)
- #define dma_wmb()	dmb(oshst)
+diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
+index b42b930cc19a..959a1e9188fe 100644
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -43,8 +43,6 @@
+  *		 (VA_BITS - 1))
+  * VA_BITS - the maximum number of bits for virtual addresses.
+  * VA_START - the first kernel virtual address.
+- * TASK_SIZE - the maximum size of a user space task.
+- * TASK_UNMAPPED_BASE - the lower boundary of the mmap VM area.
+  * The module space lives between the addresses given by TASK_SIZE
+  * and PAGE_OFFSET - it must be within 128MB of the kernel text.
+  */
+@@ -58,19 +56,6 @@
+ #define PCI_IO_END		(MODULES_VADDR - SZ_2M)
+ #define PCI_IO_START		(PCI_IO_END - PCI_IO_SIZE)
+ #define FIXADDR_TOP		(PCI_IO_START - SZ_2M)
+-#define TASK_SIZE_64		(UL(1) << VA_BITS)
+-
+-#ifdef CONFIG_COMPAT
+-#define TASK_SIZE_32		UL(0x100000000)
+-#define TASK_SIZE		(test_thread_flag(TIF_32BIT) ? \
+-				TASK_SIZE_32 : TASK_SIZE_64)
+-#define TASK_SIZE_OF(tsk)	(test_tsk_thread_flag(tsk, TIF_32BIT) ? \
+-				TASK_SIZE_32 : TASK_SIZE_64)
+-#else
+-#define TASK_SIZE		TASK_SIZE_64
+-#endif /* CONFIG_COMPAT */
+-
+-#define TASK_UNMAPPED_BASE	(PAGE_ALIGN(TASK_SIZE / 4))
  
+ /*
+  * Physical vs virtual RAM address space conversion.  These are
+diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
+index d08559528927..75d9ef6c457c 100644
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -19,6 +19,10 @@
+ #ifndef __ASM_PROCESSOR_H
+ #define __ASM_PROCESSOR_H
+ 
++#define TASK_SIZE_64		(UL(1) << VA_BITS)
++
++#ifndef __ASSEMBLY__
++
+ /*
+  * Default implementation of macro that returns current
+  * instruction pointer ("program counter").
+@@ -36,6 +40,22 @@
+ #include <asm/types.h>
+ 
+ #ifdef __KERNEL__
 +/*
-+ * Generate a mask for array_index__nospec() that is ~0UL when 0 <= idx < sz
-+ * and 0 otherwise.
++ * TASK_SIZE - the maximum size of a user space task.
++ * TASK_UNMAPPED_BASE - the lower boundary of the mmap VM area.
 + */
-+#define array_index_mask_nospec array_index_mask_nospec
-+static inline unsigned long array_index_mask_nospec(unsigned long idx,
-+						    unsigned long sz)
-+{
-+	unsigned long mask;
++#ifdef CONFIG_COMPAT
++#define TASK_SIZE_32		UL(0x100000000)
++#define TASK_SIZE		(test_thread_flag(TIF_32BIT) ? \
++				TASK_SIZE_32 : TASK_SIZE_64)
++#define TASK_SIZE_OF(tsk)	(test_tsk_thread_flag(tsk, TIF_32BIT) ? \
++				TASK_SIZE_32 : TASK_SIZE_64)
++#else
++#define TASK_SIZE		TASK_SIZE_64
++#endif /* CONFIG_COMPAT */
 +
-+	asm volatile(
-+	"	cmp	%1, %2\n"
-+	"	sbc	%0, xzr, xzr\n"
-+	: "=r" (mask)
-+	: "r" (idx), "Ir" (sz)
-+	: "cc");
++#define TASK_UNMAPPED_BASE	(PAGE_ALIGN(TASK_SIZE / 4))
 +
-+	csdb();
-+	return mask;
-+}
-+
- #define smp_mb()	dmb(ish)
- #define smp_rmb()	dmb(ishld)
- #define smp_wmb()	dmb(ishst)
+ #define STACK_TOP_MAX		TASK_SIZE_64
+ #ifdef CONFIG_COMPAT
+ #define AARCH32_VECTORS_BASE	0xffff0000
+@@ -188,4 +208,5 @@ static inline void spin_lock_prefetch(const void *x)
+ 
+ int cpu_enable_pan(void *__unused);
+ 
++#endif /* __ASSEMBLY__ */
+ #endif /* __ASM_PROCESSOR_H */
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index 586326981769..c849be9231bb 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -27,7 +27,7 @@
+ #include <asm/cpufeature.h>
+ #include <asm/errno.h>
+ #include <asm/esr.h>
+-#include <asm/memory.h>
++#include <asm/processor.h>
+ #include <asm/thread_info.h>
+ #include <asm/asm-uaccess.h>
+ #include <asm/unistd.h>
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
