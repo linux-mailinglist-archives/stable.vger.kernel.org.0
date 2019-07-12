@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C89F66C70
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE9566D17
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:26:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727246AbfGLMUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:20:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53358 "EHLO mail.kernel.org"
+        id S1727462AbfGLM0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:26:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727261AbfGLMUP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:20:15 -0400
+        id S1727606AbfGLM0X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:26:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8426B20863;
-        Fri, 12 Jul 2019 12:20:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1F212166E;
+        Fri, 12 Jul 2019 12:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934014;
-        bh=JRa2eEbk8WJA/i//yKvGucM4xdTlylVBekg2TwSXVIE=;
+        s=default; t=1562934382;
+        bh=yI9lQGvkfE2VG2EgKJi2P2TGT6qoGK+er9pkMhTkG8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sH7iXgXKhpreuKEdjnKlb6/bkL4OiwuxzCap+QylVC8ZoC2rYv5rCc1kNOCSUL+Yh
-         FGUhqKP0ASqzsYTPXsOiZlX5XBmwcMqn0ks1MZ8fD/q5/P+Vk1s2L19dwZsjjT0auu
-         VfN7edf4v3vu8u5Jn2WQHRnEGaXAYoJ1pJoBtuyw=
+        b=rxKSLmoI6SYDjBbvdesmWaTPwxbnRBJvCno4KsZZsDG4qDxVrHvNKQMr9GPbsOd8z
+         AVWQV4mtVulo3OPRdlKRnYX+Tbs10ZXcbqzBHwAcWDCbE4tAZlCZIoHTgTwMSm9v/L
+         1N7jOic9uwHuGM0/bPwLkj7lHurdRxEW/9CeevJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/91] can: mcp251x: add support for mcp25625
+Subject: [PATCH 5.1 038/138] can: flexcan: Remove unneeded registration message
 Date:   Fri, 12 Jul 2019 14:18:22 +0200
-Message-Id: <20190712121622.428371343@linuxfoundation.org>
+Message-Id: <20190712121630.143981567@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
-References: <20190712121621.422224300@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,132 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 35b7fa4d07c43ad79b88e6462119e7140eae955c ]
+[ Upstream commit eb503004a7e563d543c9cb869907156de7efe720 ]
 
-Fully compatible with mcp2515, the mcp25625 have integrated transceiver.
+Currently the following message is observed when the flexcan
+driver is probed:
 
-This patch adds support for the mcp25625 to the existing mcp251x driver.
+flexcan 2090000.flexcan: device registered (reg_base=(ptrval), irq=23)
 
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+The reason for printing 'ptrval' is explained at
+Documentation/core-api/printk-formats.rst:
+
+"Pointers printed without a specifier extension (i.e unadorned %p) are
+hashed to prevent leaking information about the kernel memory layout. This
+has the added benefit of providing a unique identifier. On 64-bit machines
+the first 32 bits are zeroed. The kernel will print ``(ptrval)`` until it
+gathers enough entropy."
+
+Instead of passing %pK, which can print the correct address, simply
+remove the entire message as it is not really that useful.
+
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/spi/Kconfig   |  5 +++--
- drivers/net/can/spi/mcp251x.c | 25 ++++++++++++++++---------
- 2 files changed, 19 insertions(+), 11 deletions(-)
+ drivers/net/can/flexcan.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/can/spi/Kconfig b/drivers/net/can/spi/Kconfig
-index 8f2e0dd7b756..792e9c6c4a2f 100644
---- a/drivers/net/can/spi/Kconfig
-+++ b/drivers/net/can/spi/Kconfig
-@@ -8,9 +8,10 @@ config CAN_HI311X
- 	  Driver for the Holt HI311x SPI CAN controllers.
+diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
+index f97c628eb2ad..f2fe344593d5 100644
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -1583,9 +1583,6 @@ static int flexcan_probe(struct platform_device *pdev)
+ 			dev_dbg(&pdev->dev, "failed to setup stop-mode\n");
+ 	}
  
- config CAN_MCP251X
--	tristate "Microchip MCP251x SPI CAN controllers"
-+	tristate "Microchip MCP251x and MCP25625 SPI CAN controllers"
- 	depends on HAS_DMA
- 	---help---
--	  Driver for the Microchip MCP251x SPI CAN controllers.
-+	  Driver for the Microchip MCP251x and MCP25625 SPI CAN
-+	  controllers.
+-	dev_info(&pdev->dev, "device registered (reg_base=%p, irq=%d)\n",
+-		 priv->regs, dev->irq);
+-
+ 	return 0;
  
- endmenu
-diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
-index e90817608645..da64e71a62ee 100644
---- a/drivers/net/can/spi/mcp251x.c
-+++ b/drivers/net/can/spi/mcp251x.c
-@@ -1,5 +1,5 @@
- /*
-- * CAN bus driver for Microchip 251x CAN Controller with SPI Interface
-+ * CAN bus driver for Microchip 251x/25625 CAN Controller with SPI Interface
-  *
-  * MCP2510 support and bug fixes by Christian Pellegrin
-  * <chripell@evolware.org>
-@@ -41,7 +41,7 @@
-  * static struct spi_board_info spi_board_info[] = {
-  *         {
-  *                 .modalias = "mcp2510",
-- *			// or "mcp2515" depending on your controller
-+ *			// "mcp2515" or "mcp25625" depending on your controller
-  *                 .platform_data = &mcp251x_info,
-  *                 .irq = IRQ_EINT13,
-  *                 .max_speed_hz = 2*1000*1000,
-@@ -238,6 +238,7 @@ static const struct can_bittiming_const mcp251x_bittiming_const = {
- enum mcp251x_model {
- 	CAN_MCP251X_MCP2510	= 0x2510,
- 	CAN_MCP251X_MCP2515	= 0x2515,
-+	CAN_MCP251X_MCP25625	= 0x25625,
- };
- 
- struct mcp251x_priv {
-@@ -280,7 +281,6 @@ static inline int mcp251x_is_##_model(struct spi_device *spi) \
- }
- 
- MCP251X_IS(2510);
--MCP251X_IS(2515);
- 
- static void mcp251x_clean(struct net_device *net)
- {
-@@ -639,7 +639,7 @@ static int mcp251x_hw_reset(struct spi_device *spi)
- 
- 	/* Wait for oscillator startup timer after reset */
- 	mdelay(MCP251X_OST_DELAY_MS);
--	
-+
- 	reg = mcp251x_read_reg(spi, CANSTAT);
- 	if ((reg & CANCTRL_REQOP_MASK) != CANCTRL_REQOP_CONF)
- 		return -ENODEV;
-@@ -820,9 +820,8 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
- 		/* receive buffer 0 */
- 		if (intf & CANINTF_RX0IF) {
- 			mcp251x_hw_rx(spi, 0);
--			/*
--			 * Free one buffer ASAP
--			 * (The MCP2515 does this automatically.)
-+			/* Free one buffer ASAP
-+			 * (The MCP2515/25625 does this automatically.)
- 			 */
- 			if (mcp251x_is_2510(spi))
- 				mcp251x_write_bits(spi, CANINTF, CANINTF_RX0IF, 0x00);
-@@ -831,7 +830,7 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
- 		/* receive buffer 1 */
- 		if (intf & CANINTF_RX1IF) {
- 			mcp251x_hw_rx(spi, 1);
--			/* the MCP2515 does this automatically */
-+			/* The MCP2515/25625 does this automatically. */
- 			if (mcp251x_is_2510(spi))
- 				clear_intf |= CANINTF_RX1IF;
- 		}
-@@ -1006,6 +1005,10 @@ static const struct of_device_id mcp251x_of_match[] = {
- 		.compatible	= "microchip,mcp2515",
- 		.data		= (void *)CAN_MCP251X_MCP2515,
- 	},
-+	{
-+		.compatible	= "microchip,mcp25625",
-+		.data		= (void *)CAN_MCP251X_MCP25625,
-+	},
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, mcp251x_of_match);
-@@ -1019,6 +1022,10 @@ static const struct spi_device_id mcp251x_id_table[] = {
- 		.name		= "mcp2515",
- 		.driver_data	= (kernel_ulong_t)CAN_MCP251X_MCP2515,
- 	},
-+	{
-+		.name		= "mcp25625",
-+		.driver_data	= (kernel_ulong_t)CAN_MCP251X_MCP25625,
-+	},
- 	{ }
- };
- MODULE_DEVICE_TABLE(spi, mcp251x_id_table);
-@@ -1259,5 +1266,5 @@ module_spi_driver(mcp251x_can_driver);
- 
- MODULE_AUTHOR("Chris Elston <celston@katalix.com>, "
- 	      "Christian Pellegrin <chripell@evolware.org>");
--MODULE_DESCRIPTION("Microchip 251x CAN driver");
-+MODULE_DESCRIPTION("Microchip 251x/25625 CAN driver");
- MODULE_LICENSE("GPL v2");
+  failed_register:
 -- 
 2.20.1
 
