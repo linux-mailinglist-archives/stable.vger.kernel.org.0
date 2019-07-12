@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AC6B66ED0
+	by mail.lfdr.de (Postfix) with ESMTP id 8E39D66ED1
 	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:41:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727967AbfGLMXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:23:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59860 "EHLO mail.kernel.org"
+        id S1728006AbfGLMXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:23:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727990AbfGLMXt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:23:49 -0400
+        id S1727980AbfGLMXz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:23:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFACB2166E;
-        Fri, 12 Jul 2019 12:23:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A73122166E;
+        Fri, 12 Jul 2019 12:23:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934228;
-        bh=0ahWQ9AhpV31pXGOghdJciw1LpUI/KQKn1do30aGqjo=;
+        s=default; t=1562934234;
+        bh=vaXuefLnQVX1WIZfUStZejGF9m9Z62dsxQs1bUacwK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=06pQny0vAIA2MOnvj+6lOApGvWyIca7DF2Fhs5n9gjJCK8TKK8WVPSLD4T0PB0Uso
-         SovtxYRDXS5l9H+ReqCIC3/mo3g8kwFU7G/LFhR3MQ7N487QmXPYIdTa6R6KZV6C9T
-         MINeb4VE4epiuxkmbwoDyCBem/KAAQkePujRXB10=
+        b=CUQwncYpbZwDQFDUQK+yfVKx9FuqGlp/uOidx6/jNTw2n0ualSHts9AzmNfzdBPtI
+         h09AfRfZq0Ys0y4ZMPVfEhRKj3FZPVtUR8KqOOU+J3FMHN0V/p1K55EZBn+gFILw0r
+         d2mInNu7c+GkhmQmBzGH0mAJuVKKjb6oi/163nBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nikolaus Voss <nikolaus.voss@loewensteinmedical.de>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: [PATCH 4.19 77/91] drivers/usb/typec/tps6598x.c: fix 4CC cmd write
-Date:   Fri, 12 Jul 2019 14:19:20 +0200
-Message-Id: <20190712121625.937102695@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.19 79/91] staging: comedi: amplc_pci230: fix null pointer deref on interrupt
+Date:   Fri, 12 Jul 2019 14:19:22 +0200
+Message-Id: <20190712121626.037573937@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -44,45 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolaus Voss <nikolaus.voss@loewensteinmedical.de>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit 2681795b5e7a5bf336537661010072f4c22cea31 upstream.
+commit 7379e6baeddf580d01feca650ec1ad508b6ea8ee upstream.
 
-Writing 4CC commands with tps6598x_write_4cc() already has
-a pointer arg, don't reference it when using as arg to
-tps6598x_block_write(). Correcting this enforces the constness
-of the pointer to propagate to tps6598x_block_write(), so add
-the const qualifier there to avoid the warning.
+The interrupt handler `pci230_interrupt()` causes a null pointer
+dereference for a PCI260 card.  There is no analog output subdevice for
+a PCI260.  The `dev->write_subdev` subdevice pointer and therefore the
+`s_ao` subdevice pointer variable will be `NULL` for a PCI260.  The
+following call near the end of the interrupt handler results in the null
+pointer dereference for a PCI260:
 
-Fixes: 0a4c005bd171 ("usb: typec: driver for TI TPS6598x USB Power Delivery controllers")
-Signed-off-by: Nikolaus Voss <nikolaus.voss@loewensteinmedical.de>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: stable <stable@vger.kernel.org>
+	comedi_handle_events(dev, s_ao);
+
+Fix it by only calling the above function if `s_ao` is valid.
+
+Note that the other uses of `s_ao` in the calls
+`pci230_handle_ao_nofifo(dev, s_ao);` and `pci230_handle_ao_fifo(dev,
+s_ao);` will never be reached for a PCI260, so they are safe.
+
+Fixes: 39064f23284c ("staging: comedi: amplc_pci230: use comedi_handle_events()")
+Cc: <stable@vger.kernel.org> # v3.19+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/typec/tps6598x.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/comedi/drivers/amplc_pci230.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/typec/tps6598x.c
-+++ b/drivers/usb/typec/tps6598x.c
-@@ -111,7 +111,7 @@ tps6598x_block_read(struct tps6598x *tps
- }
+--- a/drivers/staging/comedi/drivers/amplc_pci230.c
++++ b/drivers/staging/comedi/drivers/amplc_pci230.c
+@@ -2330,7 +2330,8 @@ static irqreturn_t pci230_interrupt(int
+ 	devpriv->intr_running = false;
+ 	spin_unlock_irqrestore(&devpriv->isr_spinlock, irqflags);
  
- static int tps6598x_block_write(struct tps6598x *tps, u8 reg,
--				void *val, size_t len)
-+				const void *val, size_t len)
- {
- 	u8 data[TPS_MAX_LEN + 1];
+-	comedi_handle_events(dev, s_ao);
++	if (s_ao)
++		comedi_handle_events(dev, s_ao);
+ 	comedi_handle_events(dev, s_ai);
  
-@@ -157,7 +157,7 @@ static inline int tps6598x_write64(struc
- static inline int
- tps6598x_write_4cc(struct tps6598x *tps, u8 reg, const char *val)
- {
--	return tps6598x_block_write(tps, reg, &val, sizeof(u32));
-+	return tps6598x_block_write(tps, reg, val, 4);
- }
- 
- static int tps6598x_read_partner_identity(struct tps6598x *tps)
+ 	return IRQ_HANDLED;
 
 
