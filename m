@@ -2,83 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B116682E
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 10:04:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B45C466907
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 10:20:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726078AbfGLIEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 04:04:52 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37854 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726057AbfGLIEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 04:04:52 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 30666AE37;
-        Fri, 12 Jul 2019 08:04:51 +0000 (UTC)
-Date:   Fri, 12 Jul 2019 09:04:49 +0100
-From:   Mel Gorman <mgorman@suse.de>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Jan Kara <jack@suse.cz>, linux-mm@kvack.org, mhocko@suse.cz,
-        stable@vger.kernel.org
-Subject: Re: [PATCH RFC] mm: migrate: Fix races of __find_get_block() and
- page migration
-Message-ID: <20190712080449.GG13484@suse.de>
-References: <20190711125838.32565-1-jack@suse.cz>
- <20190711170455.5a9ae6e659cab1a85f9aa30c@linux-foundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <20190711170455.5a9ae6e659cab1a85f9aa30c@linux-foundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1726254AbfGLIUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 04:20:15 -0400
+Received: from mga12.intel.com ([192.55.52.136]:4196 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726192AbfGLIUP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 04:20:15 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Jul 2019 01:20:15 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,481,1557212400"; 
+   d="scan'208";a="177438654"
+Received: from slisovsk-lenovo-ideapad-720s-13ikb.fi.intel.com ([10.237.66.154])
+  by orsmga002.jf.intel.com with ESMTP; 12 Jul 2019 01:20:12 -0700
+From:   Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     martin.peres@intel.com, maarten.lankhorst@linux.intel.com,
+        ville.syrjala@linux.intel.com, jani.saarinen@intel.com,
+        stanislav.lisovskiy@intel.com, jani.nikula@intel.com,
+        vandita.kulkarni@intel.com, stable@vger.kernel.org
+Subject: [PATCH v3] drm/i915: Fix wrong escape clock divisor init for GLK
+Date:   Fri, 12 Jul 2019 11:19:38 +0300
+Message-Id: <20190712081938.14185-1-stanislav.lisovskiy@intel.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 11, 2019 at 05:04:55PM -0700, Andrew Morton wrote:
-> On Thu, 11 Jul 2019 14:58:38 +0200 Jan Kara <jack@suse.cz> wrote:
-> 
-> > buffer_migrate_page_norefs() can race with bh users in a following way:
-> > 
-> > CPU1					CPU2
-> > buffer_migrate_page_norefs()
-> >   buffer_migrate_lock_buffers()
-> >   checks bh refs
-> >   spin_unlock(&mapping->private_lock)
-> > 					__find_get_block()
-> > 					  spin_lock(&mapping->private_lock)
-> > 					  grab bh ref
-> > 					  spin_unlock(&mapping->private_lock)
-> >   move page				  do bh work
-> > 
-> > This can result in various issues like lost updates to buffers (i.e.
-> > metadata corruption) or use after free issues for the old page.
-> > 
-> > Closing this race window is relatively difficult. We could hold
-> > mapping->private_lock in buffer_migrate_page_norefs() until we are
-> > finished with migrating the page but the lock hold times would be rather
-> > big. So let's revert to a more careful variant of page migration requiring
-> > eviction of buffers on migrated page. This is effectively
-> > fallback_migrate_page() that additionally invalidates bh LRUs in case
-> > try_to_free_buffers() failed.
-> 
-> Is this premature optimization?  Holding ->private_lock while messing
-> with the buffers would be the standard way of addressing this.  The
-> longer hold times *might* be an issue, but we don't know this, do we? 
-> If there are indeed such problems then they could be improved by, say,
-> doing more of the newpage preparation prior to taking ->private_lock.
-> 
+According to Bspec clock divisor registers in GeminiLake
+should be initialized by shifting 1(<<) to amount of correspondent
+divisor. While i915 was writing all this time that value as is.
 
-To some extent, we do not know how much of a problem this patch will
-be either or what impact avoiding dirty block pages during migration
-is either. So both approaches have their downsides.
+Surprisingly that it by accident worked, until we met some issues
+with Microtech Etab.
 
-However, failing a high-order allocation is typically benign and it is an
-inevitable problem that depends on the workload. I don't think we could
-ever hit a case whereby there was enough spinning to cause a soft lockup
-but on the other hand, I don't think there is much scope for doing more
-of the preparation steps before acquiring private_lock either.
+v2: Added Fixes tag and cc
+v3: Added stable to cc as well.
 
+Signed-off-by: stanislav.lisovskiy@intel.com
+Reviewed-by: Vandita Kulkarni <vandita.kulkarni@intel.com>
+Fixes: https://bugs.freedesktop.org/show_bug.cgi?id=108826
+Fixes: bcc657004841 ("drm/i915/glk: Program txesc clock divider for GLK")
+Cc: Deepak M <m.deepak@intel.com>
+Cc: Madhav Chauhan <madhav.chauhan@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/i915/display/vlv_dsi_pll.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/display/vlv_dsi_pll.c b/drivers/gpu/drm/i915/display/vlv_dsi_pll.c
+index 99cc3e2e9c2c..f016a776a39e 100644
+--- a/drivers/gpu/drm/i915/display/vlv_dsi_pll.c
++++ b/drivers/gpu/drm/i915/display/vlv_dsi_pll.c
+@@ -396,8 +396,8 @@ static void glk_dsi_program_esc_clock(struct drm_device *dev,
+ 	else
+ 		txesc2_div = 10;
+ 
+-	I915_WRITE(MIPIO_TXESC_CLK_DIV1, txesc1_div & GLK_TX_ESC_CLK_DIV1_MASK);
+-	I915_WRITE(MIPIO_TXESC_CLK_DIV2, txesc2_div & GLK_TX_ESC_CLK_DIV2_MASK);
++	I915_WRITE(MIPIO_TXESC_CLK_DIV1, (1 << (txesc1_div - 1)) & GLK_TX_ESC_CLK_DIV1_MASK);
++	I915_WRITE(MIPIO_TXESC_CLK_DIV2, (1 << (txesc2_div - 1)) & GLK_TX_ESC_CLK_DIV2_MASK);
+ }
+ 
+ /* Program BXT Mipi clocks and dividers */
 -- 
-Mel Gorman
-SUSE Labs
+2.17.1
+
