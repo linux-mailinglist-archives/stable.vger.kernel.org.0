@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5400F66E58
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:38:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF06866E1E
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:36:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727610AbfGLMiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:38:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44508 "EHLO mail.kernel.org"
+        id S1729438AbfGLMcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:32:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728648AbfGLM3f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:29:35 -0400
+        id S1729432AbfGLMcH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:32:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31140208E4;
-        Fri, 12 Jul 2019 12:29:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8133C216FD;
+        Fri, 12 Jul 2019 12:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934574;
-        bh=5ZHpPRWBDX9u12GlOa2BjDgEunLgvqdm/xR4MRxZYWo=;
+        s=default; t=1562934727;
+        bh=ETWyk8gxgCMJRP97idqhRkoOc9kGssNuCg0Y1fLZSAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UfPMOOCNZgtfy5/JIxHgpNUcwAMYzxfGSpqbCvyyZXgIRTzQV94jNIGed6Xppm/VS
-         z2gMlOxFaoEDjXZl8wrygsUI0h7YjvfZPC+bRUjTvqc+WNsFYwkkQfO3mWVRG3Jpln
-         3ifOHcyHqP3NkW/fIN69bGVXNCHY2r38lF5fHcOY=
+        b=ebAru49LHM0TI8wWtKWpYXZG0bIlKpdiKe7brzXQjXxl6863hsU0ACgroBw5fQW8q
+         aPK1dW+HazAUX2iqjjKrl/Khk0Edl8w+wtPZZxQKPgeGnn3Nt3hNu7XtXwxvNqIW3b
+         BduHsM5WmfFx5jVoq4Ynhx34AP6MCPNFFSUbfa2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>
-Subject: [PATCH 5.1 100/138] perf thread-stack: Fix thread stack return from kernel for kernel-only case
-Date:   Fri, 12 Jul 2019 14:19:24 +0200
-Message-Id: <20190712121632.603212841@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Valente <paolo.valente@unimore.it>,
+        Douglas Anderson <dianders@chromium.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.2 12/61] block, bfq: NULL out the bic when its no longer valid
+Date:   Fri, 12 Jul 2019 14:19:25 +0200
+Message-Id: <20190712121621.281677748@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,184 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 97860b483c5597663a174ff7405be957b4838391 upstream.
+commit dbc3117d4ca9e17819ac73501e914b8422686750 upstream.
 
-Commit f08046cb3082 ("perf thread-stack: Represent jmps to the start of a
-different symbol") had the side-effect of introducing more stack entries
-before return from kernel space.
+In reboot tests on several devices we were seeing a "use after free"
+when slub_debug or KASAN was enabled.  The kernel complained about:
 
-When user space is also traced, those entries are popped before entry to
-user space, but when user space is not traced, they get stuck at the
-bottom of the stack, making the stack grow progressively larger.
+  Unable to handle kernel paging request at virtual address 6b6b6c2b
 
-Fix by detecting a return-from-kernel branch type, and popping kernel
-addresses from the stack then.
+...which is a classic sign of use after free under slub_debug.  The
+stack crawl in kgdb looked like:
 
-Note, the problem and fix affect the exported Call Graph / Tree but not
-the callindent option used by "perf script --call-trace".
+ 0  test_bit (addr=<optimized out>, nr=<optimized out>)
+ 1  bfq_bfqq_busy (bfqq=<optimized out>)
+ 2  bfq_select_queue (bfqd=<optimized out>)
+ 3  __bfq_dispatch_request (hctx=<optimized out>)
+ 4  bfq_dispatch_request (hctx=<optimized out>)
+ 5  0xc056ef00 in blk_mq_do_dispatch_sched (hctx=0xed249440)
+ 6  0xc056f728 in blk_mq_sched_dispatch_requests (hctx=0xed249440)
+ 7  0xc0568d24 in __blk_mq_run_hw_queue (hctx=0xed249440)
+ 8  0xc0568d94 in blk_mq_run_work_fn (work=<optimized out>)
+ 9  0xc024c5c4 in process_one_work (worker=0xec6d4640, work=0xed249480)
+ 10 0xc024cff4 in worker_thread (__worker=0xec6d4640)
 
-Example:
+Digging in kgdb, it could be found that, though bfqq looked fine,
+bfqq->bic had been freed.
 
-  perf-with-kcore record example -e intel_pt//k -- ls
-  perf-with-kcore script example --itrace=bep -s ~/libexec/perf-core/scripts/python/export-to-sqlite.py example.db branches calls
-  ~/libexec/perf-core/scripts/python/exported-sql-viewer.py example.db
+Through further digging, I postulated that perhaps it is illegal to
+access a "bic" (AKA an "icq") after bfq_exit_icq() had been called
+because the "bic" can be freed at some point in time after this call
+is made.  I confirmed that there certainly were cases where the exact
+crashing code path would access the "bic" after bfq_exit_icq() had
+been called.  Sspecifically I set the "bfqq->bic" to (void *)0x7 and
+saw that the bic was 0x7 at the time of the crash.
 
-  Menu option: Reports -> Context-Sensitive Call Graph
+To understand a bit more about why this crash was fairly uncommon (I
+saw it only once in a few hundred reboots), you can see that much of
+the time bfq_exit_icq_fbqq() fully frees the bfqq and thus it can't
+access the ->bic anymore.  The only case it doesn't is if
+bfq_put_queue() sees a reference still held.
 
-  Before: (showing Call Path column only)
+However, even in the case when bfqq isn't freed, the crash is still
+rare.  Why?  I tracked what happened to the "bic" after the exit
+routine.  It doesn't get freed right away.  Rather,
+put_io_context_active() eventually called put_io_context() which
+queued up freeing on a workqueue.  The freeing then actually happened
+later than that through call_rcu().  Despite all these delays, some
+extra debugging showed that all the hoops could be jumped through in
+time and the memory could be freed causing the original crash.  Phew!
 
-    Call Path
-    ▶ perf
-    ▼ ls
-      ▼ 12111:12111
-        ▶ setup_new_exec
-        ▶ __task_pid_nr_ns
-        ▶ perf_event_pid_type
-        ▶ perf_event_comm_output
-        ▶ perf_iterate_ctx
-        ▶ perf_iterate_sb
-        ▶ perf_event_comm
-        ▶ __set_task_comm
-        ▶ load_elf_binary
-        ▶ search_binary_handler
-        ▶ __do_execve_file.isra.41
-        ▶ __x64_sys_execve
-        ▶ do_syscall_64
-        ▼ entry_SYSCALL_64_after_hwframe
-          ▼ swapgs_restore_regs_and_return_to_usermode
-            ▼ native_iret
-              ▶ error_entry
-              ▶ do_page_fault
-              ▼ error_exit
-                ▼ retint_user
-                  ▶ prepare_exit_to_usermode
-                  ▼ native_iret
-                    ▶ error_entry
-                    ▶ do_page_fault
-                    ▼ error_exit
-                      ▼ retint_user
-                        ▶ prepare_exit_to_usermode
-                        ▼ native_iret
-                          ▶ error_entry
-                          ▶ do_page_fault
-                          ▼ error_exit
-                            ▼ retint_user
-                              ▶ prepare_exit_to_usermode
-                              ▶ native_iret
+To make a long story short, assuming it truly is illegal to access an
+icq after the "exit_icq" callback is finished, this patch is needed.
 
-  After: (showing Call Path column only)
-
-    Call Path
-    ▶ perf
-    ▼ ls
-      ▼ 12111:12111
-        ▶ setup_new_exec
-        ▶ __task_pid_nr_ns
-        ▶ perf_event_pid_type
-        ▶ perf_event_comm_output
-        ▶ perf_iterate_ctx
-        ▶ perf_iterate_sb
-        ▶ perf_event_comm
-        ▶ __set_task_comm
-        ▶ load_elf_binary
-        ▶ search_binary_handler
-        ▶ __do_execve_file.isra.41
-        ▶ __x64_sys_execve
-        ▶ do_syscall_64
-        ▶ entry_SYSCALL_64_after_hwframe
-        ▶ page_fault
-        ▼ entry_SYSCALL_64
-          ▼ do_syscall_64
-            ▶ __x64_sys_brk
-            ▶ __x64_sys_access
-            ▶ __x64_sys_openat
-            ▶ __x64_sys_newfstat
-            ▶ __x64_sys_mmap
-            ▶ __x64_sys_close
-            ▶ __x64_sys_read
-            ▶ __x64_sys_mprotect
-            ▶ __x64_sys_arch_prctl
-            ▶ __x64_sys_munmap
-            ▶ exit_to_usermode_loop
-            ▶ __x64_sys_set_tid_address
-            ▶ __x64_sys_set_robust_list
-            ▶ __x64_sys_rt_sigaction
-            ▶ __x64_sys_rt_sigprocmask
-            ▶ __x64_sys_prlimit64
-            ▶ __x64_sys_statfs
-            ▶ __x64_sys_ioctl
-            ▶ __x64_sys_getdents64
-            ▶ __x64_sys_write
-            ▶ __x64_sys_exit_group
-
-Committer notes:
-
-The first arg to the perf-with-kcore needs to be the same for the
-'record' and 'script' lines, otherwise we'll record the perf.data file
-and kcore_dir/ files in one directory ('example') to then try to use it
-from the 'bep' directory, fix the instructions above it so that both use
-'example'.
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: stable@vger.kernel.org
-Fixes: f08046cb3082 ("perf thread-stack: Represent jmps to the start of a different symbol")
-Link: http://lkml.kernel.org/r/20190619064429.14940-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reviewed-by: Paolo Valente <paolo.valente@unimore.it>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/thread-stack.c |   30 +++++++++++++++++++++++++++++-
- 1 file changed, 29 insertions(+), 1 deletion(-)
+ block/bfq-iosched.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/perf/util/thread-stack.c
-+++ b/tools/perf/util/thread-stack.c
-@@ -625,6 +625,23 @@ static int thread_stack__bottom(struct t
- 				     true, false);
- }
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -4584,6 +4584,7 @@ static void bfq_exit_icq_bfqq(struct bfq
+ 		unsigned long flags;
  
-+static int thread_stack__pop_ks(struct thread *thread, struct thread_stack *ts,
-+				struct perf_sample *sample, u64 ref)
-+{
-+	u64 tm = sample->time;
-+	int err;
-+
-+	/* Return to userspace, so pop all kernel addresses */
-+	while (thread_stack__in_kernel(ts)) {
-+		err = thread_stack__call_return(thread, ts, --ts->cnt,
-+						tm, ref, true);
-+		if (err)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
- static int thread_stack__no_call_return(struct thread *thread,
- 					struct thread_stack *ts,
- 					struct perf_sample *sample,
-@@ -905,7 +922,18 @@ int thread_stack__process(struct thread
- 			ts->rstate = X86_RETPOLINE_DETECTED;
- 
- 	} else if (sample->flags & PERF_IP_FLAG_RETURN) {
--		if (!sample->ip || !sample->addr)
-+		if (!sample->addr) {
-+			u32 return_from_kernel = PERF_IP_FLAG_SYSCALLRET |
-+						 PERF_IP_FLAG_INTERRUPT;
-+
-+			if (!(sample->flags & return_from_kernel))
-+				return 0;
-+
-+			/* Pop kernel stack */
-+			return thread_stack__pop_ks(thread, ts, sample, ref);
-+		}
-+
-+		if (!sample->ip)
- 			return 0;
- 
- 		/* x86 retpoline 'return' doesn't match the stack */
+ 		spin_lock_irqsave(&bfqd->lock, flags);
++		bfqq->bic = NULL;
+ 		bfq_exit_bfqq(bfqd, bfqq);
+ 		bic_set_bfqq(bic, NULL, is_sync);
+ 		spin_unlock_irqrestore(&bfqd->lock, flags);
 
 
