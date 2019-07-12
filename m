@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43D7866CEB
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:25:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4245A66CED
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:25:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728126AbfGLMY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:24:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33082 "EHLO mail.kernel.org"
+        id S1728135AbfGLMYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:24:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728116AbfGLMY2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:24:28 -0400
+        id S1727349AbfGLMYb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:24:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 182622084B;
-        Fri, 12 Jul 2019 12:24:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3CA7208E4;
+        Fri, 12 Jul 2019 12:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934267;
-        bh=I6SLxy3JxmLRF8Y/fRbe5of/Af9MI5t5AuY12Ql3XQA=;
+        s=default; t=1562934271;
+        bh=spKQvzBkCz2p7uUyWcQ59xxgGjgybE/oLIuwZnEgBBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OcZ7fFruPFpR32tWGexbZa/qOMMaZAl8d/a3Xb8YpkcHh6v1eZ0V51QQL/4QV5ENY
-         Y/i7uI016xqIgEW0kP5DwEbHh32az7Svqyzu3n6IUSHqwQ5GgCVDjwiYaqNMSkRfAm
-         N6qi5T+DyqGVAoZ2Rq3R0S8v8NGTXD8JzYv42gsw=
+        b=vBOrYqNO7r8hqpT1ObMqn54NS7Qx9rVtgdP5lOtkL5toWNIfQavMjRUcY9093Suyj
+         ufM5NoiVclKbCUlQQ+3vw5P8Evo4cK8OT3ZEt2rwRDbWTSVLfP3xkwYfvN1CjBQckL
+         LTjExfmTh8BCdiDF0P8cB3Wocjvukxiq7DX/jKNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Stefan Wahren <wahrenst@gmx.net>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.19 89/91] staging: bcm2835-camera: Remove check of the number of buffers supplied
-Date:   Fri, 12 Jul 2019 14:19:32 +0200
-Message-Id: <20190712121626.482469113@linuxfoundation.org>
+Subject: [PATCH 4.19 90/91] staging: bcm2835-camera: Handle empty EOS buffers whilst streaming
+Date:   Fri, 12 Jul 2019 14:19:33 +0200
+Message-Id: <20190712121626.527633294@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -48,15 +48,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Stevenson <dave.stevenson@raspberrypi.org>
 
-commit bb8e97006d701ae725a177f8f322e5a75fa761b7 upstream.
+commit a26be06d6d96c10a9ab005e99d93fbb5d3babd98 upstream.
 
-Before commit "staging: bcm2835-camera: Remove V4L2/MMAL buffer remapping"
-there was a need to ensure that there were sufficient buffers supplied from
-the user to cover those being sent to the VPU (always 1).
+The change to mapping V4L2 to MMAL buffers 1:1 didn't handle
+the condition we get with raw pixel buffers (eg YUV and RGB)
+direct from the camera's stills port. That sends the pixel buffer
+and then an empty buffer with the EOS flag set. The EOS buffer
+wasn't handled and returned an error up the stack.
 
-Now the buffers are linked 1:1 between MMAL and V4L2,
-therefore there is no need for that check, and indeed it is wrong
-as there is no need to submit all the buffers before starting streaming.
+Handle the condition correctly by returning it to the component
+if streaming, or returning with an error if stopping streaming.
 
 Fixes: 938416707071 ("staging: bcm2835-camera: Remove V4L2/MMAL buffer remapping")
 Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.org>
@@ -66,27 +67,70 @@ Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c |   21 +++++-----
+ drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c     |    5 +-
+ 2 files changed, 15 insertions(+), 11 deletions(-)
 
+--- a/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
++++ b/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
+@@ -342,16 +342,13 @@ static void buffer_cb(struct vchiq_mmal_
+ 		return;
+ 	} else if (length == 0) {
+ 		/* stream ended */
+-		if (buf) {
+-			/* this should only ever happen if the port is
+-			 * disabled and there are buffers still queued
++		if (dev->capture.frame_count) {
++			/* empty buffer whilst capturing - expected to be an
++			 * EOS, so grab another frame
+ 			 */
+-			vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
+-			pr_debug("Empty buffer");
+-		} else if (dev->capture.frame_count) {
+-			/* grab another frame */
+ 			if (is_capturing(dev)) {
+-				pr_debug("Grab another frame");
++				v4l2_dbg(1, bcm2835_v4l2_debug, &dev->v4l2_dev,
++					 "Grab another frame");
+ 				vchiq_mmal_port_parameter_set(
+ 					instance,
+ 					dev->capture.camera_port,
+@@ -359,8 +356,14 @@ static void buffer_cb(struct vchiq_mmal_
+ 					&dev->capture.frame_count,
+ 					sizeof(dev->capture.frame_count));
+ 			}
++			if (vchiq_mmal_submit_buffer(instance, port, buf))
++				v4l2_dbg(1, bcm2835_v4l2_debug, &dev->v4l2_dev,
++					 "Failed to return EOS buffer");
+ 		} else {
+-			/* signal frame completion */
++			/* stopping streaming.
++			 * return buffer, and signal frame completion
++			 */
++			vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
+ 			complete(&dev->capture.frame_cmplt);
+ 		}
+ 	} else {
 --- a/drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c
 +++ b/drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c
-@@ -1329,16 +1329,6 @@ static int port_enable(struct vchiq_mmal
- 	if (port->enabled)
- 		return 0;
+@@ -291,8 +291,6 @@ static int bulk_receive(struct vchiq_mma
  
--	/* ensure there are enough buffers queued to cover the buffer headers */
--	if (port->buffer_cb) {
--		hdr_count = 0;
--		list_for_each(buf_head, &port->buffers) {
--			hdr_count++;
--		}
--		if (hdr_count < port->current_buffer.num)
--			return -ENOSPC;
--	}
--
- 	ret = port_action_port(instance, port,
- 			       MMAL_MSG_PORT_ACTION_TYPE_ENABLE);
- 	if (ret)
+ 	/* store length */
+ 	msg_context->u.bulk.buffer_used = rd_len;
+-	msg_context->u.bulk.mmal_flags =
+-	    msg->u.buffer_from_host.buffer_header.flags;
+ 	msg_context->u.bulk.dts = msg->u.buffer_from_host.buffer_header.dts;
+ 	msg_context->u.bulk.pts = msg->u.buffer_from_host.buffer_header.pts;
+ 
+@@ -453,6 +451,9 @@ static void buffer_to_host_cb(struct vch
+ 		return;
+ 	}
+ 
++	msg_context->u.bulk.mmal_flags =
++				msg->u.buffer_from_host.buffer_header.flags;
++
+ 	if (msg->h.status != MMAL_MSG_STATUS_SUCCESS) {
+ 		/* message reception had an error */
+ 		pr_warn("error %d in reply\n", msg->h.status);
 
 
