@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5E5466CA7
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:22:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 608D666C96
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727587AbfGLMVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:21:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55656 "EHLO mail.kernel.org"
+        id S1727574AbfGLMVe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:21:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727574AbfGLMV3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:21:29 -0400
+        id S1727603AbfGLMVd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:21:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64E91216E3;
-        Fri, 12 Jul 2019 12:21:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBA382166E;
+        Fri, 12 Jul 2019 12:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934088;
-        bh=RGqaMnUl8fu5VGTAT/EWM2D/EJZuaOJplXwUWrI4ww0=;
+        s=default; t=1562934092;
+        bh=OvbvFkyE34k4KA5hu18PaS7ONOKp/sWbrgnjM8pDRxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q4kxAfcammzUKPyjruQB+SosiMiJ6mdLTTiWrc3n9/EiuU0Y6R8HP+bARvhwrDd/1
-         QfNn7IZ4+V+HtIDKOX+cWSvTmW1gYOO5L4iJMOSTCRb/tYhKCNhJnI8Q4BveU42wpo
-         p4X8gyYgM/4kFvCv0H3r5TCrtE3MHdTDVfQqLM/k=
+        b=qY5YwFey3QRy7giFFeNuaGL8b6yx6T1WZ6r2KpzWC94+YfiJlKqhcdTOW8P6yTXpU
+         lXnF5ZOLoRvynPPldQFQhRA+gZqb1gdcvjIc8KdbIUYty0qcJPoYQV53lTK1hpp0QY
+         c6gwD0nI1X441kikGoG0IcJvk7cqeCxTcxwvtVXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
-        Toshiaki Makita <toshiaki.makita1@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/91] bpf, devmap: Add missing RCU read lock on flush
-Date:   Fri, 12 Jul 2019 14:18:43 +0200
-Message-Id: <20190712121623.602025258@linuxfoundation.org>
+Subject: [PATCH 4.19 41/91] bpf, x64: fix stack layout of JITed bpf code
+Date:   Fri, 12 Jul 2019 14:18:44 +0200
+Message-Id: <20190712121623.675904684@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -45,57 +43,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 86723c8640633bee4b4588d3c7784ee7a0032f65 ]
+[ Upstream commit fe8d9571dc50232b569242fac7ea6332a654f186 ]
 
-.ndo_xdp_xmit() assumes it is called under RCU. For example virtio_net
-uses RCU to detect it has setup the resources for tx. The assumption
-accidentally broke when introducing bulk queue in devmap.
+Since commit 177366bf7ceb the %rbp stopped pointing to %rbp of the
+previous stack frame. That broke frame pointer based stack unwinding.
+This commit is a partial revert of it.
+Note that the location of tail_call_cnt is fixed, since the verifier
+enforces MAX_BPF_STACK stack size for programs with tail calls.
 
-Fixes: 5d053f9da431 ("bpf: devmap prepare xdp frames for bulking")
-Reported-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Fixes: 177366bf7ceb ("bpf: change x86 JITed program stack layout")
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/devmap.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/net/bpf_jit_comp.c | 74 +++++++++++--------------------------
+ 1 file changed, 21 insertions(+), 53 deletions(-)
 
-diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
-index 357d456d57b9..fc500ca464d0 100644
---- a/kernel/bpf/devmap.c
-+++ b/kernel/bpf/devmap.c
-@@ -282,6 +282,7 @@ void __dev_map_flush(struct bpf_map *map)
- 	unsigned long *bitmap = this_cpu_ptr(dtab->flush_needed);
- 	u32 bit;
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index 2580cd2e98b1..a32fc3d99407 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -190,9 +190,7 @@ struct jit_context {
+ #define BPF_MAX_INSN_SIZE	128
+ #define BPF_INSN_SAFETY		64
  
-+	rcu_read_lock();
- 	for_each_set_bit(bit, bitmap, map->max_entries) {
- 		struct bpf_dtab_netdev *dev = READ_ONCE(dtab->netdev_map[bit]);
- 		struct xdp_bulk_queue *bq;
-@@ -297,6 +298,7 @@ void __dev_map_flush(struct bpf_map *map)
+-#define AUX_STACK_SPACE		40 /* Space for RBX, R13, R14, R15, tailcnt */
+-
+-#define PROLOGUE_SIZE		37
++#define PROLOGUE_SIZE		20
  
- 		__clear_bit(bit, bitmap);
+ /*
+  * Emit x86-64 prologue code for BPF program and check its size.
+@@ -203,44 +201,19 @@ static void emit_prologue(u8 **pprog, u32 stack_depth, bool ebpf_from_cbpf)
+ 	u8 *prog = *pprog;
+ 	int cnt = 0;
+ 
+-	/* push rbp */
+-	EMIT1(0x55);
+-
+-	/* mov rbp,rsp */
+-	EMIT3(0x48, 0x89, 0xE5);
+-
+-	/* sub rsp, rounded_stack_depth + AUX_STACK_SPACE */
+-	EMIT3_off32(0x48, 0x81, 0xEC,
+-		    round_up(stack_depth, 8) + AUX_STACK_SPACE);
+-
+-	/* sub rbp, AUX_STACK_SPACE */
+-	EMIT4(0x48, 0x83, 0xED, AUX_STACK_SPACE);
+-
+-	/* mov qword ptr [rbp+0],rbx */
+-	EMIT4(0x48, 0x89, 0x5D, 0);
+-	/* mov qword ptr [rbp+8],r13 */
+-	EMIT4(0x4C, 0x89, 0x6D, 8);
+-	/* mov qword ptr [rbp+16],r14 */
+-	EMIT4(0x4C, 0x89, 0x75, 16);
+-	/* mov qword ptr [rbp+24],r15 */
+-	EMIT4(0x4C, 0x89, 0x7D, 24);
+-
++	EMIT1(0x55);             /* push rbp */
++	EMIT3(0x48, 0x89, 0xE5); /* mov rbp, rsp */
++	/* sub rsp, rounded_stack_depth */
++	EMIT3_off32(0x48, 0x81, 0xEC, round_up(stack_depth, 8));
++	EMIT1(0x53);             /* push rbx */
++	EMIT2(0x41, 0x55);       /* push r13 */
++	EMIT2(0x41, 0x56);       /* push r14 */
++	EMIT2(0x41, 0x57);       /* push r15 */
+ 	if (!ebpf_from_cbpf) {
+-		/*
+-		 * Clear the tail call counter (tail_call_cnt): for eBPF tail
+-		 * calls we need to reset the counter to 0. It's done in two
+-		 * instructions, resetting RAX register to 0, and moving it
+-		 * to the counter location.
+-		 */
+-
+-		/* xor eax, eax */
+-		EMIT2(0x31, 0xc0);
+-		/* mov qword ptr [rbp+32], rax */
+-		EMIT4(0x48, 0x89, 0x45, 32);
+-
++		/* zero init tail_call_cnt */
++		EMIT2(0x6a, 0x00);
+ 		BUILD_BUG_ON(cnt != PROLOGUE_SIZE);
  	}
-+	rcu_read_unlock();
+-
+ 	*pprog = prog;
  }
  
- /* rcu_read_lock (from syscall and BPF contexts) ensures that if a delete and/or
-@@ -389,6 +391,7 @@ static void dev_map_flush_old(struct bpf_dtab_netdev *dev)
+@@ -285,13 +258,13 @@ static void emit_bpf_tail_call(u8 **pprog)
+ 	 * if (tail_call_cnt > MAX_TAIL_CALL_CNT)
+ 	 *	goto out;
+ 	 */
+-	EMIT2_off32(0x8B, 0x85, 36);              /* mov eax, dword ptr [rbp + 36] */
++	EMIT2_off32(0x8B, 0x85, -36 - MAX_BPF_STACK); /* mov eax, dword ptr [rbp - 548] */
+ 	EMIT3(0x83, 0xF8, MAX_TAIL_CALL_CNT);     /* cmp eax, MAX_TAIL_CALL_CNT */
+ #define OFFSET2 (30 + RETPOLINE_RAX_BPF_JIT_SIZE)
+ 	EMIT2(X86_JA, OFFSET2);                   /* ja out */
+ 	label2 = cnt;
+ 	EMIT3(0x83, 0xC0, 0x01);                  /* add eax, 1 */
+-	EMIT2_off32(0x89, 0x85, 36);              /* mov dword ptr [rbp + 36], eax */
++	EMIT2_off32(0x89, 0x85, -36 - MAX_BPF_STACK); /* mov dword ptr [rbp -548], eax */
  
- 		int cpu;
+ 	/* prog = array->ptrs[index]; */
+ 	EMIT4_off32(0x48, 0x8B, 0x84, 0xD6,       /* mov rax, [rsi + rdx * 8 + offsetof(...)] */
+@@ -1006,19 +979,14 @@ xadd:			if (is_imm8(insn->off))
+ 			seen_exit = true;
+ 			/* Update cleanup_addr */
+ 			ctx->cleanup_addr = proglen;
+-			/* mov rbx, qword ptr [rbp+0] */
+-			EMIT4(0x48, 0x8B, 0x5D, 0);
+-			/* mov r13, qword ptr [rbp+8] */
+-			EMIT4(0x4C, 0x8B, 0x6D, 8);
+-			/* mov r14, qword ptr [rbp+16] */
+-			EMIT4(0x4C, 0x8B, 0x75, 16);
+-			/* mov r15, qword ptr [rbp+24] */
+-			EMIT4(0x4C, 0x8B, 0x7D, 24);
+-
+-			/* add rbp, AUX_STACK_SPACE */
+-			EMIT4(0x48, 0x83, 0xC5, AUX_STACK_SPACE);
+-			EMIT1(0xC9); /* leave */
+-			EMIT1(0xC3); /* ret */
++			if (!bpf_prog_was_classic(bpf_prog))
++				EMIT1(0x5B); /* get rid of tail_call_cnt */
++			EMIT2(0x41, 0x5F);   /* pop r15 */
++			EMIT2(0x41, 0x5E);   /* pop r14 */
++			EMIT2(0x41, 0x5D);   /* pop r13 */
++			EMIT1(0x5B);         /* pop rbx */
++			EMIT1(0xC9);         /* leave */
++			EMIT1(0xC3);         /* ret */
+ 			break;
  
-+		rcu_read_lock();
- 		for_each_online_cpu(cpu) {
- 			bitmap = per_cpu_ptr(dev->dtab->flush_needed, cpu);
- 			__clear_bit(dev->bit, bitmap);
-@@ -396,6 +399,7 @@ static void dev_map_flush_old(struct bpf_dtab_netdev *dev)
- 			bq = per_cpu_ptr(dev->bulkq, cpu);
- 			bq_xmit_all(dev, bq, XDP_XMIT_FLUSH, false);
- 		}
-+		rcu_read_unlock();
- 	}
- }
- 
+ 		default:
 -- 
 2.20.1
 
