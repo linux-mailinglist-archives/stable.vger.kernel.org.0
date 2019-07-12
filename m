@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF06866E1E
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:36:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86CAD66E52
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729438AbfGLMcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:32:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49622 "EHLO mail.kernel.org"
+        id S1728435AbfGLM3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:29:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729432AbfGLMcH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:32:07 -0400
+        id S1727141AbfGLM3i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:29:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8133C216FD;
-        Fri, 12 Jul 2019 12:32:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2AB921019;
+        Fri, 12 Jul 2019 12:29:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934727;
-        bh=ETWyk8gxgCMJRP97idqhRkoOc9kGssNuCg0Y1fLZSAI=;
+        s=default; t=1562934577;
+        bh=qDtEx3JBcoiN7jc5fyaWwXQltue7M5cegdGziK7DBV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ebAru49LHM0TI8wWtKWpYXZG0bIlKpdiKe7brzXQjXxl6863hsU0ACgroBw5fQW8q
-         aPK1dW+HazAUX2iqjjKrl/Khk0Edl8w+wtPZZxQKPgeGnn3Nt3hNu7XtXwxvNqIW3b
-         BduHsM5WmfFx5jVoq4Ynhx34AP6MCPNFFSUbfa2I=
+        b=rSbSgNuFPs2L6pMu59YoFvWcqrjDNummywq1soA/cmm3SEzR77OeRZjI37i9C6y9g
+         Nr1sJ9L7z8VpvcO1H5NVlSiXXOZH0AAw8ShPNh3DUypjBMzm9yOY7eukqYZJ5FCS0p
+         D5UBekKy5yU2weFo5tKcieQCkPndjuSHzD0neQ7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Valente <paolo.valente@unimore.it>,
-        Douglas Anderson <dianders@chromium.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.2 12/61] block, bfq: NULL out the bic when its no longer valid
+        stable@vger.kernel.org, David Carrillo Cisneros <davidca@fb.com>,
+        Song Liu <songliubraving@fb.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>, kernel-team@fb.com
+Subject: [PATCH 5.1 101/138] perf header: Assign proper ff->ph in perf_event__synthesize_features()
 Date:   Fri, 12 Jul 2019 14:19:25 +0200
-Message-Id: <20190712121621.281677748@linuxfoundation.org>
+Message-Id: <20190712121632.639643452@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
-References: <20190712121620.632595223@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Song Liu <songliubraving@fb.com>
 
-commit dbc3117d4ca9e17819ac73501e914b8422686750 upstream.
+commit c952b35f4b15dd1b83e952718dec3307256383ef upstream.
 
-In reboot tests on several devices we were seeing a "use after free"
-when slub_debug or KASAN was enabled.  The kernel complained about:
+bpf/btf write_* functions need ff->ph->env.
 
-  Unable to handle kernel paging request at virtual address 6b6b6c2b
+With this missing, pipe-mode (perf record -o -)  would crash like:
 
-...which is a classic sign of use after free under slub_debug.  The
-stack crawl in kgdb looked like:
+Program terminated with signal SIGSEGV, Segmentation fault.
 
- 0  test_bit (addr=<optimized out>, nr=<optimized out>)
- 1  bfq_bfqq_busy (bfqq=<optimized out>)
- 2  bfq_select_queue (bfqd=<optimized out>)
- 3  __bfq_dispatch_request (hctx=<optimized out>)
- 4  bfq_dispatch_request (hctx=<optimized out>)
- 5  0xc056ef00 in blk_mq_do_dispatch_sched (hctx=0xed249440)
- 6  0xc056f728 in blk_mq_sched_dispatch_requests (hctx=0xed249440)
- 7  0xc0568d24 in __blk_mq_run_hw_queue (hctx=0xed249440)
- 8  0xc0568d94 in blk_mq_run_work_fn (work=<optimized out>)
- 9  0xc024c5c4 in process_one_work (worker=0xec6d4640, work=0xed249480)
- 10 0xc024cff4 in worker_thread (__worker=0xec6d4640)
+This patch assign proper ph value to ff.
 
-Digging in kgdb, it could be found that, though bfqq looked fine,
-bfqq->bic had been freed.
+Committer testing:
 
-Through further digging, I postulated that perhaps it is illegal to
-access a "bic" (AKA an "icq") after bfq_exit_icq() had been called
-because the "bic" can be freed at some point in time after this call
-is made.  I confirmed that there certainly were cases where the exact
-crashing code path would access the "bic" after bfq_exit_icq() had
-been called.  Sspecifically I set the "bfqq->bic" to (void *)0x7 and
-saw that the bic was 0x7 at the time of the crash.
+  (gdb) run record -o -
+  Starting program: /root/bin/perf record -o -
+  PERFILE2
+  <SNIP start of perf.data headers>
+  Thread 1 "perf" received signal SIGSEGV, Segmentation fault.
+  __do_write_buf (size=4, buf=0x160, ff=0x7fffffff8f80) at util/header.c:126
+  126		memcpy(ff->buf + ff->offset, buf, size);
+  (gdb) bt
+  #0  __do_write_buf (size=4, buf=0x160, ff=0x7fffffff8f80) at util/header.c:126
+  #1  do_write (ff=ff@entry=0x7fffffff8f80, buf=buf@entry=0x160, size=4) at util/header.c:137
+  #2  0x00000000004eddba in write_bpf_prog_info (ff=0x7fffffff8f80, evlist=<optimized out>) at util/header.c:912
+  #3  0x00000000004f69d7 in perf_event__synthesize_features (tool=tool@entry=0x97cc00 <record>, session=session@entry=0x7fffe9c6d010,
+      evlist=0x7fffe9cae010, process=process@entry=0x4435d0 <process_synthesized_event>) at util/header.c:3695
+  #4  0x0000000000443c79 in record__synthesize (tail=tail@entry=false, rec=0x97cc00 <record>) at builtin-record.c:1214
+  #5  0x0000000000444ec9 in __cmd_record (rec=0x97cc00 <record>, argv=<optimized out>, argc=0) at builtin-record.c:1435
+  #6  cmd_record (argc=0, argv=<optimized out>) at builtin-record.c:2450
+  #7  0x00000000004ae3e9 in run_builtin (p=p@entry=0x98e058 <commands+216>, argc=argc@entry=3, argv=0x7fffffffd670) at perf.c:304
+  #8  0x000000000042eded in handle_internal_command (argv=<optimized out>, argc=<optimized out>) at perf.c:356
+  #9  run_argv (argcp=<optimized out>, argv=<optimized out>) at perf.c:400
+  #10 main (argc=3, argv=<optimized out>) at perf.c:522
+  (gdb)
 
-To understand a bit more about why this crash was fairly uncommon (I
-saw it only once in a few hundred reboots), you can see that much of
-the time bfq_exit_icq_fbqq() fully frees the bfqq and thus it can't
-access the ->bic anymore.  The only case it doesn't is if
-bfq_put_queue() sees a reference still held.
+After the patch the SEGSEGV is gone.
 
-However, even in the case when bfqq isn't freed, the crash is still
-rare.  Why?  I tracked what happened to the "bic" after the exit
-routine.  It doesn't get freed right away.  Rather,
-put_io_context_active() eventually called put_io_context() which
-queued up freeing on a workqueue.  The freeing then actually happened
-later than that through call_rcu().  Despite all these delays, some
-extra debugging showed that all the hoops could be jumped through in
-time and the memory could be freed causing the original crash.  Phew!
-
-To make a long story short, assuming it truly is illegal to access an
-icq after the "exit_icq" callback is finished, this patch is needed.
-
-Cc: stable@vger.kernel.org
-Reviewed-by: Paolo Valente <paolo.valente@unimore.it>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: David Carrillo Cisneros <davidca@fb.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: kernel-team@fb.com
+Cc: stable@vger.kernel.org # v5.1+
+Fixes: 606f972b1361 ("perf bpf: Save bpf_prog_info information as headers to perf.data")
+Link: http://lkml.kernel.org/r/20190620010453.4118689-1-songliubraving@fb.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/bfq-iosched.c |    1 +
+ tools/perf/util/header.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -4584,6 +4584,7 @@ static void bfq_exit_icq_bfqq(struct bfq
- 		unsigned long flags;
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -3549,6 +3549,7 @@ int perf_event__synthesize_features(stru
+ 		return -ENOMEM;
  
- 		spin_lock_irqsave(&bfqd->lock, flags);
-+		bfqq->bic = NULL;
- 		bfq_exit_bfqq(bfqd, bfqq);
- 		bic_set_bfqq(bic, NULL, is_sync);
- 		spin_unlock_irqrestore(&bfqd->lock, flags);
+ 	ff.size = sz - sz_hdr;
++	ff.ph = &session->header;
+ 
+ 	for_each_set_bit(feat, header->adds_features, HEADER_FEAT_BITS) {
+ 		if (!feat_ops[feat].synthesize) {
 
 
