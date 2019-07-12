@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6262B66D99
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB4E66DC8
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727234AbfGLMbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:31:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48764 "EHLO mail.kernel.org"
+        id S1729215AbfGLMdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:33:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727603AbfGLMbq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:31:46 -0400
+        id S1729614AbfGLMd2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:33:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 889E121019;
-        Fri, 12 Jul 2019 12:31:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E09EE208E4;
+        Fri, 12 Jul 2019 12:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934705;
-        bh=2UB7NHElc5e3ubkFiiIstTcEaan7t9U1hELRnX40JlE=;
+        s=default; t=1562934807;
+        bh=BVaPzCcCRxog7PRN36yt9WFA3YWErUvntYn/2BoLlTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=knSdtgxzX3aKbBqrj50xtSNVr88g7BljCPn/5k3uPPexpMJwPxx5NU+nGIPXb6wjB
-         krQvPD8B/jnqjalmeIu+2reYeWErDsvlvP5/8KdNtLdQY0YJYw64702R/UHXZwbU9k
-         pp9/ayzWeQcWnNrDUoCSX/2vcfWcEUZC3rIyuo4U=
+        b=A3ct9BjszYQUmjrUSl8Z6yqH6Fpa5YEXRvWIqDQF3GH2scNkvA3gfXTfhoxdBfFOe
+         9LJE5BOUU7Kt0dx5iUnUa76qntvLvngceu7nL39w6zzlsvJblyiBsrT4UDnULilQ5V
+         iFUsIeNlpwQLD1j8rjGu+neOQhodgKYaag8/A4ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+182ce46596c3f2e1eb24@syzkaller.appspotmail.com,
-        Todd Kjos <tkjos@google.com>
-Subject: [PATCH 5.1 125/138] binder: fix memory leak in error path
+        stable@vger.kernel.org, Ajay Singh <ajay.kathat@microchip.com>
+Subject: [PATCH 5.2 36/61] staging: wilc1000: fix error path cleanup in wilc_wlan_initialize()
 Date:   Fri, 12 Jul 2019 14:19:49 +0200
-Message-Id: <20190712121633.533436037@linuxfoundation.org>
+Message-Id: <20190712121622.540802831@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@android.com>
+From: Ajay Singh <ajay.kathat@microchip.com>
 
-commit 1909a671dbc3606685b1daf8b22a16f65ea7edda upstream.
+commit 6419f818ababebc1116fb2d0e220bd4fe835d0e3 upstream.
 
-syzkallar found a 32-byte memory leak in a rarely executed error
-case. The transaction complete work item was not freed if put_user()
-failed when writing the BR_TRANSACTION_COMPLETE to the user command
-buffer. Fixed by freeing it before put_user() is called.
+For the error path in wilc_wlan_initialize(), the resources are not
+cleanup in the correct order. Reverted the previous changes and use the
+correct order to free during error condition.
 
-Reported-by: syzbot+182ce46596c3f2e1eb24@syzkaller.appspotmail.com
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Cc: stable <stable@vger.kernel.org>
+Fixes: b46d68825c2d ("staging: wilc1000: remove COMPLEMENT_BOOT")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ajay Singh <ajay.kathat@microchip.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/android/binder.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/wilc1000/wilc_netdev.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -4267,6 +4267,8 @@ retry:
- 		case BINDER_WORK_TRANSACTION_COMPLETE: {
- 			binder_inner_proc_unlock(proc);
- 			cmd = BR_TRANSACTION_COMPLETE;
-+			kfree(w);
-+			binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
- 			if (put_user(cmd, (uint32_t __user *)ptr))
- 				return -EFAULT;
- 			ptr += sizeof(uint32_t);
-@@ -4275,8 +4277,6 @@ retry:
- 			binder_debug(BINDER_DEBUG_TRANSACTION_COMPLETE,
- 				     "%d:%d BR_TRANSACTION_COMPLETE\n",
- 				     proc->pid, thread->pid);
--			kfree(w);
--			binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
- 		} break;
- 		case BINDER_WORK_NODE: {
- 			struct binder_node *node = container_of(w, struct binder_node, work);
+--- a/drivers/staging/wilc1000/wilc_netdev.c
++++ b/drivers/staging/wilc1000/wilc_netdev.c
+@@ -530,17 +530,17 @@ static int wilc_wlan_initialize(struct n
+ 			goto fail_locks;
+ 		}
+ 
+-		if (wl->gpio_irq && init_irq(dev)) {
+-			ret = -EIO;
+-			goto fail_locks;
+-		}
+-
+ 		ret = wlan_initialize_threads(dev);
+ 		if (ret < 0) {
+ 			ret = -EIO;
+ 			goto fail_wilc_wlan;
+ 		}
+ 
++		if (wl->gpio_irq && init_irq(dev)) {
++			ret = -EIO;
++			goto fail_threads;
++		}
++
+ 		if (!wl->dev_irq_num &&
+ 		    wl->hif_func->enable_interrupt &&
+ 		    wl->hif_func->enable_interrupt(wl)) {
+@@ -596,7 +596,7 @@ fail_irq_enable:
+ fail_irq_init:
+ 		if (wl->dev_irq_num)
+ 			deinit_irq(dev);
+-
++fail_threads:
+ 		wlan_deinitialize_threads(dev);
+ fail_wilc_wlan:
+ 		wilc_wlan_cleanup(dev);
 
 
