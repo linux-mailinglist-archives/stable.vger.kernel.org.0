@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76D0C66CE2
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D582966D44
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728047AbfGLMYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:24:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60596 "EHLO mail.kernel.org"
+        id S1728179AbfGLM2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:28:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728039AbfGLMYJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:24:09 -0400
+        id S1728280AbfGLM2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:28:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A632B2084B;
-        Fri, 12 Jul 2019 12:24:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B38B208E4;
+        Fri, 12 Jul 2019 12:28:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934249;
-        bh=RYgNIcgVq4MvcSezTMgFH6yH/BO/iiWP7tZ6Y9Kxu5E=;
+        s=default; t=1562934481;
+        bh=OEUtpqy8TaVlC4ATZK6ZIDpbuemkRobvqkRMAEHHcho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u9RwUGNSBHgYu7MG6pZZ2FoUiP9bqd8zS94OFamcj8lh3D0bzPTeVbiAVpMq/tbcL
-         i9qi5pz87BbFsOeWFP58AowlwdqrlDNuOiupUybBvalm/z3JEoDE8W+4mBQ2j1/6d0
-         OYwbJVqnMAkQMwU4BvhQ2VR3V9dk64yEn/EztOnM=
+        b=aKyvu595hlt6IDeSvhvhkedumA75T7ep6SyWFJHq73ckcyxFdA1XQhLY9zW0yCIX1
+         p5+z2PnIPint6SUvD951OCNOWi5xVPOAZqK5aWHjpEWbXlbOcnSfL9B/Rnz+0BB8Og
+         b3xIw7k8wMKHJMDJ+cavjH/9CP0Ar6jR6EIUB6eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Sean Paul <seanpaul@chromium.org>,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 48/91] drm: return -EFAULT if copy_to_user() fails
+Subject: [PATCH 5.1 067/138] bpf, x64: fix stack layout of JITed bpf code
 Date:   Fri, 12 Jul 2019 14:18:51 +0200
-Message-Id: <20190712121624.199415799@linuxfoundation.org>
+Message-Id: <20190712121631.241175596@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
-References: <20190712121621.422224300@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +43,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 74b67efa8d7b4f90137f0ab9a80dd319da050350 ]
+[ Upstream commit fe8d9571dc50232b569242fac7ea6332a654f186 ]
 
-The copy_from_user() function returns the number of bytes remaining
-to be copied but we want to return a negative error code.  Otherwise
-the callers treat it as a successful copy.
+Since commit 177366bf7ceb the %rbp stopped pointing to %rbp of the
+previous stack frame. That broke frame pointer based stack unwinding.
+This commit is a partial revert of it.
+Note that the location of tail_call_cnt is fixed, since the verifier
+enforces MAX_BPF_STACK stack size for programs with tail calls.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190618131843.GA29463@mwanda
+Fixes: 177366bf7ceb ("bpf: change x86 JITed program stack layout")
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_bufs.c  | 5 ++++-
- drivers/gpu/drm/drm_ioc32.c | 5 ++++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ arch/x86/net/bpf_jit_comp.c | 74 +++++++++++--------------------------
+ 1 file changed, 21 insertions(+), 53 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_bufs.c b/drivers/gpu/drm/drm_bufs.c
-index e2f775d1c112..21bec4548092 100644
---- a/drivers/gpu/drm/drm_bufs.c
-+++ b/drivers/gpu/drm/drm_bufs.c
-@@ -1321,7 +1321,10 @@ static int copy_one_buf(void *data, int count, struct drm_buf_entry *from)
- 				 .size = from->buf_size,
- 				 .low_mark = from->low_mark,
- 				 .high_mark = from->high_mark};
--	return copy_to_user(to, &v, offsetof(struct drm_buf_desc, flags));
-+
-+	if (copy_to_user(to, &v, offsetof(struct drm_buf_desc, flags)))
-+		return -EFAULT;
-+	return 0;
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index afabf597c855..d88bc0935886 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -190,9 +190,7 @@ struct jit_context {
+ #define BPF_MAX_INSN_SIZE	128
+ #define BPF_INSN_SAFETY		64
+ 
+-#define AUX_STACK_SPACE		40 /* Space for RBX, R13, R14, R15, tailcnt */
+-
+-#define PROLOGUE_SIZE		37
++#define PROLOGUE_SIZE		20
+ 
+ /*
+  * Emit x86-64 prologue code for BPF program and check its size.
+@@ -203,44 +201,19 @@ static void emit_prologue(u8 **pprog, u32 stack_depth, bool ebpf_from_cbpf)
+ 	u8 *prog = *pprog;
+ 	int cnt = 0;
+ 
+-	/* push rbp */
+-	EMIT1(0x55);
+-
+-	/* mov rbp,rsp */
+-	EMIT3(0x48, 0x89, 0xE5);
+-
+-	/* sub rsp, rounded_stack_depth + AUX_STACK_SPACE */
+-	EMIT3_off32(0x48, 0x81, 0xEC,
+-		    round_up(stack_depth, 8) + AUX_STACK_SPACE);
+-
+-	/* sub rbp, AUX_STACK_SPACE */
+-	EMIT4(0x48, 0x83, 0xED, AUX_STACK_SPACE);
+-
+-	/* mov qword ptr [rbp+0],rbx */
+-	EMIT4(0x48, 0x89, 0x5D, 0);
+-	/* mov qword ptr [rbp+8],r13 */
+-	EMIT4(0x4C, 0x89, 0x6D, 8);
+-	/* mov qword ptr [rbp+16],r14 */
+-	EMIT4(0x4C, 0x89, 0x75, 16);
+-	/* mov qword ptr [rbp+24],r15 */
+-	EMIT4(0x4C, 0x89, 0x7D, 24);
+-
++	EMIT1(0x55);             /* push rbp */
++	EMIT3(0x48, 0x89, 0xE5); /* mov rbp, rsp */
++	/* sub rsp, rounded_stack_depth */
++	EMIT3_off32(0x48, 0x81, 0xEC, round_up(stack_depth, 8));
++	EMIT1(0x53);             /* push rbx */
++	EMIT2(0x41, 0x55);       /* push r13 */
++	EMIT2(0x41, 0x56);       /* push r14 */
++	EMIT2(0x41, 0x57);       /* push r15 */
+ 	if (!ebpf_from_cbpf) {
+-		/*
+-		 * Clear the tail call counter (tail_call_cnt): for eBPF tail
+-		 * calls we need to reset the counter to 0. It's done in two
+-		 * instructions, resetting RAX register to 0, and moving it
+-		 * to the counter location.
+-		 */
+-
+-		/* xor eax, eax */
+-		EMIT2(0x31, 0xc0);
+-		/* mov qword ptr [rbp+32], rax */
+-		EMIT4(0x48, 0x89, 0x45, 32);
+-
++		/* zero init tail_call_cnt */
++		EMIT2(0x6a, 0x00);
+ 		BUILD_BUG_ON(cnt != PROLOGUE_SIZE);
+ 	}
+-
+ 	*pprog = prog;
  }
  
- int drm_legacy_infobufs(struct drm_device *dev, void *data,
-diff --git a/drivers/gpu/drm/drm_ioc32.c b/drivers/gpu/drm/drm_ioc32.c
-index 67b1fca39aa6..138680b37c70 100644
---- a/drivers/gpu/drm/drm_ioc32.c
-+++ b/drivers/gpu/drm/drm_ioc32.c
-@@ -372,7 +372,10 @@ static int copy_one_buf32(void *data, int count, struct drm_buf_entry *from)
- 			      .size = from->buf_size,
- 			      .low_mark = from->low_mark,
- 			      .high_mark = from->high_mark};
--	return copy_to_user(to + count, &v, offsetof(drm_buf_desc32_t, flags));
-+
-+	if (copy_to_user(to + count, &v, offsetof(drm_buf_desc32_t, flags)))
-+		return -EFAULT;
-+	return 0;
- }
+@@ -285,13 +258,13 @@ static void emit_bpf_tail_call(u8 **pprog)
+ 	 * if (tail_call_cnt > MAX_TAIL_CALL_CNT)
+ 	 *	goto out;
+ 	 */
+-	EMIT2_off32(0x8B, 0x85, 36);              /* mov eax, dword ptr [rbp + 36] */
++	EMIT2_off32(0x8B, 0x85, -36 - MAX_BPF_STACK); /* mov eax, dword ptr [rbp - 548] */
+ 	EMIT3(0x83, 0xF8, MAX_TAIL_CALL_CNT);     /* cmp eax, MAX_TAIL_CALL_CNT */
+ #define OFFSET2 (30 + RETPOLINE_RAX_BPF_JIT_SIZE)
+ 	EMIT2(X86_JA, OFFSET2);                   /* ja out */
+ 	label2 = cnt;
+ 	EMIT3(0x83, 0xC0, 0x01);                  /* add eax, 1 */
+-	EMIT2_off32(0x89, 0x85, 36);              /* mov dword ptr [rbp + 36], eax */
++	EMIT2_off32(0x89, 0x85, -36 - MAX_BPF_STACK); /* mov dword ptr [rbp -548], eax */
  
- static int drm_legacy_infobufs32(struct drm_device *dev, void *data,
+ 	/* prog = array->ptrs[index]; */
+ 	EMIT4_off32(0x48, 0x8B, 0x84, 0xD6,       /* mov rax, [rsi + rdx * 8 + offsetof(...)] */
+@@ -1040,19 +1013,14 @@ xadd:			if (is_imm8(insn->off))
+ 			seen_exit = true;
+ 			/* Update cleanup_addr */
+ 			ctx->cleanup_addr = proglen;
+-			/* mov rbx, qword ptr [rbp+0] */
+-			EMIT4(0x48, 0x8B, 0x5D, 0);
+-			/* mov r13, qword ptr [rbp+8] */
+-			EMIT4(0x4C, 0x8B, 0x6D, 8);
+-			/* mov r14, qword ptr [rbp+16] */
+-			EMIT4(0x4C, 0x8B, 0x75, 16);
+-			/* mov r15, qword ptr [rbp+24] */
+-			EMIT4(0x4C, 0x8B, 0x7D, 24);
+-
+-			/* add rbp, AUX_STACK_SPACE */
+-			EMIT4(0x48, 0x83, 0xC5, AUX_STACK_SPACE);
+-			EMIT1(0xC9); /* leave */
+-			EMIT1(0xC3); /* ret */
++			if (!bpf_prog_was_classic(bpf_prog))
++				EMIT1(0x5B); /* get rid of tail_call_cnt */
++			EMIT2(0x41, 0x5F);   /* pop r15 */
++			EMIT2(0x41, 0x5E);   /* pop r14 */
++			EMIT2(0x41, 0x5D);   /* pop r13 */
++			EMIT1(0x5B);         /* pop rbx */
++			EMIT1(0xC9);         /* leave */
++			EMIT1(0xC3);         /* ret */
+ 			break;
+ 
+ 		default:
 -- 
 2.20.1
 
