@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 992A766EEF
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:42:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3136066EDC
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:41:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727878AbfGLMXP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:23:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58672 "EHLO mail.kernel.org"
+        id S1727611AbfGLMXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:23:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727877AbfGLMXO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:23:14 -0400
+        id S1727920AbfGLMXY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:23:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21B882084B;
-        Fri, 12 Jul 2019 12:23:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB478208E4;
+        Fri, 12 Jul 2019 12:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934193;
-        bh=jz4QdF75ZQmZg10jBk1fPZWL3pu6t/6Ae9I3qsqqKOo=;
+        s=default; t=1562934203;
+        bh=cCoMT3FGYctXz1GiLb1i/DV6yYoQc/Dw1NVZ/Jd0KLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6INyY1DsJqFxLyr2JowQv1MmEFa+sJMHR8DUj3BEm5QYa+QANO+GmMIOc3YyC+9z
-         KB429YXsETSjo2VDiVswFDnsJCR4O7U2+2Ca7m1bmvHwQWNKdYGItaCAg44CZpC/WU
-         yPic920XVuZVL8zFmziP0rgPt/IhubCWm7ycfL1k=
+        b=fTVk4TSwUg09ZS8rYhTqbcXPMrZFf14vct2rm8aDbwKTlCWOs26b1ROvwARj2VoUJ
+         O+EB8infaerK6AyL1ZBHTqItZ9itQfKKTRTVS0n1qqCYsApdiLJ30RR/x6zFVtyFRx
+         bXiA1pPBx6aLN0oAvr5VCnj/f2//8Izwk4b3Et88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Kees Cook <keescook@chromium.org>,
-        Florian Weimer <fweimer@redhat.com>,
-        Jann Horn <jannh@google.com>, Borislav Petkov <bp@alien8.de>,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 4.19 66/91] Documentation/admin: Remove the vsyscall=native documentation
-Date:   Fri, 12 Jul 2019 14:19:09 +0200
-Message-Id: <20190712121625.381583411@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andreas Fritiofson <andreas.fritiofson@unjo.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 69/91] USB: serial: ftdi_sio: add ID for isodebug v1
+Date:   Fri, 12 Jul 2019 14:19:12 +0200
+Message-Id: <20190712121625.539042925@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -48,43 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Andreas Fritiofson <andreas.fritiofson@unjo.com>
 
-commit d974ffcfb7447db5f29a4b662a3eaf99a4e1109e upstream.
+commit f8377eff548170e8ea8022c067a1fbdf9e1c46a8 upstream.
 
-The vsyscall=native feature is gone -- remove the docs.
+This adds the vid:pid of the isodebug v1 isolated JTAG/SWD+UART. Only the
+second channel is available for use as a serial port.
 
-Fixes: 076ca272a14c ("x86/vsyscall/64: Drop "native" vsyscalls")
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Kees Cook <keescook@chromium.org>
-Cc: Florian Weimer <fweimer@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: stable@vger.kernel.org
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/d77c7105eb4c57c1a95a95b6a5b8ba194a18e764.1561610354.git.luto@kernel.org
+Signed-off-by: Andreas Fritiofson <andreas.fritiofson@unjo.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/admin-guide/kernel-parameters.txt |    6 ------
- 1 file changed, 6 deletions(-)
+ drivers/usb/serial/ftdi_sio.c     |    1 +
+ drivers/usb/serial/ftdi_sio_ids.h |    6 ++++++
+ 2 files changed, 7 insertions(+)
 
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -4976,12 +4976,6 @@
- 			emulate     [default] Vsyscalls turn into traps and are
- 			            emulated reasonably safely.
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1019,6 +1019,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(AIRBUS_DS_VID, AIRBUS_DS_P8GR) },
+ 	/* EZPrototypes devices */
+ 	{ USB_DEVICE(EZPROTOTYPES_VID, HJELMSLUND_USB485_ISO_PID) },
++	{ USB_DEVICE_INTERFACE_NUMBER(UNJO_VID, UNJO_ISODEBUG_V1_PID, 1) },
+ 	{ }					/* Terminating entry */
+ };
  
--			native      Vsyscalls are native syscall instructions.
--			            This is a little bit faster than trapping
--			            and makes a few dynamic recompilers work
--			            better than they would in emulation mode.
--			            It also makes exploits much easier to write.
--
- 			none        Vsyscalls don't work at all.  This makes
- 			            them quite hard to use for exploits but
- 			            might break your system.
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1543,3 +1543,9 @@
+ #define CHETCO_SEASMART_DISPLAY_PID	0xA5AD /* SeaSmart NMEA2000 Display */
+ #define CHETCO_SEASMART_LITE_PID	0xA5AE /* SeaSmart Lite USB Adapter */
+ #define CHETCO_SEASMART_ANALOG_PID	0xA5AF /* SeaSmart Analog Adapter */
++
++/*
++ * Unjo AB
++ */
++#define UNJO_VID			0x22B7
++#define UNJO_ISODEBUG_V1_PID		0x150D
 
 
