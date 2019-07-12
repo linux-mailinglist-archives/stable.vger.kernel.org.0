@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BF8C66637
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:29:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1999C66638
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:30:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726078AbfGLF34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 01:29:56 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:41578 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725856AbfGLF34 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:29:56 -0400
-Received: by mail-pl1-f193.google.com with SMTP id m9so4180534pls.8
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:29:56 -0700 (PDT)
+        id S1726015AbfGLF37 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 01:29:59 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:39591 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725856AbfGLF37 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:29:59 -0400
+Received: by mail-pl1-f195.google.com with SMTP id b7so4205763pls.6
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:29:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=tUK8ETga6k61l9Q+/z8rY6SIV6XG+DcjRuCd/1NWAIQ=;
-        b=vcn+efFxVGF43UW996/RLB57/10XNju0qvaz5vdpRO72mRWLognFPo8qNtfpDPW9wZ
-         +DUC8+warFb6QT7+oyWClKHjq1x7Wdfo/aWYabcKjOvy9OJC5YSJLHk+Llkcrc7PWLNw
-         hEObSZdPSOj+qbesZy64H0GPnYB6dgzZRM2wUTE4OIVBekAlkk0plooX5qMEs3+kRGNP
-         9WoLlzDe3UrNFGBGNAdvAzewknxhut+DtRloIv+azJdI5Tv09g+h7znmIT8vJW20Vp58
-         lJCGPzQBWY/ou0OEARyGbcmhlPcwvASHjZQ8uArpijAbiTbcBAYX19zR0HC7G4vD6pmU
-         s8FA==
+        bh=Cnuqc1YlBQBZ4RWPKzaqy9DfMXgSoNZrvvTdeydR7XY=;
+        b=yfJJZ5buvkmMxNQR8vV5XtYVAp78VJYpxY9LCA4BC0JX7qdiJGXiskkfSUdBKHgQNq
+         vXk/0Y2e38/I+NRmjwK9hTspNKbFoLzWqjbMZfohY9NRYCWONWD5kiYrpywmqmgOQYDv
+         1LX4/1UXNBHentpM174OM7D9rwYA9/poH1MBnQYP/wnomcRqcRWidXhXy3ycxIWj5zBC
+         ujv/YYcgk+KwRO9p8TAVkUAvENH7TxlO0GeXwqJvw3P5TgpHNfEPrPPiLsIbu8vIkDSH
+         j4YmH97tDcSmGb5iF2zvItrav5N2ypf9WfYTVoSGSNGoJWjxpIQBXdurDPDcEJ5XALFT
+         h9EA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=tUK8ETga6k61l9Q+/z8rY6SIV6XG+DcjRuCd/1NWAIQ=;
-        b=UpPa7aPiLGoy3FN1kwNpZvfYqLzpVDTrUKHzU3dL1iBGqalZQdb9pkVleqfQ9nFSDj
-         YJDekWh6jsVd93PbgWnNtJToFuYk0kFMEQGjCYQt3HBlj++VKGpE5KkSj4icIxxLBMAz
-         SuDsDd4QE8Dn3olAv+HBpAqmA/MrRWM0KUChLBwEu9YrbIeq4ZV3DBFswvvLVjgwdnpT
-         NltvJYpq0djB/1s0HJ+mzOVCSDhSjgaBOSSWm5ywfgQodfetnuHHFSDf4RWf7qXfm6yB
-         CGPh8fymtBOqz1EK5uHYWXRv80E2ASNHoxmE4urfGig1Kv51vCImMR8G/fhINbsnIqEs
-         ExGA==
-X-Gm-Message-State: APjAAAWBUvPEyhlxR1Gexj8rMWkvHHyXsFyPd2RLxd3nHlk97lCeS/NU
-        o47MMRrN2jTmu2V3Iebeb4CNbN/uDCQ=
-X-Google-Smtp-Source: APXvYqyFy4JQLOEnN7RL+n089tjGGTAVoGRatUOhx6aRRb96/JSuBrLDS9AjVFHFT73LqhEQLwtr7Q==
-X-Received: by 2002:a17:902:aa95:: with SMTP id d21mr8772502plr.185.1562909395725;
-        Thu, 11 Jul 2019 22:29:55 -0700 (PDT)
+        bh=Cnuqc1YlBQBZ4RWPKzaqy9DfMXgSoNZrvvTdeydR7XY=;
+        b=t06VObL9BCwLzuMaUyFNIVLkej4oG12mmQqeME9AEtj0kSHtSyRD5znWaAsOM/5xT4
+         FKfkCwtwqdUepAsFfzxNZKbr/0t4IsDpSpL8nfzd10uuanzE2FY2Dty0MiXT+EC1/UwZ
+         +hCwus/NGlMm36yn+x8gS7NYIQ0+92WZzlAH410z8dCQpqGHcr0/jn90DXn15BPqXt2Y
+         Zkm3PSm3QhiR5TTk9qZ8UN8a7sg0gYswzGJNtXdQD6A7ETYj44wqTLLYF3pTzGSTlW1e
+         vcN/6kjm0RsqkPbDCfR+8EV/oQNfsdBAThTtBQHMM4K2F+zIAMb29O0EwTa2XDDMc61d
+         a3kg==
+X-Gm-Message-State: APjAAAUkFCMDKsVT9E3JTu2q5oeyQQQ+Z/ZwYqhXnTQbS1703iaFhnTO
+        XqaTPvE2Q9m2Y9kCyHD8/UHFQJUbI7k=
+X-Google-Smtp-Source: APXvYqwG8zVFxbIjXDZcH9hRfAsIwwLPqouNSchzDdRL3GGGnQYd9Wgl4RfzdqNu4PpfU5dU7rhlxw==
+X-Received: by 2002:a17:902:145:: with SMTP id 63mr9439855plb.55.1562909398590;
+        Thu, 11 Jul 2019 22:29:58 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id f6sm7757419pga.50.2019.07.11.22.29.54
+        by smtp.gmail.com with ESMTPSA id 81sm2308137pfa.86.2019.07.11.22.29.57
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 22:29:55 -0700 (PDT)
+        Thu, 11 Jul 2019 22:29:58 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 V2 21/43] drivers/firmware: Expose psci_get_version through psci_ops structure
-Date:   Fri, 12 Jul 2019 10:58:09 +0530
-Message-Id: <c34816cb2f4ef72596cb59b28f0aa06d79cfb548.1562908075.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 V2 22/43] arm64: Factor out TTBR0_EL1 post-update workaround into a specific asm macro
+Date:   Fri, 12 Jul 2019 10:58:10 +0530
+Message-Id: <d7674d901fb2fd7fc29fe94a6fac6230b4ad84f9.1562908075.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
 References: <cover.1562908074.git.viresh.kumar@linaro.org>
@@ -68,50 +68,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-commit d68e3ba5303f7e1099f51fdcd155f5263da8569b upstream.
+commit f33bcf03e6079668da6bf4eec4a7dcf9289131d0 upstream.
 
-Entry into recent versions of ARM Trusted Firmware will invalidate the CPU
-branch predictor state in order to protect against aliasing attacks.
+This patch takes the errata workaround code out of cpu_do_switch_mm into
+a dedicated post_ttbr0_update_workaround macro which will be reused in a
+subsequent patch.
 
-This patch exposes the PSCI "VERSION" function via psci_ops, so that it
-can be invoked outside of the PSCI driver where necessary.
-
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Kees Cook <keescook@chromium.org>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[ v4.4: Included cpufeature.h and adapted to use alternative_if_not ]
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- drivers/firmware/psci.c | 2 ++
- include/linux/psci.h    | 1 +
- 2 files changed, 3 insertions(+)
+ arch/arm64/include/asm/assembler.h | 18 ++++++++++++++++++
+ arch/arm64/mm/proc.S               | 11 +----------
+ 2 files changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/firmware/psci.c b/drivers/firmware/psci.c
-index ae70d2485ca1..290f8982e7b3 100644
---- a/drivers/firmware/psci.c
-+++ b/drivers/firmware/psci.c
-@@ -305,6 +305,8 @@ static void __init psci_init_migrate(void)
- static void __init psci_0_2_set_functions(void)
- {
- 	pr_info("Using standard PSCI v0.2 function IDs\n");
-+	psci_ops.get_version = psci_get_version;
-+
- 	psci_function_id[PSCI_FN_CPU_SUSPEND] =
- 					PSCI_FN_NATIVE(0_2, CPU_SUSPEND);
- 	psci_ops.cpu_suspend = psci_cpu_suspend;
-diff --git a/include/linux/psci.h b/include/linux/psci.h
-index 12c4865457ad..04b4d92c7791 100644
---- a/include/linux/psci.h
-+++ b/include/linux/psci.h
-@@ -25,6 +25,7 @@ bool psci_power_state_loses_context(u32 state);
- bool psci_power_state_is_valid(u32 state);
+diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
+index 2b30363a3a89..8ab46508e836 100644
+--- a/arch/arm64/include/asm/assembler.h
++++ b/arch/arm64/include/asm/assembler.h
+@@ -23,6 +23,7 @@
+ #ifndef __ASM_ASSEMBLER_H
+ #define __ASM_ASSEMBLER_H
  
- struct psci_operations {
-+	u32 (*get_version)(void);
- 	int (*cpu_suspend)(u32 state, unsigned long entry_point);
- 	int (*cpu_off)(u32 state);
- 	int (*cpu_on)(unsigned long cpuid, unsigned long entry_point);
++#include <asm/cpufeature.h>
+ #include <asm/cputype.h>
+ #include <asm/ptrace.h>
+ #include <asm/thread_info.h>
+@@ -282,4 +283,21 @@ lr	.req	x30		// link register
+ .Ldone\@:
+ 	.endm
+ 
++/*
++ * Errata workaround post TTBR0_EL1 update.
++ */
++	.macro	post_ttbr0_update_workaround
++#ifdef CONFIG_CAVIUM_ERRATUM_27456
++alternative_if_not ARM64_WORKAROUND_CAVIUM_27456
++       ret
++       nop
++       nop
++       nop
++alternative_else
++       ic      iallu
++       dsb     nsh
++       isb
++#endif
++	.endm
++
+ #endif	/* __ASM_ASSEMBLER_H */
+diff --git a/arch/arm64/mm/proc.S b/arch/arm64/mm/proc.S
+index f09636738007..4eb1084e203a 100644
+--- a/arch/arm64/mm/proc.S
++++ b/arch/arm64/mm/proc.S
+@@ -139,17 +139,8 @@ ENTRY(cpu_do_switch_mm)
+ 	bfi	x0, x1, #48, #16		// set the ASID
+ 	msr	ttbr0_el1, x0			// set TTBR0
+ 	isb
+-alternative_if_not ARM64_WORKAROUND_CAVIUM_27456
++	post_ttbr0_update_workaround
+ 	ret
+-	nop
+-	nop
+-	nop
+-alternative_else
+-	ic	iallu
+-	dsb	nsh
+-	isb
+-	ret
+-alternative_endif
+ ENDPROC(cpu_do_switch_mm)
+ 
+ 	.section ".text.init", #alloc, #execinstr
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
