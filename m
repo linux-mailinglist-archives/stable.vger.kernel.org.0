@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6161A66EC8
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24CB066EC1
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728067AbfGLMYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:24:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60836 "EHLO mail.kernel.org"
+        id S1728081AbfGLMYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:24:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727572AbfGLMYQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:24:16 -0400
+        id S1728078AbfGLMYT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:24:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3821208E4;
-        Fri, 12 Jul 2019 12:24:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C4332084B;
+        Fri, 12 Jul 2019 12:24:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934255;
-        bh=/Mz1oNXA8X6erDLO019vWFgA0YET6BevJNaheOkykF4=;
+        s=default; t=1562934258;
+        bh=UoV8L7qo+XMutDisrOqQ2Nl63vl8UkSaqOPSlJTubfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXUvIIsDTykc3FuhAgLvVqSgs3sm6Jb+KHpxLcHGxMhVuP4US87ScCAe94Fi7HALz
-         gnbZs+iaeGLk1HM8xbgNNAmMpm+lXOSSIbLg49psCytVANUaY3Wcn87PPnCBVqjGgd
-         frmYQXoeMq064Ly+giIfPX3LuOdCm4lUA072xwqg=
+        b=zVruzWb3RxfxK1fajB/1wrxsVX1hsskuWpd0yNWrUs0egQjavgth6UD84vgygjHog
+         Dw+sEXEBqSk0HDQXwrcw9yRAoNTNEgbIt/4bHTdFKEPrWDRSwXwldXVbHBJTyr3tDp
+         JnFggrObp7SFCgO+8uBXC8Io5DxaPCk8NRN99usA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org,
-        Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH 4.19 85/91] MIPS: Remove superfluous check for __linux__
-Date:   Fri, 12 Jul 2019 14:19:28 +0200
-Message-Id: <20190712121626.299919825@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>
+Subject: [PATCH 4.19 86/91] staging: fsl-dpaa2/ethsw: fix memory leak of switchdev_work
+Date:   Fri, 12 Jul 2019 14:19:29 +0200
+Message-Id: <20190712121626.341957714@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
 References: <20190712121621.422224300@linuxfoundation.org>
@@ -46,52 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 1287533d3d95d5ad8b02773733044500b1be06bc upstream.
+commit 5555ebbbac822b4fa28db2be15aaf98b3c21af26 upstream.
 
-When building BPF code using "clang -target bpf -c", clang does not
-define __linux__.
+In the default event case switchdev_work is being leaked because
+nothing is queued for work. Fix this by kfree'ing switchdev_work
+before returning NOTIFY_DONE.
 
-To build BPF IR decoders the include linux/lirc.h is needed which
-includes linux/types.h. Currently this workaround is needed:
-
-https://git.linuxtv.org/v4l-utils.git/commit/?id=dd3ff81f58c4e1e6f33765dc61ad33c48ae6bb07
-
-This check might otherwise be useful to stop users from using a non-linux
-compiler, but if you're doing that you are going to have a lot more
-trouble anyway.
-
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Patchwork: https://patchwork.linux-mips.org/patch/21149/
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@linux-mips.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Hauke Mehrtens <hauke@hauke-m.de>
+Addresses-Coverity: ("Resource leak")
+Fixes: 44baaa43d7cc ("staging: fsl-dpaa2/ethsw: Add Freescale DPAA2 Ethernet Switch driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/include/uapi/asm/sgidefs.h |    8 --------
- 1 file changed, 8 deletions(-)
+ drivers/staging/fsl-dpaa2/ethsw/ethsw.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/mips/include/uapi/asm/sgidefs.h
-+++ b/arch/mips/include/uapi/asm/sgidefs.h
-@@ -12,14 +12,6 @@
- #define __ASM_SGIDEFS_H
+--- a/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
++++ b/drivers/staging/fsl-dpaa2/ethsw/ethsw.c
+@@ -1073,6 +1073,7 @@ static int port_switchdev_event(struct n
+ 		dev_hold(dev);
+ 		break;
+ 	default:
++		kfree(switchdev_work);
+ 		return NOTIFY_DONE;
+ 	}
  
- /*
-- * Using a Linux compiler for building Linux seems logic but not to
-- * everybody.
-- */
--#ifndef __linux__
--#error Use a Linux compiler or give up.
--#endif
--
--/*
-  * Definitions for the ISA levels
-  *
-  * With the introduction of MIPS32 / MIPS64 instruction sets definitions
 
 
