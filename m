@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0938C66646
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:30:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E78046664D
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725906AbfGLFad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 01:30:33 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:36040 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbfGLFad (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:30:33 -0400
-Received: by mail-pl1-f194.google.com with SMTP id k8so4217231plt.3
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:30:33 -0700 (PDT)
+        id S1726095AbfGLFag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 01:30:36 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:39495 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725791AbfGLFag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:30:36 -0400
+Received: by mail-pg1-f195.google.com with SMTP id u17so4003697pgi.6
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:30:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=yC2M+WqtpDn8WEqkn0+0Dw3Z53HTrfg3c6ZZe0WXdnU=;
-        b=hnTNOY9kfoHlNzvbAy95ge3Ymihro4W2L6qYOqphNV1HnN7qGJ8qbrWzIREcbe7eC7
-         dwHl6edLX+WiNWZAXF38q8xg0U7T7uE7/P6ozeliKWSPEjiuCTV6Wk3oKQbi6waARq4J
-         f5LO7B6/f06ibLBVIHsz9xG+Cbrj/ivkFjNQBS2Wt84VdSjGMXV+yXrw9CTrxrqO69zb
-         VwObKgmTss4IP9RAKt+VqlZEWMdUnuT/4nTcDJxrktsZr3BpfoXpEQYR20a+fDL8fF41
-         HRdMel+P4Q5gyCD6coPglXl6egkbl083ISBK6+5M7fbyThuKOe7GugYGKT95JrxNH/Iu
-         ZJFg==
+        bh=FDb8snX7fHtHRXPBtLwcic7/q7BlhqslXapsBvvT9m4=;
+        b=eiibal9GFko1a+tgQN3krnXtrWdBZuqF3op4VIu+Wf3BT3yWBoqbTx9WQb/SIzb2Pv
+         nU+5d2riU9FFB7ZObi6T0/FmOiVAW5aGYEmZjvrkkPJ2g6yeqttaBIBexfwHx+XltErC
+         Y3DQoi4yokam/JVK9tv8g0c/tsQBw2y1zMoB/JHCIAUoY1gZtZBgHuw03VTQnbdwe9kP
+         Pt6+p3ZXg8pzKllRVC4QKdzpBSOhLptnFhC4kPw4VLGxf9zD3HLpNXMD2tlXjktOiBhV
+         WavqlMtulcslGCSBKhXOA08M969cG9OWXlkrqjc6vZeeITO1cX9t1Zu5KT2rCDtkxCAx
+         U0cg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=yC2M+WqtpDn8WEqkn0+0Dw3Z53HTrfg3c6ZZe0WXdnU=;
-        b=g3HwtnEfK5mwnpsMk7inFnDQeeDm/Vc+2T+n3oCWLFC4n6rjWsuQyh0sGMrRPSa08R
-         /Q27ML23UJlzUgs6a7eco9KnZwWW5W1ocTm++Tl9APKt8gvovf1Xr6CsvSgieTZwqzyX
-         s3HerLvIrZ/3F+OXrzpz28gowXJ+klOquwWiMFzIo539qmHRkDw6g1Fk1O2vmfGF3M0C
-         pq+N/fpmxtorG7/EgLmytKzxY0WCwlDjoVtK3Wushf+H4V/UBkkyq6KHo+rUnCSxROJR
-         AgXHYzbnUKkwUUSYGJsmUQRYoXHkRDwJCrIve+Psi+pK/4H8juC7cT9/r1F1rAHjfcqV
-         B1kA==
-X-Gm-Message-State: APjAAAUEhIcpnZZI4+vrUQEVH/fo2VXEppFJjPx0bNyHs5pXJLddIQon
-        YRHlBn9+G7/iFDCUB0VEaMWM1QOFh0o=
-X-Google-Smtp-Source: APXvYqzgYItUP0VZEv21jLL0QvW7NfIAdZrftl69vxAA26hWtTfLLQMqsJ0umNVbd42F9jLFw+8Euw==
-X-Received: by 2002:a17:902:8a8a:: with SMTP id p10mr9380607plo.88.1562909432398;
-        Thu, 11 Jul 2019 22:30:32 -0700 (PDT)
+        bh=FDb8snX7fHtHRXPBtLwcic7/q7BlhqslXapsBvvT9m4=;
+        b=RcMLI8Mgk6ZJwQwceFaBbx0YaqypKGclDONy8pwb9N6uQNW1Cz3C7zaMOL1mbT75P8
+         Ht1yCTV6hmgMPEHC2VZEMvO+pl0C3IF4lppFkmf2qdpaiS3nuTmH0DNTcCJswAEWlOnO
+         JdhbtwhWvxpOhhy5sLJpeslvJVyKXQw/dC6+VwJxGxxJlXTkri2uYGTddA48q/UpBonF
+         bvpQKNEKY9RF5BKU+5RlkvGq5IVj+KIh/rJsnkoVHq/S616U22+PvfHjsLOcvnCzL3sH
+         IJOjqhC9f1qP0hyuXThlIzxHumgCfTVHxbkYLCzwpOkQTFYSSg7pPHaGs5arrK2XyftR
+         KPyw==
+X-Gm-Message-State: APjAAAUnpHuuNMD0mhzCaS5709RZldKU+bVbRBsaHLM9deZZ0JQZZQFz
+        0itpCkyJKzZq9sdfZvSUbFgfMQcubp8=
+X-Google-Smtp-Source: APXvYqyVf+gr+WKeb4pE+MswfAdJZHG+738tsKvri0lovTW3p6PsP27qAGYoMO8DaGXARfDH0ncu6A==
+X-Received: by 2002:a63:d04e:: with SMTP id s14mr8225037pgi.189.1562909435104;
+        Thu, 11 Jul 2019 22:30:35 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id p187sm11052142pfg.89.2019.07.11.22.30.31
+        by smtp.gmail.com with ESMTPSA id 143sm12297066pgc.6.2019.07.11.22.30.34
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 22:30:31 -0700 (PDT)
+        Thu, 11 Jul 2019 22:30:34 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 V2 34/43] ARM: 8478/2: arm/arm64: add arm-smccc
-Date:   Fri, 12 Jul 2019 10:58:22 +0530
-Message-Id: <50c202f16756751deddb4c2287561d1a82d0aeed.1562908075.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 V2 35/43] arm/arm64: KVM: Advertise SMCCC v1.1
+Date:   Fri, 12 Jul 2019 10:58:23 +0530
+Message-Id: <7c5975b0d2850d2b728f4688a3fedfed6bcbe75c.1562908075.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
 References: <cover.1562908074.git.viresh.kumar@linaro.org>
@@ -68,157 +68,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit 98dd64f34f47ce19b388d9015f767f48393a81eb upstream.
+commit 09e6be12effdb33bf7210c8867bbd213b66a499e upstream.
 
-Adds helpers to do SMC and HVC based on ARM SMC Calling Convention.
-CONFIG_HAVE_ARM_SMCCC is enabled for architectures that may support the
-SMC or HVC instruction. It's the responsibility of the caller to know if
-the SMC instruction is supported by the platform.
+The new SMC Calling Convention (v1.1) allows for a reduced overhead
+when calling into the firmware, and provides a new feature discovery
+mechanism.
 
-This patch doesn't provide an implementation of the declared functions.
-Later patches will bring in implementations and set
-CONFIG_HAVE_ARM_SMCCC for ARM and ARM64 respectively.
+Make it visible to KVM guests.
 
-Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-[ v4.4: Added #ifndef __ASSEMBLY__ section to fix compilation issues ]
+Tested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Reviewed-by: Christoffer Dall <christoffer.dall@linaro.org>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[ Viresh: Picked only arm-smccc.h changes ]
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- drivers/firmware/Kconfig  |   3 ++
- include/linux/arm-smccc.h | 107 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 110 insertions(+)
- create mode 100644 include/linux/arm-smccc.h
+ include/linux/arm-smccc.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
-index cf478fe6b335..49a3a1185bb6 100644
---- a/drivers/firmware/Kconfig
-+++ b/drivers/firmware/Kconfig
-@@ -173,6 +173,9 @@ config QCOM_SCM_64
- 	def_bool y
- 	depends on QCOM_SCM && ARM64
- 
-+config HAVE_ARM_SMCCC
-+	bool
-+
- source "drivers/firmware/broadcom/Kconfig"
- source "drivers/firmware/google/Kconfig"
- source "drivers/firmware/efi/Kconfig"
 diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
-new file mode 100644
-index 000000000000..611d10580340
---- /dev/null
+index 611d10580340..da9f3916f9a9 100644
+--- a/include/linux/arm-smccc.h
 +++ b/include/linux/arm-smccc.h
-@@ -0,0 +1,107 @@
-+/*
-+ * Copyright (c) 2015, Linaro Limited
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+#ifndef __LINUX_ARM_SMCCC_H
-+#define __LINUX_ARM_SMCCC_H
+@@ -60,6 +60,19 @@
+ #define ARM_SMCCC_OWNER_TRUSTED_OS	50
+ #define ARM_SMCCC_OWNER_TRUSTED_OS_END	63
+ 
++#define ARM_SMCCC_VERSION_1_0		0x10000
++#define ARM_SMCCC_VERSION_1_1		0x10001
 +
-+#include <linux/linkage.h>
-+#include <linux/types.h>
++#define ARM_SMCCC_VERSION_FUNC_ID					\
++	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,				\
++			   ARM_SMCCC_SMC_32,				\
++			   0, 0)
 +
-+/*
-+ * This file provides common defines for ARM SMC Calling Convention as
-+ * specified in
-+ * http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
-+ */
++#define ARM_SMCCC_ARCH_FEATURES_FUNC_ID					\
++	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,				\
++			   ARM_SMCCC_SMC_32,				\
++			   0, 1)
 +
-+#define ARM_SMCCC_STD_CALL		0
-+#define ARM_SMCCC_FAST_CALL		1
-+#define ARM_SMCCC_TYPE_SHIFT		31
-+
-+#define ARM_SMCCC_SMC_32		0
-+#define ARM_SMCCC_SMC_64		1
-+#define ARM_SMCCC_CALL_CONV_SHIFT	30
-+
-+#define ARM_SMCCC_OWNER_MASK		0x3F
-+#define ARM_SMCCC_OWNER_SHIFT		24
-+
-+#define ARM_SMCCC_FUNC_MASK		0xFFFF
-+
-+#define ARM_SMCCC_IS_FAST_CALL(smc_val)	\
-+	((smc_val) & (ARM_SMCCC_FAST_CALL << ARM_SMCCC_TYPE_SHIFT))
-+#define ARM_SMCCC_IS_64(smc_val) \
-+	((smc_val) & (ARM_SMCCC_SMC_64 << ARM_SMCCC_CALL_CONV_SHIFT))
-+#define ARM_SMCCC_FUNC_NUM(smc_val)	((smc_val) & ARM_SMCCC_FUNC_MASK)
-+#define ARM_SMCCC_OWNER_NUM(smc_val) \
-+	(((smc_val) >> ARM_SMCCC_OWNER_SHIFT) & ARM_SMCCC_OWNER_MASK)
-+
-+#define ARM_SMCCC_CALL_VAL(type, calling_convention, owner, func_num) \
-+	(((type) << ARM_SMCCC_TYPE_SHIFT) | \
-+	((calling_convention) << ARM_SMCCC_CALL_CONV_SHIFT) | \
-+	(((owner) & ARM_SMCCC_OWNER_MASK) << ARM_SMCCC_OWNER_SHIFT) | \
-+	((func_num) & ARM_SMCCC_FUNC_MASK))
-+
-+#define ARM_SMCCC_OWNER_ARCH		0
-+#define ARM_SMCCC_OWNER_CPU		1
-+#define ARM_SMCCC_OWNER_SIP		2
-+#define ARM_SMCCC_OWNER_OEM		3
-+#define ARM_SMCCC_OWNER_STANDARD	4
-+#define ARM_SMCCC_OWNER_TRUSTED_APP	48
-+#define ARM_SMCCC_OWNER_TRUSTED_APP_END	49
-+#define ARM_SMCCC_OWNER_TRUSTED_OS	50
-+#define ARM_SMCCC_OWNER_TRUSTED_OS_END	63
-+
-+#ifndef __ASSEMBLY__
-+
-+/**
-+ * struct arm_smccc_res - Result from SMC/HVC call
-+ * @a0-a3 result values from registers 0 to 3
-+ */
-+struct arm_smccc_res {
-+	unsigned long a0;
-+	unsigned long a1;
-+	unsigned long a2;
-+	unsigned long a3;
-+};
-+
-+/**
-+ * arm_smccc_smc() - make SMC calls
-+ * @a0-a7: arguments passed in registers 0 to 7
-+ * @res: result values from registers 0 to 3
-+ *
-+ * This function is used to make SMC calls following SMC Calling Convention.
-+ * The content of the supplied param are copied to registers 0 to 7 prior
-+ * to the SMC instruction. The return values are updated with the content
-+ * from register 0 to 3 on return from the SMC instruction.
-+ */
-+asmlinkage void arm_smccc_smc(unsigned long a0, unsigned long a1,
-+			unsigned long a2, unsigned long a3, unsigned long a4,
-+			unsigned long a5, unsigned long a6, unsigned long a7,
-+			struct arm_smccc_res *res);
-+
-+/**
-+ * arm_smccc_hvc() - make HVC calls
-+ * @a0-a7: arguments passed in registers 0 to 7
-+ * @res: result values from registers 0 to 3
-+ *
-+ * This function is used to make HVC calls following SMC Calling
-+ * Convention.  The content of the supplied param are copied to registers 0
-+ * to 7 prior to the HVC instruction. The return values are updated with
-+ * the content from register 0 to 3 on return from the HVC instruction.
-+ */
-+asmlinkage void arm_smccc_hvc(unsigned long a0, unsigned long a1,
-+			unsigned long a2, unsigned long a3, unsigned long a4,
-+			unsigned long a5, unsigned long a6, unsigned long a7,
-+			struct arm_smccc_res *res);
-+
-+#endif /*__ASSEMBLY__*/
-+#endif /*__LINUX_ARM_SMCCC_H*/
+ #ifndef __ASSEMBLY__
+ 
+ /**
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
