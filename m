@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE95566644
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:30:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F91566645
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:30:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725966AbfGLFa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 01:30:27 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:43560 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbfGLFa1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:30:27 -0400
-Received: by mail-pf1-f196.google.com with SMTP id i189so3785651pfg.10
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:30:27 -0700 (PDT)
+        id S1726096AbfGLFaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 01:30:30 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:44307 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725791AbfGLFaa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:30:30 -0400
+Received: by mail-pl1-f195.google.com with SMTP id t14so4188243plr.11
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:30:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=sBbWRB3LgLlv2c3U4FxHDhn97v+yXFInuDLMYZ1aFeE=;
-        b=LE9qttKz9JVHQZJ301vvMUJGamwX7YDgGYxVrR/vnjiJ8Jz/5xxe4200tspVVRXWk+
-         W7XipnbG6F97cOGxwyGXPdCqkq3BRx2g4y26HaEqjAsFETioKBf/BZTT1PQlDrGjo7ou
-         EAeXfl3TsM9qubCidTFeGydMyrJR/c6bJijftJkl1MWUPIeVdAUp5JN31QVDwcLvHVR4
-         8urkOnbfh7ph5eojT6bcKlyIEOF7SVTdfu7V8JVCECv1woL27Eib/wR68NZrbXu3wBhJ
-         e58ovEnhDxWGkX3plYNZ+KErAl2nlKIP7jvpIT/lTh6EdP+WvOUY/9tEUQSwyx9u3ttN
-         GtOQ==
+        bh=dkWh8S1DsW6tSZCYoLWe69ClR5UVvKugQ1/Th9fCzhU=;
+        b=SMwR+6pdVG1+jVLkxuQVbtP/+BVTEx6rGEByEY4qdeK029SHABdRrCTMiXb+4nre45
+         h8O859XSPNC1NRkmJg2+4GipJ9ze5HOA/R6idJQ+Pt7C/gT7400+oVGtmwIU7nb7ULsX
+         Oj54EVb6tOLF1SlsBurQ5iK3J3FAGqldb9vJuYmTP1R4tXxxxiXMf8TsxhbeUBNW3N0J
+         UeWGq6ZtKrNGNghl5q2gRSIQzgEYpgWnrZ7JrGf/e5RvYg1+EE5//gzM/tZ9I+IV8fEQ
+         OSKDS5JI3fNrLgVpfcqmN9DeAephhosWwadHtDNS6bmi0higyU99JwprNFVc7BjMjVJ9
+         0F+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=sBbWRB3LgLlv2c3U4FxHDhn97v+yXFInuDLMYZ1aFeE=;
-        b=RDGu8mL5BVL0Y7hjt0vCC1M2usTduKonJCGqTVqE9xNUaOhASBX/m2YALcdzDvw8Gk
-         yu3Ad7ZtNsIKT/R0A4fwQupHlTSaIMxS14Vyn7uDZZTdjgnrztW+wI8eBhtOZsVZsJHV
-         CaxmU3BsqzexcitZO98z4fhjfyBu0Ou0bBCd3v/An1cYe020OvhEOEb1lO31iFsvgy6p
-         qvwy9kdo7pgeQk0JKrDYEutrCLvFxqIrxdRVRpIH+bGSUJIFKmcz+pu6MHvsfTJ+Nszk
-         OhZtrfkd55hhDA5M9kRClbzH6a7AFte/cKLGjgE8SLgfutDJfgWwA0XELGDMGgGOD1Yp
-         hatw==
-X-Gm-Message-State: APjAAAX1pcZMe4imeiFGhm4Qbf7rRsgkN1LMo1ANlikh36QzGZ6TW4ib
-        j76CFXSqkd4rhMXS7FW1PXW9+oQWZNE=
-X-Google-Smtp-Source: APXvYqxyRaEvat1PpF7Xec8SgqPa/995PZH5g9J/aKyj66PHzIjCnc1qgeDxt+I54TOuoUWo47TglQ==
-X-Received: by 2002:a65:508c:: with SMTP id r12mr8006992pgp.1.1562909426531;
-        Thu, 11 Jul 2019 22:30:26 -0700 (PDT)
+        bh=dkWh8S1DsW6tSZCYoLWe69ClR5UVvKugQ1/Th9fCzhU=;
+        b=k1E8Qwb6lZsNIlx7G/t96LoVxQaB6fXQZkvecmARxwsqJGJBYX8fCGkKLAQ3f/c12J
+         euTQ2xpuGYYpmnoO8GKDu+wkvcBBddc5igPXEDLrDUtQLMaFaOGaYJcVqEQgTyzK7v1j
+         IcvIDJLaD3yDB7pbl3GxBIfwL3/4VyTXVjkq3orb69ptKBrkN4mCLWKMpkdMO9ySHAP9
+         G+464sh2zShX/ruVJE1YDixjqEk8RC5r8j3b1kDCiT1pXvXF3eTb775WLvgOK0VKJMy3
+         BhgAWUhny0E6KHx+KdqV83PXNcEiF8FPP5Oyele9c56ocDqgBQ9+YwpsFJaXOezSwcF/
+         lLDw==
+X-Gm-Message-State: APjAAAXq7ZkzzCjIJQMiKLPcqObyN/Un5hcUnpjNkGuf0SNehkAC59Sj
+        MblQf2IOkIkuX7d50ifHAZ4nn2lpMnM=
+X-Google-Smtp-Source: APXvYqwRenMg8VtbpqXdjHaBLDPx/1GaF/9bujmKaumpC/Ey9xVpZHK0cPZvCTDJ4FIQxxoez1R/jw==
+X-Received: by 2002:a17:902:9307:: with SMTP id bc7mr8879363plb.183.1562909429452;
+        Thu, 11 Jul 2019 22:30:29 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id q63sm10762553pfb.81.2019.07.11.22.30.25
+        by smtp.gmail.com with ESMTPSA id 14sm6731541pgp.37.2019.07.11.22.30.28
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 22:30:25 -0700 (PDT)
+        Thu, 11 Jul 2019 22:30:28 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 V2 32/43] arm64: cputype: Add MIDR values for Cavium ThunderX2 CPUs
-Date:   Fri, 12 Jul 2019 10:58:20 +0530
-Message-Id: <6565b88d21dbcfbb592fbf7a5a00f20caf2e934f.1562908075.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 V2 33/43] arm64: Branch predictor hardening for Cavium ThunderX2
+Date:   Fri, 12 Jul 2019 10:58:21 +0530
+Message-Id: <ba3f93fd7b5b88cc90c6fc201cb9bd64d754d57e.1562908075.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
 References: <cover.1562908074.git.viresh.kumar@linaro.org>
@@ -70,40 +70,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jayachandran C <jnair@caviumnetworks.com>
 
-commit 0d90718871fe80f019b7295ec9d2b23121e396fb upstream.
+commit f3d795d9b360523beca6d13ba64c2c532f601149 upstream.
 
-Add the older Broadcom ID as well as the new Cavium ID for ThunderX2
-CPUs.
+Use PSCI based mitigation for speculative execution attacks targeting
+the branch predictor. We use the same mechanism as the one used for
+Cortex-A CPUs, we expect the PSCI version call to have a side effect
+of clearing the BTBs.
 
+Acked-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/include/asm/cputype.h | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/kernel/cpu_errata.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
-index c6976dd6c32a..9cc7d485c812 100644
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -87,6 +87,7 @@
- #define APM_CPU_PART_POTENZA		0x000
- 
- #define CAVIUM_CPU_PART_THUNDERX	0x0A1
-+#define CAVIUM_CPU_PART_THUNDERX2	0x0AF
- 
- #define BRCM_CPU_PART_VULCAN		0x516
- 
-@@ -94,6 +95,8 @@
- #define MIDR_CORTEX_A72 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
- #define MIDR_CORTEX_A73 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A73)
- #define MIDR_CORTEX_A75 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A75)
-+#define MIDR_CAVIUM_THUNDERX2 MIDR_CPU_PART(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX2)
-+#define MIDR_BRCM_VULCAN MIDR_CPU_PART(ARM_CPU_IMP_BRCM, BRCM_CPU_PART_VULCAN)
- 
- #ifndef __ASSEMBLY__
- 
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index dbd7b944a37e..ff22915a2865 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -234,6 +234,16 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ 		MIDR_ALL_VERSIONS(MIDR_CORTEX_A75),
+ 		.enable = enable_psci_bp_hardening,
+ 	},
++	{
++		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
++		MIDR_ALL_VERSIONS(MIDR_BRCM_VULCAN),
++		.enable = enable_psci_bp_hardening,
++	},
++	{
++		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
++		MIDR_ALL_VERSIONS(MIDR_CAVIUM_THUNDERX2),
++		.enable = enable_psci_bp_hardening,
++	},
+ #endif
+ 	{
+ 	}
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
