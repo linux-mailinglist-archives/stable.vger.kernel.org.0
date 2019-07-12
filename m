@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0015366D7D
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC4C266E12
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729098AbfGLMaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:30:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46182 "EHLO mail.kernel.org"
+        id S1727722AbfGLMgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:36:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728686AbfGLMaY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:30:24 -0400
+        id S1729265AbfGLMcv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:32:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3BEC216C4;
-        Fri, 12 Jul 2019 12:30:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5E7B21019;
+        Fri, 12 Jul 2019 12:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934624;
-        bh=mOI4f+8M6MD8y67Qh6fR5ZdRMmZi5fzudA5PS0kp1Ik=;
+        s=default; t=1562934770;
+        bh=s77BrHJDsy+KnVUeQoS4PPzQPNBJKEn+JM1Jp9LqINs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DFkh71nvoc+f4yJs0TDfUxIz01mgSDSoDYQMjgY4WVrKVPaS/qaukYCtkFkF8tEfS
-         2RgDum19A+eAzlCUcL6ETGBBc9u0b3tpopLbnNvPUqbHI8R03jrp6s/r3YWNYj0EdU
-         FAb+KqQQh+J49SoNFgPYuVFbMfb4ISgCRswx7/tY=
+        b=rv3Ktk7o26voUdX/LE2Nlq7dDL58WfIlhbPUsQAkpqAKq3n7Fx9RSSm0X7qCG8qzt
+         ZUPFeP+ZAGYwSDCj66PAkdTVcEecb5z+cksLMEi6Xh8IesG+sQ9tKK52YF4l7OWupr
+         a3nz+/P/8HjmcJB4JeQH5i39sJLfMI2Q4DjWKQOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: [PATCH 5.1 114/138] usb: dwc2: use a longer AHB idle timeout in dwc2_core_reset()
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=B6rgen=20Storvist?= <jorgen.storvist@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.2 25/61] USB: serial: option: add support for GosunCn ME3630 RNDIS mode
 Date:   Fri, 12 Jul 2019 14:19:38 +0200
-Message-Id: <20190712121633.125684870@linuxfoundation.org>
+Message-Id: <20190712121621.978730702@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Jörgen Storvist <jorgen.storvist@gmail.com>
 
-commit dfc4fdebc5d62ac4e2fe5428e59b273675515fb2 upstream.
+commit aed2a26283528fb69c38e414f649411aa48fb391 upstream.
 
-Use a 10000us AHB idle timeout in dwc2_core_reset() and make it
-consistent with the other "wait for AHB master IDLE state" ocurrences.
+Added USB IDs for GosunCn ME3630 cellular module in RNDIS mode.
 
-This fixes a problem for me where dwc2 would not want to initialize when
-updating to 4.19 on a MIPS Lantiq VRX200 SoC. dwc2 worked fine with
-4.14.
-Testing on my board shows that it takes 180us until AHB master IDLE
-state is signalled. The very old vendor driver for this SoC (ifxhcd)
-used a 1 second timeout.
-Use the same timeout that is used everywhere when polling for
-GRSTCTL_AHBIDLE instead of using a timeout that "works for one board"
-(180us in my case) to have consistent behavior across the dwc2 driver.
+T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=03 Dev#= 18 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=0601 Rev=03.18
+S:  Manufacturer=Android
+S:  Product=Android
+S:  SerialNumber=b950269c
+C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=e0(wlcon) Sub=01 Prot=03 Driver=rndis_host
+I:  If#=0x1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
+I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
 
-Cc: linux-stable <stable@vger.kernel.org> # 4.19+
-Acked-by: Minas Harutyunyan <hminas@synopsys.com>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Jörgen Storvist <jorgen.storvist@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc2/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc2/core.c
-+++ b/drivers/usb/dwc2/core.c
-@@ -531,7 +531,7 @@ int dwc2_core_reset(struct dwc2_hsotg *h
- 	}
- 
- 	/* Wait for AHB master IDLE state */
--	if (dwc2_hsotg_wait_bit_set(hsotg, GRSTCTL, GRSTCTL_AHBIDLE, 50)) {
-+	if (dwc2_hsotg_wait_bit_set(hsotg, GRSTCTL, GRSTCTL_AHBIDLE, 10000)) {
- 		dev_warn(hsotg->dev, "%s: HANG! AHB Idle timeout GRSTCTL GRSTCTL_AHBIDLE\n",
- 			 __func__);
- 		return -EBUSY;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1343,6 +1343,7 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0414, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0417, 0xff, 0xff, 0xff) },
++	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x0601, 0xff) },	/* GosunCn ZTE WeLink ME3630 (RNDIS mode) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x0602, 0xff) },	/* GosunCn ZTE WeLink ME3630 (MBIM mode) */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1008, 0xff, 0xff, 0xff),
+ 	  .driver_info = RSVD(4) },
 
 
