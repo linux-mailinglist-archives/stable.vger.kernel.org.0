@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE0C366D5C
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:29:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E186066CD7
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728589AbfGLM3O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:29:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43958 "EHLO mail.kernel.org"
+        id S1727975AbfGLMXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:23:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728945AbfGLM3N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:29:13 -0400
+        id S1727980AbfGLMXo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:23:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4910208E4;
-        Fri, 12 Jul 2019 12:29:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6811D2166E;
+        Fri, 12 Jul 2019 12:23:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934552;
-        bh=A7j9TLWrHUaatr6N1wsFWMM8pMp46I6Ryah3bqxuhbA=;
+        s=default; t=1562934222;
+        bh=xLLWYA5NAIUr7JRKRwe5NogndUShvfwkFmPHLncTvl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsxSPPPrn1C24nvk7YwofiVhJGkKqApzLVq8YKx1SPa6LCa6TDwIkdz2VV1Wp6yAP
-         wQAgovObheh/T9oPnDJogsnIq+aLgXM98Gaj73EIkjLuLrqhifqTo86KjTOoWXycDe
-         krpg8wrrvuIfhg52ga2ViM9GXDbKM+eXo4iYfw9Q=
+        b=UOH/R31Dcl7DmIWnyP4u9gNl2Aa+A4cj1Vhm5DwmQIyXOSQowLbwhPB4JGDwgxBUJ
+         JEnFn5NPeSp9Ctg1yJ1UnnewLWiaxzKG7Hio1s+xiC4FLlrT2Y6TaZRWbB0vOyPjzC
+         4LJFJVmytoSkAdFMrKon8jZSNAwrwoeWUO+1ReDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Baker <baker1tex@gmail.com>,
-        Craig Robson <craig@zhatt.com>,
-        Laura Abbott <labbott@redhat.com>,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Bartosz Szczepanek <bsz@semihalf.com>
-Subject: [PATCH 5.1 093/138] tpm: Actually fail on TPM errors during "get random"
-Date:   Fri, 12 Jul 2019 14:19:17 +0200
-Message-Id: <20190712121632.331674959@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>
+Subject: [PATCH 4.19 75/91] usb: renesas_usbhs: add a workaround for a race condition of workqueue
+Date:   Fri, 12 Jul 2019 14:19:18 +0200
+Message-Id: <20190712121625.840745833@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
+References: <20190712121621.422224300@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,88 +44,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 782779b60faa2fc7ff609ac8ef938260fd792c0f upstream.
+commit b2357839c56ab7d06bcd4e866ebc2d0e2b7997f3 upstream.
 
-A "get random" may fail with a TPM error, but those codes were returned
-as-is to the caller, which assumed the result was the number of bytes
-that had been written to the target buffer, which could lead to a kernel
-heap memory exposure and over-read.
+The old commit 6e4b74e4690d ("usb: renesas: fix scheduling in atomic
+context bug") fixed an atomic issue by using workqueue for the shdmac
+dmaengine driver. However, this has a potential race condition issue
+between the work pending and usbhsg_ep_free_request() in gadget mode.
+When usbhsg_ep_free_request() is called while pending the queue,
+since the work_struct will be freed and then the work handler is
+called, kernel panic happens on process_one_work().
 
-This fixes tpm1_get_random() to mask positive TPM errors into -EIO, as
-before.
+To fix the issue, if we could call cancel_work_sync() at somewhere
+before the free request, it could be easy. However,
+the usbhsg_ep_free_request() is called on atomic (e.g. f_ncm driver
+calls free request via gether_disconnect()).
 
-[   18.092103] tpm tpm0: A TPM error (379) occurred attempting get random
-[   18.092106] usercopy: Kernel memory exposure attempt detected from SLUB object 'kmalloc-64' (offset 0, size 379)!
+For now, almost all users are having "USB-DMAC" and the DMAengine
+driver can be used on atomic. So, this patch adds a workaround for
+a race condition to call the DMAengine APIs without the workqueue.
 
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1650989
-Reported-by: Phil Baker <baker1tex@gmail.com>
-Reported-by: Craig Robson <craig@zhatt.com>
-Fixes: 7aee9c52d7ac ("tpm: tpm1: rewrite tpm1_get_random() using tpm_buf structure")
-Cc: Laura Abbott <labbott@redhat.com>
-Cc: Tomas Winkler <tomas.winkler@intel.com>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Tomas Winkler <tomas.winkler@intel.com>
-Tested-by: Bartosz Szczepanek <bsz@semihalf.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+This means we still have TODO on shdmac environment (SH7724), but
+since it doesn't have SMP, the race condition might not happen.
+
+Fixes: ab330cf3888d ("usb: renesas_usbhs: add support for USB-DMAC")
+Cc: <stable@vger.kernel.org> # v4.1+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/tpm/tpm1-cmd.c |    7 +++++--
- drivers/char/tpm/tpm2-cmd.c |    7 +++++--
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/usb/renesas_usbhs/fifo.c |   34 ++++++++++++++++++++++------------
+ 1 file changed, 22 insertions(+), 12 deletions(-)
 
---- a/drivers/char/tpm/tpm1-cmd.c
-+++ b/drivers/char/tpm/tpm1-cmd.c
-@@ -510,7 +510,7 @@ struct tpm1_get_random_out {
-  *
-  * Return:
-  * *  number of bytes read
-- * * -errno or a TPM return code otherwise
-+ * * -errno (positive TPM return codes are masked to -EIO)
-  */
- int tpm1_get_random(struct tpm_chip *chip, u8 *dest, size_t max)
+--- a/drivers/usb/renesas_usbhs/fifo.c
++++ b/drivers/usb/renesas_usbhs/fifo.c
+@@ -802,9 +802,8 @@ static int __usbhsf_dma_map_ctrl(struct
+ }
+ 
+ static void usbhsf_dma_complete(void *arg);
+-static void xfer_work(struct work_struct *work)
++static void usbhsf_dma_xfer_preparing(struct usbhs_pkt *pkt)
  {
-@@ -531,8 +531,11 @@ int tpm1_get_random(struct tpm_chip *chi
+-	struct usbhs_pkt *pkt = container_of(work, struct usbhs_pkt, work);
+ 	struct usbhs_pipe *pipe = pkt->pipe;
+ 	struct usbhs_fifo *fifo;
+ 	struct usbhs_priv *priv = usbhs_pipe_to_priv(pipe);
+@@ -812,12 +811,10 @@ static void xfer_work(struct work_struct
+ 	struct dma_chan *chan;
+ 	struct device *dev = usbhs_priv_to_dev(priv);
+ 	enum dma_transfer_direction dir;
+-	unsigned long flags;
  
- 		rc = tpm_transmit_cmd(chip, &buf, sizeof(out->rng_data_len),
- 				      "attempting get random");
--		if (rc)
-+		if (rc) {
-+			if (rc > 0)
-+				rc = -EIO;
- 			goto out;
-+		}
+-	usbhs_lock(priv, flags);
+ 	fifo = usbhs_pipe_to_fifo(pipe);
+ 	if (!fifo)
+-		goto xfer_work_end;
++		return;
  
- 		out = (struct tpm1_get_random_out *)&buf.data[TPM_HEADER_SIZE];
+ 	chan = usbhsf_dma_chan_get(fifo, pkt);
+ 	dir = usbhs_pipe_is_dir_in(pipe) ? DMA_DEV_TO_MEM : DMA_MEM_TO_DEV;
+@@ -826,7 +823,7 @@ static void xfer_work(struct work_struct
+ 					pkt->trans, dir,
+ 					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+ 	if (!desc)
+-		goto xfer_work_end;
++		return;
  
---- a/drivers/char/tpm/tpm2-cmd.c
-+++ b/drivers/char/tpm/tpm2-cmd.c
-@@ -301,7 +301,7 @@ struct tpm2_get_random_out {
-  *
-  * Return:
-  *   size of the buffer on success,
-- *   -errno otherwise
-+ *   -errno otherwise (positive TPM return codes are masked to -EIO)
-  */
- int tpm2_get_random(struct tpm_chip *chip, u8 *dest, size_t max)
- {
-@@ -328,8 +328,11 @@ int tpm2_get_random(struct tpm_chip *chi
- 				       offsetof(struct tpm2_get_random_out,
- 						buffer),
- 				       "attempting get random");
--		if (err)
-+		if (err) {
-+			if (err > 0)
-+				err = -EIO;
- 			goto out;
-+		}
+ 	desc->callback		= usbhsf_dma_complete;
+ 	desc->callback_param	= pipe;
+@@ -834,7 +831,7 @@ static void xfer_work(struct work_struct
+ 	pkt->cookie = dmaengine_submit(desc);
+ 	if (pkt->cookie < 0) {
+ 		dev_err(dev, "Failed to submit dma descriptor\n");
+-		goto xfer_work_end;
++		return;
+ 	}
  
- 		out = (struct tpm2_get_random_out *)
- 			&buf.data[TPM_HEADER_SIZE];
+ 	dev_dbg(dev, "  %s %d (%d/ %d)\n",
+@@ -845,8 +842,17 @@ static void xfer_work(struct work_struct
+ 	dma_async_issue_pending(chan);
+ 	usbhsf_dma_start(pipe, fifo);
+ 	usbhs_pipe_enable(pipe);
++}
++
++static void xfer_work(struct work_struct *work)
++{
++	struct usbhs_pkt *pkt = container_of(work, struct usbhs_pkt, work);
++	struct usbhs_pipe *pipe = pkt->pipe;
++	struct usbhs_priv *priv = usbhs_pipe_to_priv(pipe);
++	unsigned long flags;
+ 
+-xfer_work_end:
++	usbhs_lock(priv, flags);
++	usbhsf_dma_xfer_preparing(pkt);
+ 	usbhs_unlock(priv, flags);
+ }
+ 
+@@ -899,8 +905,13 @@ static int usbhsf_dma_prepare_push(struc
+ 	pkt->trans = len;
+ 
+ 	usbhsf_tx_irq_ctrl(pipe, 0);
+-	INIT_WORK(&pkt->work, xfer_work);
+-	schedule_work(&pkt->work);
++	/* FIXME: Workaound for usb dmac that driver can be used in atomic */
++	if (usbhs_get_dparam(priv, has_usb_dmac)) {
++		usbhsf_dma_xfer_preparing(pkt);
++	} else {
++		INIT_WORK(&pkt->work, xfer_work);
++		schedule_work(&pkt->work);
++	}
+ 
+ 	return 0;
+ 
+@@ -1006,8 +1017,7 @@ static int usbhsf_dma_prepare_pop_with_u
+ 
+ 	pkt->trans = pkt->length;
+ 
+-	INIT_WORK(&pkt->work, xfer_work);
+-	schedule_work(&pkt->work);
++	usbhsf_dma_xfer_preparing(pkt);
+ 
+ 	return 0;
+ 
 
 
