@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BE9566D17
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:26:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DCC966C74
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:20:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727462AbfGLM0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:26:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37474 "EHLO mail.kernel.org"
+        id S1727300AbfGLMUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:20:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727606AbfGLM0X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:26:23 -0400
+        id S1727287AbfGLMUV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:20:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1F212166E;
-        Fri, 12 Jul 2019 12:26:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E4E421670;
+        Fri, 12 Jul 2019 12:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934382;
-        bh=yI9lQGvkfE2VG2EgKJi2P2TGT6qoGK+er9pkMhTkG8Q=;
+        s=default; t=1562934020;
+        bh=sQda5X8OhbphEM0HiM52nsxQoiE6xU95ggq+w19wymY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rxKSLmoI6SYDjBbvdesmWaTPwxbnRBJvCno4KsZZsDG4qDxVrHvNKQMr9GPbsOd8z
-         AVWQV4mtVulo3OPRdlKRnYX+Tbs10ZXcbqzBHwAcWDCbE4tAZlCZIoHTgTwMSm9v/L
-         1N7jOic9uwHuGM0/bPwLkj7lHurdRxEW/9CeevJY=
+        b=DlydkyRmopPahId5CwqEYkOWIs/PlIvlf0PLRN9nE01KuZPgboqBLJoFIdUiT8Y9q
+         kuBT1btEL7c4xexNcmdN2v4nGCVtvJibe3ZSH++wm4fswb8bCwux1AAnsI5wME5MNs
+         IOSOXTH45R+9pC05ptloBbwDsuOtycyVDUmTAIEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 038/138] can: flexcan: Remove unneeded registration message
-Date:   Fri, 12 Jul 2019 14:18:22 +0200
-Message-Id: <20190712121630.143981567@linuxfoundation.org>
+Subject: [PATCH 4.19 20/91] can: m_can: implement errata "Needless activation of MRAF irq"
+Date:   Fri, 12 Jul 2019 14:18:23 +0200
+Message-Id: <20190712121622.472929950@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
-References: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
+References: <20190712121621.422224300@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit eb503004a7e563d543c9cb869907156de7efe720 ]
+[ Upstream commit 3e82f2f34c930a2a0a9e69fdc2de2f2f1388b442 ]
 
-Currently the following message is observed when the flexcan
-driver is probed:
+During frame reception while the MCAN is in Error Passive state and the
+Receive Error Counter has thevalue MCAN_ECR.REC = 127, it may happen
+that MCAN_IR.MRAF is set although there was no Message RAM access
+failure. If MCAN_IR.MRAF is enabled, an interrupt to the Host CPU is
+generated.
 
-flexcan 2090000.flexcan: device registered (reg_base=(ptrval), irq=23)
+Work around:
+The Message RAM Access Failure interrupt routine needs to check whether
 
-The reason for printing 'ptrval' is explained at
-Documentation/core-api/printk-formats.rst:
+    MCAN_ECR.RP = '1' and MCAN_ECR.REC = '127'.
 
-"Pointers printed without a specifier extension (i.e unadorned %p) are
-hashed to prevent leaking information about the kernel memory layout. This
-has the added benefit of providing a unique identifier. On 64-bit machines
-the first 32 bits are zeroed. The kernel will print ``(ptrval)`` until it
-gathers enough entropy."
+In this case, reset MCAN_IR.MRAF. No further action is required.
+This affects versions older than 3.2.0
 
-Instead of passing %pK, which can print the correct address, simply
-remove the entire message as it is not really that useful.
+Errata explained on Sama5d2 SoC which includes this hardware block:
+http://ww1.microchip.com/downloads/en/DeviceDoc/SAMA5D2-Family-Silicon-Errata-and-Data-Sheet-Clarification-DS80000803B.pdf
+chapter 6.2
 
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Reproducibility: If 2 devices with m_can are connected back to back,
+configuring different bitrate on them will lead to interrupt storm on
+the receiving side, with error "Message RAM access failure occurred".
+Another way is to have a bad hardware connection. Bad wire connection
+can lead to this issue as well.
+
+This patch fixes the issue according to provided workaround.
+
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Ludovic Desroches <ludovic.desroches@microchip.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/flexcan.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/can/m_can/m_can.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
-index f97c628eb2ad..f2fe344593d5 100644
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -1583,9 +1583,6 @@ static int flexcan_probe(struct platform_device *pdev)
- 			dev_dbg(&pdev->dev, "failed to setup stop-mode\n");
- 	}
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 9b449400376b..deb274a19ba0 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -822,6 +822,27 @@ static int m_can_poll(struct napi_struct *napi, int quota)
+ 	if (!irqstatus)
+ 		goto end;
  
--	dev_info(&pdev->dev, "device registered (reg_base=%p, irq=%d)\n",
--		 priv->regs, dev->irq);
--
- 	return 0;
- 
-  failed_register:
++	/* Errata workaround for issue "Needless activation of MRAF irq"
++	 * During frame reception while the MCAN is in Error Passive state
++	 * and the Receive Error Counter has the value MCAN_ECR.REC = 127,
++	 * it may happen that MCAN_IR.MRAF is set although there was no
++	 * Message RAM access failure.
++	 * If MCAN_IR.MRAF is enabled, an interrupt to the Host CPU is generated
++	 * The Message RAM Access Failure interrupt routine needs to check
++	 * whether MCAN_ECR.RP = ’1’ and MCAN_ECR.REC = 127.
++	 * In this case, reset MCAN_IR.MRAF. No further action is required.
++	 */
++	if ((priv->version <= 31) && (irqstatus & IR_MRAF) &&
++	    (m_can_read(priv, M_CAN_ECR) & ECR_RP)) {
++		struct can_berr_counter bec;
++
++		__m_can_get_berr_counter(dev, &bec);
++		if (bec.rxerr == 127) {
++			m_can_write(priv, M_CAN_IR, IR_MRAF);
++			irqstatus &= ~IR_MRAF;
++		}
++	}
++
+ 	psr = m_can_read(priv, M_CAN_PSR);
+ 	if (irqstatus & IR_ERR_STATE)
+ 		work_done += m_can_handle_state_errors(dev, psr);
 -- 
 2.20.1
 
