@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9F3C66DE6
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3D366DF6
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729138AbfGLMei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:34:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54592 "EHLO mail.kernel.org"
+        id S1728764AbfGLMel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:34:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729011AbfGLMeh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:34:37 -0400
+        id S1729011AbfGLMel (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:34:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBC642166E;
-        Fri, 12 Jul 2019 12:34:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F17B216C4;
+        Fri, 12 Jul 2019 12:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934876;
-        bh=2K/uD0r3A09Hh2lPcxtdPbp6h7drV/rkobpYhe7gJ6k=;
+        s=default; t=1562934879;
+        bh=8Ofvv33rPGmjDL2rDLnBVau085DetjhXDbhPidErydk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cOZubTGmJNhZLSOTWcAwk95nHxWwUFyxXAg+gxYJO+eleBjyqqoN0Z7R5n3SLXIhx
-         ZRgrR6cpuq5n2tiLrPDfBpGGPZO+6iJyxBq911dcUrBdz2C8i/9bkoQ7sKiQibNKFU
-         2WWpR50lIzJUE8ykvrkrzJamnJjz44x4mZO2bG0s=
+        b=UwRi82k0JY052hwSZt21eqkeFfbL4zM+IaIhm4Ssgf9uu7oldIcbK2KeHQ12ujWvy
+         y64GUazC9jANr4WlmBcLWY//xDXeBXRc0wfUJF2d2KgLhDiG/BHKGf0M+mHsLtbf5g
+         +Ul1IwKYIlXrU6BQj9xONLfjPvc0wW3aFSmsurhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.org>,
-        Stefan Wahren <wahrenst@gmx.net>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.2 60/61] staging: bcm2835-camera: Handle empty EOS buffers whilst streaming
-Date:   Fri, 12 Jul 2019 14:20:13 +0200
-Message-Id: <20190712121624.073045625@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.2 61/61] staging: rtl8712: reduce stack usage, again
+Date:   Fri, 12 Jul 2019 14:20:14 +0200
+Message-Id: <20190712121624.151046396@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
 References: <20190712121620.632595223@linuxfoundation.org>
@@ -46,91 +42,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Stevenson <dave.stevenson@raspberrypi.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit a26be06d6d96c10a9ab005e99d93fbb5d3babd98 upstream.
+commit fbd6b25009ac76b2034168cd21d5e01f8c2d83d1 upstream.
 
-The change to mapping V4L2 to MMAL buffers 1:1 didn't handle
-the condition we get with raw pixel buffers (eg YUV and RGB)
-direct from the camera's stills port. That sends the pixel buffer
-and then an empty buffer with the EOS flag set. The EOS buffer
-wasn't handled and returned an error up the stack.
+An earlier patch I sent reduced the stack usage enough to get
+below the warning limit, and I could show this was safe, but with
+GCC_PLUGIN_STRUCTLEAK_BYREF_ALL, it gets worse again because large stack
+variables in the same function no longer overlap:
 
-Handle the condition correctly by returning it to the component
-if streaming, or returning with an error if stopping streaming.
+drivers/staging/rtl8712/rtl871x_ioctl_linux.c: In function 'translate_scan.isra.2':
+drivers/staging/rtl8712/rtl871x_ioctl_linux.c:322:1: error: the frame size of 1200 bytes is larger than 1024 bytes [-Werror=frame-larger-than=]
 
-Fixes: 938416707071 ("staging: bcm2835-camera: Remove V4L2/MMAL buffer remapping")
-Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.org>
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Split out the largest two blocks in the affected function into two
+separate functions and mark those noinline_for_stack.
+
+Fixes: 8c5af16f7953 ("staging: rtl8712: reduce stack usage")
+Fixes: 81a56f6dcd20 ("gcc-plugins: structleak: Generalize to all variable types")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c |   21 +++++-----
- drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c     |    5 +-
- 2 files changed, 15 insertions(+), 11 deletions(-)
+ drivers/staging/rtl8712/rtl871x_ioctl_linux.c |  159 ++++++++++++++------------
+ 1 file changed, 89 insertions(+), 70 deletions(-)
 
---- a/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
-+++ b/drivers/staging/vc04_services/bcm2835-camera/bcm2835-camera.c
-@@ -336,16 +336,13 @@ static void buffer_cb(struct vchiq_mmal_
- 		return;
- 	} else if (length == 0) {
- 		/* stream ended */
--		if (buf) {
--			/* this should only ever happen if the port is
--			 * disabled and there are buffers still queued
-+		if (dev->capture.frame_count) {
-+			/* empty buffer whilst capturing - expected to be an
-+			 * EOS, so grab another frame
- 			 */
--			vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
--			pr_debug("Empty buffer");
--		} else if (dev->capture.frame_count) {
--			/* grab another frame */
- 			if (is_capturing(dev)) {
--				pr_debug("Grab another frame");
-+				v4l2_dbg(1, bcm2835_v4l2_debug, &dev->v4l2_dev,
-+					 "Grab another frame");
- 				vchiq_mmal_port_parameter_set(
- 					instance,
- 					dev->capture.camera_port,
-@@ -353,8 +350,14 @@ static void buffer_cb(struct vchiq_mmal_
- 					&dev->capture.frame_count,
- 					sizeof(dev->capture.frame_count));
- 			}
-+			if (vchiq_mmal_submit_buffer(instance, port, buf))
-+				v4l2_dbg(1, bcm2835_v4l2_debug, &dev->v4l2_dev,
-+					 "Failed to return EOS buffer");
- 		} else {
--			/* signal frame completion */
-+			/* stopping streaming.
-+			 * return buffer, and signal frame completion
-+			 */
-+			vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
- 			complete(&dev->capture.frame_cmplt);
- 		}
- 	} else {
---- a/drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c
-+++ b/drivers/staging/vc04_services/bcm2835-camera/mmal-vchiq.c
-@@ -290,8 +290,6 @@ static int bulk_receive(struct vchiq_mma
- 
- 	/* store length */
- 	msg_context->u.bulk.buffer_used = rd_len;
--	msg_context->u.bulk.mmal_flags =
--	    msg->u.buffer_from_host.buffer_header.flags;
- 	msg_context->u.bulk.dts = msg->u.buffer_from_host.buffer_header.dts;
- 	msg_context->u.bulk.pts = msg->u.buffer_from_host.buffer_header.pts;
- 
-@@ -452,6 +450,9 @@ static void buffer_to_host_cb(struct vch
- 		return;
+--- a/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
++++ b/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
+@@ -124,10 +124,91 @@ static inline void handle_group_key(stru
  	}
+ }
  
-+	msg_context->u.bulk.mmal_flags =
-+				msg->u.buffer_from_host.buffer_header.flags;
+-static noinline_for_stack char *translate_scan(struct _adapter *padapter,
+-				   struct iw_request_info *info,
+-				   struct wlan_network *pnetwork,
+-				   char *start, char *stop)
++static noinline_for_stack char *translate_scan_wpa(struct iw_request_info *info,
++						   struct wlan_network *pnetwork,
++						   struct iw_event *iwe,
++						   char *start, char *stop)
++{
++	/* parsing WPA/WPA2 IE */
++	u8 buf[MAX_WPA_IE_LEN];
++	u8 wpa_ie[255], rsn_ie[255];
++	u16 wpa_len = 0, rsn_len = 0;
++	int n, i;
 +
- 	if (msg->h.status != MMAL_MSG_STATUS_SUCCESS) {
- 		/* message reception had an error */
- 		pr_warn("error %d in reply\n", msg->h.status);
++	r8712_get_sec_ie(pnetwork->network.IEs,
++			 pnetwork->network.IELength, rsn_ie, &rsn_len,
++			 wpa_ie, &wpa_len);
++	if (wpa_len > 0) {
++		memset(buf, 0, MAX_WPA_IE_LEN);
++		n = sprintf(buf, "wpa_ie=");
++		for (i = 0; i < wpa_len; i++) {
++			n += snprintf(buf + n, MAX_WPA_IE_LEN - n,
++						"%02x", wpa_ie[i]);
++			if (n >= MAX_WPA_IE_LEN)
++				break;
++		}
++		memset(iwe, 0, sizeof(*iwe));
++		iwe->cmd = IWEVCUSTOM;
++		iwe->u.data.length = (u16)strlen(buf);
++		start = iwe_stream_add_point(info, start, stop,
++			iwe, buf);
++		memset(iwe, 0, sizeof(*iwe));
++		iwe->cmd = IWEVGENIE;
++		iwe->u.data.length = (u16)wpa_len;
++		start = iwe_stream_add_point(info, start, stop,
++			iwe, wpa_ie);
++	}
++	if (rsn_len > 0) {
++		memset(buf, 0, MAX_WPA_IE_LEN);
++		n = sprintf(buf, "rsn_ie=");
++		for (i = 0; i < rsn_len; i++) {
++			n += snprintf(buf + n, MAX_WPA_IE_LEN - n,
++						"%02x", rsn_ie[i]);
++			if (n >= MAX_WPA_IE_LEN)
++				break;
++		}
++		memset(iwe, 0, sizeof(*iwe));
++		iwe->cmd = IWEVCUSTOM;
++		iwe->u.data.length = strlen(buf);
++		start = iwe_stream_add_point(info, start, stop,
++			iwe, buf);
++		memset(iwe, 0, sizeof(*iwe));
++		iwe->cmd = IWEVGENIE;
++		iwe->u.data.length = rsn_len;
++		start = iwe_stream_add_point(info, start, stop, iwe,
++			rsn_ie);
++	}
++
++	return start;
++}
++
++static noinline_for_stack char *translate_scan_wps(struct iw_request_info *info,
++						   struct wlan_network *pnetwork,
++						   struct iw_event *iwe,
++						   char *start, char *stop)
++{
++	/* parsing WPS IE */
++	u8 wps_ie[512];
++	uint wps_ielen;
++
++	if (r8712_get_wps_ie(pnetwork->network.IEs,
++	    pnetwork->network.IELength,
++	    wps_ie, &wps_ielen)) {
++		if (wps_ielen > 2) {
++			iwe->cmd = IWEVGENIE;
++			iwe->u.data.length = (u16)wps_ielen;
++			start = iwe_stream_add_point(info, start, stop,
++				iwe, wps_ie);
++		}
++	}
++
++	return start;
++}
++
++static char *translate_scan(struct _adapter *padapter,
++			    struct iw_request_info *info,
++			    struct wlan_network *pnetwork,
++			    char *start, char *stop)
+ {
+ 	struct iw_event iwe;
+ 	struct ieee80211_ht_cap *pht_capie;
+@@ -240,73 +321,11 @@ static noinline_for_stack char *translat
+ 	/* Check if we added any event */
+ 	if ((current_val - start) > iwe_stream_lcp_len(info))
+ 		start = current_val;
+-	/* parsing WPA/WPA2 IE */
+-	{
+-		u8 buf[MAX_WPA_IE_LEN];
+-		u8 wpa_ie[255], rsn_ie[255];
+-		u16 wpa_len = 0, rsn_len = 0;
+-		int n;
+-
+-		r8712_get_sec_ie(pnetwork->network.IEs,
+-				 pnetwork->network.IELength, rsn_ie, &rsn_len,
+-				 wpa_ie, &wpa_len);
+-		if (wpa_len > 0) {
+-			memset(buf, 0, MAX_WPA_IE_LEN);
+-			n = sprintf(buf, "wpa_ie=");
+-			for (i = 0; i < wpa_len; i++) {
+-				n += snprintf(buf + n, MAX_WPA_IE_LEN - n,
+-							"%02x", wpa_ie[i]);
+-				if (n >= MAX_WPA_IE_LEN)
+-					break;
+-			}
+-			memset(&iwe, 0, sizeof(iwe));
+-			iwe.cmd = IWEVCUSTOM;
+-			iwe.u.data.length = (u16)strlen(buf);
+-			start = iwe_stream_add_point(info, start, stop,
+-				&iwe, buf);
+-			memset(&iwe, 0, sizeof(iwe));
+-			iwe.cmd = IWEVGENIE;
+-			iwe.u.data.length = (u16)wpa_len;
+-			start = iwe_stream_add_point(info, start, stop,
+-				&iwe, wpa_ie);
+-		}
+-		if (rsn_len > 0) {
+-			memset(buf, 0, MAX_WPA_IE_LEN);
+-			n = sprintf(buf, "rsn_ie=");
+-			for (i = 0; i < rsn_len; i++) {
+-				n += snprintf(buf + n, MAX_WPA_IE_LEN - n,
+-							"%02x", rsn_ie[i]);
+-				if (n >= MAX_WPA_IE_LEN)
+-					break;
+-			}
+-			memset(&iwe, 0, sizeof(iwe));
+-			iwe.cmd = IWEVCUSTOM;
+-			iwe.u.data.length = strlen(buf);
+-			start = iwe_stream_add_point(info, start, stop,
+-				&iwe, buf);
+-			memset(&iwe, 0, sizeof(iwe));
+-			iwe.cmd = IWEVGENIE;
+-			iwe.u.data.length = rsn_len;
+-			start = iwe_stream_add_point(info, start, stop, &iwe,
+-				rsn_ie);
+-		}
+-	}
+ 
+-	{ /* parsing WPS IE */
+-		u8 wps_ie[512];
+-		uint wps_ielen;
+-
+-		if (r8712_get_wps_ie(pnetwork->network.IEs,
+-		    pnetwork->network.IELength,
+-		    wps_ie, &wps_ielen)) {
+-			if (wps_ielen > 2) {
+-				iwe.cmd = IWEVGENIE;
+-				iwe.u.data.length = (u16)wps_ielen;
+-				start = iwe_stream_add_point(info, start, stop,
+-					&iwe, wps_ie);
+-			}
+-		}
+-	}
++	start = translate_scan_wpa(info, pnetwork, &iwe, start, stop);
++
++	start = translate_scan_wps(info, pnetwork, &iwe, start, stop);
++
+ 	/* Add quality statistics */
+ 	iwe.cmd = IWEVQUAL;
+ 	rssi = r8712_signal_scale_mapping(pnetwork->network.Rssi);
 
 
