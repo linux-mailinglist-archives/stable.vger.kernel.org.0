@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67BD466CD6
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:23:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE0C366D5C
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:29:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727459AbfGLMXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:23:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59604 "EHLO mail.kernel.org"
+        id S1728589AbfGLM3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:29:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727976AbfGLMXl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:23:41 -0400
+        id S1728945AbfGLM3N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:29:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C591F208E4;
-        Fri, 12 Jul 2019 12:23:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4910208E4;
+        Fri, 12 Jul 2019 12:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934220;
-        bh=mOI4f+8M6MD8y67Qh6fR5ZdRMmZi5fzudA5PS0kp1Ik=;
+        s=default; t=1562934552;
+        bh=A7j9TLWrHUaatr6N1wsFWMM8pMp46I6Ryah3bqxuhbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BbPoWjwoRS92mjjxEA4baREXbwb8Og2maANfMcCFU11Si47FrG0RK5YyHnQrfZiTT
-         uS1sgEoXvMecXAajuOkQePi6Q+1xQ0ehH9SkfHs5D2t+JNh3CwDWcCg8cHYQ1C4xA1
-         jkzOjWTl8XCdQ0PZoVnQHHIMEdHmK7BSVYsODbrY=
+        b=BsxSPPPrn1C24nvk7YwofiVhJGkKqApzLVq8YKx1SPa6LCa6TDwIkdz2VV1Wp6yAP
+         wQAgovObheh/T9oPnDJogsnIq+aLgXM98Gaj73EIkjLuLrqhifqTo86KjTOoWXycDe
+         krpg8wrrvuIfhg52ga2ViM9GXDbKM+eXo4iYfw9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: [PATCH 4.19 74/91] usb: dwc2: use a longer AHB idle timeout in dwc2_core_reset()
+        stable@vger.kernel.org, Phil Baker <baker1tex@gmail.com>,
+        Craig Robson <craig@zhatt.com>,
+        Laura Abbott <labbott@redhat.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Bartosz Szczepanek <bsz@semihalf.com>
+Subject: [PATCH 5.1 093/138] tpm: Actually fail on TPM errors during "get random"
 Date:   Fri, 12 Jul 2019 14:19:17 +0200
-Message-Id: <20190712121625.792023602@linuxfoundation.org>
+Message-Id: <20190712121632.331674959@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190712121621.422224300@linuxfoundation.org>
-References: <20190712121621.422224300@linuxfoundation.org>
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121628.731888964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +48,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit dfc4fdebc5d62ac4e2fe5428e59b273675515fb2 upstream.
+commit 782779b60faa2fc7ff609ac8ef938260fd792c0f upstream.
 
-Use a 10000us AHB idle timeout in dwc2_core_reset() and make it
-consistent with the other "wait for AHB master IDLE state" ocurrences.
+A "get random" may fail with a TPM error, but those codes were returned
+as-is to the caller, which assumed the result was the number of bytes
+that had been written to the target buffer, which could lead to a kernel
+heap memory exposure and over-read.
 
-This fixes a problem for me where dwc2 would not want to initialize when
-updating to 4.19 on a MIPS Lantiq VRX200 SoC. dwc2 worked fine with
-4.14.
-Testing on my board shows that it takes 180us until AHB master IDLE
-state is signalled. The very old vendor driver for this SoC (ifxhcd)
-used a 1 second timeout.
-Use the same timeout that is used everywhere when polling for
-GRSTCTL_AHBIDLE instead of using a timeout that "works for one board"
-(180us in my case) to have consistent behavior across the dwc2 driver.
+This fixes tpm1_get_random() to mask positive TPM errors into -EIO, as
+before.
 
-Cc: linux-stable <stable@vger.kernel.org> # 4.19+
-Acked-by: Minas Harutyunyan <hminas@synopsys.com>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+[   18.092103] tpm tpm0: A TPM error (379) occurred attempting get random
+[   18.092106] usercopy: Kernel memory exposure attempt detected from SLUB object 'kmalloc-64' (offset 0, size 379)!
+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1650989
+Reported-by: Phil Baker <baker1tex@gmail.com>
+Reported-by: Craig Robson <craig@zhatt.com>
+Fixes: 7aee9c52d7ac ("tpm: tpm1: rewrite tpm1_get_random() using tpm_buf structure")
+Cc: Laura Abbott <labbott@redhat.com>
+Cc: Tomas Winkler <tomas.winkler@intel.com>
+Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Tomas Winkler <tomas.winkler@intel.com>
+Tested-by: Bartosz Szczepanek <bsz@semihalf.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc2/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/tpm/tpm1-cmd.c |    7 +++++--
+ drivers/char/tpm/tpm2-cmd.c |    7 +++++--
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/dwc2/core.c
-+++ b/drivers/usb/dwc2/core.c
-@@ -531,7 +531,7 @@ int dwc2_core_reset(struct dwc2_hsotg *h
- 	}
+--- a/drivers/char/tpm/tpm1-cmd.c
++++ b/drivers/char/tpm/tpm1-cmd.c
+@@ -510,7 +510,7 @@ struct tpm1_get_random_out {
+  *
+  * Return:
+  * *  number of bytes read
+- * * -errno or a TPM return code otherwise
++ * * -errno (positive TPM return codes are masked to -EIO)
+  */
+ int tpm1_get_random(struct tpm_chip *chip, u8 *dest, size_t max)
+ {
+@@ -531,8 +531,11 @@ int tpm1_get_random(struct tpm_chip *chi
  
- 	/* Wait for AHB master IDLE state */
--	if (dwc2_hsotg_wait_bit_set(hsotg, GRSTCTL, GRSTCTL_AHBIDLE, 50)) {
-+	if (dwc2_hsotg_wait_bit_set(hsotg, GRSTCTL, GRSTCTL_AHBIDLE, 10000)) {
- 		dev_warn(hsotg->dev, "%s: HANG! AHB Idle timeout GRSTCTL GRSTCTL_AHBIDLE\n",
- 			 __func__);
- 		return -EBUSY;
+ 		rc = tpm_transmit_cmd(chip, &buf, sizeof(out->rng_data_len),
+ 				      "attempting get random");
+-		if (rc)
++		if (rc) {
++			if (rc > 0)
++				rc = -EIO;
+ 			goto out;
++		}
+ 
+ 		out = (struct tpm1_get_random_out *)&buf.data[TPM_HEADER_SIZE];
+ 
+--- a/drivers/char/tpm/tpm2-cmd.c
++++ b/drivers/char/tpm/tpm2-cmd.c
+@@ -301,7 +301,7 @@ struct tpm2_get_random_out {
+  *
+  * Return:
+  *   size of the buffer on success,
+- *   -errno otherwise
++ *   -errno otherwise (positive TPM return codes are masked to -EIO)
+  */
+ int tpm2_get_random(struct tpm_chip *chip, u8 *dest, size_t max)
+ {
+@@ -328,8 +328,11 @@ int tpm2_get_random(struct tpm_chip *chi
+ 				       offsetof(struct tpm2_get_random_out,
+ 						buffer),
+ 				       "attempting get random");
+-		if (err)
++		if (err) {
++			if (err > 0)
++				err = -EIO;
+ 			goto out;
++		}
+ 
+ 		out = (struct tpm2_get_random_out *)
+ 			&buf.data[TPM_HEADER_SIZE];
 
 
