@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F91566645
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:30:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0938C66646
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 07:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726096AbfGLFaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 01:30:30 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:44307 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725791AbfGLFaa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:30:30 -0400
-Received: by mail-pl1-f195.google.com with SMTP id t14so4188243plr.11
-        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:30:29 -0700 (PDT)
+        id S1725906AbfGLFad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 01:30:33 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:36040 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725791AbfGLFad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 01:30:33 -0400
+Received: by mail-pl1-f194.google.com with SMTP id k8so4217231plt.3
+        for <stable@vger.kernel.org>; Thu, 11 Jul 2019 22:30:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=dkWh8S1DsW6tSZCYoLWe69ClR5UVvKugQ1/Th9fCzhU=;
-        b=SMwR+6pdVG1+jVLkxuQVbtP/+BVTEx6rGEByEY4qdeK029SHABdRrCTMiXb+4nre45
-         h8O859XSPNC1NRkmJg2+4GipJ9ze5HOA/R6idJQ+Pt7C/gT7400+oVGtmwIU7nb7ULsX
-         Oj54EVb6tOLF1SlsBurQ5iK3J3FAGqldb9vJuYmTP1R4tXxxxiXMf8TsxhbeUBNW3N0J
-         UeWGq6ZtKrNGNghl5q2gRSIQzgEYpgWnrZ7JrGf/e5RvYg1+EE5//gzM/tZ9I+IV8fEQ
-         OSKDS5JI3fNrLgVpfcqmN9DeAephhosWwadHtDNS6bmi0higyU99JwprNFVc7BjMjVJ9
-         0F+Q==
+        bh=yC2M+WqtpDn8WEqkn0+0Dw3Z53HTrfg3c6ZZe0WXdnU=;
+        b=hnTNOY9kfoHlNzvbAy95ge3Ymihro4W2L6qYOqphNV1HnN7qGJ8qbrWzIREcbe7eC7
+         dwHl6edLX+WiNWZAXF38q8xg0U7T7uE7/P6ozeliKWSPEjiuCTV6Wk3oKQbi6waARq4J
+         f5LO7B6/f06ibLBVIHsz9xG+Cbrj/ivkFjNQBS2Wt84VdSjGMXV+yXrw9CTrxrqO69zb
+         VwObKgmTss4IP9RAKt+VqlZEWMdUnuT/4nTcDJxrktsZr3BpfoXpEQYR20a+fDL8fF41
+         HRdMel+P4Q5gyCD6coPglXl6egkbl083ISBK6+5M7fbyThuKOe7GugYGKT95JrxNH/Iu
+         ZJFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=dkWh8S1DsW6tSZCYoLWe69ClR5UVvKugQ1/Th9fCzhU=;
-        b=k1E8Qwb6lZsNIlx7G/t96LoVxQaB6fXQZkvecmARxwsqJGJBYX8fCGkKLAQ3f/c12J
-         euTQ2xpuGYYpmnoO8GKDu+wkvcBBddc5igPXEDLrDUtQLMaFaOGaYJcVqEQgTyzK7v1j
-         IcvIDJLaD3yDB7pbl3GxBIfwL3/4VyTXVjkq3orb69ptKBrkN4mCLWKMpkdMO9ySHAP9
-         G+464sh2zShX/ruVJE1YDixjqEk8RC5r8j3b1kDCiT1pXvXF3eTb775WLvgOK0VKJMy3
-         BhgAWUhny0E6KHx+KdqV83PXNcEiF8FPP5Oyele9c56ocDqgBQ9+YwpsFJaXOezSwcF/
-         lLDw==
-X-Gm-Message-State: APjAAAXq7ZkzzCjIJQMiKLPcqObyN/Un5hcUnpjNkGuf0SNehkAC59Sj
-        MblQf2IOkIkuX7d50ifHAZ4nn2lpMnM=
-X-Google-Smtp-Source: APXvYqwRenMg8VtbpqXdjHaBLDPx/1GaF/9bujmKaumpC/Ey9xVpZHK0cPZvCTDJ4FIQxxoez1R/jw==
-X-Received: by 2002:a17:902:9307:: with SMTP id bc7mr8879363plb.183.1562909429452;
-        Thu, 11 Jul 2019 22:30:29 -0700 (PDT)
+        bh=yC2M+WqtpDn8WEqkn0+0Dw3Z53HTrfg3c6ZZe0WXdnU=;
+        b=g3HwtnEfK5mwnpsMk7inFnDQeeDm/Vc+2T+n3oCWLFC4n6rjWsuQyh0sGMrRPSa08R
+         /Q27ML23UJlzUgs6a7eco9KnZwWW5W1ocTm++Tl9APKt8gvovf1Xr6CsvSgieTZwqzyX
+         s3HerLvIrZ/3F+OXrzpz28gowXJ+klOquwWiMFzIo539qmHRkDw6g1Fk1O2vmfGF3M0C
+         pq+N/fpmxtorG7/EgLmytKzxY0WCwlDjoVtK3Wushf+H4V/UBkkyq6KHo+rUnCSxROJR
+         AgXHYzbnUKkwUUSYGJsmUQRYoXHkRDwJCrIve+Psi+pK/4H8juC7cT9/r1F1rAHjfcqV
+         B1kA==
+X-Gm-Message-State: APjAAAUEhIcpnZZI4+vrUQEVH/fo2VXEppFJjPx0bNyHs5pXJLddIQon
+        YRHlBn9+G7/iFDCUB0VEaMWM1QOFh0o=
+X-Google-Smtp-Source: APXvYqzgYItUP0VZEv21jLL0QvW7NfIAdZrftl69vxAA26hWtTfLLQMqsJ0umNVbd42F9jLFw+8Euw==
+X-Received: by 2002:a17:902:8a8a:: with SMTP id p10mr9380607plo.88.1562909432398;
+        Thu, 11 Jul 2019 22:30:32 -0700 (PDT)
 Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id 14sm6731541pgp.37.2019.07.11.22.30.28
+        by smtp.gmail.com with ESMTPSA id p187sm11052142pfg.89.2019.07.11.22.30.31
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jul 2019 22:30:28 -0700 (PDT)
+        Thu, 11 Jul 2019 22:30:31 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 V2 33/43] arm64: Branch predictor hardening for Cavium ThunderX2
-Date:   Fri, 12 Jul 2019 10:58:21 +0530
-Message-Id: <ba3f93fd7b5b88cc90c6fc201cb9bd64d754d57e.1562908075.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 V2 34/43] ARM: 8478/2: arm/arm64: add arm-smccc
+Date:   Fri, 12 Jul 2019 10:58:22 +0530
+Message-Id: <50c202f16756751deddb4c2287561d1a82d0aeed.1562908075.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
 References: <cover.1562908074.git.viresh.kumar@linaro.org>
@@ -68,44 +68,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jayachandran C <jnair@caviumnetworks.com>
+From: Jens Wiklander <jens.wiklander@linaro.org>
 
-commit f3d795d9b360523beca6d13ba64c2c532f601149 upstream.
+commit 98dd64f34f47ce19b388d9015f767f48393a81eb upstream.
 
-Use PSCI based mitigation for speculative execution attacks targeting
-the branch predictor. We use the same mechanism as the one used for
-Cortex-A CPUs, we expect the PSCI version call to have a side effect
-of clearing the BTBs.
+Adds helpers to do SMC and HVC based on ARM SMC Calling Convention.
+CONFIG_HAVE_ARM_SMCCC is enabled for architectures that may support the
+SMC or HVC instruction. It's the responsibility of the caller to know if
+the SMC instruction is supported by the platform.
 
-Acked-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+This patch doesn't provide an implementation of the declared functions.
+Later patches will bring in implementations and set
+CONFIG_HAVE_ARM_SMCCC for ARM and ARM64 respectively.
+
+Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+[ v4.4: Added #ifndef __ASSEMBLY__ section to fix compilation issues ]
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/kernel/cpu_errata.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/firmware/Kconfig  |   3 ++
+ include/linux/arm-smccc.h | 107 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 110 insertions(+)
+ create mode 100644 include/linux/arm-smccc.h
 
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index dbd7b944a37e..ff22915a2865 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -234,6 +234,16 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- 		MIDR_ALL_VERSIONS(MIDR_CORTEX_A75),
- 		.enable = enable_psci_bp_hardening,
- 	},
-+	{
-+		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
-+		MIDR_ALL_VERSIONS(MIDR_BRCM_VULCAN),
-+		.enable = enable_psci_bp_hardening,
-+	},
-+	{
-+		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
-+		MIDR_ALL_VERSIONS(MIDR_CAVIUM_THUNDERX2),
-+		.enable = enable_psci_bp_hardening,
-+	},
- #endif
- 	{
- 	}
+diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
+index cf478fe6b335..49a3a1185bb6 100644
+--- a/drivers/firmware/Kconfig
++++ b/drivers/firmware/Kconfig
+@@ -173,6 +173,9 @@ config QCOM_SCM_64
+ 	def_bool y
+ 	depends on QCOM_SCM && ARM64
+ 
++config HAVE_ARM_SMCCC
++	bool
++
+ source "drivers/firmware/broadcom/Kconfig"
+ source "drivers/firmware/google/Kconfig"
+ source "drivers/firmware/efi/Kconfig"
+diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
+new file mode 100644
+index 000000000000..611d10580340
+--- /dev/null
++++ b/include/linux/arm-smccc.h
+@@ -0,0 +1,107 @@
++/*
++ * Copyright (c) 2015, Linaro Limited
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++#ifndef __LINUX_ARM_SMCCC_H
++#define __LINUX_ARM_SMCCC_H
++
++#include <linux/linkage.h>
++#include <linux/types.h>
++
++/*
++ * This file provides common defines for ARM SMC Calling Convention as
++ * specified in
++ * http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
++ */
++
++#define ARM_SMCCC_STD_CALL		0
++#define ARM_SMCCC_FAST_CALL		1
++#define ARM_SMCCC_TYPE_SHIFT		31
++
++#define ARM_SMCCC_SMC_32		0
++#define ARM_SMCCC_SMC_64		1
++#define ARM_SMCCC_CALL_CONV_SHIFT	30
++
++#define ARM_SMCCC_OWNER_MASK		0x3F
++#define ARM_SMCCC_OWNER_SHIFT		24
++
++#define ARM_SMCCC_FUNC_MASK		0xFFFF
++
++#define ARM_SMCCC_IS_FAST_CALL(smc_val)	\
++	((smc_val) & (ARM_SMCCC_FAST_CALL << ARM_SMCCC_TYPE_SHIFT))
++#define ARM_SMCCC_IS_64(smc_val) \
++	((smc_val) & (ARM_SMCCC_SMC_64 << ARM_SMCCC_CALL_CONV_SHIFT))
++#define ARM_SMCCC_FUNC_NUM(smc_val)	((smc_val) & ARM_SMCCC_FUNC_MASK)
++#define ARM_SMCCC_OWNER_NUM(smc_val) \
++	(((smc_val) >> ARM_SMCCC_OWNER_SHIFT) & ARM_SMCCC_OWNER_MASK)
++
++#define ARM_SMCCC_CALL_VAL(type, calling_convention, owner, func_num) \
++	(((type) << ARM_SMCCC_TYPE_SHIFT) | \
++	((calling_convention) << ARM_SMCCC_CALL_CONV_SHIFT) | \
++	(((owner) & ARM_SMCCC_OWNER_MASK) << ARM_SMCCC_OWNER_SHIFT) | \
++	((func_num) & ARM_SMCCC_FUNC_MASK))
++
++#define ARM_SMCCC_OWNER_ARCH		0
++#define ARM_SMCCC_OWNER_CPU		1
++#define ARM_SMCCC_OWNER_SIP		2
++#define ARM_SMCCC_OWNER_OEM		3
++#define ARM_SMCCC_OWNER_STANDARD	4
++#define ARM_SMCCC_OWNER_TRUSTED_APP	48
++#define ARM_SMCCC_OWNER_TRUSTED_APP_END	49
++#define ARM_SMCCC_OWNER_TRUSTED_OS	50
++#define ARM_SMCCC_OWNER_TRUSTED_OS_END	63
++
++#ifndef __ASSEMBLY__
++
++/**
++ * struct arm_smccc_res - Result from SMC/HVC call
++ * @a0-a3 result values from registers 0 to 3
++ */
++struct arm_smccc_res {
++	unsigned long a0;
++	unsigned long a1;
++	unsigned long a2;
++	unsigned long a3;
++};
++
++/**
++ * arm_smccc_smc() - make SMC calls
++ * @a0-a7: arguments passed in registers 0 to 7
++ * @res: result values from registers 0 to 3
++ *
++ * This function is used to make SMC calls following SMC Calling Convention.
++ * The content of the supplied param are copied to registers 0 to 7 prior
++ * to the SMC instruction. The return values are updated with the content
++ * from register 0 to 3 on return from the SMC instruction.
++ */
++asmlinkage void arm_smccc_smc(unsigned long a0, unsigned long a1,
++			unsigned long a2, unsigned long a3, unsigned long a4,
++			unsigned long a5, unsigned long a6, unsigned long a7,
++			struct arm_smccc_res *res);
++
++/**
++ * arm_smccc_hvc() - make HVC calls
++ * @a0-a7: arguments passed in registers 0 to 7
++ * @res: result values from registers 0 to 3
++ *
++ * This function is used to make HVC calls following SMC Calling
++ * Convention.  The content of the supplied param are copied to registers 0
++ * to 7 prior to the HVC instruction. The return values are updated with
++ * the content from register 0 to 3 on return from the HVC instruction.
++ */
++asmlinkage void arm_smccc_hvc(unsigned long a0, unsigned long a1,
++			unsigned long a2, unsigned long a3, unsigned long a4,
++			unsigned long a5, unsigned long a6, unsigned long a7,
++			struct arm_smccc_res *res);
++
++#endif /*__ASSEMBLY__*/
++#endif /*__LINUX_ARM_SMCCC_H*/
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
