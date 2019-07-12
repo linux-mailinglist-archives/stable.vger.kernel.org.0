@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CBE866D3F
-	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:29:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1140D66D4B
+	for <lists+stable@lfdr.de>; Fri, 12 Jul 2019 14:29:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728027AbfGLM14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 08:27:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41182 "EHLO mail.kernel.org"
+        id S1728835AbfGLM23 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 08:28:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728720AbfGLM1z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jul 2019 08:27:55 -0400
+        id S1728831AbfGLM23 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jul 2019 08:28:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18CD821019;
-        Fri, 12 Jul 2019 12:27:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DC4E21670;
+        Fri, 12 Jul 2019 12:28:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562934475;
-        bh=29XoS77K21tgMNHk4T910ZD4vgXDxrf+LXa6VRmNcJU=;
+        s=default; t=1562934508;
+        bh=2PGtoNThi1wmNK2eDCwm4czO2PFAuK2r3v/tdgqCp+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bf58cF4C+isX2SguepMfmLrM8M7J7SAWA25J2ZzDkISH8+PvkaO3CmGt0QA+7M3DU
-         oqSYnrzXnLzBGUdUAIRhH0IBAc+x5BaxWJaXOytiryDXVIueekNJlzhbyYY/rk1oEw
-         sbNV6WIH5biS3QYz/8LeGaXiAXnEARKGqgzv/MGY=
+        b=YS3fQ+xI1RVmuTIAznlD5pHkKdN++jGqiibw8QimPQqWanMDOX/w6fqq5mccNU83C
+         zY4hmsyFtuRVTU8zwTzstuQq8rWLkyFL2dZg/3Xc4FqAOWQJo1OJSfxCkzjdJ03we4
+         T6nqMDlzk+7r3/NCOL20t9kRoIkqFE4A4b2PfqBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Quentin Monnet <quentin.monnet@netronome.com>,
-        Krzesimir Nowak <krzesimir@kinvolk.io>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 030/138] tools: bpftool: Fix JSON output when lookup fails
-Date:   Fri, 12 Jul 2019 14:18:14 +0200
-Message-Id: <20190712121629.852592026@linuxfoundation.org>
+Subject: [PATCH 5.1 034/138] dt-bindings: can: mcp251x: add mcp25625 support
+Date:   Fri, 12 Jul 2019 14:18:18 +0200
+Message-Id: <20190712121630.000329920@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
 References: <20190712121628.731888964@linuxfoundation.org>
@@ -47,76 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1884c066579a7a274dd981a4d9639ca63db66a23 ]
+[ Upstream commit 0df82dcd55832a99363ab7f9fab954fcacdac3ae ]
 
-In commit 9a5ab8bf1d6d ("tools: bpftool: turn err() and info() macros
-into functions") one case of error reporting was special cased, so it
-could report a lookup error for a specific key when dumping the map
-element. What the code forgot to do is to wrap the key and value keys
-into a JSON object, so an example output of pretty JSON dump of a
-sockhash map (which does not support looking up its values) is:
+Fully compatible with mcp2515, the mcp25625 have integrated transceiver.
 
-[
-    "key": ["0x0a","0x41","0x00","0x02","0x1f","0x78","0x00","0x00"
-    ],
-    "value": {
-        "error": "Operation not supported"
-    },
-    "key": ["0x0a","0x41","0x00","0x02","0x1f","0x78","0x00","0x01"
-    ],
-    "value": {
-        "error": "Operation not supported"
-    }
-]
+This patch add the mcp25625 to the device tree bindings documentation.
 
-Note the key-value pairs inside the toplevel array. They should be
-wrapped inside a JSON object, otherwise it is an invalid JSON. This
-commit fixes this, so the output now is:
-
-[{
-        "key": ["0x0a","0x41","0x00","0x02","0x1f","0x78","0x00","0x00"
-        ],
-        "value": {
-            "error": "Operation not supported"
-        }
-    },{
-        "key": ["0x0a","0x41","0x00","0x02","0x1f","0x78","0x00","0x01"
-        ],
-        "value": {
-            "error": "Operation not supported"
-        }
-    }
-]
-
-Fixes: 9a5ab8bf1d6d ("tools: bpftool: turn err() and info() macros into functions")
-Cc: Quentin Monnet <quentin.monnet@netronome.com>
-Signed-off-by: Krzesimir Nowak <krzesimir@kinvolk.io>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/map.c | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/devicetree/bindings/net/can/microchip,mcp251x.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/bpf/bpftool/map.c b/tools/bpf/bpftool/map.c
-index 994a7e0d16fb..14f581b562bd 100644
---- a/tools/bpf/bpftool/map.c
-+++ b/tools/bpf/bpftool/map.c
-@@ -713,12 +713,14 @@ static int dump_map_elem(int fd, void *key, void *value,
- 		return 0;
- 
- 	if (json_output) {
-+		jsonw_start_object(json_wtr);
- 		jsonw_name(json_wtr, "key");
- 		print_hex_data_json(key, map_info->key_size);
- 		jsonw_name(json_wtr, "value");
- 		jsonw_start_object(json_wtr);
- 		jsonw_string_field(json_wtr, "error", strerror(lookup_errno));
- 		jsonw_end_object(json_wtr);
-+		jsonw_end_object(json_wtr);
- 	} else {
- 		if (errno == ENOENT)
- 			print_entry_plain(map_info, key, NULL);
+diff --git a/Documentation/devicetree/bindings/net/can/microchip,mcp251x.txt b/Documentation/devicetree/bindings/net/can/microchip,mcp251x.txt
+index 188c8bd4eb67..5a0111d4de58 100644
+--- a/Documentation/devicetree/bindings/net/can/microchip,mcp251x.txt
++++ b/Documentation/devicetree/bindings/net/can/microchip,mcp251x.txt
+@@ -4,6 +4,7 @@ Required properties:
+  - compatible: Should be one of the following:
+    - "microchip,mcp2510" for MCP2510.
+    - "microchip,mcp2515" for MCP2515.
++   - "microchip,mcp25625" for MCP25625.
+  - reg: SPI chip select.
+  - clocks: The clock feeding the CAN controller.
+  - interrupts: Should contain IRQ line for the CAN controller.
 -- 
 2.20.1
 
