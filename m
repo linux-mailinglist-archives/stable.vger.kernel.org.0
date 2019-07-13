@@ -2,64 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2C7C67C34
-	for <lists+stable@lfdr.de>; Sun, 14 Jul 2019 00:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A39EA67C37
+	for <lists+stable@lfdr.de>; Sun, 14 Jul 2019 00:04:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727980AbfGMWDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Jul 2019 18:03:34 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:37666 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727968AbfGMWDe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Jul 2019 18:03:34 -0400
-Received: by mail-pl1-f194.google.com with SMTP id b3so6451216plr.4;
-        Sat, 13 Jul 2019 15:03:34 -0700 (PDT)
+        id S1728095AbfGMWES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Jul 2019 18:04:18 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:35056 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727968AbfGMWES (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Jul 2019 18:04:18 -0400
+Received: by mail-pl1-f195.google.com with SMTP id w24so6457362plp.2;
+        Sat, 13 Jul 2019 15:04:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=5w54gVlwlcQ2bynC44gyRnaULScT04VVjWvEfAe5cPw=;
-        b=XJ8EJiGFJQykC0NGGlUACEnLvAin6s72tUzIu31fgFBrQojgiaD8eT6TU7LBgFkhGK
-         Y94xUp0xtmSIflbwjhAVhWSpawVrtIaeVvuUfwAFriJksb3cmiXjkPT69vqnirCWuSoS
-         iqRUJIuWQ5w1WiISqcECwPVLla3WCHcK+mKtTmlqfVtgZ7ktBsn37PHssRW6k5cA63vG
-         8UXpPRaIROzskDEl1Pl7jaUakvPG+xN/jFdbC9ngQtbREJw2q8tq49avIDimtJH6/1tu
-         4akvDvq4YOjYsdgK/x+B91M5M3qhhZsehLnvJgJC+r2jysmyoogQs3VmHnYLcp4rnTUG
-         51FQ==
+        bh=lsS5tiG93wGI+0e8VJOyMV/s9lHUWHjldGOdrNdobtQ=;
+        b=Gig1V5Yj/VGdrUlvIZP5v7Kb8ncm7ATqrLFjGM3f2JlQfLCgmIf65l6CdjuARk3AGH
+         4ORuZ/TgAOIZZ8RzaR4f+0XWnqesCwILQYQxzbzi0ElHVFZhfo6zCZsvGxJ6s+xqjZWE
+         X8RYIQ4juOe43+7AqT7jLd33SuQruffxkJ9RNvB4gNEuPViEGZnn5in65wfHNX3CjotO
+         T13/Yym0uJiaw3ITO8HL5pc1GTFcTvAbzPnYSKQyyAw+XzxnJ77dDvXai51cVNZnC+mG
+         EK1DRh1MwgsZFjFXz1h3SiSM9OzMrni5Dxo5Iudh45To0FNRE4fdmj/luluWiYKwH8F+
+         gWVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
          :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=5w54gVlwlcQ2bynC44gyRnaULScT04VVjWvEfAe5cPw=;
-        b=jDgDBBkTBIdq3fXiVrVNPvnhsYSI257gJLi8VkFtYuwXRniHS1mz28RX3kSOixyMFR
-         mACSyh4d2IWbTmGIQp7NJmWxHTLbTc2IYmL8hxtAnsvIiClrUYDKy4fIqBv7270NtNyI
-         0xn9gxfSU//OpRw5JVTsPMIu1BJnl3CWGEAdaUNwglSOb4o0V5teWsMj9k5WeoceA3aJ
-         jgZjATTqFauY3QMTXoi1M6yb7fjZXUNTuNLhahIB2lkGxE8GZ4UTEl9Qfe44UiyGG+oF
-         VNW5CulBgVWVLIrf2QDfHWHo4lVx256PQiAD/eb9RWKDoK3716NJ0/o5dpOb28b11jIC
-         QLyA==
-X-Gm-Message-State: APjAAAUERc+ORla7xyuRMApHLc8omkB2FyRL2DHxTqYFC9snTQzOj7QW
-        ee29KNVcQIo9d9po3V2TW+RTBCG2
-X-Google-Smtp-Source: APXvYqyz40vUjl2K6LvlfysI+xNzCPhx+mw8uDN4SNQQWw2FZ0AXSyN5zz3ZUnPizy3zihmIxEILYw==
-X-Received: by 2002:a17:902:8c98:: with SMTP id t24mr20265659plo.320.1563055413757;
-        Sat, 13 Jul 2019 15:03:33 -0700 (PDT)
+        bh=lsS5tiG93wGI+0e8VJOyMV/s9lHUWHjldGOdrNdobtQ=;
+        b=lUs4onFHbH8iC5K8cgN+Axuo/Ys0Gx0O8uYEYY4TUXgMGvHw92uPwG6D0H6HRtDt1V
+         zH4yzbxh44PRkf0LmZ619eqSS/AntdWVd7WcWSfxUu2ldN+ewRx0bHaRKQCfbRHVy42f
+         za8yMSgxeju8WN/Rp1v+NFMEK1vINPjMSNDd/9E6HKB4CfRI/Kxm9fZmPRlcLY1Rcolm
+         iGpAg2PTGRq8RN5TG6c988X9kBfro9Sc54wjfY31bRV5iW40Jl1Nw9mQZQEywwwqD71J
+         v7bftkhG3ZqzCPCbXDjd5KAzQ6b+2yHoXjojbA6H3tCUpT9o8eCHmp3vRLwyffnMd9A3
+         0UOQ==
+X-Gm-Message-State: APjAAAW/Ch4VmT/T6pRzbZpup9JrVJyjsUahOgdQNU19SMRpgW78hHfL
+        C0cnMGRkWGX8EBKaFq8QqP4uBbDh
+X-Google-Smtp-Source: APXvYqxVLaUzF+Q5hlbmefjFfmjjSIh87tjNs85+IeSE8e5QUj1KLV8JGeKMTEeu45lalGg3uyNnqQ==
+X-Received: by 2002:a17:902:e6:: with SMTP id a93mr19679988pla.175.1563055457531;
+        Sat, 13 Jul 2019 15:04:17 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y22sm15105759pfo.39.2019.07.13.15.03.31
+        by smtp.gmail.com with ESMTPSA id h1sm15618421pfg.55.2019.07.13.15.04.16
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 13 Jul 2019 15:03:32 -0700 (PDT)
-Subject: Re: [PATCH 5.1 000/138] 5.1.18-stable review
+        Sat, 13 Jul 2019 15:04:17 -0700 (PDT)
+Subject: Re: [PATCH 5.2 00/61] 5.2.1-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-References: <20190712121628.731888964@linuxfoundation.org>
+References: <20190712121620.632595223@linuxfoundation.org>
 From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <cc4c0a5b-0aae-431b-4ee7-dc267c5310ed@roeck-us.net>
-Date:   Sat, 13 Jul 2019 15:03:30 -0700
+Message-ID: <7355803d-19e2-c05c-3573-13a280a98f30@roeck-us.net>
+Date:   Sat, 13 Jul 2019 15:04:16 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.2
 MIME-Version: 1.0
-In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+In-Reply-To: <20190712121620.632595223@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -68,9 +68,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/12/19 5:17 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.1.18 release.
-> There are 138 patches in this series, all will be posted as a response
+On 7/12/19 5:19 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.2.1 release.
+> There are 61 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -78,7 +78,7 @@ On 7/12/19 5:17 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 
-For v5.1.17-134-gd68c746af314:
+For v5.2-61-g0a498a7d2850:
 
 Build results:
 	total: 159 pass: 159 fail: 0
