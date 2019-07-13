@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C0AB67A8B
-	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 16:29:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 990F367A89
+	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 16:29:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727626AbfGMO3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Jul 2019 10:29:22 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:38097 "EHLO
+        id S1727696AbfGMO3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Jul 2019 10:29:21 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:58621 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727504AbfGMO3V (ORCPT
+        by vger.kernel.org with ESMTP id S1727678AbfGMO3V (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 13 Jul 2019 10:29:21 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id F147343F;
-        Sat, 13 Jul 2019 10:29:17 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 9B99C412;
+        Sat, 13 Jul 2019 10:29:18 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
   by compute6.internal (MEProxy); Sat, 13 Jul 2019 10:29:18 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding
         :content-type:date:from:message-id:mime-version:subject:to
         :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; bh=9dKnyNZW++hPbr5k9cgrcZDonT4AhbBHIUhHGbgqrmM=; b=0Lj8i/UD
-        fiE6/Ey8o55YpAv9rWMEjYWEfwZZoHwvjrYsoewxbhFwacuajFGGPN6jmEmO2p5F
-        mDCAthkc8M8OW3iWyl2iSxXQ5fmQJCbAu2qTuMqnXzH6QVXnPR4UtHMj6THe+Gtq
-        n1ovh61a9HlwpCksW3G0UrbW/CkavAoBMl8WkUEnMNe6ZCXgj9fk3EPzq9diqC0B
-        DX4yl8/YNMIl99TYC2nJmq+XHLPq5IWRwJMGf3/RfNUq/xVb6dDfrCwcNzNMnWge
-        uxnSImlYwFPYhuBLuXBOdcG5Is/b+fwC4DhlxjNAbPl/7SmhFwo+IlItRYbixxzj
-        AjGASrQDTCo1kQ==
-X-ME-Sender: <xms:vOopXWwGG2a-nvAB_k3QABkHBN6fbPQOXz_HPNgkIbF4p1xVwR6wfw>
+        fm3; bh=0WDIlJ5mIzNElLCNM2MaOTLELF/wJz890kAGbKDbF8Q=; b=n+ExWmsJ
+        nMiiJr9EI/ydxL8ecvenJ001dZz9wU3q6gBVbbF50DqCYQrJgGgRaj/rSn+eiQQ5
+        kWeGZiVqY6In+lgn+vjZ8SnXNdh3BOvM5NK0IMzxlZdXrrkc6tetWo5SaLnrgEjU
+        6b4CqV0XNMMy8rkt9dMS/V3i/OnihaZKzPFA6gdejc7VO3wd2jllOtotCvsyDU0N
+        BjjiHBqsqmuU+LiP4yzP90Z8v6tb98YMTJ6ETKiMnnTLdektFF6x0Ae69j7ytl2I
+        1h+bD/iitS6aXGaFCqwviMNMkZa7LuH3BsOBv840p2YU8/df8RDuHjc5h5HQC6p9
+        FvyJkf8cQpOJ3g==
+X-ME-Sender: <xms:vuopXSC48aWYOLQxmslhpAy_jgPdJSw46zJzUDdU5ZJSog20AUy7fg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrhedvgdejkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
     hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:vOopXRDiuN2e-v8Pve9_90V4dNDN5DNIKX7naz6BJDbugXjhR_VSVw>
-    <xmx:vOopXX4p8M4Etopw45qufkMUI2GH8SpHTuOkga5l5WPOW0w0jRtZxg>
-    <xmx:vOopXW0k6AZYvRguxCN0wrnh8g80dJTp5tJ_NaD4RakhumfZP53HEw>
-    <xmx:veopXZB-XOyXhMQfvzp-xqP5o9lSbO5Z8lcajvyKetn7CBj_OjmqrQ>
+X-ME-Proxy: <xmx:vuopXewppk-O5D9ocRCtql04ttOBuVTZkfVOzJ5nozGWxJKCBeyiZw>
+    <xmx:vuopXX29PWzGOVorq0iyMCPxSb26_5LHTrf6GaeW9rZ7Gk5WoKs4ng>
+    <xmx:vuopXWxqczJXW-XcKW80zra0_O2-KJ89ruh6X1xe83QgmOJ2pzzeiA>
+    <xmx:vuopXTT5p0aXMQImfOcH0q0hF5qzZ7E12yqBh2Nmnmt3CA9avqSvpw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1413C80061;
-        Sat, 13 Jul 2019 10:29:15 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: talitos - fix hash on SEC1." failed to apply to 5.2-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id AB1C980064;
+        Sat, 13 Jul 2019 10:29:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: talitos - fix hash on SEC1." failed to apply to 5.1-stable tree
 To:     christophe.leroy@c-s.fr
 Cc:     <stable@vger.kernel.org>
 Cc:     Herbert Xu <herbert@gondor.apana.org.au>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Jul 2019 16:26:31 +0200
-Message-ID: <156302799113810@kroah.com>
+Date:   Sat, 13 Jul 2019 16:26:32 +0200
+Message-ID: <15630279929532@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.2-stable tree.
+The patch below does not apply to the 5.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
