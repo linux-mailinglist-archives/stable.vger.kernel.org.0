@@ -2,103 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8971567763
-	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 03:08:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 478056778A
+	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 03:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727489AbfGMBIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jul 2019 21:08:25 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:33470 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727392AbfGMBIY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 21:08:24 -0400
-Received: by mail-wr1-f65.google.com with SMTP id n9so11642229wru.0
-        for <stable@vger.kernel.org>; Fri, 12 Jul 2019 18:08:23 -0700 (PDT)
+        id S1727489AbfGMBqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jul 2019 21:46:17 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:45949 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727392AbfGMBqR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jul 2019 21:46:17 -0400
+Received: by mail-ot1-f65.google.com with SMTP id x21so11243888otq.12;
+        Fri, 12 Jul 2019 18:46:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=oD5HsBSgSAQ5jap20FR831CoyJP8raEaz9mnvE61WXE=;
-        b=0UrC00/8NYtd1hE3K9rf0ZzI7dHcy62c217a45hj/nv2bZy2BDarXl1nRon9UOmuCt
-         JntfDeL01Z0kWd3w7B2ScMIjZqHaderQXsQvmKkJmP/BCfd2nO23bbbvvwWwFsvB+ljd
-         GCLqIRAhogyXttlkgNdeic1lw6W5bXKL8g36YYZQzuRJW54Zn2v2XolZ6oqJx0JHGWGU
-         OmPVaCPjsxP+fpDEnyMlA/7NKfQks32ULHwG4ScUJUYmcpzf8IzT5ZbBakwAKKmHFB1Z
-         x+q4FCo3f+cBylVqjvpQCIeCgRydEJxIe3IISkKtJqoe9jK6oqaAFlO6ba5EvX/WIVAr
-         hXUQ==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=RJggIoi1WuUJiWJbJhM4FX0KGoxeELa70x1WQjNhHL4=;
+        b=LmshNrSKmoo+LJuiEF3vWYXLEuy4d/RvWUI1HEE8vlBFNWDM1e3+JvPOhqxu43p88W
+         tHFP18wkBUqfz2hFEYWmM1RMDGmVKrkTBKcs0SL8hzZj9YLi4i9dE+w40ctSQIFbOfk9
+         l8NJYQKtuJeLVvJjtOZV788QBU5IdgjCSWPmErY6lZxeW6N/QARvWl01nGVApC/pgdgF
+         REy+UDYdH7rZ6Am5fPolzO0GMr64NHdbdgyRHIj7fEBk7cpoa8MSoHgHe8qebO5spvVf
+         dMCkTLzfWxn8vE/pLm6IEh89T/NC2jhnm3FtyaURBje3czNAg8fipUz5dWAblz+ikKxV
+         7e9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=oD5HsBSgSAQ5jap20FR831CoyJP8raEaz9mnvE61WXE=;
-        b=q2D5GEHhnJs5oPq+qwsyhGydqkTw8l/xXHmbecDBr5kQQZ3yE6NYXR4gVAXPPEclM0
-         xwrzlh1sZngaJ6dHdQ9DjQ9ZwwP34TX3pAHgmIae1fIw82yj/PVfDJyaXFIXk5ooX0XN
-         UsTt4X3Ty/fitYxtZNhjuGZQlMXXZisAygmL9iCD1f55xNvEk/OiGCwacsrdR509o8tW
-         FpgWr9axW3REBKa0SU9hZTs713dyhuA2rEbPlXrgLZoVRyY3RJJC5l0AEzduMkOAdTFk
-         M/PEKQYKD/ZVUKw+K5ziaZYCJZD0/7w737adQsXFXkyQaI5Pd+G6hiJUgQ5EuEb0v8P2
-         daIA==
-X-Gm-Message-State: APjAAAV5JJa3ICE1M4sRTBmn04VfDwqvEth/lZVFl+DUVX+RV+IuXYQ/
-        pqyxFNQUJJnrb+mxMZmQbPqK8Uyrce4=
-X-Google-Smtp-Source: APXvYqxe4WdLXazZLfT0rvsVVPL23v4plSjBezKesMf+H1N59Y5yvz5JAFXWtsTUMl3YS5SI2GeLMQ==
-X-Received: by 2002:adf:c803:: with SMTP id d3mr14612333wrh.130.1562980102517;
-        Fri, 12 Jul 2019 18:08:22 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id c1sm17648679wrh.1.2019.07.12.18.08.21
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 12 Jul 2019 18:08:22 -0700 (PDT)
-Message-ID: <5d292f06.1c69fb81.f6d50.6e87@mx.google.com>
-Date:   Fri, 12 Jul 2019 18:08:22 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=RJggIoi1WuUJiWJbJhM4FX0KGoxeELa70x1WQjNhHL4=;
+        b=BMn4awOPwGKsGVttti9Z3EcNUVhnHzSnzWaZ29SKCZ5SVUhI0iEtcC+AJ9ojUG2gv4
+         zQFLfT/i9gTnZzgptCYuSBvvRmza89fqaDRiqNQGdsNm0LDE7gdjvKHHQKPz83t1gzSq
+         KPyqYIUHlekbmZu7BboiD5AhEvu9XgDNksjW7X31a+Al3r0Lkksv4R4uAQXPubVIWJYu
+         AFtnc4R+fPq8g4tJicK2ufOp7aDKrDXACdWBoi1cJdxCelmwzx0LGToPayvYWTEMxdEi
+         0S4N+aQhhru/q9rdsTQUW1q+139VrgHrFxD/Rk0898vtq9hXGbhmM4WNNtcmShvKFaWi
+         eCpA==
+X-Gm-Message-State: APjAAAUsr/EATgD2IuahYodq8y6RUZpx3vmSJHUK0T0aKRnV3QVSXsMR
+        k1pKf/f4eQgldGz7YUpl1CA=
+X-Google-Smtp-Source: APXvYqzancg/wWyb2ElQ0BIGXapMi4huf2UzabvWjv7xebotAe2UpT5vui/aF619ph4geW0j9sWUKQ==
+X-Received: by 2002:a9d:5c11:: with SMTP id o17mr10308522otk.107.1562982376655;
+        Fri, 12 Jul 2019 18:46:16 -0700 (PDT)
+Received: from rYz3n ([2600:1700:210:3790::40])
+        by smtp.gmail.com with ESMTPSA id q20sm3525559otm.32.2019.07.12.18.46.15
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Fri, 12 Jul 2019 18:46:16 -0700 (PDT)
+Date:   Fri, 12 Jul 2019 20:46:15 -0500
+From:   Jiunn Chang <c0d1n61at3@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.1 000/138] 5.1.18-stable review
+Message-ID: <20190713014614.xfvf2q2bt6n5bhui@rYz3n>
+References: <20190712121628.731888964@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.133-57-g6186c2589718
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 119 boots: 4 failed,
- 115 passed (v4.14.133-57-g6186c2589718)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190712121628.731888964@linuxfoundation.org>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 119 boots: 4 failed, 115 passed (v4.14.133-57-=
-g6186c2589718)
+On Fri, Jul 12, 2019 at 02:17:44PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.1.18 release.
+> There are 138 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun 14 Jul 2019 12:14:36 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.18-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> -------------
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.133-57-g6186c2589718/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.133-57-g6186c2589718/
+Hello,
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.133-57-g6186c2589718
-Git Commit: 6186c2589718f95a376bc65d24797f4c9cdb0819
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 66 unique boards, 26 SoC families, 16 builds out of 201
+Compiled and booted fine.  No regressions on x86_64.
 
-Boot Failures Detected:
+THX,
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
-
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-bananapi: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
-
-arc:
-    hsdk_defconfig:
-        gcc-8:
-            hsdk: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+Jiunn
