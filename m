@@ -2,52 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97596679E8
-	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 13:12:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE789679EA
+	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 13:13:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727418AbfGMLMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Jul 2019 07:12:36 -0400
-Received: from terminus.zytor.com ([198.137.202.136]:41005 "EHLO
+        id S1726755AbfGMLNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Jul 2019 07:13:20 -0400
+Received: from terminus.zytor.com ([198.137.202.136]:49683 "EHLO
         terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726474AbfGMLMg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Jul 2019 07:12:36 -0400
+        with ESMTP id S1726474AbfGMLNU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Jul 2019 07:13:20 -0400
 Received: from terminus.zytor.com (localhost [127.0.0.1])
-        by terminus.zytor.com (8.15.2/8.15.2) with ESMTPS id x6DBCJLN3842035
+        by terminus.zytor.com (8.15.2/8.15.2) with ESMTPS id x6DBD2J23842082
         (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-        Sat, 13 Jul 2019 04:12:19 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 terminus.zytor.com x6DBCJLN3842035
+        Sat, 13 Jul 2019 04:13:03 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 terminus.zytor.com x6DBD2J23842082
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2019061801; t=1563016340;
-        bh=8P1Xx6tgO+zT9lTIq+5BV5iWKojj++eBEI9j+VPGaBQ=;
+        s=2019061801; t=1563016383;
+        bh=4NiuF9ef3LEZajpUQw81R/JZpb3yA4FfFwW+QZfNl2A=;
         h=Date:From:Cc:Reply-To:In-Reply-To:References:To:Subject:From;
-        b=FYxhmluXHhqF2Rknt7Z6vMBTx+UyKMGh1AVebGXh8Ii22P2RXsoK+2/sf6fnNwlMz
-         fMB0x+QEGP+c6duyihUEntHtGd2RrRtbPe12ZThIDJf0Fbq5wOurCy+rZCPxieJDr/
-         UY0JIMW4HQLJc8rMh2Y1VtfmW/Up1M9CEN4yTQkqndXRM5paQqsWtgNatN8l4pU9NE
-         EM4iNoL9U9hhavOkCeA1rGA9oeScco1gIVxjpNQ0CxLS86jQbfhm6e3pRr4VL4TEiA
-         u1sPYTdSrqt69n4GW6LHgsyBN9oI/UnfdC7vSqv6cD+RQvAoWzDbUg5W/dqGSpEOfS
-         D4JBzSyl3p7tQ==
+        b=Qz8tOZBpf0VGt3yqtIeMmlcliCUmSQTq+x6lw2B1IpeBEFmpoqndmj/QvB/IAhpa+
+         G8Q1QLv0Z6e1NCT6v8S5wM6JDdys/6o7P7oD+/eD+mRg9qDVY4kkAnsTezMrzmd9bv
+         ystjBT3aiE8Qev3wDPea+sS9sDCTJqvoql3wQiC9hR5YK0k146Sd8U61ejvKAonhlT
+         rAsHZXW/fOIhJkifdzXMyKBIfFKjRwTy0ssn9F1Hyi1+QWh/D3zuY4u1H2uX2ys+FT
+         UuTK9lQ30bFLuW1kSrBI33tqjAYzeBR1L8UR78LyLAc+2MuGzpP2jVhtyH/Aj9anyB
+         KxialLPmzPFkg==
 Received: (from tipbot@localhost)
-        by terminus.zytor.com (8.15.2/8.15.2/Submit) id x6DBCJAX3842032;
-        Sat, 13 Jul 2019 04:12:19 -0700
-Date:   Sat, 13 Jul 2019 04:12:19 -0700
+        by terminus.zytor.com (8.15.2/8.15.2/Submit) id x6DBD2Tk3842076;
+        Sat, 13 Jul 2019 04:13:02 -0700
+Date:   Sat, 13 Jul 2019 04:13:02 -0700
 X-Authentication-Warning: terminus.zytor.com: tipbot set sender to tipbot@zytor.com using -f
-From:   tip-bot for Alexander Shishkin <tipbot@zytor.com>
-Message-ID: <tip-8a58ddae23796c733c5dfbd717538d89d036c5bd@git.kernel.org>
-Cc:     linux-kernel@vger.kernel.org, alexander.shishkin@linux.intel.com,
-        tglx@linutronix.de, hpa@zytor.com, torvalds@linux-foundation.org,
-        stable@vger.kernel.org, jolsa@redhat.com, vincent.weaver@maine.edu,
-        acme@redhat.com, peterz@infradead.org, mingo@kernel.org,
-        eranian@google.com
-Reply-To: linux-kernel@vger.kernel.org, alexander.shishkin@linux.intel.com,
-          tglx@linutronix.de, hpa@zytor.com, torvalds@linux-foundation.org,
-          stable@vger.kernel.org, jolsa@redhat.com,
-          vincent.weaver@maine.edu, acme@redhat.com, peterz@infradead.org,
-          mingo@kernel.org, eranian@google.com
-In-Reply-To: <20190701110755.24646-1-alexander.shishkin@linux.intel.com>
-References: <20190701110755.24646-1-alexander.shishkin@linux.intel.com>
+From:   tip-bot for Kan Liang <tipbot@zytor.com>
+Message-ID: <tip-e4557c1a46b0d32746bd309e1941914b5a6912b4@git.kernel.org>
+Cc:     linux-kernel@vger.kernel.org, eranian@google.com,
+        torvalds@linux-foundation.org, peterz@infradead.org,
+        tglx@linutronix.de, jolsa@kernel.org, vincent.weaver@maine.edu,
+        jolsa@redhat.com, mingo@kernel.org,
+        alexander.shishkin@linux.intel.com, ammy.yi@intel.com,
+        acme@redhat.com, kan.liang@linux.intel.com, stable@vger.kernel.org,
+        hpa@zytor.com
+Reply-To: torvalds@linux-foundation.org, eranian@google.com,
+          linux-kernel@vger.kernel.org, peterz@infradead.org,
+          tglx@linutronix.de, jolsa@kernel.org, vincent.weaver@maine.edu,
+          alexander.shishkin@linux.intel.com, jolsa@redhat.com,
+          mingo@kernel.org, ammy.yi@intel.com, kan.liang@linux.intel.com,
+          acme@redhat.com, stable@vger.kernel.org, hpa@zytor.com
+In-Reply-To: <20190625142135.22112-1-kan.liang@linux.intel.com>
+References: <20190625142135.22112-1-kan.liang@linux.intel.com>
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip:perf/urgent] perf/core: Fix exclusive events' grouping
-Git-Commit-ID: 8a58ddae23796c733c5dfbd717538d89d036c5bd
+Subject: [tip:perf/urgent] perf/x86/intel: Fix spurious NMI on fixed counter
+Git-Commit-ID: e4557c1a46b0d32746bd309e1941914b5a6912b4
 X-Mailer: tip-git-log-daemon
 Robot-ID: <tip-bot.git.kernel.org>
 Robot-Unsubscribe: Contact <mailto:hpa@kernel.org> to get blacklisted from
@@ -65,46 +68,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit-ID:  8a58ddae23796c733c5dfbd717538d89d036c5bd
-Gitweb:     https://git.kernel.org/tip/8a58ddae23796c733c5dfbd717538d89d036c5bd
-Author:     Alexander Shishkin <alexander.shishkin@linux.intel.com>
-AuthorDate: Mon, 1 Jul 2019 14:07:55 +0300
+Commit-ID:  e4557c1a46b0d32746bd309e1941914b5a6912b4
+Gitweb:     https://git.kernel.org/tip/e4557c1a46b0d32746bd309e1941914b5a6912b4
+Author:     Kan Liang <kan.liang@linux.intel.com>
+AuthorDate: Tue, 25 Jun 2019 07:21:35 -0700
 Committer:  Ingo Molnar <mingo@kernel.org>
-CommitDate: Sat, 13 Jul 2019 11:21:28 +0200
+CommitDate: Sat, 13 Jul 2019 11:21:29 +0200
 
-perf/core: Fix exclusive events' grouping
+perf/x86/intel: Fix spurious NMI on fixed counter
 
-So far, we tried to disallow grouping exclusive events for the fear of
-complications they would cause with moving between contexts. Specifically,
-moving a software group to a hardware context would violate the exclusivity
-rules if both groups contain matching exclusive events.
+If a user first sample a PEBS event on a fixed counter, then sample a
+non-PEBS event on the same fixed counter on Icelake, it will trigger
+spurious NMI. For example:
 
-This attempt was, however, unsuccessful: the check that we have in the
-perf_event_open() syscall is both wrong (looks at wrong PMU) and
-insufficient (group leader may still be exclusive), as can be illustrated
-by running:
+  perf record -e 'cycles:p' -a
+  perf record -e 'cycles' -a
 
-  $ perf record -e '{intel_pt//,cycles}' uname
-  $ perf record -e '{cycles,intel_pt//}' uname
+The error message for spurious NMI:
 
-ultimately successfully.
+  [June 21 15:38] Uhhuh. NMI received for unknown reason 30 on CPU 2.
+  [    +0.000000] Do you have a strange power saving mode enabled?
+  [    +0.000000] Dazed and confused, but trying to continue
 
-Furthermore, we are completely free to trigger the exclusivity violation
-by:
+The bug was introduced by the following commit:
 
-   perf -e '{cycles,intel_pt//}' -e '{intel_pt//,instructions}'
+  commit 6f55967ad9d9 ("perf/x86/intel: Fix race in intel_pmu_disable_event()")
 
-even though the helpful perf record will not allow that, the ABI will.
+The commit moves the intel_pmu_pebs_disable() after intel_pmu_disable_fixed(),
+which returns immediately.  The related bit of PEBS_ENABLE MSR will never be
+cleared for the fixed counter. Then a non-PEBS event runs on the fixed counter,
+but the bit on PEBS_ENABLE is still set, which triggers spurious NMIs.
 
-The warning later in the perf_event_open() path will also not trigger, because
-it's also wrong.
+Check and disable PEBS for fixed counters after intel_pmu_disable_fixed().
 
-Fix all this by validating the original group before moving, getting rid
-of broken safeguards and placing a useful one to perf_install_in_context().
-
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Reported-by: Yi, Ammy <ammy.yi@intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
 Cc: <stable@vger.kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
@@ -112,129 +114,30 @@ Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Stephane Eranian <eranian@google.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: mathieu.poirier@linaro.org
-Cc: will.deacon@arm.com
-Fixes: bed5b25ad9c8a ("perf: Add a pmu capability for "exclusive" events")
-Link: https://lkml.kernel.org/r/20190701110755.24646-1-alexander.shishkin@linux.intel.com
+Fixes: 6f55967ad9d9 ("perf/x86/intel: Fix race in intel_pmu_disable_event()")
+Link: https://lkml.kernel.org/r/20190625142135.22112-1-kan.liang@linux.intel.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 ---
- include/linux/perf_event.h |  5 +++++
- kernel/events/core.c       | 34 ++++++++++++++++++++++------------
- 2 files changed, 27 insertions(+), 12 deletions(-)
+ arch/x86/events/intel/core.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index 16e38c286d46..e8ad3c590a23 100644
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -1055,6 +1055,11 @@ static inline int in_software_context(struct perf_event *event)
- 	return event->ctx->pmu->task_ctx_nr == perf_sw_context;
- }
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index bda450ff51ee..9e911a96972b 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -2161,12 +2161,10 @@ static void intel_pmu_disable_event(struct perf_event *event)
+ 	cpuc->intel_ctrl_host_mask &= ~(1ull << hwc->idx);
+ 	cpuc->intel_cp_status &= ~(1ull << hwc->idx);
  
-+static inline int is_exclusive_pmu(struct pmu *pmu)
-+{
-+	return pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE;
-+}
-+
- extern struct static_key perf_swevent_enabled[PERF_COUNT_SW_MAX];
- 
- extern void ___perf_sw_event(u32, u64, struct pt_regs *, u64);
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 5dd19bedbf64..eea9d52b010c 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -2553,6 +2553,9 @@ unlock:
- 	return ret;
- }
- 
-+static bool exclusive_event_installable(struct perf_event *event,
-+					struct perf_event_context *ctx);
-+
- /*
-  * Attach a performance event to a context.
-  *
-@@ -2567,6 +2570,8 @@ perf_install_in_context(struct perf_event_context *ctx,
- 
- 	lockdep_assert_held(&ctx->mutex);
- 
-+	WARN_ON_ONCE(!exclusive_event_installable(event, ctx));
-+
- 	if (event->cpu != -1)
- 		event->cpu = cpu;
- 
-@@ -4360,7 +4365,7 @@ static int exclusive_event_init(struct perf_event *event)
- {
- 	struct pmu *pmu = event->pmu;
- 
--	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
-+	if (!is_exclusive_pmu(pmu))
- 		return 0;
- 
- 	/*
-@@ -4391,7 +4396,7 @@ static void exclusive_event_destroy(struct perf_event *event)
- {
- 	struct pmu *pmu = event->pmu;
- 
--	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
-+	if (!is_exclusive_pmu(pmu))
- 		return;
- 
- 	/* see comment in exclusive_event_init() */
-@@ -4411,14 +4416,15 @@ static bool exclusive_event_match(struct perf_event *e1, struct perf_event *e2)
- 	return false;
- }
- 
--/* Called under the same ctx::mutex as perf_install_in_context() */
- static bool exclusive_event_installable(struct perf_event *event,
- 					struct perf_event_context *ctx)
- {
- 	struct perf_event *iter_event;
- 	struct pmu *pmu = event->pmu;
- 
--	if (!(pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE))
-+	lockdep_assert_held(&ctx->mutex);
-+
-+	if (!is_exclusive_pmu(pmu))
- 		return true;
- 
- 	list_for_each_entry(iter_event, &ctx->event_list, event_entry) {
-@@ -10947,11 +10953,6 @@ SYSCALL_DEFINE5(perf_event_open,
- 		goto err_alloc;
- 	}
- 
--	if ((pmu->capabilities & PERF_PMU_CAP_EXCLUSIVE) && group_leader) {
--		err = -EBUSY;
--		goto err_context;
+-	if (unlikely(hwc->config_base == MSR_ARCH_PERFMON_FIXED_CTR_CTRL)) {
++	if (unlikely(hwc->config_base == MSR_ARCH_PERFMON_FIXED_CTR_CTRL))
+ 		intel_pmu_disable_fixed(hwc);
+-		return;
 -	}
 -
+-	x86_pmu_disable_event(event);
++	else
++		x86_pmu_disable_event(event);
+ 
  	/*
- 	 * Look up the group leader (we will attach this event to it):
- 	 */
-@@ -11039,6 +11040,18 @@ SYSCALL_DEFINE5(perf_event_open,
- 				move_group = 0;
- 			}
- 		}
-+
-+		/*
-+		 * Failure to create exclusive events returns -EBUSY.
-+		 */
-+		err = -EBUSY;
-+		if (!exclusive_event_installable(group_leader, ctx))
-+			goto err_locked;
-+
-+		for_each_sibling_event(sibling, group_leader) {
-+			if (!exclusive_event_installable(sibling, ctx))
-+				goto err_locked;
-+		}
- 	} else {
- 		mutex_lock(&ctx->mutex);
- 	}
-@@ -11075,9 +11088,6 @@ SYSCALL_DEFINE5(perf_event_open,
- 	 * because we need to serialize with concurrent event creation.
- 	 */
- 	if (!exclusive_event_installable(event, ctx)) {
--		/* exclusive and group stuff are assumed mutually exclusive */
--		WARN_ON_ONCE(move_group);
--
- 		err = -EBUSY;
- 		goto err_locked;
- 	}
+ 	 * Needs to be called after x86_pmu_disable_event,
