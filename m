@@ -2,163 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC70A67BB5
-	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 20:57:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5229C67BD7
+	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 21:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727877AbfGMS5E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Jul 2019 14:57:04 -0400
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:19836 "EHLO
-        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727874AbfGMS5E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Jul 2019 14:57:04 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d2a29760000>; Sat, 13 Jul 2019 11:56:57 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Sat, 13 Jul 2019 11:57:03 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Sat, 13 Jul 2019 11:57:03 -0700
-Received: from [10.26.11.249] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Sat, 13 Jul
- 2019 18:56:57 +0000
-Subject: Re: [PATCH 5.1 000/138] 5.1.18-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>,
-        linux-tegra <linux-tegra@vger.kernel.org>, <j-keerthy@ti.com>
-References: <20190712121628.731888964@linuxfoundation.org>
- <4dae64c8-046e-3647-52d6-43362e986d21@nvidia.com>
- <20190712153035.GC13940@kroah.com>
- <5f897de4-b423-c8a2-6823-d0227eb7bd38@nvidia.com>
- <20190713143154.GB7695@kroah.com>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <05b84926-ec25-0ccc-527a-4a08447fab59@nvidia.com>
-Date:   Sat, 13 Jul 2019 19:56:55 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
-MIME-Version: 1.0
-In-Reply-To: <20190713143154.GB7695@kroah.com>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
- HQMAIL107.nvidia.com (172.20.187.13)
+        id S1727957AbfGMTmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Jul 2019 15:42:55 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:52937 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727936AbfGMTmz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Jul 2019 15:42:55 -0400
+Received: by mail-wm1-f68.google.com with SMTP id s3so11635101wms.2
+        for <stable@vger.kernel.org>; Sat, 13 Jul 2019 12:42:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=whtXfYuFihA48uDjyuNEFjGmGtLHNRT+RPrVUzCkrZk=;
+        b=WV6uAu0wdSDaEgorhDFV13UAbcIVvUybP+smoSGOpEt5JzT+SBii5RllkDS+UL65IE
+         k08p3KFGHoNxiLszFBYzvADVEYGPti5Vt1iZ9AUm1UoglXasd9hasgy3Zf0+Z1hQ0VKo
+         aBUKLV5rrGduxNeOdQ8GSX8GiCGQ8UQIhON/rNil3wHYnsdxBMlZvw3yR5iK5Kq7ZqPB
+         Ztp49Jjw+0ciWMdUj6CQLEwg9QrgJg3Ig/E9OkiJWgDIpc/BCTImfE9canuiqj9YHnoZ
+         28PcI7mvnge5HNeLKVbne/E5eVOdiAzsHYHEGZA8lFUvWFGmo+8ziGD7QN5cUK/O5rNB
+         UG8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=whtXfYuFihA48uDjyuNEFjGmGtLHNRT+RPrVUzCkrZk=;
+        b=hZduXLyqIfUh4dIGRsZxAL/9jMxkoJeQo06hTQmMiSS/h1VOxej+XozhBa9IdRsUvr
+         wf5DwrxOTUb17xl/wyuo931zcAcngFvMAy8ErOgNSOLfLyuxblKty/pGpId/T+mpqZ3n
+         7IJtWaExJuJN2CIW4lo6p4GT8xdd3ieKArvJc8lY9Apm7tB5QN3lDeDGM/hDNsmVYtv8
+         kchl4fu48roUnKhghEGn3Cq53VrrH3vFSrSDE+/9S5s4hNHpw3DfKmsAlx/bsV88kSV0
+         LXllaYk3L/hCPpDoBcH9cXWlCQV5pZvkA87MGTm1kLNM3QB4dPdzp3jyjTAhMGCxh6aj
+         j1bg==
+X-Gm-Message-State: APjAAAWQ4oShJ1XPjvDfz5VOaMjQOOtmlCDfDs9SxP3Z8uuXSCiiTAAT
+        ZHlyJfF7r4EkKvkddcS8GFFmwuBPo1o=
+X-Google-Smtp-Source: APXvYqxuDaDXzbZWpIcMVmRZVQR/7ncXLHYmYk90N2JeX6FeGTAB9so+bW/LZu0AINLOt66GNYqeMQ==
+X-Received: by 2002:a1c:630a:: with SMTP id x10mr16358615wmb.113.1563046973182;
+        Sat, 13 Jul 2019 12:42:53 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id s10sm10702895wrt.49.2019.07.13.12.42.51
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 13 Jul 2019 12:42:51 -0700 (PDT)
+Message-ID: <5d2a343b.1c69fb81.2cd4d.ce09@mx.google.com>
+Date:   Sat, 13 Jul 2019 12:42:51 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1563044217; bh=FRckk+cNrdRQ5NGrk/XVHFe2XQehX4SvW7PmJAI8yXw=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=CDAtnOY3DqnvrK1NmBu3h3g+j4+fhNvzrjx/v3KcsYwo0At9R6HtzNYb07dL6++m6
-         MprgnRkbtZS7la/ThbExlgmyk3w1mpk6pg25Jb6iE4bysJ3W7Hy6+Sq5zUbjVk/s0Z
-         EnRVmjXF7Kqj3ocPZG/TAtyCgcPKoSlRUaIMl13tgenOpQt8FdprRlF1T5DGbGFyp/
-         gYC2VxTqUiy/JRZl8USRJB0RrgPESirBlU1ygBbgWmosppQfJaEfRCNn6QKvOI8+ym
-         1QDcq9o6HH9pvkmu1xwXZF/vw15iyA67MTX4igKNKfwDQrDBBPk4J/+P0Z4z2do3IM
-         Tua3/Lib9Ok6A==
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.133-57-g728f3eef5bdd
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y boot: 119 boots: 5 failed,
+ 113 passed with 1 offline (v4.14.133-57-g728f3eef5bdd)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y boot: 119 boots: 5 failed, 113 passed with 1 offline=
+ (v4.14.133-57-g728f3eef5bdd)
 
-On 13/07/2019 15:31, Greg Kroah-Hartman wrote:
-> On Sat, Jul 13, 2019 at 10:16:58AM +0100, Jon Hunter wrote:
->>
->> On 12/07/2019 16:30, Greg Kroah-Hartman wrote:
->>> On Fri, Jul 12, 2019 at 02:26:57PM +0100, Jon Hunter wrote:
->>>> Hi Greg,
->>>>
->>>> On 12/07/2019 13:17, Greg Kroah-Hartman wrote:
->>>>> This is the start of the stable review cycle for the 5.1.18 release.
->>>>> There are 138 patches in this series, all will be posted as a response
->>>>> to this one.  If anyone has any issues with these being applied, please
->>>>> let me know.
->>>>>
->>>>> Responses should be made by Sun 14 Jul 2019 12:14:36 PM UTC.
->>>>> Anything received after that time might be too late.
->>>>>
->>>>> The whole patch series can be found in one patch at:
->>>>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.18-rc1.gz
->>>>> or in the git tree and branch at:
->>>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
->>>>> and the diffstat can be found below.
->>>>>
->>>>> thanks,
->>>>>
->>>>> greg k-h
->>>>>
->>>>> -------------
->>>>> Pseudo-Shortlog of commits:
->>>>
->>>> ...
->>>>
->>>>> Keerthy <j-keerthy@ti.com>
->>>>>     ARM: dts: dra71x: Disable usb4_tm target module
->>>>
->>>> ...
->>>>
->>>>> Keerthy <j-keerthy@ti.com>
->>>>>     ARM: dts: dra76x: Disable usb4_tm target module
->>>>
->>>> The above commits are generating the following compilation errors for
->>>> ARM ...
->>>>
->>>> Error:
->>>> /dvs/git/dirty/git-master_l4t-upstream/kernel/arch/arm/boot/dts/dra71x.dtsi:15.1-9
->>>> Label or path usb4_tm not found
->>>>
->>>> Error:
->>>> /dvs/git/dirty/git-master_l4t-upstream/kernel/arch/arm/boot/dts/dra76x.dtsi:89.1-9
->>>> Label or path usb4_tm not found
->>>>
->>>> After reverting these two, I no longer see these errors.
->>>
->>> Both are now dropped, thanks.  I'll push out a -rc2 with that changed.
->>
->> Hmmm ... -rc2 still not building ...
->>
->> Error:
->> /dvs/git/dirty/git-master_l4t-upstream/kernel/arch/arm/boot/dts/dra71x.dtsi:11.1-11
->> Label or path rtctarget not found
->> Error:
->> /dvs/git/dirty/git-master_l4t-upstream/kernel/arch/arm/boot/dts/dra71x.dtsi:15.1-9
->> Label or path usb4_tm not found
->>
->> I still see the following commit in -rc2 ...
->>
->> commit 0caa574b3244cd863dd74bde680a6309cb8803ad
->> Author: Keerthy <j-keerthy@ti.com>
->> Date:   Fri May 17 06:44:09 2019 +0530
->>
->>     ARM: dts: dra71x: Disable usb4_tm target module
->>
->> In -rc1 I see there were 4 changes from Keerthy, any chance you reverted
->> one of the rtc patches and not the above? Looks like the following is
->> missing from -rc2 ...
->>
->> Keerthy <j-keerthy@ti.com>
->>     ARM: dts: dra76x: Disable rtc target module
-> 
-> Sorry, I dropped one, but not the other.  Both now gone.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.133-57-g728f3eef5bdd/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.133-57-g728f3eef5bdd/
 
-Great! This looks better. All tests passing now ...
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.133-57-g728f3eef5bdd
+Git Commit: 728f3eef5bdde0f9516277b4c4519fa5436e7e5d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 66 unique boards, 26 SoC families, 16 builds out of 201
 
-Test results for stable-v5.1:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    32 tests:	32 pass, 0 fail
+Boot Failures Detected:
 
-Linux version:	5.1.18-rc3-gd68c746af314
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
 
-Cheers
-Jon
+    sunxi_defconfig:
+        gcc-8:
+            sun7i-a20-bananapi: 1 failed lab
 
--- 
-nvpublic
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s905x-nexbox-a95x: 1 failed lab
+            rk3399-firefly: 1 failed lab
+
+arc:
+    hsdk_defconfig:
+        gcc-8:
+            hsdk: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-gxbb-odroidc2: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
