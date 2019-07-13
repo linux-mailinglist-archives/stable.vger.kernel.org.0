@@ -2,59 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B06B2679E4
-	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 13:11:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE4AF679E6
+	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 13:12:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727489AbfGMLLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Jul 2019 07:11:44 -0400
-Received: from terminus.zytor.com ([198.137.202.136]:55395 "EHLO
+        id S1727504AbfGMLML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Jul 2019 07:12:11 -0400
+Received: from terminus.zytor.com ([198.137.202.136]:60651 "EHLO
         terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726755AbfGMLLo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Jul 2019 07:11:44 -0400
+        with ESMTP id S1726474AbfGMLMK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Jul 2019 07:12:10 -0400
 Received: from terminus.zytor.com (localhost [127.0.0.1])
-        by terminus.zytor.com (8.15.2/8.15.2) with ESMTPS id x6DBAqfV3841685
+        by terminus.zytor.com (8.15.2/8.15.2) with ESMTPS id x6DBBZOE3841752
         (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-        Sat, 13 Jul 2019 04:10:53 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 terminus.zytor.com x6DBAqfV3841685
+        Sat, 13 Jul 2019 04:11:35 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 terminus.zytor.com x6DBBZOE3841752
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2019061801; t=1563016254;
-        bh=3xEz6p5aOvGBZ2JJ/xzY6MXlyxphrTDLkgi2kX1X6GU=;
+        s=2019061801; t=1563016296;
+        bh=otuByoDP0t/zpW5lFi6qIpRPgYUEBP1U0bXRUDzizkM=;
         h=Date:From:Cc:Reply-To:In-Reply-To:References:To:Subject:From;
-        b=SHIMaZ1CVqGWON1Sc+lWdEKCZaoBxpYwUSQjLHoQQR1zkO1QlWezX2SyYKOGVxLXa
-         zHUhmoPOkk7gWLj7njfSv8UbnvP7fCLx0fwC1UvqdKS1iuASXgtrwicYkXcKPBYuZL
-         HiTnBzzbIoNRUrOYvsKAyQmETPEHRwa2xvCdSDYehYjJAvmIpLwy+FBkpHFP5xw7RO
-         pGv45CLhIVcVC56sWm2DwIpXt794JBprpXUB59s8pFrONKiHUUqNOIJ7o68ZGmfWLP
-         V6vkQJSFEyuRNNCqHfeLIjQgTsGiIGo5EX8aq2m63qt2curdsUtMjljnTKXEkj5WFP
-         g3ehsHGJc4XLA==
+        b=rYwno2U5rjKLDcVSHuQgpS5FECWsZ7JOHL7uvn3Fj8pXTK2XnC85akDlEL2oXsd7W
+         OnGA333lDPcGp21pNDRcQYqqukV1jCAfd93GXPZqtCVu31oeBasNcckcPnaO8XJIz+
+         vO4obHUKthvNcTHSErCfEUoGhgxCAfPPLO0pzp/1YnQCL7j28CWO8d0E1c5udQpsqg
+         0JyHOJeujBhPMptrtyMP4IiaZmDWhXiWqIHqnnfr1j8Kgrr0f26X+JFfWKaAsnMnvT
+         v8H4UX8VVth/zwTCZOWxWAz13EbkTFAEUzHCdn7T0fDNpTQzHjXhByW3hpLWznZNRg
+         HcfR4szdN87CA==
 Received: (from tipbot@localhost)
-        by terminus.zytor.com (8.15.2/8.15.2/Submit) id x6DBApYL3841681;
-        Sat, 13 Jul 2019 04:10:51 -0700
-Date:   Sat, 13 Jul 2019 04:10:51 -0700
+        by terminus.zytor.com (8.15.2/8.15.2/Submit) id x6DBBYFp3841749;
+        Sat, 13 Jul 2019 04:11:34 -0700
+Date:   Sat, 13 Jul 2019 04:11:34 -0700
 X-Authentication-Warning: terminus.zytor.com: tipbot set sender to tipbot@zytor.com using -f
 From:   tip-bot for Kim Phillips <tipbot@zytor.com>
-Message-ID: <tip-16f4641166b10e199f0d7b68c2c5f004fef0bda3@git.kernel.org>
-Cc:     stable@vger.kernel.org, mliska@suse.cz, puwen@hygon.cn,
-        linux-kernel@vger.kernel.org, vincent.weaver@maine.edu,
-        namhyung@kernel.org, mingo@kernel.org, Gary.Hook@amd.com,
-        tglx@linutronix.de, alexander.shishkin@linux.intel.com,
-        peterz@infradead.org, eranian@google.com, acme@redhat.com,
-        Janakarajan.Natarajan@amd.com, kim.phillips@amd.com,
-        Suravee.Suthikulpanit@amd.com, jolsa@redhat.com,
-        torvalds@linux-foundation.org, hpa@zytor.com, bp@alien8.de
-Reply-To: acme@redhat.com, eranian@google.com, kim.phillips@amd.com,
-          Janakarajan.Natarajan@amd.com, jolsa@redhat.com,
-          Suravee.Suthikulpanit@amd.com, torvalds@linux-foundation.org,
-          hpa@zytor.com, bp@alien8.de, stable@vger.kernel.org,
-          puwen@hygon.cn, linux-kernel@vger.kernel.org, mliska@suse.cz,
-          vincent.weaver@maine.edu, namhyung@kernel.org, Gary.Hook@amd.com,
-          mingo@kernel.org, tglx@linutronix.de, peterz@infradead.org,
-          alexander.shishkin@linux.intel.com
-In-Reply-To: <20190628215906.4276-1-kim.phillips@amd.com>
-References: <20190628215906.4276-1-kim.phillips@amd.com>
+Message-ID: <tip-2f217d58a8a086d3399fecce39fb358848e799c4@git.kernel.org>
+Cc:     hpa@zytor.com, tglx@linutronix.de, kim.phillips@amd.com,
+        acme@redhat.com, torvalds@linux-foundation.org, Gary.Hook@amd.com,
+        puwen@hygon.cn, alexander.shishkin@linux.intel.com,
+        Suravee.Suthikulpanit@amd.com, mingo@kernel.org, mliska@suse.cz,
+        bp@alien8.de, namhyung@kernel.org, Janakarajan.Natarajan@amd.com,
+        stable@vger.kernel.org, peterz@infradead.org, jolsa@redhat.com,
+        linux-kernel@vger.kernel.org, eranian@google.com,
+        vincent.weaver@maine.edu
+Reply-To: hpa@zytor.com, tglx@linutronix.de, acme@redhat.com,
+          kim.phillips@amd.com, torvalds@linux-foundation.org,
+          puwen@hygon.cn, alexander.shishkin@linux.intel.com,
+          Gary.Hook@amd.com, Suravee.Suthikulpanit@amd.com,
+          mingo@kernel.org, mliska@suse.cz, namhyung@kernel.org,
+          bp@alien8.de, Janakarajan.Natarajan@amd.com,
+          peterz@infradead.org, stable@vger.kernel.org,
+          linux-kernel@vger.kernel.org, jolsa@redhat.com,
+          eranian@google.com, vincent.weaver@maine.edu
+In-Reply-To: <20190628215906.4276-2-kim.phillips@amd.com>
+References: <20190628215906.4276-2-kim.phillips@amd.com>
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip:perf/urgent] perf/x86/amd/uncore: Do not set 'ThreadMask' and
- 'SliceMask' for non-L3 PMCs
-Git-Commit-ID: 16f4641166b10e199f0d7b68c2c5f004fef0bda3
+Subject: [tip:perf/urgent] perf/x86/amd/uncore: Set the thread mask for F17h
+ L3 PMCs
+Git-Commit-ID: 2f217d58a8a086d3399fecce39fb358848e799c4
 X-Mailer: tip-git-log-daemon
 Robot-ID: <tip-bot.git.kernel.org>
 Robot-Unsubscribe: Contact <mailto:hpa@kernel.org> to get blacklisted from
@@ -72,33 +73,17 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit-ID:  16f4641166b10e199f0d7b68c2c5f004fef0bda3
-Gitweb:     https://git.kernel.org/tip/16f4641166b10e199f0d7b68c2c5f004fef0bda3
+Commit-ID:  2f217d58a8a086d3399fecce39fb358848e799c4
+Gitweb:     https://git.kernel.org/tip/2f217d58a8a086d3399fecce39fb358848e799c4
 Author:     Kim Phillips <kim.phillips@amd.com>
-AuthorDate: Fri, 28 Jun 2019 21:59:20 +0000
+AuthorDate: Fri, 28 Jun 2019 21:59:33 +0000
 Committer:  Ingo Molnar <mingo@kernel.org>
-CommitDate: Sat, 13 Jul 2019 11:21:26 +0200
+CommitDate: Sat, 13 Jul 2019 11:21:27 +0200
 
-perf/x86/amd/uncore: Do not set 'ThreadMask' and 'SliceMask' for non-L3 PMCs
+perf/x86/amd/uncore: Set the thread mask for F17h L3 PMCs
 
-The following commit:
-
-  d7cbbe49a930 ("perf/x86/amd/uncore: Set ThreadMask and SliceMask for L3 Cache perf events")
-
-enables L3 PMC events for all threads and slices by writing 1's in
-'ChL3PmcCfg' (L3 PMC PERF_CTL) register fields.
-
-Those bitfields overlap with high order event select bits in the Data
-Fabric PMC control register, however.
-
-So when a user requests raw Data Fabric events (-e amd_df/event=0xYYY/),
-the two highest order bits get inadvertently set, changing the counter
-select to events that don't exist, and for which no counts are read.
-
-This patch changes the logic to write the L3 masks only when dealing
-with L3 PMC counters.
-
-AMD Family 16h and below Northbridge (NB) counters were not affected.
+Fill in the L3 performance event select register ThreadMask
+bitfield, to enable per hardware thread accounting.
 
 Signed-off-by: Kim Phillips <kim.phillips@amd.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
@@ -119,23 +104,40 @@ Cc: Stephane Eranian <eranian@google.com>
 Cc: Suravee Suthikulpanit <Suravee.Suthikulpanit@amd.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Vince Weaver <vincent.weaver@maine.edu>
-Fixes: d7cbbe49a930 ("perf/x86/amd/uncore: Set ThreadMask and SliceMask for L3 Cache perf events")
-Link: https://lkml.kernel.org/r/20190628215906.4276-1-kim.phillips@amd.com
+Link: https://lkml.kernel.org/r/20190628215906.4276-2-kim.phillips@amd.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 ---
- arch/x86/events/amd/uncore.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/amd/uncore.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
 diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
-index 85e6984c560b..c2c4ae5fbbfc 100644
+index c2c4ae5fbbfc..a6ea07f2aa84 100644
 --- a/arch/x86/events/amd/uncore.c
 +++ b/arch/x86/events/amd/uncore.c
-@@ -206,7 +206,7 @@ static int amd_uncore_event_init(struct perf_event *event)
+@@ -202,15 +202,22 @@ static int amd_uncore_event_init(struct perf_event *event)
+ 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
+ 	hwc->idx = -1;
+ 
++	if (event->cpu < 0)
++		return -EINVAL;
++
+ 	/*
  	 * SliceMask and ThreadMask need to be set for certain L3 events in
  	 * Family 17h. For other events, the two fields do not affect the count.
  	 */
--	if (l3_mask)
-+	if (l3_mask && is_llc_event(event))
- 		hwc->config |= (AMD64_L3_SLICE_MASK | AMD64_L3_THREAD_MASK);
+-	if (l3_mask && is_llc_event(event))
+-		hwc->config |= (AMD64_L3_SLICE_MASK | AMD64_L3_THREAD_MASK);
++	if (l3_mask && is_llc_event(event)) {
++		int thread = 2 * (cpu_data(event->cpu).cpu_core_id % 4);
  
- 	if (event->cpu < 0)
+-	if (event->cpu < 0)
+-		return -EINVAL;
++		if (smp_num_siblings > 1)
++			thread += cpu_data(event->cpu).apicid & 1;
++
++		hwc->config |= (1ULL << (AMD64_L3_THREAD_SHIFT + thread) &
++				AMD64_L3_THREAD_MASK) | AMD64_L3_SLICE_MASK;
++	}
+ 
+ 	uncore = event_to_amd_uncore(event);
+ 	if (!uncore)
