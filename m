@@ -2,282 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0308567A8A
-	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 16:29:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0015D67A93
+	for <lists+stable@lfdr.de>; Sat, 13 Jul 2019 16:32:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727678AbfGMO3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Jul 2019 10:29:21 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:37647 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727626AbfGMO3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Jul 2019 10:29:21 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 1B232447;
-        Sat, 13 Jul 2019 10:29:20 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sat, 13 Jul 2019 10:29:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:date:from:message-id:mime-version:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; bh=o31qq0UOimTHzOPTkotZnfHchlvr1LsIiacVG+gNDTo=; b=JBeb2yje
-        6IWK14GSgIIvBw1E+QdnEhziinLXQ7LooI4TwMt8Ukk7AuW8Zfy2+qAIJM+7jJ03
-        eltnefi3C0FLaq8zycVjHLaa4hDnJj+6xZu1WkVuuEhKw07SCw3kharL/7YDjPDY
-        BitqoLDae89gXYlma4xg/f3/ncIln/KCLu6KWfyMtgGpimyGVpPyRI1d2lMR7kj2
-        rjllYFZF4Bnno7g414kQDWZmGd18vo1n6lwY8gmcn3tmg5tjeTDT8vfwTccHJURg
-        GUn5EEiU8aRRF4dgVK0qcB86WNbGlhV3t7H92/RxZ5SobjlnTaGJHX3OtHqcR7HD
-        ZXe8u3H9ZFL+bw==
-X-ME-Sender: <xms:v-opXUvPwH0japbE5fgeRdWr_z8WX97EZZJitj1XL3IEHRxTSPQPUg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrhedvgdejkecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:v-opXYrqVKtXpX9EgKn-xXsb_TylqdR9Y-ANz3x5bwLWG--CCKqDeA>
-    <xmx:v-opXULPdsmJeGo5xKtk_WAbipT9-gBXx61br27xQ5cwWUCJ3P1pFQ>
-    <xmx:v-opXf70Je0nJ2I0n1FNujjRk0usN2IWYRYPyjJsoe-f-FqOqBddeQ>
-    <xmx:v-opXWLadQACA1iANLYULAe_BZ4SiqpZycI397VZDmn8SNbOswBL3A>
+        id S1727582AbfGMOb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Jul 2019 10:31:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38396 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727504AbfGMOb6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 13 Jul 2019 10:31:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 426A980062;
-        Sat, 13 Jul 2019 10:29:19 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: talitos - fix hash on SEC1." failed to apply to 4.19-stable tree
-To:     christophe.leroy@c-s.fr
-Cc:     <stable@vger.kernel.org>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Jul 2019 16:26:33 +0200
-Message-ID: <1563027993210226@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43C1420838;
+        Sat, 13 Jul 2019 14:31:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563028316;
+        bh=33zF0ftnIcvi6tcgUYR8fLfscOhnI8m8JzTBy8gi8bM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TAKCe0bDJT35XVZYtaZ9IkAzritYLPBDtA3/wA5Q0gF9d6EynHkpzIKXTn5BJ+HOm
+         01gcufq+XuibiAckKkCe+Iw3bo8aCf6cX2xt1o9iAFCsrGkJd7I+yku75OjoMZp3g+
+         C1w5B/GIqABs41SLiefg8iORbKSPkL/I9GCqyEOM=
+Date:   Sat, 13 Jul 2019 16:31:54 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        linux-tegra <linux-tegra@vger.kernel.org>, j-keerthy@ti.com
+Subject: Re: [PATCH 5.1 000/138] 5.1.18-stable review
+Message-ID: <20190713143154.GB7695@kroah.com>
+References: <20190712121628.731888964@linuxfoundation.org>
+ <4dae64c8-046e-3647-52d6-43362e986d21@nvidia.com>
+ <20190712153035.GC13940@kroah.com>
+ <5f897de4-b423-c8a2-6823-d0227eb7bd38@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5f897de4-b423-c8a2-6823-d0227eb7bd38@nvidia.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Jul 13, 2019 at 10:16:58AM +0100, Jon Hunter wrote:
+> 
+> On 12/07/2019 16:30, Greg Kroah-Hartman wrote:
+> > On Fri, Jul 12, 2019 at 02:26:57PM +0100, Jon Hunter wrote:
+> >> Hi Greg,
+> >>
+> >> On 12/07/2019 13:17, Greg Kroah-Hartman wrote:
+> >>> This is the start of the stable review cycle for the 5.1.18 release.
+> >>> There are 138 patches in this series, all will be posted as a response
+> >>> to this one.  If anyone has any issues with these being applied, please
+> >>> let me know.
+> >>>
+> >>> Responses should be made by Sun 14 Jul 2019 12:14:36 PM UTC.
+> >>> Anything received after that time might be too late.
+> >>>
+> >>> The whole patch series can be found in one patch at:
+> >>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.18-rc1.gz
+> >>> or in the git tree and branch at:
+> >>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
+> >>> and the diffstat can be found below.
+> >>>
+> >>> thanks,
+> >>>
+> >>> greg k-h
+> >>>
+> >>> -------------
+> >>> Pseudo-Shortlog of commits:
+> >>
+> >> ...
+> >>
+> >>> Keerthy <j-keerthy@ti.com>
+> >>>     ARM: dts: dra71x: Disable usb4_tm target module
+> >>
+> >> ...
+> >>
+> >>> Keerthy <j-keerthy@ti.com>
+> >>>     ARM: dts: dra76x: Disable usb4_tm target module
+> >>
+> >> The above commits are generating the following compilation errors for
+> >> ARM ...
+> >>
+> >> Error:
+> >> /dvs/git/dirty/git-master_l4t-upstream/kernel/arch/arm/boot/dts/dra71x.dtsi:15.1-9
+> >> Label or path usb4_tm not found
+> >>
+> >> Error:
+> >> /dvs/git/dirty/git-master_l4t-upstream/kernel/arch/arm/boot/dts/dra76x.dtsi:89.1-9
+> >> Label or path usb4_tm not found
+> >>
+> >> After reverting these two, I no longer see these errors.
+> > 
+> > Both are now dropped, thanks.  I'll push out a -rc2 with that changed.
+> 
+> Hmmm ... -rc2 still not building ...
+> 
+> Error:
+> /dvs/git/dirty/git-master_l4t-upstream/kernel/arch/arm/boot/dts/dra71x.dtsi:11.1-11
+> Label or path rtctarget not found
+> Error:
+> /dvs/git/dirty/git-master_l4t-upstream/kernel/arch/arm/boot/dts/dra71x.dtsi:15.1-9
+> Label or path usb4_tm not found
+> 
+> I still see the following commit in -rc2 ...
+> 
+> commit 0caa574b3244cd863dd74bde680a6309cb8803ad
+> Author: Keerthy <j-keerthy@ti.com>
+> Date:   Fri May 17 06:44:09 2019 +0530
+> 
+>     ARM: dts: dra71x: Disable usb4_tm target module
+> 
+> In -rc1 I see there were 4 changes from Keerthy, any chance you reverted
+> one of the rtc patches and not the above? Looks like the following is
+> missing from -rc2 ...
+> 
+> Keerthy <j-keerthy@ti.com>
+>     ARM: dts: dra76x: Disable rtc target module
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Sorry, I dropped one, but not the other.  Both now gone.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 58cdbc6d2263beb36954408522762bbe73169306 Mon Sep 17 00:00:00 2001
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Date: Mon, 24 Jun 2019 07:20:16 +0000
-Subject: [PATCH] crypto: talitos - fix hash on SEC1.
-
-On SEC1, hash provides wrong result when performing hashing in several
-steps with input data SG list has more than one element. This was
-detected with CONFIG_CRYPTO_MANAGER_EXTRA_TESTS:
-
-[   44.185947] alg: hash: md5-talitos test failed (wrong result) on test vector 6, cfg="random: may_sleep use_finup src_divs=[<reimport>25.88%@+8063, <flush>24.19%@+9588, 28.63%@+16333, <reimport>4.60%@+6756, 16.70%@+16281] dst_divs=[71.61%@alignmask+16361, 14.36%@+7756, 14.3%@+"
-[   44.325122] alg: hash: sha1-talitos test failed (wrong result) on test vector 3, cfg="random: inplace use_final src_divs=[<flush,nosimd>16.56%@+16378, <reimport>52.0%@+16329, 21.42%@alignmask+16380, 10.2%@alignmask+16380] iv_offset=39"
-[   44.493500] alg: hash: sha224-talitos test failed (wrong result) on test vector 4, cfg="random: use_final nosimd src_divs=[<reimport>52.27%@+7401, <reimport>17.34%@+16285, <flush>17.71%@+26, 12.68%@+10644] iv_offset=43"
-[   44.673262] alg: hash: sha256-talitos test failed (wrong result) on test vector 4, cfg="random: may_sleep use_finup src_divs=[<reimport>60.6%@+12790, 17.86%@+1329, <reimport>12.64%@alignmask+16300, 8.29%@+15, 0.40%@+13506, <reimport>0.51%@+16322, <reimport>0.24%@+16339] dst_divs"
-
-This is due to two issues:
-- We have an overlap between the buffer used for copying the input
-data (SEC1 doesn't do scatter/gather) and the chained descriptor.
-- Data copy is wrong when the previous hash left less than one
-blocksize of data to hash, implying a complement of the previous
-block with a few bytes from the new request.
-
-Fix it by:
-- Moving the second descriptor after the buffer, as moving the buffer
-after the descriptor would make it more complex for other cipher
-operations (AEAD, ABLKCIPHER)
-- Skip the bytes taken from the new request to complete the previous
-one by moving the SG list forward.
-
-Fixes: 37b5e8897eb5 ("crypto: talitos - chain in buffered data for ahash on SEC1")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
-index 3918b3dbe684..c431d96e5596 100644
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -320,6 +320,21 @@ static int talitos_submit(struct device *dev, int ch, struct talitos_desc *desc,
- 	return -EINPROGRESS;
- }
- 
-+static __be32 get_request_hdr(struct talitos_request *request, bool is_sec1)
-+{
-+	struct talitos_edesc *edesc;
-+
-+	if (!is_sec1)
-+		return request->desc->hdr;
-+
-+	if (!request->desc->next_desc)
-+		return request->desc->hdr1;
-+
-+	edesc = container_of(request->desc, struct talitos_edesc, desc);
-+
-+	return ((struct talitos_desc *)(edesc->buf + edesc->dma_len))->hdr1;
-+}
-+
- /*
-  * process what was done, notify callback of error if not
-  */
-@@ -341,12 +356,7 @@ static void flush_channel(struct device *dev, int ch, int error, int reset_ch)
- 
- 		/* descriptors with their done bits set don't get the error */
- 		rmb();
--		if (!is_sec1)
--			hdr = request->desc->hdr;
--		else if (request->desc->next_desc)
--			hdr = (request->desc + 1)->hdr1;
--		else
--			hdr = request->desc->hdr1;
-+		hdr = get_request_hdr(request, is_sec1);
- 
- 		if ((hdr & DESC_HDR_DONE) == DESC_HDR_DONE)
- 			status = 0;
-@@ -476,8 +486,14 @@ static u32 current_desc_hdr(struct device *dev, int ch)
- 		}
- 	}
- 
--	if (priv->chan[ch].fifo[iter].desc->next_desc == cur_desc)
--		return (priv->chan[ch].fifo[iter].desc + 1)->hdr;
-+	if (priv->chan[ch].fifo[iter].desc->next_desc == cur_desc) {
-+		struct talitos_edesc *edesc;
-+
-+		edesc = container_of(priv->chan[ch].fifo[iter].desc,
-+				     struct talitos_edesc, desc);
-+		return ((struct talitos_desc *)
-+			(edesc->buf + edesc->dma_len))->hdr;
-+	}
- 
- 	return priv->chan[ch].fifo[iter].desc->hdr;
- }
-@@ -1402,15 +1418,11 @@ static struct talitos_edesc *talitos_edesc_alloc(struct device *dev,
- 	edesc->dst_nents = dst_nents;
- 	edesc->iv_dma = iv_dma;
- 	edesc->dma_len = dma_len;
--	if (dma_len) {
--		void *addr = &edesc->link_tbl[0];
--
--		if (is_sec1 && !dst)
--			addr += sizeof(struct talitos_desc);
--		edesc->dma_link_tbl = dma_map_single(dev, addr,
-+	if (dma_len)
-+		edesc->dma_link_tbl = dma_map_single(dev, &edesc->link_tbl[0],
- 						     edesc->dma_len,
- 						     DMA_BIDIRECTIONAL);
--	}
-+
- 	return edesc;
- }
- 
-@@ -1722,14 +1734,16 @@ static void common_nonsnoop_hash_unmap(struct device *dev,
- 	struct talitos_private *priv = dev_get_drvdata(dev);
- 	bool is_sec1 = has_ftr_sec1(priv);
- 	struct talitos_desc *desc = &edesc->desc;
--	struct talitos_desc *desc2 = desc + 1;
-+	struct talitos_desc *desc2 = (struct talitos_desc *)
-+				     (edesc->buf + edesc->dma_len);
- 
- 	unmap_single_talitos_ptr(dev, &edesc->desc.ptr[5], DMA_FROM_DEVICE);
- 	if (desc->next_desc &&
- 	    desc->ptr[5].ptr != desc2->ptr[5].ptr)
- 		unmap_single_talitos_ptr(dev, &desc2->ptr[5], DMA_FROM_DEVICE);
- 
--	talitos_sg_unmap(dev, edesc, req_ctx->psrc, NULL, 0, 0);
-+	if (req_ctx->psrc)
-+		talitos_sg_unmap(dev, edesc, req_ctx->psrc, NULL, 0, 0);
- 
- 	/* When using hashctx-in, must unmap it. */
- 	if (from_talitos_ptr_len(&edesc->desc.ptr[1], is_sec1))
-@@ -1796,7 +1810,6 @@ static void talitos_handle_buggy_hash(struct talitos_ctx *ctx,
- 
- static int common_nonsnoop_hash(struct talitos_edesc *edesc,
- 				struct ahash_request *areq, unsigned int length,
--				unsigned int offset,
- 				void (*callback) (struct device *dev,
- 						  struct talitos_desc *desc,
- 						  void *context, int error))
-@@ -1835,9 +1848,7 @@ static int common_nonsnoop_hash(struct talitos_edesc *edesc,
- 
- 	sg_count = edesc->src_nents ?: 1;
- 	if (is_sec1 && sg_count > 1)
--		sg_pcopy_to_buffer(req_ctx->psrc, sg_count,
--				   edesc->buf + sizeof(struct talitos_desc),
--				   length, req_ctx->nbuf);
-+		sg_copy_to_buffer(req_ctx->psrc, sg_count, edesc->buf, length);
- 	else if (length)
- 		sg_count = dma_map_sg(dev, req_ctx->psrc, sg_count,
- 				      DMA_TO_DEVICE);
-@@ -1850,7 +1861,7 @@ static int common_nonsnoop_hash(struct talitos_edesc *edesc,
- 				       DMA_TO_DEVICE);
- 	} else {
- 		sg_count = talitos_sg_map(dev, req_ctx->psrc, length, edesc,
--					  &desc->ptr[3], sg_count, offset, 0);
-+					  &desc->ptr[3], sg_count, 0, 0);
- 		if (sg_count > 1)
- 			sync_needed = true;
- 	}
-@@ -1874,7 +1885,8 @@ static int common_nonsnoop_hash(struct talitos_edesc *edesc,
- 		talitos_handle_buggy_hash(ctx, edesc, &desc->ptr[3]);
- 
- 	if (is_sec1 && req_ctx->nbuf && length) {
--		struct talitos_desc *desc2 = desc + 1;
-+		struct talitos_desc *desc2 = (struct talitos_desc *)
-+					     (edesc->buf + edesc->dma_len);
- 		dma_addr_t next_desc;
- 
- 		memset(desc2, 0, sizeof(*desc2));
-@@ -1895,7 +1907,7 @@ static int common_nonsnoop_hash(struct talitos_edesc *edesc,
- 						      DMA_TO_DEVICE);
- 		copy_talitos_ptr(&desc2->ptr[2], &desc->ptr[2], is_sec1);
- 		sg_count = talitos_sg_map(dev, req_ctx->psrc, length, edesc,
--					  &desc2->ptr[3], sg_count, offset, 0);
-+					  &desc2->ptr[3], sg_count, 0, 0);
- 		if (sg_count > 1)
- 			sync_needed = true;
- 		copy_talitos_ptr(&desc2->ptr[5], &desc->ptr[5], is_sec1);
-@@ -2006,7 +2018,6 @@ static int ahash_process_req(struct ahash_request *areq, unsigned int nbytes)
- 	struct device *dev = ctx->dev;
- 	struct talitos_private *priv = dev_get_drvdata(dev);
- 	bool is_sec1 = has_ftr_sec1(priv);
--	int offset = 0;
- 	u8 *ctx_buf = req_ctx->buf[req_ctx->buf_idx];
- 
- 	if (!req_ctx->last && (nbytes + req_ctx->nbuf <= blocksize)) {
-@@ -2046,6 +2057,8 @@ static int ahash_process_req(struct ahash_request *areq, unsigned int nbytes)
- 			sg_chain(req_ctx->bufsl, 2, areq->src);
- 		req_ctx->psrc = req_ctx->bufsl;
- 	} else if (is_sec1 && req_ctx->nbuf && req_ctx->nbuf < blocksize) {
-+		int offset;
-+
- 		if (nbytes_to_hash > blocksize)
- 			offset = blocksize - req_ctx->nbuf;
- 		else
-@@ -2058,7 +2071,8 @@ static int ahash_process_req(struct ahash_request *areq, unsigned int nbytes)
- 		sg_copy_to_buffer(areq->src, nents,
- 				  ctx_buf + req_ctx->nbuf, offset);
- 		req_ctx->nbuf += offset;
--		req_ctx->psrc = areq->src;
-+		req_ctx->psrc = scatterwalk_ffwd(req_ctx->bufsl, areq->src,
-+						 offset);
- 	} else
- 		req_ctx->psrc = areq->src;
- 
-@@ -2098,8 +2112,7 @@ static int ahash_process_req(struct ahash_request *areq, unsigned int nbytes)
- 	if (ctx->keylen && (req_ctx->first || req_ctx->last))
- 		edesc->desc.hdr |= DESC_HDR_MODE0_MDEU_HMAC;
- 
--	return common_nonsnoop_hash(edesc, areq, nbytes_to_hash, offset,
--				    ahash_done);
-+	return common_nonsnoop_hash(edesc, areq, nbytes_to_hash, ahash_done);
- }
- 
- static int ahash_update(struct ahash_request *areq)
-
