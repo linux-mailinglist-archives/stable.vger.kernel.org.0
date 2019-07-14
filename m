@@ -2,52 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFCBB67F95
-	for <lists+stable@lfdr.de>; Sun, 14 Jul 2019 17:13:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1FBF68074
+	for <lists+stable@lfdr.de>; Sun, 14 Jul 2019 19:20:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728534AbfGNPJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Jul 2019 11:09:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57824 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728380AbfGNPJe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Jul 2019 11:09:34 -0400
+        id S1728327AbfGNRUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Jul 2019 13:20:32 -0400
+Received: from saturn.retrosnub.co.uk ([46.235.226.198]:42028 "EHLO
+        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728065AbfGNRUc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Jul 2019 13:20:32 -0400
 Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F2B92063F;
-        Sun, 14 Jul 2019 15:09:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563116973;
-        bh=bm9pEoqApX+qfkcBW1EqbTeake3cpyojbVnypkCIZzs=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=0eRUwZBYgVu2OLCbOTDh1MKwciFyHBtd8VCxW9LyL5hX9zdTvY4irReOkutgYDqGN
-         jx2VGZACcSHrdEXXR4stGZTF2JkMoo4ULRTqQa9nxifkdWViBF3u77WAFTD3AkW4vC
-         +94C+s3kNUg7ipIqG68DRzw76ooNnXv7Lv3nHex4=
-Date:   Sun, 14 Jul 2019 16:09:08 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Wolfram Sang <wsa@the-dreams.de>
-Cc:     Marek Vasut <marek.vasut@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Arnd Bergmann <arnd@arndb.de>, stable <stable@vger.kernel.org>,
-        Marek Vasut <marek.vasut+renesas@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Rob Herring <robh@kernel.org>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        linux-iio@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] iio: adc: gyroadc: fix uninitialized return code
-Message-ID: <20190714160908.7443eca6@archlinux>
-In-Reply-To: <20190704195557.GA1338@kunai>
-References: <20190704113800.3299636-1-arnd@arndb.de>
-        <20190704120756.GA1582@kunai>
-        <CAMuHMdXDN60WWFerok1h05COdNNPZTMDCgKXejmQZMj9B6y5Cw@mail.gmail.com>
-        <fc3b8b4e-fe0e-9573-124d-4b41efa409e4@gmail.com>
-        <20190704195557.GA1338@kunai>
+        by saturn.retrosnub.co.uk (Postfix; Retrosnub mail submission) with ESMTPSA id A8A0A9E75A2;
+        Sun, 14 Jul 2019 18:20:29 +0100 (BST)
+Date:   Sun, 14 Jul 2019 18:20:26 +0100
+From:   Jonathan Cameron <jic23@jic23.retrosnub.co.uk>
+To:     Jean-Baptiste Maneyrol <JManeyrol@invensense.com>
+Cc:     "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] iio: imu: mpu6050: add missing available scan masks
+Message-ID: <20190714182026.5edebf23@archlinux>
+In-Reply-To: <20190627131918.19619-1-jmaneyrol@invensense.com>
+References: <20190627131918.19619-1-jmaneyrol@invensense.com>
 X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -57,24 +32,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 4 Jul 2019 21:55:58 +0200
-Wolfram Sang <wsa@the-dreams.de> wrote:
+On Thu, 27 Jun 2019 13:19:53 +0000
+Jean-Baptiste Maneyrol <JManeyrol@invensense.com> wrote:
 
-> > >> This is correct but missing that the above 'return ret' is broken, too.
-> > >> ret is initialized but 0 in that case.  
-> > > 
-> > > Nice catch! Oh well, given enough eyeballs, ...  
-> > 
-> > I don't think ret is initialized, reg is, not ret .  
+> Driver only supports 3-axis gyro and/or 3-axis accel.
+> For icm20602, temp data is mandatory for all configurations.
 > 
-> It is initialized for the broken 'return ret' *above* the one which gets
-> rightfully fixed in this patch.
+> Fix all single and double axis configurations (almost never used) and more
+> importantly fix 3-axis gyro and 6-axis accel+gyro buffer on icm20602 when
+> temp data is not enabled.
 > 
+> Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+> Fixes: 1615fe41a195 ("iio: imu: mpu6050: Fix FIFO layout for ICM20602")
+Something odd happened in this email that meant my client saved it as garbage.
+Oh well, cut and pasted worked ;)
 
-Agreed, 2 broken cases and this is only fixing the second one.
-I'm expecting a v2 of this patch which fixes them both, so 
-won't apply this v1.
+Applied to the fixes-togreg branch of iio.git and marked for stable.
 
 Thanks,
 
 Jonathan
+
+> ---
+> Changes in v2:
+>   - Use more explicit scan defines for masks
+> 
+>  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c | 43 ++++++++++++++++++++++
+>  1 file changed, 43 insertions(+)
+> 
+> diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> index 385f14a4d5a7..66629c3adc21 100644
+> --- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> +++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+> @@ -851,6 +851,25 @@ static const struct iio_chan_spec inv_mpu_channels[] = {
+>  	INV_MPU6050_CHAN(IIO_ACCEL, IIO_MOD_Z, INV_MPU6050_SCAN_ACCL_Z),
+>  };
+>  
+> +static const unsigned long inv_mpu_scan_masks[] = {
+> +	/* 3-axis accel */
+> +	BIT(INV_MPU6050_SCAN_ACCL_X)
+> +		| BIT(INV_MPU6050_SCAN_ACCL_Y)
+> +		| BIT(INV_MPU6050_SCAN_ACCL_Z),
+> +	/* 3-axis gyro */
+> +	BIT(INV_MPU6050_SCAN_GYRO_X)
+> +		| BIT(INV_MPU6050_SCAN_GYRO_Y)
+> +		| BIT(INV_MPU6050_SCAN_GYRO_Z),
+> +	/* 6-axis accel + gyro */
+> +	BIT(INV_MPU6050_SCAN_ACCL_X)
+> +		| BIT(INV_MPU6050_SCAN_ACCL_Y)
+> +		| BIT(INV_MPU6050_SCAN_ACCL_Z)
+> +		| BIT(INV_MPU6050_SCAN_GYRO_X)
+> +		| BIT(INV_MPU6050_SCAN_GYRO_Y)
+> +		| BIT(INV_MPU6050_SCAN_GYRO_Z),
+> +	0,
+> +};
+> +
+>  static const struct iio_chan_spec inv_icm20602_channels[] = {
+>  	IIO_CHAN_SOFT_TIMESTAMP(INV_ICM20602_SCAN_TIMESTAMP),
+>  	{
+> @@ -877,6 +896,28 @@ static const struct iio_chan_spec inv_icm20602_channels[] = {
+>  	INV_MPU6050_CHAN(IIO_ACCEL, IIO_MOD_Z, INV_ICM20602_SCAN_ACCL_Z),
+>  };
+>  
+> +static const unsigned long inv_icm20602_scan_masks[] = {
+> +	/* 3-axis accel + temp (mandatory) */
+> +	BIT(INV_ICM20602_SCAN_ACCL_X)
+> +		| BIT(INV_ICM20602_SCAN_ACCL_Y)
+> +		| BIT(INV_ICM20602_SCAN_ACCL_Z)
+> +		| BIT(INV_ICM20602_SCAN_TEMP),
+> +	/* 3-axis gyro + temp (mandatory) */
+> +	BIT(INV_ICM20602_SCAN_GYRO_X)
+> +		| BIT(INV_ICM20602_SCAN_GYRO_Y)
+> +		| BIT(INV_ICM20602_SCAN_GYRO_Z)
+> +		| BIT(INV_ICM20602_SCAN_TEMP),
+> +	/* 6-axis accel + gyro + temp (mandatory) */
+> +	BIT(INV_ICM20602_SCAN_ACCL_X)
+> +		| BIT(INV_ICM20602_SCAN_ACCL_Y)
+> +		| BIT(INV_ICM20602_SCAN_ACCL_Z)
+> +		| BIT(INV_ICM20602_SCAN_GYRO_X)
+> +		| BIT(INV_ICM20602_SCAN_GYRO_Y)
+> +		| BIT(INV_ICM20602_SCAN_GYRO_Z)
+> +		| BIT(INV_ICM20602_SCAN_TEMP),
+> +	0,
+> +};
+> +
+>  /*
+>   * The user can choose any frequency between INV_MPU6050_MIN_FIFO_RATE and
+>   * INV_MPU6050_MAX_FIFO_RATE, but only these frequencies are matched by the
+> @@ -1136,9 +1177,11 @@ int inv_mpu_core_probe(struct regmap *regmap, int irq, const char *name,
+>  	if (chip_type == INV_ICM20602) {
+>  		indio_dev->channels = inv_icm20602_channels;
+>  		indio_dev->num_channels = ARRAY_SIZE(inv_icm20602_channels);
+> +		indio_dev->available_scan_masks = inv_icm20602_scan_masks;
+>  	} else {
+>  		indio_dev->channels = inv_mpu_channels;
+>  		indio_dev->num_channels = ARRAY_SIZE(inv_mpu_channels);
+> +		indio_dev->available_scan_masks = inv_mpu_scan_masks;
+>  	}
+>  
+>  	indio_dev->info = &mpu_info;
+
