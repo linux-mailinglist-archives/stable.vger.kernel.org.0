@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2936956B
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3651F69568
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391087AbfGOO5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:57:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46382 "EHLO mail.kernel.org"
+        id S1732682AbfGOO47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:56:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388929AbfGOOU4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:20:56 -0400
+        id S2390486AbfGOOVE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:21:04 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E576420868;
-        Mon, 15 Jul 2019 14:20:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 613C7206B8;
+        Mon, 15 Jul 2019 14:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200455;
-        bh=wBaZIto2KQUWpNiGmWaEiO53glht9iybHwomjelBnnE=;
+        s=default; t=1563200463;
+        bh=qs7yIuOPi1+YiSsY/HnLBpY7XGQeHN1V7bnDKr98nwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qtOm6RGh61L46rFIMoDoZ4mWqlylbgqzf+XLr7AytC2bvfx48JWbNfjJnA+3EZdlL
-         IE6XsVrH3GxgYbQD5j8dhQR79KClfoFc4MUdGSTAqYclOMTct4TY3kp8NhXCg0ZvF0
-         zdDLtG5fxXzT36lFaiWPqrVsjSSFnObY27y5LJzg=
+        b=Qdbn9/CZutgIJGpcO5nv7ewC1H1a9VWIAkZoHSU8eCmutBJGFpafY17+qBgw2ITqb
+         GZBmg9n/qJcfBIiaTOgwlC0D23CZRr0D8xEhejvFdZzUxYeUy8oQsmCaStQTV7Px2l
+         melM2nxVkEo2uylttm7ovlV0IgHxyW3rEulcDSEs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Richter <tmricht@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.vnet.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 054/158] perf report: Fix OOM error in TUI mode on s390
-Date:   Mon, 15 Jul 2019 10:16:25 -0400
-Message-Id: <20190715141809.8445-54-sashal@kernel.org>
+Cc:     Oliver Neukum <oneukum@suse.com>,
+        syzbot+2e1ef9188251d9cc7944@syzkaller.appspotmail.com,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 056/158] media: uvcvideo: Fix access to uninitialized fields on probe error
+Date:   Mon, 15 Jul 2019 10:16:27 -0400
+Message-Id: <20190715141809.8445-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -46,118 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 8a07aa4e9b7b0222129c07afff81634a884b2866 ]
+[ Upstream commit 11a087f484bf15ff65f0a9f277aa5a61fd07ed2a ]
 
-Debugging a OOM error using the TUI interface revealed this issue
-on s390:
+We need to check whether this work we are canceling actually is
+initialized.
 
-[tmricht@m83lp54 perf]$ cat /proc/kallsyms |sort
-....
-00000001119b7158 B radix_tree_node_cachep
-00000001119b8000 B __bss_stop
-00000001119b8000 B _end
-000003ff80002850 t autofs_mount	[autofs4]
-000003ff80002868 t autofs_show_options	[autofs4]
-000003ff80002a98 t autofs_evict_inode	[autofs4]
-....
-
-There is a huge gap between the last kernel symbol
-__bss_stop/_end and the first kernel module symbol
-autofs_mount (from autofs4 module).
-
-After reading the kernel symbol table via functions:
-
- dso__load()
- +--> dso__load_kernel_sym()
-      +--> dso__load_kallsyms()
-	   +--> __dso_load_kallsyms()
-	        +--> symbols__fixup_end()
-
-the symbol __bss_stop has a start address of 1119b8000 and
-an end address of 3ff80002850, as can be seen by this debug statement:
-
-  symbols__fixup_end __bss_stop start:0x1119b8000 end:0x3ff80002850
-
-The size of symbol __bss_stop is 0x3fe6e64a850 bytes!
-It is the last kernel symbol and fills up the space until
-the first kernel module symbol.
-
-This size kills the TUI interface when executing the following
-code:
-
-  process_sample_event()
-    hist_entry_iter__add()
-      hist_iter__report_callback()
-        hist_entry__inc_addr_samples()
-          symbol__inc_addr_samples(symbol = __bss_stop)
-            symbol__cycles_hist()
-               annotated_source__alloc_histograms(...,
-				                symbol__size(sym),
-		                                ...)
-
-This function allocates memory to save sample histograms.
-The symbol_size() marco is defined as sym->end - sym->start, which
-results in above value of 0x3fe6e64a850 bytes and
-the call to calloc() in annotated_source__alloc_histograms() fails.
-
-The histgram memory allocation might fail, make this failure
-no-fatal and continue processing.
-
-Output before:
-[tmricht@m83lp54 perf]$ ./perf --debug stderr=1 report -vvvvv \
-					      -i ~/slow.data 2>/tmp/2
-[tmricht@m83lp54 perf]$ tail -5 /tmp/2
-  __symbol__inc_addr_samples(875): ENOMEM! sym->name=__bss_stop,
-		start=0x1119b8000, addr=0x2aa0005eb08, end=0x3ff80002850,
-		func: 0
-problem adding hist entry, skipping event
-0x938b8 [0x8]: failed to process type: 68 [Cannot allocate memory]
-[tmricht@m83lp54 perf]$
-
-Output after:
-[tmricht@m83lp54 perf]$ ./perf --debug stderr=1 report -vvvvv \
-					      -i ~/slow.data 2>/tmp/2
-[tmricht@m83lp54 perf]$ tail -5 /tmp/2
-   symbol__inc_addr_samples map:0x1597830 start:0x110730000 end:0x3ff80002850
-   symbol__hists notes->src:0x2aa2a70 nr_hists:1
-   symbol__inc_addr_samples sym:unlink_anon_vmas src:0x2aa2a70
-   __symbol__inc_addr_samples: addr=0x11094c69e
-   0x11094c670 unlink_anon_vmas: period++ [addr: 0x11094c69e, 0x2e, evidx=0]
-   	=> nr_samples: 1, period: 526008
-[tmricht@m83lp54 perf]$
-
-There is no error about failed memory allocation and the TUI interface
-shows all entries.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
-Link: http://lkml.kernel.org/r/90cb5607-3e12-5167-682d-978eba7dafa8@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+2e1ef9188251d9cc7944@syzkaller.appspotmail.com
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/annotate.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/media/usb/uvc/uvc_ctrl.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index dfee110b3a58..c357051dd2b6 100644
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -911,9 +911,8 @@ static int symbol__inc_addr_samples(struct symbol *sym, struct map *map,
- 	if (sym == NULL)
- 		return 0;
- 	src = symbol__hists(sym, evsel->evlist->nr_entries);
--	if (src == NULL)
--		return -ENOMEM;
--	return __symbol__inc_addr_samples(sym, map, src, evsel->idx, addr, sample);
-+	return (src) ?  __symbol__inc_addr_samples(sym, map, src, evsel->idx,
-+						   addr, sample) : 0;
- }
+diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+index 467b1ddaf4e7..f2854337cdca 100644
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -2350,7 +2350,9 @@ void uvc_ctrl_cleanup_device(struct uvc_device *dev)
+ 	struct uvc_entity *entity;
+ 	unsigned int i;
  
- static int symbol__account_cycles(u64 addr, u64 start,
+-	cancel_work_sync(&dev->async_ctrl.work);
++	/* Can be uninitialized if we are aborting on probe error. */
++	if (dev->async_ctrl.work.func)
++		cancel_work_sync(&dev->async_ctrl.work);
+ 
+ 	/* Free controls and control mappings for all entities. */
+ 	list_for_each_entry(entity, &dev->entities, list) {
 -- 
 2.20.1
 
