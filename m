@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 183D668D89
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:00:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61DAF68D8C
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:00:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732092AbfGON7O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:59:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39392 "EHLO mail.kernel.org"
+        id S1732769AbfGON72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:59:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730874AbfGON7N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:59:13 -0400
+        id S1730874AbfGON72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:59:28 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A31520C01;
-        Mon, 15 Jul 2019 13:59:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C2422083D;
+        Mon, 15 Jul 2019 13:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199152;
-        bh=U4taVduHbWYecVvhJtOY98fIY9wwCrmyAbT1zA8gB9g=;
+        s=default; t=1563199167;
+        bh=8hsRm8PaqPB2cnIfseBR58ZhY8tl+ZCHhu1vRzIadaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y5aLcXKTPrxqqQULa+IOBb7BtzzTqXm8V/Z98c0F7K0E7KAyB+tAABiul6p63sN+u
-         zTffBxkX0IZiyO+JmvPOM6eySPQ5egk7FT3PjT1BGko0Ol9zZwq7O5JhPgZhRPWbTR
-         vYarSJ0+BWR84gVHy0fNDHgWhpQLvkNSzq+KdZHw=
+        b=aKHmm3AF7CR3J2sMFQZ3u5azLEHYmpi6ppTKErWsBkcUCpBWsxllawOWQqVh2jEFI
+         fkfZ9S+da8GtFRmWG3bl8W7GcYocXxo8WbuwLv15eebYYVkxpeGdCcrbs65bZQxS05
+         KZCyWjqKOE7DTljnveWy9QhPmEcs9LWRwCMzD8kk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yonglong Liu <liuyonglong@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
+Cc:     Marek Vasut <marex@denx.de>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 205/249] net: hns3: add Asym Pause support to fix autoneg problem
-Date:   Mon, 15 Jul 2019 09:46:10 -0400
-Message-Id: <20190715134655.4076-205-sashal@kernel.org>
+        Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 206/249] net: ethernet: ti: cpsw: Assign OF node to slave devices
+Date:   Mon, 15 Jul 2019 09:46:11 -0400
+Message-Id: <20190715134655.4076-206-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -45,92 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglong Liu <liuyonglong@huawei.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit bc3781edcea017aa1a29abd953b776cdba298ce2 ]
+[ Upstream commit 337d1727a3895775b5e5ef67d3ca0fea2e2ae768 ]
 
-Local device and link partner config auto-negotiation on both,
-local device config pause frame use as: rx on/tx off,
-link partner config pause frame use as: rx off/tx on.
+Assign OF node to CPSW slave devices, otherwise it is not possible to
+bind e.g. DSA switch to them. Without this patch, the DSA code tries
+to find the ethernet device by OF match, but fails to do so because
+the slave device has NULL OF node.
 
-We except the result is:
-Local device:
-Autonegotiate:  on
-RX:             on
-TX:             off
-RX negotiated:  on
-TX negotiated:  off
-
-Link partner:
-Autonegotiate:  on
-RX:             off
-TX:             on
-RX negotiated:  off
-TX negotiated:  on
-
-But actually, the result of Local device and link partner is both:
-Autonegotiate:  on
-RX:             off
-TX:             off
-RX negotiated:  off
-TX negotiated:  off
-
-The root cause is that the supported flag is has only Pause,
-reference to the function genphy_config_advert():
-static int genphy_config_advert(struct phy_device *phydev)
-{
-	...
-	linkmode_and(phydev->advertising, phydev->advertising,
-		     phydev->supported);
-	...
-}
-The pause frame use of link partner is rx off/tx on, so its
-advertising only set the bit Asym_Pause, and the supported is
-only set the bit Pause, so the result of linkmode_and(), is
-rx off/tx off.
-
-This patch adds Asym_Pause to the supported flag to fix it.
-
-Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 1 +
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c | 7 +++++++
- 2 files changed, 8 insertions(+)
+ drivers/net/ethernet/ti/cpsw.c      | 3 +++
+ drivers/net/ethernet/ti/cpsw_priv.h | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index f661281de36b..bab04d2d674a 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -1057,6 +1057,7 @@ static void hclge_parse_copper_link_mode(struct hclge_dev *hdev,
- 	linkmode_set_bit(ETHTOOL_LINK_MODE_Autoneg_BIT, supported);
- 	linkmode_set_bit(ETHTOOL_LINK_MODE_TP_BIT, supported);
- 	linkmode_set_bit(ETHTOOL_LINK_MODE_Pause_BIT, supported);
-+	linkmode_set_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT, supported);
- }
+diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
+index 634fc484a0b3..4e3026f9abed 100644
+--- a/drivers/net/ethernet/ti/cpsw.c
++++ b/drivers/net/ethernet/ti/cpsw.c
+@@ -2179,6 +2179,7 @@ static int cpsw_probe_dt(struct cpsw_platform_data *data,
+ 			return ret;
+ 		}
  
- static void hclge_parse_link_mode(struct hclge_dev *hdev, u8 speed_ability)
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
-index 1e8134892d77..32d6a59b731a 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
-@@ -224,6 +224,13 @@ int hclge_mac_connect_phy(struct hnae3_handle *handle)
- 	linkmode_and(phydev->supported, phydev->supported, mask);
- 	linkmode_copy(phydev->advertising, phydev->supported);
++		slave_data->slave_node = slave_node;
+ 		slave_data->phy_node = of_parse_phandle(slave_node,
+ 							"phy-handle", 0);
+ 		parp = of_get_property(slave_node, "phy_id", &lenp);
+@@ -2330,6 +2331,7 @@ static int cpsw_probe_dual_emac(struct cpsw_priv *priv)
  
-+	/* supported flag is Pause and Asym Pause, but default advertising
-+	 * should be rx on, tx on, so need clear Asym Pause in advertising
-+	 * flag
-+	 */
-+	linkmode_clear_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT,
-+			   phydev->advertising);
-+
- 	return 0;
- }
+ 	/* register the network device */
+ 	SET_NETDEV_DEV(ndev, cpsw->dev);
++	ndev->dev.of_node = cpsw->slaves[1].data->slave_node;
+ 	ret = register_netdev(ndev);
+ 	if (ret)
+ 		dev_err(cpsw->dev, "cpsw: error registering net device\n");
+@@ -2507,6 +2509,7 @@ static int cpsw_probe(struct platform_device *pdev)
  
+ 	/* register the network device */
+ 	SET_NETDEV_DEV(ndev, dev);
++	ndev->dev.of_node = cpsw->slaves[0].data->slave_node;
+ 	ret = register_netdev(ndev);
+ 	if (ret) {
+ 		dev_err(dev, "error registering net device\n");
+diff --git a/drivers/net/ethernet/ti/cpsw_priv.h b/drivers/net/ethernet/ti/cpsw_priv.h
+index 04795b97ee71..e32f11da2dce 100644
+--- a/drivers/net/ethernet/ti/cpsw_priv.h
++++ b/drivers/net/ethernet/ti/cpsw_priv.h
+@@ -272,6 +272,7 @@ struct cpsw_host_regs {
+ };
+ 
+ struct cpsw_slave_data {
++	struct device_node *slave_node;
+ 	struct device_node *phy_node;
+ 	char		phy_id[MII_BUS_ID_SIZE];
+ 	int		phy_if;
 -- 
 2.20.1
 
