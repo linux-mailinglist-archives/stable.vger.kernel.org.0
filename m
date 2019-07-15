@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3633B68FB2
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D75468FE3
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:17:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389265AbfGOOQO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:16:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33134 "EHLO mail.kernel.org"
+        id S2389201AbfGOOQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:16:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388662AbfGOOQO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:16:14 -0400
+        id S2388662AbfGOOQT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:16:19 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C8D820868;
-        Mon, 15 Jul 2019 14:16:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09A6E20651;
+        Mon, 15 Jul 2019 14:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200173;
-        bh=QdxkhPNgcZkx+wY+JoZuFgHJzgfudEMIkPwELkwc6D8=;
+        s=default; t=1563200178;
+        bh=tKvy5JbcZXx6YWzfQrPDW5p7WMo9r0DbLOyr2sIo3UE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vKuMqlTruVNDKNNGZmMOkc8aqYTKwUifwqVpxostOpQPFzRWIO2GDI/shFEJVdYFV
-         8DcVeS27FkpayOjZw0mlNguzZnzA6uk+KtU92LOOnxFaJQKANRjufHl3z70DxmW5AO
-         6KX9YBTvobKRwXPxTW0mWSGsUaBFFFKxAPWiki4E=
+        b=t5wPOZV+MM3KRk0kWc7R9qaiW7JJ49vxMibDBfllGG+glGlquUVfQq2n7b8d0Ia9d
+         cW9zYiDLOMZZXTD/VJSWTJuLn2gP4MCkyw0sJQF+ZnZaj42vY7zlUVPcjN+MbdYpVp
+         nmShuIVhbugVLkduwZ0lKnc7YmYdqB1E0EOoOGQo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Yang <wen.yang99@zte.com.cn>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        alsa-devel@alsa-project.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 201/219] ASoC: audio-graph-card: fix use-after-free in graph_for_each_link
-Date:   Mon, 15 Jul 2019 10:03:22 -0400
-Message-Id: <20190715140341.6443-201-sashal@kernel.org>
+Cc:     Jiri Olsa <jolsa@redhat.com>, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Quentin Monnet <quentin.monnet@netronome.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 202/219] tools: bpftool: Fix json dump crash on powerpc
+Date:   Mon, 15 Jul 2019 10:03:23 -0400
+Message-Id: <20190715140341.6443-202-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -47,53 +47,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wen.yang99@zte.com.cn>
+From: Jiri Olsa <jolsa@redhat.com>
 
-[ Upstream commit 1bcc1fd64e4dd903f4d868a9e053986e3b102713 ]
+[ Upstream commit aa52bcbe0e72fac36b1862db08b9c09c4caefae3 ]
 
-After calling of_node_put() on the codec_ep and codec_port variables,
-they are still being used, which may result in use-after-free.
-We fix this issue by calling of_node_put() after the last usage.
+Michael reported crash with by bpf program in json mode on powerpc:
 
-Fixes: fce9b90c1ab7 ("ASoC: audio-graph-card: cleanup DAI link loop method - step2")
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Cc: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Link: https://lore.kernel.org/r/1562229530-8121-1-git-send-email-wen.yang99@zte.com.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  # bpftool prog -p dump jited id 14
+  [{
+        "name": "0xd00000000a9aa760",
+        "insns": [{
+                "pc": "0x0",
+                "operation": "nop",
+                "operands": [null
+                ]
+            },{
+                "pc": "0x4",
+                "operation": "nop",
+                "operands": [null
+                ]
+            },{
+                "pc": "0x8",
+                "operation": "mflr",
+  Segmentation fault (core dumped)
+
+The code is assuming char pointers in format, which is not always
+true at least for powerpc. Fixing this by dumping the whole string
+into buffer based on its format.
+
+Please note that libopcodes code does not check return values from
+fprintf callback, but as per Jakub suggestion returning -1 on allocation
+failure so we do the best effort to propagate the error.
+
+Fixes: 107f041212c1 ("tools: bpftool: add JSON output for `bpftool prog dump jited *` command")
+Reported-by: Michael Petlan <mpetlan@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Reviewed-by: Quentin Monnet <quentin.monnet@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/audio-graph-card.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/bpf/bpftool/jit_disasm.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/generic/audio-graph-card.c b/sound/soc/generic/audio-graph-card.c
-index 69bc4848d787..f730830fb36c 100644
---- a/sound/soc/generic/audio-graph-card.c
-+++ b/sound/soc/generic/audio-graph-card.c
-@@ -460,9 +460,6 @@ static int graph_for_each_link(struct graph_priv *priv,
- 			codec_ep = of_graph_get_remote_endpoint(cpu_ep);
- 			codec_port = of_get_parent(codec_ep);
+diff --git a/tools/bpf/bpftool/jit_disasm.c b/tools/bpf/bpftool/jit_disasm.c
+index 3ef3093560ba..bfed711258ce 100644
+--- a/tools/bpf/bpftool/jit_disasm.c
++++ b/tools/bpf/bpftool/jit_disasm.c
+@@ -11,6 +11,8 @@
+  * Licensed under the GNU General Public License, version 2.0 (GPLv2)
+  */
  
--			of_node_put(codec_ep);
--			of_node_put(codec_port);
--
- 			/* get convert-xxx property */
- 			memset(&adata, 0, sizeof(adata));
- 			graph_get_conversion(dev, codec_ep, &adata);
-@@ -482,6 +479,9 @@ static int graph_for_each_link(struct graph_priv *priv,
- 			else
- 				ret = func_noml(priv, cpu_ep, codec_ep, li);
++#define _GNU_SOURCE
++#include <stdio.h>
+ #include <stdarg.h>
+ #include <stdint.h>
+ #include <stdio.h>
+@@ -44,11 +46,13 @@ static int fprintf_json(void *out, const char *fmt, ...)
+ 	char *s;
  
-+			of_node_put(codec_ep);
-+			of_node_put(codec_port);
+ 	va_start(ap, fmt);
++	if (vasprintf(&s, fmt, ap) < 0)
++		return -1;
++	va_end(ap);
 +
- 			if (ret < 0)
- 				return ret;
+ 	if (!oper_count) {
+ 		int i;
+ 
+-		s = va_arg(ap, char *);
+-
+ 		/* Strip trailing spaces */
+ 		i = strlen(s) - 1;
+ 		while (s[i] == ' ')
+@@ -61,11 +65,10 @@ static int fprintf_json(void *out, const char *fmt, ...)
+ 	} else if (!strcmp(fmt, ",")) {
+ 		   /* Skip */
+ 	} else {
+-		s = va_arg(ap, char *);
+ 		jsonw_string(json_wtr, s);
+ 		oper_count++;
+ 	}
+-	va_end(ap);
++	free(s);
+ 	return 0;
+ }
  
 -- 
 2.20.1
