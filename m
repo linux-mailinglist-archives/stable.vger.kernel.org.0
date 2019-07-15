@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44DBB69450
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:51:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A29FB6945A
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:51:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404674AbfGOOp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:45:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34348 "EHLO mail.kernel.org"
+        id S2404361AbfGOOuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:50:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391958AbfGOOp7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:45:59 -0400
+        id S2391947AbfGOOqB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:46:01 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 067D72067C;
-        Mon, 15 Jul 2019 14:45:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCA2120C01;
+        Mon, 15 Jul 2019 14:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201958;
-        bh=srTrjVb/NproGDBZrf7xjQbLlk9QFUoeK/lvEq8QG9k=;
+        s=default; t=1563201960;
+        bh=JtoJsZuclAftWZhOWO9t7/AiuGR8oEKq9jRQeyxM9/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=np2FQ6MigVgReInjJ5374MSIA+XbA5l0llDNcDgjaJG0VZxXVok8JC/iYkctimQYL
-         fObFvoiHtwh7AzDUjkiA17n0HwTt+hwx0Bc52G7gHRPNHPH7W8rB5I41os7UiOc5J6
-         V8baNULCLaezAgdrzrUkAswiSDkBq9XMI0nheW5w=
+        b=tJrU9pZ2dVW/k1ZQ1rj/cT+YJwAeDON/D94IZEGHBVCRh+fRPeCrEoRgzJKkLpGfB
+         MemHGMqI92MUods1KZna+YPF42e+a1jpvYzrybRzv9KyrgfM1e66lpfhIPdn6wRQv2
+         r8nsjNSXHELgfpd/sGMBBSRnnP/EdbF8VNlRqOkk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Neukum <oneukum@suse.com>,
-        syzbot+26ec41e9f788b3eba396@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 06/53] media: dvb: usb: fix use after free in dvb_usb_device_exit
-Date:   Mon, 15 Jul 2019 10:44:48 -0400
-Message-Id: <20190715144535.11636-6-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 07/53] crypto: talitos - fix skcipher failure due to wrong output IV
+Date:   Mon, 15 Jul 2019 10:44:49 -0400
+Message-Id: <20190715144535.11636-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715144535.11636-1-sashal@kernel.org>
 References: <20190715144535.11636-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,43 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit 6cf97230cd5f36b7665099083272595c55d72be7 ]
+[ Upstream commit 3e03e792865ae48b8cfc69a0b4d65f02f467389f ]
 
-dvb_usb_device_exit() frees and uses the device name in that order.
-Fix by storing the name in a buffer before freeing it.
+Selftests report the following:
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: syzbot+26ec41e9f788b3eba396@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+[    2.984845] alg: skcipher: cbc-aes-talitos encryption test failed (wrong output IV) on test vector 0, cfg="in-place"
+[    2.995377] 00000000: 3d af ba 42 9d 9e b4 30 b4 22 da 80 2c 9f ac 41
+[    3.032673] alg: skcipher: cbc-des-talitos encryption test failed (wrong output IV) on test vector 0, cfg="in-place"
+[    3.043185] 00000000: fe dc ba 98 76 54 32 10
+[    3.063238] alg: skcipher: cbc-3des-talitos encryption test failed (wrong output IV) on test vector 0, cfg="in-place"
+[    3.073818] 00000000: 7d 33 88 93 0f 93 b2 42
+
+This above dumps show that the actual output IV is indeed the input IV.
+This is due to the IV not being copied back into the request.
+
+This patch fixes that.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dvb-usb-init.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/crypto/talitos.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb/dvb-usb-init.c b/drivers/media/usb/dvb-usb/dvb-usb-init.c
-index 1adf325012f7..97a89ef7e4c1 100644
---- a/drivers/media/usb/dvb-usb/dvb-usb-init.c
-+++ b/drivers/media/usb/dvb-usb/dvb-usb-init.c
-@@ -286,12 +286,15 @@ EXPORT_SYMBOL(dvb_usb_device_init);
- void dvb_usb_device_exit(struct usb_interface *intf)
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index 62ce93568e11..a000c2667392 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1446,11 +1446,15 @@ static void ablkcipher_done(struct device *dev,
+ 			    int err)
  {
- 	struct dvb_usb_device *d = usb_get_intfdata(intf);
--	const char *name = "generic DVB-USB module";
-+	const char *default_name = "generic DVB-USB module";
-+	char name[40];
+ 	struct ablkcipher_request *areq = context;
++	struct crypto_ablkcipher *cipher = crypto_ablkcipher_reqtfm(areq);
++	struct talitos_ctx *ctx = crypto_ablkcipher_ctx(cipher);
++	unsigned int ivsize = crypto_ablkcipher_ivsize(cipher);
+ 	struct talitos_edesc *edesc;
  
- 	usb_set_intfdata(intf, NULL);
- 	if (d != NULL && d->desc != NULL) {
--		name = d->desc->name;
-+		strscpy(name, d->desc->name, sizeof(name));
- 		dvb_usb_exit(d);
-+	} else {
-+		strscpy(name, default_name, sizeof(name));
- 	}
- 	info("%s successfully deinitialized and disconnected.", name);
+ 	edesc = container_of(desc, struct talitos_edesc, desc);
+ 
+ 	common_nonsnoop_unmap(dev, edesc, areq);
++	memcpy(areq->info, ctx->iv, ivsize);
+ 
+ 	kfree(edesc);
  
 -- 
 2.20.1
