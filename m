@@ -2,36 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12D2869666
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:04:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1DC16964C
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387421AbfGOOIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:08:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59384 "EHLO mail.kernel.org"
+        id S1730939AbfGOOIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:08:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388577AbfGOOIo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:08:44 -0400
+        id S2388592AbfGOOIw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:08:52 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9514C20C01;
-        Mon, 15 Jul 2019 14:08:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4862C2081C;
+        Mon, 15 Jul 2019 14:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199723;
-        bh=w5v7sWLAcSUnhsaiQsTidlDrLl91cqg976ss1tbUK9M=;
+        s=default; t=1563199731;
+        bh=lk6I4aH5+0b+VVVofMZ3cbJ7lsWFwa2u5jH2KKaaD+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWkM9gRjavzej2RGTNA3ISY2sK5DSLNEWI1Yi83iRI0ipP5O5XEf5sZ+1HP+gsqg5
-         pGBz6AjPf4U7UhpmxC/PUez9SZ2keE6DE2n55iSYdP752OLDj4PaYiSl7XXxvDe1mu
-         c4gVV/hcRunfcTvoLahb8NF+OTBoyd/K2Rd8iYpY=
+        b=LCNUV+dLemhzamwpKhRy+dbEgZVdePTAlrw8dSJC4mD0MNCFrEFKo/bFdVLXj/PfA
+         yXDT4BonW7QmBqMasHaCeto2/y9Z3XOfY9beMT/tZbFwey39BGpsB3gcap113Eu6yg
+         jc0KHuE9GEffVYPkBCoG5sFQTZK7lTBzYbKQoe2E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Kir Kolyshkin <kir@sacred.ru>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 085/219] selinux: fix empty write to keycreate file
-Date:   Mon, 15 Jul 2019 10:01:26 -0400
-Message-Id: <20190715140341.6443-85-sashal@kernel.org>
+Cc:     Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>, bp@suse.de,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        platform-driver-x86@vger.kernel.org,
+        Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Len Brown <lenb@kernel.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 087/219] x86/cpu: Add Ice Lake NNPI to Intel family
+Date:   Mon, 15 Jul 2019 10:01:28 -0400
+Message-Id: <20190715140341.6443-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -44,53 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
 
-[ Upstream commit 464c258aa45b09f16aa0f05847ed8895873262d9 ]
+[ Upstream commit e32d045cd4ba06b59878323e434bad010e78e658 ]
 
-When sid == 0 (we are resetting keycreate_sid to the default value), we
-should skip the KEY__CREATE check.
+Add the CPUID model number of Ice Lake Neural Network Processor for Deep
+Learning Inference (ICL-NNPI) to the Intel family list. Ice Lake NNPI uses
+model number 0x9D and this will be documented in a future version of Intel
+Software Development Manual.
 
-Before this patch, doing a zero-sized write to /proc/self/keycreate
-would check if the current task can create unlabeled keys (which would
-usually fail with -EACCESS and generate an AVC). Now it skips the check
-and correctly sets the task's keycreate_sid to 0.
-
-Bug report: https://bugzilla.redhat.com/show_bug.cgi?id=1719067
-
-Tested using the reproducer from the report above.
-
-Fixes: 4eb582cf1fbd ("[PATCH] keys: add a way to store the appropriate context for newly-created keys")
-Reported-by: Kir Kolyshkin <kir@sacred.ru>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: bp@suse.de
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: platform-driver-x86@vger.kernel.org
+Cc: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Linux PM <linux-pm@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20190606012419.13250-1-rajneesh.bhardwaj@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/hooks.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/intel-family.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 614bc753822c..bf37bdce9918 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6269,11 +6269,12 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 	} else if (!strcmp(name, "fscreate")) {
- 		tsec->create_sid = sid;
- 	} else if (!strcmp(name, "keycreate")) {
--		error = avc_has_perm(&selinux_state,
--				     mysid, sid, SECCLASS_KEY, KEY__CREATE,
--				     NULL);
--		if (error)
--			goto abort_change;
-+		if (sid) {
-+			error = avc_has_perm(&selinux_state, mysid, sid,
-+					     SECCLASS_KEY, KEY__CREATE, NULL);
-+			if (error)
-+				goto abort_change;
-+		}
- 		tsec->keycreate_sid = sid;
- 	} else if (!strcmp(name, "sockcreate")) {
- 		tsec->sockcreate_sid = sid;
+diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
+index 310118805f57..f60ddd655c78 100644
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -56,6 +56,7 @@
+ #define INTEL_FAM6_ICELAKE_XEON_D	0x6C
+ #define INTEL_FAM6_ICELAKE_DESKTOP	0x7D
+ #define INTEL_FAM6_ICELAKE_MOBILE	0x7E
++#define INTEL_FAM6_ICELAKE_NNPI		0x9D
+ 
+ /* "Small Core" Processors (Atom) */
+ 
 -- 
 2.20.1
 
