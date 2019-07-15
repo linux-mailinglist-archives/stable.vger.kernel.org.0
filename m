@@ -2,126 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB9C76966A
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:04:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2602695B5
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:00:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388431AbfGOOIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:08:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57564 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387959AbfGOOH7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:07:59 -0400
-Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 549AA2081C;
-        Mon, 15 Jul 2019 14:07:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199678;
-        bh=SDK7DDVuU3mOtv8N6aG4HbVnQmnzmFibyibAj+n1nGU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dcs+zos8+ofkbhgAJqEfgxUewBUZ/GL0iCt7Mh7jih7/YUkgLrItdAt3M6XCUWp9D
-         EeNoW9BON/xRGtJzEm278C2DApZ8LL02RDBs7p53jewvTjYlcKtmmSx0ehOXStTOWA
-         Fqdx7OPTCpB1tfMWAcd8msKAEmpcFvoco/R+KJJo=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefano Brivio <sbrivio@redhat.com>,
-        NOYB <JunkYardMail1@Frontier.com>,
-        Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 070/219] ipset: Fix memory accounting for hash types on resize
-Date:   Mon, 15 Jul 2019 10:01:11 -0400
-Message-Id: <20190715140341.6443-70-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
-References: <20190715140341.6443-1-sashal@kernel.org>
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+        id S1731444AbfGOO7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:59:40 -0400
+Received: from glenfiddich.mraw.org ([62.210.215.98]:51530 "EHLO
+        glenfiddich.mraw.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389560AbfGOOSy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jul 2019 10:18:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mraw.org;
+         s=mail; h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:
+        Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=3izMUbk5igF8rc0SL5fLHxZkvh1RVPcCPYsW7Iz4hYw=; b=fyBA4ue/L48LMqEac3tnpQuT43
+        cUZzGfneCL0pJ7P6Kzy/V9k1vs13pLgKsv1HCBy1Ty/zNIBg27FBdXi1leUJLj7/GM8Arnvzu0jmM
+        PCdrJmeto5pm4ug1JTu420gepsV+ZYZuf55I7yDtb9T8KFtLYNtuczE2w1gdVLRfH0ps=;
+Received: from localhost ([127.0.0.1] helo=armor.home)
+        by glenfiddich.mraw.org with esmtp (Exim 4.89)
+        (envelope-from <cyril@debamax.com>)
+        id 1hn1YA-00008C-DU; Mon, 15 Jul 2019 16:01:54 +0200
+From:   Cyril Brulebois <cyril@debamax.com>
+To:     stable@vger.kernel.org
+Cc:     charles.fendt@me.com, Stefan Wahren <stefan.wahren@i2se.com>,
+        Cyril Brulebois <cyril@debamax.com>
+Subject: [PATCH 2/3] arm64: dts: broadcom: Add reference to Compute Module IO Board V3
+Date:   Mon, 15 Jul 2019 16:01:11 +0200
+Message-Id: <20190715140112.6180-3-cyril@debamax.com>
+X-Mailer: git-send-email 2.11.0
+In-Reply-To: <20190715140112.6180-1-cyril@debamax.com>
+References: <20190715140112.6180-1-cyril@debamax.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Brivio <sbrivio@redhat.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 11921796f4799ca9c61c4b22cc54d84aa69f8a35 ]
+commit a7eb26392b893bff92b1eb6483f4af3d2eb19510 upstream.
 
-If a fresh array block is allocated during resize, the current in-memory
-set size should be increased by the size of the block, not replaced by it.
+This adds a reference to the dts of the Compute Module IO Board V3 in arm,
+so we don't need to maintain the content in arm64.
 
-Before the fix, adding entries to a hash set type, leading to a table
-resize, caused an inconsistent memory size to be reported. This becomes
-more obvious when swapping sets with similar sizes:
-
-  # cat hash_ip_size.sh
-  #!/bin/sh
-  FAIL_RETRIES=10
-
-  tries=0
-  while [ ${tries} -lt ${FAIL_RETRIES} ]; do
-  	ipset create t1 hash:ip
-  	for i in `seq 1 4345`; do
-  		ipset add t1 1.2.$((i / 255)).$((i % 255))
-  	done
-  	t1_init="$(ipset list t1|sed -n 's/Size in memory: \(.*\)/\1/p')"
-
-  	ipset create t2 hash:ip
-  	for i in `seq 1 4360`; do
-  		ipset add t2 1.2.$((i / 255)).$((i % 255))
-  	done
-  	t2_init="$(ipset list t2|sed -n 's/Size in memory: \(.*\)/\1/p')"
-
-  	ipset swap t1 t2
-  	t1_swap="$(ipset list t1|sed -n 's/Size in memory: \(.*\)/\1/p')"
-  	t2_swap="$(ipset list t2|sed -n 's/Size in memory: \(.*\)/\1/p')"
-
-  	ipset destroy t1
-  	ipset destroy t2
-  	tries=$((tries + 1))
-
-  	if [ ${t1_init} -lt 10000 ] || [ ${t2_init} -lt 10000 ]; then
-  		echo "FAIL after ${tries} tries:"
-  		echo "T1 size ${t1_init}, after swap ${t1_swap}"
-  		echo "T2 size ${t2_init}, after swap ${t2_swap}"
-  		exit 1
-  	fi
-  done
-  echo "PASS"
-  # echo -n 'func hash_ip4_resize +p' > /sys/kernel/debug/dynamic_debug/control
-  # ./hash_ip_size.sh
-  [ 2035.018673] attempt to resize set t1 from 10 to 11, t 00000000fe6551fa
-  [ 2035.078583] set t1 resized from 10 (00000000fe6551fa) to 11 (00000000172a0163)
-  [ 2035.080353] Table destroy by resize 00000000fe6551fa
-  FAIL after 4 tries:
-  T1 size 9064, after swap 71128
-  T2 size 71128, after swap 9064
-
-Reported-by: NOYB <JunkYardMail1@Frontier.com>
-Fixes: 9e41f26a505c ("netfilter: ipset: Count non-static extension memory for userspace")
-Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Tested-by: Charles Fendt <charles.fendt@me.com>
+Signed-off-by: Cyril Brulebois <cyril@debamax.com>
 ---
- net/netfilter/ipset/ip_set_hash_gen.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/broadcom/Makefile                | 3 ++-
+ arch/arm64/boot/dts/broadcom/bcm2837-rpi-cm3-io3.dts | 2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm64/boot/dts/broadcom/bcm2837-rpi-cm3-io3.dts
 
-diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
-index 2c9609929c71..455804456008 100644
---- a/net/netfilter/ipset/ip_set_hash_gen.h
-+++ b/net/netfilter/ipset/ip_set_hash_gen.h
-@@ -625,7 +625,7 @@ mtype_resize(struct ip_set *set, bool retried)
- 					goto cleanup;
- 				}
- 				m->size = AHASH_INIT_SIZE;
--				extsize = ext_size(AHASH_INIT_SIZE, dsize);
-+				extsize += ext_size(AHASH_INIT_SIZE, dsize);
- 				RCU_INIT_POINTER(hbucket(t, key), m);
- 			} else if (m->pos >= m->size) {
- 				struct hbucket *ht;
+diff --git a/arch/arm64/boot/dts/broadcom/Makefile b/arch/arm64/boot/dts/broadcom/Makefile
+index 1193a9e34bbb..3d98f5f5ab88 100644
+--- a/arch/arm64/boot/dts/broadcom/Makefile
++++ b/arch/arm64/boot/dts/broadcom/Makefile
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ dtb-$(CONFIG_ARCH_BCM2835) += bcm2837-rpi-3-b.dtb \
+-			      bcm2837-rpi-3-b-plus.dtb
++			      bcm2837-rpi-3-b-plus.dtb \
++			      bcm2837-rpi-cm3-io3.dts
+ 
+ subdir-y	+= northstar2
+ subdir-y	+= stingray
+diff --git a/arch/arm64/boot/dts/broadcom/bcm2837-rpi-cm3-io3.dts b/arch/arm64/boot/dts/broadcom/bcm2837-rpi-cm3-io3.dts
+new file mode 100644
+index 000000000000..b1c4ab212c64
+--- /dev/null
++++ b/arch/arm64/boot/dts/broadcom/bcm2837-rpi-cm3-io3.dts
+@@ -0,0 +1,2 @@
++// SPDX-License-Identifier: GPL-2.0
++#include "arm/bcm2837-rpi-cm3-io3.dts"
 -- 
-2.20.1
+2.11.0
 
