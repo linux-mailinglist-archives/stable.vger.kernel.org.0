@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A8FA69406
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A82C76959A
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404688AbfGOOss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:48:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46828 "EHLO mail.kernel.org"
+        id S1733005AbfGOO7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:59:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404671AbfGOOss (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:48:48 -0400
+        id S2390049AbfGOOTM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:19:12 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C20082067C;
-        Mon, 15 Jul 2019 14:48:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 544BC205F4;
+        Mon, 15 Jul 2019 14:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563202126;
-        bh=k3vcteP0xrQrR/GyC8cg3tZoGi+Qo1JFJf7nsk1pg5U=;
+        s=default; t=1563200351;
+        bh=cVutxDFDEdt+LDlO09uWyo/GMeEHNCJu64x1A1e4IPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MPPeRPNoBgD0Prqv2NzL0QMmh3c/Qcx+crakRQlubYdWBQBSLkh4WqWIou7pUkdnL
-         unRm77wOiamnXfPe94C8+7HC+HASeC+H77h7OeQ0wtnWoZVi1dvQv5aB3yhmHDZUZd
-         ARifpmdJXOWRWnHvo6PcwcTrXB+zfk01ptGEKMa8=
+        b=g6NtQOBLpLZrZFsWRIe5w/mn0SjCeHDU7+Ij99dyw8iq6s0TIzJ8Mxy04jJVgY1CK
+         N02tsn8NbqFvY8bMZJsT6vWeN3QxeBtRMUal0CPW/5U7lVjvNbzfm2nNmbzl2SIxE0
+         hY8SigP1Do/ELCrLHryH9qjvGBRFVjAcqz26QEyo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     csonsino <csonsino@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 53/53] Bluetooth: validate BLE connection interval updates
-Date:   Mon, 15 Jul 2019 10:45:35 -0400
-Message-Id: <20190715144535.11636-53-sashal@kernel.org>
+Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Daniel Lezcano <daniel.lezcano@free.fr>,
+        Serge Hallyn <serge@hallyn.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 021/158] signal/pid_namespace: Fix reboot_pid_ns to use send_sig not force_sig
+Date:   Mon, 15 Jul 2019 10:15:52 -0400
+Message-Id: <20190715141809.8445-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190715144535.11636-1-sashal@kernel.org>
-References: <20190715144535.11636-1-sashal@kernel.org>
+In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
+References: <20190715141809.8445-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,92 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: csonsino <csonsino@gmail.com>
+From: "Eric W. Biederman" <ebiederm@xmission.com>
 
-[ Upstream commit c49a8682fc5d298d44e8d911f4fa14690ea9485e ]
+[ Upstream commit f9070dc94542093fd516ae4ccea17ef46a4362c5 ]
 
-Problem: The Linux Bluetooth stack yields complete control over the BLE
-connection interval to the remote device.
+The locking in force_sig_info is not prepared to deal with a task that
+exits or execs (as sighand may change).  The is not a locking problem
+in force_sig as force_sig is only built to handle synchronous
+exceptions.
 
-The Linux Bluetooth stack provides access to the BLE connection interval
-min and max values through /sys/kernel/debug/bluetooth/hci0/
-conn_min_interval and /sys/kernel/debug/bluetooth/hci0/conn_max_interval.
-These values are used for initial BLE connections, but the remote device
-has the ability to request a connection parameter update. In the event
-that the remote side requests to change the connection interval, the Linux
-kernel currently only validates that the desired value is within the
-acceptable range in the Bluetooth specification (6 - 3200, corresponding to
-7.5ms - 4000ms). There is currently no validation that the desired value
-requested by the remote device is within the min/max limits specified in
-the conn_min_interval/conn_max_interval configurations. This essentially
-leads to Linux yielding complete control over the connection interval to
-the remote device.
+Further the function force_sig_info changes the signal state if the
+signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
+delivery of the signal.  The signal SIGKILL can not be ignored and can
+not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
+delivered.
 
-The proposed patch adds a verification step to the connection parameter
-update mechanism, ensuring that the desired value is within the min/max
-bounds of the current connection. If the desired value is outside of the
-current connection min/max values, then the connection parameter update
-request is rejected and the negative response is returned to the remote
-device. Recall that the initial connection is established using the local
-conn_min_interval/conn_max_interval values, so this allows the Linux
-administrator to retain control over the BLE connection interval.
+So using force_sig rather than send_sig for SIGKILL is confusing
+and pointless.
 
-The one downside that I see is that the current default Linux values for
-conn_min_interval and conn_max_interval typically correspond to 30ms and
-50ms respectively. If this change were accepted, then it is feasible that
-some devices would no longer be able to negotiate to their desired
-connection interval values. This might be remedied by setting the default
-Linux conn_min_interval and conn_max_interval values to the widest
-supported range (6 - 3200 / 7.5ms - 4000ms). This could lead to the same
-behavior as the current implementation, where the remote device could
-request to change the connection interval value to any value that is
-permitted by the Bluetooth specification, and Linux would accept the
-desired value.
+Because it won't impact the sending of the signal and and because
+using force_sig is wrong, replace force_sig with send_sig.
 
-Signed-off-by: Carey Sonsino <csonsino@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Daniel Lezcano <daniel.lezcano@free.fr>
+Cc: Serge Hallyn <serge@hallyn.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Fixes: cf3f89214ef6 ("pidns: add reboot_pid_ns() to handle the reboot syscall")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c  | 5 +++++
- net/bluetooth/l2cap_core.c | 9 ++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ kernel/pid_namespace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 37fe2b158c2a..c4e94f34d048 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5062,6 +5062,11 @@ static void hci_le_remote_conn_param_req_evt(struct hci_dev *hdev,
- 		return send_conn_param_neg_reply(hdev, handle,
- 						 HCI_ERROR_UNKNOWN_CONN_ID);
+diff --git a/kernel/pid_namespace.c b/kernel/pid_namespace.c
+index 2a2ac53d8b8b..95271f180687 100644
+--- a/kernel/pid_namespace.c
++++ b/kernel/pid_namespace.c
+@@ -325,7 +325,7 @@ int reboot_pid_ns(struct pid_namespace *pid_ns, int cmd)
+ 	}
  
-+	if (min < hcon->le_conn_min_interval ||
-+	    max > hcon->le_conn_max_interval)
-+		return send_conn_param_neg_reply(hdev, handle,
-+						 HCI_ERROR_INVALID_LL_PARAMS);
-+
- 	if (hci_check_conn_params(min, max, latency, timeout))
- 		return send_conn_param_neg_reply(hdev, handle,
- 						 HCI_ERROR_INVALID_LL_PARAMS);
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index c25f1e4846cd..8cfba78d26f6 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -5266,7 +5266,14 @@ static inline int l2cap_conn_param_update_req(struct l2cap_conn *conn,
+ 	read_lock(&tasklist_lock);
+-	force_sig(SIGKILL, pid_ns->child_reaper);
++	send_sig(SIGKILL, pid_ns->child_reaper, 1);
+ 	read_unlock(&tasklist_lock);
  
- 	memset(&rsp, 0, sizeof(rsp));
- 
--	err = hci_check_conn_params(min, max, latency, to_multiplier);
-+	if (min < hcon->le_conn_min_interval ||
-+	    max > hcon->le_conn_max_interval) {
-+		BT_DBG("requested connection interval exceeds current bounds.");
-+		err = -EINVAL;
-+	} else {
-+		err = hci_check_conn_params(min, max, latency, to_multiplier);
-+	}
-+
- 	if (err)
- 		rsp.result = cpu_to_le16(L2CAP_CONN_PARAM_REJECTED);
- 	else
+ 	do_exit(0);
 -- 
 2.20.1
 
