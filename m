@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69BDC68BF7
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:48:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7D1968BFF
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:49:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731428AbfGONsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:48:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58074 "EHLO mail.kernel.org"
+        id S1731444AbfGONsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:48:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731389AbfGONsL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:48:11 -0400
+        id S1730723AbfGONsP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:48:15 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E79B421841;
-        Mon, 15 Jul 2019 13:48:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0484420651;
+        Mon, 15 Jul 2019 13:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198490;
-        bh=iZvB6N1TYcEga3h3leOTeZdDimayVtYAMRUH2QVd3Y8=;
+        s=default; t=1563198495;
+        bh=NPuKigKfZAKw9XIIxf9znhhDDxVg+YwvSoxNKBO85W4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jz0XqH2xQpmHGIwKBxZXdh+YI4jqI3Py/hs6rlbISbN0ZpngaVJb2T3Tb+kUZrtgc
-         YTbG3R4xFfvv6vFVALyeQnUAP4hTFLuXKMwhlVaGZbVbrYNUvytJe84GjJ2dHDIQHB
-         wbMkIfLQYzFG05ay95TeNCs44ewqC2mgdOowPErU=
+        b=Hk++sG0t6vw+1TfpUgOF0Zuipvfg3Ipd8zxJquENTLPlf3MT1uV4vvEXmYTpJH2oN
+         YfTteB+6Q3gwpSc5dKjwcza1S0tdf7JD5TOk2jvq8BKZIoDr40GFsVPWqaLk9IF24M
+         JNNguACDVI6Y0r9TPzj09cH1snlA/5anZoIedtqU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 024/249] selftests/bpf: adjust verifier scale test
-Date:   Mon, 15 Jul 2019 09:43:09 -0400
-Message-Id: <20190715134655.4076-24-sashal@kernel.org>
+Cc:     Kangjie Lu <kjlu@umn.edu>, Mukesh Ojha <mojha@codeaurora.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 025/249] media: vpss: fix a potential NULL pointer dereference
+Date:   Mon, 15 Jul 2019 09:43:10 -0400
+Message-Id: <20190715134655.4076-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -46,103 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexei Starovoitov <ast@kernel.org>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit 7c0c6095d48dcd0e67c917aa73cdbb2715aafc36 ]
+[ Upstream commit e08f0761234def47961d3252eac09ccedfe4c6a0 ]
 
-Adjust scale tests to check for new jmp sequence limit.
+In case ioremap fails, the fix returns -ENOMEM to avoid NULL
+pointer dereference.
 
-BPF_JGT had to be changed to BPF_JEQ because the verifier was
-too smart. It tracked the known safe range of R0 values
-and pruned the search earlier before hitting exact 8192 limit.
-bpf_semi_rand_get() was too (un)?lucky.
-
-k = 0; was missing in bpf_fill_scale2.
-It was testing a bit shorter sequence of jumps than intended.
-
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_verifier.c | 31 +++++++++++----------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+ drivers/media/platform/davinci/vpss.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/test_verifier.c b/tools/testing/selftests/bpf/test_verifier.c
-index 288cb740e005..6438d4dc8ae1 100644
---- a/tools/testing/selftests/bpf/test_verifier.c
-+++ b/tools/testing/selftests/bpf/test_verifier.c
-@@ -207,33 +207,35 @@ static void bpf_fill_rand_ld_dw(struct bpf_test *self)
- 	self->retval = (uint32_t)res;
- }
+diff --git a/drivers/media/platform/davinci/vpss.c b/drivers/media/platform/davinci/vpss.c
+index 3f079ac1b080..be91b0c7d20b 100644
+--- a/drivers/media/platform/davinci/vpss.c
++++ b/drivers/media/platform/davinci/vpss.c
+@@ -509,6 +509,11 @@ static int __init vpss_init(void)
+ 		return -EBUSY;
  
--/* test the sequence of 1k jumps */
-+#define MAX_JMP_SEQ 8192
+ 	oper_cfg.vpss_regs_base2 = ioremap(VPSS_CLK_CTRL, 4);
++	if (unlikely(!oper_cfg.vpss_regs_base2)) {
++		release_mem_region(VPSS_CLK_CTRL, 4);
++		return -ENOMEM;
++	}
 +
-+/* test the sequence of 8k jumps */
- static void bpf_fill_scale1(struct bpf_test *self)
- {
- 	struct bpf_insn *insn = self->fill_insns;
- 	int i = 0, k = 0;
+ 	writel(VPSS_CLK_CTRL_VENCCLKEN |
+ 		     VPSS_CLK_CTRL_DACCLKEN, oper_cfg.vpss_regs_base2);
  
- 	insn[i++] = BPF_MOV64_REG(BPF_REG_6, BPF_REG_1);
--	/* test to check that the sequence of 1024 jumps is acceptable */
--	while (k++ < 1024) {
-+	/* test to check that the long sequence of jumps is acceptable */
-+	while (k++ < MAX_JMP_SEQ) {
- 		insn[i++] = BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
- 					 BPF_FUNC_get_prandom_u32);
--		insn[i++] = BPF_JMP_IMM(BPF_JGT, BPF_REG_0, bpf_semi_rand_get(), 2);
-+		insn[i++] = BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, bpf_semi_rand_get(), 2);
- 		insn[i++] = BPF_MOV64_REG(BPF_REG_1, BPF_REG_10);
- 		insn[i++] = BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_6,
- 					-8 * (k % 64 + 1));
- 	}
--	/* every jump adds 1024 steps to insn_processed, so to stay exactly
--	 * within 1m limit add MAX_TEST_INSNS - 1025 MOVs and 1 EXIT
-+	/* every jump adds 1 step to insn_processed, so to stay exactly
-+	 * within 1m limit add MAX_TEST_INSNS - MAX_JMP_SEQ - 1 MOVs and 1 EXIT
- 	 */
--	while (i < MAX_TEST_INSNS - 1025)
-+	while (i < MAX_TEST_INSNS - MAX_JMP_SEQ - 1)
- 		insn[i++] = BPF_ALU32_IMM(BPF_MOV, BPF_REG_0, 42);
- 	insn[i] = BPF_EXIT_INSN();
- 	self->prog_len = i + 1;
- 	self->retval = 42;
- }
- 
--/* test the sequence of 1k jumps in inner most function (function depth 8)*/
-+/* test the sequence of 8k jumps in inner most function (function depth 8)*/
- static void bpf_fill_scale2(struct bpf_test *self)
- {
- 	struct bpf_insn *insn = self->fill_insns;
-@@ -245,19 +247,20 @@ static void bpf_fill_scale2(struct bpf_test *self)
- 		insn[i++] = BPF_EXIT_INSN();
- 	}
- 	insn[i++] = BPF_MOV64_REG(BPF_REG_6, BPF_REG_1);
--	/* test to check that the sequence of 1024 jumps is acceptable */
--	while (k++ < 1024) {
-+	/* test to check that the long sequence of jumps is acceptable */
-+	k = 0;
-+	while (k++ < MAX_JMP_SEQ) {
- 		insn[i++] = BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
- 					 BPF_FUNC_get_prandom_u32);
--		insn[i++] = BPF_JMP_IMM(BPF_JGT, BPF_REG_0, bpf_semi_rand_get(), 2);
-+		insn[i++] = BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, bpf_semi_rand_get(), 2);
- 		insn[i++] = BPF_MOV64_REG(BPF_REG_1, BPF_REG_10);
- 		insn[i++] = BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_6,
- 					-8 * (k % (64 - 4 * FUNC_NEST) + 1));
- 	}
--	/* every jump adds 1024 steps to insn_processed, so to stay exactly
--	 * within 1m limit add MAX_TEST_INSNS - 1025 MOVs and 1 EXIT
-+	/* every jump adds 1 step to insn_processed, so to stay exactly
-+	 * within 1m limit add MAX_TEST_INSNS - MAX_JMP_SEQ - 1 MOVs and 1 EXIT
- 	 */
--	while (i < MAX_TEST_INSNS - 1025)
-+	while (i < MAX_TEST_INSNS - MAX_JMP_SEQ - 1)
- 		insn[i++] = BPF_ALU32_IMM(BPF_MOV, BPF_REG_0, 42);
- 	insn[i] = BPF_EXIT_INSN();
- 	self->prog_len = i + 1;
 -- 
 2.20.1
 
