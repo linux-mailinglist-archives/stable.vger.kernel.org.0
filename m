@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8202A69667
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:04:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DAA369653
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:04:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388489AbfGOOIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:08:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58430 "EHLO mail.kernel.org"
+        id S1730635AbfGOOIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:08:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387532AbfGOOIU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:08:20 -0400
+        id S2388499AbfGOOIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:08:23 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E32D52083D;
-        Mon, 15 Jul 2019 14:08:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2913D21530;
+        Mon, 15 Jul 2019 14:08:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199699;
-        bh=1HKtzX5MtKJ+4vkqsLa8JHD2FiqDViQ4LpJYuUZL4vk=;
+        s=default; t=1563199702;
+        bh=WgXYvtTnjazAHhtyrr/obVc8SL5pAcJi7MVcWDJqQTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yg/B4cyMDbAahlVztmcRPCPBiPNT7Z0gS5yw7t+5vKvhqnW0Yy3gbKNVPndFm9Q7o
-         6Cn+cJgAuJY12lyUnt24JoGzDUq4dD1tP/v2I4E4azzMXEdUyQz9m4/sLQaoBQOj2B
-         bFauRw2m2IBlf9qhL8ZBXQrmfgtahZ9xU6BaEjeY=
+        b=RFCZuNRQlQiLP37ktGzY2z31+Kbw5+YQNTmcsVQpWZ/wWpz6zz5HotjnG5Xa1w3ui
+         c7Q0Vofma9pdhHZjZLcrcbY9dlynqXD2wdDT0EmmsNXRE4r9HJgmibK62H30XpwSXj
+         wvzJt/JAA+X9nsX0riQxj72kWurAlqAhjs4RMtKI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 076/219] media: fdp1: Support M3N and E3 platforms
-Date:   Mon, 15 Jul 2019 10:01:17 -0400
-Message-Id: <20190715140341.6443-76-sashal@kernel.org>
+Cc:     Eric Auger <eric.auger@redhat.com>, Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.1 077/219] iommu: Fix a leak in iommu_insert_resv_region
+Date:   Mon, 15 Jul 2019 10:01:18 -0400
+Message-Id: <20190715140341.6443-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -45,51 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+From: Eric Auger <eric.auger@redhat.com>
 
-[ Upstream commit 4e8c120de9268fc26f583268b9d22e7d37c4595f ]
+[ Upstream commit ad0834dedaa15c3a176f783c0373f836e44b4700 ]
 
-New Gen3 R-Car platforms incorporate the FDP1 with an updated version
-register. No code change is required to support these targets, but they
-will currently report an error stating that the device can not be
-identified.
+In case we expand an existing region, we unlink
+this latter and insert the larger one. In
+that case we should free the original region after
+the insertion. Also we can immediately return.
 
-Update the driver to match against the new device types.
+Fixes: 6c65fb318e8b ("iommu: iommu_get_group_resv_regions")
 
-Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar_fdp1.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/iommu/iommu.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/rcar_fdp1.c b/drivers/media/platform/rcar_fdp1.c
-index 6bda1eee9170..4f103be215d3 100644
---- a/drivers/media/platform/rcar_fdp1.c
-+++ b/drivers/media/platform/rcar_fdp1.c
-@@ -257,6 +257,8 @@ MODULE_PARM_DESC(debug, "activate debug info");
- #define FD1_IP_H3_ES1			0x02010101
- #define FD1_IP_M3W			0x02010202
- #define FD1_IP_H3			0x02010203
-+#define FD1_IP_M3N			0x02010204
-+#define FD1_IP_E3			0x02010205
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 109de67d5d72..2d06c507fbed 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -241,18 +241,21 @@ static int iommu_insert_resv_region(struct iommu_resv_region *new,
+ 			pos = pos->next;
+ 		} else if ((start >= a) && (end <= b)) {
+ 			if (new->type == type)
+-				goto done;
++				return 0;
+ 			else
+ 				pos = pos->next;
+ 		} else {
+ 			if (new->type == type) {
+ 				phys_addr_t new_start = min(a, start);
+ 				phys_addr_t new_end = max(b, end);
++				int ret;
  
- /* LUTs */
- #define FD1_LUT_DIF_ADJ			0x1000
-@@ -2365,6 +2367,12 @@ static int fdp1_probe(struct platform_device *pdev)
- 	case FD1_IP_H3:
- 		dprintk(fdp1, "FDP1 Version R-Car H3\n");
- 		break;
-+	case FD1_IP_M3N:
-+		dprintk(fdp1, "FDP1 Version R-Car M3N\n");
-+		break;
-+	case FD1_IP_E3:
-+		dprintk(fdp1, "FDP1 Version R-Car E3\n");
-+		break;
- 	default:
- 		dev_err(fdp1->dev, "FDP1 Unidentifiable (0x%08x)\n",
- 				hw_version);
+ 				list_del(&entry->list);
+ 				entry->start = new_start;
+ 				entry->length = new_end - new_start + 1;
+-				iommu_insert_resv_region(entry, regions);
++				ret = iommu_insert_resv_region(entry, regions);
++				kfree(entry);
++				return ret;
+ 			} else {
+ 				pos = pos->next;
+ 			}
+@@ -265,7 +268,6 @@ static int iommu_insert_resv_region(struct iommu_resv_region *new,
+ 		return -ENOMEM;
+ 
+ 	list_add_tail(&region->list, pos);
+-done:
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
