@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9759A69763
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:10:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2193C69748
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:10:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731143AbfGOPKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 11:10:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58740 "EHLO mail.kernel.org"
+        id S1731352AbfGONzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:55:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732103AbfGONza (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:55:30 -0400
+        id S1731587AbfGONzf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:55:35 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1612C217F9;
-        Mon, 15 Jul 2019 13:55:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D4F12083D;
+        Mon, 15 Jul 2019 13:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198929;
-        bh=vMM+DidbLUbkbkXwZDyK9ry41O7bb/cL16ENjR6sUnU=;
+        s=default; t=1563198934;
+        bh=Zoz6NBoAQmKccyBCFhLm3GS8r8YJttW9hYZ+f4JG3Kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dexlxot306ehKWUZa/dg34Aw9QKdA6VjK3ldC4trG8njRAREdRo86crJEPpTYAmMo
-         NzdFLXmyTmk2pVx5c9YyT+pe5Xt2x8ON2Dd2djg7T1faakMVnhvRzcGMzCyAbkYOyN
-         zAAqFoLPRLRTpigdZAp63ChG+3Cq/SNFAlljjQZ8=
+        b=1VtVxbObRrEpFcbdwGj6X5plm7LMtTRr3p9gN6Yd0c2rYgt8lPotyQpXfc/OBCkUk
+         9FxNB3t1fzlXMK+iFe6dLBhOo5V/vlYnW4NEO8IqbcoPOfivNDy2yw9LLgbAXAqRLc
+         p4a7mSGDFzAwugHFWFt3vkEkJIaGtahYPYevu3Tw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+Cc:     Anders Roxell <anders.roxell@linaro.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 144/249] media: s5p-mfc: Make additional clocks optional
-Date:   Mon, 15 Jul 2019 09:45:09 -0400
-Message-Id: <20190715134655.4076-144-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 145/249] media: i2c: fix warning same module names
+Date:   Mon, 15 Jul 2019 09:45:10 -0400
+Message-Id: <20190715134655.4076-145-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -45,44 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-[ Upstream commit e08efef8fe7db87206314c19b341612c719f891a ]
+[ Upstream commit b2ce5617dad254230551feda3599f2cc68e53ad8 ]
 
-Since the beginning the second clock ('special', 'sclk') was optional and
-it is not available on some variants of Exynos SoCs (i.e. Exynos5420 with
-v7 of MFC hardware).
+When building with CONFIG_VIDEO_ADV7511 and CONFIG_DRM_I2C_ADV7511
+enabled as loadable modules, we see the following warning:
 
-However commit 1bce6fb3edf1 ("[media] s5p-mfc: Rework clock handling")
-made handling of all specified clocks mandatory. This patch restores
-original behavior of the driver and fixes its operation on
-Exynos5420 SoCs.
+  drivers/gpu/drm/bridge/adv7511/adv7511.ko
+  drivers/media/i2c/adv7511.ko
 
-Fixes: 1bce6fb3edf1 ("[media] s5p-mfc: Rework clock handling")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Rework so that the file is named adv7511-v4l2.c.
+
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc_pm.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/i2c/Makefile                      | 2 +-
+ drivers/media/i2c/{adv7511.c => adv7511-v4l2.c} | 5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+ rename drivers/media/i2c/{adv7511.c => adv7511-v4l2.c} (99%)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c b/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-index 2e62f8721fa5..7d52431c2c83 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-@@ -34,6 +34,11 @@ int s5p_mfc_init_pm(struct s5p_mfc_dev *dev)
- 	for (i = 0; i < pm->num_clocks; i++) {
- 		pm->clocks[i] = devm_clk_get(pm->device, pm->clk_names[i]);
- 		if (IS_ERR(pm->clocks[i])) {
-+			/* additional clocks are optional */
-+			if (i && PTR_ERR(pm->clocks[i]) == -ENOENT) {
-+				pm->clocks[i] = NULL;
-+				continue;
-+			}
- 			mfc_err("Failed to get clock: %s\n",
- 				pm->clk_names[i]);
- 			return PTR_ERR(pm->clocks[i]);
+diff --git a/drivers/media/i2c/Makefile b/drivers/media/i2c/Makefile
+index d8ad9dad495d..fd4ea86dedd5 100644
+--- a/drivers/media/i2c/Makefile
++++ b/drivers/media/i2c/Makefile
+@@ -35,7 +35,7 @@ obj-$(CONFIG_VIDEO_ADV748X) += adv748x/
+ obj-$(CONFIG_VIDEO_ADV7604) += adv7604.o
+ obj-$(CONFIG_VIDEO_ADV7842) += adv7842.o
+ obj-$(CONFIG_VIDEO_AD9389B) += ad9389b.o
+-obj-$(CONFIG_VIDEO_ADV7511) += adv7511.o
++obj-$(CONFIG_VIDEO_ADV7511) += adv7511-v4l2.o
+ obj-$(CONFIG_VIDEO_VPX3220) += vpx3220.o
+ obj-$(CONFIG_VIDEO_VS6624)  += vs6624.o
+ obj-$(CONFIG_VIDEO_BT819) += bt819.o
+diff --git a/drivers/media/i2c/adv7511.c b/drivers/media/i2c/adv7511-v4l2.c
+similarity index 99%
+rename from drivers/media/i2c/adv7511.c
+rename to drivers/media/i2c/adv7511-v4l2.c
+index cec5ebb1c9e6..2ad6bdf1a9fc 100644
+--- a/drivers/media/i2c/adv7511.c
++++ b/drivers/media/i2c/adv7511-v4l2.c
+@@ -5,6 +5,11 @@
+  * Copyright 2013 Cisco Systems, Inc. and/or its affiliates. All rights reserved.
+  */
+ 
++/*
++ * This file is named adv7511-v4l2.c so it doesn't conflict with the Analog
++ * Device ADV7511 (config fragment CONFIG_DRM_I2C_ADV7511).
++ */
++
+ 
+ #include <linux/kernel.h>
+ #include <linux/module.h>
 -- 
 2.20.1
 
