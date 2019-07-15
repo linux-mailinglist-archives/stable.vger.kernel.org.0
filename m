@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C70068CAA
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 564B368CB3
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732281AbfGONxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:53:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49092 "EHLO mail.kernel.org"
+        id S1732359AbfGONxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:53:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731689AbfGONxA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:53:00 -0400
+        id S1732355AbfGONxW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:53:22 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 652682081C;
-        Mon, 15 Jul 2019 13:52:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 470EF2081C;
+        Mon, 15 Jul 2019 13:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198779;
-        bh=K6p7uPspMkLhTzpyhVEtNgFuB9A1jf4O97Vg3SfgP30=;
+        s=default; t=1563198801;
+        bh=2ptnSZEzqcxgEzPkv3LIHR5g4hcTzweuTSPoTUNENZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JRVNlnr0tm4ekbcSyUwhnx8MHyZo1Via0hGRBVFAkzNK0iYuL6gVB9vYgrzqVRPNH
-         WvgUgMkEWTXH9ySYXkq3lasulLxhsxrEsaCmrqXL3kQDoCCE7xoVlIWbTIDmAi2Xyc
-         xm7t5o7mCHEZsfhBOFg72YxMGDgtPlS+Y6UMndTw=
+        b=hUXDYyYdUJvg00RD9o7w9LganHyW0lUDUGe7PSHnDrc6tYbYT78JH2OjxoOygAKs0
+         5Ed4DhZpZmDtB5iN4aLTw85MmbU8AK7Ogi/M3sc/HQFiECanraE9y4qQ84iSHsJwDI
+         7dViUaWLli74lbeq2ff0L8QYjhYaqsR3h61SACGc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Waiman Long <longman@redhat.com>,
-        "Paul E . McKenney" <paulmck@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 101/249] rcu: Force inlining of rcu_read_lock()
-Date:   Mon, 15 Jul 2019 09:44:26 -0400
-Message-Id: <20190715134655.4076-101-sashal@kernel.org>
+Cc:     Yunsheng Lin <linyunsheng@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 107/249] net: hns3: delay ring buffer clearing during reset
+Date:   Mon, 15 Jul 2019 09:44:32 -0400
+Message-Id: <20190715134655.4076-107-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -43,55 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Yunsheng Lin <linyunsheng@huawei.com>
 
-[ Upstream commit 6da9f775175e516fc7229ceaa9b54f8f56aa7924 ]
+[ Upstream commit 3a30964a2eef6aabd3ab18b979ea0eacf1147731 ]
 
-When debugging options are turned on, the rcu_read_lock() function
-might not be inlined. This results in lockdep's print_lock() function
-printing "rcu_read_lock+0x0/0x70" instead of rcu_read_lock()'s caller.
-For example:
+The driver may not be able to disable the ring through firmware
+when downing the netdev during reset process, which may cause
+hardware accessing freed buffer problem.
 
-[   10.579995] =============================
-[   10.584033] WARNING: suspicious RCU usage
-[   10.588074] 4.18.0.memcg_v2+ #1 Not tainted
-[   10.593162] -----------------------------
-[   10.597203] include/linux/rcupdate.h:281 Illegal context switch in
-RCU read-side critical section!
-[   10.606220]
-[   10.606220] other info that might help us debug this:
-[   10.606220]
-[   10.614280]
-[   10.614280] rcu_scheduler_active = 2, debug_locks = 1
-[   10.620853] 3 locks held by systemd/1:
-[   10.624632]  #0: (____ptrval____) (&type->i_mutex_dir_key#5){.+.+}, at: lookup_slow+0x42/0x70
-[   10.633232]  #1: (____ptrval____) (rcu_read_lock){....}, at: rcu_read_lock+0x0/0x70
-[   10.640954]  #2: (____ptrval____) (rcu_read_lock){....}, at: rcu_read_lock+0x0/0x70
+This patch delays the ring buffer clearing to reset uninit
+process because hardware will not access the ring buffer after
+hardware reset is completed.
 
-These "rcu_read_lock+0x0/0x70" strings are not providing any useful
-information.  This commit therefore forces inlining of the rcu_read_lock()
-function so that rcu_read_lock()'s caller is instead shown.
-
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Fixes: bb6b94a896d4 ("net: hns3: Add reset interface implementation in client")
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rcupdate.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
-index b25d20822e75..3508f4508a11 100644
---- a/include/linux/rcupdate.h
-+++ b/include/linux/rcupdate.h
-@@ -586,7 +586,7 @@ static inline void rcu_preempt_sleep_check(void) { }
-  * read-side critical sections may be preempted and they may also block, but
-  * only when acquiring spinlocks that are subject to priority inheritance.
-  */
--static inline void rcu_read_lock(void)
-+static __always_inline void rcu_read_lock(void)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index d18ad7b48a31..e0d3e2f9801d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -28,7 +28,7 @@
+ #define hns3_tx_bd_count(S)	DIV_ROUND_UP(S, HNS3_MAX_BD_SIZE)
+ 
+ static void hns3_clear_all_ring(struct hnae3_handle *h);
+-static void hns3_force_clear_all_rx_ring(struct hnae3_handle *h);
++static void hns3_force_clear_all_ring(struct hnae3_handle *h);
+ static void hns3_remove_hw_addr(struct net_device *netdev);
+ 
+ static const char hns3_driver_name[] = "hns3";
+@@ -491,7 +491,12 @@ static void hns3_nic_net_down(struct net_device *netdev)
+ 	/* free irq resources */
+ 	hns3_nic_uninit_irq(priv);
+ 
+-	hns3_clear_all_ring(priv->ae_handle);
++	/* delay ring buffer clearing to hns3_reset_notify_uninit_enet
++	 * during reset process, because driver may not be able
++	 * to disable the ring through firmware when downing the netdev.
++	 */
++	if (!hns3_nic_resetting(netdev))
++		hns3_clear_all_ring(priv->ae_handle);
+ }
+ 
+ static int hns3_nic_net_stop(struct net_device *netdev)
+@@ -3883,7 +3888,7 @@ static void hns3_client_uninit(struct hnae3_handle *handle, bool reset)
+ 
+ 	hns3_del_all_fd_rules(netdev, true);
+ 
+-	hns3_force_clear_all_rx_ring(handle);
++	hns3_force_clear_all_ring(handle);
+ 
+ 	hns3_uninit_phy(netdev);
+ 
+@@ -4055,7 +4060,7 @@ static void hns3_force_clear_rx_ring(struct hns3_enet_ring *ring)
+ 	}
+ }
+ 
+-static void hns3_force_clear_all_rx_ring(struct hnae3_handle *h)
++static void hns3_force_clear_all_ring(struct hnae3_handle *h)
  {
- 	__rcu_read_lock();
- 	__acquire(RCU);
+ 	struct net_device *ndev = h->kinfo.netdev;
+ 	struct hns3_nic_priv *priv = netdev_priv(ndev);
+@@ -4063,6 +4068,9 @@ static void hns3_force_clear_all_rx_ring(struct hnae3_handle *h)
+ 	u32 i;
+ 
+ 	for (i = 0; i < h->kinfo.num_tqps; i++) {
++		ring = priv->ring_data[i].ring;
++		hns3_clear_tx_ring(ring);
++
+ 		ring = priv->ring_data[i + h->kinfo.num_tqps].ring;
+ 		hns3_force_clear_rx_ring(ring);
+ 	}
+@@ -4297,7 +4305,8 @@ static int hns3_reset_notify_uninit_enet(struct hnae3_handle *handle)
+ 		return 0;
+ 	}
+ 
+-	hns3_force_clear_all_rx_ring(handle);
++	hns3_clear_all_ring(handle);
++	hns3_force_clear_all_ring(handle);
+ 
+ 	hns3_nic_uninit_vector_data(priv);
+ 
 -- 
 2.20.1
 
