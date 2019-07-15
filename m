@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17567696EE
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:08:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06885696FB
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:08:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731058AbfGON6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:58:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38704 "EHLO mail.kernel.org"
+        id S1732859AbfGOOAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:00:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731636AbfGON6w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:58:52 -0400
+        id S1733302AbfGON7z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:59:55 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AD7B21530;
-        Mon, 15 Jul 2019 13:58:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A44FC20C01;
+        Mon, 15 Jul 2019 13:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199131;
-        bh=ZWj+X78ZEPAHyiyMHCoWF8TDlSZ8suSoMHwF+vXujFQ=;
+        s=default; t=1563199194;
+        bh=jfDF6V7sa3nAxjig1AZWLSaeAPzexvArYSwSba5R5Gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1IUSnb4ujt6K4ZNhSHErAy7Y5nHO7BEgdJxDkpnntTA8Qx//ZKLiIBHvSlyJDKGK
-         5VV37lcPIZSXkEuWvwt8hRXW9EHAssWLk3TNWaMJGKwZYfZpVfrnLSP9SFtrzAQM7v
-         IacVtqEr5fJUeiJW1OsEzrKpv2+V6ymE35eb+ur4=
+        b=Ntscr2COhhBGy5yK1ppI0nHdGSlPwUCgukIvnBrnFywkEvIq5fr2Q4k35bEbhtoJh
+         AWFoPBjJVwiN91RlcrL8tN7boctk2KRMxAcao8eNtoxmTXkOCRPdBLcBC8iHjl+2WQ
+         3/BMBc69vtzc1incqLU/9wg3p3byfYYbNnDHP7Po=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunsheng Lin <linyunsheng@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 200/249] net: hns3: add some error checking in hclge_tm module
-Date:   Mon, 15 Jul 2019 09:46:05 -0400
-Message-Id: <20190715134655.4076-200-sashal@kernel.org>
+Cc:     Shahar S Matityahu <shahar.s.matityahu@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 211/249] iwlwifi: dbg: fix debug monitor stop and restart delays
+Date:   Mon, 15 Jul 2019 09:46:16 -0400
+Message-Id: <20190715134655.4076-211-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -45,54 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Shahar S Matityahu <shahar.s.matityahu@intel.com>
 
-[ Upstream commit 04f25edb48c441fc278ecc154c270f16966cbb90 ]
+[ Upstream commit fc838c775f35e272e5cc7ef43853f0b55babbe37 ]
 
-When hdev->tx_sch_mode is HCLGE_FLAG_VNET_BASE_SCH_MODE, the
-hclge_tm_schd_mode_vnet_base_cfg calls hclge_tm_pri_schd_mode_cfg
-with vport->vport_id as pri_id, which is used as index for
-hdev->tm_info.tc_info, it will cause out of bound access issue
-if vport_id is equal to or larger than HNAE3_MAX_TC.
+The driver should delay only in recording stop flow between writing to
+DBGC_IN_SAMPLE register and DBGC_OUT_CTRL register. Any other delay is
+not needed.
 
-Also hardware only support maximum speed of HCLGE_ETHER_MAX_RATE.
+Change the following:
+1. Remove any unnecessary delays in the flow
+2. Increase the delay in the stop recording flow since 100 micro is
+   not enough
+3. Use usleep_range instead of delay since the driver is allowed to
+   sleep in this flow.
 
-So this patch adds two checks for above cases.
-
-Fixes: 848440544b41 ("net: hns3: Add support of TX Scheduler & Shaper to HNS3 driver")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Shahar S Matityahu <shahar.s.matityahu@intel.com>
+Fixes: 5cfe79c8d92a ("iwlwifi: fw: stop and start debugging using host command")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.c | 2 --
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.h | 6 ++++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-index a7bbb6d3091a..0d53062f7bb5 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-@@ -54,7 +54,8 @@ static int hclge_shaper_para_calc(u32 ir, u8 shaper_level,
- 	u32 tick;
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+index 33d7bc5500db..c875e173771c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+@@ -2303,8 +2303,6 @@ void iwl_fw_dbg_collect_sync(struct iwl_fw_runtime *fwrt)
+ 	/* start recording again if the firmware is not crashed */
+ 	if (!test_bit(STATUS_FW_ERROR, &fwrt->trans->status) &&
+ 	    fwrt->fw->dbg.dest_tlv) {
+-		/* wait before we collect the data till the DBGC stop */
+-		udelay(500);
+ 		iwl_fw_dbg_restart_recording(fwrt, &params);
+ 	}
+ }
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.h b/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
+index fd0ad220e961..c5c015a66106 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
++++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
+@@ -294,7 +294,10 @@ _iwl_fw_dbg_stop_recording(struct iwl_trans *trans,
+ 	}
  
- 	/* Calc tick */
--	if (shaper_level >= HCLGE_SHAPER_LVL_CNT)
-+	if (shaper_level >= HCLGE_SHAPER_LVL_CNT ||
-+	    ir > HCLGE_ETHER_MAX_RATE)
- 		return -EINVAL;
- 
- 	tick = tick_array[shaper_level];
-@@ -1124,6 +1125,9 @@ static int hclge_tm_schd_mode_vnet_base_cfg(struct hclge_vport *vport)
- 	int ret;
- 	u8 i;
- 
-+	if (vport->vport_id >= HNAE3_MAX_TC)
-+		return -EINVAL;
-+
- 	ret = hclge_tm_pri_schd_mode_cfg(hdev, vport->vport_id);
- 	if (ret)
- 		return ret;
+ 	iwl_write_umac_prph(trans, DBGC_IN_SAMPLE, 0);
+-	udelay(100);
++	/* wait for the DBGC to finish writing the internal buffer to DRAM to
++	 * avoid halting the HW while writing
++	 */
++	usleep_range(700, 1000);
+ 	iwl_write_umac_prph(trans, DBGC_OUT_CTRL, 0);
+ #ifdef CONFIG_IWLWIFI_DEBUGFS
+ 	trans->dbg_rec_on = false;
+@@ -324,7 +327,6 @@ _iwl_fw_dbg_restart_recording(struct iwl_trans *trans,
+ 		iwl_set_bits_prph(trans, MON_BUFF_SAMPLE_CTL, 0x1);
+ 	} else {
+ 		iwl_write_umac_prph(trans, DBGC_IN_SAMPLE, params->in_sample);
+-		udelay(100);
+ 		iwl_write_umac_prph(trans, DBGC_OUT_CTRL, params->out_ctrl);
+ 	}
+ }
 -- 
 2.20.1
 
