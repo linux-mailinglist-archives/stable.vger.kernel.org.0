@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A5EE6967D
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:04:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 058CA6967E
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:04:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387469AbfGOOH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:07:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56086 "EHLO mail.kernel.org"
+        id S2387930AbfGOOHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:07:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733004AbfGOOH1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:07:27 -0400
+        id S2388364AbfGOOHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:07:36 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E21B206B8;
-        Mon, 15 Jul 2019 14:07:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 533F121873;
+        Mon, 15 Jul 2019 14:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199646;
-        bh=mZuzzaQ2g/gnwR5ZhebMyXg/ozhVlkLLnQB4ohZKl5A=;
+        s=default; t=1563199654;
+        bh=dMS4IlMtitQta4w5eymfq+mTgMKszYDZ+A8Kxy3G5DA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fiT5/USV/reW3pkSrjghyQcMIQu1ak8EdxqI8X9XNi0+rkivM2fenDZpAg8HeyBY9
-         ry1nmf2nukmdMCZsSW1S9Rr/syUlgyQ2g0iyX9C42OPhn1Sk6jCl2RKFw8vqc/af37
-         +y5oeS4qNUJohVRcmlV8dLga8hXgd+kMMxBiAQVw=
+        b=fPKABndB5XQUsXEQtdaeI4TemBYsXhJfoziaitVS8B8JfTuMvLVK89Oj7rzFNhmr9
+         wXLJLpRFnmwSgfVT+E21+ImAyGvDnB/Jd2cCo6Xe7BEGM8cAi74jSVa453Rcx5WmvY
+         C9BqYn1pFJIIJkrhnQc7/0IAUjKv3KxLysT9jc6A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ben Gainey <ben.gainey@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 060/219] perf jvmti: Address gcc string overflow warning for strncpy()
-Date:   Mon, 15 Jul 2019 10:01:01 -0400
-Message-Id: <20190715140341.6443-60-sashal@kernel.org>
+Cc:     Biao Huang <biao.huang@mediatek.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 062/219] net: stmmac: dwmac4: fix flow control issue
+Date:   Mon, 15 Jul 2019 10:01:03 -0400
+Message-Id: <20190715140341.6443-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,61 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@redhat.com>
+From: Biao Huang <biao.huang@mediatek.com>
 
-[ Upstream commit 279ab04dbea1370d2eac0f854270369ccaef8a44 ]
+[ Upstream commit ee326fd01e79dfa42014d55931260b68b9fa3273 ]
 
-We are getting false positive gcc warning when we compile with gcc9 (9.1.1):
+Current dwmac4_flow_ctrl will not clear
+GMAC_RX_FLOW_CTRL_RFE/GMAC_RX_FLOW_CTRL_RFE bits,
+so MAC hw will keep flow control on although expecting
+flow control off by ethtool. Add codes to fix it.
 
-     CC       jvmti/libjvmti.o
-   In file included from /usr/include/string.h:494,
-                    from jvmti/libjvmti.c:5:
-   In function ‘strncpy’,
-       inlined from ‘copy_class_filename.constprop’ at jvmti/libjvmti.c:166:3:
-   /usr/include/bits/string_fortified.h:106:10: error: ‘__builtin_strncpy’ specified bound depends on the length of the source argument [-Werror=stringop-overflow=]
-     106 |   return __builtin___strncpy_chk (__dest, __src, __len, __bos (__dest));
-         |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   jvmti/libjvmti.c: In function ‘copy_class_filename.constprop’:
-   jvmti/libjvmti.c:165:26: note: length computed here
-     165 |   size_t file_name_len = strlen(file_name);
-         |                          ^~~~~~~~~~~~~~~~~
-   cc1: all warnings being treated as errors
-
-As per Arnaldo's suggestion use strlcpy(), which does the same thing and keeps
-gcc silent.
-
-Suggested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ben Gainey <ben.gainey@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lkml.kernel.org/r/20190531131321.GB1281@krava
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 477286b53f55 ("stmmac: add GMAC4 core support")
+Signed-off-by: Biao Huang <biao.huang@mediatek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/jvmti/libjvmti.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/jvmti/libjvmti.c b/tools/perf/jvmti/libjvmti.c
-index aea7b1fe85aa..c441a34cb1c0 100644
---- a/tools/perf/jvmti/libjvmti.c
-+++ b/tools/perf/jvmti/libjvmti.c
-@@ -1,5 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0
- #include <linux/compiler.h>
-+#include <linux/string.h>
- #include <sys/types.h>
- #include <stdio.h>
- #include <string.h>
-@@ -162,8 +163,7 @@ copy_class_filename(const char * class_sign, const char * file_name, char * resu
- 		result[i] = '\0';
- 	} else {
- 		/* fallback case */
--		size_t file_name_len = strlen(file_name);
--		strncpy(result, file_name, file_name_len < max_length ? file_name_len : max_length);
-+		strlcpy(result, file_name, max_length);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index a2f3db39221e..d0e6e1503581 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -475,8 +475,9 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
+ 	if (fc & FLOW_RX) {
+ 		pr_debug("\tReceive Flow-Control ON\n");
+ 		flow |= GMAC_RX_FLOW_CTRL_RFE;
+-		writel(flow, ioaddr + GMAC_RX_FLOW_CTRL);
+ 	}
++	writel(flow, ioaddr + GMAC_RX_FLOW_CTRL);
++
+ 	if (fc & FLOW_TX) {
+ 		pr_debug("\tTransmit Flow-Control ON\n");
+ 
+@@ -484,7 +485,7 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
+ 			pr_debug("\tduplex mode: PAUSE %d\n", pause_time);
+ 
+ 		for (queue = 0; queue < tx_cnt; queue++) {
+-			flow |= GMAC_TX_FLOW_CTRL_TFE;
++			flow = GMAC_TX_FLOW_CTRL_TFE;
+ 
+ 			if (duplex)
+ 				flow |=
+@@ -492,6 +493,9 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
+ 
+ 			writel(flow, ioaddr + GMAC_QX_TX_FLOW_CTRL(queue));
+ 		}
++	} else {
++		for (queue = 0; queue < tx_cnt; queue++)
++			writel(0, ioaddr + GMAC_QX_TX_FLOW_CTRL(queue));
  	}
  }
  
