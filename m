@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4CE0690A6
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:23:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A208690A7
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390738AbfGOOXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:23:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54120 "EHLO mail.kernel.org"
+        id S1731350AbfGOOXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390188AbfGOOXS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:23:18 -0400
+        id S2390118AbfGOOXX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:23:23 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 926E32053B;
-        Mon, 15 Jul 2019 14:23:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 093ED20896;
+        Mon, 15 Jul 2019 14:23:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200597;
-        bh=3FUXEOahWPk0BdWzwzeTpwlxEqT6Y1R0u8qqxkpNXGQ=;
+        s=default; t=1563200602;
+        bh=+Cfr/MzfB0iQwsKHf1qqtHu2RPM1iJj3LECgrL6Xivg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08Cpr3JNrubjxtPE/DXG+ioNi8GrCGA0mHtHo3f9M3VfC2t14DHYCt7KA4u3kySOB
-         WEVW7R40CkmIXPMUlDU/WdNBX1u+jQhUlIa+jC69PWXNeQbqGMkMaqs4ZRXvCvzr6n
-         1BiMbiVtlEtVcx+F8T0w4jNC/0h4WlNf2gxS8+v4=
+        b=2IE4vwuApjD3yQ5+q1e8CJ+36ys8cj2POwxrjLGQdYPqwa3vcreswOjaZWnI5Mden
+         TtFn13/sBSXxCWAFLrnTXRPtIBP9AxTpCSAeVg/fTPXbIG1Yqh+ua0pmHE92RTUXX3
+         aoBgonAFAn2hVCLa8YcNWMPCr5/wPo6IvMMXcjXA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Litz <hlitz@ucsc.edu>,
-        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@javigon.com>,
-        =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 088/158] lightnvm: pblk: fix freeing of merged pages
-Date:   Mon, 15 Jul 2019 10:16:59 -0400
-Message-Id: <20190715141809.8445-88-sashal@kernel.org>
+Cc:     Julien Thierry <julien.thierry@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 089/158] arm64: Do not enable IRQs for ct_user_exit
+Date:   Mon, 15 Jul 2019 10:17:00 -0400
+Message-Id: <20190715141809.8445-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,51 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Litz <hlitz@ucsc.edu>
+From: Julien Thierry <julien.thierry@arm.com>
 
-[ Upstream commit 510fd8ea98fcb586c01aef93d87c060a159ac30a ]
+[ Upstream commit 9034f6251572a4744597c51dea5ab73a55f2b938 ]
 
-bio_add_pc_page() may merge pages when a bio is padded due to a flush.
-Fix iteration over the bio to free the correct pages in case of a merge.
+For el0_dbg and el0_error, DAIF bits get explicitly cleared before
+calling ct_user_exit.
 
-Signed-off-by: Heiner Litz <hlitz@ucsc.edu>
-Reviewed-by: Javier González <javier@javigon.com>
-Signed-off-by: Matias Bjørling <mb@lightnvm.io>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+When context tracking is disabled, DAIF gets set (almost) immediately
+after. When context tracking is enabled, among the first things done
+is disabling IRQs.
+
+What is actually needed is:
+- PSR.D = 0 so the system can be debugged (should be already the case)
+- PSR.A = 0 so async error can be handled during context tracking
+
+Do not clear PSR.I in those two locations.
+
+Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: James Morse <james.morse@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Julien Thierry <julien.thierry@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/lightnvm/pblk-core.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ arch/arm64/kernel/entry.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/lightnvm/pblk-core.c b/drivers/lightnvm/pblk-core.c
-index 95be6e36c7dd..80710c62ac29 100644
---- a/drivers/lightnvm/pblk-core.c
-+++ b/drivers/lightnvm/pblk-core.c
-@@ -288,14 +288,16 @@ void pblk_free_rqd(struct pblk *pblk, struct nvm_rq *rqd, int type)
- void pblk_bio_free_pages(struct pblk *pblk, struct bio *bio, int off,
- 			 int nr_pages)
- {
--	struct bio_vec bv;
--	int i;
--
--	WARN_ON(off + nr_pages != bio->bi_vcnt);
--
--	for (i = off; i < nr_pages + off; i++) {
--		bv = bio->bi_io_vec[i];
--		mempool_free(bv.bv_page, &pblk->page_bio_pool);
-+	struct bio_vec *bv;
-+	struct page *page;
-+	int i, e, nbv = 0;
-+
-+	for (i = 0; i < bio->bi_vcnt; i++) {
-+		bv = &bio->bi_io_vec[i];
-+		page = bv->bv_page;
-+		for (e = 0; e < bv->bv_len; e += PBLK_EXPOSED_PAGE_SIZE, nbv++)
-+			if (nbv >= off)
-+				mempool_free(page++, &pblk->page_bio_pool);
- 	}
- }
- 
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index 8556876c9109..5f800384cb9a 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -824,7 +824,7 @@ el0_dbg:
+ 	mov	x1, x25
+ 	mov	x2, sp
+ 	bl	do_debug_exception
+-	enable_daif
++	enable_da_f
+ 	ct_user_exit
+ 	b	ret_to_user
+ el0_inv:
+@@ -876,7 +876,7 @@ el0_error_naked:
+ 	enable_dbg
+ 	mov	x0, sp
+ 	bl	do_serror
+-	enable_daif
++	enable_da_f
+ 	ct_user_exit
+ 	b	ret_to_user
+ ENDPROC(el0_error)
 -- 
 2.20.1
 
