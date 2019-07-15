@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC3269CAE
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 22:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6680069D01
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 22:45:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731350AbfGOUVc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 16:21:32 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:43830 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731311AbfGOUVb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jul 2019 16:21:31 -0400
-Received: by mail-lf1-f65.google.com with SMTP id c19so11937264lfm.10
-        for <stable@vger.kernel.org>; Mon, 15 Jul 2019 13:21:30 -0700 (PDT)
+        id S1729574AbfGOUp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 16:45:56 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:33939 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729505AbfGOUp4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jul 2019 16:45:56 -0400
+Received: by mail-lj1-f193.google.com with SMTP id p17so17684085ljg.1
+        for <stable@vger.kernel.org>; Mon, 15 Jul 2019 13:45:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=TmI+G2a+MFeCwy7Tg4jhuurPd3QAR7gfjXDfp90OmJ4=;
-        b=zCHEVbz3de112jKAkxnHwrnP0+O195aIi01mGmwiCJZJR79megYl1oTWLY31QsQ6ko
-         rQuidw/9mmeOF31WBxm2YoEzuqAbslsrQjNeKAHKsrWi/f1PHDokJmOkQY07P+QC1Zmk
-         JChG7QGfCn6XZqrTCbNEjcFxKq4yg8cJlbMCEuvyQJYUB+FRF1djqla+Q3oJcrYt7R4j
-         eYxhn9tDLbR6IfRkXJ4lAsFs/7vjzC6xzCp58D+cyMOfGqOx6XE73ApP1xYR3NlvDk29
-         Zzhc72l0STaZZxBF7S2kVrr+ljBKoutvDL8I/TjSQf/ER/HjFtiwdrvYtUJX8tHCvyJg
-         lfFw==
+        bh=ZYBOs3aLnhuf2faNdh8yo+pXx5Re8ii69AgHIOGgYXM=;
+        b=xXQ84woWd6JtRurNXZ+LWho0SzsWefI+syk6IeKlgUlmeeUzs2BjNwuqUnKZRddNm8
+         R/8MscBULhDQ1LucF1wVgpmPD8/8h5jeWM0nMeujOR+KiL/JYABHQvqO+DmUCKXmJd3W
+         8NGP3HVRZDsy5/Q5qSkwGTa4n5cCwOH9BxJhC+D6ekrNFgmjbIGDlEAJvUlaDOrcCcBz
+         0kuXdZAxbkGS4LgqZV6J3UWgk3Hy86LFvW+88jvM96vIadGu6OQ1SMHAOgV1VtEQDbCx
+         /HIym52XN0QAkAKAwAcY4Jk1wKEAu2GCw956zXsOW8N4785cyOzUwmZLAh/IspxzWyv/
+         vLBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=TmI+G2a+MFeCwy7Tg4jhuurPd3QAR7gfjXDfp90OmJ4=;
-        b=T/St1xmxwCeO4RKB5I45l6gsmWt0bUaeYBWmWaVVQbhYKeY5H/gu6Xa5HImFgYQYRA
-         i6dL2PqlXNKVU5889leJrN8r/S8gb/44NgT0wFTxSG/pW4ckhCbETPMFuwI63MxuN7kL
-         RnbfnDwNP1LZCcmONg81g4EsCf7N1zQIAs+LEf/oEvL8ECUxLC5RTp1XhlbOHYnmE5pZ
-         NlexIbAkXq8ms/Yf6XOQg748JF/9s6LzyJwfAdzFwtUFOAhz6jcPnI328RKIhhN02clF
-         Zx1y+rrJwVUcV5dOF66RTHYu94sHCd/FCOUJMBO4DzQMIi032TEhJ804a2C64fGqubgR
-         QALQ==
-X-Gm-Message-State: APjAAAWm6PZyvSMWCwPbUBTgxgM+H6nRiqQl4c9pqUEXs8Cfy+5jIG9f
-        d7o3TvvSi7/BqJE9DLLYrF0B2Q==
-X-Google-Smtp-Source: APXvYqwto8+oJFMSqk5I71ZjxP1wmCB1V1rXX/WOgWuB0k6JHXCBv6CuVMboKfddL9hOVFpH/J1AUQ==
-X-Received: by 2002:a19:f711:: with SMTP id z17mr12375881lfe.4.1563222089627;
-        Mon, 15 Jul 2019 13:21:29 -0700 (PDT)
+        bh=ZYBOs3aLnhuf2faNdh8yo+pXx5Re8ii69AgHIOGgYXM=;
+        b=r0aPHIX8IVpZPXyRnOeR7wRQDrPwzRV9koFhGCmgC6btBEzwGTc1Pa5YOjuFWeeWkK
+         RDIK6X3zyAqaJE8zKabsI2hhPkdfeGFIvA20waQSex6GLqgp1aD78J7S4y2ZpX24rb2B
+         V6mjV2yNNbkJB4lYOD6Y4JE8rykst+FgS1KbUJAgVKUCrT48XyuJ8RIV0/pME/m0IS+8
+         yZOqETNQ1wRMinkl9/XFICGlONPfgSAZkAMxRjR9f+LIIwNqr6OINsujFRCwHXwVDzna
+         w+EsjLP9tVBlI4sPg0dR6U2PMFr2wlzmI45PbQUajcrh1AyULD3m7mf4LShrMgKrDpH0
+         E80w==
+X-Gm-Message-State: APjAAAUDEEcDuJG99HDCWFkAFPrWj2IQm4o0AJ9ZcQ3eVIe5hF03pSrR
+        dfdn70+/0q1kjR3Vgkvkyt+0cQ==
+X-Google-Smtp-Source: APXvYqycBzyi6XjJyj5PoLiqzXEqn1fJu1mTyuzyCrEWAPx1KE6EEg0I/5C7kPkBB2DAM4DfT3Zgbg==
+X-Received: by 2002:a2e:5b0f:: with SMTP id p15mr14682754ljb.82.1563223554303;
+        Mon, 15 Jul 2019 13:45:54 -0700 (PDT)
 Received: from localhost.bredbandsbolaget (c-22cd225c.014-348-6c756e10.bbcust.telenor.se. [92.34.205.34])
-        by smtp.gmail.com with ESMTPSA id s7sm3302729lje.95.2019.07.15.13.21.28
+        by smtp.gmail.com with ESMTPSA id b1sm3338326ljj.26.2019.07.15.13.45.52
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 15 Jul 2019 13:21:28 -0700 (PDT)
+        Mon, 15 Jul 2019 13:45:53 -0700 (PDT)
 From:   Linus Walleij <linus.walleij@linaro.org>
-To:     arm@kernel.org, soc@kernel.org
-Cc:     linux-arm-kernel@lists.infradead.org,
+To:     linux-gpio@vger.kernel.org
+Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Linus Walleij <linus.walleij@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] ARM: dts: gemini: Set DIR-685 SPI CS as active low
-Date:   Mon, 15 Jul 2019 22:21:01 +0200
-Message-Id: <20190715202101.16060-1-linus.walleij@linaro.org>
+        linux-spi@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] Revert "gpio/spi: Fix spi-gpio regression on active high CS"
+Date:   Mon, 15 Jul 2019 22:45:29 +0200
+Message-Id: <20190715204529.9539-1-linus.walleij@linaro.org>
 X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -60,31 +60,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The SPI to the display on the DIR-685 is active low, we were
-just saved by the SPI library enforcing active low on everything
-before, so set it as active low to avoid ambiguity.
+This reverts commit fbbf145a0e0a0177e089c52275fbfa55763e7d1d.
 
+It seems I was misguided in my fixup, which was working at the
+time but did not work on the final v5.2.
+
+The patch tried to avoid a quirk the gpiolib code not to treat
+"spi-gpio" CS gpios "special" by enforcing them to be active
+low, in the belief that since the "spi-gpio" driver was
+parsing the device tree on its own, it did not care to inspect
+the "spi-cs-high" attribute on the device nodes.
+
+That's wrong. The SPI core was inspecting them inside the
+of_spi_parse_dt() funtion and setting SPI_CS_HIGH on the
+nodes, and the driver inspected this flag when driving the
+line.
+
+As of now, the core handles the GPIO and it will consistently
+set the GPIO descriptor to 1 to enable CS, strictly requireing
+the gpiolib to invert it. And the gpiolib should indeed
+enforce active low on the CS line.
+
+Device trees should of course put the right flag on the GPIO
+handles, but it used to not matter. If we don't enforce active
+low on "gpio-gpio" we may run into ABI backward compatibility
+issues, so revert this.
+
+Cc: linux-spi@vger.kernel.org
 Cc: stable@vger.kernel.org
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
-ARM SoC folks: please apply this directly to fixes.
+I am sorry that this at one point fixed a problem for me, it
+doesn't anymore and I don't know why it ever did. :(
 ---
- arch/arm/boot/dts/gemini-dlink-dir-685.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpiolib-of.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/arch/arm/boot/dts/gemini-dlink-dir-685.dts b/arch/arm/boot/dts/gemini-dlink-dir-685.dts
-index 3613f05f8a80..bfaa2de63a10 100644
---- a/arch/arm/boot/dts/gemini-dlink-dir-685.dts
-+++ b/arch/arm/boot/dts/gemini-dlink-dir-685.dts
-@@ -64,7 +64,7 @@
- 		gpio-sck = <&gpio1 5 GPIO_ACTIVE_HIGH>;
- 		gpio-miso = <&gpio1 8 GPIO_ACTIVE_HIGH>;
- 		gpio-mosi = <&gpio1 7 GPIO_ACTIVE_HIGH>;
--		cs-gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
-+		cs-gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;
- 		num-chipselects = <1>;
- 
- 		panel: display@0 {
+diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
+index f974075ff00e..a8f02f551d6b 100644
+--- a/drivers/gpio/gpiolib-of.c
++++ b/drivers/gpio/gpiolib-of.c
+@@ -118,15 +118,8 @@ static void of_gpio_flags_quirks(struct device_node *np,
+ 	 * Legacy handling of SPI active high chip select. If we have a
+ 	 * property named "cs-gpios" we need to inspect the child node
+ 	 * to determine if the flags should have inverted semantics.
+-	 *
+-	 * This does not apply to an SPI device named "spi-gpio", because
+-	 * these have traditionally obtained their own GPIOs by parsing
+-	 * the device tree directly and did not respect any "spi-cs-high"
+-	 * property on the SPI bus children.
+ 	 */
+-	if (IS_ENABLED(CONFIG_SPI_MASTER) &&
+-	    !strcmp(propname, "cs-gpios") &&
+-	    !of_device_is_compatible(np, "spi-gpio") &&
++	if (IS_ENABLED(CONFIG_SPI_MASTER) && !strcmp(propname, "cs-gpios") &&
+ 	    of_property_read_bool(np, "cs-gpios")) {
+ 		struct device_node *child;
+ 		u32 cs;
 -- 
 2.21.0
 
