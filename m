@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F9E168F2E
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:12:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF9F768F32
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:12:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388654AbfGOOMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:12:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51812 "EHLO mail.kernel.org"
+        id S2387607AbfGOOMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:12:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387404AbfGOOMh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:12:37 -0400
+        id S2387404AbfGOOMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:12:46 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66F0620651;
-        Mon, 15 Jul 2019 14:12:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8D56206B8;
+        Mon, 15 Jul 2019 14:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199957;
-        bh=gFQi65V/cZ0gU+wu+xZXCCzGDKy9HDe4wVYKNM9d7LI=;
+        s=default; t=1563199965;
+        bh=EuzH1LumuIsQMp1SI1QC6Dx8IPXSOJ+BJvuEZWOFlGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vDm0ciXnt21AMnbKxiOeketJ3VAYf+7cJy1JRiFsHtUEWv/QXSbBJQwVX/Tfo75A/
-         olLxcYbxFocCdeZnYkU6HHIMfgeDVac0FerPu7PjoGWTWAVF1uh8f92/CAq8SfYTMR
-         IUM74q6qOOqMjlZ8LHB8okcFmjJm2S9qtpD17ISc=
+        b=UemEWpHT553vwiHhXajVD/HNWXd/4rY5IXixCCdTi43rFizntqg/31dbgkd4Z2I9A
+         AhcGQ+R9QgSdziXHWOlGyON9bgszsCbdHxl4nwpDHsNTAR2uWclBdUjHtlFZ9CjPrk
+         be9m5UBaXb+XVHCUeBr5KRA+PSUwl9uEBFQhClII=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kyle Meyer <kyle.meyer@hpe.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 147/219] perf tools: Increase MAX_NR_CPUS and MAX_CACHES
-Date:   Mon, 15 Jul 2019 10:02:28 -0400
-Message-Id: <20190715140341.6443-147-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 148/219] ASoC: Intel: hdac_hdmi: Set ops to NULL on remove
+Date:   Mon, 15 Jul 2019 10:02:29 -0400
+Message-Id: <20190715140341.6443-148-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,70 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Meyer <kyle.meyer@hpe.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-[ Upstream commit 9f94c7f947e919c343b30f080285af53d0fa9902 ]
+[ Upstream commit 0f6ff78540bd1b4df1e0f17806b0ce2e1dff0d78 ]
 
-Attempting to profile 1024 or more CPUs with perf causes two errors:
+When we unload Skylake driver we may end up calling
+hdac_component_master_unbind(), it uses acomp->audio_ops, which we set
+in hdmi_codec_probe(), so we need to set it to NULL in hdmi_codec_remove(),
+otherwise we will dereference no longer existing pointer.
 
-  perf record -a
-  [ perf record: Woken up X times to write data ]
-  way too many cpu caches..
-  [ perf record: Captured and wrote X MB perf.data (X samples) ]
-
-  perf report -C 1024
-  Error: failed to set  cpu bitmap
-  Requested CPU 1024 too large. Consider raising MAX_NR_CPUS
-
-  Increasing MAX_NR_CPUS from 1024 to 2048 and redefining MAX_CACHES as
-  MAX_NR_CPUS * 4 returns normal functionality to perf:
-
-  perf record -a
-  [ perf record: Woken up X times to write data ]
-  [ perf record: Captured and wrote X MB perf.data (X samples) ]
-
-  perf report -C 1024
-  ...
-
-Signed-off-by: Kyle Meyer <kyle.meyer@hpe.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/20190620193630.154025-1-meyerk@stormcage.eag.rdlabs.hpecorp.net
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/perf.h        | 2 +-
- tools/perf/util/header.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/hdac_hdmi.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/tools/perf/perf.h b/tools/perf/perf.h
-index c59743def8d3..b86ecc7afdd7 100644
---- a/tools/perf/perf.h
-+++ b/tools/perf/perf.h
-@@ -26,7 +26,7 @@ static inline unsigned long long rdclock(void)
+diff --git a/sound/soc/codecs/hdac_hdmi.c b/sound/soc/codecs/hdac_hdmi.c
+index 4de1fbfa8827..65177ca64827 100644
+--- a/sound/soc/codecs/hdac_hdmi.c
++++ b/sound/soc/codecs/hdac_hdmi.c
+@@ -1880,6 +1880,12 @@ static void hdmi_codec_remove(struct snd_soc_component *component)
+ {
+ 	struct hdac_hdmi_priv *hdmi = snd_soc_component_get_drvdata(component);
+ 	struct hdac_device *hdev = hdmi->hdev;
++	int ret;
++
++	ret = snd_hdac_acomp_register_notifier(hdev->bus, NULL);
++	if (ret < 0)
++		dev_err(&hdev->dev, "notifier unregister failed: err: %d\n",
++				ret);
+ 
+ 	pm_runtime_disable(&hdev->dev);
  }
- 
- #ifndef MAX_NR_CPUS
--#define MAX_NR_CPUS			1024
-+#define MAX_NR_CPUS			2048
- #endif
- 
- extern const char *input_name;
-diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
-index 682e3d524d3c..df608cfaa03c 100644
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -1100,7 +1100,7 @@ static int build_caches(struct cpu_cache_level caches[], u32 size, u32 *cntp)
- 	return 0;
- }
- 
--#define MAX_CACHES 2000
-+#define MAX_CACHES (MAX_NR_CPUS * 4)
- 
- static int write_cache(struct feat_fd *ff,
- 		       struct perf_evlist *evlist __maybe_unused)
 -- 
 2.20.1
 
