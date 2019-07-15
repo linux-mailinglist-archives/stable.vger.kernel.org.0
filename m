@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81AA6695E0
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:01:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80C6E695DE
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:01:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389349AbfGOOO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:14:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56118 "EHLO mail.kernel.org"
+        id S2387505AbfGOOOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:14:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388726AbfGOOO2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:14:28 -0400
+        id S2388726AbfGOOOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:14:43 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDDA32081C;
-        Mon, 15 Jul 2019 14:14:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B26120651;
+        Mon, 15 Jul 2019 14:14:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200067;
-        bh=zCIDhSB8tQwfVsTJsHL/cCYz/niRuZtwHbRkO4YI1aQ=;
+        s=default; t=1563200082;
+        bh=V2UUxD93vQBdwjlOYFv6XQAhIKfavGXHNogK1GjQ8bs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wVTD6Ys7KAvMLUVdjIzmAYpFajdNsXuVYV1r7jRvjHE+iwLD/rx3sp/3J8LSPSupR
-         tdxSCdVPUTHNpvDTYSIJmUHdhNBsHcFEu5ROQc6T9ZmHeqf0S67PpUmZE7VE3+BZmt
-         dSFn7hN41TTbOpm9F75L4aa1osg5f6J0rUU9jeaA=
+        b=FSJD58qH3Sw5yxbGu3SV4cVE62kHyS50Wzqib6M0KKe1txSicHlMtUJ0kG58qLXde
+         9ii4qAFaWTUo3+TisXKAyz/gy1Pg0EaDnNnrBLfOjQOmA8sdBK/rNVd95Dp+EkObrS
+         xhA3RECcUf4rcZcRcqL9Y2xLZevriNWQ3IevSAfs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Gong <wgong@codeaurora.org>, Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 176/219] ath10k: destroy sdio workqueue while remove sdio module
-Date:   Mon, 15 Jul 2019 10:02:57 -0400
-Message-Id: <20190715140341.6443-176-sashal@kernel.org>
+Cc:     Yonglong Liu <liuyonglong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 179/219] net: hns3: add Asym Pause support to fix autoneg problem
+Date:   Mon, 15 Jul 2019 10:03:00 -0400
+Message-Id: <20190715140341.6443-179-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -43,38 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <wgong@codeaurora.org>
+From: Yonglong Liu <liuyonglong@huawei.com>
 
-[ Upstream commit 3ed39f8e747a7aafeec07bb244f2c3a1bdca5730 ]
+[ Upstream commit bc3781edcea017aa1a29abd953b776cdba298ce2 ]
 
-The workqueue need to flush and destory while remove sdio module,
-otherwise it will have thread which is not destory after remove
-sdio modules.
+Local device and link partner config auto-negotiation on both,
+local device config pause frame use as: rx on/tx off,
+link partner config pause frame use as: rx off/tx on.
 
-Tested with QCA6174 SDIO with firmware
-WLAN.RMH.4.4.1-00007-QCARMSWP-1.
+We except the result is:
+Local device:
+Autonegotiate:  on
+RX:             on
+TX:             off
+RX negotiated:  on
+TX negotiated:  off
 
-Signed-off-by: Wen Gong <wgong@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link partner:
+Autonegotiate:  on
+RX:             off
+TX:             on
+RX negotiated:  off
+TX negotiated:  on
+
+But actually, the result of Local device and link partner is both:
+Autonegotiate:  on
+RX:             off
+TX:             off
+RX negotiated:  off
+TX negotiated:  off
+
+The root cause is that the supported flag is has only Pause,
+reference to the function genphy_config_advert():
+static int genphy_config_advert(struct phy_device *phydev)
+{
+	...
+	linkmode_and(phydev->advertising, phydev->advertising,
+		     phydev->supported);
+	...
+}
+The pause frame use of link partner is rx off/tx on, so its
+advertising only set the bit Asym_Pause, and the supported is
+only set the bit Pause, so the result of linkmode_and(), is
+rx off/tx off.
+
+This patch adds Asym_Pause to the supported flag to fix it.
+
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/sdio.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 1 +
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c | 7 +++++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
-index 73ef3e75d199..28bdf0212538 100644
---- a/drivers/net/wireless/ath/ath10k/sdio.c
-+++ b/drivers/net/wireless/ath/ath10k/sdio.c
-@@ -2081,6 +2081,9 @@ static void ath10k_sdio_remove(struct sdio_func *func)
- 	cancel_work_sync(&ar_sdio->wr_async_work);
- 	ath10k_core_unregister(ar);
- 	ath10k_core_destroy(ar);
-+
-+	flush_workqueue(ar_sdio->workqueue);
-+	destroy_workqueue(ar_sdio->workqueue);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 563eefa20003..14d37c26196b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -889,6 +889,7 @@ static void hclge_parse_copper_link_mode(struct hclge_dev *hdev,
+ 	linkmode_set_bit(ETHTOOL_LINK_MODE_Autoneg_BIT, supported);
+ 	linkmode_set_bit(ETHTOOL_LINK_MODE_TP_BIT, supported);
+ 	linkmode_set_bit(ETHTOOL_LINK_MODE_Pause_BIT, supported);
++	linkmode_set_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT, supported);
  }
  
- static const struct sdio_device_id ath10k_sdio_devices[] = {
+ static void hclge_parse_link_mode(struct hclge_dev *hdev, u8 speed_ability)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
+index 48eda2c6fdae..71a6f7c734b6 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
+@@ -215,6 +215,13 @@ int hclge_mac_connect_phy(struct hnae3_handle *handle)
+ 	linkmode_and(phydev->supported, phydev->supported, mask);
+ 	linkmode_copy(phydev->advertising, phydev->supported);
+ 
++	/* supported flag is Pause and Asym Pause, but default advertising
++	 * should be rx on, tx on, so need clear Asym Pause in advertising
++	 * flag
++	 */
++	linkmode_clear_bit(ETHTOOL_LINK_MODE_Asym_Pause_BIT,
++			   phydev->advertising);
++
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
