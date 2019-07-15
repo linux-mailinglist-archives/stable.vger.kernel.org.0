@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 669F168CCF
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECA5768CCE
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:54:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731729AbfGONxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732014AbfGONxw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Jul 2019 09:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52136 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730275AbfGONxt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:53:49 -0400
+        id S1731160AbfGONxv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:53:51 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E6E4206B8;
-        Mon, 15 Jul 2019 13:53:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 159562086C;
+        Mon, 15 Jul 2019 13:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198828;
-        bh=LHZznrzTJs8vL5hHSR/nkaaFY+Nn2uciLbSRfvQflzw=;
+        s=default; t=1563198831;
+        bh=1dF/ARbYui17nQ5Nd4WIe51aiBJ8tsdirPBi3IENgb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vjAFMO3c04EYeNCshvkVSaCqQuUSACh+yl9jVLnsmDX6mWJzsXt/wDoEBFT4RD4YH
-         oZ7xr+PCDNE9swlqnxwTij7zGhRVIMxDVt8SVYawVKad6QPbQ5y0D7HIhVLK4SByRU
-         MpwfTGP/OnukezaL2m/3GkOb3pQxtsyGYz0Ak3/g=
+        b=bGgymOrGfrQ0usNR6fzx/TiVqpACcuJe3uyoFQtBdoqPwcHn7dKleIByovKNPwClV
+         l0HSSHcA4f4IyyBUv+HRGX3QEP0yB2fpRepAfVANSUuEv/SrqH/AtZxvL3kIh2cVOG
+         YCpR8x0eXjZvXj9eLEGmZ/e7L59aey+uApzHFHhU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Olsa <jolsa@redhat.com>, Tom Vaden <tom.vaden@hpe.com>,
-        Jiri Olsa <jolsa@kernel.org>,
+Cc:     Kan Liang <kan.liang@linux.intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Liang Kan <kan.liang@linux.intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 114/249] perf/x86/intel: Disable check_msr for real HW
-Date:   Mon, 15 Jul 2019 09:44:39 -0400
-Message-Id: <20190715134655.4076-114-sashal@kernel.org>
+        Thomas Gleixner <tglx@linutronix.de>, acme@kernel.org,
+        eranian@google.com, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 115/249] perf/x86/intel/uncore: Handle invalid event coding for free-running counter
+Date:   Mon, 15 Jul 2019 09:44:40 -0400
+Message-Id: <20190715134655.4076-115-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -50,62 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@redhat.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit d0e1a507bdc761a14906f03399d933ea639a1756 ]
+[ Upstream commit 543ac280b3576c0009e8c0fcd4d6bfc9978d7bd0 ]
 
-Tom Vaden reported false failure of the check_msr() function, because
-some servers can do POST tracing and enable LBR tracing during
-bootup.
+Counting with invalid event coding for free-running counter may cause
+OOPs, e.g. uncore_iio_free_running_0/event=1/.
 
-Kan confirmed that check_msr patch was to fix a bug report in
-guest, so it's ok to disable it for real HW.
+Current code only validate the event with free-running event format,
+event=0xff,umask=0xXY. Non-free-running event format never be checked
+for the PMU with free-running counters.
 
-Reported-by: Tom Vaden <tom.vaden@hpe.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Add generic hw_config() to check and reject the invalid event coding
+for free-running PMU.
+
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Tom Vaden <tom.vaden@hpe.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Liang Kan <kan.liang@linux.intel.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190616141313.GD2500@krava
-[ Readability edits. ]
+Cc: acme@kernel.org
+Cc: eranian@google.com
+Fixes: 0f519f0352e3 ("perf/x86/intel/uncore: Support IIO free-running counters on SKX")
+Link: https://lkml.kernel.org/r/1556672028-119221-2-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/core.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/x86/events/intel/uncore.h       | 10 ++++++++++
+ arch/x86/events/intel/uncore_snbep.c |  1 +
+ 2 files changed, 11 insertions(+)
 
-diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index b6cae65aa7ef..f0c14665893b 100644
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -20,6 +20,7 @@
- #include <asm/intel-family.h>
- #include <asm/apic.h>
- #include <asm/cpu_device_id.h>
-+#include <asm/hypervisor.h>
+diff --git a/arch/x86/events/intel/uncore.h b/arch/x86/events/intel/uncore.h
+index 79eb2e21e4f0..28499e39679f 100644
+--- a/arch/x86/events/intel/uncore.h
++++ b/arch/x86/events/intel/uncore.h
+@@ -419,6 +419,16 @@ static inline bool is_freerunning_event(struct perf_event *event)
+ 	       (((cfg >> 8) & 0xff) >= UNCORE_FREERUNNING_UMASK_START);
+ }
  
- #include "../perf_event.h"
- 
-@@ -4054,6 +4055,13 @@ static bool check_msr(unsigned long msr, u64 mask)
- {
- 	u64 val_old, val_new, val_tmp;
- 
-+	/*
-+	 * Disable the check for real HW, so we don't
-+	 * mess with potentionaly enabled registers:
-+	 */
-+	if (hypervisor_is_type(X86_HYPER_NATIVE))
-+		return true;
++/* Check and reject invalid config */
++static inline int uncore_freerunning_hw_config(struct intel_uncore_box *box,
++					       struct perf_event *event)
++{
++	if (is_freerunning_event(event))
++		return 0;
 +
- 	/*
- 	 * Read the current value, change it and read it back to see if it
- 	 * matches, this is needed to detect certain hardware emulators
++	return -EINVAL;
++}
++
+ static inline void uncore_disable_box(struct intel_uncore_box *box)
+ {
+ 	if (box->pmu->type->ops->disable_box)
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
+index b10e04387f38..8e4e8e423839 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -3585,6 +3585,7 @@ static struct uncore_event_desc skx_uncore_iio_freerunning_events[] = {
+ 
+ static struct intel_uncore_ops skx_uncore_iio_freerunning_ops = {
+ 	.read_counter		= uncore_msr_read_counter,
++	.hw_config		= uncore_freerunning_hw_config,
+ };
+ 
+ static struct attribute *skx_uncore_iio_freerunning_formats_attr[] = {
 -- 
 2.20.1
 
