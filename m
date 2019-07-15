@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF855690E2
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A858C690E4
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390191AbfGOOYz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:24:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59182 "EHLO mail.kernel.org"
+        id S2389194AbfGOOZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:25:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390435AbfGOOYy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:24:54 -0400
+        id S2391214AbfGOOZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:25:12 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3CE72053B;
-        Mon, 15 Jul 2019 14:24:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09A342053B;
+        Mon, 15 Jul 2019 14:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200694;
-        bh=g17yrVoDEYz9FprTTtY9WgsUGAhraIYOxTRKINQiVoA=;
+        s=default; t=1563200711;
+        bh=ZAfC2BdUPmM5ghEIJn/MUgbjJZjPlBS0RDiZJpaogD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o68ZHvUJtbBuVHKhFNzFd1O9IVkVhPQqupUtoEVoqeuPQx7HC0OSjunbWdQGY9aq5
-         3xafkPdY6l/lHKsuCkrQ2DA4EDGFQrva+bgf38r5PVX3v/iTVJZlZ8OBqMmZ/sz3MX
-         td8PDaSViGiz5Sr9DYLkL0U2SsTD7lo4dfGEJJkA=
+        b=K/J+dFh+A6XshTUkoWkvQqTOSQpAScGUoh+N851dirkERZF2kGAWQ/y/UPwQhp7+S
+         BWF02nE33KZtE8dvTyZvqbBtNJciov1iPUTnahKDWJA5Ep60KEXyOomZCwsh9ej8Wi
+         lMRnI4/f9FqdYu3HC+JAjQ/Bqqt1Btn2eXcxT6mE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+Cc:     Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 113/158] clocksource/drivers/exynos_mct: Increase priority over ARM arch timer
-Date:   Mon, 15 Jul 2019 10:17:24 -0400
-Message-Id: <20190715141809.8445-113-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 115/158] rslib: Fix decoding of shortened codes
+Date:   Mon, 15 Jul 2019 10:17:26 -0400
+Message-Id: <20190715141809.8445-115-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -45,76 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>
 
-[ Upstream commit 6282edb72bed5324352522d732080d4c1b9dfed6 ]
+[ Upstream commit 2034a42d1747fc1e1eeef2c6f1789c4d0762cb9c ]
 
-Exynos SoCs based on CA7/CA15 have 2 timer interfaces: custom Exynos MCT
-(Multi Core Timer) and standard ARM Architected Timers.
+The decoding of shortenend codes is broken. It only works as expected if
+there are no erasures.
 
-There are use cases, where both timer interfaces are used simultanously.
-One of such examples is using Exynos MCT for the main system timer and
-ARM Architected Timers for the KVM and virtualized guests (KVM requires
-arch timers).
+When decoding with erasures, Lambda (the error and erasure locator
+polynomial) is initialized from the given erasure positions. The pad
+parameter is not accounted for by the initialisation code, and hence
+Lambda is initialized from incorrect erasure positions.
 
-Exynos Multi-Core Timer driver (exynos_mct) must be however started
-before ARM Architected Timers (arch_timer), because they both share some
-common hardware blocks (global system counter) and turning on MCT is
-needed to get ARM Architected Timer working properly.
+The fix is to adjust the erasure positions by the supplied pad.
 
-To ensure selecting Exynos MCT as the main system timer, increase MCT
-timer rating. To ensure proper starting order of both timers during
-suspend/resume cycle, increase MCT hotplug priority over ARM Archictected
-Timers.
-
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190620141039.9874-3-ferdinand.blomqvist@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/exynos_mct.c | 4 ++--
- include/linux/cpuhotplug.h       | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ lib/reed_solomon/decode_rs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/exynos_mct.c b/drivers/clocksource/exynos_mct.c
-index d55c30f6981d..aaf5bfa9bd9c 100644
---- a/drivers/clocksource/exynos_mct.c
-+++ b/drivers/clocksource/exynos_mct.c
-@@ -211,7 +211,7 @@ static void exynos4_frc_resume(struct clocksource *cs)
- 
- static struct clocksource mct_frc = {
- 	.name		= "mct-frc",
--	.rating		= 400,
-+	.rating		= 450,	/* use value higher than ARM arch timer */
- 	.read		= exynos4_frc_read,
- 	.mask		= CLOCKSOURCE_MASK(32),
- 	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
-@@ -466,7 +466,7 @@ static int exynos4_mct_starting_cpu(unsigned int cpu)
- 	evt->set_state_oneshot_stopped = set_state_shutdown;
- 	evt->tick_resume = set_state_shutdown;
- 	evt->features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT;
--	evt->rating = 450;
-+	evt->rating = 500;	/* use value higher than ARM arch timer */
- 
- 	exynos4_mct_write(TICK_BASE_CNT, mevt->base + MCT_L_TCNTB_OFFSET);
- 
-diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
-index d64d8c2bbdab..6df31106115d 100644
---- a/include/linux/cpuhotplug.h
-+++ b/include/linux/cpuhotplug.h
-@@ -116,10 +116,10 @@ enum cpuhp_state {
- 	CPUHP_AP_PERF_ARM_ACPI_STARTING,
- 	CPUHP_AP_PERF_ARM_STARTING,
- 	CPUHP_AP_ARM_L2X0_STARTING,
-+	CPUHP_AP_EXYNOS4_MCT_TIMER_STARTING,
- 	CPUHP_AP_ARM_ARCH_TIMER_STARTING,
- 	CPUHP_AP_ARM_GLOBAL_TIMER_STARTING,
- 	CPUHP_AP_JCORE_TIMER_STARTING,
--	CPUHP_AP_EXYNOS4_MCT_TIMER_STARTING,
- 	CPUHP_AP_ARM_TWD_STARTING,
- 	CPUHP_AP_QCOM_TIMER_STARTING,
- 	CPUHP_AP_ARMADA_TIMER_STARTING,
+diff --git a/lib/reed_solomon/decode_rs.c b/lib/reed_solomon/decode_rs.c
+index 1db74eb098d0..3313bf944ff1 100644
+--- a/lib/reed_solomon/decode_rs.c
++++ b/lib/reed_solomon/decode_rs.c
+@@ -99,9 +99,9 @@
+ 	if (no_eras > 0) {
+ 		/* Init lambda to be the erasure locator polynomial */
+ 		lambda[1] = alpha_to[rs_modnn(rs,
+-					      prim * (nn - 1 - eras_pos[0]))];
++					prim * (nn - 1 - (eras_pos[0] + pad)))];
+ 		for (i = 1; i < no_eras; i++) {
+-			u = rs_modnn(rs, prim * (nn - 1 - eras_pos[i]));
++			u = rs_modnn(rs, prim * (nn - 1 - (eras_pos[i] + pad)));
+ 			for (j = i + 1; j > 0; j--) {
+ 				tmp = index_of[lambda[j - 1]];
+ 				if (tmp != nn) {
 -- 
 2.20.1
 
