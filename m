@@ -2,101 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DEE569BCD
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 21:58:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FC3269CAE
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 22:21:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731270AbfGOT6L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 15:58:11 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:45484 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730712AbfGOT6K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jul 2019 15:58:10 -0400
-Received: by mail-pg1-f194.google.com with SMTP id o13so8206087pgp.12;
-        Mon, 15 Jul 2019 12:58:10 -0700 (PDT)
+        id S1731350AbfGOUVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 16:21:32 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:43830 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731311AbfGOUVb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jul 2019 16:21:31 -0400
+Received: by mail-lf1-f65.google.com with SMTP id c19so11937264lfm.10
+        for <stable@vger.kernel.org>; Mon, 15 Jul 2019 13:21:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TmI+G2a+MFeCwy7Tg4jhuurPd3QAR7gfjXDfp90OmJ4=;
+        b=zCHEVbz3de112jKAkxnHwrnP0+O195aIi01mGmwiCJZJR79megYl1oTWLY31QsQ6ko
+         rQuidw/9mmeOF31WBxm2YoEzuqAbslsrQjNeKAHKsrWi/f1PHDokJmOkQY07P+QC1Zmk
+         JChG7QGfCn6XZqrTCbNEjcFxKq4yg8cJlbMCEuvyQJYUB+FRF1djqla+Q3oJcrYt7R4j
+         eYxhn9tDLbR6IfRkXJ4lAsFs/7vjzC6xzCp58D+cyMOfGqOx6XE73ApP1xYR3NlvDk29
+         Zzhc72l0STaZZxBF7S2kVrr+ljBKoutvDL8I/TjSQf/ER/HjFtiwdrvYtUJX8tHCvyJg
+         lfFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ceLECMEmBKTfKlOu7paiH5PQ+8sxnNMR+mr/dxfQEl4=;
-        b=DVG25CA+YnRtwdSO7z+++PHnmtVxGy2AekQPf1X2D9muQnThshcJFGG+3kUAqZFrbK
-         1QIpkEPp4F0AKiXPZ2imbmS1ZbRw6WWiDTYLa3CfLHjvIX0S6X4LbQUAG+2/DvE1zKjM
-         n4qrQXnUAlnqKG3B2UnpwIfwJ3imktX8ZNU5BnTBBroADzrbIZkhT9igbxhQalOn05Mj
-         W72jQlgGwnzHu53a7/DOphPA5KsBfjEJjiAh5afkMIKuDsZD0tiI13RfEcmNPl9P4WmE
-         S6WP6LpbnX1NDO9wHB87INmsC8fcDsgkieBSgYALwDD2TyQg/za5pY0vY9ha1phG8+Tb
-         B0gQ==
-X-Gm-Message-State: APjAAAWY5GET6mMMIucp2N3B3Klr9QvVb61fcu1xBgZJipu2yT91Q4Mf
-        /g4gEMOh9t1vgBH3WYa1GYQ=
-X-Google-Smtp-Source: APXvYqzpe7jfic5H1di9uqXZuyvefqKIO0cUqhkLmNSVfvQ/u5EHGYSJTiWBz16lgGHQPfpHItVcDA==
-X-Received: by 2002:a17:90a:21cc:: with SMTP id q70mr32105249pjc.56.1563220690012;
-        Mon, 15 Jul 2019 12:58:10 -0700 (PDT)
-Received: from dennisz-mbp ([2620:10d:c091:500::3:5b6b])
-        by smtp.gmail.com with ESMTPSA id p7sm18514921pfp.131.2019.07.15.12.58.08
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 15 Jul 2019 12:58:09 -0700 (PDT)
-Date:   Mon, 15 Jul 2019 15:58:06 -0400
-From:   Dennis Zhou <dennis@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dennis Zhou <dennis@kernel.org>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.2 129/249] blk-iolatency: only account
- submitted bios
-Message-ID: <20190715195806.GA77907@dennisz-mbp>
-References: <20190715134655.4076-1-sashal@kernel.org>
- <20190715134655.4076-129-sashal@kernel.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TmI+G2a+MFeCwy7Tg4jhuurPd3QAR7gfjXDfp90OmJ4=;
+        b=T/St1xmxwCeO4RKB5I45l6gsmWt0bUaeYBWmWaVVQbhYKeY5H/gu6Xa5HImFgYQYRA
+         i6dL2PqlXNKVU5889leJrN8r/S8gb/44NgT0wFTxSG/pW4ckhCbETPMFuwI63MxuN7kL
+         RnbfnDwNP1LZCcmONg81g4EsCf7N1zQIAs+LEf/oEvL8ECUxLC5RTp1XhlbOHYnmE5pZ
+         NlexIbAkXq8ms/Yf6XOQg748JF/9s6LzyJwfAdzFwtUFOAhz6jcPnI328RKIhhN02clF
+         Zx1y+rrJwVUcV5dOF66RTHYu94sHCd/FCOUJMBO4DzQMIi032TEhJ804a2C64fGqubgR
+         QALQ==
+X-Gm-Message-State: APjAAAWm6PZyvSMWCwPbUBTgxgM+H6nRiqQl4c9pqUEXs8Cfy+5jIG9f
+        d7o3TvvSi7/BqJE9DLLYrF0B2Q==
+X-Google-Smtp-Source: APXvYqwto8+oJFMSqk5I71ZjxP1wmCB1V1rXX/WOgWuB0k6JHXCBv6CuVMboKfddL9hOVFpH/J1AUQ==
+X-Received: by 2002:a19:f711:: with SMTP id z17mr12375881lfe.4.1563222089627;
+        Mon, 15 Jul 2019 13:21:29 -0700 (PDT)
+Received: from localhost.bredbandsbolaget (c-22cd225c.014-348-6c756e10.bbcust.telenor.se. [92.34.205.34])
+        by smtp.gmail.com with ESMTPSA id s7sm3302729lje.95.2019.07.15.13.21.28
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Mon, 15 Jul 2019 13:21:28 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     arm@kernel.org, soc@kernel.org
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] ARM: dts: gemini: Set DIR-685 SPI CS as active low
+Date:   Mon, 15 Jul 2019 22:21:01 +0200
+Message-Id: <20190715202101.16060-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190715134655.4076-129-sashal@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 15, 2019 at 09:44:54AM -0400, Sasha Levin wrote:
-> From: Dennis Zhou <dennis@kernel.org>
-> 
-> [ Upstream commit a3fb01ba5af066521f3f3421839e501bb2c71805 ]
-> 
-> As is, iolatency recognizes done_bio and cleanup as ending paths. If a
-> request is marked REQ_NOWAIT and fails to get a request, the bio is
-> cleaned up via rq_qos_cleanup() and ended in bio_wouldblock_error().
-> This results in underflowing the inflight counter. Fix this by only
-> accounting bios that were actually submitted.
-> 
-> Signed-off-by: Dennis Zhou <dennis@kernel.org>
-> Cc: Josef Bacik <josef@toxicpanda.com>
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  block/blk-iolatency.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
-> index d22e61bced86..c91b84bb9d0a 100644
-> --- a/block/blk-iolatency.c
-> +++ b/block/blk-iolatency.c
-> @@ -600,6 +600,10 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
->  	if (!blkg || !bio_flagged(bio, BIO_TRACKED))
->  		return;
->  
-> +	/* We didn't actually submit this bio, don't account it. */
-> +	if (bio->bi_status == BLK_STS_AGAIN)
-> +		return;
-> +
->  	iolat = blkg_to_lat(bio->bi_blkg);
->  	if (!iolat)
->  		return;
-> -- 
-> 2.20.1
-> 
+The SPI to the display on the DIR-685 is active low, we were
+just saved by the SPI library enforcing active low on everything
+before, so set it as active low to avoid ambiguity.
 
-Hi Sasha,
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ARM SoC folks: please apply this directly to fixes.
+---
+ arch/arm/boot/dts/gemini-dlink-dir-685.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-If you're going to pick this up, c9b3007feca0 ("blk-iolatency: fix
-STS_AGAIN handling") fixes this patch, so please pick that up too.
+diff --git a/arch/arm/boot/dts/gemini-dlink-dir-685.dts b/arch/arm/boot/dts/gemini-dlink-dir-685.dts
+index 3613f05f8a80..bfaa2de63a10 100644
+--- a/arch/arm/boot/dts/gemini-dlink-dir-685.dts
++++ b/arch/arm/boot/dts/gemini-dlink-dir-685.dts
+@@ -64,7 +64,7 @@
+ 		gpio-sck = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+ 		gpio-miso = <&gpio1 8 GPIO_ACTIVE_HIGH>;
+ 		gpio-mosi = <&gpio1 7 GPIO_ACTIVE_HIGH>;
+-		cs-gpios = <&gpio0 20 GPIO_ACTIVE_HIGH>;
++		cs-gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;
+ 		num-chipselects = <1>;
+ 
+ 		panel: display@0 {
+-- 
+2.21.0
 
-Thanks,
-Dennis
