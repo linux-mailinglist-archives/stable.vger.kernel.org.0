@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB7268E72
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CA4768E7B
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388096AbfGOOGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:06:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54434 "EHLO mail.kernel.org"
+        id S2388341AbfGOOG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:06:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733180AbfGOOGl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:06:41 -0400
+        id S2388337AbfGOOG4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:06:56 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D256D2086C;
-        Mon, 15 Jul 2019 14:06:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0326217D9;
+        Mon, 15 Jul 2019 14:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199600;
-        bh=RZAzeqRYOt1YXINo0K5EUL+gCN7Qt4p4yU/g0+ri79I=;
+        s=default; t=1563199615;
+        bh=KEEMPSmzZBqvuzF0rBhmpLHTsuU/WTchaLqYwHks5Ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lb72na5Ra+r+sqo+6AE4vw16mxcDl/IjHX1PJuSwXhWEH1TYVIHbocEi8NVaeZVMa
-         LFNhzMEIbcFPX8ZI3KE8H0mIQNes/SdzRZ0SVvZhPscwmTHbogF1eArditDtOYDFMO
-         T8/aGM4gBKERHrwoDa6QL0zitb8rfJEhwJrAPWMU=
+        b=uPdz6ub0aGkzSQJKmJ/e5yjeKRHdOHVxNa0fQsSqQnZAJ18wXD4aT9O9AQv17iodh
+         /OWmCdmFaoZEWmzvMLZggH4zS80xFW6zOzobSJGz3E310RavSkXpk/0G4LY0RuQOSk
+         Q/vR46QnbyWJZstAEsrS03+VMA2tEbIVEah0K5M0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Imre Deak <imre.deak@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will.deacon@arm.com>,
-        ville.syrjala@linux.intel.com, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 052/219] locking/lockdep: Fix OOO unlock when hlocks need merging
-Date:   Mon, 15 Jul 2019 10:00:53 -0400
-Message-Id: <20190715140341.6443-52-sashal@kernel.org>
+Cc:     Weihang Li <liweihang@hisilicon.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 056/219] net: hns3: set ops to null when unregister ad_dev
+Date:   Mon, 15 Jul 2019 10:00:57 -0400
+Message-Id: <20190715140341.6443-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -47,234 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Imre Deak <imre.deak@intel.com>
+From: Weihang Li <liweihang@hisilicon.com>
 
-[ Upstream commit 8c8889d8eaf4501ae4aaf870b6f8f55db5d5109a ]
+[ Upstream commit 594a81b39525f0a17e92c2e0b167ae1400650380 ]
 
-The sequence
+The hclge/hclgevf and hns3 module can be unloaded independently,
+when hclge/hclgevf unloaded firstly, the ops of ae_dev should
+be set to NULL, otherwise it will cause an use-after-free problem.
 
-	static DEFINE_WW_CLASS(test_ww_class);
-
-	struct ww_acquire_ctx ww_ctx;
-	struct ww_mutex ww_lock_a;
-	struct ww_mutex ww_lock_b;
-	struct mutex lock_c;
-	struct mutex lock_d;
-
-	ww_acquire_init(&ww_ctx, &test_ww_class);
-
-	ww_mutex_init(&ww_lock_a, &test_ww_class);
-	ww_mutex_init(&ww_lock_b, &test_ww_class);
-
-	mutex_init(&lock_c);
-
-	ww_mutex_lock(&ww_lock_a, &ww_ctx);
-
-	mutex_lock(&lock_c);
-
-	ww_mutex_lock(&ww_lock_b, &ww_ctx);
-
-	mutex_unlock(&lock_c);		(*)
-
-	ww_mutex_unlock(&ww_lock_b);
-	ww_mutex_unlock(&ww_lock_a);
-
-	ww_acquire_fini(&ww_ctx);
-
-triggers the following WARN in __lock_release() when doing the unlock at *:
-
-	DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth - 1);
-
-The problem is that the WARN check doesn't take into account the merging
-of ww_lock_a and ww_lock_b which results in decreasing curr->lockdep_depth
-by 2 not only 1.
-
-Note that the following sequence doesn't trigger the WARN, since there
-won't be any hlock merging.
-
-	ww_acquire_init(&ww_ctx, &test_ww_class);
-
-	ww_mutex_init(&ww_lock_a, &test_ww_class);
-	ww_mutex_init(&ww_lock_b, &test_ww_class);
-
-	mutex_init(&lock_c);
-	mutex_init(&lock_d);
-
-	ww_mutex_lock(&ww_lock_a, &ww_ctx);
-
-	mutex_lock(&lock_c);
-	mutex_lock(&lock_d);
-
-	ww_mutex_lock(&ww_lock_b, &ww_ctx);
-
-	mutex_unlock(&lock_d);
-
-	ww_mutex_unlock(&ww_lock_b);
-	ww_mutex_unlock(&ww_lock_a);
-
-	mutex_unlock(&lock_c);
-
-	ww_acquire_fini(&ww_ctx);
-
-In general both of the above two sequences are valid and shouldn't
-trigger any lockdep warning.
-
-Fix this by taking the decrement due to the hlock merging into account
-during lock release and hlock class re-setting. Merging can't happen
-during lock downgrading since there won't be a new possibility to merge
-hlocks in that case, so add a WARN if merging still happens then.
-
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: ville.syrjala@linux.intel.com
-Link: https://lkml.kernel.org/r/20190524201509.9199-1-imre.deak@intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: 38caee9d3ee8 ("net: hns3: Add support of the HNAE3 framework")
+Signed-off-by: Weihang Li <liweihang@hisilicon.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c | 41 ++++++++++++++++++++++++++++------------
- 1 file changed, 29 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hnae3.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index e221be724fe8..2ecc12cd11d0 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -3623,7 +3623,7 @@ static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
- 				hlock->references = 2;
- 			}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.c b/drivers/net/ethernet/hisilicon/hns3/hnae3.c
+index 17ab4f4af6ad..0da814618565 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hnae3.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.c
+@@ -247,6 +247,7 @@ void hnae3_unregister_ae_algo(struct hnae3_ae_algo *ae_algo)
  
--			return 1;
-+			return 2;
- 		}
+ 		ae_algo->ops->uninit_ae_dev(ae_dev);
+ 		hnae3_set_bit(ae_dev->flag, HNAE3_DEV_INITED_B, 0);
++		ae_dev->ops = NULL;
  	}
  
-@@ -3829,22 +3829,33 @@ static struct held_lock *find_held_lock(struct task_struct *curr,
- }
+ 	list_del(&ae_algo->node);
+@@ -347,6 +348,7 @@ void hnae3_unregister_ae_dev(struct hnae3_ae_dev *ae_dev)
  
- static int reacquire_held_locks(struct task_struct *curr, unsigned int depth,
--			      int idx)
-+				int idx, unsigned int *merged)
- {
- 	struct held_lock *hlock;
-+	int first_idx = idx;
- 
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
- 		return 0;
- 
- 	for (hlock = curr->held_locks + idx; idx < depth; idx++, hlock++) {
--		if (!__lock_acquire(hlock->instance,
-+		switch (__lock_acquire(hlock->instance,
- 				    hlock_class(hlock)->subclass,
- 				    hlock->trylock,
- 				    hlock->read, hlock->check,
- 				    hlock->hardirqs_off,
- 				    hlock->nest_lock, hlock->acquire_ip,
--				    hlock->references, hlock->pin_count))
-+				    hlock->references, hlock->pin_count)) {
-+		case 0:
- 			return 1;
-+		case 1:
-+			break;
-+		case 2:
-+			*merged += (idx == first_idx);
-+			break;
-+		default:
-+			WARN_ON(1);
-+			return 0;
-+		}
+ 		ae_algo->ops->uninit_ae_dev(ae_dev);
+ 		hnae3_set_bit(ae_dev->flag, HNAE3_DEV_INITED_B, 0);
++		ae_dev->ops = NULL;
  	}
- 	return 0;
- }
-@@ -3855,9 +3866,9 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
- 		 unsigned long ip)
- {
- 	struct task_struct *curr = current;
-+	unsigned int depth, merged = 0;
- 	struct held_lock *hlock;
- 	struct lock_class *class;
--	unsigned int depth;
- 	int i;
  
- 	if (unlikely(!debug_locks))
-@@ -3882,14 +3893,14 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
- 	curr->lockdep_depth = i;
- 	curr->curr_chain_key = hlock->prev_chain_key;
- 
--	if (reacquire_held_locks(curr, depth, i))
-+	if (reacquire_held_locks(curr, depth, i, &merged))
- 		return 0;
- 
- 	/*
- 	 * I took it apart and put it back together again, except now I have
- 	 * these 'spare' parts.. where shall I put them.
- 	 */
--	if (DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth))
-+	if (DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth - merged))
- 		return 0;
- 	return 1;
- }
-@@ -3897,8 +3908,8 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
- static int __lock_downgrade(struct lockdep_map *lock, unsigned long ip)
- {
- 	struct task_struct *curr = current;
-+	unsigned int depth, merged = 0;
- 	struct held_lock *hlock;
--	unsigned int depth;
- 	int i;
- 
- 	if (unlikely(!debug_locks))
-@@ -3923,7 +3934,11 @@ static int __lock_downgrade(struct lockdep_map *lock, unsigned long ip)
- 	hlock->read = 1;
- 	hlock->acquire_ip = ip;
- 
--	if (reacquire_held_locks(curr, depth, i))
-+	if (reacquire_held_locks(curr, depth, i, &merged))
-+		return 0;
-+
-+	/* Merging can't happen with unchanged classes.. */
-+	if (DEBUG_LOCKS_WARN_ON(merged))
- 		return 0;
- 
- 	/*
-@@ -3932,6 +3947,7 @@ static int __lock_downgrade(struct lockdep_map *lock, unsigned long ip)
- 	 */
- 	if (DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth))
- 		return 0;
-+
- 	return 1;
- }
- 
-@@ -3946,8 +3962,8 @@ static int
- __lock_release(struct lockdep_map *lock, int nested, unsigned long ip)
- {
- 	struct task_struct *curr = current;
-+	unsigned int depth, merged = 1;
- 	struct held_lock *hlock;
--	unsigned int depth;
- 	int i;
- 
- 	if (unlikely(!debug_locks))
-@@ -4002,14 +4018,15 @@ __lock_release(struct lockdep_map *lock, int nested, unsigned long ip)
- 	if (i == depth-1)
- 		return 1;
- 
--	if (reacquire_held_locks(curr, depth, i + 1))
-+	if (reacquire_held_locks(curr, depth, i + 1, &merged))
- 		return 0;
- 
- 	/*
- 	 * We had N bottles of beer on the wall, we drank one, but now
- 	 * there's not N-1 bottles of beer left on the wall...
-+	 * Pouring two of the bottles together is acceptable.
- 	 */
--	DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth-1);
-+	DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth - merged);
- 
- 	/*
- 	 * Since reacquire_held_locks() would have called check_chain_key()
+ 	list_del(&ae_dev->node);
 -- 
 2.20.1
 
