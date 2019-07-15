@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F20566908C
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EB4969094
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:23:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389975AbfGOOWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:22:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51416 "EHLO mail.kernel.org"
+        id S2390090AbfGOOWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:22:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390619AbfGOOWc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:22:32 -0400
+        id S2390619AbfGOOWq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:22:46 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60444217F4;
-        Mon, 15 Jul 2019 14:22:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FA8A2184E;
+        Mon, 15 Jul 2019 14:22:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200551;
-        bh=YYKYl2U1p4d4MUGPn3teo51qyjn35udvZQC6noSgQyk=;
+        s=default; t=1563200565;
+        bh=3naJwCoZa8U1fnAU2ndnwcAG/epwsikMi3505JUZVV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sL7nKswutQOBRy6hqiABPBvegtd2YFKU85LChYbIN6Xw/KbaUJeWOheTBFx3xz5DP
-         AGM0RweuKfuekqSwX3vO5B/CXglM3ttBeBIOjNOzDDVIXYTT7NTJKQHZkoHCNWxyml
-         sees/oUhpWBkzo+6q3tKYEoVhve90doHp4a1nglI=
+        b=rh7AIdSwPhTm0xzmkndySVeaHA/5g85v0DBZoGwbLuoAh+0UML/B7/AkKR05oETsM
+         qjYRwBnbKBQrcpgc6DPim2bHIRJfBUPy8oPF427QTYWUW6bvUE40q2uQyITclN2bdK
+         7FK06otblGb9T7WdTooefkzlP8qMZioJ3TfgjzH8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, acme@kernel.org,
-        eranian@google.com, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 076/158] perf/x86/intel/uncore: Handle invalid event coding for free-running counter
-Date:   Mon, 15 Jul 2019 10:16:47 -0400
-Message-Id: <20190715141809.8445-76-sashal@kernel.org>
+Cc:     Jason Wang <jasowang@redhat.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 079/158] vhost_net: disable zerocopy by default
+Date:   Mon, 15 Jul 2019 10:16:50 -0400
+Message-Id: <20190715141809.8445-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -46,69 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Jason Wang <jasowang@redhat.com>
 
-[ Upstream commit 543ac280b3576c0009e8c0fcd4d6bfc9978d7bd0 ]
+[ Upstream commit 098eadce3c622c07b328d0a43dda379b38cf7c5e ]
 
-Counting with invalid event coding for free-running counter may cause
-OOPs, e.g. uncore_iio_free_running_0/event=1/.
+Vhost_net was known to suffer from HOL[1] issues which is not easy to
+fix. Several downstream disable the feature by default. What's more,
+the datapath was split and datacopy path got the support of batching
+and XDP support recently which makes it faster than zerocopy part for
+small packets transmission.
 
-Current code only validate the event with free-running event format,
-event=0xff,umask=0xXY. Non-free-running event format never be checked
-for the PMU with free-running counters.
+It looks to me that disable zerocopy by default is more
+appropriate. It cold be enabled by default again in the future if we
+fix the above issues.
 
-Add generic hw_config() to check and reject the invalid event coding
-for free-running PMU.
+[1] https://patchwork.kernel.org/patch/3787671/
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: acme@kernel.org
-Cc: eranian@google.com
-Fixes: 0f519f0352e3 ("perf/x86/intel/uncore: Support IIO free-running counters on SKX")
-Link: https://lkml.kernel.org/r/1556672028-119221-2-git-send-email-kan.liang@linux.intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore.h       | 10 ++++++++++
- arch/x86/events/intel/uncore_snbep.c |  1 +
- 2 files changed, 11 insertions(+)
+ drivers/vhost/net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore.h b/arch/x86/events/intel/uncore.h
-index cc6dd4f78158..42fa3974c421 100644
---- a/arch/x86/events/intel/uncore.h
-+++ b/arch/x86/events/intel/uncore.h
-@@ -402,6 +402,16 @@ static inline bool is_freerunning_event(struct perf_event *event)
- 	       (((cfg >> 8) & 0xff) >= UNCORE_FREERUNNING_UMASK_START);
- }
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 39155d7cc894..ae704658b528 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -36,7 +36,7 @@
  
-+/* Check and reject invalid config */
-+static inline int uncore_freerunning_hw_config(struct intel_uncore_box *box,
-+					       struct perf_event *event)
-+{
-+	if (is_freerunning_event(event))
-+		return 0;
-+
-+	return -EINVAL;
-+}
-+
- static inline void uncore_disable_box(struct intel_uncore_box *box)
- {
- 	if (box->pmu->type->ops->disable_box)
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index b10e04387f38..8e4e8e423839 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -3585,6 +3585,7 @@ static struct uncore_event_desc skx_uncore_iio_freerunning_events[] = {
+ #include "vhost.h"
  
- static struct intel_uncore_ops skx_uncore_iio_freerunning_ops = {
- 	.read_counter		= uncore_msr_read_counter,
-+	.hw_config		= uncore_freerunning_hw_config,
- };
- 
- static struct attribute *skx_uncore_iio_freerunning_formats_attr[] = {
+-static int experimental_zcopytx = 1;
++static int experimental_zcopytx = 0;
+ module_param(experimental_zcopytx, int, 0444);
+ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+ 		                       " 1 -Enable; 0 - Disable");
 -- 
 2.20.1
 
