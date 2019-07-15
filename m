@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C07B69708
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6596669703
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:08:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731661AbfGON6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:58:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37268 "EHLO mail.kernel.org"
+        id S1732869AbfGON6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:58:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733095AbfGON6M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:58:12 -0400
+        id S1733106AbfGON6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:58:14 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D0DF217D9;
-        Mon, 15 Jul 2019 13:58:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91A52212F5;
+        Mon, 15 Jul 2019 13:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199090;
-        bh=03xaZEiGP2CVhguAPuV+RHpYcfkROW1/kBhp7W7yaCk=;
+        s=default; t=1563199093;
+        bh=Dods9Xqg4wn68YBG3bujgJMAonGAUVFm9QOofA2/0RI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kXxf4xedFMS/aBCnxHTy74xLb6YvOzoRrQvgyUPAuy3gZ1uND5sB9VjW7LoD9o2Xm
-         i4YJ1/S1uHM3NIaqLsst5XlXlOy+f2BfDqCKyC7xUZDATiGmL5madf+9Xg9C0TjfD2
-         N3vEeV6JEEto0s8H+/8TIeZFhnX5xs/NMm0zbYjQ=
+        b=YuSsyK3ADSmpR/96j/H6rAVzHkrXXReKVnkpQlI+hs/ycap1znhcRH4WNn4esskHZ
+         K5ZI0p3NmEP1ckbovQuSHS8AbF4P6hlOU5eAdS4zh7iKqpXX2ogS2ZWjTXSjo6gCDb
+         DnVrkqp8xFqeKiM3QJFoJO7rC4tnZlwkkhV4wu2k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eiichi Tsukata <devel@etsukata.com>,
-        James Morse <james.morse@arm.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-edac@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 188/249] EDAC: Fix global-out-of-bounds write when setting edac_mc_poll_msec
-Date:   Mon, 15 Jul 2019 09:45:53 -0400
-Message-Id: <20190715134655.4076-188-sashal@kernel.org>
+Cc:     Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org, xdp-newbies@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 189/249] net/mlx5e: Attach/detach XDP program safely
+Date:   Mon, 15 Jul 2019 09:45:54 -0400
+Message-Id: <20190715134655.4076-189-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -44,159 +47,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <devel@etsukata.com>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-[ Upstream commit d8655e7630dafa88bc37f101640e39c736399771 ]
+[ Upstream commit e18953240de8b46360a67090c87ee1ef8160b35d ]
 
-Commit 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2") assumes
-edac_mc_poll_msec to be unsigned long, but the type of the variable still
-remained as int. Setting edac_mc_poll_msec can trigger out-of-bounds
-write.
+When an XDP program is set, a full reopen of all channels happens in two
+cases:
 
-Reproducer:
+1. When there was no program set, and a new one is being set.
 
-  # echo 1001 > /sys/module/edac_core/parameters/edac_mc_poll_msec
+2. When there was a program set, but it's being unset.
 
-KASAN report:
+The full reopen is necessary, because the channel parameters may change
+if XDP is enabled or disabled. However, it's performed in an unsafe way:
+if the new channels fail to open, the old ones are already closed, and
+the interface goes down. Use the safe way to switch channels instead.
+The same way is already used for other configuration changes.
 
-  BUG: KASAN: global-out-of-bounds in edac_set_poll_msec+0x140/0x150
-  Write of size 8 at addr ffffffffb91b2d00 by task bash/1996
-
-  CPU: 1 PID: 1996 Comm: bash Not tainted 5.2.0-rc6+ #23
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
-  Call Trace:
-   dump_stack+0xca/0x13e
-   print_address_description.cold+0x5/0x246
-   __kasan_report.cold+0x75/0x9a
-   ? edac_set_poll_msec+0x140/0x150
-   kasan_report+0xe/0x20
-   edac_set_poll_msec+0x140/0x150
-   ? dimmdev_location_show+0x30/0x30
-   ? vfs_lock_file+0xe0/0xe0
-   ? _raw_spin_lock+0x87/0xe0
-   param_attr_store+0x1b5/0x310
-   ? param_array_set+0x4f0/0x4f0
-   module_attr_store+0x58/0x80
-   ? module_attr_show+0x80/0x80
-   sysfs_kf_write+0x13d/0x1a0
-   kernfs_fop_write+0x2bc/0x460
-   ? sysfs_kf_bin_read+0x270/0x270
-   ? kernfs_notify+0x1f0/0x1f0
-   __vfs_write+0x81/0x100
-   vfs_write+0x1e1/0x560
-   ksys_write+0x126/0x250
-   ? __ia32_sys_read+0xb0/0xb0
-   ? do_syscall_64+0x1f/0x390
-   do_syscall_64+0xc1/0x390
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  RIP: 0033:0x7fa7caa5e970
-  Code: 73 01 c3 48 8b 0d 28 d5 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 99 2d 2c 00 00 75 10 b8 01 00 00 00 04
-  RSP: 002b:00007fff6acfdfe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-  RAX: ffffffffffffffda RBX: 0000000000000005 RCX: 00007fa7caa5e970
-  RDX: 0000000000000005 RSI: 0000000000e95c08 RDI: 0000000000000001
-  RBP: 0000000000e95c08 R08: 00007fa7cad1e760 R09: 00007fa7cb36a700
-  R10: 0000000000000073 R11: 0000000000000246 R12: 0000000000000005
-  R13: 0000000000000001 R14: 00007fa7cad1d600 R15: 0000000000000005
-
-  The buggy address belongs to the variable:
-   edac_mc_poll_msec+0x0/0x40
-
-  Memory state around the buggy address:
-   ffffffffb91b2c00: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
-   ffffffffb91b2c80: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
-  >ffffffffb91b2d00: 04 fa fa fa fa fa fa fa 04 fa fa fa fa fa fa fa
-                     ^
-   ffffffffb91b2d80: 04 fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
-   ffffffffb91b2e00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-Fix it by changing the type of edac_mc_poll_msec to unsigned int.
-The reason why this patch adopts unsigned int rather than unsigned long
-is msecs_to_jiffies() assumes arg to be unsigned int. We can avoid
-integer conversion bugs and unsigned int will be large enough for
-edac_mc_poll_msec.
-
-Reviewed-by: James Morse <james.morse@arm.com>
-Fixes: 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2")
-Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_mc_sysfs.c | 16 ++++++++--------
- drivers/edac/edac_module.h   |  2 +-
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/en_main.c | 31 ++++++++++++-------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/edac/edac_mc_sysfs.c b/drivers/edac/edac_mc_sysfs.c
-index 7c01e1cc030c..4386ea4b9b5a 100644
---- a/drivers/edac/edac_mc_sysfs.c
-+++ b/drivers/edac/edac_mc_sysfs.c
-@@ -26,7 +26,7 @@
- static int edac_mc_log_ue = 1;
- static int edac_mc_log_ce = 1;
- static int edac_mc_panic_on_ue;
--static int edac_mc_poll_msec = 1000;
-+static unsigned int edac_mc_poll_msec = 1000;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index a8e8350b38aa..8db9fdbc03ea 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -4192,8 +4192,6 @@ static int mlx5e_xdp_set(struct net_device *netdev, struct bpf_prog *prog)
+ 	/* no need for full reset when exchanging programs */
+ 	reset = (!priv->channels.params.xdp_prog || !prog);
  
- /* Getter functions for above */
- int edac_mc_get_log_ue(void)
-@@ -45,30 +45,30 @@ int edac_mc_get_panic_on_ue(void)
- }
+-	if (was_opened && reset)
+-		mlx5e_close_locked(netdev);
+ 	if (was_opened && !reset) {
+ 		/* num_channels is invariant here, so we can take the
+ 		 * batched reference right upfront.
+@@ -4205,20 +4203,31 @@ static int mlx5e_xdp_set(struct net_device *netdev, struct bpf_prog *prog)
+ 		}
+ 	}
  
- /* this is temporary */
--int edac_mc_get_poll_msec(void)
-+unsigned int edac_mc_get_poll_msec(void)
- {
- 	return edac_mc_poll_msec;
- }
+-	/* exchange programs, extra prog reference we got from caller
+-	 * as long as we don't fail from this point onwards.
+-	 */
+-	old_prog = xchg(&priv->channels.params.xdp_prog, prog);
++	if (was_opened && reset) {
++		struct mlx5e_channels new_channels = {};
++
++		new_channels.params = priv->channels.params;
++		new_channels.params.xdp_prog = prog;
++		mlx5e_set_rq_type(priv->mdev, &new_channels.params);
++		old_prog = priv->channels.params.xdp_prog;
++
++		err = mlx5e_safe_switch_channels(priv, &new_channels, NULL);
++		if (err)
++			goto unlock;
++	} else {
++		/* exchange programs, extra prog reference we got from caller
++		 * as long as we don't fail from this point onwards.
++		 */
++		old_prog = xchg(&priv->channels.params.xdp_prog, prog);
++	}
++
+ 	if (old_prog)
+ 		bpf_prog_put(old_prog);
  
- static int edac_set_poll_msec(const char *val, const struct kernel_param *kp)
- {
--	unsigned long l;
-+	unsigned int i;
- 	int ret;
+-	if (reset) /* change RQ type according to priv->xdp_prog */
++	if (!was_opened && reset) /* change RQ type according to priv->xdp_prog */
+ 		mlx5e_set_rq_type(priv->mdev, &priv->channels.params);
  
- 	if (!val)
- 		return -EINVAL;
+-	if (was_opened && reset)
+-		err = mlx5e_open_locked(netdev);
+-
+-	if (!test_bit(MLX5E_STATE_OPENED, &priv->state) || reset)
++	if (!was_opened || reset)
+ 		goto unlock;
  
--	ret = kstrtoul(val, 0, &l);
-+	ret = kstrtouint(val, 0, &i);
- 	if (ret)
- 		return ret;
- 
--	if (l < 1000)
-+	if (i < 1000)
- 		return -EINVAL;
- 
--	*((unsigned long *)kp->arg) = l;
-+	*((unsigned int *)kp->arg) = i;
- 
- 	/* notify edac_mc engine to reset the poll period */
--	edac_mc_reset_delay_period(l);
-+	edac_mc_reset_delay_period(i);
- 
- 	return 0;
- }
-@@ -82,7 +82,7 @@ MODULE_PARM_DESC(edac_mc_log_ue,
- module_param(edac_mc_log_ce, int, 0644);
- MODULE_PARM_DESC(edac_mc_log_ce,
- 		 "Log correctable error to console: 0=off 1=on");
--module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_int,
-+module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_uint,
- 		  &edac_mc_poll_msec, 0644);
- MODULE_PARM_DESC(edac_mc_poll_msec, "Polling period in milliseconds");
- 
-diff --git a/drivers/edac/edac_module.h b/drivers/edac/edac_module.h
-index dd7d0b509aa3..75528f07abd5 100644
---- a/drivers/edac/edac_module.h
-+++ b/drivers/edac/edac_module.h
-@@ -36,7 +36,7 @@ extern int edac_mc_get_log_ue(void);
- extern int edac_mc_get_log_ce(void);
- extern int edac_mc_get_panic_on_ue(void);
- extern int edac_get_poll_msec(void);
--extern int edac_mc_get_poll_msec(void);
-+extern unsigned int edac_mc_get_poll_msec(void);
- 
- unsigned edac_dimm_info_location(struct dimm_info *dimm, char *buf,
- 				 unsigned len);
+ 	/* exchanging programs w/o reset, we update ref counts on behalf
 -- 
 2.20.1
 
