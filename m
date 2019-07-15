@@ -2,147 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E94668B0B
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:39:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE5A868A95
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:33:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730864AbfGONiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:38:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36984 "EHLO mail.kernel.org"
+        id S1730257AbfGONd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:33:26 -0400
+Received: from mout.web.de ([212.227.15.14]:34615 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730412AbfGONiD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:38:03 -0400
-Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2981D212F5;
-        Mon, 15 Jul 2019 13:38:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563197882;
-        bh=iZvB6N1TYcEga3h3leOTeZdDimayVtYAMRUH2QVd3Y8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPiwbUhuUPv/bLAPAKo1VGTU5ASolJ+Rnh3WvdkZ8ZZDkBNxz7jbhBgLfiTA0mXza
-         8NCFxOEacNgUOa6RNuUQzRGgrzn6gYaQ88vaoGpENHV9StFXKQSd0OeAC7E7OekDDb
-         YF0SeGHZRQREE/6ksuocRHgpgbCbhKkF/rNMlcRk=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 024/249] selftests/bpf: adjust verifier scale test
-Date:   Mon, 15 Jul 2019 09:32:05 -0400
-Message-Id: <20190715133550.1772-24-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190715133550.1772-1-sashal@kernel.org>
-References: <20190715133550.1772-1-sashal@kernel.org>
+        id S1730224AbfGONd0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:33:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1563197593;
+        bh=NnJ/McBC1xY+rwzKCrlqJKC2Om2QgKLKoSPz2k86HZs=;
+        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=lDJpYRQKu5cnV6RPREucuIc2C+kjFqX+K/O7AUztCw1LIETvORDnda7OuCBA53W1/
+         fIZEwItysUbuafGbil2oGWZqhmOYyIfgWHMD1w3bzTh1l7+4rH9gw5qnS0qkTxSqzr
+         4QnZy/VjwM9ekhTelGt/gYpopGw88xEHvO/jTisI=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from [192.168.58.28] ([62.227.175.184]) by smtp.web.de (mrweb004
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 0Lvf5Q-1iW6qK3s9E-017SQx; Mon, 15
+ Jul 2019 15:33:13 +0200
+Subject: Re: [PATCH v2 1/2] rt2x00usb: fix rx queue hang
+To:     Kalle Valo <kvalo@codeaurora.org>
+Cc:     Stanislaw Gruszka <sgruszka@redhat.com>, stable@vger.kernel.org,
+        Helmut Schaa <helmut.schaa@googlemail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20190701105314.9707-1-smoch@web.de>
+ <874l3nadjf.fsf@kamboji.qca.qualcomm.com>
+From:   Soeren Moch <smoch@web.de>
+Message-ID: <dd1caa78-182e-b0ce-c90c-9670f8455389@web.de>
+Date:   Mon, 15 Jul 2019 15:33:11 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <874l3nadjf.fsf@kamboji.qca.qualcomm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Provags-ID: V03:K1:djE4WeLVs9SwBsKtd/iffOLzKtax0CXU3ew0/RjUPxtGqz5u7ox
+ ADBvZQTsFuUUtFrSk57QUyzDEY/v+2aWt5NmmVAlnALwq42qsVbjjuCD2cN+MTSAbfgfdm9
+ gEad7au1pRtSGxj6SaNYNEXbbSZfq7H5jp4qLTgeUN/aJy1Q9HnPRcuNyIeyGXMpRq8Uuqh
+ Sg6JOso+O3hgaKDkXgZkw==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:88IpjVHAKF4=:FAfP5y9ry6qRspW+01MVoY
+ uTosMf6N4OodFVYQ/q+FFT31SDaWWH6OUBlHd5sG+hevUXouT6lfeH3iHPpfpoNbC4Op8CYzL
+ /8SeazaalhETrwEzm+VmhlGxkrQbyybKgOL4PHdnlfOY2mOyZ9/3dhmsalUeccxUEoHkjFlzh
+ B6LI8BTuocvgX0cn5XEHwol2d+pYbD+u5ICQjMvVfBdAN8LC1ihXaAQcNWdSu1EE2cMJ/WyLq
+ SM1A53iiXVZsvbPHTQ7Jv406P3xsj4NDJrScAJIvHdUSIT7fPcCv1reK4S89LdL1kNnNW7wQ0
+ FO+N0O6j9nD4eFHUAaBPc5FM78v590lAU7zmPyY1rzMzX6hmzLHmUy/bUI7XuvexKwa8c8XgW
+ FvEM6b22G+uk9REz69S/N4hWASCYoaeFWEApTOBs1UhDniQyc17IWKGtHNUpqj6y/zD++YOrA
+ vJmgILErvu+jSU8HaTcMmsP7cevw4TYiIf1FtCqolK1+wnBk/vkhZNh3kFFfnWe5Q3iFm3RRI
+ fK2HWF/Fvb/r7LCV0FWEDZ8kq1+Deb+tY4Z2PF2KP5KuFBlfi9feKwvp3V3DGRe+ib1g6B2sr
+ ClJYUFIG8wsTg9z87TcwoPhXH+whPHUs1UbbC6vwF0FoXg1SIqfERBruUJXvrl1UJLOcLqdqx
+ IcArd6Qe0t89t4mBKmfxbRiWY6l5eIatU/wPrWAAYT0FhTqPyUEdorF8i2dTUdonQQpnZuuKK
+ 8aCz/BDnfSWxcLYLVsDeJ+sCd7I8mM/TuckEbb/PjOXVAkoWLR1Nc40Q63sNloIkADl+/wZkA
+ eYapr6XgtCdb4SGEg0G8UvH5qmlR1isUqlfLLr08nWu4y87Nx/F4SYpzR1Ci/tWdmlQ9LyF9/
+ GdOhn/p//SCorO7Ykv5QWbymVmcZ0uW5qi/0fmdy9jcUIUZdWaMJ0YFX6+KYUrLc7Pry/rXS5
+ cFiZlAPgaqLg6F5Qdch04z7jSYiZrrrWxFqRk5sUrIGJtkvNW8EuaKvABiOE4Vmbn8AfkmLQB
+ llXXKDxW6ex9nQzD7qGmVXcGe19MAInvB+ez4fTmiEVuUzWpSDzecjNn4z1S7LnvA4MKHNR4n
+ O+2GCnFLaFpztQ=
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit 7c0c6095d48dcd0e67c917aa73cdbb2715aafc36 ]
 
-Adjust scale tests to check for new jmp sequence limit.
-
-BPF_JGT had to be changed to BPF_JEQ because the verifier was
-too smart. It tracked the known safe range of R0 values
-and pruned the search earlier before hitting exact 8192 limit.
-bpf_semi_rand_get() was too (un)?lucky.
-
-k = 0; was missing in bpf_fill_scale2.
-It was testing a bit shorter sequence of jumps than intended.
-
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- tools/testing/selftests/bpf/test_verifier.c | 31 +++++++++++----------
- 1 file changed, 17 insertions(+), 14 deletions(-)
-
-diff --git a/tools/testing/selftests/bpf/test_verifier.c b/tools/testing/selftests/bpf/test_verifier.c
-index 288cb740e005..6438d4dc8ae1 100644
---- a/tools/testing/selftests/bpf/test_verifier.c
-+++ b/tools/testing/selftests/bpf/test_verifier.c
-@@ -207,33 +207,35 @@ static void bpf_fill_rand_ld_dw(struct bpf_test *self)
- 	self->retval = (uint32_t)res;
- }
- 
--/* test the sequence of 1k jumps */
-+#define MAX_JMP_SEQ 8192
-+
-+/* test the sequence of 8k jumps */
- static void bpf_fill_scale1(struct bpf_test *self)
- {
- 	struct bpf_insn *insn = self->fill_insns;
- 	int i = 0, k = 0;
- 
- 	insn[i++] = BPF_MOV64_REG(BPF_REG_6, BPF_REG_1);
--	/* test to check that the sequence of 1024 jumps is acceptable */
--	while (k++ < 1024) {
-+	/* test to check that the long sequence of jumps is acceptable */
-+	while (k++ < MAX_JMP_SEQ) {
- 		insn[i++] = BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
- 					 BPF_FUNC_get_prandom_u32);
--		insn[i++] = BPF_JMP_IMM(BPF_JGT, BPF_REG_0, bpf_semi_rand_get(), 2);
-+		insn[i++] = BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, bpf_semi_rand_get(), 2);
- 		insn[i++] = BPF_MOV64_REG(BPF_REG_1, BPF_REG_10);
- 		insn[i++] = BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_6,
- 					-8 * (k % 64 + 1));
- 	}
--	/* every jump adds 1024 steps to insn_processed, so to stay exactly
--	 * within 1m limit add MAX_TEST_INSNS - 1025 MOVs and 1 EXIT
-+	/* every jump adds 1 step to insn_processed, so to stay exactly
-+	 * within 1m limit add MAX_TEST_INSNS - MAX_JMP_SEQ - 1 MOVs and 1 EXIT
- 	 */
--	while (i < MAX_TEST_INSNS - 1025)
-+	while (i < MAX_TEST_INSNS - MAX_JMP_SEQ - 1)
- 		insn[i++] = BPF_ALU32_IMM(BPF_MOV, BPF_REG_0, 42);
- 	insn[i] = BPF_EXIT_INSN();
- 	self->prog_len = i + 1;
- 	self->retval = 42;
- }
- 
--/* test the sequence of 1k jumps in inner most function (function depth 8)*/
-+/* test the sequence of 8k jumps in inner most function (function depth 8)*/
- static void bpf_fill_scale2(struct bpf_test *self)
- {
- 	struct bpf_insn *insn = self->fill_insns;
-@@ -245,19 +247,20 @@ static void bpf_fill_scale2(struct bpf_test *self)
- 		insn[i++] = BPF_EXIT_INSN();
- 	}
- 	insn[i++] = BPF_MOV64_REG(BPF_REG_6, BPF_REG_1);
--	/* test to check that the sequence of 1024 jumps is acceptable */
--	while (k++ < 1024) {
-+	/* test to check that the long sequence of jumps is acceptable */
-+	k = 0;
-+	while (k++ < MAX_JMP_SEQ) {
- 		insn[i++] = BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
- 					 BPF_FUNC_get_prandom_u32);
--		insn[i++] = BPF_JMP_IMM(BPF_JGT, BPF_REG_0, bpf_semi_rand_get(), 2);
-+		insn[i++] = BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, bpf_semi_rand_get(), 2);
- 		insn[i++] = BPF_MOV64_REG(BPF_REG_1, BPF_REG_10);
- 		insn[i++] = BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_6,
- 					-8 * (k % (64 - 4 * FUNC_NEST) + 1));
- 	}
--	/* every jump adds 1024 steps to insn_processed, so to stay exactly
--	 * within 1m limit add MAX_TEST_INSNS - 1025 MOVs and 1 EXIT
-+	/* every jump adds 1 step to insn_processed, so to stay exactly
-+	 * within 1m limit add MAX_TEST_INSNS - MAX_JMP_SEQ - 1 MOVs and 1 EXIT
- 	 */
--	while (i < MAX_TEST_INSNS - 1025)
-+	while (i < MAX_TEST_INSNS - MAX_JMP_SEQ - 1)
- 		insn[i++] = BPF_ALU32_IMM(BPF_MOV, BPF_REG_0, 42);
- 	insn[i] = BPF_EXIT_INSN();
- 	self->prog_len = i + 1;
--- 
-2.20.1
-
+On 15.07.19 10:48, Kalle Valo wrote:
+> Soeren Moch <smoch@web.de> writes:
+>
+>> Since commit ed194d136769 ("usb: core: remove local_irq_save() around
+>>  ->complete() handler") the handler rt2x00usb_interrupt_rxdone() is
+>> not running with interrupts disabled anymore. So this completion handler
+>> is not guaranteed to run completely before workqueue processing starts
+>> for the same queue entry.
+>> Be sure to set all other flags in the entry correctly before marking
+>> this entry ready for workqueue processing. This way we cannot miss error
+>> conditions that need to be signalled from the completion handler to the
+>> worker thread.
+>> Note that rt2x00usb_work_rxdone() processes all available entries, not
+>> only such for which queue_work() was called.
+>>
+>> This patch is similar to what commit df71c9cfceea ("rt2x00: fix order
+>> of entry flags modification") did for TX processing.
+>>
+>> This fixes a regression on a RT5370 based wifi stick in AP mode, which
+>> suddenly stopped data transmission after some period of heavy load. Also
+>> stopping the hanging hostapd resulted in the error message "ieee80211
+>> phy0: rt2x00queue_flush_queue: Warning - Queue 14 failed to flush".
+>> Other operation modes are probably affected as well, this just was
+>> the used testcase.
+>>
+>> Fixes: ed194d136769 ("usb: core: remove local_irq_save() around ->complete() handler")
+>> Cc: stable@vger.kernel.org # 4.20+
+>> Signed-off-by: Soeren Moch <smoch@web.de>
+> I'll queue this for v5.3.
+>
+OK, thanks,
+Soeren
