@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9319068D35
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3790C68CEC
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732549AbfGONyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:54:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55652 "EHLO mail.kernel.org"
+        id S1731901AbfGONyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:54:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732127AbfGONyn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:54:43 -0400
+        id S1732553AbfGONyu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:54:50 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7200C21530;
-        Mon, 15 Jul 2019 13:54:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0CDC212F5;
+        Mon, 15 Jul 2019 13:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198882;
-        bh=LaQblhdiV7y0KVA9JzhqcAZ/O1ITWftSFhPSvbzR3lI=;
+        s=default; t=1563198889;
+        bh=gj0zBDm52IIackDZtC7KVsYGiEuhEY9qeD30u0iD1ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GjFfH8ZgUP70jN866EcrL1/2ObMtZGscCpjPzpZLcNHlzupA+oKIXoMjd8U7OHeC7
-         RznY8N959qXuRzKyDc0i+sXZpVjuDGMHzqypsJhOUlBpM72gqUQiK/4/DBIzE/p7ka
-         QOxwickRCTxp+bNaxB3hMtyJ6LritbBplEgo5bQk=
+        b=Xbf/oMhPRWW5zjmncl0vn6JnaOBfY86I2kZ3gcFcavEfYx5V/JCO1WA6w+sFS4PDR
+         4dGFtuHaNlj+gSQlLZa/1qz+oH8uG2oFcZySelpq1/TiFd27ASqTUL8cELlLdhxEuS
+         tgg2DR2Gfjhf6O438IXn0v4QYfGdr7jIL//d1dso=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 127/249] net: netsec: initialize tx ring on ndo_open
-Date:   Mon, 15 Jul 2019 09:44:52 -0400
-Message-Id: <20190715134655.4076-127-sashal@kernel.org>
+Cc:     Dennis Zhou <dennis@kernel.org>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 129/249] blk-iolatency: only account submitted bios
+Date:   Mon, 15 Jul 2019 09:44:54 -0400
+Message-Id: <20190715134655.4076-129-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -44,92 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+From: Dennis Zhou <dennis@kernel.org>
 
-[ Upstream commit 39e3622edeffa63c2871153d8743c5825b139968 ]
+[ Upstream commit a3fb01ba5af066521f3f3421839e501bb2c71805 ]
 
-Since we changed the Tx ring handling and now depends on bit31 to figure
-out the owner of the descriptor, we should initialize this every time
-the device goes down-up instead of doing it once on driver init. If the
-value is not correctly initialized the device won't have any available
-descriptors
+As is, iolatency recognizes done_bio and cleanup as ending paths. If a
+request is marked REQ_NOWAIT and fails to get a request, the bio is
+cleaned up via rq_qos_cleanup() and ended in bio_wouldblock_error().
+This results in underflowing the inflight counter. Fix this by only
+accounting bios that were actually submitted.
 
-Changes since v1:
-- Typo fixes
-
-Fixes: 35e07d234739 ("net: socionext: remove mmio reads on Tx")
-Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dennis Zhou <dennis@kernel.org>
+Cc: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/socionext/netsec.c | 32 ++++++++++++++-----------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ block/blk-iolatency.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/socionext/netsec.c b/drivers/net/ethernet/socionext/netsec.c
-index cba5881b2746..a10ef700f16d 100644
---- a/drivers/net/ethernet/socionext/netsec.c
-+++ b/drivers/net/ethernet/socionext/netsec.c
-@@ -1029,7 +1029,6 @@ static void netsec_free_dring(struct netsec_priv *priv, int id)
- static int netsec_alloc_dring(struct netsec_priv *priv, enum ring_id id)
- {
- 	struct netsec_desc_ring *dring = &priv->desc_ring[id];
--	int i;
+diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
+index d22e61bced86..c91b84bb9d0a 100644
+--- a/block/blk-iolatency.c
++++ b/block/blk-iolatency.c
+@@ -600,6 +600,10 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
+ 	if (!blkg || !bio_flagged(bio, BIO_TRACKED))
+ 		return;
  
- 	dring->vaddr = dma_alloc_coherent(priv->dev, DESC_SZ * DESC_NUM,
- 					  &dring->desc_dma, GFP_KERNEL);
-@@ -1040,19 +1039,6 @@ static int netsec_alloc_dring(struct netsec_priv *priv, enum ring_id id)
- 	if (!dring->desc)
- 		goto err;
- 
--	if (id == NETSEC_RING_TX) {
--		for (i = 0; i < DESC_NUM; i++) {
--			struct netsec_de *de;
--
--			de = dring->vaddr + (DESC_SZ * i);
--			/* de->attr is not going to be accessed by the NIC
--			 * until netsec_set_tx_de() is called.
--			 * No need for a dma_wmb() here
--			 */
--			de->attr = 1U << NETSEC_TX_SHIFT_OWN_FIELD;
--		}
--	}
--
- 	return 0;
- err:
- 	netsec_free_dring(priv, id);
-@@ -1060,6 +1046,23 @@ static int netsec_alloc_dring(struct netsec_priv *priv, enum ring_id id)
- 	return -ENOMEM;
- }
- 
-+static void netsec_setup_tx_dring(struct netsec_priv *priv)
-+{
-+	struct netsec_desc_ring *dring = &priv->desc_ring[NETSEC_RING_TX];
-+	int i;
++	/* We didn't actually submit this bio, don't account it. */
++	if (bio->bi_status == BLK_STS_AGAIN)
++		return;
 +
-+	for (i = 0; i < DESC_NUM; i++) {
-+		struct netsec_de *de;
-+
-+		de = dring->vaddr + (DESC_SZ * i);
-+		/* de->attr is not going to be accessed by the NIC
-+		 * until netsec_set_tx_de() is called.
-+		 * No need for a dma_wmb() here
-+		 */
-+		de->attr = 1U << NETSEC_TX_SHIFT_OWN_FIELD;
-+	}
-+}
-+
- static int netsec_setup_rx_dring(struct netsec_priv *priv)
- {
- 	struct netsec_desc_ring *dring = &priv->desc_ring[NETSEC_RING_RX];
-@@ -1361,6 +1364,7 @@ static int netsec_netdev_open(struct net_device *ndev)
- 
- 	pm_runtime_get_sync(priv->dev);
- 
-+	netsec_setup_tx_dring(priv);
- 	ret = netsec_setup_rx_dring(priv);
- 	if (ret) {
- 		netif_err(priv, probe, priv->ndev,
+ 	iolat = blkg_to_lat(bio->bi_blkg);
+ 	if (!iolat)
+ 		return;
 -- 
 2.20.1
 
