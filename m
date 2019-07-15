@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7978F68AC0
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A0D68AC2
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:36:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730690AbfGONgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:36:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33304 "EHLO mail.kernel.org"
+        id S1730717AbfGONgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:36:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730679AbfGONgd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:36:33 -0400
+        id S1730679AbfGONgo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:36:44 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B32362086C;
-        Mon, 15 Jul 2019 13:36:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA9D32083D;
+        Mon, 15 Jul 2019 13:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563197792;
-        bh=v1PQWlyIIUKb7uwAvPPpO/t5SdRgQrA1dwadJe0wwAk=;
+        s=default; t=1563197804;
+        bh=zCToULM46Hq+HWLQ6gM5hJf9Ca3UyBFZfKn42QEYCiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mXHrZP+pPqC/Hq7oX0w6ZRWT2Saf3u0clLBDtWiP2bRvraaWHRYOGQFxYw/9zVwyF
-         ID6c3M9FfvguwoJ3sZfL2LnxbWpq4noBMRY/0RpbVOQzVx4ahd4IeVD5dzrzg8dy3f
-         ut7muABIK4YLQo/68P0x4kQh1Ye3WcJf+5Of8T4M=
+        b=OLn+ipNueUXC+FL0Ap/aDFFIhFHNIowGKwKHyon08nMFyMdhtcXQx4brDqJRMxinS
+         eRKInSxGCozNcQtM02ah8Sp+Isywvgrs8peQzwjmr5DoKSv42ne6+ko5jJrwlv+7Se
+         doCRuOoGWE8HG9Ra7angQTUv2/Ra3nCN3HkmHrVs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Gong <wgong@codeaurora.org>, Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 012/249] ath10k: add peer id check in ath10k_peer_find_by_id
-Date:   Mon, 15 Jul 2019 09:31:53 -0400
-Message-Id: <20190715133550.1772-12-sashal@kernel.org>
+Cc:     Daniel Drake <drake@endlessm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        "H . Peter Anvin" <hpa@zytor.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>, len.brown@intel.com,
+        linux@endlessm.com, rafael.j.wysocki@intel.com,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 013/249] x86/tsc: Use CPUID.0x16 to calculate missing crystal frequency
+Date:   Mon, 15 Jul 2019 09:31:54 -0400
+Message-Id: <20190715133550.1772-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715133550.1772-1-sashal@kernel.org>
 References: <20190715133550.1772-1-sashal@kernel.org>
@@ -43,67 +49,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <wgong@codeaurora.org>
+From: Daniel Drake <drake@endlessm.com>
 
-[ Upstream commit 49ed34b835e231aa941257394716bc689bc98d9f ]
+[ Upstream commit 604dc9170f2435d27da5039a3efd757dceadc684 ]
 
-For some SDIO chip, the peer id is 65535 for MPDU with error status,
-then test_bit will trigger buffer overflow for peer's memory, if kasan
-enabled, it will report error.
+native_calibrate_tsc() had a data mapping Intel CPU families
+and crystal clock speed, but hardcoded tables are not ideal, and this
+approach was already problematic at least in the Skylake X case, as
+seen in commit:
 
-Reason is when station is in disconnecting status, firmware do not delete
-the peer info since it not disconnected completely, meanwhile some AP will
-still send data packet to station, then hardware will receive the packet
-and send to firmware, firmware's logic will report peer id of 65535 for
-MPDU with error status.
+  b51120309348 ("x86/tsc: Fix erroneous TSC rate on Skylake Xeon")
 
-Add check for overflow the size of peer's peer_ids will avoid the buffer
-overflow access.
+By examining CPUID data from http://instlatx64.atw.hu/ and units
+in the lab, we have found that 3 different scenarios need to be dealt
+with, and we can eliminate most of the hardcoded data using an approach a
+little more advanced than before:
 
-Call trace of kasan:
-dump_backtrace+0x0/0x2ec
-show_stack+0x20/0x2c
-__dump_stack+0x20/0x28
-dump_stack+0xc8/0xec
-print_address_description+0x74/0x240
-kasan_report+0x250/0x26c
-__asan_report_load8_noabort+0x20/0x2c
-ath10k_peer_find_by_id+0x180/0x1e4 [ath10k_core]
-ath10k_htt_t2h_msg_handler+0x100c/0x2fd4 [ath10k_core]
-ath10k_htt_htc_t2h_msg_handler+0x20/0x34 [ath10k_core]
-ath10k_sdio_irq_handler+0xcc8/0x1678 [ath10k_sdio]
-process_sdio_pending_irqs+0xec/0x370
-sdio_run_irqs+0x68/0xe4
-sdio_irq_work+0x1c/0x28
-process_one_work+0x3d8/0x8b0
-worker_thread+0x508/0x7cc
-kthread+0x24c/0x264
-ret_from_fork+0x10/0x18
+ 1. ApolloLake, GeminiLake, CannonLake (and presumably all new chipsets
+    from this point) report the crystal frequency directly via CPUID.0x15.
+    That's definitive data that we can rely upon.
 
-Tested with QCA6174 SDIO with firmware
-WLAN.RMH.4.4.1-00007-QCARMSWP-1.
+ 2. Skylake, Kabylake and all variants of those two chipsets report a
+    crystal frequency of zero, however we can calculate the crystal clock
+    speed by condidering data from CPUID.0x16.
 
-Signed-off-by: Wen Gong <wgong@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+    This method correctly distinguishes between the two crystal clock
+    frequencies present on different Skylake X variants that caused
+    headaches before.
+
+    As the calculations do not quite match the previously-hardcoded values
+    in some cases (e.g. 23913043Hz instead of 24MHz), TSC refinement is
+    enabled on all platforms where we had to calculate the crystal
+    frequency in this way.
+
+ 3. Denverton (GOLDMONT_X) reports a crystal frequency of zero and does
+    not support CPUID.0x16, so we leave this entry hardcoded.
+
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Daniel Drake <drake@endlessm.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: len.brown@intel.com
+Cc: linux@endlessm.com
+Cc: rafael.j.wysocki@intel.com
+Link: http://lkml.kernel.org/r/20190509055417.13152-1-drake@endlessm.com
+Link: https://lkml.kernel.org/r/20190419083533.32388-1-drake@endlessm.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/txrx.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/tsc.c | 47 +++++++++++++++++++++++++------------------
+ 1 file changed, 27 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/txrx.c b/drivers/net/wireless/ath/ath10k/txrx.c
-index c5818d28f55a..4102df016931 100644
---- a/drivers/net/wireless/ath/ath10k/txrx.c
-+++ b/drivers/net/wireless/ath/ath10k/txrx.c
-@@ -150,6 +150,9 @@ struct ath10k_peer *ath10k_peer_find_by_id(struct ath10k *ar, int peer_id)
- {
- 	struct ath10k_peer *peer;
+diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
+index 0b29e58f288e..da029fd21460 100644
+--- a/arch/x86/kernel/tsc.c
++++ b/arch/x86/kernel/tsc.c
+@@ -632,31 +632,38 @@ unsigned long native_calibrate_tsc(void)
  
-+	if (peer_id >= BITS_PER_TYPE(peer->peer_ids))
-+		return NULL;
+ 	crystal_khz = ecx_hz / 1000;
+ 
+-	if (crystal_khz == 0) {
+-		switch (boot_cpu_data.x86_model) {
+-		case INTEL_FAM6_SKYLAKE_MOBILE:
+-		case INTEL_FAM6_SKYLAKE_DESKTOP:
+-		case INTEL_FAM6_KABYLAKE_MOBILE:
+-		case INTEL_FAM6_KABYLAKE_DESKTOP:
+-			crystal_khz = 24000;	/* 24.0 MHz */
+-			break;
+-		case INTEL_FAM6_ATOM_GOLDMONT_X:
+-			crystal_khz = 25000;	/* 25.0 MHz */
+-			break;
+-		case INTEL_FAM6_ATOM_GOLDMONT:
+-			crystal_khz = 19200;	/* 19.2 MHz */
+-			break;
+-		}
+-	}
++	/*
++	 * Denverton SoCs don't report crystal clock, and also don't support
++	 * CPUID.0x16 for the calculation below, so hardcode the 25MHz crystal
++	 * clock.
++	 */
++	if (crystal_khz == 0 &&
++			boot_cpu_data.x86_model == INTEL_FAM6_ATOM_GOLDMONT_X)
++		crystal_khz = 25000;
+ 
+-	if (crystal_khz == 0)
+-		return 0;
+ 	/*
+-	 * TSC frequency determined by CPUID is a "hardware reported"
++	 * TSC frequency reported directly by CPUID is a "hardware reported"
+ 	 * frequency and is the most accurate one so far we have. This
+ 	 * is considered a known frequency.
+ 	 */
+-	setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
++	if (crystal_khz != 0)
++		setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
 +
- 	lockdep_assert_held(&ar->data_lock);
++	/*
++	 * Some Intel SoCs like Skylake and Kabylake don't report the crystal
++	 * clock, but we can easily calculate it to a high degree of accuracy
++	 * by considering the crystal ratio and the CPU speed.
++	 */
++	if (crystal_khz == 0 && boot_cpu_data.cpuid_level >= 0x16) {
++		unsigned int eax_base_mhz, ebx, ecx, edx;
++
++		cpuid(0x16, &eax_base_mhz, &ebx, &ecx, &edx);
++		crystal_khz = eax_base_mhz * 1000 *
++			eax_denominator / ebx_numerator;
++	}
++
++	if (crystal_khz == 0)
++		return 0;
  
- 	list_for_each_entry(peer, &ar->peers, list)
+ 	/*
+ 	 * For Atom SoCs TSC is the only reliable clocksource.
 -- 
 2.20.1
 
