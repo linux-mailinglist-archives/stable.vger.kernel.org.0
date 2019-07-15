@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EE3A692C8
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC859692CF
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:39:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392239AbfGOOjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:39:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38402 "EHLO mail.kernel.org"
+        id S2392090AbfGOOjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:39:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392101AbfGOOjM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:39:12 -0400
+        id S2392011AbfGOOjb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:39:31 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 332ED205ED;
-        Mon, 15 Jul 2019 14:39:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24A1A20651;
+        Mon, 15 Jul 2019 14:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201551;
-        bh=SrSY2hd7sPAJZhLXte82PgIm2GFAWhZBwxpsNfBoDfQ=;
+        s=default; t=1563201570;
+        bh=eO0AHGEipO3esnRtv2fUTTSdSp4IWtswwIL1qysN75o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ALcZHaNkBeWmT8u09imiNWPnnpyHY2yFEzgU3CbFSO1c5Z5cRaeiQlW2+VXA5p3S9
-         SC1wLEJ4QzpHQwJVqWjFwt0bxqfWRmMyKHxIvJE+S+oZV3ZIB9t+T77NtuI4MonWyz
-         hJkLJfM0RiEgxAG9yZcePu79Q+YDmdjzanDL7NTg=
+        b=NDTjQW6Jn4q7EQwFzX1O5A6v6VD5Fiw17Rb20Qmtx0Yn7YIFTBFIVF192XR0qfAvr
+         WMbJ9JAQtZ6g+pci14M56zYyt8RAfEXsWfv8GCX3+sfkC/MaqeJiv+gxnlTrxsyhEZ
+         6ZqRM5wCHnV+YD8a7XF7UMDiwAlvvO/6laXLNoJ8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 40/73] perf evsel: Make perf_evsel__name() accept a NULL argument
-Date:   Mon, 15 Jul 2019 10:35:56 -0400
-Message-Id: <20190715143629.10893-40-sashal@kernel.org>
+Cc:     Anders Roxell <anders.roxell@linaro.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 45/73] media: i2c: fix warning same module names
+Date:   Mon, 15 Jul 2019 10:36:01 -0400
+Message-Id: <20190715143629.10893-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
 References: <20190715143629.10893-1-sashal@kernel.org>
@@ -46,54 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-[ Upstream commit fdbdd7e8580eac9bdafa532746c865644d125e34 ]
+[ Upstream commit b2ce5617dad254230551feda3599f2cc68e53ad8 ]
 
-In which case it simply returns "unknown", like when it can't figure out
-the evsel->name value.
+When building with CONFIG_VIDEO_ADV7511 and CONFIG_DRM_I2C_ADV7511
+enabled as loadable modules, we see the following warning:
 
-This makes this code more robust and fixes a problem in 'perf trace'
-where a NULL evsel was being passed to a routine that only used the
-evsel for printing its name when a invalid syscall id was passed.
+  drivers/gpu/drm/bridge/adv7511/adv7511.ko
+  drivers/media/i2c/adv7511.ko
 
-Reported-by: Leo Yan <leo.yan@linaro.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lkml.kernel.org/n/tip-f30ztaasku3z935cn3ak3h53@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Rework so that the file is named adv7511-v4l2.c.
+
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/evsel.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/media/i2c/Makefile                      | 2 +-
+ drivers/media/i2c/{adv7511.c => adv7511-v4l2.c} | 5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+ rename drivers/media/i2c/{adv7511.c => adv7511-v4l2.c} (99%)
 
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index a62f79558146..758d0108c5a5 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -558,6 +558,9 @@ const char *perf_evsel__name(struct perf_evsel *evsel)
- {
- 	char bf[128];
+diff --git a/drivers/media/i2c/Makefile b/drivers/media/i2c/Makefile
+index 92773b2e6225..bfe0afc209b8 100644
+--- a/drivers/media/i2c/Makefile
++++ b/drivers/media/i2c/Makefile
+@@ -29,7 +29,7 @@ obj-$(CONFIG_VIDEO_ADV7393) += adv7393.o
+ obj-$(CONFIG_VIDEO_ADV7604) += adv7604.o
+ obj-$(CONFIG_VIDEO_ADV7842) += adv7842.o
+ obj-$(CONFIG_VIDEO_AD9389B) += ad9389b.o
+-obj-$(CONFIG_VIDEO_ADV7511) += adv7511.o
++obj-$(CONFIG_VIDEO_ADV7511) += adv7511-v4l2.o
+ obj-$(CONFIG_VIDEO_VPX3220) += vpx3220.o
+ obj-$(CONFIG_VIDEO_VS6624)  += vs6624.o
+ obj-$(CONFIG_VIDEO_BT819) += bt819.o
+diff --git a/drivers/media/i2c/adv7511.c b/drivers/media/i2c/adv7511-v4l2.c
+similarity index 99%
+rename from drivers/media/i2c/adv7511.c
+rename to drivers/media/i2c/adv7511-v4l2.c
+index 5f1c8ee8a50e..b87c9e7ff146 100644
+--- a/drivers/media/i2c/adv7511.c
++++ b/drivers/media/i2c/adv7511-v4l2.c
+@@ -17,6 +17,11 @@
+  * SOFTWARE.
+  */
  
-+	if (!evsel)
-+		goto out_unknown;
++/*
++ * This file is named adv7511-v4l2.c so it doesn't conflict with the Analog
++ * Device ADV7511 (config fragment CONFIG_DRM_I2C_ADV7511).
++ */
 +
- 	if (evsel->name)
- 		return evsel->name;
  
-@@ -594,7 +597,10 @@ const char *perf_evsel__name(struct perf_evsel *evsel)
- 
- 	evsel->name = strdup(bf);
- 
--	return evsel->name ?: "unknown";
-+	if (evsel->name)
-+		return evsel->name;
-+out_unknown:
-+	return "unknown";
- }
- 
- const char *perf_evsel__group_name(struct perf_evsel *evsel)
+ #include <linux/kernel.h>
+ #include <linux/module.h>
 -- 
 2.20.1
 
