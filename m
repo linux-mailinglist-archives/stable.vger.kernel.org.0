@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B6F469561
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:58:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 764AD694F2
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390818AbfGOO1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:27:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36318 "EHLO mail.kernel.org"
+        id S2390961AbfGOO1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:27:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391085AbfGOO1N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:27:13 -0400
+        id S2391448AbfGOO1P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:27:15 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8251206B8;
-        Mon, 15 Jul 2019 14:27:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B72D21537;
+        Mon, 15 Jul 2019 14:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200831;
-        bh=R64sEWjE7fOnTDcA1+Fn6biGjYQ/zL3DIacAU7VyayE=;
+        s=default; t=1563200834;
+        bh=+l+RU1EN+SlH9uWGDITQYS+b2sZ/zrMGsEGFPYX/EXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+MDXF02Q1odyrNtAUv4YcObMOWvlkXb4tk4Gs/k0yV1Lt9cM8iyLrHoazfoszcXU
-         j3svpNpYSEMor9Nvu9ido2KxtAS0gEil3J+xRvCVCxDY/gq+Qq0yCau+pVTFsN0zia
-         YkCnOV2kghwNTG0M6ELe9zoBa3Diypf0ZAu4aSjQ=
+        b=Dlq5t2jV5oaDcgL1vhUfyrWSi+7MG68ZRZ6nj1HKNwT07j4DbcIMalQZVyslNQq8f
+         XXaMnd8Nf0eFURpd2ColMadyFg4d00P1Ugz+0/cpDesZux9ptY718aLZjeUNCaF4Hv
+         3kyR83QXFYVGKsKLbjXKYd+IjRm/gprWtyPzrkLM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Phong Tran <tranmanphong@gmail.com>,
-        syzbot+8a3fc6674bbc3978ed4e@syzkaller.appspotmail.com,
+Cc:     David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 139/158] net: usb: asix: init MAC address buffers
-Date:   Mon, 15 Jul 2019 10:17:50 -0400
-Message-Id: <20190715141809.8445-139-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 140/158] rxrpc: Fix oops in tracepoint
+Date:   Mon, 15 Jul 2019 10:17:51 -0400
+Message-Id: <20190715141809.8445-140-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -45,121 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Tran <tranmanphong@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 78226f6eaac80bf30256a33a4926c194ceefdf36 ]
+[ Upstream commit 99f0eae653b2db64917d0b58099eb51e300b311d ]
 
-This is for fixing bug KMSAN: uninit-value in ax88772_bind
+If the rxrpc_eproto tracepoint is enabled, an oops will be cause by the
+trace line that rxrpc_extract_header() tries to emit when a protocol error
+occurs (typically because the packet is short) because the call argument is
+NULL.
 
-Tested by
-https://groups.google.com/d/msg/syzkaller-bugs/aFQurGotng4/eB_HlNhhCwAJ
+Fix this by using ?: to assume 0 as the debug_id if call is NULL.
 
-Reported-by: syzbot+8a3fc6674bbc3978ed4e@syzkaller.appspotmail.com
+This can then be induced by:
 
-syzbot found the following crash on:
+	echo -e '\0\0\0\0\0\0\0\0' | ncat -4u --send-only <addr> 20001
 
-HEAD commit:    f75e4cfe kmsan: use kmsan_handle_urb() in urb.c
-git tree:       kmsan
-console output: https://syzkaller.appspot.com/x/log.txt?x=136d720ea00000
-kernel config:
-https://syzkaller.appspot.com/x/.config?x=602468164ccdc30a
-dashboard link:
-https://syzkaller.appspot.com/bug?extid=8a3fc6674bbc3978ed4e
-compiler:       clang version 9.0.0 (/home/glider/llvm/clang
-06d00afa61eef8f7f501ebdb4e8612ea43ec2d78)
-syz repro:
-https://syzkaller.appspot.com/x/repro.syz?x=12788316a00000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=120359aaa00000
+where addr has the following program running on it:
 
-==================================================================
-BUG: KMSAN: uninit-value in is_valid_ether_addr
-include/linux/etherdevice.h:200 [inline]
-BUG: KMSAN: uninit-value in asix_set_netdev_dev_addr
-drivers/net/usb/asix_devices.c:73 [inline]
-BUG: KMSAN: uninit-value in ax88772_bind+0x93d/0x11e0
-drivers/net/usb/asix_devices.c:724
-CPU: 0 PID: 3348 Comm: kworker/0:2 Not tainted 5.1.0+ #1
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-Workqueue: usb_hub_wq hub_event
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x191/0x1f0 lib/dump_stack.c:113
-  kmsan_report+0x130/0x2a0 mm/kmsan/kmsan.c:622
-  __msan_warning+0x75/0xe0 mm/kmsan/kmsan_instr.c:310
-  is_valid_ether_addr include/linux/etherdevice.h:200 [inline]
-  asix_set_netdev_dev_addr drivers/net/usb/asix_devices.c:73 [inline]
-  ax88772_bind+0x93d/0x11e0 drivers/net/usb/asix_devices.c:724
-  usbnet_probe+0x10f5/0x3940 drivers/net/usb/usbnet.c:1728
-  usb_probe_interface+0xd66/0x1320 drivers/usb/core/driver.c:361
-  really_probe+0xdae/0x1d80 drivers/base/dd.c:513
-  driver_probe_device+0x1b3/0x4f0 drivers/base/dd.c:671
-  __device_attach_driver+0x5b8/0x790 drivers/base/dd.c:778
-  bus_for_each_drv+0x28e/0x3b0 drivers/base/bus.c:454
-  __device_attach+0x454/0x730 drivers/base/dd.c:844
-  device_initial_probe+0x4a/0x60 drivers/base/dd.c:891
-  bus_probe_device+0x137/0x390 drivers/base/bus.c:514
-  device_add+0x288d/0x30e0 drivers/base/core.c:2106
-  usb_set_configuration+0x30dc/0x3750 drivers/usb/core/message.c:2027
-  generic_probe+0xe7/0x280 drivers/usb/core/generic.c:210
-  usb_probe_device+0x14c/0x200 drivers/usb/core/driver.c:266
-  really_probe+0xdae/0x1d80 drivers/base/dd.c:513
-  driver_probe_device+0x1b3/0x4f0 drivers/base/dd.c:671
-  __device_attach_driver+0x5b8/0x790 drivers/base/dd.c:778
-  bus_for_each_drv+0x28e/0x3b0 drivers/base/bus.c:454
-  __device_attach+0x454/0x730 drivers/base/dd.c:844
-  device_initial_probe+0x4a/0x60 drivers/base/dd.c:891
-  bus_probe_device+0x137/0x390 drivers/base/bus.c:514
-  device_add+0x288d/0x30e0 drivers/base/core.c:2106
-  usb_new_device+0x23e5/0x2ff0 drivers/usb/core/hub.c:2534
-  hub_port_connect drivers/usb/core/hub.c:5089 [inline]
-  hub_port_connect_change drivers/usb/core/hub.c:5204 [inline]
-  port_event drivers/usb/core/hub.c:5350 [inline]
-  hub_event+0x48d1/0x7290 drivers/usb/core/hub.c:5432
-  process_one_work+0x1572/0x1f00 kernel/workqueue.c:2269
-  process_scheduled_works kernel/workqueue.c:2331 [inline]
-  worker_thread+0x189c/0x2460 kernel/workqueue.c:2417
-  kthread+0x4b5/0x4f0 kernel/kthread.c:254
-  ret_from_fork+0x35/0x40 arch/x86/entry/entry_64.S:355
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
+	#include <unistd.h>
+	#include <sys/socket.h>
+	#include <arpa/inet.h>
+	#include <linux/rxrpc.h>
+	int main(void)
+	{
+		struct sockaddr_rxrpc srx;
+		int fd;
+		memset(&srx, 0, sizeof(srx));
+		srx.srx_family			= AF_RXRPC;
+		srx.srx_service			= 0;
+		srx.transport_type		= AF_INET;
+		srx.transport_len		= sizeof(srx.transport.sin);
+		srx.transport.sin.sin_family	= AF_INET;
+		srx.transport.sin.sin_port	= htons(0x4e21);
+		fd = socket(AF_RXRPC, SOCK_DGRAM, AF_INET6);
+		bind(fd, (struct sockaddr *)&srx, sizeof(srx));
+		sleep(20);
+		return 0;
+	}
 
-Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+It results in the following oops.
+
+	BUG: kernel NULL pointer dereference, address: 0000000000000340
+	#PF: supervisor read access in kernel mode
+	#PF: error_code(0x0000) - not-present page
+	...
+	RIP: 0010:trace_event_raw_event_rxrpc_rx_eproto+0x47/0xac
+	...
+	Call Trace:
+	 <IRQ>
+	 rxrpc_extract_header+0x86/0x171
+	 ? rcu_read_lock_sched_held+0x5d/0x63
+	 ? rxrpc_new_skb+0xd4/0x109
+	 rxrpc_input_packet+0xef/0x14fc
+	 ? rxrpc_input_data+0x986/0x986
+	 udp_queue_rcv_one_skb+0xbf/0x3d0
+	 udp_unicast_rcv_skb.isra.8+0x64/0x71
+	 ip_protocol_deliver_rcu+0xe4/0x1b4
+	 ip_local_deliver+0xf0/0x154
+	 __netif_receive_skb_one_core+0x50/0x6c
+	 netif_receive_skb_internal+0x26b/0x2e9
+	 napi_gro_receive+0xf8/0x1da
+	 rtl8169_poll+0x303/0x4c4
+	 net_rx_action+0x10e/0x333
+	 __do_softirq+0x1a5/0x38f
+	 irq_exit+0x54/0xc4
+	 do_IRQ+0xda/0xf8
+	 common_interrupt+0xf/0xf
+	 </IRQ>
+	 ...
+	 ? cpuidle_enter_state+0x23c/0x34d
+	 cpuidle_enter+0x2a/0x36
+	 do_idle+0x163/0x1ea
+	 cpu_startup_entry+0x1d/0x1f
+	 start_secondary+0x157/0x172
+	 secondary_startup_64+0xa4/0xb0
+
+Fixes: a25e21f0bcd2 ("rxrpc, afs: Use debug_ids rather than pointers in traces")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/asix_devices.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/trace/events/rxrpc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/asix_devices.c b/drivers/net/usb/asix_devices.c
-index 3d93993e74da..2eca4168af2f 100644
---- a/drivers/net/usb/asix_devices.c
-+++ b/drivers/net/usb/asix_devices.c
-@@ -238,7 +238,7 @@ static void asix_phy_reset(struct usbnet *dev, unsigned int reset_bits)
- static int ax88172_bind(struct usbnet *dev, struct usb_interface *intf)
- {
- 	int ret = 0;
--	u8 buf[ETH_ALEN];
-+	u8 buf[ETH_ALEN] = {0};
- 	int i;
- 	unsigned long gpio_bits = dev->driver_info->data;
+diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
+index 6d182746afab..147546e0c11b 100644
+--- a/include/trace/events/rxrpc.h
++++ b/include/trace/events/rxrpc.h
+@@ -1381,7 +1381,7 @@ TRACE_EVENT(rxrpc_rx_eproto,
+ 			     ),
  
-@@ -689,7 +689,7 @@ static int asix_resume(struct usb_interface *intf)
- static int ax88772_bind(struct usbnet *dev, struct usb_interface *intf)
- {
- 	int ret, i;
--	u8 buf[ETH_ALEN], chipcode = 0;
-+	u8 buf[ETH_ALEN] = {0}, chipcode = 0;
- 	u32 phyid;
- 	struct asix_common_private *priv;
- 
-@@ -1073,7 +1073,7 @@ static const struct net_device_ops ax88178_netdev_ops = {
- static int ax88178_bind(struct usbnet *dev, struct usb_interface *intf)
- {
- 	int ret;
--	u8 buf[ETH_ALEN];
-+	u8 buf[ETH_ALEN] = {0};
- 
- 	usbnet_get_endpoints(dev,intf);
- 
+ 	    TP_fast_assign(
+-		    __entry->call = call->debug_id;
++		    __entry->call = call ? call->debug_id : 0;
+ 		    __entry->serial = serial;
+ 		    __entry->why = why;
+ 			   ),
 -- 
 2.20.1
 
