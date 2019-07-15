@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 992B26901F
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:19:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A444F69025
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:19:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390057AbfGOOTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:19:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40544 "EHLO mail.kernel.org"
+        id S2389469AbfGOOTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:19:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390053AbfGOOTO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:19:14 -0400
+        id S2390095AbfGOOTY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:19:24 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 550DD212F5;
-        Mon, 15 Jul 2019 14:19:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2254F20651;
+        Mon, 15 Jul 2019 14:19:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200353;
-        bh=ycggOkc9DEYnBVnGgU+uoiSvOob3Bl168DfW2wA4MVA=;
+        s=default; t=1563200364;
+        bh=pg4WlU+3txAJbba2GoG2aTCtf742K7MnlsaLR4ncgVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovchs0c436UMbKH7ix38qIWAjp2jelGMfY6ksh+pTN4zXAbGGLMiThpWH3xbI8qoN
-         DClwi9z25fAkUnwGGtQCKH0LuV8zmDxRE1xj4Lqk3u0vdTx3oYqTZsJeoqOdR/jaq6
-         3mkDJICNq7gv4MlA0HwHHxQRh4dcqGRB8pQ3lfFk=
+        b=nbr8u71gKl86mQ5gw8zTq8HoGkIFClnlMQVH7+b9+aMOeaizxgBJGr7oKAIIRyUFC
+         WqIo9B0Bth8fOF0mTRgzom1dcp2Uzb6VkThW1lHdkJrzcT/5SXSYmumZ9y4NlggdXU
+         21iJ1ks1V0RYhMFrgEOI/Z+AXyapcZVf62OaesI4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Namjae Jeon <namjae.jeon@samsung.com>,
-        Jeff Layton <jlayton@primarydata.com>,
-        Steve French <smfrench@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 022/158] signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig
-Date:   Mon, 15 Jul 2019 10:15:53 -0400
-Message-Id: <20190715141809.8445-22-sashal@kernel.org>
+Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.19 026/158] perf annotate TUI browser: Do not use member from variable within its own initialization
+Date:   Mon, 15 Jul 2019 10:15:57 -0400
+Message-Id: <20190715141809.8445-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -45,51 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 72abe3bcf0911d69b46c1e8bdb5612675e0ac42c ]
+[ Upstream commit da2019633f0b5c105ce658aada333422d8cb28fe ]
 
-The locking in force_sig_info is not prepared to deal with a task that
-exits or execs (as sighand may change).  The is not a locking problem
-in force_sig as force_sig is only built to handle synchronous
-exceptions.
+Some compilers will complain when using a member of a struct to
+initialize another member, in the same struct initialization.
 
-Further the function force_sig_info changes the signal state if the
-signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
-delivery of the signal.  The signal SIGKILL can not be ignored and can
-not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
-delivered.
+For instance:
 
-So using force_sig rather than send_sig for SIGKILL is confusing
-and pointless.
+  debian:8      Debian clang version 3.5.0-10 (tags/RELEASE_350/final) (based on LLVM 3.5.0)
+  oraclelinux:7 clang version 3.4.2 (tags/RELEASE_34/dot2-final)
 
-Because it won't impact the sending of the signal and and because
-using force_sig is wrong, replace force_sig with send_sig.
+Produce:
 
-Cc: Namjae Jeon <namjae.jeon@samsung.com>
-Cc: Jeff Layton <jlayton@primarydata.com>
-Cc: Steve French <smfrench@gmail.com>
-Fixes: a5c3e1c725af ("Revert "cifs: No need to send SIGKILL to demux_thread during umount"")
-Fixes: e7ddee9037e7 ("cifs: disable sharing session and tcon and add new TCP sharing code")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+  ui/browsers/annotate.c:104:12: error: variable 'ops' is uninitialized when used within its own initialization [-Werror,-Wuninitialized]
+                                              (!ops.current_entry ||
+                                                ^~~
+  1 error generated.
+
+So use an extra variable, initialized just before that struct, to have
+the value used in the expressions used to init two of the struct
+members.
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Fixes: c298304bd747 ("perf annotate: Use a ops table for annotation_line__write()")
+Link: https://lkml.kernel.org/n/tip-f9nexro58q62l3o9hez8hr0i@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/ui/browsers/annotate.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index f31339db45fd..82b3af47bce3 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2428,7 +2428,7 @@ cifs_put_tcp_session(struct TCP_Server_Info *server, int from_reconnect)
- 
- 	task = xchg(&server->tsk, NULL);
- 	if (task)
--		force_sig(SIGKILL, task);
-+		send_sig(SIGKILL, task, 1);
- }
- 
- static struct TCP_Server_Info *
+diff --git a/tools/perf/ui/browsers/annotate.c b/tools/perf/ui/browsers/annotate.c
+index 1d00e5ec7906..a3c255228d62 100644
+--- a/tools/perf/ui/browsers/annotate.c
++++ b/tools/perf/ui/browsers/annotate.c
+@@ -96,11 +96,12 @@ static void annotate_browser__write(struct ui_browser *browser, void *entry, int
+ 	struct annotate_browser *ab = container_of(browser, struct annotate_browser, b);
+ 	struct annotation *notes = browser__annotation(browser);
+ 	struct annotation_line *al = list_entry(entry, struct annotation_line, node);
++	const bool is_current_entry = ui_browser__is_current_entry(browser, row);
+ 	struct annotation_write_ops ops = {
+ 		.first_line		 = row == 0,
+-		.current_entry		 = ui_browser__is_current_entry(browser, row),
++		.current_entry		 = is_current_entry,
+ 		.change_color		 = (!notes->options->hide_src_code &&
+-					    (!ops.current_entry ||
++					    (!is_current_entry ||
+ 					     (browser->use_navkeypressed &&
+ 					      !browser->navkeypressed))),
+ 		.width			 = browser->width,
 -- 
 2.20.1
 
