@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69EF96948A
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:52:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E12D69486
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:52:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391141AbfGOObB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:31:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44310 "EHLO mail.kernel.org"
+        id S2391181AbfGOObO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:31:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732124AbfGOObA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:31:00 -0400
+        id S1731947AbfGOObL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:31:11 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90CA9205ED;
-        Mon, 15 Jul 2019 14:30:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B89220896;
+        Mon, 15 Jul 2019 14:31:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201059;
-        bh=VlBCB3cvj0pngMZ1/OmuZY11wGrcEs5NU2PFJGH1IN0=;
+        s=default; t=1563201070;
+        bh=Ikp9Z7o6849kEBCtpfBb3J6wCZpMPCOBu9zCpU4cQ2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STYP1YLkdfWWOxyts8aIp87unxmIKu2ETy2+CxfiZiDZ1bwINv+dg1SCXf3YJUrJz
-         HNHgp6KlJw/eNcY5OkkjnqWxT7HBc5UEySmlDrpbDDVhRv0xsJPXXNT9QtcX/jRDPR
-         p9lIsW6FLY/iOvH1XWle8MypHcAwM4AnrAsYbobA=
+        b=aLpiG4TWu3f77BmZDuFR29XrtrLhgvYCh17o08xtW7tNqUExifXo8/pzqHnUTeeWs
+         rQ0SRLh2C/HoD8/P69CuAWDuSJc4pRcL5N3W9TWwtp+GcQ/XIdeFt2IxjOuOOMv/eX
+         9B1AXE4w05dxWiVXjax3JxELAb+SfmgFKfd7VmKE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefano Brivio <sbrivio@redhat.com>,
-        NOYB <JunkYardMail1@Frontier.com>,
-        Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 039/105] ipset: Fix memory accounting for hash types on resize
-Date:   Mon, 15 Jul 2019 10:27:33 -0400
-Message-Id: <20190715142839.9896-39-sashal@kernel.org>
+Cc:     Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 042/105] media: fdp1: Support M3N and E3 platforms
+Date:   Mon, 15 Jul 2019 10:27:36 -0400
+Message-Id: <20190715142839.9896-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715142839.9896-1-sashal@kernel.org>
 References: <20190715142839.9896-1-sashal@kernel.org>
@@ -46,82 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Brivio <sbrivio@redhat.com>
+From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 
-[ Upstream commit 11921796f4799ca9c61c4b22cc54d84aa69f8a35 ]
+[ Upstream commit 4e8c120de9268fc26f583268b9d22e7d37c4595f ]
 
-If a fresh array block is allocated during resize, the current in-memory
-set size should be increased by the size of the block, not replaced by it.
+New Gen3 R-Car platforms incorporate the FDP1 with an updated version
+register. No code change is required to support these targets, but they
+will currently report an error stating that the device can not be
+identified.
 
-Before the fix, adding entries to a hash set type, leading to a table
-resize, caused an inconsistent memory size to be reported. This becomes
-more obvious when swapping sets with similar sizes:
+Update the driver to match against the new device types.
 
-  # cat hash_ip_size.sh
-  #!/bin/sh
-  FAIL_RETRIES=10
-
-  tries=0
-  while [ ${tries} -lt ${FAIL_RETRIES} ]; do
-  	ipset create t1 hash:ip
-  	for i in `seq 1 4345`; do
-  		ipset add t1 1.2.$((i / 255)).$((i % 255))
-  	done
-  	t1_init="$(ipset list t1|sed -n 's/Size in memory: \(.*\)/\1/p')"
-
-  	ipset create t2 hash:ip
-  	for i in `seq 1 4360`; do
-  		ipset add t2 1.2.$((i / 255)).$((i % 255))
-  	done
-  	t2_init="$(ipset list t2|sed -n 's/Size in memory: \(.*\)/\1/p')"
-
-  	ipset swap t1 t2
-  	t1_swap="$(ipset list t1|sed -n 's/Size in memory: \(.*\)/\1/p')"
-  	t2_swap="$(ipset list t2|sed -n 's/Size in memory: \(.*\)/\1/p')"
-
-  	ipset destroy t1
-  	ipset destroy t2
-  	tries=$((tries + 1))
-
-  	if [ ${t1_init} -lt 10000 ] || [ ${t2_init} -lt 10000 ]; then
-  		echo "FAIL after ${tries} tries:"
-  		echo "T1 size ${t1_init}, after swap ${t1_swap}"
-  		echo "T2 size ${t2_init}, after swap ${t2_swap}"
-  		exit 1
-  	fi
-  done
-  echo "PASS"
-  # echo -n 'func hash_ip4_resize +p' > /sys/kernel/debug/dynamic_debug/control
-  # ./hash_ip_size.sh
-  [ 2035.018673] attempt to resize set t1 from 10 to 11, t 00000000fe6551fa
-  [ 2035.078583] set t1 resized from 10 (00000000fe6551fa) to 11 (00000000172a0163)
-  [ 2035.080353] Table destroy by resize 00000000fe6551fa
-  FAIL after 4 tries:
-  T1 size 9064, after swap 71128
-  T2 size 71128, after swap 9064
-
-Reported-by: NOYB <JunkYardMail1@Frontier.com>
-Fixes: 9e41f26a505c ("netfilter: ipset: Count non-static extension memory for userspace")
-Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
+Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_hash_gen.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/rcar_fdp1.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/netfilter/ipset/ip_set_hash_gen.h b/net/netfilter/ipset/ip_set_hash_gen.h
-index dfd268166e42..42d9cd22447e 100644
---- a/net/netfilter/ipset/ip_set_hash_gen.h
-+++ b/net/netfilter/ipset/ip_set_hash_gen.h
-@@ -624,7 +624,7 @@ mtype_resize(struct ip_set *set, bool retried)
- 					goto cleanup;
- 				}
- 				m->size = AHASH_INIT_SIZE;
--				extsize = ext_size(AHASH_INIT_SIZE, dsize);
-+				extsize += ext_size(AHASH_INIT_SIZE, dsize);
- 				RCU_INIT_POINTER(hbucket(t, key), m);
- 			} else if (m->pos >= m->size) {
- 				struct hbucket *ht;
+diff --git a/drivers/media/platform/rcar_fdp1.c b/drivers/media/platform/rcar_fdp1.c
+index 3245bc45f4a0..a889332d5d30 100644
+--- a/drivers/media/platform/rcar_fdp1.c
++++ b/drivers/media/platform/rcar_fdp1.c
+@@ -261,6 +261,8 @@ MODULE_PARM_DESC(debug, "activate debug info");
+ #define FD1_IP_H3_ES1			0x02010101
+ #define FD1_IP_M3W			0x02010202
+ #define FD1_IP_H3			0x02010203
++#define FD1_IP_M3N			0x02010204
++#define FD1_IP_E3			0x02010205
+ 
+ /* LUTs */
+ #define FD1_LUT_DIF_ADJ			0x1000
+@@ -2369,6 +2371,12 @@ static int fdp1_probe(struct platform_device *pdev)
+ 	case FD1_IP_H3:
+ 		dprintk(fdp1, "FDP1 Version R-Car H3\n");
+ 		break;
++	case FD1_IP_M3N:
++		dprintk(fdp1, "FDP1 Version R-Car M3N\n");
++		break;
++	case FD1_IP_E3:
++		dprintk(fdp1, "FDP1 Version R-Car E3\n");
++		break;
+ 	default:
+ 		dev_err(fdp1->dev, "FDP1 Unidentifiable (0x%08x)\n",
+ 				hw_version);
 -- 
 2.20.1
 
