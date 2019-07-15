@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA5768CCE
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:54:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3ECB68CD0
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:54:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732014AbfGONxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52232 "EHLO mail.kernel.org"
+        id S1732453AbfGONx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:53:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731160AbfGONxv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:53:51 -0400
+        id S1732442AbfGONx4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:53:56 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 159562086C;
-        Mon, 15 Jul 2019 13:53:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84E202067C;
+        Mon, 15 Jul 2019 13:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198831;
-        bh=1dF/ARbYui17nQ5Nd4WIe51aiBJ8tsdirPBi3IENgb8=;
+        s=default; t=1563198835;
+        bh=GvqaO8Hfj0YZ4S9SDbciSuBjpZBuybUg36GS1rxr7mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bGgymOrGfrQ0usNR6fzx/TiVqpACcuJe3uyoFQtBdoqPwcHn7dKleIByovKNPwClV
-         l0HSSHcA4f4IyyBUv+HRGX3QEP0yB2fpRepAfVANSUuEv/SrqH/AtZxvL3kIh2cVOG
-         YCpR8x0eXjZvXj9eLEGmZ/e7L59aey+uApzHFHhU=
+        b=087873uw/4BcCTV1ksCIXhcvEYHZ5cSdi2/TQpoj+Ay3oxWF4d3odiOP7e2RRjAdy
+         v7w7XZo8YMPTM1A1ZvE8tjTzGdNM1+AlqioSbgVw45Di9OqV4Vwczu4Sha/JjQ2IEC
+         Xoou+WcOsOhG3DVTK+hC+/Ip8/JJMxqskwLdjiZA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, acme@kernel.org,
-        eranian@google.com, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 115/249] perf/x86/intel/uncore: Handle invalid event coding for free-running counter
-Date:   Mon, 15 Jul 2019 09:44:40 -0400
-Message-Id: <20190715134655.4076-115-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 116/249] integrity: Fix __integrity_init_keyring() section mismatch
+Date:   Mon, 15 Jul 2019 09:44:41 -0400
+Message-Id: <20190715134655.4076-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -46,69 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit 543ac280b3576c0009e8c0fcd4d6bfc9978d7bd0 ]
+[ Upstream commit 8c655784e2cf59cb6140759b8b546d98261d1ad9 ]
 
-Counting with invalid event coding for free-running counter may cause
-OOPs, e.g. uncore_iio_free_running_0/event=1/.
+With gcc-4.6.3:
 
-Current code only validate the event with free-running event format,
-event=0xff,umask=0xXY. Non-free-running event format never be checked
-for the PMU with free-running counters.
+    WARNING: vmlinux.o(.text.unlikely+0x24c64): Section mismatch in reference from the function __integrity_init_keyring() to the function .init.text:set_platform_trusted_keys()
+    The function __integrity_init_keyring() references
+    the function __init set_platform_trusted_keys().
+    This is often because __integrity_init_keyring lacks a __init
+    annotation or the annotation of set_platform_trusted_keys is wrong.
 
-Add generic hw_config() to check and reject the invalid event coding
-for free-running PMU.
+Indeed, if the compiler decides not to inline __integrity_init_keyring(),
+a warning is issued.
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: acme@kernel.org
-Cc: eranian@google.com
-Fixes: 0f519f0352e3 ("perf/x86/intel/uncore: Support IIO free-running counters on SKX")
-Link: https://lkml.kernel.org/r/1556672028-119221-2-git-send-email-kan.liang@linux.intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fix this by adding the missing __init annotation.
+
+Fixes: 9dc92c45177ab70e ("integrity: Define a trusted platform keyring")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Nayna Jain <nayna@linux.ibm.com>
+Reviewed-by: James Morris <jamorris@linux.microsoft.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore.h       | 10 ++++++++++
- arch/x86/events/intel/uncore_snbep.c |  1 +
- 2 files changed, 11 insertions(+)
+ security/integrity/digsig.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/events/intel/uncore.h b/arch/x86/events/intel/uncore.h
-index 79eb2e21e4f0..28499e39679f 100644
---- a/arch/x86/events/intel/uncore.h
-+++ b/arch/x86/events/intel/uncore.h
-@@ -419,6 +419,16 @@ static inline bool is_freerunning_event(struct perf_event *event)
- 	       (((cfg >> 8) & 0xff) >= UNCORE_FREERUNNING_UMASK_START);
+diff --git a/security/integrity/digsig.c b/security/integrity/digsig.c
+index 4582bc26770a..868ade3e8970 100644
+--- a/security/integrity/digsig.c
++++ b/security/integrity/digsig.c
+@@ -69,8 +69,9 @@ int integrity_digsig_verify(const unsigned int id, const char *sig, int siglen,
+ 	return -EOPNOTSUPP;
  }
  
-+/* Check and reject invalid config */
-+static inline int uncore_freerunning_hw_config(struct intel_uncore_box *box,
-+					       struct perf_event *event)
-+{
-+	if (is_freerunning_event(event))
-+		return 0;
-+
-+	return -EINVAL;
-+}
-+
- static inline void uncore_disable_box(struct intel_uncore_box *box)
+-static int __integrity_init_keyring(const unsigned int id, key_perm_t perm,
+-				    struct key_restriction *restriction)
++static int __init __integrity_init_keyring(const unsigned int id,
++					   key_perm_t perm,
++					   struct key_restriction *restriction)
  {
- 	if (box->pmu->type->ops->disable_box)
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index b10e04387f38..8e4e8e423839 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -3585,6 +3585,7 @@ static struct uncore_event_desc skx_uncore_iio_freerunning_events[] = {
- 
- static struct intel_uncore_ops skx_uncore_iio_freerunning_ops = {
- 	.read_counter		= uncore_msr_read_counter,
-+	.hw_config		= uncore_freerunning_hw_config,
- };
- 
- static struct attribute *skx_uncore_iio_freerunning_formats_attr[] = {
+ 	const struct cred *cred = current_cred();
+ 	int err = 0;
 -- 
 2.20.1
 
