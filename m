@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1DC16964C
+	by mail.lfdr.de (Postfix) with ESMTP id 82D1A6964B
 	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730939AbfGOOIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:08:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59674 "EHLO mail.kernel.org"
+        id S1732752AbfGOOJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:09:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388592AbfGOOIw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:08:52 -0400
+        id S2388023AbfGOOJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:09:02 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4862C2081C;
-        Mon, 15 Jul 2019 14:08:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50841206B8;
+        Mon, 15 Jul 2019 14:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199731;
-        bh=lk6I4aH5+0b+VVVofMZ3cbJ7lsWFwa2u5jH2KKaaD+A=;
+        s=default; t=1563199742;
+        bh=Y5Pmj2+oQEZubUh/yvHuQJ7rgntZxSpUFUtEXXVTMUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LCNUV+dLemhzamwpKhRy+dbEgZVdePTAlrw8dSJC4mD0MNCFrEFKo/bFdVLXj/PfA
-         yXDT4BonW7QmBqMasHaCeto2/y9Z3XOfY9beMT/tZbFwey39BGpsB3gcap113Eu6yg
-         jc0KHuE9GEffVYPkBCoG5sFQTZK7lTBzYbKQoe2E=
+        b=n+GyIBbT2Dp1abWcQfaW8Z3LyzjN2NopTyjpBKBLke9JNFiToICa2gB/guZJucUfC
+         xB0u/KVvZMVX0jZ6Oaoou6aV/9LgbwFc+VwZNyTDt7/1EqOD93qLHSG435c9plfyWE
+         iOqbRTkCPoOFsAcMm6TgvFq7HEhuDULDdqsI3ujc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>, bp@suse.de,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        platform-driver-x86@vger.kernel.org,
-        Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Len Brown <lenb@kernel.org>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 087/219] x86/cpu: Add Ice Lake NNPI to Intel family
-Date:   Mon, 15 Jul 2019 10:01:28 -0400
-Message-Id: <20190715140341.6443-87-sashal@kernel.org>
+Cc:     Aaron Lewis <aaronlewis@google.com>, Borislav Petkov <bp@suse.de>,
+        Jim Mattson <jmattson@google.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        marcorr@google.com, Peter Feiner <pfeiner@google.com>,
+        pshier@google.com, Robert Hoo <robert.hu@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Thomas Lendacky <Thomas.Lendacky@amd.com>,
+        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 090/219] x86/cpufeatures: Add FDP_EXCPTN_ONLY and ZERO_FCS_FDS
+Date:   Mon, 15 Jul 2019 10:01:31 -0400
+Message-Id: <20190715140341.6443-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -54,47 +51,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
+From: Aaron Lewis <aaronlewis@google.com>
 
-[ Upstream commit e32d045cd4ba06b59878323e434bad010e78e658 ]
+[ Upstream commit cbb99c0f588737ec98c333558922ce47e9a95827 ]
 
-Add the CPUID model number of Ice Lake Neural Network Processor for Deep
-Learning Inference (ICL-NNPI) to the Intel family list. Ice Lake NNPI uses
-model number 0x9D and this will be documented in a future version of Intel
-Software Development Manual.
+Add the CPUID enumeration for Intel's de-feature bits to accommodate
+passing these de-features through to kvm guests.
 
-Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: bp@suse.de
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+These de-features are (from SDM vol 1, section 8.1.8):
+ - X86_FEATURE_FDP_EXCPTN_ONLY: If CPUID.(EAX=07H,ECX=0H):EBX[bit 6] = 1, the
+   data pointer (FDP) is updated only for the x87 non-control instructions that
+   incur unmasked x87 exceptions.
+ - X86_FEATURE_ZERO_FCS_FDS: If CPUID.(EAX=07H,ECX=0H):EBX[bit 13] = 1, the
+   processor deprecates FCS and FDS; it saves each as 0000H.
+
+Signed-off-by: Aaron Lewis <aaronlewis@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Frederic Weisbecker <frederic@kernel.org>
 Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: platform-driver-x86@vger.kernel.org
-Cc: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Linux PM <linux-pm@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20190606012419.13250-1-rajneesh.bhardwaj@linux.intel.com
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: marcorr@google.com
+Cc: Peter Feiner <pfeiner@google.com>
+Cc: pshier@google.com
+Cc: Robert Hoo <robert.hu@linux.intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190605220252.103406-1-aaronlewis@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/intel-family.h | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/cpufeatures.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
-index 310118805f57..f60ddd655c78 100644
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -56,6 +56,7 @@
- #define INTEL_FAM6_ICELAKE_XEON_D	0x6C
- #define INTEL_FAM6_ICELAKE_DESKTOP	0x7D
- #define INTEL_FAM6_ICELAKE_MOBILE	0x7E
-+#define INTEL_FAM6_ICELAKE_NNPI		0x9D
- 
- /* "Small Core" Processors (Atom) */
- 
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index 75f27ee2c263..1017b9c7dfe0 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -239,12 +239,14 @@
+ #define X86_FEATURE_BMI1		( 9*32+ 3) /* 1st group bit manipulation extensions */
+ #define X86_FEATURE_HLE			( 9*32+ 4) /* Hardware Lock Elision */
+ #define X86_FEATURE_AVX2		( 9*32+ 5) /* AVX2 instructions */
++#define X86_FEATURE_FDP_EXCPTN_ONLY	( 9*32+ 6) /* "" FPU data pointer updated only on x87 exceptions */
+ #define X86_FEATURE_SMEP		( 9*32+ 7) /* Supervisor Mode Execution Protection */
+ #define X86_FEATURE_BMI2		( 9*32+ 8) /* 2nd group bit manipulation extensions */
+ #define X86_FEATURE_ERMS		( 9*32+ 9) /* Enhanced REP MOVSB/STOSB instructions */
+ #define X86_FEATURE_INVPCID		( 9*32+10) /* Invalidate Processor Context ID */
+ #define X86_FEATURE_RTM			( 9*32+11) /* Restricted Transactional Memory */
+ #define X86_FEATURE_CQM			( 9*32+12) /* Cache QoS Monitoring */
++#define X86_FEATURE_ZERO_FCS_FDS	( 9*32+13) /* "" Zero out FPU CS and FPU DS */
+ #define X86_FEATURE_MPX			( 9*32+14) /* Memory Protection Extension */
+ #define X86_FEATURE_RDT_A		( 9*32+15) /* Resource Director Technology Allocation */
+ #define X86_FEATURE_AVX512F		( 9*32+16) /* AVX-512 Foundation */
 -- 
 2.20.1
 
