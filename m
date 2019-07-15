@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B2A068CB7
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A84C68CBB
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:53:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732372AbfGONx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:53:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51566 "EHLO mail.kernel.org"
+        id S1731851AbfGONxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:53:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732391AbfGONx2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:53:28 -0400
+        id S1731352AbfGONxd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:53:33 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A4FF2081C;
-        Mon, 15 Jul 2019 13:53:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EAFA2083D;
+        Mon, 15 Jul 2019 13:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198807;
-        bh=S0bbORhRFnIJAGx6S1IDtqfVKMPjhZ7N064ANcYDjt4=;
+        s=default; t=1563198813;
+        bh=J3RpHfwQRjznVCVp7vD3P6Q2TVEj4ZYGGElLDfqm4KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ohnBMqOAssAX8FTDqtpXry2lek+OzAJCAtIZb60NLfOe0+gvcoME0Vys2bqrGtjUz
-         B3toanC9SuPoO38gv9wvOuFxIa0gqFRUUonIRfX8VigGUyKWwX1bAP95Xs15Rnvw6x
-         0Gpw/aNBcBEKGnAHHxeTIHTUpHk7hLr1ixr/Oas0=
+        b=EWX+xhkWswNnBQ4uhYtnO1wtTdrZRwU5bipIwbp1WdHMOLDUQ7VclJKzLVwEtDNU3
+         mIUOtAgAxf2P3tAvbKU/axjXLhpYzMYvB3F8I9w+59xR9zG9PlkJSEzUNWwfVL6KQf
+         KQ0/++pByAc6cAiQQRg2hcOR+SBMUSInPh99H76M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Anirudh Gupta <anirudh.gupta@sophos.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 110/249] xfrm: fix sa selector validation
-Date:   Mon, 15 Jul 2019 09:44:35 -0400
-Message-Id: <20190715134655.4076-110-sashal@kernel.org>
+Cc:     Gao Xiang <gaoxiang25@huawei.com>,
+        Jilong Kou <koujilong@huawei.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Tejun Heo <tj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Miao Xie <miaoxie@huawei.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 111/249] sched/core: Add __sched tag for io_schedule()
+Date:   Mon, 15 Jul 2019 09:44:36 -0400
+Message-Id: <20190715134655.4076-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -45,42 +49,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-[ Upstream commit b8d6d0079757cbd1b69724cfd1c08e2171c68cee ]
+[ Upstream commit e3b929b0a184edb35531153c5afcaebb09014f9d ]
 
-After commit b38ff4075a80, the following command does not work anymore:
-$ ip xfrm state add src 10.125.0.2 dst 10.125.0.1 proto esp spi 34 reqid 1 \
-  mode tunnel enc 'cbc(aes)' 0xb0abdba8b782ad9d364ec81e3a7d82a1 auth-trunc \
-  'hmac(sha1)' 0xe26609ebd00acb6a4d51fca13e49ea78a72c73e6 96 flag align4
+Non-inline io_schedule() was introduced in:
 
-In fact, the selector is not mandatory, allow the user to provide an empty
-selector.
+  commit 10ab56434f2f ("sched/core: Separate out io_schedule_prepare() and io_schedule_finish()")
 
-Fixes: b38ff4075a80 ("xfrm: Fix xfrm sel prefix length validation")
-CC: Anirudh Gupta <anirudh.gupta@sophos.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Keep in line with io_schedule_timeout(), otherwise "/proc/<pid>/wchan" will
+report io_schedule() rather than its callers when waiting for IO.
+
+Reported-by: Jilong Kou <koujilong@huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Tejun Heo <tj@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Miao Xie <miaoxie@huawei.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 10ab56434f2f ("sched/core: Separate out io_schedule_prepare() and io_schedule_finish()")
+Link: https://lkml.kernel.org/r/20190603091338.2695-1-gaoxiang25@huawei.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_user.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/sched/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index 76ad7e201626..b88ba45ff1ac 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -167,6 +167,9 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
- 	}
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 874c427742a9..4d5962232a55 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -5123,7 +5123,7 @@ long __sched io_schedule_timeout(long timeout)
+ }
+ EXPORT_SYMBOL(io_schedule_timeout);
  
- 	switch (p->sel.family) {
-+	case AF_UNSPEC:
-+		break;
-+
- 	case AF_INET:
- 		if (p->sel.prefixlen_d > 32 || p->sel.prefixlen_s > 32)
- 			goto out;
+-void io_schedule(void)
++void __sched io_schedule(void)
+ {
+ 	int token;
+ 
 -- 
 2.20.1
 
