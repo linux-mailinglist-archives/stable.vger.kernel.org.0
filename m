@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE33B69623
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:03:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 896366961E
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388910AbfGOOKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:10:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41682 "EHLO mail.kernel.org"
+        id S1732181AbfGOOLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:11:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731456AbfGOOKs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:10:48 -0400
+        id S1730611AbfGOOLj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:11:39 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2E9C21530;
-        Mon, 15 Jul 2019 14:10:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEFF62083D;
+        Mon, 15 Jul 2019 14:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199847;
-        bh=k/xVOyM0I0xVwuzQ+tzfU7zBmoYP57drWfdquu2hkQU=;
+        s=default; t=1563199898;
+        bh=N2O9oM/A7UqhhFm9gfJXS9/D20ABDg79x3bi4xecaog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nffz52FeHCmmZEGJUmVn0BkjZPjMYKYtb+VPNwgo8H8cZ9H8GzTU6syt+k8BJHKWm
-         0E2y70V4gsTkWK6XsH0RhTIN8ezJAvkv6tqZgVbMnxfqmya86lfSNUvnInMaEdlw0R
-         zw58VP2bqHWmLEqf2vv8xF4yfFn/D9w8yddI3Sng=
+        b=IJOrRaSvP66oQrQfSmauGtm1IK35tW9tO6OlPKeseHRCInT394AGEU/avotLT37uZ
+         3h9vn6ht0jU6G6+reo7zMMH7hpkih6d66c4OzIWL3Y6bsGkxtmxgpGfRhI00+GCS0X
+         3XrJITSX36UjxJL/gsPXDN39vxO3kJwevZQDZhT8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 124/219] ipsec: select crypto ciphers for xfrm_algo
-Date:   Mon, 15 Jul 2019 10:02:05 -0400
-Message-Id: <20190715140341.6443-124-sashal@kernel.org>
+Cc:     Robert Jarzmik <robert.jarzmik@free.fr>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 130/219] media: mt9m111: fix fw-node refactoring
+Date:   Mon, 15 Jul 2019 10:02:11 -0400
+Message-Id: <20190715140341.6443-130-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -44,43 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
 
-[ Upstream commit 597179b0ba550bd83fab1a9d57c42a9343c58514 ]
+[ Upstream commit 8d4e29a51a954b43e06d916772fa4f50b7e5bbd6 ]
 
-kernelci.org reports failed builds on arc because of what looks
-like an old missed 'select' statement:
+In the patch refactoring the fw-node, the mt9m111 was broken for all
+platform_data based platforms, which were the first aim of this
+driver. Only the devicetree platform are still functional, probably
+because the testing was done on these.
 
-net/xfrm/xfrm_algo.o: In function `xfrm_probe_algs':
-xfrm_algo.c:(.text+0x1e8): undefined reference to `crypto_has_ahash'
+The result is that -EINVAL is systematically return for such platforms,
+what this patch fixes.
 
-I don't see this in randconfig builds on other architectures, but
-it's fairly clear we want to select the hash code for it, like we
-do for all its other users. As Herbert points out, CRYPTO_BLKCIPHER
-is also required even though it has not popped up in build tests.
+[Sakari Ailus: Rework this to resolve a merge conflict and use dev_fwnode]
 
-Fixes: 17bc19702221 ("ipsec: Use skcipher and ahash when probing algorithms")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 98480d65c48c ("media: mt9m111: allow to setup pixclk polarity")
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/i2c/mt9m111.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/xfrm/Kconfig b/net/xfrm/Kconfig
-index 5d43aaa17027..831668ee8229 100644
---- a/net/xfrm/Kconfig
-+++ b/net/xfrm/Kconfig
-@@ -14,6 +14,8 @@ config XFRM_ALGO
- 	tristate
- 	select XFRM
- 	select CRYPTO
-+	select CRYPTO_HASH
-+	select CRYPTO_BLKCIPHER
+diff --git a/drivers/media/i2c/mt9m111.c b/drivers/media/i2c/mt9m111.c
+index 5168bb5880c4..3a543e435e61 100644
+--- a/drivers/media/i2c/mt9m111.c
++++ b/drivers/media/i2c/mt9m111.c
+@@ -1248,9 +1248,11 @@ static int mt9m111_probe(struct i2c_client *client,
+ 	if (!mt9m111)
+ 		return -ENOMEM;
  
- config XFRM_USER
- 	tristate "Transformation user configuration interface"
+-	ret = mt9m111_probe_fw(client, mt9m111);
+-	if (ret)
+-		return ret;
++	if (dev_fwnode(&client->dev)) {
++		ret = mt9m111_probe_fw(client, mt9m111);
++		if (ret)
++			return ret;
++	}
+ 
+ 	mt9m111->clk = v4l2_clk_get(&client->dev, "mclk");
+ 	if (IS_ERR(mt9m111->clk))
 -- 
 2.20.1
 
