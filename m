@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3BB7695CA
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 167A1695C6
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:00:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389629AbfGOOPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:15:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60474 "EHLO mail.kernel.org"
+        id S2389655AbfGOOQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:16:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389609AbfGOOPz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:15:55 -0400
+        id S2388728AbfGOOQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:16:03 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91CB620651;
-        Mon, 15 Jul 2019 14:15:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E033212F5;
+        Mon, 15 Jul 2019 14:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200154;
-        bh=mY7D8/gCTrXjHI3QyCz3C15Z32xtPG47mtQJi4xlVH0=;
+        s=default; t=1563200162;
+        bh=cNuXwgW7cfsVapYE8pTdKebxsF8N8vLFuZqgQkmSg4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tpyanCDRbdL0TuSvBVOw9UhU6rJORrHX7fd+0AMLEVchlllGEn+yZQFpNhfywXdpI
-         3xb4FkJczLNF+oyVguKVhlHbBG/iZH/ChTrz81i6iGRKczUwwuWqmG+BW4gCiQNXud
-         DJQZJSfJKFkg8S/BhbtsT/iQfQsG3jeqCUP+4WFE=
+        b=ByKSyNMJgmIIT0v+PICtoMOx8Nc8eChmSirQ9q5W1zuWhP1kjjHccuRn2rOrwP7fd
+         5z+FmPPSMvphcH+UXkHHS2JFvFhhfumsvEZmA1aH0GDihXVj/AhBV5CPBMHEdxRQo2
+         7i90bq9fzeUXZ7cfL/m1RhshDvZq92y/WJgFAqoM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andriin@fb.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Yonghong Song <yhs@fb.com>,
+Cc:     Jiri Benc <jbenc@redhat.com>, Yonghong Song <yhs@fb.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 196/219] libbpf: fix GCC8 warning for strncpy
-Date:   Mon, 15 Jul 2019 10:03:17 -0400
-Message-Id: <20190715140341.6443-196-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.1 198/219] selftests: bpf: fix inlines in test_lwt_seg6local
+Date:   Mon, 15 Jul 2019 10:03:19 -0400
+Message-Id: <20190715140341.6443-198-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -46,39 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Jiri Benc <jbenc@redhat.com>
 
-[ Upstream commit cdfc7f888c2a355b01308e97c6df108f1c2b64e8 ]
+[ Upstream commit 11aca65ec4db09527d3e9b6b41a0615b7da4386b ]
 
-GCC8 started emitting warning about using strncpy with number of bytes
-exactly equal destination size, which is generally unsafe, as can lead
-to non-zero terminated string being copied. Use IFNAMSIZ - 1 as number
-of bytes to ensure name is always zero-terminated.
+Selftests are reporting this failure in test_lwt_seg6local.sh:
 
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Cc: Magnus Karlsson <magnus.karlsson@intel.com>
++ ip netns exec ns2 ip -6 route add fb00::6 encap bpf in obj test_lwt_seg6local.o sec encap_srh dev veth2
+Error fetching program/map!
+Failed to parse eBPF program: Operation not permitted
+
+The problem is __attribute__((always_inline)) alone is not enough to prevent
+clang from inserting those functions in .text. In that case, .text is not
+marked as relocateable.
+
+See the output of objdump -h test_lwt_seg6local.o:
+
+Idx Name          Size      VMA               LMA               File off  Algn
+  0 .text         00003530  0000000000000000  0000000000000000  00000040  2**3
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+
+This causes the iproute bpf loader to fail in bpf_fetch_prog_sec:
+bpf_has_call_data returns true but bpf_fetch_prog_relo fails as there's no
+relocateable .text section in the file.
+
+To fix this, convert to 'static __always_inline'.
+
+v2: Use 'static __always_inline' instead of 'static inline
+    __attribute__((always_inline))'
+
+Fixes: c99a84eac026 ("selftests/bpf: test for seg6local End.BPF action")
+Signed-off-by: Jiri Benc <jbenc@redhat.com>
 Acked-by: Yonghong Song <yhs@fb.com>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/xsk.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../testing/selftests/bpf/progs/test_lwt_seg6local.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/tools/lib/bpf/xsk.c b/tools/lib/bpf/xsk.c
-index af5f310ecca1..1fe0e1eec738 100644
---- a/tools/lib/bpf/xsk.c
-+++ b/tools/lib/bpf/xsk.c
-@@ -336,7 +336,8 @@ static int xsk_get_max_queues(struct xsk_socket *xsk)
+diff --git a/tools/testing/selftests/bpf/progs/test_lwt_seg6local.c b/tools/testing/selftests/bpf/progs/test_lwt_seg6local.c
+index 0575751bc1bc..e2f6ed0a583d 100644
+--- a/tools/testing/selftests/bpf/progs/test_lwt_seg6local.c
++++ b/tools/testing/selftests/bpf/progs/test_lwt_seg6local.c
+@@ -61,7 +61,7 @@ struct sr6_tlv_t {
+ 	unsigned char value[0];
+ } BPF_PACKET_HEADER;
  
- 	channels.cmd = ETHTOOL_GCHANNELS;
- 	ifr.ifr_data = (void *)&channels;
--	strncpy(ifr.ifr_name, xsk->ifname, IFNAMSIZ);
-+	strncpy(ifr.ifr_name, xsk->ifname, IFNAMSIZ - 1);
-+	ifr.ifr_name[IFNAMSIZ - 1] = '\0';
- 	err = ioctl(fd, SIOCETHTOOL, &ifr);
- 	if (err && errno != EOPNOTSUPP) {
- 		ret = -errno;
+-__attribute__((always_inline)) struct ip6_srh_t *get_srh(struct __sk_buff *skb)
++static __always_inline struct ip6_srh_t *get_srh(struct __sk_buff *skb)
+ {
+ 	void *cursor, *data_end;
+ 	struct ip6_srh_t *srh;
+@@ -95,7 +95,7 @@ __attribute__((always_inline)) struct ip6_srh_t *get_srh(struct __sk_buff *skb)
+ 	return srh;
+ }
+ 
+-__attribute__((always_inline))
++static __always_inline
+ int update_tlv_pad(struct __sk_buff *skb, uint32_t new_pad,
+ 		   uint32_t old_pad, uint32_t pad_off)
+ {
+@@ -125,7 +125,7 @@ int update_tlv_pad(struct __sk_buff *skb, uint32_t new_pad,
+ 	return 0;
+ }
+ 
+-__attribute__((always_inline))
++static __always_inline
+ int is_valid_tlv_boundary(struct __sk_buff *skb, struct ip6_srh_t *srh,
+ 			  uint32_t *tlv_off, uint32_t *pad_size,
+ 			  uint32_t *pad_off)
+@@ -184,7 +184,7 @@ int is_valid_tlv_boundary(struct __sk_buff *skb, struct ip6_srh_t *srh,
+ 	return 0;
+ }
+ 
+-__attribute__((always_inline))
++static __always_inline
+ int add_tlv(struct __sk_buff *skb, struct ip6_srh_t *srh, uint32_t tlv_off,
+ 	    struct sr6_tlv_t *itlv, uint8_t tlv_size)
+ {
+@@ -228,7 +228,7 @@ int add_tlv(struct __sk_buff *skb, struct ip6_srh_t *srh, uint32_t tlv_off,
+ 	return update_tlv_pad(skb, new_pad, pad_size, pad_off);
+ }
+ 
+-__attribute__((always_inline))
++static __always_inline
+ int delete_tlv(struct __sk_buff *skb, struct ip6_srh_t *srh,
+ 	       uint32_t tlv_off)
+ {
+@@ -266,7 +266,7 @@ int delete_tlv(struct __sk_buff *skb, struct ip6_srh_t *srh,
+ 	return update_tlv_pad(skb, new_pad, pad_size, pad_off);
+ }
+ 
+-__attribute__((always_inline))
++static __always_inline
+ int has_egr_tlv(struct __sk_buff *skb, struct ip6_srh_t *srh)
+ {
+ 	int tlv_offset = sizeof(struct ip6_t) + sizeof(struct ip6_srh_t) +
 -- 
 2.20.1
 
