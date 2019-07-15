@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A8346974A
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:10:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA4B169761
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:10:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731451AbfGONzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:55:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59152 "EHLO mail.kernel.org"
+        id S1731643AbfGOPKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 11:10:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731587AbfGONzl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:55:41 -0400
+        id S1732227AbfGONzr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:55:47 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD5A820C01;
-        Mon, 15 Jul 2019 13:55:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 107D2217F4;
+        Mon, 15 Jul 2019 13:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198939;
-        bh=JoOoM4IFxjgNA5WcvONTNApk+txBBUQJdK/fiktlUp4=;
+        s=default; t=1563198946;
+        bh=6vsR90dX+zeuY7yLntA9B8uR19cXJG+V+8a3ZxCUzOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y/u2l0uVQ7nwXvi4HOdTmZn3rvs7zTpOb3wUfQSCL7MS4SPENNhNDQdVeKfo6AA1y
-         TpoLrp0ZK/GvCLOID+HQbCfNzjAWpfrcuVdGK1M3nHIMeesByn4CgxNrZPeaxuPR1s
-         Cup25hrdL+MwU7T08/9Ywh/VxTy/GQa5RQ7YtmUI=
+        b=YrvheWHO4TN1PoMZ6qQlAdJpmkLCE6NyAzBHe70wxnewlqodl+2guCVvYCDn0mCVY
+         DChol76H/USlH1qk/5wc6iMg4TJMCo6oGxFbZg8zjf8hebtq0jajgH9HqcEq3pmZ9s
+         D1cDnNQNKfBEBhcE0qCGIC9HcDleCZtDtxfJ+Uq8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Huckleberry <nhuck@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        john.stultz@linaro.org, sboyd@kernel.org,
-        clang-built-linux@googlegroups.com, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 147/249] timer_list: Guard procfs specific code
-Date:   Mon, 15 Jul 2019 09:45:12 -0400
-Message-Id: <20190715134655.4076-147-sashal@kernel.org>
+Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 149/249] ASoC: soc-core: call snd_soc_unbind_card() under mutex_lock;
+Date:   Mon, 15 Jul 2019 09:45:14 -0400
+Message-Id: <20190715134655.4076-149-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -45,89 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit a9314773a91a1d3b36270085246a6715a326ff00 ]
+[ Upstream commit b545542a0b866f7975254e41c595836e9bc0ff2f ]
 
-With CONFIG_PROC_FS=n the following warning is emitted:
+commit 34ac3c3eb8f0c07 ("ASoC: core: lock client_mutex while removing
+link components") added mutex_lock() at soc_remove_link_components().
 
-kernel/time/timer_list.c:361:36: warning: unused variable
-'timer_list_sops' [-Wunused-const-variable]
-   static const struct seq_operations timer_list_sops = {
+Is is called from snd_soc_unbind_card()
 
-Add #ifdef guard around procfs specific code.
+	snd_soc_unbind_card()
+=>		soc_remove_link_components()
+		soc_cleanup_card_resources()
+			soc_remove_dai_links()
+=>				soc_remove_link_components()
 
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: john.stultz@linaro.org
-Cc: sboyd@kernel.org
-Cc: clang-built-linux@googlegroups.com
-Link: https://github.com/ClangBuiltLinux/linux/issues/534
-Link: https://lkml.kernel.org/r/20190614181604.112297-1-nhuck@google.com
+And, there are 2 way to call it.
+
+(1)
+	snd_soc_unregister_component()
+**		mutex_lock()
+			snd_soc_component_del_unlocked()
+=>				snd_soc_unbind_card()
+**		mutex_unlock()
+
+(2)
+	snd_soc_unregister_card()
+=>		snd_soc_unbind_card()
+
+(1) case is already using mutex_lock() when it calles
+snd_soc_unbind_card(), thus, we will get lockdep warning.
+
+commit 495f926c68ddb90 ("ASoC: core: Fix deadlock in
+snd_soc_instantiate_card()") tried to fixup it, but still not
+enough. We still have lockdep warning when we try unbind/bind.
+
+We need mutex_lock() under snd_soc_unregister_card()
+instead of snd_remove_link_components()/snd_soc_unbind_card().
+
+Fixes: 34ac3c3eb8f0c07 ("ASoC: core: lock client_mutex while removing link components")
+Fixes: 495f926c68ddb90 ("ASoC: core: Fix deadlock in snd_soc_instantiate_card()")
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/timer_list.c | 36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
+ sound/soc/soc-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/time/timer_list.c b/kernel/time/timer_list.c
-index 98ba50dcb1b2..acb326f5f50a 100644
---- a/kernel/time/timer_list.c
-+++ b/kernel/time/timer_list.c
-@@ -282,23 +282,6 @@ static inline void timer_list_header(struct seq_file *m, u64 now)
- 	SEQ_printf(m, "\n");
- }
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 41c0cfaf2db5..9138fcb15cd3 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -2837,14 +2837,12 @@ static void snd_soc_unbind_card(struct snd_soc_card *card, bool unregister)
+ 		snd_soc_dapm_shutdown(card);
+ 		snd_soc_flush_all_delayed_work(card);
  
--static int timer_list_show(struct seq_file *m, void *v)
--{
--	struct timer_list_iter *iter = v;
--
--	if (iter->cpu == -1 && !iter->second_pass)
--		timer_list_header(m, iter->now);
--	else if (!iter->second_pass)
--		print_cpu(m, iter->cpu, iter->now);
--#ifdef CONFIG_GENERIC_CLOCKEVENTS
--	else if (iter->cpu == -1 && iter->second_pass)
--		timer_list_show_tickdevices_header(m);
--	else
--		print_tickdevice(m, tick_get_device(iter->cpu), iter->cpu);
--#endif
--	return 0;
--}
--
- void sysrq_timer_list_show(void)
- {
- 	u64 now = ktime_to_ns(ktime_get());
-@@ -317,6 +300,24 @@ void sysrq_timer_list_show(void)
- 	return;
- }
+-		mutex_lock(&client_mutex);
+ 		/* remove all components used by DAI links on this card */
+ 		for_each_comp_order(order) {
+ 			for_each_card_rtds(card, rtd) {
+ 				soc_remove_link_components(card, rtd, order);
+ 			}
+ 		}
+-		mutex_unlock(&client_mutex);
  
-+#ifdef CONFIG_PROC_FS
-+static int timer_list_show(struct seq_file *m, void *v)
-+{
-+	struct timer_list_iter *iter = v;
-+
-+	if (iter->cpu == -1 && !iter->second_pass)
-+		timer_list_header(m, iter->now);
-+	else if (!iter->second_pass)
-+		print_cpu(m, iter->cpu, iter->now);
-+#ifdef CONFIG_GENERIC_CLOCKEVENTS
-+	else if (iter->cpu == -1 && iter->second_pass)
-+		timer_list_show_tickdevices_header(m);
-+	else
-+		print_tickdevice(m, tick_get_device(iter->cpu), iter->cpu);
-+#endif
-+	return 0;
-+}
-+
- static void *move_iter(struct timer_list_iter *iter, loff_t offset)
+ 		soc_cleanup_card_resources(card);
+ 		if (!unregister)
+@@ -2863,7 +2861,9 @@ static void snd_soc_unbind_card(struct snd_soc_card *card, bool unregister)
+  */
+ int snd_soc_unregister_card(struct snd_soc_card *card)
  {
- 	for (; offset; offset--) {
-@@ -376,3 +377,4 @@ static int __init init_timer_list_procfs(void)
++	mutex_lock(&client_mutex);
+ 	snd_soc_unbind_card(card, true);
++	mutex_unlock(&client_mutex);
+ 	dev_dbg(card->dev, "ASoC: Unregistered card '%s'\n", card->name);
+ 
  	return 0;
- }
- __initcall(init_timer_list_procfs);
-+#endif
 -- 
 2.20.1
 
