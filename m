@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6BA368F69
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:14:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1F0D68F74
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:14:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389087AbfGOOOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:14:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55858 "EHLO mail.kernel.org"
+        id S1730688AbfGOOOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:14:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389307AbfGOOOS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:14:18 -0400
+        id S2389370AbfGOOOc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:14:32 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7253212F5;
-        Mon, 15 Jul 2019 14:14:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76C7A20651;
+        Mon, 15 Jul 2019 14:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200057;
-        bh=FHM3ABfh/RUD+fZcA9PBQ27KnHYDHp3MQWzw8dG8eb8=;
+        s=default; t=1563200071;
+        bh=TQbRXzfc5WhIRgOGMu7vtqmyzHneb22EBvCzCpUcghY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k3YBtfeBumUBaRTTgHOGxOzF4Gg6WmLRJvCqOzzykEbsUikpmooYofnYzIy18HyCN
-         4/FmI0JrgGcQdGHebnZgaluzte00417Ygpq6F1cvnD0ZNBixfUL/r2N1UBXBmxQ45e
-         stWYOEYTm5XeGGYcI4Ra4cJPe6uEBV2/OQzc+LXc=
+        b=AQuHu+Cni1zEqqS/KcRXbXC41yhDwO7vjvr8mnJ4OGWExvgavDJVjgD+fUOjNSc0X
+         QkXaawhSLlrUxT7k9v2Md0BQeQQhqjtgc5cuGXTcpDbg+clHT/CaJpQmmhndBFyOu2
+         /JSwk8rBFXIgh5j+v/uIDCFEVJrg4rHRDD2ACNuE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yonglong Liu <liuyonglong@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
+Cc:     Maxime Chevallier <maxime.chevallier@bootlin.com>,
+        Alan Winkowski <walan@marvell.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 173/219] net: hns3: fix a -Wformat-nonliteral compile warning
-Date:   Mon, 15 Jul 2019 10:02:54 -0400
-Message-Id: <20190715140341.6443-173-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 177/219] net: mvpp2: prs: Don't override the sign bit in SRAM parser shift
+Date:   Mon, 15 Jul 2019 10:02:58 -0400
+Message-Id: <20190715140341.6443-177-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -45,44 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglong Liu <liuyonglong@huawei.com>
+From: Maxime Chevallier <maxime.chevallier@bootlin.com>
 
-[ Upstream commit 18d219b783da61a6cc77581f55fc4af2fa16bc36 ]
+[ Upstream commit 8ec3ede559956f8ad58db7b57d25ac724bab69e9 ]
 
-When setting -Wformat=2, there is a compiler warning like this:
+The Header Parser allows identifying various fields in the packet
+headers, used for various kind of filtering and classification
+steps.
 
-hclge_main.c:xxx:x: warning: format not a string literal and no
-format arguments [-Wformat-nonliteral]
-strs[i].desc);
-^~~~
+This is a re-entrant process, where the offset in the packet header
+depends on the previous lookup results. This offset is represented in
+the SRAM results of the TCAM, as a shift to be operated.
 
-This patch adds missing format parameter "%s" to snprintf() to
-fix it.
+This shift can be negative in some cases, such as in IPv6 parsing.
 
-Fixes: 46a3df9f9718 ("Add HNS3 Acceleration Engine & Compatibility Layer Support")
-Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+This commit prevents overriding the sign bit when setting the shift
+value, which could cause instabilities when parsing IPv6 flows.
+
+Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
+Suggested-by: Alan Winkowski <walan@marvell.com>
+Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 6d4d5a470163..563eefa20003 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -550,8 +550,7 @@ static u8 *hclge_comm_get_strings(u32 stringset,
- 		return buff;
- 
- 	for (i = 0; i < size; i++) {
--		snprintf(buff, ETH_GSTRING_LEN,
--			 strs[i].desc);
-+		snprintf(buff, ETH_GSTRING_LEN, "%s", strs[i].desc);
- 		buff = buff + ETH_GSTRING_LEN;
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
+index ae2240074d8e..5692c6087bbb 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_prs.c
+@@ -312,7 +312,8 @@ static void mvpp2_prs_sram_shift_set(struct mvpp2_prs_entry *pe, int shift,
  	}
  
+ 	/* Set value */
+-	pe->sram[MVPP2_BIT_TO_WORD(MVPP2_PRS_SRAM_SHIFT_OFFS)] = shift & MVPP2_PRS_SRAM_SHIFT_MASK;
++	pe->sram[MVPP2_BIT_TO_WORD(MVPP2_PRS_SRAM_SHIFT_OFFS)] |=
++		shift & MVPP2_PRS_SRAM_SHIFT_MASK;
+ 
+ 	/* Reset and set operation */
+ 	mvpp2_prs_sram_bits_clear(pe, MVPP2_PRS_SRAM_OP_SEL_SHIFT_OFFS,
 -- 
 2.20.1
 
