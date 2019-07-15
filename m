@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACEBE69338
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95BA36933C
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403845AbfGOOjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:39:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38024 "EHLO mail.kernel.org"
+        id S2392246AbfGOOjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:39:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403983AbfGOOjE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:39:04 -0400
+        id S2391901AbfGOOjQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:39:16 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2E83205ED;
-        Mon, 15 Jul 2019 14:39:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7188A2086C;
+        Mon, 15 Jul 2019 14:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201543;
-        bh=RohGiK8Y09Et6Cvd0nGclYoHPCkz1EwXR5xS6Zllcu4=;
+        s=default; t=1563201555;
+        bh=FSZoq9WrIW60R8uTCwm1dsGcg3a3pKKxZCGZIwUgr7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eCU8NwHaFf0NbgdH4DwQctjkUDpV2l3lhy5gpkJ9n3q8LWdrfR9+QZVjaXbo+xeFT
-         NdM48WT662xLUa2U9y7PQ1UxpKCiNdUkNHmQS6IyEjbAu9OjwMlVNj28x2lvVozB/9
-         pU+B0ABE/9zZ4UJrRhkegJrrAHvjQHJzozhsIc9c=
+        b=LL1unzeYM9KVRkaJcDd/Co61vjByfDxzd/4O4kTth3nYe7Pm41b/CoYEqKT4QygAD
+         jySGWVNy46OVejwDCME/pYC6FhXN0FSV1yT0L1hZpfSrPVhS/x96GXWsuR5ph0l5EV
+         d3aKto+D+heEIToiC/Y20yPhnd1HGKXH6slFO65M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Anirudh Gupta <anirudh.gupta@sophos.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 39/73] xfrm: fix sa selector validation
-Date:   Mon, 15 Jul 2019 10:35:55 -0400
-Message-Id: <20190715143629.10893-39-sashal@kernel.org>
+Cc:     Jason Wang <jasowang@redhat.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 41/73] vhost_net: disable zerocopy by default
+Date:   Mon, 15 Jul 2019 10:35:57 -0400
+Message-Id: <20190715143629.10893-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
 References: <20190715143629.10893-1-sashal@kernel.org>
@@ -45,42 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Jason Wang <jasowang@redhat.com>
 
-[ Upstream commit b8d6d0079757cbd1b69724cfd1c08e2171c68cee ]
+[ Upstream commit 098eadce3c622c07b328d0a43dda379b38cf7c5e ]
 
-After commit b38ff4075a80, the following command does not work anymore:
-$ ip xfrm state add src 10.125.0.2 dst 10.125.0.1 proto esp spi 34 reqid 1 \
-  mode tunnel enc 'cbc(aes)' 0xb0abdba8b782ad9d364ec81e3a7d82a1 auth-trunc \
-  'hmac(sha1)' 0xe26609ebd00acb6a4d51fca13e49ea78a72c73e6 96 flag align4
+Vhost_net was known to suffer from HOL[1] issues which is not easy to
+fix. Several downstream disable the feature by default. What's more,
+the datapath was split and datacopy path got the support of batching
+and XDP support recently which makes it faster than zerocopy part for
+small packets transmission.
 
-In fact, the selector is not mandatory, allow the user to provide an empty
-selector.
+It looks to me that disable zerocopy by default is more
+appropriate. It cold be enabled by default again in the future if we
+fix the above issues.
 
-Fixes: b38ff4075a80 ("xfrm: Fix xfrm sel prefix length validation")
-CC: Anirudh Gupta <anirudh.gupta@sophos.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+[1] https://patchwork.kernel.org/patch/3787671/
+
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_user.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/vhost/net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index df4b7fc721f6..f3e9d500fa5a 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -166,6 +166,9 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
- 	}
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 681d0eade82f..75e1089dfb01 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -30,7 +30,7 @@
  
- 	switch (p->sel.family) {
-+	case AF_UNSPEC:
-+		break;
-+
- 	case AF_INET:
- 		if (p->sel.prefixlen_d > 32 || p->sel.prefixlen_s > 32)
- 			goto out;
+ #include "vhost.h"
+ 
+-static int experimental_zcopytx = 1;
++static int experimental_zcopytx = 0;
+ module_param(experimental_zcopytx, int, 0444);
+ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+ 		                       " 1 -Enable; 0 - Disable");
 -- 
 2.20.1
 
