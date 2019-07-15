@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1051B69585
+	by mail.lfdr.de (Postfix) with ESMTP id 83E5A69586
 	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389859AbfGOOUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:20:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43092 "EHLO mail.kernel.org"
+        id S2387640AbfGOOUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:20:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390413AbfGOOUQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:20:16 -0400
+        id S2390415AbfGOOUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:20:18 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C15920868;
-        Mon, 15 Jul 2019 14:20:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACF16217D8;
+        Mon, 15 Jul 2019 14:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200413;
-        bh=wH3dVA2zzh0v/D8LZeYeIYHl0GZ7SCoy6bIRg561CFY=;
+        s=default; t=1563200417;
+        bh=Y7vcWjbPWZ+DphpoUON7gq0TbO1bMtk3yQDUG3xFVVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=beu++MA7RpKlbD+68p+Frm7H2Ot1BW7678mAiJOq0btlUBWTaYbphCs11izrfPYPg
-         icFpMm/Sa86NuJ4phZpBxpLndcezeLQY5RkYFE2Tk4VHGeHvS9B9+uAb0dT7g0oNRK
-         ZulzYhwbVpxWJtqmIFb6/NNw0QRpNdafBhYkNw3I=
+        b=WDLzDQsNEGd3AhxdBhDNXYCZc6AQnuIj8jMEf9wFArq4O2ek/VwTs7F23wDHg5KSt
+         S8O13PYylpJHTzK2/1mNNm2ZSu2GD2g8fYA3oD6E32aCBipuAH8XrJT6NzZQKS/luW
+         v2GfpzcnBworPMjijriGXl/AUztPOAHqfpTOPD6w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Abhishek Goel <huntbag@linux.vnet.ibm.com>,
-        Thomas Renninger <trenn@suse.de>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 040/158] cpupower : frequency-set -r option misses the last cpu in related cpu list
-Date:   Mon, 15 Jul 2019 10:16:11 -0400
-Message-Id: <20190715141809.8445-40-sashal@kernel.org>
+Cc:     Miles Chen <miles.chen@mediatek.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 041/158] arm64: mm: make CONFIG_ZONE_DMA32 configurable
+Date:   Mon, 15 Jul 2019 10:16:12 -0400
+Message-Id: <20190715141809.8445-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -44,40 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Goel <huntbag@linux.vnet.ibm.com>
+From: Miles Chen <miles.chen@mediatek.com>
 
-[ Upstream commit 04507c0a9385cc8280f794a36bfff567c8cc1042 ]
+[ Upstream commit 0c1f14ed12262f45a3af1d588e4d7bd12438b8f5 ]
 
-To set frequency on specific cpus using cpupower, following syntax can
-be used :
-cpupower -c #i frequency-set -f #f -r
+This change makes CONFIG_ZONE_DMA32 defuly y and allows users
+to overwrite it only when CONFIG_EXPERT=y.
 
-While setting frequency using cpupower frequency-set command, if we use
-'-r' option, it is expected to set frequency for all cpus related to
-cpu #i. But it is observed to be missing the last cpu in related cpu
-list. This patch fixes the problem.
+For the SoCs that do not need CONFIG_ZONE_DMA32, this is the
+first step to manage all available memory by a single
+zone(normal zone) to reduce the overhead of multiple zones.
 
-Signed-off-by: Abhishek Goel <huntbag@linux.vnet.ibm.com>
-Reviewed-by: Thomas Renninger <trenn@suse.de>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+The change also fixes a build error when CONFIG_NUMA=y and
+CONFIG_ZONE_DMA32=n.
+
+arch/arm64/mm/init.c:195:17: error: use of undeclared identifier 'ZONE_DMA32'
+                max_zone_pfns[ZONE_DMA32] = PFN_DOWN(max_zone_dma_phys());
+
+Change since v1:
+1. only expose CONFIG_ZONE_DMA32 when CONFIG_EXPERT=y
+2. remove redundant IS_ENABLED(CONFIG_ZONE_DMA32)
+
+Cc: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/cpupower/utils/cpufreq-set.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/Kconfig   | 3 ++-
+ arch/arm64/mm/init.c | 5 +++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/tools/power/cpupower/utils/cpufreq-set.c b/tools/power/cpupower/utils/cpufreq-set.c
-index 1eef0aed6423..08a405593a79 100644
---- a/tools/power/cpupower/utils/cpufreq-set.c
-+++ b/tools/power/cpupower/utils/cpufreq-set.c
-@@ -306,6 +306,8 @@ int cmd_freq_set(int argc, char **argv)
- 				bitmask_setbit(cpus_chosen, cpus->cpu);
- 				cpus = cpus->next;
- 			}
-+			/* Set the last cpu in related cpus list */
-+			bitmask_setbit(cpus_chosen, cpus->cpu);
- 			cpufreq_put_related_cpus(cpus);
- 		}
- 	}
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 8790a29d0af4..e3ebece79617 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -251,7 +251,8 @@ config GENERIC_CALIBRATE_DELAY
+ 	def_bool y
+ 
+ config ZONE_DMA32
+-	def_bool y
++	bool "Support DMA32 zone" if EXPERT
++	default y
+ 
+ config HAVE_GENERIC_GUP
+ 	def_bool y
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index 774c3e17c798..29d2f425806e 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -233,8 +233,9 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max)
+ {
+ 	unsigned long max_zone_pfns[MAX_NR_ZONES]  = {0};
+ 
+-	if (IS_ENABLED(CONFIG_ZONE_DMA32))
+-		max_zone_pfns[ZONE_DMA32] = PFN_DOWN(max_zone_dma_phys());
++#ifdef CONFIG_ZONE_DMA32
++	max_zone_pfns[ZONE_DMA32] = PFN_DOWN(max_zone_dma_phys());
++#endif
+ 	max_zone_pfns[ZONE_NORMAL] = max;
+ 
+ 	free_area_init_nodes(max_zone_pfns);
 -- 
 2.20.1
 
