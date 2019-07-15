@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA39C68E90
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:08:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FC0468E9C
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:08:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388390AbfGOOHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:07:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56560 "EHLO mail.kernel.org"
+        id S2387543AbfGOOID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:08:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731723AbfGOOHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:07:41 -0400
+        id S2388277AbfGOOIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:08:02 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E12D206B8;
-        Mon, 15 Jul 2019 14:07:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46EE620868;
+        Mon, 15 Jul 2019 14:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199660;
-        bh=PEeVZIvmnUKPYl4Xamol5A8GV2YbgU4bwaeAHC+GqtY=;
+        s=default; t=1563199681;
+        bh=21E28yYC78DofIBAFVkNU2FsYhLQKYybxmuuZCw+0KM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sp2cWuycFrzMajDPni1Zqkr0I/Q08tM9I9ZNwC9sGJ33hgH+OV26hNq2VTYd3ZpXy
-         eMjpQV2/BSwSFFobRy0FgNyJ4kk9bF3T61yKOlN6Hpe2IP/WVn/LEMI7byFFxdx1B4
-         swTW+IsGJfJuOKsdsHYXboGk5kXSgtxA2nh6ElsI=
+        b=nW/v01SaA9cCQhVkofYfHBuG8Xnvvyva8gPEW7Jooz3TQXfu3ETMrDE7nET7XHoj5
+         fuJQgFQK359DhPjpoaVs6Lfjc1oxTmt0mEHyfihqbhpCHglSjYGDn1O/Oafhj8jM68
+         5O2zmJsDiDtz6zY3DIys2v85nN8rwQ8f5YRgxQBY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Antoine Tenart <antoine.tenart@bootlin.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 064/219] crypto: inside-secure - do not rely on the hardware last bit for result descriptors
-Date:   Mon, 15 Jul 2019 10:01:05 -0400
-Message-Id: <20190715140341.6443-64-sashal@kernel.org>
+Cc:     Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Suzuki Poulouse <suzuki.poulose@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 071/219] perf cs-etm: Properly set the value of 'old' and 'head' in snapshot mode
+Date:   Mon, 15 Jul 2019 10:01:12 -0400
+Message-Id: <20190715140341.6443-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -43,127 +49,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <antoine.tenart@bootlin.com>
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
 
-[ Upstream commit 89332590427235680236b9470e851afc49b3caa1 ]
+[ Upstream commit e45c48a9a4d20ebc7b639a62c3ef8f4b08007027 ]
 
-When performing a transformation the hardware is given result
-descriptors to save the result data. Those result descriptors are
-batched using a 'first' and a 'last' bit. There are cases were more
-descriptors than needed are given to the engine, leading to the engine
-only using some of them, and not setting the last bit on the last
-descriptor we gave. This causes issues were the driver and the hardware
-aren't in sync anymore about the number of result descriptors given (as
-the driver do not give a pool of descriptor to use for any
-transformation, but a pool of descriptors to use *per* transformation).
+This patch adds the necessary intelligence to properly compute the value
+of 'old' and 'head' when operating in snapshot mode.  That way we can
+get the latest information in the AUX buffer and be compatible with the
+generic AUX ring buffer mechanic.
 
-This patch fixes it by attaching the number of given result descriptors
-to the requests, and by using this number instead of the 'last' bit
-found on the descriptors to process them.
+Tester notes:
 
-Signed-off-by: Antoine Tenart <antoine.tenart@bootlin.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> Leo, have you had the chance to test/review this one? Suzuki?
+
+Sure.  I applied this patch on the perf/core branch (with latest
+commit 3e4fbf36c1e3 'perf augmented_raw_syscalls: Move reading
+filename to the loop') and passed testing with below steps:
+
+  # perf record -e cs_etm/@tmc_etr0/ -S -m,64 --per-thread ./sort &
+  [1] 19097
+  Bubble sorting array of 30000 elements
+
+  # kill -USR2 19097
+  # kill -USR2 19097
+  # kill -USR2 19097
+  [ perf record: Woken up 4 times to write data ]
+  [ perf record: Captured and wrote 0.753 MB perf.data ]
+
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Tested-by: Leo Yan <leo.yan@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Link: http://lkml.kernel.org/r/20190605161633.12245-1-mathieu.poirier@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../crypto/inside-secure/safexcel_cipher.c    | 24 ++++++++++++++-----
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ tools/perf/arch/arm/util/cs-etm.c | 127 +++++++++++++++++++++++++++++-
+ 1 file changed, 123 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/crypto/inside-secure/safexcel_cipher.c b/drivers/crypto/inside-secure/safexcel_cipher.c
-index 7ef30a98cb24..23fb85f4b3cc 100644
---- a/drivers/crypto/inside-secure/safexcel_cipher.c
-+++ b/drivers/crypto/inside-secure/safexcel_cipher.c
-@@ -51,6 +51,8 @@ struct safexcel_cipher_ctx {
- 
- struct safexcel_cipher_req {
- 	enum safexcel_cipher_direction direction;
-+	/* Number of result descriptors associated to the request */
-+	unsigned int rdescs;
- 	bool needs_inv;
+diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
+index 911426721170..0a278bbcaba6 100644
+--- a/tools/perf/arch/arm/util/cs-etm.c
++++ b/tools/perf/arch/arm/util/cs-etm.c
+@@ -31,6 +31,8 @@ struct cs_etm_recording {
+ 	struct auxtrace_record	itr;
+ 	struct perf_pmu		*cs_etm_pmu;
+ 	struct perf_evlist	*evlist;
++	int			wrapped_cnt;
++	bool			*wrapped;
+ 	bool			snapshot_mode;
+ 	size_t			snapshot_size;
  };
- 
-@@ -333,7 +335,10 @@ static int safexcel_handle_req_result(struct safexcel_crypto_priv *priv, int rin
- 
- 	*ret = 0;
- 
--	do {
-+	if (unlikely(!sreq->rdescs))
-+		return 0;
-+
-+	while (sreq->rdescs--) {
- 		rdesc = safexcel_ring_next_rptr(priv, &priv->ring[ring].rdr);
- 		if (IS_ERR(rdesc)) {
- 			dev_err(priv->dev,
-@@ -346,7 +351,7 @@ static int safexcel_handle_req_result(struct safexcel_crypto_priv *priv, int rin
- 			*ret = safexcel_rdesc_check_errors(priv, rdesc);
- 
- 		ndesc++;
--	} while (!rdesc->last_seg);
-+	}
- 
- 	safexcel_complete(priv, ring);
- 
-@@ -501,6 +506,7 @@ static int safexcel_send_req(struct crypto_async_request *base, int ring,
- static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
- 				      int ring,
- 				      struct crypto_async_request *base,
-+				      struct safexcel_cipher_req *sreq,
- 				      bool *should_complete, int *ret)
- {
- 	struct safexcel_cipher_ctx *ctx = crypto_tfm_ctx(base->tfm);
-@@ -509,7 +515,10 @@ static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
- 
- 	*ret = 0;
- 
--	do {
-+	if (unlikely(!sreq->rdescs))
-+		return 0;
-+
-+	while (sreq->rdescs--) {
- 		rdesc = safexcel_ring_next_rptr(priv, &priv->ring[ring].rdr);
- 		if (IS_ERR(rdesc)) {
- 			dev_err(priv->dev,
-@@ -522,7 +531,7 @@ static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
- 			*ret = safexcel_rdesc_check_errors(priv, rdesc);
- 
- 		ndesc++;
--	} while (!rdesc->last_seg);
-+	}
- 
- 	safexcel_complete(priv, ring);
- 
-@@ -564,7 +573,7 @@ static int safexcel_skcipher_handle_result(struct safexcel_crypto_priv *priv,
- 
- 	if (sreq->needs_inv) {
- 		sreq->needs_inv = false;
--		err = safexcel_handle_inv_result(priv, ring, async,
-+		err = safexcel_handle_inv_result(priv, ring, async, sreq,
- 						 should_complete, ret);
- 	} else {
- 		err = safexcel_handle_req_result(priv, ring, async, req->src,
-@@ -587,7 +596,7 @@ static int safexcel_aead_handle_result(struct safexcel_crypto_priv *priv,
- 
- 	if (sreq->needs_inv) {
- 		sreq->needs_inv = false;
--		err = safexcel_handle_inv_result(priv, ring, async,
-+		err = safexcel_handle_inv_result(priv, ring, async, sreq,
- 						 should_complete, ret);
- 	} else {
- 		err = safexcel_handle_req_result(priv, ring, async, req->src,
-@@ -633,6 +642,8 @@ static int safexcel_skcipher_send(struct crypto_async_request *async, int ring,
- 		ret = safexcel_send_req(async, ring, sreq, req->src,
- 					req->dst, req->cryptlen, 0, 0, req->iv,
- 					commands, results);
-+
-+	sreq->rdescs = *results;
- 	return ret;
+@@ -536,16 +538,131 @@ static int cs_etm_info_fill(struct auxtrace_record *itr,
+ 	return 0;
  }
  
-@@ -655,6 +666,7 @@ static int safexcel_aead_send(struct crypto_async_request *async, int ring,
- 					req->cryptlen, req->assoclen,
- 					crypto_aead_authsize(tfm), req->iv,
- 					commands, results);
-+	sreq->rdescs = *results;
- 	return ret;
+-static int cs_etm_find_snapshot(struct auxtrace_record *itr __maybe_unused,
++static int cs_etm_alloc_wrapped_array(struct cs_etm_recording *ptr, int idx)
++{
++	bool *wrapped;
++	int cnt = ptr->wrapped_cnt;
++
++	/* Make @ptr->wrapped as big as @idx */
++	while (cnt <= idx)
++		cnt++;
++
++	/*
++	 * Free'ed in cs_etm_recording_free().  Using realloc() to avoid
++	 * cross compilation problems where the host's system supports
++	 * reallocarray() but not the target.
++	 */
++	wrapped = realloc(ptr->wrapped, cnt * sizeof(bool));
++	if (!wrapped)
++		return -ENOMEM;
++
++	wrapped[cnt - 1] = false;
++	ptr->wrapped_cnt = cnt;
++	ptr->wrapped = wrapped;
++
++	return 0;
++}
++
++static bool cs_etm_buffer_has_wrapped(unsigned char *buffer,
++				      size_t buffer_size, u64 head)
++{
++	u64 i, watermark;
++	u64 *buf = (u64 *)buffer;
++	size_t buf_size = buffer_size;
++
++	/*
++	 * We want to look the very last 512 byte (chosen arbitrarily) in
++	 * the ring buffer.
++	 */
++	watermark = buf_size - 512;
++
++	/*
++	 * @head is continuously increasing - if its value is equal or greater
++	 * than the size of the ring buffer, it has wrapped around.
++	 */
++	if (head >= buffer_size)
++		return true;
++
++	/*
++	 * The value of @head is somewhere within the size of the ring buffer.
++	 * This can be that there hasn't been enough data to fill the ring
++	 * buffer yet or the trace time was so long that @head has numerically
++	 * wrapped around.  To find we need to check if we have data at the very
++	 * end of the ring buffer.  We can reliably do this because mmap'ed
++	 * pages are zeroed out and there is a fresh mapping with every new
++	 * session.
++	 */
++
++	/* @head is less than 512 byte from the end of the ring buffer */
++	if (head > watermark)
++		watermark = head;
++
++	/*
++	 * Speed things up by using 64 bit transactions (see "u64 *buf" above)
++	 */
++	watermark >>= 3;
++	buf_size >>= 3;
++
++	/*
++	 * If we find trace data at the end of the ring buffer, @head has
++	 * been there and has numerically wrapped around at least once.
++	 */
++	for (i = watermark; i < buf_size; i++)
++		if (buf[i])
++			return true;
++
++	return false;
++}
++
++static int cs_etm_find_snapshot(struct auxtrace_record *itr,
+ 				int idx, struct auxtrace_mmap *mm,
+-				unsigned char *data __maybe_unused,
++				unsigned char *data,
+ 				u64 *head, u64 *old)
+ {
++	int err;
++	bool wrapped;
++	struct cs_etm_recording *ptr =
++			container_of(itr, struct cs_etm_recording, itr);
++
++	/*
++	 * Allocate memory to keep track of wrapping if this is the first
++	 * time we deal with this *mm.
++	 */
++	if (idx >= ptr->wrapped_cnt) {
++		err = cs_etm_alloc_wrapped_array(ptr, idx);
++		if (err)
++			return err;
++	}
++
++	/*
++	 * Check to see if *head has wrapped around.  If it hasn't only the
++	 * amount of data between *head and *old is snapshot'ed to avoid
++	 * bloating the perf.data file with zeros.  But as soon as *head has
++	 * wrapped around the entire size of the AUX ring buffer it taken.
++	 */
++	wrapped = ptr->wrapped[idx];
++	if (!wrapped && cs_etm_buffer_has_wrapped(data, mm->len, *head)) {
++		wrapped = true;
++		ptr->wrapped[idx] = true;
++	}
++
+ 	pr_debug3("%s: mmap index %d old head %zu new head %zu size %zu\n",
+ 		  __func__, idx, (size_t)*old, (size_t)*head, mm->len);
+ 
+-	*old = *head;
+-	*head += mm->len;
++	/* No wrap has occurred, we can just use *head and *old. */
++	if (!wrapped)
++		return 0;
++
++	/*
++	 * *head has wrapped around - adjust *head and *old to pickup the
++	 * entire content of the AUX buffer.
++	 */
++	if (*head >= mm->len) {
++		*old = *head - mm->len;
++	} else {
++		*head += mm->len;
++		*old = *head - mm->len;
++	}
+ 
+ 	return 0;
+ }
+@@ -586,6 +703,8 @@ static void cs_etm_recording_free(struct auxtrace_record *itr)
+ {
+ 	struct cs_etm_recording *ptr =
+ 			container_of(itr, struct cs_etm_recording, itr);
++
++	zfree(&ptr->wrapped);
+ 	free(ptr);
  }
  
 -- 
