@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A51168E6C
+	by mail.lfdr.de (Postfix) with ESMTP id F336468E6D
 	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:06:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388268AbfGOOGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:06:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53846 "EHLO mail.kernel.org"
+        id S2387957AbfGOOG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:06:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388261AbfGOOGX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:06:23 -0400
+        id S2388271AbfGOOGZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:06:25 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 979332086C;
-        Mon, 15 Jul 2019 14:06:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F18712081C;
+        Mon, 15 Jul 2019 14:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199581;
-        bh=fvWvnH2X8v2u7UuJzqFvZ743uC76lrfXz508zJ0VKoQ=;
+        s=default; t=1563199584;
+        bh=5/5P5rZqEabXQLNQN+ytFnOrpxWRQNyEO9PmKYglEAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFFPlgU2vnJRsrD2Zpqg7x4Ed1RD2n2CTvanvABacT+hDwhm1xGC//fblg56BrrCv
-         BJnqs1jZOEBAlcWhOePWxfIqViB9vNTfoZJUTjpT4fhUwlcUIBd18gsJem46ywHYX4
-         nVmIRQ4HPh38nRApFvsa8SsNih7rmbUUvw3faDfI=
+        b=MpZLjY0RaqEklcxBxnLx0o5mr4HQTfhM7qgA/taYxvR6PzOzaNM3b9+ZurCaoCQlS
+         GDCaH68ja+5kRe4MKdMlREBaXTSC9gzQdgnzIG9Rziy4BpM+Fkji7ECYszznQh3vVw
+         B4FvZMb4du8RviHS8roiwQRKuwXWQdWq8kvLSStk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 048/219] crypto: talitos - properly handle split ICV.
-Date:   Mon, 15 Jul 2019 10:00:49 -0400
-Message-Id: <20190715140341.6443-48-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 049/219] crypto: talitos - Align SEC1 accesses to 32 bits boundaries.
+Date:   Mon, 15 Jul 2019 10:00:50 -0400
+Message-Id: <20190715140341.6443-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -45,95 +45,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit eae55a586c3c8b50982bad3c3426e9c9dd7a0075 ]
+[ Upstream commit c9cca7034b34a2d82e9a03b757de2485c294851c ]
 
-The driver assumes that the ICV is as a single piece in the last
-element of the scatterlist. This assumption is wrong.
+The MPC885 reference manual states:
 
-This patch ensures that the ICV is properly handled regardless of
-the scatterlist layout.
+SEC Lite-initiated 8xx writes can occur only on 32-bit-word boundaries, but
+reads can occur on any byte boundary. Writing back a header read from a
+non-32-bit-word boundary will yield unpredictable results.
 
-Fixes: 9c4a79653b35 ("crypto: talitos - Freescale integrated security engine (SEC) driver")
+In order to ensure that, cra_alignmask is set to 3 for SEC1.
+
 Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 9c4a79653b35 ("crypto: talitos - Freescale integrated security engine (SEC) driver")
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/talitos.c | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ drivers/crypto/talitos.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
-index 83883438d134..3bf727c89647 100644
+index 3bf727c89647..f857f873da89 100644
 --- a/drivers/crypto/talitos.c
 +++ b/drivers/crypto/talitos.c
-@@ -1015,7 +1015,6 @@ static void ipsec_esp_encrypt_done(struct device *dev,
- 	unsigned int authsize = crypto_aead_authsize(authenc);
- 	unsigned int ivsize = crypto_aead_ivsize(authenc);
- 	struct talitos_edesc *edesc;
--	struct scatterlist *sg;
- 	void *icvdata;
- 
- 	edesc = container_of(desc, struct talitos_edesc, desc);
-@@ -1029,9 +1028,8 @@ static void ipsec_esp_encrypt_done(struct device *dev,
- 		else
- 			icvdata = &edesc->link_tbl[edesc->src_nents +
- 						   edesc->dst_nents + 2];
--		sg = sg_last(areq->dst, edesc->dst_nents);
--		memcpy((char *)sg_virt(sg) + sg->length - authsize,
--		       icvdata, authsize);
-+		sg_pcopy_from_buffer(areq->dst, edesc->dst_nents ? : 1, icvdata,
-+				     authsize, areq->assoclen + areq->cryptlen);
- 	}
- 
- 	dma_unmap_single(dev, edesc->iv_dma, ivsize, DMA_TO_DEVICE);
-@@ -1049,7 +1047,6 @@ static void ipsec_esp_decrypt_swauth_done(struct device *dev,
- 	struct crypto_aead *authenc = crypto_aead_reqtfm(req);
- 	unsigned int authsize = crypto_aead_authsize(authenc);
- 	struct talitos_edesc *edesc;
--	struct scatterlist *sg;
- 	char *oicv, *icv;
- 	struct talitos_private *priv = dev_get_drvdata(dev);
- 	bool is_sec1 = has_ftr_sec1(priv);
-@@ -1059,9 +1056,18 @@ static void ipsec_esp_decrypt_swauth_done(struct device *dev,
- 	ipsec_esp_unmap(dev, edesc, req);
- 
- 	if (!err) {
-+		char icvdata[SHA512_DIGEST_SIZE];
-+		int nents = edesc->dst_nents ? : 1;
-+		unsigned int len = req->assoclen + req->cryptlen;
-+
- 		/* auth check */
--		sg = sg_last(req->dst, edesc->dst_nents ? : 1);
--		icv = (char *)sg_virt(sg) + sg->length - authsize;
-+		if (nents > 1) {
-+			sg_pcopy_to_buffer(req->dst, nents, icvdata, authsize,
-+					   len - authsize);
-+			icv = icvdata;
-+		} else {
-+			icv = (char *)sg_virt(req->dst) + len - authsize;
-+		}
- 
- 		if (edesc->dma_len) {
- 			if (is_sec1)
-@@ -1481,7 +1487,6 @@ static int aead_decrypt(struct aead_request *req)
- 	struct talitos_ctx *ctx = crypto_aead_ctx(authenc);
- 	struct talitos_private *priv = dev_get_drvdata(ctx->dev);
- 	struct talitos_edesc *edesc;
--	struct scatterlist *sg;
- 	void *icvdata;
- 
- 	req->cryptlen -= authsize;
-@@ -1515,9 +1520,8 @@ static int aead_decrypt(struct aead_request *req)
+@@ -3209,7 +3209,10 @@ static struct talitos_crypto_alg *talitos_alg_alloc(struct device *dev,
+ 		alg->cra_priority = t_alg->algt.priority;
  	else
- 		icvdata = &edesc->link_tbl[0];
+ 		alg->cra_priority = TALITOS_CRA_PRIORITY;
+-	alg->cra_alignmask = 0;
++	if (has_ftr_sec1(priv))
++		alg->cra_alignmask = 3;
++	else
++		alg->cra_alignmask = 0;
+ 	alg->cra_ctxsize = sizeof(struct talitos_ctx);
+ 	alg->cra_flags |= CRYPTO_ALG_KERN_DRIVER_ONLY;
  
--	sg = sg_last(req->src, edesc->src_nents ? : 1);
--
--	memcpy(icvdata, (char *)sg_virt(sg) + sg->length - authsize, authsize);
-+	sg_pcopy_to_buffer(req->src, edesc->src_nents ? : 1, icvdata, authsize,
-+			   req->assoclen + req->cryptlen - authsize);
- 
- 	return ipsec_esp(edesc, req, ipsec_esp_decrypt_swauth_done);
- }
 -- 
 2.20.1
 
