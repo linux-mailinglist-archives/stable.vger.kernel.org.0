@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 130B26953F
+	by mail.lfdr.de (Postfix) with ESMTP id EFF4A69541
 	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:58:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390128AbfGOOVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48086 "EHLO mail.kernel.org"
+        id S2389005AbfGOOWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:22:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390342AbfGOOVm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:21:42 -0400
+        id S1731930AbfGOOWN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:22:13 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 476AE21530;
-        Mon, 15 Jul 2019 14:21:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42B8E20868;
+        Mon, 15 Jul 2019 14:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200501;
-        bh=dgGnbwFxXTx5HzWdRIRw5cR85q3VjmvhoOuYP4ANVqM=;
+        s=default; t=1563200532;
+        bh=BJeyaP//3SkN5oyxfoXL1HB2f/Bu0hRNMrZo6Gifmi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y83//rDCYe0frUdcVGG9aKtXQ1sgu+DkmeFB/1u432sMulBbrbGpMwlnmi81e86EG
-         2Plm+Y19iZHRRfeYaf5GIXgJOVkQuPvJQn9CeZ/DOZQPZ90ncxPbUDalILH1sv0lVQ
-         XKjnhaDY/vDJ0ZJXs25iZOod5lvF4M5LLhqD4G34=
+        b=wAp96MW4O/Z0J5yDgwCs0/Ma9Dsku9EplRPJagU+6kOcDnY0pYmJuoEWNgKSAtsHM
+         Wyv9S5kqj2pKYWk9EZe/9bBY2X7oo7dV6fo6zxpMEcIEHUtdTP7aQga5aT2LxvWFBw
+         hr8uemEwzZn3RjfEeXetvh2hXSt0gCUHIMPGpPCo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Kir Kolyshkin <kir@sacred.ru>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 064/158] selinux: fix empty write to keycreate file
-Date:   Mon, 15 Jul 2019 10:16:35 -0400
-Message-Id: <20190715141809.8445-64-sashal@kernel.org>
+Cc:     Aaron Lewis <aaronlewis@google.com>, Borislav Petkov <bp@suse.de>,
+        Jim Mattson <jmattson@google.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        marcorr@google.com, Peter Feiner <pfeiner@google.com>,
+        pshier@google.com, Robert Hoo <robert.hu@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Thomas Lendacky <Thomas.Lendacky@amd.com>,
+        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 068/158] x86/cpufeatures: Add FDP_EXCPTN_ONLY and ZERO_FCS_FDS
+Date:   Mon, 15 Jul 2019 10:16:39 -0400
+Message-Id: <20190715141809.8445-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -44,53 +51,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Aaron Lewis <aaronlewis@google.com>
 
-[ Upstream commit 464c258aa45b09f16aa0f05847ed8895873262d9 ]
+[ Upstream commit cbb99c0f588737ec98c333558922ce47e9a95827 ]
 
-When sid == 0 (we are resetting keycreate_sid to the default value), we
-should skip the KEY__CREATE check.
+Add the CPUID enumeration for Intel's de-feature bits to accommodate
+passing these de-features through to kvm guests.
 
-Before this patch, doing a zero-sized write to /proc/self/keycreate
-would check if the current task can create unlabeled keys (which would
-usually fail with -EACCESS and generate an AVC). Now it skips the check
-and correctly sets the task's keycreate_sid to 0.
+These de-features are (from SDM vol 1, section 8.1.8):
+ - X86_FEATURE_FDP_EXCPTN_ONLY: If CPUID.(EAX=07H,ECX=0H):EBX[bit 6] = 1, the
+   data pointer (FDP) is updated only for the x87 non-control instructions that
+   incur unmasked x87 exceptions.
+ - X86_FEATURE_ZERO_FCS_FDS: If CPUID.(EAX=07H,ECX=0H):EBX[bit 13] = 1, the
+   processor deprecates FCS and FDS; it saves each as 0000H.
 
-Bug report: https://bugzilla.redhat.com/show_bug.cgi?id=1719067
-
-Tested using the reproducer from the report above.
-
-Fixes: 4eb582cf1fbd ("[PATCH] keys: add a way to store the appropriate context for newly-created keys")
-Reported-by: Kir Kolyshkin <kir@sacred.ru>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Aaron Lewis <aaronlewis@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: marcorr@google.com
+Cc: Peter Feiner <pfeiner@google.com>
+Cc: pshier@google.com
+Cc: Robert Hoo <robert.hu@linux.intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190605220252.103406-1-aaronlewis@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/hooks.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/cpufeatures.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 70bad15ed7a0..109ab510bdb1 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6550,11 +6550,12 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 	} else if (!strcmp(name, "fscreate")) {
- 		tsec->create_sid = sid;
- 	} else if (!strcmp(name, "keycreate")) {
--		error = avc_has_perm(&selinux_state,
--				     mysid, sid, SECCLASS_KEY, KEY__CREATE,
--				     NULL);
--		if (error)
--			goto abort_change;
-+		if (sid) {
-+			error = avc_has_perm(&selinux_state, mysid, sid,
-+					     SECCLASS_KEY, KEY__CREATE, NULL);
-+			if (error)
-+				goto abort_change;
-+		}
- 		tsec->keycreate_sid = sid;
- 	} else if (!strcmp(name, "sockcreate")) {
- 		tsec->sockcreate_sid = sid;
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index 69037da75ea0..0cf704933f23 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -239,12 +239,14 @@
+ #define X86_FEATURE_BMI1		( 9*32+ 3) /* 1st group bit manipulation extensions */
+ #define X86_FEATURE_HLE			( 9*32+ 4) /* Hardware Lock Elision */
+ #define X86_FEATURE_AVX2		( 9*32+ 5) /* AVX2 instructions */
++#define X86_FEATURE_FDP_EXCPTN_ONLY	( 9*32+ 6) /* "" FPU data pointer updated only on x87 exceptions */
+ #define X86_FEATURE_SMEP		( 9*32+ 7) /* Supervisor Mode Execution Protection */
+ #define X86_FEATURE_BMI2		( 9*32+ 8) /* 2nd group bit manipulation extensions */
+ #define X86_FEATURE_ERMS		( 9*32+ 9) /* Enhanced REP MOVSB/STOSB instructions */
+ #define X86_FEATURE_INVPCID		( 9*32+10) /* Invalidate Processor Context ID */
+ #define X86_FEATURE_RTM			( 9*32+11) /* Restricted Transactional Memory */
+ #define X86_FEATURE_CQM			( 9*32+12) /* Cache QoS Monitoring */
++#define X86_FEATURE_ZERO_FCS_FDS	( 9*32+13) /* "" Zero out FPU CS and FPU DS */
+ #define X86_FEATURE_MPX			( 9*32+14) /* Memory Protection Extension */
+ #define X86_FEATURE_RDT_A		( 9*32+15) /* Resource Director Technology Allocation */
+ #define X86_FEATURE_AVX512F		( 9*32+16) /* AVX-512 Foundation */
 -- 
 2.20.1
 
