@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C50E697D3
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:13:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F04F7697BC
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:13:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730960AbfGONuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:50:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37986 "EHLO mail.kernel.org"
+        id S1731825AbfGONuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:50:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731302AbfGONuA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:50:00 -0400
+        id S1731934AbfGONuC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:50:02 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C122217F4;
-        Mon, 15 Jul 2019 13:49:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E038220651;
+        Mon, 15 Jul 2019 13:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198599;
-        bh=ygqkvmXYeSMjc+q+7NgWYLUCBRvjvtpH4rdO+WLrD1M=;
+        s=default; t=1563198601;
+        bh=S7QMUTIfrMKNE8TMyNmP9bg8l/7SEA7p9sCrWAdjPfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2FJjK+sOaVTEsMFnEddgFYwjxX7pst4j1Pxk5FTW05Jl5AoknITZUtGFcja53d8J
-         d4580vz7VFiCSADbMjdtgMds7SzKUElIsmZuzzS8ZMvHK1zEuCQv0/fMz49kw1mWn9
-         gshUmNlEIbYWVHEW5xRXs3BVc9J6eTQRgWUASlL0=
+        b=LSOUGZQbbHnlcO08kBwExeBbFZVE0RiQb8UMVFdehX7OCK1jfNiQtxt+JsZmFPl8V
+         vrEvP6aTLMN+VZcA8AGDmkI5YCDcTXth81QcvUSKIYWUkQPLH/uclU9pqaA0ecjlIl
+         gGcCwpoSmpY/0g+6oxJKFp1ez5yJ68y00NIkTQOA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Oltean <olteanv@gmail.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 055/249] net: dsa: sja1105: Fix broken fixed-link interfaces on user ports
-Date:   Mon, 15 Jul 2019 09:43:40 -0400
-Message-Id: <20190715134655.4076-55-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 056/249] crypto: talitos - properly handle split ICV.
+Date:   Mon, 15 Jul 2019 09:43:41 -0400
+Message-Id: <20190715134655.4076-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -45,87 +43,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <olteanv@gmail.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit af7cd0366ee994e8b35985d407261dc0ed9dfb4d ]
+[ Upstream commit eae55a586c3c8b50982bad3c3426e9c9dd7a0075 ]
 
-PHYLIB and PHYLINK handle fixed-link interfaces differently. PHYLIB
-wraps them in a software PHY ("pseudo fixed link") phydev construct such
-that .adjust_link driver callbacks see an unified API. Whereas PHYLINK
-simply creates a phylink_link_state structure and passes it to
-.mac_config.
+The driver assumes that the ICV is as a single piece in the last
+element of the scatterlist. This assumption is wrong.
 
-At the time the driver was introduced, DSA was using PHYLIB for the
-CPU/cascade ports (the ones with no net devices) and PHYLINK for
-everything else.
+This patch ensures that the ICV is properly handled regardless of
+the scatterlist layout.
 
-As explained below:
-
-commit aab9c4067d2389d0adfc9c53806437df7b0fe3d5
-Author: Florian Fainelli <f.fainelli@gmail.com>
-Date:   Thu May 10 13:17:36 2018 -0700
-
-  net: dsa: Plug in PHYLINK support
-
-  Drivers that utilize fixed links for user-facing ports (e.g: bcm_sf2)
-  will need to implement phylink_mac_ops from now on to preserve
-  functionality, since PHYLINK *does not* create a phy_device instance
-  for fixed links.
-
-In the above patch, DSA guards the .phylink_mac_config callback against
-a NULL phydev pointer.  Therefore, .adjust_link is not called in case of
-a fixed-link user port.
-
-This patch fixes the situation by converting the driver from using
-.adjust_link to .phylink_mac_config.  This can be done now in a unified
-fashion for both slave and CPU/cascade ports because DSA now uses
-PHYLINK for all ports.
-
-Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9c4a79653b35 ("crypto: talitos - Freescale integrated security engine (SEC) driver")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/sja1105/sja1105_main.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/crypto/talitos.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
-index 1c3959efebc4..844e038f3dc6 100644
---- a/drivers/net/dsa/sja1105/sja1105_main.c
-+++ b/drivers/net/dsa/sja1105/sja1105_main.c
-@@ -734,15 +734,16 @@ static int sja1105_adjust_port_config(struct sja1105_private *priv, int port,
- 	return sja1105_clocking_setup_port(priv, port);
- }
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index 2d9a0971a7fc..eec880909fdf 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1050,7 +1050,6 @@ static void ipsec_esp_encrypt_done(struct device *dev,
+ 	unsigned int authsize = crypto_aead_authsize(authenc);
+ 	unsigned int ivsize = crypto_aead_ivsize(authenc);
+ 	struct talitos_edesc *edesc;
+-	struct scatterlist *sg;
+ 	void *icvdata;
  
--static void sja1105_adjust_link(struct dsa_switch *ds, int port,
--				struct phy_device *phydev)
-+static void sja1105_mac_config(struct dsa_switch *ds, int port,
-+			       unsigned int link_an_mode,
-+			       const struct phylink_link_state *state)
- {
- 	struct sja1105_private *priv = ds->priv;
+ 	edesc = container_of(desc, struct talitos_edesc, desc);
+@@ -1064,9 +1063,8 @@ static void ipsec_esp_encrypt_done(struct device *dev,
+ 		else
+ 			icvdata = &edesc->link_tbl[edesc->src_nents +
+ 						   edesc->dst_nents + 2];
+-		sg = sg_last(areq->dst, edesc->dst_nents);
+-		memcpy((char *)sg_virt(sg) + sg->length - authsize,
+-		       icvdata, authsize);
++		sg_pcopy_from_buffer(areq->dst, edesc->dst_nents ? : 1, icvdata,
++				     authsize, areq->assoclen + areq->cryptlen);
+ 	}
  
--	if (!phydev->link)
-+	if (!state->link)
- 		sja1105_adjust_port_config(priv, port, 0, false);
+ 	dma_unmap_single(dev, edesc->iv_dma, ivsize, DMA_TO_DEVICE);
+@@ -1084,7 +1082,6 @@ static void ipsec_esp_decrypt_swauth_done(struct device *dev,
+ 	struct crypto_aead *authenc = crypto_aead_reqtfm(req);
+ 	unsigned int authsize = crypto_aead_authsize(authenc);
+ 	struct talitos_edesc *edesc;
+-	struct scatterlist *sg;
+ 	char *oicv, *icv;
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	bool is_sec1 = has_ftr_sec1(priv);
+@@ -1094,9 +1091,18 @@ static void ipsec_esp_decrypt_swauth_done(struct device *dev,
+ 	ipsec_esp_unmap(dev, edesc, req);
+ 
+ 	if (!err) {
++		char icvdata[SHA512_DIGEST_SIZE];
++		int nents = edesc->dst_nents ? : 1;
++		unsigned int len = req->assoclen + req->cryptlen;
++
+ 		/* auth check */
+-		sg = sg_last(req->dst, edesc->dst_nents ? : 1);
+-		icv = (char *)sg_virt(sg) + sg->length - authsize;
++		if (nents > 1) {
++			sg_pcopy_to_buffer(req->dst, nents, icvdata, authsize,
++					   len - authsize);
++			icv = icvdata;
++		} else {
++			icv = (char *)sg_virt(req->dst) + len - authsize;
++		}
+ 
+ 		if (edesc->dma_len) {
+ 			if (is_sec1)
+@@ -1516,7 +1522,6 @@ static int aead_decrypt(struct aead_request *req)
+ 	struct talitos_ctx *ctx = crypto_aead_ctx(authenc);
+ 	struct talitos_private *priv = dev_get_drvdata(ctx->dev);
+ 	struct talitos_edesc *edesc;
+-	struct scatterlist *sg;
+ 	void *icvdata;
+ 
+ 	req->cryptlen -= authsize;
+@@ -1550,9 +1555,8 @@ static int aead_decrypt(struct aead_request *req)
  	else
--		sja1105_adjust_port_config(priv, port, phydev->speed, true);
-+		sja1105_adjust_port_config(priv, port, state->speed, true);
- }
+ 		icvdata = &edesc->link_tbl[0];
  
- static void sja1105_phylink_validate(struct dsa_switch *ds, int port,
-@@ -1515,9 +1516,9 @@ static int sja1105_set_ageing_time(struct dsa_switch *ds,
- static const struct dsa_switch_ops sja1105_switch_ops = {
- 	.get_tag_protocol	= sja1105_get_tag_protocol,
- 	.setup			= sja1105_setup,
--	.adjust_link		= sja1105_adjust_link,
- 	.set_ageing_time	= sja1105_set_ageing_time,
- 	.phylink_validate	= sja1105_phylink_validate,
-+	.phylink_mac_config	= sja1105_mac_config,
- 	.get_strings		= sja1105_get_strings,
- 	.get_ethtool_stats	= sja1105_get_ethtool_stats,
- 	.get_sset_count		= sja1105_get_sset_count,
+-	sg = sg_last(req->src, edesc->src_nents ? : 1);
+-
+-	memcpy(icvdata, (char *)sg_virt(sg) + sg->length - authsize, authsize);
++	sg_pcopy_to_buffer(req->src, edesc->src_nents ? : 1, icvdata, authsize,
++			   req->assoclen + req->cryptlen - authsize);
+ 
+ 	return ipsec_esp(edesc, req, ipsec_esp_decrypt_swauth_done);
+ }
 -- 
 2.20.1
 
