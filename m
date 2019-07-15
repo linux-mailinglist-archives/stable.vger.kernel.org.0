@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E072368D71
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:59:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D02668D6B
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:59:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732683AbfGON6m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:58:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38026 "EHLO mail.kernel.org"
+        id S1733170AbfGON6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:58:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733157AbfGON63 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:58:29 -0400
+        id S1733166AbfGON6c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:58:32 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2CC021530;
-        Mon, 15 Jul 2019 13:58:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C41EA20C01;
+        Mon, 15 Jul 2019 13:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199108;
-        bh=0YPm+Lt00CElRbJ10inhCCaWF8htkJup4X0q3dh2uXs=;
+        s=default; t=1563199110;
+        bh=aA6r0CPiaq/ifeN3Pc0XP3MGOkIA3lfRofDZtwxbQbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x7tFlNqw/F7Nkf91IT3VD7stNuNpYxzQsrQt8U4v47lKayOpY+ydUzpl/cpNeRnl4
-         AgQmreseUYY0eTpXE743yrEiV/VCNoFZa/M85xDGyRtwGNu9q2iDt02HJ+eqzfwPhE
-         Vla9pYJ/64O1iKmE/rU6qd+rIV/vVlVumxDomzrU=
+        b=XFtie5wNZZh1duT2C42oHHlh4ljFiPTDdpXSDz0GwxpbHo9j4tG7BYrGjAW61IB7k
+         +hEi4Lo7SV7Db4paW64iJnFmN+9pc5gCTZGRNGU9mahL0eWVcSQNYdLRYMblrwvI64
+         sH4HsKighu8rtTCEyE9BKgUFaFlbjxbuZKjQvLTk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>, linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 196/249] bcache: check c->gc_thread by IS_ERR_OR_NULL in cache_set_flush()
-Date:   Mon, 15 Jul 2019 09:46:01 -0400
-Message-Id: <20190715134655.4076-196-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 197/249] bcache: avoid a deadlock in bcache_reboot()
+Date:   Mon, 15 Jul 2019 09:46:02 -0400
+Message-Id: <20190715134655.4076-197-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -44,126 +44,213 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Coly Li <colyli@suse.de>
 
-[ Upstream commit b387e9b58679c60f5b1e4313939bd4878204fc37 ]
+[ Upstream commit a59ff6ccc2bf2e2934b31bbf734f0bc04b5ec78a ]
 
-When system memory is in heavy pressure, bch_gc_thread_start() from
-run_cache_set() may fail due to out of memory. In such condition,
-c->gc_thread is assigned to -ENOMEM, not NULL pointer. Then in following
-failure code path bch_cache_set_error(), when cache_set_flush() gets
-called, the code piece to stop c->gc_thread is broken,
-         if (!IS_ERR_OR_NULL(c->gc_thread))
-                 kthread_stop(c->gc_thread);
+It is quite frequently to observe deadlock in bcache_reboot() happens
+and hang the system reboot process. The reason is, in bcache_reboot()
+when calling bch_cache_set_stop() and bcache_device_stop() the mutex
+bch_register_lock is held. But in the process to stop cache set and
+bcache device, bch_register_lock will be acquired again. If this mutex
+is held here, deadlock will happen inside the stopping process. The
+aftermath of the deadlock is, whole system reboot gets hung.
 
-And KASAN catches such NULL pointer deference problem, with the warning
-information:
+The fix is to avoid holding bch_register_lock for the following loops
+in bcache_reboot(),
+       list_for_each_entry_safe(c, tc, &bch_cache_sets, list)
+                bch_cache_set_stop(c);
 
-[  561.207881] ==================================================================
-[  561.207900] BUG: KASAN: null-ptr-deref in kthread_stop+0x3b/0x440
-[  561.207904] Write of size 4 at addr 000000000000001c by task kworker/15:1/313
+        list_for_each_entry_safe(dc, tdc, &uncached_devices, list)
+                bcache_device_stop(&dc->disk);
 
-[  561.207913] CPU: 15 PID: 313 Comm: kworker/15:1 Tainted: G        W         5.0.0-vanilla+ #3
-[  561.207916] Hardware name: Lenovo ThinkSystem SR650 -[7X05CTO1WW]-/-[7X05CTO1WW]-, BIOS -[IVE136T-2.10]- 03/22/2019
-[  561.207935] Workqueue: events cache_set_flush [bcache]
-[  561.207940] Call Trace:
-[  561.207948]  dump_stack+0x9a/0xeb
-[  561.207955]  ? kthread_stop+0x3b/0x440
-[  561.207960]  ? kthread_stop+0x3b/0x440
-[  561.207965]  kasan_report+0x176/0x192
-[  561.207973]  ? kthread_stop+0x3b/0x440
-[  561.207981]  kthread_stop+0x3b/0x440
-[  561.207995]  cache_set_flush+0xd4/0x6d0 [bcache]
-[  561.208008]  process_one_work+0x856/0x1620
-[  561.208015]  ? find_held_lock+0x39/0x1d0
-[  561.208028]  ? drain_workqueue+0x380/0x380
-[  561.208048]  worker_thread+0x87/0xb80
-[  561.208058]  ? __kthread_parkme+0xb6/0x180
-[  561.208067]  ? process_one_work+0x1620/0x1620
-[  561.208072]  kthread+0x326/0x3e0
-[  561.208079]  ? kthread_create_worker_on_cpu+0xc0/0xc0
-[  561.208090]  ret_from_fork+0x3a/0x50
-[  561.208110] ==================================================================
-[  561.208113] Disabling lock debugging due to kernel taint
-[  561.208115] irq event stamp: 11800231
-[  561.208126] hardirqs last  enabled at (11800231): [<ffffffff83008538>] do_syscall_64+0x18/0x410
-[  561.208127] BUG: unable to handle kernel NULL pointer dereference at 000000000000001c
-[  561.208129] #PF error: [WRITE]
-[  561.312253] hardirqs last disabled at (11800230): [<ffffffff830052ff>] trace_hardirqs_off_thunk+0x1a/0x1c
-[  561.312259] softirqs last  enabled at (11799832): [<ffffffff850005c7>] __do_softirq+0x5c7/0x8c3
-[  561.405975] PGD 0 P4D 0
-[  561.442494] softirqs last disabled at (11799821): [<ffffffff831add2c>] irq_exit+0x1ac/0x1e0
-[  561.791359] Oops: 0002 [#1] SMP KASAN NOPTI
-[  561.791362] CPU: 15 PID: 313 Comm: kworker/15:1 Tainted: G    B   W         5.0.0-vanilla+ #3
-[  561.791363] Hardware name: Lenovo ThinkSystem SR650 -[7X05CTO1WW]-/-[7X05CTO1WW]-, BIOS -[IVE136T-2.10]- 03/22/2019
-[  561.791371] Workqueue: events cache_set_flush [bcache]
-[  561.791374] RIP: 0010:kthread_stop+0x3b/0x440
-[  561.791376] Code: 00 00 65 8b 05 26 d5 e0 7c 89 c0 48 0f a3 05 ec aa df 02 0f 82 dc 02 00 00 4c 8d 63 20 be 04 00 00 00 4c 89 e7 e8 65 c5 53 00 <f0> ff 43 20 48 8d 7b 24 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48
-[  561.791377] RSP: 0018:ffff88872fc8fd10 EFLAGS: 00010286
-[  561.838895] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  561.838916] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  561.838934] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  561.838948] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  561.838966] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  561.838979] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  561.838996] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  563.067028] RAX: 0000000000000000 RBX: fffffffffffffffc RCX: ffffffff832dd314
-[  563.067030] RDX: 0000000000000000 RSI: 0000000000000004 RDI: 0000000000000297
-[  563.067032] RBP: ffff88872fc8fe88 R08: fffffbfff0b8213d R09: fffffbfff0b8213d
-[  563.067034] R10: 0000000000000001 R11: fffffbfff0b8213c R12: 000000000000001c
-[  563.408618] R13: ffff88dc61cc0f68 R14: ffff888102b94900 R15: ffff88dc61cc0f68
-[  563.408620] FS:  0000000000000000(0000) GS:ffff888f7dc00000(0000) knlGS:0000000000000000
-[  563.408622] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  563.408623] CR2: 000000000000001c CR3: 0000000f48a1a004 CR4: 00000000007606e0
-[  563.408625] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  563.408627] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  563.904795] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  563.915796] PKRU: 55555554
-[  563.915797] Call Trace:
-[  563.915807]  cache_set_flush+0xd4/0x6d0 [bcache]
-[  563.915812]  process_one_work+0x856/0x1620
-[  564.001226] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  564.033563]  ? find_held_lock+0x39/0x1d0
-[  564.033567]  ? drain_workqueue+0x380/0x380
-[  564.033574]  worker_thread+0x87/0xb80
-[  564.062823] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  564.118042]  ? __kthread_parkme+0xb6/0x180
-[  564.118046]  ? process_one_work+0x1620/0x1620
-[  564.118048]  kthread+0x326/0x3e0
-[  564.118050]  ? kthread_create_worker_on_cpu+0xc0/0xc0
-[  564.167066] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  564.252441]  ret_from_fork+0x3a/0x50
-[  564.252447] Modules linked in: msr rpcrdma sunrpc rdma_ucm ib_iser ib_umad rdma_cm ib_ipoib i40iw configfs iw_cm ib_cm libiscsi scsi_transport_iscsi mlx4_ib ib_uverbs mlx4_en ib_core nls_iso8859_1 nls_cp437 vfat fat intel_rapl skx_edac x86_pkg_temp_thermal coretemp iTCO_wdt iTCO_vendor_support crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel ses raid0 aesni_intel cdc_ether enclosure usbnet ipmi_ssif joydev aes_x86_64 i40e scsi_transport_sas mii bcache md_mod crypto_simd mei_me ioatdma crc64 ptp cryptd pcspkr i2c_i801 mlx4_core glue_helper pps_core mei lpc_ich dca wmi ipmi_si ipmi_devintf nd_pmem dax_pmem nd_btt ipmi_msghandler device_dax pcc_cpufreq button hid_generic usbhid mgag200 i2c_algo_bit drm_kms_helper syscopyarea sysfillrect xhci_pci sysimgblt fb_sys_fops xhci_hcd ttm megaraid_sas drm usbcore nfit libnvdimm sg dm_multipath dm_mod scsi_dh_rdac scsi_dh_emc scsi_dh_alua efivarfs
-[  564.299390] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
-[  564.348360] CR2: 000000000000001c
-[  564.348362] ---[ end trace b7f0e5cc7b2103b0 ]---
-
-Therefore, it is not enough to only check whether c->gc_thread is NULL,
-we should use IS_ERR_OR_NULL() to check both NULL pointer and error
-value.
-
-This patch changes the above buggy code piece in this way,
-         if (!IS_ERR_OR_NULL(c->gc_thread))
-                 kthread_stop(c->gc_thread);
+A module range variable 'bcache_is_reboot' is added, it sets to true
+in bcache_reboot(). In register_bcache(), if bcache_is_reboot is checked
+to be true, reject the registration by returning -EBUSY immediately.
 
 Signed-off-by: Coly Li <colyli@suse.de>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/bcache/super.c | 40 ++++++++++++++++++++++++++++++++++++++-
+ drivers/md/bcache/sysfs.c | 26 +++++++++++++++++++++++++
+ 2 files changed, 65 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 0a25774e175a..4cc8a300a557 100644
+index 4cc8a300a557..dcd8b319a01e 100644
 --- a/drivers/md/bcache/super.c
 +++ b/drivers/md/bcache/super.c
-@@ -1564,7 +1564,7 @@ static void cache_set_flush(struct closure *cl)
- 	kobject_put(&c->internal);
- 	kobject_del(&c->kobj);
+@@ -40,6 +40,7 @@ static const char invalid_uuid[] = {
  
--	if (c->gc_thread)
-+	if (!IS_ERR_OR_NULL(c->gc_thread))
- 		kthread_stop(c->gc_thread);
+ static struct kobject *bcache_kobj;
+ struct mutex bch_register_lock;
++bool bcache_is_reboot;
+ LIST_HEAD(bch_cache_sets);
+ static LIST_HEAD(uncached_devices);
  
- 	if (!IS_ERR_OR_NULL(c->root))
+@@ -49,6 +50,7 @@ static wait_queue_head_t unregister_wait;
+ struct workqueue_struct *bcache_wq;
+ struct workqueue_struct *bch_journal_wq;
+ 
++
+ #define BTREE_MAX_PAGES		(256 * 1024 / PAGE_SIZE)
+ /* limitation of partitions number on single bcache device */
+ #define BCACHE_MINORS		128
+@@ -2301,6 +2303,11 @@ static ssize_t register_bcache(struct kobject *k, struct kobj_attribute *attr,
+ 	if (!try_module_get(THIS_MODULE))
+ 		return -EBUSY;
+ 
++	/* For latest state of bcache_is_reboot */
++	smp_mb();
++	if (bcache_is_reboot)
++		return -EBUSY;
++
+ 	path = kstrndup(buffer, size, GFP_KERNEL);
+ 	if (!path)
+ 		goto err;
+@@ -2380,6 +2387,9 @@ static ssize_t register_bcache(struct kobject *k, struct kobj_attribute *attr,
+ 
+ static int bcache_reboot(struct notifier_block *n, unsigned long code, void *x)
+ {
++	if (bcache_is_reboot)
++		return NOTIFY_DONE;
++
+ 	if (code == SYS_DOWN ||
+ 	    code == SYS_HALT ||
+ 	    code == SYS_POWER_OFF) {
+@@ -2392,19 +2402,45 @@ static int bcache_reboot(struct notifier_block *n, unsigned long code, void *x)
+ 
+ 		mutex_lock(&bch_register_lock);
+ 
++		if (bcache_is_reboot)
++			goto out;
++
++		/* New registration is rejected since now */
++		bcache_is_reboot = true;
++		/*
++		 * Make registering caller (if there is) on other CPU
++		 * core know bcache_is_reboot set to true earlier
++		 */
++		smp_mb();
++
+ 		if (list_empty(&bch_cache_sets) &&
+ 		    list_empty(&uncached_devices))
+ 			goto out;
+ 
++		mutex_unlock(&bch_register_lock);
++
+ 		pr_info("Stopping all devices:");
+ 
++		/*
++		 * The reason bch_register_lock is not held to call
++		 * bch_cache_set_stop() and bcache_device_stop() is to
++		 * avoid potential deadlock during reboot, because cache
++		 * set or bcache device stopping process will acqurie
++		 * bch_register_lock too.
++		 *
++		 * We are safe here because bcache_is_reboot sets to
++		 * true already, register_bcache() will reject new
++		 * registration now. bcache_is_reboot also makes sure
++		 * bcache_reboot() won't be re-entered on by other thread,
++		 * so there is no race in following list iteration by
++		 * list_for_each_entry_safe().
++		 */
+ 		list_for_each_entry_safe(c, tc, &bch_cache_sets, list)
+ 			bch_cache_set_stop(c);
+ 
+ 		list_for_each_entry_safe(dc, tdc, &uncached_devices, list)
+ 			bcache_device_stop(&dc->disk);
+ 
+-		mutex_unlock(&bch_register_lock);
+ 
+ 		/*
+ 		 * Give an early chance for other kthreads and
+@@ -2531,6 +2567,8 @@ static int __init bcache_init(void)
+ 	bch_debug_init();
+ 	closure_debug_init();
+ 
++	bcache_is_reboot = false;
++
+ 	return 0;
+ err:
+ 	bcache_exit();
+diff --git a/drivers/md/bcache/sysfs.c b/drivers/md/bcache/sysfs.c
+index bfb437ffb13c..327493f634bb 100644
+--- a/drivers/md/bcache/sysfs.c
++++ b/drivers/md/bcache/sysfs.c
+@@ -16,6 +16,8 @@
+ #include <linux/sort.h>
+ #include <linux/sched/clock.h>
+ 
++extern bool bcache_is_reboot;
++
+ /* Default is 0 ("writethrough") */
+ static const char * const bch_cache_modes[] = {
+ 	"writethrough",
+@@ -271,6 +273,10 @@ STORE(__cached_dev)
+ 	struct cache_set *c;
+ 	struct kobj_uevent_env *env;
+ 
++	/* no user space access if system is rebooting */
++	if (bcache_is_reboot)
++		return -EBUSY;
++
+ #define d_strtoul(var)		sysfs_strtoul(var, dc->var)
+ #define d_strtoul_nonzero(var)	sysfs_strtoul_clamp(var, dc->var, 1, INT_MAX)
+ #define d_strtoi_h(var)		sysfs_hatoi(var, dc->var)
+@@ -408,6 +414,10 @@ STORE(bch_cached_dev)
+ 	struct cached_dev *dc = container_of(kobj, struct cached_dev,
+ 					     disk.kobj);
+ 
++	/* no user space access if system is rebooting */
++	if (bcache_is_reboot)
++		return -EBUSY;
++
+ 	mutex_lock(&bch_register_lock);
+ 	size = __cached_dev_store(kobj, attr, buf, size);
+ 
+@@ -511,6 +521,10 @@ STORE(__bch_flash_dev)
+ 					       kobj);
+ 	struct uuid_entry *u = &d->c->uuids[d->id];
+ 
++	/* no user space access if system is rebooting */
++	if (bcache_is_reboot)
++		return -EBUSY;
++
+ 	sysfs_strtoul(data_csum,	d->data_csum);
+ 
+ 	if (attr == &sysfs_size) {
+@@ -746,6 +760,10 @@ STORE(__bch_cache_set)
+ 	struct cache_set *c = container_of(kobj, struct cache_set, kobj);
+ 	ssize_t v;
+ 
++	/* no user space access if system is rebooting */
++	if (bcache_is_reboot)
++		return -EBUSY;
++
+ 	if (attr == &sysfs_unregister)
+ 		bch_cache_set_unregister(c);
+ 
+@@ -865,6 +883,10 @@ STORE(bch_cache_set_internal)
+ {
+ 	struct cache_set *c = container_of(kobj, struct cache_set, internal);
+ 
++	/* no user space access if system is rebooting */
++	if (bcache_is_reboot)
++		return -EBUSY;
++
+ 	return bch_cache_set_store(&c->kobj, attr, buf, size);
+ }
+ 
+@@ -1050,6 +1072,10 @@ STORE(__bch_cache)
+ 	struct cache *ca = container_of(kobj, struct cache, kobj);
+ 	ssize_t v;
+ 
++	/* no user space access if system is rebooting */
++	if (bcache_is_reboot)
++		return -EBUSY;
++
+ 	if (attr == &sysfs_discard) {
+ 		bool v = strtoul_or_return(buf);
+ 
 -- 
 2.20.1
 
