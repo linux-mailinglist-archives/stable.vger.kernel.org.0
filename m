@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C87169776
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C8669773
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:11:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731798AbfGONzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732200AbfGONzC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Jul 2019 09:55:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56040 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732588AbfGONyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:54:54 -0400
+        id S1732676AbfGONzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:55:00 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45EC7212F5;
-        Mon, 15 Jul 2019 13:54:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 651742081C;
+        Mon, 15 Jul 2019 13:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198893;
-        bh=MZoTV+b3HU5dLeKehg1HKEB6/ZWx9+HGjcpWGQKcmWI=;
+        s=default; t=1563198899;
+        bh=nQcIkOUEnUbbNZqnik5e7Pcu6uiNFKKEwHeO9bQu4kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RHK2nerEL0cDcpawpofrmme+tt2WtkYzgKQNcM4Cgn4L7L5S0jBhyNUA/rGEXXscF
-         o2kdh2zAzyY7DTkoNKCUGPdoCyS/FbATUceBDXZVU1AqK0KQXnUgW1QzEwhpjsqLPm
-         qCS1y8bTb94nnZtQ9P4HyyVxE33D0u4O663FXvpc=
+        b=G0NQXb9yXbMkqsTganz9hPqETSJWY7ytE+CufpIGuBFlbaI5AcgPa1dSHhOyyei3m
+         SQwldiCl52DA1IL4s0mJiubugL7/yUWZsdL+kok5XHyqWW1OKk3kxIRTnOZjRLSSAF
+         RZknVtKUdx7thEbCml5Re2k6KWo1Hz+yO6WRtCW4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 131/249] spi: fix ctrl->num_chipselect constraint
-Date:   Mon, 15 Jul 2019 09:44:56 -0400
-Message-Id: <20190715134655.4076-131-sashal@kernel.org>
+Cc:     Pan Bian <bianpan2016@163.com>, Borislav Petkov <bp@suse.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        James Morse <james.morse@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-edac <linux-edac@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 133/249] EDAC/sysfs: Fix memory leak when creating a csrow object
+Date:   Mon, 15 Jul 2019 09:44:58 -0400
+Message-Id: <20190715134655.4076-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -43,65 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit f9481b08220d7dc1ff21e296a330ee8b721b44e4 ]
+[ Upstream commit 585fb3d93d32dbe89e718b85009f9c322cc554cd ]
 
-at91sam9g25ek showed the following error at probe:
-atmel_spi f0000000.spi: Using dma0chan2 (tx) and dma0chan3 (rx)
-for DMA transfers
-atmel_spi: probe of f0000000.spi failed with error -22
+In edac_create_csrow_object(), the reference to the object is not
+released when adding the device to the device hierarchy fails
+(device_add()). This may result in a memory leak.
 
-Commit 0a919ae49223 ("spi: Don't call spi_get_gpio_descs() before device name is set")
-moved the calling of spi_get_gpio_descs() after ctrl->dev is set,
-but didn't move the !ctrl->num_chipselect check. When there are
-chip selects in the device tree, the spi-atmel driver lets the
-SPI core discover them when registering the SPI master.
-The ctrl->num_chipselect is thus expected to be set by
-spi_get_gpio_descs().
-
-Move the !ctlr->num_chipselect after spi_get_gpio_descs() as it was
-before the aforementioned commit. While touching this block, get rid
-of the explicit comparison with 0 and update the commenting style.
-
-Fixes: 0a919ae49223 ("spi: Don't call spi_get_gpio_descs() before device name is set")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Link: https://lkml.kernel.org/r/1555554438-103953-1-git-send-email-bianpan2016@163.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/edac/edac_mc_sysfs.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 5e4654032bfa..29916e446143 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2286,11 +2286,6 @@ int spi_register_controller(struct spi_controller *ctlr)
- 	if (status)
- 		return status;
- 
--	/* even if it's just one always-selected device, there must
--	 * be at least one chipselect
--	 */
--	if (ctlr->num_chipselect == 0)
--		return -EINVAL;
- 	if (ctlr->bus_num >= 0) {
- 		/* devices with a fixed bus num must check-in with the num */
- 		mutex_lock(&board_lock);
-@@ -2361,6 +2356,13 @@ int spi_register_controller(struct spi_controller *ctlr)
- 		}
- 	}
- 
-+	/*
-+	 * Even if it's just one always-selected device, there must
-+	 * be at least one chipselect.
-+	 */
-+	if (!ctlr->num_chipselect)
-+		return -EINVAL;
+diff --git a/drivers/edac/edac_mc_sysfs.c b/drivers/edac/edac_mc_sysfs.c
+index bf9273437e3f..7c01e1cc030c 100644
+--- a/drivers/edac/edac_mc_sysfs.c
++++ b/drivers/edac/edac_mc_sysfs.c
+@@ -404,6 +404,8 @@ static inline int nr_pages_per_csrow(struct csrow_info *csrow)
+ static int edac_create_csrow_object(struct mem_ctl_info *mci,
+ 				    struct csrow_info *csrow, int index)
+ {
++	int err;
 +
- 	status = device_add(&ctlr->dev);
- 	if (status < 0) {
- 		/* free bus id */
+ 	csrow->dev.type = &csrow_attr_type;
+ 	csrow->dev.groups = csrow_dev_groups;
+ 	device_initialize(&csrow->dev);
+@@ -415,7 +417,11 @@ static int edac_create_csrow_object(struct mem_ctl_info *mci,
+ 	edac_dbg(0, "creating (virtual) csrow node %s\n",
+ 		 dev_name(&csrow->dev));
+ 
+-	return device_add(&csrow->dev);
++	err = device_add(&csrow->dev);
++	if (err)
++		put_device(&csrow->dev);
++
++	return err;
+ }
+ 
+ /* Create a CSROW object under specifed edac_mc_device */
 -- 
 2.20.1
 
