@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D04668C3C
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:50:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D36F768C40
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:50:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731438AbfGONuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:50:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39730 "EHLO mail.kernel.org"
+        id S1731312AbfGONuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:50:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731884AbfGONuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:50:13 -0400
+        id S1731499AbfGONuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:50:15 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1046D2086C;
-        Mon, 15 Jul 2019 13:50:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2180F20651;
+        Mon, 15 Jul 2019 13:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198612;
-        bh=4jclNmLhAwt8DLiBC5lXtWQSh1W6MqW8PgYJ2U8KM+4=;
+        s=default; t=1563198615;
+        bh=cjpjSj3AzXuiVMQMLaBnrsknvjiXP7O8xE/5/piMkb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qogEX1dHLVi3BtyzrPZcnZPJHgnaqlr9IwmKGFCrZonrmPd7SpcuYIovQdOKlw9RD
-         dEgS0hB5vOqEU5Di/p6onph8pKe5nGcR3JEVTSqQxXc9uUy7alDm9Wy2my0fdEe9Kt
-         clw++iIrgeKlgwG61Road80eOb8kd6P0ubJad+6M=
+        b=dcjEKe6qWdHDEveonRouRlsAiHT6sW/8rUDCSoubzfqwZMeNANOdfCOn2eo6z1AGB
+         FaQ8DALNE4UMiuQM3bVqsLor9LFW22f4AfUTH7f6bGJpaUwRjWzXfmxLj2l4EoltGs
+         lqoB8rVmJaaSjMOSONci73qr2Wsdt9mSyMlITzR0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Eckelmann <sven@narfation.org>,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Marek Lindner <mareklindner@neomailbox.ch>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 059/249] batman-adv: Fix duplicated OGMs on NETDEV_UP
-Date:   Mon, 15 Jul 2019 09:43:44 -0400
-Message-Id: <20190715134655.4076-59-sashal@kernel.org>
+Cc:     Imre Deak <imre.deak@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will.deacon@arm.com>,
+        ville.syrjala@linux.intel.com, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 060/249] locking/lockdep: Fix OOO unlock when hlocks need merging
+Date:   Mon, 15 Jul 2019 09:43:45 -0400
+Message-Id: <20190715134655.4076-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,90 +47,234 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit 9e6b5648bbc4cd48fab62cecbb81e9cc3c6e7e88 ]
+[ Upstream commit 8c8889d8eaf4501ae4aaf870b6f8f55db5d5109a ]
 
-The state of slave interfaces are handled differently depending on whether
-the interface is up or not. All active interfaces (IFF_UP) will transmit
-OGMs. But for B.A.T.M.A.N. IV, also non-active interfaces are scheduling
-(low TTL) OGMs on active interfaces. The code which setups and schedules
-the OGMs must therefore already be called when the interfaces gets added as
-slave interface and the transmit function must then check whether it has to
-send out the OGM or not on the specific slave interface.
+The sequence
 
-But the commit f0d97253fb5f ("batman-adv: remove ogm_emit and ogm_schedule
-API calls") moved the setup code from the enable function to the activate
-function. The latter is called either when the added slave was already up
-when batadv_hardif_enable_interface processed the new interface or when a
-NETDEV_UP event was received for this slave interfac. As result, each
-NETDEV_UP would schedule a new OGM worker for the interface and thus OGMs
-would be send a lot more than expected.
+	static DEFINE_WW_CLASS(test_ww_class);
 
-Fixes: f0d97253fb5f ("batman-adv: remove ogm_emit and ogm_schedule API calls")
-Reported-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Tested-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Acked-by: Marek Lindner <mareklindner@neomailbox.ch>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+	struct ww_acquire_ctx ww_ctx;
+	struct ww_mutex ww_lock_a;
+	struct ww_mutex ww_lock_b;
+	struct mutex lock_c;
+	struct mutex lock_d;
+
+	ww_acquire_init(&ww_ctx, &test_ww_class);
+
+	ww_mutex_init(&ww_lock_a, &test_ww_class);
+	ww_mutex_init(&ww_lock_b, &test_ww_class);
+
+	mutex_init(&lock_c);
+
+	ww_mutex_lock(&ww_lock_a, &ww_ctx);
+
+	mutex_lock(&lock_c);
+
+	ww_mutex_lock(&ww_lock_b, &ww_ctx);
+
+	mutex_unlock(&lock_c);		(*)
+
+	ww_mutex_unlock(&ww_lock_b);
+	ww_mutex_unlock(&ww_lock_a);
+
+	ww_acquire_fini(&ww_ctx);
+
+triggers the following WARN in __lock_release() when doing the unlock at *:
+
+	DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth - 1);
+
+The problem is that the WARN check doesn't take into account the merging
+of ww_lock_a and ww_lock_b which results in decreasing curr->lockdep_depth
+by 2 not only 1.
+
+Note that the following sequence doesn't trigger the WARN, since there
+won't be any hlock merging.
+
+	ww_acquire_init(&ww_ctx, &test_ww_class);
+
+	ww_mutex_init(&ww_lock_a, &test_ww_class);
+	ww_mutex_init(&ww_lock_b, &test_ww_class);
+
+	mutex_init(&lock_c);
+	mutex_init(&lock_d);
+
+	ww_mutex_lock(&ww_lock_a, &ww_ctx);
+
+	mutex_lock(&lock_c);
+	mutex_lock(&lock_d);
+
+	ww_mutex_lock(&ww_lock_b, &ww_ctx);
+
+	mutex_unlock(&lock_d);
+
+	ww_mutex_unlock(&ww_lock_b);
+	ww_mutex_unlock(&ww_lock_a);
+
+	mutex_unlock(&lock_c);
+
+	ww_acquire_fini(&ww_ctx);
+
+In general both of the above two sequences are valid and shouldn't
+trigger any lockdep warning.
+
+Fix this by taking the decrement due to the hlock merging into account
+during lock release and hlock class re-setting. Merging can't happen
+during lock downgrading since there won't be a new possibility to merge
+hlocks in that case, so add a WARN if merging still happens then.
+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: ville.syrjala@linux.intel.com
+Link: https://lkml.kernel.org/r/20190524201509.9199-1-imre.deak@intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_iv_ogm.c     | 4 ++--
- net/batman-adv/hard-interface.c | 3 +++
- net/batman-adv/types.h          | 3 +++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ kernel/locking/lockdep.c | 41 ++++++++++++++++++++++++++++------------
+ 1 file changed, 29 insertions(+), 12 deletions(-)
 
-diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
-index bd4138ddf7e0..240ed70912d6 100644
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -2337,7 +2337,7 @@ batadv_iv_ogm_neigh_is_sob(struct batadv_neigh_node *neigh1,
- 	return ret;
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index c47788fa85f9..82361e1bce0f 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -3715,7 +3715,7 @@ static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
+ 				hlock->references = 2;
+ 			}
+ 
+-			return 1;
++			return 2;
+ 		}
+ 	}
+ 
+@@ -3921,22 +3921,33 @@ static struct held_lock *find_held_lock(struct task_struct *curr,
  }
  
--static void batadv_iv_iface_activate(struct batadv_hard_iface *hard_iface)
-+static void batadv_iv_iface_enabled(struct batadv_hard_iface *hard_iface)
+ static int reacquire_held_locks(struct task_struct *curr, unsigned int depth,
+-			      int idx)
++				int idx, unsigned int *merged)
  {
- 	/* begin scheduling originator messages on that interface */
- 	batadv_iv_ogm_schedule(hard_iface);
-@@ -2683,8 +2683,8 @@ static void batadv_iv_gw_dump(struct sk_buff *msg, struct netlink_callback *cb,
- static struct batadv_algo_ops batadv_batman_iv __read_mostly = {
- 	.name = "BATMAN_IV",
- 	.iface = {
--		.activate = batadv_iv_iface_activate,
- 		.enable = batadv_iv_ogm_iface_enable,
-+		.enabled = batadv_iv_iface_enabled,
- 		.disable = batadv_iv_ogm_iface_disable,
- 		.update_mac = batadv_iv_ogm_iface_update_mac,
- 		.primary_set = batadv_iv_ogm_primary_iface_set,
-diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
-index 79d1731b8306..3719cfd026f0 100644
---- a/net/batman-adv/hard-interface.c
-+++ b/net/batman-adv/hard-interface.c
-@@ -795,6 +795,9 @@ int batadv_hardif_enable_interface(struct batadv_hard_iface *hard_iface,
+ 	struct held_lock *hlock;
++	int first_idx = idx;
  
- 	batadv_hardif_recalc_extra_skbroom(soft_iface);
+ 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
+ 		return 0;
  
-+	if (bat_priv->algo_ops->iface.enabled)
-+		bat_priv->algo_ops->iface.enabled(hard_iface);
-+
- out:
+ 	for (hlock = curr->held_locks + idx; idx < depth; idx++, hlock++) {
+-		if (!__lock_acquire(hlock->instance,
++		switch (__lock_acquire(hlock->instance,
+ 				    hlock_class(hlock)->subclass,
+ 				    hlock->trylock,
+ 				    hlock->read, hlock->check,
+ 				    hlock->hardirqs_off,
+ 				    hlock->nest_lock, hlock->acquire_ip,
+-				    hlock->references, hlock->pin_count))
++				    hlock->references, hlock->pin_count)) {
++		case 0:
+ 			return 1;
++		case 1:
++			break;
++		case 2:
++			*merged += (idx == first_idx);
++			break;
++		default:
++			WARN_ON(1);
++			return 0;
++		}
+ 	}
  	return 0;
+ }
+@@ -3947,9 +3958,9 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
+ 		 unsigned long ip)
+ {
+ 	struct task_struct *curr = current;
++	unsigned int depth, merged = 0;
+ 	struct held_lock *hlock;
+ 	struct lock_class *class;
+-	unsigned int depth;
+ 	int i;
  
-diff --git a/net/batman-adv/types.h b/net/batman-adv/types.h
-index 74b644738a36..e0b25104cbfa 100644
---- a/net/batman-adv/types.h
-+++ b/net/batman-adv/types.h
-@@ -2129,6 +2129,9 @@ struct batadv_algo_iface_ops {
- 	/** @enable: init routing info when hard-interface is enabled */
- 	int (*enable)(struct batadv_hard_iface *hard_iface);
+ 	if (unlikely(!debug_locks))
+@@ -3974,14 +3985,14 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
+ 	curr->lockdep_depth = i;
+ 	curr->curr_chain_key = hlock->prev_chain_key;
  
-+	/** @enabled: notification when hard-interface was enabled (optional) */
-+	void (*enabled)(struct batadv_hard_iface *hard_iface);
+-	if (reacquire_held_locks(curr, depth, i))
++	if (reacquire_held_locks(curr, depth, i, &merged))
+ 		return 0;
+ 
+ 	/*
+ 	 * I took it apart and put it back together again, except now I have
+ 	 * these 'spare' parts.. where shall I put them.
+ 	 */
+-	if (DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth))
++	if (DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth - merged))
+ 		return 0;
+ 	return 1;
+ }
+@@ -3989,8 +4000,8 @@ __lock_set_class(struct lockdep_map *lock, const char *name,
+ static int __lock_downgrade(struct lockdep_map *lock, unsigned long ip)
+ {
+ 	struct task_struct *curr = current;
++	unsigned int depth, merged = 0;
+ 	struct held_lock *hlock;
+-	unsigned int depth;
+ 	int i;
+ 
+ 	if (unlikely(!debug_locks))
+@@ -4015,7 +4026,11 @@ static int __lock_downgrade(struct lockdep_map *lock, unsigned long ip)
+ 	hlock->read = 1;
+ 	hlock->acquire_ip = ip;
+ 
+-	if (reacquire_held_locks(curr, depth, i))
++	if (reacquire_held_locks(curr, depth, i, &merged))
++		return 0;
 +
- 	/** @disable: de-init routing info when hard-interface is disabled */
- 	void (*disable)(struct batadv_hard_iface *hard_iface);
++	/* Merging can't happen with unchanged classes.. */
++	if (DEBUG_LOCKS_WARN_ON(merged))
+ 		return 0;
  
+ 	/*
+@@ -4024,6 +4039,7 @@ static int __lock_downgrade(struct lockdep_map *lock, unsigned long ip)
+ 	 */
+ 	if (DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth))
+ 		return 0;
++
+ 	return 1;
+ }
+ 
+@@ -4038,8 +4054,8 @@ static int
+ __lock_release(struct lockdep_map *lock, int nested, unsigned long ip)
+ {
+ 	struct task_struct *curr = current;
++	unsigned int depth, merged = 1;
+ 	struct held_lock *hlock;
+-	unsigned int depth;
+ 	int i;
+ 
+ 	if (unlikely(!debug_locks))
+@@ -4094,14 +4110,15 @@ __lock_release(struct lockdep_map *lock, int nested, unsigned long ip)
+ 	if (i == depth-1)
+ 		return 1;
+ 
+-	if (reacquire_held_locks(curr, depth, i + 1))
++	if (reacquire_held_locks(curr, depth, i + 1, &merged))
+ 		return 0;
+ 
+ 	/*
+ 	 * We had N bottles of beer on the wall, we drank one, but now
+ 	 * there's not N-1 bottles of beer left on the wall...
++	 * Pouring two of the bottles together is acceptable.
+ 	 */
+-	DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth-1);
++	DEBUG_LOCKS_WARN_ON(curr->lockdep_depth != depth - merged);
+ 
+ 	/*
+ 	 * Since reacquire_held_locks() would have called check_chain_key()
 -- 
 2.20.1
 
