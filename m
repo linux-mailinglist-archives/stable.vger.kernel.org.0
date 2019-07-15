@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CEB369462
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BE7269467
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404179AbfGOOhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:37:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53000 "EHLO mail.kernel.org"
+        id S2391587AbfGOOgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:36:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404411AbfGOOfJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:35:09 -0400
+        id S1731009AbfGOOgk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:36:40 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEA2D217D8;
-        Mon, 15 Jul 2019 14:35:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63CC5217F4;
+        Mon, 15 Jul 2019 14:36:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201308;
-        bh=ISiXIkP7Efpmxbr7CKuGfsjKqSepe7v3jybSx7GJ1LQ=;
+        s=default; t=1563201398;
+        bh=beHTjXsL/eeCAz8xqPVYdlotPscWgSGZHtgkUJWc+7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMmYXq3t3VcBTLlbx07piQP2wx7mW6KAKdpuuJ1DmeIGn7MjRJKAw6xe7euG/mo1p
-         WQdpbfPxNdp4lV7j4rpVRSizD9yJIBL2ahbAr8R5klrclzow36Z4dqnLJawQawaYaP
-         GJyt+NARTg0ivUytrQkS4Cj6VM2eVPFEBmf7MMgc=
+        b=qaoDgQMPCnOAJf7Nmbo/Fana+QKxR/TA5Oo1glqcbW2yApa8IXrfMk4q/aRzap7xD
+         Feybdzxs9nKnvLKugUiXt77575OlFK5GQEy1zG1CNjDJsynRP0NnfA0IytpCqrZsYC
+         ZFwZg2+rGTahJpfEhvrIaJhTPR+jEreTntJCyqTw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Taehee Yoo <ap420073@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Tim Schumacher <timschumi@gmx.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>,
-        osmocom-net-gprs@lists.osmocom.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 104/105] gtp: fix use-after-free in gtp_newlink()
-Date:   Mon, 15 Jul 2019 10:28:38 -0400
-Message-Id: <20190715142839.9896-104-sashal@kernel.org>
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 02/73] ath9k: Check for errors when reading SREV register
+Date:   Mon, 15 Jul 2019 10:35:18 -0400
+Message-Id: <20190715143629.10893-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190715142839.9896-1-sashal@kernel.org>
-References: <20190715142839.9896-1-sashal@kernel.org>
+In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
+References: <20190715143629.10893-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,109 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Tim Schumacher <timschumi@gmx.de>
 
-[ Upstream commit a2bed90704c68d3763bf24decb1b781a45395de8 ]
+[ Upstream commit 2f90c7e5d09437a4d8d5546feaae9f1cf48cfbe1 ]
 
-Current gtp_newlink() could be called after unregister_pernet_subsys().
-gtp_newlink() uses gtp_net but it can be destroyed by
-unregister_pernet_subsys().
-So unregister_pernet_subsys() should be called after
-rtnl_link_unregister().
+Right now, if an error is encountered during the SREV register
+read (i.e. an EIO in ath9k_regread()), that error code gets
+passed all the way to __ath9k_hw_init(), where it is visible
+during the "Chip rev not supported" message.
 
-Test commands:
-   #SHELL 1
-   while :
-   do
-	   for i in {1..5}
-	   do
-		./gtp-link add gtp$i &
-	   done
-	   killall gtp-link
-   done
+    ath9k_htc 1-1.4:1.0: ath9k_htc: HTC initialized with 33 credits
+    ath: phy2: Mac Chip Rev 0x0f.3 is not supported by this driver
+    ath: phy2: Unable to initialize hardware; initialization status: -95
+    ath: phy2: Unable to initialize hardware; initialization status: -95
+    ath9k_htc: Failed to initialize the device
 
-   #SHELL 2
-   while :
-   do
-	modprobe -rv gtp
-   done
+Check for -EIO explicitly in ath9k_hw_read_revisions() and return
+a boolean based on the success of the operation. Check for that in
+__ath9k_hw_init() and abort with a more debugging-friendly message
+if reading the revisions wasn't successful.
 
-Splat looks like:
-[  753.176631] BUG: KASAN: use-after-free in gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.177722] Read of size 8 at addr ffff8880d48f2458 by task gtp-link/7126
-[  753.179082] CPU: 0 PID: 7126 Comm: gtp-link Tainted: G        W         5.2.0-rc6+ #50
-[  753.185801] Call Trace:
-[  753.186264]  dump_stack+0x7c/0xbb
-[  753.186863]  ? gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.187583]  print_address_description+0xc7/0x240
-[  753.188382]  ? gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.189097]  ? gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.189846]  __kasan_report+0x12a/0x16f
-[  753.190542]  ? gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.191298]  kasan_report+0xe/0x20
-[  753.191893]  gtp_newlink+0x9b4/0xa5c [gtp]
-[  753.192580]  ? __netlink_ns_capable+0xc3/0xf0
-[  753.193370]  __rtnl_newlink+0xb9f/0x11b0
-[ ... ]
-[  753.241201] Allocated by task 7186:
-[  753.241844]  save_stack+0x19/0x80
-[  753.242399]  __kasan_kmalloc.constprop.3+0xa0/0xd0
-[  753.243192]  __kmalloc+0x13e/0x300
-[  753.243764]  ops_init+0xd6/0x350
-[  753.244314]  register_pernet_operations+0x249/0x6f0
-[ ... ]
-[  753.251770] Freed by task 7178:
-[  753.252288]  save_stack+0x19/0x80
-[  753.252833]  __kasan_slab_free+0x111/0x150
-[  753.253962]  kfree+0xc7/0x280
-[  753.254509]  ops_free_list.part.11+0x1c4/0x2d0
-[  753.255241]  unregister_pernet_operations+0x262/0x390
-[ ... ]
-[  753.285883] list_add corruption. next->prev should be prev (ffff8880d48f2458), but was ffff8880d497d878. (next.
-[  753.287241] ------------[ cut here ]------------
-[  753.287794] kernel BUG at lib/list_debug.c:25!
-[  753.288364] invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
-[  753.289099] CPU: 0 PID: 7126 Comm: gtp-link Tainted: G    B   W         5.2.0-rc6+ #50
-[  753.291036] RIP: 0010:__list_add_valid+0x74/0xd0
-[  753.291589] Code: 48 39 da 75 27 48 39 f5 74 36 48 39 dd 74 31 48 83 c4 08 b8 01 00 00 00 5b 5d c3 48 89 d9 48b
-[  753.293779] RSP: 0018:ffff8880cae8f398 EFLAGS: 00010286
-[  753.294401] RAX: 0000000000000075 RBX: ffff8880d497d878 RCX: 0000000000000000
-[  753.296260] RDX: 0000000000000075 RSI: 0000000000000008 RDI: ffffed10195d1e69
-[  753.297070] RBP: ffff8880cd250ae0 R08: ffffed101b4bff21 R09: ffffed101b4bff21
-[  753.297899] R10: 0000000000000001 R11: ffffed101b4bff20 R12: ffff8880d497d878
-[  753.298703] R13: 0000000000000000 R14: ffff8880cd250ae0 R15: ffff8880d48f2458
-[  753.299564] FS:  00007f5f79805740(0000) GS:ffff8880da400000(0000) knlGS:0000000000000000
-[  753.300533] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  753.301231] CR2: 00007fe8c7ef4f10 CR3: 00000000b71a6006 CR4: 00000000000606f0
-[  753.302183] Call Trace:
-[  753.302530]  gtp_newlink+0x5f6/0xa5c [gtp]
-[  753.303037]  ? __netlink_ns_capable+0xc3/0xf0
-[  753.303576]  __rtnl_newlink+0xb9f/0x11b0
-[  753.304092]  ? rtnl_link_unregister+0x230/0x230
+    ath9k_htc 1-1.4:1.0: ath9k_htc: HTC initialized with 33 credits
+    ath: phy2: Failed to read SREV register
+    ath: phy2: Could not read hardware revision
+    ath: phy2: Unable to initialize hardware; initialization status: -95
+    ath: phy2: Unable to initialize hardware; initialization status: -95
+    ath9k_htc: Failed to initialize the device
 
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This helps when debugging by directly showing the first point of
+failure and it could prevent possible errors if a 0x0f.3 revision
+is ever supported.
+
+Signed-off-by: Tim Schumacher <timschumi@gmx.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/gtp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/hw.c | 32 +++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-index 53fd66534e3a..5de4053774b8 100644
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -1383,9 +1383,9 @@ late_initcall(gtp_init);
+diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
+index 951bac2caf12..e7fca78cdd96 100644
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -250,8 +250,9 @@ void ath9k_hw_get_channel_centers(struct ath_hw *ah,
+ /* Chip Revisions */
+ /******************/
  
- static void __exit gtp_fini(void)
+-static void ath9k_hw_read_revisions(struct ath_hw *ah)
++static bool ath9k_hw_read_revisions(struct ath_hw *ah)
  {
--	unregister_pernet_subsys(&gtp_net_ops);
- 	genl_unregister_family(&gtp_genl_family);
- 	rtnl_link_unregister(&gtp_link_ops);
-+	unregister_pernet_subsys(&gtp_net_ops);
++	u32 srev;
+ 	u32 val;
  
- 	pr_info("GTP module unloaded\n");
+ 	if (ah->get_mac_revision)
+@@ -267,25 +268,33 @@ static void ath9k_hw_read_revisions(struct ath_hw *ah)
+ 			val = REG_READ(ah, AR_SREV);
+ 			ah->hw_version.macRev = MS(val, AR_SREV_REVISION2);
+ 		}
+-		return;
++		return true;
+ 	case AR9300_DEVID_AR9340:
+ 		ah->hw_version.macVersion = AR_SREV_VERSION_9340;
+-		return;
++		return true;
+ 	case AR9300_DEVID_QCA955X:
+ 		ah->hw_version.macVersion = AR_SREV_VERSION_9550;
+-		return;
++		return true;
+ 	case AR9300_DEVID_AR953X:
+ 		ah->hw_version.macVersion = AR_SREV_VERSION_9531;
+-		return;
++		return true;
+ 	case AR9300_DEVID_QCA956X:
+ 		ah->hw_version.macVersion = AR_SREV_VERSION_9561;
+-		return;
++		return true;
+ 	}
+ 
+-	val = REG_READ(ah, AR_SREV) & AR_SREV_ID;
++	srev = REG_READ(ah, AR_SREV);
++
++	if (srev == -EIO) {
++		ath_err(ath9k_hw_common(ah),
++			"Failed to read SREV register");
++		return false;
++	}
++
++	val = srev & AR_SREV_ID;
+ 
+ 	if (val == 0xFF) {
+-		val = REG_READ(ah, AR_SREV);
++		val = srev;
+ 		ah->hw_version.macVersion =
+ 			(val & AR_SREV_VERSION2) >> AR_SREV_TYPE2_S;
+ 		ah->hw_version.macRev = MS(val, AR_SREV_REVISION2);
+@@ -304,6 +313,8 @@ static void ath9k_hw_read_revisions(struct ath_hw *ah)
+ 		if (ah->hw_version.macVersion == AR_SREV_VERSION_5416_PCIE)
+ 			ah->is_pciexpress = true;
+ 	}
++
++	return true;
  }
+ 
+ /************************************/
+@@ -557,7 +568,10 @@ static int __ath9k_hw_init(struct ath_hw *ah)
+ 	struct ath_common *common = ath9k_hw_common(ah);
+ 	int r = 0;
+ 
+-	ath9k_hw_read_revisions(ah);
++	if (!ath9k_hw_read_revisions(ah)) {
++		ath_err(common, "Could not read hardware revisions");
++		return -EOPNOTSUPP;
++	}
+ 
+ 	switch (ah->hw_version.macVersion) {
+ 	case AR_SREV_VERSION_5416_PCI:
 -- 
 2.20.1
 
