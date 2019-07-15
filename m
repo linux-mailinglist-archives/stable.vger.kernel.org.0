@@ -2,66 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30C5B69195
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 524C569266
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391020AbfGOOai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:30:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43124 "EHLO mail.kernel.org"
+        id S1732290AbfGOOgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:36:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391694AbfGOOaZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:30:25 -0400
-Received: from localhost (unknown [88.128.80.129])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1731009AbfGOOgf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:36:35 -0400
+Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD1CD205ED;
-        Mon, 15 Jul 2019 14:30:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B215F217D8;
+        Mon, 15 Jul 2019 14:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201025;
-        bh=UjFjLIvPVWknp9uluSELT71ZIZponhx0x/e09KbJ2wk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TSRmLNz9ycT2K40xzIYDG3P71RtRx4sQcdDIwlZZi13z6kL5MzbKvLhYUSlN/ejoR
-         xDbW0LPPPc/PgvdXinTYAXuh0zM7d13RjXC0VqgrZHUT7d2CLf/iKNo3SqG28Fy1n7
-         to39PVXY0L02Dfo8M1rO1CdZCdjoY3xo7PPDUpVE=
-Date:   Mon, 15 Jul 2019 16:30:22 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     stable@vger.kernel.org, viresh.kumar@linaro.org,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>
-Subject: Re: [PATCH v4.9.y] arm64: crypto: remove accidentally backported
- files
-Message-ID: <20190715143022.GA2582@kroah.com>
-References: <20190715133923.42714-1-mark.rutland@arm.com>
+        s=default; t=1563201395;
+        bh=Ye6y2k07ohqpMfkv2gPc4/NQDp7dZIEQ3bvaamJwXdE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=wEulihC1b7izoPyd6N5CZp2S4xHqTYxbDJIsQ+Aalj9zSf2K3QcjhfVzPd9NKWSSr
+         bAFontdj0azjOBE4ut8euO35H1e1o/xCvoJYjdN55T+kbX68XPKjfaY6M4sCCm6WE2
+         z/S/X+Es6qVoGLIhzNS15BSVTR2fA85m4W0D/p74=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Surabhi Vishnoi <svishnoi@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/73] ath10k: Do not send probe response template for mesh
+Date:   Mon, 15 Jul 2019 10:35:17 -0400
+Message-Id: <20190715143629.10893-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190715133923.42714-1-mark.rutland@arm.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 15, 2019 at 02:39:23PM +0100, Mark Rutland wrote:
-> In the v4.9.y backport commit:
-> 
->   5ac0682830b31c4fba72a208a3c1c4bbfcc9f7f8
-> 
->   ("arm64: Add ARM_SMCCC_ARCH_WORKAROUND_1 BP hardening support")
-> 
-> ... I accidentally added unrelated arm64/crypto files which were not
-> part of the upstream commit:
-> 
->   b092201e0020614127f495c092e0a12d26a2116e
-> 
-> ... and are not used at all in the v4.9.y tree.
-> 
-> This patch reverts the accidental addition. These files should not have
-> been backported, and having them in the v4.9.y tree is at best
-> confusing.
+From: Surabhi Vishnoi <svishnoi@codeaurora.org>
 
-Now queued up, thanks!
+[ Upstream commit 97354f2c432788e3163134df6bb144f4b6289d87 ]
 
-greg k-h
+Currently mac80211 do not support probe response template for
+mesh point. When WMI_SERVICE_BEACON_OFFLOAD is enabled, host
+driver tries to configure probe response template for mesh, but
+it fails because the interface type is not NL80211_IFTYPE_AP but
+NL80211_IFTYPE_MESH_POINT.
+
+To avoid this failure, skip sending probe response template to
+firmware for mesh point.
+
+Tested HW: WCN3990/QCA6174/QCA9984
+
+Signed-off-by: Surabhi Vishnoi <svishnoi@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/net/wireless/ath/ath10k/mac.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index fb632a454fc2..1588fe8110d0 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -1596,6 +1596,10 @@ static int ath10k_mac_setup_prb_tmpl(struct ath10k_vif *arvif)
+ 	if (arvif->vdev_type != WMI_VDEV_TYPE_AP)
+ 		return 0;
+ 
++	 /* For mesh, probe response and beacon share the same template */
++	if (ieee80211_vif_is_mesh(vif))
++		return 0;
++
+ 	prb = ieee80211_proberesp_get(hw, vif);
+ 	if (!prb) {
+ 		ath10k_warn(ar, "failed to get probe resp template from mac80211\n");
+-- 
+2.20.1
+
