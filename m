@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E16F69690
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2167869689
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:05:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733307AbfGOPFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 11:05:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53644 "EHLO mail.kernel.org"
+        id S2388255AbfGOOGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:06:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387762AbfGOOGQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:06:16 -0400
+        id S2388249AbfGOOGT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:06:19 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40AFA21842;
-        Mon, 15 Jul 2019 14:06:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D41D2081C;
+        Mon, 15 Jul 2019 14:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199575;
-        bh=lGlfXHAiLZJovgA4DCHybcCib4O3ArvHEh86TD1QZiY=;
+        s=default; t=1563199578;
+        bh=c1Hu+BADztoE3TsovwgrW6FVJZ+9nDZP0DHc4V8kDog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGIcFKVR5myEHxWQbdCi2YRJ2SwqHrikVO1pRIKyNDgiAehkvMXOCTrjSYkw/0ork
-         Qz/B4y5v3c9scxcVdfmA51YBHSe/8HEsPnRFB6HtaG9KzmiDm9g7icRabPSek4BCiJ
-         AU8Y/RAbYnrca1fL0a675agDhzszKLHK+LVJkR28=
+        b=MMu+vG5/vGwQ97ZVuCTKVTfSC7dUYJG9qzA2n3IcLviW7TfcXZuq9yrHfi9ffCrTy
+         VdAmx5v/PZVOZMFOp36oOxcpYHpSe6aSPre83HWJphAd+FR+2Hp8dOcgGEBmA2o1e0
+         ChivjW7owWb59R+1+T4Phs+Wa6dzV+HPHX56uvGw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shailendra Verma <shailendra.v@samsung.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.1 046/219] media: staging: media: davinci_vpfe: - Fix for memory leak if decoder initialization fails.
-Date:   Mon, 15 Jul 2019 10:00:47 -0400
-Message-Id: <20190715140341.6443-46-sashal@kernel.org>
+Cc:     Ioana Ciornei <ioana.ciornei@nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 047/219] net: phy: Check against net_device being NULL
+Date:   Mon, 15 Jul 2019 10:00:48 -0400
+Message-Id: <20190715140341.6443-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -44,35 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shailendra Verma <shailendra.v@samsung.com>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-[ Upstream commit 6995a659101bd4effa41cebb067f9dc18d77520d ]
+[ Upstream commit 82c76aca81187b3d28a6fb3062f6916450ce955e ]
 
-Fix to avoid possible memory leak if the decoder initialization
-got failed.Free the allocated memory for file handle object
-before return in case decoder initialization fails.
+In general, we don't want MAC drivers calling phy_attach_direct with the
+net_device being NULL. Add checks against this in all the functions
+calling it: phy_attach() and phy_connect_direct().
 
-Signed-off-by: Shailendra Verma <shailendra.v@samsung.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Suggested-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/davinci_vpfe/vpfe_video.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/phy/phy_device.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/staging/media/davinci_vpfe/vpfe_video.c b/drivers/staging/media/davinci_vpfe/vpfe_video.c
-index 510202a3b091..84cca18e3e9d 100644
---- a/drivers/staging/media/davinci_vpfe/vpfe_video.c
-+++ b/drivers/staging/media/davinci_vpfe/vpfe_video.c
-@@ -419,6 +419,9 @@ static int vpfe_open(struct file *file)
- 	/* If decoder is not initialized. initialize it */
- 	if (!video->initialized && vpfe_update_pipe_state(video)) {
- 		mutex_unlock(&video->lock);
-+		v4l2_fh_del(&handle->vfh);
-+		v4l2_fh_exit(&handle->vfh);
-+		kfree(handle);
- 		return -ENODEV;
- 	}
- 	/* Increment device users counter */
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index f6a6cc5bf118..e748aee82033 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -948,6 +948,9 @@ int phy_connect_direct(struct net_device *dev, struct phy_device *phydev,
+ {
+ 	int rc;
+ 
++	if (!dev)
++		return -EINVAL;
++
+ 	rc = phy_attach_direct(dev, phydev, phydev->dev_flags, interface);
+ 	if (rc)
+ 		return rc;
+@@ -1290,6 +1293,9 @@ struct phy_device *phy_attach(struct net_device *dev, const char *bus_id,
+ 	struct device *d;
+ 	int rc;
+ 
++	if (!dev)
++		return ERR_PTR(-EINVAL);
++
+ 	/* Search the list of PHY devices on the mdio bus for the
+ 	 * PHY with the requested name
+ 	 */
 -- 
 2.20.1
 
