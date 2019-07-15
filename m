@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D6D68EBF
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:09:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF6C868EC2
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:09:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388251AbfGOOJY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:09:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60796 "EHLO mail.kernel.org"
+        id S2388702AbfGOOJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:09:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388686AbfGOOJT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:09:19 -0400
+        id S2388697AbfGOOJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:09:27 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AE11206B8;
-        Mon, 15 Jul 2019 14:09:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE4E321537;
+        Mon, 15 Jul 2019 14:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199758;
-        bh=xi/noBMkSrMPFD7U27sGGXsfHDXH9x0DMQC/i3sJnoA=;
+        s=default; t=1563199766;
+        bh=hA1BGIYycUI7Cx54KZzbIMC+IwY3xhFaUuVmGlLmviE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yGOBmFQAD5iSNFdJx7hAFVRggyQqf67TjB8xJHs/VS++2LqasgN85z5Mznw+WJt3h
-         GMyEwcMaInSUWzhfdjI5OlQFeddHrTugSEVKMXrh3b2uLLTl5knvxo4QrQynEndazP
-         NLu8Ci61OUMMpPALA8CoZeVoMJSA1yw42rKgn/ak=
+        b=z17ZLVej+91SKpbWXkfFK11VE/lP5eyau6Tp+7GH2YIFUiKrE9gBRquaHDnk5qx2I
+         QdyUa+4jq1ZJT+D/VR3tCYJGLkgaJinC6v+Cv+pyuu2bD3460PQUwPFOjdvlgdLEY0
+         JabgMZtOJhCHzwF952fI2H9FjqYGWENqIkoKZpzY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gao Xiang <gaoxiang25@huawei.com>,
-        Jilong Kou <koujilong@huawei.com>,
+Cc:     Jiri Olsa <jolsa@redhat.com>, Tom Vaden <tom.vaden@hpe.com>,
+        Jiri Olsa <jolsa@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Liang Kan <kan.liang@linux.intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Miao Xie <miaoxie@huawei.com>,
+        Namhyung Kim <namhyung@kernel.org>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 098/219] sched/core: Add __sched tag for io_schedule()
-Date:   Mon, 15 Jul 2019 10:01:39 -0400
-Message-Id: <20190715140341.6443-98-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 100/219] perf/x86/intel: Disable check_msr for real HW
+Date:   Mon, 15 Jul 2019 10:01:41 -0400
+Message-Id: <20190715140341.6443-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -49,47 +50,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <gaoxiang25@huawei.com>
+From: Jiri Olsa <jolsa@redhat.com>
 
-[ Upstream commit e3b929b0a184edb35531153c5afcaebb09014f9d ]
+[ Upstream commit d0e1a507bdc761a14906f03399d933ea639a1756 ]
 
-Non-inline io_schedule() was introduced in:
+Tom Vaden reported false failure of the check_msr() function, because
+some servers can do POST tracing and enable LBR tracing during
+bootup.
 
-  commit 10ab56434f2f ("sched/core: Separate out io_schedule_prepare() and io_schedule_finish()")
+Kan confirmed that check_msr patch was to fix a bug report in
+guest, so it's ok to disable it for real HW.
 
-Keep in line with io_schedule_timeout(), otherwise "/proc/<pid>/wchan" will
-report io_schedule() rather than its callers when waiting for IO.
-
-Reported-by: Jilong Kou <koujilong@huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Reported-by: Tom Vaden <tom.vaden@hpe.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Tejun Heo <tj@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Tom Vaden <tom.vaden@hpe.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Liang Kan <kan.liang@linux.intel.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Miao Xie <miaoxie@huawei.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 10ab56434f2f ("sched/core: Separate out io_schedule_prepare() and io_schedule_finish()")
-Link: https://lkml.kernel.org/r/20190603091338.2695-1-gaoxiang25@huawei.com
+Link: https://lkml.kernel.org/r/20190616141313.GD2500@krava
+[ Readability edits. ]
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/intel/core.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index a75ad50b5e2f..242233490a49 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -5175,7 +5175,7 @@ long __sched io_schedule_timeout(long timeout)
- }
- EXPORT_SYMBOL(io_schedule_timeout);
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index 82dad001d1ea..a50e182c38b6 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -19,6 +19,7 @@
+ #include <asm/intel-family.h>
+ #include <asm/apic.h>
+ #include <asm/cpu_device_id.h>
++#include <asm/hypervisor.h>
  
--void io_schedule(void)
-+void __sched io_schedule(void)
+ #include "../perf_event.h"
+ 
+@@ -3927,6 +3928,13 @@ static bool check_msr(unsigned long msr, u64 mask)
  {
- 	int token;
+ 	u64 val_old, val_new, val_tmp;
  
++	/*
++	 * Disable the check for real HW, so we don't
++	 * mess with potentionaly enabled registers:
++	 */
++	if (hypervisor_is_type(X86_HYPER_NATIVE))
++		return true;
++
+ 	/*
+ 	 * Read the current value, change it and read it back to see if it
+ 	 * matches, this is needed to detect certain hardware emulators
 -- 
 2.20.1
 
