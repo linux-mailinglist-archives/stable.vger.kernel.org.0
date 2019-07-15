@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDF4768F81
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:15:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05D6A68F86
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:15:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389174AbfGOOOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:14:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57774 "EHLO mail.kernel.org"
+        id S2388756AbfGOOPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:15:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389438AbfGOOOy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:14:54 -0400
+        id S1732233AbfGOOPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:15:05 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3184B20651;
-        Mon, 15 Jul 2019 14:14:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 850E1206B8;
+        Mon, 15 Jul 2019 14:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200093;
-        bh=MqQ7+6uO3U1MJ9rEw4/ihtpnAkJ3hCypH8t/tLfmNLI=;
+        s=default; t=1563200104;
+        bh=3tm0O9vKFq6xQLQTTQHLCmlCsbnPPandPuISTbA4hW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=azcGRny1fqpnUuYUCwAVH8Kj85/+KIPAQgWtme9BolnHaCDhVxh18c5Ii8Dx1urGk
-         MUx3nz0CFzgOB8QE0bopmIxARTMeFpnqo01rWPBSAzC38ik1i9wpkqxwrLdoaif5oA
-         5IJ8fv74YWqmF8izGXFkIV+GzM1UFpclZOUcc2Cc=
+        b=MHMTSSdYpSDVQl+fxg4Cz0K+PJ1y93DoKo14Lh6cBEAngbCKUKtmaA4hb1xrvmR0X
+         RADpWYSC9DBmpSFxhTHhMapWocWxibNUxJb57NNraxXOUEQpCu49R9P93SnXYOkHAK
+         8hdFS8Ulp5yN+jbRjRrlYaCJ7mRiz7i2xBWSGlWg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Baruch Siach <baruch@tkos.co.il>, Song Liu <songliubraving@fb.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 182/219] bpf: fix uapi bpf_prog_info fields alignment
-Date:   Mon, 15 Jul 2019 10:03:03 -0400
-Message-Id: <20190715140341.6443-182-sashal@kernel.org>
+Cc:     Shahar S Matityahu <shahar.s.matityahu@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 184/219] iwlwifi: dbg: fix debug monitor stop and restart delays
+Date:   Mon, 15 Jul 2019 10:03:05 -0400
+Message-Id: <20190715140341.6443-184-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -47,58 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baruch Siach <baruch@tkos.co.il>
+From: Shahar S Matityahu <shahar.s.matityahu@intel.com>
 
-[ Upstream commit 0472301a28f6cf53a6bc5783e48a2d0bbff4682f ]
+[ Upstream commit fc838c775f35e272e5cc7ef43853f0b55babbe37 ]
 
-Merge commit 1c8c5a9d38f60 ("Merge
-git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next") undid the
-fix from commit 36f9814a494 ("bpf: fix uapi hole for 32 bit compat
-applications") by taking the gpl_compatible 1-bit field definition from
-commit b85fab0e67b162 ("bpf: Add gpl_compatible flag to struct
-bpf_prog_info") as is. That breaks architectures with 16-bit alignment
-like m68k. Add 31-bit pad after gpl_compatible to restore alignment of
-following fields.
+The driver should delay only in recording stop flow between writing to
+DBGC_IN_SAMPLE register and DBGC_OUT_CTRL register. Any other delay is
+not needed.
 
-Thanks to Dmitry V. Levin his analysis of this bug history.
+Change the following:
+1. Remove any unnecessary delays in the flow
+2. Increase the delay in the stop recording flow since 100 micro is
+   not enough
+3. Use usleep_range instead of delay since the driver is allowed to
+   sleep in this flow.
 
-Signed-off-by: Baruch Siach <baruch@tkos.co.il>
-Acked-by: Song Liu <songliubraving@fb.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Shahar S Matityahu <shahar.s.matityahu@intel.com>
+Fixes: 5cfe79c8d92a ("iwlwifi: fw: stop and start debugging using host command")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/bpf.h       | 1 +
- tools/include/uapi/linux/bpf.h | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.c | 2 --
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.h | 6 ++++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
-index 9d01f4788d3e..9ae3f28ca469 100644
---- a/include/uapi/linux/bpf.h
-+++ b/include/uapi/linux/bpf.h
-@@ -2871,6 +2871,7 @@ struct bpf_prog_info {
- 	char name[BPF_OBJ_NAME_LEN];
- 	__u32 ifindex;
- 	__u32 gpl_compatible:1;
-+	__u32 :31; /* alignment pad */
- 	__u64 netns_dev;
- 	__u64 netns_ino;
- 	__u32 nr_jited_ksyms;
-diff --git a/tools/include/uapi/linux/bpf.h b/tools/include/uapi/linux/bpf.h
-index 929c8e537a14..f6ce794c0f36 100644
---- a/tools/include/uapi/linux/bpf.h
-+++ b/tools/include/uapi/linux/bpf.h
-@@ -2869,6 +2869,7 @@ struct bpf_prog_info {
- 	char name[BPF_OBJ_NAME_LEN];
- 	__u32 ifindex;
- 	__u32 gpl_compatible:1;
-+	__u32 :31; /* alignment pad */
- 	__u64 netns_dev;
- 	__u64 netns_ino;
- 	__u32 nr_jited_ksyms;
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+index d7380016f1c0..c30f626b1602 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+@@ -2146,8 +2146,6 @@ void iwl_fw_dbg_collect_sync(struct iwl_fw_runtime *fwrt)
+ 	/* start recording again if the firmware is not crashed */
+ 	if (!test_bit(STATUS_FW_ERROR, &fwrt->trans->status) &&
+ 	    fwrt->fw->dbg.dest_tlv) {
+-		/* wait before we collect the data till the DBGC stop */
+-		udelay(500);
+ 		iwl_fw_dbg_restart_recording(fwrt, &params);
+ 	}
+ }
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.h b/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
+index a199056234d3..97fcd57e17d8 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
++++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
+@@ -297,7 +297,10 @@ _iwl_fw_dbg_stop_recording(struct iwl_trans *trans,
+ 	}
+ 
+ 	iwl_write_umac_prph(trans, DBGC_IN_SAMPLE, 0);
+-	udelay(100);
++	/* wait for the DBGC to finish writing the internal buffer to DRAM to
++	 * avoid halting the HW while writing
++	 */
++	usleep_range(700, 1000);
+ 	iwl_write_umac_prph(trans, DBGC_OUT_CTRL, 0);
+ #ifdef CONFIG_IWLWIFI_DEBUGFS
+ 	trans->dbg_rec_on = false;
+@@ -327,7 +330,6 @@ _iwl_fw_dbg_restart_recording(struct iwl_trans *trans,
+ 		iwl_set_bits_prph(trans, MON_BUFF_SAMPLE_CTL, 0x1);
+ 	} else {
+ 		iwl_write_umac_prph(trans, DBGC_IN_SAMPLE, params->in_sample);
+-		udelay(100);
+ 		iwl_write_umac_prph(trans, DBGC_OUT_CTRL, params->out_ctrl);
+ 	}
+ }
 -- 
 2.20.1
 
