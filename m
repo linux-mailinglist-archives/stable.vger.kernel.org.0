@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED11968B30
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:40:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C858868B86
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731179AbfGONjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:39:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40586 "EHLO mail.kernel.org"
+        id S1730766AbfGONj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:39:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731177AbfGONjP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:39:15 -0400
+        id S1730641AbfGONj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:39:28 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF7FD20C01;
-        Mon, 15 Jul 2019 13:39:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E9B12080A;
+        Mon, 15 Jul 2019 13:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563197954;
-        bh=UZby9dVk9MFAUqpiU1hi/Ti2aHvwtkwja8ycGnSBRJ4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uEboVlSghOKgc4cHBD86SqntgclnLCBRMTXSe5hhBTd/+JWwQ3lQj1LAW6wfWqQ1t
-         7wgZDBx8F6BvDgZLYUdYm/DoLzisD50tQLP46Njsl9Vk1wUhVOGziDa5q/gHskdxJf
-         G3Yo0HfQtBqgJroE4tS/7yvgJHiWJJEeXANrZFNA=
+        s=default; t=1563197967;
+        bh=RCERVD4EomtNaF+pux6n2NXGbPprNAKJkf7ml5FnTmk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=orkQxiit5phDMhqO1XCkNJnK1+ptjz/MIv7j3wDclFJryDg1T5z25dv6EIMTfMk1g
+         OfZAwsMgnON3IqgvwkHk6TTgxJwwM++myX3WYTKINnYdaj4G7YP6ozSjcRApAbLuai
+         m0ymRbJYihO3j4EFE8/gZLD1ZAt9bYra65W5VPvA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lubomir Rintel <lkundrak@v3.sk>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 023/219] media: marvell-ccic: fix DMA s/g desc number calculation
-Date:   Mon, 15 Jul 2019 09:34:55 -0400
-Message-Id: <20190715133811.2441-23-sashal@kernel.org>
+Cc:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, wil6210@qti.qualcomm.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 001/158] wil6210: fix potential out-of-bounds read
+Date:   Mon, 15 Jul 2019 09:36:46 -0400
+Message-Id: <20190715133923.2890-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190715133811.2441-1-sashal@kernel.org>
-References: <20190715133811.2441-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,64 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lubomir Rintel <lkundrak@v3.sk>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
-[ Upstream commit 0c7aa32966dab0b8a7424e1b34c7f206817953ec ]
+[ Upstream commit bfabdd6997323adbedccb13a3fed1967fb8cf8f5 ]
 
-The commit d790b7eda953 ("[media] vb2-dma-sg: move dma_(un)map_sg here")
-left dma_desc_nent unset. It previously contained the number of DMA
-descriptors as returned from dma_map_sg().
+Notice that *rc* can evaluate to up to 5, include/linux/netdevice.h:
 
-We can now (since the commit referred to above) obtain the same value from
-the sg_table and drop dma_desc_nent altogether.
+enum gro_result {
+        GRO_MERGED,
+        GRO_MERGED_FREE,
+        GRO_HELD,
+        GRO_NORMAL,
+        GRO_DROP,
+        GRO_CONSUMED,
+};
+typedef enum gro_result gro_result_t;
 
-Tested on OLPC XO-1.75 machine. Doesn't affect the OLPC XO-1's Cafe
-driver, since that one doesn't do DMA.
+In case *rc* evaluates to 5, we end up having an out-of-bounds read
+at drivers/net/wireless/ath/wil6210/txrx.c:821:
 
-[mchehab+samsung@kernel.org: fix a checkpatch warning]
+	wil_dbg_txrx(wil, "Rx complete %d bytes => %s\n",
+		     len, gro_res_str[rc]);
 
-Fixes: d790b7eda953 ("[media] vb2-dma-sg: move dma_(un)map_sg here")
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fix this by adding element "GRO_CONSUMED" to array gro_res_str.
+
+Addresses-Coverity-ID: 1444666 ("Out-of-bounds read")
+Fixes: 194b482b5055 ("wil6210: Debug print GRO Rx result")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/marvell-ccic/mcam-core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/wil6210/txrx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/marvell-ccic/mcam-core.c b/drivers/media/platform/marvell-ccic/mcam-core.c
-index f1b301810260..0a6411b877e9 100644
---- a/drivers/media/platform/marvell-ccic/mcam-core.c
-+++ b/drivers/media/platform/marvell-ccic/mcam-core.c
-@@ -200,7 +200,6 @@ struct mcam_vb_buffer {
- 	struct list_head queue;
- 	struct mcam_dma_desc *dma_desc;	/* Descriptor virtual address */
- 	dma_addr_t dma_desc_pa;		/* Descriptor physical address */
--	int dma_desc_nent;		/* Number of mapped descriptors */
- };
+diff --git a/drivers/net/wireless/ath/wil6210/txrx.c b/drivers/net/wireless/ath/wil6210/txrx.c
+index 75c8aa297107..1b1b58e0129a 100644
+--- a/drivers/net/wireless/ath/wil6210/txrx.c
++++ b/drivers/net/wireless/ath/wil6210/txrx.c
+@@ -736,6 +736,7 @@ void wil_netif_rx_any(struct sk_buff *skb, struct net_device *ndev)
+ 		[GRO_HELD]		= "GRO_HELD",
+ 		[GRO_NORMAL]		= "GRO_NORMAL",
+ 		[GRO_DROP]		= "GRO_DROP",
++		[GRO_CONSUMED]		= "GRO_CONSUMED",
+ 	};
  
- static inline struct mcam_vb_buffer *vb_to_mvb(struct vb2_v4l2_buffer *vb)
-@@ -608,9 +607,11 @@ static void mcam_dma_contig_done(struct mcam_camera *cam, int frame)
- static void mcam_sg_next_buffer(struct mcam_camera *cam)
- {
- 	struct mcam_vb_buffer *buf;
-+	struct sg_table *sg_table;
- 
- 	buf = list_first_entry(&cam->buffers, struct mcam_vb_buffer, queue);
- 	list_del_init(&buf->queue);
-+	sg_table = vb2_dma_sg_plane_desc(&buf->vb_buf.vb2_buf, 0);
- 	/*
- 	 * Very Bad Not Good Things happen if you don't clear
- 	 * C1_DESC_ENA before making any descriptor changes.
-@@ -618,7 +619,7 @@ static void mcam_sg_next_buffer(struct mcam_camera *cam)
- 	mcam_reg_clear_bit(cam, REG_CTRL1, C1_DESC_ENA);
- 	mcam_reg_write(cam, REG_DMA_DESC_Y, buf->dma_desc_pa);
- 	mcam_reg_write(cam, REG_DESC_LEN_Y,
--			buf->dma_desc_nent*sizeof(struct mcam_dma_desc));
-+			sg_table->nents * sizeof(struct mcam_dma_desc));
- 	mcam_reg_write(cam, REG_DESC_LEN_U, 0);
- 	mcam_reg_write(cam, REG_DESC_LEN_V, 0);
- 	mcam_reg_set_bit(cam, REG_CTRL1, C1_DESC_ENA);
+ 	wil->txrx_ops.get_netif_rx_params(skb, &cid, &security);
 -- 
 2.20.1
 
