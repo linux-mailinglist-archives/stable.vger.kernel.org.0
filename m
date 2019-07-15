@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56D5768E2A
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:04:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B84668E35
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:04:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733047AbfGOOEA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:04:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49690 "EHLO mail.kernel.org"
+        id S2387514AbfGOOE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:04:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730743AbfGOOD7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:03:59 -0400
+        id S2387498AbfGOOE2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:04:28 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FC3C2081C;
-        Mon, 15 Jul 2019 14:03:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3408206B8;
+        Mon, 15 Jul 2019 14:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199438;
-        bh=KCYLOsGoG359+oREF2v3J7YYuSkQnjbjlMV7bKPIiJQ=;
+        s=default; t=1563199467;
+        bh=v1PQWlyIIUKb7uwAvPPpO/t5SdRgQrA1dwadJe0wwAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XXbUPT4RMXtLOqmkxagzp1fWEb7uJq86oRipFCSOdcyMJIZoN1UprZSEHIAkuZEMu
-         GwoXm/g516LSZylGnZ/+Z+fET7QkXR7/tXTKj3FgB9Bxwq6xD4YMwiJnxqZ459Fzm6
-         BV5cG3s0+7vFfGuqcfcr1s8IgPTV5IJH9Q4Ij5Vo=
+        b=tlizvpuWDQeY/iUNMb+G1ZCjs5K+1i8ibJl1A02yY1O3mKttHF++1PM/qZOXwmUw0
+         ZKhnYajk2A/jGrWALfzQPRA7yBvSA2ZAo8jmKVuIy2lwZpFmZcvPmHPWR/4zBeFo1S
+         9UlU5pIn2rY9SMsxtZpwIlIvhXCCDPtDPvtwH6rM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Miguel Catalan Cid <miguel.catalan@i2cat.net>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
+Cc:     Wen Gong <wgong@codeaurora.org>, Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 004/219] ath9k: Don't trust TX status TID number when reporting airtime
-Date:   Mon, 15 Jul 2019 10:00:05 -0400
-Message-Id: <20190715140341.6443-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 012/219] ath10k: add peer id check in ath10k_peer_find_by_id
+Date:   Mon, 15 Jul 2019 10:00:13 -0400
+Message-Id: <20190715140341.6443-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,59 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Wen Gong <wgong@codeaurora.org>
 
-[ Upstream commit 389b72e58259336c2d56d58b660b79cf4b9e0dcb ]
+[ Upstream commit 49ed34b835e231aa941257394716bc689bc98d9f ]
 
-As already noted a comment in ath_tx_complete_aggr(), the hardware will
-occasionally send a TX status with the wrong tid number. If we trust the
-value, airtime usage will be reported to the wrong AC, which can cause the
-deficit on that AC to become very low, blocking subsequent attempts to
-transmit.
+For some SDIO chip, the peer id is 65535 for MPDU with error status,
+then test_bit will trigger buffer overflow for peer's memory, if kasan
+enabled, it will report error.
 
-To fix this, account airtime usage to the TID number from the original skb,
-instead of the one in the hardware TX status report.
+Reason is when station is in disconnecting status, firmware do not delete
+the peer info since it not disconnected completely, meanwhile some AP will
+still send data packet to station, then hardware will receive the packet
+and send to firmware, firmware's logic will report peer id of 65535 for
+MPDU with error status.
 
-Reported-by: Miguel Catalan Cid <miguel.catalan@i2cat.net>
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Add check for overflow the size of peer's peer_ids will avoid the buffer
+overflow access.
+
+Call trace of kasan:
+dump_backtrace+0x0/0x2ec
+show_stack+0x20/0x2c
+__dump_stack+0x20/0x28
+dump_stack+0xc8/0xec
+print_address_description+0x74/0x240
+kasan_report+0x250/0x26c
+__asan_report_load8_noabort+0x20/0x2c
+ath10k_peer_find_by_id+0x180/0x1e4 [ath10k_core]
+ath10k_htt_t2h_msg_handler+0x100c/0x2fd4 [ath10k_core]
+ath10k_htt_htc_t2h_msg_handler+0x20/0x34 [ath10k_core]
+ath10k_sdio_irq_handler+0xcc8/0x1678 [ath10k_sdio]
+process_sdio_pending_irqs+0xec/0x370
+sdio_run_irqs+0x68/0xe4
+sdio_irq_work+0x1c/0x28
+process_one_work+0x3d8/0x8b0
+worker_thread+0x508/0x7cc
+kthread+0x24c/0x264
+ret_from_fork+0x10/0x18
+
+Tested with QCA6174 SDIO with firmware
+WLAN.RMH.4.4.1-00007-QCARMSWP-1.
+
+Signed-off-by: Wen Gong <wgong@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/xmit.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath10k/txrx.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/xmit.c b/drivers/net/wireless/ath/ath9k/xmit.c
-index b17e1ca40995..3be0aeedb9b5 100644
---- a/drivers/net/wireless/ath/ath9k/xmit.c
-+++ b/drivers/net/wireless/ath/ath9k/xmit.c
-@@ -668,7 +668,8 @@ static bool bf_is_ampdu_not_probing(struct ath_buf *bf)
- static void ath_tx_count_airtime(struct ath_softc *sc,
- 				 struct ieee80211_sta *sta,
- 				 struct ath_buf *bf,
--				 struct ath_tx_status *ts)
-+				 struct ath_tx_status *ts,
-+				 u8 tid)
+diff --git a/drivers/net/wireless/ath/ath10k/txrx.c b/drivers/net/wireless/ath/ath10k/txrx.c
+index c5818d28f55a..4102df016931 100644
+--- a/drivers/net/wireless/ath/ath10k/txrx.c
++++ b/drivers/net/wireless/ath/ath10k/txrx.c
+@@ -150,6 +150,9 @@ struct ath10k_peer *ath10k_peer_find_by_id(struct ath10k *ar, int peer_id)
  {
- 	u32 airtime = 0;
- 	int i;
-@@ -679,7 +680,7 @@ static void ath_tx_count_airtime(struct ath_softc *sc,
- 		airtime += rate_dur * bf->rates[i].count;
- 	}
+ 	struct ath10k_peer *peer;
  
--	ieee80211_sta_register_airtime(sta, ts->tid, airtime, 0);
-+	ieee80211_sta_register_airtime(sta, tid, airtime, 0);
- }
++	if (peer_id >= BITS_PER_TYPE(peer->peer_ids))
++		return NULL;
++
+ 	lockdep_assert_held(&ar->data_lock);
  
- static void ath_tx_process_buffer(struct ath_softc *sc, struct ath_txq *txq,
-@@ -709,7 +710,7 @@ static void ath_tx_process_buffer(struct ath_softc *sc, struct ath_txq *txq,
- 	if (sta) {
- 		struct ath_node *an = (struct ath_node *)sta->drv_priv;
- 		tid = ath_get_skb_tid(sc, an, bf->bf_mpdu);
--		ath_tx_count_airtime(sc, sta, bf, ts);
-+		ath_tx_count_airtime(sc, sta, bf, ts, tid->tidno);
- 		if (ts->ts_status & (ATH9K_TXERR_FILT | ATH9K_TXERR_XRETRY))
- 			tid->clear_ps_filter = true;
- 	}
+ 	list_for_each_entry(peer, &ar->peers, list)
 -- 
 2.20.1
 
