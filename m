@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3790C68CEC
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EACB868D38
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:57:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731901AbfGONyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:54:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55834 "EHLO mail.kernel.org"
+        id S1732460AbfGON4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:56:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732553AbfGONyu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:54:50 -0400
+        id S1732609AbfGONyz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:54:55 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0CDC212F5;
-        Mon, 15 Jul 2019 13:54:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 041C82083D;
+        Mon, 15 Jul 2019 13:54:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198889;
-        bh=gj0zBDm52IIackDZtC7KVsYGiEuhEY9qeD30u0iD1ss=;
+        s=default; t=1563198894;
+        bh=vcGn3ElHcdimtT8hx9eq+HzmedGg7CPrXqHkCAf/oPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xbf/oMhPRWW5zjmncl0vn6JnaOBfY86I2kZ3gcFcavEfYx5V/JCO1WA6w+sFS4PDR
-         4dGFtuHaNlj+gSQlLZa/1qz+oH8uG2oFcZySelpq1/TiFd27ASqTUL8cELlLdhxEuS
-         tgg2DR2Gfjhf6O438IXn0v4QYfGdr7jIL//d1dso=
+        b=lHrK96OnCfFzBLQNPAW1xfSlxAhN2CSqUg0zNbtoI/Csfgcn38T6OLRaZIgSFpgQa
+         4023Gj/rxLRhsLMT/koOdX2ZUQG+UTJZakLradPRlWZDkasJ1jmbcbzdMak8q8TabU
+         zA+wCDZ4heTMPCwOzzg3afueAKwlMAutdXbJ3hRc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dennis Zhou <dennis@kernel.org>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 129/249] blk-iolatency: only account submitted bios
-Date:   Mon, 15 Jul 2019 09:44:54 -0400
-Message-Id: <20190715134655.4076-129-sashal@kernel.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, Borislav Petkov <bp@suse.de>,
+        Sasha Levin <sashal@kernel.org>, linux-edac@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 132/249] EDAC/sysfs: Drop device references properly
+Date:   Mon, 15 Jul 2019 09:44:57 -0400
+Message-Id: <20190715134655.4076-132-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -44,39 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Zhou <dennis@kernel.org>
+From: Greg KH <gregkh@linuxfoundation.org>
 
-[ Upstream commit a3fb01ba5af066521f3f3421839e501bb2c71805 ]
+[ Upstream commit 7adc05d2dc3af95e4e1534841d58f736262142cd ]
 
-As is, iolatency recognizes done_bio and cleanup as ending paths. If a
-request is marked REQ_NOWAIT and fails to get a request, the bio is
-cleaned up via rq_qos_cleanup() and ended in bio_wouldblock_error().
-This results in underflowing the inflight counter. Fix this by only
-accounting bios that were actually submitted.
+Do put_device() if device_add() fails.
 
-Signed-off-by: Dennis Zhou <dennis@kernel.org>
-Cc: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+ [ bp: do device_del() for the successfully created devices in
+   edac_create_csrow_objects(), on the unwind path. ]
+
+Signed-off-by: Greg KH <gregkh@linuxfoundation.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20190427214925.GE16338@kroah.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-iolatency.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/edac/edac_mc_sysfs.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
-index d22e61bced86..c91b84bb9d0a 100644
---- a/block/blk-iolatency.c
-+++ b/block/blk-iolatency.c
-@@ -600,6 +600,10 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
- 	if (!blkg || !bio_flagged(bio, BIO_TRACKED))
- 		return;
- 
-+	/* We didn't actually submit this bio, don't account it. */
-+	if (bio->bi_status == BLK_STS_AGAIN)
-+		return;
+diff --git a/drivers/edac/edac_mc_sysfs.c b/drivers/edac/edac_mc_sysfs.c
+index 464174685589..bf9273437e3f 100644
+--- a/drivers/edac/edac_mc_sysfs.c
++++ b/drivers/edac/edac_mc_sysfs.c
+@@ -443,7 +443,8 @@ static int edac_create_csrow_objects(struct mem_ctl_info *mci)
+ 		csrow = mci->csrows[i];
+ 		if (!nr_pages_per_csrow(csrow))
+ 			continue;
+-		put_device(&mci->csrows[i]->dev);
 +
- 	iolat = blkg_to_lat(bio->bi_blkg);
- 	if (!iolat)
- 		return;
++		device_del(&mci->csrows[i]->dev);
+ 	}
+ 
+ 	return err;
+@@ -645,9 +646,11 @@ static int edac_create_dimm_object(struct mem_ctl_info *mci,
+ 	dev_set_drvdata(&dimm->dev, dimm);
+ 	pm_runtime_forbid(&mci->dev);
+ 
+-	err =  device_add(&dimm->dev);
++	err = device_add(&dimm->dev);
++	if (err)
++		put_device(&dimm->dev);
+ 
+-	edac_dbg(0, "creating rank/dimm device %s\n", dev_name(&dimm->dev));
++	edac_dbg(0, "created rank/dimm device %s\n", dev_name(&dimm->dev));
+ 
+ 	return err;
+ }
+@@ -928,6 +931,7 @@ int edac_create_sysfs_mci_device(struct mem_ctl_info *mci,
+ 	err = device_add(&mci->dev);
+ 	if (err < 0) {
+ 		edac_dbg(1, "failure: create device %s\n", dev_name(&mci->dev));
++		put_device(&mci->dev);
+ 		goto out;
+ 	}
+ 
 -- 
 2.20.1
 
