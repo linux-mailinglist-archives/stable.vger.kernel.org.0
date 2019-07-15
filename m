@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0AF9691F4
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:34:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDD47691F6
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391496AbfGOOc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:32:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48556 "EHLO mail.kernel.org"
+        id S2391930AbfGOOdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391912AbfGOOc5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:32:57 -0400
+        id S2404006AbfGOOdB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:33:01 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1207E20868;
-        Mon, 15 Jul 2019 14:32:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7C3F206B8;
+        Mon, 15 Jul 2019 14:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201176;
-        bh=IQ7RPN7+t3nFxxPCkYpOIib6KCDRBhwWX793jYCiN/Y=;
+        s=default; t=1563201179;
+        bh=Q9OziMW4MpQFGfOhqKSAru5QzGan+A/hH+ADWkAvAvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSMeh6poRMpITinzw19OHTP8pwbk7j0NMupY/9ShpFEQDnVO1+3u+dsh28L55FGb+
-         JM8lO8RFGYakzxd5ZXoaadEzPnVmDDTHK+1fv9Lde6FTrfmb5Jh8b8CzUFbR3P5HqM
-         2pDulBhbq2hBzpGOz0PsNSN+/CQl5yhUk9paIMd4=
+        b=pvmC6L8vAQ0sDePWWoZpW8Sqt0l0xDuxs3L/DOvpuGiI/BwECWYvrY+r2XU9NxtQe
+         zP+/PWHFQ3qmu9Q09Spa/M7Mo1u9mJwHhS4oKccRQOoSQzDScvSM8EdFJgEtIMEM91
+         qRLNZ5a80ekw+9H4/4+ErOJL5ihN27argU21GJog=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
-        Keith Pyle <kpyle@austin.rr.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 070/105] media: hdpvr: fix locking and a missing msleep
-Date:   Mon, 15 Jul 2019 10:28:04 -0400
-Message-Id: <20190715142839.9896-70-sashal@kernel.org>
+Cc:     Ping-Ke Shih <pkshih@realtek.com>,
+        syzbot+1fcc5ef45175fc774231@syzkaller.appspotmail.com,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 071/105] rtlwifi: rtl8192cu: fix error handle when usb probe failed
+Date:   Mon, 15 Jul 2019 10:28:05 -0400
+Message-Id: <20190715142839.9896-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715142839.9896-1-sashal@kernel.org>
 References: <20190715142839.9896-1-sashal@kernel.org>
@@ -45,81 +46,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
+From: Ping-Ke Shih <pkshih@realtek.com>
 
-[ Upstream commit 6bc5a4a1927556ff9adce1aa95ea408c95453225 ]
+[ Upstream commit 6c0ed66f1a5b84e2a812c7c2d6571a5621bf3396 ]
 
-This driver has three locking issues:
+rtl_usb_probe() must do error handle rtl_deinit_core() only if
+rtl_init_core() is done, otherwise goto error_out2.
 
-- The wait_event_interruptible() condition calls hdpvr_get_next_buffer(dev)
-  which uses a mutex, which is not allowed. Rewrite with list_empty_careful()
-  that doesn't need locking.
+| usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+| rtl_usb: reg 0xf0, usbctrl_vendorreq TimeOut! status:0xffffffb9 value=0x0
+| rtl8192cu: Chip version 0x10
+| rtl_usb: reg 0xa, usbctrl_vendorreq TimeOut! status:0xffffffb9 value=0x0
+| rtl_usb: Too few input end points found
+| INFO: trying to register non-static key.
+| the code is fine but needs lockdep annotation.
+| turning off the locking correctness validator.
+| CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.1.0-rc4-319354-g9a33b36 #3
+| Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+| Google 01/01/2011
+| Workqueue: usb_hub_wq hub_event
+| Call Trace:
+|   __dump_stack lib/dump_stack.c:77 [inline]
+|   dump_stack+0xe8/0x16e lib/dump_stack.c:113
+|   assign_lock_key kernel/locking/lockdep.c:786 [inline]
+|   register_lock_class+0x11b8/0x1250 kernel/locking/lockdep.c:1095
+|   __lock_acquire+0xfb/0x37c0 kernel/locking/lockdep.c:3582
+|   lock_acquire+0x10d/0x2f0 kernel/locking/lockdep.c:4211
+|   __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+|   _raw_spin_lock_irqsave+0x44/0x60 kernel/locking/spinlock.c:152
+|   rtl_c2hcmd_launcher+0xd1/0x390
+| drivers/net/wireless/realtek/rtlwifi/base.c:2344
+|   rtl_deinit_core+0x25/0x2d0 drivers/net/wireless/realtek/rtlwifi/base.c:574
+|   rtl_usb_probe.cold+0x861/0xa70
+| drivers/net/wireless/realtek/rtlwifi/usb.c:1093
+|   usb_probe_interface+0x31d/0x820 drivers/usb/core/driver.c:361
+|   really_probe+0x2da/0xb10 drivers/base/dd.c:509
+|   driver_probe_device+0x21d/0x350 drivers/base/dd.c:671
+|   __device_attach_driver+0x1d8/0x290 drivers/base/dd.c:778
+|   bus_for_each_drv+0x163/0x1e0 drivers/base/bus.c:454
+|   __device_attach+0x223/0x3a0 drivers/base/dd.c:844
+|   bus_probe_device+0x1f1/0x2a0 drivers/base/bus.c:514
+|   device_add+0xad2/0x16e0 drivers/base/core.c:2106
+|   usb_set_configuration+0xdf7/0x1740 drivers/usb/core/message.c:2021
+|   generic_probe+0xa2/0xda drivers/usb/core/generic.c:210
+|   usb_probe_device+0xc0/0x150 drivers/usb/core/driver.c:266
+|   really_probe+0x2da/0xb10 drivers/base/dd.c:509
+|   driver_probe_device+0x21d/0x350 drivers/base/dd.c:671
+|   __device_attach_driver+0x1d8/0x290 drivers/base/dd.c:778
+|   bus_for_each_drv+0x163/0x1e0 drivers/base/bus.c:454
+|   __device_attach+0x223/0x3a0 drivers/base/dd.c:844
+|   bus_probe_device+0x1f1/0x2a0 drivers/base/bus.c:514
+|   device_add+0xad2/0x16e0 drivers/base/core.c:2106
+|   usb_new_device.cold+0x537/0xccf drivers/usb/core/hub.c:2534
+|   hub_port_connect drivers/usb/core/hub.c:5089 [inline]
+|   hub_port_connect_change drivers/usb/core/hub.c:5204 [inline]
+|   port_event drivers/usb/core/hub.c:5350 [inline]
+|   hub_event+0x138e/0x3b00 drivers/usb/core/hub.c:5432
+|   process_one_work+0x90f/0x1580 kernel/workqueue.c:2269
+|   worker_thread+0x9b/0xe20 kernel/workqueue.c:2415
+|   kthread+0x313/0x420 kernel/kthread.c:253
+|   ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:352
 
-- In hdpvr_read() the call to hdpvr_stop_streaming() didn't lock io_mutex,
-  but it should have since stop_streaming expects that.
-
-- In hdpvr_device_release() io_mutex was locked when calling flush_work(),
-  but there it shouldn't take that mutex since the work done by flush_work()
-  also wants to lock that mutex.
-
-There are also two other changes (suggested by Keith):
-
-- msecs_to_jiffies(4000); (a NOP) should have been msleep(4000).
-- Change v4l2_dbg to v4l2_info to always log if streaming had to be restarted.
-
-Reported-by: Keith Pyle <kpyle@austin.rr.com>
-Suggested-by: Keith Pyle <kpyle@austin.rr.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Reported-by: syzbot+1fcc5ef45175fc774231@syzkaller.appspotmail.com
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/hdpvr/hdpvr-video.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/usb.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/hdpvr/hdpvr-video.c b/drivers/media/usb/hdpvr/hdpvr-video.c
-index 7fb036d6a86e..991f820a4530 100644
---- a/drivers/media/usb/hdpvr/hdpvr-video.c
-+++ b/drivers/media/usb/hdpvr/hdpvr-video.c
-@@ -439,7 +439,7 @@ static ssize_t hdpvr_read(struct file *file, char __user *buffer, size_t count,
- 	/* wait for the first buffer */
- 	if (!(file->f_flags & O_NONBLOCK)) {
- 		if (wait_event_interruptible(dev->wait_data,
--					     hdpvr_get_next_buffer(dev)))
-+					     !list_empty_careful(&dev->rec_buff_list)))
- 			return -ERESTARTSYS;
+diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
+index 820c42ff5384..2401c8bdb211 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/usb.c
++++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
+@@ -1099,13 +1099,13 @@ int rtl_usb_probe(struct usb_interface *intf,
+ 	rtlpriv->cfg->ops->read_eeprom_info(hw);
+ 	err = _rtl_usb_init(hw);
+ 	if (err)
+-		goto error_out;
++		goto error_out2;
+ 	rtl_usb_init_sw(hw);
+ 	/* Init mac80211 sw */
+ 	err = rtl_init_core(hw);
+ 	if (err) {
+ 		pr_err("Can't allocate sw for mac80211\n");
+-		goto error_out;
++		goto error_out2;
  	}
+ 	if (rtlpriv->cfg->ops->init_sw_vars(hw)) {
+ 		pr_err("Can't init_sw_vars\n");
+@@ -1126,6 +1126,7 @@ int rtl_usb_probe(struct usb_interface *intf,
  
-@@ -465,10 +465,17 @@ static ssize_t hdpvr_read(struct file *file, char __user *buffer, size_t count,
- 				goto err;
- 			}
- 			if (!err) {
--				v4l2_dbg(MSG_INFO, hdpvr_debug, &dev->v4l2_dev,
--					"timeout: restart streaming\n");
-+				v4l2_info(&dev->v4l2_dev,
-+					  "timeout: restart streaming\n");
-+				mutex_lock(&dev->io_mutex);
- 				hdpvr_stop_streaming(dev);
--				msecs_to_jiffies(4000);
-+				mutex_unlock(&dev->io_mutex);
-+				/*
-+				 * The FW needs about 4 seconds after streaming
-+				 * stopped before it is ready to restart
-+				 * streaming.
-+				 */
-+				msleep(4000);
- 				err = hdpvr_start_streaming(dev);
- 				if (err) {
- 					ret = err;
-@@ -1133,9 +1140,7 @@ static void hdpvr_device_release(struct video_device *vdev)
- 	struct hdpvr_device *dev = video_get_drvdata(vdev);
- 
- 	hdpvr_delete(dev);
--	mutex_lock(&dev->io_mutex);
- 	flush_work(&dev->worker);
--	mutex_unlock(&dev->io_mutex);
- 
- 	v4l2_device_unregister(&dev->v4l2_dev);
- 	v4l2_ctrl_handler_free(&dev->hdl);
+ error_out:
+ 	rtl_deinit_core(hw);
++error_out2:
+ 	_rtl_usb_io_handler_release(hw);
+ 	usb_put_dev(udev);
+ 	complete(&rtlpriv->firmware_loading_complete);
 -- 
 2.20.1
 
