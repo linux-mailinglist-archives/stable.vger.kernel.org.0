@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33016697FE
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:14:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDA5D697FD
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:14:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731458AbfGONsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731462AbfGONsW (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Jul 2019 09:48:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58270 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730723AbfGONsS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:48:18 -0400
+        id S1731301AbfGONsV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:48:21 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1515A2067C;
-        Mon, 15 Jul 2019 13:48:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABEB620896;
+        Mon, 15 Jul 2019 13:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198497;
-        bh=ohdKLHSaUs+t+7NPiPPa2edaBTzJE8O1R0rFulprvcs=;
+        s=default; t=1563198500;
+        bh=XttTZV1WxecbDv1QVSpMVqZbbtGOSwbQn5fveaxmjyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WSRzEHVDbe9ujhewNpjP/5vmYQW5IrjfS4BGwNr5J15gRWc/9LWoEBf7RiG+T7Xs6
-         smsoO5KUVtBNsdYkLtPP0YXUcfvPZ2JLKx7u5V4+nE42nftg5VprKUh6/o00zwsdSF
-         L30B2JZKJtbfZ6RrOFBxQ38miJX/PJGmhISrVdIU=
+        b=Jat5AYmKuan2njS31cnVN3rrD/WPGODc89X4PV8F1GKJsGL0lbVPH0wUSbl8MhEE9
+         ljbM0yqBYxpcbK/8HjmzEC8Mm/A5l5RqCepBE9fmrfkh0vRxAHErxF1Hongc0MWjZ6
+         cHv0A+Kp7MeKJ93hC4+tKZSUltVlUEc6pXTYwLXY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jungo Lin <jungo.lin@mediatek.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 026/249] media: media_device_enum_links32: clean a reserved field
-Date:   Mon, 15 Jul 2019 09:43:11 -0400
-Message-Id: <20190715134655.4076-26-sashal@kernel.org>
+Cc:     Brett Creeley <brett.creeley@intel.com>,
+        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 027/249] ice: Gracefully handle reset failure in ice_alloc_vfs()
+Date:   Mon, 15 Jul 2019 09:43:12 -0400
+Message-Id: <20190715134655.4076-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -43,55 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jungo Lin <jungo.lin@mediatek.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit f49308878d7202e07d8761238e01bd0e5fce2750 ]
+[ Upstream commit 72f9c2039859e6303550f202d6cc6b8d8af0178c ]
 
-In v4l2-compliance utility, test MEDIA_IOC_ENUM_ENTITIES
-will check whether reserved field of media_links_enum filled
-with zero.
+Currently if ice_reset_all_vfs() fails in ice_alloc_vfs() we fail to
+free some resources, reset variables, and return an error value.
+Fix this by adding another unroll case to free the pf->vf array, set
+the pf->num_alloc_vfs to 0, and return an error code.
 
-However, for 32 bit program, the reserved field is missing
-copy from kernel space to user space in media_device_enum_links32
-function.
+Without this, if ice_reset_all_vfs() fails in ice_alloc_vfs() we will
+not be able to do SRIOV without hard rebooting the system because
+rmmod'ing the driver does not work.
 
-This patch adds the cleaning a reserved field logic in
-media_device_enum_links32 function.
-
-Signed-off-by: Jungo Lin <jungo.lin@mediatek.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/media-device.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/media-device.c b/drivers/media/media-device.c
-index 9ae481ddd975..b9bb4904bba1 100644
---- a/drivers/media/media-device.c
-+++ b/drivers/media/media-device.c
-@@ -494,6 +494,7 @@ static long media_device_enum_links32(struct media_device *mdev,
- {
- 	struct media_links_enum links;
- 	compat_uptr_t pads_ptr, links_ptr;
-+	int ret;
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+index a805cbdd69be..81ea77978355 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+@@ -1134,7 +1134,7 @@ static int ice_alloc_vfs(struct ice_pf *pf, u16 num_alloc_vfs)
+ 			   GFP_KERNEL);
+ 	if (!vfs) {
+ 		ret = -ENOMEM;
+-		goto err_unroll_sriov;
++		goto err_pci_disable_sriov;
+ 	}
+ 	pf->vf = vfs;
  
- 	memset(&links, 0, sizeof(links));
+@@ -1154,12 +1154,19 @@ static int ice_alloc_vfs(struct ice_pf *pf, u16 num_alloc_vfs)
+ 	pf->num_alloc_vfs = num_alloc_vfs;
  
-@@ -505,7 +506,13 @@ static long media_device_enum_links32(struct media_device *mdev,
- 	links.pads = compat_ptr(pads_ptr);
- 	links.links = compat_ptr(links_ptr);
+ 	/* VF resources get allocated during reset */
+-	if (!ice_reset_all_vfs(pf, true))
++	if (!ice_reset_all_vfs(pf, true)) {
++		ret = -EIO;
+ 		goto err_unroll_sriov;
++	}
  
--	return media_device_enum_links(mdev, &links);
-+	ret = media_device_enum_links(mdev, &links);
-+	if (ret)
-+		return ret;
-+
-+	memset(ulinks->reserved, 0, sizeof(ulinks->reserved));
-+
-+	return 0;
- }
+ 	goto err_unroll_intr;
  
- #define MEDIA_IOC_ENUM_LINKS32		_IOWR('|', 0x02, struct media_links_enum32)
+ err_unroll_sriov:
++	pf->vf = NULL;
++	devm_kfree(&pf->pdev->dev, vfs);
++	vfs = NULL;
++	pf->num_alloc_vfs = 0;
++err_pci_disable_sriov:
+ 	pci_disable_sriov(pf->pdev);
+ err_unroll_intr:
+ 	/* rearm interrupts here */
 -- 
 2.20.1
 
