@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DA9B696F9
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:08:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34F0A696F6
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731589AbfGOOAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:00:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40988 "EHLO mail.kernel.org"
+        id S1733097AbfGOOCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:02:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387410AbfGON75 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:59:57 -0400
+        id S1730529AbfGOOCG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:02:06 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4418B212F5;
-        Mon, 15 Jul 2019 13:59:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0CB620C01;
+        Mon, 15 Jul 2019 14:02:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199196;
-        bh=Y89c70ExzTxcWGPHXa29Z8C41o1QTD76E423cWYFRAs=;
+        s=default; t=1563199325;
+        bh=IY/4Z3VZKH9tWX8hyzz9JLXe2h+wlpamdpXgSSjSkGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjQFbG1Q6sViSnzlcj1FctjtncsdyjRc6FoeYgZpY8Ig1yHKLey5i+Hp/jeqWmJTo
-         2hgWSpgq6hPYZIcatGJ0JKkSOs2ZSa1YERaSjtcWN2XGzFgsnrRuHSeTW4rjWWnzFz
-         i/fAERhKooudTYoXIhGR4RArJ7u2XUge0XNoOdDo=
+        b=J7K+2/Qf3oE9+v3WP+J3J4sWNB/Hw0bpOvB/yVSw2xxTxlQY9eSmIyKdGUU6LDGes
+         4eSx/3S8M4+b8VvdjpZhaq5Omb+BQc+esIixb+j0WlLxVXC/T71FQO2kfKqceqJ5OD
+         MLQ8nN1Nji5DSkxRoF8MIwwnZURu7go4Ecu90jS4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Chan <michael.chan@broadcom.com>,
+Cc:     Jian Shen <shenjian15@huawei.com>, Peng Li <lipeng321@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 212/249] bnxt_en: Disable bus master during PCI shutdown and driver unload.
-Date:   Mon, 15 Jul 2019 09:46:17 -0400
-Message-Id: <20190715134655.4076-212-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 233/249] net: hns3: fix port capbility updating issue
+Date:   Mon, 15 Jul 2019 09:46:38 -0400
+Message-Id: <20190715134655.4076-233-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -43,50 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Jian Shen <shenjian15@huawei.com>
 
-[ Upstream commit c20dc142dd7b2884b8570eeab323bcd4a84294fa ]
+[ Upstream commit 49b1255603de5183c5e377200be3b3afe0dcdb86 ]
 
-Some chips with older firmware can continue to perform DMA read from
-context memory even after the memory has been freed.  In the PCI shutdown
-method, we need to call pci_disable_device() to shutdown DMA to prevent
-this DMA before we put the device into D3hot.  DMA memory request in
-D3hot state will generate PCI fatal error.  Similarly, in the driver
-remove method, the context memory should only be freed after DMA has
-been shutdown for correctness.
+Currently, the driver queries the media port information, and
+updates the port capability periodically. But it sets an error
+mac->speed_type value, which stops update port capability.
 
-Fixes: 98f04cf0f1fc ("bnxt_en: Check context memory requirements from firmware.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Fixes: 88d10bd6f730 ("net: hns3: add support for multiple media type")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index f758b2e0591f..b9bc829aa9da 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -10262,10 +10262,10 @@ static void bnxt_remove_one(struct pci_dev *pdev)
- 	bnxt_dcb_free(bp);
- 	kfree(bp->edev);
- 	bp->edev = NULL;
-+	bnxt_cleanup_pci(bp);
- 	bnxt_free_ctx_mem(bp);
- 	kfree(bp->ctx);
- 	bp->ctx = NULL;
--	bnxt_cleanup_pci(bp);
- 	bnxt_free_port_stats(bp);
- 	free_netdev(dev);
- }
-@@ -10859,6 +10859,7 @@ static void bnxt_shutdown(struct pci_dev *pdev)
- 
- 	if (system_state == SYSTEM_POWER_OFF) {
- 		bnxt_clear_int_mode(bp);
-+		pci_disable_device(pdev);
- 		pci_wake_from_d3(pdev, bp->wol);
- 		pci_set_power_state(pdev, PCI_D3hot);
- 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index bab04d2d674a..f2bffc05e902 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -2592,6 +2592,7 @@ static int hclge_get_sfp_info(struct hclge_dev *hdev, struct hclge_mac *mac)
+ 		mac->speed_ability = le32_to_cpu(resp->speed_ability);
+ 		mac->autoneg = resp->autoneg;
+ 		mac->support_autoneg = resp->autoneg_ability;
++		mac->speed_type = QUERY_ACTIVE_SPEED;
+ 		if (!resp->active_fec)
+ 			mac->fec_mode = 0;
+ 		else
 -- 
 2.20.1
 
