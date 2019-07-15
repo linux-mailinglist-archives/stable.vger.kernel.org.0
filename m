@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EBCE694E9
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EBD4694E7
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390800AbfGOO1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:27:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36600 "EHLO mail.kernel.org"
+        id S2391090AbfGOO1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:27:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389203AbfGOO1W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:27:22 -0400
+        id S2390431AbfGOO1f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:27:35 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8096D217D8;
-        Mon, 15 Jul 2019 14:27:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 672FA21850;
+        Mon, 15 Jul 2019 14:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200841;
-        bh=72bF+IOx0j2z62Z8rTgnIAQCuDAKIbJw7oNt9/aWOc4=;
+        s=default; t=1563200854;
+        bh=XBq78g8jmN+Da3vgAN/HM+QTKF806VoyDkgM1mv4sPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qmFRbGn4U+lZc8cyZymuF9z7JDdvNqzgIfpqbYH3nwc1tkHJFM2Cr+XsXmomhIJ90
-         ab5SuDmsdXmZ5x4yT15BXcAO9D7f60+UlwuKccLaH0FZQtLXGPAxo+pzqYuwZVKiWX
-         6N6PntFA8J8J/EFcEGyjZKJgmr+H14KUClcYUsAA=
+        b=Xm2OP+kpXVE2ECSevrb+PnJYHB3hP0tjJ9MjS1rlwNiun8q9qs0YhCNBgyHhkICaO
+         f8CNKPf/bJ+CC/Dgr3r4GR9tt1MNGjYK+mj/TsUFRJn7QvIq/xAdJXzT1Upp7vRTsy
+         tFUhZgWfEwgp3VPSCSaiRkK+Zwi+hra+n9HMatGE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Benc <jbenc@redhat.com>, Yonghong Song <yhs@fb.com>,
+Cc:     Jiri Olsa <jolsa@redhat.com>, Michael Petlan <mpetlan@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Quentin Monnet <quentin.monnet@netronome.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 142/158] selftests: bpf: fix inlines in test_lwt_seg6local
-Date:   Mon, 15 Jul 2019 10:17:53 -0400
-Message-Id: <20190715141809.8445-142-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 145/158] tools: bpftool: Fix json dump crash on powerpc
+Date:   Mon, 15 Jul 2019 10:17:56 -0400
+Message-Id: <20190715141809.8445-145-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -45,102 +47,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Benc <jbenc@redhat.com>
+From: Jiri Olsa <jolsa@redhat.com>
 
-[ Upstream commit 11aca65ec4db09527d3e9b6b41a0615b7da4386b ]
+[ Upstream commit aa52bcbe0e72fac36b1862db08b9c09c4caefae3 ]
 
-Selftests are reporting this failure in test_lwt_seg6local.sh:
+Michael reported crash with by bpf program in json mode on powerpc:
 
-+ ip netns exec ns2 ip -6 route add fb00::6 encap bpf in obj test_lwt_seg6local.o sec encap_srh dev veth2
-Error fetching program/map!
-Failed to parse eBPF program: Operation not permitted
+  # bpftool prog -p dump jited id 14
+  [{
+        "name": "0xd00000000a9aa760",
+        "insns": [{
+                "pc": "0x0",
+                "operation": "nop",
+                "operands": [null
+                ]
+            },{
+                "pc": "0x4",
+                "operation": "nop",
+                "operands": [null
+                ]
+            },{
+                "pc": "0x8",
+                "operation": "mflr",
+  Segmentation fault (core dumped)
 
-The problem is __attribute__((always_inline)) alone is not enough to prevent
-clang from inserting those functions in .text. In that case, .text is not
-marked as relocateable.
+The code is assuming char pointers in format, which is not always
+true at least for powerpc. Fixing this by dumping the whole string
+into buffer based on its format.
 
-See the output of objdump -h test_lwt_seg6local.o:
+Please note that libopcodes code does not check return values from
+fprintf callback, but as per Jakub suggestion returning -1 on allocation
+failure so we do the best effort to propagate the error.
 
-Idx Name          Size      VMA               LMA               File off  Algn
-  0 .text         00003530  0000000000000000  0000000000000000  00000040  2**3
-                  CONTENTS, ALLOC, LOAD, READONLY, CODE
-
-This causes the iproute bpf loader to fail in bpf_fetch_prog_sec:
-bpf_has_call_data returns true but bpf_fetch_prog_relo fails as there's no
-relocateable .text section in the file.
-
-To fix this, convert to 'static __always_inline'.
-
-v2: Use 'static __always_inline' instead of 'static inline
-    __attribute__((always_inline))'
-
-Fixes: c99a84eac026 ("selftests/bpf: test for seg6local End.BPF action")
-Signed-off-by: Jiri Benc <jbenc@redhat.com>
-Acked-by: Yonghong Song <yhs@fb.com>
+Fixes: 107f041212c1 ("tools: bpftool: add JSON output for `bpftool prog dump jited *` command")
+Reported-by: Michael Petlan <mpetlan@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Reviewed-by: Quentin Monnet <quentin.monnet@netronome.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_lwt_seg6local.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/bpf/bpftool/jit_disasm.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/test_lwt_seg6local.c b/tools/testing/selftests/bpf/test_lwt_seg6local.c
-index 0575751bc1bc..e2f6ed0a583d 100644
---- a/tools/testing/selftests/bpf/test_lwt_seg6local.c
-+++ b/tools/testing/selftests/bpf/test_lwt_seg6local.c
-@@ -61,7 +61,7 @@ struct sr6_tlv_t {
- 	unsigned char value[0];
- } BPF_PACKET_HEADER;
+diff --git a/tools/bpf/bpftool/jit_disasm.c b/tools/bpf/bpftool/jit_disasm.c
+index 87439320ef70..73d7252729fa 100644
+--- a/tools/bpf/bpftool/jit_disasm.c
++++ b/tools/bpf/bpftool/jit_disasm.c
+@@ -10,6 +10,8 @@
+  * Licensed under the GNU General Public License, version 2.0 (GPLv2)
+  */
  
--__attribute__((always_inline)) struct ip6_srh_t *get_srh(struct __sk_buff *skb)
-+static __always_inline struct ip6_srh_t *get_srh(struct __sk_buff *skb)
- {
- 	void *cursor, *data_end;
- 	struct ip6_srh_t *srh;
-@@ -95,7 +95,7 @@ __attribute__((always_inline)) struct ip6_srh_t *get_srh(struct __sk_buff *skb)
- 	return srh;
- }
++#define _GNU_SOURCE
++#include <stdio.h>
+ #include <stdarg.h>
+ #include <stdint.h>
+ #include <stdio.h>
+@@ -51,11 +53,13 @@ static int fprintf_json(void *out, const char *fmt, ...)
+ 	char *s;
  
--__attribute__((always_inline))
-+static __always_inline
- int update_tlv_pad(struct __sk_buff *skb, uint32_t new_pad,
- 		   uint32_t old_pad, uint32_t pad_off)
- {
-@@ -125,7 +125,7 @@ int update_tlv_pad(struct __sk_buff *skb, uint32_t new_pad,
+ 	va_start(ap, fmt);
++	if (vasprintf(&s, fmt, ap) < 0)
++		return -1;
++	va_end(ap);
++
+ 	if (!oper_count) {
+ 		int i;
+ 
+-		s = va_arg(ap, char *);
+-
+ 		/* Strip trailing spaces */
+ 		i = strlen(s) - 1;
+ 		while (s[i] == ' ')
+@@ -68,11 +72,10 @@ static int fprintf_json(void *out, const char *fmt, ...)
+ 	} else if (!strcmp(fmt, ",")) {
+ 		   /* Skip */
+ 	} else {
+-		s = va_arg(ap, char *);
+ 		jsonw_string(json_wtr, s);
+ 		oper_count++;
+ 	}
+-	va_end(ap);
++	free(s);
  	return 0;
  }
  
--__attribute__((always_inline))
-+static __always_inline
- int is_valid_tlv_boundary(struct __sk_buff *skb, struct ip6_srh_t *srh,
- 			  uint32_t *tlv_off, uint32_t *pad_size,
- 			  uint32_t *pad_off)
-@@ -184,7 +184,7 @@ int is_valid_tlv_boundary(struct __sk_buff *skb, struct ip6_srh_t *srh,
- 	return 0;
- }
- 
--__attribute__((always_inline))
-+static __always_inline
- int add_tlv(struct __sk_buff *skb, struct ip6_srh_t *srh, uint32_t tlv_off,
- 	    struct sr6_tlv_t *itlv, uint8_t tlv_size)
- {
-@@ -228,7 +228,7 @@ int add_tlv(struct __sk_buff *skb, struct ip6_srh_t *srh, uint32_t tlv_off,
- 	return update_tlv_pad(skb, new_pad, pad_size, pad_off);
- }
- 
--__attribute__((always_inline))
-+static __always_inline
- int delete_tlv(struct __sk_buff *skb, struct ip6_srh_t *srh,
- 	       uint32_t tlv_off)
- {
-@@ -266,7 +266,7 @@ int delete_tlv(struct __sk_buff *skb, struct ip6_srh_t *srh,
- 	return update_tlv_pad(skb, new_pad, pad_size, pad_off);
- }
- 
--__attribute__((always_inline))
-+static __always_inline
- int has_egr_tlv(struct __sk_buff *skb, struct ip6_srh_t *srh)
- {
- 	int tlv_offset = sizeof(struct ip6_t) + sizeof(struct ip6_srh_t) +
 -- 
 2.20.1
 
