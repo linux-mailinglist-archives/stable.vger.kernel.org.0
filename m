@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B873769686
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DDC269687
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:05:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387842AbfGOOGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:06:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53238 "EHLO mail.kernel.org"
+        id S2387751AbfGOOGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:06:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388227AbfGOOGD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:06:03 -0400
+        id S2387637AbfGOOGG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:06:06 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C776217D9;
-        Mon, 15 Jul 2019 14:05:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0548217D8;
+        Mon, 15 Jul 2019 14:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199563;
-        bh=HDoaoUKX3dESTZItHWvYWot9k/WWo6rBxxTNXP9UZl4=;
+        s=default; t=1563199566;
+        bh=wfjeoNZCyMmMMrxJxGPDpO4/20rNHgyYfaAi7vIUTvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XjRhcWa+FBNguytFw4DBErcyJhus4Dpxv5bKE4jrk4qTUrEgpalBPkEkE8641eykg
-         7CqUX7CXeNcq1svkl38QSl+ylVtgc2DmZB8ASfS/jOZRb3ikM9S+ixtNVF8IW7YwAD
-         aq+UjEYO6CKMAvK67K732u74xSGviqEaxG/+oOPQ=
+        b=1v2AjfOUegPmxEy1QRsWLJMwUM909V8ki/jkD0jITkVqCQlbdB/C5fpV/QW6DiLz5
+         OgFw9Eab/p6RXPIS0D3IKQ5KkJo5CBS4Yhj2kn0uOAoXbKcNL02u8hK62hce6glpaW
+         ojXkk5Gi42uTLapSL0xTh6wkGAIlJXmLfFzPuL+4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Alexander Duyck <alexander.duyck@gmail.com>,
-        Joseph Yasi <joe.yasi@gmail.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Oleksandr Natalenko <oleksandr@redhat.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 043/219] e1000e: start network tx queue only when link is up
-Date:   Mon, 15 Jul 2019 10:00:44 -0400
-Message-Id: <20190715140341.6443-43-sashal@kernel.org>
+Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 044/219] media: mc-device.c: don't memset __user pointer contents
+Date:   Mon, 15 Jul 2019 10:00:45 -0400
+Message-Id: <20190715140341.6443-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -47,76 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Hans Verkuil <hverkuil@xs4all.nl>
 
-[ Upstream commit d17ba0f616a08f597d9348c372d89b8c0405ccf3 ]
+[ Upstream commit 518fa4e0e0da97ea2e17c95ab57647ce748a96e2 ]
 
-Driver does not want to keep packets in Tx queue when link is lost.
-But present code only reset NIC to flush them, but does not prevent
-queuing new packets. Moreover reset sequence itself could generate
-new packets via netconsole and NIC falls into endless reset loop.
+You can't memset the contents of a __user pointer. Instead, call copy_to_user to
+copy links.reserved (which is zeroed) to the user memory.
 
-This patch wakes Tx queue only when NIC is ready to send packets.
+This fixes this sparse warning:
 
-This is proper fix for problem addressed by commit 0f9e980bf5ee
-("e1000e: fix cyclic resets at link up with active tx").
+SPARSE:drivers/media/mc/mc-device.c drivers/media/mc/mc-device.c:521:16:  warning: incorrect type in argument 1 (different address spaces)
 
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Suggested-by: Alexander Duyck <alexander.duyck@gmail.com>
-Tested-by: Joseph Yasi <joe.yasi@gmail.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Tested-by: Oleksandr Natalenko <oleksandr@redhat.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Fixes: f49308878d720 ("media: media_device_enum_links32: clean a reserved field")
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/media-device.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
-index 6230b4bb1699..f4a00ee39834 100644
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -4209,7 +4209,7 @@ void e1000e_up(struct e1000_adapter *adapter)
- 		e1000_configure_msix(adapter);
- 	e1000_irq_enable(adapter);
+diff --git a/drivers/media/media-device.c b/drivers/media/media-device.c
+index 6893843edada..8e2a66493e62 100644
+--- a/drivers/media/media-device.c
++++ b/drivers/media/media-device.c
+@@ -518,8 +518,9 @@ static long media_device_enum_links32(struct media_device *mdev,
+ 	if (ret)
+ 		return ret;
  
--	netif_start_queue(adapter->netdev);
-+	/* Tx queue started by watchdog timer when link is up */
- 
- 	e1000e_trigger_lsc(adapter);
+-	memset(ulinks->reserved, 0, sizeof(ulinks->reserved));
+-
++	if (copy_to_user(ulinks->reserved, links.reserved,
++			 sizeof(ulinks->reserved)))
++		return -EFAULT;
+ 	return 0;
  }
-@@ -4607,6 +4607,7 @@ int e1000e_open(struct net_device *netdev)
- 	pm_runtime_get_sync(&pdev->dev);
  
- 	netif_carrier_off(netdev);
-+	netif_stop_queue(netdev);
- 
- 	/* allocate transmit descriptors */
- 	err = e1000e_setup_tx_resources(adapter->tx_ring);
-@@ -4667,7 +4668,6 @@ int e1000e_open(struct net_device *netdev)
- 	e1000_irq_enable(adapter);
- 
- 	adapter->tx_hang_recheck = false;
--	netif_start_queue(netdev);
- 
- 	hw->mac.get_link_status = true;
- 	pm_runtime_put(&pdev->dev);
-@@ -5289,6 +5289,7 @@ static void e1000_watchdog_task(struct work_struct *work)
- 			if (phy->ops.cfg_on_link_up)
- 				phy->ops.cfg_on_link_up(hw);
- 
-+			netif_wake_queue(netdev);
- 			netif_carrier_on(netdev);
- 
- 			if (!test_bit(__E1000_DOWN, &adapter->state))
-@@ -5302,6 +5303,7 @@ static void e1000_watchdog_task(struct work_struct *work)
- 			/* Link status message must follow this format */
- 			pr_info("%s NIC Link is Down\n", adapter->netdev->name);
- 			netif_carrier_off(netdev);
-+			netif_stop_queue(netdev);
- 			if (!test_bit(__E1000_DOWN, &adapter->state))
- 				mod_timer(&adapter->phy_info_timer,
- 					  round_jiffies(jiffies + 2 * HZ));
 -- 
 2.20.1
 
