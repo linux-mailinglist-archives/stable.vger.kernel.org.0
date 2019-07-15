@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F6D69247
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:36:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9BFA69246
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404106AbfGOOdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:33:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50166 "EHLO mail.kernel.org"
+        id S2391748AbfGOOdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:33:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404104AbfGOOdo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:33:44 -0400
+        id S2391698AbfGOOdt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:33:49 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D821206B8;
-        Mon, 15 Jul 2019 14:33:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38CB121842;
+        Mon, 15 Jul 2019 14:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201224;
-        bh=xDIQ42ChWf87NqLYQmiqW9h30yxZvey0pdV86at6Hx4=;
+        s=default; t=1563201228;
+        bh=cjZ9eAPwV6ur75qjON8eiNmZuZzBrIOiIC+AGvUlH9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CG3p0QSb9a7ROavpnSZkj/4mhvH0zLnE6mHYDAkYDiyPyc1AWoenzEauVwH9T7RoG
-         TGprTJeNfVFM8GJScS+dwLSmHBAGuCD5c0DbkXMGnulfX+5ygx/F9ukACZJu7Z2+bw
-         QsBV80BGXZHfxzTr619EmGbSv8apCUB8KMjvGAkE=
+        b=FPkT6i+/+crP3KWvOd035XWO+ev0mgQNH0gKZYDrrBVMDq2hHXWUOgJjSYn+7m4U+
+         F94a3Od1pvKslH+225wGPsPD4FdW40en5IpJ7TaxmY5Sasn7yMzLYJdwNw5CjiuupB
+         H4ZTiD9DLEXiudC+hwJrGsdrDtRUalNNyO+I5e4w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 082/105] rslib: Fix handling of of caller provided syndrome
-Date:   Mon, 15 Jul 2019 10:28:16 -0400
-Message-Id: <20190715142839.9896-82-sashal@kernel.org>
+Cc:     "Mauro S. M. Rodrigues" <maurosr@linux.vnet.ibm.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 083/105] ixgbe: Check DDM existence in transceiver before access
+Date:   Mon, 15 Jul 2019 10:28:17 -0400
+Message-Id: <20190715142839.9896-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715142839.9896-1-sashal@kernel.org>
 References: <20190715142839.9896-1-sashal@kernel.org>
@@ -43,46 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>
+From: "Mauro S. M. Rodrigues" <maurosr@linux.vnet.ibm.com>
 
-[ Upstream commit ef4d6a8556b637ad27c8c2a2cff1dda3da38e9a9 ]
+[ Upstream commit 655c91414579d7bb115a4f7898ee726fc18e0984 ]
 
-Check if the syndrome provided by the caller is zero, and act
-accordingly.
+Some transceivers may comply with SFF-8472 but not implement the Digital
+Diagnostic Monitoring (DDM) interface described in it. The existence of
+such area is specified by bit 6 of byte 92, set to 1 if implemented.
 
-Signed-off-by: Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190620141039.9874-6-ferdinand.blomqvist@gmail.com
+Currently, due to not checking this bit ixgbe fails trying to read SFP
+module's eeprom with the follow message:
+
+ethtool -m enP51p1s0f0
+Cannot get Module EEPROM data: Input/output error
+
+Because it fails to read the additional 256 bytes in which it was assumed
+to exist the DDM data.
+
+This issue was noticed using a Mellanox Passive DAC PN 01FT738. The eeprom
+data was confirmed by Mellanox as correct and present in other Passive
+DACs in from other manufacturers.
+
+Signed-off-by: "Mauro S. M. Rodrigues" <maurosr@linux.vnet.ibm.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/reed_solomon/decode_rs.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c | 3 ++-
+ drivers/net/ethernet/intel/ixgbe/ixgbe_phy.h     | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/lib/reed_solomon/decode_rs.c b/lib/reed_solomon/decode_rs.c
-index 8eed0f9ac495..a5d313381539 100644
---- a/lib/reed_solomon/decode_rs.c
-+++ b/lib/reed_solomon/decode_rs.c
-@@ -42,8 +42,18 @@
- 	BUG_ON(pad < 0 || pad >= nn);
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
+index c3e7a8191128..f7e68083200c 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ethtool.c
+@@ -3237,7 +3237,8 @@ static int ixgbe_get_module_info(struct net_device *dev,
+ 		page_swap = true;
+ 	}
  
- 	/* Does the caller provide the syndrome ? */
--	if (s != NULL)
--		goto decode;
-+	if (s != NULL) {
-+		for (i = 0; i < nroots; i++) {
-+			/* The syndrome is in index form,
-+			 * so nn represents zero
-+			 */
-+			if (s[i] != nn)
-+				goto decode;
-+		}
-+
-+		/* syndrome is zero, no errors to correct  */
-+		return 0;
-+	}
- 
- 	/* form the syndromes; i.e., evaluate data(x) at roots of
- 	 * g(x) */
+-	if (sff8472_rev == IXGBE_SFF_SFF_8472_UNSUP || page_swap) {
++	if (sff8472_rev == IXGBE_SFF_SFF_8472_UNSUP || page_swap ||
++	    !(addr_mode & IXGBE_SFF_DDM_IMPLEMENTED)) {
+ 		/* We have a SFP, but it does not support SFF-8472 */
+ 		modinfo->type = ETH_MODULE_SFF_8079;
+ 		modinfo->eeprom_len = ETH_MODULE_SFF_8079_LEN;
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.h b/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.h
+index b0cac961df3b..94df1d99be95 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.h
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_phy.h
+@@ -70,6 +70,7 @@
+ #define IXGBE_SFF_SOFT_RS_SELECT_10G		0x8
+ #define IXGBE_SFF_SOFT_RS_SELECT_1G		0x0
+ #define IXGBE_SFF_ADDRESSING_MODE		0x4
++#define IXGBE_SFF_DDM_IMPLEMENTED		0x40
+ #define IXGBE_SFF_QSFP_DA_ACTIVE_CABLE		0x1
+ #define IXGBE_SFF_QSFP_DA_PASSIVE_CABLE		0x8
+ #define IXGBE_SFF_QSFP_CONNECTOR_NOT_SEPARABLE	0x23
 -- 
 2.20.1
 
