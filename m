@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 796F4693E9
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:48:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53774693F0
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392214AbfGOOrx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:47:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43540 "EHLO mail.kernel.org"
+        id S2392302AbfGOOsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:48:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392195AbfGOOru (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:47:50 -0400
+        id S2392294AbfGOOsG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:48:06 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BF282067C;
-        Mon, 15 Jul 2019 14:47:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03E03204FD;
+        Mon, 15 Jul 2019 14:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563202069;
-        bh=fhk1AqK9l+APWLAaCo5n67DFyP3HrQwnAnb4MpfaEh8=;
+        s=default; t=1563202084;
+        bh=UPeVT6XbEl/8ch1Lsj+d3mn7GgXUsDMPYePfEtsLFo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LHb/emnLWTFLxKTJ0rVy060k1OVMCd5zaEUc16VTaXGwII4PuiwDr1FGGOc1JIn4i
-         xRATUKbP0BhpSc2BZL63Y8urmpsQYwsY4cW7HfF6t5h1po+dLKxRH37IudKfLOBENo
-         mrhBHTr54SCycilHVRUo0i2Mhi6lciwVJfnVMUZ8=
+        b=FN5nnzd775ts+KGOCuH4iTeonIfJFP+GXoWnx9mNCG52tLind355yTDnG/QuJ7L97
+         f9qYeRa24aWn/u05VS2Ahe39y35MOEwg2jmXZ4R4vgmIfTOhj65pPQVKqdv0zmbifP
+         /HaM4uojKxNgR3rQc0yfK7h/ZcQ4W3bbGPoiKJe8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Huckleberry <nhuck@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        john.stultz@linaro.org, sboyd@kernel.org,
-        clang-built-linux@googlegroups.com, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 37/53] timer_list: Guard procfs specific code
-Date:   Mon, 15 Jul 2019 10:45:19 -0400
-Message-Id: <20190715144535.11636-37-sashal@kernel.org>
+Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 41/53] mt7601u: do not schedule rx_tasklet when the device has been disconnected
+Date:   Mon, 15 Jul 2019 10:45:23 -0400
+Message-Id: <20190715144535.11636-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715144535.11636-1-sashal@kernel.org>
 References: <20190715144535.11636-1-sashal@kernel.org>
@@ -45,89 +44,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit a9314773a91a1d3b36270085246a6715a326ff00 ]
+[ Upstream commit 4079e8ccabc3b6d1b503f2376123cb515d14921f ]
 
-With CONFIG_PROC_FS=n the following warning is emitted:
+Do not schedule rx_tasklet when the usb dongle is disconnected.
+Moreover do not grub rx_lock in mt7601u_kill_rx since usb_poison_urb
+can run concurrently with urb completion and we can unlink urbs from rx
+ring in any order.
+This patch fixes the common kernel warning reported when
+the device is removed.
 
-kernel/time/timer_list.c:361:36: warning: unused variable
-'timer_list_sops' [-Wunused-const-variable]
-   static const struct seq_operations timer_list_sops = {
+[   24.921354] usb 3-14: USB disconnect, device number 7
+[   24.921593] ------------[ cut here ]------------
+[   24.921594] RX urb mismatch
+[   24.921675] WARNING: CPU: 4 PID: 163 at drivers/net/wireless/mediatek/mt7601u/dma.c:200 mt7601u_complete_rx+0xcb/0xd0 [mt7601u]
+[   24.921769] CPU: 4 PID: 163 Comm: kworker/4:2 Tainted: G           OE     4.19.31-041931-generic #201903231635
+[   24.921770] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./Z97 Extreme4, BIOS P1.30 05/23/2014
+[   24.921782] Workqueue: usb_hub_wq hub_event
+[   24.921797] RIP: 0010:mt7601u_complete_rx+0xcb/0xd0 [mt7601u]
+[   24.921800] RSP: 0018:ffff9bd9cfd03d08 EFLAGS: 00010086
+[   24.921802] RAX: 0000000000000000 RBX: ffff9bd9bf043540 RCX: 0000000000000006
+[   24.921803] RDX: 0000000000000007 RSI: 0000000000000096 RDI: ffff9bd9cfd16420
+[   24.921804] RBP: ffff9bd9cfd03d28 R08: 0000000000000002 R09: 00000000000003a8
+[   24.921805] R10: 0000002f485fca34 R11: 0000000000000000 R12: ffff9bd9bf043c1c
+[   24.921806] R13: ffff9bd9c62fa3c0 R14: 0000000000000082 R15: 0000000000000000
+[   24.921807] FS:  0000000000000000(0000) GS:ffff9bd9cfd00000(0000) knlGS:0000000000000000
+[   24.921808] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   24.921808] CR2: 00007fb2648b0000 CR3: 0000000142c0a004 CR4: 00000000001606e0
+[   24.921809] Call Trace:
+[   24.921812]  <IRQ>
+[   24.921819]  __usb_hcd_giveback_urb+0x8b/0x140
+[   24.921821]  usb_hcd_giveback_urb+0xca/0xe0
+[   24.921828]  xhci_giveback_urb_in_irq.isra.42+0x82/0xf0
+[   24.921834]  handle_cmd_completion+0xe02/0x10d0
+[   24.921837]  xhci_irq+0x274/0x4a0
+[   24.921838]  xhci_msi_irq+0x11/0x20
+[   24.921851]  __handle_irq_event_percpu+0x44/0x190
+[   24.921856]  handle_irq_event_percpu+0x32/0x80
+[   24.921861]  handle_irq_event+0x3b/0x5a
+[   24.921867]  handle_edge_irq+0x80/0x190
+[   24.921874]  handle_irq+0x20/0x30
+[   24.921889]  do_IRQ+0x4e/0xe0
+[   24.921891]  common_interrupt+0xf/0xf
+[   24.921892]  </IRQ>
+[   24.921900] RIP: 0010:usb_hcd_flush_endpoint+0x78/0x180
+[   24.921354] usb 3-14: USB disconnect, device number 7
 
-Add #ifdef guard around procfs specific code.
-
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: john.stultz@linaro.org
-Cc: sboyd@kernel.org
-Cc: clang-built-linux@googlegroups.com
-Link: https://github.com/ClangBuiltLinux/linux/issues/534
-Link: https://lkml.kernel.org/r/20190614181604.112297-1-nhuck@google.com
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/timer_list.c | 36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
+ drivers/net/wireless/mediatek/mt7601u/dma.c | 33 +++++++++++----------
+ 1 file changed, 18 insertions(+), 15 deletions(-)
 
-diff --git a/kernel/time/timer_list.c b/kernel/time/timer_list.c
-index 1407ed20ea93..b7c5d230b4b2 100644
---- a/kernel/time/timer_list.c
-+++ b/kernel/time/timer_list.c
-@@ -299,23 +299,6 @@ static inline void timer_list_header(struct seq_file *m, u64 now)
- 	SEQ_printf(m, "\n");
+diff --git a/drivers/net/wireless/mediatek/mt7601u/dma.c b/drivers/net/wireless/mediatek/mt7601u/dma.c
+index 57a80cfa39b1..6ba30129a3d8 100644
+--- a/drivers/net/wireless/mediatek/mt7601u/dma.c
++++ b/drivers/net/wireless/mediatek/mt7601u/dma.c
+@@ -193,10 +193,23 @@ static void mt7601u_complete_rx(struct urb *urb)
+ 	struct mt7601u_rx_queue *q = &dev->rx_q;
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&dev->rx_lock, flags);
++	/* do no schedule rx tasklet if urb has been unlinked
++	 * or the device has been removed
++	 */
++	switch (urb->status) {
++	case -ECONNRESET:
++	case -ESHUTDOWN:
++	case -ENOENT:
++		return;
++	default:
++		dev_err_ratelimited(dev->dev, "rx urb failed: %d\n",
++				    urb->status);
++		/* fall through */
++	case 0:
++		break;
++	}
+ 
+-	if (mt7601u_urb_has_error(urb))
+-		dev_err(dev->dev, "Error: RX urb failed:%d\n", urb->status);
++	spin_lock_irqsave(&dev->rx_lock, flags);
+ 	if (WARN_ONCE(q->e[q->end].urb != urb, "RX urb mismatch"))
+ 		goto out;
+ 
+@@ -363,19 +376,9 @@ int mt7601u_dma_enqueue_tx(struct mt7601u_dev *dev, struct sk_buff *skb,
+ static void mt7601u_kill_rx(struct mt7601u_dev *dev)
+ {
+ 	int i;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&dev->rx_lock, flags);
+-
+-	for (i = 0; i < dev->rx_q.entries; i++) {
+-		int next = dev->rx_q.end;
+-
+-		spin_unlock_irqrestore(&dev->rx_lock, flags);
+-		usb_poison_urb(dev->rx_q.e[next].urb);
+-		spin_lock_irqsave(&dev->rx_lock, flags);
+-	}
+-
+-	spin_unlock_irqrestore(&dev->rx_lock, flags);
++	for (i = 0; i < dev->rx_q.entries; i++)
++		usb_poison_urb(dev->rx_q.e[i].urb);
  }
  
--static int timer_list_show(struct seq_file *m, void *v)
--{
--	struct timer_list_iter *iter = v;
--
--	if (iter->cpu == -1 && !iter->second_pass)
--		timer_list_header(m, iter->now);
--	else if (!iter->second_pass)
--		print_cpu(m, iter->cpu, iter->now);
--#ifdef CONFIG_GENERIC_CLOCKEVENTS
--	else if (iter->cpu == -1 && iter->second_pass)
--		timer_list_show_tickdevices_header(m);
--	else
--		print_tickdevice(m, tick_get_device(iter->cpu), iter->cpu);
--#endif
--	return 0;
--}
--
- void sysrq_timer_list_show(void)
- {
- 	u64 now = ktime_to_ns(ktime_get());
-@@ -334,6 +317,24 @@ void sysrq_timer_list_show(void)
- 	return;
- }
- 
-+#ifdef CONFIG_PROC_FS
-+static int timer_list_show(struct seq_file *m, void *v)
-+{
-+	struct timer_list_iter *iter = v;
-+
-+	if (iter->cpu == -1 && !iter->second_pass)
-+		timer_list_header(m, iter->now);
-+	else if (!iter->second_pass)
-+		print_cpu(m, iter->cpu, iter->now);
-+#ifdef CONFIG_GENERIC_CLOCKEVENTS
-+	else if (iter->cpu == -1 && iter->second_pass)
-+		timer_list_show_tickdevices_header(m);
-+	else
-+		print_tickdevice(m, tick_get_device(iter->cpu), iter->cpu);
-+#endif
-+	return 0;
-+}
-+
- static void *move_iter(struct timer_list_iter *iter, loff_t offset)
- {
- 	for (; offset; offset--) {
-@@ -405,3 +406,4 @@ static int __init init_timer_list_procfs(void)
- 	return 0;
- }
- __initcall(init_timer_list_procfs);
-+#endif
+ static int mt7601u_submit_rx_buf(struct mt7601u_dev *dev,
 -- 
 2.20.1
 
