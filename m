@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 764AD694F2
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FFEA694EE
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:54:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390961AbfGOO1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:27:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36402 "EHLO mail.kernel.org"
+        id S2391466AbfGOO1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:27:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391448AbfGOO1P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:27:15 -0400
+        id S2391461AbfGOO1S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:27:18 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B72D21537;
-        Mon, 15 Jul 2019 14:27:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21861206B8;
+        Mon, 15 Jul 2019 14:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200834;
-        bh=+l+RU1EN+SlH9uWGDITQYS+b2sZ/zrMGsEGFPYX/EXc=;
+        s=default; t=1563200837;
+        bh=Q2BeB/C8Xxr1+85qMCTF4SPOO4d/0Oqtv+BeqEcasWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dlq5t2jV5oaDcgL1vhUfyrWSi+7MG68ZRZ6nj1HKNwT07j4DbcIMalQZVyslNQq8f
-         XXaMnd8Nf0eFURpd2ColMadyFg4d00P1Ugz+0/cpDesZux9ptY718aLZjeUNCaF4Hv
-         3kyR83QXFYVGKsKLbjXKYd+IjRm/gprWtyPzrkLM=
+        b=a++xgf03EVv0XOHSaFA8j8BICeWvi4JuQOk2mEjT/z98f5WF61Q7S+vcK/BG3EEBU
+         ZZphjPkVR37Qw22Q3sVy0k+7L7a/oKexkLEWNdBYx1BDVDxg4yJz1oGRUEkIjNTDpU
+         cdUcwM2wrjk7Llerv/pVMuAYgAoBHesKUc507+NI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 140/158] rxrpc: Fix oops in tracepoint
-Date:   Mon, 15 Jul 2019 10:17:51 -0400
-Message-Id: <20190715141809.8445-140-sashal@kernel.org>
+Cc:     Leo Yan <leo.yan@linaro.org>, Yonghong Song <yhs@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 141/158] bpf, libbpf, smatch: Fix potential NULL pointer dereference
+Date:   Mon, 15 Jul 2019 10:17:52 -0400
+Message-Id: <20190715141809.8445-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -44,106 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 99f0eae653b2db64917d0b58099eb51e300b311d ]
+[ Upstream commit 33bae185f74d49a0d7b1bfaafb8e959efce0f243 ]
 
-If the rxrpc_eproto tracepoint is enabled, an oops will be cause by the
-trace line that rxrpc_extract_header() tries to emit when a protocol error
-occurs (typically because the packet is short) because the call argument is
-NULL.
+Based on the following report from Smatch, fix the potential NULL
+pointer dereference check:
 
-Fix this by using ?: to assume 0 as the debug_id if call is NULL.
+  tools/lib/bpf/libbpf.c:3493
+  bpf_prog_load_xattr() warn: variable dereferenced before check 'attr'
+  (see line 3483)
 
-This can then be induced by:
+  3479 int bpf_prog_load_xattr(const struct bpf_prog_load_attr *attr,
+  3480                         struct bpf_object **pobj, int *prog_fd)
+  3481 {
+  3482         struct bpf_object_open_attr open_attr = {
+  3483                 .file           = attr->file,
+  3484                 .prog_type      = attr->prog_type,
+                                         ^^^^^^
+  3485         };
 
-	echo -e '\0\0\0\0\0\0\0\0' | ncat -4u --send-only <addr> 20001
+At the head of function, it directly access 'attr' without checking
+if it's NULL pointer. This patch moves the values assignment after
+validating 'attr' and 'attr->file'.
 
-where addr has the following program running on it:
-
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <string.h>
-	#include <unistd.h>
-	#include <sys/socket.h>
-	#include <arpa/inet.h>
-	#include <linux/rxrpc.h>
-	int main(void)
-	{
-		struct sockaddr_rxrpc srx;
-		int fd;
-		memset(&srx, 0, sizeof(srx));
-		srx.srx_family			= AF_RXRPC;
-		srx.srx_service			= 0;
-		srx.transport_type		= AF_INET;
-		srx.transport_len		= sizeof(srx.transport.sin);
-		srx.transport.sin.sin_family	= AF_INET;
-		srx.transport.sin.sin_port	= htons(0x4e21);
-		fd = socket(AF_RXRPC, SOCK_DGRAM, AF_INET6);
-		bind(fd, (struct sockaddr *)&srx, sizeof(srx));
-		sleep(20);
-		return 0;
-	}
-
-It results in the following oops.
-
-	BUG: kernel NULL pointer dereference, address: 0000000000000340
-	#PF: supervisor read access in kernel mode
-	#PF: error_code(0x0000) - not-present page
-	...
-	RIP: 0010:trace_event_raw_event_rxrpc_rx_eproto+0x47/0xac
-	...
-	Call Trace:
-	 <IRQ>
-	 rxrpc_extract_header+0x86/0x171
-	 ? rcu_read_lock_sched_held+0x5d/0x63
-	 ? rxrpc_new_skb+0xd4/0x109
-	 rxrpc_input_packet+0xef/0x14fc
-	 ? rxrpc_input_data+0x986/0x986
-	 udp_queue_rcv_one_skb+0xbf/0x3d0
-	 udp_unicast_rcv_skb.isra.8+0x64/0x71
-	 ip_protocol_deliver_rcu+0xe4/0x1b4
-	 ip_local_deliver+0xf0/0x154
-	 __netif_receive_skb_one_core+0x50/0x6c
-	 netif_receive_skb_internal+0x26b/0x2e9
-	 napi_gro_receive+0xf8/0x1da
-	 rtl8169_poll+0x303/0x4c4
-	 net_rx_action+0x10e/0x333
-	 __do_softirq+0x1a5/0x38f
-	 irq_exit+0x54/0xc4
-	 do_IRQ+0xda/0xf8
-	 common_interrupt+0xf/0xf
-	 </IRQ>
-	 ...
-	 ? cpuidle_enter_state+0x23c/0x34d
-	 cpuidle_enter+0x2a/0x36
-	 do_idle+0x163/0x1ea
-	 cpu_startup_entry+0x1d/0x1f
-	 start_secondary+0x157/0x172
-	 secondary_startup_64+0xa4/0xb0
-
-Fixes: a25e21f0bcd2 ("rxrpc, afs: Use debug_ids rather than pointers in traces")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/rxrpc.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/libbpf.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
-index 6d182746afab..147546e0c11b 100644
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -1381,7 +1381,7 @@ TRACE_EVENT(rxrpc_rx_eproto,
- 			     ),
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index bdb94939fd60..a350f97e3a1a 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -2293,10 +2293,7 @@ int bpf_prog_load(const char *file, enum bpf_prog_type type,
+ int bpf_prog_load_xattr(const struct bpf_prog_load_attr *attr,
+ 			struct bpf_object **pobj, int *prog_fd)
+ {
+-	struct bpf_object_open_attr open_attr = {
+-		.file		= attr->file,
+-		.prog_type	= attr->prog_type,
+-	};
++	struct bpf_object_open_attr open_attr = {};
+ 	struct bpf_program *prog, *first_prog = NULL;
+ 	enum bpf_attach_type expected_attach_type;
+ 	enum bpf_prog_type prog_type;
+@@ -2309,6 +2306,9 @@ int bpf_prog_load_xattr(const struct bpf_prog_load_attr *attr,
+ 	if (!attr->file)
+ 		return -EINVAL;
  
- 	    TP_fast_assign(
--		    __entry->call = call->debug_id;
-+		    __entry->call = call ? call->debug_id : 0;
- 		    __entry->serial = serial;
- 		    __entry->why = why;
- 			   ),
++	open_attr.file = attr->file;
++	open_attr.prog_type = attr->prog_type;
++
+ 	obj = bpf_object__open_xattr(&open_attr);
+ 	if (IS_ERR_OR_NULL(obj))
+ 		return -ENOENT;
 -- 
 2.20.1
 
