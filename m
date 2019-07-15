@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76103695E4
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B6E4695E1
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:01:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388711AbfGOOOY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:14:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55982 "EHLO mail.kernel.org"
+        id S2388877AbfGOOO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:14:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388726AbfGOOOX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:14:23 -0400
+        id S2389338AbfGOOOZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:14:25 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FE1420651;
-        Mon, 15 Jul 2019 14:14:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8163206B8;
+        Mon, 15 Jul 2019 14:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200062;
-        bh=ZWj+X78ZEPAHyiyMHCoWF8TDlSZ8suSoMHwF+vXujFQ=;
+        s=default; t=1563200065;
+        bh=JTd+nvtYMDH2bpBgUYGzSZ3B/HMdCsAQwzi9WqHURoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bnJvCN2nTgTL+kCf3OWdhJzxEMA0/qpPpB/HHAYU1icV2X6txWSC7s/yLU9KOPuZw
-         pEbNtTXHRUp+tfJVpOdwWInS+QOmdrczlZ9rGPXjxIprPKZuU8IThC8hbKrAHibsBv
-         pg6RZjKFliGRshBlClxQ9ZFj02EpcBDpou5gCHb4=
+        b=cnbJNYqqaqh6PsOz/ak85W1bT6mfkaVpetkBD/yrZETvv9pvVxcpxvHdeTh59sSfY
+         Pvi/C7F54VUY8u6pn/6/0S/HrvOVTPRvv9tBOo8iWEIvRfsh4Aqvayw6qwgHfTU29F
+         +qa7qB9Nh6O4/AMbO1tzFUvY4zSSzdD3PwYjUKTo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunsheng Lin <linyunsheng@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 174/219] net: hns3: add some error checking in hclge_tm module
-Date:   Mon, 15 Jul 2019 10:02:55 -0400
-Message-Id: <20190715140341.6443-174-sashal@kernel.org>
+Cc:     Dundi Raviteja <dundi@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 175/219] ath10k: Fix memory leak in qmi
+Date:   Mon, 15 Jul 2019 10:02:56 -0400
+Message-Id: <20190715140341.6443-175-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -45,54 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Dundi Raviteja <dundi@codeaurora.org>
 
-[ Upstream commit 04f25edb48c441fc278ecc154c270f16966cbb90 ]
+[ Upstream commit c709df58832c5f575f0255bea4b09ad477fc62ea ]
 
-When hdev->tx_sch_mode is HCLGE_FLAG_VNET_BASE_SCH_MODE, the
-hclge_tm_schd_mode_vnet_base_cfg calls hclge_tm_pri_schd_mode_cfg
-with vport->vport_id as pri_id, which is used as index for
-hdev->tm_info.tc_info, it will cause out of bound access issue
-if vport_id is equal to or larger than HNAE3_MAX_TC.
+Currently the memory allocated for qmi handle is
+not being freed during de-init which leads to memory leak.
 
-Also hardware only support maximum speed of HCLGE_ETHER_MAX_RATE.
+Free the allocated qmi memory in qmi deinit
+to avoid memory leak.
 
-So this patch adds two checks for above cases.
+Tested HW: WCN3990
+Tested FW: WLAN.HL.3.1-01040-QCAHLSWMTPLZ-1
 
-Fixes: 848440544b41 ("net: hns3: Add support of TX Scheduler & Shaper to HNS3 driver")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: fda6fee0001e ("ath10k: add QMI message handshake for wcn3990 client")
+Signed-off-by: Dundi Raviteja <dundi@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/qmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-index a7bbb6d3091a..0d53062f7bb5 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-@@ -54,7 +54,8 @@ static int hclge_shaper_para_calc(u32 ir, u8 shaper_level,
- 	u32 tick;
+diff --git a/drivers/net/wireless/ath/ath10k/qmi.c b/drivers/net/wireless/ath/ath10k/qmi.c
+index a7bc2c70d076..8f8f717a23ee 100644
+--- a/drivers/net/wireless/ath/ath10k/qmi.c
++++ b/drivers/net/wireless/ath/ath10k/qmi.c
+@@ -1002,6 +1002,7 @@ int ath10k_qmi_deinit(struct ath10k *ar)
+ 	qmi_handle_release(&qmi->qmi_hdl);
+ 	cancel_work_sync(&qmi->event_work);
+ 	destroy_workqueue(qmi->event_wq);
++	kfree(qmi);
+ 	ar_snoc->qmi = NULL;
  
- 	/* Calc tick */
--	if (shaper_level >= HCLGE_SHAPER_LVL_CNT)
-+	if (shaper_level >= HCLGE_SHAPER_LVL_CNT ||
-+	    ir > HCLGE_ETHER_MAX_RATE)
- 		return -EINVAL;
- 
- 	tick = tick_array[shaper_level];
-@@ -1124,6 +1125,9 @@ static int hclge_tm_schd_mode_vnet_base_cfg(struct hclge_vport *vport)
- 	int ret;
- 	u8 i;
- 
-+	if (vport->vport_id >= HNAE3_MAX_TC)
-+		return -EINVAL;
-+
- 	ret = hclge_tm_pri_schd_mode_cfg(hdev, vport->vport_id);
- 	if (ret)
- 		return ret;
+ 	return 0;
 -- 
 2.20.1
 
