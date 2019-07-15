@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A696369529
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D946952C
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:57:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390253AbfGOOUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:20:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45010 "EHLO mail.kernel.org"
+        id S2390251AbfGOOUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:20:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389797AbfGOOUd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:20:33 -0400
+        id S2390270AbfGOOUf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:20:35 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33E0E20651;
-        Mon, 15 Jul 2019 14:20:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80EB6206B8;
+        Mon, 15 Jul 2019 14:20:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200433;
-        bh=tG4a5Lvu8njscnRNe/cyWM4ApT0qh+9aLYSG6J7l6fE=;
+        s=default; t=1563200434;
+        bh=oPD6bOUlXEdTcnSJVgy5DPQWInMIKIvhk3WyIgRbzfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2pEr7rs4Waurl0JiKMSO4Vf0CqSvavzVQemU8Xv62nBVl13CgjpYaSX63DvcGu1+F
-         DB0yuSfz56Hm96uFwnoA8DovYKvKNYwrs/zJGVk2dj66D+t0zq/KbdAOhcErOOYd3H
-         Vj10RtfY6DCkQoy5nOg9e7VbuFqqmO+I1SnwO1L8=
+        b=a4d834uNMEexN0EPLNlV+D2e9PPp/LcJwGvzVhZR9lNiiBSoClHSnvy9x3kpzV2VG
+         rbmOvJT1P4kWroe9TWG8AIxnSOOTNLybXhWWh8KCnOjBIOsf3AdQ6ivBsuTzr7Ipbg
+         hpHZxJWY8DBSn0tKq9u09sV0YJ8rEiIZh8pNBYaQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 048/158] s390/qdio: handle PENDING state for QEBSM devices
-Date:   Mon, 15 Jul 2019 10:16:19 -0400
-Message-Id: <20190715141809.8445-48-sashal@kernel.org>
+Cc:     Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        linux-edac <linux-edac@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 049/158] RAS/CEC: Fix pfn insertion
+Date:   Mon, 15 Jul 2019 10:16:20 -0400
+Message-Id: <20190715141809.8445-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -43,39 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 04310324c6f482921c071444833e70fe861b73d9 ]
+[ Upstream commit 6d8e294bf5f0e85c34e8b14b064e2965f53f38b0 ]
 
-When a CQ-enabled device uses QEBSM for SBAL state inspection,
-get_buf_states() can return the PENDING state for an Output Queue.
-get_outbound_buffer_frontier() isn't prepared for this, and any PENDING
-buffer will permanently stall all further completion processing on this
-Queue.
+When inserting random PFNs for debugging the CEC through
+(debugfs)/ras/cec/pfn, depending on the return value of pfn_set(),
+multiple values get inserted per a single write.
 
-This isn't a concern for non-QEBSM devices, as get_buf_states() for such
-devices will manually turn PENDING buffers into EMPTY ones.
+That is because simple_attr_write() interprets a retval of 0 as
+success and claims the whole input. However, pfn_set() returns the
+cec_add_elem() value, which, if > 0 and smaller than the whole input
+length, makes glibc continue issuing the write syscall until there's
+input left:
 
-Fixes: 104ea556ee7f ("qdio: support asynchronous delivery of storage blocks")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+  pfn_set
+  simple_attr_write
+  debugfs_attr_write
+  full_proxy_write
+  vfs_write
+  ksys_write
+  do_syscall_64
+  entry_SYSCALL_64_after_hwframe
+
+leading to those repeated calls.
+
+Return 0 to fix that.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: linux-edac <linux-edac@vger.kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/qdio_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/ras/cec.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index 9c7d9da42ba0..4ac4a73037f5 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -749,6 +749,7 @@ static int get_outbound_buffer_frontier(struct qdio_q *q)
+diff --git a/drivers/ras/cec.c b/drivers/ras/cec.c
+index f85d6b7a1984..5d2b2c02cbbe 100644
+--- a/drivers/ras/cec.c
++++ b/drivers/ras/cec.c
+@@ -369,7 +369,9 @@ static int pfn_set(void *data, u64 val)
+ {
+ 	*(u64 *)data = val;
  
- 	switch (state) {
- 	case SLSB_P_OUTPUT_EMPTY:
-+	case SLSB_P_OUTPUT_PENDING:
- 		/* the adapter got it */
- 		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr,
- 			"out empty:%1d %02x", q->nr, count);
+-	return cec_add_elem(val);
++	cec_add_elem(val);
++
++	return 0;
+ }
+ 
+ DEFINE_DEBUGFS_ATTRIBUTE(pfn_ops, u64_get, pfn_set, "0x%llx\n");
 -- 
 2.20.1
 
