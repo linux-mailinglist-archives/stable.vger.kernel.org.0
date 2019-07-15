@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC2B8697DE
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:14:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE6FC697E0
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:14:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731598AbfGONsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:48:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59958 "EHLO mail.kernel.org"
+        id S1731646AbfGONtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:49:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730691AbfGONsx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:48:53 -0400
+        id S1730790AbfGONtD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:49:03 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5253B2067C;
-        Mon, 15 Jul 2019 13:48:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86EBF21537;
+        Mon, 15 Jul 2019 13:49:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198531;
-        bh=uhnvAancAVMkA3TSTecQZgPoV74ngOr7T0pi4tizkbk=;
+        s=default; t=1563198543;
+        bh=ky5Arb6mRM6jsE1pVWlG83hj4T4rBiXsqCh53rxahyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0KqdjIYulVeDvhdEBWuRh0LoZcELnz1h9a8yscmowZAvAVFT4IxVMZxhAL9fy22Um
-         uztbBBzD6qSLzzCqFdX4bALTIHGVTq/ZCYe+x8B7TJ+Lws3lwBOd2JjsIuwqYKVrH2
-         X6co+4bI+BP5VgSUXwSPFLt29i9wFX4GeprEeLZU=
+        b=gbb1TqmkV3dpu6/yc+AtkcZ8/fSZ75F6wNtdI5AuJwPQoWW8WYCdK2+uXg1DZNNB5
+         BEOK3OXsI/tMktRLeP6eXOsgNAPhMA7jNgvjX5d5I6MaxQKv013Z73CgcFyWZ7ig3h
+         R9JMkQpfDv/577UaTvu0hX4vKHKXfIfSgK0wXvvk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jian Shen <shenjian15@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Jeremy Sowden <jeremy@azazel.net>,
+        syzbot+4f0529365f7f2208d9f0@syzkaller.appspotmail.com,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 036/249] net: hns3: fix for FEC configuration
-Date:   Mon, 15 Jul 2019 09:43:21 -0400
-Message-Id: <20190715134655.4076-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 040/249] af_key: fix leaks in key_pol_get_resp and dump_sp.
+Date:   Mon, 15 Jul 2019 09:43:25 -0400
+Message-Id: <20190715134655.4076-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -44,48 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-[ Upstream commit f438bfe9d4fe2e491505abfbf04d7c506e00d146 ]
+[ Upstream commit 7c80eb1c7e2b8420477fbc998971d62a648035d9 ]
 
-The FEC capbility may be changed with port speed changes. Driver
-needs to read the active FEC mode, and update FEC capability
-when port speed changes.
+In both functions, if pfkey_xfrm_policy2msg failed we leaked the newly
+allocated sk_buff.  Free it on error.
 
-Fixes: 7e6ec9148a1d ("net: hns3: add support for FEC encoding control")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 55569ce256ce ("Fix conversion between IPSEC_MODE_xxx and XFRM_MODE_xxx.")
+Reported-by: syzbot+4f0529365f7f2208d9f0@syzkaller.appspotmail.com
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/key/af_key.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index d3b1f8cb1155..4d9bcad26f06 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -2508,6 +2508,9 @@ static void hclge_update_link_status(struct hclge_dev *hdev)
- 
- static void hclge_update_port_capability(struct hclge_mac *mac)
- {
-+	/* update fec ability by speed */
-+	hclge_convert_setting_fec(mac);
-+
- 	/* firmware can not identify back plane type, the media type
- 	 * read from configuration can help deal it
- 	 */
-@@ -2580,6 +2583,10 @@ static int hclge_get_sfp_info(struct hclge_dev *hdev, struct hclge_mac *mac)
- 		mac->speed_ability = le32_to_cpu(resp->speed_ability);
- 		mac->autoneg = resp->autoneg;
- 		mac->support_autoneg = resp->autoneg_ability;
-+		if (!resp->active_fec)
-+			mac->fec_mode = 0;
-+		else
-+			mac->fec_mode = BIT(resp->active_fec);
- 	} else {
- 		mac->speed_type = QUERY_SFP_SPEED;
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index a50dd6f34b91..fe5fc4bab7ee 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2438,8 +2438,10 @@ static int key_pol_get_resp(struct sock *sk, struct xfrm_policy *xp, const struc
+ 		goto out;
  	}
+ 	err = pfkey_xfrm_policy2msg(out_skb, xp, dir);
+-	if (err < 0)
++	if (err < 0) {
++		kfree_skb(out_skb);
+ 		goto out;
++	}
+ 
+ 	out_hdr = (struct sadb_msg *) out_skb->data;
+ 	out_hdr->sadb_msg_version = hdr->sadb_msg_version;
+@@ -2690,8 +2692,10 @@ static int dump_sp(struct xfrm_policy *xp, int dir, int count, void *ptr)
+ 		return PTR_ERR(out_skb);
+ 
+ 	err = pfkey_xfrm_policy2msg(out_skb, xp, dir);
+-	if (err < 0)
++	if (err < 0) {
++		kfree_skb(out_skb);
+ 		return err;
++	}
+ 
+ 	out_hdr = (struct sadb_msg *) out_skb->data;
+ 	out_hdr->sadb_msg_version = pfk->dump.msg_version;
 -- 
 2.20.1
 
