@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F9568F64
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:14:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6BA368F69
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:14:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389287AbfGOOOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:14:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55222 "EHLO mail.kernel.org"
+        id S2389087AbfGOOOT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:14:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388947AbfGOOOG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:14:06 -0400
+        id S2389307AbfGOOOS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:14:18 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BE592081C;
-        Mon, 15 Jul 2019 14:14:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7253212F5;
+        Mon, 15 Jul 2019 14:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200045;
-        bh=TfVJwqEhKVcrhrXorGrG1M0YxCr2T8aqpxLOONU0Ry8=;
+        s=default; t=1563200057;
+        bh=FHM3ABfh/RUD+fZcA9PBQ27KnHYDHp3MQWzw8dG8eb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NnVekSI5uzDF/uNeL0ayeA17UZzHaziK0JLyiFhEz5qww5OUAz+j/rPlO6LN9FMui
-         MJqsEv5B2+de1mApEAB389/tTMVAEK60Y7jmeD+eKCSqRuynqNFphF7xoYMJkOrRgu
-         Q8UakOVRxYcV0aSS8deqSQ/3oyJqs7bIVA5PPOFE=
+        b=k3YBtfeBumUBaRTTgHOGxOzF4Gg6WmLRJvCqOzzykEbsUikpmooYofnYzIy18HyCN
+         4/FmI0JrgGcQdGHebnZgaluzte00417Ygpq6F1cvnD0ZNBixfUL/r2N1UBXBmxQ45e
+         stWYOEYTm5XeGGYcI4Ra4cJPe6uEBV2/OQzc+LXc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 169/219] bcache: check CACHE_SET_IO_DISABLE bit in bch_journal()
-Date:   Mon, 15 Jul 2019 10:02:50 -0400
-Message-Id: <20190715140341.6443-169-sashal@kernel.org>
+Cc:     Yonglong Liu <liuyonglong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 173/219] net: hns3: fix a -Wformat-nonliteral compile warning
+Date:   Mon, 15 Jul 2019 10:02:54 -0400
+Message-Id: <20190715140341.6443-173-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -42,42 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Yonglong Liu <liuyonglong@huawei.com>
 
-[ Upstream commit 383ff2183ad16a8842d1fbd9dd3e1cbd66813e64 ]
+[ Upstream commit 18d219b783da61a6cc77581f55fc4af2fa16bc36 ]
 
-When too many I/O errors happen on cache set and CACHE_SET_IO_DISABLE
-bit is set, bch_journal() may continue to work because the journaling
-bkey might be still in write set yet. The caller of bch_journal() may
-believe the journal still work but the truth is in-memory journal write
-set won't be written into cache device any more. This behavior may
-introduce potential inconsistent metadata status.
+When setting -Wformat=2, there is a compiler warning like this:
 
-This patch checks CACHE_SET_IO_DISABLE bit at the head of bch_journal(),
-if the bit is set, bch_journal() returns NULL immediately to notice
-caller to know journal does not work.
+hclge_main.c:xxx:x: warning: format not a string literal and no
+format arguments [-Wformat-nonliteral]
+strs[i].desc);
+^~~~
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This patch adds missing format parameter "%s" to snprintf() to
+fix it.
+
+Fixes: 46a3df9f9718 ("Add HNS3 Acceleration Engine & Compatibility Layer Support")
+Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/journal.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
-index 6c94fa007796..ac3cec56ec19 100644
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -810,6 +810,10 @@ atomic_t *bch_journal(struct cache_set *c,
- 	struct journal_write *w;
- 	atomic_t *ret;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 6d4d5a470163..563eefa20003 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -550,8 +550,7 @@ static u8 *hclge_comm_get_strings(u32 stringset,
+ 		return buff;
  
-+	/* No journaling if CACHE_SET_IO_DISABLE set already */
-+	if (unlikely(test_bit(CACHE_SET_IO_DISABLE, &c->flags)))
-+		return NULL;
-+
- 	if (!CACHE_SYNC(&c->sb))
- 		return NULL;
+ 	for (i = 0; i < size; i++) {
+-		snprintf(buff, ETH_GSTRING_LEN,
+-			 strs[i].desc);
++		snprintf(buff, ETH_GSTRING_LEN, "%s", strs[i].desc);
+ 		buff = buff + ETH_GSTRING_LEN;
+ 	}
  
 -- 
 2.20.1
