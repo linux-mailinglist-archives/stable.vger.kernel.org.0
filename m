@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0583F68CF2
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B1B668CFA
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:55:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732726AbfGONzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:55:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58230 "EHLO mail.kernel.org"
+        id S1732589AbfGONzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:55:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732259AbfGONzL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:55:11 -0400
+        id S1732747AbfGONzS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:55:18 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F3C12067C;
-        Mon, 15 Jul 2019 13:55:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11B272086C;
+        Mon, 15 Jul 2019 13:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198909;
-        bh=uIxwGh11w8bs6mPsamrje8/1REWkHMV4vr8N6bdpo3I=;
+        s=default; t=1563198918;
+        bh=SxoPY6SDOMBvtzOk9ppQz8Q8EExZvlNfTvLTnFMYRb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cyvL04hlASNaNDH8EEzlAgw9KR31VFCVkd7c0kyxTZXgZ052bTWKlghmgmwf+PRdN
-         TGbT/+w043zm3tZ2mWp4TM6jQlI3PtMUY/tYwHFh6b4PFpRQWbuLzrFpB+vCvhQKs1
-         38Wqp+Hbm/jpzIDuc8CCyCP9+e68xZOiqks04WHc=
+        b=pqVVGwv6mkbMX3Gv1+mY17N2LzBYEvGwObsB0H3ZNa3LkdRbSORTVNFir9kCYSDwG
+         iifacmmNJ2l3jLc23zcyE4mGdHEMMyjfoCSbYkKPapfglD+wsh+IJFA4Q1eJxj0L7Q
+         326nxv80+YFY5uxcKraDGbemv86tXhwrpSAJuWg4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 138/249] lightnvm: fix uninitialized pointer in nvm_remove_tgt()
-Date:   Mon, 15 Jul 2019 09:45:03 -0400
-Message-Id: <20190715134655.4076-138-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 141/249] ipsec: select crypto ciphers for xfrm_algo
+Date:   Mon, 15 Jul 2019 09:45:06 -0400
+Message-Id: <20190715134655.4076-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,44 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 2f5af4ab7de14bd35f3435e6a47300276bbb6c17 ]
+[ Upstream commit 597179b0ba550bd83fab1a9d57c42a9343c58514 ]
 
-With gcc 4.1:
+kernelci.org reports failed builds on arc because of what looks
+like an old missed 'select' statement:
 
-    drivers/lightnvm/core.c: In function ‘nvm_remove_tgt’:
-    drivers/lightnvm/core.c:510: warning: ‘t’ is used uninitialized in this function
+net/xfrm/xfrm_algo.o: In function `xfrm_probe_algs':
+xfrm_algo.c:(.text+0x1e8): undefined reference to `crypto_has_ahash'
 
-Indeed, if no NVM devices have been registered, t will be an
-uninitialized pointer, and may be dereferenced later.  A call to
-nvm_remove_tgt() can be triggered from userspace by issuing the
-NVM_DEV_REMOVE ioctl on the lightnvm control device.
+I don't see this in randconfig builds on other architectures, but
+it's fairly clear we want to select the hash code for it, like we
+do for all its other users. As Herbert points out, CRYPTO_BLKCIPHER
+is also required even though it has not popped up in build tests.
 
-Fix this by preinitializing t to NULL.
-
-Fixes: 843f2edbdde085b4 ("lightnvm: do not remove instance under global lock")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Matias Bjørling <mb@lightnvm.io>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 17bc19702221 ("ipsec: Use skcipher and ahash when probing algorithms")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/lightnvm/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/lightnvm/core.c b/drivers/lightnvm/core.c
-index 7d555b110ecd..a600934fdd9c 100644
---- a/drivers/lightnvm/core.c
-+++ b/drivers/lightnvm/core.c
-@@ -478,7 +478,7 @@ static void __nvm_remove_target(struct nvm_target *t, bool graceful)
-  */
- static int nvm_remove_tgt(struct nvm_ioctl_remove *remove)
- {
--	struct nvm_target *t;
-+	struct nvm_target *t = NULL;
- 	struct nvm_dev *dev;
+diff --git a/net/xfrm/Kconfig b/net/xfrm/Kconfig
+index c967fc3c38c8..51bb6018f3bf 100644
+--- a/net/xfrm/Kconfig
++++ b/net/xfrm/Kconfig
+@@ -15,6 +15,8 @@ config XFRM_ALGO
+ 	tristate
+ 	select XFRM
+ 	select CRYPTO
++	select CRYPTO_HASH
++	select CRYPTO_BLKCIPHER
  
- 	down_read(&nvm_lock);
+ if INET
+ config XFRM_USER
 -- 
 2.20.1
 
