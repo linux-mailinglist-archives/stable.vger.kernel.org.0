@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2FB368E09
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:03:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D5768E2A
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:04:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733230AbfGOODL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:03:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47496 "EHLO mail.kernel.org"
+        id S1733047AbfGOOEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:04:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387426AbfGOODK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:03:10 -0400
+        id S1730743AbfGOOD7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:03:59 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22BCE2086C;
-        Mon, 15 Jul 2019 14:03:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FC3C2081C;
+        Mon, 15 Jul 2019 14:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199389;
-        bh=jHBoahBIMCEqzHHAdyXBu+NzeIwefRJZKUWcMn7yxDc=;
+        s=default; t=1563199438;
+        bh=KCYLOsGoG359+oREF2v3J7YYuSkQnjbjlMV7bKPIiJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wZzyEudCObST4MvKQgt6V059Ls/1p8ZWnpm7WMj9DqDVmXm4jKf1RjpIcADsV9IWw
-         2iTeYE3n4BXtBhFA4KtjMj1CGt6Xst6k3cKQGfZSwTW37unSmRak1aDERwCWV1zWqt
-         blvKAmrUA3DtXyLpNxH8nXM0IpvCOIElJEyuOCCI=
+        b=XXbUPT4RMXtLOqmkxagzp1fWEb7uJq86oRipFCSOdcyMJIZoN1UprZSEHIAkuZEMu
+         GwoXm/g516LSZylGnZ/+Z+fET7QkXR7/tXTKj3FgB9Bxwq6xD4YMwiJnxqZ459Fzm6
+         BV5cG3s0+7vFfGuqcfcr1s8IgPTV5IJH9Q4Ij5Vo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josua Mayer <josua@solid-run.com>, Andrew Lunn <andrew@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 249/249] net: mvmdio: defer probe of orion-mdio if a clock is not ready
-Date:   Mon, 15 Jul 2019 09:46:54 -0400
-Message-Id: <20190715134655.4076-249-sashal@kernel.org>
+Cc:     =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Miguel Catalan Cid <miguel.catalan@i2cat.net>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 004/219] ath9k: Don't trust TX status TID number when reporting airtime
+Date:   Mon, 15 Jul 2019 10:00:05 -0400
+Message-Id: <20190715140341.6443-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
-References: <20190715134655.4076-1-sashal@kernel.org>
+In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
+References: <20190715140341.6443-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,45 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josua Mayer <josua@solid-run.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 433a06d7d74e677c40b1148c70c48677ff62fb6b ]
+[ Upstream commit 389b72e58259336c2d56d58b660b79cf4b9e0dcb ]
 
-Defer probing of the orion-mdio interface when getting a clock returns
-EPROBE_DEFER. This avoids locking up the Armada 8k SoC when mdio is used
-before all clocks have been enabled.
+As already noted a comment in ath_tx_complete_aggr(), the hardware will
+occasionally send a TX status with the wrong tid number. If we trust the
+value, airtime usage will be reported to the wrong AC, which can cause the
+deficit on that AC to become very low, blocking subsequent attempts to
+transmit.
 
-Signed-off-by: Josua Mayer <josua@solid-run.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+To fix this, account airtime usage to the TID number from the original skb,
+instead of the one in the hardware TX status report.
+
+Reported-by: Miguel Catalan Cid <miguel.catalan@i2cat.net>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvmdio.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wireless/ath/ath9k/xmit.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvmdio.c b/drivers/net/ethernet/marvell/mvmdio.c
-index c5dac6bd2be4..903836e334d8 100644
---- a/drivers/net/ethernet/marvell/mvmdio.c
-+++ b/drivers/net/ethernet/marvell/mvmdio.c
-@@ -321,6 +321,10 @@ static int orion_mdio_probe(struct platform_device *pdev)
+diff --git a/drivers/net/wireless/ath/ath9k/xmit.c b/drivers/net/wireless/ath/ath9k/xmit.c
+index b17e1ca40995..3be0aeedb9b5 100644
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -668,7 +668,8 @@ static bool bf_is_ampdu_not_probing(struct ath_buf *bf)
+ static void ath_tx_count_airtime(struct ath_softc *sc,
+ 				 struct ieee80211_sta *sta,
+ 				 struct ath_buf *bf,
+-				 struct ath_tx_status *ts)
++				 struct ath_tx_status *ts,
++				 u8 tid)
+ {
+ 	u32 airtime = 0;
+ 	int i;
+@@ -679,7 +680,7 @@ static void ath_tx_count_airtime(struct ath_softc *sc,
+ 		airtime += rate_dur * bf->rates[i].count;
+ 	}
  
- 	for (i = 0; i < ARRAY_SIZE(dev->clk); i++) {
- 		dev->clk[i] = of_clk_get(pdev->dev.of_node, i);
-+		if (PTR_ERR(dev->clk[i]) == -EPROBE_DEFER) {
-+			ret = -EPROBE_DEFER;
-+			goto out_clk;
-+		}
- 		if (IS_ERR(dev->clk[i]))
- 			break;
- 		clk_prepare_enable(dev->clk[i]);
-@@ -362,6 +366,7 @@ static int orion_mdio_probe(struct platform_device *pdev)
- 	if (dev->err_interrupt > 0)
- 		writel(0, dev->regs + MVMDIO_ERR_INT_MASK);
+-	ieee80211_sta_register_airtime(sta, ts->tid, airtime, 0);
++	ieee80211_sta_register_airtime(sta, tid, airtime, 0);
+ }
  
-+out_clk:
- 	for (i = 0; i < ARRAY_SIZE(dev->clk); i++) {
- 		if (IS_ERR(dev->clk[i]))
- 			break;
+ static void ath_tx_process_buffer(struct ath_softc *sc, struct ath_txq *txq,
+@@ -709,7 +710,7 @@ static void ath_tx_process_buffer(struct ath_softc *sc, struct ath_txq *txq,
+ 	if (sta) {
+ 		struct ath_node *an = (struct ath_node *)sta->drv_priv;
+ 		tid = ath_get_skb_tid(sc, an, bf->bf_mpdu);
+-		ath_tx_count_airtime(sc, sta, bf, ts);
++		ath_tx_count_airtime(sc, sta, bf, ts, tid->tidno);
+ 		if (ts->ts_status & (ATH9K_TXERR_FILT | ATH9K_TXERR_XRETRY))
+ 			tid->clear_ps_filter = true;
+ 	}
 -- 
 2.20.1
 
