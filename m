@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1252E69440
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:50:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3301B6943E
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:50:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405038AbfGOOqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:46:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36706 "EHLO mail.kernel.org"
+        id S2405052AbfGOOq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:46:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405036AbfGOOqY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:46:24 -0400
+        id S2405042AbfGOOq1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:46:27 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D59FA21537;
-        Mon, 15 Jul 2019 14:46:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7004D217D9;
+        Mon, 15 Jul 2019 14:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201983;
-        bh=rjXIrPC/VKGuER3lh7qxRBpyvcqcxN4Tu6CvnCk5rEU=;
+        s=default; t=1563201986;
+        bh=Bcre74LP3qZUlvaMJu16xth5AC2Y+f555bvTJ3SPdNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/jjxjXSxd28MroyR1NAKD2oENc+KV4AeaSPCYBpZhaw4psrCknWKeGGmm6vm/vXQ
-         O9+EpZeyDbgwWDaooj4o4dp2i0s/+CPFHwR5y+4I1WEu35Rsb0yxvRKSYPjRSFyI7V
-         owFiWjjiUUFG/obqs4FiRWIjeTcWLEJ2OAskg5QA=
+        b=sxEpS3DyRW3WPBeMlh0U89gcw9YtGWMQquKNRWKFdxND95rnD+ooPkPJll/hk5UDj
+         80UeFoO+krl+TJR0rgHpIbpRbEQZTNGcAVwgSKTclmO8Q+JJULjbRk9P531E4PdFAU
+         75qSSpg81PdsHJGHfQ5Ri8KsHC6FpnBMVqYG2OMc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anirudh Gupta <anirudhrudr@gmail.com>,
-        Anirudh Gupta <anirudh.gupta@sophos.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+Cc:     Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        Joseph Yasi <joe.yasi@gmail.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Oleksandr Natalenko <oleksandr@redhat.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 14/53] xfrm: Fix xfrm sel prefix length validation
-Date:   Mon, 15 Jul 2019 10:44:56 -0400
-Message-Id: <20190715144535.11636-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 15/53] e1000e: start network tx queue only when link is up
+Date:   Mon, 15 Jul 2019 10:44:57 -0400
+Message-Id: <20190715144535.11636-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715144535.11636-1-sashal@kernel.org>
 References: <20190715144535.11636-1-sashal@kernel.org>
@@ -45,56 +47,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Gupta <anirudhrudr@gmail.com>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-[ Upstream commit b38ff4075a80b4da5cb2202d7965332ca0efb213 ]
+[ Upstream commit d17ba0f616a08f597d9348c372d89b8c0405ccf3 ]
 
-Family of src/dst can be different from family of selector src/dst.
-Use xfrm selector family to validate address prefix length,
-while verifying new sa from userspace.
+Driver does not want to keep packets in Tx queue when link is lost.
+But present code only reset NIC to flush them, but does not prevent
+queuing new packets. Moreover reset sequence itself could generate
+new packets via netconsole and NIC falls into endless reset loop.
 
-Validated patch with this command:
-ip xfrm state add src 1.1.6.1 dst 1.1.6.2 proto esp spi 4260196 \
-reqid 20004 mode tunnel aead "rfc4106(gcm(aes))" \
-0x1111016400000000000000000000000044440001 128 \
-sel src 1011:1:4::2/128 sel dst 1021:1:4::2/128 dev Port5
+This patch wakes Tx queue only when NIC is ready to send packets.
 
-Fixes: 07bf7908950a ("xfrm: Validate address prefix lengths in the xfrm selector.")
-Signed-off-by: Anirudh Gupta <anirudh.gupta@sophos.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+This is proper fix for problem addressed by commit 0f9e980bf5ee
+("e1000e: fix cyclic resets at link up with active tx").
+
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Suggested-by: Alexander Duyck <alexander.duyck@gmail.com>
+Tested-by: Joseph Yasi <joe.yasi@gmail.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Tested-by: Oleksandr Natalenko <oleksandr@redhat.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_user.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index b04c03043976..10fda9a39cc2 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -150,6 +150,22 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index 6b1cacd86c6e..7d64edeb1830 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -4171,7 +4171,7 @@ int e1000e_up(struct e1000_adapter *adapter)
+ 		e1000_configure_msix(adapter);
+ 	e1000_irq_enable(adapter);
  
- 	err = -EINVAL;
- 	switch (p->family) {
-+	case AF_INET:
-+		break;
-+
-+	case AF_INET6:
-+#if IS_ENABLED(CONFIG_IPV6)
-+		break;
-+#else
-+		err = -EAFNOSUPPORT;
-+		goto out;
-+#endif
-+
-+	default:
-+		goto out;
-+	}
-+
-+	switch (p->sel.family) {
- 	case AF_INET:
- 		if (p->sel.prefixlen_d > 32 || p->sel.prefixlen_s > 32)
- 			goto out;
+-	netif_start_queue(adapter->netdev);
++	/* Tx queue started by watchdog timer when link is up */
+ 
+ 	/* fire a link change interrupt to start the watchdog */
+ 	if (adapter->msix_entries)
+@@ -4539,6 +4539,7 @@ static int e1000_open(struct net_device *netdev)
+ 	pm_runtime_get_sync(&pdev->dev);
+ 
+ 	netif_carrier_off(netdev);
++	netif_stop_queue(netdev);
+ 
+ 	/* allocate transmit descriptors */
+ 	err = e1000e_setup_tx_resources(adapter->tx_ring);
+@@ -4599,7 +4600,6 @@ static int e1000_open(struct net_device *netdev)
+ 	e1000_irq_enable(adapter);
+ 
+ 	adapter->tx_hang_recheck = false;
+-	netif_start_queue(netdev);
+ 
+ 	hw->mac.get_link_status = true;
+ 	pm_runtime_put(&pdev->dev);
+@@ -5226,6 +5226,7 @@ static void e1000_watchdog_task(struct work_struct *work)
+ 			if (phy->ops.cfg_on_link_up)
+ 				phy->ops.cfg_on_link_up(hw);
+ 
++			netif_wake_queue(netdev);
+ 			netif_carrier_on(netdev);
+ 
+ 			if (!test_bit(__E1000_DOWN, &adapter->state))
+@@ -5239,6 +5240,7 @@ static void e1000_watchdog_task(struct work_struct *work)
+ 			/* Link status message must follow this format */
+ 			pr_info("%s NIC Link is Down\n", adapter->netdev->name);
+ 			netif_carrier_off(netdev);
++			netif_stop_queue(netdev);
+ 			if (!test_bit(__E1000_DOWN, &adapter->state))
+ 				mod_timer(&adapter->phy_info_timer,
+ 					  round_jiffies(jiffies + 2 * HZ));
 -- 
 2.20.1
 
