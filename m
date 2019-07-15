@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F6F76904D
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11EF969057
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389945AbfGOOUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:20:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44384 "EHLO mail.kernel.org"
+        id S2389242AbfGOOUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:20:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390225AbfGOOU3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:20:29 -0400
+        id S2389200AbfGOOUs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:20:48 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23D07206B8;
-        Mon, 15 Jul 2019 14:20:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C33A6206B8;
+        Mon, 15 Jul 2019 14:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200428;
-        bh=siaOQU+9Yi/g6m79iq793PysKjLd5jvq5ck8WDVyUTw=;
+        s=default; t=1563200448;
+        bh=xVxESYDXJaoN2MQONcVN3HFErzn5qTxx2UPDhtl15YU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y13PGwKJMExI9xLYYUr43j3iYvKgVhkxZ9GTWHUD64G6wxKEQMDx/tr9+6jXWYC0D
-         DpTE2dhFS0RzvPrTB68M/K7fpyulEOz1J4brTFKV4MAVQjudVtQoJuXgfUTzK9Dw59
-         3NL9w8Xpw3DXZ3UQbxlhCgKJAkkgtV6VKLWHU75M=
+        b=z3jEX7T+1dVDEPBlwSJ+A7tFU44iV/VG+ait/i/IE/NYKztbeF/VT13wnvn8OHLZn
+         ktMBwkisS3MtaDxlmMzTg7Ymbr7nz7t/kOfJfqie+BwnsEiPSvKzVLQcO+j2SUS8FK
+         1fmpOxxC6nZK8sf3Vhln0fGsBokFlENzcEDvMHks=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Antoine Tenart <antoine.tenart@bootlin.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 045/158] crypto: inside-secure - do not rely on the hardware last bit for result descriptors
-Date:   Mon, 15 Jul 2019 10:16:16 -0400
-Message-Id: <20190715141809.8445-45-sashal@kernel.org>
+Cc:     Thomas Richter <tmricht@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.vnet.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 053/158] perf test 6: Fix missing kvm module load for s390
+Date:   Mon, 15 Jul 2019 10:16:24 -0400
+Message-Id: <20190715141809.8445-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -43,129 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <antoine.tenart@bootlin.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 89332590427235680236b9470e851afc49b3caa1 ]
+[ Upstream commit 53fe307dfd309e425b171f6272d64296a54f4dff ]
 
-When performing a transformation the hardware is given result
-descriptors to save the result data. Those result descriptors are
-batched using a 'first' and a 'last' bit. There are cases were more
-descriptors than needed are given to the engine, leading to the engine
-only using some of them, and not setting the last bit on the last
-descriptor we gave. This causes issues were the driver and the hardware
-aren't in sync anymore about the number of result descriptors given (as
-the driver do not give a pool of descriptor to use for any
-transformation, but a pool of descriptors to use *per* transformation).
+Command
 
-This patch fixes it by attaching the number of given result descriptors
-to the requests, and by using this number instead of the 'last' bit
-found on the descriptors to process them.
+   # perf test -Fv 6
 
-Signed-off-by: Antoine Tenart <antoine.tenart@bootlin.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+fails with error
+
+   running test 100 'kvm-s390:kvm_s390_create_vm' failed to parse
+    event 'kvm-s390:kvm_s390_create_vm', err -1, str 'unknown tracepoint'
+    event syntax error: 'kvm-s390:kvm_s390_create_vm'
+                         \___ unknown tracepoint
+
+when the kvm module is not loaded or not built in.
+
+Fix this by adding a valid function which tests if the module
+is loaded. Loaded modules (or builtin KVM support) have a
+directory named
+  /sys/kernel/debug/tracing/events/kvm-s390
+for this tracepoint.
+
+Check for existence of this directory.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Link: http://lkml.kernel.org/r/20190604053504.43073-1-tmricht@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../crypto/inside-secure/safexcel_cipher.c    | 24 ++++++++++++++-----
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ tools/perf/tests/parse-events.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/drivers/crypto/inside-secure/safexcel_cipher.c b/drivers/crypto/inside-secure/safexcel_cipher.c
-index 3aef1d43e435..42a3830fbd19 100644
---- a/drivers/crypto/inside-secure/safexcel_cipher.c
-+++ b/drivers/crypto/inside-secure/safexcel_cipher.c
-@@ -51,6 +51,8 @@ struct safexcel_cipher_ctx {
+diff --git a/tools/perf/tests/parse-events.c b/tools/perf/tests/parse-events.c
+index 3b97ac018d5a..532c95e8fa6b 100644
+--- a/tools/perf/tests/parse-events.c
++++ b/tools/perf/tests/parse-events.c
+@@ -18,6 +18,32 @@
+ #define PERF_TP_SAMPLE_TYPE (PERF_SAMPLE_RAW | PERF_SAMPLE_TIME | \
+ 			     PERF_SAMPLE_CPU | PERF_SAMPLE_PERIOD)
  
- struct safexcel_cipher_req {
- 	enum safexcel_cipher_direction direction;
-+	/* Number of result descriptors associated to the request */
-+	unsigned int rdescs;
- 	bool needs_inv;
- };
- 
-@@ -333,7 +335,10 @@ static int safexcel_handle_req_result(struct safexcel_crypto_priv *priv, int rin
- 
- 	*ret = 0;
- 
--	do {
-+	if (unlikely(!sreq->rdescs))
-+		return 0;
++#if defined(__s390x__)
++/* Return true if kvm module is available and loaded. Test this
++ * and retun success when trace point kvm_s390_create_vm
++ * exists. Otherwise this test always fails.
++ */
++static bool kvm_s390_create_vm_valid(void)
++{
++	char *eventfile;
++	bool rc = false;
 +
-+	while (sreq->rdescs--) {
- 		rdesc = safexcel_ring_next_rptr(priv, &priv->ring[ring].rdr);
- 		if (IS_ERR(rdesc)) {
- 			dev_err(priv->dev,
-@@ -346,7 +351,7 @@ static int safexcel_handle_req_result(struct safexcel_crypto_priv *priv, int rin
- 			*ret = safexcel_rdesc_check_errors(priv, rdesc);
- 
- 		ndesc++;
--	} while (!rdesc->last_seg);
++	eventfile = get_events_file("kvm-s390");
++
++	if (eventfile) {
++		DIR *mydir = opendir(eventfile);
++
++		if (mydir) {
++			rc = true;
++			closedir(mydir);
++		}
++		put_events_file(eventfile);
 +	}
- 
- 	safexcel_complete(priv, ring);
- 
-@@ -501,6 +506,7 @@ static int safexcel_send_req(struct crypto_async_request *base, int ring,
- static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
- 				      int ring,
- 				      struct crypto_async_request *base,
-+				      struct safexcel_cipher_req *sreq,
- 				      bool *should_complete, int *ret)
++
++	return rc;
++}
++#endif
++
+ static int test__checkevent_tracepoint(struct perf_evlist *evlist)
  {
- 	struct safexcel_cipher_ctx *ctx = crypto_tfm_ctx(base->tfm);
-@@ -509,7 +515,10 @@ static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
- 
- 	*ret = 0;
- 
--	do {
-+	if (unlikely(!sreq->rdescs))
-+		return 0;
-+
-+	while (sreq->rdescs--) {
- 		rdesc = safexcel_ring_next_rptr(priv, &priv->ring[ring].rdr);
- 		if (IS_ERR(rdesc)) {
- 			dev_err(priv->dev,
-@@ -522,7 +531,7 @@ static int safexcel_handle_inv_result(struct safexcel_crypto_priv *priv,
- 			*ret = safexcel_rdesc_check_errors(priv, rdesc);
- 
- 		ndesc++;
--	} while (!rdesc->last_seg);
-+	}
- 
- 	safexcel_complete(priv, ring);
- 
-@@ -564,7 +573,7 @@ static int safexcel_skcipher_handle_result(struct safexcel_crypto_priv *priv,
- 
- 	if (sreq->needs_inv) {
- 		sreq->needs_inv = false;
--		err = safexcel_handle_inv_result(priv, ring, async,
-+		err = safexcel_handle_inv_result(priv, ring, async, sreq,
- 						 should_complete, ret);
- 	} else {
- 		err = safexcel_handle_req_result(priv, ring, async, req->src,
-@@ -587,7 +596,7 @@ static int safexcel_aead_handle_result(struct safexcel_crypto_priv *priv,
- 
- 	if (sreq->needs_inv) {
- 		sreq->needs_inv = false;
--		err = safexcel_handle_inv_result(priv, ring, async,
-+		err = safexcel_handle_inv_result(priv, ring, async, sreq,
- 						 should_complete, ret);
- 	} else {
- 		err = safexcel_handle_req_result(priv, ring, async, req->src,
-@@ -633,6 +642,8 @@ static int safexcel_skcipher_send(struct crypto_async_request *async, int ring,
- 		ret = safexcel_send_req(async, ring, sreq, req->src,
- 					req->dst, req->cryptlen, 0, 0, req->iv,
- 					commands, results);
-+
-+	sreq->rdescs = *results;
- 	return ret;
- }
- 
-@@ -655,6 +666,7 @@ static int safexcel_aead_send(struct crypto_async_request *async, int ring,
- 					req->cryptlen, req->assoclen,
- 					crypto_aead_authsize(tfm), req->iv,
- 					commands, results);
-+	sreq->rdescs = *results;
- 	return ret;
- }
- 
+ 	struct perf_evsel *evsel = perf_evlist__first(evlist);
+@@ -1622,6 +1648,7 @@ static struct evlist_test test__events[] = {
+ 	{
+ 		.name  = "kvm-s390:kvm_s390_create_vm",
+ 		.check = test__checkevent_tracepoint,
++		.valid = kvm_s390_create_vm_valid,
+ 		.id    = 100,
+ 	},
+ #endif
 -- 
 2.20.1
 
