@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CA2D69628
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5D86962B
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:03:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388660AbfGOOJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:09:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60512 "EHLO mail.kernel.org"
+        id S2388045AbfGOOJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:09:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388652AbfGOOJK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:09:10 -0400
+        id S1731241AbfGOOJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:09:11 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2DFB212F5;
-        Mon, 15 Jul 2019 14:09:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E146521841;
+        Mon, 15 Jul 2019 14:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199749;
-        bh=oLHMVyDyR9D/eTUhXbuQSLHOw8Bnlk5PSTnPXqxZkc4=;
+        s=default; t=1563199751;
+        bh=oLaZZsiAsWPg5tIXJ0siM1ZrBH71h7yIil+f0MEhA/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pL5//F3DmfgfJ5Pfgtup0TfMdYtqC3iSfwQR4MFCAJrRantYyLFV9qLbsJr2flu3j
-         O98+FS1NlxqKk9kcoY2yhnLZQszCo9RfP25x2JERRP28qRtBxYOzYsH2cPJGwk7pap
-         8SBtJ2RQ9iI6NkQEQ5J4Ylowj+wUVjWhpclk8fnk=
+        b=YUlHdat+StXVRr4EVSI9D7P4RSI+S1pV8JPq0Gb5pWess+IrJWyWDTsbtMheKgIM4
+         YJfxUq1jK1VCXn8T8c/RILiJfXVYhOAMrrJtXi5EcRnlhFuuLriboJEcfyXz62S44s
+         FSxRQis1W4XasL6fRFw+G3R2Qvs32V/rPsRQBMvQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunsheng Lin <linyunsheng@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 094/219] net: hns3: delay ring buffer clearing during reset
-Date:   Mon, 15 Jul 2019 10:01:35 -0400
-Message-Id: <20190715140341.6443-94-sashal@kernel.org>
+Cc:     Bob Liu <bob.liu@oracle.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 095/219] block: null_blk: fix race condition for null_del_dev
+Date:   Mon, 15 Jul 2019 10:01:36 -0400
+Message-Id: <20190715140341.6443-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -45,92 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Bob Liu <bob.liu@oracle.com>
 
-[ Upstream commit 3a30964a2eef6aabd3ab18b979ea0eacf1147731 ]
+[ Upstream commit 7602843fd873cae43a444b83b14dfdd114a9659c ]
 
-The driver may not be able to disable the ring through firmware
-when downing the netdev during reset process, which may cause
-hardware accessing freed buffer problem.
+Dulicate call of null_del_dev() will trigger null pointer error like below.
+The reason is a race condition between nullb_device_power_store() and
+nullb_group_drop_item().
 
-This patch delays the ring buffer clearing to reset uninit
-process because hardware will not access the ring buffer after
-hardware reset is completed.
+  CPU#0                         CPU#1
+  ----------------              -----------------
+  do_rmdir()
+   >configfs_rmdir()
+    >client_drop_item()
+     >nullb_group_drop_item()
+                                nullb_device_power_store()
+				>null_del_dev()
 
-Fixes: bb6b94a896d4 ("net: hns3: Add reset interface implementation in client")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+      >test_and_clear_bit(NULLB_DEV_FL_UP
+       >null_del_dev()
+       ^^^^^
+       Duplicated null_dev_dev() triger null pointer error
+
+				>clear_bit(NULLB_DEV_FL_UP
+
+The fix could be keep the sequnce of clear NULLB_DEV_FL_UP and null_del_dev().
+
+[  698.613600] BUG: unable to handle kernel NULL pointer dereference at 0000000000000018
+[  698.613608] #PF error: [normal kernel read fault]
+[  698.613611] PGD 0 P4D 0
+[  698.613619] Oops: 0000 [#1] SMP PTI
+[  698.613627] CPU: 3 PID: 6382 Comm: rmdir Not tainted 5.0.0+ #35
+[  698.613631] Hardware name: LENOVO 20LJS2EV08/20LJS2EV08, BIOS R0SET33W (1.17 ) 07/18/2018
+[  698.613644] RIP: 0010:null_del_dev+0xc/0x110 [null_blk]
+[  698.613649] Code: 00 00 00 5b 41 5c 41 5d 41 5e 41 5f 5d c3 0f 0b eb 97 e8 47 bb 2a e8 0f 1f 80 00 00 00 00 0f 1f 44 00 00 55 48 89 e5 41 54 53 <8b> 77 18 48 89 fb 4c 8b 27 48 c7 c7 40 57 1e c1 e8 bf c7 cb e8 48
+[  698.613654] RSP: 0018:ffffb887888bfde0 EFLAGS: 00010286
+[  698.613659] RAX: 0000000000000000 RBX: ffff9d436d92bc00 RCX: ffff9d43a9184681
+[  698.613663] RDX: ffffffffc11e5c30 RSI: 0000000068be6540 RDI: 0000000000000000
+[  698.613667] RBP: ffffb887888bfdf0 R08: 0000000000000001 R09: 0000000000000000
+[  698.613671] R10: ffffb887888bfdd8 R11: 0000000000000f16 R12: ffff9d436d92bc08
+[  698.613675] R13: ffff9d436d94e630 R14: ffffffffc11e5088 R15: ffffffffc11e5000
+[  698.613680] FS:  00007faa68be6540(0000) GS:ffff9d43d14c0000(0000) knlGS:0000000000000000
+[  698.613685] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  698.613689] CR2: 0000000000000018 CR3: 000000042f70c002 CR4: 00000000003606e0
+[  698.613693] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  698.613697] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  698.613700] Call Trace:
+[  698.613712]  nullb_group_drop_item+0x50/0x70 [null_blk]
+[  698.613722]  client_drop_item+0x29/0x40
+[  698.613728]  configfs_rmdir+0x1ed/0x300
+[  698.613738]  vfs_rmdir+0xb2/0x130
+[  698.613743]  do_rmdir+0x1c7/0x1e0
+[  698.613750]  __x64_sys_rmdir+0x17/0x20
+[  698.613759]  do_syscall_64+0x5a/0x110
+[  698.613768]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Signed-off-by: Bob Liu <bob.liu@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/block/null_blk_main.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 6afdd376bc03..7e7c10513d2c 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -28,7 +28,7 @@
- #define hns3_tx_bd_count(S)	DIV_ROUND_UP(S, HNS3_MAX_BD_SIZE)
- 
- static void hns3_clear_all_ring(struct hnae3_handle *h);
--static void hns3_force_clear_all_rx_ring(struct hnae3_handle *h);
-+static void hns3_force_clear_all_ring(struct hnae3_handle *h);
- static void hns3_remove_hw_addr(struct net_device *netdev);
- 
- static const char hns3_driver_name[] = "hns3";
-@@ -484,7 +484,12 @@ static void hns3_nic_net_down(struct net_device *netdev)
- 	/* free irq resources */
- 	hns3_nic_uninit_irq(priv);
- 
--	hns3_clear_all_ring(priv->ae_handle);
-+	/* delay ring buffer clearing to hns3_reset_notify_uninit_enet
-+	 * during reset process, because driver may not be able
-+	 * to disable the ring through firmware when downing the netdev.
-+	 */
-+	if (!hns3_nic_resetting(netdev))
-+		hns3_clear_all_ring(priv->ae_handle);
- }
- 
- static int hns3_nic_net_stop(struct net_device *netdev)
-@@ -3737,7 +3742,7 @@ static void hns3_client_uninit(struct hnae3_handle *handle, bool reset)
- 
- 	hns3_del_all_fd_rules(netdev, true);
- 
--	hns3_force_clear_all_rx_ring(handle);
-+	hns3_force_clear_all_ring(handle);
- 
- 	hns3_uninit_phy(netdev);
- 
-@@ -3909,7 +3914,7 @@ static void hns3_force_clear_rx_ring(struct hns3_enet_ring *ring)
+diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.c
+index d7ac09c092f2..21d0b651b335 100644
+--- a/drivers/block/null_blk_main.c
++++ b/drivers/block/null_blk_main.c
+@@ -326,11 +326,12 @@ static ssize_t nullb_device_power_store(struct config_item *item,
+ 		set_bit(NULLB_DEV_FL_CONFIGURED, &dev->flags);
+ 		dev->power = newp;
+ 	} else if (dev->power && !newp) {
+-		mutex_lock(&lock);
+-		dev->power = newp;
+-		null_del_dev(dev->nullb);
+-		mutex_unlock(&lock);
+-		clear_bit(NULLB_DEV_FL_UP, &dev->flags);
++		if (test_and_clear_bit(NULLB_DEV_FL_UP, &dev->flags)) {
++			mutex_lock(&lock);
++			dev->power = newp;
++			null_del_dev(dev->nullb);
++			mutex_unlock(&lock);
++		}
+ 		clear_bit(NULLB_DEV_FL_CONFIGURED, &dev->flags);
  	}
- }
- 
--static void hns3_force_clear_all_rx_ring(struct hnae3_handle *h)
-+static void hns3_force_clear_all_ring(struct hnae3_handle *h)
- {
- 	struct net_device *ndev = h->kinfo.netdev;
- 	struct hns3_nic_priv *priv = netdev_priv(ndev);
-@@ -3917,6 +3922,9 @@ static void hns3_force_clear_all_rx_ring(struct hnae3_handle *h)
- 	u32 i;
- 
- 	for (i = 0; i < h->kinfo.num_tqps; i++) {
-+		ring = priv->ring_data[i].ring;
-+		hns3_clear_tx_ring(ring);
-+
- 		ring = priv->ring_data[i + h->kinfo.num_tqps].ring;
- 		hns3_force_clear_rx_ring(ring);
- 	}
-@@ -4145,7 +4153,8 @@ static int hns3_reset_notify_uninit_enet(struct hnae3_handle *handle)
- 		return 0;
- 	}
- 
--	hns3_force_clear_all_rx_ring(handle);
-+	hns3_clear_all_ring(handle);
-+	hns3_force_clear_all_ring(handle);
- 
- 	hns3_nic_uninit_vector_data(priv);
  
 -- 
 2.20.1
