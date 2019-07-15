@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACF5969194
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F1E69197
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391370AbfGOOai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:30:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43542 "EHLO mail.kernel.org"
+        id S2390801AbfGOOal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:30:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390801AbfGOOai (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:30:38 -0400
+        id S1732596AbfGOOal (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:30:41 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F14F206B8;
-        Mon, 15 Jul 2019 14:30:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C58521537;
+        Mon, 15 Jul 2019 14:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201037;
-        bh=wH3dVA2zzh0v/D8LZeYeIYHl0GZ7SCoy6bIRg561CFY=;
+        s=default; t=1563201040;
+        bh=iEm+teuS33iZnnbykkyHG72+fGcBQ6+kaoeVAH4pEKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=foEqETdzoIJ1T+aDh4YcIpn3hcb4v5ScNydFLJmRHf79ngFRnBLYUTHmUUxJ/uIV8
-         6KkKjdfilx88Lz1s6TaD+Ji3zV0jqOYPKl9A+U+PltczWOeO6eo5N+XYaxSdJ4Na9S
-         MHEV08H7AJ6AjKA8xECCxjSMnLut8VgExQVCpl70=
+        b=bRg6HBMWIQWiZ79/Mkh4xZBbM0q/z0A+kJCPkdGebQ0ayxZZd9Lw7q8TQSRYKk4ui
+         BMsGaKxMydMfSIru+8NPLAWOnKvCDk/9EG6a0n4zw27AVcytxlnlZUMPe1NzUpVH/m
+         Etwn6UVhbFZXMo9oiyDBEi8bWOhaYy6Zv6apfOcw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Abhishek Goel <huntbag@linux.vnet.ibm.com>,
-        Thomas Renninger <trenn@suse.de>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 032/105] cpupower : frequency-set -r option misses the last cpu in related cpu list
-Date:   Mon, 15 Jul 2019 10:27:26 -0400
-Message-Id: <20190715142839.9896-32-sashal@kernel.org>
+Cc:     Biao Huang <biao.huang@mediatek.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 033/105] net: stmmac: dwmac4: fix flow control issue
+Date:   Mon, 15 Jul 2019 10:27:27 -0400
+Message-Id: <20190715142839.9896-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715142839.9896-1-sashal@kernel.org>
 References: <20190715142839.9896-1-sashal@kernel.org>
@@ -44,40 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Goel <huntbag@linux.vnet.ibm.com>
+From: Biao Huang <biao.huang@mediatek.com>
 
-[ Upstream commit 04507c0a9385cc8280f794a36bfff567c8cc1042 ]
+[ Upstream commit ee326fd01e79dfa42014d55931260b68b9fa3273 ]
 
-To set frequency on specific cpus using cpupower, following syntax can
-be used :
-cpupower -c #i frequency-set -f #f -r
+Current dwmac4_flow_ctrl will not clear
+GMAC_RX_FLOW_CTRL_RFE/GMAC_RX_FLOW_CTRL_RFE bits,
+so MAC hw will keep flow control on although expecting
+flow control off by ethtool. Add codes to fix it.
 
-While setting frequency using cpupower frequency-set command, if we use
-'-r' option, it is expected to set frequency for all cpus related to
-cpu #i. But it is observed to be missing the last cpu in related cpu
-list. This patch fixes the problem.
-
-Signed-off-by: Abhishek Goel <huntbag@linux.vnet.ibm.com>
-Reviewed-by: Thomas Renninger <trenn@suse.de>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 477286b53f55 ("stmmac: add GMAC4 core support")
+Signed-off-by: Biao Huang <biao.huang@mediatek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/cpupower/utils/cpufreq-set.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/tools/power/cpupower/utils/cpufreq-set.c b/tools/power/cpupower/utils/cpufreq-set.c
-index 1eef0aed6423..08a405593a79 100644
---- a/tools/power/cpupower/utils/cpufreq-set.c
-+++ b/tools/power/cpupower/utils/cpufreq-set.c
-@@ -306,6 +306,8 @@ int cmd_freq_set(int argc, char **argv)
- 				bitmask_setbit(cpus_chosen, cpus->cpu);
- 				cpus = cpus->next;
- 			}
-+			/* Set the last cpu in related cpus list */
-+			bitmask_setbit(cpus_chosen, cpus->cpu);
- 			cpufreq_put_related_cpus(cpus);
- 		}
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index ed5fcd4994f2..8445af580cb6 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -474,8 +474,9 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
+ 	if (fc & FLOW_RX) {
+ 		pr_debug("\tReceive Flow-Control ON\n");
+ 		flow |= GMAC_RX_FLOW_CTRL_RFE;
+-		writel(flow, ioaddr + GMAC_RX_FLOW_CTRL);
  	}
++	writel(flow, ioaddr + GMAC_RX_FLOW_CTRL);
++
+ 	if (fc & FLOW_TX) {
+ 		pr_debug("\tTransmit Flow-Control ON\n");
+ 
+@@ -483,7 +484,7 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
+ 			pr_debug("\tduplex mode: PAUSE %d\n", pause_time);
+ 
+ 		for (queue = 0; queue < tx_cnt; queue++) {
+-			flow |= GMAC_TX_FLOW_CTRL_TFE;
++			flow = GMAC_TX_FLOW_CTRL_TFE;
+ 
+ 			if (duplex)
+ 				flow |=
+@@ -491,6 +492,9 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
+ 
+ 			writel(flow, ioaddr + GMAC_QX_TX_FLOW_CTRL(queue));
+ 		}
++	} else {
++		for (queue = 0; queue < tx_cnt; queue++)
++			writel(0, ioaddr + GMAC_QX_TX_FLOW_CTRL(queue));
+ 	}
+ }
+ 
 -- 
 2.20.1
 
