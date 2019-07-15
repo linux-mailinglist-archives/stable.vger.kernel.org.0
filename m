@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E059694B2
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 225F2694B4
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391577AbfGOO3e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:29:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41056 "EHLO mail.kernel.org"
+        id S1733311AbfGOOx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:53:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731218AbfGOO3c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:29:32 -0400
+        id S2391475AbfGOO3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:29:34 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F850216C4;
-        Mon, 15 Jul 2019 14:29:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF671206B8;
+        Mon, 15 Jul 2019 14:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200971;
-        bh=DreiOdjm8WobQPPBowLREl4dmfasObT6DeaO0QurAKU=;
+        s=default; t=1563200973;
+        bh=6Fp3pNfiYGjsf+z9kZJlTa73q6XBBoC14w3XL3B6JOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DM/VxyJZslaNb6+KIKXq3zR5LydyUSe2ovfZ+R/ukW2Eyo6ti5xPq+XCyjZihhAv4
-         xmgzN206+pSC1US7Rhe2linc1lbdNLOiXcP8WBsoeclg7sPMMutkdBVK9y4WjxnMqr
-         8Apt4OxMQvhHRrm5lUVrKvR36MclWx8rlsh0XZHg=
+        b=vm8Aa9E+WdCiZ/26gc9CdZSj2cW6TLhca5SD8eoYmYv0Ps3zOZbyMeW15+3pD1RGP
+         rEzYx8BPkXARXQB0hij1lAUH1fu+XA7dRBxT2MU40bQDL8lsO6/k8WeKUyfPyFUXQr
+         xf0knIZ1GtzAKPIrH8erAWcBLTCMlgOsdu1VuJQM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jose Abreu <Jose.Abreu@synopsys.com>,
@@ -32,9 +32,9 @@ Cc:     Jose Abreu <Jose.Abreu@synopsys.com>,
         Giuseppe Cavallaro <peppe.cavallaro@st.com>,
         Alexandre Torgue <alexandre.torgue@st.com>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 014/105] net: stmmac: dwmac1000: Clear unused address entries
-Date:   Mon, 15 Jul 2019 10:27:08 -0400
-Message-Id: <20190715142839.9896-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 015/105] net: stmmac: dwmac4/5: Clear unused address entries
+Date:   Mon, 15 Jul 2019 10:27:09 -0400
+Message-Id: <20190715142839.9896-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715142839.9896-1-sashal@kernel.org>
 References: <20190715142839.9896-1-sashal@kernel.org>
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit 9463c445590091202659cdfdd44b236acadfbd84 ]
+[ Upstream commit 0620ec6c62a5a07625b65f699adc5d1b90394ee6 ]
 
 In case we don't use a given address entry we need to clear it because
 it could contain previous values that are no longer valid.
@@ -64,26 +64,36 @@ Cc: Alexandre Torgue <alexandre.torgue@st.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
-index 540d21786a43..08dd6a06ac58 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
-@@ -217,6 +217,12 @@ static void dwmac1000_set_filter(struct mac_device_info *hw,
- 					    GMAC_ADDR_LOW(reg));
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+index 55ae14a6bb8c..ed5fcd4994f2 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
+@@ -443,14 +443,20 @@ static void dwmac4_set_filter(struct mac_device_info *hw,
+ 		 * are required
+ 		 */
+ 		value |= GMAC_PACKET_FILTER_PR;
+-	} else if (!netdev_uc_empty(dev)) {
+-		int reg = 1;
++	} else {
+ 		struct netdev_hw_addr *ha;
++		int reg = 1;
+ 
+ 		netdev_for_each_uc_addr(ha, dev) {
+ 			dwmac4_set_umac_addr(hw, ha->addr, reg);
  			reg++;
  		}
 +
-+		while (reg <= perfect_addr_number) {
++		while (reg <= GMAC_MAX_PERFECT_ADDRESSES) {
 +			writel(0, ioaddr + GMAC_ADDR_HIGH(reg));
 +			writel(0, ioaddr + GMAC_ADDR_LOW(reg));
 +			reg++;
 +		}
  	}
  
- #ifdef FRAME_FILTER_DEBUG
+ 	writel(value, ioaddr + GMAC_PACKET_FILTER);
 -- 
 2.20.1
 
