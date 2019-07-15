@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7603C696BF
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:07:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCF80696C3
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:07:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388076AbfGOOFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:05:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51260 "EHLO mail.kernel.org"
+        id S2388090AbfGOOFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:05:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387474AbfGOOFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:05:03 -0400
+        id S2388084AbfGOOFG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:05:06 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03FB72184B;
-        Mon, 15 Jul 2019 14:05:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07DDD2086C;
+        Mon, 15 Jul 2019 14:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199503;
-        bh=ycwk6oC+x61BQ/IrIG0u0Xkz817gkuX+WzSCZEZXK54=;
+        s=default; t=1563199505;
+        bh=+IJT9rcKJXvihHeLk9LU5Vs73d9NTD4PUXQVZ9ablkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCO/etppHI4Ud2WqeXo8GF2UBqKvlFbtJzfNdY95imvvlaiA/kg5bNgJ8kQEXkQhr
-         SbaehkQ8r3kL32aKVkwHx5x1KdFhpMGt8Uq63i1RMJVlUjBWi08phcq6Z6sUytzaKR
-         3pbo5QoYhifzix1iPiTVQDpWC6OkGf8hQNASEV44=
+        b=ADQE+DfWn6fWRHn9HUQYdkfMctlLu1j84HLyT/buKPf39wCLdZ/kY9Hg0OZHrm6Sa
+         ZNhRXcrhCvI0w/sI6WDb2oV1yOUMokgW/B+ha/UICNC62urNAYPZAMyH/qzXfEyemd
+         QjIw36HiF53Zj349D0pSNi0E2L0JUeEF1vU+In54=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kangjie Lu <kjlu@umn.edu>, Mukesh Ojha <mojha@codeaurora.org>,
+Cc:     Jungo Lin <jungo.lin@mediatek.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 024/219] media: vpss: fix a potential NULL pointer dereference
-Date:   Mon, 15 Jul 2019 10:00:25 -0400
-Message-Id: <20190715140341.6443-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 025/219] media: media_device_enum_links32: clean a reserved field
+Date:   Mon, 15 Jul 2019 10:00:26 -0400
+Message-Id: <20190715140341.6443-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -43,37 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kangjie Lu <kjlu@umn.edu>
+From: Jungo Lin <jungo.lin@mediatek.com>
 
-[ Upstream commit e08f0761234def47961d3252eac09ccedfe4c6a0 ]
+[ Upstream commit f49308878d7202e07d8761238e01bd0e5fce2750 ]
 
-In case ioremap fails, the fix returns -ENOMEM to avoid NULL
-pointer dereference.
+In v4l2-compliance utility, test MEDIA_IOC_ENUM_ENTITIES
+will check whether reserved field of media_links_enum filled
+with zero.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+However, for 32 bit program, the reserved field is missing
+copy from kernel space to user space in media_device_enum_links32
+function.
+
+This patch adds the cleaning a reserved field logic in
+media_device_enum_links32 function.
+
+Signed-off-by: Jungo Lin <jungo.lin@mediatek.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/davinci/vpss.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/media-device.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/davinci/vpss.c b/drivers/media/platform/davinci/vpss.c
-index 19cf6853411e..89a86c19579b 100644
---- a/drivers/media/platform/davinci/vpss.c
-+++ b/drivers/media/platform/davinci/vpss.c
-@@ -518,6 +518,11 @@ static int __init vpss_init(void)
- 		return -EBUSY;
+diff --git a/drivers/media/media-device.c b/drivers/media/media-device.c
+index b8ec88612df7..6893843edada 100644
+--- a/drivers/media/media-device.c
++++ b/drivers/media/media-device.c
+@@ -502,6 +502,7 @@ static long media_device_enum_links32(struct media_device *mdev,
+ {
+ 	struct media_links_enum links;
+ 	compat_uptr_t pads_ptr, links_ptr;
++	int ret;
  
- 	oper_cfg.vpss_regs_base2 = ioremap(VPSS_CLK_CTRL, 4);
-+	if (unlikely(!oper_cfg.vpss_regs_base2)) {
-+		release_mem_region(VPSS_CLK_CTRL, 4);
-+		return -ENOMEM;
-+	}
+ 	memset(&links, 0, sizeof(links));
+ 
+@@ -513,7 +514,13 @@ static long media_device_enum_links32(struct media_device *mdev,
+ 	links.pads = compat_ptr(pads_ptr);
+ 	links.links = compat_ptr(links_ptr);
+ 
+-	return media_device_enum_links(mdev, &links);
++	ret = media_device_enum_links(mdev, &links);
++	if (ret)
++		return ret;
 +
- 	writel(VPSS_CLK_CTRL_VENCCLKEN |
- 		     VPSS_CLK_CTRL_DACCLKEN, oper_cfg.vpss_regs_base2);
++	memset(ulinks->reserved, 0, sizeof(ulinks->reserved));
++
++	return 0;
+ }
  
+ #define MEDIA_IOC_ENUM_LINKS32		_IOWR('|', 0x02, struct media_links_enum32)
 -- 
 2.20.1
 
