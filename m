@@ -2,146 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D7A68ECE
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:09:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3047E69016
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:19:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388758AbfGOOJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:09:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33894 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388746AbfGOOJt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:09:49 -0400
-Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8371206B8;
-        Mon, 15 Jul 2019 14:09:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199788;
-        bh=yxNacmgHMLHx5/+OIOhdF6pDHJWL60lTeHmUILz1JqA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGzW8Mv5ra7e17jZszRujd0YJNT0N6KRDINWz5nrG17CoQxdfcBGpbTizSbKnumXm
-         ObEY2+YNdftIh/7dNeg2Fm7h8DANH4cikahvpYD3zm9k3DvEeRovF7Sw1sqFEqU2TG
-         DYkUzu3ZNVLMkkgwVDn4fYDPtP2hLaIcRLEpti+4=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mitch Williams <mitch.a.williams@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 106/219] iavf: allow null RX descriptors
-Date:   Mon, 15 Jul 2019 10:01:47 -0400
-Message-Id: <20190715140341.6443-106-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
-References: <20190715140341.6443-1-sashal@kernel.org>
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+        id S2389595AbfGOOS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:18:59 -0400
+Received: from glenfiddich.mraw.org ([62.210.215.98]:51538 "EHLO
+        glenfiddich.mraw.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389999AbfGOOS6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jul 2019 10:18:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mraw.org;
+         s=mail; h=Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:MIME-Version:
+        Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:
+        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=k431XKcj+wPDXc52xbsrzSEpbCeOUVP+NVS9d75MGpg=; b=Cneas9+qQX3ItjiFuTxh4jijae
+        t+GUTDGS0ozkEwDEJpSoueDT0COesuXOH/epV53zzF94r7LDv53SMz+gMp1oOXK4IOY+8DiObyuUl
+        ZcxGYVNNc0zrXLe3F1jnsg6SadClvO6//sd7rQhKHGc/2ydZwQVYSkN3HLyZdnJsbRx4=;
+Received: from localhost ([127.0.0.1] helo=armor.home)
+        by glenfiddich.mraw.org with esmtp (Exim 4.89)
+        (envelope-from <cyril@debamax.com>)
+        id 1hn1Y4-00008C-6p; Mon, 15 Jul 2019 16:01:48 +0200
+From:   Cyril Brulebois <cyril@debamax.com>
+To:     stable@vger.kernel.org
+Cc:     charles.fendt@me.com, Cyril Brulebois <cyril@debamax.com>
+Subject: [PATCH 0/3] arm/arm64: Backport DTB support for Raspberry Pi Compute Module 3 to 4.19.y
+Date:   Mon, 15 Jul 2019 16:01:09 +0200
+Message-Id: <20190715140112.6180-1-cyril@debamax.com>
+X-Mailer: git-send-email 2.11.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitch Williams <mitch.a.williams@intel.com>
+The Raspberry Pi Compute Module 3 gathers components that are already
+supported in 4.19.y kernels except there's no DTB for it. This small
+series of patches backports:
+ 1. the DTB addition on the arm platform
+ 2. the extension of this addition to the arm64 platform
+ 3. the correction of this extension.
 
-[ Upstream commit efa14c3985828da3163f5372137cb64d992b0f79 ]
+I chose to backport patch 2 and 3 separately instead of squashing them
+together but I can resubmit with patches 2 and 3 merged if that's
+desirable.
 
-In some circumstances, the hardware can hand us a null receive
-descriptor, with no data attached but otherwise valid. Unfortunately,
-the driver was ill-equipped to handle such an event, and would stop
-processing packets at that point.
+This was successfully tested on bare metal, in 64-bit mode, with an
+extra patch to the raspi3-firmware packages to get the DTB installed
+in the right place, under the right name (bcm2710-rpi-cm3.dtb) so that
+the bootloader finds it. The base kernel was 4.19.37-5 as packaged in
+Debian.
 
-To fix this, use the Descriptor Done bit instead of the size to
-determine whether or not a descriptor is ready to be processed. Add some
-checks to allow for unused buffers.
+The summary of changes follows.
 
-Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/ethernet/intel/iavf/iavf_txrx.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_txrx.c b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-index 9b4d7cec2e18..9cc2a617c9f3 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-@@ -1236,6 +1236,9 @@ static void iavf_add_rx_frag(struct iavf_ring *rx_ring,
- 	unsigned int truesize = SKB_DATA_ALIGN(size + iavf_rx_offset(rx_ring));
- #endif
- 
-+	if (!size)
-+		return;
-+
- 	skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, rx_buffer->page,
- 			rx_buffer->page_offset, size, truesize);
- 
-@@ -1260,6 +1263,9 @@ static struct iavf_rx_buffer *iavf_get_rx_buffer(struct iavf_ring *rx_ring,
- {
- 	struct iavf_rx_buffer *rx_buffer;
- 
-+	if (!size)
-+		return NULL;
-+
- 	rx_buffer = &rx_ring->rx_bi[rx_ring->next_to_clean];
- 	prefetchw(rx_buffer->page);
- 
-@@ -1299,6 +1305,8 @@ static struct sk_buff *iavf_construct_skb(struct iavf_ring *rx_ring,
- 	unsigned int headlen;
- 	struct sk_buff *skb;
- 
-+	if (!rx_buffer)
-+		return NULL;
- 	/* prefetch first cache line of first page */
- 	prefetch(va);
- #if L1_CACHE_BYTES < 128
-@@ -1363,6 +1371,8 @@ static struct sk_buff *iavf_build_skb(struct iavf_ring *rx_ring,
- #endif
- 	struct sk_buff *skb;
- 
-+	if (!rx_buffer)
-+		return NULL;
- 	/* prefetch first cache line of first page */
- 	prefetch(va);
- #if L1_CACHE_BYTES < 128
-@@ -1398,6 +1408,9 @@ static struct sk_buff *iavf_build_skb(struct iavf_ring *rx_ring,
- static void iavf_put_rx_buffer(struct iavf_ring *rx_ring,
- 			       struct iavf_rx_buffer *rx_buffer)
- {
-+	if (!rx_buffer)
-+		return;
-+
- 	if (iavf_can_reuse_rx_page(rx_buffer)) {
- 		/* hand second half of page back to the ring */
- 		iavf_reuse_rx_page(rx_ring, rx_buffer);
-@@ -1496,11 +1509,12 @@ static int iavf_clean_rx_irq(struct iavf_ring *rx_ring, int budget)
- 		 * verified the descriptor has been written back.
- 		 */
- 		dma_rmb();
-+#define IAVF_RXD_DD BIT(IAVF_RX_DESC_STATUS_DD_SHIFT)
-+		if (!iavf_test_staterr(rx_desc, IAVF_RXD_DD))
-+			break;
- 
- 		size = (qword & IAVF_RXD_QW1_LENGTH_PBUF_MASK) >>
- 		       IAVF_RXD_QW1_LENGTH_PBUF_SHIFT;
--		if (!size)
--			break;
- 
- 		iavf_trace(clean_rx_irq, rx_ring, rx_desc, skb);
- 		rx_buffer = iavf_get_rx_buffer(rx_ring, size);
-@@ -1516,7 +1530,8 @@ static int iavf_clean_rx_irq(struct iavf_ring *rx_ring, int budget)
- 		/* exit if we failed to retrieve a buffer */
- 		if (!skb) {
- 			rx_ring->rx_stats.alloc_buff_failed++;
--			rx_buffer->pagecnt_bias++;
-+			if (rx_buffer)
-+				rx_buffer->pagecnt_bias++;
- 			break;
- 		}
- 
--- 
-2.20.1
+Liviu Dudau (1):
+  arm64: dts: broadcom: Use the .dtb name in the rule, rather than .dts
 
+Stefan Wahren (2):
+  ARM: dts: add Raspberry Pi Compute Module 3 and IO board
+  arm64: dts: broadcom: Add reference to Compute Module IO Board V3
+
+ arch/arm/boot/dts/Makefile                         |  1 +
+ arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts          | 87 ++++++++++++++++++++++
+ arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi             | 52 +++++++++++++
+ arch/arm64/boot/dts/broadcom/Makefile              |  3 +-
+ .../boot/dts/broadcom/bcm2837-rpi-cm3-io3.dts      |  2 +
+ 5 files changed, 144 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts
+ create mode 100644 arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi
+ create mode 100644 arch/arm64/boot/dts/broadcom/bcm2837-rpi-cm3-io3.dts
