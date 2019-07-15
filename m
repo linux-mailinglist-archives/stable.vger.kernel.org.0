@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A491B68C69
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:52:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1710168C6E
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:52:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731882AbfGONv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:51:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43272 "EHLO mail.kernel.org"
+        id S1731700AbfGONvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:51:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732073AbfGONvZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:51:25 -0400
+        id S1732101AbfGONvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:51:35 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF8A32067C;
-        Mon, 15 Jul 2019 13:51:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DD3120651;
+        Mon, 15 Jul 2019 13:51:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198684;
-        bh=21E28yYC78DofIBAFVkNU2FsYhLQKYybxmuuZCw+0KM=;
+        s=default; t=1563198694;
+        bh=FJXHxWS6ibS1qBmhmK90K8tuUEaMH9aZXTPYdDhxA4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zYjbgSWPXk2jD9xFmFRXZztl8+wyRX4EXahFXIO9VbDF28R/YRby98XTZGBGuqPG9
-         HlTQeL4U/ofKwYpKEwd+74sbmVyjVnyMOVidpmxXErm8CtzSWaueal/aQjgnpcTF5U
-         nopZ4awGehkRvezR6DvlztB+WJPmGgj/jE3afkEU=
+        b=zHOTw0GPttGd96DkzonxhUs8iqxEgRQLxyTOhZF8VHVpbxycuB5v72hakw9wPCHJJ
+         LLNmfs/RbRL1jsgzAkv9YfbwzeWhLSoLBEI2XVljMqQVUU6crt+NHVWg0IZTNo+6V/
+         eZMVG4pvLZW9o+e4MwOdzdUwcwNBDepgAY8P2Hc0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
+Cc:     Thomas Richter <tmricht@linux.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.vnet.ibm.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 082/249] perf cs-etm: Properly set the value of 'old' and 'head' in snapshot mode
-Date:   Mon, 15 Jul 2019 09:44:07 -0400
-Message-Id: <20190715134655.4076-82-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 084/249] perf report: Fix OOM error in TUI mode on s390
+Date:   Mon, 15 Jul 2019 09:44:09 -0400
+Message-Id: <20190715134655.4076-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -49,205 +46,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit e45c48a9a4d20ebc7b639a62c3ef8f4b08007027 ]
+[ Upstream commit 8a07aa4e9b7b0222129c07afff81634a884b2866 ]
 
-This patch adds the necessary intelligence to properly compute the value
-of 'old' and 'head' when operating in snapshot mode.  That way we can
-get the latest information in the AUX buffer and be compatible with the
-generic AUX ring buffer mechanic.
+Debugging a OOM error using the TUI interface revealed this issue
+on s390:
 
-Tester notes:
+[tmricht@m83lp54 perf]$ cat /proc/kallsyms |sort
+....
+00000001119b7158 B radix_tree_node_cachep
+00000001119b8000 B __bss_stop
+00000001119b8000 B _end
+000003ff80002850 t autofs_mount	[autofs4]
+000003ff80002868 t autofs_show_options	[autofs4]
+000003ff80002a98 t autofs_evict_inode	[autofs4]
+....
 
-> Leo, have you had the chance to test/review this one? Suzuki?
+There is a huge gap between the last kernel symbol
+__bss_stop/_end and the first kernel module symbol
+autofs_mount (from autofs4 module).
 
-Sure.  I applied this patch on the perf/core branch (with latest
-commit 3e4fbf36c1e3 'perf augmented_raw_syscalls: Move reading
-filename to the loop') and passed testing with below steps:
+After reading the kernel symbol table via functions:
 
-  # perf record -e cs_etm/@tmc_etr0/ -S -m,64 --per-thread ./sort &
-  [1] 19097
-  Bubble sorting array of 30000 elements
+ dso__load()
+ +--> dso__load_kernel_sym()
+      +--> dso__load_kallsyms()
+	   +--> __dso_load_kallsyms()
+	        +--> symbols__fixup_end()
 
-  # kill -USR2 19097
-  # kill -USR2 19097
-  # kill -USR2 19097
-  [ perf record: Woken up 4 times to write data ]
-  [ perf record: Captured and wrote 0.753 MB perf.data ]
+the symbol __bss_stop has a start address of 1119b8000 and
+an end address of 3ff80002850, as can be seen by this debug statement:
 
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Tested-by: Leo Yan <leo.yan@linaro.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lkml.kernel.org/r/20190605161633.12245-1-mathieu.poirier@linaro.org
+  symbols__fixup_end __bss_stop start:0x1119b8000 end:0x3ff80002850
+
+The size of symbol __bss_stop is 0x3fe6e64a850 bytes!
+It is the last kernel symbol and fills up the space until
+the first kernel module symbol.
+
+This size kills the TUI interface when executing the following
+code:
+
+  process_sample_event()
+    hist_entry_iter__add()
+      hist_iter__report_callback()
+        hist_entry__inc_addr_samples()
+          symbol__inc_addr_samples(symbol = __bss_stop)
+            symbol__cycles_hist()
+               annotated_source__alloc_histograms(...,
+				                symbol__size(sym),
+		                                ...)
+
+This function allocates memory to save sample histograms.
+The symbol_size() marco is defined as sym->end - sym->start, which
+results in above value of 0x3fe6e64a850 bytes and
+the call to calloc() in annotated_source__alloc_histograms() fails.
+
+The histgram memory allocation might fail, make this failure
+no-fatal and continue processing.
+
+Output before:
+[tmricht@m83lp54 perf]$ ./perf --debug stderr=1 report -vvvvv \
+					      -i ~/slow.data 2>/tmp/2
+[tmricht@m83lp54 perf]$ tail -5 /tmp/2
+  __symbol__inc_addr_samples(875): ENOMEM! sym->name=__bss_stop,
+		start=0x1119b8000, addr=0x2aa0005eb08, end=0x3ff80002850,
+		func: 0
+problem adding hist entry, skipping event
+0x938b8 [0x8]: failed to process type: 68 [Cannot allocate memory]
+[tmricht@m83lp54 perf]$
+
+Output after:
+[tmricht@m83lp54 perf]$ ./perf --debug stderr=1 report -vvvvv \
+					      -i ~/slow.data 2>/tmp/2
+[tmricht@m83lp54 perf]$ tail -5 /tmp/2
+   symbol__inc_addr_samples map:0x1597830 start:0x110730000 end:0x3ff80002850
+   symbol__hists notes->src:0x2aa2a70 nr_hists:1
+   symbol__inc_addr_samples sym:unlink_anon_vmas src:0x2aa2a70
+   __symbol__inc_addr_samples: addr=0x11094c69e
+   0x11094c670 unlink_anon_vmas: period++ [addr: 0x11094c69e, 0x2e, evidx=0]
+   	=> nr_samples: 1, period: 526008
+[tmricht@m83lp54 perf]$
+
+There is no error about failed memory allocation and the TUI interface
+shows all entries.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Hendrik Brueckner <brueckner@linux.vnet.ibm.com>
+Link: http://lkml.kernel.org/r/90cb5607-3e12-5167-682d-978eba7dafa8@linux.ibm.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/arm/util/cs-etm.c | 127 +++++++++++++++++++++++++++++-
- 1 file changed, 123 insertions(+), 4 deletions(-)
+ tools/perf/util/annotate.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
-index 911426721170..0a278bbcaba6 100644
---- a/tools/perf/arch/arm/util/cs-etm.c
-+++ b/tools/perf/arch/arm/util/cs-etm.c
-@@ -31,6 +31,8 @@ struct cs_etm_recording {
- 	struct auxtrace_record	itr;
- 	struct perf_pmu		*cs_etm_pmu;
- 	struct perf_evlist	*evlist;
-+	int			wrapped_cnt;
-+	bool			*wrapped;
- 	bool			snapshot_mode;
- 	size_t			snapshot_size;
- };
-@@ -536,16 +538,131 @@ static int cs_etm_info_fill(struct auxtrace_record *itr,
- 	return 0;
+diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
+index 79db038b56f2..c8ce13419d9b 100644
+--- a/tools/perf/util/annotate.c
++++ b/tools/perf/util/annotate.c
+@@ -931,9 +931,8 @@ static int symbol__inc_addr_samples(struct symbol *sym, struct map *map,
+ 	if (sym == NULL)
+ 		return 0;
+ 	src = symbol__hists(sym, evsel->evlist->nr_entries);
+-	if (src == NULL)
+-		return -ENOMEM;
+-	return __symbol__inc_addr_samples(sym, map, src, evsel->idx, addr, sample);
++	return (src) ?  __symbol__inc_addr_samples(sym, map, src, evsel->idx,
++						   addr, sample) : 0;
  }
  
--static int cs_etm_find_snapshot(struct auxtrace_record *itr __maybe_unused,
-+static int cs_etm_alloc_wrapped_array(struct cs_etm_recording *ptr, int idx)
-+{
-+	bool *wrapped;
-+	int cnt = ptr->wrapped_cnt;
-+
-+	/* Make @ptr->wrapped as big as @idx */
-+	while (cnt <= idx)
-+		cnt++;
-+
-+	/*
-+	 * Free'ed in cs_etm_recording_free().  Using realloc() to avoid
-+	 * cross compilation problems where the host's system supports
-+	 * reallocarray() but not the target.
-+	 */
-+	wrapped = realloc(ptr->wrapped, cnt * sizeof(bool));
-+	if (!wrapped)
-+		return -ENOMEM;
-+
-+	wrapped[cnt - 1] = false;
-+	ptr->wrapped_cnt = cnt;
-+	ptr->wrapped = wrapped;
-+
-+	return 0;
-+}
-+
-+static bool cs_etm_buffer_has_wrapped(unsigned char *buffer,
-+				      size_t buffer_size, u64 head)
-+{
-+	u64 i, watermark;
-+	u64 *buf = (u64 *)buffer;
-+	size_t buf_size = buffer_size;
-+
-+	/*
-+	 * We want to look the very last 512 byte (chosen arbitrarily) in
-+	 * the ring buffer.
-+	 */
-+	watermark = buf_size - 512;
-+
-+	/*
-+	 * @head is continuously increasing - if its value is equal or greater
-+	 * than the size of the ring buffer, it has wrapped around.
-+	 */
-+	if (head >= buffer_size)
-+		return true;
-+
-+	/*
-+	 * The value of @head is somewhere within the size of the ring buffer.
-+	 * This can be that there hasn't been enough data to fill the ring
-+	 * buffer yet or the trace time was so long that @head has numerically
-+	 * wrapped around.  To find we need to check if we have data at the very
-+	 * end of the ring buffer.  We can reliably do this because mmap'ed
-+	 * pages are zeroed out and there is a fresh mapping with every new
-+	 * session.
-+	 */
-+
-+	/* @head is less than 512 byte from the end of the ring buffer */
-+	if (head > watermark)
-+		watermark = head;
-+
-+	/*
-+	 * Speed things up by using 64 bit transactions (see "u64 *buf" above)
-+	 */
-+	watermark >>= 3;
-+	buf_size >>= 3;
-+
-+	/*
-+	 * If we find trace data at the end of the ring buffer, @head has
-+	 * been there and has numerically wrapped around at least once.
-+	 */
-+	for (i = watermark; i < buf_size; i++)
-+		if (buf[i])
-+			return true;
-+
-+	return false;
-+}
-+
-+static int cs_etm_find_snapshot(struct auxtrace_record *itr,
- 				int idx, struct auxtrace_mmap *mm,
--				unsigned char *data __maybe_unused,
-+				unsigned char *data,
- 				u64 *head, u64 *old)
- {
-+	int err;
-+	bool wrapped;
-+	struct cs_etm_recording *ptr =
-+			container_of(itr, struct cs_etm_recording, itr);
-+
-+	/*
-+	 * Allocate memory to keep track of wrapping if this is the first
-+	 * time we deal with this *mm.
-+	 */
-+	if (idx >= ptr->wrapped_cnt) {
-+		err = cs_etm_alloc_wrapped_array(ptr, idx);
-+		if (err)
-+			return err;
-+	}
-+
-+	/*
-+	 * Check to see if *head has wrapped around.  If it hasn't only the
-+	 * amount of data between *head and *old is snapshot'ed to avoid
-+	 * bloating the perf.data file with zeros.  But as soon as *head has
-+	 * wrapped around the entire size of the AUX ring buffer it taken.
-+	 */
-+	wrapped = ptr->wrapped[idx];
-+	if (!wrapped && cs_etm_buffer_has_wrapped(data, mm->len, *head)) {
-+		wrapped = true;
-+		ptr->wrapped[idx] = true;
-+	}
-+
- 	pr_debug3("%s: mmap index %d old head %zu new head %zu size %zu\n",
- 		  __func__, idx, (size_t)*old, (size_t)*head, mm->len);
- 
--	*old = *head;
--	*head += mm->len;
-+	/* No wrap has occurred, we can just use *head and *old. */
-+	if (!wrapped)
-+		return 0;
-+
-+	/*
-+	 * *head has wrapped around - adjust *head and *old to pickup the
-+	 * entire content of the AUX buffer.
-+	 */
-+	if (*head >= mm->len) {
-+		*old = *head - mm->len;
-+	} else {
-+		*head += mm->len;
-+		*old = *head - mm->len;
-+	}
- 
- 	return 0;
- }
-@@ -586,6 +703,8 @@ static void cs_etm_recording_free(struct auxtrace_record *itr)
- {
- 	struct cs_etm_recording *ptr =
- 			container_of(itr, struct cs_etm_recording, itr);
-+
-+	zfree(&ptr->wrapped);
- 	free(ptr);
- }
- 
+ static int symbol__account_cycles(u64 addr, u64 start,
 -- 
 2.20.1
 
