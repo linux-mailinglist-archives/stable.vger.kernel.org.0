@@ -2,96 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E244A685BA
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 10:49:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E979268619
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 11:14:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729289AbfGOItA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 04:49:00 -0400
-Received: from smtp.codeaurora.org ([198.145.29.96]:51108 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729245AbfGOIs7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jul 2019 04:48:59 -0400
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id B144460F3C; Mon, 15 Jul 2019 08:48:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1563180538;
-        bh=d7xrxXALrd9BNvgNlJglyBGbGqVhhDzSP34RGwbKv5A=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=H3IuQ/2ViEExOHGMu68nOUzqqX1GviZeVC/wOEoSDYxi+QXfGHlQ0QQ4hrpVPN0q+
-         S7R6IYCerWTlYTKO3PXg5Wqxcp0bAklITa0dtFFpmFVEAbSBF3erTo/ZTmrgyX6kgK
-         biHTogVojFjn23YP6Ar3cRI8HuqvYafvFEuxVjcM=
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        pdx-caf-mail.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
-        version=3.4.0
-Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        id S1729487AbfGOJOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 05:14:15 -0400
+Received: from forwardcorp1p.mail.yandex.net ([77.88.29.217]:49020 "EHLO
+        forwardcorp1p.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729257AbfGOJOO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jul 2019 05:14:14 -0400
+Received: from mxbackcorp1g.mail.yandex.net (mxbackcorp1g.mail.yandex.net [IPv6:2a02:6b8:0:1402::301])
+        by forwardcorp1p.mail.yandex.net (Yandex) with ESMTP id 620B52E0A3D;
+        Mon, 15 Jul 2019 12:14:12 +0300 (MSK)
+Received: from smtpcorp1p.mail.yandex.net (smtpcorp1p.mail.yandex.net [2a02:6b8:0:1472:2741:0:8b6:10])
+        by mxbackcorp1g.mail.yandex.net (nwsmtp/Yandex) with ESMTP id pcUTODv2sn-ECtm18As;
+        Mon, 15 Jul 2019 12:14:12 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru; s=default;
+        t=1563182052; bh=6Z0MAYYXDs0jmkOa22U2ufYCUQvOZxaBpllK1/m6kp0=;
+        h=Date:Message-ID:Subject:From:To:Cc;
+        b=fxi0Vy1HNIDBYd/E0b0tLqUNTM6b7PKgqiVROKipPQBAbY1dU3car4k+AZLXVy7i1
+         LPCT4BlxIC2Ens4DOjqoMgKmW7n3rk2WrzlegqxTA9U/w3TpTn3A9hvq07Qzqh2obf
+         aPgIMT40GcQKS2bBjl53UzEZiYWFxqyrSoEWU9fU=
+Authentication-Results: mxbackcorp1g.mail.yandex.net; dkim=pass header.i=@yandex-team.ru
+Received: from dynamic-red.dhcp.yndx.net (dynamic-red.dhcp.yndx.net [2a02:6b8:0:40c:38c5:1c4f:8e20:cf1b])
+        by smtpcorp1p.mail.yandex.net (nwsmtp/Yandex) with ESMTPSA id 5WpVhKFN9v-ECwaotcq;
+        Mon, 15 Jul 2019 12:14:12 +0300
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: kvalo@smtp.codeaurora.org)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 2D70A60DB6;
-        Mon, 15 Jul 2019 08:48:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1563180538;
-        bh=d7xrxXALrd9BNvgNlJglyBGbGqVhhDzSP34RGwbKv5A=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=H3IuQ/2ViEExOHGMu68nOUzqqX1GviZeVC/wOEoSDYxi+QXfGHlQ0QQ4hrpVPN0q+
-         S7R6IYCerWTlYTKO3PXg5Wqxcp0bAklITa0dtFFpmFVEAbSBF3erTo/ZTmrgyX6kgK
-         biHTogVojFjn23YP6Ar3cRI8HuqvYafvFEuxVjcM=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 2D70A60DB6
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
-From:   Kalle Valo <kvalo@codeaurora.org>
-To:     Soeren Moch <smoch@web.de>
-Cc:     Stanislaw Gruszka <sgruszka@redhat.com>, stable@vger.kernel.org,
-        Helmut Schaa <helmut.schaa@googlemail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] rt2x00usb: fix rx queue hang
-References: <20190701105314.9707-1-smoch@web.de>
-Date:   Mon, 15 Jul 2019 11:48:52 +0300
-In-Reply-To: <20190701105314.9707-1-smoch@web.de> (Soeren Moch's message of
-        "Mon, 1 Jul 2019 12:53:13 +0200")
-Message-ID: <874l3nadjf.fsf@kamboji.qca.qualcomm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/24.5 (gnu/linux)
+        (Client certificate not present)
+To:     Stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From:   Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Subject: drivers/e1000e revert and proper fix
+Cc:     Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Message-ID: <667a1815-df93-3072-8042-c4efb37bc81a@yandex-team.ru>
+Date:   Mon, 15 Jul 2019 12:14:11 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-CA
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Soeren Moch <smoch@web.de> writes:
+Please pick revert-commit
 
-> Since commit ed194d136769 ("usb: core: remove local_irq_save() around
->  ->complete() handler") the handler rt2x00usb_interrupt_rxdone() is
-> not running with interrupts disabled anymore. So this completion handler
-> is not guaranteed to run completely before workqueue processing starts
-> for the same queue entry.
-> Be sure to set all other flags in the entry correctly before marking
-> this entry ready for workqueue processing. This way we cannot miss error
-> conditions that need to be signalled from the completion handler to the
-> worker thread.
-> Note that rt2x00usb_work_rxdone() processes all available entries, not
-> only such for which queue_work() was called.
->
-> This patch is similar to what commit df71c9cfceea ("rt2x00: fix order
-> of entry flags modification") did for TX processing.
->
-> This fixes a regression on a RT5370 based wifi stick in AP mode, which
-> suddenly stopped data transmission after some period of heavy load. Also
-> stopping the hanging hostapd resulted in the error message "ieee80211
-> phy0: rt2x00queue_flush_queue: Warning - Queue 14 failed to flush".
-> Other operation modes are probably affected as well, this just was
-> the used testcase.
->
-> Fixes: ed194d136769 ("usb: core: remove local_irq_save() around ->complete() handler")
-> Cc: stable@vger.kernel.org # 4.20+
-> Signed-off-by: Soeren Moch <smoch@web.de>
+commit caff422ea81e144842bc44bab408d85ac449377b
+("Revert "e1000e: fix cyclic resets at link up with active tx"")
 
-I'll queue this for v5.3.
+and (optionally) proper fix
 
--- 
-Kalle Valo
+commit d17ba0f616a08f597d9348c372d89b8c0405ccf3
+("e1000e: start network tx queue only when link is up")
+
+into 4.9, 4.14, 4.19, 5.1, 5.2
+
+buggy commit 0f9e980bf5ee1a97e2e401c846b2af989eb21c61
+("e1000e: fix cyclic resets at link up with active tx")
+commited in 5.0 and was picked into 4.9, 4.14, 4.19
+
+It generates annoying false-positive hung-hardware warnings
+https://bugzilla.kernel.org/show_bug.cgi?id=203175
+
+Original problem isn't so severe so feel free to skip second commit if it doesn't apply clearly.
