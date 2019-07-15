@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E17E169707
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:08:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B2CA69700
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:08:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731407AbfGOPIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 11:08:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37406 "EHLO mail.kernel.org"
+        id S1733279AbfGOPIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 11:08:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733095AbfGON6Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:58:16 -0400
+        id S1733120AbfGON6S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:58:18 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32D2121530;
-        Mon, 15 Jul 2019 13:58:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56884217D9;
+        Mon, 15 Jul 2019 13:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199095;
-        bh=CpcmPpFCIP763ND42Q8No0jtLg2Te8t6IKHrz6e9t60=;
+        s=default; t=1563199097;
+        bh=pZYgTxZBhlV4zkeYOyQJylLILoJ83z/GR/3CqaetBTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n2ZRVlqOtAEa0RqrlsHDUi4i3DBXBCraZepD+nK1S+iwPNn5B1nbH9+BmexSRiWez
-         iXhf3hCjt2zczplz+eFoln5Hi0sTZMECFIZnjqR/mJL3JoAlxNl9a7JKaOFHZ8M8nZ
-         4HPR0+bUQC9FRP5uNVqIrRGhI0jWmEEiaF9USu9Y=
+        b=THYyPTgW/obmuU/dPSm99zLcoGYj/DKPrDwyG00o5ddd3R9iMuxAr5DpnlHpOznRc
+         lRNKmvCfR6byhDHs2oNxmgg96oSHD0Sq1bCyDaEh2eVa2MIFury4s8moBdKOu34JBi
+         LmLfLkZYxZ6FacweJHU6ExHLXtTZTXa2L7AmwGzY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 190/249] cpufreq: Avoid calling cpufreq_verify_current_freq() from handle_update()
-Date:   Mon, 15 Jul 2019 09:45:55 -0400
-Message-Id: <20190715134655.4076-190-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 191/249] cpufreq: Don't skip frequency validation for has_target() drivers
+Date:   Mon, 15 Jul 2019 09:45:56 -0400
+Message-Id: <20190715134655.4076-191-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -45,84 +45,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 70a59fde6e69d1d8579f84bf4555bfffb3ce452d ]
+[ Upstream commit 9801522840cc1073f8064b4c979b7b6995c74bca ]
 
-On some occasions cpufreq_verify_current_freq() schedules a work whose
-callback is handle_update(), which further calls cpufreq_update_policy()
-which may end up calling cpufreq_verify_current_freq() again.
+CPUFREQ_CONST_LOOPS was introduced in a very old commit from pre-2.6
+kernel release by commit 6a4a93f9c0d5 ("[CPUFREQ] Fix 'out of sync'
+issue").
 
-On the other hand, when cpufreq_update_policy() is called from
-handle_update(), the pointer to the cpufreq policy is already
-available, but cpufreq_cpu_acquire() is still called to get it in
-cpufreq_update_policy(), which should be avoided as well.
+Basically, that commit does two things:
 
-To fix these issues, create a new helper, refresh_frequency_limits(),
-and make both handle_update() call it cpufreq_update_policy().
+ - It adds the frequency verification code (which is quite similar to
+   what we have today as well).
+
+ - And it sets the CPUFREQ_CONST_LOOPS flag only for setpolicy drivers,
+   rightly so based on the code we had then. The idea was to avoid
+   frequency validation for setpolicy drivers as the cpufreq core doesn't
+   know what frequency the hardware is running at and so no point in
+   doing frequency verification.
+
+The problem happened when we started to use the same CPUFREQ_CONST_LOOPS
+flag for constant loops-per-jiffy thing as well and many has_target()
+drivers started using the same flag and unknowingly skipped the
+verification of frequency. There is no logical reason behind skipping
+frequency validation because of the presence of CPUFREQ_CONST_LOOPS
+flag otherwise.
+
+Fix this issue by skipping frequency validation only for setpolicy
+drivers and always doing it for has_target() drivers irrespective of
+the presence or absence of CPUFREQ_CONST_LOOPS flag.
+
+cpufreq_notify_transition() is only called for has_target() type driver
+and not for set_policy type, and the check is simply redundant. Remove
+it as well.
+
+Also remove () around freq comparison statement as they aren't required
+and checkpatch also warns for them.
 
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-[ rjw: Rename reeval_frequency_limits() as refresh_frequency_limits() ]
-[ rjw: Changelog ]
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq.c | 26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ drivers/cpufreq/cpufreq.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index e84bf0eb7239..876a4cb09de3 100644
+index 876a4cb09de3..7d37efb43621 100644
 --- a/drivers/cpufreq/cpufreq.c
 +++ b/drivers/cpufreq/cpufreq.c
-@@ -1114,13 +1114,25 @@ static int cpufreq_add_policy_cpu(struct cpufreq_policy *policy, unsigned int cp
- 	return ret;
- }
+@@ -356,12 +356,10 @@ static void cpufreq_notify_transition(struct cpufreq_policy *policy,
+ 		 * which is not equal to what the cpufreq core thinks is
+ 		 * "old frequency".
+ 		 */
+-		if (!(cpufreq_driver->flags & CPUFREQ_CONST_LOOPS)) {
+-			if (policy->cur && (policy->cur != freqs->old)) {
+-				pr_debug("Warning: CPU frequency is %u, cpufreq assumed %u kHz\n",
+-					 freqs->old, policy->cur);
+-				freqs->old = policy->cur;
+-			}
++		if (policy->cur && policy->cur != freqs->old) {
++			pr_debug("Warning: CPU frequency is %u, cpufreq assumed %u kHz\n",
++				 freqs->old, policy->cur);
++			freqs->old = policy->cur;
+ 		}
  
-+static void refresh_frequency_limits(struct cpufreq_policy *policy)
-+{
-+	struct cpufreq_policy new_policy = *policy;
-+
-+	pr_debug("updating policy for CPU %u\n", policy->cpu);
-+
-+	new_policy.min = policy->user_policy.min;
-+	new_policy.max = policy->user_policy.max;
-+
-+	cpufreq_set_policy(policy, &new_policy);
-+}
-+
- static void handle_update(struct work_struct *work)
- {
- 	struct cpufreq_policy *policy =
- 		container_of(work, struct cpufreq_policy, update);
--	unsigned int cpu = policy->cpu;
--	pr_debug("handle_update for cpu %u called\n", cpu);
--	cpufreq_update_policy(cpu);
-+
-+	pr_debug("handle_update for cpu %u called\n", policy->cpu);
-+	refresh_frequency_limits(policy);
- }
+ 		srcu_notifier_call_chain(&cpufreq_transition_notifier_list,
+@@ -1627,8 +1625,7 @@ static unsigned int __cpufreq_get(struct cpufreq_policy *policy)
+ 	if (policy->fast_switch_enabled)
+ 		return ret_freq;
  
- static struct cpufreq_policy *cpufreq_policy_alloc(unsigned int cpu)
-@@ -2392,7 +2404,6 @@ int cpufreq_set_policy(struct cpufreq_policy *policy,
- void cpufreq_update_policy(unsigned int cpu)
- {
- 	struct cpufreq_policy *policy = cpufreq_cpu_acquire(cpu);
--	struct cpufreq_policy new_policy;
- 
- 	if (!policy)
- 		return;
-@@ -2405,12 +2416,7 @@ void cpufreq_update_policy(unsigned int cpu)
- 	    (cpufreq_suspended || WARN_ON(!cpufreq_update_current_freq(policy))))
- 		goto unlock;
- 
--	pr_debug("updating policy for CPU %u\n", cpu);
--	memcpy(&new_policy, policy, sizeof(*policy));
--	new_policy.min = policy->user_policy.min;
--	new_policy.max = policy->user_policy.max;
--
--	cpufreq_set_policy(policy, &new_policy);
-+	refresh_frequency_limits(policy);
- 
- unlock:
- 	cpufreq_cpu_release(policy);
+-	if (ret_freq && policy->cur &&
+-		!(cpufreq_driver->flags & CPUFREQ_CONST_LOOPS)) {
++	if (has_target() && ret_freq && policy->cur) {
+ 		/* verify no discrepancy between actual and
+ 					saved value exists */
+ 		if (unlikely(ret_freq != policy->cur)) {
 -- 
 2.20.1
 
