@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D95692F8
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:41:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D378692FB
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404604AbfGOOks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:40:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42558 "EHLO mail.kernel.org"
+        id S2392071AbfGOOkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:40:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404576AbfGOOks (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:40:48 -0400
+        id S2404626AbfGOOkv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:40:51 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C97B204FD;
-        Mon, 15 Jul 2019 14:40:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D23721871;
+        Mon, 15 Jul 2019 14:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201647;
-        bh=xxCbOSJuB1YeDSsJEdDTQaPJs5QQ2nPCiC+mg5QsDes=;
+        s=default; t=1563201650;
+        bh=9pMykmicB67+hgy+/5R0rue7G0fOE4KEYkJN9cu59yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJqQNge9fe8IaDkw+pB77QUwCgsAoZRp+XwIVz3++/PVkTlyeYRNWmf8Zs7ZEfqSn
-         oOygbod1wtAACGkrHY/VGErwY1NvBmJBflw+8hD0wY4fV+0vPYyDZZDxbwJ2QVhqjQ
-         B3+Bwa7L0qLsg0KsL5wVG/CD9FKeXRE3Ge70UklI=
+        b=C4Vf/BZRSKUcmc7s+ZIvXICvNOIVM8QI0XJQ2g+6b3pJ1nnDpcYX4PiwE9Ipyb5vo
+         CPlhJSsVFru7zbDb2VhxtEOij0K4ccISby7h40ufri9l5icbmK0vVHzcbr9o6y+caQ
+         Zbpdm3yxYuOejhg0DycIQf/BSgmKTxgN0zo9VgTM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eiichi Tsukata <devel@etsukata.com>,
-        James Morse <james.morse@arm.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-edac@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 63/73] EDAC: Fix global-out-of-bounds write when setting edac_mc_poll_msec
-Date:   Mon, 15 Jul 2019 10:36:19 -0400
-Message-Id: <20190715143629.10893-63-sashal@kernel.org>
+Cc:     Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-bcache@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 64/73] bcache: check c->gc_thread by IS_ERR_OR_NULL in cache_set_flush()
+Date:   Mon, 15 Jul 2019 10:36:20 -0400
+Message-Id: <20190715143629.10893-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
 References: <20190715143629.10893-1-sashal@kernel.org>
@@ -44,159 +42,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <devel@etsukata.com>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit d8655e7630dafa88bc37f101640e39c736399771 ]
+[ Upstream commit b387e9b58679c60f5b1e4313939bd4878204fc37 ]
 
-Commit 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2") assumes
-edac_mc_poll_msec to be unsigned long, but the type of the variable still
-remained as int. Setting edac_mc_poll_msec can trigger out-of-bounds
-write.
+When system memory is in heavy pressure, bch_gc_thread_start() from
+run_cache_set() may fail due to out of memory. In such condition,
+c->gc_thread is assigned to -ENOMEM, not NULL pointer. Then in following
+failure code path bch_cache_set_error(), when cache_set_flush() gets
+called, the code piece to stop c->gc_thread is broken,
+         if (!IS_ERR_OR_NULL(c->gc_thread))
+                 kthread_stop(c->gc_thread);
 
-Reproducer:
+And KASAN catches such NULL pointer deference problem, with the warning
+information:
 
-  # echo 1001 > /sys/module/edac_core/parameters/edac_mc_poll_msec
+[  561.207881] ==================================================================
+[  561.207900] BUG: KASAN: null-ptr-deref in kthread_stop+0x3b/0x440
+[  561.207904] Write of size 4 at addr 000000000000001c by task kworker/15:1/313
 
-KASAN report:
+[  561.207913] CPU: 15 PID: 313 Comm: kworker/15:1 Tainted: G        W         5.0.0-vanilla+ #3
+[  561.207916] Hardware name: Lenovo ThinkSystem SR650 -[7X05CTO1WW]-/-[7X05CTO1WW]-, BIOS -[IVE136T-2.10]- 03/22/2019
+[  561.207935] Workqueue: events cache_set_flush [bcache]
+[  561.207940] Call Trace:
+[  561.207948]  dump_stack+0x9a/0xeb
+[  561.207955]  ? kthread_stop+0x3b/0x440
+[  561.207960]  ? kthread_stop+0x3b/0x440
+[  561.207965]  kasan_report+0x176/0x192
+[  561.207973]  ? kthread_stop+0x3b/0x440
+[  561.207981]  kthread_stop+0x3b/0x440
+[  561.207995]  cache_set_flush+0xd4/0x6d0 [bcache]
+[  561.208008]  process_one_work+0x856/0x1620
+[  561.208015]  ? find_held_lock+0x39/0x1d0
+[  561.208028]  ? drain_workqueue+0x380/0x380
+[  561.208048]  worker_thread+0x87/0xb80
+[  561.208058]  ? __kthread_parkme+0xb6/0x180
+[  561.208067]  ? process_one_work+0x1620/0x1620
+[  561.208072]  kthread+0x326/0x3e0
+[  561.208079]  ? kthread_create_worker_on_cpu+0xc0/0xc0
+[  561.208090]  ret_from_fork+0x3a/0x50
+[  561.208110] ==================================================================
+[  561.208113] Disabling lock debugging due to kernel taint
+[  561.208115] irq event stamp: 11800231
+[  561.208126] hardirqs last  enabled at (11800231): [<ffffffff83008538>] do_syscall_64+0x18/0x410
+[  561.208127] BUG: unable to handle kernel NULL pointer dereference at 000000000000001c
+[  561.208129] #PF error: [WRITE]
+[  561.312253] hardirqs last disabled at (11800230): [<ffffffff830052ff>] trace_hardirqs_off_thunk+0x1a/0x1c
+[  561.312259] softirqs last  enabled at (11799832): [<ffffffff850005c7>] __do_softirq+0x5c7/0x8c3
+[  561.405975] PGD 0 P4D 0
+[  561.442494] softirqs last disabled at (11799821): [<ffffffff831add2c>] irq_exit+0x1ac/0x1e0
+[  561.791359] Oops: 0002 [#1] SMP KASAN NOPTI
+[  561.791362] CPU: 15 PID: 313 Comm: kworker/15:1 Tainted: G    B   W         5.0.0-vanilla+ #3
+[  561.791363] Hardware name: Lenovo ThinkSystem SR650 -[7X05CTO1WW]-/-[7X05CTO1WW]-, BIOS -[IVE136T-2.10]- 03/22/2019
+[  561.791371] Workqueue: events cache_set_flush [bcache]
+[  561.791374] RIP: 0010:kthread_stop+0x3b/0x440
+[  561.791376] Code: 00 00 65 8b 05 26 d5 e0 7c 89 c0 48 0f a3 05 ec aa df 02 0f 82 dc 02 00 00 4c 8d 63 20 be 04 00 00 00 4c 89 e7 e8 65 c5 53 00 <f0> ff 43 20 48 8d 7b 24 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48
+[  561.791377] RSP: 0018:ffff88872fc8fd10 EFLAGS: 00010286
+[  561.838895] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  561.838916] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  561.838934] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  561.838948] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  561.838966] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  561.838979] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  561.838996] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  563.067028] RAX: 0000000000000000 RBX: fffffffffffffffc RCX: ffffffff832dd314
+[  563.067030] RDX: 0000000000000000 RSI: 0000000000000004 RDI: 0000000000000297
+[  563.067032] RBP: ffff88872fc8fe88 R08: fffffbfff0b8213d R09: fffffbfff0b8213d
+[  563.067034] R10: 0000000000000001 R11: fffffbfff0b8213c R12: 000000000000001c
+[  563.408618] R13: ffff88dc61cc0f68 R14: ffff888102b94900 R15: ffff88dc61cc0f68
+[  563.408620] FS:  0000000000000000(0000) GS:ffff888f7dc00000(0000) knlGS:0000000000000000
+[  563.408622] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  563.408623] CR2: 000000000000001c CR3: 0000000f48a1a004 CR4: 00000000007606e0
+[  563.408625] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  563.408627] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  563.904795] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  563.915796] PKRU: 55555554
+[  563.915797] Call Trace:
+[  563.915807]  cache_set_flush+0xd4/0x6d0 [bcache]
+[  563.915812]  process_one_work+0x856/0x1620
+[  564.001226] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  564.033563]  ? find_held_lock+0x39/0x1d0
+[  564.033567]  ? drain_workqueue+0x380/0x380
+[  564.033574]  worker_thread+0x87/0xb80
+[  564.062823] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  564.118042]  ? __kthread_parkme+0xb6/0x180
+[  564.118046]  ? process_one_work+0x1620/0x1620
+[  564.118048]  kthread+0x326/0x3e0
+[  564.118050]  ? kthread_create_worker_on_cpu+0xc0/0xc0
+[  564.167066] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  564.252441]  ret_from_fork+0x3a/0x50
+[  564.252447] Modules linked in: msr rpcrdma sunrpc rdma_ucm ib_iser ib_umad rdma_cm ib_ipoib i40iw configfs iw_cm ib_cm libiscsi scsi_transport_iscsi mlx4_ib ib_uverbs mlx4_en ib_core nls_iso8859_1 nls_cp437 vfat fat intel_rapl skx_edac x86_pkg_temp_thermal coretemp iTCO_wdt iTCO_vendor_support crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel ses raid0 aesni_intel cdc_ether enclosure usbnet ipmi_ssif joydev aes_x86_64 i40e scsi_transport_sas mii bcache md_mod crypto_simd mei_me ioatdma crc64 ptp cryptd pcspkr i2c_i801 mlx4_core glue_helper pps_core mei lpc_ich dca wmi ipmi_si ipmi_devintf nd_pmem dax_pmem nd_btt ipmi_msghandler device_dax pcc_cpufreq button hid_generic usbhid mgag200 i2c_algo_bit drm_kms_helper syscopyarea sysfillrect xhci_pci sysimgblt fb_sys_fops xhci_hcd ttm megaraid_sas drm usbcore nfit libnvdimm sg dm_multipath dm_mod scsi_dh_rdac scsi_dh_emc scsi_dh_alua efivarfs
+[  564.299390] bcache: bch_count_io_errors() nvme0n1: IO error on writing btree.
+[  564.348360] CR2: 000000000000001c
+[  564.348362] ---[ end trace b7f0e5cc7b2103b0 ]---
 
-  BUG: KASAN: global-out-of-bounds in edac_set_poll_msec+0x140/0x150
-  Write of size 8 at addr ffffffffb91b2d00 by task bash/1996
+Therefore, it is not enough to only check whether c->gc_thread is NULL,
+we should use IS_ERR_OR_NULL() to check both NULL pointer and error
+value.
 
-  CPU: 1 PID: 1996 Comm: bash Not tainted 5.2.0-rc6+ #23
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
-  Call Trace:
-   dump_stack+0xca/0x13e
-   print_address_description.cold+0x5/0x246
-   __kasan_report.cold+0x75/0x9a
-   ? edac_set_poll_msec+0x140/0x150
-   kasan_report+0xe/0x20
-   edac_set_poll_msec+0x140/0x150
-   ? dimmdev_location_show+0x30/0x30
-   ? vfs_lock_file+0xe0/0xe0
-   ? _raw_spin_lock+0x87/0xe0
-   param_attr_store+0x1b5/0x310
-   ? param_array_set+0x4f0/0x4f0
-   module_attr_store+0x58/0x80
-   ? module_attr_show+0x80/0x80
-   sysfs_kf_write+0x13d/0x1a0
-   kernfs_fop_write+0x2bc/0x460
-   ? sysfs_kf_bin_read+0x270/0x270
-   ? kernfs_notify+0x1f0/0x1f0
-   __vfs_write+0x81/0x100
-   vfs_write+0x1e1/0x560
-   ksys_write+0x126/0x250
-   ? __ia32_sys_read+0xb0/0xb0
-   ? do_syscall_64+0x1f/0x390
-   do_syscall_64+0xc1/0x390
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  RIP: 0033:0x7fa7caa5e970
-  Code: 73 01 c3 48 8b 0d 28 d5 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 99 2d 2c 00 00 75 10 b8 01 00 00 00 04
-  RSP: 002b:00007fff6acfdfe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-  RAX: ffffffffffffffda RBX: 0000000000000005 RCX: 00007fa7caa5e970
-  RDX: 0000000000000005 RSI: 0000000000e95c08 RDI: 0000000000000001
-  RBP: 0000000000e95c08 R08: 00007fa7cad1e760 R09: 00007fa7cb36a700
-  R10: 0000000000000073 R11: 0000000000000246 R12: 0000000000000005
-  R13: 0000000000000001 R14: 00007fa7cad1d600 R15: 0000000000000005
+This patch changes the above buggy code piece in this way,
+         if (!IS_ERR_OR_NULL(c->gc_thread))
+                 kthread_stop(c->gc_thread);
 
-  The buggy address belongs to the variable:
-   edac_mc_poll_msec+0x0/0x40
-
-  Memory state around the buggy address:
-   ffffffffb91b2c00: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
-   ffffffffb91b2c80: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
-  >ffffffffb91b2d00: 04 fa fa fa fa fa fa fa 04 fa fa fa fa fa fa fa
-                     ^
-   ffffffffb91b2d80: 04 fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
-   ffffffffb91b2e00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-Fix it by changing the type of edac_mc_poll_msec to unsigned int.
-The reason why this patch adopts unsigned int rather than unsigned long
-is msecs_to_jiffies() assumes arg to be unsigned int. We can avoid
-integer conversion bugs and unsigned int will be large enough for
-edac_mc_poll_msec.
-
-Reviewed-by: James Morse <james.morse@arm.com>
-Fixes: 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2")
-Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_mc_sysfs.c | 16 ++++++++--------
- drivers/edac/edac_module.h   |  2 +-
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/md/bcache/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/edac/edac_mc_sysfs.c b/drivers/edac/edac_mc_sysfs.c
-index 203ebe348b77..d59641194860 100644
---- a/drivers/edac/edac_mc_sysfs.c
-+++ b/drivers/edac/edac_mc_sysfs.c
-@@ -26,7 +26,7 @@
- static int edac_mc_log_ue = 1;
- static int edac_mc_log_ce = 1;
- static int edac_mc_panic_on_ue;
--static int edac_mc_poll_msec = 1000;
-+static unsigned int edac_mc_poll_msec = 1000;
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 9f2588eaaf5f..c5bc3e5e921e 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1405,7 +1405,7 @@ static void cache_set_flush(struct closure *cl)
+ 	kobject_put(&c->internal);
+ 	kobject_del(&c->kobj);
  
- /* Getter functions for above */
- int edac_mc_get_log_ue(void)
-@@ -45,30 +45,30 @@ int edac_mc_get_panic_on_ue(void)
- }
+-	if (c->gc_thread)
++	if (!IS_ERR_OR_NULL(c->gc_thread))
+ 		kthread_stop(c->gc_thread);
  
- /* this is temporary */
--int edac_mc_get_poll_msec(void)
-+unsigned int edac_mc_get_poll_msec(void)
- {
- 	return edac_mc_poll_msec;
- }
- 
- static int edac_set_poll_msec(const char *val, struct kernel_param *kp)
- {
--	unsigned long l;
-+	unsigned int i;
- 	int ret;
- 
- 	if (!val)
- 		return -EINVAL;
- 
--	ret = kstrtoul(val, 0, &l);
-+	ret = kstrtouint(val, 0, &i);
- 	if (ret)
- 		return ret;
- 
--	if (l < 1000)
-+	if (i < 1000)
- 		return -EINVAL;
- 
--	*((unsigned long *)kp->arg) = l;
-+	*((unsigned int *)kp->arg) = i;
- 
- 	/* notify edac_mc engine to reset the poll period */
--	edac_mc_reset_delay_period(l);
-+	edac_mc_reset_delay_period(i);
- 
- 	return 0;
- }
-@@ -82,7 +82,7 @@ MODULE_PARM_DESC(edac_mc_log_ue,
- module_param(edac_mc_log_ce, int, 0644);
- MODULE_PARM_DESC(edac_mc_log_ce,
- 		 "Log correctable error to console: 0=off 1=on");
--module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_int,
-+module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_uint,
- 		  &edac_mc_poll_msec, 0644);
- MODULE_PARM_DESC(edac_mc_poll_msec, "Polling period in milliseconds");
- 
-diff --git a/drivers/edac/edac_module.h b/drivers/edac/edac_module.h
-index cfaacb99c973..c36f9f721fb2 100644
---- a/drivers/edac/edac_module.h
-+++ b/drivers/edac/edac_module.h
-@@ -33,7 +33,7 @@ extern int edac_mc_get_log_ue(void);
- extern int edac_mc_get_log_ce(void);
- extern int edac_mc_get_panic_on_ue(void);
- extern int edac_get_poll_msec(void);
--extern int edac_mc_get_poll_msec(void);
-+extern unsigned int edac_mc_get_poll_msec(void);
- 
- unsigned edac_dimm_info_location(struct dimm_info *dimm, char *buf,
- 				 unsigned len);
+ 	if (!IS_ERR_OR_NULL(c->root))
 -- 
 2.20.1
 
