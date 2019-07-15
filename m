@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F1E69197
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A70F691AD
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390801AbfGOOal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:30:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43646 "EHLO mail.kernel.org"
+        id S1732124AbfGOObE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:31:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732596AbfGOOal (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:30:41 -0400
+        id S2391776AbfGOObD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:31:03 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C58521537;
-        Mon, 15 Jul 2019 14:30:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2924220896;
+        Mon, 15 Jul 2019 14:31:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201040;
-        bh=iEm+teuS33iZnnbykkyHG72+fGcBQ6+kaoeVAH4pEKg=;
+        s=default; t=1563201062;
+        bh=BTPPyjD5/3N54LHgH1JetOKMo5jA4IgDPurw7IDyQMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRg6HBMWIQWiZ79/Mkh4xZBbM0q/z0A+kJCPkdGebQ0ayxZZd9Lw7q8TQSRYKk4ui
-         BMsGaKxMydMfSIru+8NPLAWOnKvCDk/9EG6a0n4zw27AVcytxlnlZUMPe1NzUpVH/m
-         Etwn6UVhbFZXMo9oiyDBEi8bWOhaYy6Zv6apfOcw=
+        b=mOUXfEugJ/hRfHaYgIVDjOKxFK8TRhRi/XirTsfkYkwUsz2A/i+rd/pd8bE2sMTh2
+         7qoa1c8fIr+UAViyui3reSogIMjnBhhNjNyR0WDX2aw+J1xtEga7VSYpWvvu1uNuLh
+         hZlMhUOVqB+shJtBFC39PfUXqr6T5NeylEWrsk1k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Biao Huang <biao.huang@mediatek.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 033/105] net: stmmac: dwmac4: fix flow control issue
-Date:   Mon, 15 Jul 2019 10:27:27 -0400
-Message-Id: <20190715142839.9896-33-sashal@kernel.org>
+Cc:     Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Suzuki Poulouse <suzuki.poulose@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 040/105] perf cs-etm: Properly set the value of 'old' and 'head' in snapshot mode
+Date:   Mon, 15 Jul 2019 10:27:34 -0400
+Message-Id: <20190715142839.9896-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715142839.9896-1-sashal@kernel.org>
 References: <20190715142839.9896-1-sashal@kernel.org>
@@ -43,55 +49,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biao Huang <biao.huang@mediatek.com>
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
 
-[ Upstream commit ee326fd01e79dfa42014d55931260b68b9fa3273 ]
+[ Upstream commit e45c48a9a4d20ebc7b639a62c3ef8f4b08007027 ]
 
-Current dwmac4_flow_ctrl will not clear
-GMAC_RX_FLOW_CTRL_RFE/GMAC_RX_FLOW_CTRL_RFE bits,
-so MAC hw will keep flow control on although expecting
-flow control off by ethtool. Add codes to fix it.
+This patch adds the necessary intelligence to properly compute the value
+of 'old' and 'head' when operating in snapshot mode.  That way we can
+get the latest information in the AUX buffer and be compatible with the
+generic AUX ring buffer mechanic.
 
-Fixes: 477286b53f55 ("stmmac: add GMAC4 core support")
-Signed-off-by: Biao Huang <biao.huang@mediatek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tester notes:
+
+> Leo, have you had the chance to test/review this one? Suzuki?
+
+Sure.  I applied this patch on the perf/core branch (with latest
+commit 3e4fbf36c1e3 'perf augmented_raw_syscalls: Move reading
+filename to the loop') and passed testing with below steps:
+
+  # perf record -e cs_etm/@tmc_etr0/ -S -m,64 --per-thread ./sort &
+  [1] 19097
+  Bubble sorting array of 30000 elements
+
+  # kill -USR2 19097
+  # kill -USR2 19097
+  # kill -USR2 19097
+  [ perf record: Woken up 4 times to write data ]
+  [ perf record: Captured and wrote 0.753 MB perf.data ]
+
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Tested-by: Leo Yan <leo.yan@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Link: http://lkml.kernel.org/r/20190605161633.12245-1-mathieu.poirier@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ tools/perf/arch/arm/util/cs-etm.c | 127 +++++++++++++++++++++++++++++-
+ 1 file changed, 123 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-index ed5fcd4994f2..8445af580cb6 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-@@ -474,8 +474,9 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
- 	if (fc & FLOW_RX) {
- 		pr_debug("\tReceive Flow-Control ON\n");
- 		flow |= GMAC_RX_FLOW_CTRL_RFE;
--		writel(flow, ioaddr + GMAC_RX_FLOW_CTRL);
- 	}
-+	writel(flow, ioaddr + GMAC_RX_FLOW_CTRL);
+diff --git a/tools/perf/arch/arm/util/cs-etm.c b/tools/perf/arch/arm/util/cs-etm.c
+index fbfc055d3f4d..aec62e822bab 100644
+--- a/tools/perf/arch/arm/util/cs-etm.c
++++ b/tools/perf/arch/arm/util/cs-etm.c
+@@ -43,6 +43,8 @@ struct cs_etm_recording {
+ 	struct auxtrace_record	itr;
+ 	struct perf_pmu		*cs_etm_pmu;
+ 	struct perf_evlist	*evlist;
++	int			wrapped_cnt;
++	bool			*wrapped;
+ 	bool			snapshot_mode;
+ 	size_t			snapshot_size;
+ };
+@@ -485,16 +487,131 @@ static int cs_etm_info_fill(struct auxtrace_record *itr,
+ 	return 0;
+ }
+ 
+-static int cs_etm_find_snapshot(struct auxtrace_record *itr __maybe_unused,
++static int cs_etm_alloc_wrapped_array(struct cs_etm_recording *ptr, int idx)
++{
++	bool *wrapped;
++	int cnt = ptr->wrapped_cnt;
 +
- 	if (fc & FLOW_TX) {
- 		pr_debug("\tTransmit Flow-Control ON\n");
++	/* Make @ptr->wrapped as big as @idx */
++	while (cnt <= idx)
++		cnt++;
++
++	/*
++	 * Free'ed in cs_etm_recording_free().  Using realloc() to avoid
++	 * cross compilation problems where the host's system supports
++	 * reallocarray() but not the target.
++	 */
++	wrapped = realloc(ptr->wrapped, cnt * sizeof(bool));
++	if (!wrapped)
++		return -ENOMEM;
++
++	wrapped[cnt - 1] = false;
++	ptr->wrapped_cnt = cnt;
++	ptr->wrapped = wrapped;
++
++	return 0;
++}
++
++static bool cs_etm_buffer_has_wrapped(unsigned char *buffer,
++				      size_t buffer_size, u64 head)
++{
++	u64 i, watermark;
++	u64 *buf = (u64 *)buffer;
++	size_t buf_size = buffer_size;
++
++	/*
++	 * We want to look the very last 512 byte (chosen arbitrarily) in
++	 * the ring buffer.
++	 */
++	watermark = buf_size - 512;
++
++	/*
++	 * @head is continuously increasing - if its value is equal or greater
++	 * than the size of the ring buffer, it has wrapped around.
++	 */
++	if (head >= buffer_size)
++		return true;
++
++	/*
++	 * The value of @head is somewhere within the size of the ring buffer.
++	 * This can be that there hasn't been enough data to fill the ring
++	 * buffer yet or the trace time was so long that @head has numerically
++	 * wrapped around.  To find we need to check if we have data at the very
++	 * end of the ring buffer.  We can reliably do this because mmap'ed
++	 * pages are zeroed out and there is a fresh mapping with every new
++	 * session.
++	 */
++
++	/* @head is less than 512 byte from the end of the ring buffer */
++	if (head > watermark)
++		watermark = head;
++
++	/*
++	 * Speed things up by using 64 bit transactions (see "u64 *buf" above)
++	 */
++	watermark >>= 3;
++	buf_size >>= 3;
++
++	/*
++	 * If we find trace data at the end of the ring buffer, @head has
++	 * been there and has numerically wrapped around at least once.
++	 */
++	for (i = watermark; i < buf_size; i++)
++		if (buf[i])
++			return true;
++
++	return false;
++}
++
++static int cs_etm_find_snapshot(struct auxtrace_record *itr,
+ 				int idx, struct auxtrace_mmap *mm,
+-				unsigned char *data __maybe_unused,
++				unsigned char *data,
+ 				u64 *head, u64 *old)
+ {
++	int err;
++	bool wrapped;
++	struct cs_etm_recording *ptr =
++			container_of(itr, struct cs_etm_recording, itr);
++
++	/*
++	 * Allocate memory to keep track of wrapping if this is the first
++	 * time we deal with this *mm.
++	 */
++	if (idx >= ptr->wrapped_cnt) {
++		err = cs_etm_alloc_wrapped_array(ptr, idx);
++		if (err)
++			return err;
++	}
++
++	/*
++	 * Check to see if *head has wrapped around.  If it hasn't only the
++	 * amount of data between *head and *old is snapshot'ed to avoid
++	 * bloating the perf.data file with zeros.  But as soon as *head has
++	 * wrapped around the entire size of the AUX ring buffer it taken.
++	 */
++	wrapped = ptr->wrapped[idx];
++	if (!wrapped && cs_etm_buffer_has_wrapped(data, mm->len, *head)) {
++		wrapped = true;
++		ptr->wrapped[idx] = true;
++	}
++
+ 	pr_debug3("%s: mmap index %d old head %zu new head %zu size %zu\n",
+ 		  __func__, idx, (size_t)*old, (size_t)*head, mm->len);
  
-@@ -483,7 +484,7 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
- 			pr_debug("\tduplex mode: PAUSE %d\n", pause_time);
- 
- 		for (queue = 0; queue < tx_cnt; queue++) {
--			flow |= GMAC_TX_FLOW_CTRL_TFE;
-+			flow = GMAC_TX_FLOW_CTRL_TFE;
- 
- 			if (duplex)
- 				flow |=
-@@ -491,6 +492,9 @@ static void dwmac4_flow_ctrl(struct mac_device_info *hw, unsigned int duplex,
- 
- 			writel(flow, ioaddr + GMAC_QX_TX_FLOW_CTRL(queue));
- 		}
+-	*old = *head;
+-	*head += mm->len;
++	/* No wrap has occurred, we can just use *head and *old. */
++	if (!wrapped)
++		return 0;
++
++	/*
++	 * *head has wrapped around - adjust *head and *old to pickup the
++	 * entire content of the AUX buffer.
++	 */
++	if (*head >= mm->len) {
++		*old = *head - mm->len;
 +	} else {
-+		for (queue = 0; queue < tx_cnt; queue++)
-+			writel(0, ioaddr + GMAC_QX_TX_FLOW_CTRL(queue));
- 	}
++		*head += mm->len;
++		*old = *head - mm->len;
++	}
+ 
+ 	return 0;
+ }
+@@ -535,6 +652,8 @@ static void cs_etm_recording_free(struct auxtrace_record *itr)
+ {
+ 	struct cs_etm_recording *ptr =
+ 			container_of(itr, struct cs_etm_recording, itr);
++
++	zfree(&ptr->wrapped);
+ 	free(ptr);
  }
  
 -- 
