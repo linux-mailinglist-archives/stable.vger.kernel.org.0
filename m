@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00FCB68C16
+	by mail.lfdr.de (Postfix) with ESMTP id DFA2568C19
 	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:49:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731643AbfGONtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:49:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60240 "EHLO mail.kernel.org"
+        id S1731667AbfGONtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:49:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731633AbfGONtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:49:01 -0400
+        id S1731659AbfGONtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:49:06 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6170C2083D;
-        Mon, 15 Jul 2019 13:48:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1A0E217F4;
+        Mon, 15 Jul 2019 13:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198540;
-        bh=lT0m+6YkUaJnRaAWgKHm1Wigj1LyTbsKhv/EqJgvKi4=;
+        s=default; t=1563198545;
+        bh=ZMdH6IpTdtJlILAyBh8ahoFq2arfO69OR6oQyyq6Pu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NlL5nyjuJT6kCAHqPS6mY2Z105/xi/OhL7OrEPnNycZAXQmE+f67RIGbpq06tNG+0
-         SDJuhzv1WFmH6ArhGsG7tL/4z7yHIq2+ftGmXdmJ1XZRKcRQZLdKf6RyaYvzFPSNub
-         yVcNiW5S61RO3QwMzXq+sfQXEhhhgopq8ElCFBC4=
+        b=XbaOUVMStdcPd69GAXb4P0KW/F3p5GWT8RIkBPyNowS0AEv/CBG4FVuqO8AzyHf+2
+         nE+6b+e9IJX6U9u+WyN/wyY6hBjSoYyGPeKJHft9dVNcRadKIpc/TNtxAUAsAV5xec
+         eK06fq2rkClDHDiTDr+fWT+C8UbsOuzR5zUW67GE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Namjae Jeon <namjae.jeon@samsung.com>,
-        Jeff Layton <jlayton@primarydata.com>,
-        Steve French <smfrench@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 039/249] signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig
-Date:   Mon, 15 Jul 2019 09:43:24 -0400
-Message-Id: <20190715134655.4076-39-sashal@kernel.org>
+Cc:     Anirudh Gupta <anirudhrudr@gmail.com>,
+        Anirudh Gupta <anirudh.gupta@sophos.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 041/249] xfrm: Fix xfrm sel prefix length validation
+Date:   Mon, 15 Jul 2019 09:43:26 -0400
+Message-Id: <20190715134655.4076-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -45,51 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: Anirudh Gupta <anirudhrudr@gmail.com>
 
-[ Upstream commit 72abe3bcf0911d69b46c1e8bdb5612675e0ac42c ]
+[ Upstream commit b38ff4075a80b4da5cb2202d7965332ca0efb213 ]
 
-The locking in force_sig_info is not prepared to deal with a task that
-exits or execs (as sighand may change).  The is not a locking problem
-in force_sig as force_sig is only built to handle synchronous
-exceptions.
+Family of src/dst can be different from family of selector src/dst.
+Use xfrm selector family to validate address prefix length,
+while verifying new sa from userspace.
 
-Further the function force_sig_info changes the signal state if the
-signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
-delivery of the signal.  The signal SIGKILL can not be ignored and can
-not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
-delivered.
+Validated patch with this command:
+ip xfrm state add src 1.1.6.1 dst 1.1.6.2 proto esp spi 4260196 \
+reqid 20004 mode tunnel aead "rfc4106(gcm(aes))" \
+0x1111016400000000000000000000000044440001 128 \
+sel src 1011:1:4::2/128 sel dst 1021:1:4::2/128 dev Port5
 
-So using force_sig rather than send_sig for SIGKILL is confusing
-and pointless.
-
-Because it won't impact the sending of the signal and and because
-using force_sig is wrong, replace force_sig with send_sig.
-
-Cc: Namjae Jeon <namjae.jeon@samsung.com>
-Cc: Jeff Layton <jlayton@primarydata.com>
-Cc: Steve French <smfrench@gmail.com>
-Fixes: a5c3e1c725af ("Revert "cifs: No need to send SIGKILL to demux_thread during umount"")
-Fixes: e7ddee9037e7 ("cifs: disable sharing session and tcon and add new TCP sharing code")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 07bf7908950a ("xfrm: Validate address prefix lengths in the xfrm selector.")
+Signed-off-by: Anirudh Gupta <anirudh.gupta@sophos.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/xfrm_user.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 8dd6637a3cbb..714a359c7c8d 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -2631,7 +2631,7 @@ cifs_put_tcp_session(struct TCP_Server_Info *server, int from_reconnect)
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 173477211e40..76ad7e201626 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -151,6 +151,22 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
  
- 	task = xchg(&server->tsk, NULL);
- 	if (task)
--		force_sig(SIGKILL, task);
-+		send_sig(SIGKILL, task, 1);
- }
- 
- static struct TCP_Server_Info *
+ 	err = -EINVAL;
+ 	switch (p->family) {
++	case AF_INET:
++		break;
++
++	case AF_INET6:
++#if IS_ENABLED(CONFIG_IPV6)
++		break;
++#else
++		err = -EAFNOSUPPORT;
++		goto out;
++#endif
++
++	default:
++		goto out;
++	}
++
++	switch (p->sel.family) {
+ 	case AF_INET:
+ 		if (p->sel.prefixlen_d > 32 || p->sel.prefixlen_s > 32)
+ 			goto out;
 -- 
 2.20.1
 
