@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ED5C695FF
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D62E069603
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387404AbfGOOMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:12:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52144 "EHLO mail.kernel.org"
+        id S2388727AbfGOONW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:13:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389122AbfGOOMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:12:49 -0400
+        id S1731050AbfGOONV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:13:21 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D96872083D;
-        Mon, 15 Jul 2019 14:12:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4F2721530;
+        Mon, 15 Jul 2019 14:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199967;
-        bh=lOE15GJAkkPs907XzEXCOpEE2O4/Jf4GNtl+bvxUd8M=;
+        s=default; t=1563200000;
+        bh=XlGMvA78OvGLHAOA4r8DdAmpK8qtDo6lj0Fg1/lV9zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kr6Eb6UmMhNF3U3EntBknwUCN6uSKmYO4sPworlR+r7qMBlcq0BK9nN6H4/S37bT6
-         m/DAvdvHC6jLP6/GVqv51y8fU7n/uq6HLa4anFoUYz9K6jMl4w8710p0zJv4yhS8TU
-         ghqnzjm7s2aTtzF0n5SaZ6zQGaNASDKwGgq8D/+0=
+        b=cQ7Wx9tW5pJBGiqgUCPWrbgVQORlJhhUXoR8FMGHvCf/xh03MsGqwraXesNp9IDI2
+         2TcYrKjobmWgdIC3/SYxXA1BTdomN5vgb4p8nKPDQ2UxheSmyTMeXqQ9XkW40QXCn5
+         kF/l5ZJ/VqhpawmGD2b59LVZ+ikg13SqQ0YRZYPU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 149/219] clocksource/drivers/tegra: Release all IRQ's on request_irq() error
-Date:   Mon, 15 Jul 2019 10:02:30 -0400
-Message-Id: <20190715140341.6443-149-sashal@kernel.org>
+Cc:     Jiong Wang <jiong.wang@netronome.com>,
+        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Quentin Monnet <quentin.monnet@netronome.com>,
+        Song Liu <songliubraving@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 156/219] bpf: fix BPF_ALU32 | BPF_ARSH on BE arches
+Date:   Mon, 15 Jul 2019 10:02:37 -0400
+Message-Id: <20190715140341.6443-156-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -44,44 +48,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Jiong Wang <jiong.wang@netronome.com>
 
-[ Upstream commit 7a3916706e858ad0bc3b5629c68168e1449de26a ]
+[ Upstream commit 75672dda27bd00109a84cd975c17949ad9c45663 ]
 
-Release all requested IRQ's on the request error to properly clean up
-allocated resources.
+Yauheni reported the following code do not work correctly on BE arches:
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Acked-By: Peter De Schrijver <pdeschrijver@nvidia.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+       ALU_ARSH_X:
+               DST = (u64) (u32) ((*(s32 *) &DST) >> SRC);
+               CONT;
+       ALU_ARSH_K:
+               DST = (u64) (u32) ((*(s32 *) &DST) >> IMM);
+               CONT;
+
+and are causing failure of test_verifier test 'arsh32 on imm 2' on BE
+arches.
+
+The code is taking address and interpreting memory directly, so is not
+endianness neutral. We should instead perform standard C type casting on
+the variable. A u64 to s32 conversion will drop the high 32-bit and reserve
+the low 32-bit as signed integer, this is all we want.
+
+Fixes: 2dc6b100f928 ("bpf: interpreter support BPF_ALU | BPF_ARSH")
+Reported-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Quentin Monnet <quentin.monnet@netronome.com>
+Signed-off-by: Jiong Wang <jiong.wang@netronome.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-tegra20.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/bpf/core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/timer-tegra20.c b/drivers/clocksource/timer-tegra20.c
-index fdb3d795a409..cc18bb135a17 100644
---- a/drivers/clocksource/timer-tegra20.c
-+++ b/drivers/clocksource/timer-tegra20.c
-@@ -310,7 +310,7 @@ static int __init tegra_init_timer(struct device_node *np)
- 			pr_err("%s: can't map IRQ for CPU%d\n",
- 			       __func__, cpu);
- 			ret = -EINVAL;
--			goto out;
-+			goto out_irq;
- 		}
- 
- 		irq_set_status_flags(cpu_to->clkevt.irq, IRQ_NOAUTOEN);
-@@ -320,7 +320,8 @@ static int __init tegra_init_timer(struct device_node *np)
- 		if (ret) {
- 			pr_err("%s: cannot setup irq %d for CPU%d\n",
- 				__func__, cpu_to->clkevt.irq, cpu);
--			ret = -EINVAL;
-+			irq_dispose_mapping(cpu_to->clkevt.irq);
-+			cpu_to->clkevt.irq = 0;
- 			goto out_irq;
- 		}
- 	}
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index 06ba9c5f156b..932fd3fa5a5a 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -1367,10 +1367,10 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
+ 		insn++;
+ 		CONT;
+ 	ALU_ARSH_X:
+-		DST = (u64) (u32) ((*(s32 *) &DST) >> SRC);
++		DST = (u64) (u32) (((s32) DST) >> SRC);
+ 		CONT;
+ 	ALU_ARSH_K:
+-		DST = (u64) (u32) ((*(s32 *) &DST) >> IMM);
++		DST = (u64) (u32) (((s32) DST) >> IMM);
+ 		CONT;
+ 	ALU64_ARSH_X:
+ 		(*(s64 *) &DST) >>= SRC;
 -- 
 2.20.1
 
