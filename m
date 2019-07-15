@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 524C569266
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:37:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A99D6926D
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:37:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732290AbfGOOgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:36:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57026 "EHLO mail.kernel.org"
+        id S2404034AbfGOOgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:36:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731009AbfGOOgf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:36:35 -0400
+        id S2404007AbfGOOgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:36:49 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B215F217D8;
-        Mon, 15 Jul 2019 14:36:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B454B217F9;
+        Mon, 15 Jul 2019 14:36:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201395;
-        bh=Ye6y2k07ohqpMfkv2gPc4/NQDp7dZIEQ3bvaamJwXdE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=wEulihC1b7izoPyd6N5CZp2S4xHqTYxbDJIsQ+Aalj9zSf2K3QcjhfVzPd9NKWSSr
-         bAFontdj0azjOBE4ut8euO35H1e1o/xCvoJYjdN55T+kbX68XPKjfaY6M4sCCm6WE2
-         z/S/X+Es6qVoGLIhzNS15BSVTR2fA85m4W0D/p74=
+        s=default; t=1563201408;
+        bh=p/zt7CQEprrne/xmuzstQLRlFAGT5yUOFb/L2hMdoJo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=wHMZ/ZtspIIR/gJ19LihSdFQSIQkqrX2tnD4wciea7WZ7Yfu1lXUfrOHJ61n/DK9s
+         w2E1NNIuUcWz0hSkv/ud8lcjb1OZrxoC6b1v6hJQ/h+U9c1n1U1AFECsDLPEw6IyVS
+         OmBk/u8C/EbWcgrZC2RfeQLkqHHOZu8X8OxuzLx4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Surabhi Vishnoi <svishnoi@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 01/73] ath10k: Do not send probe response template for mesh
-Date:   Mon, 15 Jul 2019 10:35:17 -0400
-Message-Id: <20190715143629.10893-1-sashal@kernel.org>
+Cc:     Jeremy Sowden <jeremy@azazel.net>,
+        syzbot+d454a826e670502484b8@syzkaller.appspotmail.com,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 05/73] batman-adv: fix for leaked TVLV handler.
+Date:   Mon, 15 Jul 2019 10:35:21 -0400
+Message-Id: <20190715143629.10893-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
+References: <20190715143629.10893-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,43 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Surabhi Vishnoi <svishnoi@codeaurora.org>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-[ Upstream commit 97354f2c432788e3163134df6bb144f4b6289d87 ]
+[ Upstream commit 17f78dd1bd624a4dd78ed5db3284a63ee807fcc3 ]
 
-Currently mac80211 do not support probe response template for
-mesh point. When WMI_SERVICE_BEACON_OFFLOAD is enabled, host
-driver tries to configure probe response template for mesh, but
-it fails because the interface type is not NL80211_IFTYPE_AP but
-NL80211_IFTYPE_MESH_POINT.
+A handler for BATADV_TVLV_ROAM was being registered when the
+translation-table was initialized, but not unregistered when the
+translation-table was freed.  Unregister it.
 
-To avoid this failure, skip sending probe response template to
-firmware for mesh point.
-
-Tested HW: WCN3990/QCA6174/QCA9984
-
-Signed-off-by: Surabhi Vishnoi <svishnoi@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 122edaa05940 ("batman-adv: tvlv - convert roaming adv packet to use tvlv unicast packets")
+Reported-by: syzbot+d454a826e670502484b8@syzkaller.appspotmail.com
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Signed-off-by: Sven Eckelmann <sven@narfation.org
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/batman-adv/translation-table.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index fb632a454fc2..1588fe8110d0 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -1596,6 +1596,10 @@ static int ath10k_mac_setup_prb_tmpl(struct ath10k_vif *arvif)
- 	if (arvif->vdev_type != WMI_VDEV_TYPE_AP)
- 		return 0;
+diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
+index af4a02ad8503..1fab9bcf535d 100644
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -3700,6 +3700,8 @@ static void batadv_tt_purge(struct work_struct *work)
  
-+	 /* For mesh, probe response and beacon share the same template */
-+	if (ieee80211_vif_is_mesh(vif))
-+		return 0;
+ void batadv_tt_free(struct batadv_priv *bat_priv)
+ {
++	batadv_tvlv_handler_unregister(bat_priv, BATADV_TVLV_ROAM, 1);
 +
- 	prb = ieee80211_proberesp_get(hw, vif);
- 	if (!prb) {
- 		ath10k_warn(ar, "failed to get probe resp template from mac80211\n");
+ 	batadv_tvlv_container_unregister(bat_priv, BATADV_TVLV_TT, 1);
+ 	batadv_tvlv_handler_unregister(bat_priv, BATADV_TVLV_TT, 1);
+ 
 -- 
 2.20.1
 
