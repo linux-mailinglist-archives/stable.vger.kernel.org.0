@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37236695C4
+	by mail.lfdr.de (Postfix) with ESMTP id A131C695C5
 	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:00:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731359AbfGOORi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:17:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36988 "EHLO mail.kernel.org"
+        id S2389291AbfGOOSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:18:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731695AbfGOORh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:17:37 -0400
+        id S2389003AbfGOOSO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:18:14 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C58820651;
-        Mon, 15 Jul 2019 14:17:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5CB620651;
+        Mon, 15 Jul 2019 14:18:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200256;
-        bh=cilpEM+oIu6ciWUb6oAflNd53yVteezGM7UI++mDFjk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xQ49g4P57JJE3uU1eYPPuJfXP8aBjSQj3B075jAlq43RRP6z6tEhnxC+dcBzbsh+T
-         B51/1nZn5jCGTQm1F1QuBSZ+28hxR7k8nj9HUOaJ08V/IlDzN20teUhJQ4wlaaUDlS
-         Bq7dPQdhyugaAf5qdmrgBJ3yLU1IFpOVfqGHk6ZY=
+        s=default; t=1563200293;
+        bh=RCERVD4EomtNaF+pux6n2NXGbPprNAKJkf7ml5FnTmk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=qjnPrhhS9DSJTav6oPaRmXWGKHlUW557dhRMYx3yke0YR7ZXN0+86MWmYKTAb/fDU
+         AQR9OK+og+hsYkr5s55a6a9j64LHPy0j/0nuuzhM8aPmFfJSh1DciU6kWb5Fc3IcRL
+         UFP39hhruW5xPADF8wxUUb9Dwncjw8ybDflbvutU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Taehee Yoo <ap420073@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>,
-        osmocom-net-gprs@lists.osmocom.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 214/219] gtp: fix suspicious RCU usage
-Date:   Mon, 15 Jul 2019 10:03:35 -0400
-Message-Id: <20190715140341.6443-214-sashal@kernel.org>
+        linux-wireless@vger.kernel.org, wil6210@qti.qualcomm.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 001/158] wil6210: fix potential out-of-bounds read
+Date:   Mon, 15 Jul 2019 10:15:32 -0400
+Message-Id: <20190715141809.8445-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
-References: <20190715140341.6443-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,92 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
-[ Upstream commit e198987e7dd7d3645a53875151cd6f8fc425b706 ]
+[ Upstream commit bfabdd6997323adbedccb13a3fed1967fb8cf8f5 ]
 
-gtp_encap_enable_socket() and gtp_encap_destroy() are not protected
-by rcu_read_lock(). and it's not safe to write sk->sk_user_data.
-This patch make these functions to use lock_sock() instead of
-rcu_dereference_sk_user_data().
+Notice that *rc* can evaluate to up to 5, include/linux/netdevice.h:
 
-Test commands:
-    gtp-link add gtp1
+enum gro_result {
+        GRO_MERGED,
+        GRO_MERGED_FREE,
+        GRO_HELD,
+        GRO_NORMAL,
+        GRO_DROP,
+        GRO_CONSUMED,
+};
+typedef enum gro_result gro_result_t;
 
-Splat looks like:
-[   83.238315] =============================
-[   83.239127] WARNING: suspicious RCU usage
-[   83.239702] 5.2.0-rc6+ #49 Not tainted
-[   83.240268] -----------------------------
-[   83.241205] drivers/net/gtp.c:799 suspicious rcu_dereference_check() usage!
-[   83.243828]
-[   83.243828] other info that might help us debug this:
-[   83.243828]
-[   83.246325]
-[   83.246325] rcu_scheduler_active = 2, debug_locks = 1
-[   83.247314] 1 lock held by gtp-link/1008:
-[   83.248523]  #0: 0000000017772c7f (rtnl_mutex){+.+.}, at: __rtnl_newlink+0x5f5/0x11b0
-[   83.251503]
-[   83.251503] stack backtrace:
-[   83.252173] CPU: 0 PID: 1008 Comm: gtp-link Not tainted 5.2.0-rc6+ #49
-[   83.253271] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[   83.254562] Call Trace:
-[   83.254995]  dump_stack+0x7c/0xbb
-[   83.255567]  gtp_encap_enable_socket+0x2df/0x360 [gtp]
-[   83.256415]  ? gtp_find_dev+0x1a0/0x1a0 [gtp]
-[   83.257161]  ? memset+0x1f/0x40
-[   83.257843]  gtp_newlink+0x90/0xa21 [gtp]
-[   83.258497]  ? __netlink_ns_capable+0xc3/0xf0
-[   83.259260]  __rtnl_newlink+0xb9f/0x11b0
-[   83.260022]  ? rtnl_link_unregister+0x230/0x230
-[ ... ]
+In case *rc* evaluates to 5, we end up having an out-of-bounds read
+at drivers/net/wireless/ath/wil6210/txrx.c:821:
 
-Fixes: 1e3a3abd8b28 ("gtp: make GTP sockets in gtp_newlink optional")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+	wil_dbg_txrx(wil, "Rx complete %d bytes => %s\n",
+		     len, gro_res_str[rc]);
+
+Fix this by adding element "GRO_CONSUMED" to array gro_res_str.
+
+Addresses-Coverity-ID: 1444666 ("Out-of-bounds read")
+Fixes: 194b482b5055 ("wil6210: Debug print GRO Rx result")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/gtp.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/wil6210/txrx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-index 83488f2bf7a0..f45a806b6c06 100644
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -293,12 +293,14 @@ static void gtp_encap_destroy(struct sock *sk)
- {
- 	struct gtp_dev *gtp;
+diff --git a/drivers/net/wireless/ath/wil6210/txrx.c b/drivers/net/wireless/ath/wil6210/txrx.c
+index 75c8aa297107..1b1b58e0129a 100644
+--- a/drivers/net/wireless/ath/wil6210/txrx.c
++++ b/drivers/net/wireless/ath/wil6210/txrx.c
+@@ -736,6 +736,7 @@ void wil_netif_rx_any(struct sk_buff *skb, struct net_device *ndev)
+ 		[GRO_HELD]		= "GRO_HELD",
+ 		[GRO_NORMAL]		= "GRO_NORMAL",
+ 		[GRO_DROP]		= "GRO_DROP",
++		[GRO_CONSUMED]		= "GRO_CONSUMED",
+ 	};
  
--	gtp = rcu_dereference_sk_user_data(sk);
-+	lock_sock(sk);
-+	gtp = sk->sk_user_data;
- 	if (gtp) {
- 		udp_sk(sk)->encap_type = 0;
- 		rcu_assign_sk_user_data(sk, NULL);
- 		sock_put(sk);
- 	}
-+	release_sock(sk);
- }
- 
- static void gtp_encap_disable_sock(struct sock *sk)
-@@ -800,7 +802,8 @@ static struct sock *gtp_encap_enable_socket(int fd, int type,
- 		goto out_sock;
- 	}
- 
--	if (rcu_dereference_sk_user_data(sock->sk)) {
-+	lock_sock(sock->sk);
-+	if (sock->sk->sk_user_data) {
- 		sk = ERR_PTR(-EBUSY);
- 		goto out_sock;
- 	}
-@@ -816,6 +819,7 @@ static struct sock *gtp_encap_enable_socket(int fd, int type,
- 	setup_udp_tunnel_sock(sock_net(sock->sk), sock, &tuncfg);
- 
- out_sock:
-+	release_sock(sock->sk);
- 	sockfd_put(sock);
- 	return sk;
- }
+ 	wil->txrx_ops.get_netif_rx_params(skb, &cid, &security);
 -- 
 2.20.1
 
