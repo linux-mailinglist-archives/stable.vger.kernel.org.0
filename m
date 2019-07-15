@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C52B695FC
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:02:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ED5C695FF
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:02:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389066AbfGOOMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:12:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50932 "EHLO mail.kernel.org"
+        id S2387404AbfGOOMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:12:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388903AbfGOOMW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:12:22 -0400
+        id S2389122AbfGOOMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:12:49 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 196BA20868;
-        Mon, 15 Jul 2019 14:12:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D96872083D;
+        Mon, 15 Jul 2019 14:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199941;
-        bh=AVIWfeOq2+QctxhGn7Gs9o0z2ngpeZllDmYpTK7i0iA=;
+        s=default; t=1563199967;
+        bh=lOE15GJAkkPs907XzEXCOpEE2O4/Jf4GNtl+bvxUd8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AEXsDYO6I388pMYf5tHGlaRdKGvsXwyoch49dgHcaQ8mU+rjNL6WOVWI1B5SlwKo0
-         MDdQuTsivlx63AkDMrqCo68Rbt+AYG2jGjbKPiu25KKoQdP5vk2A5kIRrBU49ma2Yd
-         WCQfl52sQlXEEz3MxxdIjrj7wnYGNpPVvmpbcHE0=
+        b=Kr6Eb6UmMhNF3U3EntBknwUCN6uSKmYO4sPworlR+r7qMBlcq0BK9nN6H4/S37bT6
+         m/DAvdvHC6jLP6/GVqv51y8fU7n/uq6HLa4anFoUYz9K6jMl4w8710p0zJv4yhS8TU
+         ghqnzjm7s2aTtzF0n5SaZ6zQGaNASDKwGgq8D/+0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Claire Chang <tientzu@chromium.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 144/219] ath10k: add missing error handling
-Date:   Mon, 15 Jul 2019 10:02:25 -0400
-Message-Id: <20190715140341.6443-144-sashal@kernel.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Peter De Schrijver <pdeschrijver@nvidia.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 149/219] clocksource/drivers/tegra: Release all IRQ's on request_irq() error
+Date:   Mon, 15 Jul 2019 10:02:30 -0400
+Message-Id: <20190715140341.6443-149-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -45,46 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claire Chang <tientzu@chromium.org>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 4b553f3ca4cbde67399aa3a756c37eb92145b8a1 ]
+[ Upstream commit 7a3916706e858ad0bc3b5629c68168e1449de26a ]
 
-In function ath10k_sdio_mbox_rx_alloc() [sdio.c],
-ath10k_sdio_mbox_alloc_rx_pkt() is called without handling the error cases.
-This will make the driver think the allocation for skb is successful and
-try to access the skb. If we enable failslab, system will easily crash with
-NULL pointer dereferencing.
+Release all requested IRQ's on the request error to properly clean up
+allocated resources.
 
-Call trace of CONFIG_FAILSLAB:
-ath10k_sdio_irq_handler+0x570/0xa88 [ath10k_sdio]
-process_sdio_pending_irqs+0x4c/0x174
-sdio_run_irqs+0x3c/0x64
-sdio_irq_work+0x1c/0x28
-
-Fixes: d96db25d2025 ("ath10k: add initial SDIO support")
-Signed-off-by: Claire Chang <tientzu@chromium.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-By: Peter De Schrijver <pdeschrijver@nvidia.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/sdio.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/clocksource/timer-tegra20.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
-index fae56c67766f..73ef3e75d199 100644
---- a/drivers/net/wireless/ath/ath10k/sdio.c
-+++ b/drivers/net/wireless/ath/ath10k/sdio.c
-@@ -602,6 +602,10 @@ static int ath10k_sdio_mbox_rx_alloc(struct ath10k *ar,
- 						    full_len,
- 						    last_in_bundle,
- 						    last_in_bundle);
-+		if (ret) {
-+			ath10k_warn(ar, "alloc_rx_pkt error %d\n", ret);
-+			goto err;
-+		}
- 	}
+diff --git a/drivers/clocksource/timer-tegra20.c b/drivers/clocksource/timer-tegra20.c
+index fdb3d795a409..cc18bb135a17 100644
+--- a/drivers/clocksource/timer-tegra20.c
++++ b/drivers/clocksource/timer-tegra20.c
+@@ -310,7 +310,7 @@ static int __init tegra_init_timer(struct device_node *np)
+ 			pr_err("%s: can't map IRQ for CPU%d\n",
+ 			       __func__, cpu);
+ 			ret = -EINVAL;
+-			goto out;
++			goto out_irq;
+ 		}
  
- 	ar_sdio->n_rx_pkts = i;
+ 		irq_set_status_flags(cpu_to->clkevt.irq, IRQ_NOAUTOEN);
+@@ -320,7 +320,8 @@ static int __init tegra_init_timer(struct device_node *np)
+ 		if (ret) {
+ 			pr_err("%s: cannot setup irq %d for CPU%d\n",
+ 				__func__, cpu_to->clkevt.irq, cpu);
+-			ret = -EINVAL;
++			irq_dispose_mapping(cpu_to->clkevt.irq);
++			cpu_to->clkevt.irq = 0;
+ 			goto out_irq;
+ 		}
+ 	}
 -- 
 2.20.1
 
