@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 975AE69654
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:04:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E7216965A
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:04:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388510AbfGOOI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:08:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58730 "EHLO mail.kernel.org"
+        id S2388314AbfGOOI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:08:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387523AbfGOOI0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:08:26 -0400
+        id S2388499AbfGOOI2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:08:28 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A311E2083D;
-        Mon, 15 Jul 2019 14:08:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DB182081C;
+        Mon, 15 Jul 2019 14:08:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199705;
-        bh=68ScEvktkTHuDCQtIpXk9OQdL+BA622ZWtuFDxAsm+o=;
+        s=default; t=1563199707;
+        bh=J5CGiNAyjbtytYgCSGAGzgLgo3EC2yQtYiNaOXOi1S4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qfF2QWNJAVvab9vteTrkiDg/45a71rfyLg9KHcp3eqPqlobYYdYKmTsA+G1NgsoKN
-         yQtQw6w6m6ECS3iKuCDOfr1//9q1tzu8jkVYIlqnl30g+iOU4x4Ku+HgnSba1A11eH
-         uK4Y//pdyGfMq2alhwcln1EYypkWKRXcOqMqtsPE=
+        b=BTFZneb334xt4bCDM9FDCuVbh1uvoEwHN3JPfvPRLKHH+DDdWqVgdw1BoYcInLoDJ
+         6XnOGTiF5n1xOi63axPFkcz6SYRGE6Jy14laJTEewl7VdVheWNQgXEtYQ8EUzF2wPk
+         I9m0LhK7F45fCfR4kHIYcEL/wNZuW+f3UUZBMdFU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
@@ -31,9 +31,9 @@ Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
         linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 078/219] gpio: omap: fix lack of irqstatus_raw0 for OMAP4
-Date:   Mon, 15 Jul 2019 10:01:19 -0400
-Message-Id: <20190715140341.6443-78-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 079/219] gpio: omap: ensure irq is enabled before wakeup
+Date:   Mon, 15 Jul 2019 10:01:20 -0400
+Message-Id: <20190715140341.6443-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -48,41 +48,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 64ea3e9094a1f13b96c33244a3fb3a0f45690bd2 ]
+[ Upstream commit c859e0d479b3b4f6132fc12637c51e01492f31f6 ]
 
-Commit 384ebe1c2849 ("gpio/omap: Add DT support to GPIO driver") added
-the register definition tables to the gpio-omap driver. Subsequently to
-that commit, commit 4e962e8998cc ("gpio/omap: remove cpu_is_omapxxxx()
-checks from *_runtime_resume()") added definitions for irqstatus_raw*
-registers to the legacy OMAP4 definitions, but missed the DT
-definitions.
+Documentation states:
 
-This causes an unintentional change of behaviour for the 1.101 errata
-workaround on OMAP4 platforms. Fix this oversight.
+  NOTE: There must be a correlation between the wake-up enable and
+  interrupt-enable registers. If a GPIO pin has a wake-up configured
+  on it, it must also have the corresponding interrupt enabled (on
+  one of the two interrupt lines).
 
-Fixes: 4e962e8998cc ("gpio/omap: remove cpu_is_omapxxxx() checks from *_runtime_resume()")
+Ensure that this condition is always satisfied by enabling the detection
+events after enabling the interrupt, and disabling the detection before
+disabling the interrupt.  This ensures interrupt/wakeup events can not
+happen until both the wakeup and interrupt enables correlate.
+
+If we do any clearing, clear between the interrupt enable/disable and
+trigger setting.
+
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-omap.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpio/gpio-omap.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpio/gpio-omap.c b/drivers/gpio/gpio-omap.c
-index fafd79438bbf..0708e50a27f0 100644
+index 0708e50a27f0..233245bc693c 100644
 --- a/drivers/gpio/gpio-omap.c
 +++ b/drivers/gpio/gpio-omap.c
-@@ -1728,6 +1728,8 @@ static struct omap_gpio_reg_offs omap4_gpio_regs = {
- 	.clr_dataout =		OMAP4_GPIO_CLEARDATAOUT,
- 	.irqstatus =		OMAP4_GPIO_IRQSTATUS0,
- 	.irqstatus2 =		OMAP4_GPIO_IRQSTATUS1,
-+	.irqstatus_raw0 =	OMAP4_GPIO_IRQSTATUSRAW0,
-+	.irqstatus_raw1 =	OMAP4_GPIO_IRQSTATUSRAW1,
- 	.irqenable =		OMAP4_GPIO_IRQSTATUSSET0,
- 	.irqenable2 =		OMAP4_GPIO_IRQSTATUSSET1,
- 	.set_irqenable =	OMAP4_GPIO_IRQSTATUSSET0,
+@@ -838,9 +838,9 @@ static void omap_gpio_irq_shutdown(struct irq_data *d)
+ 
+ 	raw_spin_lock_irqsave(&bank->lock, flags);
+ 	bank->irq_usage &= ~(BIT(offset));
+-	omap_set_gpio_irqenable(bank, offset, 0);
+-	omap_clear_gpio_irqstatus(bank, offset);
+ 	omap_set_gpio_triggering(bank, offset, IRQ_TYPE_NONE);
++	omap_clear_gpio_irqstatus(bank, offset);
++	omap_set_gpio_irqenable(bank, offset, 0);
+ 	if (!LINE_USED(bank->mod_usage, offset))
+ 		omap_clear_gpio_debounce(bank, offset);
+ 	omap_disable_gpio_module(bank, offset);
+@@ -876,8 +876,8 @@ static void omap_gpio_mask_irq(struct irq_data *d)
+ 	unsigned long flags;
+ 
+ 	raw_spin_lock_irqsave(&bank->lock, flags);
+-	omap_set_gpio_irqenable(bank, offset, 0);
+ 	omap_set_gpio_triggering(bank, offset, IRQ_TYPE_NONE);
++	omap_set_gpio_irqenable(bank, offset, 0);
+ 	raw_spin_unlock_irqrestore(&bank->lock, flags);
+ }
+ 
+@@ -889,9 +889,6 @@ static void omap_gpio_unmask_irq(struct irq_data *d)
+ 	unsigned long flags;
+ 
+ 	raw_spin_lock_irqsave(&bank->lock, flags);
+-	if (trigger)
+-		omap_set_gpio_triggering(bank, offset, trigger);
+-
+ 	omap_set_gpio_irqenable(bank, offset, 1);
+ 
+ 	/*
+@@ -899,9 +896,13 @@ static void omap_gpio_unmask_irq(struct irq_data *d)
+ 	 * is cleared, thus after the handler has run. OMAP4 needs this done
+ 	 * after enabing the interrupt to clear the wakeup status.
+ 	 */
+-	if (bank->level_mask & BIT(offset))
++	if (bank->regs->leveldetect0 && bank->regs->wkup_en &&
++	    trigger & (IRQ_TYPE_LEVEL_HIGH | IRQ_TYPE_LEVEL_LOW))
+ 		omap_clear_gpio_irqstatus(bank, offset);
+ 
++	if (trigger)
++		omap_set_gpio_triggering(bank, offset, trigger);
++
+ 	raw_spin_unlock_irqrestore(&bank->lock, flags);
+ }
+ 
 -- 
 2.20.1
 
