@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C6AA68EB6
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:09:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 011CF68EBB
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388217AbfGOOI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:08:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59926 "EHLO mail.kernel.org"
+        id S2388443AbfGOOJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:09:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388023AbfGOOI5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:08:57 -0400
+        id S2388673AbfGOOJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:09:16 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAB9D217D8;
-        Mon, 15 Jul 2019 14:08:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D696D217D9;
+        Mon, 15 Jul 2019 14:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199736;
-        bh=K6p7uPspMkLhTzpyhVEtNgFuB9A1jf4O97Vg3SfgP30=;
+        s=default; t=1563199755;
+        bh=OsmllIUhoLQNOItyfMZ2ehXTWTGIy33B12PxKd3rA7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TN1ncVKmJVU2GXyQkgEOB/0seyElVxWPT7qPl8eyU6Zt7zkxdHJYqPu3rPZOPBNaw
-         c8tgRdcu4WJ/EIG7OhycQXRU/cs+RefHwKivN0Hskz26HoAhTJqXB/arg1n220i32L
-         tDphhbehBqCC9VySUkeqh637GuI61Y4qeculrwDo=
+        b=RoODCw94WxE+7QDjNN/L/zxES/cBWiy+nYOCg6CO7TlRKG4SE7PfyIhvWKH5HQGkO
+         3Wn4ZsfNQREOVF4fLU4VKAkKoG+PC7C1+XF5UeayD4mvOsSTYCbubrkuaU0m9VKykr
+         a2o4yuo2ooPjaMjHHdaMVF1fCEzuS7YOYb0c9mlE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Waiman Long <longman@redhat.com>,
-        "Paul E . McKenney" <paulmck@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 089/219] rcu: Force inlining of rcu_read_lock()
-Date:   Mon, 15 Jul 2019 10:01:30 -0400
-Message-Id: <20190715140341.6443-89-sashal@kernel.org>
+Cc:     Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Anirudh Gupta <anirudh.gupta@sophos.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 097/219] xfrm: fix sa selector validation
+Date:   Mon, 15 Jul 2019 10:01:38 -0400
+Message-Id: <20190715140341.6443-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -43,55 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit 6da9f775175e516fc7229ceaa9b54f8f56aa7924 ]
+[ Upstream commit b8d6d0079757cbd1b69724cfd1c08e2171c68cee ]
 
-When debugging options are turned on, the rcu_read_lock() function
-might not be inlined. This results in lockdep's print_lock() function
-printing "rcu_read_lock+0x0/0x70" instead of rcu_read_lock()'s caller.
-For example:
+After commit b38ff4075a80, the following command does not work anymore:
+$ ip xfrm state add src 10.125.0.2 dst 10.125.0.1 proto esp spi 34 reqid 1 \
+  mode tunnel enc 'cbc(aes)' 0xb0abdba8b782ad9d364ec81e3a7d82a1 auth-trunc \
+  'hmac(sha1)' 0xe26609ebd00acb6a4d51fca13e49ea78a72c73e6 96 flag align4
 
-[   10.579995] =============================
-[   10.584033] WARNING: suspicious RCU usage
-[   10.588074] 4.18.0.memcg_v2+ #1 Not tainted
-[   10.593162] -----------------------------
-[   10.597203] include/linux/rcupdate.h:281 Illegal context switch in
-RCU read-side critical section!
-[   10.606220]
-[   10.606220] other info that might help us debug this:
-[   10.606220]
-[   10.614280]
-[   10.614280] rcu_scheduler_active = 2, debug_locks = 1
-[   10.620853] 3 locks held by systemd/1:
-[   10.624632]  #0: (____ptrval____) (&type->i_mutex_dir_key#5){.+.+}, at: lookup_slow+0x42/0x70
-[   10.633232]  #1: (____ptrval____) (rcu_read_lock){....}, at: rcu_read_lock+0x0/0x70
-[   10.640954]  #2: (____ptrval____) (rcu_read_lock){....}, at: rcu_read_lock+0x0/0x70
+In fact, the selector is not mandatory, allow the user to provide an empty
+selector.
 
-These "rcu_read_lock+0x0/0x70" strings are not providing any useful
-information.  This commit therefore forces inlining of the rcu_read_lock()
-function so that rcu_read_lock()'s caller is instead shown.
-
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Fixes: b38ff4075a80 ("xfrm: Fix xfrm sel prefix length validation")
+CC: Anirudh Gupta <anirudh.gupta@sophos.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rcupdate.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/xfrm_user.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
-index b25d20822e75..3508f4508a11 100644
---- a/include/linux/rcupdate.h
-+++ b/include/linux/rcupdate.h
-@@ -586,7 +586,7 @@ static inline void rcu_preempt_sleep_check(void) { }
-  * read-side critical sections may be preempted and they may also block, but
-  * only when acquiring spinlocks that are subject to priority inheritance.
-  */
--static inline void rcu_read_lock(void)
-+static __always_inline void rcu_read_lock(void)
- {
- 	__rcu_read_lock();
- 	__acquire(RCU);
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index ee91f939903e..6abf9625a401 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -166,6 +166,9 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
+ 	}
+ 
+ 	switch (p->sel.family) {
++	case AF_UNSPEC:
++		break;
++
+ 	case AF_INET:
+ 		if (p->sel.prefixlen_d > 32 || p->sel.prefixlen_s > 32)
+ 			goto out;
 -- 
 2.20.1
 
