@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC859692CF
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F4014693A5
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:45:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392090AbfGOOjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:39:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39476 "EHLO mail.kernel.org"
+        id S1732586AbfGOOpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:45:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392011AbfGOOjb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:39:31 -0400
+        id S2404300AbfGOOhL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:37:11 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24A1A20651;
-        Mon, 15 Jul 2019 14:39:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56C5E217D8;
+        Mon, 15 Jul 2019 14:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201570;
-        bh=eO0AHGEipO3esnRtv2fUTTSdSp4IWtswwIL1qysN75o=;
+        s=default; t=1563201431;
+        bh=o2D2aC/CkFcyzg7+s4XH0B7zF875nLWpvl0fABClzJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NDTjQW6Jn4q7EQwFzX1O5A6v6VD5Fiw17Rb20Qmtx0Yn7YIFTBFIVF192XR0qfAvr
-         WMbJ9JAQtZ6g+pci14M56zYyt8RAfEXsWfv8GCX3+sfkC/MaqeJiv+gxnlTrxsyhEZ
-         6ZqRM5wCHnV+YD8a7XF7UMDiwAlvvO/6laXLNoJ8=
+        b=g9V3Kufw/8UA8LVb2aBx78LFV0qn9yw79qq78UcyrcpAzZkywJysSp44v6/1oGR2M
+         l7i7cV1G4j08Gv3CTNKJxtYhuzptW8vmcRzbhpzqa3YxW45rQKgJk0G1Z328ddQulh
+         Wy1BknUW7nvS0yXFpHAPMRXTdPxyNb1yuaFPLFHE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anders Roxell <anders.roxell@linaro.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 45/73] media: i2c: fix warning same module names
-Date:   Mon, 15 Jul 2019 10:36:01 -0400
-Message-Id: <20190715143629.10893-45-sashal@kernel.org>
+Cc:     Jose Abreu <Jose.Abreu@synopsys.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        Joao Pinto <jpinto@synopsys.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 11/73] net: stmmac: dwmac1000: Clear unused address entries
+Date:   Mon, 15 Jul 2019 10:35:27 -0400
+Message-Id: <20190715143629.10893-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
 References: <20190715143629.10893-1-sashal@kernel.org>
@@ -44,60 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit b2ce5617dad254230551feda3599f2cc68e53ad8 ]
+[ Upstream commit 9463c445590091202659cdfdd44b236acadfbd84 ]
 
-When building with CONFIG_VIDEO_ADV7511 and CONFIG_DRM_I2C_ADV7511
-enabled as loadable modules, we see the following warning:
+In case we don't use a given address entry we need to clear it because
+it could contain previous values that are no longer valid.
 
-  drivers/gpu/drm/bridge/adv7511/adv7511.ko
-  drivers/media/i2c/adv7511.ko
+Found out while running stmmac selftests.
 
-Rework so that the file is named adv7511-v4l2.c.
-
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Cc: Joao Pinto <jpinto@synopsys.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Giuseppe Cavallaro <peppe.cavallaro@st.com>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/Makefile                      | 2 +-
- drivers/media/i2c/{adv7511.c => adv7511-v4l2.c} | 5 +++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
- rename drivers/media/i2c/{adv7511.c => adv7511-v4l2.c} (99%)
+ drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/i2c/Makefile b/drivers/media/i2c/Makefile
-index 92773b2e6225..bfe0afc209b8 100644
---- a/drivers/media/i2c/Makefile
-+++ b/drivers/media/i2c/Makefile
-@@ -29,7 +29,7 @@ obj-$(CONFIG_VIDEO_ADV7393) += adv7393.o
- obj-$(CONFIG_VIDEO_ADV7604) += adv7604.o
- obj-$(CONFIG_VIDEO_ADV7842) += adv7842.o
- obj-$(CONFIG_VIDEO_AD9389B) += ad9389b.o
--obj-$(CONFIG_VIDEO_ADV7511) += adv7511.o
-+obj-$(CONFIG_VIDEO_ADV7511) += adv7511-v4l2.o
- obj-$(CONFIG_VIDEO_VPX3220) += vpx3220.o
- obj-$(CONFIG_VIDEO_VS6624)  += vs6624.o
- obj-$(CONFIG_VIDEO_BT819) += bt819.o
-diff --git a/drivers/media/i2c/adv7511.c b/drivers/media/i2c/adv7511-v4l2.c
-similarity index 99%
-rename from drivers/media/i2c/adv7511.c
-rename to drivers/media/i2c/adv7511-v4l2.c
-index 5f1c8ee8a50e..b87c9e7ff146 100644
---- a/drivers/media/i2c/adv7511.c
-+++ b/drivers/media/i2c/adv7511-v4l2.c
-@@ -17,6 +17,11 @@
-  * SOFTWARE.
-  */
- 
-+/*
-+ * This file is named adv7511-v4l2.c so it doesn't conflict with the Analog
-+ * Device ADV7511 (config fragment CONFIG_DRM_I2C_ADV7511).
-+ */
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
+index 7d19029e2564..093e58e94075 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac1000_core.c
+@@ -213,6 +213,12 @@ static void dwmac1000_set_filter(struct mac_device_info *hw,
+ 					    GMAC_ADDR_LOW(reg));
+ 			reg++;
+ 		}
 +
++		while (reg <= perfect_addr_number) {
++			writel(0, ioaddr + GMAC_ADDR_HIGH(reg));
++			writel(0, ioaddr + GMAC_ADDR_LOW(reg));
++			reg++;
++		}
+ 	}
  
- #include <linux/kernel.h>
- #include <linux/module.h>
+ #ifdef FRAME_FILTER_DEBUG
 -- 
 2.20.1
 
