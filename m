@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CA2C69472
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:51:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86DB569463
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:51:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390581AbfGOOcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:32:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46908 "EHLO mail.kernel.org"
+        id S2404175AbfGOOhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:37:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391819AbfGOOcM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:32:12 -0400
+        id S2392046AbfGOOeq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:34:46 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DCFF2086C;
-        Mon, 15 Jul 2019 14:32:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 576B0206B8;
+        Mon, 15 Jul 2019 14:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201131;
-        bh=zBOV75eXuCouknI/+goA12nzOEQULs3BcNP59PJPHV0=;
+        s=default; t=1563201285;
+        bh=akGUhKVSHFGT8s4X5fyVfQB6wkOhTdhGrZbORvz2OMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e4AukbRmPUbv3VcRwo1aUiR2UrMcR0DM7BgsSovHESYbuMSBkHo76QN/gdRsyct7J
-         Tf1brYkC85DI6L+EEIfXd0VWtIojBG8d28oHdgpPm3ru/gSiXlB7QapUBpOaqHoiZZ
-         FC9zAqUsolD7j+xGJRsji7S5IaBRf6y49RjgtPPU=
+        b=YKpgrKz3fGRjBkK82R2tUdwqxiHnJi5VWgRyvQpnRzDdZ/0OJUmtS1/6o1S/0BOhE
+         3C3DpNQfNeza3Qy1HNzadp76dE9ihKnmwp5WRSJcYgKH5FV/g7oTPVic3sJtidimUb
+         tAfDvmQuRQ+CCjohvM5m3xxJjDX9qb/qoaOPHGkI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 059/105] ipsec: select crypto ciphers for xfrm_algo
-Date:   Mon, 15 Jul 2019 10:27:53 -0400
-Message-Id: <20190715142839.9896-59-sashal@kernel.org>
+Cc:     Josua Mayer <josua.mayer@jm0.eu>,
+        Jukka Rissanen <jukka.rissanen@linux.intel.com>,
+        Michael Scott <mike@foundries.io>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 097/105] Bluetooth: 6lowpan: search for destination address in all peers
+Date:   Mon, 15 Jul 2019 10:28:31 -0400
+Message-Id: <20190715142839.9896-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715142839.9896-1-sashal@kernel.org>
 References: <20190715142839.9896-1-sashal@kernel.org>
@@ -44,43 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Josua Mayer <josua.mayer@jm0.eu>
 
-[ Upstream commit 597179b0ba550bd83fab1a9d57c42a9343c58514 ]
+[ Upstream commit b188b03270b7f8568fc714101ce82fbf5e811c5a ]
 
-kernelci.org reports failed builds on arc because of what looks
-like an old missed 'select' statement:
+Handle overlooked case where the target address is assigned to a peer
+and neither route nor gateway exist.
 
-net/xfrm/xfrm_algo.o: In function `xfrm_probe_algs':
-xfrm_algo.c:(.text+0x1e8): undefined reference to `crypto_has_ahash'
+For one peer, no checks are performed to see if it is meant to receive
+packets for a given address.
 
-I don't see this in randconfig builds on other architectures, but
-it's fairly clear we want to select the hash code for it, like we
-do for all its other users. As Herbert points out, CRYPTO_BLKCIPHER
-is also required even though it has not popped up in build tests.
+As soon as there is a second peer however, checks are performed
+to deal with routes and gateways for handling complex setups with
+multiple hops to a target address.
+This logic assumed that no route and no gateway imply that the
+destination address can not be reached, which is false in case of a
+direct peer.
 
-Fixes: 17bc19702221 ("ipsec: Use skcipher and ahash when probing algorithms")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Acked-by: Jukka Rissanen <jukka.rissanen@linux.intel.com>
+Tested-by: Michael Scott <mike@foundries.io>
+Signed-off-by: Josua Mayer <josua.mayer@jm0.eu>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ net/bluetooth/6lowpan.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/net/xfrm/Kconfig b/net/xfrm/Kconfig
-index 286ed25c1a69..2e747ae7dc89 100644
---- a/net/xfrm/Kconfig
-+++ b/net/xfrm/Kconfig
-@@ -14,6 +14,8 @@ config XFRM_ALGO
- 	tristate
- 	select XFRM
- 	select CRYPTO
-+	select CRYPTO_HASH
-+	select CRYPTO_BLKCIPHER
+diff --git a/net/bluetooth/6lowpan.c b/net/bluetooth/6lowpan.c
+index 4e2576fc0c59..357475cceec6 100644
+--- a/net/bluetooth/6lowpan.c
++++ b/net/bluetooth/6lowpan.c
+@@ -187,10 +187,16 @@ static inline struct lowpan_peer *peer_lookup_dst(struct lowpan_btle_dev *dev,
+ 	}
  
- config XFRM_USER
- 	tristate "Transformation user configuration interface"
+ 	if (!rt) {
+-		nexthop = &lowpan_cb(skb)->gw;
+-
+-		if (ipv6_addr_any(nexthop))
+-			return NULL;
++		if (ipv6_addr_any(&lowpan_cb(skb)->gw)) {
++			/* There is neither route nor gateway,
++			 * probably the destination is a direct peer.
++			 */
++			nexthop = daddr;
++		} else {
++			/* There is a known gateway
++			 */
++			nexthop = &lowpan_cb(skb)->gw;
++		}
+ 	} else {
+ 		nexthop = rt6_nexthop(rt, daddr);
+ 
 -- 
 2.20.1
 
