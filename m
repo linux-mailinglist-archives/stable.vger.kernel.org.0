@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 857DB694FD
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C17369514
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391402AbfGOO04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:26:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59768 "EHLO mail.kernel.org"
+        id S2390325AbfGOOZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:25:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391030AbfGOOZF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:25:05 -0400
+        id S2389685AbfGOOZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:25:16 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0BF9206B8;
-        Mon, 15 Jul 2019 14:24:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 869F020896;
+        Mon, 15 Jul 2019 14:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200703;
-        bh=oRRZGUkIuPvHBH6aKfmz3V1QKESktJkD4PpLZ+lWzDs=;
+        s=default; t=1563200716;
+        bh=9oPmWzZADG9KBbFCDoRtLvhV03Hq67ZJeep/W6VUocU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfFJOCAVbeV9Wg5ejppUT9pRFYQEUXAwDqzxOlgxF2TWZ5L03L+QLENKxHfb3AIME
-         UOrnFaHdsL39u+cebn+NJ9Fw2Y1a7djFzkYczLq1Dg9fczWt+7ad88z073TG5h7pv1
-         HwFPgxrKtYPoEM2lLqPIY2imci9RRIyMjkWhTqSA=
+        b=V74mhfoxCGbr6aygqxmDJg0WL2OOcsOLymudRLavZyESACLsJ3ybv/cZQ964BqVYU
+         J97wSeX8eiqXnkf3i/8JEPrXkpt3MW2jMhw1guGScahnh0mIyQQ474fLxZD6k2cFHu
+         MbI2mg/CkuVo/aUioK+nxtm/UZ5VQDhOmSIz1DOg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Jonathan Lemon <jonathan.lemon@gmail.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
-        Song Liu <songliubraving@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, xdp-newbies@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 114/158] xsk: Properly terminate assignment in xskq_produce_flush_desc
-Date:   Mon, 15 Jul 2019 10:17:25 -0400
-Message-Id: <20190715141809.8445-114-sashal@kernel.org>
+Cc:     Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 116/158] rslib: Fix handling of of caller provided syndrome
+Date:   Mon, 15 Jul 2019 10:17:27 -0400
+Message-Id: <20190715141809.8445-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,51 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>
 
-[ Upstream commit f7019b7b0ad14bde732b8953161994edfc384953 ]
+[ Upstream commit ef4d6a8556b637ad27c8c2a2cff1dda3da38e9a9 ]
 
-Clang warns:
+Check if the syndrome provided by the caller is zero, and act
+accordingly.
 
-In file included from net/xdp/xsk_queue.c:10:
-net/xdp/xsk_queue.h:292:2: warning: expression result unused
-[-Wunused-value]
-        WRITE_ONCE(q->ring->producer, q->prod_tail);
-        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-include/linux/compiler.h:284:6: note: expanded from macro 'WRITE_ONCE'
-        __u.__val;                                      \
-        ~~~ ^~~~~
-1 warning generated.
-
-The q->prod_tail assignment has a comma at the end, not a semi-colon.
-Fix that so clang no longer warns and everything works as expected.
-
-Fixes: c497176cb2e4 ("xsk: add Rx receive functions and poll support")
-Link: https://github.com/ClangBuiltLinux/linux/issues/544
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Jonathan Lemon <jonathan.lemon@gmail.com>
-Acked-by: Björn Töpel <bjorn.topel@intel.com>
-Acked-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190620141039.9874-6-ferdinand.blomqvist@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xsk_queue.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/reed_solomon/decode_rs.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
-index 8a64b150be54..fe96c0d039f2 100644
---- a/net/xdp/xsk_queue.h
-+++ b/net/xdp/xsk_queue.h
-@@ -239,7 +239,7 @@ static inline void xskq_produce_flush_desc(struct xsk_queue *q)
- 	/* Order producer and data */
- 	smp_wmb();
+diff --git a/lib/reed_solomon/decode_rs.c b/lib/reed_solomon/decode_rs.c
+index 3313bf944ff1..121beb2f0930 100644
+--- a/lib/reed_solomon/decode_rs.c
++++ b/lib/reed_solomon/decode_rs.c
+@@ -42,8 +42,18 @@
+ 	BUG_ON(pad < 0 || pad >= nn);
  
--	q->prod_tail = q->prod_head,
-+	q->prod_tail = q->prod_head;
- 	WRITE_ONCE(q->ring->producer, q->prod_tail);
- }
+ 	/* Does the caller provide the syndrome ? */
+-	if (s != NULL)
+-		goto decode;
++	if (s != NULL) {
++		for (i = 0; i < nroots; i++) {
++			/* The syndrome is in index form,
++			 * so nn represents zero
++			 */
++			if (s[i] != nn)
++				goto decode;
++		}
++
++		/* syndrome is zero, no errors to correct  */
++		return 0;
++	}
  
+ 	/* form the syndromes; i.e., evaluate data(x) at roots of
+ 	 * g(x) */
 -- 
 2.20.1
 
