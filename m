@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FD9469319
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F2269304
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404835AbfGOOlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:41:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43654 "EHLO mail.kernel.org"
+        id S1732826AbfGOOlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:41:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732826AbfGOOlG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:41:06 -0400
+        id S2404844AbfGOOlJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:41:09 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AF04205ED;
-        Mon, 15 Jul 2019 14:41:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 243F420651;
+        Mon, 15 Jul 2019 14:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201665;
-        bh=cF0sJmspvwXx1R7j3IbDGTgsqbzMMAvZYVcL51nIV9k=;
+        s=default; t=1563201668;
+        bh=cqQv8bfThYISF8P9Pi2/GWnsOSkTKzvac3Gdm7ydH4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbxbZO3Jtup0hMnmPwSMLSC7PW64IqA+75VcMyoGc3fYGnk/7NdDAEUCEX4MakBS3
-         h+3iex+u4Ow8rdr7mpYH2stdh68iqQJVSCaLd/x530wBAoVXUrMOSm765Oe0lsMou/
-         bzSSSDM6IK0ic+PwBrVCQhqDfT7oVQpwek1o+dTw=
+        b=T6yEgSXtOuoJCcIpaR/bC9OMF+SYKNu1R4omCql0dOCGa7gB4FaWVXOn+rDpSTkY1
+         p2dgI076d/KR4sRdOBt+8wWpI+FR08sUNxmKG57HV0w9Z2majn7lCu4xHKCi2Cn8+e
+         o/NRyPgyDYg2V3o19p/r3Qn1Q5gFXaT7F5swlXc4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 67/73] gpiolib: Fix references to gpiod_[gs]et_*value_cansleep() variants
-Date:   Mon, 15 Jul 2019 10:36:23 -0400
-Message-Id: <20190715143629.10893-67-sashal@kernel.org>
+Cc:     Tomas Bortoli <tomasbortoli@gmail.com>,
+        syzbot+98162c885993b72f19c4@syzkaller.appspotmail.com,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 68/73] Bluetooth: hci_bcsp: Fix memory leak in rx_skb
+Date:   Mon, 15 Jul 2019 10:36:24 -0400
+Message-Id: <20190715143629.10893-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
 References: <20190715143629.10893-1-sashal@kernel.org>
@@ -43,57 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Tomas Bortoli <tomasbortoli@gmail.com>
 
-[ Upstream commit 3285170f28a850638794cdfe712eb6d93e51e706 ]
+[ Upstream commit 4ce9146e0370fcd573f0372d9b4e5a211112567c ]
 
-Commit 372e722ea4dd4ca1 ("gpiolib: use descriptors internally") renamed
-the functions to use a "gpiod" prefix, and commit 79a9becda8940deb
-("gpiolib: export descriptor-based GPIO interface") introduced the "raw"
-variants, but both changes forgot to update the comments.
+Syzkaller found that it is possible to provoke a memory leak by
+never freeing rx_skb in struct bcsp_struct.
 
-Readd a similar reference to gpiod_set_value(), which was accidentally
-removed by commit 1e77fc82110ac36f ("gpio: Add missing open drain/source
-handling to gpiod_set_value_cansleep()").
+Fix by freeing in bcsp_close()
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20190701142738.25219-1-geert+renesas@glider.be
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
+Reported-by: syzbot+98162c885993b72f19c4@syzkaller.appspotmail.com
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/bluetooth/hci_bcsp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 9e2fe12c2858..a3251faa3ed8 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -2411,7 +2411,7 @@ static int _gpiod_get_raw_value(const struct gpio_desc *desc)
- int gpiod_get_raw_value(const struct gpio_desc *desc)
- {
- 	VALIDATE_DESC(desc);
--	/* Should be using gpio_get_value_cansleep() */
-+	/* Should be using gpiod_get_raw_value_cansleep() */
- 	WARN_ON(desc->gdev->chip->can_sleep);
- 	return _gpiod_get_raw_value(desc);
- }
-@@ -2432,7 +2432,7 @@ int gpiod_get_value(const struct gpio_desc *desc)
- 	int value;
+diff --git a/drivers/bluetooth/hci_bcsp.c b/drivers/bluetooth/hci_bcsp.c
+index a2c921faaa12..34e04bf87a62 100644
+--- a/drivers/bluetooth/hci_bcsp.c
++++ b/drivers/bluetooth/hci_bcsp.c
+@@ -759,6 +759,11 @@ static int bcsp_close(struct hci_uart *hu)
+ 	skb_queue_purge(&bcsp->rel);
+ 	skb_queue_purge(&bcsp->unrel);
  
- 	VALIDATE_DESC(desc);
--	/* Should be using gpio_get_value_cansleep() */
-+	/* Should be using gpiod_get_value_cansleep() */
- 	WARN_ON(desc->gdev->chip->can_sleep);
- 
- 	value = _gpiod_get_raw_value(desc);
-@@ -2608,7 +2608,7 @@ void gpiod_set_array_value_complex(bool raw, bool can_sleep,
- void gpiod_set_raw_value(struct gpio_desc *desc, int value)
- {
- 	VALIDATE_DESC_VOID(desc);
--	/* Should be using gpiod_set_value_cansleep() */
-+	/* Should be using gpiod_set_raw_value_cansleep() */
- 	WARN_ON(desc->gdev->chip->can_sleep);
- 	_gpiod_set_raw_value(desc, value);
++	if (bcsp->rx_skb) {
++		kfree_skb(bcsp->rx_skb);
++		bcsp->rx_skb = NULL;
++	}
++
+ 	kfree(bcsp);
+ 	return 0;
  }
 -- 
 2.20.1
