@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D70B269351
+	by mail.lfdr.de (Postfix) with ESMTP id 03CFC6934F
 	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403927AbfGOOiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:38:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34746 "EHLO mail.kernel.org"
+        id S2404756AbfGOOiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:38:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392177AbfGOOiU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:38:20 -0400
+        id S2403846AbfGOOiX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:38:23 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6981205ED;
-        Mon, 15 Jul 2019 14:38:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3ABF120651;
+        Mon, 15 Jul 2019 14:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201499;
-        bh=wQEj4WKhOuq6K8HCiwGE8GodYpkSKJLh5sM4mLz8SXg=;
+        s=default; t=1563201502;
+        bh=pOh74XmprEXzahv3tjYYNZazeCAex4Qx0g/nsj1RoA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=todQc13QVS99d0xwu+ODIe0NsLWAIySIShETRWHZttJkaHu0Mr4k+bMsH7zhJDHJo
-         2yfjHhfDwcDQTpt4jzK2yWgpIn/Sc8opV3PnUnoS/DxJ7Z/Kq7x4qgN1rqJnSnDTyr
-         VRoHJf092ioIPj1PPanrRNY8KQw+yRV1sSwLnNDg=
+        b=ookLiO+r5sypbgAQFDFeGMtioNS8zUIpaK5/SVlrRGjTH4KJ0r1qS/TCs67A6XX/P
+         kI0D6ExOpzaFlBbaGtfvuCQ+eX+fAo6p+Ca/DM5x+zkze64Cwn0APk9VqLnNRcXDuE
+         lGk2dyx7IH2jzlOuDOsInaGflioBy9P9MAM1JYb0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabio Estevam <festevam@gmail.com>,
+Cc:     Robert Hancock <hancock@sedsystems.ca>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 28/73] net: fec: Do not use netdev messages too early
-Date:   Mon, 15 Jul 2019 10:35:44 -0400
-Message-Id: <20190715143629.10893-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 29/73] net: axienet: Fix race condition causing TX hang
+Date:   Mon, 15 Jul 2019 10:35:45 -0400
+Message-Id: <20190715143629.10893-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
 References: <20190715143629.10893-1-sashal@kernel.org>
@@ -43,50 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Robert Hancock <hancock@sedsystems.ca>
 
-[ Upstream commit a19a0582363b9a5f8ba812f34f1b8df394898780 ]
+[ Upstream commit 7de44285c1f69ccfbe8be1d6a16fcd956681fee6 ]
 
-When a valid MAC address is not found the current messages
-are shown:
+It is possible that the interrupt handler fires and frees up space in
+the TX ring in between checking for sufficient TX ring space and
+stopping the TX queue in axienet_start_xmit. If this happens, the
+queue wake from the interrupt handler will occur before the queue is
+stopped, causing a lost wakeup and the adapter's transmit hanging.
 
-fec 2188000.ethernet (unnamed net_device) (uninitialized): Invalid MAC address: 00:00:00:00:00:00
-fec 2188000.ethernet (unnamed net_device) (uninitialized): Using random MAC address: aa:9f:25:eb:7e:aa
+To avoid this, after stopping the queue, check again whether there is
+sufficient space in the TX ring. If so, wake up the queue again.
 
-Since the network device has not been registered at this point, it is better
-to use dev_err()/dev_info() instead, which will provide cleaner log
-messages like these:
-
-fec 2188000.ethernet: Invalid MAC address: 00:00:00:00:00:00
-fec 2188000.ethernet: Using random MAC address: aa:9f:25:eb:7e:aa
-
-Tested on a imx6dl-pico-pi board.
-
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Robert Hancock <hancock@sedsystems.ca>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../net/ethernet/xilinx/xilinx_axienet_main.c | 20 ++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 1eb34109b207..92ea760c4822 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -1685,10 +1685,10 @@ static void fec_get_mac(struct net_device *ndev)
- 	 */
- 	if (!is_valid_ether_addr(iap)) {
- 		/* Report it and use a random ethernet address instead */
--		netdev_err(ndev, "Invalid MAC address: %pM\n", iap);
-+		dev_err(&fep->pdev->dev, "Invalid MAC address: %pM\n", iap);
- 		eth_hw_addr_random(ndev);
--		netdev_info(ndev, "Using random MAC address: %pM\n",
--			    ndev->dev_addr);
-+		dev_info(&fep->pdev->dev, "Using random MAC address: %pM\n",
-+			 ndev->dev_addr);
- 		return;
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+index a8afc92cbfca..5f21ddff9e0f 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -612,6 +612,10 @@ static void axienet_start_xmit_done(struct net_device *ndev)
+ 
+ 	ndev->stats.tx_packets += packets;
+ 	ndev->stats.tx_bytes += size;
++
++	/* Matches barrier in axienet_start_xmit */
++	smp_mb();
++
+ 	netif_wake_queue(ndev);
+ }
+ 
+@@ -666,9 +670,19 @@ static int axienet_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 	cur_p = &lp->tx_bd_v[lp->tx_bd_tail];
+ 
+ 	if (axienet_check_tx_bd_space(lp, num_frag)) {
+-		if (!netif_queue_stopped(ndev))
+-			netif_stop_queue(ndev);
+-		return NETDEV_TX_BUSY;
++		if (netif_queue_stopped(ndev))
++			return NETDEV_TX_BUSY;
++
++		netif_stop_queue(ndev);
++
++		/* Matches barrier in axienet_start_xmit_done */
++		smp_mb();
++
++		/* Space might have just been freed - check again */
++		if (axienet_check_tx_bd_space(lp, num_frag))
++			return NETDEV_TX_BUSY;
++
++		netif_wake_queue(ndev);
  	}
  
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
 -- 
 2.20.1
 
