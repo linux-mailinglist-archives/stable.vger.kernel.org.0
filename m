@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2806969805
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:15:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C22569803
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731137AbfGONrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:47:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57322 "EHLO mail.kernel.org"
+        id S1731324AbfGONsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:48:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730773AbfGONrq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:47:46 -0400
+        id S1731215AbfGONsA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:48:00 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8239120C01;
-        Mon, 15 Jul 2019 13:47:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B0302067C;
+        Mon, 15 Jul 2019 13:47:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198466;
-        bh=4/FihzU7s2lM7NtISAT+S1RgCAAQc4SbY0kchhFzzyo=;
+        s=default; t=1563198479;
+        bh=VRgrytHTVCFlT5csoh3aKEF0uzbhluzYmPoRtKfok/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ueiDzI8VIbszGeYT3SphLfcqYvvxBWR6Y/X7wRGb/8jPnj2u1ASI6LZ57FHFJ5wG/
-         xCK162J7dC1PS+dFL89P9k8Kvz2tQoUMuLaKTfYKWxepv3ZNjFv84IV1AnlrWYZDii
-         HaYchnnTJEie0Rj8/JfaByARJ3GjGT6f6iI5lrYM=
+        b=Rll7xxbJTZjnIm9uFaR8A3LosHlX8FVHv18cUFpdVg65ahv8ba+XmxrnMvDvBeJul
+         ObzYbA0m7yRfQU5cZlViB0xG3ZCUb8IhhwvEKZ6jjtrdOh3w8xiHnjiiceLMJhDh+1
+         4s+P7eZmUl0GEXFswtRswFhcOa6gqQMqx4UprYsw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Baluta <daniel.baluta@nxp.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 017/249] regmap: debugfs: Fix memory leak in regmap_debugfs_init
-Date:   Mon, 15 Jul 2019 09:43:02 -0400
-Message-Id: <20190715134655.4076-17-sashal@kernel.org>
+Cc:     Daniel Gomez <dagmcr@gmail.com>,
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 020/249] media: spi: IR LED: add missing of table registration
+Date:   Mon, 15 Jul 2019 09:43:05 -0400
+Message-Id: <20190715134655.4076-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -44,55 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Baluta <daniel.baluta@nxp.com>
+From: Daniel Gomez <dagmcr@gmail.com>
 
-[ Upstream commit 2899872b627e99b7586fe3b6c9f861da1b4d5072 ]
+[ Upstream commit 24e4cf770371df6ad49ed873f21618d9878f64c8 ]
 
-As detected by kmemleak running on i.MX6ULL board:
+MODULE_DEVICE_TABLE(of, <of_match_table> should be called to complete DT
+OF mathing mechanism and register it.
 
-nreferenced object 0xd8366600 (size 64):
-  comm "swapper/0", pid 1, jiffies 4294937370 (age 933.220s)
-  hex dump (first 32 bytes):
-    64 75 6d 6d 79 2d 69 6f 6d 75 78 63 2d 67 70 72  dummy-iomuxc-gpr
-    40 32 30 65 34 30 30 30 00 e3 f3 ab fe d1 1b dd  @20e4000........
-  backtrace:
-    [<b0402aec>] kasprintf+0x2c/0x54
-    [<a6fbad2c>] regmap_debugfs_init+0x7c/0x31c
-    [<9c8d91fa>] __regmap_init+0xb5c/0xcf4
-    [<5b1c3d2a>] of_syscon_register+0x164/0x2c4
-    [<596a5d80>] syscon_node_to_regmap+0x64/0x90
-    [<49bd597b>] imx6ul_init_machine+0x34/0xa0
-    [<250a4dac>] customize_machine+0x1c/0x30
-    [<2d19fdaf>] do_one_initcall+0x7c/0x398
-    [<e6084469>] kernel_init_freeable+0x328/0x448
-    [<168c9101>] kernel_init+0x8/0x114
-    [<913268aa>] ret_from_fork+0x14/0x20
-    [<ce7b131a>] 0x0
+Before this patch:
+modinfo drivers/media/rc/ir-spi.ko  | grep alias
 
-Root cause is that map->debugfs_name is allocated using kasprintf
-and then the pointer is lost by assigning it other memory address.
+After this patch:
+modinfo drivers/media/rc/ir-spi.ko  | grep alias
+alias:          of:N*T*Cir-spi-ledC*
+alias:          of:N*T*Cir-spi-led
 
-Reported-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
+Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/regmap-debugfs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/rc/ir-spi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/regmap/regmap-debugfs.c b/drivers/base/regmap/regmap-debugfs.c
-index 263f82516ff4..e5e1b3a01b1a 100644
---- a/drivers/base/regmap/regmap-debugfs.c
-+++ b/drivers/base/regmap/regmap-debugfs.c
-@@ -579,6 +579,8 @@ void regmap_debugfs_init(struct regmap *map, const char *name)
- 	}
+diff --git a/drivers/media/rc/ir-spi.c b/drivers/media/rc/ir-spi.c
+index 66334e8d63ba..c58f2d38a458 100644
+--- a/drivers/media/rc/ir-spi.c
++++ b/drivers/media/rc/ir-spi.c
+@@ -161,6 +161,7 @@ static const struct of_device_id ir_spi_of_match[] = {
+ 	{ .compatible = "ir-spi-led" },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, ir_spi_of_match);
  
- 	if (!strcmp(name, "dummy")) {
-+		kfree(map->debugfs_name);
-+
- 		map->debugfs_name = kasprintf(GFP_KERNEL, "dummy%d",
- 						dummy_index);
- 		name = map->debugfs_name;
+ static struct spi_driver ir_spi_driver = {
+ 	.probe = ir_spi_probe,
 -- 
 2.20.1
 
