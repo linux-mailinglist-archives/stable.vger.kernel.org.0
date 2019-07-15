@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD22B6942D
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:50:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C396F69740
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:09:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391334AbfGOOsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:48:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44800 "EHLO mail.kernel.org"
+        id S1733186AbfGOPJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 11:09:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392321AbfGOOsL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:48:11 -0400
+        id S1731856AbfGON4u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:56:50 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F33B2086C;
-        Mon, 15 Jul 2019 14:48:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6EC42083D;
+        Mon, 15 Jul 2019 13:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563202090;
-        bh=asAiYr2CYWOqMAWm0D67icb5YqzuE7xvN5a2k2xkOUs=;
+        s=default; t=1563199009;
+        bh=ULjxUzx+++yfz9jlrK8gl/SRLm6WxtHyr+F6CLcmbpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arUg7tHP5MUwVdnjYVvc18axUWjTwpFasLNd509rT7e4o8sRzQO8qC0vQ72bMF6TJ
-         BBvfTshAJIUsw1Ii++j6I/PLQlPEVjSvMH0QDXrRQG5ucCa7+VnY+ODW0EP88iXp8e
-         G1bLCSUqnyXkYPkBklcuBzzfCf6lao204zrsDq3I=
+        b=DZ/+LHbuSthDT55Adc5lB3xxLG0rYMR5LD91mMAbPDI/5TK2JHepf62kWBWpwoigj
+         gYeij+hlAJYMGxsR1tSi6ECU4+TBPk0Co4CfidGaXm9LXuMlsh7SwmMqxACcd+fUZB
+         81XjfCbBDKtBgG3gKHxqWnR+eoE0sfNDoF+O1zRk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 42/53] x86/build: Add 'set -e' to mkcapflags.sh to delete broken capflags.c
-Date:   Mon, 15 Jul 2019 10:45:24 -0400
-Message-Id: <20190715144535.11636-42-sashal@kernel.org>
+Cc:     Miaoqing Pan <miaoqing@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 164/249] ath10k: fix fw crash by moving chip reset after napi disabled
+Date:   Mon, 15 Jul 2019 09:45:29 -0400
+Message-Id: <20190715134655.4076-164-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190715144535.11636-1-sashal@kernel.org>
-References: <20190715144535.11636-1-sashal@kernel.org>
+In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
+References: <20190715134655.4076-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,52 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Miaoqing Pan <miaoqing@codeaurora.org>
 
-[ Upstream commit bc53d3d777f81385c1bb08b07bd1c06450ecc2c1 ]
+[ Upstream commit 08d80e4cd27ba19f9bee9e5f788f9a9fc440a22f ]
 
-Without 'set -e', shell scripts continue running even after any
-error occurs. The missed 'set -e' is a typical bug in shell scripting.
+On SMP platform, when continuously running wifi up/down, the napi
+poll can be scheduled during chip reset, which will call
+ath10k_pci_has_fw_crashed() to check the fw status. But in the reset
+period, the value from FW_INDICATOR_ADDRESS register will return
+0xdeadbeef, which also be treated as fw crash. Fix the issue by
+moving chip reset after napi disabled.
 
-For example, when a disk space shortage occurs while this script is
-running, it actually ends up with generating a truncated capflags.c.
+ath10k_pci 0000:01:00.0: firmware crashed! (guid 73b30611-5b1e-4bdd-90b4-64c81eb947b6)
+ath10k_pci 0000:01:00.0: qca9984/qca9994 hw1.0 target 0x01000000 chip_id 0x00000000 sub 168c:cafe
+ath10k_pci 0000:01:00.0: htt-ver 2.2 wmi-op 6 htt-op 4 cal otp max-sta 512 raw 0 hwcrypto 1
+ath10k_pci 0000:01:00.0: failed to get memcpy hi address for firmware address 4: -16
+ath10k_pci 0000:01:00.0: failed to read firmware dump area: -16
+ath10k_pci 0000:01:00.0: Copy Engine register dump:
+ath10k_pci 0000:01:00.0: [00]: 0x0004a000   0   0   0   0
+ath10k_pci 0000:01:00.0: [01]: 0x0004a400   0   0   0   0
+ath10k_pci 0000:01:00.0: [02]: 0x0004a800   0   0   0   0
+ath10k_pci 0000:01:00.0: [03]: 0x0004ac00   0   0   0   0
+ath10k_pci 0000:01:00.0: [04]: 0x0004b000   0   0   0   0
+ath10k_pci 0000:01:00.0: [05]: 0x0004b400   0   0   0   0
+ath10k_pci 0000:01:00.0: [06]: 0x0004b800   0   0   0   0
+ath10k_pci 0000:01:00.0: [07]: 0x0004bc00   1   0   1   0
+ath10k_pci 0000:01:00.0: [08]: 0x0004c000   0   0   0   0
+ath10k_pci 0000:01:00.0: [09]: 0x0004c400   0   0   0   0
+ath10k_pci 0000:01:00.0: [10]: 0x0004c800   0   0   0   0
+ath10k_pci 0000:01:00.0: [11]: 0x0004cc00   0   0   0   0
 
-Yet, mkcapflags.sh continues running and exits with 0. So, the build
-system assumes it has succeeded.
+Tested HW: QCA9984,QCA9887,WCN3990
 
-It will not be re-generated in the next invocation of Make since its
-timestamp is newer than that of any of the source files.
-
-Add 'set -e' so that any error in this script is caught and propagated
-to the build system.
-
-Since 9c2af1c7377a ("kbuild: add .DELETE_ON_ERROR special target"),
-make automatically deletes the target on any failure. So, the broken
-capflags.c will be deleted automatically.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Link: https://lkml.kernel.org/r/20190625072622.17679-1-yamada.masahiro@socionext.com
+Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mkcapflags.sh | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/ath10k/pci.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mkcapflags.sh b/arch/x86/kernel/cpu/mkcapflags.sh
-index 6988c74409a8..711b74e0e623 100644
---- a/arch/x86/kernel/cpu/mkcapflags.sh
-+++ b/arch/x86/kernel/cpu/mkcapflags.sh
-@@ -3,6 +3,8 @@
- # Generate the x86_cap/bug_flags[] arrays from include/asm/cpufeatures.h
- #
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index 2c27f407a851..6e5f7ae00253 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -2059,6 +2059,11 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
  
-+set -e
+ 	ath10k_dbg(ar, ATH10K_DBG_BOOT, "boot hif stop\n");
+ 
++	ath10k_pci_irq_disable(ar);
++	ath10k_pci_irq_sync(ar);
++	napi_synchronize(&ar->napi);
++	napi_disable(&ar->napi);
 +
- IN=$1
- OUT=$2
+ 	/* Most likely the device has HTT Rx ring configured. The only way to
+ 	 * prevent the device from accessing (and possible corrupting) host
+ 	 * memory is to reset the chip now.
+@@ -2072,10 +2077,6 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
+ 	 */
+ 	ath10k_pci_safe_chip_reset(ar);
  
+-	ath10k_pci_irq_disable(ar);
+-	ath10k_pci_irq_sync(ar);
+-	napi_synchronize(&ar->napi);
+-	napi_disable(&ar->napi);
+ 	ath10k_pci_flush(ar);
+ 
+ 	spin_lock_irqsave(&ar_pci->ps_lock, flags);
 -- 
 2.20.1
 
