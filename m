@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19E2E692EC
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32925692EA
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:40:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732868AbfGOOkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:40:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41910 "EHLO mail.kernel.org"
+        id S2391080AbfGOOkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:40:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391830AbfGOOkb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:40:31 -0400
+        id S2404476AbfGOOkf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:40:35 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E56F204FD;
-        Mon, 15 Jul 2019 14:40:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F75A205ED;
+        Mon, 15 Jul 2019 14:40:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201630;
-        bh=wNbhLMKQuLLNMYHuSnqZyPUBsHbPAsv1kUi64ou1XLM=;
+        s=default; t=1563201634;
+        bh=xDIQ42ChWf87NqLYQmiqW9h30yxZvey0pdV86at6Hx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDcE7yZd6mC2pMVWpzSTb3uLhG9PPEktJb283Wc1Jur9cwraxYpFs91RETllg1fVM
-         Ue+6SbMzlP62OCCZEnV6uHbfrpqQOhLF6A0grLl8pwrdC64mVyuyGavIlrUGxYv8Zd
-         967iUtwW7SJvnQ8A3N1uwjquVW0PJaunh1drKCz4=
+        b=A0fWQKMp+GX0sNa2TkpKCwIfkK/r04++bI5fo3QGpAvRc7Dtg79TGjNRdfSBIz/sz
+         m5tx2VhbhoyRMIZb9XSeBRt6Fqvq1dMkD1puzScP2SlysRzwqRn9ObdkF4LszpFbQQ
+         Hh8zG8HHDidU/nbENXZ9/n6bm+kAWYRJuneBirZY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 58/73] rslib: Fix decoding of shortened codes
-Date:   Mon, 15 Jul 2019 10:36:14 -0400
-Message-Id: <20190715143629.10893-58-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 59/73] rslib: Fix handling of of caller provided syndrome
+Date:   Mon, 15 Jul 2019 10:36:15 -0400
+Message-Id: <20190715143629.10893-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
 References: <20190715143629.10893-1-sashal@kernel.org>
@@ -45,42 +45,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>
 
-[ Upstream commit 2034a42d1747fc1e1eeef2c6f1789c4d0762cb9c ]
+[ Upstream commit ef4d6a8556b637ad27c8c2a2cff1dda3da38e9a9 ]
 
-The decoding of shortenend codes is broken. It only works as expected if
-there are no erasures.
-
-When decoding with erasures, Lambda (the error and erasure locator
-polynomial) is initialized from the given erasure positions. The pad
-parameter is not accounted for by the initialisation code, and hence
-Lambda is initialized from incorrect erasure positions.
-
-The fix is to adjust the erasure positions by the supplied pad.
+Check if the syndrome provided by the caller is zero, and act
+accordingly.
 
 Signed-off-by: Ferdinand Blomqvist <ferdinand.blomqvist@gmail.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190620141039.9874-3-ferdinand.blomqvist@gmail.com
+Link: https://lkml.kernel.org/r/20190620141039.9874-6-ferdinand.blomqvist@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/reed_solomon/decode_rs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/reed_solomon/decode_rs.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/lib/reed_solomon/decode_rs.c b/lib/reed_solomon/decode_rs.c
-index 0ec3f257ffdf..8eed0f9ac495 100644
+index 8eed0f9ac495..a5d313381539 100644
 --- a/lib/reed_solomon/decode_rs.c
 +++ b/lib/reed_solomon/decode_rs.c
-@@ -99,9 +99,9 @@
- 	if (no_eras > 0) {
- 		/* Init lambda to be the erasure locator polynomial */
- 		lambda[1] = alpha_to[rs_modnn(rs,
--					      prim * (nn - 1 - eras_pos[0]))];
-+					prim * (nn - 1 - (eras_pos[0] + pad)))];
- 		for (i = 1; i < no_eras; i++) {
--			u = rs_modnn(rs, prim * (nn - 1 - eras_pos[i]));
-+			u = rs_modnn(rs, prim * (nn - 1 - (eras_pos[i] + pad)));
- 			for (j = i + 1; j > 0; j--) {
- 				tmp = index_of[lambda[j - 1]];
- 				if (tmp != nn) {
+@@ -42,8 +42,18 @@
+ 	BUG_ON(pad < 0 || pad >= nn);
+ 
+ 	/* Does the caller provide the syndrome ? */
+-	if (s != NULL)
+-		goto decode;
++	if (s != NULL) {
++		for (i = 0; i < nroots; i++) {
++			/* The syndrome is in index form,
++			 * so nn represents zero
++			 */
++			if (s[i] != nn)
++				goto decode;
++		}
++
++		/* syndrome is zero, no errors to correct  */
++		return 0;
++	}
+ 
+ 	/* form the syndromes; i.e., evaluate data(x) at roots of
+ 	 * g(x) */
 -- 
 2.20.1
 
