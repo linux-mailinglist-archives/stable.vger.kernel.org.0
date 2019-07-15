@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6538D68C3F
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D9A168C41
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:50:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730785AbfGONuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:50:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40026 "EHLO mail.kernel.org"
+        id S1731903AbfGONuW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:50:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730907AbfGONuT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:50:19 -0400
+        id S1731525AbfGONuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:50:22 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 325D221530;
-        Mon, 15 Jul 2019 13:50:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6980C2067C;
+        Mon, 15 Jul 2019 13:50:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198618;
-        bh=HVVgh0uIYxjjmU6RX+eBUqAqo/nW0ExNkIn9xQT/mxY=;
+        s=default; t=1563198620;
+        bh=sNcdxI9uFkrxYRDNAh8DXHsfCzWHPhTy+f+d4yfvJZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tmnBi/QuxiciyVcsonzQ6mLn+1znYvidRIEFbwfJMcyUXnNJ4kHd4m5zPv2mF9SFI
-         Mc4fUcsX1pgBRDuAsSp4+I+pga5bSxxQNmOTIFR9oHx/G/LL4ufbmvaHgrIu1HFZG3
-         W+FPF+YPC2/O0JRbuDKj22OTDfr+WWzP3hoDKpYk=
+        b=yg0l77q82lf4g6nnW9SCVr7511c0ead7H84ss2Z5aRxQFtY/6uLo8b5s8Xj0ZLucb
+         GOHgWIAmuDwppEqi+BGNqYyERTx7hyBRcWtQ9Nn7MPqp+pIQs+ALg5QjNlIFWjlfUU
+         9KWe+yjQoW+ziDw9xI3i19PPKzo4OeZnIvGV+4GI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Imre Deak <imre.deak@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will.deacon@arm.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 061/249] locking/lockdep: Fix merging of hlocks with non-zero references
-Date:   Mon, 15 Jul 2019 09:43:46 -0400
-Message-Id: <20190715134655.4076-61-sashal@kernel.org>
+Cc:     Neil Armstrong <narmstrong@baylibre.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-amlogic@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.2 062/249] media: platform: ao-cec-g12a: disable regmap fast_io for cec bus regmap
+Date:   Mon, 15 Jul 2019 09:43:47 -0400
+Message-Id: <20190715134655.4076-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -48,102 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Imre Deak <imre.deak@intel.com>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-[ Upstream commit d9349850e188b8b59e5322fda17ff389a1c0cd7d ]
+[ Upstream commit 9f7406d6b56b4b71a12480b68221755ea7b3e0ee ]
 
-The sequence
+With fast_io enabled, spinlock_irq is used for read/write operations,
+thus leading to :
+BUG: sleeping function called from invalid context at [snip]/ao-cec-g12a.c:379
+ in_atomic(): 1, irqs_disabled(): 128, pid: 1451, name: irq/14-ff800280
+[snip]
+Call trace:
+ dump_backtrace+0x0/0x180
+ show_stack+0x14/0x1c
+ dump_stack+0xa8/0xe0
+ ___might_sleep+0xf4/0x104
+ __might_sleep+0x4c/0x80
+ meson_ao_cec_g12a_read+0x7c/0x164
+ regmap_read+0x16c/0x1b0
+ meson_ao_cec_g12a_irq_thread+0xcc/0x200
+ irq_thread_fn+0x2c/0x60
+ irq_thread+0x14c/0x1fc
+ kthread+0x11c/0x12c
+ ret_from_fork+0x10/0x18
 
-	static DEFINE_WW_CLASS(test_ww_class);
+Simply remove fast_io to use mutexes instead.
 
-	struct ww_acquire_ctx ww_ctx;
-	struct ww_mutex ww_lock_a;
-	struct ww_mutex ww_lock_b;
-	struct ww_mutex ww_lock_c;
-	struct mutex lock_c;
+Fixes: b7778c46683c ("media: platform: meson: Add Amlogic Meson G12A AO CEC Controller driver")
 
-	ww_acquire_init(&ww_ctx, &test_ww_class);
-
-	ww_mutex_init(&ww_lock_a, &test_ww_class);
-	ww_mutex_init(&ww_lock_b, &test_ww_class);
-	ww_mutex_init(&ww_lock_c, &test_ww_class);
-
-	mutex_init(&lock_c);
-
-	ww_mutex_lock(&ww_lock_a, &ww_ctx);
-
-	mutex_lock(&lock_c);
-
-	ww_mutex_lock(&ww_lock_b, &ww_ctx);
-	ww_mutex_lock(&ww_lock_c, &ww_ctx);
-
-	mutex_unlock(&lock_c);	(*)
-
-	ww_mutex_unlock(&ww_lock_c);
-	ww_mutex_unlock(&ww_lock_b);
-	ww_mutex_unlock(&ww_lock_a);
-
-	ww_acquire_fini(&ww_ctx); (**)
-
-will trigger the following error in __lock_release() when calling
-mutex_release() at **:
-
-	DEBUG_LOCKS_WARN_ON(depth <= 0)
-
-The problem is that the hlock merging happening at * updates the
-references for test_ww_class incorrectly to 3 whereas it should've
-updated it to 4 (representing all the instances for ww_ctx and
-ww_lock_[abc]).
-
-Fix this by updating the references during merging correctly taking into
-account that we can have non-zero references (both for the hlock that we
-merge into another hlock or for the hlock we are merging into).
-
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
-Link: https://lkml.kernel.org/r/20190524201509.9199-2-imre.deak@intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/media/platform/meson/ao-cec-g12a.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 82361e1bce0f..dbc936ccf149 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -3703,17 +3703,17 @@ static int __lock_acquire(struct lockdep_map *lock, unsigned int subclass,
- 	if (depth) {
- 		hlock = curr->held_locks + depth - 1;
- 		if (hlock->class_idx == class_idx && nest_lock) {
--			if (hlock->references) {
--				/*
--				 * Check: unsigned int references:12, overflow.
--				 */
--				if (DEBUG_LOCKS_WARN_ON(hlock->references == (1 << 12)-1))
--					return 0;
-+			if (!references)
-+				references++;
+diff --git a/drivers/media/platform/meson/ao-cec-g12a.c b/drivers/media/platform/meson/ao-cec-g12a.c
+index 3620a1e310f5..ddfd060625da 100644
+--- a/drivers/media/platform/meson/ao-cec-g12a.c
++++ b/drivers/media/platform/meson/ao-cec-g12a.c
+@@ -415,7 +415,6 @@ static const struct regmap_config meson_ao_cec_g12a_cec_regmap_conf = {
+ 	.reg_read = meson_ao_cec_g12a_read,
+ 	.reg_write = meson_ao_cec_g12a_write,
+ 	.max_register = 0xffff,
+-	.fast_io = true,
+ };
  
-+			if (!hlock->references)
- 				hlock->references++;
--			} else {
--				hlock->references = 2;
--			}
-+
-+			hlock->references += references;
-+
-+			/* Overflow */
-+			if (DEBUG_LOCKS_WARN_ON(hlock->references < references))
-+				return 0;
- 
- 			return 2;
- 		}
+ static inline void
 -- 
 2.20.1
 
