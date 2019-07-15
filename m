@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C8D969323
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D95692F8
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404565AbfGOOkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:40:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42442 "EHLO mail.kernel.org"
+        id S2404604AbfGOOks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:40:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404528AbfGOOkp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:40:45 -0400
+        id S2404576AbfGOOks (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:40:48 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9710620868;
-        Mon, 15 Jul 2019 14:40:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C97B204FD;
+        Mon, 15 Jul 2019 14:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201644;
-        bh=gJzPiZVBFcE8RXulxxlznpuymjnWRLtlUwGWFWQ02V4=;
+        s=default; t=1563201647;
+        bh=xxCbOSJuB1YeDSsJEdDTQaPJs5QQ2nPCiC+mg5QsDes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kpzYK1cvrBUoabW0jyojCUWaEZsFiB7fcc+SYYymUMLsRy16gdmyDF/wanSrxvNNC
-         wxf7HhmHoQQRht33AjBQlWuMu23C7wFa424CS2B4MJ+j6UqLbpFw5HubCcXxPLYB2e
-         rbZxOA6ShwZ0Cg7Q18NT18bMV7JPCuLmZV4aUgzk=
+        b=hJqQNge9fe8IaDkw+pB77QUwCgsAoZRp+XwIVz3++/PVkTlyeYRNWmf8Zs7ZEfqSn
+         oOygbod1wtAACGkrHY/VGErwY1NvBmJBflw+8hD0wY4fV+0vPYyDZZDxbwJ2QVhqjQ
+         B3+Bwa7L0qLsg0KsL5wVG/CD9FKeXRE3Ge70UklI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 62/73] PCI / ACPI: Use cached ACPI device state to get PCI device power state
-Date:   Mon, 15 Jul 2019 10:36:18 -0400
-Message-Id: <20190715143629.10893-62-sashal@kernel.org>
+Cc:     Eiichi Tsukata <devel@etsukata.com>,
+        James Morse <james.morse@arm.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-edac@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 63/73] EDAC: Fix global-out-of-bounds write when setting edac_mc_poll_msec
+Date:   Mon, 15 Jul 2019 10:36:19 -0400
+Message-Id: <20190715143629.10893-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
 References: <20190715143629.10893-1-sashal@kernel.org>
@@ -44,89 +44,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Eiichi Tsukata <devel@etsukata.com>
 
-[ Upstream commit 83a16e3f6d70da99896c7a2639c0b60fff13afb8 ]
+[ Upstream commit d8655e7630dafa88bc37f101640e39c736399771 ]
 
-The ACPI power state returned by acpi_device_get_power() may depend on
-the configuration of ACPI power resources in the system which may change
-any time after acpi_device_get_power() has returned, unless the
-reference counters of the ACPI power resources in question are set to
-prevent that from happening. Thus it is invalid to use acpi_device_get_power()
-in acpi_pci_get_power_state() the way it is done now and the value of
-the ->power.state field in the corresponding struct acpi_device objects
-(which reflects the ACPI power resources reference counting, among other
-things) should be used instead.
+Commit 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2") assumes
+edac_mc_poll_msec to be unsigned long, but the type of the variable still
+remained as int. Setting edac_mc_poll_msec can trigger out-of-bounds
+write.
 
-As an example where this becomes an issue is Intel Ice Lake where the
-Thunderbolt controller (NHI), two PCIe root ports (RP0 and RP1) and xHCI
-all share the same power resources. The following picture with power
-resources marked with [] shows the topology:
+Reproducer:
 
-  Host bridge
-    |
-    +- RP0 ---\
-    +- RP1 ---|--+--> [TBT]
-    +- NHI --/   |
-    |            |
-    |            v
-    +- xHCI --> [D3C]
+  # echo 1001 > /sys/module/edac_core/parameters/edac_mc_poll_msec
 
-Here TBT and D3C are the shared ACPI power resources. ACPI _PR3() method
-of the devices in question returns either TBT or D3C or both.
+KASAN report:
 
-Say we runtime suspend first the root ports RP0 and RP1, then NHI. Now
-since the TBT power resource is still on when the root ports are runtime
-suspended their dev->current_state is set to D3hot. When NHI is runtime
-suspended TBT is finally turned off but state of the root ports remain
-to be D3hot. Now when the xHCI is runtime suspended D3C gets also turned
-off. PCI core thus has power states of these devices cached in their
-dev->current_state as follows:
+  BUG: KASAN: global-out-of-bounds in edac_set_poll_msec+0x140/0x150
+  Write of size 8 at addr ffffffffb91b2d00 by task bash/1996
 
-  RP0 -> D3hot
-  RP1 -> D3hot
-  NHI -> D3cold
-  xHCI -> D3cold
+  CPU: 1 PID: 1996 Comm: bash Not tainted 5.2.0-rc6+ #23
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
+  Call Trace:
+   dump_stack+0xca/0x13e
+   print_address_description.cold+0x5/0x246
+   __kasan_report.cold+0x75/0x9a
+   ? edac_set_poll_msec+0x140/0x150
+   kasan_report+0xe/0x20
+   edac_set_poll_msec+0x140/0x150
+   ? dimmdev_location_show+0x30/0x30
+   ? vfs_lock_file+0xe0/0xe0
+   ? _raw_spin_lock+0x87/0xe0
+   param_attr_store+0x1b5/0x310
+   ? param_array_set+0x4f0/0x4f0
+   module_attr_store+0x58/0x80
+   ? module_attr_show+0x80/0x80
+   sysfs_kf_write+0x13d/0x1a0
+   kernfs_fop_write+0x2bc/0x460
+   ? sysfs_kf_bin_read+0x270/0x270
+   ? kernfs_notify+0x1f0/0x1f0
+   __vfs_write+0x81/0x100
+   vfs_write+0x1e1/0x560
+   ksys_write+0x126/0x250
+   ? __ia32_sys_read+0xb0/0xb0
+   ? do_syscall_64+0x1f/0x390
+   do_syscall_64+0xc1/0x390
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  RIP: 0033:0x7fa7caa5e970
+  Code: 73 01 c3 48 8b 0d 28 d5 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 99 2d 2c 00 00 75 10 b8 01 00 00 00 04
+  RSP: 002b:00007fff6acfdfe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+  RAX: ffffffffffffffda RBX: 0000000000000005 RCX: 00007fa7caa5e970
+  RDX: 0000000000000005 RSI: 0000000000e95c08 RDI: 0000000000000001
+  RBP: 0000000000e95c08 R08: 00007fa7cad1e760 R09: 00007fa7cb36a700
+  R10: 0000000000000073 R11: 0000000000000246 R12: 0000000000000005
+  R13: 0000000000000001 R14: 00007fa7cad1d600 R15: 0000000000000005
 
-If the user now runs lspci for instance, the result is all 1's like in
-the below output (00:07.0 is the first root port, RP0):
+  The buggy address belongs to the variable:
+   edac_mc_poll_msec+0x0/0x40
 
-00:07.0 PCI bridge: Intel Corporation Device 8a1d (rev ff) (prog-if ff)
-    !!! Unknown header type 7f
-    Kernel driver in use: pcieport
+  Memory state around the buggy address:
+   ffffffffb91b2c00: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
+   ffffffffb91b2c80: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
+  >ffffffffb91b2d00: 04 fa fa fa fa fa fa fa 04 fa fa fa fa fa fa fa
+                     ^
+   ffffffffb91b2d80: 04 fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
+   ffffffffb91b2e00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-In short the hardware state is not in sync with the software state
-anymore. The exact same thing happens with the PME polling thread which
-ends up bringing the root ports back into D0 after they are runtime
-suspended.
+Fix it by changing the type of edac_mc_poll_msec to unsigned int.
+The reason why this patch adopts unsigned int rather than unsigned long
+is msecs_to_jiffies() assumes arg to be unsigned int. We can avoid
+integer conversion bugs and unsigned int will be large enough for
+edac_mc_poll_msec.
 
-For this reason, modify acpi_pci_get_power_state() so that it uses the
-ACPI device power state that was cached by the ACPI core. This makes the
-PCI device power state match the ACPI device power state regardless of
-state of the shared power resources which may still be on at this point.
-
-Link: https://lore.kernel.org/r/20190618161858.77834-2-mika.westerberg@linux.intel.com
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: James Morse <james.morse@arm.com>
+Fixes: 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2")
+Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-acpi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/edac/edac_mc_sysfs.c | 16 ++++++++--------
+ drivers/edac/edac_module.h   |  2 +-
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pci/pci-acpi.c b/drivers/pci/pci-acpi.c
-index d38d379bb5c8..8373c0dca575 100644
---- a/drivers/pci/pci-acpi.c
-+++ b/drivers/pci/pci-acpi.c
-@@ -467,7 +467,8 @@ static pci_power_t acpi_pci_get_power_state(struct pci_dev *dev)
- 	if (!adev || !acpi_device_power_manageable(adev))
- 		return PCI_UNKNOWN;
+diff --git a/drivers/edac/edac_mc_sysfs.c b/drivers/edac/edac_mc_sysfs.c
+index 203ebe348b77..d59641194860 100644
+--- a/drivers/edac/edac_mc_sysfs.c
++++ b/drivers/edac/edac_mc_sysfs.c
+@@ -26,7 +26,7 @@
+ static int edac_mc_log_ue = 1;
+ static int edac_mc_log_ce = 1;
+ static int edac_mc_panic_on_ue;
+-static int edac_mc_poll_msec = 1000;
++static unsigned int edac_mc_poll_msec = 1000;
  
--	if (acpi_device_get_power(adev, &state) || state == ACPI_STATE_UNKNOWN)
-+	state = adev->power.state;
-+	if (state == ACPI_STATE_UNKNOWN)
- 		return PCI_UNKNOWN;
+ /* Getter functions for above */
+ int edac_mc_get_log_ue(void)
+@@ -45,30 +45,30 @@ int edac_mc_get_panic_on_ue(void)
+ }
  
- 	return state_conv[state];
+ /* this is temporary */
+-int edac_mc_get_poll_msec(void)
++unsigned int edac_mc_get_poll_msec(void)
+ {
+ 	return edac_mc_poll_msec;
+ }
+ 
+ static int edac_set_poll_msec(const char *val, struct kernel_param *kp)
+ {
+-	unsigned long l;
++	unsigned int i;
+ 	int ret;
+ 
+ 	if (!val)
+ 		return -EINVAL;
+ 
+-	ret = kstrtoul(val, 0, &l);
++	ret = kstrtouint(val, 0, &i);
+ 	if (ret)
+ 		return ret;
+ 
+-	if (l < 1000)
++	if (i < 1000)
+ 		return -EINVAL;
+ 
+-	*((unsigned long *)kp->arg) = l;
++	*((unsigned int *)kp->arg) = i;
+ 
+ 	/* notify edac_mc engine to reset the poll period */
+-	edac_mc_reset_delay_period(l);
++	edac_mc_reset_delay_period(i);
+ 
+ 	return 0;
+ }
+@@ -82,7 +82,7 @@ MODULE_PARM_DESC(edac_mc_log_ue,
+ module_param(edac_mc_log_ce, int, 0644);
+ MODULE_PARM_DESC(edac_mc_log_ce,
+ 		 "Log correctable error to console: 0=off 1=on");
+-module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_int,
++module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_uint,
+ 		  &edac_mc_poll_msec, 0644);
+ MODULE_PARM_DESC(edac_mc_poll_msec, "Polling period in milliseconds");
+ 
+diff --git a/drivers/edac/edac_module.h b/drivers/edac/edac_module.h
+index cfaacb99c973..c36f9f721fb2 100644
+--- a/drivers/edac/edac_module.h
++++ b/drivers/edac/edac_module.h
+@@ -33,7 +33,7 @@ extern int edac_mc_get_log_ue(void);
+ extern int edac_mc_get_log_ce(void);
+ extern int edac_mc_get_panic_on_ue(void);
+ extern int edac_get_poll_msec(void);
+-extern int edac_mc_get_poll_msec(void);
++extern unsigned int edac_mc_get_poll_msec(void);
+ 
+ unsigned edac_dimm_info_location(struct dimm_info *dimm, char *buf,
+ 				 unsigned len);
 -- 
 2.20.1
 
