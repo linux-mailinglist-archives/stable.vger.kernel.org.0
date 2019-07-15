@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF5296965B
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:04:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53D7669660
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:04:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387620AbfGOOId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58878 "EHLO mail.kernel.org"
+        id S2388272AbfGOOIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:08:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388527AbfGOOIb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:08:31 -0400
+        id S2388545AbfGOOIh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:08:37 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42B832083D;
-        Mon, 15 Jul 2019 14:08:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5F40206B8;
+        Mon, 15 Jul 2019 14:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199710;
-        bh=y67MCmEZOFF6iYrH+LgL1a56DjFrmHHGgg0RpfphSqU=;
+        s=default; t=1563199716;
+        bh=aI4TlpQf3gNjCRK+KshtpcJSU85X20kTXRGcmVMJzkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iIqmTNyTE/cB+yIdDWwttOn9VKgAeL5xspfFEjvCzI479dmq163tijEAnJTLPpB70
-         SulUvln+pME/ZOVzWILwbwrjdJziUY2vzPcKu7JTduerU22f5Cr3g9R5pIGqY3NHfe
-         ZxxCHKhnu4HAkho+hyvhWSKQtbhHWQy+GB01dCzc=
+        b=lQ1nmviYWQG9xvkQELrQFMq14fR4gJA/nGl0Z45gXgbw+nPe/F3XRVjVV12RJnJtL
+         x+8GmKvLNWvS6caBIBdpxcmZb1nQFM3kxMRSzCH4I/PvJualBcJT32tJYwdYlEKKw2
+         +vHo8sEVTtW7MFFZ4JQJvQYdMQ8f0gKdhJMFnxnA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 080/219] regmap: fix bulk writes on paged registers
-Date:   Mon, 15 Jul 2019 10:01:21 -0400
-Message-Id: <20190715140341.6443-80-sashal@kernel.org>
+Cc:     Young Xiao <92siuyang@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 082/219] media: davinci: vpif_capture: fix memory leak in vpif_probe()
+Date:   Mon, 15 Jul 2019 10:01:23 -0400
+Message-Id: <20190715140341.6443-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -43,42 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Young Xiao <92siuyang@gmail.com>
 
-[ Upstream commit db057679de3e9e6a03c1bcd5aee09b0d25fd9f5b ]
+[ Upstream commit 64f883cd98c6d43013fb0cea788b63e50ebc068c ]
 
-On buses like SlimBus and SoundWire which does not support
-gather_writes yet in regmap, A bulk write on paged register
-would be silently ignored after programming page.
-This is because local variable 'ret' value in regmap_raw_write_impl()
-gets reset to 0 once page register is written successfully and the
-code below checks for 'ret' value to be -ENOTSUPP before linearising
-the write buffer to send to bus->write().
+If vpif_probe() fails on v4l2_device_register() and vpif_probe_complete(),
+then memory allocated at initialize_vpif() for global vpif_obj.dev[i]
+become unreleased.
 
-Fix this by resetting the 'ret' value to -ENOTSUPP in cases where
-gather_writes() is not supported or single register write is
-not possible.
+The patch adds deallocation of vpif_obj.dev[i] on the error path.
 
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Young Xiao <92siuyang@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/regmap.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/platform/davinci/vpif_capture.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
-index 4f822e087def..61d1a0864dea 100644
---- a/drivers/base/regmap/regmap.c
-+++ b/drivers/base/regmap/regmap.c
-@@ -1642,6 +1642,8 @@ static int _regmap_raw_write_impl(struct regmap *map, unsigned int reg,
- 					     map->format.reg_bytes +
- 					     map->format.pad_bytes,
- 					     val, val_len);
-+	else
-+		ret = -ENOTSUPP;
+diff --git a/drivers/media/platform/davinci/vpif_capture.c b/drivers/media/platform/davinci/vpif_capture.c
+index 6216b7ac6875..a20cb6fff2ec 100644
+--- a/drivers/media/platform/davinci/vpif_capture.c
++++ b/drivers/media/platform/davinci/vpif_capture.c
+@@ -1384,6 +1384,14 @@ static int initialize_vpif(void)
+ 	return err;
+ }
  
- 	/* If that didn't work fall back on linearising by hand. */
- 	if (ret == -ENOTSUPP) {
++static inline void free_vpif_objs(void)
++{
++	int i;
++
++	for (i = 0; i < VPIF_CAPTURE_MAX_DEVICES; i++)
++		kfree(vpif_obj.dev[i]);
++}
++
+ static int vpif_async_bound(struct v4l2_async_notifier *notifier,
+ 			    struct v4l2_subdev *subdev,
+ 			    struct v4l2_async_subdev *asd)
+@@ -1653,7 +1661,7 @@ static __init int vpif_probe(struct platform_device *pdev)
+ 	err = v4l2_device_register(vpif_dev, &vpif_obj.v4l2_dev);
+ 	if (err) {
+ 		v4l2_err(vpif_dev->driver, "Error registering v4l2 device\n");
+-		goto cleanup;
++		goto vpif_free;
+ 	}
+ 
+ 	while ((res = platform_get_resource(pdev, IORESOURCE_IRQ, res_idx))) {
+@@ -1700,7 +1708,9 @@ static __init int vpif_probe(struct platform_device *pdev)
+ 				  "registered sub device %s\n",
+ 				   subdevdata->name);
+ 		}
+-		vpif_probe_complete();
++		err = vpif_probe_complete();
++		if (err)
++			goto probe_subdev_out;
+ 	} else {
+ 		vpif_obj.notifier.ops = &vpif_async_ops;
+ 		err = v4l2_async_notifier_register(&vpif_obj.v4l2_dev,
+@@ -1719,6 +1729,8 @@ static __init int vpif_probe(struct platform_device *pdev)
+ 	kfree(vpif_obj.sd);
+ vpif_unregister:
+ 	v4l2_device_unregister(&vpif_obj.v4l2_dev);
++vpif_free:
++	free_vpif_objs();
+ cleanup:
+ 	v4l2_async_notifier_cleanup(&vpif_obj.notifier);
+ 
 -- 
 2.20.1
 
