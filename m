@@ -2,74 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E39F68A3D
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:10:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F05B168B00
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:39:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730079AbfGONJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:09:40 -0400
-Received: from foss.arm.com ([217.140.110.172]:48936 "EHLO foss.arm.com"
+        id S1730424AbfGONgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:36:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730019AbfGONJk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:09:40 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 025CF28;
-        Mon, 15 Jul 2019 06:09:40 -0700 (PDT)
-Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A0E623F71F;
-        Mon, 15 Jul 2019 06:09:38 -0700 (PDT)
-Date:   Mon, 15 Jul 2019 14:09:36 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Viresh Kumar <viresh.kumar@linaro.org>
-Cc:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        mark.brown@arm.com
-Subject: Re: [PATCH v4.4 V2 00/43] V4.4 backport of arm64 Spectre patches
-Message-ID: <20190715130936.GH56232@lakrids.cambridge.arm.com>
-References: <cover.1562908074.git.viresh.kumar@linaro.org>
+        id S1730224AbfGONf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:35:59 -0400
+Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55A472067C;
+        Mon, 15 Jul 2019 13:35:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563197758;
+        bh=26J0cNgRs2gDrMoGxYgt4ejtXtTwNyGDi1cQ8KooqFk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=1G+maYsFeT4cOAV7jrydo+FavZd3ohLh+HkClXJOfPDTVCNHZKCE4i3PPky7dzHYg
+         K8Xjqmvpt1tX0jeYIjVYfDNei4WMe1oFkVyaur9iZmAMAzaSwcvx1sZHhLC95zJKcE
+         R0UJvOc5pyrOIU8Usj5aLpdbk960r5IWFB00E/mc=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Pradeep kumar Chitrapu <pradeepc@codeaurora.org>,
+        Zhi Chen <zhichen@codeaurora.org>,
+        Sven Eckelmann <sven@narfation.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 003/249] ath10k: fix incorrect multicast/broadcast rate setting
+Date:   Mon, 15 Jul 2019 09:31:44 -0400
+Message-Id: <20190715133550.1772-3-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190715133550.1772-1-sashal@kernel.org>
+References: <20190715133550.1772-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1562908074.git.viresh.kumar@linaro.org>
-User-Agent: Mutt/1.11.1+11 (2f07cb52) (2018-12-01)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 12, 2019 at 10:57:48AM +0530, Viresh Kumar wrote:
-> Hello,
-> 
-> This series backports arm64 spectre patches to v4.4 stable kernel. I
-> have started this backport with Mark Rutland's backport of Spectre to
-> 4.9 [1] and tried applying the upstream version of them over 4.4 and
-> resolved conflicts by checking how they have been resolved in 4.9.
-> 
-> The KVM changes are mostly dropped as the KVM code in v4.4 is quite
-> different and it makes backport more complex. This was suggested by the
-> ARM team.
+From: Pradeep kumar Chitrapu <pradeepc@codeaurora.org>
 
-> I also had to drop few patches as they weren't getting applied properly
-> due to missing files/features or they were KVM related:
+[ Upstream commit 93ee3d108fc77e19efeac3ec5aa7d5886711bfef ]
 
->   arm/arm64: KVM: Implement PSCI 1.0 support
+Invalid rate code is sent to firmware when multicast rate value of 0 is
+sent to driver indicating disabled case, causing broken mesh path.
+so fix that.
+
+Tested on QCA9984 with firmware 10.4-3.6.1-00827
+
+Sven tested on IPQ4019 with 10.4-3.5.3-00057 and QCA9888 with 10.4-3.5.3-00053
+(ath10k-firmware) and 10.4-3.6-00140 (linux-firmware 2018-12-16-211de167).
+
+Fixes: cd93b83ad92 ("ath10k: support for multicast rate control")
+Co-developed-by: Zhi Chen <zhichen@codeaurora.org>
+Signed-off-by: Zhi Chen <zhichen@codeaurora.org>
+Signed-off-by: Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>
+Tested-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/net/wireless/ath/ath10k/mac.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 9c703d287333..e8997e22ceec 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -5588,8 +5588,8 @@ static void ath10k_bss_info_changed(struct ieee80211_hw *hw,
+ 	struct cfg80211_chan_def def;
+ 	u32 vdev_param, pdev_param, slottime, preamble;
+ 	u16 bitrate, hw_value;
+-	u8 rate, basic_rate_idx;
+-	int rateidx, ret = 0, hw_rate_code;
++	u8 rate, basic_rate_idx, rateidx;
++	int ret = 0, hw_rate_code, mcast_rate;
+ 	enum nl80211_band band;
+ 	const struct ieee80211_supported_band *sband;
  
-> I have dropped arch/arm64/crypto/sha256-core.S and sha512-core.S files
-> as they weren't part of the upstream commit. Not sure why it was
-> included by Mark as the commit log doesn't provide any reasoning for it.
+@@ -5776,7 +5776,11 @@ static void ath10k_bss_info_changed(struct ieee80211_hw *hw,
+ 	if (changed & BSS_CHANGED_MCAST_RATE &&
+ 	    !ath10k_mac_vif_chan(arvif->vif, &def)) {
+ 		band = def.chan->band;
+-		rateidx = vif->bss_conf.mcast_rate[band] - 1;
++		mcast_rate = vif->bss_conf.mcast_rate[band];
++		if (mcast_rate > 0)
++			rateidx = mcast_rate - 1;
++		else
++			rateidx = ffs(vif->bss_conf.basic_rates) - 1;
+ 
+ 		if (ar->phy_capability & WHAL_WLAN_11A_CAPABILITY)
+ 			rateidx += ATH10K_MAC_FIRST_OFDM_RATE_IDX;
+-- 
+2.20.1
 
-It looks like I messed up spectacularly when backporting that commit;
-those files should not have been added. I must have had those lying
-around from a rebase or similar.
-
-I'll spin a patch for v4.9.y to drop the bits I added erroneously.
-
-It is somewhat concerning that no-one spotted that (myself included)
-when the v4.9.y backport was originally made. :/
-
-Thanks,
-Mark.
