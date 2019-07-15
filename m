@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D68CC68F00
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F25E968F0A
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388467AbfGOOLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:11:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
+        id S1732152AbfGOOLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:11:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388570AbfGOOLW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:11:22 -0400
+        id S1733292AbfGOOLd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:11:33 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92BD52083D;
-        Mon, 15 Jul 2019 14:11:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B63E020651;
+        Mon, 15 Jul 2019 14:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199881;
-        bh=E49P1tGMwxj5CzXpTkDGMSdV4QWZizIUJTLM8oyWWbI=;
+        s=default; t=1563199892;
+        bh=JoOoM4IFxjgNA5WcvONTNApk+txBBUQJdK/fiktlUp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIXH5rXuS3aXOGvLtkjVbNCmT0ouNCoTLwV3d4R9mpSBTBaYQuerNbfoclsoNMt0e
-         WA6kM+MbIIbr6CnpvBpbGrmE5n3xiQcEjR0B0BQ8k/GQZXFkdQIZaeLnBIR9YHyRwR
-         8D9y7nFJQKKOxetRSuNzdsUF89RnWt/j8EF4hIvw=
+        b=e8+Si4muJWHLPksVz8VNON/td6TIpnImRdIeR4mGI+oBc3Du8SyIY5ektsAx8epkM
+         kdcWNzEcmUMGzVtMVYU0zNNNJiiw2YEgXrqbUbXmU++P20Io4+RICT3DqMeNtvdOam
+         J6zJzU6E3Z45VMVQYenbm7NEZOPlFs2fkW4ag+QI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miroslav Lichvar <mlichvar@redhat.com>,
-        Weikang shi <swkhack@gmail.com>,
+Cc:     Nathan Huckleberry <nhuck@google.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        John Stultz <john.stultz@linaro.org>,
-        Prarit Bhargava <prarit@redhat.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 128/219] ntp: Limit TAI-UTC offset
-Date:   Mon, 15 Jul 2019 10:02:09 -0400
-Message-Id: <20190715140341.6443-128-sashal@kernel.org>
+        Nick Desaulniers <ndesaulniers@google.com>,
+        john.stultz@linaro.org, sboyd@kernel.org,
+        clang-built-linux@googlegroups.com, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 129/219] timer_list: Guard procfs specific code
+Date:   Mon, 15 Jul 2019 10:02:10 -0400
+Message-Id: <20190715140341.6443-129-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -48,55 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Lichvar <mlichvar@redhat.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit d897a4ab11dc8a9fda50d2eccc081a96a6385998 ]
+[ Upstream commit a9314773a91a1d3b36270085246a6715a326ff00 ]
 
-Don't allow the TAI-UTC offset of the system clock to be set by adjtimex()
-to a value larger than 100000 seconds.
+With CONFIG_PROC_FS=n the following warning is emitted:
 
-This prevents an overflow in the conversion to int, prevents the CLOCK_TAI
-clock from getting too far ahead of the CLOCK_REALTIME clock, and it is
-still large enough to allow leap seconds to be inserted at the maximum rate
-currently supported by the kernel (once per day) for the next ~270 years,
-however unlikely it is that someone can survive a catastrophic event which
-slowed down the rotation of the Earth so much.
+kernel/time/timer_list.c:361:36: warning: unused variable
+'timer_list_sops' [-Wunused-const-variable]
+   static const struct seq_operations timer_list_sops = {
 
-Reported-by: Weikang shi <swkhack@gmail.com>
-Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
+Add #ifdef guard around procfs specific code.
+
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Prarit Bhargava <prarit@redhat.com>
-Cc: Richard Cochran <richardcochran@gmail.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Link: https://lkml.kernel.org/r/20190618154713.20929-1-mlichvar@redhat.com
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: john.stultz@linaro.org
+Cc: sboyd@kernel.org
+Cc: clang-built-linux@googlegroups.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/534
+Link: https://lkml.kernel.org/r/20190614181604.112297-1-nhuck@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/ntp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/time/timer_list.c | 36 +++++++++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 17 deletions(-)
 
-diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
-index f43d47c8c3b6..98b3678fd48e 100644
---- a/kernel/time/ntp.c
-+++ b/kernel/time/ntp.c
-@@ -42,6 +42,7 @@ static u64			tick_length_base;
- #define MAX_TICKADJ		500LL		/* usecs */
- #define MAX_TICKADJ_SCALED \
- 	(((MAX_TICKADJ * NSEC_PER_USEC) << NTP_SCALE_SHIFT) / NTP_INTERVAL_FREQ)
-+#define MAX_TAI_OFFSET		100000
+diff --git a/kernel/time/timer_list.c b/kernel/time/timer_list.c
+index 98ba50dcb1b2..acb326f5f50a 100644
+--- a/kernel/time/timer_list.c
++++ b/kernel/time/timer_list.c
+@@ -282,23 +282,6 @@ static inline void timer_list_header(struct seq_file *m, u64 now)
+ 	SEQ_printf(m, "\n");
+ }
  
- /*
-  * phase-lock loop variables
-@@ -690,7 +691,8 @@ static inline void process_adjtimex_modes(const struct __kernel_timex *txc,
- 		time_constant = max(time_constant, 0l);
- 	}
+-static int timer_list_show(struct seq_file *m, void *v)
+-{
+-	struct timer_list_iter *iter = v;
+-
+-	if (iter->cpu == -1 && !iter->second_pass)
+-		timer_list_header(m, iter->now);
+-	else if (!iter->second_pass)
+-		print_cpu(m, iter->cpu, iter->now);
+-#ifdef CONFIG_GENERIC_CLOCKEVENTS
+-	else if (iter->cpu == -1 && iter->second_pass)
+-		timer_list_show_tickdevices_header(m);
+-	else
+-		print_tickdevice(m, tick_get_device(iter->cpu), iter->cpu);
+-#endif
+-	return 0;
+-}
+-
+ void sysrq_timer_list_show(void)
+ {
+ 	u64 now = ktime_to_ns(ktime_get());
+@@ -317,6 +300,24 @@ void sysrq_timer_list_show(void)
+ 	return;
+ }
  
--	if (txc->modes & ADJ_TAI && txc->constant >= 0)
-+	if (txc->modes & ADJ_TAI &&
-+			txc->constant >= 0 && txc->constant <= MAX_TAI_OFFSET)
- 		*time_tai = txc->constant;
- 
- 	if (txc->modes & ADJ_OFFSET)
++#ifdef CONFIG_PROC_FS
++static int timer_list_show(struct seq_file *m, void *v)
++{
++	struct timer_list_iter *iter = v;
++
++	if (iter->cpu == -1 && !iter->second_pass)
++		timer_list_header(m, iter->now);
++	else if (!iter->second_pass)
++		print_cpu(m, iter->cpu, iter->now);
++#ifdef CONFIG_GENERIC_CLOCKEVENTS
++	else if (iter->cpu == -1 && iter->second_pass)
++		timer_list_show_tickdevices_header(m);
++	else
++		print_tickdevice(m, tick_get_device(iter->cpu), iter->cpu);
++#endif
++	return 0;
++}
++
+ static void *move_iter(struct timer_list_iter *iter, loff_t offset)
+ {
+ 	for (; offset; offset--) {
+@@ -376,3 +377,4 @@ static int __init init_timer_list_procfs(void)
+ 	return 0;
+ }
+ __initcall(init_timer_list_procfs);
++#endif
 -- 
 2.20.1
 
