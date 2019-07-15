@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DE769337
+	by mail.lfdr.de (Postfix) with ESMTP id ACEBE69338
 	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:43:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392230AbfGOOjC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:39:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37904 "EHLO mail.kernel.org"
+        id S2403845AbfGOOjG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:39:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403788AbfGOOjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:39:01 -0400
+        id S2403983AbfGOOjE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:39:04 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6604120896;
-        Mon, 15 Jul 2019 14:38:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2E83205ED;
+        Mon, 15 Jul 2019 14:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201540;
-        bh=dWoLosDNIg5sdKZ9+ybWvRAOyFngUrfDTgHKbGOtVdw=;
+        s=default; t=1563201543;
+        bh=RohGiK8Y09Et6Cvd0nGclYoHPCkz1EwXR5xS6Zllcu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZTpGA9EjmLvvC7OCt+1AtsSaQILfea+LCVO6y4qiATBv74QSnU5BEOW6827n/rtVU
-         t23hCaXighezhjWtCERCa+VKrw/XY9fJ0k6NK6eizQOygHmqrIpWLJ0IEDHlQe4jhs
-         FyvQiCMQAhZ/F+/hgAowT3ld/EtQqC5A2WRbuUvU=
+        b=eCU8NwHaFf0NbgdH4DwQctjkUDpV2l3lhy5gpkJ9n3q8LWdrfR9+QZVjaXbo+xeFT
+         NdM48WT662xLUa2U9y7PQ1UxpKCiNdUkNHmQS6IyEjbAu9OjwMlVNj28x2lvVozB/9
+         pU+B0ABE/9zZ4UJrRhkegJrrAHvjQHJzozhsIc9c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tejun Heo <tj@kernel.org>, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 38/73] blkcg, writeback: dead memcgs shouldn't contribute to writeback ownership arbitration
-Date:   Mon, 15 Jul 2019 10:35:54 -0400
-Message-Id: <20190715143629.10893-38-sashal@kernel.org>
+Cc:     Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Anirudh Gupta <anirudh.gupta@sophos.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 39/73] xfrm: fix sa selector validation
+Date:   Mon, 15 Jul 2019 10:35:55 -0400
+Message-Id: <20190715143629.10893-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
 References: <20190715143629.10893-1-sashal@kernel.org>
@@ -43,54 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit 6631142229005e1b1c311a09efe9fb3cfdac8559 ]
+[ Upstream commit b8d6d0079757cbd1b69724cfd1c08e2171c68cee ]
 
-wbc_account_io() collects information on cgroup ownership of writeback
-pages to determine which cgroup should own the inode.  Pages can stay
-associated with dead memcgs but we want to avoid attributing IOs to
-dead blkcgs as much as possible as the association is likely to be
-stale.  However, currently, pages associated with dead memcgs
-contribute to the accounting delaying and/or confusing the
-arbitration.
+After commit b38ff4075a80, the following command does not work anymore:
+$ ip xfrm state add src 10.125.0.2 dst 10.125.0.1 proto esp spi 34 reqid 1 \
+  mode tunnel enc 'cbc(aes)' 0xb0abdba8b782ad9d364ec81e3a7d82a1 auth-trunc \
+  'hmac(sha1)' 0xe26609ebd00acb6a4d51fca13e49ea78a72c73e6 96 flag align4
 
-Fix it by ignoring pages associated with dead memcgs.
+In fact, the selector is not mandatory, allow the user to provide an empty
+selector.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: b38ff4075a80 ("xfrm: Fix xfrm sel prefix length validation")
+CC: Anirudh Gupta <anirudh.gupta@sophos.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fs-writeback.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/xfrm/xfrm_user.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index 8b93d4b98428..baaed9369ab4 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -721,6 +721,7 @@ void wbc_detach_inode(struct writeback_control *wbc)
- void wbc_account_io(struct writeback_control *wbc, struct page *page,
- 		    size_t bytes)
- {
-+	struct cgroup_subsys_state *css;
- 	int id;
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index df4b7fc721f6..f3e9d500fa5a 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -166,6 +166,9 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
+ 	}
  
- 	/*
-@@ -732,7 +733,12 @@ void wbc_account_io(struct writeback_control *wbc, struct page *page,
- 	if (!wbc->wb)
- 		return;
- 
--	id = mem_cgroup_css_from_page(page)->id;
-+	css = mem_cgroup_css_from_page(page);
-+	/* dead cgroups shouldn't contribute to inode ownership arbitration */
-+	if (!(css->flags & CSS_ONLINE))
-+		return;
+ 	switch (p->sel.family) {
++	case AF_UNSPEC:
++		break;
 +
-+	id = css->id;
- 
- 	if (id == wbc->wb_id) {
- 		wbc->wb_bytes += bytes;
+ 	case AF_INET:
+ 		if (p->sel.prefixlen_d > 32 || p->sel.prefixlen_s > 32)
+ 			goto out;
 -- 
 2.20.1
 
