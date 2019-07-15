@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0806269509
+	by mail.lfdr.de (Postfix) with ESMTP id F11966950B
 	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:55:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390423AbfGOO02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:26:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34408 "EHLO mail.kernel.org"
+        id S2391224AbfGOO0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:26:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731275AbfGOO01 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:26:27 -0400
+        id S2390664AbfGOO0b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:26:31 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 235ED206B8;
-        Mon, 15 Jul 2019 14:26:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8ED5F21537;
+        Mon, 15 Jul 2019 14:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200786;
-        bh=P78mhMoVyK+tE6/jcOESkeXJ3jzow0bobfLn/fpg0Mk=;
+        s=default; t=1563200790;
+        bh=mV7qOEqfmtTOWnFtb7liH+ebw0SxAuMZgbmjcDjrX9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9TMWVnvsxBOuKC2PIdNQ2tKhqxGcfVfUSPddkb1ZJcK9JfKebZq9nZjqh7ZeSOiX
-         QRKVkEVJPSkO3sp0rwd935JOiICohvvTG+2OR3mvabrwWtzedtaRDLK//rNMPpdM2F
-         P+NPoWANhcghSbT/SCG/DTdPPKS2475JXw59Ny2s=
+        b=Tmn6csqgagNb9C2OuJDt9IckfdyAfZa/x91QVoJrGuFu07GQRUPZwmltbYpzLHN+h
+         FlnXu5PY1+/2hxGOmamYZf+Q6whfHFYmV8z9RNiuBlYN0rt9S3pN/ZwEN2vqhpDLvZ
+         VENQA78R5T9a5XqyCNyCq32QR8U+sa+zvLe1GTCQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunsheng Lin <linyunsheng@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 130/158] net: hns3: add some error checking in hclge_tm module
-Date:   Mon, 15 Jul 2019 10:17:41 -0400
-Message-Id: <20190715141809.8445-130-sashal@kernel.org>
+Cc:     Wen Gong <wgong@codeaurora.org>, Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 131/158] ath10k: destroy sdio workqueue while remove sdio module
+Date:   Mon, 15 Jul 2019 10:17:42 -0400
+Message-Id: <20190715141809.8445-131-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -45,54 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Wen Gong <wgong@codeaurora.org>
 
-[ Upstream commit 04f25edb48c441fc278ecc154c270f16966cbb90 ]
+[ Upstream commit 3ed39f8e747a7aafeec07bb244f2c3a1bdca5730 ]
 
-When hdev->tx_sch_mode is HCLGE_FLAG_VNET_BASE_SCH_MODE, the
-hclge_tm_schd_mode_vnet_base_cfg calls hclge_tm_pri_schd_mode_cfg
-with vport->vport_id as pri_id, which is used as index for
-hdev->tm_info.tc_info, it will cause out of bound access issue
-if vport_id is equal to or larger than HNAE3_MAX_TC.
+The workqueue need to flush and destory while remove sdio module,
+otherwise it will have thread which is not destory after remove
+sdio modules.
 
-Also hardware only support maximum speed of HCLGE_ETHER_MAX_RATE.
+Tested with QCA6174 SDIO with firmware
+WLAN.RMH.4.4.1-00007-QCARMSWP-1.
 
-So this patch adds two checks for above cases.
-
-Fixes: 848440544b41 ("net: hns3: Add support of TX Scheduler & Shaper to HNS3 driver")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Wen Gong <wgong@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/sdio.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-index 48235dc2dd56..11e9259ca040 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-@@ -54,7 +54,8 @@ static int hclge_shaper_para_calc(u32 ir, u8 shaper_level,
- 	u32 tick;
- 
- 	/* Calc tick */
--	if (shaper_level >= HCLGE_SHAPER_LVL_CNT)
-+	if (shaper_level >= HCLGE_SHAPER_LVL_CNT ||
-+	    ir > HCLGE_ETHER_MAX_RATE)
- 		return -EINVAL;
- 
- 	tick = tick_array[shaper_level];
-@@ -1057,6 +1058,9 @@ static int hclge_tm_schd_mode_vnet_base_cfg(struct hclge_vport *vport)
- 	int ret;
- 	u8 i;
- 
-+	if (vport->vport_id >= HNAE3_MAX_TC)
-+		return -EINVAL;
+diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
+index cb527a21f1ac..686759b5613f 100644
+--- a/drivers/net/wireless/ath/ath10k/sdio.c
++++ b/drivers/net/wireless/ath/ath10k/sdio.c
+@@ -2073,6 +2073,9 @@ static void ath10k_sdio_remove(struct sdio_func *func)
+ 	cancel_work_sync(&ar_sdio->wr_async_work);
+ 	ath10k_core_unregister(ar);
+ 	ath10k_core_destroy(ar);
 +
- 	ret = hclge_tm_pri_schd_mode_cfg(hdev, vport->vport_id);
- 	if (ret)
- 		return ret;
++	flush_workqueue(ar_sdio->workqueue);
++	destroy_workqueue(ar_sdio->workqueue);
+ }
+ 
+ static const struct sdio_device_id ath10k_sdio_devices[] = {
 -- 
 2.20.1
 
