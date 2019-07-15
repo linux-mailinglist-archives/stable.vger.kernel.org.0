@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF00268FE5
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:17:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3633B68FB2
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389333AbfGOOQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:16:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33000 "EHLO mail.kernel.org"
+        id S2389265AbfGOOQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:16:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388662AbfGOOQI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:16:08 -0400
+        id S2388662AbfGOOQO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:16:14 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0780D217D8;
-        Mon, 15 Jul 2019 14:16:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C8D820868;
+        Mon, 15 Jul 2019 14:16:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200167;
-        bh=a7a6E074fEkxycHYhCF7OWwjizPLKZ5bUgrLePPAsx0=;
+        s=default; t=1563200173;
+        bh=QdxkhPNgcZkx+wY+JoZuFgHJzgfudEMIkPwELkwc6D8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sLb4Xr6m3xFqecE7UDWimYPNgS2ykE+NNHzvYScue/lYDX1t6z7vmQ8kDt4XizX0W
-         d8PpMyOU9/PNgVMFweQL8HrCK5udV7ULe/vll5J1WtX8p9ZK6QvlVWvlgUlLyXRPKT
-         eaYcUxq+9oHwgtnCNFWxHlwxkwv+VpyR7+0CH1Bw=
+        b=vKuMqlTruVNDKNNGZmMOkc8aqYTKwUifwqVpxostOpQPFzRWIO2GDI/shFEJVdYFV
+         8DcVeS27FkpayOjZw0mlNguzZnzA6uk+KtU92LOOnxFaJQKANRjufHl3z70DxmW5AO
+         6KX9YBTvobKRwXPxTW0mWSGsUaBFFFKxAPWiki4E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 200/219] gpiolib: Fix references to gpiod_[gs]et_*value_cansleep() variants
-Date:   Mon, 15 Jul 2019 10:03:21 -0400
-Message-Id: <20190715140341.6443-200-sashal@kernel.org>
+Cc:     Wen Yang <wen.yang99@zte.com.cn>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        alsa-devel@alsa-project.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 201/219] ASoC: audio-graph-card: fix use-after-free in graph_for_each_link
+Date:   Mon, 15 Jul 2019 10:03:22 -0400
+Message-Id: <20190715140341.6443-201-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
 References: <20190715140341.6443-1-sashal@kernel.org>
@@ -43,66 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Wen Yang <wen.yang99@zte.com.cn>
 
-[ Upstream commit 3285170f28a850638794cdfe712eb6d93e51e706 ]
+[ Upstream commit 1bcc1fd64e4dd903f4d868a9e053986e3b102713 ]
 
-Commit 372e722ea4dd4ca1 ("gpiolib: use descriptors internally") renamed
-the functions to use a "gpiod" prefix, and commit 79a9becda8940deb
-("gpiolib: export descriptor-based GPIO interface") introduced the "raw"
-variants, but both changes forgot to update the comments.
+After calling of_node_put() on the codec_ep and codec_port variables,
+they are still being used, which may result in use-after-free.
+We fix this issue by calling of_node_put() after the last usage.
 
-Readd a similar reference to gpiod_set_value(), which was accidentally
-removed by commit 1e77fc82110ac36f ("gpio: Add missing open drain/source
-handling to gpiod_set_value_cansleep()").
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20190701142738.25219-1-geert+renesas@glider.be
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: fce9b90c1ab7 ("ASoC: audio-graph-card: cleanup DAI link loop method - step2")
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Cc: alsa-devel@alsa-project.org
+Cc: linux-kernel@vger.kernel.org
+Link: https://lore.kernel.org/r/1562229530-8121-1-git-send-email-wen.yang99@zte.com.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/soc/generic/audio-graph-card.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index fd1344056e1d..b8a5c1e3b99d 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -3012,7 +3012,7 @@ int gpiod_get_array_value_complex(bool raw, bool can_sleep,
- int gpiod_get_raw_value(const struct gpio_desc *desc)
- {
- 	VALIDATE_DESC(desc);
--	/* Should be using gpio_get_value_cansleep() */
-+	/* Should be using gpiod_get_raw_value_cansleep() */
- 	WARN_ON(desc->gdev->chip->can_sleep);
- 	return gpiod_get_raw_value_commit(desc);
- }
-@@ -3033,7 +3033,7 @@ int gpiod_get_value(const struct gpio_desc *desc)
- 	int value;
+diff --git a/sound/soc/generic/audio-graph-card.c b/sound/soc/generic/audio-graph-card.c
+index 69bc4848d787..f730830fb36c 100644
+--- a/sound/soc/generic/audio-graph-card.c
++++ b/sound/soc/generic/audio-graph-card.c
+@@ -460,9 +460,6 @@ static int graph_for_each_link(struct graph_priv *priv,
+ 			codec_ep = of_graph_get_remote_endpoint(cpu_ep);
+ 			codec_port = of_get_parent(codec_ep);
  
- 	VALIDATE_DESC(desc);
--	/* Should be using gpio_get_value_cansleep() */
-+	/* Should be using gpiod_get_value_cansleep() */
- 	WARN_ON(desc->gdev->chip->can_sleep);
+-			of_node_put(codec_ep);
+-			of_node_put(codec_port);
+-
+ 			/* get convert-xxx property */
+ 			memset(&adata, 0, sizeof(adata));
+ 			graph_get_conversion(dev, codec_ep, &adata);
+@@ -482,6 +479,9 @@ static int graph_for_each_link(struct graph_priv *priv,
+ 			else
+ 				ret = func_noml(priv, cpu_ep, codec_ep, li);
  
- 	value = gpiod_get_raw_value_commit(desc);
-@@ -3304,7 +3304,7 @@ int gpiod_set_array_value_complex(bool raw, bool can_sleep,
- void gpiod_set_raw_value(struct gpio_desc *desc, int value)
- {
- 	VALIDATE_DESC_VOID(desc);
--	/* Should be using gpiod_set_value_cansleep() */
-+	/* Should be using gpiod_set_raw_value_cansleep() */
- 	WARN_ON(desc->gdev->chip->can_sleep);
- 	gpiod_set_raw_value_commit(desc, value);
- }
-@@ -3345,6 +3345,7 @@ static void gpiod_set_value_nocheck(struct gpio_desc *desc, int value)
- void gpiod_set_value(struct gpio_desc *desc, int value)
- {
- 	VALIDATE_DESC_VOID(desc);
-+	/* Should be using gpiod_set_value_cansleep() */
- 	WARN_ON(desc->gdev->chip->can_sleep);
- 	gpiod_set_value_nocheck(desc, value);
- }
++			of_node_put(codec_ep);
++			of_node_put(codec_port);
++
+ 			if (ret < 0)
+ 				return ret;
+ 
 -- 
 2.20.1
 
