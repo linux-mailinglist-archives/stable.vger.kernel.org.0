@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F92869060
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:21:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5DC869068
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390015AbfGOOVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:21:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46788 "EHLO mail.kernel.org"
+        id S2390298AbfGOOV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:21:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390498AbfGOOVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:21:06 -0400
+        id S2389335AbfGOOVY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:21:24 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03CF420868;
-        Mon, 15 Jul 2019 14:21:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25B5A21530;
+        Mon, 15 Jul 2019 14:21:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200465;
-        bh=/1uh42vnI1YjnifHgWyaH48iN4ldgu9hW2Ksx6MeZ4Q=;
+        s=default; t=1563200484;
+        bh=CUiy1xKWrPO7FLZRPfN8lplguYls1rrBHtSoTsU4a30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jp9r9pEkTaL0W8qysq6nj8qbtz/IBQSHEXoXdbnXHp97TbZoQ/8OL83xIZOwaizm0
-         2QsM0BnLMH7gVOafSokHw7cIV6vNOw1qxuajeLlFjALYzVTmdPrGq6Nt2OpjZ5vZRt
-         zTnrreOlQhnZqywvvaKPV7g1F07REV1ZwKhjkM00=
+        b=vOsqjufHUK1wsFbNE4p7iP336ko6E90orpXSUrrjHvfn/fEeLCg4lMfhOQIvyrJNw
+         tGEqI8VLUzLOCEERDtN1rAwbDMXZ91RC9xjmj835nfNkbJEOMUwrnA+K8X2uWyi2ek
+         DZTTmI0kHEYLWCzGqtZCpO7Egb3alkG//NszH+/w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 057/158] media: fdp1: Support M3N and E3 platforms
-Date:   Mon, 15 Jul 2019 10:16:28 -0400
-Message-Id: <20190715141809.8445-57-sashal@kernel.org>
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 061/158] regmap: fix bulk writes on paged registers
+Date:   Mon, 15 Jul 2019 10:16:32 -0400
+Message-Id: <20190715141809.8445-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -45,51 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 4e8c120de9268fc26f583268b9d22e7d37c4595f ]
+[ Upstream commit db057679de3e9e6a03c1bcd5aee09b0d25fd9f5b ]
 
-New Gen3 R-Car platforms incorporate the FDP1 with an updated version
-register. No code change is required to support these targets, but they
-will currently report an error stating that the device can not be
-identified.
+On buses like SlimBus and SoundWire which does not support
+gather_writes yet in regmap, A bulk write on paged register
+would be silently ignored after programming page.
+This is because local variable 'ret' value in regmap_raw_write_impl()
+gets reset to 0 once page register is written successfully and the
+code below checks for 'ret' value to be -ENOTSUPP before linearising
+the write buffer to send to bus->write().
 
-Update the driver to match against the new device types.
+Fix this by resetting the 'ret' value to -ENOTSUPP in cases where
+gather_writes() is not supported or single register write is
+not possible.
 
-Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar_fdp1.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/base/regmap/regmap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/rcar_fdp1.c b/drivers/media/platform/rcar_fdp1.c
-index 2a15b7cca338..0d1467028811 100644
---- a/drivers/media/platform/rcar_fdp1.c
-+++ b/drivers/media/platform/rcar_fdp1.c
-@@ -257,6 +257,8 @@ MODULE_PARM_DESC(debug, "activate debug info");
- #define FD1_IP_H3_ES1			0x02010101
- #define FD1_IP_M3W			0x02010202
- #define FD1_IP_H3			0x02010203
-+#define FD1_IP_M3N			0x02010204
-+#define FD1_IP_E3			0x02010205
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 0360a90ad6b6..6c9f6988bc09 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1618,6 +1618,8 @@ static int _regmap_raw_write_impl(struct regmap *map, unsigned int reg,
+ 					     map->format.reg_bytes +
+ 					     map->format.pad_bytes,
+ 					     val, val_len);
++	else
++		ret = -ENOTSUPP;
  
- /* LUTs */
- #define FD1_LUT_DIF_ADJ			0x1000
-@@ -2365,6 +2367,12 @@ static int fdp1_probe(struct platform_device *pdev)
- 	case FD1_IP_H3:
- 		dprintk(fdp1, "FDP1 Version R-Car H3\n");
- 		break;
-+	case FD1_IP_M3N:
-+		dprintk(fdp1, "FDP1 Version R-Car M3N\n");
-+		break;
-+	case FD1_IP_E3:
-+		dprintk(fdp1, "FDP1 Version R-Car E3\n");
-+		break;
- 	default:
- 		dev_err(fdp1->dev, "FDP1 Unidentifiable (0x%08x)\n",
- 				hw_version);
+ 	/* If that didn't work fall back on linearising by hand. */
+ 	if (ret == -ENOTSUPP) {
 -- 
 2.20.1
 
