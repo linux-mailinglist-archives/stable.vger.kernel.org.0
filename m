@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC87269768
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:10:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D2ED69744
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:10:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733085AbfGOPKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 11:10:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58366 "EHLO mail.kernel.org"
+        id S1732171AbfGONzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:55:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732337AbfGONzR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:55:17 -0400
+        id S1732103AbfGONzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:55:24 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 691222067C;
-        Mon, 15 Jul 2019 13:55:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D9872083D;
+        Mon, 15 Jul 2019 13:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198916;
-        bh=MSj5LcMDuO+4WZpzB8HaBhx7NFuDTADdEnuNPU/Oyf8=;
+        s=default; t=1563198924;
+        bh=hkbA/sYe4uhxv3xBqDfgTo3n7jU8Yf6FGRsBhp4/HrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVd3ltjcXqOA6GlU/mZWjGl0KiE43bjwA8lwEsVmV7231uRVQQcueUDYyK0MQ3VZv
-         WFlZl24dORV96EbLFVeDcMy2Kr0KntYYu9U7b+I3E+zL72ynXLQ1lmjSqB+gOpE9Jr
-         ekoO8cyvDV6l24j0aqfLj8V09xX9gLNmWKqEE0kA=
+        b=HCNqhswXqg0oDfdXxiNnaHDeC8/uPYNMgVYprGKd3IceT650TKSy9wdDzU3B49vvo
+         qwE3Ai7G5dWG8HB+qA4qB2URh4eawfn2/gNQmuUWYTR/xDvxo6GB63VPfR3l1SX1yq
+         Vk6Um06umhJVJkuFHJnpv8q3AeRlM9PoFdShqP4M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julien Thierry <julien.thierry@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 140/249] arm64: Do not enable IRQs for ct_user_exit
-Date:   Mon, 15 Jul 2019 09:45:05 -0400
-Message-Id: <20190715134655.4076-140-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.2 142/249] media: staging: davinci: fix memory leaks and check for allocation failure
+Date:   Mon, 15 Jul 2019 09:45:07 -0400
+Message-Id: <20190715134655.4076-142-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -47,56 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julien Thierry <julien.thierry@arm.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 9034f6251572a4744597c51dea5ab73a55f2b938 ]
+[ Upstream commit a84e355ecd3ed9759d7aaa40170aab78e2a68a06 ]
 
-For el0_dbg and el0_error, DAIF bits get explicitly cleared before
-calling ct_user_exit.
+There are three error return paths that don't kfree params causing a
+memory leak.  Fix this by adding an error return path that kfree's
+params before returning.  Also add a check to see params failed to
+be allocated.
 
-When context tracking is disabled, DAIF gets set (almost) immediately
-after. When context tracking is enabled, among the first things done
-is disabling IRQs.
-
-What is actually needed is:
-- PSR.D = 0 so the system can be debugged (should be already the case)
-- PSR.A = 0 so async error can be handled during context tracking
-
-Do not clear PSR.I in those two locations.
-
-Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: James Morse <james.morse@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Julien Thierry <julien.thierry@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/entry.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/media/davinci_vpfe/dm365_ipipe.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 2df8d0a1d980..dbe467686332 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -859,7 +859,7 @@ el0_dbg:
- 	mov	x1, x25
- 	mov	x2, sp
- 	bl	do_debug_exception
--	enable_daif
-+	enable_da_f
- 	ct_user_exit
- 	b	ret_to_user
- el0_inv:
-@@ -911,7 +911,7 @@ el0_error_naked:
- 	enable_dbg
- 	mov	x0, sp
- 	bl	do_serror
--	enable_daif
-+	enable_da_f
- 	ct_user_exit
- 	b	ret_to_user
- ENDPROC(el0_error)
+diff --git a/drivers/staging/media/davinci_vpfe/dm365_ipipe.c b/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
+index 30e2edc0cec5..b88855c7ffe8 100644
+--- a/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
++++ b/drivers/staging/media/davinci_vpfe/dm365_ipipe.c
+@@ -1251,10 +1251,10 @@ static int ipipe_s_config(struct v4l2_subdev *sd, struct vpfe_ipipe_config *cfg)
+ 	struct vpfe_ipipe_device *ipipe = v4l2_get_subdevdata(sd);
+ 	unsigned int i;
+ 	int rval = 0;
++	struct ipipe_module_params *params;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(ipipe_modules); i++) {
+ 		const struct ipipe_module_if *module_if;
+-		struct ipipe_module_params *params;
+ 		void *from, *to;
+ 		size_t size;
+ 
+@@ -1265,25 +1265,30 @@ static int ipipe_s_config(struct v4l2_subdev *sd, struct vpfe_ipipe_config *cfg)
+ 		from = *(void **)((void *)cfg + module_if->config_offset);
+ 
+ 		params = kmalloc(sizeof(*params), GFP_KERNEL);
++		if (!params)
++			return -ENOMEM;
+ 		to = (void *)params + module_if->param_offset;
+ 		size = module_if->param_size;
+ 
+ 		if (to && from && size) {
+ 			if (copy_from_user(to, (void __user *)from, size)) {
+ 				rval = -EFAULT;
+-				break;
++				goto error_free;
+ 			}
+ 			rval = module_if->set(ipipe, to);
+ 			if (rval)
+-				goto error;
++				goto error_free;
+ 		} else if (to && !from && size) {
+ 			rval = module_if->set(ipipe, NULL);
+ 			if (rval)
+-				goto error;
++				goto error_free;
+ 		}
+ 		kfree(params);
+ 	}
+-error:
++	return rval;
++
++error_free:
++	kfree(params);
+ 	return rval;
+ }
+ 
 -- 
 2.20.1
 
