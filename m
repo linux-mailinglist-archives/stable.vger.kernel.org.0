@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C55FF693DF
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A58E3693E3
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404374AbfGOOrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:47:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42686 "EHLO mail.kernel.org"
+        id S2405217AbfGOOrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:47:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405203AbfGOOrg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:47:36 -0400
+        id S2404361AbfGOOrl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:47:41 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA0442067C;
-        Mon, 15 Jul 2019 14:47:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6B2420C01;
+        Mon, 15 Jul 2019 14:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563202055;
-        bh=i0PFZkIJ9nL0kFh10gLhFccdUQZCEye8EhDIlvNLGXw=;
+        s=default; t=1563202060;
+        bh=S89wtKpOCJz7nJ6m9Ov9WsEA1pWOQbr17/Vr/qbYNIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qLfA9Y4vNoXMtp/8zVuGa1XRbctmD7di+g+EgiFO+8OF0kKg3QZHJHFkyVKtfbGZJ
-         jC2z7zauY2hUso/rkR5Enhs2G/wLXlmcmoLCqDEMpwvMZo989wDko+AZB+Wlh8dilX
-         /+ogs29b9ASKg9fmyWHTbvTUzkL6x3c2AbSZfGJo=
+        b=12BZew0OOK+YRzyG0m+mRny+9KbS8eGHnM1Cv1ULzfFBjifEGBadd+Pq1Q0REAdDD
+         ljFfjyEgpSVLzDP/cD20ZnsXjvLOxty0eQ8cDJz9ex5o+Arhnp92niCuR9j7dBkwBk
+         wKMkw36BpQ2+VjNuV5+1POHKi0L4JSGSmGrYVDec=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pan Bian <bianpan2016@163.com>, Borislav Petkov <bp@suse.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Morse <james.morse@arm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-edac <linux-edac@vger.kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 34/53] EDAC/sysfs: Fix memory leak when creating a csrow object
-Date:   Mon, 15 Jul 2019 10:45:16 -0400
-Message-Id: <20190715144535.11636-34-sashal@kernel.org>
+Cc:     Anders Roxell <anders.roxell@linaro.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 35/53] media: i2c: fix warning same module names
+Date:   Mon, 15 Jul 2019 10:45:17 -0400
+Message-Id: <20190715144535.11636-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715144535.11636-1-sashal@kernel.org>
 References: <20190715144535.11636-1-sashal@kernel.org>
@@ -46,52 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-[ Upstream commit 585fb3d93d32dbe89e718b85009f9c322cc554cd ]
+[ Upstream commit b2ce5617dad254230551feda3599f2cc68e53ad8 ]
 
-In edac_create_csrow_object(), the reference to the object is not
-released when adding the device to the device hierarchy fails
-(device_add()). This may result in a memory leak.
+When building with CONFIG_VIDEO_ADV7511 and CONFIG_DRM_I2C_ADV7511
+enabled as loadable modules, we see the following warning:
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Link: https://lkml.kernel.org/r/1555554438-103953-1-git-send-email-bianpan2016@163.com
+  drivers/gpu/drm/bridge/adv7511/adv7511.ko
+  drivers/media/i2c/adv7511.ko
+
+Rework so that the file is named adv7511-v4l2.c.
+
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_mc_sysfs.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/media/i2c/Makefile                      | 2 +-
+ drivers/media/i2c/{adv7511.c => adv7511-v4l2.c} | 5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+ rename drivers/media/i2c/{adv7511.c => adv7511-v4l2.c} (99%)
 
-diff --git a/drivers/edac/edac_mc_sysfs.c b/drivers/edac/edac_mc_sysfs.c
-index 3c8f19f5ac81..0c53f2d54765 100644
---- a/drivers/edac/edac_mc_sysfs.c
-+++ b/drivers/edac/edac_mc_sysfs.c
-@@ -426,6 +426,8 @@ static inline int nr_pages_per_csrow(struct csrow_info *csrow)
- static int edac_create_csrow_object(struct mem_ctl_info *mci,
- 				    struct csrow_info *csrow, int index)
- {
-+	int err;
-+
- 	csrow->dev.type = &csrow_attr_type;
- 	csrow->dev.bus = mci->bus;
- 	csrow->dev.groups = csrow_dev_groups;
-@@ -438,7 +440,11 @@ static int edac_create_csrow_object(struct mem_ctl_info *mci,
- 	edac_dbg(0, "creating (virtual) csrow node %s\n",
- 		 dev_name(&csrow->dev));
+diff --git a/drivers/media/i2c/Makefile b/drivers/media/i2c/Makefile
+index 07db257abfc1..d5711def1fff 100644
+--- a/drivers/media/i2c/Makefile
++++ b/drivers/media/i2c/Makefile
+@@ -28,7 +28,7 @@ obj-$(CONFIG_VIDEO_ADV7393) += adv7393.o
+ obj-$(CONFIG_VIDEO_ADV7604) += adv7604.o
+ obj-$(CONFIG_VIDEO_ADV7842) += adv7842.o
+ obj-$(CONFIG_VIDEO_AD9389B) += ad9389b.o
+-obj-$(CONFIG_VIDEO_ADV7511) += adv7511.o
++obj-$(CONFIG_VIDEO_ADV7511) += adv7511-v4l2.o
+ obj-$(CONFIG_VIDEO_VPX3220) += vpx3220.o
+ obj-$(CONFIG_VIDEO_VS6624)  += vs6624.o
+ obj-$(CONFIG_VIDEO_BT819) += bt819.o
+diff --git a/drivers/media/i2c/adv7511.c b/drivers/media/i2c/adv7511-v4l2.c
+similarity index 99%
+rename from drivers/media/i2c/adv7511.c
+rename to drivers/media/i2c/adv7511-v4l2.c
+index c24839cfcc35..b35400e4e9af 100644
+--- a/drivers/media/i2c/adv7511.c
++++ b/drivers/media/i2c/adv7511-v4l2.c
+@@ -17,6 +17,11 @@
+  * SOFTWARE.
+  */
  
--	return device_add(&csrow->dev);
-+	err = device_add(&csrow->dev);
-+	if (err)
-+		put_device(&csrow->dev);
++/*
++ * This file is named adv7511-v4l2.c so it doesn't conflict with the Analog
++ * Device ADV7511 (config fragment CONFIG_DRM_I2C_ADV7511).
++ */
 +
-+	return err;
- }
  
- /* Create a CSROW object under specifed edac_mc_device */
+ #include <linux/kernel.h>
+ #include <linux/module.h>
 -- 
 2.20.1
 
