@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A84C68CBB
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:53:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA1268CBC
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:53:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731851AbfGONxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:53:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51706 "EHLO mail.kernel.org"
+        id S1731128AbfGONxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:53:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731352AbfGONxd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:53:33 -0400
+        id S1730275AbfGONxh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:53:37 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EAFA2083D;
-        Mon, 15 Jul 2019 13:53:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3DC0206B8;
+        Mon, 15 Jul 2019 13:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198813;
-        bh=J3RpHfwQRjznVCVp7vD3P6Q2TVEj4ZYGGElLDfqm4KQ=;
+        s=default; t=1563198816;
+        bh=ju8EwWbUdlkvh6yIuani2m8b6x88i0mWbtMMgHlQqF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EWX+xhkWswNnBQ4uhYtnO1wtTdrZRwU5bipIwbp1WdHMOLDUQ7VclJKzLVwEtDNU3
-         mIUOtAgAxf2P3tAvbKU/axjXLhpYzMYvB3F8I9w+59xR9zG9PlkJSEzUNWwfVL6KQf
-         KQ0/++pByAc6cAiQQRg2hcOR+SBMUSInPh99H76M=
+        b=fglsENIYRDEVlAyijr12W8pGKlXuRhDAlML2lG3Jj6WXgTan6DALuzEpuJRh6+oqh
+         JMRbrsuNBdX54X7ypKDC9sSvwYSG4yzs/UhjhpK3Ife+e82RKy0rk9EwH/V9EkKzMM
+         wH4IZXD7nsoX3mWET/1/0fpwHDXlS60pkPK5UT8w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gao Xiang <gaoxiang25@huawei.com>,
-        Jilong Kou <koujilong@huawei.com>,
+Cc:     Kan Liang <kan.liang@linux.intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
-        Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Miao Xie <miaoxie@huawei.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
+        qiuxu.zhuo@intel.com, rui.zhang@intel.com, tony.luck@intel.com,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 111/249] sched/core: Add __sched tag for io_schedule()
-Date:   Mon, 15 Jul 2019 09:44:36 -0400
-Message-Id: <20190715134655.4076-111-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 112/249] perf/x86/intel: Add more Icelake CPUIDs
+Date:   Mon, 15 Jul 2019 09:44:37 -0400
+Message-Id: <20190715134655.4076-112-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -49,47 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <gaoxiang25@huawei.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit e3b929b0a184edb35531153c5afcaebb09014f9d ]
+[ Upstream commit faaeff98666c24376cebd0b106504d05a36881d1 ]
 
-Non-inline io_schedule() was introduced in:
+Add new model number for Icelake desktop and server to perf.
 
-  commit 10ab56434f2f ("sched/core: Separate out io_schedule_prepare() and io_schedule_finish()")
+The data source encoding for Icelake server is the same as Skylake
+server.
 
-Keep in line with io_schedule_timeout(), otherwise "/proc/<pid>/wchan" will
-report io_schedule() rather than its callers when waiting for IO.
-
-Reported-by: Jilong Kou <koujilong@huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Tejun Heo <tj@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Miao Xie <miaoxie@huawei.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 10ab56434f2f ("sched/core: Separate out io_schedule_prepare() and io_schedule_finish()")
-Link: https://lkml.kernel.org/r/20190603091338.2695-1-gaoxiang25@huawei.com
+Cc: bp@alien8.de
+Cc: qiuxu.zhuo@intel.com
+Cc: rui.zhang@intel.com
+Cc: tony.luck@intel.com
+Link: https://lkml.kernel.org/r/20190603134122.13853-2-kan.liang@linux.intel.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/intel/core.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 874c427742a9..4d5962232a55 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -5123,7 +5123,7 @@ long __sched io_schedule_timeout(long timeout)
- }
- EXPORT_SYMBOL(io_schedule_timeout);
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index a5436cee20b1..b6cae65aa7ef 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -4439,6 +4439,7 @@ __init int intel_pmu_init(void)
+ 	struct event_constraint *c;
+ 	unsigned int unused;
+ 	struct extra_reg *er;
++	bool pmem = false;
+ 	int version, i;
+ 	char *name;
  
--void io_schedule(void)
-+void __sched io_schedule(void)
- {
- 	int token;
+@@ -4890,9 +4891,10 @@ __init int intel_pmu_init(void)
+ 		name = "knights-landing";
+ 		break;
  
++	case INTEL_FAM6_SKYLAKE_X:
++		pmem = true;
+ 	case INTEL_FAM6_SKYLAKE_MOBILE:
+ 	case INTEL_FAM6_SKYLAKE_DESKTOP:
+-	case INTEL_FAM6_SKYLAKE_X:
+ 	case INTEL_FAM6_KABYLAKE_MOBILE:
+ 	case INTEL_FAM6_KABYLAKE_DESKTOP:
+ 		x86_add_quirk(intel_pebs_isolation_quirk);
+@@ -4925,8 +4927,7 @@ __init int intel_pmu_init(void)
+ 		x86_pmu.cpu_events = hsw_events_attrs;
+ 		mem_attr = hsw_mem_events_attrs;
+ 		tsx_attr = hsw_tsx_events_attrs;
+-		intel_pmu_pebs_data_source_skl(
+-			boot_cpu_data.x86_model == INTEL_FAM6_SKYLAKE_X);
++		intel_pmu_pebs_data_source_skl(pmem);
+ 
+ 		if (boot_cpu_has(X86_FEATURE_TSX_FORCE_ABORT)) {
+ 			x86_pmu.flags |= PMU_FL_TFA;
+@@ -4940,7 +4941,11 @@ __init int intel_pmu_init(void)
+ 		name = "skylake";
+ 		break;
+ 
++	case INTEL_FAM6_ICELAKE_X:
++	case INTEL_FAM6_ICELAKE_XEON_D:
++		pmem = true;
+ 	case INTEL_FAM6_ICELAKE_MOBILE:
++	case INTEL_FAM6_ICELAKE_DESKTOP:
+ 		x86_pmu.late_ack = true;
+ 		memcpy(hw_cache_event_ids, skl_hw_cache_event_ids, sizeof(hw_cache_event_ids));
+ 		memcpy(hw_cache_extra_regs, skl_hw_cache_extra_regs, sizeof(hw_cache_extra_regs));
+@@ -4963,7 +4968,7 @@ __init int intel_pmu_init(void)
+ 		x86_pmu.cpu_events = get_icl_events_attrs();
+ 		x86_pmu.rtm_abort_event = X86_CONFIG(.event=0xca, .umask=0x02);
+ 		x86_pmu.lbr_pt_coexist = true;
+-		intel_pmu_pebs_data_source_skl(false);
++		intel_pmu_pebs_data_source_skl(pmem);
+ 		pr_cont("Icelake events, ");
+ 		name = "icelake";
+ 		break;
 -- 
 2.20.1
 
