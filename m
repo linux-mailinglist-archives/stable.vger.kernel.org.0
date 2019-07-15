@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A82C76959A
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:59:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB7BD69592
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:59:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733005AbfGOO7U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:59:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40486 "EHLO mail.kernel.org"
+        id S2390064AbfGOOTR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:19:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390049AbfGOOTM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:19:12 -0400
+        id S2390059AbfGOOTQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:19:16 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 544BC205F4;
-        Mon, 15 Jul 2019 14:19:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A2FF21537;
+        Mon, 15 Jul 2019 14:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200351;
-        bh=cVutxDFDEdt+LDlO09uWyo/GMeEHNCJu64x1A1e4IPI=;
+        s=default; t=1563200356;
+        bh=NMeoXYrJmQ1di4bD3LxbW/ZnaQZYLZzYHOjpAxu2cvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g6NtQOBLpLZrZFsWRIe5w/mn0SjCeHDU7+Ij99dyw8iq6s0TIzJ8Mxy04jJVgY1CK
-         N02tsn8NbqFvY8bMZJsT6vWeN3QxeBtRMUal0CPW/5U7lVjvNbzfm2nNmbzl2SIxE0
-         hY8SigP1Do/ELCrLHryH9qjvGBRFVjAcqz26QEyo=
+        b=ic5J4YZqfzb5ii0KeZaxQzn6pgkmMSSYOS3EqswEA+tyMGC6BIx1+hRgS/Jehrb+h
+         1m96/R6zfO28nyMXOyK4ISA94fCx46T2CyK1NfASadt3eDwnV5puRTfg1PWc2LYlvt
+         IIJKj2rJPf1TTP4323MIwAy6Kvh+eNSnH6Temw/g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Daniel Lezcano <daniel.lezcano@free.fr>,
-        Serge Hallyn <serge@hallyn.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 021/158] signal/pid_namespace: Fix reboot_pid_ns to use send_sig not force_sig
-Date:   Mon, 15 Jul 2019 10:15:52 -0400
-Message-Id: <20190715141809.8445-21-sashal@kernel.org>
+Cc:     Jeremy Sowden <jeremy@azazel.net>,
+        syzbot+4f0529365f7f2208d9f0@syzkaller.appspotmail.com,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 023/158] af_key: fix leaks in key_pol_get_resp and dump_sp.
+Date:   Mon, 15 Jul 2019 10:15:54 -0400
+Message-Id: <20190715141809.8445-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715141809.8445-1-sashal@kernel.org>
 References: <20190715141809.8445-1-sashal@kernel.org>
@@ -45,50 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-[ Upstream commit f9070dc94542093fd516ae4ccea17ef46a4362c5 ]
+[ Upstream commit 7c80eb1c7e2b8420477fbc998971d62a648035d9 ]
 
-The locking in force_sig_info is not prepared to deal with a task that
-exits or execs (as sighand may change).  The is not a locking problem
-in force_sig as force_sig is only built to handle synchronous
-exceptions.
+In both functions, if pfkey_xfrm_policy2msg failed we leaked the newly
+allocated sk_buff.  Free it on error.
 
-Further the function force_sig_info changes the signal state if the
-signal is ignored, or blocked or if SIGNAL_UNKILLABLE will prevent the
-delivery of the signal.  The signal SIGKILL can not be ignored and can
-not be blocked and SIGNAL_UNKILLABLE won't prevent it from being
-delivered.
-
-So using force_sig rather than send_sig for SIGKILL is confusing
-and pointless.
-
-Because it won't impact the sending of the signal and and because
-using force_sig is wrong, replace force_sig with send_sig.
-
-Cc: Daniel Lezcano <daniel.lezcano@free.fr>
-Cc: Serge Hallyn <serge@hallyn.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Fixes: cf3f89214ef6 ("pidns: add reboot_pid_ns() to handle the reboot syscall")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 55569ce256ce ("Fix conversion between IPSEC_MODE_xxx and XFRM_MODE_xxx.")
+Reported-by: syzbot+4f0529365f7f2208d9f0@syzkaller.appspotmail.com
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/pid_namespace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/key/af_key.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/pid_namespace.c b/kernel/pid_namespace.c
-index 2a2ac53d8b8b..95271f180687 100644
---- a/kernel/pid_namespace.c
-+++ b/kernel/pid_namespace.c
-@@ -325,7 +325,7 @@ int reboot_pid_ns(struct pid_namespace *pid_ns, int cmd)
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 0b79c9aa8eb1..1982f9f31deb 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2442,8 +2442,10 @@ static int key_pol_get_resp(struct sock *sk, struct xfrm_policy *xp, const struc
+ 		goto out;
  	}
+ 	err = pfkey_xfrm_policy2msg(out_skb, xp, dir);
+-	if (err < 0)
++	if (err < 0) {
++		kfree_skb(out_skb);
+ 		goto out;
++	}
  
- 	read_lock(&tasklist_lock);
--	force_sig(SIGKILL, pid_ns->child_reaper);
-+	send_sig(SIGKILL, pid_ns->child_reaper, 1);
- 	read_unlock(&tasklist_lock);
+ 	out_hdr = (struct sadb_msg *) out_skb->data;
+ 	out_hdr->sadb_msg_version = hdr->sadb_msg_version;
+@@ -2694,8 +2696,10 @@ static int dump_sp(struct xfrm_policy *xp, int dir, int count, void *ptr)
+ 		return PTR_ERR(out_skb);
  
- 	do_exit(0);
+ 	err = pfkey_xfrm_policy2msg(out_skb, xp, dir);
+-	if (err < 0)
++	if (err < 0) {
++		kfree_skb(out_skb);
+ 		return err;
++	}
+ 
+ 	out_hdr = (struct sadb_msg *) out_skb->data;
+ 	out_hdr->sadb_msg_version = pfk->dump.msg_version;
 -- 
 2.20.1
 
