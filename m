@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFFB368D00
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A82368D07
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732633AbfGONzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:55:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59040 "EHLO mail.kernel.org"
+        id S1731554AbfGONzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:55:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732632AbfGONzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:55:37 -0400
+        id S1731943AbfGONzp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:55:45 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 374FC217F9;
-        Mon, 15 Jul 2019 13:55:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6FD72083D;
+        Mon, 15 Jul 2019 13:55:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198937;
-        bh=8SVyqH00Vk+wmUT3hi2IA4kgYubzOzW0NcN+Endh2fE=;
+        s=default; t=1563198944;
+        bh=ZWaBUMLCgXFKFGVnnO8hXpKxZj7qzIwA6QnvWHk8ns8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KaXr/nnay0sthHgSKYAFiiGlCpH5VkpnVK4EDM5+9UNun6I2tLn9uGkNhT6vFWp09
-         NK3lKYyeOyBLyJ+r2YxF9+vtqECo0Sbpb+0y/H6YAC/0OPySLyeZfcqKTf3fOF8vOG
-         slI1xCAU4EUki9ZC6jn07D9Bt2yUpG7KzOePx5d8=
+        b=05VikzdbG0grCay0hOtlihnKAgKiP1Lv5vWHeC6RDE9uPjbpcQFgNBNljKRO75YbP
+         bjldoT6csaBQlpklzc2jREuY9szTln1bbGCZ+fyA3WKE/VJXEgHKYwsQrjTUnKFtzl
+         QdRMzs5CsStI+Ay46oi0FNIfPc7A5PE9QRv8w+sU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miroslav Lichvar <mlichvar@redhat.com>,
-        Weikang shi <swkhack@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        John Stultz <john.stultz@linaro.org>,
-        Prarit Bhargava <prarit@redhat.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 146/249] ntp: Limit TAI-UTC offset
-Date:   Mon, 15 Jul 2019 09:45:11 -0400
-Message-Id: <20190715134655.4076-146-sashal@kernel.org>
+Cc:     Robert Jarzmik <robert.jarzmik@free.fr>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 148/249] media: mt9m111: fix fw-node refactoring
+Date:   Mon, 15 Jul 2019 09:45:13 -0400
+Message-Id: <20190715134655.4076-148-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -48,55 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Lichvar <mlichvar@redhat.com>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
 
-[ Upstream commit d897a4ab11dc8a9fda50d2eccc081a96a6385998 ]
+[ Upstream commit 8d4e29a51a954b43e06d916772fa4f50b7e5bbd6 ]
 
-Don't allow the TAI-UTC offset of the system clock to be set by adjtimex()
-to a value larger than 100000 seconds.
+In the patch refactoring the fw-node, the mt9m111 was broken for all
+platform_data based platforms, which were the first aim of this
+driver. Only the devicetree platform are still functional, probably
+because the testing was done on these.
 
-This prevents an overflow in the conversion to int, prevents the CLOCK_TAI
-clock from getting too far ahead of the CLOCK_REALTIME clock, and it is
-still large enough to allow leap seconds to be inserted at the maximum rate
-currently supported by the kernel (once per day) for the next ~270 years,
-however unlikely it is that someone can survive a catastrophic event which
-slowed down the rotation of the Earth so much.
+The result is that -EINVAL is systematically return for such platforms,
+what this patch fixes.
 
-Reported-by: Weikang shi <swkhack@gmail.com>
-Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Prarit Bhargava <prarit@redhat.com>
-Cc: Richard Cochran <richardcochran@gmail.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Link: https://lkml.kernel.org/r/20190618154713.20929-1-mlichvar@redhat.com
+[Sakari Ailus: Rework this to resolve a merge conflict and use dev_fwnode]
+
+Fixes: 98480d65c48c ("media: mt9m111: allow to setup pixclk polarity")
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/ntp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/i2c/mt9m111.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
-index 8de4f789dc1b..65eb796610dc 100644
---- a/kernel/time/ntp.c
-+++ b/kernel/time/ntp.c
-@@ -43,6 +43,7 @@ static u64			tick_length_base;
- #define MAX_TICKADJ		500LL		/* usecs */
- #define MAX_TICKADJ_SCALED \
- 	(((MAX_TICKADJ * NSEC_PER_USEC) << NTP_SCALE_SHIFT) / NTP_INTERVAL_FREQ)
-+#define MAX_TAI_OFFSET		100000
+diff --git a/drivers/media/i2c/mt9m111.c b/drivers/media/i2c/mt9m111.c
+index 362c3b93636e..5a642b5ad076 100644
+--- a/drivers/media/i2c/mt9m111.c
++++ b/drivers/media/i2c/mt9m111.c
+@@ -1245,9 +1245,11 @@ static int mt9m111_probe(struct i2c_client *client,
+ 	if (!mt9m111)
+ 		return -ENOMEM;
  
- /*
-  * phase-lock loop variables
-@@ -691,7 +692,8 @@ static inline void process_adjtimex_modes(const struct __kernel_timex *txc,
- 		time_constant = max(time_constant, 0l);
- 	}
+-	ret = mt9m111_probe_fw(client, mt9m111);
+-	if (ret)
+-		return ret;
++	if (dev_fwnode(&client->dev)) {
++		ret = mt9m111_probe_fw(client, mt9m111);
++		if (ret)
++			return ret;
++	}
  
--	if (txc->modes & ADJ_TAI && txc->constant >= 0)
-+	if (txc->modes & ADJ_TAI &&
-+			txc->constant >= 0 && txc->constant <= MAX_TAI_OFFSET)
- 		*time_tai = txc->constant;
- 
- 	if (txc->modes & ADJ_OFFSET)
+ 	mt9m111->clk = v4l2_clk_get(&client->dev, "mclk");
+ 	if (IS_ERR(mt9m111->clk))
 -- 
 2.20.1
 
