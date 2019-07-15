@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E544669341
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:43:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E51A69346
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:43:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404262AbfGOOj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:39:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38986 "EHLO mail.kernel.org"
+        id S1731590AbfGOOmk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:42:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404254AbfGOOj0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:39:26 -0400
+        id S2404307AbfGOOjf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:39:35 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DF5921850;
-        Mon, 15 Jul 2019 14:39:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7E28205ED;
+        Mon, 15 Jul 2019 14:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563201565;
-        bh=U2LkgR4sI+q4YHxUuBafA+He8xzaKYy9a9ZftGmaqk8=;
+        s=default; t=1563201574;
+        bh=C4gDV7JcvbE1lcsK7RLAWwtGVBTVpBpoHL1yio2rPVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1Q/gf31TAeXdnWS7puQuqhNIDAe20clma6U3L16iMiqwPXkFRK/6azCbxScuW4qF
-         CU4bYFBqw2HoFHAOGuZiE2Xgqewa9hGapGxUQTYc4iTUfWnQJJm2zh7iiyuv/Ul6Pl
-         B9+Yvfm7CXADR0mQ+K720iYnEr+DbepbUVSmuwP4=
+        b=z9mL+stvueIoG+IlbT5bT1rqlhAjrpoJeJFeuAeJPx7VkKTSSY0noVj4Qz0FinDXW
+         uOYPRCizHfsRfv+w843st3nZM53LaloEqS/4jMaH9E0gAwBaZ86oBeOcrSHai9kbUv
+         mW8i7wo3vc/zFf86efXXlhC5OkUQGWAdC3G/L6DA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 44/73] ipsec: select crypto ciphers for xfrm_algo
-Date:   Mon, 15 Jul 2019 10:36:00 -0400
-Message-Id: <20190715143629.10893-44-sashal@kernel.org>
+Cc:     Miroslav Lichvar <mlichvar@redhat.com>,
+        Weikang shi <swkhack@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <john.stultz@linaro.org>,
+        Prarit Bhargava <prarit@redhat.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 46/73] ntp: Limit TAI-UTC offset
+Date:   Mon, 15 Jul 2019 10:36:02 -0400
+Message-Id: <20190715143629.10893-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715143629.10893-1-sashal@kernel.org>
 References: <20190715143629.10893-1-sashal@kernel.org>
@@ -44,43 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Miroslav Lichvar <mlichvar@redhat.com>
 
-[ Upstream commit 597179b0ba550bd83fab1a9d57c42a9343c58514 ]
+[ Upstream commit d897a4ab11dc8a9fda50d2eccc081a96a6385998 ]
 
-kernelci.org reports failed builds on arc because of what looks
-like an old missed 'select' statement:
+Don't allow the TAI-UTC offset of the system clock to be set by adjtimex()
+to a value larger than 100000 seconds.
 
-net/xfrm/xfrm_algo.o: In function `xfrm_probe_algs':
-xfrm_algo.c:(.text+0x1e8): undefined reference to `crypto_has_ahash'
+This prevents an overflow in the conversion to int, prevents the CLOCK_TAI
+clock from getting too far ahead of the CLOCK_REALTIME clock, and it is
+still large enough to allow leap seconds to be inserted at the maximum rate
+currently supported by the kernel (once per day) for the next ~270 years,
+however unlikely it is that someone can survive a catastrophic event which
+slowed down the rotation of the Earth so much.
 
-I don't see this in randconfig builds on other architectures, but
-it's fairly clear we want to select the hash code for it, like we
-do for all its other users. As Herbert points out, CRYPTO_BLKCIPHER
-is also required even though it has not popped up in build tests.
-
-Fixes: 17bc19702221 ("ipsec: Use skcipher and ahash when probing algorithms")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Reported-by: Weikang shi <swkhack@gmail.com>
+Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Prarit Bhargava <prarit@redhat.com>
+Cc: Richard Cochran <richardcochran@gmail.com>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Link: https://lkml.kernel.org/r/20190618154713.20929-1-mlichvar@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/time/ntp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/xfrm/Kconfig b/net/xfrm/Kconfig
-index bda1a13628a8..c09336b5a028 100644
---- a/net/xfrm/Kconfig
-+++ b/net/xfrm/Kconfig
-@@ -9,6 +9,8 @@ config XFRM_ALGO
- 	tristate
- 	select XFRM
- 	select CRYPTO
-+	select CRYPTO_HASH
-+	select CRYPTO_BLKCIPHER
+diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
+index 0a16419006f3..4bdb59604526 100644
+--- a/kernel/time/ntp.c
++++ b/kernel/time/ntp.c
+@@ -42,6 +42,7 @@ static u64			tick_length_base;
+ #define MAX_TICKADJ		500LL		/* usecs */
+ #define MAX_TICKADJ_SCALED \
+ 	(((MAX_TICKADJ * NSEC_PER_USEC) << NTP_SCALE_SHIFT) / NTP_INTERVAL_FREQ)
++#define MAX_TAI_OFFSET		100000
  
- config XFRM_USER
- 	tristate "Transformation user configuration interface"
+ /*
+  * phase-lock loop variables
+@@ -639,7 +640,8 @@ static inline void process_adjtimex_modes(struct timex *txc,
+ 		time_constant = max(time_constant, 0l);
+ 	}
+ 
+-	if (txc->modes & ADJ_TAI && txc->constant >= 0)
++	if (txc->modes & ADJ_TAI &&
++			txc->constant >= 0 && txc->constant <= MAX_TAI_OFFSET)
+ 		*time_tai = txc->constant;
+ 
+ 	if (txc->modes & ADJ_OFFSET)
 -- 
 2.20.1
 
