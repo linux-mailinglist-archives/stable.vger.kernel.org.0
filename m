@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5237694C7
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:53:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12A90694BB
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:53:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391530AbfGOO3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:29:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40386 "EHLO mail.kernel.org"
+        id S2391548AbfGOO3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:29:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391533AbfGOO3Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:29:16 -0400
+        id S2391551AbfGOO3T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:29:19 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7611F205ED;
-        Mon, 15 Jul 2019 14:29:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D62742086C;
+        Mon, 15 Jul 2019 14:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563200955;
-        bh=vw/g7f5Dkswi3MkMzI2mORVT3SBrOgShtQ0N7nacFPs=;
+        s=default; t=1563200958;
+        bh=Ui9E1GA+baKaGGuaC4XJ/9TcFlJY9UJvABrDakaZdgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FFzp3jUZfWxcRp9kWTzRmkfLVida6ncr1CTL6+YcRdQkD2GC1Vhg/Vlgt6Athi4xQ
-         VjQ67gRsRft0MphUDxEr2tbaa4sUfoCu03iYthicAIwE3ofG2JERK4yOlDCy+hmxvi
-         HsiGZIlIdKnEoCU4ZgS+zATs+Tn7SiQ/LIcDpmtI=
+        b=WSfhXXzzMnss/J517P9UZVahE3OJep91sljLbgTTbNgucY+btG01tI85AIkEy+Fup
+         pwtph43oWSlXifll8YyFsZ65tHDpbCMT7u8w6iuXDYEEEpZdo2mIbhuKAfHideYayJ
+         WzDNEHBbzAyL3iWR6QxiQJQeZrB9hMoQI2WFyZ88=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Gomez <dagmcr@gmail.com>,
-        Javier Martinez Canillas <javier@dowhile0.org>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 009/105] media: spi: IR LED: add missing of table registration
-Date:   Mon, 15 Jul 2019 10:27:03 -0400
-Message-Id: <20190715142839.9896-9-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 010/105] crypto: talitos - fix skcipher failure due to wrong output IV
+Date:   Mon, 15 Jul 2019 10:27:04 -0400
+Message-Id: <20190715142839.9896-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715142839.9896-1-sashal@kernel.org>
 References: <20190715142839.9896-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,42 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Gomez <dagmcr@gmail.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit 24e4cf770371df6ad49ed873f21618d9878f64c8 ]
+[ Upstream commit 3e03e792865ae48b8cfc69a0b4d65f02f467389f ]
 
-MODULE_DEVICE_TABLE(of, <of_match_table> should be called to complete DT
-OF mathing mechanism and register it.
+Selftests report the following:
 
-Before this patch:
-modinfo drivers/media/rc/ir-spi.ko  | grep alias
+[    2.984845] alg: skcipher: cbc-aes-talitos encryption test failed (wrong output IV) on test vector 0, cfg="in-place"
+[    2.995377] 00000000: 3d af ba 42 9d 9e b4 30 b4 22 da 80 2c 9f ac 41
+[    3.032673] alg: skcipher: cbc-des-talitos encryption test failed (wrong output IV) on test vector 0, cfg="in-place"
+[    3.043185] 00000000: fe dc ba 98 76 54 32 10
+[    3.063238] alg: skcipher: cbc-3des-talitos encryption test failed (wrong output IV) on test vector 0, cfg="in-place"
+[    3.073818] 00000000: 7d 33 88 93 0f 93 b2 42
 
-After this patch:
-modinfo drivers/media/rc/ir-spi.ko  | grep alias
-alias:          of:N*T*Cir-spi-ledC*
-alias:          of:N*T*Cir-spi-led
+This above dumps show that the actual output IV is indeed the input IV.
+This is due to the IV not being copied back into the request.
 
-Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
-Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+This patch fixes that.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/ir-spi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/talitos.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/rc/ir-spi.c b/drivers/media/rc/ir-spi.c
-index 29ed0638cb74..cbe585f95715 100644
---- a/drivers/media/rc/ir-spi.c
-+++ b/drivers/media/rc/ir-spi.c
-@@ -186,6 +186,7 @@ static const struct of_device_id ir_spi_of_match[] = {
- 	{ .compatible = "ir-spi-led" },
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, ir_spi_of_match);
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index 4388f4e3840c..33fcedeb5f9f 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1544,11 +1544,15 @@ static void ablkcipher_done(struct device *dev,
+ 			    int err)
+ {
+ 	struct ablkcipher_request *areq = context;
++	struct crypto_ablkcipher *cipher = crypto_ablkcipher_reqtfm(areq);
++	struct talitos_ctx *ctx = crypto_ablkcipher_ctx(cipher);
++	unsigned int ivsize = crypto_ablkcipher_ivsize(cipher);
+ 	struct talitos_edesc *edesc;
  
- static struct spi_driver ir_spi_driver = {
- 	.probe = ir_spi_probe,
+ 	edesc = container_of(desc, struct talitos_edesc, desc);
+ 
+ 	common_nonsnoop_unmap(dev, edesc, areq);
++	memcpy(areq->info, ctx->iv, ivsize);
+ 
+ 	kfree(edesc);
+ 
 -- 
 2.20.1
 
