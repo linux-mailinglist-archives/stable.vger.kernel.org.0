@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A4C969818
+	by mail.lfdr.de (Postfix) with ESMTP id EBB2E69819
 	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 17:15:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730896AbfGONrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:47:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56120 "EHLO mail.kernel.org"
+        id S1730925AbfGONrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:47:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730890AbfGONrU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:47:20 -0400
+        id S1730906AbfGONrX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:47:23 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6B7E212F5;
-        Mon, 15 Jul 2019 13:47:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1F82217D8;
+        Mon, 15 Jul 2019 13:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198440;
-        bh=ItdIf+SpfcLyABhkX8V/kialrW2/Lw/Qt/bX3sAzwgo=;
+        s=default; t=1563198442;
+        bh=+TbeRleRiYI/iZNhsm+Vdwe8yO9jdTKqHKF8Pgo0Zgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SPdNAavHZmVnGB2kbi48xxdSi+NJ6wAAp2dyzLALteWhBj+cwl+KRn2I68crcRJLn
-         KnY7lRLzLIwaumG2amuJ6oBqa2DT1N5rtd4CuU2WoOF0rk5QbGtyvnLAO27oaPsFRK
-         ydAx1ZJI7LkhAA+6zczf+5WPCkDWUaiOxBvuTiv4=
+        b=Vp9nIwKuGVfCaAhoj2HPYmT6HKwxApfhrWgok7ot/M/mmJztlOW/g90fXX7jYtCh6
+         Yaq5cB1rf9A0hpU2lHSOcXCaWzxraPXmh+RmQ9AtLwDRb2SI9okKuzlUuQzJR0TxPG
+         9+oDY/eqGA7Z5YKdIVo4lVVt63x2uvEYaROLzWLY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Emil Renner Berthing <kernel@esmil.dk>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.2 007/249] spi: rockchip: turn down tx dma bursts
-Date:   Mon, 15 Jul 2019 09:42:52 -0400
-Message-Id: <20190715134655.4076-7-sashal@kernel.org>
+Cc:     Tim Schumacher <timschumi@gmx.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 008/249] ath9k: Check for errors when reading SREV register
+Date:   Mon, 15 Jul 2019 09:42:53 -0400
+Message-Id: <20190715134655.4076-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -44,58 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Renner Berthing <kernel@esmil.dk>
+From: Tim Schumacher <timschumi@gmx.de>
 
-[ Upstream commit 47300728fb213486a830565d2af49da967c9d16a ]
+[ Upstream commit 2f90c7e5d09437a4d8d5546feaae9f1cf48cfbe1 ]
 
-This fixes tx and bi-directional dma transfers on rk3399-gru-kevin.
+Right now, if an error is encountered during the SREV register
+read (i.e. an EIO in ath9k_regread()), that error code gets
+passed all the way to __ath9k_hw_init(), where it is visible
+during the "Chip rev not supported" message.
 
-It seems the SPI fifo must have room for 2 bursts when the dma_tx_req
-signal is generated or it might skip some words. This in turn makes
-the rx dma channel never complete for bi-directional transfers.
+    ath9k_htc 1-1.4:1.0: ath9k_htc: HTC initialized with 33 credits
+    ath: phy2: Mac Chip Rev 0x0f.3 is not supported by this driver
+    ath: phy2: Unable to initialize hardware; initialization status: -95
+    ath: phy2: Unable to initialize hardware; initialization status: -95
+    ath9k_htc: Failed to initialize the device
 
-Fix it by setting tx burst length to fifo_len / 4 and the dma
-watermark to fifo_len / 2.
+Check for -EIO explicitly in ath9k_hw_read_revisions() and return
+a boolean based on the success of the operation. Check for that in
+__ath9k_hw_init() and abort with a more debugging-friendly message
+if reading the revisions wasn't successful.
 
-However the rk3399 TRM says (sic):
-"DMAC support incrementing-address burst and fixed-address burst. But in
-the case of access SPI and UART at byte or halfword size, DMAC only
-support fixed-address burst and the address must be aligned to word."
+    ath9k_htc 1-1.4:1.0: ath9k_htc: HTC initialized with 33 credits
+    ath: phy2: Failed to read SREV register
+    ath: phy2: Could not read hardware revision
+    ath: phy2: Unable to initialize hardware; initialization status: -95
+    ath: phy2: Unable to initialize hardware; initialization status: -95
+    ath9k_htc: Failed to initialize the device
 
-So this relies on fifo_len being a multiple of 16 such that the
-burst length (= fifo_len / 4) is a multiple of 4 and the addresses
-will be word-aligned.
+This helps when debugging by directly showing the first point of
+failure and it could prevent possible errors if a 0x0f.3 revision
+is ever supported.
 
-Fixes: dcfc861d24ec ("spi: rockchip: adjust dma watermark and burstlen")
-Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Tim Schumacher <timschumi@gmx.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rockchip.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath9k/hw.c | 32 +++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index 9b91188a85f9..2cc6d9951b52 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -417,7 +417,7 @@ static int rockchip_spi_prepare_dma(struct rockchip_spi *rs,
- 			.direction = DMA_MEM_TO_DEV,
- 			.dst_addr = rs->dma_addr_tx,
- 			.dst_addr_width = rs->n_bytes,
--			.dst_maxburst = rs->fifo_len / 2,
-+			.dst_maxburst = rs->fifo_len / 4,
- 		};
+diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
+index 8581d917635a..b6773d613f0c 100644
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -252,8 +252,9 @@ void ath9k_hw_get_channel_centers(struct ath_hw *ah,
+ /* Chip Revisions */
+ /******************/
  
- 		dmaengine_slave_config(master->dma_tx, &txconf);
-@@ -518,7 +518,7 @@ static void rockchip_spi_config(struct rockchip_spi *rs,
- 	else
- 		writel_relaxed(rs->fifo_len / 2 - 1, rs->regs + ROCKCHIP_SPI_RXFTLR);
+-static void ath9k_hw_read_revisions(struct ath_hw *ah)
++static bool ath9k_hw_read_revisions(struct ath_hw *ah)
+ {
++	u32 srev;
+ 	u32 val;
  
--	writel_relaxed(rs->fifo_len / 2 - 1, rs->regs + ROCKCHIP_SPI_DMATDLR);
-+	writel_relaxed(rs->fifo_len / 2, rs->regs + ROCKCHIP_SPI_DMATDLR);
- 	writel_relaxed(0, rs->regs + ROCKCHIP_SPI_DMARDLR);
- 	writel_relaxed(dmacr, rs->regs + ROCKCHIP_SPI_DMACR);
+ 	if (ah->get_mac_revision)
+@@ -269,25 +270,33 @@ static void ath9k_hw_read_revisions(struct ath_hw *ah)
+ 			val = REG_READ(ah, AR_SREV);
+ 			ah->hw_version.macRev = MS(val, AR_SREV_REVISION2);
+ 		}
+-		return;
++		return true;
+ 	case AR9300_DEVID_AR9340:
+ 		ah->hw_version.macVersion = AR_SREV_VERSION_9340;
+-		return;
++		return true;
+ 	case AR9300_DEVID_QCA955X:
+ 		ah->hw_version.macVersion = AR_SREV_VERSION_9550;
+-		return;
++		return true;
+ 	case AR9300_DEVID_AR953X:
+ 		ah->hw_version.macVersion = AR_SREV_VERSION_9531;
+-		return;
++		return true;
+ 	case AR9300_DEVID_QCA956X:
+ 		ah->hw_version.macVersion = AR_SREV_VERSION_9561;
+-		return;
++		return true;
+ 	}
  
+-	val = REG_READ(ah, AR_SREV) & AR_SREV_ID;
++	srev = REG_READ(ah, AR_SREV);
++
++	if (srev == -EIO) {
++		ath_err(ath9k_hw_common(ah),
++			"Failed to read SREV register");
++		return false;
++	}
++
++	val = srev & AR_SREV_ID;
+ 
+ 	if (val == 0xFF) {
+-		val = REG_READ(ah, AR_SREV);
++		val = srev;
+ 		ah->hw_version.macVersion =
+ 			(val & AR_SREV_VERSION2) >> AR_SREV_TYPE2_S;
+ 		ah->hw_version.macRev = MS(val, AR_SREV_REVISION2);
+@@ -306,6 +315,8 @@ static void ath9k_hw_read_revisions(struct ath_hw *ah)
+ 		if (ah->hw_version.macVersion == AR_SREV_VERSION_5416_PCIE)
+ 			ah->is_pciexpress = true;
+ 	}
++
++	return true;
+ }
+ 
+ /************************************/
+@@ -559,7 +570,10 @@ static int __ath9k_hw_init(struct ath_hw *ah)
+ 	struct ath_common *common = ath9k_hw_common(ah);
+ 	int r = 0;
+ 
+-	ath9k_hw_read_revisions(ah);
++	if (!ath9k_hw_read_revisions(ah)) {
++		ath_err(common, "Could not read hardware revisions");
++		return -EOPNOTSUPP;
++	}
+ 
+ 	switch (ah->hw_version.macVersion) {
+ 	case AR_SREV_VERSION_5416_PCI:
 -- 
 2.20.1
 
