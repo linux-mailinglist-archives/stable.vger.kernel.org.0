@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A896968BCA
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:47:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F3ED68BD7
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 15:47:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730355AbfGONrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 09:47:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54874 "EHLO mail.kernel.org"
+        id S1730690AbfGONrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 09:47:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730012AbfGONrB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 09:47:01 -0400
+        id S1730012AbfGONrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:47:13 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86CB52067C;
-        Mon, 15 Jul 2019 13:46:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 102622086C;
+        Mon, 15 Jul 2019 13:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563198420;
-        bh=NZraKEDuaB6vwvz8xVUkIR+7IQqLDfLfw8tb08+gex4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=nL8WyFnDkqcBZFpe2k5Of7A6taGE/vwj4VfzIt+rhtRQvptujAcLblNmnzoBJav3a
-         lo5LPp5NDzNn6IcugPWhPHzgrI3BqwkodOm3ak/qp/zy/wxnAN3Cgfm17ovwXwOKy/
-         MWTKgcVdv3jw5GNsik7XS7tZ5GdYWHS6nLaweH/0=
+        s=default; t=1563198432;
+        bh=KCYLOsGoG359+oREF2v3J7YYuSkQnjbjlMV7bKPIiJQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=hDLwQA6sTmNq5rRDVDHpvgAdfKAN7MB02YIpkNBOHUTL5nEXDsbjSX9KlsV5AgrGR
+         7RP3dOrk/I3KaW83PKzceXPXreGk6GNA1L/WcSzdZyfkkxukZfmW2w4yfGxHv0ZYnz
+         cGv6HK2Ydbb1tXCxS9o+bARNwCpOxffJkU3yAXN0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yingying Tang <yintang@codeaurora.org>,
+Cc:     =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Miguel Catalan Cid <miguel.catalan@i2cat.net>,
         Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 001/249] ath10k: Check tx_stats before use it
-Date:   Mon, 15 Jul 2019 09:42:46 -0400
-Message-Id: <20190715134655.4076-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 004/249] ath9k: Don't trust TX status TID number when reporting airtime
+Date:   Mon, 15 Jul 2019 09:42:49 -0400
+Message-Id: <20190715134655.4076-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
+References: <20190715134655.4076-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,40 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yingying Tang <yintang@codeaurora.org>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 9e7251fa38978b85108c44743e1436d48e8d0d76 ]
+[ Upstream commit 389b72e58259336c2d56d58b660b79cf4b9e0dcb ]
 
-tx_stats will be freed and set to NULL before debugfs_sta node is
-removed in station disconnetion process. So if read the debugfs_sta
-node there may be NULL pointer error. Add check for tx_stats before
-use it to resove this issue.
+As already noted a comment in ath_tx_complete_aggr(), the hardware will
+occasionally send a TX status with the wrong tid number. If we trust the
+value, airtime usage will be reported to the wrong AC, which can cause the
+deficit on that AC to become very low, blocking subsequent attempts to
+transmit.
 
-Signed-off-by: Yingying Tang <yintang@codeaurora.org>
+To fix this, account airtime usage to the TID number from the original skb,
+instead of the one in the hardware TX status report.
+
+Reported-by: Miguel Catalan Cid <miguel.catalan@i2cat.net>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/debugfs_sta.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/wireless/ath/ath9k/xmit.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/debugfs_sta.c b/drivers/net/wireless/ath/ath10k/debugfs_sta.c
-index c704ae371c4d..42931a669b02 100644
---- a/drivers/net/wireless/ath/ath10k/debugfs_sta.c
-+++ b/drivers/net/wireless/ath/ath10k/debugfs_sta.c
-@@ -663,6 +663,13 @@ static ssize_t ath10k_dbg_sta_dump_tx_stats(struct file *file,
+diff --git a/drivers/net/wireless/ath/ath9k/xmit.c b/drivers/net/wireless/ath/ath9k/xmit.c
+index b17e1ca40995..3be0aeedb9b5 100644
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -668,7 +668,8 @@ static bool bf_is_ampdu_not_probing(struct ath_buf *bf)
+ static void ath_tx_count_airtime(struct ath_softc *sc,
+ 				 struct ieee80211_sta *sta,
+ 				 struct ath_buf *bf,
+-				 struct ath_tx_status *ts)
++				 struct ath_tx_status *ts,
++				 u8 tid)
+ {
+ 	u32 airtime = 0;
+ 	int i;
+@@ -679,7 +680,7 @@ static void ath_tx_count_airtime(struct ath_softc *sc,
+ 		airtime += rate_dur * bf->rates[i].count;
+ 	}
  
- 	mutex_lock(&ar->conf_mutex);
+-	ieee80211_sta_register_airtime(sta, ts->tid, airtime, 0);
++	ieee80211_sta_register_airtime(sta, tid, airtime, 0);
+ }
  
-+	if (!arsta->tx_stats) {
-+		ath10k_warn(ar, "failed to get tx stats");
-+		mutex_unlock(&ar->conf_mutex);
-+		kfree(buf);
-+		return 0;
-+	}
-+
- 	spin_lock_bh(&ar->data_lock);
- 	for (k = 0; k < ATH10K_STATS_TYPE_MAX; k++) {
- 		for (j = 0; j < ATH10K_COUNTER_TYPE_MAX; j++) {
+ static void ath_tx_process_buffer(struct ath_softc *sc, struct ath_txq *txq,
+@@ -709,7 +710,7 @@ static void ath_tx_process_buffer(struct ath_softc *sc, struct ath_txq *txq,
+ 	if (sta) {
+ 		struct ath_node *an = (struct ath_node *)sta->drv_priv;
+ 		tid = ath_get_skb_tid(sc, an, bf->bf_mpdu);
+-		ath_tx_count_airtime(sc, sta, bf, ts);
++		ath_tx_count_airtime(sc, sta, bf, ts, tid->tidno);
+ 		if (ts->ts_status & (ATH9K_TXERR_FILT | ATH9K_TXERR_XRETRY))
+ 			tid->clear_ps_filter = true;
+ 	}
 -- 
 2.20.1
 
