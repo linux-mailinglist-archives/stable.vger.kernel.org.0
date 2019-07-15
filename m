@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DBD968DA3
-	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 244A268DAA
+	for <lists+stable@lfdr.de>; Mon, 15 Jul 2019 16:00:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732613AbfGOOAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 10:00:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41624 "EHLO mail.kernel.org"
+        id S1732965AbfGOOAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 10:00:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733216AbfGOOAQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:00:16 -0400
+        id S2387522AbfGOOAc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 10:00:32 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C27272083D;
-        Mon, 15 Jul 2019 14:00:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A806C2083D;
+        Mon, 15 Jul 2019 14:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199215;
-        bh=sYvTTtjC6qEEigEX//SCq1GLdYh4FrlB/F42FWnPUos=;
+        s=default; t=1563199231;
+        bh=uXABNZOUoQaDXqF6BBmVMpHKEtCDQTObD2J1O1cN7Yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZ+9OAFieE81JJSJt/u5mSfPxJR2rSw2Abgn8kCyxsNPDJN/dCKWRgjxCf34sQzl9
-         c3vQT4yLBV5r7Mr6FSWGuahOME49uCkCoPNau+N2XaHnWAcTc1zYzLwHHZkTAqfzOH
-         LyNIQ0Pf5RiY7Nrg5P9koxga3fUSmkNUVefUjtaQ=
+        b=YvbZ4P7n/W8NvgyU0txzvWULJCfE72UylyUp/t93WOi/lF+lyZONUSn9lSMtqb86E
+         Ctl5qQT8HOJQMnc82lYGhTBRzWalyPp4SyqTnY+dHejfkKJxaMXMhTdZLWdsOxIpvS
+         RKpqh1HkLGx8h+S28nnWTgi45skpNIPYi9lDb7vc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>,
-        Agustin Vega-Frias <agustinv@codeaurora.org>,
         Kan Liang <kan.liang@linux.intel.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 217/249] perf stat: Fix metrics with --no-merge
-Date:   Mon, 15 Jul 2019 09:46:22 -0400
-Message-Id: <20190715134655.4076-217-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 218/249] perf stat: Don't merge events in the same PMU
+Date:   Mon, 15 Jul 2019 09:46:23 -0400
+Message-Id: <20190715134655.4076-218-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
 References: <20190715134655.4076-1-sashal@kernel.org>
@@ -47,72 +46,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andi Kleen <ak@linux.intel.com>
 
-[ Upstream commit e3a9427323a53ceee540276a74af7706f350d052 ]
+[ Upstream commit 6c5f4e5cb35b4694dc035d91092d23f596ecd06a ]
 
-Since Fixes: 8c5421c016a4 ("perf pmu: Display pmu name when printing
-unmerged events in stat") using --no-merge adds the PMU name to the
-evsel name.
+Event merging is mainly to collapse similar events in lots of different
+duplicated PMUs.
 
-This breaks the metric value lookup because the parser doesn't know
-about this.
+It can break metric displaying. It's possible for two metrics to have
+the same event, and when the two events happen in a row the second
+wouldn't be displayed.  This would also not show the second metric.
 
-Remove the extra postfixes for the metric evaluation.
+To avoid this don't merge events in the same PMU. This makes sense, if
+we have multiple events in the same PMU there is likely some reason for
+it (e.g. using multiple groups) and we better not merge them.
+
+While in theory it would be possible to construct metrics that have
+events with the same name in different PMU no current metrics have this
+problem.
+
+This is the fix for perf stat -M UPI,IPC (needs also another bug fix to
+completely work)
 
 Signed-off-by: Andi Kleen <ak@linux.intel.com>
 Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Agustin Vega-Frias <agustinv@codeaurora.org>
 Cc: Kan Liang <kan.liang@linux.intel.com>
-Fixes: 8c5421c016a4 ("perf pmu: Display pmu name when printing unmerged events in stat")
-Link: http://lkml.kernel.org/r/20190624193711.35241-5-andi@firstfloor.org
+Fixes: 430daf2dc7af ("perf stat: Collapse identically named events")
+Link: http://lkml.kernel.org/r/20190624193711.35241-3-andi@firstfloor.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/stat-shadow.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ tools/perf/util/stat-display.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/stat-shadow.c b/tools/perf/util/stat-shadow.c
-index e545e2a8ae71..0ef98e991ade 100644
---- a/tools/perf/util/stat-shadow.c
-+++ b/tools/perf/util/stat-shadow.c
-@@ -723,6 +723,7 @@ static void generic_metric(struct perf_stat_config *config,
- 	double ratio;
- 	int i;
- 	void *ctxp = out->ctx;
-+	char *n, *pn;
- 
- 	expr__ctx_init(&pctx);
- 	expr__add_id(&pctx, name, avg);
-@@ -742,7 +743,19 @@ static void generic_metric(struct perf_stat_config *config,
- 			stats = &v->stats;
- 			scale = 1.0;
- 		}
--		expr__add_id(&pctx, metric_events[i]->name, avg_stats(stats)*scale);
-+
-+		n = strdup(metric_events[i]->name);
-+		if (!n)
-+			return;
-+		/*
-+		 * This display code with --no-merge adds [cpu] postfixes.
-+		 * These are not supported by the parser. Remove everything
-+		 * after the space.
-+		 */
-+		pn = strchr(n, ' ');
-+		if (pn)
-+			*pn = 0;
-+		expr__add_id(&pctx, n, avg_stats(stats)*scale);
- 	}
- 	if (!metric_events[i]) {
- 		const char *p = metric_expr;
-@@ -759,6 +772,9 @@ static void generic_metric(struct perf_stat_config *config,
- 				     (metric_name ? metric_name : name) : "", 0);
- 	} else
- 		print_metric(config, ctxp, NULL, NULL, "", 0);
-+
-+	for (i = 1; i < pctx.num_ids; i++)
-+		free((void *)pctx.ids[i].name);
- }
- 
- void perf_stat__print_shadow_stats(struct perf_stat_config *config,
+diff --git a/tools/perf/util/stat-display.c b/tools/perf/util/stat-display.c
+index 4c53bae5644b..94bed4031def 100644
+--- a/tools/perf/util/stat-display.c
++++ b/tools/perf/util/stat-display.c
+@@ -542,7 +542,8 @@ static void collect_all_aliases(struct perf_stat_config *config, struct perf_evs
+ 		    alias->scale != counter->scale ||
+ 		    alias->cgrp != counter->cgrp ||
+ 		    strcmp(alias->unit, counter->unit) ||
+-		    perf_evsel__is_clock(alias) != perf_evsel__is_clock(counter))
++		    perf_evsel__is_clock(alias) != perf_evsel__is_clock(counter) ||
++		    !strcmp(alias->pmu_name, counter->pmu_name))
+ 			break;
+ 		alias->merged_stat = true;
+ 		cb(config, alias, data, false);
 -- 
 2.20.1
 
