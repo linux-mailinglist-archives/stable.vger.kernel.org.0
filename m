@@ -2,102 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB6FA6A63C
-	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 12:11:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A75856A662
+	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 12:21:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731855AbfGPKLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jul 2019 06:11:17 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:42660 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731042AbfGPKLQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jul 2019 06:11:16 -0400
-Received: by mail-pg1-f194.google.com with SMTP id t132so9192404pgb.9
-        for <stable@vger.kernel.org>; Tue, 16 Jul 2019 03:11:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=R81ZzKgxtCEhGNXrZhRMrtHubJyNabvopqXLt4EYV7c=;
-        b=bTxhlALZdZwuNaMJD0l76DKiv/xY60vuGKCqaS8QEqqZRcExr5r8b0wvXFTmRJ01Hi
-         t+hWMBBM7n7xC7e3ED+y1vL6vldMWi34cXGfhoB6ktO3TCwSjuLu4qfS4+XS0oCg5M1g
-         akiBiNwTe4ySYlcurbv/fAKMbXR1Phzha3WFI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=R81ZzKgxtCEhGNXrZhRMrtHubJyNabvopqXLt4EYV7c=;
-        b=qZq8veTQIGyJI2iJX83Fp+X979qn3LJ3pTs3GXGQ0hNSD3QSihDTcTl9d/q4CXc89L
-         RgZ0JsGIC6gdqMQrPwfcCA86N+26Lkx6oXQt0LeiaX+CCnyi9Rzh4AGDY2MR3FYUpIZf
-         GAzoz1+ZW+bf6kOtBiJHvgYupOBZ/OeY43/kONG7ZgqRvv78J+AiVP/Mdu2/fYKYI4XY
-         c3tNUpFZfjKCpKmE68VaQEddEBvSw4eYwVLHFsMkdKe+4+u6QyBVrO/66cnKTNj55HJW
-         vIx5CL6Kt3/ppxJG6GGcE83TUrawrEpgCuJ9qBhuqOPgwTxj0qMT+u4Gm86TEwdw9kHB
-         wG2Q==
-X-Gm-Message-State: APjAAAXVWfNgCrulaOddRYJThjDNH4iI9jJUdXQCq2BL4DRr5Yh8/6Ww
-        P6iqPlA9jUPSssJSUUITwR2W8Q==
-X-Google-Smtp-Source: APXvYqzmndE3ZEiKWKq5APqXbLOEmW9FQSA1N3MEMEcwNkG38eeNgwpsXeo4PZJIJ/mYOmOVZOIOGg==
-X-Received: by 2002:a17:90a:5288:: with SMTP id w8mr35239474pjh.61.1563271876140;
-        Tue, 16 Jul 2019 03:11:16 -0700 (PDT)
-Received: from dhcp-10-123-20-16.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id x14sm22966839pfq.158.2019.07.16.03.11.13
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 16 Jul 2019 03:11:15 -0700 (PDT)
-From:   Sumit Saxena <sumit.saxena@broadcom.com>
-To:     helgaas@kernel.org
-Cc:     linux-pci@vger.kernel.org, stable@vger.kernel.org,
-        Sumit Saxena <sumit.saxena@broadcom.com>
-Subject: [PATCH] PCI: set BAR size bits correctly in Resize BAR control register
-Date:   Tue, 16 Jul 2019 23:39:40 +0530
-Message-Id: <20190716180940.17828-1-sumit.saxena@broadcom.com>
-X-Mailer: git-send-email 2.18.1
+        id S1733038AbfGPKUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jul 2019 06:20:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57238 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731401AbfGPKUy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jul 2019 06:20:54 -0400
+Received: from localhost (unknown [193.47.165.251])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48160206C2;
+        Tue, 16 Jul 2019 10:20:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563272453;
+        bh=QTpstGqM15RybHt93+XS28mtw0dNSPlxIO3Kq/Y4aOQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=IHrjVZ4kxV1TK9OnSwQOhTi67RJshFsM8k3U6U4gyGQM2fe5H0hn/dzThQk93VVLX
+         P1Iu4h+HH7r76+JY2tfyk0x45V+U9JTf5RBQxGbvGkG6CwZME19BjGrKOipOASvjb6
+         18oQ2LBHEijzMP5sRjDoEPdEa4LqwUcdZy7L+owg=
+Date:   Tue, 16 Jul 2019 13:20:50 +0300
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Selvin Xavier <selvin.xavier@broadcom.com>,
+        linux-rdma@vger.kernel.org, dledford@redhat.com, jgg@ziepe.ca,
+        linux-nvme@lists.infradead.org, stable@vger.kernel.org,
+        Parav Pandit <parav@mellanox.com>
+Subject: Re: [PATCH for-rc] RDMA/bnxt_re: Honor vlan_id in GID entry
+ comparison
+Message-ID: <20190716102050.GL10130@mtr-leonro.mtl.com>
+References: <20190715091913.15726-1-selvin.xavier@broadcom.com>
+ <20190716071030.GH10130@mtr-leonro.mtl.com>
+ <20190716071644.GA21780@kroah.com>
+ <20190716084126.GJ10130@mtr-leonro.mtl.com>
+ <20190716090917.GA11964@kroah.com>
+ <20190716095007.GK10130@mtr-leonro.mtl.com>
+ <20190716095852.GA25228@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190716095852.GA25228@kroah.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In Resize BAR control register, bits[8:12] represents size of BAR.
-As per PCIe specification, below is encoded values in register bits
-to actual BAR size table:
+On Tue, Jul 16, 2019 at 06:58:52PM +0900, Greg KH wrote:
+> On Tue, Jul 16, 2019 at 12:50:07PM +0300, Leon Romanovsky wrote:
+> > On Tue, Jul 16, 2019 at 06:09:17PM +0900, Greg KH wrote:
+> > > On Tue, Jul 16, 2019 at 11:41:26AM +0300, Leon Romanovsky wrote:
+> > > > On Tue, Jul 16, 2019 at 04:16:44PM +0900, Greg KH wrote:
+> > > > > On Tue, Jul 16, 2019 at 10:10:30AM +0300, Leon Romanovsky wrote:
+> > > > > > On Mon, Jul 15, 2019 at 05:19:13AM -0400, Selvin Xavier wrote:
+> > > > > > > GID entry consist of GID, vlan, netdev and smac.
+> > > > > > > Extend GID duplicate check companions to consider vlan_id as well
+> > > > > > > to support IPv6 VLAN based link local addresses. Introduce
+> > > > > > > a new structure (bnxt_qplib_gid_info) to hold gid and vlan_id information.
+> > > > > > >
+> > > > > > > The issue is discussed in the following thread
+> > > > > > > https://www.spinics.net/lists/linux-rdma/msg81594.html
+> > > > > > >
+> > > > > > > Fixes: 823b23da7113 ("IB/core: Allow vlan link local address based RoCE GIDs")
+> > > > > > > Cc: <stable@vger.kernel.org> # v5.2+
+> > > > > > > Reported-by: Yi Zhang <yi.zhang@redhat.com>
+> > > > > >
+> > > > > > > Co-developed-by: Parav Pandit <parav@mellanox.com>
+> > > > > > > Signed-off-by: Parav Pandit <parav@mellanox.com>
+> > > > > >
+> > > > > > I never understood why bad habits are so stinky.
+> > > > > >
+> > > > > > Can you please explain us what does it mean Co-developed-by and
+> > > > > > Signed-off-by of the same person in the same patch?
+> > > > >
+> > > > > See Documentation/process/submitting-patches.rst for what that tag
+> > > > > means.
+> > > >
+> > > > Read it, it doesn't help me to understand if I should now add
+> > > > Co-developed-by tag to most of RDMA Mellanox upstreamed patches,
+> > > > which already care my Signed-off-by, because I'm changing and fixing
+> > > > them many times.
+> > >
+> > > It depends, it's your call, if you think you deserve the credit, sure,
+> > > add it.  If you are just doing basic "review" where you tell people what
+> > > needs to be done better, that's probably not what you need to do here.
+> >
+> > I'll probably not use this and not because I don't deserve credit, but
+> > because it looks ridiculously to me to see my name repeated N times for
+> > my work.
+>
+> That's up to you, and your fellow co-authors to decide.
+>
+> > > One example, where I just added myself to a patch happened last week
+> > > where the developer submitted one solution, I took it and rewrote the
+> > > whole implementation (from raw kobjects to using the driver model).  The
+> > > original author got the "From:" and I got a Co-developed-by line.
+> >
+> > In old days, we simply changed Author field if changes were above some
+> > arbitrary threshold (usually half of the original patch) and added SOB.
+> >
+> > Why wasn't this approach enough?
+>
+> Because we have had some patches where it really was a work of multiple
+> people and it is good to show the correct authorship wherever possible.
+>
+> If you look, this tag was added based on a document in the kernel tree
+> that Thomas and I worked on together and we both wanted the "blame" for
+> it :)
+>
+> > > Does that help?
+> >
+> > Yes, and it makes me wonder when we will need to hire compliance officer
+> > who will review all our upstreamed patches to comply with more and more
+> > bureaucracy.
+>
+> Oh come on, this is about the ability to give people credit where they
+> did not have it before.  It's not about being "compliant", it's about
+> being "nice" and "fair".  Something that no one should complain about.
+>
+> There is no one forcing you to add this tag to patches with your name on
+> it if you do not want to.  But for those who work on changes together,
+> it is important to give them that type of credit.
 
-Bits  BAR size
-0     1 MB
-1     2 MB
-2     4 MB
-3     8 MB
---
+It is partly true, I agree that for my own patches I can do more or less
+whatever I want, but my responsibilities are broader and I need to guide
+internal development teams on how to develop for upstream and how
+to upstream their work later on.
 
-For 1 MB BAR size, BAR size bits should be set to 0 but incorrectly
-these bits are set to "1f". 
-Latest megaraid_sas and mpt3sas adapters which support Resizable BAR 
-with 1 MB BAR size fails to initialize during system resume from S3 sleep.
+Exactly like Theodore (if I'm not mistaken here) mentioned in last
+reply to ksummit thread about meaningful Reviewed-by and Acked-by tags,
+I got complains when I changed/fixed inappropriate tags. Now, I'll get
+extra complains for not allowing to use Co-... tag too.
 
-Fix: Correctly set BAR size bits to "0" for 1MB BAR size.
+So it is not true for my second responsibility, where I must to do it
+right and with minimal number of my personal preferences.
 
-CC: stable@vger.kernel.org # v4.16+
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203939
-Fixes: d3252ace0bc652a1a244455556b6a549f969bf99 ("PCI: Restore resized BAR state on resume")
-Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
----
- drivers/pci/pci.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+This extra documented tag puts me in position where I don't want to
+be - in the middle between documentation and personal opinion on not
+important thing.
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 8abc843..b651f32 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1417,12 +1417,13 @@ static void pci_restore_rebar_state(struct pci_dev *pdev)
- 
- 	for (i = 0; i < nbars; i++, pos += 8) {
- 		struct resource *res;
--		int bar_idx, size;
-+		int bar_idx, size, order;
- 
- 		pci_read_config_dword(pdev, pos + PCI_REBAR_CTRL, &ctrl);
- 		bar_idx = ctrl & PCI_REBAR_CTRL_BAR_IDX;
- 		res = pdev->resource + bar_idx;
--		size = order_base_2((resource_size(res) >> 20) | 1) - 1;
-+		order = order_base_2((resource_size(res) >> 20) | 1);
-+		size = order ? order - 1 : 0;
- 		ctrl &= ~PCI_REBAR_CTRL_BAR_SIZE;
- 		ctrl |= size << PCI_REBAR_CTRL_BAR_SHIFT;
- 		pci_write_config_dword(pdev, pos + PCI_REBAR_CTRL, ctrl);
--- 
-1.8.3.1
+Thanks
 
+>
+> thanks,
+>
+> greg k-h
