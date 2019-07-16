@@ -2,90 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 247D66A40C
-	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 10:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 069346A45D
+	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 10:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728004AbfGPIlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jul 2019 04:41:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55254 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726465AbfGPIlb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jul 2019 04:41:31 -0400
-Received: from localhost (unknown [193.47.165.251])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87236206C2;
-        Tue, 16 Jul 2019 08:41:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563266490;
-        bh=DBB35/iLHNMA2FqwsQw7nORQLk+gotkl4bG0qEae5FE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GcbF00sNNjwSXPu5gKOghSSg4FUS77FkWYXLH2OHtiZsRL7sw0/HdavXE6cD9RaAd
-         z/cH/IXOeLS7+aHtptJbgGtIPZg017FReeS8eayIXTg3k2B9IFa15jlllMiSXKCLK0
-         EdEtZQP/o8VexmZoG3PiLmEjXwWp8ZO+N0gToid0=
-Date:   Tue, 16 Jul 2019 11:41:26 +0300
-From:   Leon Romanovsky <leon@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Selvin Xavier <selvin.xavier@broadcom.com>,
-        linux-rdma@vger.kernel.org, dledford@redhat.com, jgg@ziepe.ca,
-        linux-nvme@lists.infradead.org, stable@vger.kernel.org,
-        Parav Pandit <parav@mellanox.com>
-Subject: Re: [PATCH for-rc] RDMA/bnxt_re: Honor vlan_id in GID entry
- comparison
-Message-ID: <20190716084126.GJ10130@mtr-leonro.mtl.com>
-References: <20190715091913.15726-1-selvin.xavier@broadcom.com>
- <20190716071030.GH10130@mtr-leonro.mtl.com>
- <20190716071644.GA21780@kroah.com>
+        id S1731702AbfGPI4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jul 2019 04:56:54 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:41439 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731706AbfGPI4x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jul 2019 04:56:53 -0400
+Received: by mail-lj1-f196.google.com with SMTP id d24so19119970ljg.8
+        for <stable@vger.kernel.org>; Tue, 16 Jul 2019 01:56:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=InUWrv7LAkQKvZ+McQ69NdIMdHUt9wQBtSn0Ql2S6b4=;
+        b=NYWBxxtkEarHHKN4dpAk9Z3o+e7dlOaIFbYRjCgVyDUXE5/Q7hCWk37cEjSrv+kDaI
+         v7yHpJDZmf/3oYGlbX117KQzLJ4umJQ5+OjX6dw31RpDF48K6L5OswFhXCK2/NpCeonR
+         jNNqGULBmAFVTWgakUEu4ZcLpiMAjEecaPzDROkawKgKwYej+eNtIu6Sj0yns/uOU40q
+         TQ/2gC66WBgRApLvY2Qn8suKx1B64NI8JQeg/SyQBB+mBkNPYCOO26gNFyyVaq5smfTc
+         2mZLXc/xf0XXa5oYidiHELyQSWN/3pnZoGg9/bVf2tLlzPOewh0d4cEHHMqWpOZfR0CT
+         F65A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=InUWrv7LAkQKvZ+McQ69NdIMdHUt9wQBtSn0Ql2S6b4=;
+        b=iOKVT1Zl4E8b2CvMUATaEoMZNh+1QxMguF/ksra+4nNg1pNxKl2T0d+4fv7OnjPc0X
+         iUhkMHcgzKsRdTaB/vkKhY2ZfST+razze3G/nrU4/fpp+8PbLh7PQcHL0m9NDIM3Vz5s
+         fc9ralYmXMT9dHH6mc5o78X///mlkO1PbHBe6tahBIwxotAOm44grXToNaYGfdWZUTF4
+         wJzQKJldWCs/HQ++eNG1XI7KWk5nuGdopTLNy3w+HcJSmIDuvsXGz/isnWap15D4PUCX
+         a3Hx8hsjDJGx2jYBYWWnbJ9R3759HWgmxEFQgCuWkKtjvr/FkhmrDjifr/LJaTgClTJp
+         ZmZA==
+X-Gm-Message-State: APjAAAW8O/GKxbhM1NvZV+FAItp59GdgnCuWSN7l22zE+OEgqXIM/Ymf
+        xxKsZp86M6Eor0usfmiWRO3mIMl3MZIOF49B4mXyMw==
+X-Google-Smtp-Source: APXvYqz0/LleO9xJcnbDEQsKjfgEBzAose29BV4VVCT9BK/mzxrXWaVnDmJyWLu7V7p65vgCAaGIQkI8PUIsBxalh2E=
+X-Received: by 2002:a2e:781a:: with SMTP id t26mr16865993ljc.28.1563267411846;
+ Tue, 16 Jul 2019 01:56:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190716071644.GA21780@kroah.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+References: <20190715204529.9539-1-linus.walleij@linaro.org> <20190716012712.BC9F22173C@mail.kernel.org>
+In-Reply-To: <20190716012712.BC9F22173C@mail.kernel.org>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 16 Jul 2019 10:56:40 +0200
+Message-ID: <CACRpkdaLQzax2XPJ4j1a9gNw3r=ZizVSgsbLFGAycCLd2TzD0g@mail.gmail.com>
+Subject: Re: [PATCH] Revert "gpio/spi: Fix spi-gpio regression on active high CS"
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 16, 2019 at 04:16:44PM +0900, Greg KH wrote:
-> On Tue, Jul 16, 2019 at 10:10:30AM +0300, Leon Romanovsky wrote:
-> > On Mon, Jul 15, 2019 at 05:19:13AM -0400, Selvin Xavier wrote:
-> > > GID entry consist of GID, vlan, netdev and smac.
-> > > Extend GID duplicate check companions to consider vlan_id as well
-> > > to support IPv6 VLAN based link local addresses. Introduce
-> > > a new structure (bnxt_qplib_gid_info) to hold gid and vlan_id information.
-> > >
-> > > The issue is discussed in the following thread
-> > > https://www.spinics.net/lists/linux-rdma/msg81594.html
-> > >
-> > > Fixes: 823b23da7113 ("IB/core: Allow vlan link local address based RoCE GIDs")
-> > > Cc: <stable@vger.kernel.org> # v5.2+
-> > > Reported-by: Yi Zhang <yi.zhang@redhat.com>
-> >
-> > > Co-developed-by: Parav Pandit <parav@mellanox.com>
-> > > Signed-off-by: Parav Pandit <parav@mellanox.com>
-> >
-> > I never understood why bad habits are so stinky.
-> >
-> > Can you please explain us what does it mean Co-developed-by and
-> > Signed-off-by of the same person in the same patch?
->
-> See Documentation/process/submitting-patches.rst for what that tag
-> means.
+On Tue, Jul 16, 2019 at 3:27 AM Sasha Levin <sashal@kernel.org> wrote:
 
-Read it, it doesn't help me to understand if I should now add
-Co-developed-by tag to most of RDMA Mellanox upstreamed patches,
-which already care my Signed-off-by, because I'm changing and fixing
-them many times.
+> v5.2.1: Build OK!
+> v5.1.18: Failed to apply! Possible dependencies:
+(...)
+> How should we proceed with this patch?
 
-Maybe I should write for my upstreamed patched something like this?
-Co-developed-by: Leon R...
-Reviewed-By: Leon R...
-Tested-by: Leon R...
-Signed-by: Leon R...
+Only apply it to 5.2.y once upstream.
 
-Thanks
-
->
-> thanks,
->
-> greg k-h
+Thanks!
+Linus Walleij
