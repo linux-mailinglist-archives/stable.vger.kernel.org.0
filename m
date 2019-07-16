@@ -2,68 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1E8C69F94
-	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 01:47:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C67BF6A003
+	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 02:42:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730798AbfGOXrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 19:47:14 -0400
-Received: from mail-qk1-f195.google.com ([209.85.222.195]:36475 "EHLO
-        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727379AbfGOXrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jul 2019 19:47:14 -0400
-Received: by mail-qk1-f195.google.com with SMTP id g18so13109493qkl.3
-        for <stable@vger.kernel.org>; Mon, 15 Jul 2019 16:47:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=nmvQd+ZLEES8JBjtako+LZ5IFOMVEC8STU24G37/IuE=;
-        b=aslfHgPZrAm4SnrrCFC/VTUeqycq86U7hb6s0npy+tNUwnEF/i6+GzfhXYHkvdSL9U
-         1y1vKp0L0RVST/zeg1Q5Rp3hyWQF8xmFDzA8grZ2R/xXKc8jrAZ9370b/lPth4g7oiRy
-         bD/ib7zqNlSd9c6WHl5o5slYHVBdxLHxO6WFQS+TwPddZHamWFDKDDw4Z+VWuZlIvu8J
-         aqbyupsC4VYU57jOX9rXowWYVHuUFOhbSKffVWGm2FF1KGNM1fXsoBirMcYobxwrHh/C
-         dYalOnT475dcfzWOJ4a7mgp/ITiHOnx/CrobNw7G0U2EsiKK+8hGbNEGtui6l2UBsnGd
-         0oeg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=nmvQd+ZLEES8JBjtako+LZ5IFOMVEC8STU24G37/IuE=;
-        b=aPkjMDQW2OILUg6QxuKwTowhswmKPqrVyX7tWrTBRCkk9gSM3zJvYaJSFy8NzQEmQQ
-         pecEBPd4DZZvqGsCA24TVkFPd7fr9o9f8u7kZvkyc+v2NYD4XW42NOCWsO0oCajIWUac
-         3KRmkD2nAqLhUc+Fcv0NIrqopAIrzyze+4sIrlxVgpckzKVXn69TkWNepIxqhn5Htazx
-         vAuhhtaHFniRNxwof85i+kQl+dTrN6IXGrLHiK0Ckmwg3msVMZ3TDzrf5ZY/lYKG6kyE
-         GLItnmiYAmDilWyQFHDYWaKhUXxiUF0m7uXu5itn+ABWDFkhgGiAWQL1Qpnjw4kBB5HR
-         CE0g==
-X-Gm-Message-State: APjAAAU7bZ2ULqiQuQXIdZt+oJB/JBX7a0oFLgWb0l4cD77FfZfAl2Gr
-        CdBKrny8TfCfFrUub8x5LqTWNCp5Yd+IOHLrCn4=
-X-Google-Smtp-Source: APXvYqxYHPdhCse4al0o3CMu64SarEz7Tr+61/3Z16BEQYtVIZOqSRcrLFuK7FHu5OjcTxG5lz1HQ7fvMPrOcXAbhnU=
-X-Received: by 2002:a37:7646:: with SMTP id r67mr19366953qkc.249.1563234433562;
- Mon, 15 Jul 2019 16:47:13 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:ac8:231d:0:0:0:0:0 with HTTP; Mon, 15 Jul 2019 16:47:13
- -0700 (PDT)
-Reply-To: umarbelloumar92@gmail.com
-From:   Umar Bello <bolomichel01@gmail.com>
-Date:   Mon, 15 Jul 2019 16:47:13 -0700
-Message-ID: <CAHCN0ekQDP_QwcU05opV5uorBg3cgOZ1uQBKFX0s0GoxbDMekg@mail.gmail.com>
-Subject: Dear friend
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S1731589AbfGPAmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 20:42:02 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:34774 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730383AbfGPAmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jul 2019 20:42:02 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 7B23C3082E0E;
+        Tue, 16 Jul 2019 00:42:02 +0000 (UTC)
+Received: from test1135.test.redhat.com (vpn2-54-77.bne.redhat.com [10.64.54.77])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D033C5D968;
+        Tue, 16 Jul 2019 00:42:01 +0000 (UTC)
+From:   Ronnie Sahlberg <lsahlber@redhat.com>
+To:     linux-cifs <linux-cifs@vger.kernel.org>
+Cc:     Steve French <smfrench@gmail.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Stable <stable@vger.kernel.org>
+Subject: [PATCH] cifs: fix crash in smb2_compound_op()/smb2_set_next_command()
+Date:   Tue, 16 Jul 2019 10:41:46 +1000
+Message-Id: <20190716004146.13668-1-lsahlber@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Tue, 16 Jul 2019 00:42:02 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+RHBZ: 1722704
+
+In low memory situations the various SMB2_*_init() functions can fail
+to allocate a request PDU and thus leave the request iovector as NULL.
+
+If we don't check the return code for failure we end up calling
+smb2_set_next_command() with a NULL iovector causing a crash when it tries
+to dereference it.
+
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+---
+ fs/cifs/smb2inode.c | 12 ++++++++++++
+ fs/cifs/smb2ops.c   | 11 ++++++++++-
+ 2 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/fs/cifs/smb2inode.c b/fs/cifs/smb2inode.c
+index 278405d26c47..d8d9cdfa30b6 100644
+--- a/fs/cifs/smb2inode.c
++++ b/fs/cifs/smb2inode.c
+@@ -120,6 +120,8 @@ smb2_compound_op(const unsigned int xid, struct cifs_tcon *tcon,
+ 				SMB2_O_INFO_FILE, 0,
+ 				sizeof(struct smb2_file_all_info) +
+ 					  PATH_MAX * 2, 0, NULL);
++		if (rc)
++			goto finished;
+ 		smb2_set_next_command(tcon, &rqst[num_rqst]);
+ 		smb2_set_related(&rqst[num_rqst++]);
+ 		trace_smb3_query_info_compound_enter(xid, ses->Suid, tcon->tid,
+@@ -147,6 +149,8 @@ smb2_compound_op(const unsigned int xid, struct cifs_tcon *tcon,
+ 					COMPOUND_FID, current->tgid,
+ 					FILE_DISPOSITION_INFORMATION,
+ 					SMB2_O_INFO_FILE, 0, data, size);
++		if (rc)
++			goto finished;
+ 		smb2_set_next_command(tcon, &rqst[num_rqst]);
+ 		smb2_set_related(&rqst[num_rqst++]);
+ 		trace_smb3_rmdir_enter(xid, ses->Suid, tcon->tid, full_path);
+@@ -163,6 +167,8 @@ smb2_compound_op(const unsigned int xid, struct cifs_tcon *tcon,
+ 					COMPOUND_FID, current->tgid,
+ 					FILE_END_OF_FILE_INFORMATION,
+ 					SMB2_O_INFO_FILE, 0, data, size);
++		if (rc)
++			goto finished;
+ 		smb2_set_next_command(tcon, &rqst[num_rqst]);
+ 		smb2_set_related(&rqst[num_rqst++]);
+ 		trace_smb3_set_eof_enter(xid, ses->Suid, tcon->tid, full_path);
+@@ -180,6 +186,8 @@ smb2_compound_op(const unsigned int xid, struct cifs_tcon *tcon,
+ 					COMPOUND_FID, current->tgid,
+ 					FILE_BASIC_INFORMATION,
+ 					SMB2_O_INFO_FILE, 0, data, size);
++		if (rc)
++			goto finished;
+ 		smb2_set_next_command(tcon, &rqst[num_rqst]);
+ 		smb2_set_related(&rqst[num_rqst++]);
+ 		trace_smb3_set_info_compound_enter(xid, ses->Suid, tcon->tid,
+@@ -206,6 +214,8 @@ smb2_compound_op(const unsigned int xid, struct cifs_tcon *tcon,
+ 					COMPOUND_FID, current->tgid,
+ 					FILE_RENAME_INFORMATION,
+ 					SMB2_O_INFO_FILE, 0, data, size);
++		if (rc)
++			goto finished;
+ 		smb2_set_next_command(tcon, &rqst[num_rqst]);
+ 		smb2_set_related(&rqst[num_rqst++]);
+ 		trace_smb3_rename_enter(xid, ses->Suid, tcon->tid, full_path);
+@@ -231,6 +241,8 @@ smb2_compound_op(const unsigned int xid, struct cifs_tcon *tcon,
+ 					COMPOUND_FID, current->tgid,
+ 					FILE_LINK_INFORMATION,
+ 					SMB2_O_INFO_FILE, 0, data, size);
++		if (rc)
++			goto finished;
+ 		smb2_set_next_command(tcon, &rqst[num_rqst]);
+ 		smb2_set_related(&rqst[num_rqst++]);
+ 		trace_smb3_hardlink_enter(xid, ses->Suid, tcon->tid, full_path);
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 4b0b14946343..462890f4cb9c 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -2027,6 +2027,10 @@ smb2_set_related(struct smb_rqst *rqst)
+ 	struct smb2_sync_hdr *shdr;
+ 
+ 	shdr = (struct smb2_sync_hdr *)(rqst->rq_iov[0].iov_base);
++	if (shdr == NULL) {
++		cifs_dbg(FYI, "shdr NULL in smb2_set_related\n");
++		return;
++	}
+ 	shdr->Flags |= SMB2_FLAGS_RELATED_OPERATIONS;
+ }
+ 
+@@ -2041,6 +2045,12 @@ smb2_set_next_command(struct cifs_tcon *tcon, struct smb_rqst *rqst)
+ 	unsigned long len = smb_rqst_len(server, rqst);
+ 	int i, num_padding;
+ 
++	shdr = (struct smb2_sync_hdr *)(rqst->rq_iov[0].iov_base);
++	if (shdr == NULL) {
++		cifs_dbg(FYI, "shdr NULL in smb2_set_next_command\n");
++		return;
++	}
++
+ 	/* SMB headers in a compound are 8 byte aligned. */
+ 
+ 	/* No padding needed */
+@@ -2080,7 +2090,6 @@ smb2_set_next_command(struct cifs_tcon *tcon, struct smb_rqst *rqst)
+ 	}
+ 
+  finished:
+-	shdr = (struct smb2_sync_hdr *)(rqst->rq_iov[0].iov_base);
+ 	shdr->NextCommand = cpu_to_le32(len);
+ }
+ 
 -- 
+2.13.6
 
-
-Dear friend
-I am contacting you on a business deal of $17.5 Million US Dollars,
-ready for transfer into your account
-if we make this claim, we will share it 60%/40%.
-100% risk free and it will be legally backed up with government
-approved If you are interested reply for more details.
-
-Best regards,
-Umar Bello
- +226 68874958
