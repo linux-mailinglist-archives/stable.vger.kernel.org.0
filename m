@@ -2,107 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBAE76A5DB
-	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 11:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78E836A5E0
+	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 11:51:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731824AbfGPJtb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jul 2019 05:49:31 -0400
-Received: from smtpbgeu1.qq.com ([52.59.177.22]:40718 "EHLO smtpbgeu1.qq.com"
+        id S1732251AbfGPJuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jul 2019 05:50:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732469AbfGPJta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jul 2019 05:49:30 -0400
-X-QQ-mid: bizesmtp11t1563270563t6pzi57p
-Received: from localhost.localdomain (unknown [218.76.23.26])
-        by esmtp6.qq.com (ESMTP) with 
-        id ; Tue, 16 Jul 2019 17:49:21 +0800 (CST)
-X-QQ-SSF: 014000000000004066F2B00A0000000
-X-QQ-FEAT: y3iK4Lsvf4AgzeHG1eoRNlgqi3lNiSY+UQRXzLFi+xFMajHRK1SM3JDZDuqCn
-        6FezfiKISF5+27BnnyHObXQ+Ly18o/vT/fUTvU47lCUoT14fi1ow65diY/wKauaT6CoacvR
-        ocMao1Q3edVGQEZ1KWKmre9CsBM3CKYj9p6u7AqlgyJBxIazwc7xKDY/2zY6N4QGKTLXfAo
-        jJANm5jYFamL2hFtn7RDHdBnYSAMT8mPPfJ7/HrfzarAsMMT5cQlixYWOxEMob7FOaJNkel
-        p0PWq9EONgXST4y4gbErjOoD+X2vh+lon3Ia57V7/wYX/qcgs0NerMCwCZHQzYbltLxA==
-X-QQ-GoodBg: 2
-From:   weirongguang <weirongguang@kylinos.cn>
-To:     liuyun01@kylinos.cn
-Cc:     nh@kylinos.cn, Michael Weiser <michael.weiser@gmx.de>,
-        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Juerg Haefliger <juergh@canonical.com>,
-        Stefan Bader <stefan.bader@canonical.com>
-Subject: [PATCH] arm64: Disable unhandled signal log messages by default
-Date:   Tue, 16 Jul 2019 17:49:13 +0800
-Message-Id: <1563270553-96580-1-git-send-email-weirongguang@kylinos.cn>
-X-Mailer: git-send-email 2.7.4
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:kylinos.cn:qybgforeign:qybgforeign1
-X-QQ-Bgrelay: 1
+        id S1731015AbfGPJuM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jul 2019 05:50:12 -0400
+Received: from localhost (unknown [193.47.165.251])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77ABA2064B;
+        Tue, 16 Jul 2019 09:50:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563270611;
+        bh=dpskP48dz6L7doFCtp7W3zMbv4orWk6GK6O1TLm70Ho=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XZ4atqxgtDuxqVXzfF/P0bRMCMXA22maqJlIV1Mak9/t/65wY4p2uRpH71/gCB4BN
+         GzMcK90E6j8KbxVQ6jaEDLRBGFw1FKjuVAix6Y7mX4RkqMoJYmf7Ks3TdFLfjRRcRj
+         fHGreQf+rH5iGv2jOwfUgbiBWqeioNyFxMBx1PfQ=
+Date:   Tue, 16 Jul 2019 12:50:07 +0300
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Selvin Xavier <selvin.xavier@broadcom.com>,
+        linux-rdma@vger.kernel.org, dledford@redhat.com, jgg@ziepe.ca,
+        linux-nvme@lists.infradead.org, stable@vger.kernel.org,
+        Parav Pandit <parav@mellanox.com>
+Subject: Re: [PATCH for-rc] RDMA/bnxt_re: Honor vlan_id in GID entry
+ comparison
+Message-ID: <20190716095007.GK10130@mtr-leonro.mtl.com>
+References: <20190715091913.15726-1-selvin.xavier@broadcom.com>
+ <20190716071030.GH10130@mtr-leonro.mtl.com>
+ <20190716071644.GA21780@kroah.com>
+ <20190716084126.GJ10130@mtr-leonro.mtl.com>
+ <20190716090917.GA11964@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190716090917.GA11964@kroah.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Weiser <michael.weiser@gmx.de>
+On Tue, Jul 16, 2019 at 06:09:17PM +0900, Greg KH wrote:
+> On Tue, Jul 16, 2019 at 11:41:26AM +0300, Leon Romanovsky wrote:
+> > On Tue, Jul 16, 2019 at 04:16:44PM +0900, Greg KH wrote:
+> > > On Tue, Jul 16, 2019 at 10:10:30AM +0300, Leon Romanovsky wrote:
+> > > > On Mon, Jul 15, 2019 at 05:19:13AM -0400, Selvin Xavier wrote:
+> > > > > GID entry consist of GID, vlan, netdev and smac.
+> > > > > Extend GID duplicate check companions to consider vlan_id as well
+> > > > > to support IPv6 VLAN based link local addresses. Introduce
+> > > > > a new structure (bnxt_qplib_gid_info) to hold gid and vlan_id information.
+> > > > >
+> > > > > The issue is discussed in the following thread
+> > > > > https://www.spinics.net/lists/linux-rdma/msg81594.html
+> > > > >
+> > > > > Fixes: 823b23da7113 ("IB/core: Allow vlan link local address based RoCE GIDs")
+> > > > > Cc: <stable@vger.kernel.org> # v5.2+
+> > > > > Reported-by: Yi Zhang <yi.zhang@redhat.com>
+> > > >
+> > > > > Co-developed-by: Parav Pandit <parav@mellanox.com>
+> > > > > Signed-off-by: Parav Pandit <parav@mellanox.com>
+> > > >
+> > > > I never understood why bad habits are so stinky.
+> > > >
+> > > > Can you please explain us what does it mean Co-developed-by and
+> > > > Signed-off-by of the same person in the same patch?
+> > >
+> > > See Documentation/process/submitting-patches.rst for what that tag
+> > > means.
+> >
+> > Read it, it doesn't help me to understand if I should now add
+> > Co-developed-by tag to most of RDMA Mellanox upstreamed patches,
+> > which already care my Signed-off-by, because I'm changing and fixing
+> > them many times.
+>
+> It depends, it's your call, if you think you deserve the credit, sure,
+> add it.  If you are just doing basic "review" where you tell people what
+> needs to be done better, that's probably not what you need to do here.
 
-BugLink: http://bugs.launchpad.net/bugs/1762453
+I'll probably not use this and not because I don't deserve credit, but
+because it looks ridiculously to me to see my name repeated N times for
+my work.
 
-commit 5ee39a71fd89ab7240c5339d04161c44a8e03269 upstream.
+>
+> One example, where I just added myself to a patch happened last week
+> where the developer submitted one solution, I took it and rewrote the
+> whole implementation (from raw kobjects to using the driver model).  The
+> original author got the "From:" and I got a Co-developed-by line.
 
-aarch64 unhandled signal kernel messages are very verbose, suggesting
-them to be more of a debugging aid:
+In old days, we simply changed Author field if changes were above some
+arbitrary threshold (usually half of the original patch) and added SOB.
 
-sigsegv[33]: unhandled level 2 translation fault (11) at 0x00000000, esr
-0x92000046, in sigsegv[400000+71000]
-CPU: 1 PID: 33 Comm: sigsegv Tainted: G        W        4.15.0-rc3+ #3
-Hardware name: linux,dummy-virt (DT)
-pstate: 60000000 (nZCv daif -PAN -UAO)
-pc : 0x4003f4
-lr : 0x4006bc
-sp : 0000fffffe94a060
-x29: 0000fffffe94a070 x28: 0000000000000000
-x27: 0000000000000000 x26: 0000000000000000
-x25: 0000000000000000 x24: 00000000004001b0
-x23: 0000000000486ac8 x22: 00000000004001c8
-x21: 0000000000000000 x20: 0000000000400be8
-x19: 0000000000400b30 x18: 0000000000484728
-x17: 000000000865ffc8 x16: 000000000000270f
-x15: 00000000000000b0 x14: 0000000000000002
-x13: 0000000000000001 x12: 0000000000000000
-x11: 0000000000000000 x10: 0008000020008008
-x9 : 000000000000000f x8 : ffffffffffffffff
-x7 : 0004000000000000 x6 : ffffffffffffffff
-x5 : 0000000000000000 x4 : 0000000000000000
-x3 : 00000000004003e4 x2 : 0000fffffe94a1e8
-x1 : 000000000000000a x0 : 0000000000000000
+Why wasn't this approach enough?
 
-Disable them by default, so they can be enabled using
-/proc/sys/debug/exception-trace.
+>
+> Does that help?
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Michael Weiser <michael.weiser@gmx.de>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Juerg Haefliger <juergh@canonical.com>
-Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
----
- arch/arm64/kernel/traps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Yes, and it makes me wonder when we will need to hire compliance officer
+who will review all our upstreamed patches to comply with more and more
+bureaucracy.
 
-diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
-index 3b653d5..2423501 100644
---- a/arch/arm64/kernel/traps.c
-+++ b/arch/arm64/kernel/traps.c
-@@ -49,7 +49,7 @@ static const char *handler[]= {
- 	"Error"
- };
- 
--int show_unhandled_signals = 1;
-+int show_unhandled_signals = 0;
- 
- /*
-  * Dump out the contents of some memory nicely...
--- 
-2.7.4
+Thanks.
 
-
-
+>
+> thanks,
+>
+> greg k-h
