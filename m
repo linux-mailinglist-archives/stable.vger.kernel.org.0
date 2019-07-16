@@ -2,74 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 293FB6A997
-	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 15:26:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92EC76AAB0
+	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 16:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727849AbfGPN0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jul 2019 09:26:18 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:37739 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726997AbfGPN0S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jul 2019 09:26:18 -0400
-Received: by mail-lj1-f193.google.com with SMTP id z28so19985292ljn.4
-        for <stable@vger.kernel.org>; Tue, 16 Jul 2019 06:26:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=IvRR5TX0r08U1IBmWrgui7KuEw9tBQYmg03mlPpe0b4=;
-        b=LcQ2r0qVSa8vJ/dSTdXMc/ZMayQuj0Bma1G0QT2/AS7446+61DwFhMMS/Xg23mfmnR
-         wNPyDJ9EHRajAJAO0XuxVlJ+un3pYeIZ7fLTNA5vVz/kUfFNn/6pnycH/k2NEJR+FTJ7
-         IXRGM0WZyeEUjbzVMakxb0RO3XnJhZGEoCHTp3QrF/S/M+VKngkr2VdVdFhds6tvphXP
-         i/ioJOc+l/qwJQxjqBkEh8BhRL9SkFnmwMWJD8S38peL0F5PGSyg9gX2ZyLYkt9h2JBt
-         rFiDwAaZBEQkTEalpXdPCfSt2BG/EkQARk4tdmRVrqCcluTDjVVXXZ59UyHI7WeZxQCz
-         YGPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=IvRR5TX0r08U1IBmWrgui7KuEw9tBQYmg03mlPpe0b4=;
-        b=B3V3wSOS7HxTWguqgyvW/Mp996zBOwuFKKwmpdhpsmEY9kJ1EaWVI+9XowUDBkpjlF
-         bK3UeN70T4TT5gKUhdINBTeY5pPSPrj3Hqg3FogHi8IvAYwQoT+EpgeKsbsBXIQyrGef
-         lGHpSBswVAqAcp/ZnT/ShVssMYYNk56Qcd6LJqCilPAdMowuaJbOxwOM4rt2HpuggYmy
-         X6xbAJKFkkHQU3Va+dnlU4aA4OvJl/I+0802r/9RtEaoxip69XGR6rh3Kcnhdh7h8R0G
-         Fd3Je54erS9npdHBD7aR3NGybixBtuWMTTmvfb//963IOICwQ/j/LMOTF+vlpEKNieJX
-         Xccw==
-X-Gm-Message-State: APjAAAUj8WREZmWhYeY7R/cBfSsM/NRM3ZAiyPhMflKWXWu8GhUxsnoy
-        uD9yz6+SIMBxznX3vZn2YiI2WUUyT07BhsaNAKg=
-X-Google-Smtp-Source: APXvYqwQ5mp9gh9zZiqQYhrlVpJMAFrMRmcsbLoxbWXBCAebDKsFDnNDJC3ZBTL477amkeHEqJwmiSvYMN49QULJivk=
-X-Received: by 2002:a2e:89ca:: with SMTP id c10mr2379825ljk.106.1563283576077;
- Tue, 16 Jul 2019 06:26:16 -0700 (PDT)
+        id S1728510AbfGPOhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jul 2019 10:37:01 -0400
+Received: from userp2130.oracle.com ([156.151.31.86]:44500 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728470AbfGPOhB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jul 2019 10:37:01 -0400
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x6GEXYKY112082;
+        Tue, 16 Jul 2019 14:36:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
+ from : references : date : in-reply-to : message-id : mime-version :
+ content-type; s=corp-2018-07-02;
+ bh=V2oWdJ8eUUIozdtQGMQ4u30yDRDXe8sDJDgApZqAsIo=;
+ b=j7OitLgR5srHJvmPcSkHMkYZL8yYygWpynrMFlq9G7Ge/Fd2A7/Dt45iFldpDyBAjnlX
+ 2dbFyZYvSqaALg+YJmTXW7C3E1d9GsBq1HmIrSrhxHLR+ILsoOkevdVxjwdrbop72eQn
+ /hlmqtvA1vUtDHJ0puv7pU7WdxxASIR7t7nprBOFI0sP28ctF8LiLVEv68Gija66kIS2
+ K+/udIql+A4Bmm4fCv9NjhQEa9Ct+dxDdMhlsK5F8tSV/EKdKM0YOudszY27Ogipaa6N
+ ckJu0onJAub3+x0vddiAsEwBfp43uufi3iZaZQjlfM3KFkxDSrtWY+zObvhZpxGCO81A FQ== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by userp2130.oracle.com with ESMTP id 2tq6qtn199-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 16 Jul 2019 14:36:55 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x6GEXHsQ077106;
+        Tue, 16 Jul 2019 14:36:54 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3020.oracle.com with ESMTP id 2tsctw6nex-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 16 Jul 2019 14:36:54 +0000
+Received: from abhmp0005.oracle.com (abhmp0005.oracle.com [141.146.116.11])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x6GEaqUb027419;
+        Tue, 16 Jul 2019 14:36:53 GMT
+Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 16 Jul 2019 14:36:52 +0000
+To:     Roman Mamedov <rm@romanrm.net>
+Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-ide@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] libata: Disable queued TRIM for Samsung 860 series SSDs
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+Organization: Oracle Corporation
+References: <20190714224242.4689a874@natsu> <yq1y30z2ojx.fsf@oracle.com>
+        <20190715224215.2186bc8e@natsu>
+Date:   Tue, 16 Jul 2019 10:36:48 -0400
+In-Reply-To: <20190715224215.2186bc8e@natsu> (Roman Mamedov's message of "Mon,
+        15 Jul 2019 22:42:15 +0500")
+Message-ID: <yq1blxu11xb.fsf@oracle.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
 MIME-Version: 1.0
-Received: by 2002:ab3:4299:0:0:0:0:0 with HTTP; Tue, 16 Jul 2019 06:26:15
- -0700 (PDT)
-From:   Abdul Majid <dr.abdul91majid@gmail.com>
-Date:   Tue, 16 Jul 2019 15:26:15 +0200
-Message-ID: <CADYF2YZZJBTWNzZ98Z342G6gU_gDCbsD7T_J+SU8XaomKdjLzQ@mail.gmail.com>
-Subject: I NEED YOUR URGENT HELP.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9320 signatures=668688
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=960
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1907160179
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9320 signatures=668688
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1907160179
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DR.ABDUL NAJID
-AUDITING AND ACCOUNTING MANAGER,
-AFRICAN DEVELOPMENT BANK
-50-54 RUE DE THOMPSON,
-OUAGADOUGOU, BURKINA FASO, WEST AFRICA
 
-Dear Friend,
+Roman,
 
-Greetings and how are you doing?
+> I do not have other Samsung (m)SATA models to verify. On the bugreport
+> someone confirmed this to be an issue for them too. Let's try asking
+> if they have the mSATA model too, and what firmware revision. Mine is
+> RVT42B6Q and there were no updates available last time I checked.
 
-I want you to be my partner in the transfer of the sum of $38.6
-Million dollars discovered in my department in a Bank here in West
-Africa and I will give you more details on this when I get your reply
-but be rest assured that I will give you 40% of the total sum once the
-transfer is completed but you have to maintain secrecy of this deal if
-you are ready to work with me.
+I have an mSATA drive arriving today. I'll see if I can come up with a
+suitable heuristic to distinguish between mSATA and the other form
+factors.
 
-Yours Sincerely,
-
-Dr.Abdul Majid
-Auditing and Accounting Manager.
+-- 
+Martin K. Petersen	Oracle Linux Engineering
