@@ -2,251 +2,281 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4EA16B12D
-	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 23:39:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 903F66B197
+	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 00:08:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728766AbfGPViL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jul 2019 17:38:11 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:37192 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728235AbfGPViL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jul 2019 17:38:11 -0400
-Received: by mail-wm1-f68.google.com with SMTP id f17so20061286wme.2
-        for <stable@vger.kernel.org>; Tue, 16 Jul 2019 14:38:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=arista.com; s=googlenew;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=H3eudHJjvbxuD13KwrHicc1JmjafoBpBMmTNZ/oegRQ=;
-        b=ey5VfHNmGSlDC0DDsLvbGKRYgHwTGQongQ0lo1Eno08EJte+AeeVZINJzftxHNlaaD
-         4rGzTknZ7V8vQ7ix8TDmzSgCTNm8iwN5UX7mKGWK7ZLHAdhReZEUbDoLtnIAKtsslGbw
-         G319+d3jMGLrvMAZW260knyuGk1Bk/qlEPT0u8GbTd9MO8XUzpc1y/Va6/xZUOQY+Vnx
-         5PI2y1J5Ogny9caIbWPP2NOPgLZ80bO0IraxKIb29SFvZdb/aINmJolUkFe0c/XpILld
-         QwAaf+lVKVbjmWyl9ASqw77DybybNHx7Ek8r/fdpRWfo10dy83jRv1DzlCJxPTgzjxX/
-         ouUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=H3eudHJjvbxuD13KwrHicc1JmjafoBpBMmTNZ/oegRQ=;
-        b=Ws51qoEror9KZ1+hTtjSmgoTWgDRgFAi8XwkJzbyW1/0MWiPRLnfyc3sdX4/NrUIMh
-         x504xIKJQUQAsh90mhwW/jBRdr+8Pr8H/R4UD17xMnck87uT8bFNWnkusqokcnmS6c4G
-         Seh3Vo6NAGXzr7Q+yo7AXazYJzM3AU6TifRCcLisnhuyRAobfgPkxz5mXMx2nadVV+mS
-         zkJJqyzfNtxcXEqeb2IswTLwcSTSGQocSKuckWaqH/Cwwch0YMbP/dgdvXoRTqB5GRtt
-         FyNAzRLhvy9Oy7QHFEtSBa+P+EcV4Oku8oJZ427L38djdfXe/XW+j2aRjCkbecDHJky6
-         W5LA==
-X-Gm-Message-State: APjAAAV7zfvTLsjQydxItWzu37YBrm3lcPFIu75dQjfWKdRcwvIL5hWL
-        oHfCLC5HtfB6WhjB3fPDl8gxMq/l0DFCoblQ2nBFri51ENGWz7qGCj0n9VgfzreilJqt9JtQEOm
-        iOU1/9VFpuXAsJKhS25BdLRAxW9607kdxAH0HqzobjfDnQUPOiii039LFD0LhCriPuk9V5gIXcB
-        CsOJuvIaIAwV7PktSSew==
-X-Google-Smtp-Source: APXvYqzXAPiCfMPhiPEqldBeMIFt/Ky+9UheM3jiHmtKkPgTcsW5NgbqIexEnJGUe2DVQhGoXCYKNg==
-X-Received: by 2002:a05:600c:118a:: with SMTP id i10mr31601585wmf.162.1563313088482;
-        Tue, 16 Jul 2019 14:38:08 -0700 (PDT)
-Received: from Mindolluin.ire.aristanetworks.com ([217.173.96.166])
-        by smtp.gmail.com with ESMTPSA id v5sm22496878wre.50.2019.07.16.14.38.07
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 16 Jul 2019 14:38:07 -0700 (PDT)
-From:   Dmitry Safonov <dima@arista.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Dmitry Safonov <0x7f454c46@gmail.com>,
-        Dmitry Safonov <dima@arista.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Joerg Roedel <joro@8bytes.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        iommu@lists.linux-foundation.org, stable@vger.kernel.org
-Subject: [PATCH 1/2] iommu/vt-d: Don't queue_iova() if there is no flush queue
-Date:   Tue, 16 Jul 2019 22:38:05 +0100
-Message-Id: <20190716213806.20456-1-dima@arista.com>
-X-Mailer: git-send-email 2.22.0
+        id S1728566AbfGPWIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jul 2019 18:08:48 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:51207 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728235AbfGPWIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jul 2019 18:08:48 -0400
+Received: from pd9ef1cb8.dip0.t-ipconnect.de ([217.239.28.184] helo=nanos)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1hnVck-0006qk-VZ
+        for stable@vger.kernel.org; Wed, 17 Jul 2019 00:08:39 +0200
+Date:   Wed, 17 Jul 2019 00:08:38 +0200 (CEST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     stable@vger.kernel.org
+Subject: Backport request
+Message-ID: <alpine.DEB.2.21.1907162318380.1767@nanos.tec.linutronix.de>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CLOUD-SEC-AV-Info: arista,google_mail,monitor
-X-CLOUD-SEC-AV-Sent: true
-X-Gm-Spam: 0
-X-Gm-Phishy: 0
+Content-Type: multipart/mixed; boundary="8323329-2089268693-1563314918=:1767"
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Intel VT-d driver was reworked to use common deferred flushing
-implementation. Previously there was one global per-cpu flush queue,
-afterwards - one per domain.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Before deferring a flush, the queue should be allocated and initialized.
+--8323329-2089268693-1563314918=:1767
+Content-Type: text/plain; charset=US-ASCII
 
-Currently only domains with IOMMU_DOMAIN_DMA type initialize their flush
-queue. It's probably worth to init it for static or unmanaged domains
-too, but it may be arguable - I'm leaving it to iommu folks.
+Folks!
 
-Prevent queuing an iova flush if the domain doesn't have a queue.
-The defensive check seems to be worth to keep even if queue would be
-initialized for all kinds of domains. And is easy backportable.
+There are more and more people worried about these usually harmless
+warnings:
 
-On 4.19.43 stable kernel it has a user-visible effect: previously for
-devices in si domain there were crashes, on sata devices:
+	do_IRQ: 0.39 No irq handler for vector
 
- BUG: spinlock bad magic on CPU#6, swapper/0/1
-  lock: 0xffff88844f582008, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
- CPU: 6 PID: 1 Comm: swapper/0 Not tainted 4.19.43 #1
- Call Trace:
-  <IRQ>
-  dump_stack+0x61/0x7e
-  spin_bug+0x9d/0xa3
-  do_raw_spin_lock+0x22/0x8e
-  _raw_spin_lock_irqsave+0x32/0x3a
-  queue_iova+0x45/0x115
-  intel_unmap+0x107/0x113
-  intel_unmap_sg+0x6b/0x76
-  __ata_qc_complete+0x7f/0x103
-  ata_qc_complete+0x9b/0x26a
-  ata_qc_complete_multiple+0xd0/0xe3
-  ahci_handle_port_interrupt+0x3ee/0x48a
-  ahci_handle_port_intr+0x73/0xa9
-  ahci_single_level_irq_intr+0x40/0x60
-  __handle_irq_event_percpu+0x7f/0x19a
-  handle_irq_event_percpu+0x32/0x72
-  handle_irq_event+0x38/0x56
-  handle_edge_irq+0x102/0x121
-  handle_irq+0x147/0x15c
-  do_IRQ+0x66/0xf2
-  common_interrupt+0xf/0xf
- RIP: 0010:__do_softirq+0x8c/0x2df
+It took a while to figure out why that happens and why it is harmless for
+most interrupts, but there is also a real issue hidden for level type
+IOAPIC interrupts.
 
-The same for usb devices that use ehci-pci:
- BUG: spinlock bad magic on CPU#0, swapper/0/1
-  lock: 0xffff88844f402008, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
- CPU: 0 PID: 1 Comm: swapper/0 Not tainted 4.19.43 #4
- Call Trace:
-  <IRQ>
-  dump_stack+0x61/0x7e
-  spin_bug+0x9d/0xa3
-  do_raw_spin_lock+0x22/0x8e
-  _raw_spin_lock_irqsave+0x32/0x3a
-  queue_iova+0x77/0x145
-  intel_unmap+0x107/0x113
-  intel_unmap_page+0xe/0x10
-  usb_hcd_unmap_urb_setup_for_dma+0x53/0x9d
-  usb_hcd_unmap_urb_for_dma+0x17/0x100
-  unmap_urb_for_dma+0x22/0x24
-  __usb_hcd_giveback_urb+0x51/0xc3
-  usb_giveback_urb_bh+0x97/0xde
-  tasklet_action_common.isra.4+0x5f/0xa1
-  tasklet_action+0x2d/0x30
-  __do_softirq+0x138/0x2df
-  irq_exit+0x7d/0x8b
-  smp_apic_timer_interrupt+0x10f/0x151
-  apic_timer_interrupt+0xf/0x20
-  </IRQ>
- RIP: 0010:_raw_spin_unlock_irqrestore+0x17/0x39
+The following commits in Linus tree are addressing the issue:
 
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: iommu@lists.linux-foundation.org
-Cc: <stable@vger.kernel.org> # 4.14+
-Fixes: 13cf01744608 ("iommu/vt-d: Make use of iova deferred flushing")
-Signed-off-by: Dmitry Safonov <dima@arista.com>
----
- drivers/iommu/intel-iommu.c |  3 ++-
- drivers/iommu/iova.c        | 18 ++++++++++++++----
- include/linux/iova.h        |  6 ++++++
- 3 files changed, 22 insertions(+), 5 deletions(-)
+ b7107a67f0d1 ("x86/irq: Handle spurious interrupt after shutdown gracefully")
+ dfe0cf8b51b0 ("x86/ioapic: Implement irq_get_irqchip_state() callback")
+ 62e0468650c3 ("genirq: Add optional hardware synchronization for shutdown")
+ 1d21f2af8571 ("genirq: Fix misleading synchronize_irq() documentation")
+ 4001d8e8762f ("genirq: Delay deactivation in free_irq()")
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index ac4172c02244..6d1510284d21 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -3564,7 +3564,8 @@ static void intel_unmap(struct device *dev, dma_addr_t dev_addr, size_t size)
- 
- 	freelist = domain_unmap(domain, start_pfn, last_pfn);
- 
--	if (intel_iommu_strict || (pdev && pdev->untrusted)) {
-+	if (intel_iommu_strict || (pdev && pdev->untrusted) ||
-+			!has_iova_flush_queue(&domain->iovad)) {
- 		iommu_flush_iotlb_psi(iommu, domain, start_pfn,
- 				      nrpages, !freelist, 0);
- 		/* free iova */
-diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
-index d499b2621239..8413ae54904a 100644
---- a/drivers/iommu/iova.c
-+++ b/drivers/iommu/iova.c
-@@ -54,9 +54,14 @@ init_iova_domain(struct iova_domain *iovad, unsigned long granule,
- }
- EXPORT_SYMBOL_GPL(init_iova_domain);
- 
-+bool has_iova_flush_queue(struct iova_domain *iovad)
-+{
-+	return !!iovad->fq;
-+}
-+
- static void free_iova_flush_queue(struct iova_domain *iovad)
- {
--	if (!iovad->fq)
-+	if (!has_iova_flush_queue(iovad))
- 		return;
- 
- 	if (timer_pending(&iovad->fq_timer))
-@@ -74,13 +79,14 @@ static void free_iova_flush_queue(struct iova_domain *iovad)
- int init_iova_flush_queue(struct iova_domain *iovad,
- 			  iova_flush_cb flush_cb, iova_entry_dtor entry_dtor)
- {
-+	struct iova_fq __percpu *queue;
- 	int cpu;
- 
- 	atomic64_set(&iovad->fq_flush_start_cnt,  0);
- 	atomic64_set(&iovad->fq_flush_finish_cnt, 0);
- 
--	iovad->fq = alloc_percpu(struct iova_fq);
--	if (!iovad->fq)
-+	queue = alloc_percpu(struct iova_fq);
-+	if (!queue)
- 		return -ENOMEM;
- 
- 	iovad->flush_cb   = flush_cb;
-@@ -89,13 +95,17 @@ int init_iova_flush_queue(struct iova_domain *iovad,
- 	for_each_possible_cpu(cpu) {
- 		struct iova_fq *fq;
- 
--		fq = per_cpu_ptr(iovad->fq, cpu);
-+		fq = per_cpu_ptr(queue, cpu);
- 		fq->head = 0;
- 		fq->tail = 0;
- 
- 		spin_lock_init(&fq->lock);
- 	}
- 
-+	smp_wmb();
-+
-+	iovad->fq = queue;
-+
- 	timer_setup(&iovad->fq_timer, fq_flush_timeout, 0);
- 	atomic_set(&iovad->fq_timer_on, 0);
- 
-diff --git a/include/linux/iova.h b/include/linux/iova.h
-index 781b96ac706f..cd0f1de901a8 100644
---- a/include/linux/iova.h
-+++ b/include/linux/iova.h
-@@ -155,6 +155,7 @@ struct iova *reserve_iova(struct iova_domain *iovad, unsigned long pfn_lo,
- void copy_reserved_iova(struct iova_domain *from, struct iova_domain *to);
- void init_iova_domain(struct iova_domain *iovad, unsigned long granule,
- 	unsigned long start_pfn);
-+bool has_iova_flush_queue(struct iova_domain *iovad);
- int init_iova_flush_queue(struct iova_domain *iovad,
- 			  iova_flush_cb flush_cb, iova_entry_dtor entry_dtor);
- struct iova *find_iova(struct iova_domain *iovad, unsigned long pfn);
-@@ -235,6 +236,11 @@ static inline void init_iova_domain(struct iova_domain *iovad,
- {
- }
- 
-+bool has_iova_flush_queue(struct iova_domain *iovad)
-+{
-+	return false;
-+}
-+
- static inline int init_iova_flush_queue(struct iova_domain *iovad,
- 					iova_flush_cb flush_cb,
- 					iova_entry_dtor entry_dtor)
--- 
-2.22.0
+There is another one which makes sense to be backported:
 
+ f8a8fe61fec8 ("x86/irq: Seperate unused system vectors from spurious entry again")
+
+These should go back to 4.19, but not farther.
+
+They apply cleanly to 5.1 and 5.2. A backport to 4.19 is attached.
+
+Thanks,
+
+	tglx
+
+--8323329-2089268693-1563314918=:1767
+Content-Type: application/octet-stream; name=patches-4.19.tar.bz2
+Content-Transfer-Encoding: BASE64
+Content-ID: <alpine.DEB.2.21.1907170008381.1767@nanos.tec.linutronix.de>
+Content-Description: 
+Content-Disposition: attachment; filename=patches-4.19.tar.bz2
+
+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
+KTmyVIAfAM8J6iAArbIWMlZCWsAoDwCYISQwCdgVqdQ3ugbWMgAlJmY3HVnT
+lrN52lJ9h6jfuiJtvrN9Rd4m9jYkkg10bDtcXK6nE9Vlhq1Veh+r/D23VV/g
+34daTWvTSbIN226Yfy0u4MjC9aEXBu2mGvJU6U61dq6aCunYUV611cIrLhq0
+spYyvDKYLDWfBmMS9i3W2dHG3HGYct7yM9R5ZIsge/QWh9h88yAIyDMzBZNc
+CHj/eicZhE2mBfIZN9lWRIEMPvIcaF/mxRujfJg840e72aQ/NQbT11e91v2U
+Uon3miyI+QMj2VarHyBJKmfhlkSfGqRJGU1ZyloGF8mLo5nDjeSx+LxU3vLE
+UOwO+j72UcFE19qGGydonLvXt9XuNSPM7+CfUx79EksCXyh2nNVz4btbslQl
+KdJspO0pTic3pLm+JMS4QEesBn/kPmMCotKxCEkKuPs458TND1ewb+q9hlrw
+8vhokq3AnUv3KumZIP5CSVAqX7hO4m86iHx9qoxFVEVHvyeJD8w717HsXNuu
+A64d+zhiiwtEDXaSSEIwJ+gdBMPAZ3w1moaPyit3mvn7Rfi9gIwW/Rr8kmIy
+3O8/hkixSVWHcDpA5zBzKHO3Me7/m3uVsBEzF25Bw3YYC8uANTcPnhnDywKe
+z6fwe3g56ZmwjLIbFjKJVYuei5t4Wfsa2srufKu6wrRpD42dm9ur1H1lCZt1
+41kmi98yctbvzkqU/MIPrN2WGiJaRr4GlO1T98adpgU7m273ttqHfhxwZtjN
+mM9WkxGprXG65HcPvioMzRVIIxxyXLUIlizhomnDKoSmNJ4wE8kWGV7NbxJt
++XXs0Js92nOmXl1072tx16L94nrV7u0FyITmKOEkJ7oJfjy/W1ZsGFqW2VTZ
+SOYyzTY4HUtK1ph7KsyihiHxAbouE0gJpXw0GPbb2MpatV7GsBGJ5aDfMQW5
+kluF7Jgxx40ei7I8VcaIuvBFmbok9bu6Iq9vPlbbjxHPlpkEpnegAZSLQ4HL
+od+M0Y8VrfQpQ5RNDhnu1OXPLRTluHFNYYFeG/jcquBpi6Welq3pqvdGWspB
+1qFy0nozFdBgWkImXOcHXpaHGdkSYZctqcYoMsqzG+HfojaNT+xc4Q33flbP
+bp3s/LVcUrpzXflW/Tc9IRKGz40qjcRC7FV2AQBdVeMo4luhwlMPFOm89Sao
+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
+nHzGRkcWFQYf0shH1hgIn/8XckU4UJBNySqC
+
+--8323329-2089268693-1563314918=:1767--
