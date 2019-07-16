@@ -2,93 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E88E6A494
-	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 11:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E59006A4A2
+	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 11:11:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730520AbfGPJJV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jul 2019 05:09:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42840 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727105AbfGPJJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jul 2019 05:09:21 -0400
+        id S1731950AbfGPJL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jul 2019 05:11:28 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:55311 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731581AbfGPJL1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jul 2019 05:11:27 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 87A1D21B34;
+        Tue, 16 Jul 2019 05:11:26 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 16 Jul 2019 05:11:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=UjMps8MU4/beAaL+NB+ownWlCK/
+        mjUB6hBL3P7T9Mxc=; b=OT/BWOlVQOSURtyitLAmU1oCnUR0ijH/+kLr8MXkcmE
+        WoP3GxJfaNtq9yVPUymNowgxWcnFHM4AEaKDYmk4K256OscC1mO5l9kvHTssoPg1
+        1QX3eQLynDJxK8fgxcknYBDLnw4H6T5RHliSrNmcCv+EL75ZJHp36qHlZ0rEWH6S
+        mFAPhwX3ApB0RyFtKVh2ACrMUTwbpkYLcezi/M+L7Xb8GTULt7vIEZBLoXt5OKFY
+        eA5nETy8flW0RV66YrQfi83kzcNbinBHsSk/JnPXCTePQeD7J8zL4T76FUN2A6py
+        xLP8qWEMfs4vgMK4IAvQTS4hLbpGgLPzR6yaaO4fi0g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=UjMps8
+        MU4/beAaL+NB+ownWlCK/mjUB6hBL3P7T9Mxc=; b=M7EB3P7y10nVbvo1O/XJHP
+        rJW6FEDvu7zV1FNaefhEUmJM+VwnVcchLYa6BrZuopMGbuortJMZ8HQJ/YCXqaRu
+        tb/xAOp9l3l6n3doaiNQtMc5C3E96Si7XPiTsQzQNLupy8alRazQ9mEw2DxLJZOY
+        hui4kNqwKZZNCX6ADcB7fwrPmsIwZN09U12i+4uO6dX5tEUn2fdnOA64T5tetZDw
+        N1U4F4NBxS9BX4iNT6RMWrPF98R8hsmyoGbQ6kOu6Xg7wzfEcIH7eGEP2t9Psm98
+        n73NoJEbpeSPIR6zD/vBKoWm/QU31BulwfWqn56o12Xj234pokNuh70GavitvwgQ
+        ==
+X-ME-Sender: <xms:vZQtXbDaEbq4LvqzjlWdPfrHXMmKYW8lhDay_HwDQIVxYvj5zqxYcg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddriedtgddufecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrd
+    horhhgnecukfhppeduudefrdduheejrddvudejrdehtdenucfrrghrrghmpehmrghilhhf
+    rhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:vZQtXVwyeR_OL16WuxnwyczFJXWLJv43ABOFUuOl8oHkeW1xMOm9jg>
+    <xmx:vZQtXRkGVECz2Aq8EUCGpQp6QC9ZirQjRREOO2NjKEDvzvt9bMfXcg>
+    <xmx:vZQtXSEYTD3_CpGWsmi2_vZrVlZMpFoPb3qUpXZJ0aS7cOwuAsu4bg>
+    <xmx:vpQtXfSB42osp-YKdrAz6iIb3yUONBcVHVNnSQV6bDQJF8gurtA_cQ>
 Received: from localhost (unknown [113.157.217.50])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEEF420659;
-        Tue, 16 Jul 2019 09:09:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563268160;
-        bh=4r33a+xYn3ykb/9WpoGUpLWaTO2guXYpyiU6YoPdW3k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Jmdj/QvypWhbnaUAwaauhhH92Mjm0uH79cqHp+cZtRtDGlrr4Jy/yf6CR36m9e38F
-         88776BYX1Do8bHeS+YZcAiI3spoEUhwE5T0NjvfN4LY1iYUhGOMNVGyfplTm8ux6Cn
-         xSNHFXhNlwb2JaRfdgSFxL9GEOaq12kCqS7VPT60=
-Date:   Tue, 16 Jul 2019 18:09:17 +0900
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Leon Romanovsky <leon@kernel.org>
-Cc:     Selvin Xavier <selvin.xavier@broadcom.com>,
-        linux-rdma@vger.kernel.org, dledford@redhat.com, jgg@ziepe.ca,
-        linux-nvme@lists.infradead.org, stable@vger.kernel.org,
-        Parav Pandit <parav@mellanox.com>
-Subject: Re: [PATCH for-rc] RDMA/bnxt_re: Honor vlan_id in GID entry
- comparison
-Message-ID: <20190716090917.GA11964@kroah.com>
-References: <20190715091913.15726-1-selvin.xavier@broadcom.com>
- <20190716071030.GH10130@mtr-leonro.mtl.com>
- <20190716071644.GA21780@kroah.com>
- <20190716084126.GJ10130@mtr-leonro.mtl.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id E4F73380084;
+        Tue, 16 Jul 2019 05:11:24 -0400 (EDT)
+Date:   Tue, 16 Jul 2019 18:11:22 +0900
+From:   Greg KH <greg@kroah.com>
+To:     Stefan Wahren <stefan.wahren@i2se.com>
+Cc:     Cyril Brulebois <cyril@debamax.com>, stable@vger.kernel.org,
+        charles.fendt@me.com
+Subject: Re: [PATCH 1/3] ARM: dts: add Raspberry Pi Compute Module 3 and IO
+ board
+Message-ID: <20190716091122.GB11964@kroah.com>
+References: <20190715140112.6180-1-cyril@debamax.com>
+ <20190715140112.6180-2-cyril@debamax.com>
+ <860468a1-df13-cb6a-6951-455cf72ad4a0@i2se.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190716084126.GJ10130@mtr-leonro.mtl.com>
+In-Reply-To: <860468a1-df13-cb6a-6951-455cf72ad4a0@i2se.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 16, 2019 at 11:41:26AM +0300, Leon Romanovsky wrote:
-> On Tue, Jul 16, 2019 at 04:16:44PM +0900, Greg KH wrote:
-> > On Tue, Jul 16, 2019 at 10:10:30AM +0300, Leon Romanovsky wrote:
-> > > On Mon, Jul 15, 2019 at 05:19:13AM -0400, Selvin Xavier wrote:
-> > > > GID entry consist of GID, vlan, netdev and smac.
-> > > > Extend GID duplicate check companions to consider vlan_id as well
-> > > > to support IPv6 VLAN based link local addresses. Introduce
-> > > > a new structure (bnxt_qplib_gid_info) to hold gid and vlan_id information.
-> > > >
-> > > > The issue is discussed in the following thread
-> > > > https://www.spinics.net/lists/linux-rdma/msg81594.html
-> > > >
-> > > > Fixes: 823b23da7113 ("IB/core: Allow vlan link local address based RoCE GIDs")
-> > > > Cc: <stable@vger.kernel.org> # v5.2+
-> > > > Reported-by: Yi Zhang <yi.zhang@redhat.com>
-> > >
-> > > > Co-developed-by: Parav Pandit <parav@mellanox.com>
-> > > > Signed-off-by: Parav Pandit <parav@mellanox.com>
-> > >
-> > > I never understood why bad habits are so stinky.
-> > >
-> > > Can you please explain us what does it mean Co-developed-by and
-> > > Signed-off-by of the same person in the same patch?
-> >
-> > See Documentation/process/submitting-patches.rst for what that tag
-> > means.
+On Mon, Jul 15, 2019 at 05:26:16PM +0200, Stefan Wahren wrote:
+> Hi Cyril,
 > 
-> Read it, it doesn't help me to understand if I should now add
-> Co-developed-by tag to most of RDMA Mellanox upstreamed patches,
-> which already care my Signed-off-by, because I'm changing and fixing
-> them many times.
+> On 15.07.19 16:01, Cyril Brulebois wrote:
+> > From: Stefan Wahren <stefan.wahren@i2se.com>
+> >
+> > commit a54fe8a6cf66828499b121c3c39c194b43b8ed94 upstream.
+> >
+> > The Raspberry Pi Compute Module 3 (CM3) and the Raspberry Pi
+> > Compute Module 3 Lite (CM3L) are SoMs which contains a BCM2837 processor,
+> > 1 GB RAM and a GPIO expander. The CM3 has a 4 GB eMMC, but on the CM3L
+> > the eMMC is unpopulated and it's up to the user to connect their
+> > own SD/MMC device. The dtsi file is designed to work for both modules.
+> > There is also a matching carrier board which is called
+> > Compute Module IO Board V3.
+> 
+> this patch series doesn't apply to the stable kernel rules.
 
-It depends, it's your call, if you think you deserve the credit, sure,
-add it.  If you are just doing basic "review" where you tell people what
-needs to be done better, that's probably not what you need to do here.
-
-One example, where I just added myself to a patch happened last week
-where the developer submitted one solution, I took it and rewrote the
-whole implementation (from raw kobjects to using the driver model).  The
-original author got the "From:" and I got a Co-developed-by line.
-
-Does that help?
+I'm with Stefan.  Cyril, how do you think this matches up with what:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+says?
 
 thanks,
 
