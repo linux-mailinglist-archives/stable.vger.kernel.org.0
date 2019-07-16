@@ -2,150 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A75856A662
-	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 12:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B8D56A736
+	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 13:20:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733038AbfGPKUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jul 2019 06:20:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57238 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731401AbfGPKUy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jul 2019 06:20:54 -0400
-Received: from localhost (unknown [193.47.165.251])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48160206C2;
-        Tue, 16 Jul 2019 10:20:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563272453;
-        bh=QTpstGqM15RybHt93+XS28mtw0dNSPlxIO3Kq/Y4aOQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IHrjVZ4kxV1TK9OnSwQOhTi67RJshFsM8k3U6U4gyGQM2fe5H0hn/dzThQk93VVLX
-         P1Iu4h+HH7r76+JY2tfyk0x45V+U9JTf5RBQxGbvGkG6CwZME19BjGrKOipOASvjb6
-         18oQ2LBHEijzMP5sRjDoEPdEa4LqwUcdZy7L+owg=
-Date:   Tue, 16 Jul 2019 13:20:50 +0300
-From:   Leon Romanovsky <leon@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Selvin Xavier <selvin.xavier@broadcom.com>,
-        linux-rdma@vger.kernel.org, dledford@redhat.com, jgg@ziepe.ca,
-        linux-nvme@lists.infradead.org, stable@vger.kernel.org,
-        Parav Pandit <parav@mellanox.com>
-Subject: Re: [PATCH for-rc] RDMA/bnxt_re: Honor vlan_id in GID entry
- comparison
-Message-ID: <20190716102050.GL10130@mtr-leonro.mtl.com>
-References: <20190715091913.15726-1-selvin.xavier@broadcom.com>
- <20190716071030.GH10130@mtr-leonro.mtl.com>
- <20190716071644.GA21780@kroah.com>
- <20190716084126.GJ10130@mtr-leonro.mtl.com>
- <20190716090917.GA11964@kroah.com>
- <20190716095007.GK10130@mtr-leonro.mtl.com>
- <20190716095852.GA25228@kroah.com>
+        id S1733269AbfGPLTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jul 2019 07:19:01 -0400
+Received: from ispman.iskranet.ru ([62.213.33.10]:55722 "EHLO
+        ispman.iskranet.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387484AbfGPLTA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jul 2019 07:19:00 -0400
+X-Greylist: delayed 377 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jul 2019 07:19:00 EDT
+Received: by ispman.iskranet.ru (Postfix, from userid 8)
+        id 1D50E8217EA; Tue, 16 Jul 2019 18:12:39 +0700 (KRAT)
+X-Spam-Checker-Version: SpamAssassin 3.3.2 (2011-06-06) on ispman.iskranet.ru
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=4.0 tests=ALL_TRUSTED,SHORTCIRCUIT
+        shortcircuit=ham autolearn=disabled version=3.3.2
+Received: from KB016249.iskra.kb (unknown [62.213.40.60])
+        (Authenticated sender: asolokha@kb.kras.ru)
+        by ispman.iskranet.ru (Postfix) with ESMTPA id 477D98217E7;
+        Tue, 16 Jul 2019 18:12:37 +0700 (KRAT)
+From:   Arseny Solokha <asolokha@kb.kras.ru>
+To:     linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Arseny Solokha <asolokha@kb.kras.ru>,
+        Adrian Bunk <bunk@kernel.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] eeprom: make older eeprom drivers select NVMEM_SYSFS
+Date:   Tue, 16 Jul 2019 18:12:36 +0700
+Message-Id: <20190716111236.27803-1-asolokha@kb.kras.ru>
+X-Mailer: git-send-email 2.22.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190716095852.GA25228@kroah.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 16, 2019 at 06:58:52PM +0900, Greg KH wrote:
-> On Tue, Jul 16, 2019 at 12:50:07PM +0300, Leon Romanovsky wrote:
-> > On Tue, Jul 16, 2019 at 06:09:17PM +0900, Greg KH wrote:
-> > > On Tue, Jul 16, 2019 at 11:41:26AM +0300, Leon Romanovsky wrote:
-> > > > On Tue, Jul 16, 2019 at 04:16:44PM +0900, Greg KH wrote:
-> > > > > On Tue, Jul 16, 2019 at 10:10:30AM +0300, Leon Romanovsky wrote:
-> > > > > > On Mon, Jul 15, 2019 at 05:19:13AM -0400, Selvin Xavier wrote:
-> > > > > > > GID entry consist of GID, vlan, netdev and smac.
-> > > > > > > Extend GID duplicate check companions to consider vlan_id as well
-> > > > > > > to support IPv6 VLAN based link local addresses. Introduce
-> > > > > > > a new structure (bnxt_qplib_gid_info) to hold gid and vlan_id information.
-> > > > > > >
-> > > > > > > The issue is discussed in the following thread
-> > > > > > > https://www.spinics.net/lists/linux-rdma/msg81594.html
-> > > > > > >
-> > > > > > > Fixes: 823b23da7113 ("IB/core: Allow vlan link local address based RoCE GIDs")
-> > > > > > > Cc: <stable@vger.kernel.org> # v5.2+
-> > > > > > > Reported-by: Yi Zhang <yi.zhang@redhat.com>
-> > > > > >
-> > > > > > > Co-developed-by: Parav Pandit <parav@mellanox.com>
-> > > > > > > Signed-off-by: Parav Pandit <parav@mellanox.com>
-> > > > > >
-> > > > > > I never understood why bad habits are so stinky.
-> > > > > >
-> > > > > > Can you please explain us what does it mean Co-developed-by and
-> > > > > > Signed-off-by of the same person in the same patch?
-> > > > >
-> > > > > See Documentation/process/submitting-patches.rst for what that tag
-> > > > > means.
-> > > >
-> > > > Read it, it doesn't help me to understand if I should now add
-> > > > Co-developed-by tag to most of RDMA Mellanox upstreamed patches,
-> > > > which already care my Signed-off-by, because I'm changing and fixing
-> > > > them many times.
-> > >
-> > > It depends, it's your call, if you think you deserve the credit, sure,
-> > > add it.  If you are just doing basic "review" where you tell people what
-> > > needs to be done better, that's probably not what you need to do here.
-> >
-> > I'll probably not use this and not because I don't deserve credit, but
-> > because it looks ridiculously to me to see my name repeated N times for
-> > my work.
->
-> That's up to you, and your fellow co-authors to decide.
->
-> > > One example, where I just added myself to a patch happened last week
-> > > where the developer submitted one solution, I took it and rewrote the
-> > > whole implementation (from raw kobjects to using the driver model).  The
-> > > original author got the "From:" and I got a Co-developed-by line.
-> >
-> > In old days, we simply changed Author field if changes were above some
-> > arbitrary threshold (usually half of the original patch) and added SOB.
-> >
-> > Why wasn't this approach enough?
->
-> Because we have had some patches where it really was a work of multiple
-> people and it is good to show the correct authorship wherever possible.
->
-> If you look, this tag was added based on a document in the kernel tree
-> that Thomas and I worked on together and we both wanted the "blame" for
-> it :)
->
-> > > Does that help?
-> >
-> > Yes, and it makes me wonder when we will need to hire compliance officer
-> > who will review all our upstreamed patches to comply with more and more
-> > bureaucracy.
->
-> Oh come on, this is about the ability to give people credit where they
-> did not have it before.  It's not about being "compliant", it's about
-> being "nice" and "fair".  Something that no one should complain about.
->
-> There is no one forcing you to add this tag to patches with your name on
-> it if you do not want to.  But for those who work on changes together,
-> it is important to give them that type of credit.
+misc/eeprom/{at24,at25,eeprom_93xx46} drivers all register their
+corresponding devices in the nvmem framework in compat mode which requires
+nvmem sysfs interface to be present. The latter, however, has been split
+out from nvmem under a separate Kconfig in commit ae0c2d725512 ("nvmem:
+core: add NVMEM_SYSFS Kconfig"). As a result, probing certain I2C-attached
+EEPROMs now fails with
 
-It is partly true, I agree that for my own patches I can do more or less
-whatever I want, but my responsibilities are broader and I need to guide
-internal development teams on how to develop for upstream and how
-to upstream their work later on.
+  at24: probe of 0-0050 failed with error -38
 
-Exactly like Theodore (if I'm not mistaken here) mentioned in last
-reply to ksummit thread about meaningful Reviewed-by and Acked-by tags,
-I got complains when I changed/fixed inappropriate tags. Now, I'll get
-extra complains for not allowing to use Co-... tag too.
+because of a stub implementation of nvmem_sysfs_setup_compat()
+in drivers/nvmem/nvmem.h. Update the nvmem dependency for these drivers
+so they could load again:
 
-So it is not true for my second responsibility, where I must to do it
-right and with minimal number of my personal preferences.
+  at24 0-0050: 32768 byte 24c256 EEPROM, writable, 64 bytes/write
 
-This extra documented tag puts me in position where I don't want to
-be - in the middle between documentation and personal opinion on not
-important thing.
+Cc: Adrian Bunk <bunk@kernel.org>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
+---
+ drivers/misc/eeprom/Kconfig | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Thanks
+diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
+index f88094719552..f2abe27010ef 100644
+--- a/drivers/misc/eeprom/Kconfig
++++ b/drivers/misc/eeprom/Kconfig
+@@ -5,6 +5,7 @@ config EEPROM_AT24
+ 	tristate "I2C EEPROMs / RAMs / ROMs from most vendors"
+ 	depends on I2C && SYSFS
+ 	select NVMEM
++	select NVMEM_SYSFS
+ 	select REGMAP_I2C
+ 	help
+ 	  Enable this driver to get read/write support to most I2C EEPROMs
+@@ -34,6 +35,7 @@ config EEPROM_AT25
+ 	tristate "SPI EEPROMs from most vendors"
+ 	depends on SPI && SYSFS
+ 	select NVMEM
++	select NVMEM_SYSFS
+ 	help
+ 	  Enable this driver to get read/write support to most SPI EEPROMs,
+ 	  after you configure the board init code to know about each eeprom
+@@ -80,6 +82,7 @@ config EEPROM_93XX46
+ 	depends on SPI && SYSFS
+ 	select REGMAP
+ 	select NVMEM
++	select NVMEM_SYSFS
+ 	help
+ 	  Driver for the microwire EEPROM chipsets 93xx46x. The driver
+ 	  supports both read and write commands and also the command to
+-- 
+2.22.0
 
->
-> thanks,
->
-> greg k-h
