@@ -2,85 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 304556A0A2
-	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 04:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 796216A0ED
+	for <lists+stable@lfdr.de>; Tue, 16 Jul 2019 05:44:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731250AbfGPC5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jul 2019 22:57:12 -0400
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:40496 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730765AbfGPC5L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jul 2019 22:57:11 -0400
-Received: by mail-qk1-f194.google.com with SMTP id s145so13376689qke.7
-        for <stable@vger.kernel.org>; Mon, 15 Jul 2019 19:57:11 -0700 (PDT)
+        id S1730260AbfGPDom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jul 2019 23:44:42 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:33566 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730311AbfGPDom (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jul 2019 23:44:42 -0400
+Received: by mail-pf1-f194.google.com with SMTP id g2so8413189pfq.0
+        for <stable@vger.kernel.org>; Mon, 15 Jul 2019 20:44:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=63o0ErhP//1BFgLuSNxAKDeebTl8IjDLr5/KnLD3GRQ=;
-        b=Y7yTdqSRC1ytCTZm2vH4l0zj0OosyMtjRA8K/FoK3g2ilmEzaZVA53WE7EJjn6PsFL
-         tm6uivbAkhtZGs0NU91PEJDGqq6phIir5dXJeq5fjboNRFlaxOd4BHVzTgwLrYuEu9rG
-         4rYcnPGSCBFJ9uIggkT/qcXOcYwcQtEMTgFP5dAV5xwrDrSdBB46fQZFHSTOweJNGyvo
-         6+Mr0XbPqgYAez3fOoWArD9xYxgNK/ximcmVGb+VCG1ApsTQNGwbG6S3YOSm55EqTc9+
-         ynz4ffVv1rizevksn1koo1Coj9pmbcWO+uZzmKob9LokFyBp1rF0V1qZBQVSo22qFZU6
-         YEOQ==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=HAbLIcu7Y20FNSdYESSfYWN0X3RSwMnzsh7JLim98Ng=;
+        b=yKegYub9QM21pRBwJqRi8F7TMNXEId9/ySwc7QINpN5uD4U+n1p44JjV3eA/OqTnvV
+         Fj5JMWC1s6/aaaAIgNxP6aXrqZM2z28G/TuoS/cKOI5fImpiNmGIAABDDxRTi/x8zgSs
+         qDhUk4CmUXpAlWbWemWBVPqNwL8dvuZc0kzNpTWfUOChO/yGROao6ZRDEWTZWQbDe5A1
+         qby6s15XKz0DYAIEiwMs356UINM7Zqw2pGSHUudVEKGRA2YlB6EEzyxObeyRN49XMeiQ
+         72LyTwIb8qPvXQogyOtk4zMLcTn2DJPhSaEfl9WwB6R0YHCHfEzy4ozhvn5eHa0kip7m
+         996w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=63o0ErhP//1BFgLuSNxAKDeebTl8IjDLr5/KnLD3GRQ=;
-        b=R8nKVZl2o8ypCyl/qtYIXJAjSPvNCIRzoAkylfKYa6M9mpGo6Ed93RMlR0G09CGzg5
-         FdriHSi8lT1AAR3ZybB7R7+V4w2d+VPPfnKxNyOX8hEHMoYtwejutJXPqQm7Af1yf8ra
-         dQmTtM9HELt1IPN6Ay9T1Nhafdit9XJ/QTqT6yUQP/AG5VA8tqjclKn1ClQAWbcaPIQz
-         SliQYtVefAKJQ4857IdRHxunDN7pXI6i+ZsCOUom883p8wHssKuU00DNH8opPfsJpwO5
-         7DtHGY1yTOkn2eADPviJZvGJprAFlbzjZ2XZrowq0pkSnrg7iEaXAmwdXdcKIanltpt3
-         fhLQ==
-X-Gm-Message-State: APjAAAWdJMqzcMzijUp0+HSe8JVLJgL9tl5wOjfIfjPlv4GZLPaQp/fF
-        VZaToLX+BsDr8P+WW4/oChWFsr8hA7pzyZRfF+CXvV4p/ec=
-X-Google-Smtp-Source: APXvYqxV/W+WUnDi/vtmk5o0fUc07VThwPkzPIWiDoyenDY2Lv+seJF5RcFs2kgbF+LDe5z9/5p5MufNf9s+TApBVOY=
-X-Received: by 2002:a05:620a:10b2:: with SMTP id h18mr19360197qkk.14.1563245830757;
- Mon, 15 Jul 2019 19:57:10 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=HAbLIcu7Y20FNSdYESSfYWN0X3RSwMnzsh7JLim98Ng=;
+        b=hu70ci7VnjXeDZw20cXX/aJfIQvLsWFj5sTQnme6dJTE9JDUqx2wteMFd5uEg3nnvY
+         JPvhnCuBA+LkYbsaMnh3Log5TrkbX70VZ/s0Ji+JsFpfT1o4Y9f9GVPxlMY5HWDNrgfq
+         g9RCQ0WrbZK4NMDFNn3ohs0j4OpVJlmUHv/rRKjNbFunjfpxc4v1ABrPxatkrludqp3m
+         7GiKP3T4vZpUow8ss+Opu+o1kVluX8RIJLPCGrJn8OLG63rB7TmjNogSPbZGL0FWtPm7
+         YEEqZ9Ld65VCCc376kLTrplIAW6/hKA4R00H91DaLvP69StOwKJq4vfIPIqL70GJ1Q79
+         of6g==
+X-Gm-Message-State: APjAAAV9P0bVFbVBJe50dk77VShoPgz51FQqaw3DHpZtwzAaFBBnBVUw
+        RPWoJackTbY5/TKYOTzrcxfBoQ==
+X-Google-Smtp-Source: APXvYqyh2bo4bQr+Uxcy92vuimvnkN7dPco681H2kbg5jPAu33xrMkg0wuu6HD4e5qQkyrKUiJau7A==
+X-Received: by 2002:a17:90a:fa12:: with SMTP id cm18mr33204852pjb.137.1563248680896;
+        Mon, 15 Jul 2019 20:44:40 -0700 (PDT)
+Received: from localhost ([122.172.28.117])
+        by smtp.gmail.com with ESMTPSA id u16sm19716809pjb.2.2019.07.15.20.44.38
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 15 Jul 2019 20:44:39 -0700 (PDT)
+Date:   Tue, 16 Jul 2019 09:14:37 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Mark Rutland <mark.rutland@arm.com>
+Cc:     stable@vger.kernel.org, Julien Thierry <Julien.Thierry@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com
+Subject: Re: [PATCH v4.4 V2 00/43] V4.4 backport of arm64 Spectre patches
+Message-ID: <20190716034437.gq4q4bsftfzqd2ll@vireshk-i7>
+References: <cover.1562908074.git.viresh.kumar@linaro.org>
+ <20190715130936.GH56232@lakrids.cambridge.arm.com>
 MIME-Version: 1.0
-References: <20190715133811.2441-1-sashal@kernel.org> <20190715133811.2441-13-sashal@kernel.org>
-In-Reply-To: <20190715133811.2441-13-sashal@kernel.org>
-From:   Daniel Drake <drake@endlessm.com>
-Date:   Tue, 16 Jul 2019 10:56:59 +0800
-Message-ID: <CAD8Lp47XuF26FP0XEPz6KFMg=UGDvZx5bejjF6NZ2qSRdZSR_w@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.1 013/219] x86/tsc: Use CPUID.0x16 to calculate
- missing crystal frequency
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Linux Kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Len Brown <len.brown@intel.com>,
-        Linux Upstreaming Team <linux@endlessm.com>,
-        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>,
-        Ingo Molnar <mingo@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190715130936.GH56232@lakrids.cambridge.arm.com>
+User-Agent: NeoMutt/20180716-391-311a52
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On 15-07-19, 14:09, Mark Rutland wrote:
+> It looks like I messed up spectacularly when backporting that commit;
+> those files should not have been added. I must have had those lying
+> around from a rebase or similar.
 
-On Mon, Jul 15, 2019 at 9:38 PM Sasha Levin <sashal@kernel.org> wrote:
-> From: Daniel Drake <drake@endlessm.com>
->
-> [ Upstream commit 604dc9170f2435d27da5039a3efd757dceadc684 ]
+That's what I thought :)
 
-In my opinion this is not stable kernel material.
+> I'll spin a patch for v4.9.y to drop the bits I added erroneously.
+> 
+> It is somewhat concerning that no-one spotted that (myself included)
+> when the v4.9.y backport was originally made. :/
 
-It alone does not solve a particular bug. It's part of a larger effort
-to decrease usage of the 8254 PIT on modern platforms, which solves a
-real problem (see "x86: skip PIT initialization on modern chipsets"),
-but I'd conservatively recommend just leaving these patches out of the
-stable tree. The problem has existed for a while without a
-particularly wide impact, and there is a somewhat documented
-workaround of changing BIOS settings.
+Looks like no one reviewed the patches seriously as they came from you
+and people thought they should be okay. We know Mark :)
 
-Daniel
+-- 
+viresh
