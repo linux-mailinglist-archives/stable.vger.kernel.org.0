@@ -2,121 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFADF6C0BE
-	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 20:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82E436C0D1
+	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 20:10:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727350AbfGQSCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 14:02:37 -0400
-Received: from mail-yw1-f66.google.com ([209.85.161.66]:46695 "EHLO
-        mail-yw1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727286AbfGQSCh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Jul 2019 14:02:37 -0400
-Received: by mail-yw1-f66.google.com with SMTP id z197so11052037ywd.13
-        for <stable@vger.kernel.org>; Wed, 17 Jul 2019 11:02:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=yDzRsEyxIuuSai2DRMs+IGwIO+YipV0U+XFpyiaB7ek=;
-        b=KV6HAxQGdn6bho66u6GdESZdwwdD5tjW0fDv1ZWRFWmhV9jQO5H7q5tBN4YlahuMN8
-         xHlxAttU7druDTETF9Oi1KMdYnaRSqBOoIn64k5cuiuYGQ4v+oGTISwXQraV6l5MxKnI
-         /pXA0Z9KuUVxOjF1INofKw1JWFWI5GKL38xdnoah2mPGzZqrDlZuiPgsshkxn9SkE9RD
-         4/C90o3L6ZPqIEBmWavIP7H2Mp3oautWncUe1weerJg8VfUv4DDUnoCeZp8rfQMjLfkU
-         gDyKAi9AdYmM2rxLhZ3O2qlqNqvnSp+ODNOPhS3edwqcT+5bAxOtHefqfQAih6cPsWOx
-         zMog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=yDzRsEyxIuuSai2DRMs+IGwIO+YipV0U+XFpyiaB7ek=;
-        b=OJW6OOqkknv3baqDuUBgwh+TIbaBTD5W+YG+Lub644ehgzRI8F6fVlggZ7heUEUzos
-         6qh2YbPRInh7WFP3W0TiWPoNbIm6p1lJxCmC//Y/YRCNQDkMSKRQUe0ZUcxIJIRk97Vg
-         wnoWHqgJL6MgKGTv+VVuIrGLjHGiJgliEZ1qOn/3XTJlX3SwjIi/rTmZMm3aX9VPo+LW
-         tkFbHL68AanFOzs6YXU38TQ5JtfbVEhO+q4cC6F5mECbskg4q0eBQ9B7T6ija/EK8gXq
-         CfMf/z3UfEZrryZUlHTzQ11qKYnsf/eTcC8kPLvRDxFt8W/+/lKf6jP08f/j4Iq49CnG
-         DRrA==
-X-Gm-Message-State: APjAAAU86sFK3VtXerT3f6I2Mi1wxOoc/+a1cMa58Z1j/ujOSz6YPs3F
-        BRxSGQrDnGfpY3bR9VkKkVfrGsqdvp7sQzvHE3cJDA==
-X-Google-Smtp-Source: APXvYqx8Dv3M/w0Y+tfgf5v5o8BgqNuNH2nvV6nFlb9tCRft8Hoq2fYaYtrbULzBbF+h70b2g7Pn/ZHWVRQWxxJXD1U=
-X-Received: by 2002:a0d:c345:: with SMTP id f66mr23890145ywd.10.1563386555880;
- Wed, 17 Jul 2019 11:02:35 -0700 (PDT)
+        id S1727399AbfGQSJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 14:09:40 -0400
+Received: from mga18.intel.com ([134.134.136.126]:31113 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727066AbfGQSJk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 14:09:40 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Jul 2019 11:09:39 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,275,1559545200"; 
+   d="scan'208";a="158539171"
+Received: from esulliva-mobl.ger.corp.intel.com (HELO [10.251.94.109]) ([10.251.94.109])
+  by orsmga007.jf.intel.com with ESMTP; 17 Jul 2019 11:09:38 -0700
+Subject: Re: [Intel-gfx] [PATCH 1/5] drm/i915/userptr: Beware recursive
+ lock_page()
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20190716124931.5870-1-chris@chris-wilson.co.uk>
+ <bb43c2b5-3513-ef4f-1bc9-887fc2b2e523@linux.intel.com>
+ <156329142200.9436.8651620549785965913@skylake-alporthouse-com>
+ <d76bdb93-b90b-afe3-841b-95a8de27902d@linux.intel.com>
+ <156336944635.4375.7269371478914847980@skylake-alporthouse-com>
+ <6038b21f-c052-36c5-2d56-72ddeb069097@linux.intel.com>
+ <156337053617.4375.13675276970408492219@skylake-alporthouse-com>
+ <951e2751-15d7-9ca8-ef6f-299ba59c47a6@linux.intel.com>
+ <156337241401.4375.2377981562987470090@skylake-alporthouse-com>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <d867c0e8-e2e1-fff6-d073-3d5d98335712@linux.intel.com>
+Date:   Wed, 17 Jul 2019 19:09:37 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-References: <1563385526-20805-1-git-send-email-yang.shi@linux.alibaba.com>
-In-Reply-To: <1563385526-20805-1-git-send-email-yang.shi@linux.alibaba.com>
-From:   Shakeel Butt <shakeelb@google.com>
-Date:   Wed, 17 Jul 2019 11:02:24 -0700
-Message-ID: <CALvZod7CJ6W5RGRVzyc8J=dWgOHeHGFT+43NWGQjATvEqRjkMg@mail.gmail.com>
-Subject: Re: [PATCH] mm: vmscan: check if mem cgroup is disabled or not before
- calling memcg slab shrinker
-To:     Yang Shi <yang.shi@linux.alibaba.com>
-Cc:     Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Roman Gushchin <guro@fb.com>, Hugh Dickins <hughd@google.com>,
-        Qian Cai <cai@lca.pw>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Linux MM <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <156337241401.4375.2377981562987470090@skylake-alporthouse-com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 17, 2019 at 10:45 AM Yang Shi <yang.shi@linux.alibaba.com> wrote:
->
-> Shakeel Butt reported premature oom on kernel with
-> "cgroup_disable=memory" since mem_cgroup_is_root() returns false even
-> though memcg is actually NULL.  The drop_caches is also broken.
->
-> It is because commit aeed1d325d42 ("mm/vmscan.c: generalize shrink_slab()
-> calls in shrink_node()") removed the !memcg check before
-> !mem_cgroup_is_root().  And, surprisingly root memcg is allocated even
-> though memory cgroup is disabled by kernel boot parameter.
->
-> Add mem_cgroup_disabled() check to make reclaimer work as expected.
->
-> Fixes: aeed1d325d42 ("mm/vmscan.c: generalize shrink_slab() calls in shrink_node()")
-> Reported-by: Shakeel Butt <shakeelb@google.com>
-> Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-> Cc: Johannes Weiner <hannes@cmpxchg.org>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
-> Cc: Roman Gushchin <guro@fb.com>
-> Cc: Hugh Dickins <hughd@google.com>
-> Cc: Qian Cai <cai@lca.pw>
-> Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-> Cc: stable@vger.kernel.org  4.19+
-> Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
 
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
+On 17/07/2019 15:06, Chris Wilson wrote:
+> Quoting Tvrtko Ursulin (2019-07-17 14:46:15)
+>>
+>> On 17/07/2019 14:35, Chris Wilson wrote:
+>>> Quoting Tvrtko Ursulin (2019-07-17 14:23:55)
+>>>>
+>>>> On 17/07/2019 14:17, Chris Wilson wrote:
+>>>>> Quoting Tvrtko Ursulin (2019-07-17 14:09:00)
+>>>>>>
+>>>>>> On 16/07/2019 16:37, Chris Wilson wrote:
+>>>>>>> Quoting Tvrtko Ursulin (2019-07-16 16:25:22)
+>>>>>>>>
+>>>>>>>> On 16/07/2019 13:49, Chris Wilson wrote:
+>>>>>>>>> Following a try_to_unmap() we may want to remove the userptr and so call
+>>>>>>>>> put_pages(). However, try_to_unmap() acquires the page lock and so we
+>>>>>>>>> must avoid recursively locking the pages ourselves -- which means that
+>>>>>>>>> we cannot safely acquire the lock around set_page_dirty(). Since we
+>>>>>>>>> can't be sure of the lock, we have to risk skip dirtying the page, or
+>>>>>>>>> else risk calling set_page_dirty() without a lock and so risk fs
+>>>>>>>>> corruption.
+>>>>>>>>
+>>>>>>>> So if trylock randomly fail we get data corruption in whatever data set
+>>>>>>>> application is working on, which is what the original patch was trying
+>>>>>>>> to avoid? Are we able to detect the backing store type so at least we
+>>>>>>>> don't risk skipping set_page_dirty with anonymous/shmemfs?
+>>>>>>>
+>>>>>>> page->mapping???
+>>>>>>
+>>>>>> Would page->mapping work? What is it telling us?
+>>>>>
+>>>>> It basically tells us if there is a fs around; anything that is the most
+>>>>> basic of malloc (even tmpfs/shmemfs has page->mapping).
+>>>>
+>>>> Normal malloc so anonymous pages? Or you meant everything _apart_ from
+>>>> the most basic malloc?
+>>>
+>>> Aye missed the not.
+>>>
+>>>>>>> We still have the issue that if there is a mapping we should be taking
+>>>>>>> the lock, and we may have both a mapping and be inside try_to_unmap().
+>>>>>>
+>>>>>> Is this a problem? On a path with mappings we trylock and so solve the
+>>>>>> set_dirty_locked and recursive deadlock issues, and with no mappings
+>>>>>> with always dirty the page and avoid data corruption.
+>>>>>
+>>>>> The problem as I see it is !page->mapping are likely an insignificant
+>>>>> minority of userptr; as I think even memfd are essentially shmemfs (or
+>>>>> hugetlbfs) and so have mappings.
+>>>>
+>>>> Better then nothing, no? If easy to do..
+>>>
+>>> Actually, I erring on the opposite side. Peeking at mm/ internals does
+>>> not bode confidence and feels indefensible. I'd much rather throw my
+>>> hands up and say "this is the best we can do with the API provided,
+>>> please tell us what we should have done." To which the answer is
+>>> probably to not have used gup in the first place :|
+>>
+>> """
+>> /*
+>>   * set_page_dirty() is racy if the caller has no reference against
+>>   * page->mapping->host, and if the page is unlocked.  This is because another
+>>   * CPU could truncate the page off the mapping and then free the mapping.
+>>   *
+>>   * Usually, the page _is_ locked, or the caller is a user-space process which
+>>   * holds a reference on the inode by having an open file.
+>>   *
+>>   * In other cases, the page should be locked before running set_page_dirty().
+>>   */
+>> int set_page_dirty_lock(struct page *page)
+>> """
+>>
+>> Could we hold a reference to page->mapping->host while having pages and then would be okay to call plain set_page_dirty?
+> 
+> We would then be hitting the warnings in ext4 for unlocked pages again.
 
-> ---
->  mm/vmscan.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
->
-> diff --git a/mm/vmscan.c b/mm/vmscan.c
-> index f8e3dcd..c10dc02 100644
-> --- a/mm/vmscan.c
-> +++ b/mm/vmscan.c
-> @@ -684,7 +684,14 @@ static unsigned long shrink_slab(gfp_t gfp_mask, int nid,
->         unsigned long ret, freed = 0;
->         struct shrinker *shrinker;
->
-> -       if (!mem_cgroup_is_root(memcg))
-> +       /*
-> +        * The root memcg might be allocated even though memcg is disabled
-> +        * via "cgroup_disable=memory" boot parameter.  This could make
-> +        * mem_cgroup_is_root() return false, then just run memcg slab
-> +        * shrink, but skip global shrink.  This may result in premature
-> +        * oom.
-> +        */
-> +       if (!mem_cgroup_disabled() && !mem_cgroup_is_root(memcg))
->                 return shrink_slab_memcg(gfp_mask, nid, memcg, priority);
->
->         if (!down_read_trylock(&shrinker_rwsem))
-> --
-> 1.8.3.1
->
+Ah true..
+
+> Essentially the argument is whether or not that warn is valid, to which I
+> think requires inner knowledge of vfs + ext4. To hold a reference on the
+> host would require us tracking page->mapping (reasonable since we
+> already hooked into mmu and so will get an invalidate + fresh gup on
+> any changes), plus iterating over all to acquire the extra reference if
+> applicable -- and I have no idea what the side-effects of that would be.
+> Could well be positive side-effects. Just feels like wandering even
+> further off the beaten path without a map. Good news hmm is just around
+> the corner (which will probably prohibit this use-case) :|
+
+... can we reach out to someone more knowledgeable in mm matters to 
+recommend us what to do?
+
+Regards,
+
+Tvrtko
+
+
