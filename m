@@ -2,89 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 397096C38A
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 01:33:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0418F6C391
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 01:38:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728103AbfGQXba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 19:31:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52036 "EHLO mail.kernel.org"
+        id S1727792AbfGQXiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 19:38:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727883AbfGQXba (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 19:31:30 -0400
+        id S1727653AbfGQXiM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 19:38:12 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BDD520651;
-        Wed, 17 Jul 2019 23:31:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BDFD20818;
+        Wed, 17 Jul 2019 23:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563406289;
-        bh=8VpnxGStLf8E5O7z0t32FrG8nOd4aZ30LIjDn4eMqCo=;
+        s=default; t=1563406691;
+        bh=yxNO/Eb686+iPbC8dTMlq1hz3CyvwhzujesAIwhWYX0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=r01M60NWkw8fznxWilOLF4w8ZPxjnmrEfdkmqVj156+7ZWyrosI1IL6TPX/oCKQZ0
-         oy2vQ7UQ+90CCBMdvSV5CvM4EKIrVwIiwguYjO6FIMdZq8K8qsX9UP61ie+IkbFJaf
-         sQuEEWFunKmVil4IsA35Gc+sw/p4vx8VcMsBvm78=
-Date:   Wed, 17 Jul 2019 19:31:28 -0400
+        b=OOiTzIEotd6i9BSjxsjCVva2wzMhVCwuPLCSjlDQjv/JcN9WggFDTYf0ktAnsgiq+
+         ZgyF5jCOcHgI+AP+CqwrOij9O8AArM/R42GbM5cQrymqM3Vps4Wn/WWSxjB9WPIZyR
+         +tUXgRNF8RJbF0uIXBNBHOYsamUvbYxWcY7o5mPA=
+Date:   Wed, 17 Jul 2019 19:38:10 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Fabio Estevam <festevam@gmail.com>
-Cc:     Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Igor Opaniuk <igor.opaniuk@toradex.com>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Mark Brown <broonie@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Takashi Iwai <tiwai@suse.com>,
-        Liam Girdwood <lgirdwood@gmail.com>
-Subject: Re: [PATCH v4 2/6] ASoC: sgtl5000: Improve VAG power and mute control
-Message-ID: <20190717233128.GB3079@sasha-vm>
-References: <20190717163014.429-1-oleksandr.suvorov@toradex.com>
- <20190717163014.429-3-oleksandr.suvorov@toradex.com>
- <CAOMZO5AgCqH+8W36vh4n3tCFvqUE=H+4Zp0jG1NQi5UFOsSSAQ@mail.gmail.com>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     stable@vger.kernel.org
+Subject: Re: Backport request
+Message-ID: <20190717233810.GC3079@sasha-vm>
+References: <alpine.DEB.2.21.1907162318380.1767@nanos.tec.linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CAOMZO5AgCqH+8W36vh4n3tCFvqUE=H+4Zp0jG1NQi5UFOsSSAQ@mail.gmail.com>
+In-Reply-To: <alpine.DEB.2.21.1907162318380.1767@nanos.tec.linutronix.de>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 17, 2019 at 01:48:43PM -0300, Fabio Estevam wrote:
->On Wed, Jul 17, 2019 at 1:30 PM Oleksandr Suvorov
-><oleksandr.suvorov@toradex.com> wrote:
->>
->> Change VAG power on/off control according to the following algorithm:
->> - turn VAG power ON on the 1st incoming event.
->> - keep it ON if there is any active VAG consumer (ADC/DAC/HP/Line-In).
->> - turn VAG power OFF when there is the latest consumer's pre-down event
->>   come.
->> - always delay after VAG power OFF to avoid pop.
->> - delay after VAG power ON if the initiative consumer is Line-In, this
->>   prevents pop during line-in muxing.
->>
->> Also, according to the data sheet [1], to avoid any pops/clicks,
->> the outputs should be muted during input/output
->> routing changes.
->>
->> [1] https://www.nxp.com/docs/en/data-sheet/SGTL5000.pdf
->>
->> Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
->> Reviewed-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
->> Fixes: 9b34e6cc3bc2 ("ASoC: Add Freescale SGTL5000 codec support")
->
->Reviewed-by: Fabio Estevam <festevam@gmail.com>
->
->By the way, I prefer the description you put in the cover letter as it
->explicitly talks about a bug being fixed.
+On Wed, Jul 17, 2019 at 12:08:38AM +0200, Thomas Gleixner wrote:
+> 4001d8e8762f ("genirq: Delay deactivation in free_irq()")
 
-Yes. This patch describes itself as an improvement rather than a fix.
-
-You need to add an explicit stable tag, rather than just cc us.
-Something like:
-
-	Cc: stable@kernel.org
+Thomas, would just this one be relevant for 4.14 (and older)?
 
 --
 Thanks,
