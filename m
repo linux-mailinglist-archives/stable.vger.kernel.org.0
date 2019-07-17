@@ -2,74 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D536B861
-	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 10:38:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C0166B976
+	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 11:43:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726186AbfGQIfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 04:35:23 -0400
-Received: from mga09.intel.com ([134.134.136.24]:14439 "EHLO mga09.intel.com"
+        id S1726130AbfGQJnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 05:43:39 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:49774 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726148AbfGQIfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 04:35:23 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Jul 2019 01:35:22 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,273,1559545200"; 
-   d="scan'208";a="342970661"
-Received: from vca-bj102.bj.intel.com ([10.240.193.76])
-  by orsmga005.jf.intel.com with ESMTP; 17 Jul 2019 01:35:21 -0700
-From:   Xiaolin Zhang <xiaolin.zhang@intel.com>
-To:     intel-gvt-dev@lists.freedesktop.org
-Cc:     Xiaolin Zhang <xiaolin.zhang@intel.com>, stable@vger.kernel.org
-Subject: [PATCH] drm/i915/gvt: fix incorrect cache entry for guest page mapping
-Date:   Thu, 18 Jul 2019 01:10:24 +0800
-Message-Id: <1563383424-23315-1-git-send-email-xiaolin.zhang@intel.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1725890AbfGQJnj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 05:43:39 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id DDAAD8666A;
+        Wed, 17 Jul 2019 09:43:38 +0000 (UTC)
+Received: from localhost (unknown [10.40.205.143])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id ABBDC60BE2;
+        Wed, 17 Jul 2019 09:43:36 +0000 (UTC)
+Date:   Wed, 17 Jul 2019 11:43:34 +0200
+From:   Jiri Benc <jbenc@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Yonghong Song <yhs@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: Re: [PATCH AUTOSEL 5.2 226/249] selftests: bpf: fix inlines in
+ test_lwt_seg6local
+Message-ID: <20190717114334.5556a14e@redhat.com>
+In-Reply-To: <20190715134655.4076-226-sashal@kernel.org>
+References: <20190715134655.4076-1-sashal@kernel.org>
+        <20190715134655.4076-226-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Wed, 17 Jul 2019 09:43:39 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-GPU hang observed during the guest OCL conformance test which is caused
-by THP GTT feature used durning the test.
+On Mon, 15 Jul 2019 09:46:31 -0400, Sasha Levin wrote:
+> From: Jiri Benc <jbenc@redhat.com>
+> 
+> [ Upstream commit 11aca65ec4db09527d3e9b6b41a0615b7da4386b ]
+> 
+> Selftests are reporting this failure in test_lwt_seg6local.sh:
 
-It was observed the same GFN with different size (4K and 2M) requested
-from the guest in GVT. So during the guest page dma map stage, it is
-required to unmap first with orginal size and then remap again with
-requested size.
+I don't think this is critical in any way and I don't think this is a
+stable material. How was this selected?
 
-Fixes: b901b252b6cf ("drm/i915/gvt: Add 2M huge gtt support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Xiaolin Zhang <xiaolin.zhang@intel.com>
----
- drivers/gpu/drm/i915/gvt/kvmgt.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-index a68addf..4a7cf86 100644
---- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-+++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -1911,6 +1911,18 @@ static int kvmgt_dma_map_guest_page(unsigned long handle, unsigned long gfn,
- 		ret = __gvt_cache_add(info->vgpu, gfn, *dma_addr, size);
- 		if (ret)
- 			goto err_unmap;
-+	} else if (entry->size != size) {
-+		/* the same gfn with different size: unmap and re-map */
-+		gvt_dma_unmap_page(vgpu, gfn, entry->dma_addr, entry->size);
-+		__gvt_cache_remove_entry(vgpu, entry);
-+
-+		ret = gvt_dma_map_page(vgpu, gfn, dma_addr, size);
-+		if (ret)
-+			goto err_unlock;
-+
-+		ret = __gvt_cache_add(info->vgpu, gfn, *dma_addr, size);
-+		if (ret)
-+			goto err_unmap;
- 	} else {
- 		kref_get(&entry->ref);
- 		*dma_addr = entry->dma_addr;
--- 
-1.8.3.1
-
+ Jiri
