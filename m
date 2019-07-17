@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F2876BFCF
-	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 18:47:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6666BFD3
+	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 18:49:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729222AbfGQQrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 12:47:21 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:33656 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729160AbfGQQrV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Jul 2019 12:47:21 -0400
-Received: by mail-lj1-f193.google.com with SMTP id h10so24335374ljg.0;
-        Wed, 17 Jul 2019 09:47:19 -0700 (PDT)
+        id S1727107AbfGQQs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 12:48:56 -0400
+Received: from mail-lj1-f181.google.com ([209.85.208.181]:43449 "EHLO
+        mail-lj1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727108AbfGQQsz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Jul 2019 12:48:55 -0400
+Received: by mail-lj1-f181.google.com with SMTP id 16so24295290ljv.10;
+        Wed, 17 Jul 2019 09:48:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=bs/QITWbhqAZxDhjSjDJdcwaHkIW+GS9/ueefoQtdFc=;
-        b=jHfgK6HWw2DZSrGHtZx8q+g4s8uAJoOkBI1je+U1ttvkHW0Mdrp6NZXQuH1aruQFSx
-         twKkQDDxOqu/Q4/dMSRAqdLHO/X0cO/85YFm15xb13DcnBDKOpx+XwUeXe6FWRzhStPO
-         sbk8DyKpQRpE46tK3V8ZMUj0tCr0DNHzarWAbNUVVPz6H05hTdxahwmuspn/lKyuyqkZ
-         4uKuARsDBm+5KUUAd58FdMaIJqUQEMqrMIB61DSbb9ErMSD/6+I2PnUQPQUiVmQ9UPQp
-         z9LkKuDveVOm2f86NQK388zbUHEI0gV5v6r6uzFbVwD76WqHy0y+b7U1AJCboFSwFSWP
-         nRCA==
+        bh=NgGtrv5SKEz++WGnlB/B3rFdiXYpyY07rfhEUYiUwH8=;
+        b=MhVx2YaEcVUQ11yWhLge7sp5/jqEHDI9LwX1f7kbBfbqaM7o3uiYPPGBZjkDAy2qUF
+         c2ZVP3Uz525C/YSfM0Jy916Ikg4yFoUVyxsKxpHEjxl8UwoJ7xZJ3FcNetIJAYSdjJyb
+         DEIJRDQkMixS7AirdetBhDeUGPd5AGMq7zsL47Cxfb62l64UhW+7xnQZMkzIvMz7HyZX
+         n7V8cRrHES0dnhqOuAFOanJd1jKkQp3I/U6fI1jfbAaW4O+sy/yLdlQRe5Lx0BnycI0V
+         Ntk1tJ7bUe9nP7mefHHpPRTm8e0wDeMbcCp8iTldKBkZLc9H0xp0tRis4ncsM77NI+M4
+         yEiQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=bs/QITWbhqAZxDhjSjDJdcwaHkIW+GS9/ueefoQtdFc=;
-        b=nWCk6s3tadNdwy/Cj0KnjgkZwuW0aYH0wlsDz08eyHN3vncLiJLwRdmW8stLI2g5hW
-         AcBsm4emfddpzxXoIiXTP7BhOdj1/tUcyNHjx3OnMCGLB3Sm0F169+SRZ1m1n40n91VY
-         JiETrjRot8okn/p8FGPPGp1lYZOFerBAMx2p11BKSG+xAPhHcOmn8RPDIVFnijIDtd5l
-         JNniqk0juWoQQ4RHbioedu8xsRn+hDrX6Y2ccFI9t9AQ8Zw8lDigd/3oZZtP0r/qcx1N
-         yn8ugaDHYKQ+3HcceRPW5hMKoNxw6DAsjxZCl6QGLeqHUfLVP2hUVwLCouyj5unLydn/
-         YkNg==
-X-Gm-Message-State: APjAAAUsIxTH/fiX5wdbBj54ZsWT13OWiNtnNROgUr81ggP3A39mCieF
-        SRTKeRvoa0xzR0vDvJ8kImPvJk11xkiRKwMC474=
-X-Google-Smtp-Source: APXvYqy+aNYb7anJn+W+Rf+NmIpi47qfolURZwZXuLoTi8QKxjWASrknRWjcO23N0nDwwtBGM6WVUZr4teTmVEJi7B4=
-X-Received: by 2002:a2e:a311:: with SMTP id l17mr20833447lje.214.1563382039201;
- Wed, 17 Jul 2019 09:47:19 -0700 (PDT)
+        bh=NgGtrv5SKEz++WGnlB/B3rFdiXYpyY07rfhEUYiUwH8=;
+        b=JCsMxX8BoIJbDCwiDifWUBJL7J4gE0Pq9zI6XOoJRJv1mC0C06NRO05UY/tGwVBBW1
+         Ome6WpFsRE30OlxamWP0C44sa9MIul4ao4k2IkByfwFcuM2Y3Qm3xQv8EFZ2xUabeZOP
+         sg/b5FqTb/wSDPrLRgBgKKDn51bci1yV8I7Eug/yVCuEY4N9INhu5mmEcgZSKi5GRJku
+         8sYfdgDqcQQHoUQG8xjxHICuO9J+k53lqTj5saAuQ2SlArAaG1FslAGTtnupIqyGSRpB
+         foW2YsNXZPsXxL8a17dNSbn6Lw2VtCSvg48xChoIrRC7HM/IXPc+FQwuMTQrFeuO8PAu
+         adEg==
+X-Gm-Message-State: APjAAAWNOWZ9g4unIFN3YuMsSq8YIQnRPOe/reMIlpWlbHqmMOTMujBe
+        DM0KcfGKU1apuxO79btjwhH0Mq+s/jUK566+XCzjIe18
+X-Google-Smtp-Source: APXvYqzZRziD4tOV2evLHyib9pi+Lz6pPgFdw3aIoEAcs6WrhDBp/XFRW/fvkedarSqoyKSPHiydWYsSbR1K8gOXcRE=
+X-Received: by 2002:a2e:a311:: with SMTP id l17mr20837046lje.214.1563382133648;
+ Wed, 17 Jul 2019 09:48:53 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190717163014.429-1-oleksandr.suvorov@toradex.com> <20190717163014.429-2-oleksandr.suvorov@toradex.com>
-In-Reply-To: <20190717163014.429-2-oleksandr.suvorov@toradex.com>
+References: <20190717163014.429-1-oleksandr.suvorov@toradex.com> <20190717163014.429-3-oleksandr.suvorov@toradex.com>
+In-Reply-To: <20190717163014.429-3-oleksandr.suvorov@toradex.com>
 From:   Fabio Estevam <festevam@gmail.com>
-Date:   Wed, 17 Jul 2019 13:47:08 -0300
-Message-ID: <CAOMZO5C=gYAZ4F2XOaTgCTRVyZdNSa5CEHsiVv7SsSgo5VfZ9A@mail.gmail.com>
-Subject: Re: [PATCH v4 1/6] ASoC: Define a set of DAPM pre/post-up events
+Date:   Wed, 17 Jul 2019 13:48:43 -0300
+Message-ID: <CAOMZO5AgCqH+8W36vh4n3tCFvqUE=H+4Zp0jG1NQi5UFOsSSAQ@mail.gmail.com>
+Subject: Re: [PATCH v4 2/6] ASoC: sgtl5000: Improve VAG power and mute control
 To:     Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         Igor Opaniuk <igor.opaniuk@toradex.com>,
@@ -66,11 +66,26 @@ X-Mailing-List: stable@vger.kernel.org
 On Wed, Jul 17, 2019 at 1:30 PM Oleksandr Suvorov
 <oleksandr.suvorov@toradex.com> wrote:
 >
-> Prepare to use SND_SOC_DAPM_PRE_POST_PMU definition to
-> reduce coming code size and make it more readable.
+> Change VAG power on/off control according to the following algorithm:
+> - turn VAG power ON on the 1st incoming event.
+> - keep it ON if there is any active VAG consumer (ADC/DAC/HP/Line-In).
+> - turn VAG power OFF when there is the latest consumer's pre-down event
+>   come.
+> - always delay after VAG power OFF to avoid pop.
+> - delay after VAG power ON if the initiative consumer is Line-In, this
+>   prevents pop during line-in muxing.
+>
+> Also, according to the data sheet [1], to avoid any pops/clicks,
+> the outputs should be muted during input/output
+> routing changes.
+>
+> [1] https://www.nxp.com/docs/en/data-sheet/SGTL5000.pdf
 >
 > Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 > Reviewed-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-> Reviewed-by: Igor Opaniuk <igor.opaniuk@toradex.com>
+> Fixes: 9b34e6cc3bc2 ("ASoC: Add Freescale SGTL5000 codec support")
 
 Reviewed-by: Fabio Estevam <festevam@gmail.com>
+
+By the way, I prefer the description you put in the cover letter as it
+explicitly talks about a bug being fixed.
