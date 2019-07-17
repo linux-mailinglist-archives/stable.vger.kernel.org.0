@@ -2,86 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB486B2A6
-	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 02:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F01906B2BD
+	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 02:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728699AbfGQAHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jul 2019 20:07:34 -0400
-Received: from mga09.intel.com ([134.134.136.24]:42048 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728597AbfGQAHd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jul 2019 20:07:33 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 16 Jul 2019 17:07:33 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,272,1559545200"; 
-   d="scan'208";a="172698735"
-Received: from fei-dev-host.jf.intel.com ([10.7.198.158])
-  by orsmga006.jf.intel.com with ESMTP; 16 Jul 2019 17:07:33 -0700
-From:   fei.yang@intel.com
-To:     felipe.balbi@linux.intel.com, john.stultz@linaro.org,
-        andrzej.p@samsung.com, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-Subject: [PATCH] usb: dwc3: gadget: trb_dequeue is not updated properly
-Date:   Tue, 16 Jul 2019 17:07:25 -0700
-Message-Id: <1563322045-49515-1-git-send-email-fei.yang@intel.com>
-X-Mailer: git-send-email 2.7.4
+        id S2389093AbfGQAPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jul 2019 20:15:44 -0400
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:11600 "EHLO
+        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728597AbfGQAPn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jul 2019 20:15:43 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d2e68b40000>; Tue, 16 Jul 2019 17:15:48 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Tue, 16 Jul 2019 17:15:41 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Tue, 16 Jul 2019 17:15:41 -0700
+Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL104.nvidia.com
+ (172.18.146.11) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 17 Jul
+ 2019 00:15:38 +0000
+Received: from hqnvemgw01.nvidia.com (172.20.150.20) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Wed, 17 Jul 2019 00:15:38 +0000
+Received: from rcampbell-dev.nvidia.com (Not Verified[10.110.48.66]) by hqnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
+        id <B5d2e68aa0003>; Tue, 16 Jul 2019 17:15:38 -0700
+From:   Ralph Campbell <rcampbell@nvidia.com>
+To:     <linux-mm@kvack.org>
+CC:     <linux-kernel@vger.kernel.org>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        <stable@vger.kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Jason Gunthorpe" <jgg@mellanox.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        "Ira Weiny" <ira.weiny@intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Jan Kara <jack@suse.cz>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Michal Hocko <mhocko@suse.com>,
+        "Andrea Arcangeli" <aarcange@redhat.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>
+Subject: [PATCH 2/3] mm/hmm: fix ZONE_DEVICE anon page mapping reuse
+Date:   Tue, 16 Jul 2019 17:14:45 -0700
+Message-ID: <20190717001446.12351-3-rcampbell@nvidia.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190717001446.12351-1-rcampbell@nvidia.com>
+References: <20190717001446.12351-1-rcampbell@nvidia.com>
+MIME-Version: 1.0
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1563322548; bh=xvR8iX2outgELqejVmTcMhX9RlYLy+wU1js0WKyDum8=;
+        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
+         Content-Type:Content-Transfer-Encoding;
+        b=TRCk27TtRrVv4ByDmKeCrqvJNp6+08H/etGBrEm50CH2SOXfZYymRmojCkvp8tLa6
+         H24TZFPuMsdO5jijygFy328uG5wNmKsxJMZir8gAsUoeMTM1BKQGEV8NBWZSheafK/
+         1S/5Im8uAHIvUgtRm1EwNzfrk7IV6HonA8TEYRmmBQ2vyc8BFuVHI6uvlLQaEQfw0v
+         XMqf8AqOwJrQxQ9pw5ESS5F/4G13BCIKLFjGjLccKaQ2cKaJzvx7FfBQi37zgSgXYP
+         Ci17HzuHtXsMwYZDJqiTmYa54GJSGJ9gco+U/XzjJcosLSDUgG8c6QBed9JHo23xEJ
+         cUx2MNq/WejeQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fei Yang <fei.yang@intel.com>
+When a ZONE_DEVICE private page is freed, the page->mapping field can be
+set. If this page is reused as an anonymous page, the previous value can
+prevent the page from being inserted into the CPU's anon rmap table.
+For example, when migrating a pte_none() page to device memory:
+  migrate_vma(ops, vma, start, end, src, dst, private)
+    migrate_vma_collect()
+      src[] =3D MIGRATE_PFN_MIGRATE
+    migrate_vma_prepare()
+      /* no page to lock or isolate so OK */
+    migrate_vma_unmap()
+      /* no page to unmap so OK */
+    ops->alloc_and_copy()
+      /* driver allocates ZONE_DEVICE page for dst[] */
+    migrate_vma_pages()
+      migrate_vma_insert_page()
+        page_add_new_anon_rmap()
+          __page_set_anon_rmap()
+            /* This check sees the page's stale mapping field */
+            if (PageAnon(page))
+              return
+            /* page->mapping is not updated */
 
-If scatter-gather operation is allowed, a large USB request is split into
-multiple TRBs. These TRBs are chained up by setting DWC3_TRB_CTRL_CHN bit
-except the last one which has DWC3_TRB_CTRL_IOC bit set instead.
-Since only the last TRB has IOC set for the whole USB request, the
-dwc3_gadget_ep_reclaim_completed_trb() gets called only once for the request
-and all TRBs are supposed to be reclaimed. However that is not what happens
-with the current code.
+The result is that the migration appears to succeed but a subsequent CPU
+fault will be unable to migrate the page back to system memory or worse.
 
-This patch addresses the issue by checking req->num_pending_sgs. In case the
-pending sgs is not zero, update trb_dequeue and req->num_trbs accordingly.
+Clear the page->mapping field when freeing the ZONE_DEVICE page so stale
+pointer data doesn't affect future page use.
 
-Signed-off-by: Fei Yang <fei.yang@intel.com>
-Cc: stable <stable@vger.kernel.org>
+Fixes: b7a523109fb5c9d2d6dd ("mm: don't clear ->mapping in hmm_devmem_free"=
+)
+Cc: stable@vger.kernel.org
+Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Jan Kara <jack@suse.cz>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: "J=C3=A9r=C3=B4me Glisse" <jglisse@redhat.com>
 ---
- drivers/usb/dwc3/gadget.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ kernel/memremap.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 173f532..4d5b4eb 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2394,8 +2394,14 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
- 	if (event->status & DEPEVT_STATUS_SHORT && !chain)
- 		return 1;
- 
--	if (event->status & DEPEVT_STATUS_IOC)
-+	if (event->status & DEPEVT_STATUS_IOC) {
-+		for (count = 0; count < req->num_pending_sgs; count++) {
-+			dwc3_ep_inc_deq(dep);
-+			req->num_trbs--;
-+		}
-+		req->num_pending_sgs = 0;
- 		return 1;
-+	}
- 
- 	return 0;
- }
-@@ -2404,7 +2410,7 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
- 		struct dwc3_request *req, const struct dwc3_event_depevt *event,
- 		int status)
- {
--	struct dwc3_trb *trb = &dep->trb_pool[dep->trb_dequeue];
-+	struct dwc3_trb *trb;
- 	struct scatterlist *sg = req->sg;
- 	struct scatterlist *s;
- 	unsigned int pending = req->num_pending_sgs;
--- 
-2.7.4
+diff --git a/kernel/memremap.c b/kernel/memremap.c
+index bea6f887adad..238ae5d0ae8a 100644
+--- a/kernel/memremap.c
++++ b/kernel/memremap.c
+@@ -408,6 +408,10 @@ void __put_devmap_managed_page(struct page *page)
+=20
+ 		mem_cgroup_uncharge(page);
+=20
++		/* Clear anonymous page mapping to prevent stale pointers */
++		if (is_device_private_page(page))
++			page->mapping =3D NULL;
++
+ 		page->pgmap->ops->page_free(page);
+ 	} else if (!count)
+ 		__put_page(page);
+--=20
+2.20.1
 
