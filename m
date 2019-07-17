@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C1C36C183
-	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 21:34:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5D526C190
+	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 21:37:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727683AbfGQTe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 15:34:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42066 "EHLO mail.kernel.org"
+        id S1728759AbfGQTg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 15:36:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727452AbfGQTe3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 15:34:29 -0400
+        id S1727104AbfGQTg0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 15:36:26 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD6582173E;
-        Wed, 17 Jul 2019 19:34:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9818E218C5;
+        Wed, 17 Jul 2019 19:36:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563392068;
-        bh=UqYB1rvYCSijIBMJoyjdVkEptDLX41+odVlx78yEX6s=;
+        s=default; t=1563392185;
+        bh=GLv/5OY0eRostzs0YCFfILRehgPzgfRJ5sHfZsHsTEQ=;
         h=Date:From:To:Subject:From;
-        b=DrfnyrBXzFQ6Pdw3Xf/3pIkeOxMEC+nvUU1nkFCP1H+6DuQETc9UwoFxfR33jo11S
-         4GRJSEHYUUI/xiCbU1fCCCR9w4VNzKuiunDAFBK1UcSeoE90fTcqOFBNtf7dRpY2oV
-         pb3JENgA62ihpQJcs5ALkZBTyIfKcIT305s/5gaU=
-Date:   Wed, 17 Jul 2019 12:34:27 -0700
+        b=2jyzwiF8ht13AhHNVG6EUNc4VUFgcABtl6yZ3R7FPyzzwZDFnz39Jy/nqtN1GMFDD
+         G1ACk2AmG/JexgOLfN/nQ3wNGQ6Ejyfd/+RL8pmvWu4QIP/YLWwT1uilVntCl8Jg2i
+         2IWnJbVlNB0PmROuDCeAjHJqvePJ6jzz48JbThJc=
+Date:   Wed, 17 Jul 2019 12:36:25 -0700
 From:   akpm@linux-foundation.org
-To:     arnd@arndb.de, colin.king@canonical.com, dan.carpenter@oracle.com,
-        dhowells@redhat.com, fabf@skynet.be, jaharkes@cs.cmu.edu,
-        jiazhouyang09@gmail.com, mikko.rapeli@iki.fi,
-        mm-commits@vger.kernel.org, semen.protsenko@linaro.org,
-        stable@vger.kernel.org, ydroneaud@opteya.com
+To:     ddavenport@chromium.org, keescook@chromium.org,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org
 Subject:  [merged]
- coda-pass-the-host-file-in-vma-vm_file-on-mmap.patch removed from -mm tree
-Message-ID: <20190717193427.Fu0K_F7_V%akpm@linux-foundation.org>
+ bug-fix-cut-here-for-warn_on-for-__warn_taint-architectures.patch removed
+ from -mm tree
+Message-ID: <20190717193625.i4h6tAPSe%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -41,175 +39,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: coda: pass the host file in vma->vm_file on mmap
+     Subject: include/asm-generic/bug.h: fix "cut here" for WARN_ON for __WARN_TAINT architectures
 has been removed from the -mm tree.  Its filename was
-     coda-pass-the-host-file-in-vma-vm_file-on-mmap.patch
+     bug-fix-cut-here-for-warn_on-for-__warn_taint-architectures.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Jan Harkes <jaharkes@cs.cmu.edu>
-Subject: coda: pass the host file in vma->vm_file on mmap
+From: Drew Davenport <ddavenport@chromium.org>
+Subject: include/asm-generic/bug.h: fix "cut here" for WARN_ON for __WARN_TAINT architectures
 
-Patch series "Coda updates".
+For architectures using __WARN_TAINT, the WARN_ON macro did not print out
+the "cut here" string.  The other WARN_XXX macros would print "cut here"
+inside __warn_printk, which is not called for WARN_ON since it doesn't
+have a message to print.
 
-The following patch series is a collection of various fixes for Coda, most
-of which were collected from linux-fsdevel or linux-kernel but which have
-as yet not found their way upstream.
-
-
-This patch (of 22):
-
-Various file systems expect that vma->vm_file points at their own file
-handle, several use file_inode(vma->vm_file) to get at their inode or use
-vma->vm_file->private_data.  However the way Coda wrapped mmap on a host
-file broke this assumption, vm_file was still pointing at the Coda file
-and the host file systems would scribble over Coda's inode and private
-file data.
-
-This patch fixes the incorrect expectation and wraps vm_ops->open and
-vm_ops->close to allow Coda to track when the vm_area_struct is destroyed
-so we still release the reference on the Coda file handle at the right
-time.
-
-Link: http://lkml.kernel.org/r/0e850c6e59c0b147dc2dcd51a3af004c948c3697.1558117389.git.jaharkes@cs.cmu.edu
-Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Fabian Frederick <fabf@skynet.be>
-Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
-Cc: Sam Protsenko <semen.protsenko@linaro.org>
-Cc: Yann Droneaud <ydroneaud@opteya.com>
-Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
+Link: http://lkml.kernel.org/r/20190624154831.163888-1-ddavenport@chromium.org
+Fixes: a7bed27af194 ("bug: fix "cut here" location for __WARN_TAINT architectures")
+Signed-off-by: Drew Davenport <ddavenport@chromium.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Tested-by: Kees Cook <keescook@chromium.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/coda/file.c |   70 +++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 68 insertions(+), 2 deletions(-)
+ include/asm-generic/bug.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/coda/file.c~coda-pass-the-host-file-in-vma-vm_file-on-mmap
-+++ a/fs/coda/file.c
-@@ -27,6 +27,13 @@
- #include "coda_linux.h"
- #include "coda_int.h"
- 
-+struct coda_vm_ops {
-+	atomic_t refcnt;
-+	struct file *coda_file;
-+	const struct vm_operations_struct *host_vm_ops;
-+	struct vm_operations_struct vm_ops;
-+};
-+
- static ssize_t
- coda_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
- {
-@@ -61,6 +68,34 @@ coda_file_write_iter(struct kiocb *iocb,
- 	return ret;
- }
- 
-+static void
-+coda_vm_open(struct vm_area_struct *vma)
-+{
-+	struct coda_vm_ops *cvm_ops =
-+		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
-+
-+	atomic_inc(&cvm_ops->refcnt);
-+
-+	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->open)
-+		cvm_ops->host_vm_ops->open(vma);
-+}
-+
-+static void
-+coda_vm_close(struct vm_area_struct *vma)
-+{
-+	struct coda_vm_ops *cvm_ops =
-+		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
-+
-+	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->close)
-+		cvm_ops->host_vm_ops->close(vma);
-+
-+	if (atomic_dec_and_test(&cvm_ops->refcnt)) {
-+		vma->vm_ops = cvm_ops->host_vm_ops;
-+		fput(cvm_ops->coda_file);
-+		kfree(cvm_ops);
-+	}
-+}
-+
- static int
- coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
- {
-@@ -68,6 +103,8 @@ coda_file_mmap(struct file *coda_file, s
- 	struct coda_inode_info *cii;
- 	struct file *host_file;
- 	struct inode *coda_inode, *host_inode;
-+	struct coda_vm_ops *cvm_ops;
-+	int ret;
- 
- 	cfi = CODA_FTOC(coda_file);
- 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
-@@ -76,6 +113,13 @@ coda_file_mmap(struct file *coda_file, s
- 	if (!host_file->f_op->mmap)
- 		return -ENODEV;
- 
-+	if (WARN_ON(coda_file != vma->vm_file))
-+		return -EIO;
-+
-+	cvm_ops = kmalloc(sizeof(struct coda_vm_ops), GFP_KERNEL);
-+	if (!cvm_ops)
-+		return -ENOMEM;
-+
- 	coda_inode = file_inode(coda_file);
- 	host_inode = file_inode(host_file);
- 
-@@ -89,6 +133,7 @@ coda_file_mmap(struct file *coda_file, s
- 	 * the container file on us! */
- 	else if (coda_inode->i_mapping != host_inode->i_mapping) {
- 		spin_unlock(&cii->c_lock);
-+		kfree(cvm_ops);
- 		return -EBUSY;
- 	}
- 
-@@ -97,7 +142,29 @@ coda_file_mmap(struct file *coda_file, s
- 	cfi->cfi_mapcount++;
- 	spin_unlock(&cii->c_lock);
- 
--	return call_mmap(host_file, vma);
-+	vma->vm_file = get_file(host_file);
-+	ret = call_mmap(vma->vm_file, vma);
-+
-+	if (ret) {
-+		/* if call_mmap fails, our caller will put coda_file so we
-+		 * should drop the reference to the host_file that we got.
-+		 */
-+		fput(host_file);
-+		kfree(cvm_ops);
-+	} else {
-+		/* here we add redirects for the open/close vm_operations */
-+		cvm_ops->host_vm_ops = vma->vm_ops;
-+		if (vma->vm_ops)
-+			cvm_ops->vm_ops = *vma->vm_ops;
-+
-+		cvm_ops->vm_ops.open = coda_vm_open;
-+		cvm_ops->vm_ops.close = coda_vm_close;
-+		cvm_ops->coda_file = coda_file;
-+		atomic_set(&cvm_ops->refcnt, 1);
-+
-+		vma->vm_ops = &cvm_ops->vm_ops;
-+	}
-+	return ret;
- }
- 
- int coda_open(struct inode *coda_inode, struct file *coda_file)
-@@ -207,4 +274,3 @@ const struct file_operations coda_file_o
- 	.fsync		= coda_fsync,
- 	.splice_read	= generic_file_splice_read,
- };
--
+--- a/include/asm-generic/bug.h~bug-fix-cut-here-for-warn_on-for-__warn_taint-architectures
++++ a/include/asm-generic/bug.h
+@@ -104,8 +104,10 @@ extern void warn_slowpath_null(const cha
+ 	warn_slowpath_fmt_taint(__FILE__, __LINE__, taint, arg)
+ #else
+ extern __printf(1, 2) void __warn_printk(const char *fmt, ...);
+-#define __WARN()		__WARN_TAINT(TAINT_WARN)
+-#define __WARN_printf(arg...)	do { __warn_printk(arg); __WARN(); } while (0)
++#define __WARN() do { \
++	printk(KERN_WARNING CUT_HERE); __WARN_TAINT(TAINT_WARN); \
++} while (0)
++#define __WARN_printf(arg...)	__WARN_printf_taint(TAINT_WARN, arg)
+ #define __WARN_printf_taint(taint, arg...)				\
+ 	do { __warn_printk(arg); __WARN_TAINT(taint); } while (0)
+ #endif
 _
 
-Patches currently in -mm which might be from jaharkes@cs.cmu.edu are
+Patches currently in -mm which might be from ddavenport@chromium.org are
 
 
