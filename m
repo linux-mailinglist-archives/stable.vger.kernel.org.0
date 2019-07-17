@@ -2,86 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04D656B7DD
-	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 10:08:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DFC46B800
+	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 10:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728310AbfGQIIf convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 17 Jul 2019 04:08:35 -0400
-Received: from mga02.intel.com ([134.134.136.20]:47808 "EHLO mga02.intel.com"
+        id S1726244AbfGQIRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 04:17:25 -0400
+Received: from foss.arm.com ([217.140.110.172]:43922 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725873AbfGQIIf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 04:08:35 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Jul 2019 01:08:34 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,273,1559545200"; 
-   d="scan'208";a="167894267"
-Received: from fmsmsx106.amr.corp.intel.com ([10.18.124.204])
-  by fmsmga008.fm.intel.com with ESMTP; 17 Jul 2019 01:08:33 -0700
-Received: from fmsmsx101.amr.corp.intel.com (10.18.124.199) by
- FMSMSX106.amr.corp.intel.com (10.18.124.204) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Wed, 17 Jul 2019 01:08:33 -0700
-Received: from shsmsx104.ccr.corp.intel.com (10.239.4.70) by
- fmsmsx101.amr.corp.intel.com (10.18.124.199) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Wed, 17 Jul 2019 01:08:33 -0700
-Received: from shsmsx107.ccr.corp.intel.com ([169.254.9.162]) by
- SHSMSX104.ccr.corp.intel.com ([169.254.5.110]) with mapi id 14.03.0439.000;
- Wed, 17 Jul 2019 16:08:31 +0800
-From:   "Zhang, Xiaolin" <xiaolin.zhang@intel.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     "intel-gvt-dev@lists.freedesktop.org" 
-        <intel-gvt-dev@lists.freedesktop.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] drm/i915/gvt: fix incorrect cache entry for guest page
- mapping
-Thread-Topic: [PATCH] drm/i915/gvt: fix incorrect cache entry for guest page
- mapping
-Thread-Index: AQHVPHA72TBsFrNvyUOTc0TP27TZJQ==
-Date:   Wed, 17 Jul 2019 08:08:31 +0000
-Message-ID: <073732E20AE4C540AE91DBC3F07D4460876B39CE@SHSMSX107.ccr.corp.intel.com>
-References: <1563378987-21880-1-git-send-email-xiaolin.zhang@intel.com>
- <20190717075507.GA14238@kroah.com>
-Accept-Language: en-US, zh-CN
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.239.4.160]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
+        id S1725890AbfGQIRY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 04:17:24 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3B03A1516;
+        Wed, 17 Jul 2019 01:17:24 -0700 (PDT)
+Received: from e112298-lin.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 6BBB63F71A;
+        Wed, 17 Jul 2019 01:19:22 -0700 (PDT)
+From:   Julien Thierry <julien.thierry@arm.com>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     mark.rutland@arm.com, peterz@infradead.org, liwei391@huawei.com,
+        will.deacon@arm.com, acme@kernel.org,
+        alexander.shishkin@linux.intel.com, mingo@redhat.com,
+        namhyung@kernel.org, jolsa@redhat.com, sthotton@marvell.com,
+        Julien Thierry <julien.thierry@arm.com>,
+        Russell King <linux@armlinux.org.uk>, stable@vger.kernel.org
+Subject: [PATCH v4 3/9] arm: perf: save/resore pmsel
+Date:   Wed, 17 Jul 2019 09:17:06 +0100
+Message-Id: <1563351432-55652-4-git-send-email-julien.thierry@arm.com>
+X-Mailer: git-send-email 1.9.1
+In-Reply-To: <1563351432-55652-1-git-send-email-julien.thierry@arm.com>
+References: <1563351432-55652-1-git-send-email-julien.thierry@arm.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 07/17/2019 03:55 PM, Greg KH wrote:
-> On Wed, Jul 17, 2019 at 11:56:27PM +0800, Xiaolin Zhang wrote:
->> GPU hang observed during the guest OCL conformance test which is caused
->> by THP GTT feature used durning the test.
->>
->> It was observed the same GFN with different size (4K and 2M) requested
->> from the guest in GVT. So during the guest page dma map stage, it is
->> required to unmap first with orginal size and then remap again with
->> requested size.
->>
->> Fixes: b901b252b6cf ("drm/i915/gvt: Add 2M huge gtt support")
->> Signed-off-by: Xiaolin Zhang <xiaolin.zhang@intel.com>
->> ---
->>  drivers/gpu/drm/i915/gvt/kvmgt.c | 12 ++++++++++++
->>  1 file changed, 12 insertions(+)
-> <formletter>
->
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
->
-> </formletter>
->
-Greg, Thanks great information to point out this I am not fully aware.
-will resend to correct this.
+The callback pmu->read() can be called with interrupts enabled.
+Currently, on ARM, this can cause the following callchain:
 
--Xiaolin
+armpmu_read() -> armpmu_event_update() -> armv7pmu_read_counter()
 
+The last function might modify the counter selector register and then
+read the target counter, without taking any lock. With interrupts
+enabled, a PMU interrupt could occur and modify the selector register
+as well, between the selection and read of the interrupted context.
+
+Save and restore the value of the selector register in the PMU interrupt
+handler, ensuring the interrupted context is left with the correct PMU
+registers selected.
+
+Signed-off-by: Julien Thierry <julien.thierry@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: stable@vger.kernel.org
+---
+ arch/arm/kernel/perf_event_v7.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/kernel/perf_event_v7.c b/arch/arm/kernel/perf_event_v7.c
+index a4fb0f8..b7be2a3 100644
+--- a/arch/arm/kernel/perf_event_v7.c
++++ b/arch/arm/kernel/perf_event_v7.c
+@@ -736,10 +736,22 @@ static inline int armv7_pmnc_counter_has_overflowed(u32 pmnc, int idx)
+ 	return pmnc & BIT(ARMV7_IDX_TO_COUNTER(idx));
+ }
+
+-static inline void armv7_pmnc_select_counter(int idx)
++static inline u32 armv7_pmsel_read(void)
++{
++	u32 pmsel;
++
++	asm volatile("mrc p15, 0, %0, c9, c12, 5" : "=&r" (pmsel));
++	return pmsel;
++}
++
++static inline void armv7_pmsel_write(u32 counter)
+ {
+-	u32 counter = ARMV7_IDX_TO_COUNTER(idx);
+ 	asm volatile("mcr p15, 0, %0, c9, c12, 5" : : "r" (counter));
++}
++
++static inline void armv7_pmnc_select_counter(int idx)
++{
++	armv7_pmsel_write(ARMV7_IDX_TO_COUNTER(idx));
+ 	isb();
+ }
+
+@@ -952,8 +964,15 @@ static irqreturn_t armv7pmu_handle_irq(struct arm_pmu *cpu_pmu)
+ 	struct perf_sample_data data;
+ 	struct pmu_hw_events *cpuc = this_cpu_ptr(cpu_pmu->hw_events);
+ 	struct pt_regs *regs;
++	u32 pmsel;
+ 	int idx;
+
++
++	/*
++	 * Save pmsel in case the interrupted context was using it.
++	 */
++	pmsel = armv7_pmsel_read();
++
+ 	/*
+ 	 * Get and reset the IRQ flags
+ 	 */
+@@ -1004,6 +1023,8 @@ static irqreturn_t armv7pmu_handle_irq(struct arm_pmu *cpu_pmu)
+ 	 */
+ 	irq_work_run();
+
++	armv7_pmsel_write(pmsel);
++
+ 	return IRQ_HANDLED;
+ }
+
+--
+1.9.1
