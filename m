@@ -2,124 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D494F6BDD3
-	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 16:07:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EAF86BF9B
+	for <lists+stable@lfdr.de>; Wed, 17 Jul 2019 18:30:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726085AbfGQOG7 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 17 Jul 2019 10:06:59 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:65277 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725948AbfGQOG7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Jul 2019 10:06:59 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 17372229-1500050 
-        for multiple; Wed, 17 Jul 2019 15:06:55 +0100
-Content-Type: text/plain; charset="utf-8"
+        id S1726598AbfGQQan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 12:30:43 -0400
+Received: from mail-eopbgr00115.outbound.protection.outlook.com ([40.107.0.115]:22949
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726081AbfGQQan (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 12:30:43 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=nxfUs6kehsMvVBAi5qUoRbDX2+On5rA4mV+Kgj6eVhPNt+R+DL/qlJFCWS6PyyrlQu0+OSPVHtPsz+90196dwTsC21cSs0yQ6PzQMu9kLQ3rbAl0yuEBupqFog4HxtnFYdhAr6/JFH2why9XJAkKpbhndMJUM9YUhoD9CJgPgUSVOVnemH6QNjUkTEAhZysf15PAoOcncTRpKkGAx+m49pxmvR33vKADSYrWb8g2HXp6Aw9r7lRJ/7mAW4drKBzHOrwb3RfiAhwp6pQTvDX8D+12N05XNX5WG8zwzBJ51IwbvkInNxIZa0bZCojwM69II3aH73RK75ZDgQumIUPrYw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6VDUFDNac/euhH89n7GGAs2rb56FVnKQw2Xlz0NBH0s=;
+ b=NfpPL59+DLBZ+GdbON0NJhzz/ytrdUFlbqssqR3l83gc/pAgjxlp9Hvs1+KmrMGX4dHYbwpH+6OKBCfczKVjFlIgta5mqLkTZ4UNxOxyBma8UxN4nrRgC/OB6jfQ7vBIMNmB9CFLvCS8/9F4hIGCH1ybDeU6Shlnc0v0BntoJh1CQNnYH1ujbpMm1pzGqgFsPR8H5DgM5QbbtVs/dFzwXT6BPsQW29Ze3yVM/1OdlooeaA5JoOz79T1+hkgzSa7+2lTC/hzgZBQwfZufTomQEirgUhIBF9RoKokT4pd+pTG2Kj3+MdRv+98mnr8oUDOZWng9Ua9lbGg6oLQP+HDuZA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1;spf=pass
+ smtp.mailfrom=toradex.com;dmarc=pass action=none
+ header.from=toradex.com;dkim=pass header.d=toradex.com;arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=toradex.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6VDUFDNac/euhH89n7GGAs2rb56FVnKQw2Xlz0NBH0s=;
+ b=aS52fKOE1Bwii4hk3nDBMdkXgLAlJaqbfjZMs5D9KRYrISuwHx9hkGonIftBX1iE2987dpWedz39lsjmtxUOR8h+Atzh9Wd7MIueCDSVLwrw3xPHPZE7RuElumCwcB0HwAkvFm8nuNok/7yicFWVOS0i9DQ6v/2EGOmcUMKblg0=
+Received: from AM6PR05MB6535.eurprd05.prod.outlook.com (20.179.18.16) by
+ AM6PR05MB6408.eurprd05.prod.outlook.com (20.179.6.83) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2073.14; Wed, 17 Jul 2019 16:30:38 +0000
+Received: from AM6PR05MB6535.eurprd05.prod.outlook.com
+ ([fe80::c860:b386:22a:8ec9]) by AM6PR05MB6535.eurprd05.prod.outlook.com
+ ([fe80::c860:b386:22a:8ec9%6]) with mapi id 15.20.2094.011; Wed, 17 Jul 2019
+ 16:30:38 +0000
+From:   Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+To:     Fabio Estevam <festevam@gmail.com>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Igor Opaniuk <igor.opaniuk@toradex.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Mark Brown <broonie@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Takashi Iwai <tiwai@suse.com>,
+        Liam Girdwood <lgirdwood@gmail.com>
+Subject: [PATCH v4 0/6] VAG power control improvement for sgtl5000 codec
+Thread-Topic: [PATCH v4 0/6] VAG power control improvement for sgtl5000 codec
+Thread-Index: AQHVPLz3hwtP1inkKEa+Vly0wUwu8A==
+Date:   Wed, 17 Jul 2019 16:30:38 +0000
+Message-ID: <20190717163014.429-1-oleksandr.suvorov@toradex.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: AM4P190CA0004.EURP190.PROD.OUTLOOK.COM
+ (2603:10a6:200:56::14) To AM6PR05MB6535.eurprd05.prod.outlook.com
+ (2603:10a6:20b:71::16)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=oleksandr.suvorov@toradex.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-mailer: git-send-email 2.20.1
+x-originating-ip: [194.105.145.90]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: cb803498-3fd7-4c3e-fd3b-08d70ad41a46
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:AM6PR05MB6408;
+x-ms-traffictypediagnostic: AM6PR05MB6408:
+x-ms-exchange-purlcount: 1
+x-microsoft-antispam-prvs: <AM6PR05MB64088C99A0E212E979C8E4C5F9C90@AM6PR05MB6408.eurprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:241;
+x-forefront-prvs: 01018CB5B3
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(39850400004)(136003)(346002)(396003)(376002)(366004)(189003)(199004)(486006)(305945005)(7736002)(2616005)(476003)(1076003)(52116002)(36756003)(53936002)(66066001)(81156014)(81166006)(71200400001)(8676002)(6436002)(6512007)(50226002)(6306002)(8936002)(14444005)(256004)(71190400001)(4326008)(3846002)(44832011)(6486002)(68736007)(14454004)(6116002)(2906002)(316002)(5660300002)(1411001)(99286004)(966005)(478600001)(66476007)(66556008)(64756008)(66446008)(66946007)(86362001)(6916009)(6506007)(102836004)(386003)(26005)(186003)(54906003)(25786009);DIR:OUT;SFP:1102;SCL:1;SRVR:AM6PR05MB6408;H:AM6PR05MB6535.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: toradex.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: XgXSLyQqRXGpa5ZIIr1biOPGN2oxeBTp65DjBUFjh1jGuGd9/WbgUhBukXXguyLewC6b2IzXuCsrEzW4QLHjKvOt4BFBeFdQn02dlBoNwB93FxVx+uD+wDdXbkfz2kWAlhro3PeqFfbJXJREDkPTXl81wdb5hjTI3/GH0Iq3gxNnj/P9A9zN2jXnCUqGVutobWg9ih1Hzjd5isqX2OU60gLtgv0OLsrhzdZPzFBeXDYtFHtA3vPc5OgU2QAAZgtgFVqYExzWNudsL9227YR2u+k9OfszU24RbSloSllhOfZXTNVA2fNtRQM003LZqEi6k96BiHtlaf8s597C1ZT7oEi0t6Zml4GI4O0NICR96/UXgaaAXb+jcm+a6sfda0x7kUwBXi10KjSypO8+OO07TC9fJMKRtcD+CYzn6fAUMFY=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-In-Reply-To: <951e2751-15d7-9ca8-ef6f-299ba59c47a6@linux.intel.com>
-Cc:     stable@vger.kernel.org
-References: <20190716124931.5870-1-chris@chris-wilson.co.uk>
- <bb43c2b5-3513-ef4f-1bc9-887fc2b2e523@linux.intel.com>
- <156329142200.9436.8651620549785965913@skylake-alporthouse-com>
- <d76bdb93-b90b-afe3-841b-95a8de27902d@linux.intel.com>
- <156336944635.4375.7269371478914847980@skylake-alporthouse-com>
- <6038b21f-c052-36c5-2d56-72ddeb069097@linux.intel.com>
- <156337053617.4375.13675276970408492219@skylake-alporthouse-com>
- <951e2751-15d7-9ca8-ef6f-299ba59c47a6@linux.intel.com>
-Message-ID: <156337241401.4375.2377981562987470090@skylake-alporthouse-com>
-User-Agent: alot/0.6
-Subject: Re: [Intel-gfx] [PATCH 1/5] drm/i915/userptr: Beware recursive lock_page()
-Date:   Wed, 17 Jul 2019 15:06:54 +0100
+X-OriginatorOrg: toradex.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cb803498-3fd7-4c3e-fd3b-08d70ad41a46
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Jul 2019 16:30:38.7618
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: d9995866-0d9b-4251-8315-093f062abab4
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: oleksandr.suvorov@toradex.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR05MB6408
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Tvrtko Ursulin (2019-07-17 14:46:15)
-> 
-> On 17/07/2019 14:35, Chris Wilson wrote:
-> > Quoting Tvrtko Ursulin (2019-07-17 14:23:55)
-> >>
-> >> On 17/07/2019 14:17, Chris Wilson wrote:
-> >>> Quoting Tvrtko Ursulin (2019-07-17 14:09:00)
-> >>>>
-> >>>> On 16/07/2019 16:37, Chris Wilson wrote:
-> >>>>> Quoting Tvrtko Ursulin (2019-07-16 16:25:22)
-> >>>>>>
-> >>>>>> On 16/07/2019 13:49, Chris Wilson wrote:
-> >>>>>>> Following a try_to_unmap() we may want to remove the userptr and so call
-> >>>>>>> put_pages(). However, try_to_unmap() acquires the page lock and so we
-> >>>>>>> must avoid recursively locking the pages ourselves -- which means that
-> >>>>>>> we cannot safely acquire the lock around set_page_dirty(). Since we
-> >>>>>>> can't be sure of the lock, we have to risk skip dirtying the page, or
-> >>>>>>> else risk calling set_page_dirty() without a lock and so risk fs
-> >>>>>>> corruption.
-> >>>>>>
-> >>>>>> So if trylock randomly fail we get data corruption in whatever data set
-> >>>>>> application is working on, which is what the original patch was trying
-> >>>>>> to avoid? Are we able to detect the backing store type so at least we
-> >>>>>> don't risk skipping set_page_dirty with anonymous/shmemfs?
-> >>>>>
-> >>>>> page->mapping???
-> >>>>
-> >>>> Would page->mapping work? What is it telling us?
-> >>>
-> >>> It basically tells us if there is a fs around; anything that is the most
-> >>> basic of malloc (even tmpfs/shmemfs has page->mapping).
-> >>
-> >> Normal malloc so anonymous pages? Or you meant everything _apart_ from
-> >> the most basic malloc?
-> > 
-> > Aye missed the not.
-> > 
-> >>>>> We still have the issue that if there is a mapping we should be taking
-> >>>>> the lock, and we may have both a mapping and be inside try_to_unmap().
-> >>>>
-> >>>> Is this a problem? On a path with mappings we trylock and so solve the
-> >>>> set_dirty_locked and recursive deadlock issues, and with no mappings
-> >>>> with always dirty the page and avoid data corruption.
-> >>>
-> >>> The problem as I see it is !page->mapping are likely an insignificant
-> >>> minority of userptr; as I think even memfd are essentially shmemfs (or
-> >>> hugetlbfs) and so have mappings.
-> >>
-> >> Better then nothing, no? If easy to do..
-> > 
-> > Actually, I erring on the opposite side. Peeking at mm/ internals does
-> > not bode confidence and feels indefensible. I'd much rather throw my
-> > hands up and say "this is the best we can do with the API provided,
-> > please tell us what we should have done." To which the answer is
-> > probably to not have used gup in the first place :|
-> 
-> """
-> /*
->  * set_page_dirty() is racy if the caller has no reference against
->  * page->mapping->host, and if the page is unlocked.  This is because another
->  * CPU could truncate the page off the mapping and then free the mapping.
->  *
->  * Usually, the page _is_ locked, or the caller is a user-space process which
->  * holds a reference on the inode by having an open file.
->  *
->  * In other cases, the page should be locked before running set_page_dirty().
->  */
-> int set_page_dirty_lock(struct page *page)
-> """
-> 
-> Could we hold a reference to page->mapping->host while having pages and then would be okay to call plain set_page_dirty?
 
-We would then be hitting the warnings in ext4 for unlocked pages again.
-Essentially the argument is whether or not that warn is valid, to which I
-think requires inner knowledge of vfs + ext4. To hold a reference on the
-host would require us tracking page->mapping (reasonable since we
-already hooked into mmu and so will get an invalidate + fresh gup on
-any changes), plus iterating over all to acquire the extra reference if
-applicable -- and I have no idea what the side-effects of that would be.
-Could well be positive side-effects. Just feels like wandering even
-further off the beaten path without a map. Good news hmm is just around
-the corner (which will probably prohibit this use-case) :|
--Chris
+VAG power control is improved to fit the manual [1]. This patchset fixes as
+minimum one bug: if customer muxes Headphone to Line-In right after boot,
+the VAG power remains off that leads to poor sound quality from line-in.
+
+I.e. after boot:
+- Connect sound source to Line-In jack;
+- Connect headphone to HP jack;
+- Run following commands:
+$ amixer set 'Headphone' 80%
+$ amixer set 'Headphone Mux' LINE_IN
+
+Also this series includes fixes of non-important bugs in sgtl5000 codec
+driver.
+
+[1] https://www.nxp.com/docs/en/data-sheet/SGTL5000.pdf
+
+Changes in v4:
+- CC the patch to kernel-stable
+- Code optimization, simplify function signature
+  (thanks to Cezary Rojewski <cezary.rojewski@intel.com> for an idea)
+- CC the patch to kernel-stable
+- Add a Fixes tag
+
+Changes in v3:
+- Add the reference to NXP SGTL5000 data sheet to commit message
+- Add the reference to NXP SGTL5000 data sheet to commit message
+- Fix multi-line comment format
+
+Changes in v2:
+- Fix patch formatting
+- Fix patch formatting
+- Fix patch formatting
+- Fix patch formatting
+- Fix patch formatting
+- Fix patch formatting
+
+Oleksandr Suvorov (6):
+  ASoC: Define a set of DAPM pre/post-up events
+  ASoC: sgtl5000: Improve VAG power and mute control
+  ASoC: sgtl5000: Fix definition of VAG Ramp Control
+  ASoC: sgtl5000: add ADC mute control
+  ASoC: sgtl5000: Fix of unmute outputs on probe
+  ASoC: sgtl5000: Fix charge pump source assignment
+
+ include/sound/soc-dapm.h    |   2 +
+ sound/soc/codecs/sgtl5000.c | 240 ++++++++++++++++++++++++++++++------
+ sound/soc/codecs/sgtl5000.h |   2 +-
+ 3 files changed, 203 insertions(+), 41 deletions(-)
+
+--=20
+2.20.1
+
