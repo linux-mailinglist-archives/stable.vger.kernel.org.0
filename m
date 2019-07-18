@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED8306C71A
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 273B26C73E
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:24:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390480AbfGRDJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:09:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42486 "EHLO mail.kernel.org"
+        id S2389379AbfGRDGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:06:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403824AbfGRDJn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:09:43 -0400
+        id S2389587AbfGRDGg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:06:36 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49351205F4;
-        Thu, 18 Jul 2019 03:09:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2D37204EC;
+        Thu, 18 Jul 2019 03:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419382;
-        bh=b7p+RJ6o2UgJrYQh8sPvZ0pKkdFTOBgNmJhKU2wALJk=;
+        s=default; t=1563419196;
+        bh=1M5uP+m8cuTDZeta1c/3TZC1egzglcR2qlnV2iaMkKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OERGpW2qRjIBS2LXRdZGggFmPAcI/Ouu+mUZ13S80OpJ9tbK2WnGp9wYkXkICYzdA
-         ZeWr+buQ1IjzTgjbHFuYgfFNaOYE8u1NTQSdc7XyGe6NmFEwNTKmCoYh9xXydbcy5G
-         SvwiTH92q/+Z8ILMi4BstFMp+uw1leBNMZ2of2mY=
+        b=XvDPrLWqAFav6ariOrL9tC46yEd5kRjzsKorIALaSkBJWA6WljZvxr8G7WCA/JQd9
+         vXMKRQlC9X5dh0qSVA//PWhpOmO6OhDBNzpGKFsi7PcIwTW69BCqZV31FVdjHacdS+
+         LkCCQaWIis11mGIQ6srR0nkg2UedMGgIIfi7L8Y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 25/80] mlxsw: spectrum: Disallow prio-tagged packets when PVID is removed
-Date:   Thu, 18 Jul 2019 12:01:16 +0900
-Message-Id: <20190718030100.721989850@linuxfoundation.org>
+        stable@vger.kernel.org, Cole Rogers <colerogers@disroot.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 03/47] Input: synaptics - enable SMBUS on T480 thinkpad trackpad
+Date:   Thu, 18 Jul 2019 12:01:17 +0900
+Message-Id: <20190718030047.215069355@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
+References: <20190718030045.780672747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4b14cc313f076c37b646cee06a85f0db59cf216c ]
+From: Cole Rogers <colerogers@disroot.org>
 
-When PVID is removed from a bridge port, the Linux bridge drops both
-untagged and prio-tagged packets. Align mlxsw with this behavior.
+commit abbe3acd7d72ab4633ade6bd24e8306b67e0add3 upstream.
 
-Fixes: 148f472da5db ("mlxsw: reg: Add the Switch Port Acceptable Frame Types register")
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Thinkpad t480 laptops had some touchpad features disabled, resulting in the
+loss of pinch to activities in GNOME, on wayland, and other touch gestures
+being slower. This patch adds the touchpad of the t480 to the smbus_pnp_ids
+whitelist to enable the extra features. In my testing this does not break
+suspend (on fedora, with wayland, and GNOME, using the rc-6 kernel), while
+also fixing the feature on a T480.
+
+Signed-off-by: Cole Rogers <colerogers@disroot.org>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/mellanox/mlxsw/reg.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/synaptics.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/reg.h b/drivers/net/ethernet/mellanox/mlxsw/reg.h
-index 5acfbe5b8b9d..8ab7a4f98a07 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/reg.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/reg.h
-@@ -911,7 +911,7 @@ static inline void mlxsw_reg_spaft_pack(char *payload, u8 local_port,
- 	MLXSW_REG_ZERO(spaft, payload);
- 	mlxsw_reg_spaft_local_port_set(payload, local_port);
- 	mlxsw_reg_spaft_allow_untagged_set(payload, allow_untagged);
--	mlxsw_reg_spaft_allow_prio_tagged_set(payload, true);
-+	mlxsw_reg_spaft_allow_prio_tagged_set(payload, allow_untagged);
- 	mlxsw_reg_spaft_allow_tagged_set(payload, true);
- }
- 
--- 
-2.20.1
-
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -176,6 +176,7 @@ static const char * const smbus_pnp_ids[
+ 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
+ 	"LEN0073", /* X1 Carbon G5 (Elantech) */
+ 	"LEN0092", /* X1 Carbon 6 */
++	"LEN0093", /* T480 */
+ 	"LEN0096", /* X280 */
+ 	"LEN0097", /* X280 -> ALPS trackpoint */
+ 	"LEN200f", /* T450s */
 
 
