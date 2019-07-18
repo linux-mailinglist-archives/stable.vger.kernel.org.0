@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B14EC6C709
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B32676C70B
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:22:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390898AbfGRDJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:09:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41432 "EHLO mail.kernel.org"
+        id S2389410AbfGRDJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:09:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390928AbfGRDJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:09:05 -0400
+        id S2390308AbfGRDJH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:09:07 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D6D621848;
-        Thu, 18 Jul 2019 03:09:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 496FA2173E;
+        Thu, 18 Jul 2019 03:09:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419344;
-        bh=L9W5DKIEML14IYhf2zmLw+iTZCNCqpb3B6/NohmN1YY=;
+        s=default; t=1563419346;
+        bh=gTLamAertdUfFmmFQXCK2qgVQ0eh0U9806nXMovzEcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wc5rXqirqZpv81QaBB2mgF8/dq9gYR/gYr43yuY/y7zVDN0oyFHjYZsKXyc46c8OF
-         w5OYx6XsKgtW8hrZe8PcyG5OU9A3CEDNHpn/FrdqclS6TzqG6NzjMOb/iuO4DwE6uL
-         5G2sZyTo3ecWYqRKfY/C88KI814UmAjeJGe01gjM=
+        b=LW3PdvIRpXyDa7Kikr2TqbWopffZ04Hvc2x60elztEHfGEXiCCw3JckzNZXcfRrwg
+         pnFfNmcV6nbUSG9i1KepzGBlFs+2VU67+6h4fOxoxIPaKP3zWB8EZrVqA5o0nw4Il/
+         FpHO3fVWQCG3lEaer7dQxU+KUaLoWYOTQyysxpEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chang-Hsien Tsai <luke.tw@gmail.com>,
+        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
+        John Fastabend <john.fastabend@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/80] samples, bpf: fix to change the buffer size for read()
-Date:   Thu, 18 Jul 2019 12:00:59 +0900
-Message-Id: <20190718030059.512535171@linuxfoundation.org>
+Subject: [PATCH 4.14 09/80] bpf: sockmap, fix use after free from sleep in psock backlog workqueue
+Date:   Thu, 18 Jul 2019 12:01:00 +0900
+Message-Id: <20190718030059.584523247@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
 References: <20190718030058.615992480@linuxfoundation.org>
@@ -44,41 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f7c2d64bac1be2ff32f8e4f500c6e5429c1003e0 ]
+[ Upstream commit bd95e678e0f6e18351ecdc147ca819145db9ed7b ]
 
-If the trace for read is larger than 4096, the return
-value sz will be 4096. This results in off-by-one error
-on buf:
+Backlog work for psock (sk_psock_backlog) might sleep while waiting
+for memory to free up when sending packets. However, while sleeping
+the socket may be closed and removed from the map by the user space
+side.
 
-    static char buf[4096];
-    ssize_t sz;
+This breaks an assumption in sk_stream_wait_memory, which expects the
+wait queue to be still there when it wakes up resulting in a
+use-after-free shown below. To fix his mark sendmsg as MSG_DONTWAIT
+to avoid the sleep altogether. We already set the flag for the
+sendpage case but we missed the case were sendmsg is used.
+Sockmap is currently the only user of skb_send_sock_locked() so only
+the sockmap paths should be impacted.
 
-    sz = read(trace_fd, buf, sizeof(buf));
-    if (sz > 0) {
-        buf[sz] = 0;
-        puts(buf);
-    }
+==================================================================
+BUG: KASAN: use-after-free in remove_wait_queue+0x31/0x70
+Write of size 8 at addr ffff888069a0c4e8 by task kworker/0:2/110
 
-Signed-off-by: Chang-Hsien Tsai <luke.tw@gmail.com>
+CPU: 0 PID: 110 Comm: kworker/0:2 Not tainted 5.0.0-rc2-00335-g28f9d1a3d4fe-dirty #14
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-2.fc27 04/01/2014
+Workqueue: events sk_psock_backlog
+Call Trace:
+ print_address_description+0x6e/0x2b0
+ ? remove_wait_queue+0x31/0x70
+ kasan_report+0xfd/0x177
+ ? remove_wait_queue+0x31/0x70
+ ? remove_wait_queue+0x31/0x70
+ remove_wait_queue+0x31/0x70
+ sk_stream_wait_memory+0x4dd/0x5f0
+ ? sk_stream_wait_close+0x1b0/0x1b0
+ ? wait_woken+0xc0/0xc0
+ ? tcp_current_mss+0xc5/0x110
+ tcp_sendmsg_locked+0x634/0x15d0
+ ? tcp_set_state+0x2e0/0x2e0
+ ? __kasan_slab_free+0x1d1/0x230
+ ? kmem_cache_free+0x70/0x140
+ ? sk_psock_backlog+0x40c/0x4b0
+ ? process_one_work+0x40b/0x660
+ ? worker_thread+0x82/0x680
+ ? kthread+0x1b9/0x1e0
+ ? ret_from_fork+0x1f/0x30
+ ? check_preempt_curr+0xaf/0x130
+ ? iov_iter_kvec+0x5f/0x70
+ ? kernel_sendmsg_locked+0xa0/0xe0
+ skb_send_sock_locked+0x273/0x3c0
+ ? skb_splice_bits+0x180/0x180
+ ? start_thread+0xe0/0xe0
+ ? update_min_vruntime.constprop.27+0x88/0xc0
+ sk_psock_backlog+0xb3/0x4b0
+ ? strscpy+0xbf/0x1e0
+ process_one_work+0x40b/0x660
+ worker_thread+0x82/0x680
+ ? process_one_work+0x660/0x660
+ kthread+0x1b9/0x1e0
+ ? __kthread_create_on_node+0x250/0x250
+ ret_from_fork+0x1f/0x30
+
+Fixes: 20bf50de3028c ("skbuff: Function to send an skbuf on a socket")
+Reported-by: Jakub Sitnicki <jakub@cloudflare.com>
+Tested-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/bpf_load.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/skbuff.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/samples/bpf/bpf_load.c b/samples/bpf/bpf_load.c
-index 2325d7ad76df..e8e8b756dc52 100644
---- a/samples/bpf/bpf_load.c
-+++ b/samples/bpf/bpf_load.c
-@@ -613,7 +613,7 @@ void read_trace_pipe(void)
- 		static char buf[4096];
- 		ssize_t sz;
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 2b3b0307dd89..6d9fd7d4bdfa 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -2299,6 +2299,7 @@ int skb_send_sock_locked(struct sock *sk, struct sk_buff *skb, int offset,
+ 		kv.iov_base = skb->data + offset;
+ 		kv.iov_len = slen;
+ 		memset(&msg, 0, sizeof(msg));
++		msg.msg_flags = MSG_DONTWAIT;
  
--		sz = read(trace_fd, buf, sizeof(buf));
-+		sz = read(trace_fd, buf, sizeof(buf) - 1);
- 		if (sz > 0) {
- 			buf[sz] = 0;
- 			puts(buf);
+ 		ret = kernel_sendmsg_locked(sk, &msg, &kv, 1, slen);
+ 		if (ret <= 0)
 -- 
 2.20.1
 
