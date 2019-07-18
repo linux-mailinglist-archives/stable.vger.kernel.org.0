@@ -2,48 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99CBB6D711
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 01:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CADF16D70A
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 01:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391612AbfGRXG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 19:06:26 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:42985 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728524AbfGRXGZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 19:06:25 -0400
-Received: by mail-pf1-f196.google.com with SMTP id q10so13276011pff.9;
-        Thu, 18 Jul 2019 16:06:25 -0700 (PDT)
+        id S2391326AbfGRXGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 19:06:22 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:41750 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728524AbfGRXGW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 19:06:22 -0400
+Received: by mail-pg1-f195.google.com with SMTP id x15so3211526pgg.8;
+        Thu, 18 Jul 2019 16:06:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=CDu5Kn4QFjEkN6S2Xi1spwhgFAxF5TT+4s/SdRvC5So=;
-        b=d+kMhlchlK+IwnmxF+LJD6miI6/PJ0pybbjjWICwRUILKsyu7RtojUd0wkxkxMy8WK
-         j6cPU1kB4wCtRjLl+DBzK/HPANbychfiaNdgu+kDPrjHUeA5jdqzmAJ//YT0fseOC5HL
-         5u+ZjCaET3giS5fmnZ4Ewv8zeX4pkcjbcbtjwsq11Xs0bO2LTCMsPvOIy1OXQlO8ZGQC
-         LJnv6vn1T9DGSOd4VLOJIr5BLBeyWBY5VBLDin+bB63EE7qW5ciKShMmE/ZLgRPNGQUC
-         ruhbubEg0gPNa1nyoK3U8TC/aNhmHsXFaf/DKEBT7Mv+78WO+OgiYBwP6DJS6ceaJU7N
-         WEUw==
-X-Gm-Message-State: APjAAAVUZ2MfkvVMR9Kt+itOeF2JAFZM+9Ieaf+cfMC2wk2UZAvh8Yre
-        /dNoLwPo7BZ8/SFIojgSCTs=
-X-Google-Smtp-Source: APXvYqzTE+H408VupO91D8wV4QPH7oeH5wb749VlasrHjqp6Jfh7DA1tBWVa9i20GbITeiMa4nm8dA==
-X-Received: by 2002:a17:90a:c20e:: with SMTP id e14mr11177928pjt.0.1563491184681;
-        Thu, 18 Jul 2019 16:06:24 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=RrGwnDIom4ZFYE5fokLWAofw8P39aInJ+75MpS6dYUY=;
+        b=P1sr1lvdOjP9q4y5nMv2L/n34MSNMq4WYk7sYEzrb/Wza65cZ99SdQEFOQ+xfky0uh
+         0rTxEMKWrUGQ/yxiJ9hDFwKP1mVxaUsuc3B6hjoUJV7u4w6MsWvSHZh3yCtkWNKr31E6
+         dhERoUFLh0AG2JiTlU2vq8EhTWe0G1sh2YhnbGZAdVyhnNgYUpBToPkxbAbEYeMO+M9t
+         rMiMglsCECyt8nvwxZEhY5U0LBQeAqLom6LRImEh4RCAOnpxa2jZA/bayM+DACv1JSYe
+         ZIZKMt0JC9Nh3bhpgRoQvUxLP+EFk2UNwb61clocXSeF+SPdEoV1GJr55NB57NMqKC6V
+         jmmQ==
+X-Gm-Message-State: APjAAAX6RfAhIOuVLXurID4ZVVwEn6uxhQrQ7T3RLa9pevf0H8JIu8E3
+        d9SKovItDN9hkMhB1e/cA7k=
+X-Google-Smtp-Source: APXvYqwG9Ca4dM15fm3yeZQi2YPcXMRaY1uZ3V1bOUeUc6WvLHjWuQD1LJWrBRntYHJ3E06dNrpjeA==
+X-Received: by 2002:a63:494d:: with SMTP id y13mr51271481pgk.109.1563491181078;
+        Thu, 18 Jul 2019 16:06:21 -0700 (PDT)
 Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
-        by smtp.gmail.com with ESMTPSA id g62sm27651586pje.11.2019.07.18.16.06.19
+        by smtp.gmail.com with ESMTPSA id w2sm22802922pgc.32.2019.07.18.16.06.19
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
         Thu, 18 Jul 2019 16:06:19 -0700 (PDT)
 Received: by 42.do-not-panic.com (Postfix, from userid 1000)
-        id 176CB403B8; Thu, 18 Jul 2019 23:06:19 +0000 (UTC)
+        id 1F84340004; Thu, 18 Jul 2019 23:06:19 +0000 (UTC)
 From:   Luis Chamberlain <mcgrof@kernel.org>
 To:     linux-xfs@vger.kernel.org, gregkh@linuxfoundation.org,
         Alexander.Levin@microsoft.com
 Cc:     stable@vger.kernel.org, amir73il@gmail.com, hch@infradead.org,
-        zlang@redhat.com, Luis Chamberlain <mcgrof@kernel.org>
-Subject: [PATCH 0/9] xfs: stable fixes for v4.19.y - circa ~ v4.19.58
-Date:   Thu, 18 Jul 2019 23:06:08 +0000
-Message-Id: <20190718230617.7439-1-mcgrof@kernel.org>
+        zlang@redhat.com, "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <david@fromorbit.com>,
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 1/9] xfs: fix pagecache truncation prior to reflink
+Date:   Thu, 18 Jul 2019 23:06:09 +0000
+Message-Id: <20190718230617.7439-2-mcgrof@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190718230617.7439-1-mcgrof@kernel.org>
+References: <20190718230617.7439-1-mcgrof@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,101 +57,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-"Oyez Oyez..." its time for a stable update of fixes for XFS. 4 out of the
-9 fixes here were recommended by Amir, and tested by both Amir and Sasha.
-I've found a few other fixes, and have tested all these changes with
-fstests against the following configurations in fstests sections as per
-oscheck [0] and found no regressions in comparsin to v4.19.58 and by
-running the full set of tests 3 times completely:
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-  * xfs
-  * xfs_nocrc
-  * xfs_nocrc_512
-  * xfs_reflink
-  * xfs_reflink_1024
-  * xfs_logdev
-  * xfs_realtimedev
+commit 4918ef4ea008cd2ff47eb852894e3f9b9047f4f3 upstream.
 
-Known issues are listed on the expunges files, but its no different than
-the current baseline.
+Prior to remapping blocks, it is necessary to remove pages from the
+destination file's page cache.  Unfortunately, the truncation is not
+aggressive enough -- if page size > block size, we'll end up zeroing
+subpage blocks instead of removing them.  So, round the start offset
+down and the end offset up to page boundaries.  We already wrote all
+the dirty data so the larger range shouldn't be a problem.
 
-Worth noting is a now known generic/388 crash on xfs_nocrc, xfs_reflink,
-and what may be a new section we should consider to track:
-"xfs_reflink_normapbt" with the following resulting filesystem:
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+---
+ fs/xfs/xfs_reflink.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-# xfs_info /dev/loop5
-meta-data=/dev/loop5             isize=512    agcount=4, agsize=1310720 blks
-         =                       sectsz=512   attr=2, projid32bit=1
-         =                       crc=1        finobt=1, sparse=1, rmapbt=0
-         =                       reflink=1
-data     =                       bsize=4096   blocks=5242880, imaxpct=25
-         =                       sunit=0      swidth=0 blks
-naming   =version 2              bsize=4096   ascii-ci=0, ftype=1
-log      =internal log           bsize=4096   blocks=2560, version=2
-         =                       sectsz=512   sunit=0 blks, lazy-count=1
-realtime =none                   extsz=4096   blocks=0, rtextents=0
-
-Do we want to create a baseline and track this configuration for stable
-as well?
-
-There is a stable bug tracking this, kz#204223 [1], and a respective bug
-also present on upstream via kz#204049 [2] which Zorro reported. But,
-again, nothing changes from the baseline.
-
-I'd appreciate further reviews from the patches.
-
-I have some other fixes in mind as well, but I'd rather not delay this
-set and think this is a first good batch.
-
-This also goes out as the first set of stable fixes using oscheck's
-new devops infrastructure built on ansible / vagrant / terraform [3].
-For this release I've used vagrant with KVM, perhaps the next one
-I'll try terraform on whatever cloud solution someone is willing
-to let me use.
-
-You can also find these changes on my 20190718-linux-xfs-4.19.y-v1
-branch on kernel.org [4].
-
-Lemme know if you see any issues or have any questions.
-
-[0] https://gitlab.com/mcgrof/oscheck/blob/master/fstests-configs/xfs.config
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=204223
-[2] https://bugzilla.kernel.org/show_bug.cgi?id=204049
-[3] https://gitlab.com/mcgrof/kdevops
-[4] https://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/linux-stable.git/log/?h=20190718-linux-xfs-4.19.y-v1
-
-Brian Foster (1):
-  xfs: serialize unaligned dio writes against all other dio writes
-
-Darrick J. Wong (6):
-  xfs: fix pagecache truncation prior to reflink
-  xfs: don't overflow xattr listent buffer
-  xfs: rename m_inotbt_nores to m_finobt_nores
-  xfs: don't ever put nlink > 0 inodes on the unlinked list
-  xfs: reserve blocks for ifree transaction during log recovery
-  xfs: abort unaligned nowait directio early
-
-Dave Chinner (1):
-  xfs: flush removing page cache in xfs_reflink_remap_prep
-
-Luis R. Rodriguez (1):
-  xfs: fix reporting supported extra file attributes for statx()
-
- fs/xfs/libxfs/xfs_ag_resv.c      |  2 +-
- fs/xfs/libxfs/xfs_ialloc_btree.c |  4 ++--
- fs/xfs/xfs_attr_list.c           |  1 +
- fs/xfs/xfs_bmap_util.c           |  2 +-
- fs/xfs/xfs_bmap_util.h           |  2 ++
- fs/xfs/xfs_file.c                | 27 +++++++++++++++++----------
- fs/xfs/xfs_fsops.c               |  1 +
- fs/xfs/xfs_inode.c               | 18 +++++++-----------
- fs/xfs/xfs_iops.c                | 21 +++++++++++++++++++--
- fs/xfs/xfs_mount.h               |  2 +-
- fs/xfs/xfs_reflink.c             | 16 +++++++++++++---
- fs/xfs/xfs_super.c               |  7 +++++++
- fs/xfs/xfs_xattr.c               |  3 +++
- 13 files changed, 75 insertions(+), 31 deletions(-)
-
+diff --git a/fs/xfs/xfs_reflink.c b/fs/xfs/xfs_reflink.c
+index 7088f44c0c59..38ea08a3dd1d 100644
+--- a/fs/xfs/xfs_reflink.c
++++ b/fs/xfs/xfs_reflink.c
+@@ -1369,8 +1369,9 @@ xfs_reflink_remap_prep(
+ 		goto out_unlock;
+ 
+ 	/* Zap any page cache for the destination file's range. */
+-	truncate_inode_pages_range(&inode_out->i_data, pos_out,
+-				   PAGE_ALIGN(pos_out + *len) - 1);
++	truncate_inode_pages_range(&inode_out->i_data,
++			round_down(pos_out, PAGE_SIZE),
++			round_up(pos_out + *len, PAGE_SIZE) - 1);
+ 
+ 	/* If we're altering the file contents... */
+ 	if (!is_dedupe) {
 -- 
 2.20.1
 
