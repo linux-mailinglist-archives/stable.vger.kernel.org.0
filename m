@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 966306C604
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:12:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A48766C5CE
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:11:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391116AbfGRDM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:12:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46852 "EHLO mail.kernel.org"
+        id S2390541AbfGRDJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:09:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390637AbfGRDM1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:12:27 -0400
+        id S2390529AbfGRDJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:09:57 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C83C2053B;
-        Thu, 18 Jul 2019 03:12:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9849D21851;
+        Thu, 18 Jul 2019 03:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419546;
-        bh=JBJAknoITNGorh7Uo9wTZmQ99AZYsSL++9mQ3KBxfGY=;
+        s=default; t=1563419397;
+        bh=p1IU8QPovdUDi5XGYJEm4GK8en0R73tKS9wIcC+rKkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SD997C3DwZKTJkzUvZrbEpmWh7SxjV1pFlUoUyvJuqmgJvUIiKNQjQacMttKeXcz5
-         6x/6lnjVzf8+5Cq8Fi3FHNA0hJt3HHquzdL+z0/dOTfCeWLuYcdZ4eOnrJco4c5B1e
-         NVPaxO2HxODwmizcGQN2G1Cz8vTUiI9bNBoQvPnU=
+        b=LgP+AeiD0YpdEzLBTGZKfq68XDlS3OEivwwo6VDZ5lZOgv0CnrhK4PPl/8qgqbfd0
+         kTfF22RklDTjhDbTD5zhtq/ZPTW8RjxNFNpHW3zakH7NI9Ry9GBHhZoR/m+izFufsE
+         n23gPlBiG76cjJipasRIu71A0h1dWLPAdC+GHUOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/54] netfilter: ipv6: nf_defrag: accept duplicate fragments again
+        stable@vger.kernel.org, huangwen <huangwen@venustech.com.cn>,
+        Takashi Iwai <tiwai@suse.de>, Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 48/80] mwifiex: Fix heap overflow in mwifiex_uap_parse_tail_ies()
 Date:   Thu, 18 Jul 2019 12:01:39 +0900
-Message-Id: <20190718030049.882636764@linuxfoundation.org>
+Message-Id: <20190718030102.352020917@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
-References: <20190718030048.392549994@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +43,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8a3dca632538c550930ce8bafa8c906b130d35cf ]
+From: Takashi Iwai <tiwai@suse.de>
 
-When fixing the skb leak introduced by the conversion to rbtree, I
-forgot about the special case of duplicate fragments. The condition
-under the 'insert_error' label isn't effective anymore as
-nf_ct_frg6_gather() doesn't override the returned value anymore. So
-duplicate fragments now get NF_DROP verdict.
+commit 69ae4f6aac1578575126319d3f55550e7e440449 upstream.
 
-To accept duplicate fragments again, handle them specially as soon as
-inet_frag_queue_insert() reports them. Return -EINPROGRESS which will
-translate to NF_STOLEN verdict, like any accepted fragment. However,
-such packets don't carry any new information and aren't queued, so we
-just drop them immediately.
+A few places in mwifiex_uap_parse_tail_ies() perform memcpy()
+unconditionally, which may lead to either buffer overflow or read over
+boundary.
 
-Fixes: a0d56cb911ca ("netfilter: ipv6: nf_defrag: fix leakage of unqueued fragments")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch addresses the issues by checking the read size and the
+destination size at each place more properly.  Along with the fixes,
+the patch cleans up the code slightly by introducing a temporary
+variable for the token size, and unifies the error path with the
+standard goto statement.
+
+Reported-by: huangwen <huangwen@venustech.com.cn>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/ipv6/netfilter/nf_conntrack_reasm.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/ie.c |   45 ++++++++++++++++++++----------
+ 1 file changed, 30 insertions(+), 15 deletions(-)
 
-diff --git a/net/ipv6/netfilter/nf_conntrack_reasm.c b/net/ipv6/netfilter/nf_conntrack_reasm.c
-index e6114a6710e0..0b53d1907e4a 100644
---- a/net/ipv6/netfilter/nf_conntrack_reasm.c
-+++ b/net/ipv6/netfilter/nf_conntrack_reasm.c
-@@ -264,8 +264,14 @@ static int nf_ct_frag6_queue(struct frag_queue *fq, struct sk_buff *skb,
+--- a/drivers/net/wireless/marvell/mwifiex/ie.c
++++ b/drivers/net/wireless/marvell/mwifiex/ie.c
+@@ -329,6 +329,8 @@ static int mwifiex_uap_parse_tail_ies(st
+ 	struct ieee80211_vendor_ie *vendorhdr;
+ 	u16 gen_idx = MWIFIEX_AUTO_IDX_MASK, ie_len = 0;
+ 	int left_len, parsed_len = 0;
++	unsigned int token_len;
++	int err = 0;
  
- 	prev = fq->q.fragments_tail;
- 	err = inet_frag_queue_insert(&fq->q, skb, offset, end);
--	if (err)
-+	if (err) {
-+		if (err == IPFRAG_DUP) {
-+			/* No error for duplicates, pretend they got queued. */
-+			kfree_skb(skb);
-+			return -EINPROGRESS;
+ 	if (!info->tail || !info->tail_len)
+ 		return 0;
+@@ -344,6 +346,12 @@ static int mwifiex_uap_parse_tail_ies(st
+ 	 */
+ 	while (left_len > sizeof(struct ieee_types_header)) {
+ 		hdr = (void *)(info->tail + parsed_len);
++		token_len = hdr->len + sizeof(struct ieee_types_header);
++		if (token_len > left_len) {
++			err = -EINVAL;
++			goto out;
 +		}
- 		goto insert_error;
-+	}
++
+ 		switch (hdr->element_id) {
+ 		case WLAN_EID_SSID:
+ 		case WLAN_EID_SUPP_RATES:
+@@ -357,13 +365,16 @@ static int mwifiex_uap_parse_tail_ies(st
+ 		case WLAN_EID_VENDOR_SPECIFIC:
+ 			break;
+ 		default:
+-			memcpy(gen_ie->ie_buffer + ie_len, hdr,
+-			       hdr->len + sizeof(struct ieee_types_header));
+-			ie_len += hdr->len + sizeof(struct ieee_types_header);
++			if (ie_len + token_len > IEEE_MAX_IE_SIZE) {
++				err = -EINVAL;
++				goto out;
++			}
++			memcpy(gen_ie->ie_buffer + ie_len, hdr, token_len);
++			ie_len += token_len;
+ 			break;
+ 		}
+-		left_len -= hdr->len + sizeof(struct ieee_types_header);
+-		parsed_len += hdr->len + sizeof(struct ieee_types_header);
++		left_len -= token_len;
++		parsed_len += token_len;
+ 	}
  
- 	if (dev)
- 		fq->iif = dev->ifindex;
-@@ -303,8 +309,6 @@ static int nf_ct_frag6_queue(struct frag_queue *fq, struct sk_buff *skb,
- 	return -EINPROGRESS;
+ 	/* parse only WPA vendor IE from tail, WMM IE is configured by
+@@ -373,15 +384,17 @@ static int mwifiex_uap_parse_tail_ies(st
+ 						    WLAN_OUI_TYPE_MICROSOFT_WPA,
+ 						    info->tail, info->tail_len);
+ 	if (vendorhdr) {
+-		memcpy(gen_ie->ie_buffer + ie_len, vendorhdr,
+-		       vendorhdr->len + sizeof(struct ieee_types_header));
+-		ie_len += vendorhdr->len + sizeof(struct ieee_types_header);
++		token_len = vendorhdr->len + sizeof(struct ieee_types_header);
++		if (ie_len + token_len > IEEE_MAX_IE_SIZE) {
++			err = -EINVAL;
++			goto out;
++		}
++		memcpy(gen_ie->ie_buffer + ie_len, vendorhdr, token_len);
++		ie_len += token_len;
+ 	}
  
- insert_error:
--	if (err == IPFRAG_DUP)
--		goto err;
- 	inet_frag_kill(&fq->q);
- err:
- 	skb_dst_drop(skb);
--- 
-2.20.1
-
+-	if (!ie_len) {
+-		kfree(gen_ie);
+-		return 0;
+-	}
++	if (!ie_len)
++		goto out;
+ 
+ 	gen_ie->ie_index = cpu_to_le16(gen_idx);
+ 	gen_ie->mgmt_subtype_mask = cpu_to_le16(MGMT_MASK_BEACON |
+@@ -391,13 +404,15 @@ static int mwifiex_uap_parse_tail_ies(st
+ 
+ 	if (mwifiex_update_uap_custom_ie(priv, gen_ie, &gen_idx, NULL, NULL,
+ 					 NULL, NULL)) {
+-		kfree(gen_ie);
+-		return -1;
++		err = -EINVAL;
++		goto out;
+ 	}
+ 
+ 	priv->gen_idx = gen_idx;
++
++ out:
+ 	kfree(gen_ie);
+-	return 0;
++	return err;
+ }
+ 
+ /* This function parses different IEs-head & tail IEs, beacon IEs,
 
 
