@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFFDC6C758
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:24:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11E0A6C77E
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390676AbfGRDIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:08:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40162 "EHLO mail.kernel.org"
+        id S2389628AbfGRDF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:05:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390665AbfGRDIQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:08:16 -0400
+        id S1727804AbfGRDF6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:05:58 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D75082173B;
-        Thu, 18 Jul 2019 03:08:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7247D2173E;
+        Thu, 18 Jul 2019 03:05:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419295;
-        bh=uwB4vb3z/m1k+bVykQxmfhxl1uup4a6Q5Lxogz7dBKU=;
+        s=default; t=1563419156;
+        bh=TQ9/G6BptbWSST519WW8I97eo7t6QlgZulsO0gAVW/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEdnVRGsO9GYQAGTdvoz7RLWbHtqYdprglbgWhgm3pDOgU7e/lKvNTCRqD8/NT+CK
-         vJesO8L3hgQj+QaPq2svuc23tcvsCe+ZTv5/vjgT892oUEZZBe0vPXC0uqhXKQMaqN
-         QBnPrttXDQsk5OGNOVZ+A0Qa7DZgSrzl1ZMKqB7U=
+        b=Xoq0o+P5TLCMESUdQCRfu9NL7h+lXmkQEp+YeXAm3xr2Yjcbzm+PWuiVcbSVF5Etr
+         yqRSakeMKt8Mjw5nKdpoRLKxGDIi4tAaqoZa76EVhqU0T8m2rnk3NEAOFVkNkjNLE+
+         PVtGWTFEDY9cTLN7yBKZtAqCr8ht77+U/Sy0wH+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hodaszi <Robert.Hodaszi@digi.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <marc.zyngier@arm.com>
-Subject: [PATCH 4.19 32/47] genirq: Add optional hardware synchronization for shutdown
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.1 51/54] crypto: talitos - move struct talitos_edesc into talitos.h
 Date:   Thu, 18 Jul 2019 12:01:46 +0900
-Message-Id: <20190718030051.450770137@linuxfoundation.org>
+Message-Id: <20190718030057.149727466@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
-References: <20190718030045.780672747@linuxfoundation.org>
+In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
+References: <20190718030053.287374640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,223 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner tglx@linutronix.de
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 62e0468650c30f0298822c580f382b16328119f6 upstream
+commit d44769e4ccb636e8238adbc151f25467a536711b upstream.
 
-free_irq() ensures that no hardware interrupt handler is executing on a
-different CPU before actually releasing resources and deactivating the
-interrupt completely in a domain hierarchy.
+Moves struct talitos_edesc into talitos.h so that it can be used
+from any place in talitos.c
 
-But that does not catch the case where the interrupt is on flight at the
-hardware level but not yet serviced by the target CPU. That creates an
-interesing race condition:
+It will be required for next patch ("crypto: talitos - fix hash
+on SEC1")
 
-   CPU 0                  CPU 1               IRQ CHIP
-
-                                              interrupt is raised
-                                              sent to CPU1
-			  Unable to handle
-			  immediately
-			  (interrupts off,
-			   deep idle delay)
-   mask()
-   ...
-   free()
-     shutdown()
-     synchronize_irq()
-     release_resources()
-                          do_IRQ()
-                            -> resources are not available
-
-That might be harmless and just trigger a spurious interrupt warning, but
-some interrupt chips might get into a wedged state.
-
-Utilize the existing irq_get_irqchip_state() callback for the
-synchronization in free_irq().
-
-synchronize_hardirq() is not using this mechanism as it might actually
-deadlock unter certain conditions, e.g. when called with interrupts
-disabled and the target CPU is the one on which the synchronization is
-invoked. synchronize_irq() uses it because that function cannot be called
-from non preemtible contexts as it might sleep.
-
-No functional change intended and according to Marc the existing GIC
-implementations where the driver supports the callback should be able
-to cope with that core change. Famous last words.
-
-Fixes: 464d12309e1b ("x86/vector: Switch IOAPIC to global reservation mode")
-Reported-by: Robert Hodaszi <Robert.Hodaszi@digi.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
-Tested-by: Marc Zyngier <marc.zyngier@arm.com>
-Link: https://lkml.kernel.org/r/20190628111440.279463375@linutronix.de
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: stable@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- kernel/irq/internals.h |    4 ++
- kernel/irq/manage.c    |   75 ++++++++++++++++++++++++++++++++++++-------------
- 2 files changed, 60 insertions(+), 19 deletions(-)
+ drivers/crypto/talitos.c |   30 ------------------------------
+ drivers/crypto/talitos.h |   30 ++++++++++++++++++++++++++++++
+ 2 files changed, 30 insertions(+), 30 deletions(-)
 
---- a/kernel/irq/internals.h
-+++ b/kernel/irq/internals.h
-@@ -95,6 +95,10 @@ static inline void irq_mark_irq(unsigned
- extern void irq_mark_irq(unsigned int irq);
- #endif
- 
-+extern int __irq_get_irqchip_state(struct irq_data *data,
-+				   enum irqchip_irq_state which,
-+				   bool *state);
-+
- extern void init_kstat_irqs(struct irq_desc *desc, int node, int nr);
- 
- irqreturn_t __handle_irq_event_percpu(struct irq_desc *desc, unsigned int *flags);
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -35,8 +35,9 @@ static int __init setup_forced_irqthread
- early_param("threadirqs", setup_forced_irqthreads);
- #endif
- 
--static void __synchronize_hardirq(struct irq_desc *desc)
-+static void __synchronize_hardirq(struct irq_desc *desc, bool sync_chip)
- {
-+	struct irq_data *irqd = irq_desc_get_irq_data(desc);
- 	bool inprogress;
- 
- 	do {
-@@ -52,6 +53,20 @@ static void __synchronize_hardirq(struct
- 		/* Ok, that indicated we're done: double-check carefully. */
- 		raw_spin_lock_irqsave(&desc->lock, flags);
- 		inprogress = irqd_irq_inprogress(&desc->irq_data);
-+
-+		/*
-+		 * If requested and supported, check at the chip whether it
-+		 * is in flight at the hardware level, i.e. already pending
-+		 * in a CPU and waiting for service and acknowledge.
-+		 */
-+		if (!inprogress && sync_chip) {
-+			/*
-+			 * Ignore the return code. inprogress is only updated
-+			 * when the chip supports it.
-+			 */
-+			__irq_get_irqchip_state(irqd, IRQCHIP_STATE_ACTIVE,
-+						&inprogress);
-+		}
- 		raw_spin_unlock_irqrestore(&desc->lock, flags);
- 
- 		/* Oops, that failed? */
-@@ -74,13 +89,18 @@ static void __synchronize_hardirq(struct
-  *	Returns: false if a threaded handler is active.
-  *
-  *	This function may be called - with care - from IRQ context.
-+ *
-+ *	It does not check whether there is an interrupt in flight at the
-+ *	hardware level, but not serviced yet, as this might deadlock when
-+ *	called with interrupts disabled and the target CPU of the interrupt
-+ *	is the current CPU.
-  */
- bool synchronize_hardirq(unsigned int irq)
- {
- 	struct irq_desc *desc = irq_to_desc(irq);
- 
- 	if (desc) {
--		__synchronize_hardirq(desc);
-+		__synchronize_hardirq(desc, false);
- 		return !atomic_read(&desc->threads_active);
- 	}
- 
-@@ -98,13 +118,17 @@ EXPORT_SYMBOL(synchronize_hardirq);
-  *
-  *	Can only be called from preemptible code as it might sleep when
-  *	an interrupt thread is associated to @irq.
-+ *
-+ *	It optionally makes sure (when the irq chip supports that method)
-+ *	that the interrupt is not pending in any CPU and waiting for
-+ *	service.
-  */
- void synchronize_irq(unsigned int irq)
- {
- 	struct irq_desc *desc = irq_to_desc(irq);
- 
- 	if (desc) {
--		__synchronize_hardirq(desc);
-+		__synchronize_hardirq(desc, true);
- 		/*
- 		 * We made sure that no hardirq handler is
- 		 * running. Now verify that no threaded handlers are
-@@ -1650,8 +1674,12 @@ static struct irqaction *__free_irq(stru
- 
- 	unregister_handler_proc(irq, action);
- 
--	/* Make sure it's not being used on another CPU: */
--	synchronize_hardirq(irq);
-+	/*
-+	 * Make sure it's not being used on another CPU and if the chip
-+	 * supports it also make sure that there is no (not yet serviced)
-+	 * interrupt in flight at the hardware level.
-+	 */
-+	__synchronize_hardirq(desc, true);
- 
- #ifdef CONFIG_DEBUG_SHIRQ
- 	/*
-@@ -2184,6 +2212,28 @@ int __request_percpu_irq(unsigned int ir
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -913,36 +913,6 @@ badkey:
+ 	return -EINVAL;
  }
- EXPORT_SYMBOL_GPL(__request_percpu_irq);
  
-+int __irq_get_irqchip_state(struct irq_data *data, enum irqchip_irq_state which,
-+			    bool *state)
-+{
-+	struct irq_chip *chip;
-+	int err = -EINVAL;
-+
-+	do {
-+		chip = irq_data_get_irq_chip(data);
-+		if (chip->irq_get_irqchip_state)
-+			break;
-+#ifdef CONFIG_IRQ_DOMAIN_HIERARCHY
-+		data = data->parent_data;
-+#else
-+		data = NULL;
-+#endif
-+	} while (data);
-+
-+	if (data)
-+		err = chip->irq_get_irqchip_state(data, which, state);
-+	return err;
-+}
+-/*
+- * talitos_edesc - s/w-extended descriptor
+- * @src_nents: number of segments in input scatterlist
+- * @dst_nents: number of segments in output scatterlist
+- * @icv_ool: whether ICV is out-of-line
+- * @iv_dma: dma address of iv for checking continuity and link table
+- * @dma_len: length of dma mapped link_tbl space
+- * @dma_link_tbl: bus physical address of link_tbl/buf
+- * @desc: h/w descriptor
+- * @link_tbl: input and output h/w link tables (if {src,dst}_nents > 1) (SEC2)
+- * @buf: input and output buffeur (if {src,dst}_nents > 1) (SEC1)
+- *
+- * if decrypting (with authcheck), or either one of src_nents or dst_nents
+- * is greater than 1, an integrity check value is concatenated to the end
+- * of link_tbl data
+- */
+-struct talitos_edesc {
+-	int src_nents;
+-	int dst_nents;
+-	bool icv_ool;
+-	dma_addr_t iv_dma;
+-	int dma_len;
+-	dma_addr_t dma_link_tbl;
+-	struct talitos_desc desc;
+-	union {
+-		struct talitos_ptr link_tbl[0];
+-		u8 buf[0];
+-	};
+-};
+-
+ static void talitos_sg_unmap(struct device *dev,
+ 			     struct talitos_edesc *edesc,
+ 			     struct scatterlist *src,
+--- a/drivers/crypto/talitos.h
++++ b/drivers/crypto/talitos.h
+@@ -65,6 +65,36 @@ struct talitos_desc {
+ 
+ #define TALITOS_DESC_SIZE	(sizeof(struct talitos_desc) - sizeof(__be32))
+ 
++/*
++ * talitos_edesc - s/w-extended descriptor
++ * @src_nents: number of segments in input scatterlist
++ * @dst_nents: number of segments in output scatterlist
++ * @icv_ool: whether ICV is out-of-line
++ * @iv_dma: dma address of iv for checking continuity and link table
++ * @dma_len: length of dma mapped link_tbl space
++ * @dma_link_tbl: bus physical address of link_tbl/buf
++ * @desc: h/w descriptor
++ * @link_tbl: input and output h/w link tables (if {src,dst}_nents > 1) (SEC2)
++ * @buf: input and output buffeur (if {src,dst}_nents > 1) (SEC1)
++ *
++ * if decrypting (with authcheck), or either one of src_nents or dst_nents
++ * is greater than 1, an integrity check value is concatenated to the end
++ * of link_tbl data
++ */
++struct talitos_edesc {
++	int src_nents;
++	int dst_nents;
++	bool icv_ool;
++	dma_addr_t iv_dma;
++	int dma_len;
++	dma_addr_t dma_link_tbl;
++	struct talitos_desc desc;
++	union {
++		struct talitos_ptr link_tbl[0];
++		u8 buf[0];
++	};
++};
 +
  /**
-  *	irq_get_irqchip_state - returns the irqchip state of a interrupt.
-  *	@irq: Interrupt line that is forwarded to a VM
-@@ -2202,7 +2252,6 @@ int irq_get_irqchip_state(unsigned int i
- {
- 	struct irq_desc *desc;
- 	struct irq_data *data;
--	struct irq_chip *chip;
- 	unsigned long flags;
- 	int err = -EINVAL;
- 
-@@ -2212,19 +2261,7 @@ int irq_get_irqchip_state(unsigned int i
- 
- 	data = irq_desc_get_irq_data(desc);
- 
--	do {
--		chip = irq_data_get_irq_chip(data);
--		if (chip->irq_get_irqchip_state)
--			break;
--#ifdef CONFIG_IRQ_DOMAIN_HIERARCHY
--		data = data->parent_data;
--#else
--		data = NULL;
--#endif
--	} while (data);
--
--	if (data)
--		err = chip->irq_get_irqchip_state(data, which, state);
-+	err = __irq_get_irqchip_state(data, which, state);
- 
- 	irq_put_desc_busunlock(desc, flags);
- 	return err;
+  * talitos_request - descriptor submission request
+  * @desc: descriptor pointer (kernel virtual)
 
 
