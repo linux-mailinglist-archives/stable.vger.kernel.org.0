@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E86F6C6A0
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F07B6C67B
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391338AbfGRDNq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:13:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49024 "EHLO mail.kernel.org"
+        id S2391868AbfGRDOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:14:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391231AbfGRDNo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:13:44 -0400
+        id S2389327AbfGRDOl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:14:41 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C167D21849;
-        Thu, 18 Jul 2019 03:13:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7604E21855;
+        Thu, 18 Jul 2019 03:14:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419624;
-        bh=CKfmS79SuX2UmlAo3TKWfk6h9YOBayVYr5CZeBDUu9k=;
+        s=default; t=1563419680;
+        bh=X2/lEcq6scKsMBWfNNSoFC09TD54ijIEPNUAJEBlZag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AO1fmIVC5V4bLM74GaY7rCZgTVAf6M6UA1Sz3tzrwd6NjLLMbQ26GRGZYld7jYmKo
-         PBz4I62knfaFaNYhRfqmV/sGuzcczOwQaDJEXgRnQGa6aKHc9ACo+ITmdu1mfHuwAA
-         0u5OVUcOiE/tE1PbGnzCuCjaXGcNby7i833Y8LKY=
+        b=HGyGwIO0SLrtMxNaK7pffZ2j4FoqRDitiF/FtP26L3D8uzQWehx6K1jofvNL5NKy4
+         zebWcsXah0/pbb7qE3mkMQsXDixeHfAG3W7AUF0vpaMojHJvkEpniTiII08eZ8NEQY
+         7UCwRODeyS6py2ovVXpi6vIkM3W/G8xmINCRye00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Olof Johansson <olof@lixom.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 45/54] ARM: omap2: remove incorrect __init annotation
+        stable@vger.kernel.org,
+        Andreas Fritiofson <andreas.fritiofson@unjo.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 19/40] USB: serial: ftdi_sio: add ID for isodebug v1
 Date:   Thu, 18 Jul 2019 12:02:15 +0900
-Message-Id: <20190718030053.043789522@linuxfoundation.org>
+Message-Id: <20190718030046.745450870@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
-References: <20190718030048.392549994@linuxfoundation.org>
+In-Reply-To: <20190718030039.676518610@linuxfoundation.org>
+References: <20190718030039.676518610@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 27e23d8975270df6999f8b5b3156fc0c04927451 ]
+From: Andreas Fritiofson <andreas.fritiofson@unjo.com>
 
-omap3xxx_prm_enable_io_wakeup() is marked __init, but its caller is not, so
-we get a warning with clang-8:
+commit f8377eff548170e8ea8022c067a1fbdf9e1c46a8 upstream.
 
-WARNING: vmlinux.o(.text+0x343c8): Section mismatch in reference from the function omap3xxx_prm_late_init() to the function .init.text:omap3xxx_prm_enable_io_wakeup()
-The function omap3xxx_prm_late_init() references
-the function __init omap3xxx_prm_enable_io_wakeup().
-This is often because omap3xxx_prm_late_init lacks a __init
-annotation or the annotation of omap3xxx_prm_enable_io_wakeup is wrong.
+This adds the vid:pid of the isodebug v1 isolated JTAG/SWD+UART. Only the
+second channel is available for use as a serial port.
 
-When building with gcc, omap3xxx_prm_enable_io_wakeup() is always
-inlined, so we never noticed in the past.
+Signed-off-by: Andreas Fritiofson <andreas.fritiofson@unjo.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Signed-off-by: Olof Johansson <olof@lixom.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/prm3xxx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/ftdi_sio.c     |    1 +
+ drivers/usb/serial/ftdi_sio_ids.h |    6 ++++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/arch/arm/mach-omap2/prm3xxx.c b/arch/arm/mach-omap2/prm3xxx.c
-index 718981bb80cd..0aec48c1736b 100644
---- a/arch/arm/mach-omap2/prm3xxx.c
-+++ b/arch/arm/mach-omap2/prm3xxx.c
-@@ -433,7 +433,7 @@ static void omap3_prm_reconfigure_io_chain(void)
-  * registers, and omap3xxx_prm_reconfigure_io_chain() must be called.
-  * No return value.
-  */
--static void __init omap3xxx_prm_enable_io_wakeup(void)
-+static void omap3xxx_prm_enable_io_wakeup(void)
- {
- 	if (prm_features & PRM_HAS_IO_WAKEUP)
- 		omap2_prm_set_mod_reg_bits(OMAP3430_EN_IO_MASK, WKUP_MOD,
--- 
-2.20.1
-
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1024,6 +1024,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(AIRBUS_DS_VID, AIRBUS_DS_P8GR) },
+ 	/* EZPrototypes devices */
+ 	{ USB_DEVICE(EZPROTOTYPES_VID, HJELMSLUND_USB485_ISO_PID) },
++	{ USB_DEVICE_INTERFACE_NUMBER(UNJO_VID, UNJO_ISODEBUG_V1_PID, 1) },
+ 	{ }					/* Terminating entry */
+ };
+ 
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1542,3 +1542,9 @@
+ #define CHETCO_SEASMART_DISPLAY_PID	0xA5AD /* SeaSmart NMEA2000 Display */
+ #define CHETCO_SEASMART_LITE_PID	0xA5AE /* SeaSmart Lite USB Adapter */
+ #define CHETCO_SEASMART_ANALOG_PID	0xA5AF /* SeaSmart Analog Adapter */
++
++/*
++ * Unjo AB
++ */
++#define UNJO_VID			0x22B7
++#define UNJO_ISODEBUG_V1_PID		0x150D
 
 
