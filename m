@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3BAA6C5B0
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:11:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBA56C5C2
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:11:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390271AbfGRDIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:08:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40734 "EHLO mail.kernel.org"
+        id S2391005AbfGRDJd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:09:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390266AbfGRDIj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:08:39 -0400
+        id S2390999AbfGRDJc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:09:32 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E946E2077C;
-        Thu, 18 Jul 2019 03:08:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1AAB20818;
+        Thu, 18 Jul 2019 03:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419318;
-        bh=MM5i1/lwAKYQC92CSXJiFmuKGjT434DmFmldHqmDxbo=;
+        s=default; t=1563419371;
+        bh=S/h8bMj9dYlzLDIQkq5FX3kIwrthWQmwTA+B6FKzt/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jinu2QMT4lkK13WH1cgyMj2vgp8kPHYQp9junR5vetTvNCbqV+S3/Wmjrwx9MHolt
-         brbVfc/bdMswkhrB01Q4jBoUVIInNxwqVlxXgXs6wsGSvD026AfB9yswmcoGt9Fvcn
-         uchIaj3500OOP+SroR6D6VsO3j4QVp9LpVbHq7YM=
+        b=k+d/x0jaAtvS+E/PMEG2c24YeOU7XlKAvJrgc5+JOMs44nUwoJVgKVH3b+hTSddbJ
+         buBZn9ph8FvqzzVqSXIeh+yOHmqK1AAmi6uK0AHuUia0HHxb+Fd3mxJFwOkCLzppxf
+         1V0tWsPxVcAVkZThahKzCMIZOpPbbnDQ4cRdcKik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, huangwen <huangwen@venustech.com.cn>,
-        Takashi Iwai <tiwai@suse.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/80] mwifiex: Fix possible buffer overflows at parsing bss descriptor
-Date:   Thu, 18 Jul 2019 12:01:04 +0900
-Message-Id: <20190718030059.856460093@linuxfoundation.org>
+Subject: [PATCH 4.14 19/80] can: m_can: implement errata "Needless activation of MRAF irq"
+Date:   Thu, 18 Jul 2019 12:01:10 +0900
+Message-Id: <20190718030100.325995106@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
 References: <20190718030058.615992480@linuxfoundation.org>
@@ -45,47 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 13ec7f10b87f5fc04c4ccbd491c94c7980236a74 ]
+[ Upstream commit 3e82f2f34c930a2a0a9e69fdc2de2f2f1388b442 ]
 
-mwifiex_update_bss_desc_with_ie() calls memcpy() unconditionally in
-a couple places without checking the destination size.  Since the
-source is given from user-space, this may trigger a heap buffer
-overflow.
+During frame reception while the MCAN is in Error Passive state and the
+Receive Error Counter has thevalue MCAN_ECR.REC = 127, it may happen
+that MCAN_IR.MRAF is set although there was no Message RAM access
+failure. If MCAN_IR.MRAF is enabled, an interrupt to the Host CPU is
+generated.
 
-Fix it by putting the length check before performing memcpy().
+Work around:
+The Message RAM Access Failure interrupt routine needs to check whether
 
-This fix addresses CVE-2019-3846.
+    MCAN_ECR.RP = '1' and MCAN_ECR.REC = '127'.
 
-Reported-by: huangwen <huangwen@venustech.com.cn>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+In this case, reset MCAN_IR.MRAF. No further action is required.
+This affects versions older than 3.2.0
+
+Errata explained on Sama5d2 SoC which includes this hardware block:
+http://ww1.microchip.com/downloads/en/DeviceDoc/SAMA5D2-Family-Silicon-Errata-and-Data-Sheet-Clarification-DS80000803B.pdf
+chapter 6.2
+
+Reproducibility: If 2 devices with m_can are connected back to back,
+configuring different bitrate on them will lead to interrupt storm on
+the receiving side, with error "Message RAM access failure occurred".
+Another way is to have a bad hardware connection. Bad wire connection
+can lead to this issue as well.
+
+This patch fixes the issue according to provided workaround.
+
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/scan.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/can/m_can/m_can.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/scan.c b/drivers/net/wireless/marvell/mwifiex/scan.c
-index c9d41ed77fc7..c08a4574c396 100644
---- a/drivers/net/wireless/marvell/mwifiex/scan.c
-+++ b/drivers/net/wireless/marvell/mwifiex/scan.c
-@@ -1244,6 +1244,8 @@ int mwifiex_update_bss_desc_with_ie(struct mwifiex_adapter *adapter,
- 		}
- 		switch (element_id) {
- 		case WLAN_EID_SSID:
-+			if (element_len > IEEE80211_MAX_SSID_LEN)
-+				return -EINVAL;
- 			bss_entry->ssid.ssid_len = element_len;
- 			memcpy(bss_entry->ssid.ssid, (current_ptr + 2),
- 			       element_len);
-@@ -1253,6 +1255,8 @@ int mwifiex_update_bss_desc_with_ie(struct mwifiex_adapter *adapter,
- 			break;
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index d3ce904e929e..ebad93ac8f11 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -818,6 +818,27 @@ static int m_can_poll(struct napi_struct *napi, int quota)
+ 	if (!irqstatus)
+ 		goto end;
  
- 		case WLAN_EID_SUPP_RATES:
-+			if (element_len > MWIFIEX_SUPPORTED_RATES)
-+				return -EINVAL;
- 			memcpy(bss_entry->data_rates, current_ptr + 2,
- 			       element_len);
- 			memcpy(bss_entry->supported_rates, current_ptr + 2,
++	/* Errata workaround for issue "Needless activation of MRAF irq"
++	 * During frame reception while the MCAN is in Error Passive state
++	 * and the Receive Error Counter has the value MCAN_ECR.REC = 127,
++	 * it may happen that MCAN_IR.MRAF is set although there was no
++	 * Message RAM access failure.
++	 * If MCAN_IR.MRAF is enabled, an interrupt to the Host CPU is generated
++	 * The Message RAM Access Failure interrupt routine needs to check
++	 * whether MCAN_ECR.RP = ’1’ and MCAN_ECR.REC = 127.
++	 * In this case, reset MCAN_IR.MRAF. No further action is required.
++	 */
++	if ((priv->version <= 31) && (irqstatus & IR_MRAF) &&
++	    (m_can_read(priv, M_CAN_ECR) & ECR_RP)) {
++		struct can_berr_counter bec;
++
++		__m_can_get_berr_counter(dev, &bec);
++		if (bec.rxerr == 127) {
++			m_can_write(priv, M_CAN_IR, IR_MRAF);
++			irqstatus &= ~IR_MRAF;
++		}
++	}
++
+ 	psr = m_can_read(priv, M_CAN_PSR);
+ 	if (irqstatus & IR_ERR_STATE)
+ 		work_done += m_can_handle_state_errors(dev, psr);
 -- 
 2.20.1
 
