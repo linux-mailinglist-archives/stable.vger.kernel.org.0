@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24F616C750
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:24:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CA246C764
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:25:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390006AbfGRDHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:07:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39500 "EHLO mail.kernel.org"
+        id S2390574AbfGRDXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389707AbfGRDHo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:07:44 -0400
+        id S1727851AbfGRDHv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:07:51 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E88DD2053B;
-        Thu, 18 Jul 2019 03:07:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 628B62053B;
+        Thu, 18 Jul 2019 03:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419263;
-        bh=Ynu8yvodwMQx0uHwqI/HZYYLMvXKfqE7ZdfD2W0l3r0=;
+        s=default; t=1563419270;
+        bh=wMdPNoj9T1GtWUxEQzxuJ8p/8iOFmwa+5cQ4Ej+wvbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FKAorxiG/MDLofclpP7mDtyuTdlhOtz2nIniBQ4F7HV7H6i507D5acedLNs1iEijJ
-         m4hufzAAcAUoBzSmekZtUQg1NRbUgfCpBaaStCaigKZN7y91pteZxhIECgIHNUcm9b
-         NlwhmHGWhQJ92u8fHAbp1M++w1T7CZ9EzVcxzl80=
+        b=NRuTkeP5LdLAgZMu7rDZuAkhAVADVFJJR7U5xfg1afeE0z4AgRLh6Jp7Y4k3lcRc1
+         Hn9ZRAhC402HujhjQ7pDXKlAATnfMM6KT1IO2wSoDzl3JV7shq9Wrd2w9MY8XEOfGO
+         djS6aIkZ/eHin7jhZfdaKz0h+qZbKLOfE8+3IVD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [PATCH 4.19 37/47] s390: fix stfle zero padding
-Date:   Thu, 18 Jul 2019 12:01:51 +0900
-Message-Id: <20190718030051.901813536@linuxfoundation.org>
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.19 38/47] s390/qdio: (re-)initialize tiqdio list entries
+Date:   Thu, 18 Jul 2019 12:01:52 +0900
+Message-Id: <20190718030051.979282235@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
 References: <20190718030045.780672747@linuxfoundation.org>
@@ -43,83 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-commit 4f18d869ffd056c7858f3d617c71345cf19be008 upstream.
+commit e54e4785cb5cb4896cf4285964aeef2125612fb2 upstream.
 
-The stfle inline assembly returns the number of double words written
-(condition code 0) or the double words it would have written
-(condition code 3), if the memory array it got as parameter would have
-been large enough.
+When tiqdio_remove_input_queues() removes a queue from the tiq_list as
+part of qdio_shutdown(), it doesn't re-initialize the queue's list entry
+and the prev/next pointers go stale.
 
-The current stfle implementation assumes that the array is always
-large enough and clears those parts of the array that have not been
-written to with a subsequent memset call.
+If a subsequent qdio_establish() fails while sending the ESTABLISH cmd,
+it calls qdio_shutdown() again in QDIO_IRQ_STATE_ERR state and
+tiqdio_remove_input_queues() will attempt to remove the queue entry a
+second time. This dereferences the stale pointers, and bad things ensue.
+Fix this by re-initializing the list entry after removing it from the
+list.
 
-If however the array is not large enough memset will get a negative
-length parameter, which means that memset clears memory until it gets
-an exception and the kernel crashes.
+For good practice also initialize the list entry when the queue is first
+allocated, and remove the quirky checks that papered over this omission.
+Note that prior to
+commit e521813468f7 ("s390/qdio: fix access to uninitialized qdio_q fields"),
+these checks were bogus anyway.
 
-To fix this simply limit the maximum length. Move also the inline
-assembly to an extra function to avoid clobbering of register 0, which
-might happen because of the added min_t invocation together with code
-instrumentation.
+setup_queues_misc() clears the whole queue struct, and thus needs to
+re-init the prev/next pointers as well.
 
-The bug was introduced with commit 14375bc4eb8d ("[S390] cleanup
-facility list handling") but was rather harmless, since it would only
-write to a rather large array. It became a potential problem with
-commit 3ab121ab1866 ("[S390] kernel: Add z/VM LGR detection"). Since
-then it writes to an array with only four double words, while some
-machines already deliver three double words. As soon as machines have
-a facility bit within the fifth double a crash on IPL would happen.
-
-Fixes: 14375bc4eb8d ("[S390] cleanup facility list handling")
-Cc: <stable@vger.kernel.org> # v2.6.37+
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/include/asm/facility.h |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/s390/cio/qdio_setup.c   |    2 ++
+ drivers/s390/cio/qdio_thinint.c |    4 ++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/s390/include/asm/facility.h
-+++ b/arch/s390/include/asm/facility.h
-@@ -59,6 +59,18 @@ static inline int test_facility(unsigned
- 	return __test_facility(nr, &S390_lowcore.stfle_fac_list);
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -151,6 +151,7 @@ static int __qdio_allocate_qs(struct qdi
+ 			return -ENOMEM;
+ 		}
+ 		irq_ptr_qs[i] = q;
++		INIT_LIST_HEAD(&q->entry);
+ 	}
+ 	return 0;
+ }
+@@ -179,6 +180,7 @@ static void setup_queues_misc(struct qdi
+ 	q->mask = 1 << (31 - i);
+ 	q->nr = i;
+ 	q->handler = handler;
++	INIT_LIST_HEAD(&q->entry);
  }
  
-+static inline unsigned long __stfle_asm(u64 *stfle_fac_list, int size)
-+{
-+	register unsigned long reg0 asm("0") = size - 1;
-+
-+	asm volatile(
-+		".insn s,0xb2b00000,0(%1)" /* stfle */
-+		: "+d" (reg0)
-+		: "a" (stfle_fac_list)
-+		: "memory", "cc");
-+	return reg0;
-+}
-+
- /**
-  * stfle - Store facility list extended
-  * @stfle_fac_list: array where facility list can be stored
-@@ -76,13 +88,8 @@ static inline void stfle(u64 *stfle_fac_
- 	memcpy(stfle_fac_list, &S390_lowcore.stfl_fac_list, 4);
- 	if (S390_lowcore.stfl_fac_list & 0x01000000) {
- 		/* More facility bits available with stfle */
--		register unsigned long reg0 asm("0") = size - 1;
--
--		asm volatile(".insn s,0xb2b00000,0(%1)" /* stfle */
--			     : "+d" (reg0)
--			     : "a" (stfle_fac_list)
--			     : "memory", "cc");
--		nr = (reg0 + 1) * 8; /* # bytes stored by stfle */
-+		nr = __stfle_asm(stfle_fac_list, size);
-+		nr = min_t(unsigned long, (nr + 1) * 8, size * 8);
- 	}
- 	memset((char *) stfle_fac_list + nr, 0, size * 8 - nr);
- 	preempt_enable();
+ static void setup_storage_lists(struct qdio_q *q, struct qdio_irq *irq_ptr,
+--- a/drivers/s390/cio/qdio_thinint.c
++++ b/drivers/s390/cio/qdio_thinint.c
+@@ -87,14 +87,14 @@ void tiqdio_remove_input_queues(struct q
+ 	struct qdio_q *q;
+ 
+ 	q = irq_ptr->input_qs[0];
+-	/* if establish triggered an error */
+-	if (!q || !q->entry.prev || !q->entry.next)
++	if (!q)
+ 		return;
+ 
+ 	mutex_lock(&tiq_list_lock);
+ 	list_del_rcu(&q->entry);
+ 	mutex_unlock(&tiq_list_lock);
+ 	synchronize_rcu();
++	INIT_LIST_HEAD(&q->entry);
+ }
+ 
+ static inline int has_multiple_inq_on_dsci(struct qdio_irq *irq_ptr)
 
 
