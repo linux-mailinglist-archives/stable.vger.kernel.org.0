@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0012A6C726
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:22:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DDCC6C785
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390296AbfGRDV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:21:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
+        id S2389134AbfGRDFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:05:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387680AbfGRDJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:09:29 -0400
+        id S1727822AbfGRDFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:05:03 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 973452053B;
-        Thu, 18 Jul 2019 03:09:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E238C2053B;
+        Thu, 18 Jul 2019 03:05:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419369;
-        bh=2G9q8qP6fJ4eEklSPm4lYLVjtzDEF3InBG5aajNxFn0=;
+        s=default; t=1563419102;
+        bh=28zCHK5yuvWJPg6l0q6O7kS11mbjehpetbxQ/HaLk+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vexa7grTK069RqHAMhTT/T5tFeuP5xt7HjsBHBIJbs+WccS4up2cyKkkwE8S4+mir
-         ygeTpDMDx/9T18k1qpxAdqa+t0MjH8LDcwK7U9baFPcVCDzxElLCXEzSYMOzjXzQlw
-         5nLEKrUopCabXeDV/Tt0Tjtz75FoAn8jNVosLH3c=
+        b=ISTMWEmDHQW/PvGhJNhQLjSRYt8NX716NFnJJjDB4lsSyQwIuIkdNIeE7oeAKIYua
+         B0jeayxtSwE3zJR+7YDb0lQHES2U1XHrDBS9snzDU5AF5M1JljjspLDfD9KwkH3eRj
+         vMEVAHeo4Z7pDpaIKaLQzKyxdp18bpGJf2Ko5FQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Sean Paul <seanpaul@chromium.org>,
+        stable@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 34/80] drm: return -EFAULT if copy_to_user() fails
+Subject: [PATCH 5.1 30/54] x86/boot/64: Fix crash if kernel image crosses page table boundary
 Date:   Thu, 18 Jul 2019 12:01:25 +0900
-Message-Id: <20190718030101.285675784@linuxfoundation.org>
+Message-Id: <20190718030055.675779386@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
+References: <20190718030053.287374640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +50,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 74b67efa8d7b4f90137f0ab9a80dd319da050350 ]
+[ Upstream commit 81c7ed296dcd02bc0b4488246d040e03e633737a ]
 
-The copy_from_user() function returns the number of bytes remaining
-to be copied but we want to return a negative error code.  Otherwise
-the callers treat it as a successful copy.
+A kernel which boots in 5-level paging mode crashes in a small percentage
+of cases if KASLR is enabled.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190618131843.GA29463@mwanda
+This issue was tracked down to the case when the kernel image unpacks in a
+way that it crosses an 1G boundary. The crash is caused by an overrun of
+the PMD page table in __startup_64() and corruption of P4D page table
+allocated next to it. This particular issue is not visible with 4-level
+paging as P4D page tables are not used.
+
+But the P4D and the PUD calculation have similar problems.
+
+The PMD index calculation is wrong due to operator precedence, which fails
+to confine the PMDs in the PMD array on wrap around.
+
+The P4D calculation for 5-level paging and the PUD calculation calculate
+the first index correctly, but then blindly increment it which causes the
+same issue when a kernel image is located across a 512G and for 5-level
+paging across a 46T boundary.
+
+This wrap around mishandling was introduced when these parts moved from
+assembly to C.
+
+Restore it to the correct behaviour.
+
+Fixes: c88d71508e36 ("x86/boot/64: Rewrite startup_64() in C")
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20190620112345.28833-1-kirill.shutemov@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_bufs.c  | 5 ++++-
- drivers/gpu/drm/drm_ioc32.c | 5 ++++-
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ arch/x86/kernel/head64.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_bufs.c b/drivers/gpu/drm/drm_bufs.c
-index 0f05b8d8fefa..b829fde80f7b 100644
---- a/drivers/gpu/drm/drm_bufs.c
-+++ b/drivers/gpu/drm/drm_bufs.c
-@@ -1321,7 +1321,10 @@ static int copy_one_buf(void *data, int count, struct drm_buf_entry *from)
- 				 .size = from->buf_size,
- 				 .low_mark = from->low_mark,
- 				 .high_mark = from->high_mark};
--	return copy_to_user(to, &v, offsetof(struct drm_buf_desc, flags));
-+
-+	if (copy_to_user(to, &v, offsetof(struct drm_buf_desc, flags)))
-+		return -EFAULT;
-+	return 0;
- }
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 16b1cbd3a61e..7df5bce4e1be 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -190,18 +190,18 @@ unsigned long __head __startup_64(unsigned long physaddr,
+ 		pgd[i + 0] = (pgdval_t)p4d + pgtable_flags;
+ 		pgd[i + 1] = (pgdval_t)p4d + pgtable_flags;
  
- int drm_legacy_infobufs(struct drm_device *dev, void *data,
-diff --git a/drivers/gpu/drm/drm_ioc32.c b/drivers/gpu/drm/drm_ioc32.c
-index f8e96e648acf..bfeeb6a56135 100644
---- a/drivers/gpu/drm/drm_ioc32.c
-+++ b/drivers/gpu/drm/drm_ioc32.c
-@@ -372,7 +372,10 @@ static int copy_one_buf32(void *data, int count, struct drm_buf_entry *from)
- 			      .size = from->buf_size,
- 			      .low_mark = from->low_mark,
- 			      .high_mark = from->high_mark};
--	return copy_to_user(to + count, &v, offsetof(drm_buf_desc32_t, flags));
-+
-+	if (copy_to_user(to + count, &v, offsetof(drm_buf_desc32_t, flags)))
-+		return -EFAULT;
-+	return 0;
- }
+-		i = (physaddr >> P4D_SHIFT) % PTRS_PER_P4D;
+-		p4d[i + 0] = (pgdval_t)pud + pgtable_flags;
+-		p4d[i + 1] = (pgdval_t)pud + pgtable_flags;
++		i = physaddr >> P4D_SHIFT;
++		p4d[(i + 0) % PTRS_PER_P4D] = (pgdval_t)pud + pgtable_flags;
++		p4d[(i + 1) % PTRS_PER_P4D] = (pgdval_t)pud + pgtable_flags;
+ 	} else {
+ 		i = (physaddr >> PGDIR_SHIFT) % PTRS_PER_PGD;
+ 		pgd[i + 0] = (pgdval_t)pud + pgtable_flags;
+ 		pgd[i + 1] = (pgdval_t)pud + pgtable_flags;
+ 	}
  
- static int drm_legacy_infobufs32(struct drm_device *dev, void *data,
+-	i = (physaddr >> PUD_SHIFT) % PTRS_PER_PUD;
+-	pud[i + 0] = (pudval_t)pmd + pgtable_flags;
+-	pud[i + 1] = (pudval_t)pmd + pgtable_flags;
++	i = physaddr >> PUD_SHIFT;
++	pud[(i + 0) % PTRS_PER_PUD] = (pudval_t)pmd + pgtable_flags;
++	pud[(i + 1) % PTRS_PER_PUD] = (pudval_t)pmd + pgtable_flags;
+ 
+ 	pmd_entry = __PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL;
+ 	/* Filter out unsupported __PAGE_KERNEL_* bits: */
+@@ -211,8 +211,9 @@ unsigned long __head __startup_64(unsigned long physaddr,
+ 	pmd_entry +=  physaddr;
+ 
+ 	for (i = 0; i < DIV_ROUND_UP(_end - _text, PMD_SIZE); i++) {
+-		int idx = i + (physaddr >> PMD_SHIFT) % PTRS_PER_PMD;
+-		pmd[idx] = pmd_entry + i * PMD_SIZE;
++		int idx = i + (physaddr >> PMD_SHIFT);
++
++		pmd[idx % PTRS_PER_PMD] = pmd_entry + i * PMD_SIZE;
+ 	}
+ 
+ 	/*
 -- 
 2.20.1
 
