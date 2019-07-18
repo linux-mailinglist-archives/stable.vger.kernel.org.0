@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 521856C550
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:07:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 408FF6C53B
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:07:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389798AbfGRDEu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:04:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35782 "EHLO mail.kernel.org"
+        id S2389610AbfGRDEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:04:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389055AbfGRDEt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:04:49 -0400
+        id S2389593AbfGRDED (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:04:03 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D19C2173E;
-        Thu, 18 Jul 2019 03:04:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC2C621880;
+        Thu, 18 Jul 2019 03:04:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419088;
-        bh=bdmD2+uqJyNBn2iJhb9XsUIP2o15xtwrW4og+g+m2uA=;
+        s=default; t=1563419042;
+        bh=368xgV5chnlIR6TMjaRLKtO91K1HD/zbeVNzTu8LWMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlsGbL+je7dPNqak59hfK1awgjO928zDwU3H3An0ikqW3LFROsfCkFiX12M/YsVut
-         zVyhBVg9F2bLbKAIcGG6D3okaR79kjF4IkUvaqTybqxKkpCIma1im+qZyqXqja2PgO
-         tZOHH6ONNJ+v0jpPkcJIbMxQshZ+SrAXaTPOCP1o=
+        b=IbSDAFGeD2CbzZ2W9maTwMb9/Tpo9shA05XcprhHPlQl6y9R+uLcrK7qyWTBgZ9zH
+         /3hlNx3miaxRQULRURfe5zH1n5MgSBK/zS2VZkfjCrxRWDNZ0LbWYvSDzVXWDp6R05
+         iYYdQLoEgRDz3J8t2onsQvMGWyDIY5zynTJsJ2b8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Ran Wang <ran.wang_1@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 11/54] clk: ti: clkctrl: Fix returning uninitialized data
-Date:   Thu, 18 Jul 2019 12:01:06 +0900
-Message-Id: <20190718030054.244474855@linuxfoundation.org>
+Subject: [PATCH 5.1 13/54] arm64: dts: ls1028a: Fix CPU idle fail.
+Date:   Thu, 18 Jul 2019 12:01:08 +0900
+Message-Id: <20190718030054.411412190@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
 References: <20190718030053.287374640@linuxfoundation.org>
@@ -46,61 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 41b3588dba6ef4b7995735a97e47ff0aeea6c276 ]
+[ Upstream commit 53f2ac9d3aa881ed419054076042898b77c27ee4 ]
 
-If we do a clk_get() for a clock that does not exists, we have
-_ti_omap4_clkctrl_xlate() return uninitialized data if no match
-is found. This can be seen in some cases with SLAB_DEBUG enabled:
+PSCI spec define 1st parameter's bit 16 of function CPU_SUSPEND to
+indicate CPU State Type: 0 for standby, 1 for power down. In this
+case, we want to select standby for CPU idle feature. But current
+setting wrongly select power down and cause CPU SUSPEND fail every
+time. Need this fix.
 
-Unable to handle kernel paging request at virtual address 5a5a5a5a
-...
-clk_hw_create_clk.part.33
-sysc_notifier_call
-notifier_call_chain
-blocking_notifier_call_chain
-device_add
-
-Let's fix this by setting a found flag only when we find a match.
-
-Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Fixes: 88a172526c32 ("clk: ti: add support for clkctrl clocks")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Tested-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 8897f3255c9c ("arm64: dts: Add support for NXP LS1028A SoC")
+Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ti/clkctrl.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/clk/ti/clkctrl.c b/drivers/clk/ti/clkctrl.c
-index 3325ee43bcc1..626090b59cd7 100644
---- a/drivers/clk/ti/clkctrl.c
-+++ b/drivers/clk/ti/clkctrl.c
-@@ -229,6 +229,7 @@ static struct clk_hw *_ti_omap4_clkctrl_xlate(struct of_phandle_args *clkspec,
- {
- 	struct omap_clkctrl_provider *provider = data;
- 	struct omap_clkctrl_clk *entry;
-+	bool found = false;
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+index 2896bbcfa3bb..228872549f01 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a.dtsi
+@@ -28,7 +28,7 @@
+ 			enable-method = "psci";
+ 			clocks = <&clockgen 1 0>;
+ 			next-level-cache = <&l2>;
+-			cpu-idle-states = <&CPU_PH20>;
++			cpu-idle-states = <&CPU_PW20>;
+ 		};
  
- 	if (clkspec->args_count != 2)
- 		return ERR_PTR(-EINVAL);
-@@ -238,11 +239,13 @@ static struct clk_hw *_ti_omap4_clkctrl_xlate(struct of_phandle_args *clkspec,
+ 		cpu1: cpu@1 {
+@@ -38,7 +38,7 @@
+ 			enable-method = "psci";
+ 			clocks = <&clockgen 1 0>;
+ 			next-level-cache = <&l2>;
+-			cpu-idle-states = <&CPU_PH20>;
++			cpu-idle-states = <&CPU_PW20>;
+ 		};
  
- 	list_for_each_entry(entry, &provider->clocks, node) {
- 		if (entry->reg_offset == clkspec->args[0] &&
--		    entry->bit_offset == clkspec->args[1])
-+		    entry->bit_offset == clkspec->args[1]) {
-+			found = true;
- 			break;
-+		}
- 	}
+ 		l2: l2-cache {
+@@ -53,13 +53,13 @@
+ 		 */
+ 		entry-method = "arm,psci";
  
--	if (!entry)
-+	if (!found)
- 		return ERR_PTR(-EINVAL);
+-		CPU_PH20: cpu-ph20 {
+-			compatible = "arm,idle-state";
+-			idle-state-name = "PH20";
+-			arm,psci-suspend-param = <0x00010000>;
+-			entry-latency-us = <1000>;
+-			exit-latency-us = <1000>;
+-			min-residency-us = <3000>;
++		CPU_PW20: cpu-pw20 {
++			  compatible = "arm,idle-state";
++			  idle-state-name = "PW20";
++			  arm,psci-suspend-param = <0x0>;
++			  entry-latency-us = <2000>;
++			  exit-latency-us = <2000>;
++			  min-residency-us = <6000>;
+ 		};
+ 	};
  
- 	return entry->clk;
 -- 
 2.20.1
 
