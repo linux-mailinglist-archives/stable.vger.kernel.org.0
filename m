@@ -2,81 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 735826D585
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 21:58:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69CEE6D5D3
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 22:35:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390241AbfGRT4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 15:56:54 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:52805 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727812AbfGRT4y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 15:56:54 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 17408887-1500050 
-        for multiple; Thu, 18 Jul 2019 20:56:52 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
-Subject: [PATCH] drm/i915: Flush extra hard after writing relocations through the GTT
-Date:   Thu, 18 Jul 2019 20:56:50 +0100
-Message-Id: <20190718195650.20635-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.22.0
+        id S2391553AbfGRUcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 16:32:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42130 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2391523AbfGRUcn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 16:32:43 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E28E621019;
+        Thu, 18 Jul 2019 20:32:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563481962;
+        bh=D3t3IJeVvtDxa8uDE0ErhRRNryuhfAZQjXfAFCAAoww=;
+        h=Date:From:To:Subject:From;
+        b=ujYzIb1fArU22rvPvIJLuQ5ktGSb8gsE1HK6iIhpl8vZWOAz7jpyFcqfep5m8qZ9n
+         wc+tmGH5HSgtTqLDsuXTIoxgXnsyiMVd2eFHZ2fzMU/soZ9pJDHI5mdxmIWUXKIK+E
+         IFj5yGaD6118jYgn6X6HP7lDt89Z/p5FF5SkQOvw=
+Date:   Thu, 18 Jul 2019 13:32:41 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, vdavydov.dev@gmail.com,
+        stable@vger.kernel.org, shakeelb@google.com, mhocko@suse.com,
+        ktkhai@virtuozzo.com, kirill.shutemov@linux.intel.com,
+        hughd@google.com, hannes@cmpxchg.org, guro@fb.com, cai@lca.pw,
+        yang.shi@linux.alibaba.com
+Subject:  +
+ =?us-ascii?Q?mm-vmscan-check-if-mem-cgroup-is-disabled-or-not-before-c?=
+ =?us-ascii?Q?alling-memcg-slab-shrinker.patch?= added to -mm tree
+Message-ID: <20190718203241.iQ4C6%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Recently discovered in commit bdae33b8b82b ("drm/i915: Use maximum write
-flush for pwrite_gtt") was that we needed to our full write barrier
-before changing the GGTT PTE to ensure that our indirect writes through
-the GTT landed before the PTE changed (and the writes end up in a
-different page). That also applies to our GGTT relocation path.
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: stable@vger.kernel.org
+The patch titled
+     Subject: mm: vmscan: check if mem cgroup is disabled or not before calling memcg slab shrinker
+has been added to the -mm tree.  Its filename is
+     mm-vmscan-check-if-mem-cgroup-is-disabled-or-not-before-calling-memcg-slab-shrinker.patch
+
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-vmscan-check-if-mem-cgroup-is-disabled-or-not-before-calling-memcg-slab-shrinker.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-vmscan-check-if-mem-cgroup-is-disabled-or-not-before-calling-memcg-slab-shrinker.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Yang Shi <yang.shi@linux.alibaba.com>
+Subject: mm: vmscan: check if mem cgroup is disabled or not before calling memcg slab shrinker
+
+Shakeel Butt reported premature oom on kernel with "cgroup_disable=memory"
+since mem_cgroup_is_root() returns false even though memcg is actually
+NULL.  The drop_caches is also broken.
+
+It is because aeed1d325d42 ("mm/vmscan.c: generalize shrink_slab() calls
+in shrink_node()") removed the !memcg check before !mem_cgroup_is_root(). 
+And, surprisingly root memcg is allocated even though memory cgroup is
+disabled by kernel boot parameter.
+
+Add mem_cgroup_disabled() check to make reclaimer work as expected.
+
+Link: http://lkml.kernel.org/r/1563385526-20805-1-git-send-email-yang.shi@linux.alibaba.com
+Fixes: aeed1d325d42 ("mm/vmscan.c: generalize shrink_slab() calls in shrink_node()")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Reported-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org>	[4.19+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index 8a2047c4e7c3..01901dad33f7 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -1019,11 +1019,12 @@ static void reloc_cache_reset(struct reloc_cache *cache)
- 		kunmap_atomic(vaddr);
- 		i915_gem_object_finish_access((struct drm_i915_gem_object *)cache->node.mm);
- 	} else {
--		wmb();
-+		struct i915_ggtt *ggtt = cache_to_ggtt(cache);
-+
-+		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
- 		io_mapping_unmap_atomic((void __iomem *)vaddr);
--		if (cache->node.allocated) {
--			struct i915_ggtt *ggtt = cache_to_ggtt(cache);
+ mm/vmscan.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+--- a/mm/vmscan.c~mm-vmscan-check-if-mem-cgroup-is-disabled-or-not-before-calling-memcg-slab-shrinker
++++ a/mm/vmscan.c
+@@ -699,7 +699,14 @@ static unsigned long shrink_slab(gfp_t g
+ 	unsigned long ret, freed = 0;
+ 	struct shrinker *shrinker;
  
-+		if (cache->node.allocated) {
- 			ggtt->vm.clear_range(&ggtt->vm,
- 					     cache->node.start,
- 					     cache->node.size);
-@@ -1078,6 +1079,7 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
- 	void *vaddr;
+-	if (!mem_cgroup_is_root(memcg))
++	/*
++	 * The root memcg might be allocated even though memcg is disabled
++	 * via "cgroup_disable=memory" boot parameter.  This could make
++	 * mem_cgroup_is_root() return false, then just run memcg slab
++	 * shrink, but skip global shrink.  This may result in premature
++	 * oom.
++	 */
++	if (!mem_cgroup_disabled() && !mem_cgroup_is_root(memcg))
+ 		return shrink_slab_memcg(gfp_mask, nid, memcg, priority);
  
- 	if (cache->vaddr) {
-+		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
- 		io_mapping_unmap_atomic((void __force __iomem *) unmask_page(cache->vaddr));
- 	} else {
- 		struct i915_vma *vma;
-@@ -1119,7 +1121,6 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
- 
- 	offset = cache->node.start;
- 	if (cache->node.allocated) {
--		wmb();
- 		ggtt->vm.insert_page(&ggtt->vm,
- 				     i915_gem_object_get_dma_address(obj, page),
- 				     offset, I915_CACHE_NONE, 0);
--- 
-2.22.0
+ 	if (!down_read_trylock(&shrinker_rwsem))
+_
+
+Patches currently in -mm which might be from yang.shi@linux.alibaba.com are
+
+revert-kmemleak-allow-to-coexist-with-fault-injection.patch
+mm-vmscan-check-if-mem-cgroup-is-disabled-or-not-before-calling-memcg-slab-shrinker.patch
+mm-mempolicy-make-the-behavior-consistent-when-mpol_mf_move-and-mpol_mf_strict-were-specified.patch
+mm-mempolicy-handle-vma-with-unmovable-pages-mapped-correctly-in-mbind.patch
+mm-thp-make-transhuge_vma_suitable-available-for-anonymous-thp.patch
+mm-thp-make-transhuge_vma_suitable-available-for-anonymous-thp-v4.patch
+mm-thp-fix-false-negative-of-shmem-vmas-thp-eligibility.patch
 
