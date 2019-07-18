@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B03E6C783
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EABC76C7A9
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387777AbfGRDE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:04:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35914 "EHLO mail.kernel.org"
+        id S2389530AbfGRDEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:04:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389830AbfGRDE5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:04:57 -0400
+        id S2389558AbfGRDEA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:04:00 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F28F92053B;
-        Thu, 18 Jul 2019 03:04:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7349121849;
+        Thu, 18 Jul 2019 03:03:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419096;
-        bh=1M5uP+m8cuTDZeta1c/3TZC1egzglcR2qlnV2iaMkKY=;
+        s=default; t=1563419040;
+        bh=EOqjTyZARP8Mz1ivHyEMBzL8+5UqiihTHldWS5cAR2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n6rU6dGKSXoqvnfIcloEihcRJTlwcNCSlF9GaLjnbxWSVGq43FgNKcHWzsYnHc8Ji
-         pd7Vf3mZO4DM1TBDr27+QGqdobMVgzypBpFUAI8R3dRGqEUAhI+ySziZQkrJc/iUoU
-         xllD+mO5aBDSzmv7kYnNqSXXH7ip+CtM0jGFpL9o=
+        b=hwmKOhHKO53gGFg+mx/Cux+7R9Za7ouezchFHl0LGAmosUN2tVuXCb1S9JI96aT3W
+         B/4vXhOOiiisVfyMWQWw12dlBEx+9J24Bp1TnbFAVfnwK4ypuPQVFJN23xzo4Ybikv
+         V1iHApVPGihb1VmbpJnq8Wx6KurodvA8h8mhuTVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cole Rogers <colerogers@disroot.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.1 03/54] Input: synaptics - enable SMBUS on T480 thinkpad trackpad
-Date:   Thu, 18 Jul 2019 12:00:58 +0900
-Message-Id: <20190718030053.613001211@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, Joe Perches <joe@perches.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.1 04/54] nilfs2: do not use unexported cpu_to_le32()/le32_to_cpu() in uapi header
+Date:   Thu, 18 Jul 2019 12:00:59 +0900
+Message-Id: <20190718030053.703927050@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
 References: <20190718030053.287374640@linuxfoundation.org>
@@ -44,36 +47,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cole Rogers <colerogers@disroot.org>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-commit abbe3acd7d72ab4633ade6bd24e8306b67e0add3 upstream.
+commit c32cc30c0544f13982ee0185d55f4910319b1a79 upstream.
 
-Thinkpad t480 laptops had some touchpad features disabled, resulting in the
-loss of pinch to activities in GNOME, on wayland, and other touch gestures
-being slower. This patch adds the touchpad of the t480 to the smbus_pnp_ids
-whitelist to enable the extra features. In my testing this does not break
-suspend (on fedora, with wayland, and GNOME, using the rc-6 kernel), while
-also fixing the feature on a T480.
+cpu_to_le32/le32_to_cpu is defined in include/linux/byteorder/generic.h,
+which is not exported to user-space.
 
-Signed-off-by: Cole Rogers <colerogers@disroot.org>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+UAPI headers must use the ones prefixed with double-underscore.
+
+Detected by compile-testing exported headers:
+
+  include/linux/nilfs2_ondisk.h: In function `nilfs_checkpoint_set_snapshot':
+  include/linux/nilfs2_ondisk.h:536:17: error: implicit declaration of function `cpu_to_le32' [-Werror=implicit-function-declaration]
+    cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) |  \
+                   ^
+  include/linux/nilfs2_ondisk.h:552:1: note: in expansion of macro `NILFS_CHECKPOINT_FNS'
+   NILFS_CHECKPOINT_FNS(SNAPSHOT, snapshot)
+   ^~~~~~~~~~~~~~~~~~~~
+  include/linux/nilfs2_ondisk.h:536:29: error: implicit declaration of function `le32_to_cpu' [-Werror=implicit-function-declaration]
+    cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) |  \
+                               ^
+  include/linux/nilfs2_ondisk.h:552:1: note: in expansion of macro `NILFS_CHECKPOINT_FNS'
+   NILFS_CHECKPOINT_FNS(SNAPSHOT, snapshot)
+   ^~~~~~~~~~~~~~~~~~~~
+  include/linux/nilfs2_ondisk.h: In function `nilfs_segment_usage_set_clean':
+  include/linux/nilfs2_ondisk.h:622:19: error: implicit declaration of function `cpu_to_le64' [-Werror=implicit-function-declaration]
+    su->su_lastmod = cpu_to_le64(0);
+                     ^~~~~~~~~~~
+
+Link: http://lkml.kernel.org/r/20190605053006.14332-1-yamada.masahiro@socionext.com
+Fixes: e63e88bc53ba ("nilfs2: move ioctl interface and disk layout to uapi separately")
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Joe Perches <joe@perches.com>
+Cc: <stable@vger.kernel.org>	[4.9+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/mouse/synaptics.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/uapi/linux/nilfs2_ondisk.h |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -176,6 +176,7 @@ static const char * const smbus_pnp_ids[
- 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
- 	"LEN0073", /* X1 Carbon G5 (Elantech) */
- 	"LEN0092", /* X1 Carbon 6 */
-+	"LEN0093", /* T480 */
- 	"LEN0096", /* X280 */
- 	"LEN0097", /* X280 -> ALPS trackpoint */
- 	"LEN200f", /* T450s */
+--- a/include/uapi/linux/nilfs2_ondisk.h
++++ b/include/uapi/linux/nilfs2_ondisk.h
+@@ -29,7 +29,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/magic.h>
+-
++#include <asm/byteorder.h>
+ 
+ #define NILFS_INODE_BMAP_SIZE	7
+ 
+@@ -533,19 +533,19 @@ enum {
+ static inline void							\
+ nilfs_checkpoint_set_##name(struct nilfs_checkpoint *cp)		\
+ {									\
+-	cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) |		\
+-				   (1UL << NILFS_CHECKPOINT_##flag));	\
++	cp->cp_flags = __cpu_to_le32(__le32_to_cpu(cp->cp_flags) |	\
++				     (1UL << NILFS_CHECKPOINT_##flag));	\
+ }									\
+ static inline void							\
+ nilfs_checkpoint_clear_##name(struct nilfs_checkpoint *cp)		\
+ {									\
+-	cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) &		\
++	cp->cp_flags = __cpu_to_le32(__le32_to_cpu(cp->cp_flags) &	\
+ 				   ~(1UL << NILFS_CHECKPOINT_##flag));	\
+ }									\
+ static inline int							\
+ nilfs_checkpoint_##name(const struct nilfs_checkpoint *cp)		\
+ {									\
+-	return !!(le32_to_cpu(cp->cp_flags) &				\
++	return !!(__le32_to_cpu(cp->cp_flags) &				\
+ 		  (1UL << NILFS_CHECKPOINT_##flag));			\
+ }
+ 
+@@ -595,20 +595,20 @@ enum {
+ static inline void							\
+ nilfs_segment_usage_set_##name(struct nilfs_segment_usage *su)		\
+ {									\
+-	su->su_flags = cpu_to_le32(le32_to_cpu(su->su_flags) |		\
++	su->su_flags = __cpu_to_le32(__le32_to_cpu(su->su_flags) |	\
+ 				   (1UL << NILFS_SEGMENT_USAGE_##flag));\
+ }									\
+ static inline void							\
+ nilfs_segment_usage_clear_##name(struct nilfs_segment_usage *su)	\
+ {									\
+ 	su->su_flags =							\
+-		cpu_to_le32(le32_to_cpu(su->su_flags) &			\
++		__cpu_to_le32(__le32_to_cpu(su->su_flags) &		\
+ 			    ~(1UL << NILFS_SEGMENT_USAGE_##flag));      \
+ }									\
+ static inline int							\
+ nilfs_segment_usage_##name(const struct nilfs_segment_usage *su)	\
+ {									\
+-	return !!(le32_to_cpu(su->su_flags) &				\
++	return !!(__le32_to_cpu(su->su_flags) &				\
+ 		  (1UL << NILFS_SEGMENT_USAGE_##flag));			\
+ }
+ 
+@@ -619,15 +619,15 @@ NILFS_SEGMENT_USAGE_FNS(ERROR, error)
+ static inline void
+ nilfs_segment_usage_set_clean(struct nilfs_segment_usage *su)
+ {
+-	su->su_lastmod = cpu_to_le64(0);
+-	su->su_nblocks = cpu_to_le32(0);
+-	su->su_flags = cpu_to_le32(0);
++	su->su_lastmod = __cpu_to_le64(0);
++	su->su_nblocks = __cpu_to_le32(0);
++	su->su_flags = __cpu_to_le32(0);
+ }
+ 
+ static inline int
+ nilfs_segment_usage_clean(const struct nilfs_segment_usage *su)
+ {
+-	return !le32_to_cpu(su->su_flags);
++	return !__le32_to_cpu(su->su_flags);
+ }
+ 
+ /**
 
 
