@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 251EF6C7A5
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 110736C718
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389656AbfGRDEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:04:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35172 "EHLO mail.kernel.org"
+        id S2403807AbfGRDJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:09:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389593AbfGRDEQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:04:16 -0400
+        id S2391027AbfGRDJk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:09:40 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A00421880;
-        Thu, 18 Jul 2019 03:04:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3FDF205F4;
+        Thu, 18 Jul 2019 03:09:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419055;
-        bh=JNmnvDPMdyjpXwlIPvXfoBh6zAcM6I6OFKdO/kIsPkk=;
+        s=default; t=1563419379;
+        bh=yJogoXBpcjBa6AO5CZZqhpVywHbgffy+wvzCLukLJwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XnW+e3anIjXNz0lRLvfyayhZ5kKyZeRTxMItjEM+xsFgpeW+5QcgPCqGkEebV+V9A
-         czIS983cnDYbAqghugQ28eggwd3QHdRPWc6Sdxvf/VHn3XzEL3+Q+tSAZBcJ/CntXy
-         GVv33V8DrZD1uvWrnY0b+xUiBlMtEYyr4bxzP78o=
+        b=fW2VIp0StpdwnpHLDIi6BRHBM+NU1F5CuKb6CVe2VbH6HGzUzTWNEcuhfuDhre+xd
+         krLBuuoz69IvYaeepJgoOR+kWN0mkPjaWdMHM+5vIv5HeqObdGIRR9Ubn4E+OSeh7J
+         RK1BYhpP5wehfQ/nzN25tqKANTMRicmvSEgaFwW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Olof Johansson <olof@lixom.net>,
+        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 17/54] ARM: omap2: remove incorrect __init annotation
-Date:   Thu, 18 Jul 2019 12:01:12 +0900
-Message-Id: <20190718030054.740556655@linuxfoundation.org>
+Subject: [PATCH 4.14 23/80] Input: imx_keypad - make sure keyboard can always wake up system
+Date:   Thu, 18 Jul 2019 12:01:14 +0900
+Message-Id: <20190718030100.602321612@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
-References: <20190718030053.287374640@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 27e23d8975270df6999f8b5b3156fc0c04927451 ]
+[ Upstream commit ce9a53eb3dbca89e7ad86673d94ab886e9bea704 ]
 
-omap3xxx_prm_enable_io_wakeup() is marked __init, but its caller is not, so
-we get a warning with clang-8:
+There are several scenarios that keyboard can NOT wake up system
+from suspend, e.g., if a keyboard is depressed between system
+device suspend phase and device noirq suspend phase, the keyboard
+ISR will be called and both keyboard depress and release interrupts
+will be disabled, then keyboard will no longer be able to wake up
+system. Another scenario would be, if a keyboard is kept depressed,
+and then system goes into suspend, the expected behavior would be
+when keyboard is released, system will be waked up, but current
+implementation can NOT achieve that, because both depress and release
+interrupts are disabled in ISR, and the event check is still in
+progress.
 
-WARNING: vmlinux.o(.text+0x343c8): Section mismatch in reference from the function omap3xxx_prm_late_init() to the function .init.text:omap3xxx_prm_enable_io_wakeup()
-The function omap3xxx_prm_late_init() references
-the function __init omap3xxx_prm_enable_io_wakeup().
-This is often because omap3xxx_prm_late_init lacks a __init
-annotation or the annotation of omap3xxx_prm_enable_io_wakeup is wrong.
+To fix these issues, need to make sure keyboard's depress or release
+interrupt is enabled after noirq device suspend phase, this patch
+moves the suspend/resume callback to noirq suspend/resume phase, and
+enable the corresponding interrupt according to current keyboard status.
 
-When building with gcc, omap3xxx_prm_enable_io_wakeup() is always
-inlined, so we never noticed in the past.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/prm3xxx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/keyboard/imx_keypad.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/mach-omap2/prm3xxx.c b/arch/arm/mach-omap2/prm3xxx.c
-index 05858f966f7d..dfa65fc2c82b 100644
---- a/arch/arm/mach-omap2/prm3xxx.c
-+++ b/arch/arm/mach-omap2/prm3xxx.c
-@@ -433,7 +433,7 @@ static void omap3_prm_reconfigure_io_chain(void)
-  * registers, and omap3xxx_prm_reconfigure_io_chain() must be called.
-  * No return value.
-  */
--static void __init omap3xxx_prm_enable_io_wakeup(void)
-+static void omap3xxx_prm_enable_io_wakeup(void)
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index 2165f3dd328b..842c0235471d 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -530,11 +530,12 @@ static int imx_keypad_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int __maybe_unused imx_kbd_suspend(struct device *dev)
++static int __maybe_unused imx_kbd_noirq_suspend(struct device *dev)
  {
- 	if (prm_features & PRM_HAS_IO_WAKEUP)
- 		omap2_prm_set_mod_reg_bits(OMAP3430_EN_IO_MASK, WKUP_MOD,
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
+ 	struct input_dev *input_dev = kbd->input_dev;
++	unsigned short reg_val = readw(kbd->mmio_base + KPSR);
+ 
+ 	/* imx kbd can wake up system even clock is disabled */
+ 	mutex_lock(&input_dev->mutex);
+@@ -544,13 +545,20 @@ static int __maybe_unused imx_kbd_suspend(struct device *dev)
+ 
+ 	mutex_unlock(&input_dev->mutex);
+ 
+-	if (device_may_wakeup(&pdev->dev))
++	if (device_may_wakeup(&pdev->dev)) {
++		if (reg_val & KBD_STAT_KPKD)
++			reg_val |= KBD_STAT_KRIE;
++		if (reg_val & KBD_STAT_KPKR)
++			reg_val |= KBD_STAT_KDIE;
++		writew(reg_val, kbd->mmio_base + KPSR);
++
+ 		enable_irq_wake(kbd->irq);
++	}
+ 
+ 	return 0;
+ }
+ 
+-static int __maybe_unused imx_kbd_resume(struct device *dev)
++static int __maybe_unused imx_kbd_noirq_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
+@@ -574,7 +582,9 @@ static int __maybe_unused imx_kbd_resume(struct device *dev)
+ 	return ret;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
++static const struct dev_pm_ops imx_kbd_pm_ops = {
++	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(imx_kbd_noirq_suspend, imx_kbd_noirq_resume)
++};
+ 
+ static struct platform_driver imx_keypad_driver = {
+ 	.driver		= {
 -- 
 2.20.1
 
