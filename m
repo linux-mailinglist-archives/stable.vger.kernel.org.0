@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 704326C52C
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:07:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58DD46C52E
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:07:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389326AbfGRDD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:03:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34104 "EHLO mail.kernel.org"
+        id S2389372AbfGRDDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:03:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389318AbfGRDD0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:03:26 -0400
+        id S2389356AbfGRDDc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:03:32 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D010721849;
-        Thu, 18 Jul 2019 03:03:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3EA621849;
+        Thu, 18 Jul 2019 03:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419006;
-        bh=XZdhTy0JEJZY3lK6Jn/I1noxcLUvIqAh9WQXu1Larbs=;
+        s=default; t=1563419011;
+        bh=rku9e+gLZXd0cXvofkio1Hv3SFZniVvGJAakdWxEiW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nzoifOENBshaVXw5HuNO8fDSqPvcl+hTtd6DPS+WRrUOEDqCD6eSEnPaG3JhdUH7y
-         41g1GrXnN1iC7kMf8hdt3nl12kjayaU4z0rCDWwjiKPtsd4Vr2DVmBWxEC3WY/NzzC
-         GDUIrqzzLRb3oQm3fLZchPJvMF9WN9kUwfZRSv7c=
+        b=YBf6j1Jd9BjeM5ArR6Dy8YGnLIeOgMju66PHtwOl2n0j4lguamAh+ey0xdqigJi8A
+         l0xzfedEXwKvSP0B05Yrq2H2bFzZ/F6j23PBSkeyG/+sGKPRqQpTrOK3TpDge+8bc1
+         JO+FkjfXI/osxpdJQTcELBJGN1yp4/U0d3wSBu20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mimi Zohar <zohar@linux.vnet.ibm.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Sven Van Asbroeck <TheSven73@gmail.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.2 06/21] firmware: improve LSM/IMA security behaviour
-Date:   Thu, 18 Jul 2019 12:01:24 +0900
-Message-Id: <20190718030031.805647808@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>
+Subject: [PATCH 5.2 08/21] genirq: Fix misleading synchronize_irq() documentation
+Date:   Thu, 18 Jul 2019 12:01:26 +0900
+Message-Id: <20190718030032.145247589@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190718030030.456918453@linuxfoundation.org>
 References: <20190718030030.456918453@linuxfoundation.org>
@@ -46,44 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Van Asbroeck <thesven73@gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 2472d64af2d3561954e2f05365a67692bb852f2a upstream.
+commit 1d21f2af8571c6a6a44e7c1911780614847b0253 upstream.
 
-The firmware loader queries if LSM/IMA permits it to load firmware
-via the sysfs fallback. Unfortunately, the code does the opposite:
-it expressly permits sysfs fw loading if security_kernel_load_data(
-LOADING_FIRMWARE) returns -EACCES. This happens because a
-zero-on-success return value is cast to a bool that's true on success.
+The function might sleep, so it cannot be called from interrupt
+context. Not even with care.
 
-Fix the return value handling so we get the correct behaviour.
-
-Fixes: 6e852651f28e ("firmware: add call to LSM hook before firmware sysfs fallback")
-Cc: Stable <stable@vger.kernel.org>
-Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
-Cc: Kees Cook <keescook@chromium.org>
-To: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
+Link: https://lkml.kernel.org/r/20190628111440.189241552@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/firmware_loader/fallback.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/irq/manage.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/base/firmware_loader/fallback.c
-+++ b/drivers/base/firmware_loader/fallback.c
-@@ -659,7 +659,7 @@ static bool fw_run_sysfs_fallback(enum f
- 	/* Also permit LSMs and IMA to fail firmware sysfs fallback */
- 	ret = security_kernel_load_data(LOADING_FIRMWARE);
- 	if (ret < 0)
--		return ret;
-+		return false;
- 
- 	return fw_force_sysfs_fallback(opt_flags);
- }
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -96,7 +96,8 @@ EXPORT_SYMBOL(synchronize_hardirq);
+  *	to complete before returning. If you use this function while
+  *	holding a resource the IRQ handler may need you will deadlock.
+  *
+- *	This function may be called - with care - from IRQ context.
++ *	Can only be called from preemptible code as it might sleep when
++ *	an interrupt thread is associated to @irq.
+  */
+ void synchronize_irq(unsigned int irq)
+ {
 
 
