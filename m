@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EABC76C7A9
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B14EC6C709
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389530AbfGRDEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:04:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34780 "EHLO mail.kernel.org"
+        id S2390898AbfGRDJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:09:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389558AbfGRDEA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:04:00 -0400
+        id S2390928AbfGRDJF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:09:05 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7349121849;
-        Thu, 18 Jul 2019 03:03:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D6D621848;
+        Thu, 18 Jul 2019 03:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419040;
-        bh=EOqjTyZARP8Mz1ivHyEMBzL8+5UqiihTHldWS5cAR2A=;
+        s=default; t=1563419344;
+        bh=L9W5DKIEML14IYhf2zmLw+iTZCNCqpb3B6/NohmN1YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hwmKOhHKO53gGFg+mx/Cux+7R9Za7ouezchFHl0LGAmosUN2tVuXCb1S9JI96aT3W
-         B/4vXhOOiiisVfyMWQWw12dlBEx+9J24Bp1TnbFAVfnwK4ypuPQVFJN23xzo4Ybikv
-         V1iHApVPGihb1VmbpJnq8Wx6KurodvA8h8mhuTVI=
+        b=wc5rXqirqZpv81QaBB2mgF8/dq9gYR/gYr43yuY/y7zVDN0oyFHjYZsKXyc46c8OF
+         w5OYx6XsKgtW8hrZe8PcyG5OU9A3CEDNHpn/FrdqclS6TzqG6NzjMOb/iuO4DwE6uL
+         5G2sZyTo3ecWYqRKfY/C88KI814UmAjeJGe01gjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, Joe Perches <joe@perches.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.1 04/54] nilfs2: do not use unexported cpu_to_le32()/le32_to_cpu() in uapi header
+        stable@vger.kernel.org, Chang-Hsien Tsai <luke.tw@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 08/80] samples, bpf: fix to change the buffer size for read()
 Date:   Thu, 18 Jul 2019 12:00:59 +0900
-Message-Id: <20190718030053.703927050@linuxfoundation.org>
+Message-Id: <20190718030059.512535171@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
-References: <20190718030053.287374640@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,129 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+[ Upstream commit f7c2d64bac1be2ff32f8e4f500c6e5429c1003e0 ]
 
-commit c32cc30c0544f13982ee0185d55f4910319b1a79 upstream.
+If the trace for read is larger than 4096, the return
+value sz will be 4096. This results in off-by-one error
+on buf:
 
-cpu_to_le32/le32_to_cpu is defined in include/linux/byteorder/generic.h,
-which is not exported to user-space.
+    static char buf[4096];
+    ssize_t sz;
 
-UAPI headers must use the ones prefixed with double-underscore.
+    sz = read(trace_fd, buf, sizeof(buf));
+    if (sz > 0) {
+        buf[sz] = 0;
+        puts(buf);
+    }
 
-Detected by compile-testing exported headers:
-
-  include/linux/nilfs2_ondisk.h: In function `nilfs_checkpoint_set_snapshot':
-  include/linux/nilfs2_ondisk.h:536:17: error: implicit declaration of function `cpu_to_le32' [-Werror=implicit-function-declaration]
-    cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) |  \
-                   ^
-  include/linux/nilfs2_ondisk.h:552:1: note: in expansion of macro `NILFS_CHECKPOINT_FNS'
-   NILFS_CHECKPOINT_FNS(SNAPSHOT, snapshot)
-   ^~~~~~~~~~~~~~~~~~~~
-  include/linux/nilfs2_ondisk.h:536:29: error: implicit declaration of function `le32_to_cpu' [-Werror=implicit-function-declaration]
-    cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) |  \
-                               ^
-  include/linux/nilfs2_ondisk.h:552:1: note: in expansion of macro `NILFS_CHECKPOINT_FNS'
-   NILFS_CHECKPOINT_FNS(SNAPSHOT, snapshot)
-   ^~~~~~~~~~~~~~~~~~~~
-  include/linux/nilfs2_ondisk.h: In function `nilfs_segment_usage_set_clean':
-  include/linux/nilfs2_ondisk.h:622:19: error: implicit declaration of function `cpu_to_le64' [-Werror=implicit-function-declaration]
-    su->su_lastmod = cpu_to_le64(0);
-                     ^~~~~~~~~~~
-
-Link: http://lkml.kernel.org/r/20190605053006.14332-1-yamada.masahiro@socionext.com
-Fixes: e63e88bc53ba ("nilfs2: move ioctl interface and disk layout to uapi separately")
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Acked-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Joe Perches <joe@perches.com>
-Cc: <stable@vger.kernel.org>	[4.9+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Chang-Hsien Tsai <luke.tw@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/nilfs2_ondisk.h |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ samples/bpf/bpf_load.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/uapi/linux/nilfs2_ondisk.h
-+++ b/include/uapi/linux/nilfs2_ondisk.h
-@@ -29,7 +29,7 @@
+diff --git a/samples/bpf/bpf_load.c b/samples/bpf/bpf_load.c
+index 2325d7ad76df..e8e8b756dc52 100644
+--- a/samples/bpf/bpf_load.c
++++ b/samples/bpf/bpf_load.c
+@@ -613,7 +613,7 @@ void read_trace_pipe(void)
+ 		static char buf[4096];
+ 		ssize_t sz;
  
- #include <linux/types.h>
- #include <linux/magic.h>
--
-+#include <asm/byteorder.h>
- 
- #define NILFS_INODE_BMAP_SIZE	7
- 
-@@ -533,19 +533,19 @@ enum {
- static inline void							\
- nilfs_checkpoint_set_##name(struct nilfs_checkpoint *cp)		\
- {									\
--	cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) |		\
--				   (1UL << NILFS_CHECKPOINT_##flag));	\
-+	cp->cp_flags = __cpu_to_le32(__le32_to_cpu(cp->cp_flags) |	\
-+				     (1UL << NILFS_CHECKPOINT_##flag));	\
- }									\
- static inline void							\
- nilfs_checkpoint_clear_##name(struct nilfs_checkpoint *cp)		\
- {									\
--	cp->cp_flags = cpu_to_le32(le32_to_cpu(cp->cp_flags) &		\
-+	cp->cp_flags = __cpu_to_le32(__le32_to_cpu(cp->cp_flags) &	\
- 				   ~(1UL << NILFS_CHECKPOINT_##flag));	\
- }									\
- static inline int							\
- nilfs_checkpoint_##name(const struct nilfs_checkpoint *cp)		\
- {									\
--	return !!(le32_to_cpu(cp->cp_flags) &				\
-+	return !!(__le32_to_cpu(cp->cp_flags) &				\
- 		  (1UL << NILFS_CHECKPOINT_##flag));			\
- }
- 
-@@ -595,20 +595,20 @@ enum {
- static inline void							\
- nilfs_segment_usage_set_##name(struct nilfs_segment_usage *su)		\
- {									\
--	su->su_flags = cpu_to_le32(le32_to_cpu(su->su_flags) |		\
-+	su->su_flags = __cpu_to_le32(__le32_to_cpu(su->su_flags) |	\
- 				   (1UL << NILFS_SEGMENT_USAGE_##flag));\
- }									\
- static inline void							\
- nilfs_segment_usage_clear_##name(struct nilfs_segment_usage *su)	\
- {									\
- 	su->su_flags =							\
--		cpu_to_le32(le32_to_cpu(su->su_flags) &			\
-+		__cpu_to_le32(__le32_to_cpu(su->su_flags) &		\
- 			    ~(1UL << NILFS_SEGMENT_USAGE_##flag));      \
- }									\
- static inline int							\
- nilfs_segment_usage_##name(const struct nilfs_segment_usage *su)	\
- {									\
--	return !!(le32_to_cpu(su->su_flags) &				\
-+	return !!(__le32_to_cpu(su->su_flags) &				\
- 		  (1UL << NILFS_SEGMENT_USAGE_##flag));			\
- }
- 
-@@ -619,15 +619,15 @@ NILFS_SEGMENT_USAGE_FNS(ERROR, error)
- static inline void
- nilfs_segment_usage_set_clean(struct nilfs_segment_usage *su)
- {
--	su->su_lastmod = cpu_to_le64(0);
--	su->su_nblocks = cpu_to_le32(0);
--	su->su_flags = cpu_to_le32(0);
-+	su->su_lastmod = __cpu_to_le64(0);
-+	su->su_nblocks = __cpu_to_le32(0);
-+	su->su_flags = __cpu_to_le32(0);
- }
- 
- static inline int
- nilfs_segment_usage_clean(const struct nilfs_segment_usage *su)
- {
--	return !le32_to_cpu(su->su_flags);
-+	return !__le32_to_cpu(su->su_flags);
- }
- 
- /**
+-		sz = read(trace_fd, buf, sizeof(buf));
++		sz = read(trace_fd, buf, sizeof(buf) - 1);
+ 		if (sz > 0) {
+ 			buf[sz] = 0;
+ 			puts(buf);
+-- 
+2.20.1
+
 
 
