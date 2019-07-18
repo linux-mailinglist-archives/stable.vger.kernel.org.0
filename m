@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE0AA6C707
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCF5A6C7AD
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390894AbfGRDIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:08:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41150 "EHLO mail.kernel.org"
+        id S2389515AbfGRDDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:03:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390891AbfGRDIy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:08:54 -0400
+        id S2389458AbfGRDDx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:03:53 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 904E621850;
-        Thu, 18 Jul 2019 03:08:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EE5A2053B;
+        Thu, 18 Jul 2019 03:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419332;
-        bh=BaZmS89+7veFzdtMUV+Ad7wsnwkamaLGooESqiAaTkw=;
+        s=default; t=1563419031;
+        bh=oGrlspCvBAcSwBw6nhcrK1QUZpnRDwUPNz+62kVtgVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eoaEA4SryY+hYA5tMlndhFDfUvkxNKT3rb4LpqyYNYdN3K0Cz3dALZvDWPQ/2YPeg
-         0+rWf9m193ys/ly/FTz1a4XetWNqngCcHJrduQfGbtBFBBX4SZLkqopeehn4dJd9We
-         NAXY0tgJtb+uhk889b84bImXSifst4Vxr5Lw+pj4=
+        b=IB5c9jn6/jBynA6wsu7ASvuYT8/ywyh5PKkInl0wKGWWhGMC/2i3LzTAunKMVfwGK
+         iWRvE8sFMsCzc5Egk1NuW88sFXdiD9/ID3pUwDzuwF8cWFeA7WZlNPvmCPb908bJb5
+         SqTNaabPS9D3Nz2tLfhfDgWi9ajWCclKdVRX04LQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 4.14 05/80] drivers: base: cacheinfo: Ensure cpu hotplug work is done before Intel RDT
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Joseph Yasi <joe.yasi@gmail.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Oleksandr Natalenko <oleksandr@redhat.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: [PATCH 5.1 01/54] Revert "e1000e: fix cyclic resets at link up with active tx"
 Date:   Thu, 18 Jul 2019 12:00:56 +0900
-Message-Id: <20190718030059.272174890@linuxfoundation.org>
+Message-Id: <20190718030053.424702612@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
+References: <20190718030053.287374640@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,60 +49,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-commit 83b44fe343b5abfcb1b2261289bd0cfcfcfd60a8 upstream.
+commit caff422ea81e144842bc44bab408d85ac449377b upstream.
 
-The cacheinfo structures are alloced/freed by cpu online/offline
-callbacks. Originally these were only used by sysfs to expose the
-cache topology to user space. Without any in-kernel dependencies
-CPUHP_AP_ONLINE_DYN was an appropriate choice.
+This reverts commit 0f9e980bf5ee1a97e2e401c846b2af989eb21c61.
 
-resctrl has started using these structures to identify CPUs that
-share a cache. It updates its 'domain' structures from cpu
-online/offline callbacks. These depend on the cacheinfo structures
-(resctrl_online_cpu()->domain_add_cpu()->get_cache_id()->
- get_cpu_cacheinfo()).
-These also run as CPUHP_AP_ONLINE_DYN.
+That change cased false-positive warning about hardware hang:
 
-Now that there is an in-kernel dependency, move the cacheinfo
-work earlier so we know its done before resctrl's CPUHP_AP_ONLINE_DYN
-work runs.
+e1000e: eth0 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: Rx/Tx
+IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+e1000e 0000:00:1f.6 eth0: Detected Hardware Unit Hang:
+   TDH                  <0>
+   TDT                  <1>
+   next_to_use          <1>
+   next_to_clean        <0>
+buffer_info[next_to_clean]:
+   time_stamp           <fffba7a7>
+   next_to_watch        <0>
+   jiffies              <fffbb140>
+   next_to_watch.status <0>
+MAC Status             <40080080>
+PHY Status             <7949>
+PHY 1000BASE-T Status  <0>
+PHY Extended Status    <3000>
+PCI Status             <10>
+e1000e: eth0 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: Rx/Tx
 
-Fixes: 2264d9c74dda1 ("x86/intel_rdt: Build structures for each resource based on cache topology")
-Cc: <stable@vger.kernel.org>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: James Morse <james.morse@arm.com>
-Link: https://lore.kernel.org/r/20190624173656.202407-1-james.morse@arm.com
+Besides warning everything works fine.
+Original issue will be fixed property in following patch.
+
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Reported-by: Joseph Yasi <joe.yasi@gmail.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=203175
+Tested-by: Joseph Yasi <joe.yasi@gmail.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Tested-by: Oleksandr Natalenko <oleksandr@redhat.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/cacheinfo.c   |    3 ++-
- include/linux/cpuhotplug.h |    1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/base/cacheinfo.c
-+++ b/drivers/base/cacheinfo.c
-@@ -669,7 +669,8 @@ static int cacheinfo_cpu_pre_down(unsign
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -5309,13 +5309,8 @@ static void e1000_watchdog_task(struct w
+ 			/* 8000ES2LAN requires a Rx packet buffer work-around
+ 			 * on link down event; reset the controller to flush
+ 			 * the Rx packet buffer.
+-			 *
+-			 * If the link is lost the controller stops DMA, but
+-			 * if there is queued Tx work it cannot be done.  So
+-			 * reset the controller to flush the Tx packet buffers.
+ 			 */
+-			if ((adapter->flags & FLAG_RX_NEEDS_RESTART) ||
+-			    e1000_desc_unused(tx_ring) + 1 < tx_ring->count)
++			if (adapter->flags & FLAG_RX_NEEDS_RESTART)
+ 				adapter->flags |= FLAG_RESTART_NOW;
+ 			else
+ 				pm_schedule_suspend(netdev->dev.parent,
+@@ -5338,6 +5333,14 @@ link_up:
+ 	adapter->gotc_old = adapter->stats.gotc;
+ 	spin_unlock(&adapter->stats64_lock);
  
- static int __init cacheinfo_sysfs_init(void)
- {
--	return cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "base/cacheinfo:online",
-+	return cpuhp_setup_state(CPUHP_AP_BASE_CACHEINFO_ONLINE,
-+				 "base/cacheinfo:online",
- 				 cacheinfo_cpu_online, cacheinfo_cpu_pre_down);
- }
- device_initcall(cacheinfo_sysfs_init);
---- a/include/linux/cpuhotplug.h
-+++ b/include/linux/cpuhotplug.h
-@@ -163,6 +163,7 @@ enum cpuhp_state {
- 	CPUHP_AP_PERF_POWERPC_THREAD_IMC_ONLINE,
- 	CPUHP_AP_WORKQUEUE_ONLINE,
- 	CPUHP_AP_RCUTREE_ONLINE,
-+	CPUHP_AP_BASE_CACHEINFO_ONLINE,
- 	CPUHP_AP_ONLINE_DYN,
- 	CPUHP_AP_ONLINE_DYN_END		= CPUHP_AP_ONLINE_DYN + 30,
- 	CPUHP_AP_X86_HPET_ONLINE,
++	/* If the link is lost the controller stops DMA, but
++	 * if there is queued Tx work it cannot be done.  So
++	 * reset the controller to flush the Tx packet buffers.
++	 */
++	if (!netif_carrier_ok(netdev) &&
++	    (e1000_desc_unused(tx_ring) + 1 < tx_ring->count))
++		adapter->flags |= FLAG_RESTART_NOW;
++
+ 	/* If reset is necessary, do it outside of interrupt context. */
+ 	if (adapter->flags & FLAG_RESTART_NOW) {
+ 		schedule_work(&adapter->reset_task);
 
 
