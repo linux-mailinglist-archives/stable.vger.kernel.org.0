@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 726716C732
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADCA86C72C
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:23:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390786AbfGRDWt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:22:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40522 "EHLO mail.kernel.org"
+        id S2390810AbfGRDW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:22:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390753AbfGRDIb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:08:31 -0400
+        id S2389965AbfGRDIt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:08:49 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C1E92173B;
-        Thu, 18 Jul 2019 03:08:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8539E2173E;
+        Thu, 18 Jul 2019 03:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419310;
-        bh=GsQDKGHp0bAX604iiTE+AzbVnmm5nkTZCJpC+xIdO/s=;
+        s=default; t=1563419328;
+        bh=1M5uP+m8cuTDZeta1c/3TZC1egzglcR2qlnV2iaMkKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmr4PExle8fNDHR0793Xod04c+o0W//HvI+63qksaags7MTgeWs2F9E7E464AigXs
-         aMpiS0wuqIhCdhAWFbtyrrvEbis5/F02+JhCWhScvm4qM7rw3wug2QFThHvbhlV/bG
-         YnOxQi3cy4tJsvOTzKOU7DlUYR9mAYWwLx9GJAmc=
+        b=ywItR+a3s6EMUQdv/2OncAqMhXRnKIqLs7kNwxq/xRNO6yqUuMZJ9mEvbaCAVClXu
+         bNby+PyaK8epSdLUwnPVul51oX36zNDRsdwSSarcUhUWM9kubeKae4c8vkHEDkwXLu
+         VshP8eHRulxIUFQTxi4QPBDwBkl0YpMxkoI6F1K8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Joseph Yasi <joe.yasi@gmail.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Oleksandr Natalenko <oleksandr@redhat.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: [PATCH 4.14 01/80] Revert "e1000e: fix cyclic resets at link up with active tx"
-Date:   Thu, 18 Jul 2019 12:00:52 +0900
-Message-Id: <20190718030058.716880377@linuxfoundation.org>
+        stable@vger.kernel.org, Cole Rogers <colerogers@disroot.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 03/80] Input: synaptics - enable SMBUS on T480 thinkpad trackpad
+Date:   Thu, 18 Jul 2019 12:00:54 +0900
+Message-Id: <20190718030059.064016486@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
 References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,80 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Cole Rogers <colerogers@disroot.org>
 
-commit caff422ea81e144842bc44bab408d85ac449377b upstream.
+commit abbe3acd7d72ab4633ade6bd24e8306b67e0add3 upstream.
 
-This reverts commit 0f9e980bf5ee1a97e2e401c846b2af989eb21c61.
+Thinkpad t480 laptops had some touchpad features disabled, resulting in the
+loss of pinch to activities in GNOME, on wayland, and other touch gestures
+being slower. This patch adds the touchpad of the t480 to the smbus_pnp_ids
+whitelist to enable the extra features. In my testing this does not break
+suspend (on fedora, with wayland, and GNOME, using the rc-6 kernel), while
+also fixing the feature on a T480.
 
-That change cased false-positive warning about hardware hang:
-
-e1000e: eth0 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: Rx/Tx
-IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
-e1000e 0000:00:1f.6 eth0: Detected Hardware Unit Hang:
-   TDH                  <0>
-   TDT                  <1>
-   next_to_use          <1>
-   next_to_clean        <0>
-buffer_info[next_to_clean]:
-   time_stamp           <fffba7a7>
-   next_to_watch        <0>
-   jiffies              <fffbb140>
-   next_to_watch.status <0>
-MAC Status             <40080080>
-PHY Status             <7949>
-PHY 1000BASE-T Status  <0>
-PHY Extended Status    <3000>
-PCI Status             <10>
-e1000e: eth0 NIC Link is Up 1000 Mbps Full Duplex, Flow Control: Rx/Tx
-
-Besides warning everything works fine.
-Original issue will be fixed property in following patch.
-
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Reported-by: Joseph Yasi <joe.yasi@gmail.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=203175
-Tested-by: Joseph Yasi <joe.yasi@gmail.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Tested-by: Oleksandr Natalenko <oleksandr@redhat.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Cole Rogers <colerogers@disroot.org>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/input/mouse/synaptics.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -5306,13 +5306,8 @@ static void e1000_watchdog_task(struct w
- 			/* 8000ES2LAN requires a Rx packet buffer work-around
- 			 * on link down event; reset the controller to flush
- 			 * the Rx packet buffer.
--			 *
--			 * If the link is lost the controller stops DMA, but
--			 * if there is queued Tx work it cannot be done.  So
--			 * reset the controller to flush the Tx packet buffers.
- 			 */
--			if ((adapter->flags & FLAG_RX_NEEDS_RESTART) ||
--			    e1000_desc_unused(tx_ring) + 1 < tx_ring->count)
-+			if (adapter->flags & FLAG_RX_NEEDS_RESTART)
- 				adapter->flags |= FLAG_RESTART_NOW;
- 			else
- 				pm_schedule_suspend(netdev->dev.parent,
-@@ -5335,6 +5330,14 @@ link_up:
- 	adapter->gotc_old = adapter->stats.gotc;
- 	spin_unlock(&adapter->stats64_lock);
- 
-+	/* If the link is lost the controller stops DMA, but
-+	 * if there is queued Tx work it cannot be done.  So
-+	 * reset the controller to flush the Tx packet buffers.
-+	 */
-+	if (!netif_carrier_ok(netdev) &&
-+	    (e1000_desc_unused(tx_ring) + 1 < tx_ring->count))
-+		adapter->flags |= FLAG_RESTART_NOW;
-+
- 	/* If reset is necessary, do it outside of interrupt context. */
- 	if (adapter->flags & FLAG_RESTART_NOW) {
- 		schedule_work(&adapter->reset_task);
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -176,6 +176,7 @@ static const char * const smbus_pnp_ids[
+ 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
+ 	"LEN0073", /* X1 Carbon G5 (Elantech) */
+ 	"LEN0092", /* X1 Carbon 6 */
++	"LEN0093", /* T480 */
+ 	"LEN0096", /* X280 */
+ 	"LEN0097", /* X280 -> ALPS trackpoint */
+ 	"LEN200f", /* T450s */
 
 
