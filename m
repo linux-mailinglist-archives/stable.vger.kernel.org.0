@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FCE16C768
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:25:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE5D6C788
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727787AbfGRDYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:24:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39036 "EHLO mail.kernel.org"
+        id S1732249AbfGRDFN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:05:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390442AbfGRDH1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:07:27 -0400
+        id S2389887AbfGRDFM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:05:12 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CA7B205F4;
-        Thu, 18 Jul 2019 03:07:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23B8D204EC;
+        Thu, 18 Jul 2019 03:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419246;
-        bh=mqG7slJOy0hBqWHF3pVFLrGyaz0n0s6bosgUbxrHbHM=;
+        s=default; t=1563419111;
+        bh=mhHB+qj4JWvgJYqlogcViyglJLdxO92xp7AfKmJg+gE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bWMJ95Sne0F2QV0ARQh7KrUhig6x6+gL1Sg8AMOltHwE3KwSo05V/DvWX0JZNwNw3
-         afb689qe9JJdEpo4BeRWVFEJo9I0VhHL6wMtLmCOQD+3ccIjDb2jX5oXZ2T6Z4zHuY
-         lZ4y8tklXcMBAth/g1zyQnI4za64nU/7/bZ76USg=
+        b=PPZ63qytASQ8qn++oTFBOsMShpNswjhUBwpVjQlfRvRn2A1A9TuMJEPHDQDkg29YP
+         MTCPib53zZ3Mq9kePNXwZ+zwr4BwFX/OkKUSiC+kk6zVqzO7RUgKb5yVy81wtvI7s7
+         3ZvAfnG/3ParunSLrnIcFYh5XdHeoqNyuteEuALY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/47] afs: Fix uninitialised spinlock afs_volume::cb_break_lock
-Date:   Thu, 18 Jul 2019 12:01:27 +0900
-Message-Id: <20190718030049.759890872@linuxfoundation.org>
+        stable@vger.kernel.org, Kyle Godbey <me@kyle.ee>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 33/54] HID: uclogic: Add support for Huion HS64 tablet
+Date:   Thu, 18 Jul 2019 12:01:28 +0900
+Message-Id: <20190718030055.900790004@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
-References: <20190718030045.780672747@linuxfoundation.org>
+In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
+References: <20190718030053.287374640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,93 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 90fa9b64523a645a97edc0bdcf2d74759957eeee ]
+[ Upstream commit 315ffcc9a1e054bb460f9203058b52dc26b1173d ]
 
-Fix the cb_break_lock spinlock in afs_volume struct by initialising it when
-the volume record is allocated.
+Add support for Huion HS64 drawing tablet to hid-uclogic
 
-Also rename the lock to cb_v_break_lock to distinguish it from the lock of
-the same name in the afs_server struct.
-
-Without this, the following trace may be observed when a volume-break
-callback is received:
-
-  INFO: trying to register non-static key.
-  the code is fine but needs lockdep annotation.
-  turning off the locking correctness validator.
-  CPU: 2 PID: 50 Comm: kworker/2:1 Not tainted 5.2.0-rc1-fscache+ #3045
-  Hardware name: ASUS All Series/H97-PLUS, BIOS 2306 10/09/2014
-  Workqueue: afs SRXAFSCB_CallBack
-  Call Trace:
-   dump_stack+0x67/0x8e
-   register_lock_class+0x23b/0x421
-   ? check_usage_forwards+0x13c/0x13c
-   __lock_acquire+0x89/0xf73
-   lock_acquire+0x13b/0x166
-   ? afs_break_callbacks+0x1b2/0x3dd
-   _raw_write_lock+0x2c/0x36
-   ? afs_break_callbacks+0x1b2/0x3dd
-   afs_break_callbacks+0x1b2/0x3dd
-   ? trace_event_raw_event_afs_server+0x61/0xac
-   SRXAFSCB_CallBack+0x11f/0x16c
-   process_one_work+0x2c5/0x4ee
-   ? worker_thread+0x234/0x2ac
-   worker_thread+0x1d8/0x2ac
-   ? cancel_delayed_work_sync+0xf/0xf
-   kthread+0x11f/0x127
-   ? kthread_park+0x76/0x76
-   ret_from_fork+0x24/0x30
-
-Fixes: 68251f0a6818 ("afs: Fix whole-volume callback handling")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Kyle Godbey <me@kyle.ee>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/callback.c | 4 ++--
- fs/afs/internal.h | 2 +-
- fs/afs/volume.c   | 1 +
- 3 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/hid/hid-ids.h            | 1 +
+ drivers/hid/hid-uclogic-core.c   | 2 ++
+ drivers/hid/hid-uclogic-params.c | 2 ++
+ 3 files changed, 5 insertions(+)
 
-diff --git a/fs/afs/callback.c b/fs/afs/callback.c
-index 5f261fbf2182..4ad701250299 100644
---- a/fs/afs/callback.c
-+++ b/fs/afs/callback.c
-@@ -276,9 +276,9 @@ static void afs_break_one_callback(struct afs_server *server,
- 			struct afs_super_info *as = AFS_FS_S(cbi->sb);
- 			struct afs_volume *volume = as->volume;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index f10f5cce7aa9..a7037473ed94 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -572,6 +572,7 @@
  
--			write_lock(&volume->cb_break_lock);
-+			write_lock(&volume->cb_v_break_lock);
- 			volume->cb_v_break++;
--			write_unlock(&volume->cb_break_lock);
-+			write_unlock(&volume->cb_v_break_lock);
- 		} else {
- 			data.volume = NULL;
- 			data.fid = *fid;
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index 34c02fdcc25f..aea19614c082 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -477,7 +477,7 @@ struct afs_volume {
- 	unsigned int		servers_seq;	/* Incremented each time ->servers changes */
+ #define USB_VENDOR_ID_HUION		0x256c
+ #define USB_DEVICE_ID_HUION_TABLET	0x006e
++#define USB_DEVICE_ID_HUION_HS64	0x006d
  
- 	unsigned		cb_v_break;	/* Break-everything counter. */
--	rwlock_t		cb_break_lock;
-+	rwlock_t		cb_v_break_lock;
- 
- 	afs_voltype_t		type;		/* type of volume */
- 	short			error;
-diff --git a/fs/afs/volume.c b/fs/afs/volume.c
-index 3037bd01f617..5ec186ec5651 100644
---- a/fs/afs/volume.c
-+++ b/fs/afs/volume.c
-@@ -47,6 +47,7 @@ static struct afs_volume *afs_alloc_volume(struct afs_mount_params *params,
- 	atomic_set(&volume->usage, 1);
- 	INIT_LIST_HEAD(&volume->proc_link);
- 	rwlock_init(&volume->servers_lock);
-+	rwlock_init(&volume->cb_v_break_lock);
- 	memcpy(volume->name, vldb->name, vldb->name_len + 1);
- 
- 	slist = afs_alloc_server_list(params->cell, params->key, vldb, type_mask);
+ #define USB_VENDOR_ID_IBM					0x04b3
+ #define USB_DEVICE_ID_IBM_SCROLLPOINT_III			0x3100
+diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
+index 8fe02d81265d..914fb527ae7a 100644
+--- a/drivers/hid/hid-uclogic-core.c
++++ b/drivers/hid/hid-uclogic-core.c
+@@ -369,6 +369,8 @@ static const struct hid_device_id uclogic_devices[] = {
+ 				USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION,
+ 				USB_DEVICE_ID_HUION_TABLET) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION,
++				USB_DEVICE_ID_HUION_HS64) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
+ 				USB_DEVICE_ID_HUION_TABLET) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC,
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index 0187c9f8fc22..273d784fff66 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -977,6 +977,8 @@ int uclogic_params_init(struct uclogic_params *params,
+ 		/* FALL THROUGH */
+ 	case VID_PID(USB_VENDOR_ID_HUION,
+ 		     USB_DEVICE_ID_HUION_TABLET):
++	case VID_PID(USB_VENDOR_ID_HUION,
++		     USB_DEVICE_ID_HUION_HS64):
+ 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
+ 		     USB_DEVICE_ID_HUION_TABLET):
+ 	case VID_PID(USB_VENDOR_ID_UCLOGIC,
 -- 
 2.20.1
 
