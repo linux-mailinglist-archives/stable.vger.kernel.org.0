@@ -2,47 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 676866C3B7
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 02:02:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CDA66C3BA
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 02:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728079AbfGRACZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 20:02:25 -0400
-Received: from mail-pl1-f202.google.com ([209.85.214.202]:56616 "EHLO
-        mail-pl1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728068AbfGRACZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Jul 2019 20:02:25 -0400
-Received: by mail-pl1-f202.google.com with SMTP id o6so12881949plk.23
-        for <stable@vger.kernel.org>; Wed, 17 Jul 2019 17:02:24 -0700 (PDT)
+        id S1727804AbfGRACr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 20:02:47 -0400
+Received: from mail-pg1-f201.google.com ([209.85.215.201]:49725 "EHLO
+        mail-pg1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728538AbfGRACn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Jul 2019 20:02:43 -0400
+Received: by mail-pg1-f201.google.com with SMTP id 30so15560590pgk.16
+        for <stable@vger.kernel.org>; Wed, 17 Jul 2019 17:02:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=F4BwMGynHNNojraJ7LjreMR6L3I2Kny/UtiBEd/49jg=;
-        b=K9hevwQMFXcVZY0TVfn6Ud/SV2/bHQesWc9wE618szqhc73WC4OW/bMO8wMFXc5LHT
-         hBJsqQkPoYSzk0WIBzNs3qSkuRNk+q8717TU4h0P6ksPRJedS3kWLecav/KjMXIH7Mi5
-         M/N9JoDiIr7xGzxxHzypHZTYjT5LP3c+lfUD2KPWSKXNoC4hlhUwAwd1OY9ZdIq7Pp97
-         oqjPKHwwgQADwKO5BxCEdut3RWlfmF/gkW39Ja3geKDPXAnuszI+ynX67Pv0EtyrmlUl
-         QuA6JPstUx1rlEZhmP65fPWS7RZ0ir8cg1pbk4fTrlHO/ilY/HIn9ObcMp7MViu9ngEE
-         zIww==
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=d2opEawD5+UpjHd3NqyX+5wHPW1XJIxl9MSYmfk275Q=;
+        b=JzADRtkOw2096YFXxVSMAzsSWjQX8A9aoK4y1dNuoORdeMgF6K2He4c4O4zv+SvN1C
+         UNqNMY/GIiooHoE15NvVgxlMs/qpJxGGW8RFAoHq/wQ6szsqmG6LnRHB4dULrMiW4Vzg
+         IUj4LTC/4PLSbvqJwgooz1Mlzhu1UhCeAzoMilvUyGj/7izvs3+tWqOjcFQR2KUg25Si
+         omfLoHXCTMhlrVNQEY9J5rCa7XG2EOcD+J5GGbnvSsBg6GUf8Gelz5fbj6EqKMRp7c0Y
+         L5YSYp3s7fpOT6STKRp3YIixv/u1jSSDhY/5h3ag4LEIAN3yGLS7G6GAXS9ckGFD8wu0
+         1tmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=F4BwMGynHNNojraJ7LjreMR6L3I2Kny/UtiBEd/49jg=;
-        b=EkDClaj8ySct11E1cR8RQ72X/wUb2eDz1HSICDsl4l0ztHLav+bJA5sLstKYscGiC1
-         8HIIO54cDnF5cJW+Hgb9nl4vOpUpQ+fevzqPeBtRS4FlVaD3GAuWUMR6MK6zWsNdTTGZ
-         8NrLvPCkFkm3gCSWhGalPccuSYiTaGWBXLlpsrQog6vaij3+Ts00osQsvCLMwHGgJ1/3
-         Dsroojm8JN1k+2vU8BcJo4Q7JvyHanaEvWGYgBmySnqQGnVgTA6dvNZvQCXAL6+iqc0J
-         TVufc/4xYf9UZouIJaDsQpTtwheZLoJgM7nV0uZ2/Q/myAJhfQMa8MWI02JBxxjBOEzJ
-         a8EA==
-X-Gm-Message-State: APjAAAW+zq3AwQbTZuj0VwqRch4pHOUxXD3bxeAf3im7GwnWw0J6Ru3T
-        NcXLeHm9zTB+toA0Fp7Q5TxFsxoXsQJJN1A2pOtn/Q==
-X-Google-Smtp-Source: APXvYqwbaNEq2cmulN5Pfzy8ARhvkLv7MBCDx+b2D8ZSCoaObYtbmood/GQ5VD54MA7JAkzuFbKme7G/xBzZ4Lv3lK4edg==
-X-Received: by 2002:a63:5765:: with SMTP id h37mr12364689pgm.183.1563408143830;
- Wed, 17 Jul 2019 17:02:23 -0700 (PDT)
-Date:   Wed, 17 Jul 2019 17:02:04 -0700
-Message-Id: <20190718000206.121392-1-vaibhavrustagi@google.com>
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=d2opEawD5+UpjHd3NqyX+5wHPW1XJIxl9MSYmfk275Q=;
+        b=ZGoM4M0Ue/JTHjVF4p2i3UDPq5Kp5hilbj+Szu1sFt+7a8m0huaeGKlPx+P8GDffxg
+         of/i7O23PA7J1QdaXQe3RP22N/dQXyTjbhdKGE9GoVVwFkkgFwgeDpXOM31ppIfIHf6n
+         NYLj0I/wS3m3e94IExtcuZ/FoKU1W5nTEbQTRZQSU4Ql/JtL4GWntD+hWprjSEM++Cc2
+         WUo/6tZX6ISpB8tNMz8Z/R7CBHD6C9LvGgJU0xF3iidRX7eZwYF82wwg0biw1dxDrSoT
+         tXrMPtWKXiu5gt+oSYVbZiLHdU9PW0/wi0uOqWyGimynsgFyuljVkwffYD3GKTHoIOkE
+         A2TQ==
+X-Gm-Message-State: APjAAAVdC6l09ZUjA8wqurm6g+AOzRg0uNKzDpftedrfVRoeVnvDLSA/
+        YPhJ5F13W1rZGW53T/4f25gVn7guXw5tK8P4z6GitQ==
+X-Google-Smtp-Source: APXvYqx8C+Hy6Xs2urAbdNvACQ68TCh4KNRmJw+r8zbsjI0Iz08oehTCqQsB2iYjkYZRoMBdYUgYRrzMAIY59zdjl7ZMAQ==
+X-Received: by 2002:a63:a35c:: with SMTP id v28mr728662pgn.144.1563408162493;
+ Wed, 17 Jul 2019 17:02:42 -0700 (PDT)
+Date:   Wed, 17 Jul 2019 17:02:05 -0700
+In-Reply-To: <20190718000206.121392-1-vaibhavrustagi@google.com>
+Message-Id: <20190718000206.121392-2-vaibhavrustagi@google.com>
 Mime-Version: 1.0
+References: <20190718000206.121392-1-vaibhavrustagi@google.com>
 X-Mailer: git-send-email 2.22.0.510.g264f2c817a-goog
-Subject: [PATCH 0/2] Support kexec/kdump for clang built kernel
+Subject: [PATCH 1/2] x86/purgatory: add -mno-sse, -mno-mmx, -mno-sse2 to Makefile
 From:   Vaibhav Rustagi <vaibhavrustagi@google.com>
 To:     Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
@@ -58,25 +62,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch series includes the following:
+Compiling the purgatory code with clang results in using of mmx
+registers.
 
-1. Adding compiler options to not use XMM registers in the purgatory code.
-2. Reuse the implementation of memcpy and memset instead of relying on
-__builtin_memcpy and __builtin_memset as it causes infinite recursion
-in clang.
+$ objdump -d arch/x86/purgatory/purgatory.ro | grep xmm
 
-Nick Desaulniers (1):
-  x86/purgatory: do not use __builtin_memcpy and __builtin_memset.
+     112:	0f 28 00             	movaps (%rax),%xmm0
+     115:	0f 11 07             	movups %xmm0,(%rdi)
+     122:	0f 28 00             	movaps (%rax),%xmm0
+     125:	0f 11 47 10          	movups %xmm0,0x10(%rdi)
 
-Vaibhav Rustagi (1):
-  x86/purgatory: add -mno-sse, -mno-mmx, -mno-sse2 to Makefile
+Add -mno-sse, -mno-mmx, -mno-sse2 to avoid generating SSE instructions.
 
- arch/x86/purgatory/Makefile    |  4 ++++
- arch/x86/purgatory/purgatory.c |  6 ++++++
- arch/x86/purgatory/string.c    | 23 -----------------------
- 3 files changed, 10 insertions(+), 23 deletions(-)
- delete mode 100644 arch/x86/purgatory/string.c
+Signed-off-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+---
+ arch/x86/purgatory/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+index 3cf302b26332..3589ec4a28c7 100644
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -20,6 +20,7 @@ KCOV_INSTRUMENT := n
+ # sure how to relocate those. Like kexec-tools, use custom flags.
+ 
+ KBUILD_CFLAGS := -fno-strict-aliasing -Wall -Wstrict-prototypes -fno-zero-initialized-in-bss -fno-builtin -ffreestanding -c -Os -mcmodel=large
++KBUILD_CFLAGS += -mno-mmx -mno-sse -mno-sse2
+ KBUILD_CFLAGS += -m$(BITS)
+ KBUILD_CFLAGS += $(call cc-option,-fno-PIE)
+ 
 -- 
 2.22.0.510.g264f2c817a-goog
 
