@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4AF96C670
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:16:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C252B6C699
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:18:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391481AbfGRDPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:15:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51540 "EHLO mail.kernel.org"
+        id S2391635AbfGRDR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:17:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391900AbfGRDO6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:14:58 -0400
+        id S2391703AbfGRDON (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:14:13 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90A6521851;
-        Thu, 18 Jul 2019 03:14:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 947ED2077C;
+        Thu, 18 Jul 2019 03:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419697;
-        bh=tF80hbKqnnsdHN8PLM6yB9syN274WwkXVuBEAAZ5IHA=;
+        s=default; t=1563419652;
+        bh=rGTmn1Do0fdE2xwr//1vrCgSU5zRYdNtOrcaVxu+SRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xwWK1609RXrXu5v+7800EuCPlozGxlDfvXfEQ5vDQsPtSIgzi0TmJipisWTG523ge
-         Akvt4tWMJYKXHN8em7Z4u8xt7aDsuyhezFVVO34WzFHw0RbpRmWN+oXKW+y+dLNZx3
-         SpCNBT1xVmoipZp1CDcu7fU/puDHwkHco1k27Aa0=
+        b=b203mmT2+Pi9hqi9pO25N8HnLOv2YgzJ+SZ4H/GFTyBzd2PtAnlldTkT4ZnjxinNQ
+         +eF3Zfj5FCU1AR8vR8QJ4vDn2+aIKXbTQBCg74rw5qRSu7NK0dbzK23MWrNPcM6iqd
+         MqAHmE/lQzqTm/wtVGSjtWu0sebiqz2xlS1Ex/lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dianzhang Chen <dianzhangchen0@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
-        hpa@zytor.com
-Subject: [PATCH 4.4 13/40] x86/ptrace: Fix possible spectre-v1 in ptrace_get_debugreg()
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org,
+        Hauke Mehrtens <hauke@hauke-m.de>
+Subject: [PATCH 4.9 39/54] MIPS: Remove superfluous check for __linux__
 Date:   Thu, 18 Jul 2019 12:02:09 +0900
-Message-Id: <20190718030043.255008862@linuxfoundation.org>
+Message-Id: <20190718030052.500312977@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030039.676518610@linuxfoundation.org>
-References: <20190718030039.676518610@linuxfoundation.org>
+In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
+References: <20190718030048.392549994@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dianzhang Chen <dianzhangchen0@gmail.com>
+From: Sean Young <sean@mess.org>
 
-commit 31a2fbb390fee4231281b939e1979e810f945415 upstream.
+commit 1287533d3d95d5ad8b02773733044500b1be06bc upstream.
 
-The index to access the threads ptrace_bps is controlled by userspace via
-syscall: sys_ptrace(), hence leading to a potential exploitation of the
-Spectre variant 1 vulnerability.
+When building BPF code using "clang -target bpf -c", clang does not
+define __linux__.
 
-The index can be controlled from:
-    ptrace -> arch_ptrace -> ptrace_get_debugreg.
+To build BPF IR decoders the include linux/lirc.h is needed which
+includes linux/types.h. Currently this workaround is needed:
 
-Fix this by sanitizing the user supplied index before using it access
-thread->ptrace_bps.
+https://git.linuxtv.org/v4l-utils.git/commit/?id=dd3ff81f58c4e1e6f33765dc61ad33c48ae6bb07
 
-Signed-off-by: Dianzhang Chen <dianzhangchen0@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: bp@alien8.de
-Cc: hpa@zytor.com
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1561476617-3759-1-git-send-email-dianzhangchen0@gmail.com
+This check might otherwise be useful to stop users from using a non-linux
+compiler, but if you're doing that you are going to have a lot more
+trouble anyway.
+
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Patchwork: https://patchwork.linux-mips.org/patch/21149/
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-mips@linux-mips.org
+Cc: linux-kernel@vger.kernel.org
+Cc: Hauke Mehrtens <hauke@hauke-m.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/ptrace.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/mips/include/uapi/asm/sgidefs.h |    8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/arch/x86/kernel/ptrace.c
-+++ b/arch/x86/kernel/ptrace.c
-@@ -23,6 +23,7 @@
- #include <linux/rcupdate.h>
- #include <linux/export.h>
- #include <linux/context_tracking.h>
-+#include <linux/nospec.h>
+--- a/arch/mips/include/uapi/asm/sgidefs.h
++++ b/arch/mips/include/uapi/asm/sgidefs.h
+@@ -11,14 +11,6 @@
+ #define __ASM_SGIDEFS_H
  
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -697,9 +698,11 @@ static unsigned long ptrace_get_debugreg
- {
- 	struct thread_struct *thread = &tsk->thread;
- 	unsigned long val = 0;
-+	int index = n;
- 
- 	if (n < HBP_NUM) {
--		struct perf_event *bp = thread->ptrace_bps[n];
-+		struct perf_event *bp = thread->ptrace_bps[index];
-+		index = array_index_nospec(index, HBP_NUM);
- 
- 		if (bp)
- 			val = bp->hw.info.address;
+ /*
+- * Using a Linux compiler for building Linux seems logic but not to
+- * everybody.
+- */
+-#ifndef __linux__
+-#error Use a Linux compiler or give up.
+-#endif
+-
+-/*
+  * Definitions for the ISA levels
+  *
+  * With the introduction of MIPS32 / MIPS64 instruction sets definitions
 
 
