@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B56976C69C
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:18:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4306C6DC
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:20:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390916AbfGRDSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:18:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49848 "EHLO mail.kernel.org"
+        id S2391314AbfGRDUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:20:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391690AbfGRDOK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:14:10 -0400
+        id S2390989AbfGRDLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:11:46 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24D5F21851;
-        Thu, 18 Jul 2019 03:14:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49FD1205F4;
+        Thu, 18 Jul 2019 03:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419649;
-        bh=xyhxMICcW0VBwJiwciKexKmME76pTMQ7Puqb92NZyyg=;
+        s=default; t=1563419505;
+        bh=eEXDRxF7QqIcStCEgPn7SkEKJZ3Xbp6r/kp/qZHft2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUeNKIQgOxkRpD+vVnTlNfckge7KWDuY5UZJAd0QfX61yVH5qZcBqxdP6l7Jbh3Gq
-         R07Y9IQbmRqkrMlg/2DApu119iOuOqURGyUHfojIhmPKaVrjP6C52HKHK4xHCOYUkW
-         RJe3hLWUE6PY0naNTS71pRoNHE8Cr4T+fZLsDuMs=
+        b=o7kSQXXhQWMZb4S0XAP9iCFcqerbu5kKcETCZ7PErsbYzApLv8rBxi301+TdbXxUm
+         uiCvMYX7Ez9jVbjIWOYWKW5BAOoe6MM8UwNOj7Tkk0IE504IJi8xsAVsqM6gHVCE6+
+         K2W0LNqV7csvLHkBNdspNcBf7w6VNWPA3CgmFLyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 37/54] carl9170: fix misuse of device driver API
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.14 76/80] s390/qdio: (re-)initialize tiqdio list entries
 Date:   Thu, 18 Jul 2019 12:02:07 +0900
-Message-Id: <20190718030052.337010359@linuxfoundation.org>
+Message-Id: <20190718030105.429494323@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
-References: <20190718030048.392549994@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,148 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-commit feb09b2933275a70917a869989ea2823e7356be8 upstream.
+commit e54e4785cb5cb4896cf4285964aeef2125612fb2 upstream.
 
-This patch follows Alan Stern's recent patch:
-"p54: Fix race between disconnect and firmware loading"
+When tiqdio_remove_input_queues() removes a queue from the tiq_list as
+part of qdio_shutdown(), it doesn't re-initialize the queue's list entry
+and the prev/next pointers go stale.
 
-that overhauled carl9170 buggy firmware loading and driver
-unbinding procedures.
+If a subsequent qdio_establish() fails while sending the ESTABLISH cmd,
+it calls qdio_shutdown() again in QDIO_IRQ_STATE_ERR state and
+tiqdio_remove_input_queues() will attempt to remove the queue entry a
+second time. This dereferences the stale pointers, and bad things ensue.
+Fix this by re-initializing the list entry after removing it from the
+list.
 
-Since the carl9170 code was adapted from p54 it uses the
-same functions and is likely to have the same problem, but
-it's just that the syzbot hasn't reproduce them (yet).
+For good practice also initialize the list entry when the queue is first
+allocated, and remove the quirky checks that papered over this omission.
+Note that prior to
+commit e521813468f7 ("s390/qdio: fix access to uninitialized qdio_q fields"),
+these checks were bogus anyway.
 
-a summary from the changes (copied from the p54 patch):
- * Call usb_driver_release_interface() rather than
-   device_release_driver().
+setup_queues_misc() clears the whole queue struct, and thus needs to
+re-init the prev/next pointers as well.
 
- * Lock udev (the interface's parent) before unbinding the
-   driver instead of locking udev->parent.
-
- * During the firmware loading process, take a reference
-   to the USB interface instead of the USB device.
-
- * Don't take an unnecessary reference to the device during
-   probe (and then don't drop it during disconnect).
-
-and
-
- * Make sure to prevent use-after-free bugs by explicitly
-   setting the driver context to NULL after signaling the
-   completion.
-
+Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
 Cc: <stable@vger.kernel.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/carl9170/usb.c |   39 +++++++++++++-------------------
- 1 file changed, 17 insertions(+), 22 deletions(-)
+ drivers/s390/cio/qdio_setup.c   |    2 ++
+ drivers/s390/cio/qdio_thinint.c |    4 ++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/ath/carl9170/usb.c
-+++ b/drivers/net/wireless/ath/carl9170/usb.c
-@@ -128,6 +128,8 @@ static struct usb_device_id carl9170_usb
- };
- MODULE_DEVICE_TABLE(usb, carl9170_usb_ids);
- 
-+static struct usb_driver carl9170_driver;
-+
- static void carl9170_usb_submit_data_urb(struct ar9170 *ar)
- {
- 	struct urb *urb;
-@@ -966,32 +968,28 @@ err_out:
- 
- static void carl9170_usb_firmware_failed(struct ar9170 *ar)
- {
--	struct device *parent = ar->udev->dev.parent;
--	struct usb_device *udev;
--
--	/*
--	 * Store a copy of the usb_device pointer locally.
--	 * This is because device_release_driver initiates
--	 * carl9170_usb_disconnect, which in turn frees our
--	 * driver context (ar).
-+	/* Store a copies of the usb_interface and usb_device pointer locally.
-+	 * This is because release_driver initiates carl9170_usb_disconnect,
-+	 * which in turn frees our driver context (ar).
- 	 */
--	udev = ar->udev;
-+	struct usb_interface *intf = ar->intf;
-+	struct usb_device *udev = ar->udev;
- 
- 	complete(&ar->fw_load_wait);
-+	/* at this point 'ar' could be already freed. Don't use it anymore */
-+	ar = NULL;
- 
- 	/* unbind anything failed */
--	if (parent)
--		device_lock(parent);
--
--	device_release_driver(&udev->dev);
--	if (parent)
--		device_unlock(parent);
-+	usb_lock_device(udev);
-+	usb_driver_release_interface(&carl9170_driver, intf);
-+	usb_unlock_device(udev);
- 
--	usb_put_dev(udev);
-+	usb_put_intf(intf);
- }
- 
- static void carl9170_usb_firmware_finish(struct ar9170 *ar)
- {
-+	struct usb_interface *intf = ar->intf;
- 	int err;
- 
- 	err = carl9170_parse_firmware(ar);
-@@ -1009,7 +1007,7 @@ static void carl9170_usb_firmware_finish
- 		goto err_unrx;
- 
- 	complete(&ar->fw_load_wait);
--	usb_put_dev(ar->udev);
-+	usb_put_intf(intf);
- 	return;
- 
- err_unrx:
-@@ -1052,7 +1050,6 @@ static int carl9170_usb_probe(struct usb
- 		return PTR_ERR(ar);
- 
- 	udev = interface_to_usbdev(intf);
--	usb_get_dev(udev);
- 	ar->udev = udev;
- 	ar->intf = intf;
- 	ar->features = id->driver_info;
-@@ -1094,15 +1091,14 @@ static int carl9170_usb_probe(struct usb
- 	atomic_set(&ar->rx_anch_urbs, 0);
- 	atomic_set(&ar->rx_pool_urbs, 0);
- 
--	usb_get_dev(ar->udev);
-+	usb_get_intf(intf);
- 
- 	carl9170_set_state(ar, CARL9170_STOPPED);
- 
- 	err = request_firmware_nowait(THIS_MODULE, 1, CARL9170FW_NAME,
- 		&ar->udev->dev, GFP_KERNEL, ar, carl9170_usb_firmware_step2);
- 	if (err) {
--		usb_put_dev(udev);
--		usb_put_dev(udev);
-+		usb_put_intf(intf);
- 		carl9170_free(ar);
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -150,6 +150,7 @@ static int __qdio_allocate_qs(struct qdi
+ 			return -ENOMEM;
+ 		}
+ 		irq_ptr_qs[i] = q;
++		INIT_LIST_HEAD(&q->entry);
  	}
- 	return err;
-@@ -1131,7 +1127,6 @@ static void carl9170_usb_disconnect(stru
- 
- 	carl9170_release_firmware(ar);
- 	carl9170_free(ar);
--	usb_put_dev(udev);
+ 	return 0;
+ }
+@@ -178,6 +179,7 @@ static void setup_queues_misc(struct qdi
+ 	q->mask = 1 << (31 - i);
+ 	q->nr = i;
+ 	q->handler = handler;
++	INIT_LIST_HEAD(&q->entry);
  }
  
- #ifdef CONFIG_PM
+ static void setup_storage_lists(struct qdio_q *q, struct qdio_irq *irq_ptr,
+--- a/drivers/s390/cio/qdio_thinint.c
++++ b/drivers/s390/cio/qdio_thinint.c
+@@ -91,14 +91,14 @@ void tiqdio_remove_input_queues(struct q
+ 	struct qdio_q *q;
+ 
+ 	q = irq_ptr->input_qs[0];
+-	/* if establish triggered an error */
+-	if (!q || !q->entry.prev || !q->entry.next)
++	if (!q)
+ 		return;
+ 
+ 	mutex_lock(&tiq_list_lock);
+ 	list_del_rcu(&q->entry);
+ 	mutex_unlock(&tiq_list_lock);
+ 	synchronize_rcu();
++	INIT_LIST_HEAD(&q->entry);
+ }
+ 
+ static inline int has_multiple_inq_on_dsci(struct qdio_irq *irq_ptr)
 
 
