@@ -2,50 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56C4C6D717
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 01:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F188E6D714
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 01:07:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391683AbfGRXG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 19:06:29 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:44852 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728524AbfGRXG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 19:06:29 -0400
-Received: by mail-pf1-f196.google.com with SMTP id t16so13266972pfe.11;
+        id S2391658AbfGRXG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 19:06:28 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:41336 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728524AbfGRXG2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 19:06:28 -0400
+Received: by mail-pf1-f194.google.com with SMTP id m30so13291093pff.8;
         Thu, 18 Jul 2019 16:06:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=XOpbXKQjFIWxL9L7MymjemNedb65xZQkcaFvd4hXAD4=;
-        b=D5BkP9GJGEhWTkiLBcz4YRNjYeOoS8EHN4F78itoHEpMDui8SdPKBHucIPJMIJ7sgu
-         P8uLHG23JSmSpT55yrML6/Caci7YGAciVMu35heZ1/TBQgBGHwcVSi60Mad+XpG8Af5t
-         pb3M8JQ42X4v0WYCe7s50nVoVX/tKrCopfcv6TGMK9d3Z6NKdjRUvXn/YQZQCMnfNrNZ
-         PQM1ruEJohrpaA3gi4loPRejw8KFfboJs3nyGH7M38jkt++SHRdnG/yeK5z0Qt10GMJV
-         uObJluEsyurRrWULU8TfgEAsEcYqF3KtOJku3fCTLrN/LaiVxyqvMusyVXSvtYd51qDg
-         Q+hg==
-X-Gm-Message-State: APjAAAW1OvEtL2595NCMX3Ae0PGozCiIyGHv9tDq71pQobGP2B0rCjIx
-        eU5OYYpahx7b9o0ngL47OI8=
-X-Google-Smtp-Source: APXvYqxipZjOJXFzwMfSCc16MjWFaYbB3RSqAYWWKlqnFRWq6N+USOvW/7fiSSqm6lV0exRWJaD3Jg==
-X-Received: by 2002:a17:90a:7d09:: with SMTP id g9mr52753680pjl.38.1563491188441;
-        Thu, 18 Jul 2019 16:06:28 -0700 (PDT)
+        bh=dbKBgzrzQrC5cGlbyCVNUXmHFj744pksl4qhcQY0yIo=;
+        b=LVdxQBrWiUUKIkvtNCCDAwHEBm+L8Jehw6N+HQ71qToK0IFLNnm3rPo4mpPZ/FA7Ue
+         P142/onXrnlEtaEntI2qNaCIpmOaviXShUR1NNP7nqchK9RPI3RSoB1AxDkkSejhQnC7
+         vVZkDxDf+2GrF88/7CJThzEKfYZGIA0HNw9oDRwxj4hWi9l76zzXHbnbTrN/1mi//no9
+         VmIvkuvqfuUc6TF/qyB5x/9uUt1rdAbgoi/qxVnbCBWkQAOE9WmaoOJ8LT3I+bzX8V//
+         rsC8XO64oSkT4fWKZ5qh3dnOEOF6NJW6N9nagWm4Np1kB3+t7pf4DQF19CYfAayDku08
+         oa3w==
+X-Gm-Message-State: APjAAAWcDatpQjNHR+E+sMTvFXrlkeR98hLfuJuusxrMKf5HpOaPWm5B
+        KuPJDrMcGgeKV3N4gz1B1Og=
+X-Google-Smtp-Source: APXvYqxdBXs8p5rBq6FmFrjUwDTLMIS99dIbZe96dqCIwIuJnBMkGcJnWTSNI1knQV1bD6q9Ocsu9g==
+X-Received: by 2002:a17:90a:f498:: with SMTP id bx24mr54672904pjb.91.1563491187667;
+        Thu, 18 Jul 2019 16:06:27 -0700 (PDT)
 Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
-        by smtp.gmail.com with ESMTPSA id v3sm26916513pfm.188.2019.07.18.16.06.21
+        by smtp.gmail.com with ESMTPSA id i15sm31178948pfd.160.2019.07.18.16.06.22
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
         Thu, 18 Jul 2019 16:06:26 -0700 (PDT)
 Received: by 42.do-not-panic.com (Postfix, from userid 1000)
-        id 6160D413C3; Thu, 18 Jul 2019 23:06:19 +0000 (UTC)
+        id 68A37413E9; Thu, 18 Jul 2019 23:06:19 +0000 (UTC)
 From:   Luis Chamberlain <mcgrof@kernel.org>
 To:     linux-xfs@vger.kernel.org, gregkh@linuxfoundation.org,
         Alexander.Levin@microsoft.com
 Cc:     stable@vger.kernel.org, amir73il@gmail.com, hch@infradead.org,
-        zlang@redhat.com, "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dave Chinner <dchinner@redhat.com>,
-        Luis Chamberlain <mcgrof@kernel.org>
-Subject: [PATCH 6/9] xfs: reserve blocks for ifree transaction during log recovery
-Date:   Thu, 18 Jul 2019 23:06:14 +0000
-Message-Id: <20190718230617.7439-7-mcgrof@kernel.org>
+        zlang@redhat.com, "Luis R. Rodriguez" <mcgrof@kernel.org>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>
+Subject: [PATCH 7/9] xfs: fix reporting supported extra file attributes for statx()
+Date:   Thu, 18 Jul 2019 23:06:15 +0000
+Message-Id: <20190718230617.7439-8-mcgrof@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190718230617.7439-1-mcgrof@kernel.org>
 References: <20190718230617.7439-1-mcgrof@kernel.org>
@@ -56,62 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: "Luis R. Rodriguez" <mcgrof@kernel.org>
 
-commit 15a268d9f263ed3a0601a1296568241a5a3da7aa upstream.
+commit 1b9598c8fb9965fff901c4caa21fed9644c34df3 upstream.
 
-Log recovery frees all the inodes stored in the unlinked list, which can
-cause expansion of the free inode btree.  The ifree code skips block
-reservations if it thinks there's a per-AG space reservation, but we
-don't set up the reservation until after log recovery, which means that
-a finobt expansion blows up in xfs_trans_mod_sb when we exceed the
-transaction's block reservation.
+statx(2) notes that any attribute that is not indicated as supported by
+stx_attributes_mask has no usable value. Commit 5f955f26f3d42d ("xfs: report
+crtime and attribute flags to statx") added support for informing userspace
+of extra file attributes but forgot to list these flags as supported
+making reporting them rather useless for the pedantic userspace author.
 
-To fix this, we set the "no finobt reservation" flag to true when we
-create the xfs_mount and only set it to false if we confirm that every
-AG had enough free space to put aside for the finobt.
+$ git describe --contains 5f955f26f3d42d04aba65590a32eb70eedb7f37d
+v4.11-rc6~5^2^2~2
 
+Fixes: 5f955f26f3d42d ("xfs: report crtime and attribute flags to statx")
+Signed-off-by: Luis R. Rodriguez <mcgrof@kernel.org>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+[darrick: add a comment reminding people to keep attributes_mask up to date]
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Suggested-by: Amir Goldstein <amir73il@gmail.com>
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 ---
- fs/xfs/xfs_fsops.c | 1 +
- fs/xfs/xfs_super.c | 7 +++++++
- 2 files changed, 8 insertions(+)
+ fs/xfs/xfs_iops.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/xfs/xfs_fsops.c b/fs/xfs/xfs_fsops.c
-index 7c00b8bedfe3..09fd602507ef 100644
---- a/fs/xfs/xfs_fsops.c
-+++ b/fs/xfs/xfs_fsops.c
-@@ -534,6 +534,7 @@ xfs_fs_reserve_ag_blocks(
- 	int			error = 0;
- 	int			err2;
+diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
+index 1efef69a7f1c..74047bd0c1ae 100644
+--- a/fs/xfs/xfs_iops.c
++++ b/fs/xfs/xfs_iops.c
+@@ -531,6 +531,10 @@ xfs_vn_getattr(
+ 		}
+ 	}
  
-+	mp->m_finobt_nores = false;
- 	for (agno = 0; agno < mp->m_sb.sb_agcount; agno++) {
- 		pag = xfs_perag_get(mp, agno);
- 		err2 = xfs_ag_resv_init(pag, NULL);
-diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
-index 207ee302b1bb..dce8114e3198 100644
---- a/fs/xfs/xfs_super.c
-+++ b/fs/xfs/xfs_super.c
-@@ -1561,6 +1561,13 @@ xfs_mount_alloc(
- 	INIT_DELAYED_WORK(&mp->m_eofblocks_work, xfs_eofblocks_worker);
- 	INIT_DELAYED_WORK(&mp->m_cowblocks_work, xfs_cowblocks_worker);
- 	mp->m_kobj.kobject.kset = xfs_kset;
 +	/*
-+	 * We don't create the finobt per-ag space reservation until after log
-+	 * recovery, so we must set this to true so that an ifree transaction
-+	 * started during log recovery will not depend on space reservations
-+	 * for finobt expansion.
++	 * Note: If you add another clause to set an attribute flag, please
++	 * update attributes_mask below.
 +	 */
-+	mp->m_finobt_nores = true;
- 	return mp;
- }
+ 	if (ip->i_d.di_flags & XFS_DIFLAG_IMMUTABLE)
+ 		stat->attributes |= STATX_ATTR_IMMUTABLE;
+ 	if (ip->i_d.di_flags & XFS_DIFLAG_APPEND)
+@@ -538,6 +542,10 @@ xfs_vn_getattr(
+ 	if (ip->i_d.di_flags & XFS_DIFLAG_NODUMP)
+ 		stat->attributes |= STATX_ATTR_NODUMP;
  
++	stat->attributes_mask |= (STATX_ATTR_IMMUTABLE |
++				  STATX_ATTR_APPEND |
++				  STATX_ATTR_NODUMP);
++
+ 	switch (inode->i_mode & S_IFMT) {
+ 	case S_IFBLK:
+ 	case S_IFCHR:
 -- 
 2.20.1
 
