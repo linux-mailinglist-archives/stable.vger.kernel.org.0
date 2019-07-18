@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF34A6C618
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:13:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8550D6C5EF
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:12:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391581AbfGRDNG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:13:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47966 "EHLO mail.kernel.org"
+        id S2390303AbfGRDLS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:11:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391574AbfGRDNF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:13:05 -0400
+        id S2389655AbfGRDLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:11:17 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 713222053B;
-        Thu, 18 Jul 2019 03:13:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC2512053B;
+        Thu, 18 Jul 2019 03:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419583;
-        bh=M7Zv/hXgbNZ6b29ppMzhEGpUIWbOcuOeN09VB5Nio68=;
+        s=default; t=1563419476;
+        bh=GHt8LwMbS7G867sthSZrkRERqZKFD1mhXFEBXgBAL2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUwy/TIREscNKAfh9U6egeyRAduSnqbn+QuNPVlMT9/wUsn5X7yJhChbseY0rpnFP
-         RD2Yd/AL62Fm5FHKc1HHm1LEnndRhggAseHc67JHtmHOvBqa6bZTvRqwjYDrCGaj1c
-         lexaaYS1+B7Yc4KFnCl1meW9J+f8PJhR1KfZC8Cs=
+        b=UY0XwdRgZ/Lk0PiTN+xvaCO6T0Ggw6nUdZRr5aIu31NUvkNTKgkalpY879vipbPy/
+         XU2lnFB3RbyhijLgphiLJfefcGj85QNPv2XKqoPSMm6h2HE4uiePol+LyGeZq827Ec
+         P+uror5DU+XTh3MM8q21w+tETxRWJPPyOMT0vdps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 18/54] md: fix for divide error in status_resync
-Date:   Thu, 18 Jul 2019 12:01:48 +0900
-Message-Id: <20190718030050.726875165@linuxfoundation.org>
+        syzbot+182ce46596c3f2e1eb24@syzkaller.appspotmail.com,
+        Todd Kjos <tkjos@google.com>
+Subject: [PATCH 4.14 58/80] binder: fix memory leak in error path
+Date:   Thu, 18 Jul 2019 12:01:49 +0900
+Message-Id: <20190718030103.019747614@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
-References: <20190718030048.392549994@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,91 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9642fa73d073527b0cbc337cc17a47d545d82cd2 ]
+From: Todd Kjos <tkjos@android.com>
 
-Stopping external metadata arrays during resync/recovery causes
-retries, loop of interrupting and starting reconstruction, until it
-hit at good moment to stop completely. While these retries
-curr_mark_cnt can be small- especially on HDD drives, so subtraction
-result can be smaller than 0. However it is casted to uint without
-checking. As a result of it the status bar in /proc/mdstat while stopping
-is strange (it jumps between 0% and 99%).
+commit 1909a671dbc3606685b1daf8b22a16f65ea7edda upstream.
 
-The real problem occurs here after commit 72deb455b5ec ("block: remove
-CONFIG_LBDAF"). Sector_div() macro has been changed, now the
-divisor is casted to uint32. For db = -8 the divisior(db/32-1) becomes 0.
+syzkallar found a 32-byte memory leak in a rarely executed error
+case. The transaction complete work item was not freed if put_user()
+failed when writing the BR_TRANSACTION_COMPLETE to the user command
+buffer. Fixed by freeing it before put_user() is called.
 
-Check if db value can be really counted and replace these macro by
-div64_u64() inline.
+Reported-by: syzbot+182ce46596c3f2e1eb24@syzkaller.appspotmail.com
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 36 ++++++++++++++++++++++--------------
- 1 file changed, 22 insertions(+), 14 deletions(-)
+ drivers/android/binder.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 21698eb671d7..765a16dab2e5 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -7296,9 +7296,9 @@ static void status_unused(struct seq_file *seq)
- static int status_resync(struct seq_file *seq, struct mddev *mddev)
- {
- 	sector_t max_sectors, resync, res;
--	unsigned long dt, db;
--	sector_t rt;
--	int scale;
-+	unsigned long dt, db = 0;
-+	sector_t rt, curr_mark_cnt, resync_mark_cnt;
-+	int scale, recovery_active;
- 	unsigned int per_milli;
- 
- 	if (test_bit(MD_RECOVERY_SYNC, &mddev->recovery) ||
-@@ -7368,22 +7368,30 @@ static int status_resync(struct seq_file *seq, struct mddev *mddev)
- 	 * db: blocks written from mark until now
- 	 * rt: remaining time
- 	 *
--	 * rt is a sector_t, so could be 32bit or 64bit.
--	 * So we divide before multiply in case it is 32bit and close
--	 * to the limit.
--	 * We scale the divisor (db) by 32 to avoid losing precision
--	 * near the end of resync when the number of remaining sectors
--	 * is close to 'db'.
--	 * We then divide rt by 32 after multiplying by db to compensate.
--	 * The '+1' avoids division by zero if db is very small.
-+	 * rt is a sector_t, which is always 64bit now. We are keeping
-+	 * the original algorithm, but it is not really necessary.
-+	 *
-+	 * Original algorithm:
-+	 *   So we divide before multiply in case it is 32bit and close
-+	 *   to the limit.
-+	 *   We scale the divisor (db) by 32 to avoid losing precision
-+	 *   near the end of resync when the number of remaining sectors
-+	 *   is close to 'db'.
-+	 *   We then divide rt by 32 after multiplying by db to compensate.
-+	 *   The '+1' avoids division by zero if db is very small.
- 	 */
- 	dt = ((jiffies - mddev->resync_mark) / HZ);
- 	if (!dt) dt++;
--	db = (mddev->curr_mark_cnt - atomic_read(&mddev->recovery_active))
--		- mddev->resync_mark_cnt;
-+
-+	curr_mark_cnt = mddev->curr_mark_cnt;
-+	recovery_active = atomic_read(&mddev->recovery_active);
-+	resync_mark_cnt = mddev->resync_mark_cnt;
-+
-+	if (curr_mark_cnt >= (recovery_active + resync_mark_cnt))
-+		db = curr_mark_cnt - (recovery_active + resync_mark_cnt);
- 
- 	rt = max_sectors - resync;    /* number of remaining sectors */
--	sector_div(rt, db/32+1);
-+	rt = div64_u64(rt, db/32+1);
- 	rt *= dt;
- 	rt >>= 5;
- 
--- 
-2.20.1
-
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -3876,6 +3876,8 @@ retry:
+ 		case BINDER_WORK_TRANSACTION_COMPLETE: {
+ 			binder_inner_proc_unlock(proc);
+ 			cmd = BR_TRANSACTION_COMPLETE;
++			kfree(w);
++			binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
+ 			if (put_user(cmd, (uint32_t __user *)ptr))
+ 				return -EFAULT;
+ 			ptr += sizeof(uint32_t);
+@@ -3884,8 +3886,6 @@ retry:
+ 			binder_debug(BINDER_DEBUG_TRANSACTION_COMPLETE,
+ 				     "%d:%d BR_TRANSACTION_COMPLETE\n",
+ 				     proc->pid, thread->pid);
+-			kfree(w);
+-			binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
+ 		} break;
+ 		case BINDER_WORK_NODE: {
+ 			struct binder_node *node = container_of(w, struct binder_node, work);
 
 
