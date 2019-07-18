@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 478046C6F7
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:21:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D644B6C786
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391162AbfGRDUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:20:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43764 "EHLO mail.kernel.org"
+        id S2389870AbfGRDFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:05:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391184AbfGRDK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:10:28 -0400
+        id S2389853AbfGRDFG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:05:06 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD7DF2077C;
-        Thu, 18 Jul 2019 03:10:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B17352173B;
+        Thu, 18 Jul 2019 03:05:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419428;
-        bh=7iIIemDj4Mzp24Mb71qnqvDeRaw94JV+H4HYHLJoZfo=;
+        s=default; t=1563419105;
+        bh=SZLtCnvDrzAG+3SlFn47Lfe9Tc9P9rbtJ9EMIqcWHuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hFUnhfjs730+57dbhAfURtQPdzJJfX8j+lT2s/Suuow1CFCzgztGl1cwu+AKl98P
-         Hr5MRbgl4tcQiI2D/WxKuUCQM1Ml0uGcB2E/9TLVzBIZ1M/k6PjNvuEwFpE6whf67E
-         YLg0zZn/l9jAN7yZArRPEzSrjrTmevfXQs73YG1k=
+        b=UCuQ/bb5ovyAfRxTDz3V5AZVN1UIlNhbH8uK18l0/hlFSGVop3+85xr1ZwWvxGKDX
+         iIjJPl1VaQSaTd6HChMa0eJetbVDEVT9SSlO9aqbyIud1R0LN9faZomam+945pdXn1
+         HQcBXGOSj94XzMpb6u7bZlzmNYXegUZi2ZQG4Vfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Alexander Potapenko <glider@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 35/80] ip6_tunnel: allow not to count pkts on tstats by passing dev as NULL
+Subject: [PATCH 5.1 31/54] x86/boot/64: Add missing fixup_pointer() for next_early_pgt access
 Date:   Thu, 18 Jul 2019 12:01:26 +0900
-Message-Id: <20190718030101.347330862@linuxfoundation.org>
+Message-Id: <20190718030055.748720665@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
+References: <20190718030053.287374640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +51,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6f6a8622057c92408930c31698394fae1557b188 ]
+[ Upstream commit c1887159eb48ba40e775584cfb2a443962cf1a05 ]
 
-A similar fix to Patch "ip_tunnel: allow not to count pkts on tstats by
-setting skb's dev to NULL" is also needed by ip6_tunnel.
+__startup_64() uses fixup_pointer() to access global variables in a
+position-independent fashion. Access to next_early_pgt was wrapped into the
+helper, but one instance in the 5-level paging branch was missed.
 
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+GCC generates a R_X86_64_PC32 PC-relative relocation for the access which
+doesn't trigger the issue, but Clang emmits a R_X86_64_32S which leads to
+an invalid memory access and system reboot.
+
+Fixes: 187e91fe5e91 ("x86/boot/64/clang: Use fixup_pointer() to access 'next_early_pgt'")
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Alexander Potapenko <glider@google.com>
+Link: https://lkml.kernel.org/r/20190620112422.29264-1-kirill.shutemov@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip6_tunnel.h | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/kernel/head64.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/ip6_tunnel.h b/include/net/ip6_tunnel.h
-index d66f70f63734..3b0e3cdee1c3 100644
---- a/include/net/ip6_tunnel.h
-+++ b/include/net/ip6_tunnel.h
-@@ -152,9 +152,12 @@ static inline void ip6tunnel_xmit(struct sock *sk, struct sk_buff *skb,
- 	memset(skb->cb, 0, sizeof(struct inet6_skb_parm));
- 	pkt_len = skb->len - skb_inner_network_offset(skb);
- 	err = ip6_local_out(dev_net(skb_dst(skb)->dev), sk, skb);
--	if (unlikely(net_xmit_eval(err)))
--		pkt_len = -1;
--	iptunnel_xmit_stats(dev, pkt_len);
-+
-+	if (dev) {
-+		if (unlikely(net_xmit_eval(err)))
-+			pkt_len = -1;
-+		iptunnel_xmit_stats(dev, pkt_len);
-+	}
- }
- #endif
- #endif
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 7df5bce4e1be..29ffa495bd1c 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -184,7 +184,8 @@ unsigned long __head __startup_64(unsigned long physaddr,
+ 	pgtable_flags = _KERNPG_TABLE_NOENC + sme_get_me_mask();
+ 
+ 	if (la57) {
+-		p4d = fixup_pointer(early_dynamic_pgts[next_early_pgt++], physaddr);
++		p4d = fixup_pointer(early_dynamic_pgts[(*next_pgt_ptr)++],
++				    physaddr);
+ 
+ 		i = (physaddr >> PGDIR_SHIFT) % PTRS_PER_PGD;
+ 		pgd[i + 0] = (pgdval_t)p4d + pgtable_flags;
 -- 
 2.20.1
 
