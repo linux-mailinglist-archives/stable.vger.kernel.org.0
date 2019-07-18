@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 273B26C73E
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:24:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F73E6C719
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389379AbfGRDGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37892 "EHLO mail.kernel.org"
+        id S2391044AbfGRDJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:09:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389587AbfGRDGg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:06:36 -0400
+        id S2390234AbfGRDJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:09:45 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2D37204EC;
-        Thu, 18 Jul 2019 03:06:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 541CB20818;
+        Thu, 18 Jul 2019 03:09:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419196;
-        bh=1M5uP+m8cuTDZeta1c/3TZC1egzglcR2qlnV2iaMkKY=;
+        s=default; t=1563419384;
+        bh=2Hxu/V8LfkwWvMmI0ieY4x/cIRTq9M+bX74wM+DDgWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XvDPrLWqAFav6ariOrL9tC46yEd5kRjzsKorIALaSkBJWA6WljZvxr8G7WCA/JQd9
-         vXMKRQlC9X5dh0qSVA//PWhpOmO6OhDBNzpGKFsi7PcIwTW69BCqZV31FVdjHacdS+
-         LkCCQaWIis11mGIQ6srR0nkg2UedMGgIIfi7L8Y0=
+        b=GXMrKgNSWAl+A4Wzmj1TlRYi/o9HPRUwhPfn08WWpAfdmmpSfQ2luEHYKH8qU7WzN
+         DKqbnZEWZbI9DugBMVe6qGf5fO3i0fipSlQyPH8qJzOLnzZHWCcd+kTgfYVmlLmX5t
+         hzH0xRkiE5BsMkFUAx0BV74fEdRFvWgsNkVKrJIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cole Rogers <colerogers@disroot.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 03/47] Input: synaptics - enable SMBUS on T480 thinkpad trackpad
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sekhar Nori <nsekhar@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 26/80] ARM: davinci: da850-evm: call regulator_has_full_constraints()
 Date:   Thu, 18 Jul 2019 12:01:17 +0900
-Message-Id: <20190718030047.215069355@linuxfoundation.org>
+Message-Id: <20190718030100.783781179@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
-References: <20190718030045.780672747@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cole Rogers <colerogers@disroot.org>
+[ Upstream commit 0c0c9b5753cd04601b17de09da1ed2885a3b42fe ]
 
-commit abbe3acd7d72ab4633ade6bd24e8306b67e0add3 upstream.
+The BB expander at 0x21 i2c bus 1 fails to probe on da850-evm because
+the board doesn't set has_full_constraints to true in the regulator
+API.
 
-Thinkpad t480 laptops had some touchpad features disabled, resulting in the
-loss of pinch to activities in GNOME, on wayland, and other touch gestures
-being slower. This patch adds the touchpad of the t480 to the smbus_pnp_ids
-whitelist to enable the extra features. In my testing this does not break
-suspend (on fedora, with wayland, and GNOME, using the rc-6 kernel), while
-also fixing the feature on a T480.
+Call regulator_has_full_constraints() at the end of board registration
+just like we do in da850-lcdk and da830-evm.
 
-Signed-off-by: Cole Rogers <colerogers@disroot.org>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Sekhar Nori <nsekhar@ti.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/synaptics.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-davinci/board-da850-evm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -176,6 +176,7 @@ static const char * const smbus_pnp_ids[
- 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
- 	"LEN0073", /* X1 Carbon G5 (Elantech) */
- 	"LEN0092", /* X1 Carbon 6 */
-+	"LEN0093", /* T480 */
- 	"LEN0096", /* X280 */
- 	"LEN0097", /* X280 -> ALPS trackpoint */
- 	"LEN200f", /* T450s */
+diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
+index 2f6ac1afa804..686e7e6f2eb3 100644
+--- a/arch/arm/mach-davinci/board-da850-evm.c
++++ b/arch/arm/mach-davinci/board-da850-evm.c
+@@ -1464,6 +1464,8 @@ static __init void da850_evm_init(void)
+ 	if (ret)
+ 		pr_warn("%s: dsp/rproc registration failed: %d\n",
+ 			__func__, ret);
++
++	regulator_has_full_constraints();
+ }
+ 
+ #ifdef CONFIG_SERIAL_8250_CONSOLE
+-- 
+2.20.1
+
 
 
