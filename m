@@ -2,108 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE8AC6D6FF
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 00:57:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78E8F6D700
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 00:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391651AbfGRW5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 18:57:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45836 "EHLO mail.kernel.org"
+        id S2391743AbfGRW6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 18:58:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391318AbfGRW5c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 18:57:32 -0400
+        id S1728025AbfGRW6j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 18:58:39 -0400
 Received: from akpm3.svl.corp.google.com (unknown [104.133.8.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52BBE20873;
-        Thu, 18 Jul 2019 22:57:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AD33204EC;
+        Thu, 18 Jul 2019 22:58:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563490651;
-        bh=8h7mtRjZ0ObIDmy2Jd3Ri0NgWXmUhdbeXrGIpUUG23k=;
+        s=default; t=1563490717;
+        bh=XZaZB/xjYskIPAYfOLQyVkX71tURz4pFuZvN63IpMTM=;
         h=Date:From:To:Subject:From;
-        b=scogVnTTecj10msQvue869xoBKtUoJv2vH0YUg9nUFyfX4hHgPAwLW2uuRn9X0lLE
-         QaQigs+sFz5IDleS3Apl4Q4INAMHSgLD2pFvat9wmlYQ1SQ97PVCzPNztaI8lGUu2d
-         ifrDdt4nlSEuiudw04eygg5NMN09+HL/qHns2gjY=
-Date:   Thu, 18 Jul 2019 15:57:31 -0700
+        b=hPLPl7w6eH6U0bA/D8Agegsb1e5VggQVdzUYJUVkbObvHpSzq98i38ovF5h0bL7pY
+         SEaJnrz8cKwMWv0wsxE7qgRUMI7hUt55EFMMoWTJwQKmGCgt4HIZoB5qYE2ELR1i9i
+         RlJL5Wym4WPzRfRTN8zqVwsi/3vmQ7MQm+C/M9YI=
+Date:   Thu, 18 Jul 2019 15:58:36 -0700
 From:   akpm@linux-foundation.org
-To:     toshi.kani@hpe.com, stable@vger.kernel.org, peterz@infradead.org,
-        mingo@kernel.org, dave.hansen@linux.intel.com,
-        dan.j.williams@intel.com, bp@suse.de, bhelgaas@google.com,
-        namit@vmware.com, akpm@linux-foundation.org,
+To:     vbabka@suse.cz, toshi.kani@hpe.com, stable@vger.kernel.org,
+        rppt@linux.ibm.com, richardw.yang@linux.intel.com,
+        pasha.tatashin@soleen.com, osalvador@suse.de, mhocko@suse.com,
+        logang@deltatee.com, jmoyer@redhat.com, jglisse@redhat.com,
+        jgg@mellanox.com, jane.chu@oracle.com, hch@lst.de,
+        david@redhat.com, corbet@lwn.net, aneesh.kumar@linux.ibm.com,
+        dan.j.williams@intel.com, akpm@linux-foundation.org,
         mm-commits@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 15/38] resource: fix locking in
- find_next_iomem_res()
-Message-ID: <20190718225731.F69TL%akpm@linux-foundation.org>
+Subject:  [patch 34/38] libnvdimm/pfn: fix fsdax-mode namespace
+ info-block zero-fields
+Message-ID: <20190718225836.vxU6D%akpm@linux-foundation.org>
 User-Agent: s-nail v14.9.10
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
-Subject: resource: fix locking in find_next_iomem_res()
+From: Dan Williams <dan.j.williams@intel.com>
+Subject: libnvdimm/pfn: fix fsdax-mode namespace info-block zero-fields
 
-Since resources can be removed, locking should ensure that the resource is
-not removed while accessing it.  However, find_next_iomem_res() does not
-hold the lock while copying the data of the resource.
+At namespace creation time there is the potential for the "expected to be
+zero" fields of a 'pfn' info-block to be filled with indeterminate data.=20
+While the kernel buffer is zeroed on allocation it is immediately
+overwritten by nd_pfn_validate() filling it with the current contents of
+the on-media info-block location.  For fields like, 'flags' and the
+'padding' it potentially means that future implementations can not rely on
+those fields being zero.
 
-Keep holding the lock while the data is copied.  While at it, change the
-return value to a more informative value.  It is disregarded by the
-callers.
+In preparation to stop using the 'start_pad' and 'end_trunc' fields for
+section alignment, arrange for fields that are not explicitly initialized
+to be guaranteed zero.  Bump the minor version to indicate it is safe to
+assume the 'padding' and 'flags' are zero.  Otherwise, this corruption is
+expected to benign since all other critical fields are explicitly
+initialized.
 
-[akpm@linux-foundation.org: fix find_next_iomem_res() documentation]
-Link: http://lkml.kernel.org/r/20190613045903.4922-2-namit@vmware.com
-Fixes: ff3cc952d3f00 ("resource: Add remove_resource interface")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
+Note The cc: stable is about spreading this new policy to as many kernels
+as possible not fixing an issue in those kernels.  It is not until the
+change titled "libnvdimm/pfn: Stop padding pmem namespaces to section
+alignment" where this improper initialization becomes a problem.  So if
+someone decides to backport "libnvdimm/pfn: Stop padding pmem namespaces
+to section alignment" (which is not tagged for stable), make sure this
+pre-requisite is flagged.
+
+Link: http://lkml.kernel.org/r/156092356065.979959.6681003754765958296.stgi=
+t@dwillia2-desk3.amr.corp.intel.com
+Fixes: 32ab0a3f5170 ("libnvdimm, pmem: 'struct page' for pmem")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Tested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>	[ppc64]
 Cc: <stable@vger.kernel.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Jane Chu <jane.chu@oracle.com>
+Cc: Jeff Moyer <jmoyer@redhat.com>
+Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Toshi Kani <toshi.kani@hpe.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- kernel/resource.c |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/nvdimm/dax_devs.c |    2 +-
+ drivers/nvdimm/pfn.h      |    1 +
+ drivers/nvdimm/pfn_devs.c |   18 +++++++++++++++---
+ 3 files changed, 17 insertions(+), 4 deletions(-)
 
---- a/kernel/resource.c~resource-fix-locking-in-find_next_iomem_res
-+++ a/kernel/resource.c
-@@ -326,7 +326,7 @@ EXPORT_SYMBOL(release_resource);
-  *
-  * If a resource is found, returns 0 and @*res is overwritten with the part
-  * of the resource that's within [@start..@end]; if none is found, returns
-- * -1 or -EINVAL for other invalid parameters.
-+ * -ENODEV.  Returns -EINVAL for invalid parameters.
-  *
-  * This function walks the whole tree and not just first level children
-  * unless @first_lvl is true.
-@@ -365,16 +365,16 @@ static int find_next_iomem_res(resource_
- 			break;
- 	}
- 
--	read_unlock(&resource_lock);
--	if (!p)
--		return -1;
-+	if (p) {
-+		/* copy data */
-+		res->start = max(start, p->start);
-+		res->end = min(end, p->end);
-+		res->flags = p->flags;
-+		res->desc = p->desc;
-+	}
- 
--	/* copy data */
--	res->start = max(start, p->start);
--	res->end = min(end, p->end);
--	res->flags = p->flags;
--	res->desc = p->desc;
--	return 0;
-+	read_unlock(&resource_lock);
-+	return p ? 0 : -ENODEV;
+--- a/drivers/nvdimm/dax_devs.c~libnvdimm-pfn-fix-fsdax-mode-namespace-info=
+-block-zero-fields
++++ a/drivers/nvdimm/dax_devs.c
+@@ -118,7 +118,7 @@ int nd_dax_probe(struct device *dev, str
+ 	nvdimm_bus_unlock(&ndns->dev);
+ 	if (!dax_dev)
+ 		return -ENOMEM;
+-	pfn_sb =3D devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb =3D devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	nd_pfn->pfn_sb =3D pfn_sb;
+ 	rc =3D nd_pfn_validate(nd_pfn, DAX_SIG);
+ 	dev_dbg(dev, "dax: %s\n", rc =3D=3D 0 ? dev_name(dax_dev) : "<none>");
+--- a/drivers/nvdimm/pfn_devs.c~libnvdimm-pfn-fix-fsdax-mode-namespace-info=
+-block-zero-fields
++++ a/drivers/nvdimm/pfn_devs.c
+@@ -412,6 +412,15 @@ static int nd_pfn_clear_memmap_errors(st
+ 	return 0;
  }
- 
- static int __walk_iomem_res_desc(resource_size_t start, resource_size_t end,
+=20
++/**
++ * nd_pfn_validate - read and validate info-block
++ * @nd_pfn: fsdax namespace runtime state / properties
++ * @sig: 'devdax' or 'fsdax' signature
++ *
++ * Upon return the info-block buffer contents (->pfn_sb) are
++ * indeterminate when validation fails, and a coherent info-block
++ * otherwise.
++ */
+ int nd_pfn_validate(struct nd_pfn *nd_pfn, const char *sig)
+ {
+ 	u64 checksum, offset;
+@@ -557,7 +566,7 @@ int nd_pfn_probe(struct device *dev, str
+ 	nvdimm_bus_unlock(&ndns->dev);
+ 	if (!pfn_dev)
+ 		return -ENOMEM;
+-	pfn_sb =3D devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb =3D devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	nd_pfn =3D to_nd_pfn(pfn_dev);
+ 	nd_pfn->pfn_sb =3D pfn_sb;
+ 	rc =3D nd_pfn_validate(nd_pfn, PFN_SIG);
+@@ -693,7 +702,7 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 	u64 checksum;
+ 	int rc;
+=20
+-	pfn_sb =3D devm_kzalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
++	pfn_sb =3D devm_kmalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
+ 	if (!pfn_sb)
+ 		return -ENOMEM;
+=20
+@@ -702,11 +711,14 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 		sig =3D DAX_SIG;
+ 	else
+ 		sig =3D PFN_SIG;
++
+ 	rc =3D nd_pfn_validate(nd_pfn, sig);
+ 	if (rc !=3D -ENODEV)
+ 		return rc;
+=20
+ 	/* no info block, do init */;
++	memset(pfn_sb, 0, sizeof(*pfn_sb));
++
+ 	nd_region =3D to_nd_region(nd_pfn->dev.parent);
+ 	if (nd_region->ro) {
+ 		dev_info(&nd_pfn->dev,
+@@ -759,7 +771,7 @@ static int nd_pfn_init(struct nd_pfn *nd
+ 	memcpy(pfn_sb->uuid, nd_pfn->uuid, 16);
+ 	memcpy(pfn_sb->parent_uuid, nd_dev_to_uuid(&ndns->dev), 16);
+ 	pfn_sb->version_major =3D cpu_to_le16(1);
+-	pfn_sb->version_minor =3D cpu_to_le16(2);
++	pfn_sb->version_minor =3D cpu_to_le16(3);
+ 	pfn_sb->start_pad =3D cpu_to_le32(start_pad);
+ 	pfn_sb->end_trunc =3D cpu_to_le32(end_trunc);
+ 	pfn_sb->align =3D cpu_to_le32(nd_pfn->align);
+--- a/drivers/nvdimm/pfn.h~libnvdimm-pfn-fix-fsdax-mode-namespace-info-bloc=
+k-zero-fields
++++ a/drivers/nvdimm/pfn.h
+@@ -28,6 +28,7 @@ struct nd_pfn_sb {
+ 	__le32 end_trunc;
+ 	/* minor-version-2 record the base alignment of the mapping */
+ 	__le32 align;
++	/* minor-version-3 guarantee the padding and flags are zero */
+ 	u8 padding[4000];
+ 	__le64 checksum;
+ };
 _
