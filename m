@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 110736C718
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C86216C795
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403807AbfGRDJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:09:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42366 "EHLO mail.kernel.org"
+        id S2390077AbfGRDFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:05:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391027AbfGRDJk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:09:40 -0400
+        id S2390076AbfGRDFv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:05:51 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3FDF205F4;
-        Thu, 18 Jul 2019 03:09:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E97A204EC;
+        Thu, 18 Jul 2019 03:05:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419379;
-        bh=yJogoXBpcjBa6AO5CZZqhpVywHbgffy+wvzCLukLJwM=;
+        s=default; t=1563419150;
+        bh=ll71j7Z6eqb6ZtBhw+Rmj5cmjVRWfbFb2Cv8/1M6umE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fW2VIp0StpdwnpHLDIi6BRHBM+NU1F5CuKb6CVe2VbH6HGzUzTWNEcuhfuDhre+xd
-         krLBuuoz69IvYaeepJgoOR+kWN0mkPjaWdMHM+5vIv5HeqObdGIRR9Ubn4E+OSeh7J
-         RK1BYhpP5wehfQ/nzN25tqKANTMRicmvSEgaFwW4=
+        b=JHa9+uWhWCWI37ZVO+FYLDdp6uNGD9GC6iE9pQXPskQKiKRkyiSrwARmHsyEqtOd0
+         VXjfXz76e6B8/kryTQzndRX3C3E53rNDsGREslc7FqsUFIYUjoh+K3Hd0K1kcf3Gew
+         gQTLadjWfIE1VKk3jpFC2dZfdcubsFX39yF649Xk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "H . Peter Anvin" <hpa@zytor.com>, kernel-janitors@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 23/80] Input: imx_keypad - make sure keyboard can always wake up system
-Date:   Thu, 18 Jul 2019 12:01:14 +0900
-Message-Id: <20190718030100.602321612@linuxfoundation.org>
+Subject: [PATCH 5.1 20/54] x86/apic: Fix integer overflow on 10 bit left shift of cpu_khz
+Date:   Thu, 18 Jul 2019 12:01:15 +0900
+Message-Id: <20190718030054.951661808@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
+References: <20190718030053.287374640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ce9a53eb3dbca89e7ad86673d94ab886e9bea704 ]
+[ Upstream commit ea136a112d89bade596314a1ae49f748902f4727 ]
 
-There are several scenarios that keyboard can NOT wake up system
-from suspend, e.g., if a keyboard is depressed between system
-device suspend phase and device noirq suspend phase, the keyboard
-ISR will be called and both keyboard depress and release interrupts
-will be disabled, then keyboard will no longer be able to wake up
-system. Another scenario would be, if a keyboard is kept depressed,
-and then system goes into suspend, the expected behavior would be
-when keyboard is released, system will be waked up, but current
-implementation can NOT achieve that, because both depress and release
-interrupts are disabled in ISR, and the event check is still in
-progress.
+The left shift of unsigned int cpu_khz will overflow for large values of
+cpu_khz, so cast it to a long long before shifting it to avoid overvlow.
+For example, this can happen when cpu_khz is 4194305, i.e. ~4.2 GHz.
 
-To fix these issues, need to make sure keyboard's depress or release
-interrupt is enabled after noirq device suspend phase, this patch
-moves the suspend/resume callback to noirq suspend/resume phase, and
-enable the corresponding interrupt according to current keyboard status.
-
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Addresses-Coverity: ("Unintentional integer overflow")
+Fixes: 8c3ba8d04924 ("x86, apic: ack all pending irqs when crashed/on kexec")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H . Peter Anvin" <hpa@zytor.com>
+Cc: kernel-janitors@vger.kernel.org
+Link: https://lkml.kernel.org/r/20190619181446.13635-1-colin.king@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/imx_keypad.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ arch/x86/kernel/apic/apic.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index 2165f3dd328b..842c0235471d 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -530,11 +530,12 @@ static int imx_keypad_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int __maybe_unused imx_kbd_suspend(struct device *dev)
-+static int __maybe_unused imx_kbd_noirq_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
- 	struct input_dev *input_dev = kbd->input_dev;
-+	unsigned short reg_val = readw(kbd->mmio_base + KPSR);
- 
- 	/* imx kbd can wake up system even clock is disabled */
- 	mutex_lock(&input_dev->mutex);
-@@ -544,13 +545,20 @@ static int __maybe_unused imx_kbd_suspend(struct device *dev)
- 
- 	mutex_unlock(&input_dev->mutex);
- 
--	if (device_may_wakeup(&pdev->dev))
-+	if (device_may_wakeup(&pdev->dev)) {
-+		if (reg_val & KBD_STAT_KPKD)
-+			reg_val |= KBD_STAT_KRIE;
-+		if (reg_val & KBD_STAT_KPKR)
-+			reg_val |= KBD_STAT_KDIE;
-+		writew(reg_val, kbd->mmio_base + KPSR);
-+
- 		enable_irq_wake(kbd->irq);
-+	}
- 
- 	return 0;
- }
- 
--static int __maybe_unused imx_kbd_resume(struct device *dev)
-+static int __maybe_unused imx_kbd_noirq_resume(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct imx_keypad *kbd = platform_get_drvdata(pdev);
-@@ -574,7 +582,9 @@ static int __maybe_unused imx_kbd_resume(struct device *dev)
- 	return ret;
- }
- 
--static SIMPLE_DEV_PM_OPS(imx_kbd_pm_ops, imx_kbd_suspend, imx_kbd_resume);
-+static const struct dev_pm_ops imx_kbd_pm_ops = {
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(imx_kbd_noirq_suspend, imx_kbd_noirq_resume)
-+};
- 
- static struct platform_driver imx_keypad_driver = {
- 	.driver		= {
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index b7bcdd781651..ec6225cb94f9 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1458,7 +1458,8 @@ static void apic_pending_intr_clear(void)
+ 		if (queued) {
+ 			if (boot_cpu_has(X86_FEATURE_TSC) && cpu_khz) {
+ 				ntsc = rdtsc();
+-				max_loops = (cpu_khz << 10) - (ntsc - tsc);
++				max_loops = (long long)cpu_khz << 10;
++				max_loops -= ntsc - tsc;
+ 			} else {
+ 				max_loops--;
+ 			}
 -- 
 2.20.1
 
