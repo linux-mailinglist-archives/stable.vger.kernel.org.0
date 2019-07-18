@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CCB26C608
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:12:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7809A6C634
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390979AbfGRDMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:12:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47408 "EHLO mail.kernel.org"
+        id S2391151AbfGRDO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:14:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391508AbfGRDMq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:12:46 -0400
+        id S2391798AbfGRDO1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:14:27 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FD732053B;
-        Thu, 18 Jul 2019 03:12:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A049C2053B;
+        Thu, 18 Jul 2019 03:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419564;
-        bh=rh0MXVpiEG2SFFNmVPGJNl4H6kPo4Q7Jv5PZP0tkUGk=;
+        s=default; t=1563419667;
+        bh=LXZNXpO+sm9HMm26ctgzlsT1YNXqRzzH5b37UpQAV8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKOZyEDUCrRx0jElsHf02Tuhgo5uVJ2tOXp/1Lr12w2/TUQnKbOX2whR+wYfCpUXt
-         jh6jCvmeMUP6wejn0G38JuyptD2q00EcEgDq/BUdPoPFqG4GcNqSfnAHKpNbpvJlAO
-         ZIPG7Mhb+Ubgb6jVkgXoF1p7O6TzPgNrV4K6I23U=
+        b=sPsuN+gg/Be4fHbPNT/HGeTTlFyBBax142cVxpG584frPH1LrmNbsmM03ydvk363w
+         oj/nPMvVjwUl8mf94vTE9sr6Kslg+VWDmR2ScEo4jMQm8TQO13WE7h8FTDh+XKT7Nt
+         zPVF5ZBhVsDzq6NurVF7vmBXDiaBYKVrsxuSEVic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 28/54] mwifiex: Dont abort on small, spec-compliant vendor IEs
-Date:   Thu, 18 Jul 2019 12:01:58 +0900
-Message-Id: <20190718030051.597747984@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Pedersen <thomas@eero.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 03/40] mac80211: mesh: fix RCU warning
+Date:   Thu, 18 Jul 2019 12:01:59 +0900
+Message-Id: <20190718030040.414071487@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
-References: <20190718030048.392549994@linuxfoundation.org>
+In-Reply-To: <20190718030039.676518610@linuxfoundation.org>
+References: <20190718030039.676518610@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,139 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+[ Upstream commit 551842446ed695641a00782cd118cbb064a416a1 ]
 
-commit 63d7ef36103d26f20325a921ecc96a3288560146 upstream.
+ifmsh->csa is an RCU-protected pointer. The writer context
+in ieee80211_mesh_finish_csa() is already mutually
+exclusive with wdev->sdata.mtx, but the RCU checker did
+not know this. Use rcu_dereference_protected() to avoid a
+warning.
 
-Per the 802.11 specification, vendor IEs are (at minimum) only required
-to contain an OUI. A type field is also included in ieee80211.h (struct
-ieee80211_vendor_ie) but doesn't appear in the specification. The
-remaining fields (subtype, version) are a convention used in WMM
-headers.
+fixes the following warning:
 
-Thus, we should not reject vendor-specific IEs that have only the
-minimum length (3 bytes) -- we should skip over them (since we only want
-to match longer IEs, that match either WMM or WPA formats). We can
-reject elements that don't have the minimum-required 3 byte OUI.
+[   12.519089] =============================
+[   12.520042] WARNING: suspicious RCU usage
+[   12.520652] 5.1.0-rc7-wt+ #16 Tainted: G        W
+[   12.521409] -----------------------------
+[   12.521972] net/mac80211/mesh.c:1223 suspicious rcu_dereference_check() usage!
+[   12.522928] other info that might help us debug this:
+[   12.523984] rcu_scheduler_active = 2, debug_locks = 1
+[   12.524855] 5 locks held by kworker/u8:2/152:
+[   12.525438]  #0: 00000000057be08c ((wq_completion)phy0){+.+.}, at: process_one_work+0x1a2/0x620
+[   12.526607]  #1: 0000000059c6b07a ((work_completion)(&sdata->csa_finalize_work)){+.+.}, at: process_one_work+0x1a2/0x620
+[   12.528001]  #2: 00000000f184ba7d (&wdev->mtx){+.+.}, at: ieee80211_csa_finalize_work+0x2f/0x90
+[   12.529116]  #3: 00000000831a1f54 (&local->mtx){+.+.}, at: ieee80211_csa_finalize_work+0x47/0x90
+[   12.530233]  #4: 00000000fd06f988 (&local->chanctx_mtx){+.+.}, at: ieee80211_csa_finalize_work+0x51/0x90
 
-While we're at it, move the non-standard subtype and version fields into
-the WMM structs, to avoid this confusion in the future about generic
-"vendor header" attributes.
-
-Fixes: 685c9b7750bf ("mwifiex: Abort at too short BSS descriptor element")
-Cc: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Thomas Pedersen <thomas@eero.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/fw.h        |   12 +++++++++---
- drivers/net/wireless/marvell/mwifiex/scan.c      |   18 +++++++++++-------
- drivers/net/wireless/marvell/mwifiex/sta_ioctl.c |    4 ++--
- drivers/net/wireless/marvell/mwifiex/wmm.c       |    2 +-
- 4 files changed, 23 insertions(+), 13 deletions(-)
+ net/mac80211/mesh.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/fw.h
-+++ b/drivers/net/wireless/marvell/mwifiex/fw.h
-@@ -1719,9 +1719,10 @@ struct mwifiex_ie_types_wmm_queue_status
- struct ieee_types_vendor_header {
- 	u8 element_id;
- 	u8 len;
--	u8 oui[4];	/* 0~2: oui, 3: oui_type */
--	u8 oui_subtype;
--	u8 version;
-+	struct {
-+		u8 oui[3];
-+		u8 oui_type;
-+	} __packed oui;
- } __packed;
+diff --git a/net/mac80211/mesh.c b/net/mac80211/mesh.c
+index 1cbc7bd26de3..4bd8f3f056d8 100644
+--- a/net/mac80211/mesh.c
++++ b/net/mac80211/mesh.c
+@@ -1138,7 +1138,8 @@ int ieee80211_mesh_finish_csa(struct ieee80211_sub_if_data *sdata)
+ 	ifmsh->chsw_ttl = 0;
  
- struct ieee_types_wmm_parameter {
-@@ -1735,6 +1736,9 @@ struct ieee_types_wmm_parameter {
- 	 *   Version     [1]
- 	 */
- 	struct ieee_types_vendor_header vend_hdr;
-+	u8 oui_subtype;
-+	u8 version;
+ 	/* Remove the CSA and MCSP elements from the beacon */
+-	tmp_csa_settings = rcu_dereference(ifmsh->csa);
++	tmp_csa_settings = rcu_dereference_protected(ifmsh->csa,
++					    lockdep_is_held(&sdata->wdev.mtx));
+ 	RCU_INIT_POINTER(ifmsh->csa, NULL);
+ 	if (tmp_csa_settings)
+ 		kfree_rcu(tmp_csa_settings, rcu_head);
+@@ -1160,6 +1161,8 @@ int ieee80211_mesh_csa_beacon(struct ieee80211_sub_if_data *sdata,
+ 	struct mesh_csa_settings *tmp_csa_settings;
+ 	int ret = 0;
+ 
++	lockdep_assert_held(&sdata->wdev.mtx);
 +
- 	u8 qos_info_bitmap;
- 	u8 reserved;
- 	struct ieee_types_wmm_ac_parameters ac_params[IEEE80211_NUM_ACS];
-@@ -1752,6 +1756,8 @@ struct ieee_types_wmm_info {
- 	 *   Version     [1]
- 	 */
- 	struct ieee_types_vendor_header vend_hdr;
-+	u8 oui_subtype;
-+	u8 version;
- 
- 	u8 qos_info_bitmap;
- } __packed;
---- a/drivers/net/wireless/marvell/mwifiex/scan.c
-+++ b/drivers/net/wireless/marvell/mwifiex/scan.c
-@@ -1349,21 +1349,25 @@ int mwifiex_update_bss_desc_with_ie(stru
- 			break;
- 
- 		case WLAN_EID_VENDOR_SPECIFIC:
--			if (element_len + 2 < sizeof(vendor_ie->vend_hdr))
--				return -EINVAL;
--
- 			vendor_ie = (struct ieee_types_vendor_specific *)
- 					current_ptr;
- 
--			if (!memcmp
--			    (vendor_ie->vend_hdr.oui, wpa_oui,
--			     sizeof(wpa_oui))) {
-+			/* 802.11 requires at least 3-byte OUI. */
-+			if (element_len < sizeof(vendor_ie->vend_hdr.oui.oui))
-+				return -EINVAL;
-+
-+			/* Not long enough for a match? Skip it. */
-+			if (element_len < sizeof(wpa_oui))
-+				break;
-+
-+			if (!memcmp(&vendor_ie->vend_hdr.oui, wpa_oui,
-+				    sizeof(wpa_oui))) {
- 				bss_entry->bcn_wpa_ie =
- 					(struct ieee_types_vendor_specific *)
- 					current_ptr;
- 				bss_entry->wpa_offset = (u16)
- 					(current_ptr - bss_entry->beacon_buf);
--			} else if (!memcmp(vendor_ie->vend_hdr.oui, wmm_oui,
-+			} else if (!memcmp(&vendor_ie->vend_hdr.oui, wmm_oui,
- 				    sizeof(wmm_oui))) {
- 				if (total_ie_len ==
- 				    sizeof(struct ieee_types_wmm_parameter) ||
---- a/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
-@@ -1374,7 +1374,7 @@ mwifiex_set_gen_ie_helper(struct mwifiex
- 			/* Test to see if it is a WPA IE, if not, then it is a
- 			 * gen IE
- 			 */
--			if (!memcmp(pvendor_ie->oui, wpa_oui,
-+			if (!memcmp(&pvendor_ie->oui, wpa_oui,
- 				    sizeof(wpa_oui))) {
- 				find_wpa_ie = 1;
- 				break;
-@@ -1383,7 +1383,7 @@ mwifiex_set_gen_ie_helper(struct mwifiex
- 			/* Test to see if it is a WPS IE, if so, enable
- 			 * wps session flag
- 			 */
--			if (!memcmp(pvendor_ie->oui, wps_oui,
-+			if (!memcmp(&pvendor_ie->oui, wps_oui,
- 				    sizeof(wps_oui))) {
- 				priv->wps.session_enable = true;
- 				mwifiex_dbg(priv->adapter, MSG,
---- a/drivers/net/wireless/marvell/mwifiex/wmm.c
-+++ b/drivers/net/wireless/marvell/mwifiex/wmm.c
-@@ -240,7 +240,7 @@ mwifiex_wmm_setup_queue_priorities(struc
- 	mwifiex_dbg(priv->adapter, INFO,
- 		    "info: WMM Parameter IE: version=%d,\t"
- 		    "qos_info Parameter Set Count=%d, Reserved=%#x\n",
--		    wmm_ie->vend_hdr.version, wmm_ie->qos_info_bitmap &
-+		    wmm_ie->version, wmm_ie->qos_info_bitmap &
- 		    IEEE80211_WMM_IE_AP_QOSINFO_PARAM_SET_CNT_MASK,
- 		    wmm_ie->reserved);
- 
+ 	tmp_csa_settings = kmalloc(sizeof(*tmp_csa_settings),
+ 				   GFP_ATOMIC);
+ 	if (!tmp_csa_settings)
+-- 
+2.20.1
+
 
 
