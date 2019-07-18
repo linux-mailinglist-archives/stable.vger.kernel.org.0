@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E0B36C7B2
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0012A6C726
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389350AbfGRDDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:03:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34194 "EHLO mail.kernel.org"
+        id S2390296AbfGRDV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:21:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389318AbfGRDDa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:03:30 -0400
+        id S2387680AbfGRDJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:09:29 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A680D2173B;
-        Thu, 18 Jul 2019 03:03:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 973452053B;
+        Thu, 18 Jul 2019 03:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419009;
-        bh=o2Kr2eyw/O6JKnMps8ZPt7nNdeWLgNXBUuzb704FtCo=;
+        s=default; t=1563419369;
+        bh=2G9q8qP6fJ4eEklSPm4lYLVjtzDEF3InBG5aajNxFn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1OtsdwORL/rYZ9KUqc+qSVRvlUuhN0SkPTURrgYE1iDgWZTqYlR89PFSSYv2woag
-         ob/m7Ljxhp3sgSIMGHKD11UpX3JhHtmFzuUebAE2STAYRJoquDfZktJ5PqhAvMaEKs
-         ZbKRScS9NGG5Eu7yE7nCsVY2zYBKZGb1CcxudmyE=
+        b=vexa7grTK069RqHAMhTT/T5tFeuP5xt7HjsBHBIJbs+WccS4up2cyKkkwE8S4+mir
+         ygeTpDMDx/9T18k1qpxAdqa+t0MjH8LDcwK7U9baFPcVCDzxElLCXEzSYMOzjXzQlw
+         5nLEKrUopCabXeDV/Tt0Tjtz75FoAn8jNVosLH3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hodaszi <Robert.Hodaszi@digi.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <marc.zyngier@arm.com>
-Subject: [PATCH 5.2 07/21] genirq: Delay deactivation in free_irq()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Sean Paul <seanpaul@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 34/80] drm: return -EFAULT if copy_to_user() fails
 Date:   Thu, 18 Jul 2019 12:01:25 +0900
-Message-Id: <20190718030031.976038290@linuxfoundation.org>
+Message-Id: <20190718030101.285675784@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030030.456918453@linuxfoundation.org>
-References: <20190718030030.456918453@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,149 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+[ Upstream commit 74b67efa8d7b4f90137f0ab9a80dd319da050350 ]
 
-commit 4001d8e8762f57d418b66e4e668601791900a1dd upstream.
+The copy_from_user() function returns the number of bytes remaining
+to be copied but we want to return a negative error code.  Otherwise
+the callers treat it as a successful copy.
 
-When interrupts are shutdown, they are immediately deactivated in the
-irqdomain hierarchy. While this looks obviously correct there is a subtle
-issue:
-
-There might be an interrupt in flight when free_irq() is invoking the
-shutdown. This is properly handled at the irq descriptor / primary handler
-level, but the deactivation might completely disable resources which are
-required to acknowledge the interrupt.
-
-Split the shutdown code and deactivate the interrupt after synchronization
-in free_irq(). Fixup all other usage sites where this is not an issue to
-invoke the combined shutdown_and_deactivate() function instead.
-
-This still might be an issue if the interrupt in flight servicing is
-delayed on a remote CPU beyond the invocation of synchronize_irq(), but
-that cannot be handled at that level and needs to be handled in the
-synchronize_irq() context.
-
-Fixes: f8264e34965a ("irqdomain: Introduce new interfaces to support hierarchy irqdomains")
-Reported-by: Robert Hodaszi <Robert.Hodaszi@digi.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
-Link: https://lkml.kernel.org/r/20190628111440.098196390@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190618131843.GA29463@mwanda
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/autoprobe.c  |    6 +++---
- kernel/irq/chip.c       |    6 ++++++
- kernel/irq/cpuhotplug.c |    2 +-
- kernel/irq/internals.h  |    1 +
- kernel/irq/manage.c     |   12 +++++++++++-
- 5 files changed, 22 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/drm_bufs.c  | 5 ++++-
+ drivers/gpu/drm/drm_ioc32.c | 5 ++++-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
---- a/kernel/irq/autoprobe.c
-+++ b/kernel/irq/autoprobe.c
-@@ -90,7 +90,7 @@ unsigned long probe_irq_on(void)
- 			/* It triggered already - consider it spurious. */
- 			if (!(desc->istate & IRQS_WAITING)) {
- 				desc->istate &= ~IRQS_AUTODETECT;
--				irq_shutdown(desc);
-+				irq_shutdown_and_deactivate(desc);
- 			} else
- 				if (i < 32)
- 					mask |= 1 << i;
-@@ -127,7 +127,7 @@ unsigned int probe_irq_mask(unsigned lon
- 				mask |= 1 << i;
- 
- 			desc->istate &= ~IRQS_AUTODETECT;
--			irq_shutdown(desc);
-+			irq_shutdown_and_deactivate(desc);
- 		}
- 		raw_spin_unlock_irq(&desc->lock);
- 	}
-@@ -169,7 +169,7 @@ int probe_irq_off(unsigned long val)
- 				nr_of_irqs++;
- 			}
- 			desc->istate &= ~IRQS_AUTODETECT;
--			irq_shutdown(desc);
-+			irq_shutdown_and_deactivate(desc);
- 		}
- 		raw_spin_unlock_irq(&desc->lock);
- 	}
---- a/kernel/irq/chip.c
-+++ b/kernel/irq/chip.c
-@@ -314,6 +314,12 @@ void irq_shutdown(struct irq_desc *desc)
- 		}
- 		irq_state_clr_started(desc);
- 	}
-+}
+diff --git a/drivers/gpu/drm/drm_bufs.c b/drivers/gpu/drm/drm_bufs.c
+index 0f05b8d8fefa..b829fde80f7b 100644
+--- a/drivers/gpu/drm/drm_bufs.c
++++ b/drivers/gpu/drm/drm_bufs.c
+@@ -1321,7 +1321,10 @@ static int copy_one_buf(void *data, int count, struct drm_buf_entry *from)
+ 				 .size = from->buf_size,
+ 				 .low_mark = from->low_mark,
+ 				 .high_mark = from->high_mark};
+-	return copy_to_user(to, &v, offsetof(struct drm_buf_desc, flags));
 +
++	if (copy_to_user(to, &v, offsetof(struct drm_buf_desc, flags)))
++		return -EFAULT;
++	return 0;
+ }
+ 
+ int drm_legacy_infobufs(struct drm_device *dev, void *data,
+diff --git a/drivers/gpu/drm/drm_ioc32.c b/drivers/gpu/drm/drm_ioc32.c
+index f8e96e648acf..bfeeb6a56135 100644
+--- a/drivers/gpu/drm/drm_ioc32.c
++++ b/drivers/gpu/drm/drm_ioc32.c
+@@ -372,7 +372,10 @@ static int copy_one_buf32(void *data, int count, struct drm_buf_entry *from)
+ 			      .size = from->buf_size,
+ 			      .low_mark = from->low_mark,
+ 			      .high_mark = from->high_mark};
+-	return copy_to_user(to + count, &v, offsetof(drm_buf_desc32_t, flags));
 +
-+void irq_shutdown_and_deactivate(struct irq_desc *desc)
-+{
-+	irq_shutdown(desc);
- 	/*
- 	 * This must be called even if the interrupt was never started up,
- 	 * because the activation can happen before the interrupt is
---- a/kernel/irq/cpuhotplug.c
-+++ b/kernel/irq/cpuhotplug.c
-@@ -116,7 +116,7 @@ static bool migrate_one_irq(struct irq_d
- 		 */
- 		if (irqd_affinity_is_managed(d)) {
- 			irqd_set_managed_shutdown(d);
--			irq_shutdown(desc);
-+			irq_shutdown_and_deactivate(desc);
- 			return false;
- 		}
- 		affinity = cpu_online_mask;
---- a/kernel/irq/internals.h
-+++ b/kernel/irq/internals.h
-@@ -82,6 +82,7 @@ extern int irq_activate_and_startup(stru
- extern int irq_startup(struct irq_desc *desc, bool resend, bool force);
++	if (copy_to_user(to + count, &v, offsetof(drm_buf_desc32_t, flags)))
++		return -EFAULT;
++	return 0;
+ }
  
- extern void irq_shutdown(struct irq_desc *desc);
-+extern void irq_shutdown_and_deactivate(struct irq_desc *desc);
- extern void irq_enable(struct irq_desc *desc);
- extern void irq_disable(struct irq_desc *desc);
- extern void irq_percpu_enable(struct irq_desc *desc, unsigned int cpu);
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <linux/random.h>
- #include <linux/interrupt.h>
-+#include <linux/irqdomain.h>
- #include <linux/slab.h>
- #include <linux/sched.h>
- #include <linux/sched/rt.h>
-@@ -1699,6 +1700,7 @@ static struct irqaction *__free_irq(stru
- 	/* If this was the last handler, shut down the IRQ line: */
- 	if (!desc->action) {
- 		irq_settings_clr_disable_unlazy(desc);
-+		/* Only shutdown. Deactivate after synchronize_hardirq() */
- 		irq_shutdown(desc);
- 	}
- 
-@@ -1768,6 +1770,14 @@ static struct irqaction *__free_irq(stru
- 		 * require it to deallocate resources over the slow bus.
- 		 */
- 		chip_bus_lock(desc);
-+		/*
-+		 * There is no interrupt on the fly anymore. Deactivate it
-+		 * completely.
-+		 */
-+		raw_spin_lock_irqsave(&desc->lock, flags);
-+		irq_domain_deactivate_irq(&desc->irq_data);
-+		raw_spin_unlock_irqrestore(&desc->lock, flags);
-+
- 		irq_release_resources(desc);
- 		chip_bus_sync_unlock(desc);
- 		irq_remove_timings(desc);
-@@ -1855,7 +1865,7 @@ static const void *__cleanup_nmi(unsigne
- 	}
- 
- 	irq_settings_clr_disable_unlazy(desc);
--	irq_shutdown(desc);
-+	irq_shutdown_and_deactivate(desc);
- 
- 	irq_release_resources(desc);
- 
+ static int drm_legacy_infobufs32(struct drm_device *dev, void *data,
+-- 
+2.20.1
+
 
 
