@@ -2,72 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39A926D496
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 21:19:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B4F36D4CD
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 21:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727928AbfGRTTP convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 18 Jul 2019 15:19:15 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:65154 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727685AbfGRTTP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 15:19:15 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 17408102-1500050 
-        for multiple; Thu, 18 Jul 2019 20:19:10 +0100
-Content-Type: text/plain; charset="utf-8"
+        id S2391312AbfGRTc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 15:32:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39368 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728111AbfGRTc6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 15:32:58 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B4B52173B;
+        Thu, 18 Jul 2019 19:32:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563478377;
+        bh=CLupE/lo1riA13YdIygZu79G1Jn33wd0Lj+QWcC8hvE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0qY8XsM16uoNsDiGiFobZCQn9iZpIYq9m36toWJoC7Up2mKOVowQcCENm+yPX4TPM
+         p5KIDd+GRV7eoJaCSNNeWk9ngTuznnyPM7n7wlqtwcJI+LQ2Vda8hg9E9qRN0Xxgqp
+         XgcVGYebdLZuY5pxtbxZyVmcEMNSWZHS0nntRjfs=
+Date:   Thu, 18 Jul 2019 15:32:56 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jiri Benc <jbenc@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Yonghong Song <yhs@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: Re: [PATCH AUTOSEL 5.2 226/249] selftests: bpf: fix inlines in
+ test_lwt_seg6local
+Message-ID: <20190718193256.GA4240@sasha-vm>
+References: <20190715134655.4076-1-sashal@kernel.org>
+ <20190715134655.4076-226-sashal@kernel.org>
+ <20190717114334.5556a14e@redhat.com>
+ <20190717234757.GD3079@sasha-vm>
+ <20190718093654.0a3426f5@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-To:     =?utf-8?b?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-In-Reply-To: <20190718182843.GG5942@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Matthew Auld <matthew.william.auld@gmail.com>,
-        stable@vger.kernel.org
-References: <20190718145407.21352-1-chris@chris-wilson.co.uk>
- <20190718145407.21352-2-chris@chris-wilson.co.uk>
- <20190718182843.GG5942@intel.com>
-Message-ID: <156347754810.24728.7304494028374635459@skylake-alporthouse-com>
-User-Agent: alot/0.6
-Subject: Re: [PATCH 2/4] drm/i915: Use maximum write flush for pwrite_gtt
-Date:   Thu, 18 Jul 2019 20:19:08 +0100
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190718093654.0a3426f5@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Ville Syrjälä (2019-07-18 19:28:43)
-> On Thu, Jul 18, 2019 at 03:54:05PM +0100, Chris Wilson wrote:
-> > As recently disovered by forcing big-core (!llc) machines to use the GTT
-> > paths, we need our full GTT write flush before manipulating the GTT PTE
-> > or else the writes may be directed to the wrong page.
-> > 
-> > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> > Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> > Cc: Matthew Auld <matthew.william.auld@gmail.com>
-> > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  drivers/gpu/drm/i915/i915_gem.c | 5 +++--
-> >  1 file changed, 3 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
-> > index fed0bc421a55..c6ba350e6e4f 100644
-> > --- a/drivers/gpu/drm/i915/i915_gem.c
-> > +++ b/drivers/gpu/drm/i915/i915_gem.c
-> > @@ -610,7 +610,8 @@ i915_gem_gtt_pwrite_fast(struct drm_i915_gem_object *obj,
-> >               unsigned int page_length = PAGE_SIZE - page_offset;
-> >               page_length = remain < page_length ? remain : page_length;
-> >               if (node.allocated) {
-> > -                     wmb(); /* flush the write before we modify the GGTT */
-> > +                     /* flush the write before we modify the GGTT */
-> > +                     intel_gt_flush_ggtt_writes(ggtt->vm.gt);
-> 
-> Matches the story told by intel_gt_flush_ggtt_writes().
-> 
-> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On Thu, Jul 18, 2019 at 09:36:54AM +0200, Jiri Benc wrote:
+>On Wed, 17 Jul 2019 19:47:57 -0400, Sasha Levin wrote:
+>> It fixes a bug, right?
+>
+>A bug in selftests. And quite likely, it probably happens only with
+>some compiler versions.
+>
+>I don't think patches only touching tools/testing/selftests/ qualify
+>for stable in general. They don't affect the end users.
 
-Ta, pushed to dinq. Hopefully, this may explain some mystery fails!
-(Not that any sane userspace does for(;;) { gem_write(); gem_read(); })
--Chris
+I'd argue that a bug in your tests is just as (if not even more) worse
+than a bug in the code.
+
+--
+Thanks,
+Sasha
