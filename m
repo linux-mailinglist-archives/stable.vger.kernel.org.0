@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC9B16C728
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:23:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D32A46C7BD
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:28:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389172AbfGRDWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:22:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41752 "EHLO mail.kernel.org"
+        id S2389443AbfGRDDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:03:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403777AbfGRDJR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:09:17 -0400
+        id S2389432AbfGRDDm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:03:42 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60AC921841;
-        Thu, 18 Jul 2019 03:09:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7643D21849;
+        Thu, 18 Jul 2019 03:03:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419356;
-        bh=4iMVqVrHJo2Qq/QTvK41nGzObPJNAUoY1NkAtrRIkWk=;
+        s=default; t=1563419021;
+        bh=rNZMM3N9RKTRm0K8TpzstOUDkLj8uGcAApZZJGzJxd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSDtUrEmAO5AnZjEtpG3DHReZJDgJvDzOeNsqfu9WS6KbRK4NpKuuqtQS5RIbjGUD
-         0S7TJa7ses6J8vXSsg2eJoUcd1PBt32Vdbt0sjK3Rzw/oM7fYy7s1zcmJ5HGpP+GYL
-         l/tjh9TCGAjWOYon+IjgXIBgTQzavA0S1SgK3hHk=
+        b=yMZGPNn6kdLsU88mDLPuc9DoozE8m+vD3806rTCxN9U7/HMdzxoflITKshXffIE0K
+         hei3rhMe2zAjtgLQ6L2xJ46gBy9h2D/ARmBQUdOttfDGGjyB9Y36nuff+mXqRLfhGE
+         X8uvxFENLqjGXxxAEpSWzhTZNgzbRNSzJfLBLr7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Reinhard Speyerer <rspmn@arcor.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 29/80] qmi_wwan: add support for QMAP padding in the RX path
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        Joseph Yasi <joe.yasi@gmail.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Oleksandr Natalenko <oleksandr@redhat.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: [PATCH 5.2 02/21] e1000e: start network tx queue only when link is up
 Date:   Thu, 18 Jul 2019 12:01:20 +0900
-Message-Id: <20190718030100.978612315@linuxfoundation.org>
+Message-Id: <20190718030030.975683114@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030030.456918453@linuxfoundation.org>
+References: <20190718030030.456918453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +48,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 61356088ace1866a847a727d4d40da7bf00b67fc ]
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-The QMAP code in the qmi_wwan driver is based on the CodeAurora GobiNet
-driver which does not process QMAP padding in the RX path correctly.
-Add support for QMAP padding to qmimux_rx_fixup() according to the
-description of the rmnet driver.
+commit d17ba0f616a08f597d9348c372d89b8c0405ccf3 upstream.
 
-Fixes: c6adf77953bc ("net: usb: qmi_wwan: add qmap mux protocol support")
-Cc: Daniele Palmas <dnlplm@gmail.com>
-Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Driver does not want to keep packets in Tx queue when link is lost.
+But present code only reset NIC to flush them, but does not prevent
+queuing new packets. Moreover reset sequence itself could generate
+new packets via netconsole and NIC falls into endless reset loop.
+
+This patch wakes Tx queue only when NIC is ready to send packets.
+
+This is proper fix for problem addressed by commit 0f9e980bf5ee
+("e1000e: fix cyclic resets at link up with active tx").
+
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Suggested-by: Alexander Duyck <alexander.duyck@gmail.com>
+Tested-by: Joseph Yasi <joe.yasi@gmail.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Tested-by: Oleksandr Natalenko <oleksandr@redhat.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/usb/qmi_wwan.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 063daa3435e4..75fe5c5abec4 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -153,7 +153,7 @@ static bool qmimux_has_slaves(struct usbnet *dev)
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -4208,7 +4208,7 @@ void e1000e_up(struct e1000_adapter *ada
+ 		e1000_configure_msix(adapter);
+ 	e1000_irq_enable(adapter);
  
- static int qmimux_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- {
--	unsigned int len, offset = 0;
-+	unsigned int len, offset = 0, pad_len, pkt_len;
- 	struct qmimux_hdr *hdr;
- 	struct net_device *net;
- 	struct sk_buff *skbn;
-@@ -171,10 +171,16 @@ static int qmimux_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 		if (hdr->pad & 0x80)
- 			goto skip;
+-	netif_start_queue(adapter->netdev);
++	/* Tx queue started by watchdog timer when link is up */
  
-+		/* extract padding length and check for valid length info */
-+		pad_len = hdr->pad & 0x3f;
-+		if (len == 0 || pad_len >= len)
-+			goto skip;
-+		pkt_len = len - pad_len;
-+
- 		net = qmimux_find_dev(dev, hdr->mux_id);
- 		if (!net)
- 			goto skip;
--		skbn = netdev_alloc_skb(net, len);
-+		skbn = netdev_alloc_skb(net, pkt_len);
- 		if (!skbn)
- 			return 0;
- 		skbn->dev = net;
-@@ -191,7 +197,7 @@ static int qmimux_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 			goto skip;
- 		}
+ 	e1000e_trigger_lsc(adapter);
+ }
+@@ -4606,6 +4606,7 @@ int e1000e_open(struct net_device *netde
+ 	pm_runtime_get_sync(&pdev->dev);
  
--		skb_put_data(skbn, skb->data + offset + qmimux_hdr_sz, len);
-+		skb_put_data(skbn, skb->data + offset + qmimux_hdr_sz, pkt_len);
- 		if (netif_rx(skbn) != NET_RX_SUCCESS)
- 			return 0;
+ 	netif_carrier_off(netdev);
++	netif_stop_queue(netdev);
  
--- 
-2.20.1
-
+ 	/* allocate transmit descriptors */
+ 	err = e1000e_setup_tx_resources(adapter->tx_ring);
+@@ -4666,7 +4667,6 @@ int e1000e_open(struct net_device *netde
+ 	e1000_irq_enable(adapter);
+ 
+ 	adapter->tx_hang_recheck = false;
+-	netif_start_queue(netdev);
+ 
+ 	hw->mac.get_link_status = true;
+ 	pm_runtime_put(&pdev->dev);
+@@ -5288,6 +5288,7 @@ static void e1000_watchdog_task(struct w
+ 			if (phy->ops.cfg_on_link_up)
+ 				phy->ops.cfg_on_link_up(hw);
+ 
++			netif_wake_queue(netdev);
+ 			netif_carrier_on(netdev);
+ 
+ 			if (!test_bit(__E1000_DOWN, &adapter->state))
+@@ -5301,6 +5302,7 @@ static void e1000_watchdog_task(struct w
+ 			/* Link status message must follow this format */
+ 			pr_info("%s NIC Link is Down\n", adapter->netdev->name);
+ 			netif_carrier_off(netdev);
++			netif_stop_queue(netdev);
+ 			if (!test_bit(__E1000_DOWN, &adapter->state))
+ 				mod_timer(&adapter->phy_info_timer,
+ 					  round_jiffies(jiffies + 2 * HZ));
 
 
