@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D31DA6C74A
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:24:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 259076C75B
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390435AbfGRDH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:07:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38986 "EHLO mail.kernel.org"
+        id S2389191AbfGRDVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:21:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390418AbfGRDHZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:07:25 -0400
+        id S2391070AbfGRDJt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:09:49 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 550E42173E;
-        Thu, 18 Jul 2019 03:07:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 560F420818;
+        Thu, 18 Jul 2019 03:09:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419244;
-        bh=JNmnvDPMdyjpXwlIPvXfoBh6zAcM6I6OFKdO/kIsPkk=;
+        s=default; t=1563419388;
+        bh=+FI4n+PPYI8pv4UC2EHG4ZApCXRHUonsT00HyG0ndGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O4OfQHayfiVCY6ROPlK5TGXdxKN/VzwiAuR08H+P9bnedvVUTT6Nujy7+Tjn/LuGN
-         gOVaKfP0FvX5GYBDW/Bpe8V55j7bYfDDbjH+LTPcCtshb31Np2JiEyyCnqi2xLpSX+
-         HpeL8GElIUuSV9TAarcHUdZPtmpK7ZPC4OE4PybQ=
+        b=2F9VdLrxrb4amjRucopTbZH0Gc60dO8/Lr6qG/Ch0A9EBNWSp1FvakVfdksXMOCmd
+         TgqQTxQjQu7ExpnmoG6errHP5qYWQ0n+oexw8SLyq1Ud7DGXHHnUcEPKJZWnzx7Ejk
+         FZQAn/NJCppaBRG5oK2OznY7COgVQafRqKkzpPtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Olof Johansson <olof@lixom.net>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/47] ARM: omap2: remove incorrect __init annotation
-Date:   Thu, 18 Jul 2019 12:01:26 +0900
-Message-Id: <20190718030049.664088966@linuxfoundation.org>
+Subject: [PATCH 4.14 36/80] net: lio_core: fix potential sign-extension overflow on large shift
+Date:   Thu, 18 Jul 2019 12:01:27 +0900
+Message-Id: <20190718030101.420382368@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
-References: <20190718030045.780672747@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 27e23d8975270df6999f8b5b3156fc0c04927451 ]
+[ Upstream commit 9476274093a0e79b905f4cd6cf6d149f65e02c17 ]
 
-omap3xxx_prm_enable_io_wakeup() is marked __init, but its caller is not, so
-we get a warning with clang-8:
+Left shifting the signed int value 1 by 31 bits has undefined behaviour
+and the shift amount oq_no can be as much as 63.  Fix this by using
+BIT_ULL(oq_no) instead.
 
-WARNING: vmlinux.o(.text+0x343c8): Section mismatch in reference from the function omap3xxx_prm_late_init() to the function .init.text:omap3xxx_prm_enable_io_wakeup()
-The function omap3xxx_prm_late_init() references
-the function __init omap3xxx_prm_enable_io_wakeup().
-This is often because omap3xxx_prm_late_init lacks a __init
-annotation or the annotation of omap3xxx_prm_enable_io_wakeup is wrong.
-
-When building with gcc, omap3xxx_prm_enable_io_wakeup() is always
-inlined, so we never noticed in the past.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Addresses-Coverity: ("Bad shift operation")
+Fixes: f21fb3ed364b ("Add support of Cavium Liquidio ethernet adapters")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/prm3xxx.c | 2 +-
+ drivers/net/ethernet/cavium/liquidio/lio_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap2/prm3xxx.c b/arch/arm/mach-omap2/prm3xxx.c
-index 05858f966f7d..dfa65fc2c82b 100644
---- a/arch/arm/mach-omap2/prm3xxx.c
-+++ b/arch/arm/mach-omap2/prm3xxx.c
-@@ -433,7 +433,7 @@ static void omap3_prm_reconfigure_io_chain(void)
-  * registers, and omap3xxx_prm_reconfigure_io_chain() must be called.
-  * No return value.
-  */
--static void __init omap3xxx_prm_enable_io_wakeup(void)
-+static void omap3xxx_prm_enable_io_wakeup(void)
- {
- 	if (prm_features & PRM_HAS_IO_WAKEUP)
- 		omap2_prm_set_mod_reg_bits(OMAP3430_EN_IO_MASK, WKUP_MOD,
+diff --git a/drivers/net/ethernet/cavium/liquidio/lio_core.c b/drivers/net/ethernet/cavium/liquidio/lio_core.c
+index 23f6b60030c5..8c16298a252d 100644
+--- a/drivers/net/ethernet/cavium/liquidio/lio_core.c
++++ b/drivers/net/ethernet/cavium/liquidio/lio_core.c
+@@ -854,7 +854,7 @@ static void liquidio_schedule_droq_pkt_handlers(struct octeon_device *oct)
+ 
+ 			if (droq->ops.poll_mode) {
+ 				droq->ops.napi_fn(droq);
+-				oct_priv->napi_mask |= (1 << oq_no);
++				oct_priv->napi_mask |= BIT_ULL(oq_no);
+ 			} else {
+ 				tasklet_schedule(&oct_priv->droq_tasklet);
+ 			}
 -- 
 2.20.1
 
