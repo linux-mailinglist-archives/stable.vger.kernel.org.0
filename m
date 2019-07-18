@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADE226C6E7
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:20:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5404B6C6E0
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:20:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390873AbfGRDLL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:11:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44670 "EHLO mail.kernel.org"
+        id S2391411AbfGRDLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:11:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390542AbfGRDLK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:11:10 -0400
+        id S2391457AbfGRDLl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:11:41 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3456A2053B;
-        Thu, 18 Jul 2019 03:11:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73F4E2053B;
+        Thu, 18 Jul 2019 03:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419469;
-        bh=6TvLc+s1Z5B/h1l3/U0Pe2FamVxtuWOhIhEnM7zXQp8=;
+        s=default; t=1563419499;
+        bh=So2IzkUzWuSWIEvrnZ2Sd5ac5Zv8IyALlkmo6shTAX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SadA35HrakSw6/nte+JbUZxIOCGh9Yl60HzJljU7GNfIxMgJvLTeEMIF15l6ZPqGV
-         ZEJEXKg8gKMAch6/4Eu7U8euL6tMqGm7JUxmbZK1tmkzapKGw4jtJsZE4jUKNIdL9I
-         q7hBTE5EegNpG+Pyn92umeoqPdlrZpdKAERjRGek=
+        b=bAegneOQKEZGYiqqNGXxz7twwBLvWZMo7WUL94zlNJvfLqvuYVyLwPbJ8XWfa78OJ
+         VNbK1iHTAQG6qFRuolLsCcvacbaNanZGsDqMFDINrx5fx6puSKVpZqJXUggEwcghHy
+         sLVzfu0iONe5BSa3C+zG68Gr7ATqYnuFju1vvAJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 4.14 74/80] ARC: hide unused function unw_hdr_alloc
-Date:   Thu, 18 Jul 2019 12:02:05 +0900
-Message-Id: <20190718030105.247493008@linuxfoundation.org>
+        stable@vger.kernel.org, Haren Myneni <haren@us.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 78/80] crypto/NX: Set receive window credits to max number of CRBs in RxFIFO
+Date:   Thu, 18 Jul 2019 12:02:09 +0900
+Message-Id: <20190718030105.614570703@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
 References: <20190718030058.615992480@linuxfoundation.org>
@@ -43,50 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Haren Myneni <haren@linux.vnet.ibm.com>
 
-commit fd5de2721ea7d16e2b16c4049ac49f229551b290 upstream.
+commit e52d484d9869eb291140545746ccbe5ffc7c9306 upstream.
 
-As kernelci.org reports, this function is not used in
-vdk_hs38_defconfig:
+System gets checkstop if RxFIFO overruns with more requests than the
+maximum possible number of CRBs in FIFO at the same time. The max number
+of requests per window is controlled by window credits. So find max
+CRBs from FIFO size and set it to receive window credits.
 
-arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but not used [-Wunused-function]
-
-Fixes: bc79c9a72165 ("ARC: dw2 unwind: Reinstante unwinding out of modules")
-Link: https://kernelci.org/build/id/5d1cae3f59b514300340c132/logs/
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Fixes: b0d6c9bab5e4 ("crypto/nx: Add P9 NX support for 842 compression engine")
+CC: stable@vger.kernel.org # v4.14+
+Signed-off-by:Haren Myneni <haren@us.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- arch/arc/kernel/unwind.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
---- a/arch/arc/kernel/unwind.c
-+++ b/arch/arc/kernel/unwind.c
-@@ -185,11 +185,6 @@ static void *__init unw_hdr_alloc_early(
- 				       MAX_DMA_ADDRESS);
- }
+---
+ drivers/crypto/nx/nx-842-powernv.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+--- a/drivers/crypto/nx/nx-842-powernv.c
++++ b/drivers/crypto/nx/nx-842-powernv.c
+@@ -34,8 +34,6 @@ MODULE_ALIAS_CRYPTO("842-nx");
+ #define WORKMEM_ALIGN	(CRB_ALIGN)
+ #define CSB_WAIT_MAX	(5000) /* ms */
+ #define VAS_RETRIES	(10)
+-/* # of requests allowed per RxFIFO at a time. 0 for unlimited */
+-#define MAX_CREDITS_PER_RXFIFO	(1024)
  
--static void *unw_hdr_alloc(unsigned long sz)
--{
--	return kmalloc(sz, GFP_KERNEL);
--}
--
- static void init_unwind_table(struct unwind_table *table, const char *name,
- 			      const void *core_start, unsigned long core_size,
- 			      const void *init_start, unsigned long init_size,
-@@ -370,6 +365,10 @@ ret_err:
- }
+ struct nx842_workmem {
+ 	/* Below fields must be properly aligned */
+@@ -801,7 +799,11 @@ static int __init vas_cfg_coproc_info(st
+ 	rxattr.lnotify_lpid = lpid;
+ 	rxattr.lnotify_pid = pid;
+ 	rxattr.lnotify_tid = tid;
+-	rxattr.wcreds_max = MAX_CREDITS_PER_RXFIFO;
++	/*
++	 * Maximum RX window credits can not be more than #CRBs in
++	 * RxFIFO. Otherwise, can get checkstop if RxFIFO overruns.
++	 */
++	rxattr.wcreds_max = fifo_size / CRB_SIZE;
  
- #ifdef CONFIG_MODULES
-+static void *unw_hdr_alloc(unsigned long sz)
-+{
-+	return kmalloc(sz, GFP_KERNEL);
-+}
- 
- static struct unwind_table *last_table;
- 
+ 	/*
+ 	 * Open a VAS receice window which is used to configure RxFIFO
 
 
