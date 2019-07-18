@@ -2,71 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5139D6D562
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 21:48:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA9E66D565
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 21:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391800AbfGRTsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 15:48:04 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:38432 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391701AbfGRTsE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 15:48:04 -0400
-Received: by mail-pf1-f195.google.com with SMTP id y15so13091771pfn.5;
-        Thu, 18 Jul 2019 12:48:04 -0700 (PDT)
+        id S2391695AbfGRTs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 15:48:26 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:34598 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391352AbfGRTs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 15:48:26 -0400
+Received: by mail-pf1-f194.google.com with SMTP id b13so13092771pfo.1;
+        Thu, 18 Jul 2019 12:48:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=nM4dWrkb1ajSHYtU8J2KR6ns8hioPS5hXMwlSkpfMZ0=;
-        b=D1OPiZeDWLY7htvCnolckTnWMSuJkTVDzs4qDllJ4a7Nqmr0bacYi5Utf+JQ6iGl6T
-         ZEfs/4JNJFXH41RNpBCLdPbcR2UOYmxHK9Ba83W38HYSmV0XAkPuO8KZ1b6Vwfb0d4TE
-         RDhROZIBrjUqyPDLAA7WnTVi3aqx0kbzifRHxXxvp3wZSXq15zNLaw4/mHwzZXqNMzdT
-         2rnyLdPvodhZyu5UHUwJM8aa++rEhnljpsTsLw7SF9+/fbiP6g/unolMS3VvBbvLN5AP
-         iTk7jLFE0qvIau1eZXWAKBAuoHZz+joEDeP2HEm6iPiu2Kf/sznE4S2YJdTakA5719/C
-         a5Mg==
+        bh=HHDHbWT0uj8R9ZN9JYE1sUsynffwgt75FkHn6hTWOdI=;
+        b=IMEN7y1EoITwAkBJgzNXTOk792GSiisbtZrwR5c7FxEEB1IcYJUWC2r8SqTInMIcJQ
+         Iot+DaBSIi69HjeCyd1cDoU+4CMabHVwK/X48MDCCjVpDQcJeVMrkKyg7vW0y3Yb/HVn
+         DwjTpbEMPU8jcTBVsEkehRZcqMaaqt8hSLYWsjvR/kqhczL1NzJS8LWcDUouCIVteLUp
+         NzShdoTUZavI9snofJcuP1OxI1PvsuhTPk7IZ47gupu4NHPMaztZSoCz/Z5afj1yXU1i
+         lKXPEg4oPO9VBXf2YtAxew0ydOA1WZfTwVJrhDuPddxgFBR0/c6MW9iYEaVpuOoo3u74
+         fKgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=nM4dWrkb1ajSHYtU8J2KR6ns8hioPS5hXMwlSkpfMZ0=;
-        b=IBNe8JaxmNVepAx/hn3Xp4EA9nHt7il/4G/NsFqkcqXEBQIsKrbCuu0GhP2rmMsDzw
-         +kQwbSnQGAAZExkGw2kUAklUqkGNg1/kOmJU7F+USYBAFVUN5CfRWPSIokgCH7g11TJI
-         3GSZ8RsjsG764ehYLNSYm+hIAeEreShBKJZxsLlSEjk5yb8kQqnNHHHr/+PrWCBkgCsc
-         dM+aKkmQFLJXzbtPUezL4EyaE+kdEDdU3fLnd9uuF98z28n6ANcMGYqPU9Uno699bMlq
-         Cl9yBi6e7d0PkG6tRrVARq+KpLtDtl9l3iDODcdlewd7J0jJRuSV+UhtknbIMveIt9g9
-         vFKg==
-X-Gm-Message-State: APjAAAXTbxsFuJTpZojCUPmLp/j2ZWHmNQi3HuEQhCarauXJyKT/xx1U
-        Be+OrHMYM8ly4sznfwNqgkdTBAQl
-X-Google-Smtp-Source: APXvYqzYtq/R0BI3KODsT7gz4E6YK0lE3CQsRCv/iI3/gnNS5jMMyt/FdIaJzSnSpQfy6/mjoTzZ/Q==
-X-Received: by 2002:a63:c84d:: with SMTP id l13mr44460395pgi.154.1563479283737;
-        Thu, 18 Jul 2019 12:48:03 -0700 (PDT)
+        bh=HHDHbWT0uj8R9ZN9JYE1sUsynffwgt75FkHn6hTWOdI=;
+        b=oOs2HqAjl2Gd5Xzk5cF1pTxBY5oRz+8omSQSQ9WjhQzvyo5tG5bMWfSRGBd/gSL3La
+         IKVjVa7Haw6kPVpPUWddToFdHhn2L97RNldNrr2L9GtngWDNCwi8IKnq13V7paKQNrxU
+         mkRvubGHcJSk4x5UPdr2x/ZWc7awaok+6kEA3JereEuwtzAL25N/W1ktGzxT7jQ8r4Zh
+         EYn1t6AF+abSAaVKaZBgacjzVg+22gYh6a5zCSxlaaJUtySzw8725MQraAfTlzsCxc5F
+         +iH3lfkU6HlVI4z1DnTXFJZx0LzyQi4UZmnHH+0QUKRpWBDcw40e7nhizBoW7DMxJYob
+         Tn5g==
+X-Gm-Message-State: APjAAAU9uHgYDYa6Pe0S3zfVpfrX275VUSHam3ISkTU9e57XtuOCBUQd
+        CcK9myo7hidlrBCVTwoPBz0=
+X-Google-Smtp-Source: APXvYqxslvo6fwgYsnUNxIfehMHLKKeXWKOsCFJiCl+xQmRlXFAMSvtkGAT3gstYm/1ZnHz3eztJJA==
+X-Received: by 2002:a17:90a:9dca:: with SMTP id x10mr53361419pjv.100.1563479305544;
+        Thu, 18 Jul 2019 12:48:25 -0700 (PDT)
 Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id i124sm53445360pfe.61.2019.07.18.12.48.03
+        by smtp.gmail.com with ESMTPSA id u1sm27615603pgi.28.2019.07.18.12.48.24
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 18 Jul 2019 12:48:03 -0700 (PDT)
-Date:   Thu, 18 Jul 2019 12:48:02 -0700
+        Thu, 18 Jul 2019 12:48:25 -0700 (PDT)
+Date:   Thu, 18 Jul 2019 12:48:24 -0700
 From:   Guenter Roeck <linux@roeck-us.net>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 4.14 00/80] 4.14.134-stable review
-Message-ID: <20190718194802.GC24320@roeck-us.net>
-References: <20190718030058.615992480@linuxfoundation.org>
+Subject: Re: [PATCH 4.19 00/47] 4.19.60-stable review
+Message-ID: <20190718194824.GD24320@roeck-us.net>
+References: <20190718030045.780672747@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
 User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 18, 2019 at 12:00:51PM +0900, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.134 release.
-> There are 80 patches in this series, all will be posted as a response
+On Thu, Jul 18, 2019 at 12:01:14PM +0900, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.60 release.
+> There are 47 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -75,8 +75,8 @@ On Thu, Jul 18, 2019 at 12:00:51PM +0900, Greg Kroah-Hartman wrote:
 > 
 
 Build results:
-	total: 172 pass: 172 fail: 0
+	total: 156 pass: 156 fail: 0
 Qemu test results:
-	total: 346 pass: 346 fail: 0
+	total: 364 pass: 364 fail: 0
 
 Guenter
