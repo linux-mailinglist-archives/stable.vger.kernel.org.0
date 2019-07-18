@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C2286C759
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D6AF6C6EB
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390665AbfGRDIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:08:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40246 "EHLO mail.kernel.org"
+        id S2389340AbfGRDUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:20:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390705AbfGRDIU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:08:20 -0400
+        id S2391238AbfGRDLM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:11:12 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6011020818;
-        Thu, 18 Jul 2019 03:08:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D188205F4;
+        Thu, 18 Jul 2019 03:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419299;
-        bh=2NnYurcBklqmnqT1VQithL4VeHbtrCVlDnNF0EYmTsE=;
+        s=default; t=1563419471;
+        bh=/xAkpM3kOJg/Mwhe9RfVtMXfWjwQWzDs/GzrNCpYdjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2NxL3NVKe0cw3MNh7dN4qGR+pQ17zs4l/xJBX+06n0dwxr2GjMvyJecnxPRn5aKz
-         eBgzpp24Y1qXLw38KGpLC3aZkghDgbcAlOJqgi+S9EUIK/xqh+GZFxplbwcKu24rv+
-         9vcv9K+9Gv18+SFtueX33y5S2XZn6mcBvpMH7ggo=
+        b=W1fZdEi/LEuEq9OhXuWty+4l/FLjTZZnP7msv38ztiC8Glm+5hx+aAWweE7TGkpzN
+         7wibxiG9q1uq7Ms3XdZ28sqFnMcqoJJl8IH8MoIAndc3jKtjD6Q/3RxRHz6aS+JBcA
+         Mj0eOUzIRJm4jolWtz4uMSerVTVmyAsPJ/D4GuoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hodaszi <Robert.Hodaszi@digi.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 34/47] x86/irq: Handle spurious interrupt after shutdown gracefully
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.14 57/80] staging: comedi: amplc_pci230: fix null pointer deref on interrupt
 Date:   Thu, 18 Jul 2019 12:01:48 +0900
-Message-Id: <20190718030051.635882875@linuxfoundation.org>
+Message-Id: <20190718030102.953260755@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
-References: <20190718030045.780672747@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,112 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner tglx@linutronix.de
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit b7107a67f0d125459fe41f86e8079afd1a5e0b15 upstream
+commit 7379e6baeddf580d01feca650ec1ad508b6ea8ee upstream.
 
-Since the rework of the vector management, warnings about spurious
-interrupts have been reported. Robert provided some more information and
-did an initial analysis. The following situation leads to these warnings:
+The interrupt handler `pci230_interrupt()` causes a null pointer
+dereference for a PCI260 card.  There is no analog output subdevice for
+a PCI260.  The `dev->write_subdev` subdevice pointer and therefore the
+`s_ao` subdevice pointer variable will be `NULL` for a PCI260.  The
+following call near the end of the interrupt handler results in the null
+pointer dereference for a PCI260:
 
-   CPU 0                  CPU 1               IO_APIC
+	comedi_handle_events(dev, s_ao);
 
-                                              interrupt is raised
-                                              sent to CPU1
-			  Unable to handle
-			  immediately
-			  (interrupts off,
-			   deep idle delay)
-   mask()
-   ...
-   free()
-     shutdown()
-     synchronize_irq()
-     clear_vector()
-                          do_IRQ()
-                            -> vector is clear
+Fix it by only calling the above function if `s_ao` is valid.
 
-Before the rework the vector entries of legacy interrupts were statically
-assigned and occupied precious vector space while most of them were
-unused. Due to that the above situation was handled silently because the
-vector was handled and the core handler of the assigned interrupt
-descriptor noticed that it is shut down and returned.
+Note that the other uses of `s_ao` in the calls
+`pci230_handle_ao_nofifo(dev, s_ao);` and `pci230_handle_ao_fifo(dev,
+s_ao);` will never be reached for a PCI260, so they are safe.
 
-While this has been usually observed with legacy interrupts, this situation
-is not limited to them. Any other interrupt source, e.g. MSI, can cause the
-same issue.
-
-After adding proper synchronization for level triggered interrupts, this
-can only happen for edge triggered interrupts where the IO-APIC obviously
-cannot provide information about interrupts in flight.
-
-While the spurious warning is actually harmless in this case it worries
-users and driver developers.
-
-Handle it gracefully by marking the vector entry as VECTOR_SHUTDOWN instead
-of VECTOR_UNUSED when the vector is freed up.
-
-If that above late handling happens the spurious detector will not complain
-and switch the entry to VECTOR_UNUSED. Any subsequent spurious interrupt on
-that line will trigger the spurious warning as before.
-
-Fixes: 464d12309e1b ("x86/vector: Switch IOAPIC to global reservation mode")
-Reported-by: Robert Hodaszi <Robert.Hodaszi@digi.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>-
-Tested-by: Robert Hodaszi <Robert.Hodaszi@digi.com>
-Cc: Marc Zyngier <marc.zyngier@arm.com>
-Link: https://lkml.kernel.org/r/20190628111440.459647741@linutronix.de
+Fixes: 39064f23284c ("staging: comedi: amplc_pci230: use comedi_handle_events()")
+Cc: <stable@vger.kernel.org> # v3.19+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- arch/x86/include/asm/hw_irq.h |    3 ++-
- arch/x86/kernel/apic/vector.c |    4 ++--
- arch/x86/kernel/irq.c         |    2 +-
- 3 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/staging/comedi/drivers/amplc_pci230.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/hw_irq.h
-+++ b/arch/x86/include/asm/hw_irq.h
-@@ -151,7 +151,8 @@ extern char irq_entries_start[];
- #endif
+--- a/drivers/staging/comedi/drivers/amplc_pci230.c
++++ b/drivers/staging/comedi/drivers/amplc_pci230.c
+@@ -2339,7 +2339,8 @@ static irqreturn_t pci230_interrupt(int
+ 	devpriv->intr_running = false;
+ 	spin_unlock_irqrestore(&devpriv->isr_spinlock, irqflags);
  
- #define VECTOR_UNUSED		NULL
--#define VECTOR_RETRIGGERED	((void *)~0UL)
-+#define VECTOR_SHUTDOWN		((void *)~0UL)
-+#define VECTOR_RETRIGGERED	((void *)~1UL)
+-	comedi_handle_events(dev, s_ao);
++	if (s_ao)
++		comedi_handle_events(dev, s_ao);
+ 	comedi_handle_events(dev, s_ai);
  
- typedef struct irq_desc* vector_irq_t[NR_VECTORS];
- DECLARE_PER_CPU(vector_irq_t, vector_irq);
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -342,7 +342,7 @@ static void clear_irq_vector(struct irq_
- 	trace_vector_clear(irqd->irq, vector, apicd->cpu, apicd->prev_vector,
- 			   apicd->prev_cpu);
- 
--	per_cpu(vector_irq, apicd->cpu)[vector] = VECTOR_UNUSED;
-+	per_cpu(vector_irq, apicd->cpu)[vector] = VECTOR_SHUTDOWN;
- 	irq_matrix_free(vector_matrix, apicd->cpu, vector, managed);
- 	apicd->vector = 0;
- 
-@@ -351,7 +351,7 @@ static void clear_irq_vector(struct irq_
- 	if (!vector)
- 		return;
- 
--	per_cpu(vector_irq, apicd->prev_cpu)[vector] = VECTOR_UNUSED;
-+	per_cpu(vector_irq, apicd->prev_cpu)[vector] = VECTOR_SHUTDOWN;
- 	irq_matrix_free(vector_matrix, apicd->prev_cpu, vector, managed);
- 	apicd->prev_vector = 0;
- 	apicd->move_in_progress = 0;
---- a/arch/x86/kernel/irq.c
-+++ b/arch/x86/kernel/irq.c
-@@ -246,7 +246,7 @@ __visible unsigned int __irq_entry do_IR
- 	if (!handle_irq(desc, regs)) {
- 		ack_APIC_irq();
- 
--		if (desc != VECTOR_RETRIGGERED) {
-+		if (desc != VECTOR_RETRIGGERED && desc != VECTOR_SHUTDOWN) {
- 			pr_emerg_ratelimited("%s: %d.%d No irq handler for vector\n",
- 					     __func__, smp_processor_id(),
- 					     vector);
+ 	return IRQ_HANDLED;
 
 
