@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42B2E6C796
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50E746C757
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:24:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389802AbfGRDZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:25:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
+        id S2389649AbfGRDIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:08:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390089AbfGRDFz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:05:55 -0400
+        id S2390648AbfGRDIO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:08:14 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8019D21848;
-        Thu, 18 Jul 2019 03:05:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A71232077C;
+        Thu, 18 Jul 2019 03:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419154;
-        bh=EjQiwJFzN6vC59pTA0kUIUoNEPvkuQCYIO3Sbda2fAo=;
+        s=default; t=1563419293;
+        bh=Yqt/LllpGzMStVbT4HLxLYhzgZMPXuawn64z9mAi6yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hqFBIpmyZ/iU6BMTbUWbpQrhJGGfIwH2MJIsIB+gZgfuHNiyDaVpKKLgcuViFofEj
-         fXF2hCuIfRop93oPOu/8Iv3NY2vDbdRz54z1B8AKyI1p/4mKcbai49Pcj9LXhQClvM
-         rPJWMQnzSd5ncU+YloCeOVlYvzJ+jy9YghFkbDJ0=
+        b=Is/xcaxX6+84JRZSoA8mlNo7dR7sEImaBdESTPdulxOjm9COBF1+DwvfYRb0iz5Fn
+         poz8ah2on+D9DskZJPSJKkgC0987vKGoAEjog/AUK1C142YUuIX9stxLXYWvH+tfXx
+         79u5suhh9GcJnOyVucJyK3jFtnO/O6j/pDjFaK3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.1 50/54] s390/qdio: dont touch the dsci in tiqdio_add_input_queues()
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>
+Subject: [PATCH 4.19 31/47] genirq: Fix misleading synchronize_irq() documentation
 Date:   Thu, 18 Jul 2019 12:01:45 +0900
-Message-Id: <20190718030057.070484504@linuxfoundation.org>
+Message-Id: <20190718030051.369338137@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
-References: <20190718030053.287374640@linuxfoundation.org>
+In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
+References: <20190718030045.780672747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Thomas Gleixner tglx@linutronix.de
 
-commit ac6639cd3db607d386616487902b4cc1850a7be5 upstream.
+commit 1d21f2af8571c6a6a44e7c1911780614847b0253 upstream
 
-Current code sets the dsci to 0x00000080. Which doesn't make any sense,
-as the indicator area is located in the _left-most_ byte.
+The function might sleep, so it cannot be called from interrupt
+context. Not even with care.
 
-Worse: if the dsci is the _shared_ indicator, this potentially clears
-the indication of activity for a _different_ device.
-tiqdio_thinint_handler() will then have no reason to call that device's
-IRQ handler, and the device ends up stalling.
-
-Fixes: d0c9d4a89fff ("[S390] qdio: set correct bit in dsci")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
+Link: https://lkml.kernel.org/r/20190628111440.189241552@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/s390/cio/qdio_thinint.c |    1 -
- 1 file changed, 1 deletion(-)
 
---- a/drivers/s390/cio/qdio_thinint.c
-+++ b/drivers/s390/cio/qdio_thinint.c
-@@ -79,7 +79,6 @@ void tiqdio_add_input_queues(struct qdio
- 	mutex_lock(&tiq_list_lock);
- 	list_add_rcu(&irq_ptr->input_qs[0]->entry, &tiq_list);
- 	mutex_unlock(&tiq_list_lock);
--	xchg(irq_ptr->dsci, 1 << 7);
- }
- 
- void tiqdio_remove_input_queues(struct qdio_irq *irq_ptr)
+---
+ kernel/irq/manage.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -96,7 +96,8 @@ EXPORT_SYMBOL(synchronize_hardirq);
+  *	to complete before returning. If you use this function while
+  *	holding a resource the IRQ handler may need you will deadlock.
+  *
+- *	This function may be called - with care - from IRQ context.
++ *	Can only be called from preemptible code as it might sleep when
++ *	an interrupt thread is associated to @irq.
+  */
+ void synchronize_irq(unsigned int irq)
+ {
 
 
