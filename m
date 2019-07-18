@@ -2,162 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6218D6C647
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:15:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E1E6C64F
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:15:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391994AbfGRDPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:15:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52244 "EHLO mail.kernel.org"
+        id S2391341AbfGRDPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:15:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391985AbfGRDPS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:15:18 -0400
+        id S2392116AbfGRDPl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:15:41 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0189D21849;
-        Thu, 18 Jul 2019 03:15:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A23A921849;
+        Thu, 18 Jul 2019 03:15:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419717;
-        bh=RqHs4PD78dqw4xd7ttlwOYA6we00lDzzgKgXO/uJ2ME=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eq8QFYq6S9xQNOgP5Dl4sKunvUd+MwmmET8eJ01WzV73DSC7qlUMWiBXlxfZBpOAo
-         r8fpFtTS032MMRJcYYMNLUsFOza5BHh8EleuO6FRlVy4Xf/XJNCvAC1o7CWSHrTjMU
-         tD1HzKIvrxa2I3gH+plmyZmfKtgEMeK+qmzZefOk=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Zubin Mithra <zsm@google.com>
-Subject: [PATCH 4.4 40/40] KVM: x86: protect KVM_CREATE_PIT/KVM_CREATE_PIT2 with kvm->lock
-Date:   Thu, 18 Jul 2019 12:02:36 +0900
-Message-Id: <20190718030050.616694335@linuxfoundation.org>
-X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030039.676518610@linuxfoundation.org>
-References: <20190718030039.676518610@linuxfoundation.org>
-User-Agent: quilt/0.66
+        s=default; t=1563419741;
+        bh=ZJZRnfNdajW2yEVX3Sw4HmFn3dfTXiexF1Y4U4Ob+k0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kvuaioJrlpiNqucSvWFNL8i169d/wOah0Mdqcw3Ebxv2s/2BCy2XqRWXv/6h52Q20
+         GKpaOL1dluLSPUXVy0HERbBIs5NsEKOfds+rGth9vAU9BRLYojoN2iL5IZ2O6kgtmo
+         DG7RRZSYpGiX/oJ7LNbRYtKIpitXNld4rIAfcn5o=
+Date:   Thu, 18 Jul 2019 12:03:23 +0900
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Cc:     devel@etsukata.com, rostedt@goodmis.org, stable@vger.kernel.org
+Subject: Re: [PATCH for 4.4, 4.9] tracing/snapshot: Resize spare buffer if
+ size changed
+Message-ID: <20190718030323.GA3581@kroah.com>
+References: <156231680279219@kroah.com>
+ <20190718025547.5550-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190718025547.5550-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+On Thu, Jul 18, 2019 at 11:55:47AM +0900, Nobuhiro Iwamatsu wrote:
+> From: Eiichi Tsukata <devel@etsukata.com>
+> 
+> Current snapshot implementation swaps two ring_buffers even though their
+> sizes are different from each other, that can cause an inconsistency
+> between the contents of buffer_size_kb file and the current buffer size.
+> 
+> For example:
+> 
+>   # cat buffer_size_kb
+>   7 (expanded: 1408)
+>   # echo 1 > events/enable
+>   # grep bytes per_cpu/cpu0/stats
+>   bytes: 1441020
+>   # echo 1 > snapshot             // current:1408, spare:1408
+>   # echo 123 > buffer_size_kb     // current:123,  spare:1408
+>   # echo 1 > snapshot             // current:1408, spare:123
+>   # grep bytes per_cpu/cpu0/stats
+>   bytes: 1443700
+>   # cat buffer_size_kb
+>   123                             // != current:1408
+> 
+> And also, a similar per-cpu case hits the following WARNING:
+> 
+> Reproducer:
+> 
+>   # echo 1 > per_cpu/cpu0/snapshot
+>   # echo 123 > buffer_size_kb
+>   # echo 1 > per_cpu/cpu0/snapshot
+> 
+> WARNING:
+> 
+>   WARNING: CPU: 0 PID: 1946 at kernel/trace/trace.c:1607 update_max_tr_single.part.0+0x2b8/0x380
+>   Modules linked in:
+>   CPU: 0 PID: 1946 Comm: bash Not tainted 5.2.0-rc6 #20
+>   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
+>   RIP: 0010:update_max_tr_single.part.0+0x2b8/0x380
+>   Code: ff e8 dc da f9 ff 0f 0b e9 88 fe ff ff e8 d0 da f9 ff 44 89 ee bf f5 ff ff ff e8 33 dc f9 ff 41 83 fd f5 74 96 e8 b8 da f9 ff <0f> 0b eb 8d e8 af da f9 ff 0f 0b e9 bf fd ff ff e8 a3 da f9 ff 48
+>   RSP: 0018:ffff888063e4fca0 EFLAGS: 00010093
+>   RAX: ffff888066214380 RBX: ffffffff99850fe0 RCX: ffffffff964298a8
+>   RDX: 0000000000000000 RSI: 00000000fffffff5 RDI: 0000000000000005
+>   RBP: 1ffff1100c7c9f96 R08: ffff888066214380 R09: ffffed100c7c9f9b
+>   R10: ffffed100c7c9f9a R11: 0000000000000003 R12: 0000000000000000
+>   R13: 00000000ffffffea R14: ffff888066214380 R15: ffffffff99851060
+>   FS:  00007f9f8173c700(0000) GS:ffff88806d000000(0000) knlGS:0000000000000000
+>   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>   CR2: 0000000000714dc0 CR3: 0000000066fa6000 CR4: 00000000000006f0
+>   Call Trace:
+>    ? trace_array_printk_buf+0x140/0x140
+>    ? __mutex_lock_slowpath+0x10/0x10
+>    tracing_snapshot_write+0x4c8/0x7f0
+>    ? trace_printk_init_buffers+0x60/0x60
+>    ? selinux_file_permission+0x3b/0x540
+>    ? tracer_preempt_off+0x38/0x506
+>    ? trace_printk_init_buffers+0x60/0x60
+>    __vfs_write+0x81/0x100
+>    vfs_write+0x1e1/0x560
+>    ksys_write+0x126/0x250
+>    ? __ia32_sys_read+0xb0/0xb0
+>    ? do_syscall_64+0x1f/0x390
+>    do_syscall_64+0xc1/0x390
+>    entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> 
+> This patch adds resize_buffer_duplicate_size() to check if there is a
+> difference between current/spare buffer sizes and resize a spare buffer
+> if necessary.
+> 
+> Link: http://lkml.kernel.org/r/20190625012910.13109-1-devel@etsukata.com
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: ad909e21bbe69 ("tracing: Add internal tracing_snapshot() functions")
+> Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
+> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+> Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+> ---
+>  kernel/trace/trace.c | 12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
 
-commit 250715a6171a076748be8ab88b274e72f0cfb435 upstream.
+What is the git commit id of this patch in Linus's tree?
 
-The syzkaller folks reported a NULL pointer dereference that seems
-to be cause by a race between KVM_CREATE_IRQCHIP and KVM_CREATE_PIT2.
-The former takes kvm->lock (except when registering the devices,
-which needs kvm->slots_lock); the latter takes kvm->slots_lock only.
-Change KVM_CREATE_PIT2 to follow the same model as KVM_CREATE_IRQCHIP.
+thanks,
 
-Testcase:
-
-    #include <pthread.h>
-    #include <linux/kvm.h>
-    #include <fcntl.h>
-    #include <sys/ioctl.h>
-    #include <stdint.h>
-    #include <string.h>
-    #include <stdlib.h>
-    #include <sys/syscall.h>
-    #include <unistd.h>
-
-    long r[23];
-
-    void* thr1(void* arg)
-    {
-        struct kvm_pit_config pitcfg = { .flags = 4 };
-        switch ((long)arg) {
-        case 0: r[2]  = open("/dev/kvm", O_RDONLY|O_ASYNC);    break;
-        case 1: r[3]  = ioctl(r[2], KVM_CREATE_VM, 0);         break;
-        case 2: r[4]  = ioctl(r[3], KVM_CREATE_IRQCHIP, 0);    break;
-        case 3: r[22] = ioctl(r[3], KVM_CREATE_PIT2, &pitcfg); break;
-        }
-        return 0;
-    }
-
-    int main(int argc, char **argv)
-    {
-        long i;
-        pthread_t th[4];
-
-        memset(r, -1, sizeof(r));
-        for (i = 0; i < 4; i++) {
-            pthread_create(&th[i], 0, thr, (void*)i);
-            if (argc > 1 && rand()%2) usleep(rand()%1000);
-        }
-        usleep(20000);
-        return 0;
-    }
-
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
-Signed-off-by: Zubin Mithra <zsm@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/kvm/i8254.c |    5 +++--
- arch/x86/kvm/x86.c   |    4 ++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
-
---- a/arch/x86/kvm/i8254.c
-+++ b/arch/x86/kvm/i8254.c
-@@ -678,7 +678,6 @@ static const struct kvm_io_device_ops sp
- 	.write    = speaker_ioport_write,
- };
- 
--/* Caller must hold slots_lock */
- struct kvm_pit *kvm_create_pit(struct kvm *kvm, u32 flags)
- {
- 	struct kvm_pit *pit;
-@@ -733,6 +732,7 @@ struct kvm_pit *kvm_create_pit(struct kv
- 	pit->mask_notifier.func = pit_mask_notifer;
- 	kvm_register_irq_mask_notifier(kvm, 0, &pit->mask_notifier);
- 
-+	mutex_lock(&kvm->slots_lock);
- 	kvm_iodevice_init(&pit->dev, &pit_dev_ops);
- 	ret = kvm_io_bus_register_dev(kvm, KVM_PIO_BUS, KVM_PIT_BASE_ADDRESS,
- 				      KVM_PIT_MEM_LENGTH, &pit->dev);
-@@ -747,13 +747,14 @@ struct kvm_pit *kvm_create_pit(struct kv
- 		if (ret < 0)
- 			goto fail_unregister;
- 	}
-+	mutex_unlock(&kvm->slots_lock);
- 
- 	return pit;
- 
- fail_unregister:
- 	kvm_io_bus_unregister_dev(kvm, KVM_PIO_BUS, &pit->dev);
--
- fail:
-+	mutex_unlock(&kvm->slots_lock);
- 	kvm_unregister_irq_mask_notifier(kvm, 0, &pit->mask_notifier);
- 	kvm_unregister_irq_ack_notifier(kvm, &pit_state->irq_ack_notifier);
- 	kvm_free_irq_source_id(kvm, pit->irq_source_id);
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3867,7 +3867,7 @@ long kvm_arch_vm_ioctl(struct file *filp
- 				   sizeof(struct kvm_pit_config)))
- 			goto out;
- 	create_pit:
--		mutex_lock(&kvm->slots_lock);
-+		mutex_lock(&kvm->lock);
- 		r = -EEXIST;
- 		if (kvm->arch.vpit)
- 			goto create_pit_unlock;
-@@ -3876,7 +3876,7 @@ long kvm_arch_vm_ioctl(struct file *filp
- 		if (kvm->arch.vpit)
- 			r = 0;
- 	create_pit_unlock:
--		mutex_unlock(&kvm->slots_lock);
-+		mutex_unlock(&kvm->lock);
- 		break;
- 	case KVM_GET_IRQCHIP: {
- 		/* 0: PIC master, 1: PIC slave, 2: IOAPIC */
-
-
+greg k-h
