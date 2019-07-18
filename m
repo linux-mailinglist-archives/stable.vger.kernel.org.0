@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D6AF6C6EB
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:20:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B4216C74E
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:24:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389340AbfGRDUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:20:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44736 "EHLO mail.kernel.org"
+        id S2390523AbfGRDHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:07:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391238AbfGRDLM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:11:12 -0400
+        id S2390513AbfGRDHm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:07:42 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D188205F4;
-        Thu, 18 Jul 2019 03:11:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF19B2173E;
+        Thu, 18 Jul 2019 03:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419471;
-        bh=/xAkpM3kOJg/Mwhe9RfVtMXfWjwQWzDs/GzrNCpYdjg=;
+        s=default; t=1563419261;
+        bh=6TvLc+s1Z5B/h1l3/U0Pe2FamVxtuWOhIhEnM7zXQp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W1fZdEi/LEuEq9OhXuWty+4l/FLjTZZnP7msv38ztiC8Glm+5hx+aAWweE7TGkpzN
-         7wibxiG9q1uq7Ms3XdZ28sqFnMcqoJJl8IH8MoIAndc3jKtjD6Q/3RxRHz6aS+JBcA
-         Mj0eOUzIRJm4jolWtz4uMSerVTVmyAsPJ/D4GuoE=
+        b=ryx4VF8mZCxLzgYAN6epACOtx1BkSrnpK0C+gcxdKTAYVhOWQ0KOoCCSwCRO2G++o
+         cbrAWTpTSRNZ3dbZH9ssTD7lKLY6PJ+v3AWoHKrnJJvYRlZP2wJmQg7KVrxUzI0Qqt
+         +vlMTYDuh12YNm/q9NDyIeMyihtNZstx7sOX7ucY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.14 57/80] staging: comedi: amplc_pci230: fix null pointer deref on interrupt
-Date:   Thu, 18 Jul 2019 12:01:48 +0900
-Message-Id: <20190718030102.953260755@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 4.19 36/47] ARC: hide unused function unw_hdr_alloc
+Date:   Thu, 18 Jul 2019 12:01:50 +0900
+Message-Id: <20190718030051.825109263@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
+References: <20190718030045.780672747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 7379e6baeddf580d01feca650ec1ad508b6ea8ee upstream.
+commit fd5de2721ea7d16e2b16c4049ac49f229551b290 upstream.
 
-The interrupt handler `pci230_interrupt()` causes a null pointer
-dereference for a PCI260 card.  There is no analog output subdevice for
-a PCI260.  The `dev->write_subdev` subdevice pointer and therefore the
-`s_ao` subdevice pointer variable will be `NULL` for a PCI260.  The
-following call near the end of the interrupt handler results in the null
-pointer dereference for a PCI260:
+As kernelci.org reports, this function is not used in
+vdk_hs38_defconfig:
 
-	comedi_handle_events(dev, s_ao);
+arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but not used [-Wunused-function]
 
-Fix it by only calling the above function if `s_ao` is valid.
-
-Note that the other uses of `s_ao` in the calls
-`pci230_handle_ao_nofifo(dev, s_ao);` and `pci230_handle_ao_fifo(dev,
-s_ao);` will never be reached for a PCI260, so they are safe.
-
-Fixes: 39064f23284c ("staging: comedi: amplc_pci230: use comedi_handle_events()")
-Cc: <stable@vger.kernel.org> # v3.19+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Fixes: bc79c9a72165 ("ARC: dw2 unwind: Reinstante unwinding out of modules")
+Link: https://kernelci.org/build/id/5d1cae3f59b514300340c132/logs/
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/amplc_pci230.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arc/kernel/unwind.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/staging/comedi/drivers/amplc_pci230.c
-+++ b/drivers/staging/comedi/drivers/amplc_pci230.c
-@@ -2339,7 +2339,8 @@ static irqreturn_t pci230_interrupt(int
- 	devpriv->intr_running = false;
- 	spin_unlock_irqrestore(&devpriv->isr_spinlock, irqflags);
+--- a/arch/arc/kernel/unwind.c
++++ b/arch/arc/kernel/unwind.c
+@@ -185,11 +185,6 @@ static void *__init unw_hdr_alloc_early(
+ 				       MAX_DMA_ADDRESS);
+ }
  
--	comedi_handle_events(dev, s_ao);
-+	if (s_ao)
-+		comedi_handle_events(dev, s_ao);
- 	comedi_handle_events(dev, s_ai);
+-static void *unw_hdr_alloc(unsigned long sz)
+-{
+-	return kmalloc(sz, GFP_KERNEL);
+-}
+-
+ static void init_unwind_table(struct unwind_table *table, const char *name,
+ 			      const void *core_start, unsigned long core_size,
+ 			      const void *init_start, unsigned long init_size,
+@@ -370,6 +365,10 @@ ret_err:
+ }
  
- 	return IRQ_HANDLED;
+ #ifdef CONFIG_MODULES
++static void *unw_hdr_alloc(unsigned long sz)
++{
++	return kmalloc(sz, GFP_KERNEL);
++}
+ 
+ static struct unwind_table *last_table;
+ 
 
 
