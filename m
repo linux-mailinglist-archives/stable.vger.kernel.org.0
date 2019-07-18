@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 231A56C6E8
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:20:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24F616C750
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:24:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390618AbfGRDL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:11:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44866 "EHLO mail.kernel.org"
+        id S2390006AbfGRDHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:07:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391274AbfGRDLT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:11:19 -0400
+        id S2389707AbfGRDHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:07:44 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E64D205F4;
-        Thu, 18 Jul 2019 03:11:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E88DD2053B;
+        Thu, 18 Jul 2019 03:07:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419477;
-        bh=yoCpDKEXgc/jPOEZGenf4VgfdDgWReN7+VHm3FbOkeQ=;
+        s=default; t=1563419263;
+        bh=Ynu8yvodwMQx0uHwqI/HZYYLMvXKfqE7ZdfD2W0l3r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h0RRx5Ix4oXXlsNjkRSqVBFTA89LyDYmi311ubLMYgI3FnupecowwKtbxL7RV4z7w
-         V+N8r9ABJvw+ACACMCTpIOX72gVL3egJ1a3oo5/LunlB6vczyieFIAb2zR2jwkiBbJ
-         87tlRXhKocPB81Fc1kmjLnvhs9DeFwk3Z4VXDWis=
+        b=FKAorxiG/MDLofclpP7mDtyuTdlhOtz2nIniBQ4F7HV7H6i507D5acedLNs1iEijJ
+         m4hufzAAcAUoBzSmekZtUQg1NRbUgfCpBaaStCaigKZN7y91pteZxhIECgIHNUcm9b
+         NlwhmHGWhQJ92u8fHAbp1M++w1T7CZ9EzVcxzl80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 59/80] carl9170: fix misuse of device driver API
-Date:   Thu, 18 Jul 2019 12:01:50 +0900
-Message-Id: <20190718030103.086921187@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH 4.19 37/47] s390: fix stfle zero padding
+Date:   Thu, 18 Jul 2019 12:01:51 +0900
+Message-Id: <20190718030051.901813536@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
+References: <20190718030045.780672747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,148 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-commit feb09b2933275a70917a869989ea2823e7356be8 upstream.
+commit 4f18d869ffd056c7858f3d617c71345cf19be008 upstream.
 
-This patch follows Alan Stern's recent patch:
-"p54: Fix race between disconnect and firmware loading"
+The stfle inline assembly returns the number of double words written
+(condition code 0) or the double words it would have written
+(condition code 3), if the memory array it got as parameter would have
+been large enough.
 
-that overhauled carl9170 buggy firmware loading and driver
-unbinding procedures.
+The current stfle implementation assumes that the array is always
+large enough and clears those parts of the array that have not been
+written to with a subsequent memset call.
 
-Since the carl9170 code was adapted from p54 it uses the
-same functions and is likely to have the same problem, but
-it's just that the syzbot hasn't reproduce them (yet).
+If however the array is not large enough memset will get a negative
+length parameter, which means that memset clears memory until it gets
+an exception and the kernel crashes.
 
-a summary from the changes (copied from the p54 patch):
- * Call usb_driver_release_interface() rather than
-   device_release_driver().
+To fix this simply limit the maximum length. Move also the inline
+assembly to an extra function to avoid clobbering of register 0, which
+might happen because of the added min_t invocation together with code
+instrumentation.
 
- * Lock udev (the interface's parent) before unbinding the
-   driver instead of locking udev->parent.
+The bug was introduced with commit 14375bc4eb8d ("[S390] cleanup
+facility list handling") but was rather harmless, since it would only
+write to a rather large array. It became a potential problem with
+commit 3ab121ab1866 ("[S390] kernel: Add z/VM LGR detection"). Since
+then it writes to an array with only four double words, while some
+machines already deliver three double words. As soon as machines have
+a facility bit within the fifth double a crash on IPL would happen.
 
- * During the firmware loading process, take a reference
-   to the USB interface instead of the USB device.
-
- * Don't take an unnecessary reference to the device during
-   probe (and then don't drop it during disconnect).
-
-and
-
- * Make sure to prevent use-after-free bugs by explicitly
-   setting the driver context to NULL after signaling the
-   completion.
-
-Cc: <stable@vger.kernel.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 14375bc4eb8d ("[S390] cleanup facility list handling")
+Cc: <stable@vger.kernel.org> # v2.6.37+
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/carl9170/usb.c |   39 +++++++++++++-------------------
- 1 file changed, 17 insertions(+), 22 deletions(-)
+ arch/s390/include/asm/facility.h |   21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
---- a/drivers/net/wireless/ath/carl9170/usb.c
-+++ b/drivers/net/wireless/ath/carl9170/usb.c
-@@ -128,6 +128,8 @@ static const struct usb_device_id carl91
- };
- MODULE_DEVICE_TABLE(usb, carl9170_usb_ids);
+--- a/arch/s390/include/asm/facility.h
++++ b/arch/s390/include/asm/facility.h
+@@ -59,6 +59,18 @@ static inline int test_facility(unsigned
+ 	return __test_facility(nr, &S390_lowcore.stfle_fac_list);
+ }
  
-+static struct usb_driver carl9170_driver;
++static inline unsigned long __stfle_asm(u64 *stfle_fac_list, int size)
++{
++	register unsigned long reg0 asm("0") = size - 1;
 +
- static void carl9170_usb_submit_data_urb(struct ar9170 *ar)
- {
- 	struct urb *urb;
-@@ -966,32 +968,28 @@ err_out:
- 
- static void carl9170_usb_firmware_failed(struct ar9170 *ar)
- {
--	struct device *parent = ar->udev->dev.parent;
--	struct usb_device *udev;
++	asm volatile(
++		".insn s,0xb2b00000,0(%1)" /* stfle */
++		: "+d" (reg0)
++		: "a" (stfle_fac_list)
++		: "memory", "cc");
++	return reg0;
++}
++
+ /**
+  * stfle - Store facility list extended
+  * @stfle_fac_list: array where facility list can be stored
+@@ -76,13 +88,8 @@ static inline void stfle(u64 *stfle_fac_
+ 	memcpy(stfle_fac_list, &S390_lowcore.stfl_fac_list, 4);
+ 	if (S390_lowcore.stfl_fac_list & 0x01000000) {
+ 		/* More facility bits available with stfle */
+-		register unsigned long reg0 asm("0") = size - 1;
 -
--	/*
--	 * Store a copy of the usb_device pointer locally.
--	 * This is because device_release_driver initiates
--	 * carl9170_usb_disconnect, which in turn frees our
--	 * driver context (ar).
-+	/* Store a copies of the usb_interface and usb_device pointer locally.
-+	 * This is because release_driver initiates carl9170_usb_disconnect,
-+	 * which in turn frees our driver context (ar).
- 	 */
--	udev = ar->udev;
-+	struct usb_interface *intf = ar->intf;
-+	struct usb_device *udev = ar->udev;
- 
- 	complete(&ar->fw_load_wait);
-+	/* at this point 'ar' could be already freed. Don't use it anymore */
-+	ar = NULL;
- 
- 	/* unbind anything failed */
--	if (parent)
--		device_lock(parent);
--
--	device_release_driver(&udev->dev);
--	if (parent)
--		device_unlock(parent);
-+	usb_lock_device(udev);
-+	usb_driver_release_interface(&carl9170_driver, intf);
-+	usb_unlock_device(udev);
- 
--	usb_put_dev(udev);
-+	usb_put_intf(intf);
- }
- 
- static void carl9170_usb_firmware_finish(struct ar9170 *ar)
- {
-+	struct usb_interface *intf = ar->intf;
- 	int err;
- 
- 	err = carl9170_parse_firmware(ar);
-@@ -1009,7 +1007,7 @@ static void carl9170_usb_firmware_finish
- 		goto err_unrx;
- 
- 	complete(&ar->fw_load_wait);
--	usb_put_dev(ar->udev);
-+	usb_put_intf(intf);
- 	return;
- 
- err_unrx:
-@@ -1052,7 +1050,6 @@ static int carl9170_usb_probe(struct usb
- 		return PTR_ERR(ar);
- 
- 	udev = interface_to_usbdev(intf);
--	usb_get_dev(udev);
- 	ar->udev = udev;
- 	ar->intf = intf;
- 	ar->features = id->driver_info;
-@@ -1094,15 +1091,14 @@ static int carl9170_usb_probe(struct usb
- 	atomic_set(&ar->rx_anch_urbs, 0);
- 	atomic_set(&ar->rx_pool_urbs, 0);
- 
--	usb_get_dev(ar->udev);
-+	usb_get_intf(intf);
- 
- 	carl9170_set_state(ar, CARL9170_STOPPED);
- 
- 	err = request_firmware_nowait(THIS_MODULE, 1, CARL9170FW_NAME,
- 		&ar->udev->dev, GFP_KERNEL, ar, carl9170_usb_firmware_step2);
- 	if (err) {
--		usb_put_dev(udev);
--		usb_put_dev(udev);
-+		usb_put_intf(intf);
- 		carl9170_free(ar);
+-		asm volatile(".insn s,0xb2b00000,0(%1)" /* stfle */
+-			     : "+d" (reg0)
+-			     : "a" (stfle_fac_list)
+-			     : "memory", "cc");
+-		nr = (reg0 + 1) * 8; /* # bytes stored by stfle */
++		nr = __stfle_asm(stfle_fac_list, size);
++		nr = min_t(unsigned long, (nr + 1) * 8, size * 8);
  	}
- 	return err;
-@@ -1131,7 +1127,6 @@ static void carl9170_usb_disconnect(stru
- 
- 	carl9170_release_firmware(ar);
- 	carl9170_free(ar);
--	usb_put_dev(udev);
- }
- 
- #ifdef CONFIG_PM
+ 	memset((char *) stfle_fac_list + nr, 0, size * 8 - nr);
+ 	preempt_enable();
 
 
