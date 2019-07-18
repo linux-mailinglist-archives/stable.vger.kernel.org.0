@@ -2,80 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B27C36C43A
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 03:31:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BB846C4C8
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 04:04:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727811AbfGRBbH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 21:31:07 -0400
-Received: from vps0.lunn.ch ([185.16.172.187]:49210 "EHLO vps0.lunn.ch"
+        id S1727822AbfGRCEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 22:04:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727804AbfGRBbH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 21:31:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-        s=20171124; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-        Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=4wErmAY4zUKJSvpR2R2+UnKAN/+PII1YmLV60iUy0K0=; b=feAQqClO/uTtYlhjOXWIWpEm0W
-        O8CbZldGibng/pHu50IoNXHDN043e9j6+jvKUsJX3m6tqz5OKF4WgJLvoHlGSpEIifEYk92Cjy5qC
-        jkHMWjTOU9e1kolt0X8BGmYr8fcCiYHyFdbkC1qUfbeqhsFpTJXO0LtcsWg/tGUuLnK4=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.89)
-        (envelope-from <andrew@lunn.ch>)
-        id 1hnvG8-0001zA-1M; Thu, 18 Jul 2019 03:31:00 +0200
-Date:   Thu, 18 Jul 2019 03:31:00 +0200
-From:   Andrew Lunn <andrew@lunn.ch>
-To:     Rob Herring <robh+dt@kernel.org>
-Cc:     josua@solid-run.com, netdev <netdev@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH 1/4] dt-bindings: allow up to four clocks for orion-mdio
-Message-ID: <20190718013100.GB6962@lunn.ch>
-References: <20190706151900.14355-1-josua@solid-run.com>
- <20190706151900.14355-2-josua@solid-run.com>
- <CAL_JsqJJA6=2b=VzDzS1ipOatpRuVBUmReYoOMf-9p39=jyF8Q@mail.gmail.com>
- <20190709024143.GD5835@lunn.ch>
- <CAL_JsqK=qpCi6whqmjW2L8O=3u4oZemH=czm60q9QnC09Gr_ig@mail.gmail.com>
+        id S1727793AbfGRCEv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 22:04:51 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 721E0205F4;
+        Thu, 18 Jul 2019 02:04:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563415489;
+        bh=IlFLXWD66Je93ddE8P2KBQiIDc6A3q7YUNHssh7SATw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=pfc80XueSJ3B4Cv4x9oiFuBr1Y3WWmpnMmsgvWgsdvGeyrK7W+gBi8hNZKM3vXNd6
+         Mge8KjMGYEmWl7GTBEJ4Li9KRnFpxpd8iwYj92rK2p07xktkd9ReOfPA9/v4sEFdM7
+         SNYhxes6eOfwi01dIvRYIePtDUNmm7SfAZ27gRec=
+Date:   Wed, 17 Jul 2019 22:04:48 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     linux-nvdimm@lists.01.org, stable@vger.kernel.org,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Jane Chu <jane.chu@oracle.com>, peterz@infradead.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 6/7] libnvdimm/bus: Fix wait_nvdimm_bus_probe_idle()
+ ABBA deadlock
+Message-ID: <20190718020448.GE3079@sasha-vm>
+References: <156341206785.292348.1660822720191643298.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <156341210094.292348.2384694131126767789.stgit@dwillia2-desk3.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CAL_JsqK=qpCi6whqmjW2L8O=3u4oZemH=czm60q9QnC09Gr_ig@mail.gmail.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <156341210094.292348.2384694131126767789.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 09, 2019 at 04:03:28PM -0600, Rob Herring wrote:
-> On Mon, Jul 8, 2019 at 8:41 PM Andrew Lunn <andrew@lunn.ch> wrote:
-> >
-> > > >  Optional properties:
-> > > >  - interrupts: interrupt line number for the SMI error/done interrupt
-> > > > -- clocks: phandle for up to three required clocks for the MDIO instance
-> > > > +- clocks: phandle for up to four required clocks for the MDIO instance
-> > >
-> > > This needs to enumerate exactly what the clocks are. Shouldn't there
-> > > be an additional clock-names value too?
-> >
-> > Hi Rob
-> >
-> > The driver does not care what they are called. It just turns them all
-> > on, and turns them off again when removed.
-> 
-> That's fine for the driver to do, but this is the hardware description.
-> 
-> It's not just what they are called, but how many too. Is 1 clock in
-> the DT valid? 0? It would be unusual for a given piece of h/w to
-> function with a variable number of clocks.
+On Wed, Jul 17, 2019 at 06:08:21PM -0700, Dan Williams wrote:
+>A multithreaded namespace creation/destruction stress test currently
+>deadlocks with the following lockup signature:
+>
+>    INFO: task ndctl:2924 blocked for more than 122 seconds.
+>          Tainted: G           OE     5.2.0-rc4+ #3382
+>    "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+>    ndctl           D    0  2924   1176 0x00000000
+>    Call Trace:
+>     ? __schedule+0x27e/0x780
+>     schedule+0x30/0xb0
+>     wait_nvdimm_bus_probe_idle+0x8a/0xd0 [libnvdimm]
+>     ? finish_wait+0x80/0x80
+>     uuid_store+0xe6/0x2e0 [libnvdimm]
+>     kernfs_fop_write+0xf0/0x1a0
+>     vfs_write+0xb7/0x1b0
+>     ksys_write+0x5c/0xd0
+>     do_syscall_64+0x60/0x240
+>
+>     INFO: task ndctl:2923 blocked for more than 122 seconds.
+>           Tainted: G           OE     5.2.0-rc4+ #3382
+>     "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+>     ndctl           D    0  2923   1175 0x00000000
+>     Call Trace:
+>      ? __schedule+0x27e/0x780
+>      ? __mutex_lock+0x489/0x910
+>      schedule+0x30/0xb0
+>      schedule_preempt_disabled+0x11/0x20
+>      __mutex_lock+0x48e/0x910
+>      ? nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
+>      ? __lock_acquire+0x23f/0x1710
+>      ? nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
+>      nvdimm_namespace_common_probe+0x95/0x4d0 [libnvdimm]
+>      __dax_pmem_probe+0x5e/0x210 [dax_pmem_core]
+>      ? nvdimm_bus_probe+0x1d0/0x2c0 [libnvdimm]
+>      dax_pmem_probe+0xc/0x20 [dax_pmem]
+>      nvdimm_bus_probe+0x90/0x2c0 [libnvdimm]
+>      really_probe+0xef/0x390
+>      driver_probe_device+0xb4/0x100
+>
+>In this sequence an 'nd_dax' device is being probed and trying to take
+>the lock on its backing namespace to validate that the 'nd_dax' device
+>indeed has exclusive access to the backing namespace. Meanwhile, another
+>thread is trying to update the uuid property of that same backing
+>namespace. So one thread is in the probe path trying to acquire the
+>lock, and the other thread has acquired the lock and tries to flush the
+>probe path.
+>
+>Fix this deadlock by not holding the namespace device_lock over the
+>wait_nvdimm_bus_probe_idle() synchronization step. In turn this requires
+>the device_lock to be held on entry to wait_nvdimm_bus_probe_idle() and
+>subsequently dropped internally to wait_nvdimm_bus_probe_idle().
+>
+>Cc: <stable@vger.kernel.org>
+>Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation")
+>Cc: Vishal Verma <vishal.l.verma@intel.com>
+>Tested-by: Jane Chu <jane.chu@oracle.com>
+>Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 
-Hi Rob
+Hi Dan,
 
-The orion5x has 0 clocks. kirkwood, dove, Armada XP, 370 375, 380
-has 1 clock. Armada 37xx has 4.
+The way these patches are split, when we take them to stable this patch
+won't apply because it wants "libnvdimm/bus: Prepare the nd_ioctl() path
+to be re-entrant".
 
-So yes, 1 clock is valid. 0 clocks is also valid. The piece of
-hardware itself does not care how many clocks are feeding it, so long
-as they are all turned on.
+If you were to send another iteration of this patchset, could you please
+re-order the patches so they will apply cleanly to stable? this will
+help with reducing mail exchanges later on and possibly a mis-merge into
+stable.
 
-   Andrew 
+If not, this should serve as a reference for future us to double check
+the backport.
+
+--
+Thanks,
+Sasha
