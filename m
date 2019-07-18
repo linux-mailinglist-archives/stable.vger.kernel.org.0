@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C2116C6F9
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:21:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B13396C78A
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389430AbfGRDUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:20:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
+        id S2389920AbfGRDFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:05:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391147AbfGRDKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:10:17 -0400
+        id S2389899AbfGRDFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:05:19 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C260221841;
-        Thu, 18 Jul 2019 03:10:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 812C021848;
+        Thu, 18 Jul 2019 03:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419417;
-        bh=NcZZzhaLzdat+yqaF8MIGu8GX/hbheQFPNJEoYo0n4k=;
+        s=default; t=1563419118;
+        bh=Cw8nZhSNTC1JErlNBl+stX66sOGdrKeE3CNCJw9MiTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DbgrAYDCRch4sv6EdLUp3Xly+fJgwi7VYgMfQBCqfHm+JDrVmvZ71Yi4hnny7eANM
-         mgrQTiuNqNX1mhV7OwLx/ZHHPJAuvPyTiQhx7HU9FmuraIw4eKlJXHindCORYa17zf
-         PRTaTXbPI0atFS1jc7bj/rY88RfysZPDNaf7Tx14=
+        b=KQAxbbL9LLEQOhg77C8Im7f+Iomg7AQ3o0eoZu4BjiFE/7Ny5LKAKjaAOLl63jz9s
+         Vh485AaehisXaxquO78dDrMsjRXZPYJk4N4rWm28+LsgJa/d4QmIySLpGC4KukGFel
+         EbKtGXUqIpQeVWm2erfgr0EtKN/X9Y+3zV3NAblY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hongjie Fang <hongjiefang@asrmicro.com>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.14 40/80] fscrypt: dont set policy for a dead directory
+        stable@vger.kernel.org, Eiichi Tsukata <devel@etsukata.com>,
+        Thomas Gleixner <tglx@linutronix.de>, peterz@infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 36/54] cpu/hotplug: Fix out-of-bounds read when setting fail state
 Date:   Thu, 18 Jul 2019 12:01:31 +0900
-Message-Id: <20190718030101.746236336@linuxfoundation.org>
+Message-Id: <20190718030056.073634451@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
+References: <20190718030053.287374640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongjie Fang <hongjiefang@asrmicro.com>
+[ Upstream commit 33d4a5a7a5b4d02915d765064b2319e90a11cbde ]
 
-commit 5858bdad4d0d0fc18bf29f34c3ac836e0b59441f upstream.
+Setting invalid value to /sys/devices/system/cpu/cpuX/hotplug/fail
+can control `struct cpuhp_step *sp` address, results in the following
+global-out-of-bounds read.
 
-The directory may have been removed when entering
-fscrypt_ioctl_set_policy().  If so, the empty_dir() check will return
-error for ext4 file system.
+Reproducer:
 
-ext4_rmdir() sets i_size = 0, then ext4_empty_dir() reports an error
-because 'inode->i_size < EXT4_DIR_REC_LEN(1) + EXT4_DIR_REC_LEN(2)'.  If
-the fs is mounted with errors=panic, it will trigger a panic issue.
+  # echo -2 > /sys/devices/system/cpu/cpu0/hotplug/fail
 
-Add the check IS_DEADDIR() to fix this problem.
+KASAN report:
 
-Fixes: 9bd8212f981e ("ext4 crypto: add encryption policy and password salt support")
-Cc: <stable@vger.kernel.org> # v4.1+
-Signed-off-by: Hongjie Fang <hongjiefang@asrmicro.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  BUG: KASAN: global-out-of-bounds in write_cpuhp_fail+0x2cd/0x2e0
+  Read of size 8 at addr ffffffff89734438 by task bash/1941
 
+  CPU: 0 PID: 1941 Comm: bash Not tainted 5.2.0-rc6+ #31
+  Call Trace:
+   write_cpuhp_fail+0x2cd/0x2e0
+   dev_attr_store+0x58/0x80
+   sysfs_kf_write+0x13d/0x1a0
+   kernfs_fop_write+0x2bc/0x460
+   vfs_write+0x1e1/0x560
+   ksys_write+0x126/0x250
+   do_syscall_64+0xc1/0x390
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  RIP: 0033:0x7f05e4f4c970
+
+  The buggy address belongs to the variable:
+   cpu_hotplug_lock+0x98/0xa0
+
+  Memory state around the buggy address:
+   ffffffff89734300: fa fa fa fa 00 00 00 00 00 00 00 00 00 00 00 00
+   ffffffff89734380: fa fa fa fa 00 00 00 00 00 00 00 00 00 00 00 00
+  >ffffffff89734400: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
+                                          ^
+   ffffffff89734480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   ffffffff89734500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Add a sanity check for the value written from user space.
+
+Fixes: 1db49484f21ed ("smp/hotplug: Hotplug state fail injection")
+Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: peterz@infradead.org
+Link: https://lkml.kernel.org/r/20190627024732.31672-1-devel@etsukata.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/crypto/policy.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/cpu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/crypto/policy.c
-+++ b/fs/crypto/policy.c
-@@ -81,6 +81,8 @@ int fscrypt_ioctl_set_policy(struct file
- 	if (ret == -ENODATA) {
- 		if (!S_ISDIR(inode->i_mode))
- 			ret = -ENOTDIR;
-+		else if (IS_DEADDIR(inode))
-+			ret = -ENOENT;
- 		else if (!inode->i_sb->s_cop->empty_dir(inode))
- 			ret = -ENOTEMPTY;
- 		else
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index 6170034f4118..e97e7224ab47 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -1954,6 +1954,9 @@ static ssize_t write_cpuhp_fail(struct device *dev,
+ 	if (ret)
+ 		return ret;
+ 
++	if (fail < CPUHP_OFFLINE || fail > CPUHP_ONLINE)
++		return -EINVAL;
++
+ 	/*
+ 	 * Cannot fail STARTING/DYING callbacks.
+ 	 */
+-- 
+2.20.1
+
 
 
