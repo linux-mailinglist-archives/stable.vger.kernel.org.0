@@ -2,186 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E8F6D700
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 00:59:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99CBB6D711
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 01:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391743AbfGRW6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 18:58:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46854 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728025AbfGRW6j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 18:58:39 -0400
-Received: from akpm3.svl.corp.google.com (unknown [104.133.8.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AD33204EC;
-        Thu, 18 Jul 2019 22:58:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563490717;
-        bh=XZaZB/xjYskIPAYfOLQyVkX71tURz4pFuZvN63IpMTM=;
-        h=Date:From:To:Subject:From;
-        b=hPLPl7w6eH6U0bA/D8Agegsb1e5VggQVdzUYJUVkbObvHpSzq98i38ovF5h0bL7pY
-         SEaJnrz8cKwMWv0wsxE7qgRUMI7hUt55EFMMoWTJwQKmGCgt4HIZoB5qYE2ELR1i9i
-         RlJL5Wym4WPzRfRTN8zqVwsi/3vmQ7MQm+C/M9YI=
-Date:   Thu, 18 Jul 2019 15:58:36 -0700
-From:   akpm@linux-foundation.org
-To:     vbabka@suse.cz, toshi.kani@hpe.com, stable@vger.kernel.org,
-        rppt@linux.ibm.com, richardw.yang@linux.intel.com,
-        pasha.tatashin@soleen.com, osalvador@suse.de, mhocko@suse.com,
-        logang@deltatee.com, jmoyer@redhat.com, jglisse@redhat.com,
-        jgg@mellanox.com, jane.chu@oracle.com, hch@lst.de,
-        david@redhat.com, corbet@lwn.net, aneesh.kumar@linux.ibm.com,
-        dan.j.williams@intel.com, akpm@linux-foundation.org,
-        mm-commits@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 34/38] libnvdimm/pfn: fix fsdax-mode namespace
- info-block zero-fields
-Message-ID: <20190718225836.vxU6D%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S2391612AbfGRXG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 19:06:26 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:42985 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728524AbfGRXGZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 19:06:25 -0400
+Received: by mail-pf1-f196.google.com with SMTP id q10so13276011pff.9;
+        Thu, 18 Jul 2019 16:06:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=CDu5Kn4QFjEkN6S2Xi1spwhgFAxF5TT+4s/SdRvC5So=;
+        b=d+kMhlchlK+IwnmxF+LJD6miI6/PJ0pybbjjWICwRUILKsyu7RtojUd0wkxkxMy8WK
+         j6cPU1kB4wCtRjLl+DBzK/HPANbychfiaNdgu+kDPrjHUeA5jdqzmAJ//YT0fseOC5HL
+         5u+ZjCaET3giS5fmnZ4Ewv8zeX4pkcjbcbtjwsq11Xs0bO2LTCMsPvOIy1OXQlO8ZGQC
+         LJnv6vn1T9DGSOd4VLOJIr5BLBeyWBY5VBLDin+bB63EE7qW5ciKShMmE/ZLgRPNGQUC
+         ruhbubEg0gPNa1nyoK3U8TC/aNhmHsXFaf/DKEBT7Mv+78WO+OgiYBwP6DJS6ceaJU7N
+         WEUw==
+X-Gm-Message-State: APjAAAVUZ2MfkvVMR9Kt+itOeF2JAFZM+9Ieaf+cfMC2wk2UZAvh8Yre
+        /dNoLwPo7BZ8/SFIojgSCTs=
+X-Google-Smtp-Source: APXvYqzTE+H408VupO91D8wV4QPH7oeH5wb749VlasrHjqp6Jfh7DA1tBWVa9i20GbITeiMa4nm8dA==
+X-Received: by 2002:a17:90a:c20e:: with SMTP id e14mr11177928pjt.0.1563491184681;
+        Thu, 18 Jul 2019 16:06:24 -0700 (PDT)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id g62sm27651586pje.11.2019.07.18.16.06.19
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Thu, 18 Jul 2019 16:06:19 -0700 (PDT)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 176CB403B8; Thu, 18 Jul 2019 23:06:19 +0000 (UTC)
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     linux-xfs@vger.kernel.org, gregkh@linuxfoundation.org,
+        Alexander.Levin@microsoft.com
+Cc:     stable@vger.kernel.org, amir73il@gmail.com, hch@infradead.org,
+        zlang@redhat.com, Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 0/9] xfs: stable fixes for v4.19.y - circa ~ v4.19.58
+Date:   Thu, 18 Jul 2019 23:06:08 +0000
+Message-Id: <20190718230617.7439-1-mcgrof@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
-Subject: libnvdimm/pfn: fix fsdax-mode namespace info-block zero-fields
+"Oyez Oyez..." its time for a stable update of fixes for XFS. 4 out of the
+9 fixes here were recommended by Amir, and tested by both Amir and Sasha.
+I've found a few other fixes, and have tested all these changes with
+fstests against the following configurations in fstests sections as per
+oscheck [0] and found no regressions in comparsin to v4.19.58 and by
+running the full set of tests 3 times completely:
 
-At namespace creation time there is the potential for the "expected to be
-zero" fields of a 'pfn' info-block to be filled with indeterminate data.=20
-While the kernel buffer is zeroed on allocation it is immediately
-overwritten by nd_pfn_validate() filling it with the current contents of
-the on-media info-block location.  For fields like, 'flags' and the
-'padding' it potentially means that future implementations can not rely on
-those fields being zero.
+  * xfs
+  * xfs_nocrc
+  * xfs_nocrc_512
+  * xfs_reflink
+  * xfs_reflink_1024
+  * xfs_logdev
+  * xfs_realtimedev
 
-In preparation to stop using the 'start_pad' and 'end_trunc' fields for
-section alignment, arrange for fields that are not explicitly initialized
-to be guaranteed zero.  Bump the minor version to indicate it is safe to
-assume the 'padding' and 'flags' are zero.  Otherwise, this corruption is
-expected to benign since all other critical fields are explicitly
-initialized.
+Known issues are listed on the expunges files, but its no different than
+the current baseline.
 
-Note The cc: stable is about spreading this new policy to as many kernels
-as possible not fixing an issue in those kernels.  It is not until the
-change titled "libnvdimm/pfn: Stop padding pmem namespaces to section
-alignment" where this improper initialization becomes a problem.  So if
-someone decides to backport "libnvdimm/pfn: Stop padding pmem namespaces
-to section alignment" (which is not tagged for stable), make sure this
-pre-requisite is flagged.
+Worth noting is a now known generic/388 crash on xfs_nocrc, xfs_reflink,
+and what may be a new section we should consider to track:
+"xfs_reflink_normapbt" with the following resulting filesystem:
 
-Link: http://lkml.kernel.org/r/156092356065.979959.6681003754765958296.stgi=
-t@dwillia2-desk3.amr.corp.intel.com
-Fixes: 32ab0a3f5170 ("libnvdimm, pmem: 'struct page' for pmem")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Tested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>	[ppc64]
-Cc: <stable@vger.kernel.org>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Jane Chu <jane.chu@oracle.com>
-Cc: Jeff Moyer <jmoyer@redhat.com>
-Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+# xfs_info /dev/loop5
+meta-data=/dev/loop5             isize=512    agcount=4, agsize=1310720 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=1, sparse=1, rmapbt=0
+         =                       reflink=1
+data     =                       bsize=4096   blocks=5242880, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0, ftype=1
+log      =internal log           bsize=4096   blocks=2560, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
 
- drivers/nvdimm/dax_devs.c |    2 +-
- drivers/nvdimm/pfn.h      |    1 +
- drivers/nvdimm/pfn_devs.c |   18 +++++++++++++++---
- 3 files changed, 17 insertions(+), 4 deletions(-)
+Do we want to create a baseline and track this configuration for stable
+as well?
 
---- a/drivers/nvdimm/dax_devs.c~libnvdimm-pfn-fix-fsdax-mode-namespace-info=
--block-zero-fields
-+++ a/drivers/nvdimm/dax_devs.c
-@@ -118,7 +118,7 @@ int nd_dax_probe(struct device *dev, str
- 	nvdimm_bus_unlock(&ndns->dev);
- 	if (!dax_dev)
- 		return -ENOMEM;
--	pfn_sb =3D devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
-+	pfn_sb =3D devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
- 	nd_pfn->pfn_sb =3D pfn_sb;
- 	rc =3D nd_pfn_validate(nd_pfn, DAX_SIG);
- 	dev_dbg(dev, "dax: %s\n", rc =3D=3D 0 ? dev_name(dax_dev) : "<none>");
---- a/drivers/nvdimm/pfn_devs.c~libnvdimm-pfn-fix-fsdax-mode-namespace-info=
--block-zero-fields
-+++ a/drivers/nvdimm/pfn_devs.c
-@@ -412,6 +412,15 @@ static int nd_pfn_clear_memmap_errors(st
- 	return 0;
- }
-=20
-+/**
-+ * nd_pfn_validate - read and validate info-block
-+ * @nd_pfn: fsdax namespace runtime state / properties
-+ * @sig: 'devdax' or 'fsdax' signature
-+ *
-+ * Upon return the info-block buffer contents (->pfn_sb) are
-+ * indeterminate when validation fails, and a coherent info-block
-+ * otherwise.
-+ */
- int nd_pfn_validate(struct nd_pfn *nd_pfn, const char *sig)
- {
- 	u64 checksum, offset;
-@@ -557,7 +566,7 @@ int nd_pfn_probe(struct device *dev, str
- 	nvdimm_bus_unlock(&ndns->dev);
- 	if (!pfn_dev)
- 		return -ENOMEM;
--	pfn_sb =3D devm_kzalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
-+	pfn_sb =3D devm_kmalloc(dev, sizeof(*pfn_sb), GFP_KERNEL);
- 	nd_pfn =3D to_nd_pfn(pfn_dev);
- 	nd_pfn->pfn_sb =3D pfn_sb;
- 	rc =3D nd_pfn_validate(nd_pfn, PFN_SIG);
-@@ -693,7 +702,7 @@ static int nd_pfn_init(struct nd_pfn *nd
- 	u64 checksum;
- 	int rc;
-=20
--	pfn_sb =3D devm_kzalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
-+	pfn_sb =3D devm_kmalloc(&nd_pfn->dev, sizeof(*pfn_sb), GFP_KERNEL);
- 	if (!pfn_sb)
- 		return -ENOMEM;
-=20
-@@ -702,11 +711,14 @@ static int nd_pfn_init(struct nd_pfn *nd
- 		sig =3D DAX_SIG;
- 	else
- 		sig =3D PFN_SIG;
-+
- 	rc =3D nd_pfn_validate(nd_pfn, sig);
- 	if (rc !=3D -ENODEV)
- 		return rc;
-=20
- 	/* no info block, do init */;
-+	memset(pfn_sb, 0, sizeof(*pfn_sb));
-+
- 	nd_region =3D to_nd_region(nd_pfn->dev.parent);
- 	if (nd_region->ro) {
- 		dev_info(&nd_pfn->dev,
-@@ -759,7 +771,7 @@ static int nd_pfn_init(struct nd_pfn *nd
- 	memcpy(pfn_sb->uuid, nd_pfn->uuid, 16);
- 	memcpy(pfn_sb->parent_uuid, nd_dev_to_uuid(&ndns->dev), 16);
- 	pfn_sb->version_major =3D cpu_to_le16(1);
--	pfn_sb->version_minor =3D cpu_to_le16(2);
-+	pfn_sb->version_minor =3D cpu_to_le16(3);
- 	pfn_sb->start_pad =3D cpu_to_le32(start_pad);
- 	pfn_sb->end_trunc =3D cpu_to_le32(end_trunc);
- 	pfn_sb->align =3D cpu_to_le32(nd_pfn->align);
---- a/drivers/nvdimm/pfn.h~libnvdimm-pfn-fix-fsdax-mode-namespace-info-bloc=
-k-zero-fields
-+++ a/drivers/nvdimm/pfn.h
-@@ -28,6 +28,7 @@ struct nd_pfn_sb {
- 	__le32 end_trunc;
- 	/* minor-version-2 record the base alignment of the mapping */
- 	__le32 align;
-+	/* minor-version-3 guarantee the padding and flags are zero */
- 	u8 padding[4000];
- 	__le64 checksum;
- };
-_
+There is a stable bug tracking this, kz#204223 [1], and a respective bug
+also present on upstream via kz#204049 [2] which Zorro reported. But,
+again, nothing changes from the baseline.
+
+I'd appreciate further reviews from the patches.
+
+I have some other fixes in mind as well, but I'd rather not delay this
+set and think this is a first good batch.
+
+This also goes out as the first set of stable fixes using oscheck's
+new devops infrastructure built on ansible / vagrant / terraform [3].
+For this release I've used vagrant with KVM, perhaps the next one
+I'll try terraform on whatever cloud solution someone is willing
+to let me use.
+
+You can also find these changes on my 20190718-linux-xfs-4.19.y-v1
+branch on kernel.org [4].
+
+Lemme know if you see any issues or have any questions.
+
+[0] https://gitlab.com/mcgrof/oscheck/blob/master/fstests-configs/xfs.config
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=204223
+[2] https://bugzilla.kernel.org/show_bug.cgi?id=204049
+[3] https://gitlab.com/mcgrof/kdevops
+[4] https://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/linux-stable.git/log/?h=20190718-linux-xfs-4.19.y-v1
+
+Brian Foster (1):
+  xfs: serialize unaligned dio writes against all other dio writes
+
+Darrick J. Wong (6):
+  xfs: fix pagecache truncation prior to reflink
+  xfs: don't overflow xattr listent buffer
+  xfs: rename m_inotbt_nores to m_finobt_nores
+  xfs: don't ever put nlink > 0 inodes on the unlinked list
+  xfs: reserve blocks for ifree transaction during log recovery
+  xfs: abort unaligned nowait directio early
+
+Dave Chinner (1):
+  xfs: flush removing page cache in xfs_reflink_remap_prep
+
+Luis R. Rodriguez (1):
+  xfs: fix reporting supported extra file attributes for statx()
+
+ fs/xfs/libxfs/xfs_ag_resv.c      |  2 +-
+ fs/xfs/libxfs/xfs_ialloc_btree.c |  4 ++--
+ fs/xfs/xfs_attr_list.c           |  1 +
+ fs/xfs/xfs_bmap_util.c           |  2 +-
+ fs/xfs/xfs_bmap_util.h           |  2 ++
+ fs/xfs/xfs_file.c                | 27 +++++++++++++++++----------
+ fs/xfs/xfs_fsops.c               |  1 +
+ fs/xfs/xfs_inode.c               | 18 +++++++-----------
+ fs/xfs/xfs_iops.c                | 21 +++++++++++++++++++--
+ fs/xfs/xfs_mount.h               |  2 +-
+ fs/xfs/xfs_reflink.c             | 16 +++++++++++++---
+ fs/xfs/xfs_super.c               |  7 +++++++
+ fs/xfs/xfs_xattr.c               |  3 +++
+ 13 files changed, 75 insertions(+), 31 deletions(-)
+
+-- 
+2.20.1
+
