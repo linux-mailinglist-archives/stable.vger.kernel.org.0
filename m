@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B48106C567
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:08:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 158686C582
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390084AbfGRDFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:05:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37018 "EHLO mail.kernel.org"
+        id S2390345AbfGRDHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:07:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389524AbfGRDFx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:05:53 -0400
+        id S2390360AbfGRDHM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:07:12 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B20B82173B;
-        Thu, 18 Jul 2019 03:05:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAD642053B;
+        Thu, 18 Jul 2019 03:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419153;
-        bh=o2Kr2eyw/O6JKnMps8ZPt7nNdeWLgNXBUuzb704FtCo=;
+        s=default; t=1563419231;
+        bh=baBU9P10qlX5IXyVCz2/GKUVrIU3uPv5UWjez8prMQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z4DSUbqEI/VeyNYfZwZ3zexdSbmuKQFFEfcqOO1O0K1ZncY0Ryex+4vCvs6NkwgIh
-         YRtfFcOobZ/DKqGNw20YwLs9OUbGWUCRk8OVzEGxDrBv387D1IYGGfAwhU71z9TuQI
-         +PFTproTDz9CHUz3ZgEJuVHRGRMa7Nz3oKJfdRgw=
+        b=T8y6oqNws5iTDLNQk9fQuqZI8Y6PuJPZlcwRi2GAt0+cLegUbWkq0wM+/ejOsl0pF
+         80ovCbt3TVKvsfnpDOQiD1eSutrZNeIrl3r4+OPf/U7B9lOtXL0I2jznM7Xzy/INXS
+         CkkZVJ64SJ9T+3w6pAOQpmOk1Uf7QXNcrwduDsrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hodaszi <Robert.Hodaszi@digi.com>,
+        stable@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <marc.zyngier@arm.com>
-Subject: [PATCH 5.1 41/54] genirq: Delay deactivation in free_irq()
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 22/47] x86/boot/64: Fix crash if kernel image crosses page table boundary
 Date:   Thu, 18 Jul 2019 12:01:36 +0900
-Message-Id: <20190718030056.347427870@linuxfoundation.org>
+Message-Id: <20190718030050.584579412@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
-References: <20190718030053.287374640@linuxfoundation.org>
+In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
+References: <20190718030045.780672747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,149 +50,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+[ Upstream commit 81c7ed296dcd02bc0b4488246d040e03e633737a ]
 
-commit 4001d8e8762f57d418b66e4e668601791900a1dd upstream.
+A kernel which boots in 5-level paging mode crashes in a small percentage
+of cases if KASLR is enabled.
 
-When interrupts are shutdown, they are immediately deactivated in the
-irqdomain hierarchy. While this looks obviously correct there is a subtle
-issue:
+This issue was tracked down to the case when the kernel image unpacks in a
+way that it crosses an 1G boundary. The crash is caused by an overrun of
+the PMD page table in __startup_64() and corruption of P4D page table
+allocated next to it. This particular issue is not visible with 4-level
+paging as P4D page tables are not used.
 
-There might be an interrupt in flight when free_irq() is invoking the
-shutdown. This is properly handled at the irq descriptor / primary handler
-level, but the deactivation might completely disable resources which are
-required to acknowledge the interrupt.
+But the P4D and the PUD calculation have similar problems.
 
-Split the shutdown code and deactivate the interrupt after synchronization
-in free_irq(). Fixup all other usage sites where this is not an issue to
-invoke the combined shutdown_and_deactivate() function instead.
+The PMD index calculation is wrong due to operator precedence, which fails
+to confine the PMDs in the PMD array on wrap around.
 
-This still might be an issue if the interrupt in flight servicing is
-delayed on a remote CPU beyond the invocation of synchronize_irq(), but
-that cannot be handled at that level and needs to be handled in the
-synchronize_irq() context.
+The P4D calculation for 5-level paging and the PUD calculation calculate
+the first index correctly, but then blindly increment it which causes the
+same issue when a kernel image is located across a 512G and for 5-level
+paging across a 46T boundary.
 
-Fixes: f8264e34965a ("irqdomain: Introduce new interfaces to support hierarchy irqdomains")
-Reported-by: Robert Hodaszi <Robert.Hodaszi@digi.com>
+This wrap around mishandling was introduced when these parts moved from
+assembly to C.
+
+Restore it to the correct behaviour.
+
+Fixes: c88d71508e36 ("x86/boot/64: Rewrite startup_64() in C")
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
-Link: https://lkml.kernel.org/r/20190628111440.098196390@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20190620112345.28833-1-kirill.shutemov@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/autoprobe.c  |    6 +++---
- kernel/irq/chip.c       |    6 ++++++
- kernel/irq/cpuhotplug.c |    2 +-
- kernel/irq/internals.h  |    1 +
- kernel/irq/manage.c     |   12 +++++++++++-
- 5 files changed, 22 insertions(+), 5 deletions(-)
+ arch/x86/kernel/head64.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
---- a/kernel/irq/autoprobe.c
-+++ b/kernel/irq/autoprobe.c
-@@ -90,7 +90,7 @@ unsigned long probe_irq_on(void)
- 			/* It triggered already - consider it spurious. */
- 			if (!(desc->istate & IRQS_WAITING)) {
- 				desc->istate &= ~IRQS_AUTODETECT;
--				irq_shutdown(desc);
-+				irq_shutdown_and_deactivate(desc);
- 			} else
- 				if (i < 32)
- 					mask |= 1 << i;
-@@ -127,7 +127,7 @@ unsigned int probe_irq_mask(unsigned lon
- 				mask |= 1 << i;
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index ddee1f0870c4..cc5b519dc687 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -190,18 +190,18 @@ unsigned long __head __startup_64(unsigned long physaddr,
+ 		pgd[i + 0] = (pgdval_t)p4d + pgtable_flags;
+ 		pgd[i + 1] = (pgdval_t)p4d + pgtable_flags;
  
- 			desc->istate &= ~IRQS_AUTODETECT;
--			irq_shutdown(desc);
-+			irq_shutdown_and_deactivate(desc);
- 		}
- 		raw_spin_unlock_irq(&desc->lock);
+-		i = (physaddr >> P4D_SHIFT) % PTRS_PER_P4D;
+-		p4d[i + 0] = (pgdval_t)pud + pgtable_flags;
+-		p4d[i + 1] = (pgdval_t)pud + pgtable_flags;
++		i = physaddr >> P4D_SHIFT;
++		p4d[(i + 0) % PTRS_PER_P4D] = (pgdval_t)pud + pgtable_flags;
++		p4d[(i + 1) % PTRS_PER_P4D] = (pgdval_t)pud + pgtable_flags;
+ 	} else {
+ 		i = (physaddr >> PGDIR_SHIFT) % PTRS_PER_PGD;
+ 		pgd[i + 0] = (pgdval_t)pud + pgtable_flags;
+ 		pgd[i + 1] = (pgdval_t)pud + pgtable_flags;
  	}
-@@ -169,7 +169,7 @@ int probe_irq_off(unsigned long val)
- 				nr_of_irqs++;
- 			}
- 			desc->istate &= ~IRQS_AUTODETECT;
--			irq_shutdown(desc);
-+			irq_shutdown_and_deactivate(desc);
- 		}
- 		raw_spin_unlock_irq(&desc->lock);
- 	}
---- a/kernel/irq/chip.c
-+++ b/kernel/irq/chip.c
-@@ -314,6 +314,12 @@ void irq_shutdown(struct irq_desc *desc)
- 		}
- 		irq_state_clr_started(desc);
- 	}
-+}
+ 
+-	i = (physaddr >> PUD_SHIFT) % PTRS_PER_PUD;
+-	pud[i + 0] = (pudval_t)pmd + pgtable_flags;
+-	pud[i + 1] = (pudval_t)pmd + pgtable_flags;
++	i = physaddr >> PUD_SHIFT;
++	pud[(i + 0) % PTRS_PER_PUD] = (pudval_t)pmd + pgtable_flags;
++	pud[(i + 1) % PTRS_PER_PUD] = (pudval_t)pmd + pgtable_flags;
+ 
+ 	pmd_entry = __PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL;
+ 	/* Filter out unsupported __PAGE_KERNEL_* bits: */
+@@ -211,8 +211,9 @@ unsigned long __head __startup_64(unsigned long physaddr,
+ 	pmd_entry +=  physaddr;
+ 
+ 	for (i = 0; i < DIV_ROUND_UP(_end - _text, PMD_SIZE); i++) {
+-		int idx = i + (physaddr >> PMD_SHIFT) % PTRS_PER_PMD;
+-		pmd[idx] = pmd_entry + i * PMD_SIZE;
++		int idx = i + (physaddr >> PMD_SHIFT);
 +
-+
-+void irq_shutdown_and_deactivate(struct irq_desc *desc)
-+{
-+	irq_shutdown(desc);
++		pmd[idx % PTRS_PER_PMD] = pmd_entry + i * PMD_SIZE;
+ 	}
+ 
  	/*
- 	 * This must be called even if the interrupt was never started up,
- 	 * because the activation can happen before the interrupt is
---- a/kernel/irq/cpuhotplug.c
-+++ b/kernel/irq/cpuhotplug.c
-@@ -116,7 +116,7 @@ static bool migrate_one_irq(struct irq_d
- 		 */
- 		if (irqd_affinity_is_managed(d)) {
- 			irqd_set_managed_shutdown(d);
--			irq_shutdown(desc);
-+			irq_shutdown_and_deactivate(desc);
- 			return false;
- 		}
- 		affinity = cpu_online_mask;
---- a/kernel/irq/internals.h
-+++ b/kernel/irq/internals.h
-@@ -82,6 +82,7 @@ extern int irq_activate_and_startup(stru
- extern int irq_startup(struct irq_desc *desc, bool resend, bool force);
- 
- extern void irq_shutdown(struct irq_desc *desc);
-+extern void irq_shutdown_and_deactivate(struct irq_desc *desc);
- extern void irq_enable(struct irq_desc *desc);
- extern void irq_disable(struct irq_desc *desc);
- extern void irq_percpu_enable(struct irq_desc *desc, unsigned int cpu);
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <linux/random.h>
- #include <linux/interrupt.h>
-+#include <linux/irqdomain.h>
- #include <linux/slab.h>
- #include <linux/sched.h>
- #include <linux/sched/rt.h>
-@@ -1699,6 +1700,7 @@ static struct irqaction *__free_irq(stru
- 	/* If this was the last handler, shut down the IRQ line: */
- 	if (!desc->action) {
- 		irq_settings_clr_disable_unlazy(desc);
-+		/* Only shutdown. Deactivate after synchronize_hardirq() */
- 		irq_shutdown(desc);
- 	}
- 
-@@ -1768,6 +1770,14 @@ static struct irqaction *__free_irq(stru
- 		 * require it to deallocate resources over the slow bus.
- 		 */
- 		chip_bus_lock(desc);
-+		/*
-+		 * There is no interrupt on the fly anymore. Deactivate it
-+		 * completely.
-+		 */
-+		raw_spin_lock_irqsave(&desc->lock, flags);
-+		irq_domain_deactivate_irq(&desc->irq_data);
-+		raw_spin_unlock_irqrestore(&desc->lock, flags);
-+
- 		irq_release_resources(desc);
- 		chip_bus_sync_unlock(desc);
- 		irq_remove_timings(desc);
-@@ -1855,7 +1865,7 @@ static const void *__cleanup_nmi(unsigne
- 	}
- 
- 	irq_settings_clr_disable_unlazy(desc);
--	irq_shutdown(desc);
-+	irq_shutdown_and_deactivate(desc);
- 
- 	irq_release_resources(desc);
- 
+-- 
+2.20.1
+
 
 
