@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65C936C6D6
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:20:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 863E26C687
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:17:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390985AbfGRDLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:11:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45504 "EHLO mail.kernel.org"
+        id S2391659AbfGRDRS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:17:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390991AbfGRDLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:11:44 -0400
+        id S2391844AbfGRDOg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:14:36 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 396612053B;
-        Thu, 18 Jul 2019 03:11:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D00E21872;
+        Thu, 18 Jul 2019 03:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419503;
-        bh=Cf1a/+xiUmejQNtMpMDZ7l+V+H20cegVoA9RHPjXCpQ=;
+        s=default; t=1563419675;
+        bh=7Xy0/I7Sujlv6TRxVs2wtZqeYcorXQQ+qBc52jq8EPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VXl+39cs+73AVwHw5TPD+BaMiM5Eo4qHfM1oimd7SwpMhI0Zm4lf2hl4Z3CPs68ee
-         HCN86VD2IprA+Gq6UBkHA3yDGrV7SaXdHctZr3weN7ewso9IdHViWSJL7jKvhiGMwr
-         MF8cG/+omTwxZyBMB6LH7uZ07YrUAvwqowIhpOmg=
+        b=q5X6yTy9xtFGtHghhYSvs9PgpgSMn6ASEQMgKvGHTmYDlSp6mqX+hDyEgIZLzeotY
+         f1f1cwOMkvyHtDq0yDRgT7ce3LY9HtLHcJ+kFEGnqy/rJfX1tE6gc8K67DNpiGo9rJ
+         9HrsegOVxYopO6oJNDgJICvDkCerK4va3m0zD+ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Ross Zwisler <zwisler@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 80/80] drm/udl: move to embedding drm device inside udl device.
-Date:   Thu, 18 Jul 2019 12:02:11 +0900
-Message-Id: <20190718030105.759766674@linuxfoundation.org>
+        stable@vger.kernel.org, huangwen <huangwen@venustech.com.cn>,
+        Takashi Iwai <tiwai@suse.de>, Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.4 16/40] mwifiex: Fix heap overflow in mwifiex_uap_parse_tail_ies()
+Date:   Thu, 18 Jul 2019 12:02:12 +0900
+Message-Id: <20190718030044.173010604@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030039.676518610@linuxfoundation.org>
+References: <20190718030039.676518610@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,257 +43,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 6ecac85eadb9d4065b9038fa3d3c66d49038e14b upstream.
+From: Takashi Iwai <tiwai@suse.de>
 
-This should help with some of the lifetime issues, and move us away
-from load/unload.
+commit 69ae4f6aac1578575126319d3f55550e7e440449 upstream.
 
-[rez] Regarding the backport to v4.14.y, the only difference is due to
-the fact that in v4.14.y the udl_usb_probe() function still uses
-drm_dev_unref() instead of drm_dev_put().
+A few places in mwifiex_uap_parse_tail_ies() perform memcpy()
+unconditionally, which may lead to either buffer overflow or read over
+boundary.
 
-Backport notes:
+This patch addresses the issues by checking the read size and the
+destination size at each place more properly.  Along with the fixes,
+the patch cleans up the code slightly by introducing a temporary
+variable for the token size, and unifies the error path with the
+standard goto statement.
 
-On Mon, Jul 15, 2019 at 09:13:08PM -0400, Sasha Levin wrote:
-> Hm, we don't need ac3b35f11a06 here? Why not? I'd love to document that
-> with the backport.
+Reported-by: huangwen <huangwen@venustech.com.cn>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Nope, we don't need that patch in the v4.14 backport.
 
-In v4.19.y we have two functions, drm_dev_put() and drm_dev_unref(), which are
-aliases for one another (drm_dev_unref() just calls drm_dev_put()).
-drm_dev_unref() is the older of the two, and was introduced back in v4.0.
-drm_dev_put() was introduced in v4.15 with
-
-9a96f55034e41 drm: introduce drm_dev_{get/put} functions
-
-and slowly callers were moved from the old name (_unref) to the new name
-(_put).  The patch you mentioned, ac3b35f11a06, is one such patch where we are
-replacing a drm_dev_unref() call with a drm_dev_put() call.  This doesn't have
-a functional change, but was necessary so that the third patch in the v4.19.y
-series I sent would apply cleanly.
-
-For the v4.14.y series, though, the drm_dev_put() function hasn't yet been
-defined and everyone is still using drm_dev_unref().  So, we don't need a
-backport of ac3b35f11a06, and I also had a small backport change in the last
-patch of the v4.14.y series where I had to change a drm_dev_put() call with a
-drm_dev_unref() call.
-
-Just for posterity, the drm_dev_unref() calls were eventually all changed to
-drm_dev_put() in v5.0, and drm_dev_unref() was removed entirely.  That
-happened with the following two patches:
-
-808bad32ea423 drm: replace "drm_dev_unref" function with "drm_dev_put"
-ba1d345401476 drm: remove deprecated "drm_dev_unref" function
-
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190405031715.5959-4-airlied@gmail.com
-Signed-off-by: Ross Zwisler <zwisler@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/udl/udl_drv.c  | 56 +++++++++++++++++++++++++++-------
- drivers/gpu/drm/udl/udl_drv.h  |  9 +++---
- drivers/gpu/drm/udl/udl_fb.c   |  2 +-
- drivers/gpu/drm/udl/udl_main.c | 23 ++------------
- 4 files changed, 53 insertions(+), 37 deletions(-)
+ drivers/net/wireless/mwifiex/ie.c |   45 +++++++++++++++++++++++++-------------
+ 1 file changed, 30 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/udl/udl_drv.c b/drivers/gpu/drm/udl/udl_drv.c
-index b45ac6bc8add..b428c3da7576 100644
---- a/drivers/gpu/drm/udl/udl_drv.c
-+++ b/drivers/gpu/drm/udl/udl_drv.c
-@@ -43,10 +43,16 @@ static const struct file_operations udl_driver_fops = {
- 	.llseek = noop_llseek,
- };
+--- a/drivers/net/wireless/mwifiex/ie.c
++++ b/drivers/net/wireless/mwifiex/ie.c
+@@ -328,6 +328,8 @@ static int mwifiex_uap_parse_tail_ies(st
+ 	struct ieee80211_vendor_ie *vendorhdr;
+ 	u16 gen_idx = MWIFIEX_AUTO_IDX_MASK, ie_len = 0;
+ 	int left_len, parsed_len = 0;
++	unsigned int token_len;
++	int err = 0;
  
-+static void udl_driver_release(struct drm_device *dev)
-+{
-+	udl_fini(dev);
-+	udl_modeset_cleanup(dev);
-+	drm_dev_fini(dev);
-+	kfree(dev);
-+}
+ 	if (!info->tail || !info->tail_len)
+ 		return 0;
+@@ -343,6 +345,12 @@ static int mwifiex_uap_parse_tail_ies(st
+ 	 */
+ 	while (left_len > sizeof(struct ieee_types_header)) {
+ 		hdr = (void *)(info->tail + parsed_len);
++		token_len = hdr->len + sizeof(struct ieee_types_header);
++		if (token_len > left_len) {
++			err = -EINVAL;
++			goto out;
++		}
 +
- static struct drm_driver driver = {
- 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_PRIME,
--	.load = udl_driver_load,
--	.unload = udl_driver_unload,
- 	.release = udl_driver_release,
+ 		switch (hdr->element_id) {
+ 		case WLAN_EID_SSID:
+ 		case WLAN_EID_SUPP_RATES:
+@@ -356,13 +364,16 @@ static int mwifiex_uap_parse_tail_ies(st
+ 		case WLAN_EID_VENDOR_SPECIFIC:
+ 			break;
+ 		default:
+-			memcpy(gen_ie->ie_buffer + ie_len, hdr,
+-			       hdr->len + sizeof(struct ieee_types_header));
+-			ie_len += hdr->len + sizeof(struct ieee_types_header);
++			if (ie_len + token_len > IEEE_MAX_IE_SIZE) {
++				err = -EINVAL;
++				goto out;
++			}
++			memcpy(gen_ie->ie_buffer + ie_len, hdr, token_len);
++			ie_len += token_len;
+ 			break;
+ 		}
+-		left_len -= hdr->len + sizeof(struct ieee_types_header);
+-		parsed_len += hdr->len + sizeof(struct ieee_types_header);
++		left_len -= token_len;
++		parsed_len += token_len;
+ 	}
  
- 	/* gem hooks */
-@@ -70,28 +76,56 @@ static struct drm_driver driver = {
- 	.patchlevel = DRIVER_PATCHLEVEL,
- };
+ 	/* parse only WPA vendor IE from tail, WMM IE is configured by
+@@ -372,15 +383,17 @@ static int mwifiex_uap_parse_tail_ies(st
+ 						    WLAN_OUI_TYPE_MICROSOFT_WPA,
+ 						    info->tail, info->tail_len);
+ 	if (vendorhdr) {
+-		memcpy(gen_ie->ie_buffer + ie_len, vendorhdr,
+-		       vendorhdr->len + sizeof(struct ieee_types_header));
+-		ie_len += vendorhdr->len + sizeof(struct ieee_types_header);
++		token_len = vendorhdr->len + sizeof(struct ieee_types_header);
++		if (ie_len + token_len > IEEE_MAX_IE_SIZE) {
++			err = -EINVAL;
++			goto out;
++		}
++		memcpy(gen_ie->ie_buffer + ie_len, vendorhdr, token_len);
++		ie_len += token_len;
+ 	}
  
-+static struct udl_device *udl_driver_create(struct usb_interface *interface)
-+{
-+	struct usb_device *udev = interface_to_usbdev(interface);
-+	struct udl_device *udl;
-+	int r;
+-	if (!ie_len) {
+-		kfree(gen_ie);
+-		return 0;
+-	}
++	if (!ie_len)
++		goto out;
+ 
+ 	gen_ie->ie_index = cpu_to_le16(gen_idx);
+ 	gen_ie->mgmt_subtype_mask = cpu_to_le16(MGMT_MASK_BEACON |
+@@ -390,13 +403,15 @@ static int mwifiex_uap_parse_tail_ies(st
+ 
+ 	if (mwifiex_update_uap_custom_ie(priv, gen_ie, &gen_idx, NULL, NULL,
+ 					 NULL, NULL)) {
+-		kfree(gen_ie);
+-		return -1;
++		err = -EINVAL;
++		goto out;
+ 	}
+ 
+ 	priv->gen_idx = gen_idx;
 +
-+	udl = kzalloc(sizeof(*udl), GFP_KERNEL);
-+	if (!udl)
-+		return ERR_PTR(-ENOMEM);
-+
-+	r = drm_dev_init(&udl->drm, &driver, &interface->dev);
-+	if (r) {
-+		kfree(udl);
-+		return ERR_PTR(r);
-+	}
-+
-+	udl->udev = udev;
-+	udl->drm.dev_private = udl;
-+
-+	r = udl_init(udl);
-+	if (r) {
-+		drm_dev_fini(&udl->drm);
-+		kfree(udl);
-+		return ERR_PTR(r);
-+	}
-+
-+	usb_set_intfdata(interface, udl);
-+	return udl;
-+}
-+
- static int udl_usb_probe(struct usb_interface *interface,
- 			 const struct usb_device_id *id)
- {
--	struct usb_device *udev = interface_to_usbdev(interface);
--	struct drm_device *dev;
- 	int r;
-+	struct udl_device *udl;
- 
--	dev = drm_dev_alloc(&driver, &interface->dev);
--	if (IS_ERR(dev))
--		return PTR_ERR(dev);
-+	udl = udl_driver_create(interface);
-+	if (IS_ERR(udl))
-+		return PTR_ERR(udl);
- 
--	r = drm_dev_register(dev, (unsigned long)udev);
-+	r = drm_dev_register(&udl->drm, 0);
- 	if (r)
- 		goto err_free;
- 
--	usb_set_intfdata(interface, dev);
--	DRM_INFO("Initialized udl on minor %d\n", dev->primary->index);
-+	DRM_INFO("Initialized udl on minor %d\n", udl->drm.primary->index);
- 
- 	return 0;
- 
- err_free:
--	drm_dev_unref(dev);
-+	drm_dev_unref(&udl->drm);
- 	return r;
++ out:
+ 	kfree(gen_ie);
+-	return 0;
++	return err;
  }
  
-diff --git a/drivers/gpu/drm/udl/udl_drv.h b/drivers/gpu/drm/udl/udl_drv.h
-index ba0146e06b1e..d5a5dcd15dd8 100644
---- a/drivers/gpu/drm/udl/udl_drv.h
-+++ b/drivers/gpu/drm/udl/udl_drv.h
-@@ -49,8 +49,8 @@ struct urb_list {
- struct udl_fbdev;
- 
- struct udl_device {
-+	struct drm_device drm;
- 	struct device *dev;
--	struct drm_device *ddev;
- 	struct usb_device *udev;
- 	struct drm_crtc *crtc;
- 
-@@ -68,7 +68,7 @@ struct udl_device {
- 	atomic_t cpu_kcycles_used; /* transpired during pixel processing */
- };
- 
--#define to_udl(x) ((x)->dev_private)
-+#define to_udl(x) container_of(x, struct udl_device, drm)
- 
- struct udl_gem_object {
- 	struct drm_gem_object base;
-@@ -101,9 +101,8 @@ struct urb *udl_get_urb(struct drm_device *dev);
- int udl_submit_urb(struct drm_device *dev, struct urb *urb, size_t len);
- void udl_urb_completion(struct urb *urb);
- 
--int udl_driver_load(struct drm_device *dev, unsigned long flags);
--void udl_driver_unload(struct drm_device *dev);
--void udl_driver_release(struct drm_device *dev);
-+int udl_init(struct udl_device *udl);
-+void udl_fini(struct drm_device *dev);
- 
- int udl_fbdev_init(struct drm_device *dev);
- void udl_fbdev_cleanup(struct drm_device *dev);
-diff --git a/drivers/gpu/drm/udl/udl_fb.c b/drivers/gpu/drm/udl/udl_fb.c
-index 1e78767df06c..f41fd0684ce4 100644
---- a/drivers/gpu/drm/udl/udl_fb.c
-+++ b/drivers/gpu/drm/udl/udl_fb.c
-@@ -213,7 +213,7 @@ static int udl_fb_open(struct fb_info *info, int user)
- 	struct udl_device *udl = to_udl(dev);
- 
- 	/* If the USB device is gone, we don't accept new opens */
--	if (drm_dev_is_unplugged(udl->ddev))
-+	if (drm_dev_is_unplugged(&udl->drm))
- 		return -ENODEV;
- 
- 	ufbdev->fb_count++;
-diff --git a/drivers/gpu/drm/udl/udl_main.c b/drivers/gpu/drm/udl/udl_main.c
-index 05c14c80024c..124428f33e1e 100644
---- a/drivers/gpu/drm/udl/udl_main.c
-+++ b/drivers/gpu/drm/udl/udl_main.c
-@@ -311,20 +311,12 @@ int udl_submit_urb(struct drm_device *dev, struct urb *urb, size_t len)
- 	return ret;
- }
- 
--int udl_driver_load(struct drm_device *dev, unsigned long flags)
-+int udl_init(struct udl_device *udl)
- {
--	struct usb_device *udev = (void*)flags;
--	struct udl_device *udl;
-+	struct drm_device *dev = &udl->drm;
- 	int ret = -ENOMEM;
- 
- 	DRM_DEBUG("\n");
--	udl = kzalloc(sizeof(struct udl_device), GFP_KERNEL);
--	if (!udl)
--		return -ENOMEM;
--
--	udl->udev = udev;
--	udl->ddev = dev;
--	dev->dev_private = udl;
- 
- 	if (!udl_parse_vendor_descriptor(dev, udl->udev)) {
- 		ret = -ENODEV;
-@@ -359,7 +351,6 @@ int udl_driver_load(struct drm_device *dev, unsigned long flags)
- err:
- 	if (udl->urbs.count)
- 		udl_free_urb_list(dev);
--	kfree(udl);
- 	DRM_ERROR("%d\n", ret);
- 	return ret;
- }
-@@ -370,7 +361,7 @@ int udl_drop_usb(struct drm_device *dev)
- 	return 0;
- }
- 
--void udl_driver_unload(struct drm_device *dev)
-+void udl_fini(struct drm_device *dev)
- {
- 	struct udl_device *udl = to_udl(dev);
- 
-@@ -378,12 +369,4 @@ void udl_driver_unload(struct drm_device *dev)
- 		udl_free_urb_list(dev);
- 
- 	udl_fbdev_cleanup(dev);
--	kfree(udl);
--}
--
--void udl_driver_release(struct drm_device *dev)
--{
--	udl_modeset_cleanup(dev);
--	drm_dev_fini(dev);
--	kfree(dev);
- }
--- 
-2.20.1
-
+ /* This function parses different IEs-head & tail IEs, beacon IEs,
 
 
