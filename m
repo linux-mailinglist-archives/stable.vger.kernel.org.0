@@ -2,97 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E74AA6CBC9
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 11:22:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35A656CBF2
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 11:31:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727597AbfGRJVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 05:21:45 -0400
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:10419 "EHLO
-        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727274AbfGRJVp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 05:21:45 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d303a280000>; Thu, 18 Jul 2019 02:21:44 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Thu, 18 Jul 2019 02:21:44 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Thu, 18 Jul 2019 02:21:44 -0700
-Received: from [10.21.132.148] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 18 Jul
- 2019 09:21:42 +0000
-Subject: Re: [PATCH 5.2 00/21] 5.2.2-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20190718030030.456918453@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <b4fe5385-9e61-51ad-0dd1-2910c529e083@nvidia.com>
-Date:   Thu, 18 Jul 2019 10:21:40 +0100
+        id S2389577AbfGRJbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 05:31:08 -0400
+Received: from relay.sw.ru ([185.231.240.75]:54274 "EHLO relay.sw.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727474AbfGRJbI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 05:31:08 -0400
+Received: from [172.16.25.169]
+        by relay.sw.ru with esmtp (Exim 4.92)
+        (envelope-from <ktkhai@virtuozzo.com>)
+        id 1ho2ke-0005VV-9n; Thu, 18 Jul 2019 12:31:00 +0300
+Subject: Re: [PATCH] mm: vmscan: check if mem cgroup is disabled or not before
+ calling memcg slab shrinker
+To:     Yang Shi <yang.shi@linux.alibaba.com>, shakeelb@google.com,
+        vdavydov.dev@gmail.com, hannes@cmpxchg.org, mhocko@suse.com,
+        guro@fb.com, hughd@google.com, cai@lca.pw,
+        kirill.shutemov@linux.intel.com, akpm@linux-foundation.org
+Cc:     stable@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+References: <1563385526-20805-1-git-send-email-yang.shi@linux.alibaba.com>
+From:   Kirill Tkhai <ktkhai@virtuozzo.com>
+Message-ID: <fca59732-cd98-7e44-8c92-49ebafc6f41c@virtuozzo.com>
+Date:   Thu, 18 Jul 2019 12:30:49 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-In-Reply-To: <20190718030030.456918453@linuxfoundation.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <1563385526-20805-1-git-send-email-yang.shi@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1563441704; bh=ZYVYnxGFwKMvl8gbfGM0VUNV92MR4Io7TpBGNgZMXz0=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=WAxcqoDi+VNotd1qjuG7eaOtt9+EUcsQ/U1LiZ2hRzj/mXgnD/XIy02slfBHn7AtZ
-         oFiIH367ri2t/7KEAlFHY8WkNghup1xh/UAKZQGO7HAngupx+wslWqtkyO5YWSzC5b
-         O0+fYciQZzanhKlHB0iQ+hQogmtRWLHxL+U03oHutf8BCTlhX4+bUyam1HSFaYczFm
-         MSt+Ej5cCj1k1+sQGTxaUfp602IrOPGFtXOAArWQMLTeCZ7K+jotkiHBF2lnIz+b6f
-         27lN0VfuWVkxYS0b6uvamUycYd2K3AIrVk7WFOd3/ow8fk++oiPmF2Jg3o0LI5zLTj
-         fN9ePRIDQT4bw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 18/07/2019 04:01, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.2.2 release.
-> There are 21 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 17.07.2019 20:45, Yang Shi wrote:
+> Shakeel Butt reported premature oom on kernel with
+> "cgroup_disable=memory" since mem_cgroup_is_root() returns false even
+> though memcg is actually NULL.  The drop_caches is also broken.
 > 
-> Responses should be made by Sat 20 Jul 2019 02:59:27 AM UTC.
-> Anything received after that time might be too late.
+> It is because commit aeed1d325d42 ("mm/vmscan.c: generalize shrink_slab()
+> calls in shrink_node()") removed the !memcg check before
+> !mem_cgroup_is_root().  And, surprisingly root memcg is allocated even
+> though memory cgroup is disabled by kernel boot parameter.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.2-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-> and the diffstat can be found below.
+> Add mem_cgroup_disabled() check to make reclaimer work as expected.
 > 
-> thanks,
+> Fixes: aeed1d325d42 ("mm/vmscan.c: generalize shrink_slab() calls in shrink_node()")
+> Reported-by: Shakeel Butt <shakeelb@google.com>
+> Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+> Cc: Johannes Weiner <hannes@cmpxchg.org>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+> Cc: Roman Gushchin <guro@fb.com>
+> Cc: Hugh Dickins <hughd@google.com>
+> Cc: Qian Cai <cai@lca.pw>
+> Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> Cc: stable@vger.kernel.org  4.19+
+> Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+
+Surprise really.
+
+We have mem_cgroup as not early inited, so all of these boundary
+cases and checks has to be supported. But it looks like it's not
+possible to avoid that in any way.
+
+> ---
+>  mm/vmscan.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 > 
-> greg k-h
+> diff --git a/mm/vmscan.c b/mm/vmscan.c
+> index f8e3dcd..c10dc02 100644
+> --- a/mm/vmscan.c
+> +++ b/mm/vmscan.c
+> @@ -684,7 +684,14 @@ static unsigned long shrink_slab(gfp_t gfp_mask, int nid,
+>  	unsigned long ret, freed = 0;
+>  	struct shrinker *shrinker;
+>  
+> -	if (!mem_cgroup_is_root(memcg))
+> +	/*
+> +	 * The root memcg might be allocated even though memcg is disabled
+> +	 * via "cgroup_disable=memory" boot parameter.  This could make
+> +	 * mem_cgroup_is_root() return false, then just run memcg slab
+> +	 * shrink, but skip global shrink.  This may result in premature
+> +	 * oom.
+> +	 */
+> +	if (!mem_cgroup_disabled() && !mem_cgroup_is_root(memcg))
+>  		return shrink_slab_memcg(gfp_mask, nid, memcg, priority);
+>  
+>  	if (!down_read_trylock(&shrinker_rwsem))
+> 
 
-All tests are passing for Tegra ...
-
-Test results for stable-v5.2:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
-
-Linux version:	5.2.2-rc1-gcc78552c7d92
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
-
-Cheers
-Jon
-
--- 
-nvpublic
