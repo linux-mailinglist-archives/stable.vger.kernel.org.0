@@ -2,56 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 755616C9FE
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 09:37:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F07B6CA77
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 09:59:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733131AbfGRHhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 03:37:01 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:49432 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726397AbfGRHhA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 03:37:00 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 7F92B300CB25;
-        Thu, 18 Jul 2019 07:37:00 +0000 (UTC)
-Received: from localhost (unknown [10.40.205.12])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2822360C44;
-        Thu, 18 Jul 2019 07:36:55 +0000 (UTC)
-Date:   Thu, 18 Jul 2019 09:36:54 +0200
-From:   Jiri Benc <jbenc@redhat.com>
+        id S1726608AbfGRH5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 03:57:47 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:56482 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389446AbfGRH5r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 03:57:47 -0400
+Received: from pd9ef1cb8.dip0.t-ipconnect.de ([217.239.28.184] helo=nanos)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1ho1IP-0002Uy-Te; Thu, 18 Jul 2019 09:57:46 +0200
+Date:   Thu, 18 Jul 2019 09:57:45 +0200 (CEST)
+From:   Thomas Gleixner <tglx@linutronix.de>
 To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Yonghong Song <yhs@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: Re: [PATCH AUTOSEL 5.2 226/249] selftests: bpf: fix inlines in
- test_lwt_seg6local
-Message-ID: <20190718093654.0a3426f5@redhat.com>
-In-Reply-To: <20190717234757.GD3079@sasha-vm>
-References: <20190715134655.4076-1-sashal@kernel.org>
-        <20190715134655.4076-226-sashal@kernel.org>
-        <20190717114334.5556a14e@redhat.com>
-        <20190717234757.GD3079@sasha-vm>
+cc:     stable@vger.kernel.org
+Subject: Re: Backport request
+In-Reply-To: <20190717233810.GC3079@sasha-vm>
+Message-ID: <alpine.DEB.2.21.1907180957060.1778@nanos.tec.linutronix.de>
+References: <alpine.DEB.2.21.1907162318380.1767@nanos.tec.linutronix.de> <20190717233810.GC3079@sasha-vm>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Thu, 18 Jul 2019 07:37:00 +0000 (UTC)
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 17 Jul 2019 19:47:57 -0400, Sasha Levin wrote:
-> It fixes a bug, right?
+Sasha,
 
-A bug in selftests. And quite likely, it probably happens only with
-some compiler versions.
+On Wed, 17 Jul 2019, Sasha Levin wrote:
 
-I don't think patches only touching tools/testing/selftests/ qualify
-for stable in general. They don't affect the end users.
+> On Wed, Jul 17, 2019 at 12:08:38AM +0200, Thomas Gleixner wrote:
+> > 4001d8e8762f ("genirq: Delay deactivation in free_irq()")
+> 
+> Thomas, would just this one be relevant for 4.14 (and older)?
 
- Jiri
+No. There the vector handling is completely different.
+
+Thanks,
+
+	Thomas
