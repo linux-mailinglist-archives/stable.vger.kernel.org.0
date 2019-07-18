@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D336B6C55A
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:07:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE7AB6C57B
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:08:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389327AbfGRDFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:05:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36338 "EHLO mail.kernel.org"
+        id S2389718AbfGRDGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:06:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389909AbfGRDFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:05:17 -0400
+        id S2390318AbfGRDGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:06:52 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED8E1204EC;
-        Thu, 18 Jul 2019 03:05:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5ABD42173B;
+        Thu, 18 Jul 2019 03:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419116;
-        bh=rhIzuUbSYLla75JR1cnW0oo8z3Km6XhCufKughoj4hs=;
+        s=default; t=1563419210;
+        bh=gTH0e8Mlg3KOJ8aqeGQWp1Y+oCvRQ5Lp7NhXpx454Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tRY7GIOlvk/tyl7/V+LE7zvDKyq03cLnnDSvzXJ2iCwF/8JmGA9o0mcx0xNjN3WG8
-         AhVVBTCS93Ujf5fOe7clTLVV4XzXsQbAVztQzxmaqNzBPC4EzXh6VpWhLVhMIAO5Cq
-         V/02whYXp/8nqOofLM8p7aaTc+2GhFXiUVX/ZKMA=
+        b=c16GPP/By8HmtU43RCCO0uvSvK93arMVxAKAJ/M5X99lUwHmrwWd1MFvhTLl34VWP
+         /AL52L84saP6KOx9dzF/kg3DhIjdbgz/MRzKnQclz8tNSVp6/O7umrQxzmigG9rTVm
+         HdVn3T+z576Ds2r2tiwfzc3BN9NeoSGxBkcCPwSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
-        Sean Wang <sean.wang@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Sergej Benilov <sergej.benilov@googlemail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 35/54] pinctrl: mediatek: Ignore interrupts that are wake only during resume
-Date:   Thu, 18 Jul 2019 12:01:30 +0900
-Message-Id: <20190718030056.020893019@linuxfoundation.org>
+Subject: [PATCH 4.19 17/47] sis900: fix TX completion
+Date:   Thu, 18 Jul 2019 12:01:31 +0900
+Message-Id: <20190718030050.127545621@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
-References: <20190718030053.287374640@linuxfoundation.org>
+In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
+References: <20190718030045.780672747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +45,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 35594bc7cecf3a78504b590e350570e8f4d7779e ]
+[ Upstream commit 8ac8a01092b2added0749ef937037bf1912e13e3 ]
 
-Before suspending, mtk-eint would set the interrupt mask to the
-one in wake_mask. However, some of these interrupts may not have a
-corresponding interrupt handler, or the interrupt may be disabled.
+Since commit 605ad7f184b60cfaacbc038aa6c55ee68dee3c89 "tcp: refine TSO autosizing",
+outbound throughput is dramatically reduced for some connections, as sis900
+is doing TX completion within idle states only.
 
-On resume, the eint irq handler would trigger nevertheless,
-and irq/pm.c:irq_pm_check_wakeup would be called, which would
-try to call irq_disable. However, if the interrupt is not enabled
-(irqd_irq_disabled(&desc->irq_data) is true), the call does nothing,
-and the interrupt is left enabled in the eint driver.
+Make TX completion happen after every transmitted packet.
 
-Especially for level-sensitive interrupts, this will lead to an
-interrupt storm on resume.
+Test:
+netperf
 
-If we detect that an interrupt is only in wake_mask, but not in
-cur_mask, we can just mask it out immediately (as mtk_eint_resume
-would do anyway at a later stage in the resume sequence, when
-restoring cur_mask).
+before patch:
+> netperf -H remote -l -2000000 -- -s 1000000
+MIGRATED TCP STREAM TEST from 0.0.0.0 () port 0 AF_INET to 95.223.112.76 () port 0 AF_INET : demo
+Recv   Send    Send
+Socket Socket  Message  Elapsed
+Size   Size    Size     Time     Throughput
+bytes  bytes   bytes    secs.    10^6bits/sec
 
-Fixes: bf22ff45bed6 ("genirq: Avoid unnecessary low level irq function calls")
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-Acked-by: Sean Wang <sean.wang@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+ 87380 327680 327680    253.44      0.06
+
+after patch:
+> netperf -H remote -l -10000000 -- -s 1000000
+MIGRATED TCP STREAM TEST from 0.0.0.0 () port 0 AF_INET to 95.223.112.76 () port 0 AF_INET : demo
+Recv   Send    Send
+Socket Socket  Message  Elapsed
+Size   Size    Size     Time     Throughput
+bytes  bytes   bytes    secs.    10^6bits/sec
+
+ 87380 327680 327680    5.38       14.89
+
+Thx to Dave Miller and Eric Dumazet for helpful hints
+
+Signed-off-by: Sergej Benilov <sergej.benilov@googlemail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mediatek/mtk-eint.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/sis/sis900.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/pinctrl/mediatek/mtk-eint.c b/drivers/pinctrl/mediatek/mtk-eint.c
-index f464f8cd274b..737385e86beb 100644
---- a/drivers/pinctrl/mediatek/mtk-eint.c
-+++ b/drivers/pinctrl/mediatek/mtk-eint.c
-@@ -318,7 +318,7 @@ static void mtk_eint_irq_handler(struct irq_desc *desc)
- 	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	struct mtk_eint *eint = irq_desc_get_handler_data(desc);
- 	unsigned int status, eint_num;
--	int offset, index, virq;
-+	int offset, mask_offset, index, virq;
- 	void __iomem *reg =  mtk_eint_get_offset(eint, 0, eint->regs->stat);
- 	int dual_edge, start_level, curr_level;
+diff --git a/drivers/net/ethernet/sis/sis900.c b/drivers/net/ethernet/sis/sis900.c
+index 4bb89f74742c..d5bcbc40a55f 100644
+--- a/drivers/net/ethernet/sis/sis900.c
++++ b/drivers/net/ethernet/sis/sis900.c
+@@ -1057,7 +1057,7 @@ sis900_open(struct net_device *net_dev)
+ 	sis900_set_mode(sis_priv, HW_SPEED_10_MBPS, FDX_CAPABLE_HALF_SELECTED);
  
-@@ -328,10 +328,24 @@ static void mtk_eint_irq_handler(struct irq_desc *desc)
- 		status = readl(reg);
- 		while (status) {
- 			offset = __ffs(status);
-+			mask_offset = eint_num >> 5;
- 			index = eint_num + offset;
- 			virq = irq_find_mapping(eint->domain, index);
- 			status &= ~BIT(offset);
+ 	/* Enable all known interrupts by setting the interrupt mask. */
+-	sw32(imr, RxSOVR | RxORN | RxERR | RxOK | TxURN | TxERR | TxIDLE);
++	sw32(imr, RxSOVR | RxORN | RxERR | RxOK | TxURN | TxERR | TxIDLE | TxDESC);
+ 	sw32(cr, RxENA | sr32(cr));
+ 	sw32(ier, IE);
  
-+			/*
-+			 * If we get an interrupt on pin that was only required
-+			 * for wake (but no real interrupt requested), mask the
-+			 * interrupt (as would mtk_eint_resume do anyway later
-+			 * in the resume sequence).
-+			 */
-+			if (eint->wake_mask[mask_offset] & BIT(offset) &&
-+			    !(eint->cur_mask[mask_offset] & BIT(offset))) {
-+				writel_relaxed(BIT(offset), reg -
-+					eint->regs->stat +
-+					eint->regs->mask_set);
-+			}
-+
- 			dual_edge = eint->dual_edge[index];
- 			if (dual_edge) {
- 				/*
+@@ -1578,7 +1578,7 @@ static void sis900_tx_timeout(struct net_device *net_dev)
+ 	sw32(txdp, sis_priv->tx_ring_dma);
+ 
+ 	/* Enable all known interrupts by setting the interrupt mask. */
+-	sw32(imr, RxSOVR | RxORN | RxERR | RxOK | TxURN | TxERR | TxIDLE);
++	sw32(imr, RxSOVR | RxORN | RxERR | RxOK | TxURN | TxERR | TxIDLE | TxDESC);
+ }
+ 
+ /**
+@@ -1618,7 +1618,7 @@ sis900_start_xmit(struct sk_buff *skb, struct net_device *net_dev)
+ 			spin_unlock_irqrestore(&sis_priv->lock, flags);
+ 			return NETDEV_TX_OK;
+ 	}
+-	sis_priv->tx_ring[entry].cmdsts = (OWN | skb->len);
++	sis_priv->tx_ring[entry].cmdsts = (OWN | INTR | skb->len);
+ 	sw32(cr, TxENA | sr32(cr));
+ 
+ 	sis_priv->cur_tx ++;
+@@ -1674,7 +1674,7 @@ static irqreturn_t sis900_interrupt(int irq, void *dev_instance)
+ 	do {
+ 		status = sr32(isr);
+ 
+-		if ((status & (HIBERR|TxURN|TxERR|TxIDLE|RxORN|RxERR|RxOK)) == 0)
++		if ((status & (HIBERR|TxURN|TxERR|TxIDLE|TxDESC|RxORN|RxERR|RxOK)) == 0)
+ 			/* nothing intresting happened */
+ 			break;
+ 		handled = 1;
+@@ -1684,7 +1684,7 @@ static irqreturn_t sis900_interrupt(int irq, void *dev_instance)
+ 			/* Rx interrupt */
+ 			sis900_rx(net_dev);
+ 
+-		if (status & (TxURN | TxERR | TxIDLE))
++		if (status & (TxURN | TxERR | TxIDLE | TxDESC))
+ 			/* Tx interrupt */
+ 			sis900_finish_xmit(net_dev);
+ 
+@@ -1896,8 +1896,8 @@ static void sis900_finish_xmit (struct net_device *net_dev)
+ 
+ 		if (tx_status & OWN) {
+ 			/* The packet is not transmitted yet (owned by hardware) !
+-			 * Note: the interrupt is generated only when Tx Machine
+-			 * is idle, so this is an almost impossible case */
++			 * Note: this is an almost impossible condition
++			 * in case of TxDESC ('descriptor interrupt') */
+ 			break;
+ 		}
+ 
+@@ -2473,7 +2473,7 @@ static int sis900_resume(struct pci_dev *pci_dev)
+ 	sis900_set_mode(sis_priv, HW_SPEED_10_MBPS, FDX_CAPABLE_HALF_SELECTED);
+ 
+ 	/* Enable all known interrupts by setting the interrupt mask. */
+-	sw32(imr, RxSOVR | RxORN | RxERR | RxOK | TxURN | TxERR | TxIDLE);
++	sw32(imr, RxSOVR | RxORN | RxERR | RxOK | TxURN | TxERR | TxIDLE | TxDESC);
+ 	sw32(cr, RxENA | sr32(cr));
+ 	sw32(ier, IE);
+ 
 -- 
 2.20.1
 
