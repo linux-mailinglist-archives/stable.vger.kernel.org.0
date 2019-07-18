@@ -2,50 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D506C7A6
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1799F6C724
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389089AbfGRD0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:26:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35004 "EHLO mail.kernel.org"
+        id S2390689AbfGRDVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:21:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389616AbfGRDEH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:04:07 -0400
+        id S2390439AbfGRDJe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:09:34 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5BC0204EC;
-        Thu, 18 Jul 2019 03:04:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E03C2173E;
+        Thu, 18 Jul 2019 03:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419047;
-        bh=fJfvizMuZ0wwxJyI/5+W59j2LgVlpJMJDygCtPoV50Y=;
+        s=default; t=1563419373;
+        bh=Z19F6dIFva6wO8YOEqkB/IQngl30hrlIzSWm5TdpYRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a81bW9uwgSMQfH3cRXCK3E2dRCHivJnGW6BA9KseLxjPWujLtra44ahRG1MdM77P/
-         ZXXq9Q3YaUw1w3E7GuL9qBNpU3lqzjzkQhK21UrrizhBoyqpFwPFFOz3GwFJjrzKVO
-         hVnQx+VwBiMWvMdGbWALRLSwjPimxzJ1Q3GSUZm0=
+        b=e0Q6+DTzfw/C2P+VcLYjT2DMHS1m8AjrFCGc0A/9Dndw+oQ1NwHa8s0qUrULOXvys
+         pJr25DOo7ACIg6UNyaXjP3bk/MG712IuItXxfaoJ5BPpkA+YZrjlLNVSPyVKqF1nRZ
+         ZtQJwHFgHqS4aJw+cWuKU/f/O8v0RdP1+aMMIxLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ravi Bangoria <ravi.bangoria@linux.vnet.ibm.com>,
-        Young Xiao <92siuyang@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Frederic Weisbecker <fweisbec@gmail.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 15/54] perf/core: Fix perf_sample_regs_user() mm check
-Date:   Thu, 18 Jul 2019 12:01:10 +0900
-Message-Id: <20190718030054.593476243@linuxfoundation.org>
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 20/80] can: af_can: Fix error path of can_init()
+Date:   Thu, 18 Jul 2019 12:01:11 +0900
+Message-Id: <20190718030100.413550821@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
-References: <20190718030053.287374640@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 085ebfe937d7a7a5df1729f35a12d6d655fea68c ]
+[ Upstream commit c5a3aed1cd3152429348ee1fe5cdcca65fe901ce ]
 
-perf_sample_regs_user() uses 'current->mm' to test for the presence of
-userspace, but this is insufficient, consider use_mm().
+This patch add error path for can_init() to avoid possible crash if some
+error occurs.
 
-A better test is: '!(current->flags & PF_KTHREAD)', exec() clears
-PF_KTHREAD after it sets the new ->mm but before it drops to userspace
-for the first time.
-
-Possibly obsoletes: bf05fc25f268 ("powerpc/perf: Fix oops when kthread execs user process")
-
-Reported-by: Ravi Bangoria <ravi.bangoria@linux.vnet.ibm.com>
-Reported-by: Young Xiao <92siuyang@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 4018994f3d87 ("perf: Add ability to attach user level registers dump to sample")
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: 0d66548a10cb ("[CAN]: Add PF_CAN core module")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/af_can.c | 24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index dc7dead2d2cc..f33bd0a89391 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5913,7 +5913,7 @@ static void perf_sample_regs_user(struct perf_regs *regs_user,
- 	if (user_mode(regs)) {
- 		regs_user->abi = perf_reg_abi(current);
- 		regs_user->regs = regs;
--	} else if (current->mm) {
-+	} else if (!(current->flags & PF_KTHREAD)) {
- 		perf_get_regs_user(regs_user, regs, regs_user_copy);
- 	} else {
- 		regs_user->abi = PERF_SAMPLE_REGS_ABI_NONE;
+diff --git a/net/can/af_can.c b/net/can/af_can.c
+index 9de9678fa7d0..46c85731d16f 100644
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -959,6 +959,8 @@ static struct pernet_operations can_pernet_ops __read_mostly = {
+ 
+ static __init int can_init(void)
+ {
++	int err;
++
+ 	/* check for correct padding to be able to use the structs similarly */
+ 	BUILD_BUG_ON(offsetof(struct can_frame, can_dlc) !=
+ 		     offsetof(struct canfd_frame, len) ||
+@@ -972,15 +974,31 @@ static __init int can_init(void)
+ 	if (!rcv_cache)
+ 		return -ENOMEM;
+ 
+-	register_pernet_subsys(&can_pernet_ops);
++	err = register_pernet_subsys(&can_pernet_ops);
++	if (err)
++		goto out_pernet;
+ 
+ 	/* protocol register */
+-	sock_register(&can_family_ops);
+-	register_netdevice_notifier(&can_netdev_notifier);
++	err = sock_register(&can_family_ops);
++	if (err)
++		goto out_sock;
++	err = register_netdevice_notifier(&can_netdev_notifier);
++	if (err)
++		goto out_notifier;
++
+ 	dev_add_pack(&can_packet);
+ 	dev_add_pack(&canfd_packet);
+ 
+ 	return 0;
++
++out_notifier:
++	sock_unregister(PF_CAN);
++out_sock:
++	unregister_pernet_subsys(&can_pernet_ops);
++out_pernet:
++	kmem_cache_destroy(rcv_cache);
++
++	return err;
+ }
+ 
+ static __exit void can_exit(void)
 -- 
 2.20.1
 
