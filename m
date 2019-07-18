@@ -2,108 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CBB56CD07
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 12:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C0146CD67
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 13:31:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726715AbfGRKxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 06:53:44 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:45111 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726608AbfGRKxn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 06:53:43 -0400
-Received: by mail-wr1-f68.google.com with SMTP id f9so28133312wre.12
-        for <stable@vger.kernel.org>; Thu, 18 Jul 2019 03:53:42 -0700 (PDT)
+        id S1726608AbfGRLbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 07:31:12 -0400
+Received: from mail-io1-f65.google.com ([209.85.166.65]:42020 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726495AbfGRLbM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 07:31:12 -0400
+Received: by mail-io1-f65.google.com with SMTP id e20so20516338iob.9
+        for <stable@vger.kernel.org>; Thu, 18 Jul 2019 04:31:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=BZhk3I9YopZBEm/G2sJlkBFEM7T3QsUlbWV+Bwbj0NA=;
-        b=BWijFD8GBhD5MqfyPTqAiklp09MzmdPIky5irjv7EobSKY6fj1PXOI/jYgFXaPCayz
-         J1HeWnnZa2DsjuRgKTqjJT1zXn4oOdgHRTBpqoB2UpVdzu7MUjPLzaWiPsVYxb9obov4
-         sAa8SpozBQ4YnR7LMtiv+eo7F+yvVhfp7lVKI8w6HtqlQoldwk7/cT7wyde4TCfMahse
-         d4zdiazqrRvlWfp4ikj9VIYe+XA10dcDg/e7VB4oCfxUAdi5A+hpxWnDfaeQX6UVCTZF
-         zDvRtkrgXtwm7rFgT1as5cOJjeQ4faBOUyJLc5wZLkHt8XRahu1fEC+8EIn1Qt3kz+sD
-         Doeg==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=1XPGx+u+p8F8GMnToo8nPmZioRN87tGXm60IuHjPK9Q=;
+        b=DgJ7J/TABcW3IDE3KnJmr8LJuMw+mK/2S1w+cndYbvFyLJxaHQ0g2keEQp52bnMa7J
+         etlLMuKgip0h2yURObSjAO/6sgG1ByUJasT4fkzZBXpcd51sKYKpc3R5gT3ih5tYVPb3
+         DasXjFAWsm/rDX0oHOo67WrkcbO80jNSQtJm6Ijg+IkJb2UAD047G7zUlMRWjFzpbMX9
+         ipMdASWXBb/gNrz0IFqkC/bKL4jGdtBGu8OaRCSFPBEuEAacHYQlRZy/yXs6pwHcc+mU
+         h5961ztoQv5loTZ/a+bMZfOAg1IZ0MB7GsnAjp1frKGxWhreLACYQZ8Zh/iU5iaEqmGD
+         XmoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=BZhk3I9YopZBEm/G2sJlkBFEM7T3QsUlbWV+Bwbj0NA=;
-        b=uGXIWKJ0n46azq0L9lpgtTE36RZEHFlAoOdKBzIfHf5ChIBy7enHyJSWz3RLgme+8f
-         MpxWWfYr4PXXN/fyV4MXVZv9daOzvk6xs3zv2reivKKpHFq/7MVLAdBwhVlLGIV4bgdH
-         0EjKXxFDIpBN2q7LIAbee3ShTu4+6iGmqLKD6plIzoulveDhAGsdDdfduv85iBHqBQ07
-         fpQntFxFL2xs7pjH0of4Cs5m+JHczfO2BGZ5VftHgXcYQ3WPAyHVNPHDCV7D85K9p5Uf
-         UFpfzCuiE8gyCnN+s34wYnUy3/06TTqL57mMZatnrb11gE4tM5LZ3hara+5+K8f75rRN
-         5U4w==
-X-Gm-Message-State: APjAAAVx+ud7JHwkcAtqvvU62RwYOultEyHmEATX3D9uP7jM5081/ikG
-        u5CNR5XRT1mcWzkLHXD+gQ4=
-X-Google-Smtp-Source: APXvYqzyeYPna8D1rCeYUEkXtCOw/Opg2enZeAMkdWbeBInaRZ5Y0y5+oviVsEq8y6l/WXelx3R/IQ==
-X-Received: by 2002:adf:dfc5:: with SMTP id q5mr51634938wrn.142.1563447221635;
-        Thu, 18 Jul 2019 03:53:41 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id w24sm22062305wmc.30.2019.07.18.03.53.35
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 18 Jul 2019 03:53:35 -0700 (PDT)
-Message-ID: <5d304faf.1c69fb81.46a14.a26a@mx.google.com>
-Date:   Thu, 18 Jul 2019 03:53:35 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=1XPGx+u+p8F8GMnToo8nPmZioRN87tGXm60IuHjPK9Q=;
+        b=D++NEXpUHsDEqE+t+XuuRagokanS76eDzWOT+VxfIDEWh4g217lk7Mm9QzgY5xApVu
+         cUqhIQ3oVmXbYERGeP8Yv5vp63gvgBdnIZUZ05A4iEA3I9G60oSQoJW0G9Rg98+n78/p
+         lXUBa7fZ65y6jm6Lr78o3N2B4yrHdJGuZKwUN8m/lrRgaOlXdNkxJ8OzfYPkjkQ4Cqgk
+         svufw/mje6IbM5/QXqA5t1KUGS815I7hfcl1+3gK073mbPkFOBImgpJSyJAPiE77Vt0w
+         PzbEBTXTWUJWvkjIVRPFFkR4WgIpBj6sK466a4+IQAlhMvy5Y0in9uoKmwB90wPj+Nyu
+         QmbQ==
+X-Gm-Message-State: APjAAAVQ/o72d8sX7SePV0pj0C9dRXV5QmUaeNF5H8pvjtCY1nqfeenE
+        SXu8xD1/MshiSX5v+cSayadWjpANR0g0rA+P64M=
+X-Google-Smtp-Source: APXvYqwJw77aPGGzvqLyID0Q1JIUDiiPSNzXUOwNbIhU++if52PifPVT/7Yvxtv1jFDVF/aWfaX+pu+X1bVyy/4ECjE=
+X-Received: by 2002:a6b:1ca:: with SMTP id 193mr44284603iob.264.1563449471880;
+ Thu, 18 Jul 2019 04:31:11 -0700 (PDT)
 MIME-Version: 1.0
+Reply-To: hololambert@protonmail.com
+Received: by 2002:a92:1801:0:0:0:0:0 with HTTP; Thu, 18 Jul 2019 04:31:11
+ -0700 (PDT)
+From:   Holo Lambert <hololambert@gmail.com>
+Date:   Thu, 18 Jul 2019 04:31:11 -0700
+X-Google-Sender-Auth: Oe_K_pEvGaT17oqHi2CYDWHku6E
+Message-ID: <CAA=iW4xRzm8tweV+9PzNwC-D8Z1NcBo2qAhTq0bS3dhmDrHjjQ@mail.gmail.com>
+Subject: Confidential and urgent
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.133-81-g2c7e97d1f95d
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
-Subject: Re: [PATCH 4.14 00/80] 4.14.134-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 123 boots: 2 failed, 120 passed with 1 offline=
- (v4.14.133-81-g2c7e97d1f95d)
+Dear Friend,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.133-81-g2c7e97d1f95d/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.133-81-g2c7e97d1f95d/
+I am Mr. Holo Lambert, a Lawyer by profession. I am the personal
+attorney to Engr. Zhang, a national of your country, who used to work
+with Chevron Oil Exploration Company in Angola, herein after shall be
+referred to as my client.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.133-81-g2c7e97d1f95d
-Git Commit: 2c7e97d1f95df23feb292eb770c22e0b1472edd6
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 66 unique boards, 26 SoC families, 16 builds out of 201
+On the September 27, 2016, my client was involved in a helicopter
+Crash, and died en route to the company=E2=80=99s Tombua-Landana facility i=
+n
+Angola.
 
-Boot Failures Detected:
+Since then I have made several inquiries to your embassy to locate any
+of my clients extended relatives over there. This has proved
+unsuccessful. I came to know about you through an inquiry I was making
+on the internet, and I found out you shared the same surname with my
+client, which is why I have decided to contact you, in order to assist
+in repatriating his funds and property left behind my office desk
+before they get confiscated or declared serviceable by the bank.
 
-arm64:
-    defconfig:
-        gcc-8:
-            rk3399-firefly: 1 failed lab
+Please get in touch with me if you wish to collaborate with me.
+(hololambert@protonmail.com)
 
-arc:
-    hsdk_defconfig:
-        gcc-8:
-            hsdk: 1 failed lab
+Best regards,
 
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-gxbb-odroidc2: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Mr. Holo.
