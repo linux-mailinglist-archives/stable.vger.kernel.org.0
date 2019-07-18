@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C252B6C699
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:18:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A1C16C685
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:17:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391635AbfGRDR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:17:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49948 "EHLO mail.kernel.org"
+        id S2390308AbfGRDOd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:14:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391703AbfGRDON (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:14:13 -0400
+        id S2391825AbfGRDOd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:14:33 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 947ED2077C;
-        Thu, 18 Jul 2019 03:14:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8F3021848;
+        Thu, 18 Jul 2019 03:14:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419652;
-        bh=rGTmn1Do0fdE2xwr//1vrCgSU5zRYdNtOrcaVxu+SRk=;
+        s=default; t=1563419672;
+        bh=6BcGI6wswnnN8ETUy2jFwjnJYW2MPymsJhyPwCGUGxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b203mmT2+Pi9hqi9pO25N8HnLOv2YgzJ+SZ4H/GFTyBzd2PtAnlldTkT4ZnjxinNQ
-         +eF3Zfj5FCU1AR8vR8QJ4vDn2+aIKXbTQBCg74rw5qRSu7NK0dbzK23MWrNPcM6iqd
-         MqAHmE/lQzqTm/wtVGSjtWu0sebiqz2xlS1Ex/lo=
+        b=gcVFzC4U4MaAujBc7v6NI8tBAqkioGb5TYCZfFLZ9QYlhMczqhQpzZ34K4lsFuc/D
+         AUY9ZoZV3LmGku6Y7R4IfSrxQ0ZAiljkiqMyWaBWi9l0af0bfO3pCOHc4ClKJ+waDD
+         cyQGCmYLoWGhklc7Wg247AB1DeGB0wsS4y5SlC7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@linux-mips.org,
-        Hauke Mehrtens <hauke@hauke-m.de>
-Subject: [PATCH 4.9 39/54] MIPS: Remove superfluous check for __linux__
-Date:   Thu, 18 Jul 2019 12:02:09 +0900
-Message-Id: <20190718030052.500312977@linuxfoundation.org>
+        stable@vger.kernel.org, Dianzhang Chen <dianzhangchen0@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>, bp@alien8.de,
+        hpa@zytor.com
+Subject: [PATCH 4.4 14/40] x86/tls: Fix possible spectre-v1 in do_get_thread_area()
+Date:   Thu, 18 Jul 2019 12:02:10 +0900
+Message-Id: <20190718030043.833651664@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
-References: <20190718030048.392549994@linuxfoundation.org>
+In-Reply-To: <20190718030039.676518610@linuxfoundation.org>
+References: <20190718030039.676518610@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Dianzhang Chen <dianzhangchen0@gmail.com>
 
-commit 1287533d3d95d5ad8b02773733044500b1be06bc upstream.
+commit 993773d11d45c90cb1c6481c2638c3d9f092ea5b upstream.
 
-When building BPF code using "clang -target bpf -c", clang does not
-define __linux__.
+The index to access the threads tls array is controlled by userspace
+via syscall: sys_ptrace(), hence leading to a potential exploitation
+of the Spectre variant 1 vulnerability.
 
-To build BPF IR decoders the include linux/lirc.h is needed which
-includes linux/types.h. Currently this workaround is needed:
+The index can be controlled from:
+        ptrace -> arch_ptrace -> do_get_thread_area.
 
-https://git.linuxtv.org/v4l-utils.git/commit/?id=dd3ff81f58c4e1e6f33765dc61ad33c48ae6bb07
+Fix this by sanitizing the user supplied index before using it to access
+the p->thread.tls_array.
 
-This check might otherwise be useful to stop users from using a non-linux
-compiler, but if you're doing that you are going to have a lot more
-trouble anyway.
-
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Patchwork: https://patchwork.linux-mips.org/patch/21149/
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@linux-mips.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Hauke Mehrtens <hauke@hauke-m.de>
+Signed-off-by: Dianzhang Chen <dianzhangchen0@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: bp@alien8.de
+Cc: hpa@zytor.com
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1561524630-3642-1-git-send-email-dianzhangchen0@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/include/uapi/asm/sgidefs.h |    8 --------
- 1 file changed, 8 deletions(-)
+ arch/x86/kernel/tls.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/arch/mips/include/uapi/asm/sgidefs.h
-+++ b/arch/mips/include/uapi/asm/sgidefs.h
-@@ -11,14 +11,6 @@
- #define __ASM_SGIDEFS_H
+--- a/arch/x86/kernel/tls.c
++++ b/arch/x86/kernel/tls.c
+@@ -4,6 +4,7 @@
+ #include <linux/user.h>
+ #include <linux/regset.h>
+ #include <linux/syscalls.h>
++#include <linux/nospec.h>
  
- /*
-- * Using a Linux compiler for building Linux seems logic but not to
-- * everybody.
-- */
--#ifndef __linux__
--#error Use a Linux compiler or give up.
--#endif
--
--/*
-  * Definitions for the ISA levels
-  *
-  * With the introduction of MIPS32 / MIPS64 instruction sets definitions
+ #include <asm/uaccess.h>
+ #include <asm/desc.h>
+@@ -177,6 +178,7 @@ int do_get_thread_area(struct task_struc
+ 		       struct user_desc __user *u_info)
+ {
+ 	struct user_desc info;
++	int index;
+ 
+ 	if (idx == -1 && get_user(idx, &u_info->entry_number))
+ 		return -EFAULT;
+@@ -184,8 +186,11 @@ int do_get_thread_area(struct task_struc
+ 	if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
+ 		return -EINVAL;
+ 
+-	fill_user_desc(&info, idx,
+-		       &p->thread.tls_array[idx - GDT_ENTRY_TLS_MIN]);
++	index = idx - GDT_ENTRY_TLS_MIN;
++	index = array_index_nospec(index,
++			GDT_ENTRY_TLS_MAX - GDT_ENTRY_TLS_MIN + 1);
++
++	fill_user_desc(&info, idx, &p->thread.tls_array[index]);
+ 
+ 	if (copy_to_user(u_info, &info, sizeof(info)))
+ 		return -EFAULT;
 
 
