@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D9D56C672
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:16:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B56976C69C
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391899AbfGRDOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:14:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51354 "EHLO mail.kernel.org"
+        id S2390916AbfGRDSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:18:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391552AbfGRDOy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:14:54 -0400
+        id S2391690AbfGRDOK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:14:10 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D0992173E;
-        Thu, 18 Jul 2019 03:14:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24D5F21851;
+        Thu, 18 Jul 2019 03:14:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419692;
-        bh=NCIL+UU30lF7lInjjNh/zMoMrYDQLRMGMQFLEIXc/UI=;
+        s=default; t=1563419649;
+        bh=xyhxMICcW0VBwJiwciKexKmME76pTMQ7Puqb92NZyyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HsW2cillkteiviPFZCQAWuLyYKc64GdfTQJnyp2/Kl6mCCkR+tZ3keQu50WVc7DAX
-         iCw9qYgvWYMuKKedFsVl0ZT6uYwZoF3Gu1jFVa1UFBRU3HVZBbNM8EIrxudfOoJiJI
-         Wo0tz7h9ZT00XL/Mh2Ej4HFe9ZddkrjMNAXWIq+0=
+        b=RUeNKIQgOxkRpD+vVnTlNfckge7KWDuY5UZJAd0QfX61yVH5qZcBqxdP6l7Jbh3Gq
+         R07Y9IQbmRqkrMlg/2DApu119iOuOqURGyUHfojIhmPKaVrjP6C52HKHK4xHCOYUkW
+         RJe3hLWUE6PY0naNTS71pRoNHE8Cr4T+fZLsDuMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 10/40] md: fix for divide error in status_resync
-Date:   Thu, 18 Jul 2019 12:02:06 +0900
-Message-Id: <20190718030042.383206169@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 37/54] carl9170: fix misuse of device driver API
+Date:   Thu, 18 Jul 2019 12:02:07 +0900
+Message-Id: <20190718030052.337010359@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030039.676518610@linuxfoundation.org>
-References: <20190718030039.676518610@linuxfoundation.org>
+In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
+References: <20190718030048.392549994@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,91 +44,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9642fa73d073527b0cbc337cc17a47d545d82cd2 ]
+From: Christian Lamparter <chunkeey@gmail.com>
 
-Stopping external metadata arrays during resync/recovery causes
-retries, loop of interrupting and starting reconstruction, until it
-hit at good moment to stop completely. While these retries
-curr_mark_cnt can be small- especially on HDD drives, so subtraction
-result can be smaller than 0. However it is casted to uint without
-checking. As a result of it the status bar in /proc/mdstat while stopping
-is strange (it jumps between 0% and 99%).
+commit feb09b2933275a70917a869989ea2823e7356be8 upstream.
 
-The real problem occurs here after commit 72deb455b5ec ("block: remove
-CONFIG_LBDAF"). Sector_div() macro has been changed, now the
-divisor is casted to uint32. For db = -8 the divisior(db/32-1) becomes 0.
+This patch follows Alan Stern's recent patch:
+"p54: Fix race between disconnect and firmware loading"
 
-Check if db value can be really counted and replace these macro by
-div64_u64() inline.
+that overhauled carl9170 buggy firmware loading and driver
+unbinding procedures.
 
-Signed-off-by: Mariusz Tkaczyk <mariusz.tkaczyk@intel.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since the carl9170 code was adapted from p54 it uses the
+same functions and is likely to have the same problem, but
+it's just that the syzbot hasn't reproduce them (yet).
+
+a summary from the changes (copied from the p54 patch):
+ * Call usb_driver_release_interface() rather than
+   device_release_driver().
+
+ * Lock udev (the interface's parent) before unbinding the
+   driver instead of locking udev->parent.
+
+ * During the firmware loading process, take a reference
+   to the USB interface instead of the USB device.
+
+ * Don't take an unnecessary reference to the device during
+   probe (and then don't drop it during disconnect).
+
+and
+
+ * Make sure to prevent use-after-free bugs by explicitly
+   setting the driver context to NULL after signaling the
+   completion.
+
+Cc: <stable@vger.kernel.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/md/md.c | 36 ++++++++++++++++++++++--------------
- 1 file changed, 22 insertions(+), 14 deletions(-)
+ drivers/net/wireless/ath/carl9170/usb.c |   39 +++++++++++++-------------------
+ 1 file changed, 17 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index f71cca28ddda..067af77bb729 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -7226,9 +7226,9 @@ static void status_unused(struct seq_file *seq)
- static int status_resync(struct seq_file *seq, struct mddev *mddev)
+--- a/drivers/net/wireless/ath/carl9170/usb.c
++++ b/drivers/net/wireless/ath/carl9170/usb.c
+@@ -128,6 +128,8 @@ static struct usb_device_id carl9170_usb
+ };
+ MODULE_DEVICE_TABLE(usb, carl9170_usb_ids);
+ 
++static struct usb_driver carl9170_driver;
++
+ static void carl9170_usb_submit_data_urb(struct ar9170 *ar)
  {
- 	sector_t max_sectors, resync, res;
--	unsigned long dt, db;
--	sector_t rt;
--	int scale;
-+	unsigned long dt, db = 0;
-+	sector_t rt, curr_mark_cnt, resync_mark_cnt;
-+	int scale, recovery_active;
- 	unsigned int per_milli;
+ 	struct urb *urb;
+@@ -966,32 +968,28 @@ err_out:
  
- 	if (test_bit(MD_RECOVERY_SYNC, &mddev->recovery) ||
-@@ -7298,22 +7298,30 @@ static int status_resync(struct seq_file *seq, struct mddev *mddev)
- 	 * db: blocks written from mark until now
- 	 * rt: remaining time
- 	 *
--	 * rt is a sector_t, so could be 32bit or 64bit.
--	 * So we divide before multiply in case it is 32bit and close
--	 * to the limit.
--	 * We scale the divisor (db) by 32 to avoid losing precision
--	 * near the end of resync when the number of remaining sectors
--	 * is close to 'db'.
--	 * We then divide rt by 32 after multiplying by db to compensate.
--	 * The '+1' avoids division by zero if db is very small.
-+	 * rt is a sector_t, which is always 64bit now. We are keeping
-+	 * the original algorithm, but it is not really necessary.
-+	 *
-+	 * Original algorithm:
-+	 *   So we divide before multiply in case it is 32bit and close
-+	 *   to the limit.
-+	 *   We scale the divisor (db) by 32 to avoid losing precision
-+	 *   near the end of resync when the number of remaining sectors
-+	 *   is close to 'db'.
-+	 *   We then divide rt by 32 after multiplying by db to compensate.
-+	 *   The '+1' avoids division by zero if db is very small.
+ static void carl9170_usb_firmware_failed(struct ar9170 *ar)
+ {
+-	struct device *parent = ar->udev->dev.parent;
+-	struct usb_device *udev;
+-
+-	/*
+-	 * Store a copy of the usb_device pointer locally.
+-	 * This is because device_release_driver initiates
+-	 * carl9170_usb_disconnect, which in turn frees our
+-	 * driver context (ar).
++	/* Store a copies of the usb_interface and usb_device pointer locally.
++	 * This is because release_driver initiates carl9170_usb_disconnect,
++	 * which in turn frees our driver context (ar).
  	 */
- 	dt = ((jiffies - mddev->resync_mark) / HZ);
- 	if (!dt) dt++;
--	db = (mddev->curr_mark_cnt - atomic_read(&mddev->recovery_active))
--		- mddev->resync_mark_cnt;
-+
-+	curr_mark_cnt = mddev->curr_mark_cnt;
-+	recovery_active = atomic_read(&mddev->recovery_active);
-+	resync_mark_cnt = mddev->resync_mark_cnt;
-+
-+	if (curr_mark_cnt >= (recovery_active + resync_mark_cnt))
-+		db = curr_mark_cnt - (recovery_active + resync_mark_cnt);
+-	udev = ar->udev;
++	struct usb_interface *intf = ar->intf;
++	struct usb_device *udev = ar->udev;
  
- 	rt = max_sectors - resync;    /* number of remaining sectors */
--	sector_div(rt, db/32+1);
-+	rt = div64_u64(rt, db/32+1);
- 	rt *= dt;
- 	rt >>= 5;
+ 	complete(&ar->fw_load_wait);
++	/* at this point 'ar' could be already freed. Don't use it anymore */
++	ar = NULL;
  
--- 
-2.20.1
-
+ 	/* unbind anything failed */
+-	if (parent)
+-		device_lock(parent);
+-
+-	device_release_driver(&udev->dev);
+-	if (parent)
+-		device_unlock(parent);
++	usb_lock_device(udev);
++	usb_driver_release_interface(&carl9170_driver, intf);
++	usb_unlock_device(udev);
+ 
+-	usb_put_dev(udev);
++	usb_put_intf(intf);
+ }
+ 
+ static void carl9170_usb_firmware_finish(struct ar9170 *ar)
+ {
++	struct usb_interface *intf = ar->intf;
+ 	int err;
+ 
+ 	err = carl9170_parse_firmware(ar);
+@@ -1009,7 +1007,7 @@ static void carl9170_usb_firmware_finish
+ 		goto err_unrx;
+ 
+ 	complete(&ar->fw_load_wait);
+-	usb_put_dev(ar->udev);
++	usb_put_intf(intf);
+ 	return;
+ 
+ err_unrx:
+@@ -1052,7 +1050,6 @@ static int carl9170_usb_probe(struct usb
+ 		return PTR_ERR(ar);
+ 
+ 	udev = interface_to_usbdev(intf);
+-	usb_get_dev(udev);
+ 	ar->udev = udev;
+ 	ar->intf = intf;
+ 	ar->features = id->driver_info;
+@@ -1094,15 +1091,14 @@ static int carl9170_usb_probe(struct usb
+ 	atomic_set(&ar->rx_anch_urbs, 0);
+ 	atomic_set(&ar->rx_pool_urbs, 0);
+ 
+-	usb_get_dev(ar->udev);
++	usb_get_intf(intf);
+ 
+ 	carl9170_set_state(ar, CARL9170_STOPPED);
+ 
+ 	err = request_firmware_nowait(THIS_MODULE, 1, CARL9170FW_NAME,
+ 		&ar->udev->dev, GFP_KERNEL, ar, carl9170_usb_firmware_step2);
+ 	if (err) {
+-		usb_put_dev(udev);
+-		usb_put_dev(udev);
++		usb_put_intf(intf);
+ 		carl9170_free(ar);
+ 	}
+ 	return err;
+@@ -1131,7 +1127,6 @@ static void carl9170_usb_disconnect(stru
+ 
+ 	carl9170_release_firmware(ar);
+ 	carl9170_free(ar);
+-	usb_put_dev(udev);
+ }
+ 
+ #ifdef CONFIG_PM
 
 
