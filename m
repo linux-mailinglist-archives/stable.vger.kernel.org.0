@@ -2,111 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0E36CB45
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 10:50:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6C0A6CB4D
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 10:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726485AbfGRIuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 04:50:39 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:41746 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726397AbfGRIuj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 04:50:39 -0400
-Received: by mail-wr1-f68.google.com with SMTP id c2so24536773wrm.8
-        for <stable@vger.kernel.org>; Thu, 18 Jul 2019 01:50:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=FP+8MKZl6bBsMebQTvPHr2idtDJEkibUdB9rKGWQNOA=;
-        b=kvGW2Nfm54Ciwa+SRjVM3yC3jOz1OaAEJd4Dm9ZZCDwldWmpqefQCvQguJpc48cIOy
-         RlPsBTzvU2BGAquzF5xVMjUFlj9JRTUPtlcAE0LOtdAM7qE+PdZr7ptBjuJst8oKNj0j
-         A7cBuYSsD6R448ZSocYfUUWGZVdmbhM4I8EgI+/4y0B/9aYtwBCjilSfYK/ne1AWLwtP
-         gmwDmFBUoXRj5tXIj38hvhbbKQUHDfUGx4eXYK7kxuPnaZljjNE703K7MoI2BPPJ15VB
-         vawFYgoRK88WsNnfHzo8PLJqwaFzfueC35Mci0PKL1CMfusXKifUm2iZUPQaLq7pnCWH
-         CjYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=FP+8MKZl6bBsMebQTvPHr2idtDJEkibUdB9rKGWQNOA=;
-        b=jdsHFnwi3JVgmxfdaU4lXNc+uwV5D4Aq3Bf76TAVjEPM+Mu92L7hErt3XtV46tPnQX
-         rA70ifENDLP9cwgXi6OhlJ+NyKpm4XAa7CX/akjfw8tObNIpRK74zkfG/iYb5Iw7PSgY
-         EHKWgPSDoJkYvj+IF8kD4uiULxKAROgSwepdITr3hg7vlEfM9ljY5LE0vHI4BPi6g1Pq
-         2AtKFjTru6LyXnOtmW+IHt82ePOlELoBxijMo/ItnKPjTXCAF/09jRNq7/Tz+mGbrX4f
-         cx9kgaMa+lCG81V8Y80DMIjyYK4r9d17CRc27aJLXp+gjz1A3Szf5dlPyfmnjYrSi1P7
-         ZgWg==
-X-Gm-Message-State: APjAAAX3iAqQLYT4RQ/Kj3I1v1GN/eUulWtCYCmePOvBekTOca1GYg/F
-        ajhBbXLeoyKtU7TwWkoUiPcVMZ9gt38=
-X-Google-Smtp-Source: APXvYqwZZU8Bkjnbw/XI00YLE1bPbb2Vde7uITkve90Q/9jFCDH8k5PT4ETQqg++dx6GZ134d2nMig==
-X-Received: by 2002:adf:f050:: with SMTP id t16mr45455443wro.99.1563439837270;
-        Thu, 18 Jul 2019 01:50:37 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id r11sm30319744wre.14.2019.07.18.01.50.36
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 18 Jul 2019 01:50:36 -0700 (PDT)
-Message-ID: <5d3032dc.1c69fb81.7b0a2.cc88@mx.google.com>
-Date:   Thu, 18 Jul 2019 01:50:36 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726485AbfGRIzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 04:55:19 -0400
+Received: from mga18.intel.com ([134.134.136.126]:55684 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726383AbfGRIzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 04:55:19 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Jul 2019 01:55:17 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,276,1559545200"; 
+   d="scan'208";a="366852128"
+Received: from pipin.fi.intel.com (HELO pipin) ([10.237.72.175])
+  by fmsmga005.fm.intel.com with ESMTP; 18 Jul 2019 01:55:15 -0700
+From:   Felipe Balbi <felipe.balbi@linux.intel.com>
+To:     fei.yang@intel.com, john.stultz@linaro.org,
+        andrzej.p@collabora.com, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH V2] usb: dwc3: gadget: trb_dequeue is not updated properly
+In-Reply-To: <1563396788-126034-1-git-send-email-fei.yang@intel.com>
+References: <1563396788-126034-1-git-send-email-fei.yang@intel.com>
+Date:   Thu, 18 Jul 2019 11:55:14 +0300
+Message-ID: <87o91riux9.fsf@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.1.18-55-gf7d61f5b654e
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.1.y
-Subject: stable-rc/linux-5.1.y boot: 135 boots: 2 failed,
- 131 passed with 1 offline, 1 untried/unknown (v5.1.18-55-gf7d61f5b654e)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.1.y boot: 135 boots: 2 failed, 131 passed with 1 offline,=
- 1 untried/unknown (v5.1.18-55-gf7d61f5b654e)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.1.y/kernel/v5.1.18-55-gf7d61f5b654e/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
-/kernel/v5.1.18-55-gf7d61f5b654e/
+Hi,
 
-Tree: stable-rc
-Branch: linux-5.1.y
-Git Describe: v5.1.18-55-gf7d61f5b654e
-Git Commit: f7d61f5b654edb3890d2a2a2c0a9769ba92acd6f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 77 unique boards, 27 SoC families, 17 builds out of 209
+Let's look at the relevant code:
 
-Boot Regressions Detected:
+fei.yang@intel.com writes:
 
-arm:
+> From: Fei Yang <fei.yang@intel.com>
+>
+> If scatter-gather operation is allowed, a large USB request would be split
+> into multiple TRBs. These TRBs are chained up by setting DWC3_TRB_CTRL_CHN
+> bit except the last one which has DWC3_TRB_CTRL_IOC bit set instead.
+> Since only the last TRB has IOC set, dwc3_gadget_ep_reclaim_completed_trb()
+> would be called only once for the whole USB request, thus all the TRBs need
+> to be reclaimed within this single call. However that is not what the current
+> code does.
+>
+> This patch addresses the issue by checking each TRB in function
+> dwc3_gadget_ep_reclaim_trb_sg() and reclaiming the chained ones right there.
+> Only the last TRB gets passed to dwc3_gadget_ep_reclaim_completed_trb(). This
+> would guarantee all TRBs are reclaimed and trb_dequeue/num_trbs are updated
+> properly.
+>
+> Signed-off-by: Fei Yang <fei.yang@intel.com>
+> Cc: stable <stable@vger.kernel.org>
+> ---
+>
+> V2: Better solution is to reclaim chained TRBs in dwc3_gadget_ep_reclaim_trb_sg()
+>     and leave the last TRB to the dwc3_gadget_ep_reclaim_completed_trb().
+>
+> ---
+>
+>  drivers/usb/dwc3/gadget.c | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+> index 173f532..c0662c2 100644
+> --- a/drivers/usb/dwc3/gadget.c
+> +++ b/drivers/usb/dwc3/gadget.c
+> @@ -2404,7 +2404,7 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
+>  		struct dwc3_request *req, const struct dwc3_event_depevt *event,
+>  		int status)
 
-    omap2plus_defconfig:
-        gcc-8:
-          am335x-boneblack:
-              lab-drue: new failure (last pass: v5.1.18-54-ga80425902cdb)
+Here's the full function:
 
-Boot Failures Detected:
+| static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
+| 		struct dwc3_request *req, const struct dwc3_event_depevt *event,
+| 		int status)
+| {
+| 	struct dwc3_trb *trb = &dep->trb_pool[dep->trb_dequeue];
+| 	struct scatterlist *sg = req->sg;
+| 	struct scatterlist *s;
+| 	unsigned int pending = req->num_pending_sgs;
+| 	unsigned int i;
+| 	int ret = 0;
+| 
+| 	for_each_sg(sg, s, pending, i) {
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            bcm4708-smartrg-sr400ac: 1 failed lab
+iterate over each scatterlist member for the current request...
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxl-s905x-nexbox-a95x: 1 failed lab
+| 		trb = &dep->trb_pool[dep->trb_dequeue];
+| 
+| 		if (trb->ctrl & DWC3_TRB_CTRL_HWO)
+| 			break;
+| 
+| 		req->sg = sg_next(s);
+| 		req->num_pending_sgs--;
+| 
+| 		ret = dwc3_gadget_ep_reclaim_completed_trb(dep, req,
+| 				trb, event, status, true);
 
-Offline Platforms:
+... and reclaim its TRB.
 
-arm64:
+Now, looking dwc3_gadget_ep_reclaim_compmleted_trb() we have:
 
-    defconfig:
-        gcc-8
-            meson-gxbb-odroidc2: 1 offline lab
+| static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
+| 		struct dwc3_request *req, struct dwc3_trb *trb,
+| 		const struct dwc3_event_depevt *event, int status, int chain)
+| {
+| 	unsigned int		count;
+| 
+| 	dwc3_ep_inc_deq(dep);
 
----
-For more info write to <info@kernelci.org>
+unconditionally increment the dequeue pointer. What Are we missing here?
+
+[...]
+
+| 	return 0;
+| }
+
+
+Now, looking at what your patch does we will have:
+
+>  {
+> -	struct dwc3_trb *trb = &dep->trb_pool[dep->trb_dequeue];
+> +	struct dwc3_trb *trb;
+
+small cleanup, should be part of its own patch.
+
+>  	struct scatterlist *sg = req->sg;
+>  	struct scatterlist *s;
+>  	unsigned int pending = req->num_pending_sgs;
+> @@ -2419,7 +2419,15 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
+>  
+>  		req->sg = sg_next(s);
+>  		req->num_pending_sgs--;
+> +		if (!(trb->ctrl & DWC3_TRB_CTRL_IOC)) {
+> +			/* reclaim the TRB without calling
+> +			 * dwc3_gadget_ep_reclaim_completed_trb */
+
+why do you have to skip dwc3_gadget_ep_reclaim_completed_trb()? Also,
+your patch description claims that we're NOT incrementing the TRBs,
+which is wrong. I fail to see what problem you're trying to solve here,
+really.
+
+Could it be that we're, simply. returning 1 when we should return 0 for
+the previous SG list members? If that's the case, then that's the bug
+that should be fixed. Still, you shouldn't avoid calling
+dwc3_gadget_ep_reclaim_completed_trb() and should, instead, fix the bug
+it contains.
+
+Looking at the cases where dwc3_gadget_ep_reclaim_completed_trb()
+returns 1, I can't see how that would be the case either:
+
+| 	if (chain && (trb->ctrl & DWC3_TRB_CTRL_HWO))
+| 		trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
+
+if CHN bit it set and HWO is bit, clear HWO
+
+| 	if (req->needs_extra_trb && !(trb->ctrl & DWC3_TRB_CTRL_CHN)) {
+| 		trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
+| 		return 1;
+| 	}
+
+if *not* CHN and needs_extra_trb, return 1. This can only be true for
+the last TRB in the SG list.
+
+| 	if ((trb->ctrl & DWC3_TRB_CTRL_HWO) && status != -ESHUTDOWN)
+| 		return 1;
+
+This can't be true because we cleared HWO up above
+
+| 	if (event->status & DEPEVT_STATUS_SHORT && !chain)
+| 		return 1;
+
+can only be true for last TRB
+
+| 	if (event->status & DEPEVT_STATUS_IOC)
+| 		return 1;
+
+If we have a short packet, then we may fall here. Is that the case?
+
+Please share dwc3 tracepoints of the problem happening so I can verify
+what's going on.
+
+-- 
+balbi
