@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D62326C579
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:08:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8822F6C52A
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:07:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389172AbfGRDGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:06:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38204 "EHLO mail.kernel.org"
+        id S2389299AbfGRDDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:03:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389786AbfGRDGs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:06:48 -0400
+        id S2389252AbfGRDDY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:03:24 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5534D2173B;
-        Thu, 18 Jul 2019 03:06:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BF692173B;
+        Thu, 18 Jul 2019 03:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419207;
-        bh=wqOGoStqOkwffvrYO84oIEN88EJVB13j9jeIKwL9hdo=;
+        s=default; t=1563419004;
+        bh=PG3T8mXmGSKOIY8ZLT45pOA+wxybHzy/qkPK3tpEaWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uax39zxJVF2n5N6535nhRrAE9VRW41CdCNgPVoHl3+lOXWMcR4eBGca1rRDJvLyJW
-         TPChnqp297gu+InC0CU4Y/+uw+eW4Apt5+UKJkTsgseWBKp9SOEOZ/00Hk+xiIGfRh
-         QvO16agUBA/m+2z3dgVrNE6bM9a4afJ/GCw0RrTI=
+        b=aZx7/l7cmmOOivGKNWf6vMzb+kMnPU5DpRGjL/XOIjKbt/2txuHlwfimCxuqRObyI
+         aKoIqZusVSpuu1TvChQgLSBZDEyYAIPHlaDG5bdPAJfrusfHdPVrP2k5tuulcQhQLI
+         JF/MU3+hNY28eUX4R/iagsurUFzmmffQgSIQ2PJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/47] clk: ti: clkctrl: Fix returning uninitialized data
-Date:   Thu, 18 Jul 2019 12:01:22 +0900
-Message-Id: <20190718030049.197902316@linuxfoundation.org>
+        stable@vger.kernel.org, Fenghua Yu <fenghua.yu@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.2 05/21] drivers: base: cacheinfo: Ensure cpu hotplug work is done before Intel RDT
+Date:   Thu, 18 Jul 2019 12:01:23 +0900
+Message-Id: <20190718030031.591880791@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
-References: <20190718030045.780672747@linuxfoundation.org>
+In-Reply-To: <20190718030030.456918453@linuxfoundation.org>
+References: <20190718030030.456918453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,63 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 41b3588dba6ef4b7995735a97e47ff0aeea6c276 ]
+From: James Morse <james.morse@arm.com>
 
-If we do a clk_get() for a clock that does not exists, we have
-_ti_omap4_clkctrl_xlate() return uninitialized data if no match
-is found. This can be seen in some cases with SLAB_DEBUG enabled:
+commit 83b44fe343b5abfcb1b2261289bd0cfcfcfd60a8 upstream.
 
-Unable to handle kernel paging request at virtual address 5a5a5a5a
-...
-clk_hw_create_clk.part.33
-sysc_notifier_call
-notifier_call_chain
-blocking_notifier_call_chain
-device_add
+The cacheinfo structures are alloced/freed by cpu online/offline
+callbacks. Originally these were only used by sysfs to expose the
+cache topology to user space. Without any in-kernel dependencies
+CPUHP_AP_ONLINE_DYN was an appropriate choice.
 
-Let's fix this by setting a found flag only when we find a match.
+resctrl has started using these structures to identify CPUs that
+share a cache. It updates its 'domain' structures from cpu
+online/offline callbacks. These depend on the cacheinfo structures
+(resctrl_online_cpu()->domain_add_cpu()->get_cache_id()->
+ get_cpu_cacheinfo()).
+These also run as CPUHP_AP_ONLINE_DYN.
 
-Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Fixes: 88a172526c32 ("clk: ti: add support for clkctrl clocks")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Tested-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Now that there is an in-kernel dependency, move the cacheinfo
+work earlier so we know its done before resctrl's CPUHP_AP_ONLINE_DYN
+work runs.
+
+Fixes: 2264d9c74dda1 ("x86/intel_rdt: Build structures for each resource based on cache topology")
+Cc: <stable@vger.kernel.org>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+Link: https://lore.kernel.org/r/20190624173656.202407-1-james.morse@arm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/ti/clkctrl.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/base/cacheinfo.c   |    3 ++-
+ include/linux/cpuhotplug.h |    1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/ti/clkctrl.c b/drivers/clk/ti/clkctrl.c
-index ca3218337fd7..dfaa5aad0692 100644
---- a/drivers/clk/ti/clkctrl.c
-+++ b/drivers/clk/ti/clkctrl.c
-@@ -229,6 +229,7 @@ static struct clk_hw *_ti_omap4_clkctrl_xlate(struct of_phandle_args *clkspec,
+--- a/drivers/base/cacheinfo.c
++++ b/drivers/base/cacheinfo.c
+@@ -655,7 +655,8 @@ static int cacheinfo_cpu_pre_down(unsign
+ 
+ static int __init cacheinfo_sysfs_init(void)
  {
- 	struct omap_clkctrl_provider *provider = data;
- 	struct omap_clkctrl_clk *entry;
-+	bool found = false;
- 
- 	if (clkspec->args_count != 2)
- 		return ERR_PTR(-EINVAL);
-@@ -238,11 +239,13 @@ static struct clk_hw *_ti_omap4_clkctrl_xlate(struct of_phandle_args *clkspec,
- 
- 	list_for_each_entry(entry, &provider->clocks, node) {
- 		if (entry->reg_offset == clkspec->args[0] &&
--		    entry->bit_offset == clkspec->args[1])
-+		    entry->bit_offset == clkspec->args[1]) {
-+			found = true;
- 			break;
-+		}
- 	}
- 
--	if (!entry)
-+	if (!found)
- 		return ERR_PTR(-EINVAL);
- 
- 	return entry->clk;
--- 
-2.20.1
-
+-	return cpuhp_setup_state(CPUHP_AP_ONLINE_DYN, "base/cacheinfo:online",
++	return cpuhp_setup_state(CPUHP_AP_BASE_CACHEINFO_ONLINE,
++				 "base/cacheinfo:online",
+ 				 cacheinfo_cpu_online, cacheinfo_cpu_pre_down);
+ }
+ device_initcall(cacheinfo_sysfs_init);
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -176,6 +176,7 @@ enum cpuhp_state {
+ 	CPUHP_AP_WATCHDOG_ONLINE,
+ 	CPUHP_AP_WORKQUEUE_ONLINE,
+ 	CPUHP_AP_RCUTREE_ONLINE,
++	CPUHP_AP_BASE_CACHEINFO_ONLINE,
+ 	CPUHP_AP_ONLINE_DYN,
+ 	CPUHP_AP_ONLINE_DYN_END		= CPUHP_AP_ONLINE_DYN + 30,
+ 	CPUHP_AP_X86_HPET_ONLINE,
 
 
