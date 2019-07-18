@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C84A16C780
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F316C72E
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:23:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733281AbfGRDEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:04:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35552 "EHLO mail.kernel.org"
+        id S2389807AbfGRDWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:22:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727541AbfGRDEh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:04:37 -0400
+        id S2390786AbfGRDIf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:08:35 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0ACC82173B;
-        Thu, 18 Jul 2019 03:04:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB20020818;
+        Thu, 18 Jul 2019 03:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419076;
-        bh=M4Hp0DidtU4Z5FyikNxfkGbejwLV+GEO4duPURQZ+B0=;
+        s=default; t=1563419314;
+        bh=6gd90O/y2lDsWKKRond7nl5/KG/B8OEOYSQUr9f0rWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Es3I931gMQy+ZJLHPxjARqCsnsntzO6zav4W0Ijncg3xFNKr/mWbwJgvO8H6ri0Ry
-         nbTboP1mtDXvJqdzxyWv6gxpScvgqE4BtP6892u5IzUA+uWMH40IltEPl13UdvKcPM
-         v36bb0U3MewvP6qaQ59FugRREP/Y4MlnoIIONm0I=
+        b=Kjkmsiwc6UIg7oClhH98sV5MwOfVmsxjIq1dgeyFM6b0CygcQuAHRpgiGp8M6kTA6
+         23TCwEmxPp1vLiPl4Sznhz337jrjMHurisZGCwTv0C82573NiYL58SX8tPAwmF10Cd
+         oUVOjNd5Hyvp0EVaPs/lpAQjdvPLnpHh68osgeAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Kevin Hilman <khilman@baylibre.com>,
+        stable@vger.kernel.org, Thomas Pedersen <thomas@eero.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 07/54] ARM: dts: meson8: fix GPU interrupts and drop an undocumented property
+Subject: [PATCH 4.14 11/80] mac80211: mesh: fix RCU warning
 Date:   Thu, 18 Jul 2019 12:01:02 +0900
-Message-Id: <20190718030053.928285686@linuxfoundation.org>
+Message-Id: <20190718030059.729049916@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
-References: <20190718030053.287374640@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 01dfdd7b4693496854ac92d1ebfb18d7b108f777 ]
+[ Upstream commit 551842446ed695641a00782cd118cbb064a416a1 ]
 
-The interrupts in Amlogic's vendor kernel sources are all contiguous.
-There are two typos leading to pp2 and pp4 as well as ppmmu2 and ppmmu4
-incorrectly sharing the same interrupt line.
-Fix this by using interrupt 170 for pp2 and 171 for ppmmu2.
+ifmsh->csa is an RCU-protected pointer. The writer context
+in ieee80211_mesh_finish_csa() is already mutually
+exclusive with wdev->sdata.mtx, but the RCU checker did
+not know this. Use rcu_dereference_protected() to avoid a
+warning.
 
-Also drop the undocumented "switch-delay" which is a left-over from my
-experiments with an early lima kernel driver when it was still
-out-of-tree and required this property on Amlogic SoCs.
+fixes the following warning:
 
-Fixes: 7d3f6b536e72c9 ("ARM: dts: meson8: add the Mali-450 MP6 GPU")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+[   12.519089] =============================
+[   12.520042] WARNING: suspicious RCU usage
+[   12.520652] 5.1.0-rc7-wt+ #16 Tainted: G        W
+[   12.521409] -----------------------------
+[   12.521972] net/mac80211/mesh.c:1223 suspicious rcu_dereference_check() usage!
+[   12.522928] other info that might help us debug this:
+[   12.523984] rcu_scheduler_active = 2, debug_locks = 1
+[   12.524855] 5 locks held by kworker/u8:2/152:
+[   12.525438]  #0: 00000000057be08c ((wq_completion)phy0){+.+.}, at: process_one_work+0x1a2/0x620
+[   12.526607]  #1: 0000000059c6b07a ((work_completion)(&sdata->csa_finalize_work)){+.+.}, at: process_one_work+0x1a2/0x620
+[   12.528001]  #2: 00000000f184ba7d (&wdev->mtx){+.+.}, at: ieee80211_csa_finalize_work+0x2f/0x90
+[   12.529116]  #3: 00000000831a1f54 (&local->mtx){+.+.}, at: ieee80211_csa_finalize_work+0x47/0x90
+[   12.530233]  #4: 00000000fd06f988 (&local->chanctx_mtx){+.+.}, at: ieee80211_csa_finalize_work+0x51/0x90
+
+Signed-off-by: Thomas Pedersen <thomas@eero.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/meson8.dtsi | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ net/mac80211/mesh.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/meson8.dtsi b/arch/arm/boot/dts/meson8.dtsi
-index a9781243453e..048b55c8dc1e 100644
---- a/arch/arm/boot/dts/meson8.dtsi
-+++ b/arch/arm/boot/dts/meson8.dtsi
-@@ -248,8 +248,8 @@
- 				     <GIC_SPI 167 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 172 IRQ_TYPE_LEVEL_HIGH>,
--				     <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>,
-+				     <GIC_SPI 170 IRQ_TYPE_LEVEL_HIGH>,
-+				     <GIC_SPI 171 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 172 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>,
-@@ -264,7 +264,6 @@
- 			clocks = <&clkc CLKID_CLK81>, <&clkc CLKID_MALI>;
- 			clock-names = "bus", "core";
- 			operating-points-v2 = <&gpu_opp_table>;
--			switch-delay = <0xffff>;
- 		};
- 	};
- }; /* end of / */
+diff --git a/net/mac80211/mesh.c b/net/mac80211/mesh.c
+index 96e57d7c2872..aca054539f4a 100644
+--- a/net/mac80211/mesh.c
++++ b/net/mac80211/mesh.c
+@@ -1209,7 +1209,8 @@ int ieee80211_mesh_finish_csa(struct ieee80211_sub_if_data *sdata)
+ 	ifmsh->chsw_ttl = 0;
+ 
+ 	/* Remove the CSA and MCSP elements from the beacon */
+-	tmp_csa_settings = rcu_dereference(ifmsh->csa);
++	tmp_csa_settings = rcu_dereference_protected(ifmsh->csa,
++					    lockdep_is_held(&sdata->wdev.mtx));
+ 	RCU_INIT_POINTER(ifmsh->csa, NULL);
+ 	if (tmp_csa_settings)
+ 		kfree_rcu(tmp_csa_settings, rcu_head);
+@@ -1231,6 +1232,8 @@ int ieee80211_mesh_csa_beacon(struct ieee80211_sub_if_data *sdata,
+ 	struct mesh_csa_settings *tmp_csa_settings;
+ 	int ret = 0;
+ 
++	lockdep_assert_held(&sdata->wdev.mtx);
++
+ 	tmp_csa_settings = kmalloc(sizeof(*tmp_csa_settings),
+ 				   GFP_ATOMIC);
+ 	if (!tmp_csa_settings)
 -- 
 2.20.1
 
