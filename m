@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0FC6C675
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 112486C5E7
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:12:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403946AbfGRDOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:14:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51102 "EHLO mail.kernel.org"
+        id S2390438AbfGRDK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:10:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403872AbfGRDOq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:14:46 -0400
+        id S2390865AbfGRDKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:10:54 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D9BC21855;
-        Thu, 18 Jul 2019 03:14:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C6A620818;
+        Thu, 18 Jul 2019 03:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419685;
-        bh=58H0K3EXZSiTBjyK7stKDZOZ7Px+6PSkkQ/+P/Q/EPs=;
+        s=default; t=1563419453;
+        bh=roeJe8G7lmglKri+Qefg6bnKVLVqP3hO1Y8pTFehGW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swSrlOZKaGB0d8GBHmNWyvW8p+8kU79EC1dZVP0LC3jAJi95MS45zxd/VBD1tYAUj
-         0c1DhPtqq4kyLBhfse10B+0hvEBuspYHwC9LKbz6aNDDnFwSMef518yhA3rJVt1iVT
-         SY2/MnOtv/LZYDiJEXl7b+mpnT6A962rqTEiFTu4=
+        b=uvuBUxyndXH1tEQVsQFFqnROvtBx+b5JVPdv9wZNh+g/LyiX6xXWlcxIE+uDv+X8a
+         qtcIR8kHprGVskmffWLcl3yaokUc1j4nAzdNblOJnvlDATqBng9nPDGa4xTxX1OdB2
+         6XuZRk+GKs8AJg820gXRRrXgjDzWkjwmacFq7/u0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 06/40] can: mcp251x: add support for mcp25625
+Subject: [PATCH 4.14 71/80] x86/boot/64: Fix crash if kernel image crosses page table boundary
 Date:   Thu, 18 Jul 2019 12:02:02 +0900
-Message-Id: <20190718030040.776339312@linuxfoundation.org>
+Message-Id: <20190718030104.500783696@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030039.676518610@linuxfoundation.org>
-References: <20190718030039.676518610@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,132 +50,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 35b7fa4d07c43ad79b88e6462119e7140eae955c ]
+[ Upstream commit 81c7ed296dcd02bc0b4488246d040e03e633737a ]
 
-Fully compatible with mcp2515, the mcp25625 have integrated transceiver.
+A kernel which boots in 5-level paging mode crashes in a small percentage
+of cases if KASLR is enabled.
 
-This patch adds support for the mcp25625 to the existing mcp251x driver.
+This issue was tracked down to the case when the kernel image unpacks in a
+way that it crosses an 1G boundary. The crash is caused by an overrun of
+the PMD page table in __startup_64() and corruption of P4D page table
+allocated next to it. This particular issue is not visible with 4-level
+paging as P4D page tables are not used.
 
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+But the P4D and the PUD calculation have similar problems.
+
+The PMD index calculation is wrong due to operator precedence, which fails
+to confine the PMDs in the PMD array on wrap around.
+
+The P4D calculation for 5-level paging and the PUD calculation calculate
+the first index correctly, but then blindly increment it which causes the
+same issue when a kernel image is located across a 512G and for 5-level
+paging across a 46T boundary.
+
+This wrap around mishandling was introduced when these parts moved from
+assembly to C.
+
+Restore it to the correct behaviour.
+
+Fixes: c88d71508e36 ("x86/boot/64: Rewrite startup_64() in C")
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20190620112345.28833-1-kirill.shutemov@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/spi/Kconfig   |  5 +++--
- drivers/net/can/spi/mcp251x.c | 25 ++++++++++++++++---------
- 2 files changed, 19 insertions(+), 11 deletions(-)
+ arch/x86/kernel/head64.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/can/spi/Kconfig b/drivers/net/can/spi/Kconfig
-index 148cae5871a6..249d2db7d600 100644
---- a/drivers/net/can/spi/Kconfig
-+++ b/drivers/net/can/spi/Kconfig
-@@ -2,9 +2,10 @@ menu "CAN SPI interfaces"
- 	depends on SPI
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 45b5c6c4a55e..7c67d8939f3e 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -117,26 +117,27 @@ unsigned long __head __startup_64(unsigned long physaddr,
+ 		pgd[i + 0] = (pgdval_t)p4d + pgtable_flags;
+ 		pgd[i + 1] = (pgdval_t)p4d + pgtable_flags;
  
- config CAN_MCP251X
--	tristate "Microchip MCP251x SPI CAN controllers"
-+	tristate "Microchip MCP251x and MCP25625 SPI CAN controllers"
- 	depends on HAS_DMA
- 	---help---
--	  Driver for the Microchip MCP251x SPI CAN controllers.
-+	  Driver for the Microchip MCP251x and MCP25625 SPI CAN
-+	  controllers.
+-		i = (physaddr >> P4D_SHIFT) % PTRS_PER_P4D;
+-		p4d[i + 0] = (pgdval_t)pud + pgtable_flags;
+-		p4d[i + 1] = (pgdval_t)pud + pgtable_flags;
++		i = physaddr >> P4D_SHIFT;
++		p4d[(i + 0) % PTRS_PER_P4D] = (pgdval_t)pud + pgtable_flags;
++		p4d[(i + 1) % PTRS_PER_P4D] = (pgdval_t)pud + pgtable_flags;
+ 	} else {
+ 		i = (physaddr >> PGDIR_SHIFT) % PTRS_PER_PGD;
+ 		pgd[i + 0] = (pgdval_t)pud + pgtable_flags;
+ 		pgd[i + 1] = (pgdval_t)pud + pgtable_flags;
+ 	}
  
- endmenu
-diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
-index 575790e8a75a..3bcbfcf0455a 100644
---- a/drivers/net/can/spi/mcp251x.c
-+++ b/drivers/net/can/spi/mcp251x.c
-@@ -1,5 +1,5 @@
- /*
-- * CAN bus driver for Microchip 251x CAN Controller with SPI Interface
-+ * CAN bus driver for Microchip 251x/25625 CAN Controller with SPI Interface
-  *
-  * MCP2510 support and bug fixes by Christian Pellegrin
-  * <chripell@evolware.org>
-@@ -41,7 +41,7 @@
-  * static struct spi_board_info spi_board_info[] = {
-  *         {
-  *                 .modalias = "mcp2510",
-- *			// or "mcp2515" depending on your controller
-+ *			// "mcp2515" or "mcp25625" depending on your controller
-  *                 .platform_data = &mcp251x_info,
-  *                 .irq = IRQ_EINT13,
-  *                 .max_speed_hz = 2*1000*1000,
-@@ -238,6 +238,7 @@ static const struct can_bittiming_const mcp251x_bittiming_const = {
- enum mcp251x_model {
- 	CAN_MCP251X_MCP2510	= 0x2510,
- 	CAN_MCP251X_MCP2515	= 0x2515,
-+	CAN_MCP251X_MCP25625	= 0x25625,
- };
+-	i = (physaddr >> PUD_SHIFT) % PTRS_PER_PUD;
+-	pud[i + 0] = (pudval_t)pmd + pgtable_flags;
+-	pud[i + 1] = (pudval_t)pmd + pgtable_flags;
++	i = physaddr >> PUD_SHIFT;
++	pud[(i + 0) % PTRS_PER_PUD] = (pudval_t)pmd + pgtable_flags;
++	pud[(i + 1) % PTRS_PER_PUD] = (pudval_t)pmd + pgtable_flags;
  
- struct mcp251x_priv {
-@@ -280,7 +281,6 @@ static inline int mcp251x_is_##_model(struct spi_device *spi) \
- }
+ 	pmd_entry = __PAGE_KERNEL_LARGE_EXEC & ~_PAGE_GLOBAL;
+ 	pmd_entry += sme_get_me_mask();
+ 	pmd_entry +=  physaddr;
  
- MCP251X_IS(2510);
--MCP251X_IS(2515);
- 
- static void mcp251x_clean(struct net_device *net)
- {
-@@ -640,7 +640,7 @@ static int mcp251x_hw_reset(struct spi_device *spi)
- 
- 	/* Wait for oscillator startup timer after reset */
- 	mdelay(MCP251X_OST_DELAY_MS);
--	
+ 	for (i = 0; i < DIV_ROUND_UP(_end - _text, PMD_SIZE); i++) {
+-		int idx = i + (physaddr >> PMD_SHIFT) % PTRS_PER_PMD;
+-		pmd[idx] = pmd_entry + i * PMD_SIZE;
++		int idx = i + (physaddr >> PMD_SHIFT);
 +
- 	reg = mcp251x_read_reg(spi, CANSTAT);
- 	if ((reg & CANCTRL_REQOP_MASK) != CANCTRL_REQOP_CONF)
- 		return -ENODEV;
-@@ -821,9 +821,8 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
- 		/* receive buffer 0 */
- 		if (intf & CANINTF_RX0IF) {
- 			mcp251x_hw_rx(spi, 0);
--			/*
--			 * Free one buffer ASAP
--			 * (The MCP2515 does this automatically.)
-+			/* Free one buffer ASAP
-+			 * (The MCP2515/25625 does this automatically.)
- 			 */
- 			if (mcp251x_is_2510(spi))
- 				mcp251x_write_bits(spi, CANINTF, CANINTF_RX0IF, 0x00);
-@@ -832,7 +831,7 @@ static irqreturn_t mcp251x_can_ist(int irq, void *dev_id)
- 		/* receive buffer 1 */
- 		if (intf & CANINTF_RX1IF) {
- 			mcp251x_hw_rx(spi, 1);
--			/* the MCP2515 does this automatically */
-+			/* The MCP2515/25625 does this automatically. */
- 			if (mcp251x_is_2510(spi))
- 				clear_intf |= CANINTF_RX1IF;
- 		}
-@@ -1006,6 +1005,10 @@ static const struct of_device_id mcp251x_of_match[] = {
- 		.compatible	= "microchip,mcp2515",
- 		.data		= (void *)CAN_MCP251X_MCP2515,
- 	},
-+	{
-+		.compatible	= "microchip,mcp25625",
-+		.data		= (void *)CAN_MCP251X_MCP25625,
-+	},
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, mcp251x_of_match);
-@@ -1019,6 +1022,10 @@ static const struct spi_device_id mcp251x_id_table[] = {
- 		.name		= "mcp2515",
- 		.driver_data	= (kernel_ulong_t)CAN_MCP251X_MCP2515,
- 	},
-+	{
-+		.name		= "mcp25625",
-+		.driver_data	= (kernel_ulong_t)CAN_MCP251X_MCP25625,
-+	},
- 	{ }
- };
- MODULE_DEVICE_TABLE(spi, mcp251x_id_table);
-@@ -1254,5 +1261,5 @@ module_spi_driver(mcp251x_can_driver);
++		pmd[idx % PTRS_PER_PMD] = pmd_entry + i * PMD_SIZE;
+ 	}
  
- MODULE_AUTHOR("Chris Elston <celston@katalix.com>, "
- 	      "Christian Pellegrin <chripell@evolware.org>");
--MODULE_DESCRIPTION("Microchip 251x CAN driver");
-+MODULE_DESCRIPTION("Microchip 251x/25625 CAN driver");
- MODULE_LICENSE("GPL v2");
+ 	/*
 -- 
 2.20.1
 
