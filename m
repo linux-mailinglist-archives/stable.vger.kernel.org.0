@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CC346C51E
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:02:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1A096C58C
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733053AbfGRDCy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:02:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33456 "EHLO mail.kernel.org"
+        id S2389958AbfGRDHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:07:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727577AbfGRDCx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:02:53 -0400
+        id S2389728AbfGRDHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:07:36 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C4962173B;
-        Thu, 18 Jul 2019 03:02:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6922F21848;
+        Thu, 18 Jul 2019 03:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563418972;
-        bh=S3zB4DvXVPTe8ROWrqlgu7FLbjfqLceLVwwFDxHyByo=;
+        s=default; t=1563419254;
+        bh=Ll0mToFWxutfEGmwbbvOvd2laMWvkUQ53iF9q3c6kns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yNgNL+mbTmERsJGCCaGt9NbPGwDmDUtwNHpxXEvcLSmQ+PcDJcTs1LfU8cp23Ei87
-         Fy4evM8tOc6FM2PIU5RF+bWyC02ZagaG/naHxsv0I5413yi6hgYxwzGt5MWvZY0GCi
-         9Psv+5n2V0iFgm0Qob2M+PNAdU703zd+cKKYTILs=
+        b=lo7s+pPIBYHKHsn+FgTXO8tI1RnQho2HrZGxUsOzdZcnmuIE+9gQ34U+Mz0jvs6c1
+         BgQr4va27MIa6xMvuo8yrcv51U2nq9l6Yq7xiBBKA221Cj0zoVqPfydmInghnJp4yW
+         9qRxZzuZdfv1+9qOwf80FYVr3NdjAznqPRM6X3J8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cole Rogers <colerogers@disroot.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.2 03/21] Input: synaptics - enable SMBUS on T480 thinkpad trackpad
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Heyi Guo <guoheyi@huawei.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 07/47] irqchip/gic-v3-its: Fix command queue pointer comparison bug
 Date:   Thu, 18 Jul 2019 12:01:21 +0900
-Message-Id: <20190718030031.073218961@linuxfoundation.org>
+Message-Id: <20190718030049.020637230@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030030.456918453@linuxfoundation.org>
-References: <20190718030030.456918453@linuxfoundation.org>
+In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
+References: <20190718030045.780672747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +46,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cole Rogers <colerogers@disroot.org>
+[ Upstream commit a050fa5476d418fc16b25abe168b3d38ba11e13c ]
 
-commit abbe3acd7d72ab4633ade6bd24e8306b67e0add3 upstream.
+When we run several VMs with PCI passthrough and GICv4 enabled, not
+pinning vCPUs, we will occasionally see below warnings in dmesg:
 
-Thinkpad t480 laptops had some touchpad features disabled, resulting in the
-loss of pinch to activities in GNOME, on wayland, and other touch gestures
-being slower. This patch adds the touchpad of the t480 to the smbus_pnp_ids
-whitelist to enable the extra features. In my testing this does not break
-suspend (on fedora, with wayland, and GNOME, using the rc-6 kernel), while
-also fixing the feature on a T480.
+ITS queue timeout (65440 65504 480)
+ITS cmd its_build_vmovp_cmd failed
 
-Signed-off-by: Cole Rogers <colerogers@disroot.org>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The reason for the above issue is that in BUILD_SINGLE_CMD_FUNC:
+1. Post the write command.
+2. Release the lock.
+3. Start to read GITS_CREADR to get the reader pointer.
+4. Compare the reader pointer to the target pointer.
+5. If reader pointer does not reach the target, sleep 1us and continue
+to try.
 
+If we have several processors running the above concurrently, other
+CPUs will post write commands while the 1st CPU is waiting the
+completion. So we may have below issue:
+
+phase 1:
+---rd_idx-----from_idx-----to_idx--0---------
+
+wait 1us:
+
+phase 2:
+--------------from_idx-----to_idx--0-rd_idx--
+
+That is the rd_idx may fly ahead of to_idx, and if in case to_idx is
+near the wrap point, rd_idx will wrap around. So the below condition
+will not be met even after 1s:
+
+if (from_idx < to_idx && rd_idx >= to_idx)
+
+There is another theoretical issue. For a slow and busy ITS, the
+initial rd_idx may fall behind from_idx a lot, just as below:
+
+---rd_idx---0--from_idx-----to_idx-----------
+
+This will cause the wait function exit too early.
+
+Actually, it does not make much sense to use from_idx to judge if
+to_idx is wrapped, but we need a initial rd_idx when lock is still
+acquired, and it can be used to judge whether to_idx is wrapped and
+the current rd_idx is wrapped.
+
+We switch to a method of calculating the delta of two adjacent reads
+and accumulating it to get the sum, so that we can get the real rd_idx
+from the wrapped value even when the queue is almost full.
+
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jason Cooper <jason@lakedaemon.net>
+Signed-off-by: Heyi Guo <guoheyi@huawei.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/synaptics.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/irqchip/irq-gic-v3-its.c | 35 ++++++++++++++++++++++----------
+ 1 file changed, 24 insertions(+), 11 deletions(-)
 
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -173,6 +173,7 @@ static const char * const smbus_pnp_ids[
- 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
- 	"LEN0073", /* X1 Carbon G5 (Elantech) */
- 	"LEN0092", /* X1 Carbon 6 */
-+	"LEN0093", /* T480 */
- 	"LEN0096", /* X280 */
- 	"LEN0097", /* X280 -> ALPS trackpoint */
- 	"LEN200f", /* T450s */
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index 65ab2c80529c..ee30e8965d1b 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -740,32 +740,43 @@ static void its_flush_cmd(struct its_node *its, struct its_cmd_block *cmd)
+ }
+ 
+ static int its_wait_for_range_completion(struct its_node *its,
+-					 struct its_cmd_block *from,
++					 u64	prev_idx,
+ 					 struct its_cmd_block *to)
+ {
+-	u64 rd_idx, from_idx, to_idx;
++	u64 rd_idx, to_idx, linear_idx;
+ 	u32 count = 1000000;	/* 1s! */
+ 
+-	from_idx = its_cmd_ptr_to_offset(its, from);
++	/* Linearize to_idx if the command set has wrapped around */
+ 	to_idx = its_cmd_ptr_to_offset(its, to);
++	if (to_idx < prev_idx)
++		to_idx += ITS_CMD_QUEUE_SZ;
++
++	linear_idx = prev_idx;
+ 
+ 	while (1) {
++		s64 delta;
++
+ 		rd_idx = readl_relaxed(its->base + GITS_CREADR);
+ 
+-		/* Direct case */
+-		if (from_idx < to_idx && rd_idx >= to_idx)
+-			break;
++		/*
++		 * Compute the read pointer progress, taking the
++		 * potential wrap-around into account.
++		 */
++		delta = rd_idx - prev_idx;
++		if (rd_idx < prev_idx)
++			delta += ITS_CMD_QUEUE_SZ;
+ 
+-		/* Wrapped case */
+-		if (from_idx >= to_idx && rd_idx >= to_idx && rd_idx < from_idx)
++		linear_idx += delta;
++		if (linear_idx >= to_idx)
+ 			break;
+ 
+ 		count--;
+ 		if (!count) {
+-			pr_err_ratelimited("ITS queue timeout (%llu %llu %llu)\n",
+-					   from_idx, to_idx, rd_idx);
++			pr_err_ratelimited("ITS queue timeout (%llu %llu)\n",
++					   to_idx, linear_idx);
+ 			return -1;
+ 		}
++		prev_idx = rd_idx;
+ 		cpu_relax();
+ 		udelay(1);
+ 	}
+@@ -782,6 +793,7 @@ void name(struct its_node *its,						\
+ 	struct its_cmd_block *cmd, *sync_cmd, *next_cmd;		\
+ 	synctype *sync_obj;						\
+ 	unsigned long flags;						\
++	u64 rd_idx;							\
+ 									\
+ 	raw_spin_lock_irqsave(&its->lock, flags);			\
+ 									\
+@@ -803,10 +815,11 @@ void name(struct its_node *its,						\
+ 	}								\
+ 									\
+ post:									\
++	rd_idx = readl_relaxed(its->base + GITS_CREADR);		\
+ 	next_cmd = its_post_commands(its);				\
+ 	raw_spin_unlock_irqrestore(&its->lock, flags);			\
+ 									\
+-	if (its_wait_for_range_completion(its, cmd, next_cmd))		\
++	if (its_wait_for_range_completion(its, rd_idx, next_cmd))	\
+ 		pr_err_ratelimited("ITS cmd %ps failed\n", builder);	\
+ }
+ 
+-- 
+2.20.1
+
 
 
