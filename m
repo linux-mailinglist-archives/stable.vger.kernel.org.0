@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB5146C661
+	by mail.lfdr.de (Postfix) with ESMTP id 0C9766C65F
 	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391514AbfGRDQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:16:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52358 "EHLO mail.kernel.org"
+        id S2391367AbfGRDQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:16:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392006AbfGRDPU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:15:20 -0400
+        id S2391514AbfGRDPX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:15:23 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 199BA21872;
-        Thu, 18 Jul 2019 03:15:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B27BF2077C;
+        Thu, 18 Jul 2019 03:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419720;
-        bh=hxhu6yz9h1gTOTuqm0e6PqzRXg9uHM908FZydBq4KSQ=;
+        s=default; t=1563419722;
+        bh=WRKsRcxRnLCVFZC0iAHmJsRgj1HP6SOWOkbYJloZzs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYhP47Oxc2oc40FNAuJrvHS7jK+D0Nx9fs66Rl3juFMOwyjqNIYHIfKnluSonWD2B
-         l3wuSr9dac/vIJgWfMq4EQkoifXRSd6bG7Ba0tSwE/fgAlnaP/K8rC9esnXNAzDav5
-         GpSXLHAifKsAWHRbrWc//sU13G0hdOhblrI6YdWo=
+        b=IQcaXz3YvQiLb2pgXoio2vmomRKhSr0Wn5uhM0MazYtDKwySCKCNZtmE8W1XU2LP/
+         Mj2Yh8B87gsS639GbsoLSCMewPSR9cl5eX0QNK8sydel4AIwKOKTYCophfeA53ztra
+         SRjcMRc7EmS13VSpm1+k3s2+BkCBfQ04WCYsclW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.4 25/40] carl9170: fix misuse of device driver API
-Date:   Thu, 18 Jul 2019 12:02:21 +0900
-Message-Id: <20190718030048.988349013@linuxfoundation.org>
+        stable@vger.kernel.org, Vishnu Dasa <vdasa@vmware.com>,
+        Adit Ranadive <aditr@vmware.com>,
+        Jorgen Hansen <jhansen@vmware.com>
+Subject: [PATCH 4.4 26/40] VMCI: Fix integer overflow in VMCI handle arrays
+Date:   Thu, 18 Jul 2019 12:02:22 +0900
+Message-Id: <20190718030049.267542241@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190718030039.676518610@linuxfoundation.org>
 References: <20190718030039.676518610@linuxfoundation.org>
@@ -44,148 +44,374 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Vishnu DASA <vdasa@vmware.com>
 
-commit feb09b2933275a70917a869989ea2823e7356be8 upstream.
+commit 1c2eb5b2853c9f513690ba6b71072d8eb65da16a upstream.
 
-This patch follows Alan Stern's recent patch:
-"p54: Fix race between disconnect and firmware loading"
+The VMCI handle array has an integer overflow in
+vmci_handle_arr_append_entry when it tries to expand the array. This can be
+triggered from a guest, since the doorbell link hypercall doesn't impose a
+limit on the number of doorbell handles that a VM can create in the
+hypervisor, and these handles are stored in a handle array.
 
-that overhauled carl9170 buggy firmware loading and driver
-unbinding procedures.
+In this change, we introduce a mandatory max capacity for handle
+arrays/lists to avoid excessive memory usage.
 
-Since the carl9170 code was adapted from p54 it uses the
-same functions and is likely to have the same problem, but
-it's just that the syzbot hasn't reproduce them (yet).
-
-a summary from the changes (copied from the p54 patch):
- * Call usb_driver_release_interface() rather than
-   device_release_driver().
-
- * Lock udev (the interface's parent) before unbinding the
-   driver instead of locking udev->parent.
-
- * During the firmware loading process, take a reference
-   to the USB interface instead of the USB device.
-
- * Don't take an unnecessary reference to the device during
-   probe (and then don't drop it during disconnect).
-
-and
-
- * Make sure to prevent use-after-free bugs by explicitly
-   setting the driver context to NULL after signaling the
-   completion.
-
-Cc: <stable@vger.kernel.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Vishnu Dasa <vdasa@vmware.com>
+Reviewed-by: Adit Ranadive <aditr@vmware.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/carl9170/usb.c |   39 +++++++++++++-------------------
- 1 file changed, 17 insertions(+), 22 deletions(-)
+ drivers/misc/vmw_vmci/vmci_context.c      |   80 ++++++++++++++++--------------
+ drivers/misc/vmw_vmci/vmci_handle_array.c |   38 +++++++++-----
+ drivers/misc/vmw_vmci/vmci_handle_array.h |   29 +++++++---
+ include/linux/vmw_vmci_defs.h             |   11 +++-
+ 4 files changed, 99 insertions(+), 59 deletions(-)
 
---- a/drivers/net/wireless/ath/carl9170/usb.c
-+++ b/drivers/net/wireless/ath/carl9170/usb.c
-@@ -128,6 +128,8 @@ static struct usb_device_id carl9170_usb
- };
- MODULE_DEVICE_TABLE(usb, carl9170_usb_ids);
+--- a/drivers/misc/vmw_vmci/vmci_context.c
++++ b/drivers/misc/vmw_vmci/vmci_context.c
+@@ -28,6 +28,9 @@
+ #include "vmci_driver.h"
+ #include "vmci_event.h"
  
-+static struct usb_driver carl9170_driver;
++/* Use a wide upper bound for the maximum contexts. */
++#define VMCI_MAX_CONTEXTS 2000
 +
- static void carl9170_usb_submit_data_urb(struct ar9170 *ar)
- {
- 	struct urb *urb;
-@@ -968,32 +970,28 @@ err_out:
+ /*
+  * List of current VMCI contexts.  Contexts can be added by
+  * vmci_ctx_create() and removed via vmci_ctx_destroy().
+@@ -124,19 +127,22 @@ struct vmci_ctx *vmci_ctx_create(u32 cid
+ 	/* Initialize host-specific VMCI context. */
+ 	init_waitqueue_head(&context->host_context.wait_queue);
  
- static void carl9170_usb_firmware_failed(struct ar9170 *ar)
- {
--	struct device *parent = ar->udev->dev.parent;
--	struct usb_device *udev;
--
--	/*
--	 * Store a copy of the usb_device pointer locally.
--	 * This is because device_release_driver initiates
--	 * carl9170_usb_disconnect, which in turn frees our
--	 * driver context (ar).
-+	/* Store a copies of the usb_interface and usb_device pointer locally.
-+	 * This is because release_driver initiates carl9170_usb_disconnect,
-+	 * which in turn frees our driver context (ar).
- 	 */
--	udev = ar->udev;
-+	struct usb_interface *intf = ar->intf;
-+	struct usb_device *udev = ar->udev;
- 
- 	complete(&ar->fw_load_wait);
-+	/* at this point 'ar' could be already freed. Don't use it anymore */
-+	ar = NULL;
- 
- 	/* unbind anything failed */
--	if (parent)
--		device_lock(parent);
--
--	device_release_driver(&udev->dev);
--	if (parent)
--		device_unlock(parent);
-+	usb_lock_device(udev);
-+	usb_driver_release_interface(&carl9170_driver, intf);
-+	usb_unlock_device(udev);
- 
--	usb_put_dev(udev);
-+	usb_put_intf(intf);
- }
- 
- static void carl9170_usb_firmware_finish(struct ar9170 *ar)
- {
-+	struct usb_interface *intf = ar->intf;
- 	int err;
- 
- 	err = carl9170_parse_firmware(ar);
-@@ -1011,7 +1009,7 @@ static void carl9170_usb_firmware_finish
- 		goto err_unrx;
- 
- 	complete(&ar->fw_load_wait);
--	usb_put_dev(ar->udev);
-+	usb_put_intf(intf);
- 	return;
- 
- err_unrx:
-@@ -1054,7 +1052,6 @@ static int carl9170_usb_probe(struct usb
- 		return PTR_ERR(ar);
- 
- 	udev = interface_to_usbdev(intf);
--	usb_get_dev(udev);
- 	ar->udev = udev;
- 	ar->intf = intf;
- 	ar->features = id->driver_info;
-@@ -1096,15 +1093,14 @@ static int carl9170_usb_probe(struct usb
- 	atomic_set(&ar->rx_anch_urbs, 0);
- 	atomic_set(&ar->rx_pool_urbs, 0);
- 
--	usb_get_dev(ar->udev);
-+	usb_get_intf(intf);
- 
- 	carl9170_set_state(ar, CARL9170_STOPPED);
- 
- 	err = request_firmware_nowait(THIS_MODULE, 1, CARL9170FW_NAME,
- 		&ar->udev->dev, GFP_KERNEL, ar, carl9170_usb_firmware_step2);
- 	if (err) {
--		usb_put_dev(udev);
--		usb_put_dev(udev);
-+		usb_put_intf(intf);
- 		carl9170_free(ar);
+-	context->queue_pair_array = vmci_handle_arr_create(0);
++	context->queue_pair_array =
++		vmci_handle_arr_create(0, VMCI_MAX_GUEST_QP_COUNT);
+ 	if (!context->queue_pair_array) {
+ 		error = -ENOMEM;
+ 		goto err_free_ctx;
  	}
- 	return err;
-@@ -1133,7 +1129,6 @@ static void carl9170_usb_disconnect(stru
  
- 	carl9170_release_firmware(ar);
- 	carl9170_free(ar);
--	usb_put_dev(udev);
+-	context->doorbell_array = vmci_handle_arr_create(0);
++	context->doorbell_array =
++		vmci_handle_arr_create(0, VMCI_MAX_GUEST_DOORBELL_COUNT);
+ 	if (!context->doorbell_array) {
+ 		error = -ENOMEM;
+ 		goto err_free_qp_array;
+ 	}
+ 
+-	context->pending_doorbell_array = vmci_handle_arr_create(0);
++	context->pending_doorbell_array =
++		vmci_handle_arr_create(0, VMCI_MAX_GUEST_DOORBELL_COUNT);
+ 	if (!context->pending_doorbell_array) {
+ 		error = -ENOMEM;
+ 		goto err_free_db_array;
+@@ -211,7 +217,7 @@ static int ctx_fire_notification(u32 con
+ 	 * We create an array to hold the subscribers we find when
+ 	 * scanning through all contexts.
+ 	 */
+-	subscriber_array = vmci_handle_arr_create(0);
++	subscriber_array = vmci_handle_arr_create(0, VMCI_MAX_CONTEXTS);
+ 	if (subscriber_array == NULL)
+ 		return VMCI_ERROR_NO_MEM;
+ 
+@@ -630,20 +636,26 @@ int vmci_ctx_add_notification(u32 contex
+ 
+ 	spin_lock(&context->lock);
+ 
+-	list_for_each_entry(n, &context->notifier_list, node) {
+-		if (vmci_handle_is_equal(n->handle, notifier->handle)) {
+-			exists = true;
+-			break;
++	if (context->n_notifiers < VMCI_MAX_CONTEXTS) {
++		list_for_each_entry(n, &context->notifier_list, node) {
++			if (vmci_handle_is_equal(n->handle, notifier->handle)) {
++				exists = true;
++				break;
++			}
+ 		}
+-	}
+ 
+-	if (exists) {
+-		kfree(notifier);
+-		result = VMCI_ERROR_ALREADY_EXISTS;
++		if (exists) {
++			kfree(notifier);
++			result = VMCI_ERROR_ALREADY_EXISTS;
++		} else {
++			list_add_tail_rcu(&notifier->node,
++					  &context->notifier_list);
++			context->n_notifiers++;
++			result = VMCI_SUCCESS;
++		}
+ 	} else {
+-		list_add_tail_rcu(&notifier->node, &context->notifier_list);
+-		context->n_notifiers++;
+-		result = VMCI_SUCCESS;
++		kfree(notifier);
++		result = VMCI_ERROR_NO_MEM;
+ 	}
+ 
+ 	spin_unlock(&context->lock);
+@@ -728,8 +740,7 @@ static int vmci_ctx_get_chkpt_doorbells(
+ 					u32 *buf_size, void **pbuf)
+ {
+ 	struct dbell_cpt_state *dbells;
+-	size_t n_doorbells;
+-	int i;
++	u32 i, n_doorbells;
+ 
+ 	n_doorbells = vmci_handle_arr_get_size(context->doorbell_array);
+ 	if (n_doorbells > 0) {
+@@ -867,7 +878,8 @@ int vmci_ctx_rcv_notifications_get(u32 c
+ 	spin_lock(&context->lock);
+ 
+ 	*db_handle_array = context->pending_doorbell_array;
+-	context->pending_doorbell_array = vmci_handle_arr_create(0);
++	context->pending_doorbell_array =
++		vmci_handle_arr_create(0, VMCI_MAX_GUEST_DOORBELL_COUNT);
+ 	if (!context->pending_doorbell_array) {
+ 		context->pending_doorbell_array = *db_handle_array;
+ 		*db_handle_array = NULL;
+@@ -949,12 +961,11 @@ int vmci_ctx_dbell_create(u32 context_id
+ 		return VMCI_ERROR_NOT_FOUND;
+ 
+ 	spin_lock(&context->lock);
+-	if (!vmci_handle_arr_has_entry(context->doorbell_array, handle)) {
+-		vmci_handle_arr_append_entry(&context->doorbell_array, handle);
+-		result = VMCI_SUCCESS;
+-	} else {
++	if (!vmci_handle_arr_has_entry(context->doorbell_array, handle))
++		result = vmci_handle_arr_append_entry(&context->doorbell_array,
++						      handle);
++	else
+ 		result = VMCI_ERROR_DUPLICATE_ENTRY;
+-	}
+ 
+ 	spin_unlock(&context->lock);
+ 	vmci_ctx_put(context);
+@@ -1090,15 +1101,16 @@ int vmci_ctx_notify_dbell(u32 src_cid,
+ 			if (!vmci_handle_arr_has_entry(
+ 					dst_context->pending_doorbell_array,
+ 					handle)) {
+-				vmci_handle_arr_append_entry(
++				result = vmci_handle_arr_append_entry(
+ 					&dst_context->pending_doorbell_array,
+ 					handle);
+-
+-				ctx_signal_notify(dst_context);
+-				wake_up(&dst_context->host_context.wait_queue);
+-
++				if (result == VMCI_SUCCESS) {
++					ctx_signal_notify(dst_context);
++					wake_up(&dst_context->host_context.wait_queue);
++				}
++			} else {
++				result = VMCI_SUCCESS;
+ 			}
+-			result = VMCI_SUCCESS;
+ 		}
+ 		spin_unlock(&dst_context->lock);
+ 	}
+@@ -1125,13 +1137,11 @@ int vmci_ctx_qp_create(struct vmci_ctx *
+ 	if (context == NULL || vmci_handle_is_invalid(handle))
+ 		return VMCI_ERROR_INVALID_ARGS;
+ 
+-	if (!vmci_handle_arr_has_entry(context->queue_pair_array, handle)) {
+-		vmci_handle_arr_append_entry(&context->queue_pair_array,
+-					     handle);
+-		result = VMCI_SUCCESS;
+-	} else {
++	if (!vmci_handle_arr_has_entry(context->queue_pair_array, handle))
++		result = vmci_handle_arr_append_entry(
++			&context->queue_pair_array, handle);
++	else
+ 		result = VMCI_ERROR_DUPLICATE_ENTRY;
+-	}
+ 
+ 	return result;
+ }
+--- a/drivers/misc/vmw_vmci/vmci_handle_array.c
++++ b/drivers/misc/vmw_vmci/vmci_handle_array.c
+@@ -16,24 +16,29 @@
+ #include <linux/slab.h>
+ #include "vmci_handle_array.h"
+ 
+-static size_t handle_arr_calc_size(size_t capacity)
++static size_t handle_arr_calc_size(u32 capacity)
+ {
+-	return sizeof(struct vmci_handle_arr) +
++	return VMCI_HANDLE_ARRAY_HEADER_SIZE +
+ 	    capacity * sizeof(struct vmci_handle);
  }
  
- #ifdef CONFIG_PM
+-struct vmci_handle_arr *vmci_handle_arr_create(size_t capacity)
++struct vmci_handle_arr *vmci_handle_arr_create(u32 capacity, u32 max_capacity)
+ {
+ 	struct vmci_handle_arr *array;
+ 
++	if (max_capacity == 0 || capacity > max_capacity)
++		return NULL;
++
+ 	if (capacity == 0)
+-		capacity = VMCI_HANDLE_ARRAY_DEFAULT_SIZE;
++		capacity = min((u32)VMCI_HANDLE_ARRAY_DEFAULT_CAPACITY,
++			       max_capacity);
+ 
+ 	array = kmalloc(handle_arr_calc_size(capacity), GFP_ATOMIC);
+ 	if (!array)
+ 		return NULL;
+ 
+ 	array->capacity = capacity;
++	array->max_capacity = max_capacity;
+ 	array->size = 0;
+ 
+ 	return array;
+@@ -44,27 +49,34 @@ void vmci_handle_arr_destroy(struct vmci
+ 	kfree(array);
+ }
+ 
+-void vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
+-				  struct vmci_handle handle)
++int vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
++				 struct vmci_handle handle)
+ {
+ 	struct vmci_handle_arr *array = *array_ptr;
+ 
+ 	if (unlikely(array->size >= array->capacity)) {
+ 		/* reallocate. */
+ 		struct vmci_handle_arr *new_array;
+-		size_t new_capacity = array->capacity * VMCI_ARR_CAP_MULT;
+-		size_t new_size = handle_arr_calc_size(new_capacity);
++		u32 capacity_bump = min(array->max_capacity - array->capacity,
++					array->capacity);
++		size_t new_size = handle_arr_calc_size(array->capacity +
++						       capacity_bump);
++
++		if (array->size >= array->max_capacity)
++			return VMCI_ERROR_NO_MEM;
+ 
+ 		new_array = krealloc(array, new_size, GFP_ATOMIC);
+ 		if (!new_array)
+-			return;
++			return VMCI_ERROR_NO_MEM;
+ 
+-		new_array->capacity = new_capacity;
++		new_array->capacity += capacity_bump;
+ 		*array_ptr = array = new_array;
+ 	}
+ 
+ 	array->entries[array->size] = handle;
+ 	array->size++;
++
++	return VMCI_SUCCESS;
+ }
+ 
+ /*
+@@ -74,7 +86,7 @@ struct vmci_handle vmci_handle_arr_remov
+ 						struct vmci_handle entry_handle)
+ {
+ 	struct vmci_handle handle = VMCI_INVALID_HANDLE;
+-	size_t i;
++	u32 i;
+ 
+ 	for (i = 0; i < array->size; i++) {
+ 		if (vmci_handle_is_equal(array->entries[i], entry_handle)) {
+@@ -109,7 +121,7 @@ struct vmci_handle vmci_handle_arr_remov
+  * Handle at given index, VMCI_INVALID_HANDLE if invalid index.
+  */
+ struct vmci_handle
+-vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, size_t index)
++vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, u32 index)
+ {
+ 	if (unlikely(index >= array->size))
+ 		return VMCI_INVALID_HANDLE;
+@@ -120,7 +132,7 @@ vmci_handle_arr_get_entry(const struct v
+ bool vmci_handle_arr_has_entry(const struct vmci_handle_arr *array,
+ 			       struct vmci_handle entry_handle)
+ {
+-	size_t i;
++	u32 i;
+ 
+ 	for (i = 0; i < array->size; i++)
+ 		if (vmci_handle_is_equal(array->entries[i], entry_handle))
+--- a/drivers/misc/vmw_vmci/vmci_handle_array.h
++++ b/drivers/misc/vmw_vmci/vmci_handle_array.h
+@@ -17,32 +17,41 @@
+ #define _VMCI_HANDLE_ARRAY_H_
+ 
+ #include <linux/vmw_vmci_defs.h>
++#include <linux/limits.h>
+ #include <linux/types.h>
+ 
+-#define VMCI_HANDLE_ARRAY_DEFAULT_SIZE 4
+-#define VMCI_ARR_CAP_MULT 2	/* Array capacity multiplier */
+-
+ struct vmci_handle_arr {
+-	size_t capacity;
+-	size_t size;
++	u32 capacity;
++	u32 max_capacity;
++	u32 size;
++	u32 pad;
+ 	struct vmci_handle entries[];
+ };
+ 
+-struct vmci_handle_arr *vmci_handle_arr_create(size_t capacity);
++#define VMCI_HANDLE_ARRAY_HEADER_SIZE				\
++	offsetof(struct vmci_handle_arr, entries)
++/* Select a default capacity that results in a 64 byte sized array */
++#define VMCI_HANDLE_ARRAY_DEFAULT_CAPACITY			6
++/* Make sure that the max array size can be expressed by a u32 */
++#define VMCI_HANDLE_ARRAY_MAX_CAPACITY				\
++	((U32_MAX - VMCI_HANDLE_ARRAY_HEADER_SIZE - 1) /	\
++	sizeof(struct vmci_handle))
++
++struct vmci_handle_arr *vmci_handle_arr_create(u32 capacity, u32 max_capacity);
+ void vmci_handle_arr_destroy(struct vmci_handle_arr *array);
+-void vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
+-				  struct vmci_handle handle);
++int vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
++				 struct vmci_handle handle);
+ struct vmci_handle vmci_handle_arr_remove_entry(struct vmci_handle_arr *array,
+ 						struct vmci_handle
+ 						entry_handle);
+ struct vmci_handle vmci_handle_arr_remove_tail(struct vmci_handle_arr *array);
+ struct vmci_handle
+-vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, size_t index);
++vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, u32 index);
+ bool vmci_handle_arr_has_entry(const struct vmci_handle_arr *array,
+ 			       struct vmci_handle entry_handle);
+ struct vmci_handle *vmci_handle_arr_get_handles(struct vmci_handle_arr *array);
+ 
+-static inline size_t vmci_handle_arr_get_size(
++static inline u32 vmci_handle_arr_get_size(
+ 	const struct vmci_handle_arr *array)
+ {
+ 	return array->size;
+--- a/include/linux/vmw_vmci_defs.h
++++ b/include/linux/vmw_vmci_defs.h
+@@ -75,9 +75,18 @@ enum {
+ 
+ /*
+  * A single VMCI device has an upper limit of 128MB on the amount of
+- * memory that can be used for queue pairs.
++ * memory that can be used for queue pairs. Since each queue pair
++ * consists of at least two pages, the memory limit also dictates the
++ * number of queue pairs a guest can create.
+  */
+ #define VMCI_MAX_GUEST_QP_MEMORY (128 * 1024 * 1024)
++#define VMCI_MAX_GUEST_QP_COUNT  (VMCI_MAX_GUEST_QP_MEMORY / PAGE_SIZE / 2)
++
++/*
++ * There can be at most PAGE_SIZE doorbells since there is one doorbell
++ * per byte in the doorbell bitmap page.
++ */
++#define VMCI_MAX_GUEST_DOORBELL_COUNT PAGE_SIZE
+ 
+ /*
+  * Queues with pre-mapped data pages must be small, so that we don't pin
 
 
