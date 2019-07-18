@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4253D6C524
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:07:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A35166C526
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:07:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389191AbfGRDDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:03:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33806 "EHLO mail.kernel.org"
+        id S2389221AbfGRDDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:03:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389185AbfGRDDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:03:08 -0400
+        id S2389210AbfGRDDL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:03:11 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 625CA204EC;
-        Thu, 18 Jul 2019 03:03:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13995204EC;
+        Thu, 18 Jul 2019 03:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563418987;
-        bh=YfICFsESOvdQZDGiHscJVaj94R0uz2pITiwXWI9h5k4=;
+        s=default; t=1563418990;
+        bh=EjQiwJFzN6vC59pTA0kUIUoNEPvkuQCYIO3Sbda2fAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vovVF8gRZxIwnBrvGb05EGNmVF39Xmc50j/mMEUw/y0oHk+/yHnrSA+sq2rD9rHOC
-         X2/gbHTniT4U10jkOacj6i9BwEh+nvUeN/TxadBRSa8H9KBUIVOk4UeJ6Kmi9oX+8V
-         y2An+6Sm2j2i8wcIHQNH8GZQa7H/UQF0sOxLnGyU=
+        b=Mi+K5IJVw+eRyjwP25n3nVJ5O1/Ib9D+AfIBw193UqQeAjxPQrIYC2U2oFSR9MdKo
+         4I+P318aCIDoNGBQKSi2vpC2xBkBXX00raPgI+FgDjrEknneMjnVQCNlSeFf4xxQid
+         +OM387HbBUQTtdnWUp41HDRVxzMtvGfILj0xFags=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.2 16/21] s390/qdio: (re-)initialize tiqdio list entries
-Date:   Thu, 18 Jul 2019 12:01:34 +0900
-Message-Id: <20190718030034.929584571@linuxfoundation.org>
+Subject: [PATCH 5.2 17/21] s390/qdio: dont touch the dsci in tiqdio_add_input_queues()
+Date:   Thu, 18 Jul 2019 12:01:35 +0900
+Message-Id: <20190718030035.268489344@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190718030030.456918453@linuxfoundation.org>
 References: <20190718030030.456918453@linuxfoundation.org>
@@ -45,75 +45,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Julian Wiedmann <jwi@linux.ibm.com>
 
-commit e54e4785cb5cb4896cf4285964aeef2125612fb2 upstream.
+commit ac6639cd3db607d386616487902b4cc1850a7be5 upstream.
 
-When tiqdio_remove_input_queues() removes a queue from the tiq_list as
-part of qdio_shutdown(), it doesn't re-initialize the queue's list entry
-and the prev/next pointers go stale.
+Current code sets the dsci to 0x00000080. Which doesn't make any sense,
+as the indicator area is located in the _left-most_ byte.
 
-If a subsequent qdio_establish() fails while sending the ESTABLISH cmd,
-it calls qdio_shutdown() again in QDIO_IRQ_STATE_ERR state and
-tiqdio_remove_input_queues() will attempt to remove the queue entry a
-second time. This dereferences the stale pointers, and bad things ensue.
-Fix this by re-initializing the list entry after removing it from the
-list.
+Worse: if the dsci is the _shared_ indicator, this potentially clears
+the indication of activity for a _different_ device.
+tiqdio_thinint_handler() will then have no reason to call that device's
+IRQ handler, and the device ends up stalling.
 
-For good practice also initialize the list entry when the queue is first
-allocated, and remove the quirky checks that papered over this omission.
-Note that prior to
-commit e521813468f7 ("s390/qdio: fix access to uninitialized qdio_q fields"),
-these checks were bogus anyway.
-
-setup_queues_misc() clears the whole queue struct, and thus needs to
-re-init the prev/next pointers as well.
-
-Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
+Fixes: d0c9d4a89fff ("[S390] qdio: set correct bit in dsci")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/cio/qdio_setup.c   |    2 ++
- drivers/s390/cio/qdio_thinint.c |    4 ++--
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/s390/cio/qdio_thinint.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/s390/cio/qdio_setup.c
-+++ b/drivers/s390/cio/qdio_setup.c
-@@ -150,6 +150,7 @@ static int __qdio_allocate_qs(struct qdi
- 			return -ENOMEM;
- 		}
- 		irq_ptr_qs[i] = q;
-+		INIT_LIST_HEAD(&q->entry);
- 	}
- 	return 0;
- }
-@@ -178,6 +179,7 @@ static void setup_queues_misc(struct qdi
- 	q->mask = 1 << (31 - i);
- 	q->nr = i;
- 	q->handler = handler;
-+	INIT_LIST_HEAD(&q->entry);
- }
- 
- static void setup_storage_lists(struct qdio_q *q, struct qdio_irq *irq_ptr,
 --- a/drivers/s390/cio/qdio_thinint.c
 +++ b/drivers/s390/cio/qdio_thinint.c
-@@ -87,14 +87,14 @@ void tiqdio_remove_input_queues(struct q
- 	struct qdio_q *q;
- 
- 	q = irq_ptr->input_qs[0];
--	/* if establish triggered an error */
--	if (!q || !q->entry.prev || !q->entry.next)
-+	if (!q)
- 		return;
- 
+@@ -79,7 +79,6 @@ void tiqdio_add_input_queues(struct qdio
  	mutex_lock(&tiq_list_lock);
- 	list_del_rcu(&q->entry);
+ 	list_add_rcu(&irq_ptr->input_qs[0]->entry, &tiq_list);
  	mutex_unlock(&tiq_list_lock);
- 	synchronize_rcu();
-+	INIT_LIST_HEAD(&q->entry);
+-	xchg(irq_ptr->dsci, 1 << 7);
  }
  
- static inline int has_multiple_inq_on_dsci(struct qdio_irq *irq_ptr)
+ void tiqdio_remove_input_queues(struct qdio_irq *irq_ptr)
 
 
