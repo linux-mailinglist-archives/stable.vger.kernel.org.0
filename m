@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4502C6C696
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:18:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A64726C5ED
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391676AbfGRDOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:14:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49716 "EHLO mail.kernel.org"
+        id S2391263AbfGRDLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:11:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391671AbfGRDOI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:14:08 -0400
+        id S2391260AbfGRDLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:11:14 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B6F42173E;
-        Thu, 18 Jul 2019 03:14:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55E012053B;
+        Thu, 18 Jul 2019 03:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419647;
-        bh=kgk7Ue5rId7m2dMEUgqDOMrpm8zUbKkpT7Tr2gHcUq0=;
+        s=default; t=1563419473;
+        bh=Ynu8yvodwMQx0uHwqI/HZYYLMvXKfqE7ZdfD2W0l3r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCaCvmASMsUGfjBT/+U4MgB0+LGoYUQcQh2lg87rbAOC3qbFXf741PfqOFWil9nQB
-         OQ3ReCJwYYYE1ESJkJoMV4dKlIGXmnRA/nXw/Ph5AGX00vqyuGT6omZPNfXGMIEEbH
-         zvZHE+OcTdHKZk6mdEOxMccDrn1+8jX0iUYWomLo=
+        b=B3t0zhezrlKSPaZzGfLyHUvG3qZdr0Ph0BQXxMGZPD/4qAjDIFgnNdmRhTYlrFQcB
+         0EFCFCZbB/nIdjzU+XhQ3YIXn3jnhBGnR44XuWi4XorPsTSpgAmdT7g9J6SUhFQz8U
+         PCSij2JKLvHnzhAL8srrOPaUeYR5QbRLYBmOmLh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.9 36/54] staging: comedi: amplc_pci230: fix null pointer deref on interrupt
+        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH 4.14 75/80] s390: fix stfle zero padding
 Date:   Thu, 18 Jul 2019 12:02:06 +0900
-Message-Id: <20190718030052.261257680@linuxfoundation.org>
+Message-Id: <20190718030105.337133111@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
-References: <20190718030048.392549994@linuxfoundation.org>
+In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
+References: <20190718030058.615992480@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-commit 7379e6baeddf580d01feca650ec1ad508b6ea8ee upstream.
+commit 4f18d869ffd056c7858f3d617c71345cf19be008 upstream.
 
-The interrupt handler `pci230_interrupt()` causes a null pointer
-dereference for a PCI260 card.  There is no analog output subdevice for
-a PCI260.  The `dev->write_subdev` subdevice pointer and therefore the
-`s_ao` subdevice pointer variable will be `NULL` for a PCI260.  The
-following call near the end of the interrupt handler results in the null
-pointer dereference for a PCI260:
+The stfle inline assembly returns the number of double words written
+(condition code 0) or the double words it would have written
+(condition code 3), if the memory array it got as parameter would have
+been large enough.
 
-	comedi_handle_events(dev, s_ao);
+The current stfle implementation assumes that the array is always
+large enough and clears those parts of the array that have not been
+written to with a subsequent memset call.
 
-Fix it by only calling the above function if `s_ao` is valid.
+If however the array is not large enough memset will get a negative
+length parameter, which means that memset clears memory until it gets
+an exception and the kernel crashes.
 
-Note that the other uses of `s_ao` in the calls
-`pci230_handle_ao_nofifo(dev, s_ao);` and `pci230_handle_ao_fifo(dev,
-s_ao);` will never be reached for a PCI260, so they are safe.
+To fix this simply limit the maximum length. Move also the inline
+assembly to an extra function to avoid clobbering of register 0, which
+might happen because of the added min_t invocation together with code
+instrumentation.
 
-Fixes: 39064f23284c ("staging: comedi: amplc_pci230: use comedi_handle_events()")
-Cc: <stable@vger.kernel.org> # v3.19+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+The bug was introduced with commit 14375bc4eb8d ("[S390] cleanup
+facility list handling") but was rather harmless, since it would only
+write to a rather large array. It became a potential problem with
+commit 3ab121ab1866 ("[S390] kernel: Add z/VM LGR detection"). Since
+then it writes to an array with only four double words, while some
+machines already deliver three double words. As soon as machines have
+a facility bit within the fifth double a crash on IPL would happen.
+
+Fixes: 14375bc4eb8d ("[S390] cleanup facility list handling")
+Cc: <stable@vger.kernel.org> # v2.6.37+
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/amplc_pci230.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/facility.h |   21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
---- a/drivers/staging/comedi/drivers/amplc_pci230.c
-+++ b/drivers/staging/comedi/drivers/amplc_pci230.c
-@@ -2337,7 +2337,8 @@ static irqreturn_t pci230_interrupt(int
- 	devpriv->intr_running = false;
- 	spin_unlock_irqrestore(&devpriv->isr_spinlock, irqflags);
+--- a/arch/s390/include/asm/facility.h
++++ b/arch/s390/include/asm/facility.h
+@@ -59,6 +59,18 @@ static inline int test_facility(unsigned
+ 	return __test_facility(nr, &S390_lowcore.stfle_fac_list);
+ }
  
--	comedi_handle_events(dev, s_ao);
-+	if (s_ao)
-+		comedi_handle_events(dev, s_ao);
- 	comedi_handle_events(dev, s_ai);
- 
- 	return IRQ_HANDLED;
++static inline unsigned long __stfle_asm(u64 *stfle_fac_list, int size)
++{
++	register unsigned long reg0 asm("0") = size - 1;
++
++	asm volatile(
++		".insn s,0xb2b00000,0(%1)" /* stfle */
++		: "+d" (reg0)
++		: "a" (stfle_fac_list)
++		: "memory", "cc");
++	return reg0;
++}
++
+ /**
+  * stfle - Store facility list extended
+  * @stfle_fac_list: array where facility list can be stored
+@@ -76,13 +88,8 @@ static inline void stfle(u64 *stfle_fac_
+ 	memcpy(stfle_fac_list, &S390_lowcore.stfl_fac_list, 4);
+ 	if (S390_lowcore.stfl_fac_list & 0x01000000) {
+ 		/* More facility bits available with stfle */
+-		register unsigned long reg0 asm("0") = size - 1;
+-
+-		asm volatile(".insn s,0xb2b00000,0(%1)" /* stfle */
+-			     : "+d" (reg0)
+-			     : "a" (stfle_fac_list)
+-			     : "memory", "cc");
+-		nr = (reg0 + 1) * 8; /* # bytes stored by stfle */
++		nr = __stfle_asm(stfle_fac_list, size);
++		nr = min_t(unsigned long, (nr + 1) * 8, size * 8);
+ 	}
+ 	memset((char *) stfle_fac_list + nr, 0, size * 8 - nr);
+ 	preempt_enable();
 
 
