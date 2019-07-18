@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8550D6C5EF
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:12:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 968DB6C61E
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:13:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390303AbfGRDLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:11:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44808 "EHLO mail.kernel.org"
+        id S2389666AbfGRDNf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:13:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389655AbfGRDLR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:11:17 -0400
+        id S2391588AbfGRDNH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:13:07 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC2512053B;
-        Thu, 18 Jul 2019 03:11:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3583A2053B;
+        Thu, 18 Jul 2019 03:13:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419476;
-        bh=GHt8LwMbS7G867sthSZrkRERqZKFD1mhXFEBXgBAL2A=;
+        s=default; t=1563419586;
+        bh=AhkJ2KI+6dW2/FNcgAMf5xGengVs/DzFYlgHWoY7ysM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UY0XwdRgZ/Lk0PiTN+xvaCO6T0Ggw6nUdZRr5aIu31NUvkNTKgkalpY879vipbPy/
-         XU2lnFB3RbyhijLgphiLJfefcGj85QNPv2XKqoPSMm6h2HE4uiePol+LyGeZq827Ec
-         P+uror5DU+XTh3MM8q21w+tETxRWJPPyOMT0vdps=
+        b=DEWgdz8QCCSyYKS+d/eyflQ8enjHY8fLxX3Q9llRrbUkb5vWlTnVqFnDu975oce+H
+         lUXiXZn8UEO2/UuRY69Ztfdx/FyVDxpPSADqQPJ9IZIClDUrBXL7pNSx6yu8eAfgQq
+         6m8JAR92I+THRU99sb1SAeCaXlQgsxdavxdHV1+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+182ce46596c3f2e1eb24@syzkaller.appspotmail.com,
-        Todd Kjos <tkjos@google.com>
-Subject: [PATCH 4.14 58/80] binder: fix memory leak in error path
+        "Mauro S. M. Rodrigues" <maurosr@linux.vnet.ibm.com>,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 19/54] bnx2x: Check if transceiver implements DDM before access
 Date:   Thu, 18 Jul 2019 12:01:49 +0900
-Message-Id: <20190718030103.019747614@linuxfoundation.org>
+Message-Id: <20190718030050.836525960@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
+References: <20190718030048.392549994@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@android.com>
+[ Upstream commit cf18cecca911c0db96b868072665347efe6df46f ]
 
-commit 1909a671dbc3606685b1daf8b22a16f65ea7edda upstream.
+Some transceivers may comply with SFF-8472 even though they do not
+implement the Digital Diagnostic Monitoring (DDM) interface described in
+the spec. The existence of such area is specified by the 6th bit of byte
+92, set to 1 if implemented.
 
-syzkallar found a 32-byte memory leak in a rarely executed error
-case. The transaction complete work item was not freed if put_user()
-failed when writing the BR_TRANSACTION_COMPLETE to the user command
-buffer. Fixed by freeing it before put_user() is called.
+Currently, without checking this bit, bnx2x fails trying to read sfp
+module's EEPROM with the follow message:
 
-Reported-by: syzbot+182ce46596c3f2e1eb24@syzkaller.appspotmail.com
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ethtool -m enP5p1s0f1
+Cannot get Module EEPROM data: Input/output error
 
+Because it fails to read the additional 256 bytes in which it is assumed
+to exist the DDM data.
+
+This issue was noticed using a Mellanox Passive DAC PN 01FT738. The EEPROM
+data was confirmed by Mellanox as correct and similar to other Passive
+DACs from other manufacturers.
+
+Signed-off-by: Mauro S. M. Rodrigues <maurosr@linux.vnet.ibm.com>
+Acked-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c | 3 ++-
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.h    | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -3876,6 +3876,8 @@ retry:
- 		case BINDER_WORK_TRANSACTION_COMPLETE: {
- 			binder_inner_proc_unlock(proc);
- 			cmd = BR_TRANSACTION_COMPLETE;
-+			kfree(w);
-+			binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
- 			if (put_user(cmd, (uint32_t __user *)ptr))
- 				return -EFAULT;
- 			ptr += sizeof(uint32_t);
-@@ -3884,8 +3886,6 @@ retry:
- 			binder_debug(BINDER_DEBUG_TRANSACTION_COMPLETE,
- 				     "%d:%d BR_TRANSACTION_COMPLETE\n",
- 				     proc->pid, thread->pid);
--			kfree(w);
--			binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
- 		} break;
- 		case BINDER_WORK_NODE: {
- 			struct binder_node *node = container_of(w, struct binder_node, work);
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
+index 8aecd8ef6542..15a0850e6bde 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_ethtool.c
+@@ -1562,7 +1562,8 @@ static int bnx2x_get_module_info(struct net_device *dev,
+ 	}
+ 
+ 	if (!sff8472_comp ||
+-	    (diag_type & SFP_EEPROM_DIAG_ADDR_CHANGE_REQ)) {
++	    (diag_type & SFP_EEPROM_DIAG_ADDR_CHANGE_REQ) ||
++	    !(diag_type & SFP_EEPROM_DDM_IMPLEMENTED)) {
+ 		modinfo->type = ETH_MODULE_SFF_8079;
+ 		modinfo->eeprom_len = ETH_MODULE_SFF_8079_LEN;
+ 	} else {
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.h b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.h
+index b7d251108c19..7115f5025664 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.h
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.h
+@@ -62,6 +62,7 @@
+ #define SFP_EEPROM_DIAG_TYPE_ADDR		0x5c
+ #define SFP_EEPROM_DIAG_TYPE_SIZE		1
+ #define SFP_EEPROM_DIAG_ADDR_CHANGE_REQ		(1<<2)
++#define SFP_EEPROM_DDM_IMPLEMENTED		(1<<6)
+ #define SFP_EEPROM_SFF_8472_COMP_ADDR		0x5e
+ #define SFP_EEPROM_SFF_8472_COMP_SIZE		1
+ 
+-- 
+2.20.1
+
 
 
