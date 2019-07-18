@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7809A6C634
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:14:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65AA36C60A
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:12:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391151AbfGRDO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:14:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50414 "EHLO mail.kernel.org"
+        id S2391205AbfGRDMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:12:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391798AbfGRDO1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:14:27 -0400
+        id S2391510AbfGRDMs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:12:48 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A049C2053B;
-        Thu, 18 Jul 2019 03:14:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C62102053B;
+        Thu, 18 Jul 2019 03:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419667;
-        bh=LXZNXpO+sm9HMm26ctgzlsT1YNXqRzzH5b37UpQAV8U=;
+        s=default; t=1563419567;
+        bh=X2/lEcq6scKsMBWfNNSoFC09TD54ijIEPNUAJEBlZag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPsuN+gg/Be4fHbPNT/HGeTTlFyBBax142cVxpG584frPH1LrmNbsmM03ydvk363w
-         oj/nPMvVjwUl8mf94vTE9sr6Kslg+VWDmR2ScEo4jMQm8TQO13WE7h8FTDh+XKT7Nt
-         zPVF5ZBhVsDzq6NurVF7vmBXDiaBYKVrsxuSEVic=
+        b=F9ys7Ce8BnLV5XSkaK85VByHkaftHWfRowuOzBXVj1vqC6t1v7uJ3lRIvpOn9T5cw
+         3cjm7GadFTbTIZ2zT/mFvB2eFVxmuvuIBcfIGw/dvSq84aFYvS+IcF33nM2kCVxYUR
+         oaqN9HhOUH/fNbfFJ6rp6xprH6fiyAAJTTwjP/Jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Pedersen <thomas@eero.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 03/40] mac80211: mesh: fix RCU warning
+        stable@vger.kernel.org,
+        Andreas Fritiofson <andreas.fritiofson@unjo.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 29/54] USB: serial: ftdi_sio: add ID for isodebug v1
 Date:   Thu, 18 Jul 2019 12:01:59 +0900
-Message-Id: <20190718030040.414071487@linuxfoundation.org>
+Message-Id: <20190718030051.678921806@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030039.676518610@linuxfoundation.org>
-References: <20190718030039.676518610@linuxfoundation.org>
+In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
+References: <20190718030048.392549994@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 551842446ed695641a00782cd118cbb064a416a1 ]
+From: Andreas Fritiofson <andreas.fritiofson@unjo.com>
 
-ifmsh->csa is an RCU-protected pointer. The writer context
-in ieee80211_mesh_finish_csa() is already mutually
-exclusive with wdev->sdata.mtx, but the RCU checker did
-not know this. Use rcu_dereference_protected() to avoid a
-warning.
+commit f8377eff548170e8ea8022c067a1fbdf9e1c46a8 upstream.
 
-fixes the following warning:
+This adds the vid:pid of the isodebug v1 isolated JTAG/SWD+UART. Only the
+second channel is available for use as a serial port.
 
-[   12.519089] =============================
-[   12.520042] WARNING: suspicious RCU usage
-[   12.520652] 5.1.0-rc7-wt+ #16 Tainted: G        W
-[   12.521409] -----------------------------
-[   12.521972] net/mac80211/mesh.c:1223 suspicious rcu_dereference_check() usage!
-[   12.522928] other info that might help us debug this:
-[   12.523984] rcu_scheduler_active = 2, debug_locks = 1
-[   12.524855] 5 locks held by kworker/u8:2/152:
-[   12.525438]  #0: 00000000057be08c ((wq_completion)phy0){+.+.}, at: process_one_work+0x1a2/0x620
-[   12.526607]  #1: 0000000059c6b07a ((work_completion)(&sdata->csa_finalize_work)){+.+.}, at: process_one_work+0x1a2/0x620
-[   12.528001]  #2: 00000000f184ba7d (&wdev->mtx){+.+.}, at: ieee80211_csa_finalize_work+0x2f/0x90
-[   12.529116]  #3: 00000000831a1f54 (&local->mtx){+.+.}, at: ieee80211_csa_finalize_work+0x47/0x90
-[   12.530233]  #4: 00000000fd06f988 (&local->chanctx_mtx){+.+.}, at: ieee80211_csa_finalize_work+0x51/0x90
+Signed-off-by: Andreas Fritiofson <andreas.fritiofson@unjo.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Thomas Pedersen <thomas@eero.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/serial/ftdi_sio.c     |    1 +
+ drivers/usb/serial/ftdi_sio_ids.h |    6 ++++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/net/mac80211/mesh.c b/net/mac80211/mesh.c
-index 1cbc7bd26de3..4bd8f3f056d8 100644
---- a/net/mac80211/mesh.c
-+++ b/net/mac80211/mesh.c
-@@ -1138,7 +1138,8 @@ int ieee80211_mesh_finish_csa(struct ieee80211_sub_if_data *sdata)
- 	ifmsh->chsw_ttl = 0;
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1024,6 +1024,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(AIRBUS_DS_VID, AIRBUS_DS_P8GR) },
+ 	/* EZPrototypes devices */
+ 	{ USB_DEVICE(EZPROTOTYPES_VID, HJELMSLUND_USB485_ISO_PID) },
++	{ USB_DEVICE_INTERFACE_NUMBER(UNJO_VID, UNJO_ISODEBUG_V1_PID, 1) },
+ 	{ }					/* Terminating entry */
+ };
  
- 	/* Remove the CSA and MCSP elements from the beacon */
--	tmp_csa_settings = rcu_dereference(ifmsh->csa);
-+	tmp_csa_settings = rcu_dereference_protected(ifmsh->csa,
-+					    lockdep_is_held(&sdata->wdev.mtx));
- 	RCU_INIT_POINTER(ifmsh->csa, NULL);
- 	if (tmp_csa_settings)
- 		kfree_rcu(tmp_csa_settings, rcu_head);
-@@ -1160,6 +1161,8 @@ int ieee80211_mesh_csa_beacon(struct ieee80211_sub_if_data *sdata,
- 	struct mesh_csa_settings *tmp_csa_settings;
- 	int ret = 0;
- 
-+	lockdep_assert_held(&sdata->wdev.mtx);
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1542,3 +1542,9 @@
+ #define CHETCO_SEASMART_DISPLAY_PID	0xA5AD /* SeaSmart NMEA2000 Display */
+ #define CHETCO_SEASMART_LITE_PID	0xA5AE /* SeaSmart Lite USB Adapter */
+ #define CHETCO_SEASMART_ANALOG_PID	0xA5AF /* SeaSmart Analog Adapter */
 +
- 	tmp_csa_settings = kmalloc(sizeof(*tmp_csa_settings),
- 				   GFP_ATOMIC);
- 	if (!tmp_csa_settings)
--- 
-2.20.1
-
++/*
++ * Unjo AB
++ */
++#define UNJO_VID			0x22B7
++#define UNJO_ISODEBUG_V1_PID		0x150D
 
 
