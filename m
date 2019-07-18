@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 506E16C787
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:26:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FCE16C768
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:25:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389082AbfGRDFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:05:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36168 "EHLO mail.kernel.org"
+        id S1727787AbfGRDYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:24:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732249AbfGRDFJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:05:09 -0400
+        id S2390442AbfGRDH1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:07:27 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D717021848;
-        Thu, 18 Jul 2019 03:05:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CA7B205F4;
+        Thu, 18 Jul 2019 03:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419109;
-        bh=fqgnhXlZWvwpVYR9LVed7+3xHcorhXb1GK1XtkUk98w=;
+        s=default; t=1563419246;
+        bh=mqG7slJOy0hBqWHF3pVFLrGyaz0n0s6bosgUbxrHbHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7yH7OG0DTwoi+/bxngoVHz5V4rYVd10fkv06NKzSvLnIX8/TRCMChhRDFhtSlu/m
-         7aGg0SGS1jbjpNLbBkXKtQglYwWCP0F4WryI6Qok+wbxBPXEwywIQe9LrXhXciz+Ba
-         Tt2MkCl2MVSvfPNo2qxFZEVf2LLfS9Lqe3fqK3AE=
+        b=bWMJ95Sne0F2QV0ARQh7KrUhig6x6+gL1Sg8AMOltHwE3KwSo05V/DvWX0JZNwNw3
+         afb689qe9JJdEpo4BeRWVFEJo9I0VhHL6wMtLmCOQD+3ccIjDb2jX5oXZ2T6Z4zHuY
+         lZ4y8tklXcMBAth/g1zyQnI4za64nU/7/bZ76USg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksandr Natalenko <oleksandr@redhat.com>,
-        Sebastian Parschauer <s.parschauer@gmx.de>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 32/54] HID: chicony: add another quirk for PixArt mouse
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 13/47] afs: Fix uninitialised spinlock afs_volume::cb_break_lock
 Date:   Thu, 18 Jul 2019 12:01:27 +0900
-Message-Id: <20190718030055.842427058@linuxfoundation.org>
+Message-Id: <20190718030049.759890872@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
-References: <20190718030053.287374640@linuxfoundation.org>
+In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
+References: <20190718030045.780672747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dcf768b0ac868630e7bdb6f2f1c9fe72788012fa ]
+[ Upstream commit 90fa9b64523a645a97edc0bdcf2d74759957eeee ]
 
-I've spotted another Chicony PixArt mouse in the wild, which requires
-HID_QUIRK_ALWAYS_POLL quirk, otherwise it disconnects each minute.
+Fix the cb_break_lock spinlock in afs_volume struct by initialising it when
+the volume record is allocated.
 
-USB ID of this device is 0x04f2:0x0939.
+Also rename the lock to cb_v_break_lock to distinguish it from the lock of
+the same name in the afs_server struct.
 
-We've introduced quirks like this for other models before, so lets add
-this mouse too.
+Without this, the following trace may be observed when a volume-break
+callback is received:
 
-Link: https://github.com/sriemer/fix-linux-mouse#usb-mouse-disconnectsreconnects-every-minute-on-linux
-Signed-off-by: Oleksandr Natalenko <oleksandr@redhat.com>
-Acked-by: Sebastian Parschauer <s.parschauer@gmx.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+  INFO: trying to register non-static key.
+  the code is fine but needs lockdep annotation.
+  turning off the locking correctness validator.
+  CPU: 2 PID: 50 Comm: kworker/2:1 Not tainted 5.2.0-rc1-fscache+ #3045
+  Hardware name: ASUS All Series/H97-PLUS, BIOS 2306 10/09/2014
+  Workqueue: afs SRXAFSCB_CallBack
+  Call Trace:
+   dump_stack+0x67/0x8e
+   register_lock_class+0x23b/0x421
+   ? check_usage_forwards+0x13c/0x13c
+   __lock_acquire+0x89/0xf73
+   lock_acquire+0x13b/0x166
+   ? afs_break_callbacks+0x1b2/0x3dd
+   _raw_write_lock+0x2c/0x36
+   ? afs_break_callbacks+0x1b2/0x3dd
+   afs_break_callbacks+0x1b2/0x3dd
+   ? trace_event_raw_event_afs_server+0x61/0xac
+   SRXAFSCB_CallBack+0x11f/0x16c
+   process_one_work+0x2c5/0x4ee
+   ? worker_thread+0x234/0x2ac
+   worker_thread+0x1d8/0x2ac
+   ? cancel_delayed_work_sync+0xf/0xf
+   kthread+0x11f/0x127
+   ? kthread_park+0x76/0x76
+   ret_from_fork+0x24/0x30
+
+Fixes: 68251f0a6818 ("afs: Fix whole-volume callback handling")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ fs/afs/callback.c | 4 ++--
+ fs/afs/internal.h | 2 +-
+ fs/afs/volume.c   | 1 +
+ 3 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6537086fb145..f10f5cce7aa9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -272,6 +272,7 @@
- #define USB_DEVICE_ID_CHICONY_MULTI_TOUCH	0xb19d
- #define USB_DEVICE_ID_CHICONY_WIRELESS	0x0618
- #define USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE	0x1053
-+#define USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE2	0x0939
- #define USB_DEVICE_ID_CHICONY_WIRELESS2	0x1123
- #define USB_DEVICE_ID_ASUS_AK1D		0x1125
- #define USB_DEVICE_ID_CHICONY_TOSHIBA_WT10A	0x1408
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 189bf68eb35c..74c0ad21b267 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -45,6 +45,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_UC100KM), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE2), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHIC, USB_DEVICE_ID_CHIC_GAMEPAD), HID_QUIRK_BADPAD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_3AXIS_5BUTTON_STICK), HID_QUIRK_NOGET },
+diff --git a/fs/afs/callback.c b/fs/afs/callback.c
+index 5f261fbf2182..4ad701250299 100644
+--- a/fs/afs/callback.c
++++ b/fs/afs/callback.c
+@@ -276,9 +276,9 @@ static void afs_break_one_callback(struct afs_server *server,
+ 			struct afs_super_info *as = AFS_FS_S(cbi->sb);
+ 			struct afs_volume *volume = as->volume;
+ 
+-			write_lock(&volume->cb_break_lock);
++			write_lock(&volume->cb_v_break_lock);
+ 			volume->cb_v_break++;
+-			write_unlock(&volume->cb_break_lock);
++			write_unlock(&volume->cb_v_break_lock);
+ 		} else {
+ 			data.volume = NULL;
+ 			data.fid = *fid;
+diff --git a/fs/afs/internal.h b/fs/afs/internal.h
+index 34c02fdcc25f..aea19614c082 100644
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -477,7 +477,7 @@ struct afs_volume {
+ 	unsigned int		servers_seq;	/* Incremented each time ->servers changes */
+ 
+ 	unsigned		cb_v_break;	/* Break-everything counter. */
+-	rwlock_t		cb_break_lock;
++	rwlock_t		cb_v_break_lock;
+ 
+ 	afs_voltype_t		type;		/* type of volume */
+ 	short			error;
+diff --git a/fs/afs/volume.c b/fs/afs/volume.c
+index 3037bd01f617..5ec186ec5651 100644
+--- a/fs/afs/volume.c
++++ b/fs/afs/volume.c
+@@ -47,6 +47,7 @@ static struct afs_volume *afs_alloc_volume(struct afs_mount_params *params,
+ 	atomic_set(&volume->usage, 1);
+ 	INIT_LIST_HEAD(&volume->proc_link);
+ 	rwlock_init(&volume->servers_lock);
++	rwlock_init(&volume->cb_v_break_lock);
+ 	memcpy(volume->name, vldb->name, vldb->name_len + 1);
+ 
+ 	slist = afs_alloc_server_list(params->cell, params->key, vldb, type_mask);
 -- 
 2.20.1
 
