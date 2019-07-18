@@ -2,164 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E9136CC38
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 11:48:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3C36CC8A
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 12:08:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727131AbfGRJrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 05:47:23 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:38245 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726608AbfGRJrX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 05:47:23 -0400
-Received: by mail-lj1-f196.google.com with SMTP id r9so26657285ljg.5
-        for <stable@vger.kernel.org>; Thu, 18 Jul 2019 02:47:21 -0700 (PDT)
+        id S1726485AbfGRKIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 06:08:31 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:41605 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726423AbfGRKIb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 06:08:31 -0400
+Received: by mail-wr1-f68.google.com with SMTP id c2so24812526wrm.8
+        for <stable@vger.kernel.org>; Thu, 18 Jul 2019 03:08:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=gB/oduENd+BsIOwUuYphtc1vzkjElb07KQmk4tLhZ+k=;
-        b=Ld5E5T2K8hVgwFFOff/9cRz2gKQO9y9uZAcvK8SP+bc4Je0gSSTe/FKRtZgtZEXw7t
-         DnblUc8wgSnJXjsVfhKMGdKmn/w13KUN91N3SXIOfavdfIGvfbx/cMP2nkJOCT+J/PGz
-         h8WCC1JsMkF5DFDipcCaVngk/w/0zVEm57kdWZmwe6CYY3t6Tm/Hr6Ctv2ZCXBf69QOD
-         B9Oqr65TxOR/D083DUmi/oyRMz2E+zsYG6E/lk9qDrepxo/zcmA1Y4rqHeunGyGK523x
-         ofnyIam5q6Rl30rrPPsxRIVn+Z3VjFgaEQDCCNDCIalrpVk4VMaTLnj77gKvML2KW6kR
-         U02g==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=kmAC/ycpLEX93J0iUKUXohf/6B29UlbnPV2mXunqLkw=;
+        b=CpGHHAWDz7gwoBJ6yzafmomYRnc4GWzFeOwgkc+bISGc9X7MjehC4Jcz8rYr9ZMvD3
+         ci57KdjdfYyHAb1aFM1OEf2O8icofB/5f8V04qS3H3tzH96ugZTltoLSjCPOja6a1Hp5
+         PrK4BRoj1tFDbojaN5B1pa3LvdIoCCweAU0s0r7GibuwjaGxiFrgTU+q54gXPDcsI9Iz
+         S21TaoswBYo/F/4WgFwaz23w2qpIn61cCNQ223dTazUqSafNueYT5/H/xx6MckQjD1We
+         sj3GFiaFNnWnWUuRFSIANiiUlNHZpd0/waeLdwOVmi+kBOCE5O1GIT4/Ma0Yc2UAsEF4
+         eJvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=gB/oduENd+BsIOwUuYphtc1vzkjElb07KQmk4tLhZ+k=;
-        b=jAbbgTIL1mcQsC4AILFZO+nnLdkwhEZRpZVoY2l0NoLSS4dhtWvpG9+b5ALpNiLmCB
-         K+oGesTvR7OiMIdv6mVsDEBdgY+XwIZKHz5aMACpV619xOE1ky6v8dllXoSLjZiii4Uh
-         Q3puE04uF275fmp43VCxuHjXdgNpckls/zOwiIl244ZiTdnS2auVuphF8beOYmc5VH4p
-         7CoOPiVSriozQnvQDT2QoD/cRldxG3aXLc4gkElwsCTu5d9u/kGGGDQHDxP+E7oLNFb6
-         jFW+20kRhZuahiSBZwQkfWAHWM922hJtrJ5DYSPsF4ssp3Egie7F3UYhyveFo3AxWHFk
-         9ivw==
-X-Gm-Message-State: APjAAAVa6h7LSLcc9xrp+zK5J7GyUhpXWqlDDmagFUkykck4vD4Mn++p
-        C04Yedd096CeA1dmS9H+kAT/DRBkAK0VR81i0egDLA==
-X-Google-Smtp-Source: APXvYqyPOVhOhLnR8svjNFZbpJrFSBq7iSO7H0EK0jJu3qsF114ar1jgWWIPRpjlhgl1TEjutHazAuvG976Gy28vOLM=
-X-Received: by 2002:a2e:9b4a:: with SMTP id o10mr24191221ljj.137.1563443240961;
- Thu, 18 Jul 2019 02:47:20 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=kmAC/ycpLEX93J0iUKUXohf/6B29UlbnPV2mXunqLkw=;
+        b=l9n2eFNo+LUTWjB1Quq+PUeXTUMTzmwfPOtm/p8N0v+3AzYpDwZUMnD9i/X9kUX7gS
+         qykYIqgchw/urSR1VQNAUAm86F5EhK3JlRPwe/N8SU7rAJzcCf9ALJi5VnKwz17/BW4h
+         pWjdm3w2/XsuO1rvh/JitsxXpU+nG5lNhTsw2Q2zndkdgVY1bDEPtxi5wt+upIw2vKML
+         jMS268L+9x7OXkyyF914+xC/wXj3VIWYDdGcmwMHyZOppSMM8Pu+VaiySXOuWuTi1ApM
+         koqe9WeAGaCKud6SQvS+wLd73jUmrlHZc1sHiAGkg3QkVSQJA/KTZmgA4dbJdWxrtOlh
+         KyPA==
+X-Gm-Message-State: APjAAAVQ0ZDE5q17V+8C95gEwksKvK6UK341zcco9241IWNnAUFSuyUD
+        3hYLJIE7JcKrFUUdDPp4ddtJiJxmi8Q=
+X-Google-Smtp-Source: APXvYqyuB5JKILHaVKrdzWiVo1dF6rv/USMmpGHa9kUvgKRUV+9/uzhRHt09USNWshaVej0PjVJNiQ==
+X-Received: by 2002:a05:6000:9:: with SMTP id h9mr50309697wrx.271.1563444508729;
+        Thu, 18 Jul 2019 03:08:28 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id l9sm23464383wmh.36.2019.07.18.03.08.27
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 18 Jul 2019 03:08:27 -0700 (PDT)
+Message-ID: <5d30451b.1c69fb81.cc30a.2ba7@mx.google.com>
+Date:   Thu, 18 Jul 2019 03:08:27 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20190718030045.780672747@linuxfoundation.org>
-In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 18 Jul 2019 15:17:09 +0530
-Message-ID: <CA+G9fYtZUsz3eOV5_6im60EGrhi+ncD4ootvZfmDNiBzqNm0Tg@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/47] 4.19.60-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.185-55-g0bfad9234a3a
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 105 boots: 0 failed,
+ 103 passed with 1 offline, 1 untried/unknown (v4.9.185-55-g0bfad9234a3a)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 18 Jul 2019 at 08:37, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.60 release.
-> There are 47 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat 20 Jul 2019 02:59:27 AM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.60-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+stable-rc/linux-4.9.y boot: 105 boots: 0 failed, 103 passed with 1 offline,=
+ 1 untried/unknown (v4.9.185-55-g0bfad9234a3a)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.185-55-g0bfad9234a3a/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.185-55-g0bfad9234a3a/
 
-Summary
-------------------------------------------------------------------------
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.185-55-g0bfad9234a3a
+Git Commit: 0bfad9234a3a02e29c02d95e2c48f4f3aa86df8f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 23 SoC families, 15 builds out of 197
 
-kernel: 4.19.60-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: aa9b0c7579bacf570e7e430fa563e52b6b4ab15f
-git describe: v4.19.59-48-gaa9b0c7579ba
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
-ild/v4.19.59-48-gaa9b0c7579ba
+Boot Regressions Detected:
 
+arm:
 
-No regressions (compared to build v4.19.59)
+    multi_v7_defconfig:
+        gcc-8:
+          am335x-boneblack:
+              lab-drue: new failure (last pass: v4.9.185-55-gcc08f2abafc7)
 
-No fixes (compared to build v4.19.59)
+Offline Platforms:
 
-Ran 24058 total tests in the following environments and test suites.
+arm64:
 
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
+    defconfig:
+        gcc-8
+            meson-gxbb-odroidc2: 1 offline lab
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libgpiod
-* libhugetlbfs
-* ltp-containers-tests
-* ltp-cve-tests
-* ltp-hugetlb-tests
-* ltp-mm-tests
-* spectre-meltdown-checker-test
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-cpuhotplug-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* network-basic-tests
-* perf
-* v4l2-compliance
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+---
+For more info write to <info@kernelci.org>
