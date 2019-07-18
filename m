@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABDDE6C770
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 688A76C760
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:25:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389055AbfGRDYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:24:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37628 "EHLO mail.kernel.org"
+        id S2387462AbfGRDXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:23:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388725AbfGRDGY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:06:24 -0400
+        id S2390656AbfGRDIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:08:12 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A928C2053B;
-        Thu, 18 Jul 2019 03:06:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF9FB20818;
+        Thu, 18 Jul 2019 03:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419184;
-        bh=YfICFsESOvdQZDGiHscJVaj94R0uz2pITiwXWI9h5k4=;
+        s=default; t=1563419291;
+        bh=MBiBm6iOBbyz/8UWVhfVFS5NLihhtEUDUC2dsjaqIbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tgo68skdWyDkDjeiqqH9k+xU3NHzoCQBeDyukwRruDd34Nuj95RSjLJam3kRm2LCQ
-         Dho8kyYlIkH7bBkPY6VTI97YwvdNeuc9MlRDYZwiQj8CMms8B0Pkoa9SjC1UdFvort
-         8gx1hBQtLJVRupuL1Jv8NYKnGem0iy3dfR/nUXKw=
+        b=B8s39OBWkgTHK2leSOs4EEHQ2aouqH2TgTA/fNXMzXrQxPFNh+SY9LToQN1b/YPBH
+         SaokReD8jv/kk8bop0OFIrXE/7GbqeVg8MfTFAVNcrarjMVH+ubDVgvmugiPCGGWAK
+         Grm9BlZejrvQ2Vl+nqIL4a+gyKMbgVNIJC7HMLXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.1 49/54] s390/qdio: (re-)initialize tiqdio list entries
+        stable@vger.kernel.org, Robert Hodaszi <Robert.Hodaszi@digi.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>
+Subject: [PATCH 4.19 30/47] genirq: Delay deactivation in free_irq()
 Date:   Thu, 18 Jul 2019 12:01:44 +0900
-Message-Id: <20190718030056.989876091@linuxfoundation.org>
+Message-Id: <20190718030051.289662042@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
-References: <20190718030053.287374640@linuxfoundation.org>
+In-Reply-To: <20190718030045.780672747@linuxfoundation.org>
+References: <20190718030045.780672747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +44,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Thomas Gleixner tglx@linutronix.de
 
-commit e54e4785cb5cb4896cf4285964aeef2125612fb2 upstream.
+commit 4001d8e8762f57d418b66e4e668601791900a1dd upstream
 
-When tiqdio_remove_input_queues() removes a queue from the tiq_list as
-part of qdio_shutdown(), it doesn't re-initialize the queue's list entry
-and the prev/next pointers go stale.
+When interrupts are shutdown, they are immediately deactivated in the
+irqdomain hierarchy. While this looks obviously correct there is a subtle
+issue:
 
-If a subsequent qdio_establish() fails while sending the ESTABLISH cmd,
-it calls qdio_shutdown() again in QDIO_IRQ_STATE_ERR state and
-tiqdio_remove_input_queues() will attempt to remove the queue entry a
-second time. This dereferences the stale pointers, and bad things ensue.
-Fix this by re-initializing the list entry after removing it from the
-list.
+There might be an interrupt in flight when free_irq() is invoking the
+shutdown. This is properly handled at the irq descriptor / primary handler
+level, but the deactivation might completely disable resources which are
+required to acknowledge the interrupt.
 
-For good practice also initialize the list entry when the queue is first
-allocated, and remove the quirky checks that papered over this omission.
-Note that prior to
-commit e521813468f7 ("s390/qdio: fix access to uninitialized qdio_q fields"),
-these checks were bogus anyway.
+Split the shutdown code and deactivate the interrupt after synchronization
+in free_irq(). Fixup all other usage sites where this is not an issue to
+invoke the combined shutdown_and_deactivate() function instead.
 
-setup_queues_misc() clears the whole queue struct, and thus needs to
-re-init the prev/next pointers as well.
+This still might be an issue if the interrupt in flight servicing is
+delayed on a remote CPU beyond the invocation of synchronize_irq(), but
+that cannot be handled at that level and needs to be handled in the
+synchronize_irq() context.
 
-Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: f8264e34965a ("irqdomain: Introduce new interfaces to support hierarchy irqdomains")
+Reported-by: Robert Hodaszi <Robert.Hodaszi@digi.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Marc Zyngier <marc.zyngier@arm.com>
+Link: https://lkml.kernel.org/r/20190628111440.098196390@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/s390/cio/qdio_setup.c   |    2 ++
- drivers/s390/cio/qdio_thinint.c |    4 ++--
- 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/cio/qdio_setup.c
-+++ b/drivers/s390/cio/qdio_setup.c
-@@ -150,6 +150,7 @@ static int __qdio_allocate_qs(struct qdi
- 			return -ENOMEM;
+---
+ kernel/irq/autoprobe.c  |    6 +++---
+ kernel/irq/chip.c       |    6 ++++++
+ kernel/irq/cpuhotplug.c |    2 +-
+ kernel/irq/internals.h  |    1 +
+ kernel/irq/manage.c     |   10 ++++++++++
+ 5 files changed, 21 insertions(+), 4 deletions(-)
+
+--- a/kernel/irq/autoprobe.c
++++ b/kernel/irq/autoprobe.c
+@@ -90,7 +90,7 @@ unsigned long probe_irq_on(void)
+ 			/* It triggered already - consider it spurious. */
+ 			if (!(desc->istate & IRQS_WAITING)) {
+ 				desc->istate &= ~IRQS_AUTODETECT;
+-				irq_shutdown(desc);
++				irq_shutdown_and_deactivate(desc);
+ 			} else
+ 				if (i < 32)
+ 					mask |= 1 << i;
+@@ -127,7 +127,7 @@ unsigned int probe_irq_mask(unsigned lon
+ 				mask |= 1 << i;
+ 
+ 			desc->istate &= ~IRQS_AUTODETECT;
+-			irq_shutdown(desc);
++			irq_shutdown_and_deactivate(desc);
  		}
- 		irq_ptr_qs[i] = q;
-+		INIT_LIST_HEAD(&q->entry);
+ 		raw_spin_unlock_irq(&desc->lock);
  	}
- 	return 0;
- }
-@@ -178,6 +179,7 @@ static void setup_queues_misc(struct qdi
- 	q->mask = 1 << (31 - i);
- 	q->nr = i;
- 	q->handler = handler;
-+	INIT_LIST_HEAD(&q->entry);
- }
+@@ -169,7 +169,7 @@ int probe_irq_off(unsigned long val)
+ 				nr_of_irqs++;
+ 			}
+ 			desc->istate &= ~IRQS_AUTODETECT;
+-			irq_shutdown(desc);
++			irq_shutdown_and_deactivate(desc);
+ 		}
+ 		raw_spin_unlock_irq(&desc->lock);
+ 	}
+--- a/kernel/irq/chip.c
++++ b/kernel/irq/chip.c
+@@ -314,6 +314,12 @@ void irq_shutdown(struct irq_desc *desc)
+ 		}
+ 		irq_state_clr_started(desc);
+ 	}
++}
++
++
++void irq_shutdown_and_deactivate(struct irq_desc *desc)
++{
++	irq_shutdown(desc);
+ 	/*
+ 	 * This must be called even if the interrupt was never started up,
+ 	 * because the activation can happen before the interrupt is
+--- a/kernel/irq/cpuhotplug.c
++++ b/kernel/irq/cpuhotplug.c
+@@ -116,7 +116,7 @@ static bool migrate_one_irq(struct irq_d
+ 		 */
+ 		if (irqd_affinity_is_managed(d)) {
+ 			irqd_set_managed_shutdown(d);
+-			irq_shutdown(desc);
++			irq_shutdown_and_deactivate(desc);
+ 			return false;
+ 		}
+ 		affinity = cpu_online_mask;
+--- a/kernel/irq/internals.h
++++ b/kernel/irq/internals.h
+@@ -80,6 +80,7 @@ extern int irq_activate_and_startup(stru
+ extern int irq_startup(struct irq_desc *desc, bool resend, bool force);
  
- static void setup_storage_lists(struct qdio_q *q, struct qdio_irq *irq_ptr,
---- a/drivers/s390/cio/qdio_thinint.c
-+++ b/drivers/s390/cio/qdio_thinint.c
-@@ -87,14 +87,14 @@ void tiqdio_remove_input_queues(struct q
- 	struct qdio_q *q;
+ extern void irq_shutdown(struct irq_desc *desc);
++extern void irq_shutdown_and_deactivate(struct irq_desc *desc);
+ extern void irq_enable(struct irq_desc *desc);
+ extern void irq_disable(struct irq_desc *desc);
+ extern void irq_percpu_enable(struct irq_desc *desc, unsigned int cpu);
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -13,6 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/random.h>
+ #include <linux/interrupt.h>
++#include <linux/irqdomain.h>
+ #include <linux/slab.h>
+ #include <linux/sched.h>
+ #include <linux/sched/rt.h>
+@@ -1619,6 +1620,7 @@ static struct irqaction *__free_irq(stru
+ 	/* If this was the last handler, shut down the IRQ line: */
+ 	if (!desc->action) {
+ 		irq_settings_clr_disable_unlazy(desc);
++		/* Only shutdown. Deactivate after synchronize_hardirq() */
+ 		irq_shutdown(desc);
+ 	}
  
- 	q = irq_ptr->input_qs[0];
--	/* if establish triggered an error */
--	if (!q || !q->entry.prev || !q->entry.next)
-+	if (!q)
- 		return;
- 
- 	mutex_lock(&tiq_list_lock);
- 	list_del_rcu(&q->entry);
- 	mutex_unlock(&tiq_list_lock);
- 	synchronize_rcu();
-+	INIT_LIST_HEAD(&q->entry);
- }
- 
- static inline int has_multiple_inq_on_dsci(struct qdio_irq *irq_ptr)
+@@ -1688,6 +1690,14 @@ static struct irqaction *__free_irq(stru
+ 		 * require it to deallocate resources over the slow bus.
+ 		 */
+ 		chip_bus_lock(desc);
++		/*
++		 * There is no interrupt on the fly anymore. Deactivate it
++		 * completely.
++		 */
++		raw_spin_lock_irqsave(&desc->lock, flags);
++		irq_domain_deactivate_irq(&desc->irq_data);
++		raw_spin_unlock_irqrestore(&desc->lock, flags);
++
+ 		irq_release_resources(desc);
+ 		chip_bus_sync_unlock(desc);
+ 		irq_remove_timings(desc);
 
 
