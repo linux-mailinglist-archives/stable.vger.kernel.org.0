@@ -2,110 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA91B6D42B
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 20:49:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 374E26D43C
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 20:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726649AbfGRSsu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 14:48:50 -0400
-Received: from mga18.intel.com ([134.134.136.126]:35925 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726040AbfGRSsu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 14:48:50 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Jul 2019 11:48:49 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,279,1559545200"; 
-   d="scan'208";a="195709952"
-Received: from crojewsk-mobl1.ger.corp.intel.com (HELO [10.251.81.172]) ([10.251.81.172])
-  by fmsmga002.fm.intel.com with ESMTP; 18 Jul 2019 11:48:46 -0700
-Subject: Re: [PATCH v5 2/6] ASoC: sgtl5000: Improve VAG power and mute control
-From:   Cezary Rojewski <cezary.rojewski@intel.com>
-To:     Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Cc:     Fabio Estevam <festevam@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Igor Opaniuk <igor.opaniuk@toradex.com>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Sasha Levin <sashal@kernel.org>,
-        Mark Brown <broonie@kernel.org>, Takashi Iwai <tiwai@suse.com>,
-        Liam Girdwood <lgirdwood@gmail.com>
-References: <20190718090240.18432-1-oleksandr.suvorov@toradex.com>
- <20190718090240.18432-3-oleksandr.suvorov@toradex.com>
- <9c9ee47c-48bd-7109-9870-8f73be1f1cfa@intel.com>
-Message-ID: <a86e4d6b-ed2c-d2f2-2974-6f00dc6ef68a@intel.com>
-Date:   Thu, 18 Jul 2019 20:48:45 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
-MIME-Version: 1.0
-In-Reply-To: <9c9ee47c-48bd-7109-9870-8f73be1f1cfa@intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        id S1727780AbfGRSzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 14:55:36 -0400
+Received: from shards.monkeyblade.net ([23.128.96.9]:54154 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727762AbfGRSzg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jul 2019 14:55:36 -0400
+Received: from localhost (unknown [IPv6:2601:601:9f80:35cd::d71])
+        (using TLSv1 with cipher AES256-SHA (256/256 bits))
+        (Client did not present a certificate)
+        (Authenticated sender: davem-davemloft)
+        by shards.monkeyblade.net (Postfix) with ESMTPSA id 4E14F1527D810;
+        Thu, 18 Jul 2019 11:55:35 -0700 (PDT)
+Date:   Thu, 18 Jul 2019 11:55:34 -0700 (PDT)
+Message-Id: <20190718.115534.1778444973119064345.davem@davemloft.net>
+To:     jbenc@redhat.com
+Cc:     sashal@kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, yhs@fb.com, daniel@iogearbox.net,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: Re: [PATCH AUTOSEL 5.2 226/249] selftests: bpf: fix inlines in
+ test_lwt_seg6local
+From:   David Miller <davem@davemloft.net>
+In-Reply-To: <20190718093654.0a3426f5@redhat.com>
+References: <20190717114334.5556a14e@redhat.com>
+        <20190717234757.GD3079@sasha-vm>
+        <20190718093654.0a3426f5@redhat.com>
+X-Mailer: Mew version 6.8 on Emacs 26.1
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Thu, 18 Jul 2019 11:55:35 -0700 (PDT)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019-07-18 20:42, Cezary Rojewski wrote:
-> On 2019-07-18 11:02, Oleksandr Suvorov wrote:
->> +enum {
->> +    HP_POWER_EVENT,
->> +    DAC_POWER_EVENT,
->> +    ADC_POWER_EVENT,
->> +    LAST_POWER_EVENT
->> +};
->> +
->> +static u16 mute_mask[] = {
->> +    SGTL5000_HP_MUTE,
->> +    SGTL5000_OUTPUTS_MUTE,
->> +    SGTL5000_OUTPUTS_MUTE
->> +};
-> 
-> If mute_mask[] is only used within common handler, you may consider 
-> declaring const array within said handler instead (did not check that 
-> myself).
-> Otherwise, simple comment for the second _OUTPUTS_MUTE should suffice - 
-> its not self explanatory why you doubled that mask.
-> 
->> +
->>   /* sgtl5000 private structure in codec */
->>   struct sgtl5000_priv {
->>       int sysclk;    /* sysclk rate */
->> @@ -137,8 +157,109 @@ struct sgtl5000_priv {
->>       u8 micbias_voltage;
->>       u8 lrclk_strength;
->>       u8 sclk_strength;
->> +    u16 mute_state[LAST_POWER_EVENT];
->>   };
-> 
-> When I spoke of LAST enum constant, I did not really had this specific 
-> usage in mind.
-> 
->  From design perspective, _LAST_ does not exist and should never be 
-> referred to as "the next option" i.e.: new enum constant.
-> That is way preferred usage is:
-> u16 mute_state[ADC_POWER_EVENT+1;
-> -or-
-> u16 mute_state[LAST_POWER_EVENT+1];
-> 
-> Maybe I'm just being radical here :)
-> 
-> Czarek
+From: Jiri Benc <jbenc@redhat.com>
+Date: Thu, 18 Jul 2019 09:36:54 +0200
 
-Forgive me for double posting. Comment above is targeted towards:
+> On Wed, 17 Jul 2019 19:47:57 -0400, Sasha Levin wrote:
+>> It fixes a bug, right?
+> 
+> A bug in selftests. And quite likely, it probably happens only with
+> some compiler versions.
+> 
+> I don't think patches only touching tools/testing/selftests/ qualify
+> for stable in general. They don't affect the end users.
 
- >> +enum {
- >> +    HP_POWER_EVENT,
- >> +    DAC_POWER_EVENT,
- >> +    ADC_POWER_EVENT,
- >> +    LAST_POWER_EVENT
- >> +};
-
-as LAST_POWER_EVENT is not assigned explicitly to ADC_POWER_EVENT and 
-thus generates implicit "new option" of value 3.
-
-Czarek
+It has a significant impact on automated testing which lots of
+individuals and entities perform, therefore I think it very much is
+-stable material.
