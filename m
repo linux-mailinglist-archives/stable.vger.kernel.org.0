@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64A676C625
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:14:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B98C6C660
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391391AbfGRDNz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:13:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49024 "EHLO mail.kernel.org"
+        id S2392007AbfGRDPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:15:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391197AbfGRDNy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:13:54 -0400
+        id S2391998AbfGRDPT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:15:19 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 562F021848;
-        Thu, 18 Jul 2019 03:13:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BCF921848;
+        Thu, 18 Jul 2019 03:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419633;
-        bh=uxiHfrSjK0hwgkdOBkC0bOU8cdJ7yEi5mGftw8bT4Ik=;
+        s=default; t=1563419718;
+        bh=6Gyqlx/g7z/7sSbh9rRsi50ThxMobClmjQs1x7td8MA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxy4h6Uik3VZ9sFRztaHwF1IfodS5evCrRpP9JM2XqbrDoAAAY2nZENflvPAim87W
-         NKFXXJQwwAUtieiT2is1MQuzk7wBekYOTC8L/KqWuYsidBNel2nAJoA+g1W+jUrwKa
-         be/EI8KbQGSfB5YbQitCF5OQkB91iGji1BJWbxo8=
+        b=IX12oUAEyfnpLQgZP4asVBDvTz9i1TnHfufAKQRDNs4VGdPP7uNdzfMiO5NZ0fR9o
+         Yk4hTtbngfDE4wT2tdnOEUVYHmgg4DGbwx9gHFyD8AYoOSdiiPu6qpv7ldZ9seyn2D
+         FuoCuQOTMx9VwaJ2w076XTIAew2Tkx/v8MN+AMcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Milan Broz <gmazyland@gmail.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 50/54] dm verity: use message limit for data block corruption message
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.4 24/40] staging: comedi: amplc_pci230: fix null pointer deref on interrupt
 Date:   Thu, 18 Jul 2019 12:02:20 +0900
-Message-Id: <20190718030053.493737908@linuxfoundation.org>
+Message-Id: <20190718030048.870317446@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
-References: <20190718030048.392549994@linuxfoundation.org>
+In-Reply-To: <20190718030039.676518610@linuxfoundation.org>
+References: <20190718030039.676518610@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2eba4e640b2c4161e31ae20090a53ee02a518657 ]
+From: Ian Abbott <abbotti@mev.co.uk>
 
-DM verity should also use DMERR_LIMIT to limit repeat data block
-corruption messages.
+commit 7379e6baeddf580d01feca650ec1ad508b6ea8ee upstream.
 
-Signed-off-by: Milan Broz <gmazyland@gmail.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The interrupt handler `pci230_interrupt()` causes a null pointer
+dereference for a PCI260 card.  There is no analog output subdevice for
+a PCI260.  The `dev->write_subdev` subdevice pointer and therefore the
+`s_ao` subdevice pointer variable will be `NULL` for a PCI260.  The
+following call near the end of the interrupt handler results in the null
+pointer dereference for a PCI260:
+
+	comedi_handle_events(dev, s_ao);
+
+Fix it by only calling the above function if `s_ao` is valid.
+
+Note that the other uses of `s_ao` in the calls
+`pci230_handle_ao_nofifo(dev, s_ao);` and `pci230_handle_ao_fifo(dev,
+s_ao);` will never be reached for a PCI260, so they are safe.
+
+Fixes: 39064f23284c ("staging: comedi: amplc_pci230: use comedi_handle_events()")
+Cc: <stable@vger.kernel.org> # v3.19+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/md/dm-verity-target.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/comedi/drivers/amplc_pci230.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-verity-target.c b/drivers/md/dm-verity-target.c
-index 0aba34a7b3b3..727f9e571955 100644
---- a/drivers/md/dm-verity-target.c
-+++ b/drivers/md/dm-verity-target.c
-@@ -218,8 +218,8 @@ static int verity_handle_err(struct dm_verity *v, enum verity_block_type type,
- 		BUG();
- 	}
+--- a/drivers/staging/comedi/drivers/amplc_pci230.c
++++ b/drivers/staging/comedi/drivers/amplc_pci230.c
+@@ -2324,7 +2324,8 @@ static irqreturn_t pci230_interrupt(int
+ 	devpriv->intr_running = false;
+ 	spin_unlock_irqrestore(&devpriv->isr_spinlock, irqflags);
  
--	DMERR("%s: %s block %llu is corrupted", v->data_dev->name, type_str,
--		block);
-+	DMERR_LIMIT("%s: %s block %llu is corrupted", v->data_dev->name,
-+		    type_str, block);
+-	comedi_handle_events(dev, s_ao);
++	if (s_ao)
++		comedi_handle_events(dev, s_ao);
+ 	comedi_handle_events(dev, s_ai);
  
- 	if (v->corrupted_errs == DM_VERITY_MAX_CORRUPTED_ERRS)
- 		DMERR("%s: reached maximum errors", v->data_dev->name);
--- 
-2.20.1
-
+ 	return IRQ_HANDLED;
 
 
