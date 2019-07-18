@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C586C5F1
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:12:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A0D36C619
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:13:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390961AbfGRDL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:11:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44924 "EHLO mail.kernel.org"
+        id S2389269AbfGRDNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:13:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391295AbfGRDLW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:11:22 -0400
+        id S2390912AbfGRDNT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:13:19 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5F662053B;
-        Thu, 18 Jul 2019 03:11:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB5FC21841;
+        Thu, 18 Jul 2019 03:13:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419480;
-        bh=br27LC6ShODGfhyxMIT0qsLKBHv1h8UhiyU+ahL4riA=;
+        s=default; t=1563419598;
+        bh=T98wnIEZL8R8tV5tDa7P+UdQpBiLryS2wLq+/8j58w0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hiJ3GiAws81f/K++2i2wnqsUvUMWn2Q5KS3aeMmhjg9XeUkstp426/vMansGVaUcn
-         GZhPDD+xqpYdkoMGhFMLW05vyRPfvJv8NH2mPfcniY1P5hc5ck77kiXroJt0fRD7SL
-         g7edye2V8t1gazJSETLuCmEN9J5I0D2iXo5apfBY=
+        b=OQkun6fo8LTskK05WdwqBIiINiKYqk6KTo5z3qdOdJXooC1OtYJ+D18aeR5ZDSYh0
+         G+vLtzc9u6bGZ4O1lOF9WEVm3Jbfzz3K0odg7H+KWuMfpIhBYx80w29juEcECgCNGf
+         ANFcSGC2Wil8aS8PnU8BsJ7D2/sb+cwYoCAjSd1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishnu Dasa <vdasa@vmware.com>,
-        Adit Ranadive <aditr@vmware.com>,
-        Jorgen Hansen <jhansen@vmware.com>
-Subject: [PATCH 4.14 60/80] VMCI: Fix integer overflow in VMCI handle arrays
-Date:   Thu, 18 Jul 2019 12:01:51 +0900
-Message-Id: <20190718030103.155933326@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven J. Magnani" <steve@digidescorp.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 22/54] udf: Fix incorrect final NOT_ALLOCATED (hole) extent length
+Date:   Thu, 18 Jul 2019 12:01:52 +0900
+Message-Id: <20190718030051.083490078@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030048.392549994@linuxfoundation.org>
+References: <20190718030048.392549994@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,374 +44,223 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishnu DASA <vdasa@vmware.com>
+From: Steven J. Magnani <steve.magnani@digidescorp.com>
 
-commit 1c2eb5b2853c9f513690ba6b71072d8eb65da16a upstream.
+commit fa33cdbf3eceb0206a4f844fe91aeebcf6ff2b7a upstream.
 
-The VMCI handle array has an integer overflow in
-vmci_handle_arr_append_entry when it tries to expand the array. This can be
-triggered from a guest, since the doorbell link hypercall doesn't impose a
-limit on the number of doorbell handles that a VM can create in the
-hypervisor, and these handles are stored in a handle array.
+In some cases, using the 'truncate' command to extend a UDF file results
+in a mismatch between the length of the file's extents (specifically, due
+to incorrect length of the final NOT_ALLOCATED extent) and the information
+(file) length. The discrepancy can prevent other operating systems
+(i.e., Windows 10) from opening the file.
 
-In this change, we introduce a mandatory max capacity for handle
-arrays/lists to avoid excessive memory usage.
+Two particular errors have been observed when extending a file:
 
-Signed-off-by: Vishnu Dasa <vdasa@vmware.com>
-Reviewed-by: Adit Ranadive <aditr@vmware.com>
-Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
-Cc: stable <stable@vger.kernel.org>
+1. The final extent is larger than it should be, having been rounded up
+   to a multiple of the block size.
+
+B. The final extent is not shorter than it should be, due to not having
+   been updated when the file's information length was increased.
+
+[JK: simplified udf_do_extend_final_block(), fixed up some types]
+
+Fixes: 2c948b3f86e5 ("udf: Avoid IO in udf_clear_inode")
+CC: stable@vger.kernel.org
+Signed-off-by: Steven J. Magnani <steve@digidescorp.com>
+Link: https://lore.kernel.org/r/1561948775-5878-1-git-send-email-steve@digidescorp.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/vmw_vmci/vmci_context.c      |   80 ++++++++++++++++--------------
- drivers/misc/vmw_vmci/vmci_handle_array.c |   38 +++++++++-----
- drivers/misc/vmw_vmci/vmci_handle_array.h |   29 +++++++---
- include/linux/vmw_vmci_defs.h             |   11 +++-
- 4 files changed, 99 insertions(+), 59 deletions(-)
+ fs/udf/inode.c |   93 ++++++++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 60 insertions(+), 33 deletions(-)
 
---- a/drivers/misc/vmw_vmci/vmci_context.c
-+++ b/drivers/misc/vmw_vmci/vmci_context.c
-@@ -29,6 +29,9 @@
- #include "vmci_driver.h"
- #include "vmci_event.h"
- 
-+/* Use a wide upper bound for the maximum contexts. */
-+#define VMCI_MAX_CONTEXTS 2000
-+
- /*
-  * List of current VMCI contexts.  Contexts can be added by
-  * vmci_ctx_create() and removed via vmci_ctx_destroy().
-@@ -125,19 +128,22 @@ struct vmci_ctx *vmci_ctx_create(u32 cid
- 	/* Initialize host-specific VMCI context. */
- 	init_waitqueue_head(&context->host_context.wait_queue);
- 
--	context->queue_pair_array = vmci_handle_arr_create(0);
-+	context->queue_pair_array =
-+		vmci_handle_arr_create(0, VMCI_MAX_GUEST_QP_COUNT);
- 	if (!context->queue_pair_array) {
- 		error = -ENOMEM;
- 		goto err_free_ctx;
- 	}
- 
--	context->doorbell_array = vmci_handle_arr_create(0);
-+	context->doorbell_array =
-+		vmci_handle_arr_create(0, VMCI_MAX_GUEST_DOORBELL_COUNT);
- 	if (!context->doorbell_array) {
- 		error = -ENOMEM;
- 		goto err_free_qp_array;
- 	}
- 
--	context->pending_doorbell_array = vmci_handle_arr_create(0);
-+	context->pending_doorbell_array =
-+		vmci_handle_arr_create(0, VMCI_MAX_GUEST_DOORBELL_COUNT);
- 	if (!context->pending_doorbell_array) {
- 		error = -ENOMEM;
- 		goto err_free_db_array;
-@@ -212,7 +218,7 @@ static int ctx_fire_notification(u32 con
- 	 * We create an array to hold the subscribers we find when
- 	 * scanning through all contexts.
- 	 */
--	subscriber_array = vmci_handle_arr_create(0);
-+	subscriber_array = vmci_handle_arr_create(0, VMCI_MAX_CONTEXTS);
- 	if (subscriber_array == NULL)
- 		return VMCI_ERROR_NO_MEM;
- 
-@@ -631,20 +637,26 @@ int vmci_ctx_add_notification(u32 contex
- 
- 	spin_lock(&context->lock);
- 
--	list_for_each_entry(n, &context->notifier_list, node) {
--		if (vmci_handle_is_equal(n->handle, notifier->handle)) {
--			exists = true;
--			break;
-+	if (context->n_notifiers < VMCI_MAX_CONTEXTS) {
-+		list_for_each_entry(n, &context->notifier_list, node) {
-+			if (vmci_handle_is_equal(n->handle, notifier->handle)) {
-+				exists = true;
-+				break;
-+			}
- 		}
--	}
- 
--	if (exists) {
--		kfree(notifier);
--		result = VMCI_ERROR_ALREADY_EXISTS;
-+		if (exists) {
-+			kfree(notifier);
-+			result = VMCI_ERROR_ALREADY_EXISTS;
-+		} else {
-+			list_add_tail_rcu(&notifier->node,
-+					  &context->notifier_list);
-+			context->n_notifiers++;
-+			result = VMCI_SUCCESS;
-+		}
- 	} else {
--		list_add_tail_rcu(&notifier->node, &context->notifier_list);
--		context->n_notifiers++;
--		result = VMCI_SUCCESS;
-+		kfree(notifier);
-+		result = VMCI_ERROR_NO_MEM;
- 	}
- 
- 	spin_unlock(&context->lock);
-@@ -729,8 +741,7 @@ static int vmci_ctx_get_chkpt_doorbells(
- 					u32 *buf_size, void **pbuf)
- {
- 	struct dbell_cpt_state *dbells;
--	size_t n_doorbells;
--	int i;
-+	u32 i, n_doorbells;
- 
- 	n_doorbells = vmci_handle_arr_get_size(context->doorbell_array);
- 	if (n_doorbells > 0) {
-@@ -868,7 +879,8 @@ int vmci_ctx_rcv_notifications_get(u32 c
- 	spin_lock(&context->lock);
- 
- 	*db_handle_array = context->pending_doorbell_array;
--	context->pending_doorbell_array = vmci_handle_arr_create(0);
-+	context->pending_doorbell_array =
-+		vmci_handle_arr_create(0, VMCI_MAX_GUEST_DOORBELL_COUNT);
- 	if (!context->pending_doorbell_array) {
- 		context->pending_doorbell_array = *db_handle_array;
- 		*db_handle_array = NULL;
-@@ -950,12 +962,11 @@ int vmci_ctx_dbell_create(u32 context_id
- 		return VMCI_ERROR_NOT_FOUND;
- 
- 	spin_lock(&context->lock);
--	if (!vmci_handle_arr_has_entry(context->doorbell_array, handle)) {
--		vmci_handle_arr_append_entry(&context->doorbell_array, handle);
--		result = VMCI_SUCCESS;
--	} else {
-+	if (!vmci_handle_arr_has_entry(context->doorbell_array, handle))
-+		result = vmci_handle_arr_append_entry(&context->doorbell_array,
-+						      handle);
-+	else
- 		result = VMCI_ERROR_DUPLICATE_ENTRY;
--	}
- 
- 	spin_unlock(&context->lock);
- 	vmci_ctx_put(context);
-@@ -1091,15 +1102,16 @@ int vmci_ctx_notify_dbell(u32 src_cid,
- 			if (!vmci_handle_arr_has_entry(
- 					dst_context->pending_doorbell_array,
- 					handle)) {
--				vmci_handle_arr_append_entry(
-+				result = vmci_handle_arr_append_entry(
- 					&dst_context->pending_doorbell_array,
- 					handle);
--
--				ctx_signal_notify(dst_context);
--				wake_up(&dst_context->host_context.wait_queue);
--
-+				if (result == VMCI_SUCCESS) {
-+					ctx_signal_notify(dst_context);
-+					wake_up(&dst_context->host_context.wait_queue);
-+				}
-+			} else {
-+				result = VMCI_SUCCESS;
- 			}
--			result = VMCI_SUCCESS;
- 		}
- 		spin_unlock(&dst_context->lock);
- 	}
-@@ -1126,13 +1138,11 @@ int vmci_ctx_qp_create(struct vmci_ctx *
- 	if (context == NULL || vmci_handle_is_invalid(handle))
- 		return VMCI_ERROR_INVALID_ARGS;
- 
--	if (!vmci_handle_arr_has_entry(context->queue_pair_array, handle)) {
--		vmci_handle_arr_append_entry(&context->queue_pair_array,
--					     handle);
--		result = VMCI_SUCCESS;
--	} else {
-+	if (!vmci_handle_arr_has_entry(context->queue_pair_array, handle))
-+		result = vmci_handle_arr_append_entry(
-+			&context->queue_pair_array, handle);
-+	else
- 		result = VMCI_ERROR_DUPLICATE_ENTRY;
--	}
- 
- 	return result;
- }
---- a/drivers/misc/vmw_vmci/vmci_handle_array.c
-+++ b/drivers/misc/vmw_vmci/vmci_handle_array.c
-@@ -16,24 +16,29 @@
- #include <linux/slab.h>
- #include "vmci_handle_array.h"
- 
--static size_t handle_arr_calc_size(size_t capacity)
-+static size_t handle_arr_calc_size(u32 capacity)
- {
--	return sizeof(struct vmci_handle_arr) +
-+	return VMCI_HANDLE_ARRAY_HEADER_SIZE +
- 	    capacity * sizeof(struct vmci_handle);
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -478,13 +478,15 @@ static struct buffer_head *udf_getblk(st
+ 	return NULL;
  }
  
--struct vmci_handle_arr *vmci_handle_arr_create(size_t capacity)
-+struct vmci_handle_arr *vmci_handle_arr_create(u32 capacity, u32 max_capacity)
- {
- 	struct vmci_handle_arr *array;
- 
-+	if (max_capacity == 0 || capacity > max_capacity)
-+		return NULL;
-+
- 	if (capacity == 0)
--		capacity = VMCI_HANDLE_ARRAY_DEFAULT_SIZE;
-+		capacity = min((u32)VMCI_HANDLE_ARRAY_DEFAULT_CAPACITY,
-+			       max_capacity);
- 
- 	array = kmalloc(handle_arr_calc_size(capacity), GFP_ATOMIC);
- 	if (!array)
- 		return NULL;
- 
- 	array->capacity = capacity;
-+	array->max_capacity = max_capacity;
- 	array->size = 0;
- 
- 	return array;
-@@ -44,27 +49,34 @@ void vmci_handle_arr_destroy(struct vmci
- 	kfree(array);
- }
- 
--void vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
--				  struct vmci_handle handle)
-+int vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
-+				 struct vmci_handle handle)
- {
- 	struct vmci_handle_arr *array = *array_ptr;
- 
- 	if (unlikely(array->size >= array->capacity)) {
- 		/* reallocate. */
- 		struct vmci_handle_arr *new_array;
--		size_t new_capacity = array->capacity * VMCI_ARR_CAP_MULT;
--		size_t new_size = handle_arr_calc_size(new_capacity);
-+		u32 capacity_bump = min(array->max_capacity - array->capacity,
-+					array->capacity);
-+		size_t new_size = handle_arr_calc_size(array->capacity +
-+						       capacity_bump);
-+
-+		if (array->size >= array->max_capacity)
-+			return VMCI_ERROR_NO_MEM;
- 
- 		new_array = krealloc(array, new_size, GFP_ATOMIC);
- 		if (!new_array)
--			return;
-+			return VMCI_ERROR_NO_MEM;
- 
--		new_array->capacity = new_capacity;
-+		new_array->capacity += capacity_bump;
- 		*array_ptr = array = new_array;
- 	}
- 
- 	array->entries[array->size] = handle;
- 	array->size++;
-+
-+	return VMCI_SUCCESS;
- }
- 
- /*
-@@ -74,7 +86,7 @@ struct vmci_handle vmci_handle_arr_remov
- 						struct vmci_handle entry_handle)
- {
- 	struct vmci_handle handle = VMCI_INVALID_HANDLE;
--	size_t i;
-+	u32 i;
- 
- 	for (i = 0; i < array->size; i++) {
- 		if (vmci_handle_is_equal(array->entries[i], entry_handle)) {
-@@ -109,7 +121,7 @@ struct vmci_handle vmci_handle_arr_remov
-  * Handle at given index, VMCI_INVALID_HANDLE if invalid index.
-  */
- struct vmci_handle
--vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, size_t index)
-+vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, u32 index)
- {
- 	if (unlikely(index >= array->size))
- 		return VMCI_INVALID_HANDLE;
-@@ -120,7 +132,7 @@ vmci_handle_arr_get_entry(const struct v
- bool vmci_handle_arr_has_entry(const struct vmci_handle_arr *array,
- 			       struct vmci_handle entry_handle)
- {
--	size_t i;
-+	u32 i;
- 
- 	for (i = 0; i < array->size; i++)
- 		if (vmci_handle_is_equal(array->entries[i], entry_handle))
---- a/drivers/misc/vmw_vmci/vmci_handle_array.h
-+++ b/drivers/misc/vmw_vmci/vmci_handle_array.h
-@@ -17,32 +17,41 @@
- #define _VMCI_HANDLE_ARRAY_H_
- 
- #include <linux/vmw_vmci_defs.h>
-+#include <linux/limits.h>
- #include <linux/types.h>
- 
--#define VMCI_HANDLE_ARRAY_DEFAULT_SIZE 4
--#define VMCI_ARR_CAP_MULT 2	/* Array capacity multiplier */
--
- struct vmci_handle_arr {
--	size_t capacity;
--	size_t size;
-+	u32 capacity;
-+	u32 max_capacity;
-+	u32 size;
-+	u32 pad;
- 	struct vmci_handle entries[];
- };
- 
--struct vmci_handle_arr *vmci_handle_arr_create(size_t capacity);
-+#define VMCI_HANDLE_ARRAY_HEADER_SIZE				\
-+	offsetof(struct vmci_handle_arr, entries)
-+/* Select a default capacity that results in a 64 byte sized array */
-+#define VMCI_HANDLE_ARRAY_DEFAULT_CAPACITY			6
-+/* Make sure that the max array size can be expressed by a u32 */
-+#define VMCI_HANDLE_ARRAY_MAX_CAPACITY				\
-+	((U32_MAX - VMCI_HANDLE_ARRAY_HEADER_SIZE - 1) /	\
-+	sizeof(struct vmci_handle))
-+
-+struct vmci_handle_arr *vmci_handle_arr_create(u32 capacity, u32 max_capacity);
- void vmci_handle_arr_destroy(struct vmci_handle_arr *array);
--void vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
--				  struct vmci_handle handle);
-+int vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
-+				 struct vmci_handle handle);
- struct vmci_handle vmci_handle_arr_remove_entry(struct vmci_handle_arr *array,
- 						struct vmci_handle
- 						entry_handle);
- struct vmci_handle vmci_handle_arr_remove_tail(struct vmci_handle_arr *array);
- struct vmci_handle
--vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, size_t index);
-+vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, u32 index);
- bool vmci_handle_arr_has_entry(const struct vmci_handle_arr *array,
- 			       struct vmci_handle entry_handle);
- struct vmci_handle *vmci_handle_arr_get_handles(struct vmci_handle_arr *array);
- 
--static inline size_t vmci_handle_arr_get_size(
-+static inline u32 vmci_handle_arr_get_size(
- 	const struct vmci_handle_arr *array)
- {
- 	return array->size;
---- a/include/linux/vmw_vmci_defs.h
-+++ b/include/linux/vmw_vmci_defs.h
-@@ -68,9 +68,18 @@ enum {
- 
- /*
-  * A single VMCI device has an upper limit of 128MB on the amount of
-- * memory that can be used for queue pairs.
-+ * memory that can be used for queue pairs. Since each queue pair
-+ * consists of at least two pages, the memory limit also dictates the
-+ * number of queue pairs a guest can create.
-  */
- #define VMCI_MAX_GUEST_QP_MEMORY (128 * 1024 * 1024)
-+#define VMCI_MAX_GUEST_QP_COUNT  (VMCI_MAX_GUEST_QP_MEMORY / PAGE_SIZE / 2)
-+
-+/*
-+ * There can be at most PAGE_SIZE doorbells since there is one doorbell
-+ * per byte in the doorbell bitmap page.
+-/* Extend the file by 'blocks' blocks, return the number of extents added */
++/* Extend the file with new blocks totaling 'new_block_bytes',
++ * return the number of extents added
 + */
-+#define VMCI_MAX_GUEST_DOORBELL_COUNT PAGE_SIZE
+ static int udf_do_extend_file(struct inode *inode,
+ 			      struct extent_position *last_pos,
+ 			      struct kernel_long_ad *last_ext,
+-			      sector_t blocks)
++			      loff_t new_block_bytes)
+ {
+-	sector_t add;
++	uint32_t add;
+ 	int count = 0, fake = !(last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
+ 	struct super_block *sb = inode->i_sb;
+ 	struct kernel_lb_addr prealloc_loc = {};
+@@ -494,7 +496,7 @@ static int udf_do_extend_file(struct ino
  
- /*
-  * Queues with pre-mapped data pages must be small, so that we don't pin
+ 	/* The previous extent is fake and we should not extend by anything
+ 	 * - there's nothing to do... */
+-	if (!blocks && fake)
++	if (!new_block_bytes && fake)
+ 		return 0;
+ 
+ 	iinfo = UDF_I(inode);
+@@ -525,13 +527,12 @@ static int udf_do_extend_file(struct ino
+ 	/* Can we merge with the previous extent? */
+ 	if ((last_ext->extLength & UDF_EXTENT_FLAG_MASK) ==
+ 					EXT_NOT_RECORDED_NOT_ALLOCATED) {
+-		add = ((1 << 30) - sb->s_blocksize -
+-			(last_ext->extLength & UDF_EXTENT_LENGTH_MASK)) >>
+-			sb->s_blocksize_bits;
+-		if (add > blocks)
+-			add = blocks;
+-		blocks -= add;
+-		last_ext->extLength += add << sb->s_blocksize_bits;
++		add = (1 << 30) - sb->s_blocksize -
++			(last_ext->extLength & UDF_EXTENT_LENGTH_MASK);
++		if (add > new_block_bytes)
++			add = new_block_bytes;
++		new_block_bytes -= add;
++		last_ext->extLength += add;
+ 	}
+ 
+ 	if (fake) {
+@@ -552,28 +553,27 @@ static int udf_do_extend_file(struct ino
+ 	}
+ 
+ 	/* Managed to do everything necessary? */
+-	if (!blocks)
++	if (!new_block_bytes)
+ 		goto out;
+ 
+ 	/* All further extents will be NOT_RECORDED_NOT_ALLOCATED */
+ 	last_ext->extLocation.logicalBlockNum = 0;
+ 	last_ext->extLocation.partitionReferenceNum = 0;
+-	add = (1 << (30-sb->s_blocksize_bits)) - 1;
+-	last_ext->extLength = EXT_NOT_RECORDED_NOT_ALLOCATED |
+-				(add << sb->s_blocksize_bits);
++	add = (1 << 30) - sb->s_blocksize;
++	last_ext->extLength = EXT_NOT_RECORDED_NOT_ALLOCATED | add;
+ 
+ 	/* Create enough extents to cover the whole hole */
+-	while (blocks > add) {
+-		blocks -= add;
++	while (new_block_bytes > add) {
++		new_block_bytes -= add;
+ 		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
+ 				   last_ext->extLength, 1);
+ 		if (err)
+ 			return err;
+ 		count++;
+ 	}
+-	if (blocks) {
++	if (new_block_bytes) {
+ 		last_ext->extLength = EXT_NOT_RECORDED_NOT_ALLOCATED |
+-			(blocks << sb->s_blocksize_bits);
++			new_block_bytes;
+ 		err = udf_add_aext(inode, last_pos, &last_ext->extLocation,
+ 				   last_ext->extLength, 1);
+ 		if (err)
+@@ -604,6 +604,24 @@ out:
+ 	return count;
+ }
+ 
++/* Extend the final block of the file to final_block_len bytes */
++static void udf_do_extend_final_block(struct inode *inode,
++				      struct extent_position *last_pos,
++				      struct kernel_long_ad *last_ext,
++				      uint32_t final_block_len)
++{
++	struct super_block *sb = inode->i_sb;
++	uint32_t added_bytes;
++
++	added_bytes = final_block_len -
++		      (last_ext->extLength & (sb->s_blocksize - 1));
++	last_ext->extLength += added_bytes;
++	UDF_I(inode)->i_lenExtents += added_bytes;
++
++	udf_write_aext(inode, last_pos, &last_ext->extLocation,
++			last_ext->extLength, 1);
++}
++
+ static int udf_extend_file(struct inode *inode, loff_t newsize)
+ {
+ 
+@@ -613,10 +631,12 @@ static int udf_extend_file(struct inode
+ 	int8_t etype;
+ 	struct super_block *sb = inode->i_sb;
+ 	sector_t first_block = newsize >> sb->s_blocksize_bits, offset;
++	unsigned long partial_final_block;
+ 	int adsize;
+ 	struct udf_inode_info *iinfo = UDF_I(inode);
+ 	struct kernel_long_ad extent;
+-	int err;
++	int err = 0;
++	int within_final_block;
+ 
+ 	if (iinfo->i_alloc_type == ICBTAG_FLAG_AD_SHORT)
+ 		adsize = sizeof(struct short_ad);
+@@ -626,18 +646,8 @@ static int udf_extend_file(struct inode
+ 		BUG();
+ 
+ 	etype = inode_bmap(inode, first_block, &epos, &eloc, &elen, &offset);
++	within_final_block = (etype != -1);
+ 
+-	/* File has extent covering the new size (could happen when extending
+-	 * inside a block)? */
+-	if (etype != -1)
+-		return 0;
+-	if (newsize & (sb->s_blocksize - 1))
+-		offset++;
+-	/* Extended file just to the boundary of the last file block? */
+-	if (offset == 0)
+-		return 0;
+-
+-	/* Truncate is extending the file by 'offset' blocks */
+ 	if ((!epos.bh && epos.offset == udf_file_entry_alloc_offset(inode)) ||
+ 	    (epos.bh && epos.offset == sizeof(struct allocExtDesc))) {
+ 		/* File has no extents at all or has empty last
+@@ -651,7 +661,22 @@ static int udf_extend_file(struct inode
+ 				      &extent.extLength, 0);
+ 		extent.extLength |= etype << 30;
+ 	}
+-	err = udf_do_extend_file(inode, &epos, &extent, offset);
++
++	partial_final_block = newsize & (sb->s_blocksize - 1);
++
++	/* File has extent covering the new size (could happen when extending
++	 * inside a block)?
++	 */
++	if (within_final_block) {
++		/* Extending file within the last file block */
++		udf_do_extend_final_block(inode, &epos, &extent,
++					  partial_final_block);
++	} else {
++		loff_t add = ((loff_t)offset << sb->s_blocksize_bits) |
++			     partial_final_block;
++		err = udf_do_extend_file(inode, &epos, &extent, add);
++	}
++
+ 	if (err < 0)
+ 		goto out;
+ 	err = 0;
+@@ -756,6 +781,7 @@ static sector_t inode_getblk(struct inod
+ 	/* Are we beyond EOF? */
+ 	if (etype == -1) {
+ 		int ret;
++		loff_t hole_len;
+ 		isBeyondEOF = true;
+ 		if (count) {
+ 			if (c)
+@@ -771,7 +797,8 @@ static sector_t inode_getblk(struct inod
+ 			startnum = (offset > 0);
+ 		}
+ 		/* Create extents for the hole between EOF and offset */
+-		ret = udf_do_extend_file(inode, &prev_epos, laarr, offset);
++		hole_len = (loff_t)offset << inode->i_blkbits;
++		ret = udf_do_extend_file(inode, &prev_epos, laarr, hole_len);
+ 		if (ret < 0) {
+ 			brelse(prev_epos.bh);
+ 			brelse(cur_epos.bh);
 
 
