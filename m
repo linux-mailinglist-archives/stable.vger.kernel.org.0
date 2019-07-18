@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BED6C6FF
-	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:21:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F4BF6C774
+	for <lists+stable@lfdr.de>; Thu, 18 Jul 2019 05:25:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389221AbfGRDKC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jul 2019 23:10:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42950 "EHLO mail.kernel.org"
+        id S2390180AbfGRDGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jul 2019 23:06:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403858AbfGRDKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jul 2019 23:10:00 -0400
+        id S1727705AbfGRDGT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jul 2019 23:06:19 -0400
 Received: from localhost (115.42.148.210.bf.2iij.net [210.148.42.115])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2A0021848;
-        Thu, 18 Jul 2019 03:09:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE26121848;
+        Thu, 18 Jul 2019 03:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563419399;
-        bh=vVBwFys+pQvF81Fmd+x7nvaIoQiP/mFgUb5zvSYnOpQ=;
+        s=default; t=1563419178;
+        bh=id5xTGZWb3XlWrAhj085noDDY/dIansEgTy9xjKT/3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wopslfIYSBYhjRxplBQGZhjjbrC2cLAgKQfw592OW3sHThFT23RYAff7a6DLP+dz8
-         3nE9PAOeNLl8Sl7MksfuZSzEESTULM9W+vqOiK2CNoyc6xbwWwewQ/qzBV7qiom8D1
-         UpWk25a3ztfMhL6iZT3UeheO37P1/OL1eLL6wfMI=
+        b=NzEbCdLZYSo06r7zLSTZMHC1R1S3BO0b9Uty6Grfut6G7JZhMvd4spdvA5vQq7mRK
+         Bwv1P0ezvgu8Uyw/t+SUbmksSGI/WJZfzosWu1PNXaXN1sPQ6H+Kk+MYGCRMO0YPDt
+         2ifLirr0Zy7aPGJLj3GdqtpyG04KdfprkPIfvyrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 49/80] mwifiex: Dont abort on small, spec-compliant vendor IEs
-Date:   Thu, 18 Jul 2019 12:01:40 +0900
-Message-Id: <20190718030102.425807417@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 5.1 46/54] x86/irq: Seperate unused system vectors from spurious entry again
+Date:   Thu, 18 Jul 2019 12:01:41 +0900
+Message-Id: <20190718030056.742367806@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190718030058.615992480@linuxfoundation.org>
-References: <20190718030058.615992480@linuxfoundation.org>
+In-Reply-To: <20190718030053.287374640@linuxfoundation.org>
+References: <20190718030053.287374640@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,139 +45,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 63d7ef36103d26f20325a921ecc96a3288560146 upstream.
+commit f8a8fe61fec8006575699559ead88b0b833d5cad upstream.
 
-Per the 802.11 specification, vendor IEs are (at minimum) only required
-to contain an OUI. A type field is also included in ieee80211.h (struct
-ieee80211_vendor_ie) but doesn't appear in the specification. The
-remaining fields (subtype, version) are a convention used in WMM
-headers.
+Quite some time ago the interrupt entry stubs for unused vectors in the
+system vector range got removed and directly mapped to the spurious
+interrupt vector entry point.
 
-Thus, we should not reject vendor-specific IEs that have only the
-minimum length (3 bytes) -- we should skip over them (since we only want
-to match longer IEs, that match either WMM or WPA formats). We can
-reject elements that don't have the minimum-required 3 byte OUI.
+Sounds reasonable, but it's subtly broken. The spurious interrupt vector
+entry point pushes vector number 0xFF on the stack which makes the whole
+logic in __smp_spurious_interrupt() pointless.
 
-While we're at it, move the non-standard subtype and version fields into
-the WMM structs, to avoid this confusion in the future about generic
-"vendor header" attributes.
+As a consequence any spurious interrupt which comes from a vector != 0xFF
+is treated as a real spurious interrupt (vector 0xFF) and not
+acknowledged. That subsequently stalls all interrupt vectors of equal and
+lower priority, which brings the system to a grinding halt.
 
-Fixes: 685c9b7750bf ("mwifiex: Abort at too short BSS descriptor element")
-Cc: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+This can happen because even on 64-bit the system vector space is not
+guaranteed to be fully populated. A full compile time handling of the
+unused vectors is not possible because quite some of them are conditonally
+populated at runtime.
+
+Bring the entry stubs back, which wastes 160 bytes if all stubs are unused,
+but gains the proper handling back. There is no point to selectively spare
+some of the stubs which are known at compile time as the required code in
+the IDT management would be way larger and convoluted.
+
+Do not route the spurious entries through common_interrupt and do_IRQ() as
+the original code did. Route it to smp_spurious_interrupt() which evaluates
+the vector number and acts accordingly now that the real vector numbers are
+handed in.
+
+Fixup the pr_warn so the actual spurious vector (0xff) is clearly
+distiguished from the other vectors and also note for the vectored case
+whether it was pending in the ISR or not.
+
+ "Spurious APIC interrupt (vector 0xFF) on CPU#0, should never happen."
+ "Spurious interrupt vector 0xed on CPU#1. Acked."
+ "Spurious interrupt vector 0xee on CPU#1. Not pending!."
+
+Fixes: 2414e021ac8d ("x86: Avoid building unused IRQ entry stubs")
+Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
+Cc: Jan Beulich <jbeulich@suse.com>
+Link: https://lkml.kernel.org/r/20190628111440.550568228@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/marvell/mwifiex/fw.h        |   12 +++++++++---
- drivers/net/wireless/marvell/mwifiex/scan.c      |   18 +++++++++++-------
- drivers/net/wireless/marvell/mwifiex/sta_ioctl.c |    4 ++--
- drivers/net/wireless/marvell/mwifiex/wmm.c       |    2 +-
- 4 files changed, 23 insertions(+), 13 deletions(-)
+ arch/x86/entry/entry_32.S     |   24 ++++++++++++++++++++++++
+ arch/x86/entry/entry_64.S     |   30 ++++++++++++++++++++++++++----
+ arch/x86/include/asm/hw_irq.h |    2 ++
+ arch/x86/kernel/apic/apic.c   |   33 ++++++++++++++++++++++-----------
+ arch/x86/kernel/idt.c         |    3 ++-
+ 5 files changed, 76 insertions(+), 16 deletions(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/fw.h
-+++ b/drivers/net/wireless/marvell/mwifiex/fw.h
-@@ -1744,9 +1744,10 @@ struct mwifiex_ie_types_wmm_queue_status
- struct ieee_types_vendor_header {
- 	u8 element_id;
- 	u8 len;
--	u8 oui[4];	/* 0~2: oui, 3: oui_type */
--	u8 oui_subtype;
--	u8 version;
-+	struct {
-+		u8 oui[3];
-+		u8 oui_type;
-+	} __packed oui;
- } __packed;
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -1105,6 +1105,30 @@ ENTRY(irq_entries_start)
+     .endr
+ END(irq_entries_start)
  
- struct ieee_types_wmm_parameter {
-@@ -1760,6 +1761,9 @@ struct ieee_types_wmm_parameter {
- 	 *   Version     [1]
- 	 */
- 	struct ieee_types_vendor_header vend_hdr;
-+	u8 oui_subtype;
-+	u8 version;
++#ifdef CONFIG_X86_LOCAL_APIC
++	.align 8
++ENTRY(spurious_entries_start)
++    vector=FIRST_SYSTEM_VECTOR
++    .rept (NR_VECTORS - FIRST_SYSTEM_VECTOR)
++	pushl	$(~vector+0x80)			/* Note: always in signed byte range */
++    vector=vector+1
++	jmp	common_spurious
++	.align	8
++    .endr
++END(spurious_entries_start)
 +
- 	u8 qos_info_bitmap;
- 	u8 reserved;
- 	struct ieee_types_wmm_ac_parameters ac_params[IEEE80211_NUM_ACS];
-@@ -1777,6 +1781,8 @@ struct ieee_types_wmm_info {
- 	 *   Version     [1]
++common_spurious:
++	ASM_CLAC
++	addl	$-0x80, (%esp)			/* Adjust vector into the [-256, -1] range */
++	SAVE_ALL switch_stacks=1
++	ENCODE_FRAME_POINTER
++	TRACE_IRQS_OFF
++	movl	%esp, %eax
++	call	smp_spurious_interrupt
++	jmp	ret_from_intr
++ENDPROC(common_interrupt)
++#endif
++
+ /*
+  * the CPU automatically disables interrupts when executing an IRQ vector,
+  * so IRQ-flags tracing has to follow that:
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -377,6 +377,18 @@ ENTRY(irq_entries_start)
+     .endr
+ END(irq_entries_start)
+ 
++	.align 8
++ENTRY(spurious_entries_start)
++    vector=FIRST_SYSTEM_VECTOR
++    .rept (NR_VECTORS - FIRST_SYSTEM_VECTOR)
++	UNWIND_HINT_IRET_REGS
++	pushq	$(~vector+0x80)			/* Note: always in signed byte range */
++	jmp	common_spurious
++	.align	8
++	vector=vector+1
++    .endr
++END(spurious_entries_start)
++
+ .macro DEBUG_ENTRY_ASSERT_IRQS_OFF
+ #ifdef CONFIG_DEBUG_ENTRY
+ 	pushq %rax
+@@ -573,10 +585,20 @@ _ASM_NOKPROBE(interrupt_entry)
+ 
+ /* Interrupt entry/exit. */
+ 
+-	/*
+-	 * The interrupt stubs push (~vector+0x80) onto the stack and
+-	 * then jump to common_interrupt.
+-	 */
++/*
++ * The interrupt stubs push (~vector+0x80) onto the stack and
++ * then jump to common_spurious/interrupt.
++ */
++common_spurious:
++	addq	$-0x80, (%rsp)			/* Adjust vector to [-256, -1] range */
++	call	interrupt_entry
++	UNWIND_HINT_REGS indirect=1
++	call	smp_spurious_interrupt		/* rdi points to pt_regs */
++	jmp	ret_from_intr
++END(common_spurious)
++_ASM_NOKPROBE(common_spurious)
++
++/* common_interrupt is a hotpath. Align it */
+ 	.p2align CONFIG_X86_L1_CACHE_SHIFT
+ common_interrupt:
+ 	addq	$-0x80, (%rsp)			/* Adjust vector to [-256, -1] range */
+--- a/arch/x86/include/asm/hw_irq.h
++++ b/arch/x86/include/asm/hw_irq.h
+@@ -150,6 +150,8 @@ extern char irq_entries_start[];
+ #define trace_irq_entries_start irq_entries_start
+ #endif
+ 
++extern char spurious_entries_start[];
++
+ #define VECTOR_UNUSED		NULL
+ #define VECTOR_SHUTDOWN		((void *)~0UL)
+ #define VECTOR_RETRIGGERED	((void *)~1UL)
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -2035,21 +2035,32 @@ __visible void __irq_entry smp_spurious_
+ 	entering_irq();
+ 	trace_spurious_apic_entry(vector);
+ 
++	inc_irq_stat(irq_spurious_count);
++
++	/*
++	 * If this is a spurious interrupt then do not acknowledge
++	 */
++	if (vector == SPURIOUS_APIC_VECTOR) {
++		/* See SDM vol 3 */
++		pr_info("Spurious APIC interrupt (vector 0xFF) on CPU#%d, should never happen.\n",
++			smp_processor_id());
++		goto out;
++	}
++
+ 	/*
+-	 * Check if this really is a spurious interrupt and ACK it
+-	 * if it is a vectored one.  Just in case...
+-	 * Spurious interrupts should not be ACKed.
++	 * If it is a vectored one, verify it's set in the ISR. If set,
++	 * acknowledge it.
  	 */
- 	struct ieee_types_vendor_header vend_hdr;
-+	u8 oui_subtype;
-+	u8 version;
- 
- 	u8 qos_info_bitmap;
- } __packed;
---- a/drivers/net/wireless/marvell/mwifiex/scan.c
-+++ b/drivers/net/wireless/marvell/mwifiex/scan.c
-@@ -1357,21 +1357,25 @@ int mwifiex_update_bss_desc_with_ie(stru
- 			break;
- 
- 		case WLAN_EID_VENDOR_SPECIFIC:
--			if (element_len + 2 < sizeof(vendor_ie->vend_hdr))
--				return -EINVAL;
+ 	v = apic_read(APIC_ISR + ((vector & ~0x1f) >> 1));
+-	if (v & (1 << (vector & 0x1f)))
++	if (v & (1 << (vector & 0x1f))) {
++		pr_info("Spurious interrupt (vector 0x%02x) on CPU#%d. Acked\n",
++			vector, smp_processor_id());
+ 		ack_APIC_irq();
 -
- 			vendor_ie = (struct ieee_types_vendor_specific *)
- 					current_ptr;
- 
--			if (!memcmp
--			    (vendor_ie->vend_hdr.oui, wpa_oui,
--			     sizeof(wpa_oui))) {
-+			/* 802.11 requires at least 3-byte OUI. */
-+			if (element_len < sizeof(vendor_ie->vend_hdr.oui.oui))
-+				return -EINVAL;
-+
-+			/* Not long enough for a match? Skip it. */
-+			if (element_len < sizeof(wpa_oui))
-+				break;
-+
-+			if (!memcmp(&vendor_ie->vend_hdr.oui, wpa_oui,
-+				    sizeof(wpa_oui))) {
- 				bss_entry->bcn_wpa_ie =
- 					(struct ieee_types_vendor_specific *)
- 					current_ptr;
- 				bss_entry->wpa_offset = (u16)
- 					(current_ptr - bss_entry->beacon_buf);
--			} else if (!memcmp(vendor_ie->vend_hdr.oui, wmm_oui,
-+			} else if (!memcmp(&vendor_ie->vend_hdr.oui, wmm_oui,
- 				    sizeof(wmm_oui))) {
- 				if (total_ie_len ==
- 				    sizeof(struct ieee_types_wmm_parameter) ||
---- a/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sta_ioctl.c
-@@ -1388,7 +1388,7 @@ mwifiex_set_gen_ie_helper(struct mwifiex
- 			/* Test to see if it is a WPA IE, if not, then
- 			 * it is a gen IE
- 			 */
--			if (!memcmp(pvendor_ie->oui, wpa_oui,
-+			if (!memcmp(&pvendor_ie->oui, wpa_oui,
- 				    sizeof(wpa_oui))) {
- 				/* IE is a WPA/WPA2 IE so call set_wpa function
- 				 */
-@@ -1398,7 +1398,7 @@ mwifiex_set_gen_ie_helper(struct mwifiex
- 				goto next_ie;
- 			}
- 
--			if (!memcmp(pvendor_ie->oui, wps_oui,
-+			if (!memcmp(&pvendor_ie->oui, wps_oui,
- 				    sizeof(wps_oui))) {
- 				/* Test to see if it is a WPS IE,
- 				 * if so, enable wps session flag
---- a/drivers/net/wireless/marvell/mwifiex/wmm.c
-+++ b/drivers/net/wireless/marvell/mwifiex/wmm.c
-@@ -240,7 +240,7 @@ mwifiex_wmm_setup_queue_priorities(struc
- 	mwifiex_dbg(priv->adapter, INFO,
- 		    "info: WMM Parameter IE: version=%d,\t"
- 		    "qos_info Parameter Set Count=%d, Reserved=%#x\n",
--		    wmm_ie->vend_hdr.version, wmm_ie->qos_info_bitmap &
-+		    wmm_ie->version, wmm_ie->qos_info_bitmap &
- 		    IEEE80211_WMM_IE_AP_QOSINFO_PARAM_SET_CNT_MASK,
- 		    wmm_ie->reserved);
- 
+-	inc_irq_stat(irq_spurious_count);
+-
+-	/* see sw-dev-man vol 3, chapter 7.4.13.5 */
+-	pr_info("spurious APIC interrupt through vector %02x on CPU#%d, "
+-		"should never happen.\n", vector, smp_processor_id());
+-
++	} else {
++		pr_info("Spurious interrupt (vector 0x%02x) on CPU#%d. Not pending!\n",
++			vector, smp_processor_id());
++	}
++out:
+ 	trace_spurious_apic_exit(vector);
+ 	exiting_irq();
+ }
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -321,7 +321,8 @@ void __init idt_setup_apic_and_irq_gates
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	for_each_clear_bit_from(i, system_vectors, NR_VECTORS) {
+ 		set_bit(i, system_vectors);
+-		set_intr_gate(i, spurious_interrupt);
++		entry = spurious_entries_start + 8 * (i - FIRST_SYSTEM_VECTOR);
++		set_intr_gate(i, entry);
+ 	}
+ #endif
+ }
 
 
