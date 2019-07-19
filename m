@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C817E6DA3B
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:00:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AA226DA3E
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:00:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729030AbfGSEA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:00:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60278 "EHLO mail.kernel.org"
+        id S1729084AbfGSEAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:00:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728181AbfGSEAZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:00:25 -0400
+        id S1729079AbfGSEAd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:00:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CEE821882;
-        Fri, 19 Jul 2019 04:00:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD6C721852;
+        Fri, 19 Jul 2019 04:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508824;
-        bh=i8vDtX8H1jNWjo3F8vyc4Zbjb3Va1+eIlNAOC/ICPNc=;
+        s=default; t=1563508832;
+        bh=tZ8sBwu7/Pn4WLf4hymHgONnvNj/gFVPXWjKYdjIz4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LbbLBtzomR3VvBGY51DUcb1Oc7Pqa5GE2jrNgPhce/eodPR/4PnhXfrYiJYG42BKa
-         RlDTfyYEP0EKCdU761cTfW9M18e+YST3m6h4YFkcN7GLr2lsDRvLTbWg/tVnsNzw3h
-         J6CUsAp4UqfmaIxFD+P0d4J9XBb28zl+aUENBD/o=
+        b=jckTg3MmKiARJvvKkfXmy11IWuQNcKM4CKhAabGfm4e+v7WInOAx2UEx43w70OX4C
+         JyYAZ8wQfVloonNZzRj/UGZVaMM87L3ho0gJJ1VqMphHuNH2twizzy5t6xfiltq5qs
+         YijX52g6BYiXcf8TkMc+TCPtEklDffQbZld2I+R4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 110/171] serial: sh-sci: Fix TX DMA buffer flushing and workqueue races
-Date:   Thu, 18 Jul 2019 23:55:41 -0400
-Message-Id: <20190719035643.14300-110-sashal@kernel.org>
+Cc:     James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 114/171] arm64: assembler: Switch ESB-instruction with a vanilla nop if !ARM64_HAS_RAS
+Date:   Thu, 18 Jul 2019 23:55:45 -0400
+Message-Id: <20190719035643.14300-114-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -45,114 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit 8493eab02608b0e82f67b892aa72882e510c31d0 ]
+[ Upstream commit 2b68a2a963a157f024c67c0697b16f5f792c8a35 ]
 
-When uart_flush_buffer() is called, the .flush_buffer() callback zeroes
-the tx_dma_len field.  This may race with the work queue function
-handling transmit DMA requests:
+The ESB-instruction is a nop on CPUs that don't implement the RAS
+extensions. This lets us use it in places like the vectors without
+having to use alternatives.
 
-  1. If the buffer is flushed before the first DMA API call,
-     dmaengine_prep_slave_single() may be called with a zero length,
-     causing the DMA request to never complete, leading to messages
-     like:
+If someone disables CONFIG_ARM64_RAS_EXTN, this instruction still has
+its RAS extensions behaviour, but we no longer read DISR_EL1 as this
+register does depend on alternatives.
 
-        rcar-dmac e7300000.dma-controller: Channel Address Error happen
+This could go wrong if we want to synchronize an SError from a KVM
+guest. On a CPU that has the RAS extensions, but the KConfig option
+was disabled, we consume the pending SError with no chance of ever
+reading it.
 
-     and, with debug enabled:
+Hide the ESB-instruction behind the CONFIG_ARM64_RAS_EXTN option,
+outputting a regular nop if the feature has been disabled.
 
-	sh-sci e6e88000.serial: sci_dma_tx_work_fn: ffff800639b55000: 0...0, cookie 126
-
-     and DMA timeouts.
-
-  2. If the buffer is flushed after the first DMA API call, but before
-     the second, dma_sync_single_for_device() may be called with a zero
-     length, causing the transmit data not to be flushed to RAM, and
-     leading to stale data being output.
-
-Fix this by:
-  1. Letting sci_dma_tx_work_fn() return immediately if the transmit
-     buffer is empty,
-  2. Extending the critical section to cover all DMA preparational work,
-     so tx_dma_len stays consistent for all of it,
-  3. Using local copies of circ_buf.head and circ_buf.tail, to make sure
-     they match the actual operation above.
-
-Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Suggested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Link: https://lore.kernel.org/r/20190624123540.20629-2-geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Julien Thierry <julien.thierry@arm.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sh-sci.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ arch/arm64/include/asm/assembler.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index 1d25c4e2d0d2..d18c680aa64b 100644
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -1398,6 +1398,7 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
- 	struct circ_buf *xmit = &port->state->xmit;
- 	unsigned long flags;
- 	dma_addr_t buf;
-+	int head, tail;
+diff --git a/arch/arm64/include/asm/assembler.h b/arch/arm64/include/asm/assembler.h
+index 570d195a184d..e3a15c751b13 100644
+--- a/arch/arm64/include/asm/assembler.h
++++ b/arch/arm64/include/asm/assembler.h
+@@ -96,7 +96,11 @@
+  * RAS Error Synchronization barrier
+  */
+ 	.macro  esb
++#ifdef CONFIG_ARM64_RAS_EXTN
+ 	hint    #16
++#else
++	nop
++#endif
+ 	.endm
  
- 	/*
- 	 * DMA is idle now.
-@@ -1407,16 +1408,23 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
- 	 * consistent xmit buffer state.
- 	 */
- 	spin_lock_irq(&port->lock);
--	buf = s->tx_dma_addr + (xmit->tail & (UART_XMIT_SIZE - 1));
-+	head = xmit->head;
-+	tail = xmit->tail;
-+	buf = s->tx_dma_addr + (tail & (UART_XMIT_SIZE - 1));
- 	s->tx_dma_len = min_t(unsigned int,
--		CIRC_CNT(xmit->head, xmit->tail, UART_XMIT_SIZE),
--		CIRC_CNT_TO_END(xmit->head, xmit->tail, UART_XMIT_SIZE));
--	spin_unlock_irq(&port->lock);
-+		CIRC_CNT(head, tail, UART_XMIT_SIZE),
-+		CIRC_CNT_TO_END(head, tail, UART_XMIT_SIZE));
-+	if (!s->tx_dma_len) {
-+		/* Transmit buffer has been flushed */
-+		spin_unlock_irq(&port->lock);
-+		return;
-+	}
- 
- 	desc = dmaengine_prep_slave_single(chan, buf, s->tx_dma_len,
- 					   DMA_MEM_TO_DEV,
- 					   DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
- 	if (!desc) {
-+		spin_unlock_irq(&port->lock);
- 		dev_warn(port->dev, "Failed preparing Tx DMA descriptor\n");
- 		goto switch_to_pio;
- 	}
-@@ -1424,18 +1432,18 @@ static void sci_dma_tx_work_fn(struct work_struct *work)
- 	dma_sync_single_for_device(chan->device->dev, buf, s->tx_dma_len,
- 				   DMA_TO_DEVICE);
- 
--	spin_lock_irq(&port->lock);
- 	desc->callback = sci_dma_tx_complete;
- 	desc->callback_param = s;
--	spin_unlock_irq(&port->lock);
- 	s->cookie_tx = dmaengine_submit(desc);
- 	if (dma_submit_error(s->cookie_tx)) {
-+		spin_unlock_irq(&port->lock);
- 		dev_warn(port->dev, "Failed submitting Tx DMA descriptor\n");
- 		goto switch_to_pio;
- 	}
- 
-+	spin_unlock_irq(&port->lock);
- 	dev_dbg(port->dev, "%s: %p: %d...%d, cookie %d\n",
--		__func__, xmit->buf, xmit->tail, xmit->head, s->cookie_tx);
-+		__func__, xmit->buf, tail, head, s->cookie_tx);
- 
- 	dma_async_issue_pending(chan);
- 	return;
+ /*
 -- 
 2.20.1
 
