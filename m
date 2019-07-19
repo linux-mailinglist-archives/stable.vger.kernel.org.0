@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 695A76DEFC
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AAA46DF12
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730581AbfGSEDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:03:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35712 "EHLO mail.kernel.org"
+        id S1731328AbfGSEcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:32:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730558AbfGSEDi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:03:38 -0400
+        id S1729315AbfGSEDj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:03:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4021D218BC;
-        Fri, 19 Jul 2019 04:03:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D68C218A6;
+        Fri, 19 Jul 2019 04:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509017;
-        bh=7OBpNW6fw6h4L5GKaYIP4jZJ0LWGJFEfN2seOjgzGSQ=;
+        s=default; t=1563509019;
+        bh=D9BmbBuuM+wIhLMScxfAIfeSr7v6szNVEbHQRxIphdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6QkSgIv/6Mm+9ckalQ6eWkgFEdnffkNcSPPnW98bShLIHfCQN8v4087fTSFzMAYf
-         nkQXPnKtJ0G3wqJP0cVgGP9EGzp/3mO7qVh4HlSwMK2boq3cczvKM2POkPuZ/tBhrk
-         BTiJUpLnQpmYatWqfy9hB22j1dUg5dHzXz0aqwQQ=
+        b=wLMOQQa5LHfWGUWfWXuR64PfiDwhN1KX0A3X4j47w2H/Hw6KR7pKUf7gXhhyXpOJk
+         4fUW12ysHi+qHLSasz6waly2Ca8B6YHDWUfOVlt63Syjz3irPXTm9V8pEmWlaXAhpW
+         Lbh3zOBhAs0n6JFggAbp/byBtzMvmLqC31UA3IH4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
+Cc:     Jyri Sarha <jsarha@ti.com>, Andrzej Hajda <a.hajda@samsung.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.1 024/141] drm/bridge: tc358767: read display_props in get_modes()
-Date:   Fri, 19 Jul 2019 00:00:49 -0400
-Message-Id: <20190719040246.15945-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 025/141] drm/bridge: sii902x: pixel clock unit is 10kHz instead of 1kHz
+Date:   Fri, 19 Jul 2019 00:00:50 -0400
+Message-Id: <20190719040246.15945-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -44,44 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+From: Jyri Sarha <jsarha@ti.com>
 
-[ Upstream commit 3231573065ad4f4ecc5c9147b24f29f846dc0c2f ]
+[ Upstream commit 8dbfc5b65023b67397aca28e8adb25c819f6398c ]
 
-We need to know the link bandwidth to filter out modes we cannot
-support, so we need to have read the display props before doing the
-filtering.
+The pixel clock unit in the first two registers (0x00 and 0x01) of
+sii9022 is 10kHz, not 1kHz as in struct drm_display_mode. Division by
+10 fixes the issue.
 
-To ensure we have up to date display props, call tc_get_display_props()
-in the beginning of tc_connector_get_modes().
-
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Jyri Sarha <jsarha@ti.com>
 Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190528082747.3631-22-tomi.valkeinen@ti.com
+Link: https://patchwork.freedesktop.org/patch/msgid/1a2a8eae0b9d6333e7a5841026bf7fd65c9ccd09.1558964241.git.jsarha@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/tc358767.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/bridge/sii902x.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/tc358767.c b/drivers/gpu/drm/bridge/tc358767.c
-index 888980d4bc74..7e1ff2723636 100644
---- a/drivers/gpu/drm/bridge/tc358767.c
-+++ b/drivers/gpu/drm/bridge/tc358767.c
-@@ -1150,6 +1150,13 @@ static int tc_connector_get_modes(struct drm_connector *connector)
- 	struct tc_data *tc = connector_to_tc(connector);
- 	struct edid *edid;
- 	unsigned int count;
-+	int ret;
-+
-+	ret = tc_get_display_props(tc);
-+	if (ret < 0) {
-+		dev_err(tc->dev, "failed to read display props: %d\n", ret);
-+		return 0;
-+	}
+diff --git a/drivers/gpu/drm/bridge/sii902x.c b/drivers/gpu/drm/bridge/sii902x.c
+index 08e12fef1349..5f40e38d1407 100644
+--- a/drivers/gpu/drm/bridge/sii902x.c
++++ b/drivers/gpu/drm/bridge/sii902x.c
+@@ -239,10 +239,11 @@ static void sii902x_bridge_mode_set(struct drm_bridge *bridge,
+ 	struct regmap *regmap = sii902x->regmap;
+ 	u8 buf[HDMI_INFOFRAME_SIZE(AVI)];
+ 	struct hdmi_avi_infoframe frame;
++	u16 pixel_clock_10kHz = adj->clock / 10;
+ 	int ret;
  
- 	if (tc->panel && tc->panel->funcs && tc->panel->funcs->get_modes) {
- 		count = tc->panel->funcs->get_modes(tc->panel);
+-	buf[0] = adj->clock;
+-	buf[1] = adj->clock >> 8;
++	buf[0] = pixel_clock_10kHz & 0xff;
++	buf[1] = pixel_clock_10kHz >> 8;
+ 	buf[2] = adj->vrefresh;
+ 	buf[3] = 0x00;
+ 	buf[4] = adj->hdisplay;
 -- 
 2.20.1
 
