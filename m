@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 825296DE04
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:26:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E4A76DDF9
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388730AbfGSEZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:25:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43070 "EHLO mail.kernel.org"
+        id S1733255AbfGSEIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:08:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733187AbfGSEIn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:08:43 -0400
+        id S1731912AbfGSEIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:08:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96CB0218D3;
-        Fri, 19 Jul 2019 04:08:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6463218BB;
+        Fri, 19 Jul 2019 04:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509322;
-        bh=O8HT2pH6vGBnCh/MlCqiRitWwv2BB4ay0LN4OVrinHI=;
+        s=default; t=1563509330;
+        bh=GCknv2iR1X3DAJdVXiOIgIt2QQqLeu1ocCWVTs0WptI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sle1jGmUUlahYR73depQC0snFCNJW9MKS5XbdFrThR3zca6VwS0+eK0IICoZGvD8V
-         ekG/arUM8bVbGLZIXbTsXku2C2kUYhMWQLkkD6h/rwk82UMpcdT4t1uhzWZhZZP3fr
-         LrUucup3y+gUnLYugzeXCDbGIdNgEmZcTW4QguiM=
+        b=rk0Bdamqhh9kOkxY0ujwG9C4PkweiNnSersDdrLpRh1OjYIu40xXQMBnIrJN9tcia
+         hCwUzpaHepyWJXqLIbuuQ7R4pDO+FPsFNwRm06u9iSpn5ubU69BIsFWgRXA/Sa6ZNP
+         L1eCXk5k+SSec33WLk7R51A1lQzGojrsWujQ/is0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Serge Semin <fancer.lancer@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 034/101] tty: serial_core: Set port active bit in uart_port_activate
-Date:   Fri, 19 Jul 2019 00:06:25 -0400
-Message-Id: <20190719040732.17285-34-sashal@kernel.org>
+Cc:     Raul E Rangel <rrangel@chromium.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 037/101] mmc: sdhci: sdhci-pci-o2micro: Check if controller supports 8-bit width
+Date:   Fri, 19 Jul 2019 00:06:28 -0400
+Message-Id: <20190719040732.17285-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -43,71 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <fancer.lancer@gmail.com>
+From: Raul E Rangel <rrangel@chromium.org>
 
-[ Upstream commit 13b18d35909707571af9539f7731389fbf0feb31 ]
+[ Upstream commit de23f0b757766d9fae59df97da6e8bdc5b231351 ]
 
-A bug was introduced by commit b3b576461864 ("tty: serial_core: convert
-uart_open to use tty_port_open"). It caused a constant warning printed
-into the system log regarding the tty and port counter mismatch:
+The O2 controller supports 8-bit EMMC access.
 
-[   21.644197] ttyS ttySx: tty_port_close_start: tty->count = 1 port count = 2
+JESD84-B51 section A.6.3.a defines the bus testing procedure that
+`mmc_select_bus_width()` implements. This is used to determine the actual
+bus width of the eMMC.
 
-in case if session hangup was detected so the warning is printed starting
-from the second open-close iteration.
-
-Particularly the problem was discovered in situation when there is a
-serial tty device without hardware back-end being setup. It is considered
-by the tty-serial subsystems as a hardware problem with session hang up.
-In this case uart_startup() will return a positive value with TTY_IO_ERROR
-flag set in corresponding tty_struct instance. The same value will get
-passed to be returned from the activate() callback and then being returned
-from tty_port_open(). But since in this case tty_port_block_til_ready()
-isn't called the TTY_PORT_ACTIVE flag isn't set (while the method had been
-called before tty_port_open conversion was introduced and the rest of the
-subsystem code expected the bit being set in this case), which prevents the
-uart_hangup() method to perform any cleanups including the tty port
-counter setting to zero. So the next attempt to open/close the tty device
-will discover the counters mismatch.
-
-In order to fix the problem we need to manually set the TTY_PORT_ACTIVE
-flag in case if uart_startup() returned a positive value. In this case
-the hang up procedure will perform a full set of cleanup actions including
-the port ref-counter resetting.
-
-Fixes: b3b576461864 "tty: serial_core: convert uart_open to use tty_port_open"
-Signed-off-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial_core.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-pci-o2micro.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
-index 8dbeb14a1e3a..fe9261ffe3db 100644
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -1738,6 +1738,7 @@ static int uart_port_activate(struct tty_port *port, struct tty_struct *tty)
+diff --git a/drivers/mmc/host/sdhci-pci-o2micro.c b/drivers/mmc/host/sdhci-pci-o2micro.c
+index fa8d9da2ab7f..e248d7945c06 100644
+--- a/drivers/mmc/host/sdhci-pci-o2micro.c
++++ b/drivers/mmc/host/sdhci-pci-o2micro.c
+@@ -290,11 +290,21 @@ int sdhci_pci_o2_probe_slot(struct sdhci_pci_slot *slot)
  {
- 	struct uart_state *state = container_of(port, struct uart_state, port);
- 	struct uart_port *uport;
-+	int ret;
+ 	struct sdhci_pci_chip *chip;
+ 	struct sdhci_host *host;
+-	u32 reg;
++	u32 reg, caps;
+ 	int ret;
  
- 	uport = uart_port_check(state);
- 	if (!uport || uport->flags & UPF_DEAD)
-@@ -1748,7 +1749,11 @@ static int uart_port_activate(struct tty_port *port, struct tty_struct *tty)
- 	/*
- 	 * Start up the serial port.
- 	 */
--	return uart_startup(tty, state, 0);
-+	ret = uart_startup(tty, state, 0);
-+	if (ret > 0)
-+		tty_port_set_active(port, 1);
+ 	chip = slot->chip;
+ 	host = slot->host;
 +
-+	return ret;
- }
- 
- static const char *uart_type(struct uart_port *port)
++	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
++
++	/*
++	 * mmc_select_bus_width() will test the bus to determine the actual bus
++	 * width.
++	 */
++	if (caps & SDHCI_CAN_DO_8BIT)
++		host->mmc->caps |= MMC_CAP_8_BIT_DATA;
++
+ 	switch (chip->pdev->device) {
+ 	case PCI_DEVICE_ID_O2_SDS0:
+ 	case PCI_DEVICE_ID_O2_SEABIRD0:
 -- 
 2.20.1
 
