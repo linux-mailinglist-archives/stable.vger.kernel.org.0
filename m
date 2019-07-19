@@ -2,55 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 340626DB9A
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:10:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 203CD6DB9F
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:10:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732419AbfGSEKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:10:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44820 "EHLO mail.kernel.org"
+        id S1732976AbfGSEKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:10:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731546AbfGSEKJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:10:09 -0400
+        id S1732873AbfGSEKN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:10:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3BD7218FC;
-        Fri, 19 Jul 2019 04:10:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6388218D9;
+        Fri, 19 Jul 2019 04:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509408;
-        bh=uGoQiG/mJkaOvh55gbvtuV4pv/7oBnZU9VHpmmBJNm0=;
+        s=default; t=1563509412;
+        bh=hGT5ETy6JjufeX+h9IS2Iw44MzxB1G3ehcDYTnOZLU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqMwNA3oDzaWCiaHZR1mbZrQ6UlSE2c5BwM1OQx3Kj5J0bb+NgXc76J14C4ivBpOP
-         54cwZKLOzF8OFcI/obw8aSCcKoajDp8oxvlhTMr8L0XmEcpf1Nk7/nlKuBJxtL5qEz
-         R/sN0g9rg3sC1oTRvJPHJLgn/KHyH9zTpNwFVtIY=
+        b=XttOWmk80x7Pis5Ii6x3aw0KaHJPfdqrY9DBfjD8B43WPtvrQkDP+ZsG8M3B/U6p1
+         q8RIt8rcxYrtiLE5rXszX8X/ELgdPctA+m2YOOU9K9YzkQdL/Alle6yC3kggp9+oeP
+         poNRuZai4ORN0iFTCLEWxUrgxKdA6ebzN6ch4OkU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leo Yan <leo.yan@linaro.org>, Jiri Olsa <jolsa@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Changbin Du <changbin.du@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Song Liu <songliubraving@fb.com>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 075/101] perf annotate: Fix dereferencing freed memory found by the smatch tool
-Date:   Fri, 19 Jul 2019 00:07:06 -0400
-Message-Id: <20190719040732.17285-75-sashal@kernel.org>
+Cc:     Konstantin Taranov <konstantin.taranov@inf.ethz.ch>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 077/101] RDMA/rxe: Fill in wc byte_len with IB_WC_RECV_RDMA_WITH_IMM
+Date:   Fri, 19 Jul 2019 00:07:08 -0400
+Message-Id: <20190719040732.17285-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -63,102 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Konstantin Taranov <konstantin.taranov@inf.ethz.ch>
 
-[ Upstream commit 600c787dbf6521d8d07ee717ab7606d5070103ea ]
+[ Upstream commit bdce1290493caa3f8119f24b5dacc3fb7ca27389 ]
 
-Based on the following report from Smatch, fix the potential
-dereferencing freed memory check.
+Calculate the correct byte_len on the receiving side when a work
+completion is generated with IB_WC_RECV_RDMA_WITH_IMM opcode.
 
-  tools/perf/util/annotate.c:1125
-  disasm_line__parse() error: dereferencing freed memory 'namep'
+According to the IBA byte_len must indicate the number of written bytes,
+whereas it was always equal to zero for the IB_WC_RECV_RDMA_WITH_IMM
+opcode, even though data was transferred.
 
-  tools/perf/util/annotate.c
-  1100 static int disasm_line__parse(char *line, const char **namep, char **rawp)
-  1101 {
-  1102         char tmp, *name = ltrim(line);
-
-  [...]
-
-  1114         *namep = strdup(name);
-  1115
-  1116         if (*namep == NULL)
-  1117                 goto out_free_name;
-
-  [...]
-
-  1124 out_free_name:
-  1125         free((void *)namep);
-                            ^^^^^
-  1126         *namep = NULL;
-               ^^^^^^
-  1127         return -1;
-  1128 }
-
-If strdup() fails to allocate memory space for *namep, we don't need to
-free memory with pointer 'namep', which is resident in data structure
-disasm_line::ins::name; and *namep is NULL pointer for this failure, so
-it's pointless to assign NULL to *namep again.
-
-Committer note:
-
-Freeing namep, which is the address of the first entry of the 'struct
-ins' that is the first member of struct disasm_line would in fact free
-that disasm_line instance, if it was allocated via malloc/calloc, which,
-later, would a dereference of freed memory.
-
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Alexios Zavras <alexios.zavras@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Changbin Du <changbin.du@intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lkml.kernel.org/r/20190702103420.27540-5-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Signed-off-by: Konstantin Taranov <konstantin.taranov@inf.ethz.ch>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/annotate.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_resp.c  | 5 ++++-
+ drivers/infiniband/sw/rxe/rxe_verbs.h | 1 +
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index dfee110b3a58..63e2b4efe817 100644
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -1080,16 +1080,14 @@ static int disasm_line__parse(char *line, const char **namep, char **rawp)
- 	*namep = strdup(name);
+diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
+index 4111b798fd3c..681d8e0913d0 100644
+--- a/drivers/infiniband/sw/rxe/rxe_resp.c
++++ b/drivers/infiniband/sw/rxe/rxe_resp.c
+@@ -435,6 +435,7 @@ static enum resp_states check_rkey(struct rxe_qp *qp,
+ 			qp->resp.va = reth_va(pkt);
+ 			qp->resp.rkey = reth_rkey(pkt);
+ 			qp->resp.resid = reth_len(pkt);
++			qp->resp.length = reth_len(pkt);
+ 		}
+ 		access = (pkt->mask & RXE_READ_MASK) ? IB_ACCESS_REMOTE_READ
+ 						     : IB_ACCESS_REMOTE_WRITE;
+@@ -859,7 +860,9 @@ static enum resp_states do_complete(struct rxe_qp *qp,
+ 				pkt->mask & RXE_WRITE_MASK) ?
+ 					IB_WC_RECV_RDMA_WITH_IMM : IB_WC_RECV;
+ 		wc->vendor_err = 0;
+-		wc->byte_len = wqe->dma.length - wqe->dma.resid;
++		wc->byte_len = (pkt->mask & RXE_IMMDT_MASK &&
++				pkt->mask & RXE_WRITE_MASK) ?
++					qp->resp.length : wqe->dma.length - wqe->dma.resid;
  
- 	if (*namep == NULL)
--		goto out_free_name;
-+		goto out;
+ 		/* fields after byte_len are different between kernel and user
+ 		 * space
+diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.h b/drivers/infiniband/sw/rxe/rxe_verbs.h
+index 332a16dad2a7..3b731c7682e5 100644
+--- a/drivers/infiniband/sw/rxe/rxe_verbs.h
++++ b/drivers/infiniband/sw/rxe/rxe_verbs.h
+@@ -212,6 +212,7 @@ struct rxe_resp_info {
+ 	struct rxe_mem		*mr;
+ 	u32			resid;
+ 	u32			rkey;
++	u32			length;
+ 	u64			atomic_orig;
  
- 	(*rawp)[0] = tmp;
- 	*rawp = ltrim(*rawp);
- 
- 	return 0;
- 
--out_free_name:
--	free((void *)namep);
--	*namep = NULL;
-+out:
- 	return -1;
- }
- 
+ 	/* SRQ only */
 -- 
 2.20.1
 
