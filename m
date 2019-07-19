@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE3F6DFEA
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D38EA6DFE8
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728544AbfGSD7L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 23:59:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58654 "EHLO mail.kernel.org"
+        id S1730354AbfGSEik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:38:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728536AbfGSD7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:59:11 -0400
+        id S1728556AbfGSD7N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:59:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3AA921851;
-        Fri, 19 Jul 2019 03:59:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFACD21855;
+        Fri, 19 Jul 2019 03:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508750;
-        bh=IgqLmc9gab5vB2kgwbuIUQkckeqHIN4ozj7XkneYH2c=;
+        s=default; t=1563508752;
+        bh=fAxcJtvc6D/lb9qHE8rxAU2u7+yhuYmnb5gHLxvVhm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgcXDqXfRY8R85dPekvsMWFBRXe1oxhHqyjg1ldzAYxhM49C6PPcDSHGuFa7yld+Y
-         yYh9YOqNISmUebB78uNWrf4UPbwN2L53hQ8z0O5C3xRSk55cU33pKir6jfy5jIs+5+
-         iAHjOZ3T1pjQWQvhqSk3/aJag4GrTIuaWINQYKs4=
+        b=Sgias6CZr43YjcFSjkzAkV8UBpAovwYzzcapTKYdrwK62wRvR6SuMIPffs5XyjIiV
+         MNtvP+woe0+1aXuYqY4OlvZgqX1//eZzb49tK44i6bX65qWDzIYiKE7agTkV9HXVIh
+         oAZTH32G1hHElKVRBc2AaPV42aS6eJOtNfFovZfA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 069/171] usb: gadget: Zero ffs_io_data
-Date:   Thu, 18 Jul 2019 23:55:00 -0400
-Message-Id: <20190719035643.14300-69-sashal@kernel.org>
+Cc:     Eugene Korenevsky <ekorenevsky@gmail.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 071/171] kvm: vmx: fix limit checking in get_vmx_mem_address()
+Date:   Thu, 18 Jul 2019 23:55:02 -0400
+Message-Id: <20190719035643.14300-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,57 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+From: Eugene Korenevsky <ekorenevsky@gmail.com>
 
-[ Upstream commit 508595515f4bcfe36246e4a565cf280937aeaade ]
+[ Upstream commit c1a9acbc5295e278d788e9f7510f543bc9864fa2 ]
 
-In some cases the "Allocate & copy" block in ffs_epfile_io() is not
-executed. Consequently, in such a case ffs_alloc_buffer() is never called
-and struct ffs_io_data is not initialized properly. This in turn leads to
-problems when ffs_free_buffer() is called at the end of ffs_epfile_io().
+Intel SDM vol. 3, 5.3:
+The processor causes a
+general-protection exception (or, if the segment is SS, a stack-fault
+exception) any time an attempt is made to access the following addresses
+in a segment:
+- A byte at an offset greater than the effective limit
+- A word at an offset greater than the (effective-limit â€“ 1)
+- A doubleword at an offset greater than the (effective-limit â€“ 3)
+- A quadword at an offset greater than the (effective-limit â€“ 7)
 
-This patch uses kzalloc() instead of kmalloc() in the aio case and memset()
-in non-aio case to properly initialize struct ffs_io_data.
+Therefore, the generic limit checking error condition must be
 
-Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+exn = (off > limit + 1 - access_len) = (off + access_len - 1 > limit)
+
+but not
+
+exn = (off + access_len > limit)
+
+as for now.
+
+Also avoid integer overflow of `off` at 32-bit KVM by casting it to u64.
+
+Note: access length is currently sizeof(u64) which is incorrect. This
+will be fixed in the subsequent patch.
+
+Signed-off-by: Eugene Korenevsky <ekorenevsky@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index c7ed90084d1a..213ff03c8a9f 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1183,11 +1183,12 @@ static ssize_t ffs_epfile_write_iter(struct kiocb *kiocb, struct iov_iter *from)
- 	ENTER();
- 
- 	if (!is_sync_kiocb(kiocb)) {
--		p = kmalloc(sizeof(io_data), GFP_KERNEL);
-+		p = kzalloc(sizeof(io_data), GFP_KERNEL);
- 		if (unlikely(!p))
- 			return -ENOMEM;
- 		p->aio = true;
- 	} else {
-+		memset(p, 0, sizeof(*p));
- 		p->aio = false;
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 46af3a5e9209..7958189ee702 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -4115,7 +4115,7 @@ int get_vmx_mem_address(struct kvm_vcpu *vcpu, unsigned long exit_qualification,
+ 		 */
+ 		if (!(s.base == 0 && s.limit == 0xffffffff &&
+ 		     ((s.type & 8) || !(s.type & 4))))
+-			exn = exn || (off + sizeof(u64) > s.limit);
++			exn = exn || ((u64)off + sizeof(u64) - 1 > s.limit);
  	}
- 
-@@ -1219,11 +1220,12 @@ static ssize_t ffs_epfile_read_iter(struct kiocb *kiocb, struct iov_iter *to)
- 	ENTER();
- 
- 	if (!is_sync_kiocb(kiocb)) {
--		p = kmalloc(sizeof(io_data), GFP_KERNEL);
-+		p = kzalloc(sizeof(io_data), GFP_KERNEL);
- 		if (unlikely(!p))
- 			return -ENOMEM;
- 		p->aio = true;
- 	} else {
-+		memset(p, 0, sizeof(*p));
- 		p->aio = false;
- 	}
- 
+ 	if (exn) {
+ 		kvm_queue_exception_e(vcpu,
 -- 
 2.20.1
 
