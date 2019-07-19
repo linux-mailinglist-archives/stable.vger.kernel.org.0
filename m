@@ -2,143 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 285346E59D
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 14:27:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F7B6E60F
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 15:05:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727649AbfGSM1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 08:27:01 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:57412 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727552AbfGSM1B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 08:27:01 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 236F53086258;
-        Fri, 19 Jul 2019 12:27:00 +0000 (UTC)
-Received: from localhost (unknown [10.18.25.174])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 807A61001B14;
-        Fri, 19 Jul 2019 12:26:55 +0000 (UTC)
-Date:   Fri, 19 Jul 2019 08:26:54 -0400
-From:   Mike Snitzer <snitzer@redhat.com>
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, "Ewan D . Milne" <emilne@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>, dm-devel@redhat.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] blk-mq: add callback of .cleanup_rq
-Message-ID: <20190719122654.GA7339@redhat.com>
-References: <20190718032519.28306-1-ming.lei@redhat.com>
- <20190718032519.28306-2-ming.lei@redhat.com>
- <20190718145201.GA2305@redhat.com>
- <20190719013546.GA12004@ming.t460p>
+        id S1728173AbfGSNF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 09:05:27 -0400
+Received: from mail-vs1-f68.google.com ([209.85.217.68]:45424 "EHLO
+        mail-vs1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726239AbfGSNF1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 09:05:27 -0400
+Received: by mail-vs1-f68.google.com with SMTP id h28so21443478vsl.12
+        for <stable@vger.kernel.org>; Fri, 19 Jul 2019 06:05:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=ZESu1hs7DKrdTYzlJ+91Jjl7ynlzUmW1qsOfOpkX7oU=;
+        b=bAWR9dEPti4H5gBjy3vvFRDnysmCOOes8+lKvOraygZua5DtjoWy6pMP/zQhaodpvI
+         UtzO/CTgZG1uqTlk+CIiW3gb4mf1BpO+Gp+RLK/7B4WTLa8TnYWYpvQD0Pq4as41Sfcy
+         Y+/HHiZi3EcFX2li1iVL3/5KOJPMyil7wMzZreVjTQZcdI22TpA8he7kh8MnYcSIE/R9
+         6sAUQe94XGAM5VyARae3f0QTfJLaL48koWduxOWfgma+63CblBZ27aQEmxOhntwrwxB/
+         TS2FOSRDRrvwVDkkDraLMn3//mYpQP2onzrklOvfEXnC5gntcLBc2AFFLCyQSrRrX1n6
+         MAYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=ZESu1hs7DKrdTYzlJ+91Jjl7ynlzUmW1qsOfOpkX7oU=;
+        b=i5tZJt/7XEbF5PDOpRPQuQd2D6y5cXgkWUX2tqQrRcFv0Tk9Du09oYuLDZauPEtPto
+         Nb09jep3cjOiDceJqt67MU9zZrxsFhACv2+y5zqd7urHiV+hrKYsPGiS645s0fXd6mBh
+         b0wrj13ic5FdOefAgiovgQoqbqd1m1uhk9vZA+QHQ2+FyvLYurYhduxfmFWM9WLSml32
+         a2aSbp5B/7Fr6y6SEZYLSjMON7W1AqQFOPJOFxe8pl4vrBIu2BLjIjc43hjW7xjoEkvO
+         tPFGwS20LViDhhukFa5RFpVBIESdOZB1xvhWIbttxGAz/QFdULmgpbQR8ugBg4QgOqDY
+         07cg==
+X-Gm-Message-State: APjAAAUN3PizuzRWHzut7Kq4IvHtJd4xREZJL0Q4E3x6ed7uw9q8FYvg
+        H4gpEMaq0tvCx7Qdea7mcoHsIztaR709J+yv45U=
+X-Google-Smtp-Source: APXvYqzV86/ujMCPxxqGH4JU97JapAp+dDatypUEHjmmLnS5zPUZLBZ3RvOK6z8ceMkRT4btTGiOLNqi//J19jDfXis=
+X-Received: by 2002:a67:e446:: with SMTP id n6mr10088964vsm.142.1563541526626;
+ Fri, 19 Jul 2019 06:05:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190719013546.GA12004@ming.t460p>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Fri, 19 Jul 2019 12:27:00 +0000 (UTC)
+Received: by 2002:ab0:4886:0:0:0:0:0 with HTTP; Fri, 19 Jul 2019 06:05:25
+ -0700 (PDT)
+Reply-To: elodieantoine76578@yahoo.com
+From:   Mrs Elodie Antoine <pastorjohn1991@gmail.com>
+Date:   Fri, 19 Jul 2019 06:05:25 -0700
+Message-ID: <CABk23+n+g99ugrm7DaqMigJ=eMjryHfpFtSaBiGBUqetjiJ2WQ@mail.gmail.com>
+Subject: Greetings From Mrs Elodie,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 18 2019 at  9:35pm -0400,
-Ming Lei <ming.lei@redhat.com> wrote:
+Greetings From Mrs Elodie,
 
-> On Thu, Jul 18, 2019 at 10:52:01AM -0400, Mike Snitzer wrote:
-> > On Wed, Jul 17 2019 at 11:25pm -0400,
-> > Ming Lei <ming.lei@redhat.com> wrote:
-> > 
-> > > dm-rq needs to free request which has been dispatched and not completed
-> > > by underlying queue. However, the underlying queue may have allocated
-> > > private stuff for this request in .queue_rq(), so dm-rq will leak the
-> > > request private part.
-> > 
-> > No, SCSI (and blk-mq) will leak.  DM doesn't know anything about the
-> > internal memory SCSI uses.  That memory is a SCSI implementation detail.
-> 
-> It isn't noting to do with dm-rq, which frees one request after BLK_STS_*RESOURCE
-> is returned from blk_insert_cloned_request(), in this case it has to be
-> the user for releasing the request private data.
-> 
-> > 
-> > Please fix header to properly reflect which layer is doing the leaking.
-> 
-> Fine.
-> 
-> > 
-> > > Add one new callback of .cleanup_rq() to fix the memory leak issue.
-> > > 
-> > > Another use case is to free request when the hctx is dead during
-> > > cpu hotplug context.
-> > > 
-> > > Cc: Ewan D. Milne <emilne@redhat.com>
-> > > Cc: Bart Van Assche <bvanassche@acm.org>
-> > > Cc: Hannes Reinecke <hare@suse.com>
-> > > Cc: Christoph Hellwig <hch@lst.de>
-> > > Cc: Mike Snitzer <snitzer@redhat.com>
-> > > Cc: dm-devel@redhat.com
-> > > Cc: <stable@vger.kernel.org>
-> > > Fixes: 396eaf21ee17 ("blk-mq: improve DM's blk-mq IO merging via blk_insert_cloned_request feedback")
-> > > Signed-off-by: Ming Lei <ming.lei@redhat.com>
-> > > ---
-> > >  drivers/md/dm-rq.c     |  1 +
-> > >  include/linux/blk-mq.h | 13 +++++++++++++
-> > >  2 files changed, 14 insertions(+)
-> > > 
-> > > diff --git a/drivers/md/dm-rq.c b/drivers/md/dm-rq.c
-> > > index c9e44ac1f9a6..21d5c1784d0c 100644
-> > > --- a/drivers/md/dm-rq.c
-> > > +++ b/drivers/md/dm-rq.c
-> > > @@ -408,6 +408,7 @@ static int map_request(struct dm_rq_target_io *tio)
-> > >  		ret = dm_dispatch_clone_request(clone, rq);
-> > >  		if (ret == BLK_STS_RESOURCE || ret == BLK_STS_DEV_RESOURCE) {
-> > >  			blk_rq_unprep_clone(clone);
-> > > +			blk_mq_cleanup_rq(clone);
-> > >  			tio->ti->type->release_clone_rq(clone, &tio->info);
-> > >  			tio->clone = NULL;
-> > >  			return DM_MAPIO_REQUEUE;
-> > 
-> > Requiring upper layer driver (dm-rq) to explicitly call blk_mq_cleanup_rq() 
-> > seems wrong.  In this instance tio->ti->type->release_clone_rq()
-> > (dm-mpath's multipath_release_clone) calls blk_put_request().  Why can't
-> > blk_put_request(), or blk_mq_free_request(), call blk_mq_cleanup_rq()?
-> 
-> I did think about doing it in blk_put_request(), and I just want to
-> avoid the little cost in generic fast path, given freeing request after
-> dispatch is very unusual, so far only nvme multipath and dm-rq did in
-> that way.
-> 
-> However, if no one objects to move blk_mq_cleanup_rq() to blk_put_request()
-> or blk_mq_free_request(), I am fine to do that in V2.
+Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS
+CHRIST the giver of every good thing. Good day,i know this letter will
+definitely come to you as a huge surprise, but I implore you to take
+the time to go through it carefully as the decision you make will go
+off a long way to determine my future and continued existence. I am
+Mrs Elodie Antoine
+aging widow of 59 years old suffering from long time illness. I have
+some funds I inherited from my late husband,
 
-Think it'd be a less fragile/nuanced way to extend the blk-mq
-interface.  Otherwise there is potential for other future drivers
-experiencing leaks.
+The sum of (US$4.5 Million Dollars) and I needed a very honest and God
+fearing  who can withdraw this money then use the funds for Charity
+works. I WISH TO GIVE THIS FUNDS TO YOU FOR CHARITY WORKS. I found
+your email address from the internet after honest prayers  to the LORD
+to bring me a helper and i decided to contact you if you may be
+willing and interested to handle these trust funds in good faith
+before anything happens to me.
+I accept this decision because I do not have any child who will
+inherit this money after I die. I want your urgent reply to me so that
+I will give you the deposit receipt which the  COMPANY issued to me as
+next of kin for immediate transfer of the money to your account in
+your country, to start the good work of God, I want you to use the
+15/percent of the total amount to help yourself in doing the project.
 
-> > Not looked at the cpu hotplug case you mention, but my naive thought is
-> > it'd be pretty weird to also sprinkle a call to blk_mq_cleanup_rq() from
-> > that specific "dead hctx" code path.
-> 
-> It isn't weird, and it is exactly what NVMe multipath is doing, please see
-> nvme_failover_req(). And it is just that nvme doesn't allocate request
-> private data.
-> 
-> Wrt. blk-mq cpu hotplug handling: after one hctx is dead, we can't dispatch
-> request to this hctx any more, however one request has been bounded to its
-> hctx since its allocation and the association can't(or quite hard to) be
-> changed any more, do you have any better idea to deal with this issue?
+I am desperately in keen need of assistance and I have summoned up
+courage to contact you for this task, you must not fail me and the
+millions of the poor people in our todays WORLD. This is no stolen
+money and there are no dangers involved,100% RISK FREE with full legal
+proof. Please if you would be able to use the funds for the Charity
+works kindly let me know immediately.I will appreciate your utmost
+confidentiality and trust in this matter to accomplish my heart
+desire, as I don't want anything that will jeopardize my last wish. I
+want you to take 15 percent of the total money for your personal use
+while 85% of the money will go to charity.I will appreciate your
+utmost confidentiality and trust in this matter to accomplish my heart
+desire, as I don't want anything that will jeopardize my last wish.
 
-No, as I prefaced before "Not looked at the cpu hotplug case you
-mention".  As such I should've stayed silent ;)
+kindly respond for further details. reply to my private E-mail:(
+elodieantoine76578@yahoo.com )
 
-But my point was we should hook off current interfaces rather than rely
-on a new primary function call.
 
-Mike
+Thanks and God bless you,
+
+Mrs Elodie Antoine
