@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 746586DE30
+	by mail.lfdr.de (Postfix) with ESMTP id ED7D96DE31
 	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731093AbfGSEHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:07:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41334 "EHLO mail.kernel.org"
+        id S1730039AbfGSEHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:07:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727739AbfGSEHf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:07:35 -0400
+        id S1732758AbfGSEHn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:07:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA065218A3;
-        Fri, 19 Jul 2019 04:07:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B65CF218BA;
+        Fri, 19 Jul 2019 04:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509254;
-        bh=utA8zrTd/CV5hDkCbQRS8zsKC25nhjfU6ssi7vbeuts=;
-        h=From:To:Cc:Subject:Date:From;
-        b=L+1T5xnsrJundiBxAL/AaUCUa2pDfRXO4zNKh4t2I9MQWuhzZYdBMiKZ1pmm1A87R
-         IFY8ux7XjfDSm3/rfhAtuXqfZXTYmyNEhWb1rArva5674QArVWCIg+wyNGWFMjPHq6
-         fjYqXvifnni8n//Vk1UT5c0o3GUWHLAP3QfIICEQ=
+        s=default; t=1563509262;
+        bh=X4vd8OK4yXQ0AbEdR++MYAR4NsXHtv+u2lPVXgjJSTE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=v9ECzsN0EZwIKcv6wghM1xSCaOWZJr2MFscNuFBpkf1r05qxZejWR6dxsgKxphIlv
+         e8ZQwfasdZ0h/83bdce4OvPvcLLo7wIX2nJyPXcEsFNA0iROQ9WnN5A+stjXIJBcZ5
+         U/6VNaCGRPKLJODpHXX9kN24AblR46EJ8G4hV2Fk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 001/101] drm/panel: simple: Fix panel_simple_dsi_probe
-Date:   Fri, 19 Jul 2019 00:05:52 -0400
-Message-Id: <20190719040732.17285-1-sashal@kernel.org>
+Cc:     Quentin Deslandes <quentin.deslandes@itdev.co.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 4.19 004/101] staging: vt6656: use meaningful error code during buffer allocation
+Date:   Fri, 19 Jul 2019 00:05:55 -0400
+Message-Id: <20190719040732.17285-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
+References: <20190719040732.17285-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,41 +43,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Quentin Deslandes <quentin.deslandes@itdev.co.uk>
 
-[ Upstream commit 7ad9db66fafb0f0ad53fd2a66217105da5ddeffe ]
+[ Upstream commit d8c2869300ab5f7a19bf6f5a04fe473c5c9887e3 ]
 
-In case mipi_dsi_attach() fails remove the registered panel to avoid added
-panel without corresponding device.
+Check on called function's returned value for error and return 0 on
+success or a negative errno value on error instead of a boolean value.
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190226081153.31334-1-peter.ujfalusi@ti.com
+Signed-off-by: Quentin Deslandes <quentin.deslandes@itdev.co.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-simple.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/staging/vt6656/main_usb.c | 42 ++++++++++++++++++++-----------
+ 1 file changed, 28 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-index 97964f7f2ace..b1d41c4921dd 100644
---- a/drivers/gpu/drm/panel/panel-simple.c
-+++ b/drivers/gpu/drm/panel/panel-simple.c
-@@ -2803,7 +2803,14 @@ static int panel_simple_dsi_probe(struct mipi_dsi_device *dsi)
- 	dsi->format = desc->format;
- 	dsi->lanes = desc->lanes;
- 
--	return mipi_dsi_attach(dsi);
-+	err = mipi_dsi_attach(dsi);
-+	if (err) {
-+		struct panel_simple *panel = dev_get_drvdata(&dsi->dev);
-+
-+		drm_panel_remove(&panel->base);
-+	}
-+
-+	return err;
+diff --git a/drivers/staging/vt6656/main_usb.c b/drivers/staging/vt6656/main_usb.c
+index ccafcc2c87ac..70433f756d8e 100644
+--- a/drivers/staging/vt6656/main_usb.c
++++ b/drivers/staging/vt6656/main_usb.c
+@@ -402,16 +402,19 @@ static void vnt_free_int_bufs(struct vnt_private *priv)
+ 	kfree(priv->int_buf.data_buf);
  }
  
- static int panel_simple_dsi_remove(struct mipi_dsi_device *dsi)
+-static bool vnt_alloc_bufs(struct vnt_private *priv)
++static int vnt_alloc_bufs(struct vnt_private *priv)
+ {
++	int ret = 0;
+ 	struct vnt_usb_send_context *tx_context;
+ 	struct vnt_rcb *rcb;
+ 	int ii;
+ 
+ 	for (ii = 0; ii < priv->num_tx_context; ii++) {
+ 		tx_context = kmalloc(sizeof(*tx_context), GFP_KERNEL);
+-		if (!tx_context)
++		if (!tx_context) {
++			ret = -ENOMEM;
+ 			goto free_tx;
++		}
+ 
+ 		priv->tx_context[ii] = tx_context;
+ 		tx_context->priv = priv;
+@@ -419,16 +422,20 @@ static bool vnt_alloc_bufs(struct vnt_private *priv)
+ 
+ 		/* allocate URBs */
+ 		tx_context->urb = usb_alloc_urb(0, GFP_KERNEL);
+-		if (!tx_context->urb)
++		if (!tx_context->urb) {
++			ret = -ENOMEM;
+ 			goto free_tx;
++		}
+ 
+ 		tx_context->in_use = false;
+ 	}
+ 
+ 	for (ii = 0; ii < priv->num_rcb; ii++) {
+ 		priv->rcb[ii] = kzalloc(sizeof(*priv->rcb[ii]), GFP_KERNEL);
+-		if (!priv->rcb[ii])
++		if (!priv->rcb[ii]) {
++			ret = -ENOMEM;
+ 			goto free_rx_tx;
++		}
+ 
+ 		rcb = priv->rcb[ii];
+ 
+@@ -436,39 +443,46 @@ static bool vnt_alloc_bufs(struct vnt_private *priv)
+ 
+ 		/* allocate URBs */
+ 		rcb->urb = usb_alloc_urb(0, GFP_KERNEL);
+-		if (!rcb->urb)
++		if (!rcb->urb) {
++			ret = -ENOMEM;
+ 			goto free_rx_tx;
++		}
+ 
+ 		rcb->skb = dev_alloc_skb(priv->rx_buf_sz);
+-		if (!rcb->skb)
++		if (!rcb->skb) {
++			ret = -ENOMEM;
+ 			goto free_rx_tx;
++		}
+ 
+ 		rcb->in_use = false;
+ 
+ 		/* submit rx urb */
+-		if (vnt_submit_rx_urb(priv, rcb))
++		ret = vnt_submit_rx_urb(priv, rcb);
++		if (ret)
+ 			goto free_rx_tx;
+ 	}
+ 
+ 	priv->interrupt_urb = usb_alloc_urb(0, GFP_KERNEL);
+-	if (!priv->interrupt_urb)
++	if (!priv->interrupt_urb) {
++		ret = -ENOMEM;
+ 		goto free_rx_tx;
++	}
+ 
+ 	priv->int_buf.data_buf = kmalloc(MAX_INTERRUPT_SIZE, GFP_KERNEL);
+ 	if (!priv->int_buf.data_buf) {
+-		usb_free_urb(priv->interrupt_urb);
+-		goto free_rx_tx;
++		ret = -ENOMEM;
++		goto free_rx_tx_urb;
+ 	}
+ 
+-	return true;
++	return 0;
+ 
++free_rx_tx_urb:
++	usb_free_urb(priv->interrupt_urb);
+ free_rx_tx:
+ 	vnt_free_rx_bufs(priv);
+-
+ free_tx:
+ 	vnt_free_tx_bufs(priv);
+-
+-	return false;
++	return ret;
+ }
+ 
+ static void vnt_tx_80211(struct ieee80211_hw *hw,
 -- 
 2.20.1
 
