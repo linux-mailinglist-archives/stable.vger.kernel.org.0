@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7260F6DB70
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:09:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBF26DB73
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730251AbfGSEIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:08:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42844 "EHLO mail.kernel.org"
+        id S1733169AbfGSEIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:08:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727046AbfGSEIa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:08:30 -0400
+        id S1732260AbfGSEIi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:08:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B6AB218A4;
-        Fri, 19 Jul 2019 04:08:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D047D21872;
+        Fri, 19 Jul 2019 04:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509309;
-        bh=FCsMAB1Le3dbb95jMq3Ii7C9GcLfcQ3xoI0XX/azHDM=;
+        s=default; t=1563509317;
+        bh=STJ7eoRUjKT6lWQmYtHhHf0Q6NbOBi3UBDB7Dc3P0JY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLqkxekKC0vfF+OEkKHdwwvrkbCOGEMK6nJWp6DEifl1TY+prHnJ928PRVTQyiLwG
-         eLTill5aWOSDx+TMHCoj3wVo5YZUdVuVDzuGVfAjlxzS3dLLBi/56KXkfwFnzINBSy
-         Ty30lEpYcpiXNAmkKgvaF3fcIbpB7o8Mq+2Zudm8=
+        b=Fx4FeD9iNlEMvzkcVfxcYcXSgWHXqGh1cRsflAUoQN8xLxdAQMOnuYLb+BMSuiNG3
+         CcKmqvhtGtioP46Ua4hcWo3b+CtE4q0ARlIgW5N6lfrqEdkFQIzxG0JRXgZWGYXixp
+         qPHM81ikWmUUCZkzfbNySMKuDomWYc9Ik0XrEnTQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Riley <davidriley@chromium.org>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.19 027/101] drm/virtio: Add memory barriers for capset cache.
-Date:   Fri, 19 Jul 2019 00:06:18 -0400
-Message-Id: <20190719040732.17285-27-sashal@kernel.org>
+Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
+        "Gautham R . Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 030/101] powerpc/pseries/mobility: prevent cpu hotplug during DT update
+Date:   Fri, 19 Jul 2019 00:06:21 -0400
+Message-Id: <20190719040732.17285-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -45,50 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Riley <davidriley@chromium.org>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit 9ff3a5c88e1f1ab17a31402b96d45abe14aab9d7 ]
+[ Upstream commit e59a175faa8df9d674247946f2a5a9c29c835725 ]
 
-After data is copied to the cache entry, atomic_set is used indicate
-that the data is the entry is valid without appropriate memory barriers.
-Similarly the read side was missing the corresponding memory barriers.
+CPU online/offline code paths are sensitive to parts of the device
+tree (various cpu node properties, cache nodes) that can be changed as
+a result of a migration.
 
-Signed-off-by: David Riley <davidriley@chromium.org>
-Link: http://patchwork.freedesktop.org/patch/msgid/20190610211810.253227-5-davidriley@chromium.org
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Prevent CPU hotplug while the device tree potentially is inconsistent.
+
+Fixes: 410bccf97881 ("powerpc/pseries: Partition migration in the kernel")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 3 +++
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 2 ++
- 2 files changed, 5 insertions(+)
+ arch/powerpc/platforms/pseries/mobility.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 7bdf6f0e58a5..8d2f5ded86d6 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -528,6 +528,9 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
- 	if (!ret)
- 		return -EBUSY;
+diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
+index f0e30dc94988..7b60fcf04dc4 100644
+--- a/arch/powerpc/platforms/pseries/mobility.c
++++ b/arch/powerpc/platforms/pseries/mobility.c
+@@ -9,6 +9,7 @@
+  * 2 as published by the Free Software Foundation.
+  */
  
-+	/* is_valid check must proceed before copy of the cache entry. */
-+	smp_rmb();
++#include <linux/cpu.h>
+ #include <linux/kernel.h>
+ #include <linux/kobject.h>
+ #include <linux/smp.h>
+@@ -344,11 +345,19 @@ void post_mobility_fixup(void)
+ 	if (rc)
+ 		printk(KERN_ERR "Post-mobility activate-fw failed: %d\n", rc);
+ 
++	/*
++	 * We don't want CPUs to go online/offline while the device
++	 * tree is being updated.
++	 */
++	cpus_read_lock();
 +
- 	ptr = cache_ent->caps_cache;
+ 	rc = pseries_devicetree_update(MIGRATION_SCOPE);
+ 	if (rc)
+ 		printk(KERN_ERR "Post-mobility device tree update "
+ 			"failed: %d\n", rc);
  
- copy_exit:
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 020070d483d3..c8a581b1f4c4 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -588,6 +588,8 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
- 		    cache_ent->id == le32_to_cpu(cmd->capset_id)) {
- 			memcpy(cache_ent->caps_cache, resp->capset_data,
- 			       cache_ent->size);
-+			/* Copy must occur before is_valid is signalled. */
-+			smp_wmb();
- 			atomic_set(&cache_ent->is_valid, 1);
- 			break;
- 		}
++	cpus_read_unlock();
++
+ 	/* Possibly switch to a new RFI flush type */
+ 	pseries_setup_rfi_flush();
+ 
 -- 
 2.20.1
 
