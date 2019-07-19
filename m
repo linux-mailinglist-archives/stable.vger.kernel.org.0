@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5397D6DD46
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB94A6DD1A
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:21:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388275AbfGSEVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46674 "EHLO mail.kernel.org"
+        id S2388529AbfGSELq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:11:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387682AbfGSELl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:11:41 -0400
+        id S2388508AbfGSELn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:11:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC020218B6;
-        Fri, 19 Jul 2019 04:11:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 174F721873;
+        Fri, 19 Jul 2019 04:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509500;
-        bh=9lYn+UokrNdnmQEzMGp77Ij+ypQ0JNxsaPAbSUJz2mY=;
+        s=default; t=1563509501;
+        bh=Viy2qXEFT/IvW4X7PjaXaEImwC+eYylLCAV7sBJP3VQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rhao9cW8q5t4TAISiKsOWPVs+WRseYG1k8nRR2YHh4e9tp226caTpen2S80kbt2eT
-         jmyHFVYM/VKe2KBK79XGIZrM2s6xQG8KZn6ecmwd8GgCAttAcx18bNgfnUEFD83TsL
-         mgMKSQKMBrYpI6FNZGVk+/G3aAZD6S8hg0pXDVdE=
+        b=JhjFXSQMeL/jETX7yvWHQpB0W9TTgNl42X5lC3oQWQElGxrippnBro/EqrJNZ4wLt
+         B+D7zUFFStpbLwGKiBC75v7v2yvjHXYCTuWYgWrSBm1fDEGipmRk4MFpuVvldxVbkA
+         1NcyiuciccvV2xxy6bSTRLfiuDh8tmqCpT9oQJms=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Anderson <dianders@chromium.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Yakir Yang <ykk@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 18/60] drm/rockchip: Properly adjust to a true clock in adjusted_mode
-Date:   Fri, 19 Jul 2019 00:10:27 -0400
-Message-Id: <20190719041109.18262-18-sashal@kernel.org>
+Cc:     Young Xiao <92siuyang@gmail.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 19/60] iio:core: Fix bug in length of event info_mask and catch unhandled bits set in masks.
+Date:   Fri, 19 Jul 2019 00:10:28 -0400
+Message-Id: <20190719041109.18262-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041109.18262-1-sashal@kernel.org>
 References: <20190719041109.18262-1-sashal@kernel.org>
@@ -46,46 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Young Xiao <92siuyang@gmail.com>
 
-[ Upstream commit 99b9683f2142b20bad78e61f7f829e8714e45685 ]
+[ Upstream commit 936d3e536dcf88ce80d27bdb637009b13dba6d8c ]
 
-When fixing up the clock in vop_crtc_mode_fixup() we're not doing it
-quite correctly.  Specifically if we've got the true clock 266666667 Hz,
-we'll perform this calculation:
-   266666667 / 1000 => 266666
+The incorrect limit for the for_each_set_bit loop was noticed whilst fixing
+this other case.  Note that as we only have 3 possible entries a the moment
+and the value was set to 4, the bug would not have any effect currently.
+It will bite fairly soon though, so best fix it now.
 
-Later when we try to set the clock we'll do clk_set_rate(266666 *
-1000).  The common clock framework won't actually pick the proper clock
-in this case since it always wants clocks <= the specified one.
+See commit ef4b4856593f ("iio:core: Fix bug in length of event info_mask and
+catch unhandled bits set in masks.") for details.
 
-Let's solve this by using DIV_ROUND_UP.
-
-Fixes: b59b8de31497 ("drm/rockchip: return a true clock rate to adjusted_mode")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Reviewed-by: Yakir Yang <ykk@rock-chips.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190614224730.98622-1-dianders@chromium.org
+Signed-off-by: Young Xiao <92siuyang@gmail.com>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/industrialio-core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-index f1fa8d5c9b52..7010424b2f89 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-@@ -861,7 +861,8 @@ static bool vop_crtc_mode_fixup(struct drm_crtc *crtc,
- 	struct vop *vop = to_vop(crtc);
+diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+index 97b7266ee0ff..b0f952984983 100644
+--- a/drivers/iio/industrialio-core.c
++++ b/drivers/iio/industrialio-core.c
+@@ -1116,6 +1116,8 @@ static int iio_device_add_info_mask_type_avail(struct iio_dev *indio_dev,
+ 	char *avail_postfix;
  
- 	adjusted_mode->clock =
--		clk_round_rate(vop->dclk, mode->clock * 1000) / 1000;
-+		DIV_ROUND_UP(clk_round_rate(vop->dclk, mode->clock * 1000),
-+			     1000);
- 
- 	return true;
- }
+ 	for_each_set_bit(i, infomask, sizeof(*infomask) * 8) {
++		if (i >= ARRAY_SIZE(iio_chan_info_postfix))
++			return -EINVAL;
+ 		avail_postfix = kasprintf(GFP_KERNEL,
+ 					  "%s_available",
+ 					  iio_chan_info_postfix[i]);
 -- 
 2.20.1
 
