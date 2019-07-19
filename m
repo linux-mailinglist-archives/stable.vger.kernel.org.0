@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED7D96DE31
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:27:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D89EF6DE33
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:27:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730039AbfGSEHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:07:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41510 "EHLO mail.kernel.org"
+        id S1732768AbfGSEHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:07:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732758AbfGSEHn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:07:43 -0400
+        id S1727498AbfGSEHq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:07:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B65CF218BA;
-        Fri, 19 Jul 2019 04:07:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7620B218A3;
+        Fri, 19 Jul 2019 04:07:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509262;
-        bh=X4vd8OK4yXQ0AbEdR++MYAR4NsXHtv+u2lPVXgjJSTE=;
+        s=default; t=1563509265;
+        bh=dnlfijSju3fcIuFGMb3mwrJ/k/TBn0pi7EGPnTDJZrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9ECzsN0EZwIKcv6wghM1xSCaOWZJr2MFscNuFBpkf1r05qxZejWR6dxsgKxphIlv
-         e8ZQwfasdZ0h/83bdce4OvPvcLLo7wIX2nJyPXcEsFNA0iROQ9WnN5A+stjXIJBcZ5
-         U/6VNaCGRPKLJODpHXX9kN24AblR46EJ8G4hV2Fk=
+        b=igRzZTaYAFo7fhI/rfW6BQ8W40+B6i8S7H57qq15gMh6nT0itBaqr0UyU6NtDXAiK
+         LZNFn11cwj8ETYLqXdwjqsQm6WmqqpQkyVTfwePFzZHCU0NMtCA+1BFT5R3mA30H+N
+         iHs2RyFYm4KbsPmFnbAi31MZFJUP8Cj0e+l4UCb0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quentin Deslandes <quentin.deslandes@itdev.co.uk>,
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Thinh Nguyen <thinhn@synopsys.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.19 004/101] staging: vt6656: use meaningful error code during buffer allocation
-Date:   Fri, 19 Jul 2019 00:05:55 -0400
-Message-Id: <20190719040732.17285-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 005/101] usb: core: hub: Disable hub-initiated U1/U2
+Date:   Fri, 19 Jul 2019 00:05:56 -0400
+Message-Id: <20190719040732.17285-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -43,126 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Deslandes <quentin.deslandes@itdev.co.uk>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit d8c2869300ab5f7a19bf6f5a04fe473c5c9887e3 ]
+[ Upstream commit 561759292774707b71ee61aecc07724905bb7ef1 ]
 
-Check on called function's returned value for error and return 0 on
-success or a negative errno value on error instead of a boolean value.
+If the device rejects the control transfer to enable device-initiated
+U1/U2 entry, then the device will not initiate U1/U2 transition. To
+improve the performance, the downstream port should not initate
+transition to U1/U2 to avoid the delay from the device link command
+response (no packet can be transmitted while waiting for a response from
+the device). If the device has some quirks and does not implement U1/U2,
+it may reject all the link state change requests, and the downstream
+port may resend and flood the bus with more requests. This will affect
+the device performance even further. This patch disables the
+hub-initated U1/U2 if the device-initiated U1/U2 entry fails.
 
-Signed-off-by: Quentin Deslandes <quentin.deslandes@itdev.co.uk>
+Reference: USB 3.2 spec 7.2.4.2.3
+
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/vt6656/main_usb.c | 42 ++++++++++++++++++++-----------
- 1 file changed, 28 insertions(+), 14 deletions(-)
+ drivers/usb/core/hub.c | 28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/staging/vt6656/main_usb.c b/drivers/staging/vt6656/main_usb.c
-index ccafcc2c87ac..70433f756d8e 100644
---- a/drivers/staging/vt6656/main_usb.c
-+++ b/drivers/staging/vt6656/main_usb.c
-@@ -402,16 +402,19 @@ static void vnt_free_int_bufs(struct vnt_private *priv)
- 	kfree(priv->int_buf.data_buf);
- }
- 
--static bool vnt_alloc_bufs(struct vnt_private *priv)
-+static int vnt_alloc_bufs(struct vnt_private *priv)
- {
-+	int ret = 0;
- 	struct vnt_usb_send_context *tx_context;
- 	struct vnt_rcb *rcb;
- 	int ii;
- 
- 	for (ii = 0; ii < priv->num_tx_context; ii++) {
- 		tx_context = kmalloc(sizeof(*tx_context), GFP_KERNEL);
--		if (!tx_context)
-+		if (!tx_context) {
-+			ret = -ENOMEM;
- 			goto free_tx;
-+		}
- 
- 		priv->tx_context[ii] = tx_context;
- 		tx_context->priv = priv;
-@@ -419,16 +422,20 @@ static bool vnt_alloc_bufs(struct vnt_private *priv)
- 
- 		/* allocate URBs */
- 		tx_context->urb = usb_alloc_urb(0, GFP_KERNEL);
--		if (!tx_context->urb)
-+		if (!tx_context->urb) {
-+			ret = -ENOMEM;
- 			goto free_tx;
-+		}
- 
- 		tx_context->in_use = false;
- 	}
- 
- 	for (ii = 0; ii < priv->num_rcb; ii++) {
- 		priv->rcb[ii] = kzalloc(sizeof(*priv->rcb[ii]), GFP_KERNEL);
--		if (!priv->rcb[ii])
-+		if (!priv->rcb[ii]) {
-+			ret = -ENOMEM;
- 			goto free_rx_tx;
-+		}
- 
- 		rcb = priv->rcb[ii];
- 
-@@ -436,39 +443,46 @@ static bool vnt_alloc_bufs(struct vnt_private *priv)
- 
- 		/* allocate URBs */
- 		rcb->urb = usb_alloc_urb(0, GFP_KERNEL);
--		if (!rcb->urb)
-+		if (!rcb->urb) {
-+			ret = -ENOMEM;
- 			goto free_rx_tx;
-+		}
- 
- 		rcb->skb = dev_alloc_skb(priv->rx_buf_sz);
--		if (!rcb->skb)
-+		if (!rcb->skb) {
-+			ret = -ENOMEM;
- 			goto free_rx_tx;
-+		}
- 
- 		rcb->in_use = false;
- 
- 		/* submit rx urb */
--		if (vnt_submit_rx_urb(priv, rcb))
-+		ret = vnt_submit_rx_urb(priv, rcb);
-+		if (ret)
- 			goto free_rx_tx;
- 	}
- 
- 	priv->interrupt_urb = usb_alloc_urb(0, GFP_KERNEL);
--	if (!priv->interrupt_urb)
-+	if (!priv->interrupt_urb) {
-+		ret = -ENOMEM;
- 		goto free_rx_tx;
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index eb24ec0e160d..c4281d16bcb7 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -3958,6 +3958,9 @@ static int usb_set_lpm_timeout(struct usb_device *udev,
+  * control transfers to set the hub timeout or enable device-initiated U1/U2
+  * will be successful.
+  *
++ * If the control transfer to enable device-initiated U1/U2 entry fails, then
++ * hub-initiated U1/U2 will be disabled.
++ *
+  * If we cannot set the parent hub U1/U2 timeout, we attempt to let the xHCI
+  * driver know about it.  If that call fails, it should be harmless, and just
+  * take up more slightly more bus bandwidth for unnecessary U1/U2 exit latency.
+@@ -4012,23 +4015,24 @@ static void usb_enable_link_state(struct usb_hcd *hcd, struct usb_device *udev,
+ 		 * host know that this link state won't be enabled.
+ 		 */
+ 		hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
+-	} else {
+-		/* Only a configured device will accept the Set Feature
+-		 * U1/U2_ENABLE
+-		 */
+-		if (udev->actconfig)
+-			usb_set_device_initiated_lpm(udev, state, true);
++		return;
 +	}
  
- 	priv->int_buf.data_buf = kmalloc(MAX_INTERRUPT_SIZE, GFP_KERNEL);
- 	if (!priv->int_buf.data_buf) {
--		usb_free_urb(priv->interrupt_urb);
--		goto free_rx_tx;
-+		ret = -ENOMEM;
-+		goto free_rx_tx_urb;
+-		/* As soon as usb_set_lpm_timeout(timeout) returns 0, the
+-		 * hub-initiated LPM is enabled. Thus, LPM is enabled no
+-		 * matter the result of usb_set_device_initiated_lpm().
+-		 * The only difference is whether device is able to initiate
+-		 * LPM.
+-		 */
++	/* Only a configured device will accept the Set Feature
++	 * U1/U2_ENABLE
++	 */
++	if (udev->actconfig &&
++	    usb_set_device_initiated_lpm(udev, state, true) == 0) {
+ 		if (state == USB3_LPM_U1)
+ 			udev->usb3_lpm_u1_enabled = 1;
+ 		else if (state == USB3_LPM_U2)
+ 			udev->usb3_lpm_u2_enabled = 1;
++	} else {
++		/* Don't request U1/U2 entry if the device
++		 * cannot transition to U1/U2.
++		 */
++		usb_set_lpm_timeout(udev, state, 0);
++		hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
  	}
- 
--	return true;
-+	return 0;
- 
-+free_rx_tx_urb:
-+	usb_free_urb(priv->interrupt_urb);
- free_rx_tx:
- 	vnt_free_rx_bufs(priv);
--
- free_tx:
- 	vnt_free_tx_bufs(priv);
--
--	return false;
-+	return ret;
  }
  
- static void vnt_tx_80211(struct ieee80211_hw *hw,
 -- 
 2.20.1
 
