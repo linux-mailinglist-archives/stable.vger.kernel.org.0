@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 203CD6DB9F
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:10:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6441B6DBAC
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:11:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732976AbfGSEKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:10:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44954 "EHLO mail.kernel.org"
+        id S1729803AbfGSEKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:10:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732873AbfGSEKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:10:13 -0400
+        id S1733119AbfGSEKg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:10:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6388218D9;
-        Fri, 19 Jul 2019 04:10:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A398421872;
+        Fri, 19 Jul 2019 04:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509412;
-        bh=hGT5ETy6JjufeX+h9IS2Iw44MzxB1G3ehcDYTnOZLU4=;
+        s=default; t=1563509435;
+        bh=ND04iyBGZU9uwTapA7OgOZosgZe0ucRFwjwX9sHc5uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XttOWmk80x7Pis5Ii6x3aw0KaHJPfdqrY9DBfjD8B43WPtvrQkDP+ZsG8M3B/U6p1
-         q8RIt8rcxYrtiLE5rXszX8X/ELgdPctA+m2YOOU9K9YzkQdL/Alle6yC3kggp9+oeP
-         poNRuZai4ORN0iFTCLEWxUrgxKdA6ebzN6ch4OkU=
+        b=MCIj12XQF6u63qiSX5RXWmaW9rKHW7Wra8X0q4FPLxtfRxLOGi3tmIDOGY6wXsX9A
+         nheKMhXt3M/2P3SolXApYLyQbEurGzrU2eWzosv57v0aENCMfp/eyVx3fYrU6SEtB9
+         5xVwSRsBTfgsxWONr58FV+QNWxMrVClMtqfphfEY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Konstantin Taranov <konstantin.taranov@inf.ethz.ch>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 077/101] RDMA/rxe: Fill in wc byte_len with IB_WC_RECV_RDMA_WITH_IMM
-Date:   Fri, 19 Jul 2019 00:07:08 -0400
-Message-Id: <20190719040732.17285-77-sashal@kernel.org>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Florian Weimer <fweimer@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.19 091/101] mm/gup.c: remove some BUG_ONs from get_gate_page()
+Date:   Fri, 19 Jul 2019 00:07:22 -0400
+Message-Id: <20190719040732.17285-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -43,61 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Taranov <konstantin.taranov@inf.ethz.ch>
+From: Andy Lutomirski <luto@kernel.org>
 
-[ Upstream commit bdce1290493caa3f8119f24b5dacc3fb7ca27389 ]
+[ Upstream commit b5d1c39f34d1c9bca0c4b9ae2e339fbbe264a9c7 ]
 
-Calculate the correct byte_len on the receiving side when a work
-completion is generated with IB_WC_RECV_RDMA_WITH_IMM opcode.
+If we end up without a PGD or PUD entry backing the gate area, don't BUG
+-- just fail gracefully.
 
-According to the IBA byte_len must indicate the number of written bytes,
-whereas it was always equal to zero for the IB_WC_RECV_RDMA_WITH_IMM
-opcode, even though data was transferred.
+It's not entirely implausible that this could happen some day on x86.  It
+doesn't right now even with an execute-only emulated vsyscall page because
+the fixmap shares the PUD, but the core mm code shouldn't rely on that
+particular detail to avoid OOPSing.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Signed-off-by: Konstantin Taranov <konstantin.taranov@inf.ethz.ch>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Link: http://lkml.kernel.org/r/a1d9f4efb75b9d464e59fd6af00104b21c58f6f7.1561610798.git.luto@kernel.org
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_resp.c  | 5 ++++-
- drivers/infiniband/sw/rxe/rxe_verbs.h | 1 +
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ mm/gup.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
-index 4111b798fd3c..681d8e0913d0 100644
---- a/drivers/infiniband/sw/rxe/rxe_resp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_resp.c
-@@ -435,6 +435,7 @@ static enum resp_states check_rkey(struct rxe_qp *qp,
- 			qp->resp.va = reth_va(pkt);
- 			qp->resp.rkey = reth_rkey(pkt);
- 			qp->resp.resid = reth_len(pkt);
-+			qp->resp.length = reth_len(pkt);
- 		}
- 		access = (pkt->mask & RXE_READ_MASK) ? IB_ACCESS_REMOTE_READ
- 						     : IB_ACCESS_REMOTE_WRITE;
-@@ -859,7 +860,9 @@ static enum resp_states do_complete(struct rxe_qp *qp,
- 				pkt->mask & RXE_WRITE_MASK) ?
- 					IB_WC_RECV_RDMA_WITH_IMM : IB_WC_RECV;
- 		wc->vendor_err = 0;
--		wc->byte_len = wqe->dma.length - wqe->dma.resid;
-+		wc->byte_len = (pkt->mask & RXE_IMMDT_MASK &&
-+				pkt->mask & RXE_WRITE_MASK) ?
-+					qp->resp.length : wqe->dma.length - wqe->dma.resid;
- 
- 		/* fields after byte_len are different between kernel and user
- 		 * space
-diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.h b/drivers/infiniband/sw/rxe/rxe_verbs.h
-index 332a16dad2a7..3b731c7682e5 100644
---- a/drivers/infiniband/sw/rxe/rxe_verbs.h
-+++ b/drivers/infiniband/sw/rxe/rxe_verbs.h
-@@ -212,6 +212,7 @@ struct rxe_resp_info {
- 	struct rxe_mem		*mr;
- 	u32			resid;
- 	u32			rkey;
-+	u32			length;
- 	u64			atomic_orig;
- 
- 	/* SRQ only */
+diff --git a/mm/gup.c b/mm/gup.c
+index 43c71397c7ca..f3088d25bd92 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -458,11 +458,14 @@ static int get_gate_page(struct mm_struct *mm, unsigned long address,
+ 		pgd = pgd_offset_k(address);
+ 	else
+ 		pgd = pgd_offset_gate(mm, address);
+-	BUG_ON(pgd_none(*pgd));
++	if (pgd_none(*pgd))
++		return -EFAULT;
+ 	p4d = p4d_offset(pgd, address);
+-	BUG_ON(p4d_none(*p4d));
++	if (p4d_none(*p4d))
++		return -EFAULT;
+ 	pud = pud_offset(p4d, address);
+-	BUG_ON(pud_none(*pud));
++	if (pud_none(*pud))
++		return -EFAULT;
+ 	pmd = pmd_offset(pud, address);
+ 	if (!pmd_present(*pmd))
+ 		return -EFAULT;
 -- 
 2.20.1
 
