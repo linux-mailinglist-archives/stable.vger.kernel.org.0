@@ -2,111 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C52AD6EB1A
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 21:31:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F38C96EB1F
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 21:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732751AbfGSTaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 15:30:10 -0400
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:8306 "EHLO
-        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730259AbfGSTaK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 15:30:10 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d321a3f0000>; Fri, 19 Jul 2019 12:30:07 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Fri, 19 Jul 2019 12:30:09 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Fri, 19 Jul 2019 12:30:09 -0700
-Received: from HQMAIL110.nvidia.com (172.18.146.15) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 19 Jul
- 2019 19:30:09 +0000
-Received: from HQMAIL104.nvidia.com (172.18.146.11) by hqmail110.nvidia.com
- (172.18.146.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 19 Jul
- 2019 19:30:06 +0000
-Received: from hqnvemgw01.nvidia.com (172.20.150.20) by HQMAIL104.nvidia.com
- (172.18.146.11) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Fri, 19 Jul 2019 19:30:06 +0000
-Received: from rcampbell-dev.nvidia.com (Not Verified[10.110.48.66]) by hqnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5d321a3e0002>; Fri, 19 Jul 2019 12:30:06 -0700
-From:   Ralph Campbell <rcampbell@nvidia.com>
-To:     <linux-mm@kvack.org>
-CC:     <linux-kernel@vger.kernel.org>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        John Hubbard <jhubbard@nvidia.com>, <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH v2 3/3] mm/hmm: Fix bad subpage pointer in try_to_unmap_one
-Date:   Fri, 19 Jul 2019 12:29:55 -0700
-Message-ID: <20190719192955.30462-4-rcampbell@nvidia.com>
+        id S1730259AbfGSTah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 15:30:37 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:40993 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728502AbfGSTah (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 15:30:37 -0400
+Received: by mail-pg1-f193.google.com with SMTP id x15so4539704pgg.8;
+        Fri, 19 Jul 2019 12:30:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=w7yvD+lTz2Rik1M6UM23psyCzKUtq59fP+VK4gnGKZc=;
+        b=re1CQE68v6gVOQtijsROR6B9lXtU4K4btjVXVz4wXeix0nsP03pz4i2MWuIkyLGE3B
+         Iiy4VNg4UgtSgBp9GA6EXoGEiW8KsuPoXbaVyri2CS8L1b3Rs5sq+EbINtHg7yqLk3OH
+         01iz+TUOwXyhtzGa9N3uj/ZEDXwxQM6fh7dDuJZttOLYP8WvOAJu1RSSizrgxxqEab+h
+         QbQYEiaX2ZMVnjqtA63Pwy/37dQu39WJ4hrkTYnxLht/aifYQrxQ1luXGL3oaLYfC/B9
+         q8/aGkOumRJRy06W26AHzah/XZ+OLKzZw0nZTwDYwPXidMdwiBaWZwWAsDmZbfsDRJ7i
+         HPmQ==
+X-Gm-Message-State: APjAAAV2lnKvAW4/OZCFXRG7eMhoG98OIx3nBPGzuShKVEpbcbo2fmtF
+        afrUFld++QIiSZC+iU1j0qw=
+X-Google-Smtp-Source: APXvYqzFLxEYyoZk7LJgYCiJsT+xnKlgJn77SNJtRodirTX0SDAcyS4kNw+TCmmDIGUDib4xIRi9vw==
+X-Received: by 2002:a63:b46:: with SMTP id a6mr45640148pgl.235.1563564635966;
+        Fri, 19 Jul 2019 12:30:35 -0700 (PDT)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id t9sm31950471pji.18.2019.07.19.12.30.34
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Fri, 19 Jul 2019 12:30:34 -0700 (PDT)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 13822402A1; Fri, 19 Jul 2019 19:30:34 +0000 (UTC)
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     linux-xfs@vger.kernel.org, gregkh@linuxfoundation.org,
+        Alexander.Levin@microsoft.com
+Cc:     stable@vger.kernel.org, amir73il@gmail.com, hch@infradead.org,
+        zlang@redhat.com, Brian Foster <bfoster@redhat.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH] xfs: don't trip over uninitialized buffer on extent read of corrupted inode
+Date:   Fri, 19 Jul 2019 19:30:32 +0000
+Message-Id: <20190719193032.11096-1-mcgrof@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190719192955.30462-1-rcampbell@nvidia.com>
-References: <20190719192955.30462-1-rcampbell@nvidia.com>
+In-Reply-To: <20190718230617.7439-1-mcgrof>
+References: <20190718230617.7439-1-mcgrof>
 MIME-Version: 1.0
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1563564607; bh=U0IXy/zKKcejMP4DQKHZ57GJs0lTlzQ4MYtXzCim3fk=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding;
-        b=YIkfifBJUS0alAYsaVI5Ym8d5Mg4+IaenMIF+Y0kr5t7XnywK5CHmhhjsvvwxA9YN
-         hbDUy5VkcxKbbwBf9ukQ7ACI2HDXzbD0iTnXCostTVhbyzPsfBQOqW5ZqgiHWqg/TP
-         MIS7pFfiezJRrkz9KW5msKmEg7H2CntpEWhdHIJXJb/VPi3uVI0Od4R1IDwOXCe4NP
-         QNBpDA11Dl9eAOplh9CwMN2llenNQpmONbUBX2CZwZ2FnX2zNmEGFP2F7n1WNt3mYk
-         ma8muqGT1xXFWVoBZKhUXjZHA19CbXrT/M+0ogyaKVYdDZFCytv8Rv2cc+PudYibtr
-         kBIWEui1O0Rtg==
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When migrating an anonymous private page to a ZONE_DEVICE private page,
-the source page->mapping and page->index fields are copied to the
-destination ZONE_DEVICE struct page and the page_mapcount() is increased.
-This is so rmap_walk() can be used to unmap and migrate the page back to
-system memory. However, try_to_unmap_one() computes the subpage pointer
-from a swap pte which computes an invalid page pointer and a kernel panic
-results such as:
+From: Brian Foster <bfoster@redhat.com>
 
-BUG: unable to handle page fault for address: ffffea1fffffffc8
+commit 6958d11f77d45db80f7e22a21a74d4d5f44dc667 upstream.
 
-Currently, only single pages can be migrated to device private memory so
-no subpage computation is needed and it can be set to "page".
+We've had rather rare reports of bmap btree block corruption where
+the bmap root block has a level count of zero. The root cause of the
+corruption is so far unknown. We do have verifier checks to detect
+this form of on-disk corruption, but this doesn't cover a memory
+corruption variant of the problem. The latter is a reasonable
+possibility because the root block is part of the inode fork and can
+reside in-core for some time before inode extents are read.
 
-Fixes: a5430dda8a3a1c ("mm/migrate: support un-addressable ZONE_DEVICE page=
- in migration")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Cc: "J=C3=A9r=C3=B4me Glisse" <jglisse@redhat.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+If this occurs, it leads to a system crash such as the following:
+
+ BUG: unable to handle kernel paging request at ffffffff00000221
+ PF error: [normal kernel read fault]
+ ...
+ RIP: 0010:xfs_trans_brelse+0xf/0x200 [xfs]
+ ...
+ Call Trace:
+  xfs_iread_extents+0x379/0x540 [xfs]
+  xfs_file_iomap_begin_delay+0x11a/0xb40 [xfs]
+  ? xfs_attr_get+0xd1/0x120 [xfs]
+  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
+  xfs_file_iomap_begin+0x4c4/0x6d0 [xfs]
+  ? __vfs_getxattr+0x53/0x70
+  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
+  iomap_apply+0x63/0x130
+  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
+  iomap_file_buffered_write+0x62/0x90
+  ? iomap_write_begin.constprop.40+0x2d0/0x2d0
+  xfs_file_buffered_aio_write+0xe4/0x3b0 [xfs]
+  __vfs_write+0x150/0x1b0
+  vfs_write+0xba/0x1c0
+  ksys_pwrite64+0x64/0xa0
+  do_syscall_64+0x5a/0x1d0
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+The crash occurs because xfs_iread_extents() attempts to release an
+uninitialized buffer pointer as the level == 0 value prevented the
+buffer from ever being allocated or read. Change the level > 0
+assert to an explicit error check in xfs_iread_extents() to avoid
+crashing the kernel in the event of localized, in-core inode
+corruption.
+
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+[mcgrof: fixes kz#204223 ]
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 ---
- mm/rmap.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/xfs/libxfs/xfs_bmap.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/mm/rmap.c b/mm/rmap.c
-index e5dfe2ae6b0d..ec1af8b60423 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -1476,6 +1476,7 @@ static bool try_to_unmap_one(struct page *page, struc=
-t vm_area_struct *vma,
- 			 * No need to invalidate here it will synchronize on
- 			 * against the special swap migration pte.
- 			 */
-+			subpage =3D page;
- 			goto discard;
- 		}
-=20
---=20
-2.20.1
+diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
+index 3a496ffe6551..ab2465bc413a 100644
+--- a/fs/xfs/libxfs/xfs_bmap.c
++++ b/fs/xfs/libxfs/xfs_bmap.c
+@@ -1178,7 +1178,10 @@ xfs_iread_extents(
+ 	 * Root level must use BMAP_BROOT_PTR_ADDR macro to get ptr out.
+ 	 */
+ 	level = be16_to_cpu(block->bb_level);
+-	ASSERT(level > 0);
++	if (unlikely(level == 0)) {
++		XFS_ERROR_REPORT(__func__, XFS_ERRLEVEL_LOW, mp);
++		return -EFSCORRUPTED;
++	}
+ 	pp = XFS_BMAP_BROOT_PTR_ADDR(mp, block, 1, ifp->if_broot_bytes);
+ 	bno = be64_to_cpu(*pp);
+ 
+-- 
+2.18.0
 
