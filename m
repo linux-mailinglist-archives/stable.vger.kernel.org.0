@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97BE66D9AA
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:57:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 974AE6D9D6
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727412AbfGSD5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 23:57:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56904 "EHLO mail.kernel.org"
+        id S1727522AbfGSD5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 23:57:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727356AbfGSD5k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:57:40 -0400
+        id S1727498AbfGSD5s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:57:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 940EF2082E;
-        Fri, 19 Jul 2019 03:57:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA35A2082E;
+        Fri, 19 Jul 2019 03:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508659;
-        bh=JRMsjUM6twyTvjz1WSwYCsB1tXVYUgsBy61Dm3RlWuM=;
+        s=default; t=1563508667;
+        bh=zXuf2nbZCij5MP1OdNwHCR3+fO1/OY+Y4ixkT1Yzb0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmb9RpqEmRDt7QRUQGQoeaJcBWpdWKX+oW8j189PXKY3t36pVMEqh47MbvnbQ1wUJ
-         pk0CL2nY12IroE5exOXkRZ0BmmJUuqd3AISCETihSzsgz3RJDLSLkyLL3ZKVsd6/pP
-         f2wZ2DABZDc3thbUsbTuWBVJthI9l43Fevyk/HJ4=
+        b=Lpa+A5PqUfVvmpRc4eJAQOjonsdRWvvlVWHry1X3/Sup3s+4qc0FKU4/iMfbZF1q3
+         fv1tGprY4O5IgRmWjabC/TIJeAd9/4/MX0xW16lvwTg+B1OpGyKtzN4HtrjahTLOab
+         TJCvr3Jj8MK8oOeGr1v8cy23OYpvr7JKzEMeKpnM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Paul <seanpaul@chromium.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 020/171] drm/msm/a6xx: Avoid freeing gmu resources multiple times
-Date:   Thu, 18 Jul 2019 23:54:11 -0400
-Message-Id: <20190719035643.14300-20-sashal@kernel.org>
+Cc:     Felix Kuehling <Felix.Kuehling@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 023/171] drm/amdgpu: Reserve shared fence for eviction fence
+Date:   Thu, 18 Jul 2019 23:54:14 -0400
+Message-Id: <20190719035643.14300-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,113 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Paul <seanpaul@chromium.org>
+From: Felix Kuehling <Felix.Kuehling@amd.com>
 
-[ Upstream commit 606ec90fc2266284f584a96ebf7f874589f56251 ]
+[ Upstream commit dd68722c427d5b33420dce0ed0c44b4881e0a416 ]
 
-The driver checks for gmu->mmio as a sign that the device has been
-initialized, however there are failures in probe below the mmio init.
-If one of those is hit, mmio will be non-null but freed.
+Need to reserve space for the shared eviction fence when initializing
+a KFD VM.
 
-In that case, a6xx_gmu_probe will return an error to a6xx_gpu_init which
-will in turn call a6xx_gmu_remove which checks gmu->mmio and tries to free
-resources for a second time. This causes a great boom.
-
-Fix this by adding an initialized member to gmu which is set on
-successful probe and cleared on removal.
-
-Changes in v2:
-- None
-
-Cc: Jordan Crouse <jcrouse@codeaurora.org>
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190523171653.138678-1-sean@poorly.run
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gmu.c | 14 +++++++++-----
- drivers/gpu/drm/msm/adreno/a6xx_gmu.h |  1 +
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-index 418bb08bbed7..6910d0468e3c 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-@@ -74,7 +74,7 @@ bool a6xx_gmu_sptprac_is_on(struct a6xx_gmu *gmu)
- 	u32 val;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+index a6e5184d436c..4b192e0ce92f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+@@ -896,6 +896,9 @@ static int init_kfd_vm(struct amdgpu_vm *vm, void **process_info,
+ 				  AMDGPU_FENCE_OWNER_KFD, false);
+ 	if (ret)
+ 		goto wait_pd_fail;
++	ret = reservation_object_reserve_shared(vm->root.base.bo->tbo.resv, 1);
++	if (ret)
++		goto reserve_shared_fail;
+ 	amdgpu_bo_fence(vm->root.base.bo,
+ 			&vm->process_info->eviction_fence->base, true);
+ 	amdgpu_bo_unreserve(vm->root.base.bo);
+@@ -909,6 +912,7 @@ static int init_kfd_vm(struct amdgpu_vm *vm, void **process_info,
  
- 	/* This can be called from gpu state code so make sure GMU is valid */
--	if (IS_ERR_OR_NULL(gmu->mmio))
-+	if (!gmu->initialized)
- 		return false;
- 
- 	val = gmu_read(gmu, REG_A6XX_GMU_SPTPRAC_PWR_CLK_STATUS);
-@@ -90,7 +90,7 @@ bool a6xx_gmu_gx_is_on(struct a6xx_gmu *gmu)
- 	u32 val;
- 
- 	/* This can be called from gpu state code so make sure GMU is valid */
--	if (IS_ERR_OR_NULL(gmu->mmio))
-+	if (!gmu->initialized)
- 		return false;
- 
- 	val = gmu_read(gmu, REG_A6XX_GMU_SPTPRAC_PWR_CLK_STATUS);
-@@ -697,7 +697,7 @@ int a6xx_gmu_resume(struct a6xx_gpu *a6xx_gpu)
- 	struct a6xx_gmu *gmu = &a6xx_gpu->gmu;
- 	int status, ret;
- 
--	if (WARN(!gmu->mmio, "The GMU is not set up yet\n"))
-+	if (WARN(!gmu->initialized, "The GMU is not set up yet\n"))
- 		return 0;
- 
- 	gmu->hung = false;
-@@ -767,7 +767,7 @@ bool a6xx_gmu_isidle(struct a6xx_gmu *gmu)
- {
- 	u32 reg;
- 
--	if (!gmu->mmio)
-+	if (!gmu->initialized)
- 		return true;
- 
- 	reg = gmu_read(gmu, REG_A6XX_GPU_GMU_AO_GPU_CX_BUSY_STATUS);
-@@ -1229,7 +1229,7 @@ void a6xx_gmu_remove(struct a6xx_gpu *a6xx_gpu)
- {
- 	struct a6xx_gmu *gmu = &a6xx_gpu->gmu;
- 
--	if (IS_ERR_OR_NULL(gmu->mmio))
-+	if (!gmu->initialized)
- 		return;
- 
- 	a6xx_gmu_stop(a6xx_gpu);
-@@ -1247,6 +1247,8 @@ void a6xx_gmu_remove(struct a6xx_gpu *a6xx_gpu)
- 	iommu_detach_device(gmu->domain, gmu->dev);
- 
- 	iommu_domain_free(gmu->domain);
-+
-+	gmu->initialized = false;
- }
- 
- int a6xx_gmu_probe(struct a6xx_gpu *a6xx_gpu, struct device_node *node)
-@@ -1311,6 +1313,8 @@ int a6xx_gmu_probe(struct a6xx_gpu *a6xx_gpu, struct device_node *node)
- 	/* Set up the HFI queues */
- 	a6xx_hfi_init(gmu);
- 
-+	gmu->initialized = true;
-+
  	return 0;
- err:
- 	a6xx_gmu_memory_free(gmu, gmu->hfi);
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.h b/drivers/gpu/drm/msm/adreno/a6xx_gmu.h
-index bedd8e6a63aa..39a26dd63674 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.h
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.h
-@@ -75,6 +75,7 @@ struct a6xx_gmu {
  
- 	struct a6xx_hfi_queue queues[2];
- 
-+	bool initialized;
- 	bool hung;
- };
- 
++reserve_shared_fail:
+ wait_pd_fail:
+ validate_pd_fail:
+ 	amdgpu_bo_unreserve(vm->root.base.bo);
 -- 
 2.20.1
 
