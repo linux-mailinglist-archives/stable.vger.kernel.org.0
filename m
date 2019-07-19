@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C026DA59
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:01:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBBB56DA5B
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:01:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729566AbfGSEBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:01:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33344 "EHLO mail.kernel.org"
+        id S1729594AbfGSEBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:01:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729540AbfGSEBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:01:37 -0400
+        id S1729582AbfGSEBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:01:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93AE521897;
-        Fri, 19 Jul 2019 04:01:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D221E21851;
+        Fri, 19 Jul 2019 04:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508896;
-        bh=YPHQWDnAjj6f0it24YzhQzQrShEq69mzDHoUQixDxp4=;
+        s=default; t=1563508898;
+        bh=U8pxwKUR8lFaTq3mQqf/ccRDfesiLsyvkbKgW/aXvvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q5TWs8TEwQZ/mx7I1XRVurRH8pfS5GEG78r18znce9w5oWjT2HNj8GS5mr+TAEbZZ
-         OqEZ8bIdN2uXJt+5Rnh08fKCqSMQNfjI7hjTdccR+I3rNnhNLGTIunVT+uvS4WlvQN
-         vYeEyplUD/ej0aqV1qt4NV/g69ngtZaFtRP9Tguo=
+        b=CLfTMYSLi77PG62l0eYCLVMcLdul5ae2O0bXOQiEUgqlgHfJdJnl4zRr8CMQq59IE
+         zVVCm3t8lJbvdCoXFJcH487kqXl/bC35wkiW30l2I+tgE6qMzwH+PQy/VOBgVPmohM
+         A3jiOTsirAP5/csZUkWQkkyGHJHXvio9yLtWHdbU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heng Xiao <heng.xiao@unisoc.com>, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.2 144/171] f2fs: fix to avoid long latency during umount
-Date:   Thu, 18 Jul 2019 23:56:15 -0400
-Message-Id: <20190719035643.14300-144-sashal@kernel.org>
+Cc:     morten petersen <morten_bp@live.dk>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 146/171] mailbox: handle failed named mailbox channel request
+Date:   Thu, 18 Jul 2019 23:56:17 -0400
+Message-Id: <20190719035643.14300-146-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -44,38 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heng Xiao <heng.xiao@unisoc.com>
+From: morten petersen <morten_bp@live.dk>
 
-[ Upstream commit 6e0cd4a9dd4df1a0afcb454f1e654b5c80685913 ]
+[ Upstream commit 25777e5784a7b417967460d4fcf9660d05a0c320 ]
 
-In umount, we give an constand time to handle pending discard, previously,
-in __issue_discard_cmd() we missed to check timeout condition in loop,
-result in delaying long time, fix it.
+Previously, if mbox_request_channel_byname was used with a name
+which did not exist in the "mbox-names" property of a mailbox
+client, the mailbox corresponding to the last entry in the
+"mbox-names" list would be incorrectly selected.
+With this patch, -EINVAL is returned if the named mailbox is
+not found.
 
-Signed-off-by: Heng Xiao <heng.xiao@unisoc.com>
-[Chao Yu: add commit message]
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Morten Borup Petersen <morten_bp@live.dk>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/mailbox/mailbox.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 8903b61457e7..291f7106537c 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -1486,6 +1486,10 @@ static int __issue_discard_cmd(struct f2fs_sb_info *sbi,
- 		list_for_each_entry_safe(dc, tmp, pend_list, list) {
- 			f2fs_bug_on(sbi, dc->state != D_PREP);
+diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
+index f4b1950d35f3..0b821a5b2db8 100644
+--- a/drivers/mailbox/mailbox.c
++++ b/drivers/mailbox/mailbox.c
+@@ -418,11 +418,13 @@ struct mbox_chan *mbox_request_channel_byname(struct mbox_client *cl,
  
-+			if (dpolicy->timeout != 0 &&
-+				f2fs_time_over(sbi, dpolicy->timeout))
-+				break;
-+
- 			if (dpolicy->io_aware && i < dpolicy->io_aware_gran &&
- 						!is_idle(sbi, DISCARD_TIME)) {
- 				io_interrupted = true;
+ 	of_property_for_each_string(np, "mbox-names", prop, mbox_name) {
+ 		if (!strncmp(name, mbox_name, strlen(name)))
+-			break;
++			return mbox_request_channel(cl, index);
+ 		index++;
+ 	}
+ 
+-	return mbox_request_channel(cl, index);
++	dev_err(cl->dev, "%s() could not locate channel named \"%s\"\n",
++		__func__, name);
++	return ERR_PTR(-EINVAL);
+ }
+ EXPORT_SYMBOL_GPL(mbox_request_channel_byname);
+ 
 -- 
 2.20.1
 
