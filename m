@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F23FD6D9E7
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:58:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0DE96D9EC
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:58:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726858AbfGSD6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 23:58:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57530 "EHLO mail.kernel.org"
+        id S1727992AbfGSD6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 23:58:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727823AbfGSD6O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:58:14 -0400
+        id S1727891AbfGSD6V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:58:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9FD32184E;
-        Fri, 19 Jul 2019 03:58:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D51721855;
+        Fri, 19 Jul 2019 03:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508693;
-        bh=z+8JcC18Jtyh8uyT6UA2/SC24y/hq7VVcY9YA+weTuk=;
+        s=default; t=1563508701;
+        bh=A8V1gvm+yaht1CTUyJ/J+QZqRvGR/yXURvSy6UwnNUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1lNXnI+nXdooUfTkRfB1jDqaUZXgNl2kvRsTiJDHEXXe0M+JcNvL9PoxjTclzl27
-         QgJwJkQsFwNPXl/oS7LwA03zjFnEmXl1zwsxOGmY8ENxvNEbJiAvX2HnaDYe4iYAal
-         TDVCPP+mpJwWrLZgc8/e/KJVc8dVX1vGfowN/uWo=
+        b=VlaiSkmGPPBkB1SzAYxXkk6pDs/G0SZZXYxPab2j1TSRBEI01Q1eSH0Fv1mvqSAX5
+         y8Gfamd5N3cRDIE3TDxs7WdRz8kA0zCpR//MNxuNGVDAIUp9XmwfsaoccTpDahRNz8
+         KpKPj3cq8FVTB/E041J8sd0ONAqQP/vQT0TUZoDM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krunoslav Kovac <Krunoslav.Kovac@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>, Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 036/171] drm/amd/display: CS_TFM_1D only applied post EOTF
-Date:   Thu, 18 Jul 2019 23:54:27 -0400
-Message-Id: <20190719035643.14300-36-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 040/171] gpu: host1x: Increase maximum DMA segment size
+Date:   Thu, 18 Jul 2019 23:54:31 -0400
+Message-Id: <20190719035643.14300-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -45,42 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 6ad34adeaec5b56a5ba90e90099cabf1c1fe9dd2 ]
+[ Upstream commit 1e390478cfb527e34c9ab89ba57212cb05c33c51 ]
 
-[Why]
-There's some unnecessary mem allocation for CS_TFM_ID. What's worse, it
-depends on LUT size and since it's 4K for CS_TFM_1D, it is 16x bigger
-than in regular case when it's actually needed. This leads to some
-crashes in stress conditions.
+Recent versions of the DMA API debug code have started to warn about
+violations of the maximum DMA segment size. This is because the segment
+size defaults to 64 KiB, which can easily be exceeded in large buffer
+allocations such as used in DRM/KMS for framebuffers.
 
-[How]
-Skip ramp combining designed for RGB256 and DXGI gamma with CS_TFM_1D.
+Technically the Tegra SMMU and ARM SMMU don't have a maximum segment
+size (they map individual pages irrespective of whether they are
+contiguous or not), so the choice of 4 MiB is a bit arbitrary here. The
+maximum segment size is a 32-bit unsigned integer, though, so we can't
+set it to the correct maximum size, which would be the size of the
+aperture.
 
-Signed-off-by: Krunoslav Kovac <Krunoslav.Kovac@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/host1x/bus.c | 3 +++
+ include/linux/host1x.h   | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-index a1055413bade..31f867bb5afe 100644
---- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-+++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-@@ -1564,7 +1564,8 @@ bool mod_color_calculate_regamma_params(struct dc_transfer_func *output_tf,
+diff --git a/drivers/gpu/host1x/bus.c b/drivers/gpu/host1x/bus.c
+index 9797ccb0a073..6387302c1245 100644
+--- a/drivers/gpu/host1x/bus.c
++++ b/drivers/gpu/host1x/bus.c
+@@ -414,6 +414,9 @@ static int host1x_device_add(struct host1x *host1x,
  
- 	output_tf->type = TF_TYPE_DISTRIBUTED_POINTS;
+ 	of_dma_configure(&device->dev, host1x->dev->of_node, true);
  
--	if (ramp && (mapUserRamp || ramp->type != GAMMA_RGB_256)) {
-+	if (ramp && ramp->type != GAMMA_CS_TFM_1D &&
-+			(mapUserRamp || ramp->type != GAMMA_RGB_256)) {
- 		rgb_user = kvcalloc(ramp->num_entries + _EXTRA_POINTS,
- 			    sizeof(*rgb_user),
- 			    GFP_KERNEL);
++	device->dev.dma_parms = &device->dma_parms;
++	dma_set_max_seg_size(&device->dev, SZ_4M);
++
+ 	err = host1x_device_parse_dt(device, driver);
+ 	if (err < 0) {
+ 		kfree(device);
+diff --git a/include/linux/host1x.h b/include/linux/host1x.h
+index cfff30b9a62e..e6eea45e1154 100644
+--- a/include/linux/host1x.h
++++ b/include/linux/host1x.h
+@@ -297,6 +297,8 @@ struct host1x_device {
+ 	struct list_head clients;
+ 
+ 	bool registered;
++
++	struct device_dma_parameters dma_parms;
+ };
+ 
+ static inline struct host1x_device *to_host1x_device(struct device *dev)
 -- 
 2.20.1
 
