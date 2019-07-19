@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADCBA6DF78
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:36:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B88F6DF4D
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:35:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729420AbfGSEfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:35:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33034 "EHLO mail.kernel.org"
+        id S1728332AbfGSEBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:01:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728581AbfGSEBU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:01:20 -0400
+        id S1729409AbfGSEBZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:01:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FC2F218BA;
-        Fri, 19 Jul 2019 04:01:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 579B921873;
+        Fri, 19 Jul 2019 04:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508879;
-        bh=KvJVT3OxbW7ZfxoOeAj1LriJxnXXyQaXFDAw6GDtAw4=;
+        s=default; t=1563508884;
+        bh=I17DrcFi7+urAICnpGho+Udc/SRWzTgx9Ys7b2roMz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ktqjFaQaWmZaDRYTXFVLDw7CKX4EgxcJacJjbJMGO04YuGqzYig5DgYgX0nv///Kl
-         zTHEPC/ioVgf3e4vCNIXuKt5vTToTfLUDEEng4vEHhDFAuHv5dxRcNBeR12Pk9rxO9
-         Z8HIyVh9ci6y0pEbdi/+CrrZFwHM/oTOV7tJTbSc=
+        b=tI87Xu24wtfN0JlayL0WoI+Ox7SvC9i+8npqGZ47T9MHdRQTf9+UJSQZZr7WUwP76
+         7sSGMN5WQYwOtLym0WtD7GKZAeujPFvHpbk9oGnHrGwfSFJ3tREMmWrVmaUsoSjSuP
+         WONVyeY94r9yPT20eV9yGEgj+6jdVMY8WbkjL4o4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leo Yan <leo.yan@linaro.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 133/171] perf intel-bts: Fix potential NULL pointer dereference found by the smatch tool
-Date:   Thu, 18 Jul 2019 23:56:04 -0400
-Message-Id: <20190719035643.14300-133-sashal@kernel.org>
+Cc:     Alan Mikhak <alan.mikhak@sifive.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-nvme@lists.infradead.org, linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.2 135/171] nvme-pci: check for NULL return from pci_alloc_p2pmem()
+Date:   Thu, 18 Jul 2019 23:56:06 -0400
+Message-Id: <20190719035643.14300-135-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -50,72 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Alan Mikhak <alan.mikhak@sifive.com>
 
-[ Upstream commit 1d481458816d9424c8a05833ce0ebe72194a350e ]
+[ Upstream commit bfac8e9f55cf62a000b643a0081488badbe92d96 ]
 
-Based on the following report from Smatch, fix the potential NULL
-pointer dereference check.
+Modify nvme_alloc_sq_cmds() to call pci_free_p2pmem() to free the memory
+it allocated using pci_alloc_p2pmem() in case pci_p2pmem_virt_to_bus()
+returns null.
 
-  tools/perf/util/intel-bts.c:898
-  intel_bts_process_auxtrace_info() error: we previously assumed
-  'session->itrace_synth_opts' could be null (see line 894)
+Makes sure not to call pci_free_p2pmem() if pci_alloc_p2pmem() returned
+NULL, which can happen if CONFIG_PCI_P2PDMA is not configured.
 
-  tools/perf/util/intel-bts.c:899
-  intel_bts_process_auxtrace_info() warn: variable dereferenced before
-  check 'session->itrace_synth_opts' (see line 898)
+The current implementation is not expected to leak since
+pci_p2pmem_virt_to_bus() is expected to fail only if pci_alloc_p2pmem()
+returns null. However, checking the return value of pci_alloc_p2pmem()
+is more explicit.
 
-  tools/perf/util/intel-bts.c
-  894         if (session->itrace_synth_opts && session->itrace_synth_opts->set) {
-  895                 bts->synth_opts = *session->itrace_synth_opts;
-  896         } else {
-  897                 itrace_synth_opts__set_default(&bts->synth_opts,
-  898                                 session->itrace_synth_opts->default_no_sample);
-                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  899                 if (session->itrace_synth_opts)
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  900                         bts->synth_opts.thread_stack =
-  901                                 session->itrace_synth_opts->thread_stack;
-  902         }
-
-'session->itrace_synth_opts' is impossible to be a NULL pointer in
-intel_bts_process_auxtrace_info(), thus this patch removes the NULL test
-for 'session->itrace_synth_opts'.
-
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lkml.kernel.org/r/20190708143937.7722-3-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Alan Mikhak <alan.mikhak@sifive.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/intel-bts.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/nvme/host/pci.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/tools/perf/util/intel-bts.c b/tools/perf/util/intel-bts.c
-index e32dbffebb2f..625ad3639a7e 100644
---- a/tools/perf/util/intel-bts.c
-+++ b/tools/perf/util/intel-bts.c
-@@ -891,13 +891,12 @@ int intel_bts_process_auxtrace_info(union perf_event *event,
- 	if (dump_trace)
- 		return 0;
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 524d6bd6d095..5dfa067f6506 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1456,11 +1456,15 @@ static int nvme_alloc_sq_cmds(struct nvme_dev *dev, struct nvme_queue *nvmeq,
  
--	if (session->itrace_synth_opts && session->itrace_synth_opts->set) {
-+	if (session->itrace_synth_opts->set) {
- 		bts->synth_opts = *session->itrace_synth_opts;
- 	} else {
- 		itrace_synth_opts__set_default(&bts->synth_opts,
- 				session->itrace_synth_opts->default_no_sample);
--		if (session->itrace_synth_opts)
--			bts->synth_opts.thread_stack =
-+		bts->synth_opts.thread_stack =
- 				session->itrace_synth_opts->thread_stack;
+ 	if (qid && dev->cmb_use_sqes && (dev->cmbsz & NVME_CMBSZ_SQS)) {
+ 		nvmeq->sq_cmds = pci_alloc_p2pmem(pdev, SQ_SIZE(depth));
+-		nvmeq->sq_dma_addr = pci_p2pmem_virt_to_bus(pdev,
+-						nvmeq->sq_cmds);
+-		if (nvmeq->sq_dma_addr) {
+-			set_bit(NVMEQ_SQ_CMB, &nvmeq->flags);
+-			return 0; 
++		if (nvmeq->sq_cmds) {
++			nvmeq->sq_dma_addr = pci_p2pmem_virt_to_bus(pdev,
++							nvmeq->sq_cmds);
++			if (nvmeq->sq_dma_addr) {
++				set_bit(NVMEQ_SQ_CMB, &nvmeq->flags);
++				return 0;
++			}
++
++			pci_free_p2pmem(pdev, nvmeq->sq_cmds, SQ_SIZE(depth));
+ 		}
  	}
  
 -- 
