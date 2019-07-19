@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 772566DEC2
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:31:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E211A6DEBA
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:30:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730070AbfGSEEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:04:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37092 "EHLO mail.kernel.org"
+        id S1731348AbfGSEEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:04:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731289AbfGSEEv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:04:51 -0400
+        id S1731334AbfGSEEy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:04:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E6B1218BB;
-        Fri, 19 Jul 2019 04:04:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E1DE218A3;
+        Fri, 19 Jul 2019 04:04:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509090;
-        bh=v9Pn+9R6HHtr8XQS+dNaYVDFM0/s9GUOjJuGW05vXGk=;
+        s=default; t=1563509093;
+        bh=vL3AmHwHotQnShlqS79F0dQKm8AQqsbtutrbeGWT9OU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MeUGzUB1vq87aiNiTCO5g+hc/m5YlWxr93KtvD+V1ErxtFmDveYyS9IG5YHcqvYDa
-         f9kzpAKFAj+78fP+KB0Yzmnfu8D+FqW2+J901/xvARBBm668ZwiFxu7shduaMwP7jT
-         W84BHP1Ijq3HIbt8DMiPF2XvSkUD5kfVqsZijuSg=
+        b=Xjs/7uVBLUfuUFaodpNPOoSEd9+Qt2XMt7LTqd/m06L648rb/XlIwUoQ68S+3yy83
+         GMUgGSurQieJ93Y1kNNdkDTh1iKGkvs/2F+tfCKdaWKlGgJs45p5YL3EK8+RUIVNeo
+         ysDqoNAB9Wtc53UZOwAAtviE/UuO6JgSUCIyyb1Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
-        Fabien Dessenne <fabien.dessenne@st.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 063/141] i2c: stm32f7: fix the get_irq error cases
-Date:   Fri, 19 Jul 2019 00:01:28 -0400
-Message-Id: <20190719040246.15945-63-sashal@kernel.org>
+Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Denis Ciocca <denis.ciocca@st.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 064/141] iio: st_accel: fix iio_triggered_buffer_{pre,post}enable positions
+Date:   Fri, 19 Jul 2019 00:01:29 -0400
+Message-Id: <20190719040246.15945-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -45,86 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-[ Upstream commit 79b4499524ed659fb76323efc30f3dc03967c88f ]
+[ Upstream commit 05b8bcc96278c9ef927a6f25a98e233e55de42e1 ]
 
-During probe, return the "get_irq" error value instead of -EINVAL which
-allows the driver to be deferred probed if needed.
-Fix also the case where of_irq_get() returns a negative value.
-Note :
-On failure of_irq_get() returns 0 or a negative value while
-platform_get_irq() returns a negative value.
+The iio_triggered_buffer_{predisable,postenable} functions attach/detach
+the poll functions.
 
-Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+For the predisable hook, the disable code should occur before detaching
+the poll func, and for the postenable hook, the poll func should be
+attached before the enable code.
+
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Acked-by: Denis Ciocca <denis.ciocca@st.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-stm32f7.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ drivers/iio/accel/st_accel_buffer.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 4284fc991cfd..432b701ccf38 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -25,7 +25,6 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/of_address.h>
--#include <linux/of_irq.h>
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
- #include <linux/pinctrl/consumer.h>
-@@ -1812,15 +1811,14 @@ static struct i2c_algorithm stm32f7_i2c_algo = {
+diff --git a/drivers/iio/accel/st_accel_buffer.c b/drivers/iio/accel/st_accel_buffer.c
+index 7fddc137e91e..802ab7d2d93f 100644
+--- a/drivers/iio/accel/st_accel_buffer.c
++++ b/drivers/iio/accel/st_accel_buffer.c
+@@ -46,17 +46,19 @@ static int st_accel_buffer_postenable(struct iio_dev *indio_dev)
+ 		goto allocate_memory_error;
+ 	}
  
- static int stm32f7_i2c_probe(struct platform_device *pdev)
+-	err = st_sensors_set_axis_enable(indio_dev,
+-					(u8)indio_dev->active_scan_mask[0]);
++	err = iio_triggered_buffer_postenable(indio_dev);
+ 	if (err < 0)
+ 		goto st_accel_buffer_postenable_error;
+ 
+-	err = iio_triggered_buffer_postenable(indio_dev);
++	err = st_sensors_set_axis_enable(indio_dev,
++					(u8)indio_dev->active_scan_mask[0]);
+ 	if (err < 0)
+-		goto st_accel_buffer_postenable_error;
++		goto st_sensors_set_axis_enable_error;
+ 
+ 	return err;
+ 
++st_sensors_set_axis_enable_error:
++	iio_triggered_buffer_predisable(indio_dev);
+ st_accel_buffer_postenable_error:
+ 	kfree(adata->buffer_data);
+ allocate_memory_error:
+@@ -65,20 +67,22 @@ static int st_accel_buffer_postenable(struct iio_dev *indio_dev)
+ 
+ static int st_accel_buffer_predisable(struct iio_dev *indio_dev)
  {
--	struct device_node *np = pdev->dev.of_node;
- 	struct stm32f7_i2c_dev *i2c_dev;
- 	const struct stm32f7_i2c_setup *setup;
- 	struct resource *res;
--	u32 irq_error, irq_event, clk_rate, rise_time, fall_time;
-+	u32 clk_rate, rise_time, fall_time;
- 	struct i2c_adapter *adap;
- 	struct reset_control *rst;
- 	dma_addr_t phy_addr;
--	int ret;
-+	int irq_error, irq_event, ret;
+-	int err;
++	int err, err2;
+ 	struct st_sensor_data *adata = iio_priv(indio_dev);
  
- 	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
- 	if (!i2c_dev)
-@@ -1832,16 +1830,20 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(i2c_dev->base);
- 	phy_addr = (dma_addr_t)res->start;
+-	err = iio_triggered_buffer_predisable(indio_dev);
+-	if (err < 0)
+-		goto st_accel_buffer_predisable_error;
+-
+ 	err = st_sensors_set_axis_enable(indio_dev, ST_SENSORS_ENABLE_ALL_AXIS);
+ 	if (err < 0)
+ 		goto st_accel_buffer_predisable_error;
  
--	irq_event = irq_of_parse_and_map(np, 0);
--	if (!irq_event) {
--		dev_err(&pdev->dev, "IRQ event missing or invalid\n");
--		return -EINVAL;
-+	irq_event = platform_get_irq(pdev, 0);
-+	if (irq_event <= 0) {
-+		if (irq_event != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Failed to get IRQ event: %d\n",
-+				irq_event);
-+		return irq_event ? : -ENOENT;
- 	}
+ 	err = st_sensors_set_enable(indio_dev, false);
++	if (err < 0)
++		goto st_accel_buffer_predisable_error;
  
--	irq_error = irq_of_parse_and_map(np, 1);
--	if (!irq_error) {
--		dev_err(&pdev->dev, "IRQ error missing or invalid\n");
--		return -EINVAL;
-+	irq_error = platform_get_irq(pdev, 1);
-+	if (irq_error <= 0) {
-+		if (irq_error != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Failed to get IRQ error: %d\n",
-+				irq_error);
-+		return irq_error ? : -ENOENT;
- 	}
- 
- 	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
+ st_accel_buffer_predisable_error:
++	err2 = iio_triggered_buffer_predisable(indio_dev);
++	if (!err)
++		err = err2;
++
+ 	kfree(adata->buffer_data);
+ 	return err;
+ }
 -- 
 2.20.1
 
