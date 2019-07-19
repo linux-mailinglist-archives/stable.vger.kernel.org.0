@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B3946DF30
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00E566DF2D
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:33:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728575AbfGSEdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:33:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34996 "EHLO mail.kernel.org"
+        id S1730242AbfGSEDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:03:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729276AbfGSEDA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:03:00 -0400
+        id S1730233AbfGSEDE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:03:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E71021873;
-        Fri, 19 Jul 2019 04:02:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F32C0218C5;
+        Fri, 19 Jul 2019 04:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508979;
-        bh=Ieid9JHW9cHMr72tyAO8o2PtFtDA8gd5V7g1Ll5dUiA=;
+        s=default; t=1563508982;
+        bh=RjiE6OuC6ZZkoJ+nkFJH1CnYmPJrpDGBCj3c/vmY0rU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s5bh6m6QcjrG5vQWsN4S8rVrnF6Ec1on8w5uBKEP6KyCSn6i0ePNhVsCBNTaBFk05
-         TxxkXvdEtoP0OiaM5k2C3YJpdTKBaZY2w1eoYDTBrJIySVx7ttWArbRMe/3/YpcUkF
-         tARG5e898EUGyQagetpbbBIEeCXb3bO9eP6vGQeA=
+        b=pJg9K8/7RlUkb+2bH8wLvNoYdk+23ks6VyH9TcHmdk9xQHRhrsH1kQvsLlj2Etq6h
+         74CAWrnY0PKO8/FWEjQaas+otIwtpZQxK+cPAPrb+mFxeNoqqDYOubKYJgzOLDQfJ2
+         ZnlC1PP+pL2CoFdOmCMTb19G4PWf1cDe1vmSqOAc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sam Bobroff <sbobroff@linux.ibm.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        virtualization@lists.linux-foundation.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.1 007/141] drm/bochs: Fix connector leak during driver unload
-Date:   Fri, 19 Jul 2019 00:00:32 -0400
-Message-Id: <20190719040246.15945-7-sashal@kernel.org>
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Thinh Nguyen <thinhn@synopsys.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 008/141] usb: core: hub: Disable hub-initiated U1/U2
+Date:   Fri, 19 Jul 2019 00:00:33 -0400
+Message-Id: <20190719040246.15945-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -45,46 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Bobroff <sbobroff@linux.ibm.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 3c6b8625dde82600fd03ad1fcba223f1303ee535 ]
+[ Upstream commit 561759292774707b71ee61aecc07724905bb7ef1 ]
 
-When unloading the bochs-drm driver, a warning message is printed by
-drm_mode_config_cleanup() because a reference is still held to one of
-the drm_connector structs.
+If the device rejects the control transfer to enable device-initiated
+U1/U2 entry, then the device will not initiate U1/U2 transition. To
+improve the performance, the downstream port should not initate
+transition to U1/U2 to avoid the delay from the device link command
+response (no packet can be transmitted while waiting for a response from
+the device). If the device has some quirks and does not implement U1/U2,
+it may reject all the link state change requests, and the downstream
+port may resend and flood the bus with more requests. This will affect
+the device performance even further. This patch disables the
+hub-initated U1/U2 if the device-initiated U1/U2 entry fails.
 
-Correct this by calling drm_atomic_helper_shutdown() in
-bochs_pci_remove().
+Reference: USB 3.2 spec 7.2.4.2.3
 
-Fixes: 6579c39594ae ("drm/bochs: atomic: switch planes to atomic, wire up helpers.")
-Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/93b363ad62f4938d9ddf3e05b2a61e3f66b2dcd3.1558416473.git.sbobroff@linux.ibm.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bochs/bochs_drv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/core/hub.c | 28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index 6b6e037258c3..7031f0168795 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -10,6 +10,7 @@
- #include <linux/slab.h>
- #include <drm/drm_fb_helper.h>
- #include <drm/drm_probe_helper.h>
-+#include <drm/drm_atomic_helper.h>
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 310eef451db8..448266b69312 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -3999,6 +3999,9 @@ static int usb_set_lpm_timeout(struct usb_device *udev,
+  * control transfers to set the hub timeout or enable device-initiated U1/U2
+  * will be successful.
+  *
++ * If the control transfer to enable device-initiated U1/U2 entry fails, then
++ * hub-initiated U1/U2 will be disabled.
++ *
+  * If we cannot set the parent hub U1/U2 timeout, we attempt to let the xHCI
+  * driver know about it.  If that call fails, it should be harmless, and just
+  * take up more slightly more bus bandwidth for unnecessary U1/U2 exit latency.
+@@ -4053,23 +4056,24 @@ static void usb_enable_link_state(struct usb_hcd *hcd, struct usb_device *udev,
+ 		 * host know that this link state won't be enabled.
+ 		 */
+ 		hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
+-	} else {
+-		/* Only a configured device will accept the Set Feature
+-		 * U1/U2_ENABLE
+-		 */
+-		if (udev->actconfig)
+-			usb_set_device_initiated_lpm(udev, state, true);
++		return;
++	}
  
- #include "bochs.h"
+-		/* As soon as usb_set_lpm_timeout(timeout) returns 0, the
+-		 * hub-initiated LPM is enabled. Thus, LPM is enabled no
+-		 * matter the result of usb_set_device_initiated_lpm().
+-		 * The only difference is whether device is able to initiate
+-		 * LPM.
+-		 */
++	/* Only a configured device will accept the Set Feature
++	 * U1/U2_ENABLE
++	 */
++	if (udev->actconfig &&
++	    usb_set_device_initiated_lpm(udev, state, true) == 0) {
+ 		if (state == USB3_LPM_U1)
+ 			udev->usb3_lpm_u1_enabled = 1;
+ 		else if (state == USB3_LPM_U2)
+ 			udev->usb3_lpm_u2_enabled = 1;
++	} else {
++		/* Don't request U1/U2 entry if the device
++		 * cannot transition to U1/U2.
++		 */
++		usb_set_lpm_timeout(udev, state, 0);
++		hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
+ 	}
+ }
  
-@@ -174,6 +175,7 @@ static void bochs_pci_remove(struct pci_dev *pdev)
- {
- 	struct drm_device *dev = pci_get_drvdata(pdev);
- 
-+	drm_atomic_helper_shutdown(dev);
- 	drm_dev_unregister(dev);
- 	bochs_unload(dev);
- 	drm_dev_put(dev);
 -- 
 2.20.1
 
