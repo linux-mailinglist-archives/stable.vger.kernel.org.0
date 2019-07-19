@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08E226DE55
+	by mail.lfdr.de (Postfix) with ESMTP id E68846DE57
 	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732226AbfGSEGh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:06:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39742 "EHLO mail.kernel.org"
+        id S1732251AbfGSEGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:06:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732215AbfGSEGh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730325AbfGSEGh (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 19 Jul 2019 00:06:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10E53218BC;
-        Fri, 19 Jul 2019 04:06:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4523221873;
+        Fri, 19 Jul 2019 04:06:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509195;
-        bh=jfItoQGzZ9Q/lmuzO+wU4JzzLhRe2zgd3/tbSLJUNXI=;
+        s=default; t=1563509197;
+        bh=C01deIHBgUUAMSDiFoD/SDUjhvuMp1NrhNXvo+DVYYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lL52lsDukMYYVoJXbT7J0EzLX/KladXZdlA8jYN1xmTTGaZOV4582pYrUkIsxJ9nj
-         EYilC80bvk3ZuHXoQzNACSvF7ciQX33aDlaIQC1yGht7cFcGoYaHBj8CohtklqMe76
-         NARdIgRjQArryIJ6YoeUzjuAQFnrgLJ2GGfvTp3g=
+        b=okrupwOdJfiSb8Ibfrw8UUKNj9+Mc/hQ5bsevGo/5FZXr3VPZfG/bUg1j4yCaeiOm
+         x0Hp6VYszU/f690YUOobc6d6FyuBRLxMstk9q2H1NkGbJMJdHsMTv390YM+h5uSSTt
+         B7uLWIpL9KFIUGpiRbEJySamSrox2M4QDb8Zl0Mo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aya Levin <ayal@mellanox.com>, Feras Daoud <ferasda@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 121/141] net/mlx5e: IPoIB, Add error path in mlx5_rdma_setup_rn
-Date:   Fri, 19 Jul 2019 00:02:26 -0400
-Message-Id: <20190719040246.15945-121-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 122/141] platform/x86: Fix PCENGINES_APU2 Kconfig warning
+Date:   Fri, 19 Jul 2019 00:02:27 -0400
+Message-Id: <20190719040246.15945-122-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -44,48 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@mellanox.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit ef1ce7d7b67b46661091c7ccc0396186b7a247ef ]
+[ Upstream commit 7d67c8ac25fbc66ee254aa3e33329d1c9bc152ce ]
 
-Check return value from mlx5e_attach_netdev, add error path on failure.
+Fix Kconfig warning for PCENGINES_APU2 symbol:
 
-Fixes: 48935bbb7ae8 ("net/mlx5e: IPoIB, Add netdevice profile skeleton")
-Signed-off-by: Aya Levin <ayal@mellanox.com>
-Reviewed-by: Feras Daoud <ferasda@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+WARNING: unmet direct dependencies detected for GPIO_AMD_FCH
+  Depends on [n]: GPIOLIB [=n] && HAS_IOMEM [=y]
+  Selected by [y]:
+  - PCENGINES_APU2 [=y] && X86 [=y] && X86_PLATFORM_DEVICES [=y] && INPUT [=y] && INPUT_KEYBOARD [=y] && LEDS_CLASS [=y]
+
+WARNING: unmet direct dependencies detected for KEYBOARD_GPIO_POLLED
+  Depends on [n]: !UML && INPUT [=y] && INPUT_KEYBOARD [=y] && GPIOLIB [=n]
+  Selected by [y]:
+  - PCENGINES_APU2 [=y] && X86 [=y] && X86_PLATFORM_DEVICES [=y] && INPUT [=y] && INPUT_KEYBOARD [=y] && LEDS_CLASS [=y]
+
+Add GPIOLIB dependency to fix it.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: f8eb0235f659 ("x86: pcengines apuv2 gpio/leds/keys platform driver")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/platform/x86/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-index 4eac42555c7d..5d0783e55f42 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-@@ -698,7 +698,9 @@ static int mlx5_rdma_setup_rn(struct ib_device *ibdev, u8 port_num,
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index a1ed13183559..74df4d183755 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -1305,7 +1305,7 @@ config HUAWEI_WMI
  
- 	prof->init(mdev, netdev, prof, ipriv);
- 
--	mlx5e_attach_netdev(epriv);
-+	err = mlx5e_attach_netdev(epriv);
-+	if (err)
-+		goto detach;
- 	netif_carrier_off(netdev);
- 
- 	/* set rdma_netdev func pointers */
-@@ -714,6 +716,11 @@ static int mlx5_rdma_setup_rn(struct ib_device *ibdev, u8 port_num,
- 
- 	return 0;
- 
-+detach:
-+	prof->cleanup(epriv);
-+	if (ipriv->sub_interface)
-+		return err;
-+	mlx5e_destroy_mdev_resources(mdev);
- destroy_ht:
- 	mlx5i_pkey_qpn_ht_cleanup(netdev);
- 	return err;
+ config PCENGINES_APU2
+ 	tristate "PC Engines APUv2/3 front button and LEDs driver"
+-	depends on INPUT && INPUT_KEYBOARD
++	depends on INPUT && INPUT_KEYBOARD && GPIOLIB
+ 	depends on LEDS_CLASS
+ 	select GPIO_AMD_FCH
+ 	select KEYBOARD_GPIO_POLLED
 -- 
 2.20.1
 
