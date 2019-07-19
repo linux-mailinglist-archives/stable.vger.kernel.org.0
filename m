@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 687FF6DA9C
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:03:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A6736DAB6
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:04:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730234AbfGSEDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:03:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35216 "EHLO mail.kernel.org"
+        id S1730559AbfGSEDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:03:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729333AbfGSEDL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:03:11 -0400
+        id S1729578AbfGSEDh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:03:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B95A121882;
-        Fri, 19 Jul 2019 04:03:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34ECE218A3;
+        Fri, 19 Jul 2019 04:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508990;
-        bh=iBYGP2XBc6Wct1cGsCLA+hgQgp6l9VQMtNASFOIsf4o=;
+        s=default; t=1563509016;
+        bh=nFVThk2UzaEx1dP37v+gAcp+FF4pDG5pQTBTwNz3DKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RiACEpoQ57IyVleN8cDAWE4u/uNhI2Z6gMypgF8749y1jaAnWPDRq/mVFGkHHGZrp
-         sp0ufbUMTGkNtNZzh/jP1D1qW/h8rI7HEG5WSfC93kyzFWG3+pxCGbjyH4FNoGmtBA
-         4aK9WZPMrhzVfpozPgbq9RAbnLJqcR8NgZd3Ss+c=
+        b=iTwIDLIB9AWnGiNQontVx1x2kwGiyJ8rmowkA4DeiKqL2IBxUGM/yubTSpWUyLxEO
+         pjTm6klgnjgAd8DW1XBTAWQ71aoVxmirj6dvaSH3tTcVuA9HRPXouanLZTUsrMBqKI
+         AYRhpAWL3eO0CXrJfBRt8aveY3sshgAZSJGmmV3Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gen Zhang <blackgod016574@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 012/141] consolemap: Fix a memory leaking bug in drivers/tty/vt/consolemap.c
-Date:   Fri, 19 Jul 2019 00:00:37 -0400
-Message-Id: <20190719040246.15945-12-sashal@kernel.org>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 023/141] PCI: Return error if cannot probe VF
+Date:   Fri, 19 Jul 2019 00:00:48 -0400
+Message-Id: <20190719040246.15945-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -44,40 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gen Zhang <blackgod016574@gmail.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit 84ecc2f6eb1cb12e6d44818f94fa49b50f06e6ac ]
+[ Upstream commit 76002d8b48c4b08c9bd414517dd295e132ad910b ]
 
-In function con_insert_unipair(), when allocation for p2 and p1[n]
-fails, ENOMEM is returned, but previously allocated p1 is not freed,
-remains as leaking memory. Thus we should free p1 as well when this
-allocation fails.
+Commit 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control
+VF driver binding") allows the user to specify that drivers for VFs of
+a PF should not be probed, but it actually causes pci_device_probe() to
+return success back to the driver core in this case.  Therefore by all
+sysfs appearances the device is bound to a driver, the driver link from
+the device exists as does the device link back from the driver, yet the
+driver's probe function is never called on the device.  We also fail to
+do any sort of cleanup when we're prohibited from probing the device,
+the IRQ setup remains in place and we even hold a device reference.
 
-Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Instead, abort with errno before any setup or references are taken when
+pci_device_can_probe() prevents us from trying to probe the device.
+
+Link: https://lore.kernel.org/lkml/155672991496.20698.4279330795743262888.stgit@gimli.home
+Fixes: 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control VF driver binding")
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/consolemap.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/pci/pci-driver.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/tty/vt/consolemap.c b/drivers/tty/vt/consolemap.c
-index 7c7ada0b3ea0..814d1b7967ae 100644
---- a/drivers/tty/vt/consolemap.c
-+++ b/drivers/tty/vt/consolemap.c
-@@ -489,7 +489,11 @@ con_insert_unipair(struct uni_pagedir *p, u_short unicode, u_short fontpos)
- 	p2 = p1[n = (unicode >> 6) & 0x1f];
- 	if (!p2) {
- 		p2 = p1[n] = kmalloc_array(64, sizeof(u16), GFP_KERNEL);
--		if (!p2) return -ENOMEM;
-+		if (!p2) {
-+			kfree(p1);
-+			p->uni_pgdir[n] = NULL;
-+			return -ENOMEM;
-+		}
- 		memset(p2, 0xff, 64*sizeof(u16)); /* No glyphs for the characters (yet) */
+diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+index 71853befd435..da7b82e56c83 100644
+--- a/drivers/pci/pci-driver.c
++++ b/drivers/pci/pci-driver.c
+@@ -414,6 +414,9 @@ static int pci_device_probe(struct device *dev)
+ 	struct pci_dev *pci_dev = to_pci_dev(dev);
+ 	struct pci_driver *drv = to_pci_driver(dev->driver);
+ 
++	if (!pci_device_can_probe(pci_dev))
++		return -ENODEV;
++
+ 	pci_assign_irq(pci_dev);
+ 
+ 	error = pcibios_alloc_irq(pci_dev);
+@@ -421,12 +424,10 @@ static int pci_device_probe(struct device *dev)
+ 		return error;
+ 
+ 	pci_dev_get(pci_dev);
+-	if (pci_device_can_probe(pci_dev)) {
+-		error = __pci_device_probe(drv, pci_dev);
+-		if (error) {
+-			pcibios_free_irq(pci_dev);
+-			pci_dev_put(pci_dev);
+-		}
++	error = __pci_device_probe(drv, pci_dev);
++	if (error) {
++		pcibios_free_irq(pci_dev);
++		pci_dev_put(pci_dev);
  	}
  
+ 	return error;
 -- 
 2.20.1
 
