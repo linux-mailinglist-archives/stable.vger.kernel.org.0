@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6924B6DC52
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:16:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A7076DC56
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:16:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387913AbfGSEPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:15:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51404 "EHLO mail.kernel.org"
+        id S2390057AbfGSEPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:15:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387449AbfGSEPH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:15:07 -0400
+        id S2387449AbfGSEPN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:15:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36ACA21873;
-        Fri, 19 Jul 2019 04:15:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 482D7218A5;
+        Fri, 19 Jul 2019 04:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509706;
-        bh=CzhaAv+1g3tc7icQWTPDGHo0swJkwJI0NH1Fk+Xz0mc=;
+        s=default; t=1563509712;
+        bh=DXkaTUy1aC1SIQB/P87DYUa8G8l8zH//6I7t2Oy/xr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Parq9vliu2E8RZWglf6Nfxc4x/O0C7FoF14VAI8gBHTdyABLBhaJ68j2FJN9JLCxK
-         CG2umtLTrwlT2CZwFdmTcgkGsjX3E2ArjqquVbY0ivAnAwhW5Xqy6fZZQoa419MYpU
-         oyZran+7QGQUV2td598BNKoaUd7PxQWssBN3h61U=
+        b=DSVQe8D77p9gpYO7Q+AhlHRw8VMTQrzfx1Z1rrjPo6vUAogeloRjykCoUwvRW9dMI
+         QyeS1klhbHt7XnPB5O+HOMV6PwMXE/7nylFdWKc2IedApc/p7rFF8qyzASlnYOlNz/
+         ism+cwFLEIAd5TbhuXxi/uxKXpXxiIo6CMomgw2c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Lamparter <chunkeey@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 23/35] powerpc/4xx/uic: clear pending interrupt after irq type/pol change
-Date:   Fri, 19 Jul 2019 00:14:11 -0400
-Message-Id: <20190719041423.19322-23-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 24/35] serial: sh-sci: Fix TX DMA buffer flushing and workqueue races
+Date:   Fri, 19 Jul 2019 00:14:12 -0400
+Message-Id: <20190719041423.19322-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041423.19322-1-sashal@kernel.org>
 References: <20190719041423.19322-1-sashal@kernel.org>
@@ -43,38 +45,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 3ab3a0689e74e6aa5b41360bc18861040ddef5b1 ]
+[ Upstream commit 8493eab02608b0e82f67b892aa72882e510c31d0 ]
 
-When testing out gpio-keys with a button, a spurious
-interrupt (and therefore a key press or release event)
-gets triggered as soon as the driver enables the irq
-line for the first time.
+When uart_flush_buffer() is called, the .flush_buffer() callback zeroes
+the tx_dma_len field.  This may race with the work queue function
+handling transmit DMA requests:
 
-This patch clears any potential bogus generated interrupt
-that was caused by the switching of the associated irq's
-type and polarity.
+  1. If the buffer is flushed before the first DMA API call,
+     dmaengine_prep_slave_single() may be called with a zero length,
+     causing the DMA request to never complete, leading to messages
+     like:
 
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+        rcar-dmac e7300000.dma-controller: Channel Address Error happen
+
+     and, with debug enabled:
+
+	sh-sci e6e88000.serial: sci_dma_tx_work_fn: ffff800639b55000: 0...0, cookie 126
+
+     and DMA timeouts.
+
+  2. If the buffer is flushed after the first DMA API call, but before
+     the second, dma_sync_single_for_device() may be called with a zero
+     length, causing the transmit data not to be flushed to RAM, and
+     leading to stale data being output.
+
+Fix this by:
+  1. Letting sci_dma_tx_work_fn() return immediately if the transmit
+     buffer is empty,
+  2. Extending the critical section to cover all DMA preparational work,
+     so tx_dma_len stays consistent for all of it,
+  3. Using local copies of circ_buf.head and circ_buf.tail, to make sure
+     they match the actual operation above.
+
+Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Suggested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Link: https://lore.kernel.org/r/20190624123540.20629-2-geert+renesas@glider.be
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/uic.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/sh-sci.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/uic.c b/arch/powerpc/sysdev/uic.c
-index 6893d8f236df..225346dda151 100644
---- a/arch/powerpc/sysdev/uic.c
-+++ b/arch/powerpc/sysdev/uic.c
-@@ -158,6 +158,7 @@ static int uic_set_irq_type(struct irq_data *d, unsigned int flow_type)
+diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
+index 669134e27ed9..c450e32c153d 100644
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -1203,6 +1203,7 @@ static void work_fn_tx(struct work_struct *work)
+ 	struct uart_port *port = &s->port;
+ 	struct circ_buf *xmit = &port->state->xmit;
+ 	dma_addr_t buf;
++	int head, tail;
  
- 	mtdcr(uic->dcrbase + UIC_PR, pr);
- 	mtdcr(uic->dcrbase + UIC_TR, tr);
-+	mtdcr(uic->dcrbase + UIC_SR, ~mask);
+ 	/*
+ 	 * DMA is idle now.
+@@ -1212,16 +1213,23 @@ static void work_fn_tx(struct work_struct *work)
+ 	 * consistent xmit buffer state.
+ 	 */
+ 	spin_lock_irq(&port->lock);
+-	buf = s->tx_dma_addr + (xmit->tail & (UART_XMIT_SIZE - 1));
++	head = xmit->head;
++	tail = xmit->tail;
++	buf = s->tx_dma_addr + (tail & (UART_XMIT_SIZE - 1));
+ 	s->tx_dma_len = min_t(unsigned int,
+-		CIRC_CNT(xmit->head, xmit->tail, UART_XMIT_SIZE),
+-		CIRC_CNT_TO_END(xmit->head, xmit->tail, UART_XMIT_SIZE));
+-	spin_unlock_irq(&port->lock);
++		CIRC_CNT(head, tail, UART_XMIT_SIZE),
++		CIRC_CNT_TO_END(head, tail, UART_XMIT_SIZE));
++	if (!s->tx_dma_len) {
++		/* Transmit buffer has been flushed */
++		spin_unlock_irq(&port->lock);
++		return;
++	}
  
- 	raw_spin_unlock_irqrestore(&uic->lock, flags);
+ 	desc = dmaengine_prep_slave_single(chan, buf, s->tx_dma_len,
+ 					   DMA_MEM_TO_DEV,
+ 					   DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+ 	if (!desc) {
++		spin_unlock_irq(&port->lock);
+ 		dev_warn(port->dev, "Failed preparing Tx DMA descriptor\n");
+ 		/* switch to PIO */
+ 		sci_tx_dma_release(s, true);
+@@ -1231,20 +1239,20 @@ static void work_fn_tx(struct work_struct *work)
+ 	dma_sync_single_for_device(chan->device->dev, buf, s->tx_dma_len,
+ 				   DMA_TO_DEVICE);
  
+-	spin_lock_irq(&port->lock);
+ 	desc->callback = sci_dma_tx_complete;
+ 	desc->callback_param = s;
+-	spin_unlock_irq(&port->lock);
+ 	s->cookie_tx = dmaengine_submit(desc);
+ 	if (dma_submit_error(s->cookie_tx)) {
++		spin_unlock_irq(&port->lock);
+ 		dev_warn(port->dev, "Failed submitting Tx DMA descriptor\n");
+ 		/* switch to PIO */
+ 		sci_tx_dma_release(s, true);
+ 		return;
+ 	}
+ 
++	spin_unlock_irq(&port->lock);
+ 	dev_dbg(port->dev, "%s: %p: %d...%d, cookie %d\n",
+-		__func__, xmit->buf, xmit->tail, xmit->head, s->cookie_tx);
++		__func__, xmit->buf, tail, head, s->cookie_tx);
+ 
+ 	dma_async_issue_pending(chan);
+ }
 -- 
 2.20.1
 
