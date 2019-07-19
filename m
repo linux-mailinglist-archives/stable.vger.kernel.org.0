@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC8556DF5F
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9DB86DF61
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:35:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728878AbfGSEBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:01:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33586 "EHLO mail.kernel.org"
+        id S1729694AbfGSEBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727665AbfGSEBu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:01:50 -0400
+        id S1728906AbfGSEBw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:01:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B440B21882;
-        Fri, 19 Jul 2019 04:01:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47CA321897;
+        Fri, 19 Jul 2019 04:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508908;
-        bh=Sa2/51Z6qR6YnpSIFqrqfzBUcq3VEdtQQgHmAsLWhMg=;
+        s=default; t=1563508911;
+        bh=K0GG2IuOpfdaRilolTBGAevqgH7EWAGqWYnh0hI0YHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bw4VMMPm9IG/P+OOwXL0Mu5yA+AWTsVsM9hh4I8UnkDA5n/qb+mLXXMpA54k6qP8z
-         9aJepyTWOlt+YnBz83GayDFL+459HoN3yP4tD6VNUKKaczwsCNahcf077LXEaCA13T
-         z4puqImr3cx3ff720/ldoSq3Jd6Ws+y1k2RC+NvI=
+        b=qD7XomS3y+lkehS9jDSpKAIf0EfAs482F1D+HjFk80RuStRy13uts98B6uqZbLUMX
+         8AXjmZ86n+Bh8EfwxWVixNcY7+vGjE4UZvdkV9nHWtA8lszuofOpeNFoA/1fTuvICw
+         7taqovTh9LM2ulQTPWHHHFXaCzBIHDBnPRIPk+VE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Minwoo Im <minwoo.im.dev@gmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.2 153/171] nvme: fix NULL deref for fabrics options
-Date:   Thu, 18 Jul 2019 23:56:24 -0400
-Message-Id: <20190719035643.14300-153-sashal@kernel.org>
+Cc:     Sam Ravnborg <sam@ravnborg.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        Will Deacon <will.deacon@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Inki Dae <inki.dae@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-sh@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 154/171] sh: prevent warnings when using iounmap
+Date:   Thu, 18 Jul 2019 23:56:25 -0400
+Message-Id: <20190719035643.14300-154-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -45,86 +51,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minwoo Im <minwoo.im.dev@gmail.com>
+From: Sam Ravnborg <sam@ravnborg.org>
 
-[ Upstream commit 7d30c81b80ea9b0812d27030a46a5bf4c4e328f5 ]
+[ Upstream commit 733f0025f0fb43e382b84db0930ae502099b7e62 ]
 
-git://git.infradead.org/nvme.git nvme-5.3 branch now causes the
-following NULL deref oops.  Check the ctrl->opts first before the deref.
+When building drm/exynos for sh, as part of an allmodconfig build, the
+following warning triggered:
 
-[   16.337581] BUG: kernel NULL pointer dereference, address: 0000000000000056
-[   16.338551] #PF: supervisor read access in kernel mode
-[   16.338551] #PF: error_code(0x0000) - not-present page
-[   16.338551] PGD 0 P4D 0
-[   16.338551] Oops: 0000 [#1] SMP PTI
-[   16.338551] CPU: 2 PID: 1035 Comm: kworker/u16:5 Not tainted 5.2.0-rc6+ #1
-[   16.338551] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
-[   16.338551] Workqueue: nvme-wq nvme_scan_work [nvme_core]
-[   16.338551] RIP: 0010:nvme_validate_ns+0xc9/0x7e0 [nvme_core]
-[   16.338551] Code: c0 49 89 c5 0f 84 00 07 00 00 48 8b 7b 58 e8 be 48 39 c1 48 3d 00 f0 ff ff 49 89 45 18 0f 87 a4 06 00 00 48 8b 93 70 0a 00 00 <80> 7a 56 00 74 0c 48 8b 40 68 83 48 3c 08 49 8b 45 18 48 89 c6 bf
-[   16.338551] RSP: 0018:ffffc900024c7d10 EFLAGS: 00010283
-[   16.338551] RAX: ffff888135a30720 RBX: ffff88813a4fd1f8 RCX: 0000000000000007
-[   16.338551] RDX: 0000000000000000 RSI: ffffffff8256dd38 RDI: ffff888135a30720
-[   16.338551] RBP: 0000000000000001 R08: 0000000000000007 R09: ffff88813aa6a840
-[   16.338551] R10: 0000000000000001 R11: 000000000002d060 R12: ffff88813a4fd1f8
-[   16.338551] R13: ffff88813a77f800 R14: ffff88813aa35180 R15: 0000000000000001
-[   16.338551] FS:  0000000000000000(0000) GS:ffff88813ba80000(0000) knlGS:0000000000000000
-[   16.338551] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   16.338551] CR2: 0000000000000056 CR3: 000000000240a002 CR4: 0000000000360ee0
-[   16.338551] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   16.338551] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   16.338551] Call Trace:
-[   16.338551]  nvme_scan_work+0x2c0/0x340 [nvme_core]
-[   16.338551]  ? __switch_to_asm+0x40/0x70
-[   16.338551]  ? _raw_spin_unlock_irqrestore+0x18/0x30
-[   16.338551]  ? try_to_wake_up+0x408/0x450
-[   16.338551]  process_one_work+0x20b/0x3e0
-[   16.338551]  worker_thread+0x1f9/0x3d0
-[   16.338551]  ? cancel_delayed_work+0xa0/0xa0
-[   16.338551]  kthread+0x117/0x120
-[   16.338551]  ? kthread_stop+0xf0/0xf0
-[   16.338551]  ret_from_fork+0x3a/0x50
-[   16.338551] Modules linked in: nvme nvme_core
-[   16.338551] CR2: 0000000000000056
-[   16.338551] ---[ end trace b9bf761a93e62d84 ]---
-[   16.338551] RIP: 0010:nvme_validate_ns+0xc9/0x7e0 [nvme_core]
-[   16.338551] Code: c0 49 89 c5 0f 84 00 07 00 00 48 8b 7b 58 e8 be 48 39 c1 48 3d 00 f0 ff ff 49 89 45 18 0f 87 a4 06 00 00 48 8b 93 70 0a 00 00 <80> 7a 56 00 74 0c 48 8b 40 68 83 48 3c 08 49 8b 45 18 48 89 c6 bf
-[   16.338551] RSP: 0018:ffffc900024c7d10 EFLAGS: 00010283
-[   16.338551] RAX: ffff888135a30720 RBX: ffff88813a4fd1f8 RCX: 0000000000000007
-[   16.338551] RDX: 0000000000000000 RSI: ffffffff8256dd38 RDI: ffff888135a30720
-[   16.338551] RBP: 0000000000000001 R08: 0000000000000007 R09: ffff88813aa6a840
-[   16.338551] R10: 0000000000000001 R11: 000000000002d060 R12: ffff88813a4fd1f8
-[   16.338551] R13: ffff88813a77f800 R14: ffff88813aa35180 R15: 0000000000000001
-[   16.338551] FS:  0000000000000000(0000) GS:ffff88813ba80000(0000) knlGS:0000000000000000
-[   16.338551] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   16.338551] CR2: 0000000000000056 CR3: 000000000240a002 CR4: 0000000000360ee0
-[   16.338551] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   16.338551] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  exynos7_drm_decon.c: In function `decon_remove':
+  exynos7_drm_decon.c:769:24: warning: unused variable `ctx'
+    struct decon_context *ctx = dev_get_drvdata(&pdev->dev);
 
-Fixes: 958f2a0f8121 ("nvme-tcp: set the STABLE_WRITES flag when data digests are enabled")
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Minwoo Im <minwoo.im.dev@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The ctx variable is only used as argument to iounmap().
+
+In sh - allmodconfig CONFIG_MMU is not defined
+so it ended up in:
+
+\#define __iounmap(addr)	do { } while (0)
+\#define iounmap		__iounmap
+
+Fix the warning by introducing a static inline function for iounmap.
+
+This is similar to several other architectures.
+
+Link: http://lkml.kernel.org/r/20190622114208.24427-1-sam@ravnborg.org
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Inki Dae <inki.dae@samsung.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/sh/include/asm/io.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index b4048748551e..db5731657529 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3257,7 +3257,7 @@ static int nvme_alloc_ns(struct nvme_ctrl *ctrl, unsigned nsid)
- 		goto out_free_ns;
- 	}
+diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
+index c28e37a344ad..ac0561960c52 100644
+--- a/arch/sh/include/asm/io.h
++++ b/arch/sh/include/asm/io.h
+@@ -369,7 +369,11 @@ static inline int iounmap_fixed(void __iomem *addr) { return -EINVAL; }
  
--	if (ctrl->opts->data_digest)
-+	if (ctrl->opts && ctrl->opts->data_digest)
- 		ns->queue->backing_dev_info->capabilities
- 			|= BDI_CAP_STABLE_WRITES;
+ #define ioremap_nocache	ioremap
+ #define ioremap_uc	ioremap
+-#define iounmap		__iounmap
++
++static inline void iounmap(void __iomem *addr)
++{
++	__iounmap(addr);
++}
  
+ /*
+  * Convert a physical pointer to a virtual kernel pointer for /dev/mem
 -- 
 2.20.1
 
