@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A6736DAB6
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:04:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C477F6DABD
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:04:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730559AbfGSEDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:03:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35696 "EHLO mail.kernel.org"
+        id S1728630AbfGSEDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:03:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729578AbfGSEDh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:03:37 -0400
+        id S1728553AbfGSEDy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:03:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34ECE218A3;
-        Fri, 19 Jul 2019 04:03:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8492A218BC;
+        Fri, 19 Jul 2019 04:03:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509016;
-        bh=nFVThk2UzaEx1dP37v+gAcp+FF4pDG5pQTBTwNz3DKs=;
+        s=default; t=1563509033;
+        bh=WHIAtgyJYC88kgwu3EEgozkb3ZlqsrWEkHRoC+MFPxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTwIDLIB9AWnGiNQontVx1x2kwGiyJ8rmowkA4DeiKqL2IBxUGM/yubTSpWUyLxEO
-         pjTm6klgnjgAd8DW1XBTAWQ71aoVxmirj6dvaSH3tTcVuA9HRPXouanLZTUsrMBqKI
-         AYRhpAWL3eO0CXrJfBRt8aveY3sshgAZSJGmmV3Q=
+        b=Ft3XK9VIucf/PQSay00uZ9sXXrfhde8PUcEih3dD1oCNNz2siJ2euPjPwzyv1QzEU
+         D9YO5t33OWl4YQzEgljBSoetrxfPRIOmv4D7NcjekuLaflV2K+6G3mwkuGqUXcyFx1
+         UF+GIpi6itcdQm7ve37qjb/2+ELB6EPCaFPt9XEI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Williamson <alex.williamson@redhat.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 023/141] PCI: Return error if cannot probe VF
-Date:   Fri, 19 Jul 2019 00:00:48 -0400
-Message-Id: <20190719040246.15945-23-sashal@kernel.org>
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
+        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Emil Velikov <emil.velikov@collabora.com>,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.1 032/141] drm/crc-debugfs: Also sprinkle irqrestore over early exits
+Date:   Fri, 19 Jul 2019 00:00:57 -0400
+Message-Id: <20190719040246.15945-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,63 +51,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-[ Upstream commit 76002d8b48c4b08c9bd414517dd295e132ad910b ]
+[ Upstream commit d99004d7201aa653658ff2390d6e516567c96ebc ]
 
-Commit 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control
-VF driver binding") allows the user to specify that drivers for VFs of
-a PF should not be probed, but it actually causes pci_device_probe() to
-return success back to the driver core in this case.  Therefore by all
-sysfs appearances the device is bound to a driver, the driver link from
-the device exists as does the device link back from the driver, yet the
-driver's probe function is never called on the device.  We also fail to
-do any sort of cleanup when we're prohibited from probing the device,
-the IRQ setup remains in place and we even hold a device reference.
+I. was. blind.
 
-Instead, abort with errno before any setup or references are taken when
-pci_device_can_probe() prevents us from trying to probe the device.
+Caught with vkms, which has some really slow crc computation function.
 
-Link: https://lore.kernel.org/lkml/155672991496.20698.4279330795743262888.stgit@gimli.home
-Fixes: 0e7df22401a3 ("PCI: Add sysfs sriov_drivers_autoprobe to control VF driver binding")
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: 1882018a70e0 ("drm/crc-debugfs: User irqsafe spinlock in drm_crtc_add_crc_entry")
+Cc: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
+Reviewed-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190606211544.5389-1-daniel.vetter@ffwll.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-driver.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/drm_debugfs_crc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index 71853befd435..da7b82e56c83 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -414,6 +414,9 @@ static int pci_device_probe(struct device *dev)
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
- 	struct pci_driver *drv = to_pci_driver(dev->driver);
+diff --git a/drivers/gpu/drm/drm_debugfs_crc.c b/drivers/gpu/drm/drm_debugfs_crc.c
+index 1a6a5b78e30f..fde298d9f510 100644
+--- a/drivers/gpu/drm/drm_debugfs_crc.c
++++ b/drivers/gpu/drm/drm_debugfs_crc.c
+@@ -395,7 +395,7 @@ int drm_crtc_add_crc_entry(struct drm_crtc *crtc, bool has_frame,
  
-+	if (!pci_device_can_probe(pci_dev))
-+		return -ENODEV;
-+
- 	pci_assign_irq(pci_dev);
- 
- 	error = pcibios_alloc_irq(pci_dev);
-@@ -421,12 +424,10 @@ static int pci_device_probe(struct device *dev)
- 		return error;
- 
- 	pci_dev_get(pci_dev);
--	if (pci_device_can_probe(pci_dev)) {
--		error = __pci_device_probe(drv, pci_dev);
--		if (error) {
--			pcibios_free_irq(pci_dev);
--			pci_dev_put(pci_dev);
--		}
-+	error = __pci_device_probe(drv, pci_dev);
-+	if (error) {
-+		pcibios_free_irq(pci_dev);
-+		pci_dev_put(pci_dev);
+ 	/* Caller may not have noticed yet that userspace has stopped reading */
+ 	if (!crc->entries) {
+-		spin_unlock(&crc->lock);
++		spin_unlock_irqrestore(&crc->lock, flags);
+ 		return -EINVAL;
  	}
  
- 	return error;
+@@ -406,7 +406,7 @@ int drm_crtc_add_crc_entry(struct drm_crtc *crtc, bool has_frame,
+ 		bool was_overflow = crc->overflow;
+ 
+ 		crc->overflow = true;
+-		spin_unlock(&crc->lock);
++		spin_unlock_irqrestore(&crc->lock, flags);
+ 
+ 		if (!was_overflow)
+ 			DRM_ERROR("Overflow of CRC buffer, userspace reads too slow.\n");
 -- 
 2.20.1
 
