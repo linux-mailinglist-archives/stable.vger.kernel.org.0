@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBF26DB73
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:09:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31E676DB76
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733169AbfGSEIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:08:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42992 "EHLO mail.kernel.org"
+        id S1731684AbfGSEIp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:08:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732260AbfGSEIi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:08:38 -0400
+        id S1731912AbfGSEIp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:08:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D047D21872;
-        Fri, 19 Jul 2019 04:08:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32073218BB;
+        Fri, 19 Jul 2019 04:08:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509317;
-        bh=STJ7eoRUjKT6lWQmYtHhHf0Q6NbOBi3UBDB7Dc3P0JY=;
+        s=default; t=1563509324;
+        bh=Kv4dAL8DwB38AMp1Ja0QC7CQHWK0A5JvIj+UwchxZbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fx4FeD9iNlEMvzkcVfxcYcXSgWHXqGh1cRsflAUoQN8xLxdAQMOnuYLb+BMSuiNG3
-         CcKmqvhtGtioP46Ua4hcWo3b+CtE4q0ARlIgW5N6lfrqEdkFQIzxG0JRXgZWGYXixp
-         qPHM81ikWmUUCZkzfbNySMKuDomWYc9Ik0XrEnTQ=
+        b=l4sWlzB+nhV1gApmPpGgAHnz4PN0Zw+aFWTqueq9CdoowSAKx3ymAKc+wmTHNCtYI
+         QbW/BhP0+AwH2EGTbC23jZiLpcJxlr8SAjzdyePoZrGyI84kPrlLYH/qC67V1WlOvb
+         UoAO/U4sn42nxcDmgeWDyUh3lOMuYJaJnUbcGhxU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
-        "Gautham R . Shenoy" <ego@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 030/101] powerpc/pseries/mobility: prevent cpu hotplug during DT update
-Date:   Fri, 19 Jul 2019 00:06:21 -0400
-Message-Id: <20190719040732.17285-30-sashal@kernel.org>
+Cc:     Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 035/101] usb: gadget: Zero ffs_io_data
+Date:   Fri, 19 Jul 2019 00:06:26 -0400
+Message-Id: <20190719040732.17285-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -44,56 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
 
-[ Upstream commit e59a175faa8df9d674247946f2a5a9c29c835725 ]
+[ Upstream commit 508595515f4bcfe36246e4a565cf280937aeaade ]
 
-CPU online/offline code paths are sensitive to parts of the device
-tree (various cpu node properties, cache nodes) that can be changed as
-a result of a migration.
+In some cases the "Allocate & copy" block in ffs_epfile_io() is not
+executed. Consequently, in such a case ffs_alloc_buffer() is never called
+and struct ffs_io_data is not initialized properly. This in turn leads to
+problems when ffs_free_buffer() is called at the end of ffs_epfile_io().
 
-Prevent CPU hotplug while the device tree potentially is inconsistent.
+This patch uses kzalloc() instead of kmalloc() in the aio case and memset()
+in non-aio case to properly initialize struct ffs_io_data.
 
-Fixes: 410bccf97881 ("powerpc/pseries: Partition migration in the kernel")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/mobility.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/usb/gadget/function/f_fs.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
-index f0e30dc94988..7b60fcf04dc4 100644
---- a/arch/powerpc/platforms/pseries/mobility.c
-+++ b/arch/powerpc/platforms/pseries/mobility.c
-@@ -9,6 +9,7 @@
-  * 2 as published by the Free Software Foundation.
-  */
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index aa15593a3ac4..2050993fb58b 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1101,11 +1101,12 @@ static ssize_t ffs_epfile_write_iter(struct kiocb *kiocb, struct iov_iter *from)
+ 	ENTER();
  
-+#include <linux/cpu.h>
- #include <linux/kernel.h>
- #include <linux/kobject.h>
- #include <linux/smp.h>
-@@ -344,11 +345,19 @@ void post_mobility_fixup(void)
- 	if (rc)
- 		printk(KERN_ERR "Post-mobility activate-fw failed: %d\n", rc);
+ 	if (!is_sync_kiocb(kiocb)) {
+-		p = kmalloc(sizeof(io_data), GFP_KERNEL);
++		p = kzalloc(sizeof(io_data), GFP_KERNEL);
+ 		if (unlikely(!p))
+ 			return -ENOMEM;
+ 		p->aio = true;
+ 	} else {
++		memset(p, 0, sizeof(*p));
+ 		p->aio = false;
+ 	}
  
-+	/*
-+	 * We don't want CPUs to go online/offline while the device
-+	 * tree is being updated.
-+	 */
-+	cpus_read_lock();
-+
- 	rc = pseries_devicetree_update(MIGRATION_SCOPE);
- 	if (rc)
- 		printk(KERN_ERR "Post-mobility device tree update "
- 			"failed: %d\n", rc);
+@@ -1137,11 +1138,12 @@ static ssize_t ffs_epfile_read_iter(struct kiocb *kiocb, struct iov_iter *to)
+ 	ENTER();
  
-+	cpus_read_unlock();
-+
- 	/* Possibly switch to a new RFI flush type */
- 	pseries_setup_rfi_flush();
+ 	if (!is_sync_kiocb(kiocb)) {
+-		p = kmalloc(sizeof(io_data), GFP_KERNEL);
++		p = kzalloc(sizeof(io_data), GFP_KERNEL);
+ 		if (unlikely(!p))
+ 			return -ENOMEM;
+ 		p->aio = true;
+ 	} else {
++		memset(p, 0, sizeof(*p));
+ 		p->aio = false;
+ 	}
  
 -- 
 2.20.1
