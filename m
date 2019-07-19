@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51FDE6DC8B
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:17:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 596F66DC49
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:16:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728202AbfGSEQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:16:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50960 "EHLO mail.kernel.org"
+        id S2389844AbfGSEOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:14:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389821AbfGSEOm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:14:42 -0400
+        id S1729582AbfGSEOo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:14:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB7DC21851;
-        Fri, 19 Jul 2019 04:14:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5767B2082F;
+        Fri, 19 Jul 2019 04:14:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509681;
-        bh=syZZBnjfBtK3ocT+pRFG7PdrCHkYbqDxpfD65lhU3zc=;
+        s=default; t=1563509684;
+        bh=ytGjSiLhOp0bN/LWXqjAt16ej47TiHINKjzeQitdMvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EwGXEEtteIwaRFaBqpmDozlzEHF7aTRQ9nTdqio14TmCI/faB/3FHOTpQKxMIv4zk
-         GemrfPVICPazCIG68K+jYB/Pr5bjPzhVqERRJp8zvqqMuB5ubv8yhisqGS7FBl3We6
-         CqXblZCFRq2KbAe5/4opVtxgTblEZEU1jB/V9YmM=
+        b=PMb/++wWeROfBT305ZeDHnIHRJpgRT8vmH1GyuRuIkBJog2ZFsThgc1A7d2QtPiY2
+         Eki+LuhRHn11c/sukv+D+9wLvtzQD9oS9NiobwTDi7yQpQ6vduGOC1MCiXTm0ydimV
+         TlQclRMO/7JPPvxyMxAlp/VoDv9C+lzBSmUBKxGg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Julia Lawall <julia.lawall@lip6.fr>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 11/35] phy: renesas: rcar-gen2: Fix memory leak at error paths
-Date:   Fri, 19 Jul 2019 00:13:59 -0400
-Message-Id: <20190719041423.19322-11-sashal@kernel.org>
+Cc:     Nathan Lynch <nathanl@linux.ibm.com>,
+        "Gautham R . Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.4 12/35] powerpc/pseries/mobility: prevent cpu hotplug during DT update
+Date:   Fri, 19 Jul 2019 00:14:00 -0400
+Message-Id: <20190719041423.19322-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041423.19322-1-sashal@kernel.org>
 References: <20190719041423.19322-1-sashal@kernel.org>
@@ -45,44 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit d4a36e82924d3305a17ac987a510f3902df5a4b2 ]
+[ Upstream commit e59a175faa8df9d674247946f2a5a9c29c835725 ]
 
-This patch fixes memory leak at error paths of the probe function.
-In for_each_child_of_node, if the loop returns, the driver should
-call of_put_node() before returns.
+CPU online/offline code paths are sensitive to parts of the device
+tree (various cpu node properties, cache nodes) that can be changed as
+a result of a migration.
 
-Reported-by: Julia Lawall <julia.lawall@lip6.fr>
-Fixes: 1233f59f745b237 ("phy: Renesas R-Car Gen2 PHY driver")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Prevent CPU hotplug while the device tree potentially is inconsistent.
+
+Fixes: 410bccf97881 ("powerpc/pseries: Partition migration in the kernel")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/phy-rcar-gen2.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/platforms/pseries/mobility.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/phy/phy-rcar-gen2.c b/drivers/phy/phy-rcar-gen2.c
-index c7a05996d5c1..99d2b73654f4 100644
---- a/drivers/phy/phy-rcar-gen2.c
-+++ b/drivers/phy/phy-rcar-gen2.c
-@@ -287,6 +287,7 @@ static int rcar_gen2_phy_probe(struct platform_device *pdev)
- 		error = of_property_read_u32(np, "reg", &channel_num);
- 		if (error || channel_num > 2) {
- 			dev_err(dev, "Invalid \"reg\" property\n");
-+			of_node_put(np);
- 			return error;
- 		}
- 		channel->select_mask = select_mask[channel_num];
-@@ -302,6 +303,7 @@ static int rcar_gen2_phy_probe(struct platform_device *pdev)
- 						   &rcar_gen2_phy_ops);
- 			if (IS_ERR(phy->phy)) {
- 				dev_err(dev, "Failed to create PHY\n");
-+				of_node_put(np);
- 				return PTR_ERR(phy->phy);
- 			}
- 			phy_set_drvdata(phy->phy, phy);
+diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
+index c773396d0969..fcd1a32267c4 100644
+--- a/arch/powerpc/platforms/pseries/mobility.c
++++ b/arch/powerpc/platforms/pseries/mobility.c
+@@ -9,6 +9,7 @@
+  * 2 as published by the Free Software Foundation.
+  */
+ 
++#include <linux/cpu.h>
+ #include <linux/kernel.h>
+ #include <linux/kobject.h>
+ #include <linux/smp.h>
+@@ -309,11 +310,19 @@ void post_mobility_fixup(void)
+ 	if (rc)
+ 		printk(KERN_ERR "Post-mobility activate-fw failed: %d\n", rc);
+ 
++	/*
++	 * We don't want CPUs to go online/offline while the device
++	 * tree is being updated.
++	 */
++	cpus_read_lock();
++
+ 	rc = pseries_devicetree_update(MIGRATION_SCOPE);
+ 	if (rc)
+ 		printk(KERN_ERR "Post-mobility device tree update "
+ 			"failed: %d\n", rc);
+ 
++	cpus_read_unlock();
++
+ 	/* Possibly switch to a new RFI flush type */
+ 	pseries_setup_rfi_flush();
+ 
 -- 
 2.20.1
 
