@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BBC66DEFA
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D1426DEF3
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:32:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730811AbfGSEEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:04:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36264 "EHLO mail.kernel.org"
+        id S1730781AbfGSEEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:04:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730781AbfGSEEE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:04:04 -0400
+        id S1729458AbfGSEEH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:04:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B1BF218BA;
-        Fri, 19 Jul 2019 04:04:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA25E21873;
+        Fri, 19 Jul 2019 04:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509042;
-        bh=GLbL3FyzfUad1Fjle5j4mAmrF0o2jqKJECEIfieDOOU=;
+        s=default; t=1563509046;
+        bh=aiBok5jbetD1pZbsV3G/FdI3G+d4q4iMH6+RWXHjCFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=04lIHwDKfitdkfPT7S1hR7CHkmozPPSziXOCSUW2k4p84NVlOGiVIOw7bTn/8hRK8
-         6c2mc0Npa8itLIluNrJ9dt6lyINZzaCDvrUMoo2wa/4rlKUXFZimaF6aBIE5DdZH0w
-         iNzdm8SMvu+QAIEP7rf8LkkM7sK8nnzZhdKRcDGU=
+        b=NsCsBz30U242FjaiVsL1jQOlBCVNxCC9F+Xuy363VmMKWnyjPk0zMtLvNSxX5/HwI
+         SwC2HvwdKhpfM9HvoG0HfCgigDftT74YQVz59Mxj32MwhyU/N3v8jWRdgT8YxsKs5z
+         Zj4ZSoi1GC5qjxQchNxxOfufK8Q81Dm9QpMgSDP8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rautkoski Kimmo EXT <ext-kimmo.rautkoski@vaisala.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 037/141] serial: 8250: Fix TX interrupt handling condition
-Date:   Fri, 19 Jul 2019 00:01:02 -0400
-Message-Id: <20190719040246.15945-37-sashal@kernel.org>
+Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.1 038/141] drm/amd/display: Always allocate initial connector state state
+Date:   Fri, 19 Jul 2019 00:01:03 -0400
+Message-Id: <20190719040246.15945-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -43,46 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rautkoski Kimmo EXT <ext-kimmo.rautkoski@vaisala.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit db1b5bc047b3cadaedab3826bba82c3d9e023c4b ]
+[ Upstream commit f04bee34d6e35df26cbb2d65e801adfd0d8fe20d ]
 
-Interrupt handler checked THRE bit (transmitter holding register
-empty) in LSR to detect if TX fifo is empty.
-In case when there is only receive interrupts the TX handling
-got called because THRE bit in LSR is set when there is no
-transmission (FIFO empty). TX handling caused TX stop, which in
-RS-485 half-duplex mode actually resets receiver FIFO. This is not
-desired during reception because of possible data loss.
+[Why]
+Unlike our regular connectors, MST connectors don't start off with
+an initial connector state. This causes a NULL pointer dereference to
+occur when attaching the bpc property since it tries to modify the
+connector state.
 
-The fix is to check if THRI is set in IER in addition of the TX
-fifo status. THRI in IER is set when TX is started and cleared
-when TX is stopped.
-This ensures that TX handling is only called when there is really
-transmission on going and an interrupt for THRE and not when there
-are only RX interrupts.
+We need an initial connector state on the connector to avoid the crash.
 
-Signed-off-by: Kimmo Rautkoski <ext-kimmo.rautkoski@vaisala.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[How]
+Use our reset helper to allocate an initial state and reset the values
+to their defaults. We were already doing this before, just not for
+MST connectors.
+
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Leo Li <sunpeng.li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 682300713be4..eb2e2d141c01 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1874,7 +1874,8 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
- 			status = serial8250_rx_chars(up, status);
- 	}
- 	serial8250_modem_status(up);
--	if ((!up->dma || up->dma->tx_err) && (status & UART_LSR_THRE))
-+	if ((!up->dma || up->dma->tx_err) && (status & UART_LSR_THRE) &&
-+		(up->ier & UART_IER_THRI))
- 		serial8250_tx_chars(up);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index bfb65e8c728f..9a070da12568 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -4133,6 +4133,13 @@ void amdgpu_dm_connector_init_helper(struct amdgpu_display_manager *dm,
+ {
+ 	struct amdgpu_device *adev = dm->ddev->dev_private;
  
- 	uart_unlock_and_check_sysrq(port, flags);
++	/*
++	 * Some of the properties below require access to state, like bpc.
++	 * Allocate some default initial connector state with our reset helper.
++	 */
++	if (aconnector->base.funcs->reset)
++		aconnector->base.funcs->reset(&aconnector->base);
++
+ 	aconnector->connector_id = link_index;
+ 	aconnector->dc_link = link;
+ 	aconnector->base.interlace_allowed = false;
+@@ -4315,9 +4322,6 @@ static int amdgpu_dm_connector_init(struct amdgpu_display_manager *dm,
+ 			&aconnector->base,
+ 			&amdgpu_dm_connector_helper_funcs);
+ 
+-	if (aconnector->base.funcs->reset)
+-		aconnector->base.funcs->reset(&aconnector->base);
+-
+ 	amdgpu_dm_connector_init_helper(
+ 		dm,
+ 		aconnector,
 -- 
 2.20.1
 
