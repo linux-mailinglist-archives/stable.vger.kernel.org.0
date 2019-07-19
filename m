@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5FD56DE07
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 148EC6DE01
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731698AbfGSEZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:25:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43038 "EHLO mail.kernel.org"
+        id S2388827AbfGSEZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:25:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731619AbfGSEIk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:08:40 -0400
+        id S1731586AbfGSEIm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:08:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56E7F218D2;
-        Fri, 19 Jul 2019 04:08:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80E62218BB;
+        Fri, 19 Jul 2019 04:08:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509320;
-        bh=248KId4oJ/UXTy259lxG0UgQmqYIht55telL23IqvEE=;
+        s=default; t=1563509321;
+        bh=aWi9rIz4AJaQwurAsxogJDwcxZITH7kny+Y3CDGPLkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fdTD+cHIAgJQQDDQHmTmpBqKdicfLxeJDYs9yx+fOO+0osZx/x92k+87rz4WPtMKJ
-         q5EdZ4/4+xwUq4CAL7KKP4cLdglC3Uq1Nyf8ZpVxxO7V6gQbwCQRKz5xR4rKAPDTzt
-         4Z5yzoxgnvsAZsIPM0cxYxPTvKcWEmDhjBQVZC5M=
+        b=ttY/ONZMFfHPudfZDJquw+yRUZ+kMI4OkEjGzh4PFxvg0QUeCw3MCgKMCLw4bNnLU
+         dt9Tmm6rH0uH2jfhSg1kT74Ak8lAUO9m3ly6XaoZTFAWloIMQCbd3AqmCvy8GsLC64
+         Z03KmxXi6eH/DjS4eCDR7kNZXUCN9lWRFOTJV55c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Young Xiao <92siuyang@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 032/101] iio:core: Fix bug in length of event info_mask and catch unhandled bits set in masks.
-Date:   Fri, 19 Jul 2019 00:06:23 -0400
-Message-Id: <20190719040732.17285-32-sashal@kernel.org>
+Cc:     Sergey Organov <sorganov@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 033/101] serial: imx: fix locking in set_termios()
+Date:   Fri, 19 Jul 2019 00:06:24 -0400
+Message-Id: <20190719040732.17285-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -44,39 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Young Xiao <92siuyang@gmail.com>
+From: Sergey Organov <sorganov@gmail.com>
 
-[ Upstream commit 936d3e536dcf88ce80d27bdb637009b13dba6d8c ]
+[ Upstream commit 4e828c3e09201512be5ee162393f334321f7cf01 ]
 
-The incorrect limit for the for_each_set_bit loop was noticed whilst fixing
-this other case.  Note that as we only have 3 possible entries a the moment
-and the value was set to 4, the bug would not have any effect currently.
-It will bite fairly soon though, so best fix it now.
+imx_uart_set_termios() called imx_uart_rts_active(), or
+imx_uart_rts_inactive() before taking port->port.lock.
 
-See commit ef4b4856593f ("iio:core: Fix bug in length of event info_mask and
-catch unhandled bits set in masks.") for details.
+As a consequence, sport->port.mctrl that these functions modify
+could have been changed without holding port->port.lock.
 
-Signed-off-by: Young Xiao <92siuyang@gmail.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Moved locking of port->port.lock above the calls to fix the issue.
+
+Signed-off-by: Sergey Organov <sorganov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/industrialio-core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/imx.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
-index 49d4b4f1a457..4bc9ea48da07 100644
---- a/drivers/iio/industrialio-core.c
-+++ b/drivers/iio/industrialio-core.c
-@@ -1112,6 +1112,8 @@ static int iio_device_add_info_mask_type_avail(struct iio_dev *indio_dev,
- 	char *avail_postfix;
+diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+index 0f67197a3783..105de92b0b3b 100644
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -382,6 +382,7 @@ static void imx_uart_ucrs_restore(struct imx_port *sport,
+ }
+ #endif
  
- 	for_each_set_bit(i, infomask, sizeof(*infomask) * 8) {
-+		if (i >= ARRAY_SIZE(iio_chan_info_postfix))
-+			return -EINVAL;
- 		avail_postfix = kasprintf(GFP_KERNEL,
- 					  "%s_available",
- 					  iio_chan_info_postfix[i]);
++/* called with port.lock taken and irqs caller dependent */
+ static void imx_uart_rts_active(struct imx_port *sport, u32 *ucr2)
+ {
+ 	*ucr2 &= ~(UCR2_CTSC | UCR2_CTS);
+@@ -390,6 +391,7 @@ static void imx_uart_rts_active(struct imx_port *sport, u32 *ucr2)
+ 	mctrl_gpio_set(sport->gpios, sport->port.mctrl);
+ }
+ 
++/* called with port.lock taken and irqs caller dependent */
+ static void imx_uart_rts_inactive(struct imx_port *sport, u32 *ucr2)
+ {
+ 	*ucr2 &= ~UCR2_CTSC;
+@@ -399,6 +401,7 @@ static void imx_uart_rts_inactive(struct imx_port *sport, u32 *ucr2)
+ 	mctrl_gpio_set(sport->gpios, sport->port.mctrl);
+ }
+ 
++/* called with port.lock taken and irqs caller dependent */
+ static void imx_uart_rts_auto(struct imx_port *sport, u32 *ucr2)
+ {
+ 	*ucr2 |= UCR2_CTSC;
+@@ -1554,6 +1557,16 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
+ 		old_csize = CS8;
+ 	}
+ 
++	del_timer_sync(&sport->timer);
++
++	/*
++	 * Ask the core to calculate the divisor for us.
++	 */
++	baud = uart_get_baud_rate(port, termios, old, 50, port->uartclk / 16);
++	quot = uart_get_divisor(port, baud);
++
++	spin_lock_irqsave(&sport->port.lock, flags);
++
+ 	if ((termios->c_cflag & CSIZE) == CS8)
+ 		ucr2 = UCR2_WS | UCR2_SRST | UCR2_IRTS;
+ 	else
+@@ -1597,16 +1610,6 @@ imx_uart_set_termios(struct uart_port *port, struct ktermios *termios,
+ 			ucr2 |= UCR2_PROE;
+ 	}
+ 
+-	del_timer_sync(&sport->timer);
+-
+-	/*
+-	 * Ask the core to calculate the divisor for us.
+-	 */
+-	baud = uart_get_baud_rate(port, termios, old, 50, port->uartclk / 16);
+-	quot = uart_get_divisor(port, baud);
+-
+-	spin_lock_irqsave(&sport->port.lock, flags);
+-
+ 	sport->port.read_status_mask = 0;
+ 	if (termios->c_iflag & INPCK)
+ 		sport->port.read_status_mask |= (URXD_FRMERR | URXD_PRERR);
 -- 
 2.20.1
 
