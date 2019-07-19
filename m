@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B1D6DE5D
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:28:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08E226DE55
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732210AbfGSEGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:06:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39694 "EHLO mail.kernel.org"
+        id S1732226AbfGSEGh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:06:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732192AbfGSEGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:06:34 -0400
+        id S1732215AbfGSEGh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:06:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62D57218BA;
-        Fri, 19 Jul 2019 04:06:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10E53218BC;
+        Fri, 19 Jul 2019 04:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509193;
-        bh=MhKAvb/O4ISy5XQueKOiaa7SpJ04lUxPLCvm9AXPcSw=;
+        s=default; t=1563509195;
+        bh=jfItoQGzZ9Q/lmuzO+wU4JzzLhRe2zgd3/tbSLJUNXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uFKlsWWvv5mmJw4gbZyTOG6wNdP78uVLspvCjyNrqamFyyuLpF2VYiazu/kmxKfRe
-         S0roc5eYZ7NnQScCwNBB+2oDrgcONtuhn2wJk9010xPaF4NulhYpQBVpmCOpsMVMDF
-         11h4a5c1aqODs9V+TkbSuCGApsHtkp8MEY/YeebE=
+        b=lL52lsDukMYYVoJXbT7J0EzLX/KladXZdlA8jYN1xmTTGaZOV4582pYrUkIsxJ9nj
+         EYilC80bvk3ZuHXoQzNACSvF7ciQX33aDlaIQC1yGht7cFcGoYaHBj8CohtklqMe76
+         NARdIgRjQArryIJ6YoeUzjuAQFnrgLJ2GGfvTp3g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 120/141] s390/dasd: Make layout analysis ESE compatible
-Date:   Fri, 19 Jul 2019 00:02:25 -0400
-Message-Id: <20190719040246.15945-120-sashal@kernel.org>
+Cc:     Aya Levin <ayal@mellanox.com>, Feras Daoud <ferasda@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 121/141] net/mlx5e: IPoIB, Add error path in mlx5_rdma_setup_rn
+Date:   Fri, 19 Jul 2019 00:02:26 -0400
+Message-Id: <20190719040246.15945-121-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,91 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+From: Aya Levin <ayal@mellanox.com>
 
-[ Upstream commit ce6915f5343f5f2a2a937b683d8ffbf12dab3ad4 ]
+[ Upstream commit ef1ce7d7b67b46661091c7ccc0396186b7a247ef ]
 
-The disk layout and volume information of a DASD reside in the first two
-tracks of cylinder 0. When a DASD is set online, currently the first
-three tracks are read and analysed to confirm an expected layout.
+Check return value from mlx5e_attach_netdev, add error path on failure.
 
-For CDL (Compatible Disk Layout) only count area data of the first track
-is evaluated and checked against expected key and data lengths. For LDL
-(Linux Disk Layout) the first and third track is evaluated. However,
-an LDL formatted volume is expected to be in the same format across all
-tracks. Checking the third track therefore doesn't have any more value
-than checking any other track at random.
-
-Now, an Extent Space Efficient (ESE) DASD is initialised by only
-formatting the first two tracks, as those tracks always contain all
-information necessarry.
-
-Checking the third track on an ESE volume will therefore most likely
-fail with a record not found error, as the third track will be empty.
-This in turn leads to the device being recognised with a volume size of
-0. Attempts to write volume information on the first two tracks then
-fail with "no space left on device" errors.
-
-Initialising the first three tracks for an ESE volume is not a viable
-solution, because the third track is already a regular track and could
-contain user data. With that there is potential for data corruption.
-
-Instead, always only analyse the first two tracks, as it is sufficiant
-for both CDL and LDL, and allow ESE volumes to be recognised as well.
-
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 48935bbb7ae8 ("net/mlx5e: IPoIB, Add netdevice profile skeleton")
+Signed-off-by: Aya Levin <ayal@mellanox.com>
+Reviewed-by: Feras Daoud <ferasda@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd_eckd.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index f89f9d02e788..fccdf9812c1f 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -157,7 +157,7 @@ static const int sizes_trk0[] = { 28, 148, 84 };
- #define LABEL_SIZE 140
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
+index 4eac42555c7d..5d0783e55f42 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
+@@ -698,7 +698,9 @@ static int mlx5_rdma_setup_rn(struct ib_device *ibdev, u8 port_num,
  
- /* head and record addresses of count_area read in analysis ccw */
--static const int count_area_head[] = { 0, 0, 0, 0, 2 };
-+static const int count_area_head[] = { 0, 0, 0, 0, 1 };
- static const int count_area_rec[] = { 1, 2, 3, 4, 1 };
+ 	prof->init(mdev, netdev, prof, ipriv);
  
- static inline unsigned int
-@@ -1823,8 +1823,8 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
- 	if (IS_ERR(cqr))
- 		return cqr;
- 	ccw = cqr->cpaddr;
--	/* Define extent for the first 3 tracks. */
--	define_extent(ccw++, cqr->data, 0, 2,
-+	/* Define extent for the first 2 tracks. */
-+	define_extent(ccw++, cqr->data, 0, 1,
- 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
- 	LO_data = cqr->data + sizeof(struct DE_eckd_data);
- 	/* Locate record for the first 4 records on track 0. */
-@@ -1843,9 +1843,9 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
- 		count_data++;
- 	}
+-	mlx5e_attach_netdev(epriv);
++	err = mlx5e_attach_netdev(epriv);
++	if (err)
++		goto detach;
+ 	netif_carrier_off(netdev);
  
--	/* Locate record for the first record on track 2. */
-+	/* Locate record for the first record on track 1. */
- 	ccw[-1].flags |= CCW_FLAG_CC;
--	locate_record(ccw++, LO_data++, 2, 0, 1,
-+	locate_record(ccw++, LO_data++, 1, 0, 1,
- 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
- 	/* Read count ccw. */
- 	ccw[-1].flags |= CCW_FLAG_CC;
-@@ -1967,7 +1967,7 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
- 		}
- 	}
- 	if (i == 3)
--		count_area = &private->count_area[4];
-+		count_area = &private->count_area[3];
+ 	/* set rdma_netdev func pointers */
+@@ -714,6 +716,11 @@ static int mlx5_rdma_setup_rn(struct ib_device *ibdev, u8 port_num,
  
- 	if (private->uses_cdl == 0) {
- 		for (i = 0; i < 5; i++) {
+ 	return 0;
+ 
++detach:
++	prof->cleanup(epriv);
++	if (ipriv->sub_interface)
++		return err;
++	mlx5e_destroy_mdev_resources(mdev);
+ destroy_ht:
+ 	mlx5i_pkey_qpn_ht_cleanup(netdev);
+ 	return err;
 -- 
 2.20.1
 
