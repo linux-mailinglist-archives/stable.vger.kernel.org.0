@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7076DC56
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A316DC55
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390057AbfGSEPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726818AbfGSEPR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jul 2019 00:15:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51498 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387449AbfGSEPN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:15:13 -0400
+        id S2388735AbfGSEPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:15:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 482D7218A5;
-        Fri, 19 Jul 2019 04:15:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5774D21873;
+        Fri, 19 Jul 2019 04:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509712;
-        bh=DXkaTUy1aC1SIQB/P87DYUa8G8l8zH//6I7t2Oy/xr4=;
+        s=default; t=1563509715;
+        bh=TFa32rdvyRrccR5yuIrKoMH94jn+H0MYmYw4inNWKU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DSVQe8D77p9gpYO7Q+AhlHRw8VMTQrzfx1Z1rrjPo6vUAogeloRjykCoUwvRW9dMI
-         QyeS1klhbHt7XnPB5O+HOMV6PwMXE/7nylFdWKc2IedApc/p7rFF8qyzASlnYOlNz/
-         ism+cwFLEIAd5TbhuXxi/uxKXpXxiIo6CMomgw2c=
+        b=y5IWDg1a3h5O9KkPHBLmSMN0ETFoI0/NvhKZKwCuVsvdOWMgWu8Kq9gasoilaNH3J
+         AdcMcTe4ioLolJhG7b2WAWHsCoxcXl9+0EWH+JssZbCFq+yRsHy0nm3szXaypoF5rf
+         5gb33OI0HRYTB2C9fbqOia7oUTo/nYwBAkXKB1cA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 24/35] serial: sh-sci: Fix TX DMA buffer flushing and workqueue races
-Date:   Fri, 19 Jul 2019 00:14:12 -0400
-Message-Id: <20190719041423.19322-24-sashal@kernel.org>
+Cc:     Vidya Sagar <vidyas@nvidia.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 25/35] PCI: tegra: Enable Relaxed Ordering only for Tegra20 & Tegra30
+Date:   Fri, 19 Jul 2019 00:14:13 -0400
+Message-Id: <20190719041423.19322-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041423.19322-1-sashal@kernel.org>
 References: <20190719041423.19322-1-sashal@kernel.org>
@@ -45,116 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit 8493eab02608b0e82f67b892aa72882e510c31d0 ]
+[ Upstream commit 7be142caabc4780b13a522c485abc806de5c4114 ]
 
-When uart_flush_buffer() is called, the .flush_buffer() callback zeroes
-the tx_dma_len field.  This may race with the work queue function
-handling transmit DMA requests:
+The PCI Tegra controller conversion to a device tree configurable
+driver in commit d1523b52bff3 ("PCI: tegra: Move PCIe driver
+to drivers/pci/host") implied that code for the driver can be
+compiled in for a kernel supporting multiple platforms.
 
-  1. If the buffer is flushed before the first DMA API call,
-     dmaengine_prep_slave_single() may be called with a zero length,
-     causing the DMA request to never complete, leading to messages
-     like:
+Unfortunately, a blind move of the code did not check that some of the
+quirks that were applied in arch/arm (eg enabling Relaxed Ordering on
+all PCI devices - since the quirk hook erroneously matches PCI_ANY_ID
+for both Vendor-ID and Device-ID) are now applied in all kernels that
+compile the PCI Tegra controlled driver, DT and ACPI alike.
 
-        rcar-dmac e7300000.dma-controller: Channel Address Error happen
+This is completely wrong, in that enablement of Relaxed Ordering is only
+required by default in Tegra20 platforms as described in the Tegra20
+Technical Reference Manual (available at
+https://developer.nvidia.com/embedded/downloads#?search=tegra%202 in
+Section 34.1, where it is mentioned that Relaxed Ordering bit needs to
+be enabled in its root ports to avoid deadlock in hardware) and in the
+Tegra30 platforms for the same reasons (unfortunately not documented
+in the TRM).
 
-     and, with debug enabled:
+There is no other strict requirement on PCI devices Relaxed Ordering
+enablement on any other Tegra platforms or PCI host bridge driver.
 
-	sh-sci e6e88000.serial: sci_dma_tx_work_fn: ffff800639b55000: 0...0, cookie 126
+Fix this quite upsetting situation by limiting the vendor and device IDs
+to which the Relaxed Ordering quirk applies to the root ports in
+question, reported above.
 
-     and DMA timeouts.
-
-  2. If the buffer is flushed after the first DMA API call, but before
-     the second, dma_sync_single_for_device() may be called with a zero
-     length, causing the transmit data not to be flushed to RAM, and
-     leading to stale data being output.
-
-Fix this by:
-  1. Letting sci_dma_tx_work_fn() return immediately if the transmit
-     buffer is empty,
-  2. Extending the critical section to cover all DMA preparational work,
-     so tx_dma_len stays consistent for all of it,
-  3. Using local copies of circ_buf.head and circ_buf.tail, to make sure
-     they match the actual operation above.
-
-Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Suggested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Link: https://lore.kernel.org/r/20190624123540.20629-2-geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+[lorenzo.pieralisi@arm.com: completely rewrote the commit log/fixes tag]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sh-sci.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ drivers/pci/host/pci-tegra.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index 669134e27ed9..c450e32c153d 100644
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -1203,6 +1203,7 @@ static void work_fn_tx(struct work_struct *work)
- 	struct uart_port *port = &s->port;
- 	struct circ_buf *xmit = &port->state->xmit;
- 	dma_addr_t buf;
-+	int head, tail;
+diff --git a/drivers/pci/host/pci-tegra.c b/drivers/pci/host/pci-tegra.c
+index 30323114c53c..9865793b538a 100644
+--- a/drivers/pci/host/pci-tegra.c
++++ b/drivers/pci/host/pci-tegra.c
+@@ -586,12 +586,15 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_fixup_class);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_fixup_class);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_fixup_class);
  
- 	/*
- 	 * DMA is idle now.
-@@ -1212,16 +1213,23 @@ static void work_fn_tx(struct work_struct *work)
- 	 * consistent xmit buffer state.
- 	 */
- 	spin_lock_irq(&port->lock);
--	buf = s->tx_dma_addr + (xmit->tail & (UART_XMIT_SIZE - 1));
-+	head = xmit->head;
-+	tail = xmit->tail;
-+	buf = s->tx_dma_addr + (tail & (UART_XMIT_SIZE - 1));
- 	s->tx_dma_len = min_t(unsigned int,
--		CIRC_CNT(xmit->head, xmit->tail, UART_XMIT_SIZE),
--		CIRC_CNT_TO_END(xmit->head, xmit->tail, UART_XMIT_SIZE));
--	spin_unlock_irq(&port->lock);
-+		CIRC_CNT(head, tail, UART_XMIT_SIZE),
-+		CIRC_CNT_TO_END(head, tail, UART_XMIT_SIZE));
-+	if (!s->tx_dma_len) {
-+		/* Transmit buffer has been flushed */
-+		spin_unlock_irq(&port->lock);
-+		return;
-+	}
- 
- 	desc = dmaengine_prep_slave_single(chan, buf, s->tx_dma_len,
- 					   DMA_MEM_TO_DEV,
- 					   DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
- 	if (!desc) {
-+		spin_unlock_irq(&port->lock);
- 		dev_warn(port->dev, "Failed preparing Tx DMA descriptor\n");
- 		/* switch to PIO */
- 		sci_tx_dma_release(s, true);
-@@ -1231,20 +1239,20 @@ static void work_fn_tx(struct work_struct *work)
- 	dma_sync_single_for_device(chan->device->dev, buf, s->tx_dma_len,
- 				   DMA_TO_DEVICE);
- 
--	spin_lock_irq(&port->lock);
- 	desc->callback = sci_dma_tx_complete;
- 	desc->callback_param = s;
--	spin_unlock_irq(&port->lock);
- 	s->cookie_tx = dmaengine_submit(desc);
- 	if (dma_submit_error(s->cookie_tx)) {
-+		spin_unlock_irq(&port->lock);
- 		dev_warn(port->dev, "Failed submitting Tx DMA descriptor\n");
- 		/* switch to PIO */
- 		sci_tx_dma_release(s, true);
- 		return;
- 	}
- 
-+	spin_unlock_irq(&port->lock);
- 	dev_dbg(port->dev, "%s: %p: %d...%d, cookie %d\n",
--		__func__, xmit->buf, xmit->tail, xmit->head, s->cookie_tx);
-+		__func__, xmit->buf, tail, head, s->cookie_tx);
- 
- 	dma_async_issue_pending(chan);
+-/* Tegra PCIE requires relaxed ordering */
++/* Tegra20 and Tegra30 PCIE requires relaxed ordering */
+ static void tegra_pcie_relax_enable(struct pci_dev *dev)
+ {
+ 	pcie_capability_set_word(dev, PCI_EXP_DEVCTL, PCI_EXP_DEVCTL_RELAX_EN);
  }
+-DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf0, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_relax_enable);
+ 
+ static int tegra_pcie_setup(int nr, struct pci_sys_data *sys)
+ {
 -- 
 2.20.1
 
