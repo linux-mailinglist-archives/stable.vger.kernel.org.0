@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 192856DF20
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:33:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A29AA6DF19
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:33:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727318AbfGSEdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:33:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35556 "EHLO mail.kernel.org"
+        id S1730512AbfGSEDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:03:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730474AbfGSEDb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:03:31 -0400
+        id S1730473AbfGSEDd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:03:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46E7820659;
-        Fri, 19 Jul 2019 04:03:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BB4B21852;
+        Fri, 19 Jul 2019 04:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509011;
-        bh=mbhikaGMnXf+YnU2b1rwFEnK/QE9o+IzAB7O7T+g2HA=;
+        s=default; t=1563509012;
+        bh=teggvQp7PWhRrkJMsK/tso+6YAghi15Fw5s2In74K+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZanhPKApbZQC9wwTzBYXVX2TrE7y78MqUtJ1S0wr3qqK61Kb3U4WgbwK3NzjYxik
-         zou4D6hhnaEsCI8L1pRFvyba0SZ3v4W5KOCMkT4XFi10gOAhJ7TSfoH6KgEml1LIoQ
-         woj6InYpM4hIvzj1jUuEzLCp+NM4kfYG33/PP+zI=
+        b=L0kDrebqX3o31eAbSFzi/0rWzFtGsJGwNUcLmBD10XQEay1S7BrJL9JzXMAvPUUED
+         /teiGHDe6VqZtDqtyy1tU1rlYfJ+RjnuSBBpzT1KULwLM820qum1E2eCwdMGDFToQb
+         SSedl4V2ezzk5h0zP8sLEldc12F3T9MgNuOICpf8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Hsieh <paul.hsieh@amd.com>, Anthony Koo <Anthony.Koo@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+Cc:     Oak Zeng <ozeng@amd.com>, Felix Kuehling <Felix.Kuehling@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.1 018/141] drm/amd/display: Disable ABM before destroy ABM struct
-Date:   Fri, 19 Jul 2019 00:00:43 -0400
-Message-Id: <20190719040246.15945-18-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.1 019/141] drm/amdkfd: Fix a potential memory leak
+Date:   Fri, 19 Jul 2019 00:00:44 -0400
+Message-Id: <20190719040246.15945-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -45,40 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Hsieh <paul.hsieh@amd.com>
+From: Oak Zeng <ozeng@amd.com>
 
-[ Upstream commit 1090d58d4815b1fcd95a80987391006c86398b4c ]
+[ Upstream commit e73390d181103a19e1111ec2f25559a0570e9fe0 ]
 
-[Why]
-When disable driver, OS will set backlight optimization
-then do stop device.  But this flag will cause driver to
-enable ABM when driver disabled.
+Free mqd_mem_obj it GTT buffer allocation for MQD+control stack fails.
 
-[How]
-Send ABM disable command before destroy ABM construct
-
-Signed-off-by: Paul Hsieh <paul.hsieh@amd.com>
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Oak Zeng <ozeng@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce/dce_abm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c b/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c
-index da96229db53a..2959c3c9390b 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_abm.c
-@@ -473,6 +473,8 @@ void dce_abm_destroy(struct abm **abm)
- {
- 	struct dce_abm *abm_dce = TO_DCE_ABM(*abm);
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c
+index 9dbba609450e..8fe74b821b32 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c
+@@ -76,6 +76,7 @@ static int init_mqd(struct mqd_manager *mm, void **mqd,
+ 	struct v9_mqd *m;
+ 	struct kfd_dev *kfd = mm->dev;
  
-+	abm_dce->base.funcs->set_abm_immediate_disable(*abm);
-+
- 	kfree(abm_dce);
- 	*abm = NULL;
- }
++	*mqd_mem_obj = NULL;
+ 	/* From V9,  for CWSR, the control stack is located on the next page
+ 	 * boundary after the mqd, we will use the gtt allocation function
+ 	 * instead of sub-allocation function.
+@@ -93,8 +94,10 @@ static int init_mqd(struct mqd_manager *mm, void **mqd,
+ 	} else
+ 		retval = kfd_gtt_sa_allocate(mm->dev, sizeof(struct v9_mqd),
+ 				mqd_mem_obj);
+-	if (retval != 0)
++	if (retval) {
++		kfree(*mqd_mem_obj);
+ 		return -ENOMEM;
++	}
+ 
+ 	m = (struct v9_mqd *) (*mqd_mem_obj)->cpu_ptr;
+ 	addr = (*mqd_mem_obj)->gpu_addr;
 -- 
 2.20.1
 
