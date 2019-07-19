@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CAC46DF95
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:36:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D4D76DF92
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729069AbfGSEAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:00:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60396 "EHLO mail.kernel.org"
+        id S1729714AbfGSEgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:36:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729053AbfGSEAb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:00:31 -0400
+        id S1729088AbfGSEAe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:00:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A2AB21873;
-        Fri, 19 Jul 2019 04:00:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7D4621851;
+        Fri, 19 Jul 2019 04:00:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508830;
-        bh=4bB8qtrnRPBP80hwpyceHPKXuR1qkIAQivDFdyKUZ9Q=;
+        s=default; t=1563508833;
+        bh=ODh4CTkykYpoX++oqzYOTKUG6FeESfkWrW9mds2LKCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRti8pnJ3v8NaBtXQjjuVYkhF8JD/9pfQXnGY4m6UaIKQ0sjfYOgEiRnueix2a/ez
-         oPQtHCTIL1p+USf6wolwsWkyF3q8cxM7sVrSMuxpupiSaroa88b2++cyE3Bqsa3p3z
-         FWeGEe9Xpy2GSsjPW14tnE0ptUTSaJ2WP3nwjmQs=
+        b=WLpA6ZRZu9/te9EYjFxS+SlMxKermDiE3P8qP9NQL8Jq7jz0KavGRfADSR7nGHzG1
+         opAaelbxcQdFKfZ291mhJJynodb+QghquRxA7/SvU2xiU5ROUz0qy24HPgH79X6B3c
+         /mBCuOasJLeQ4UY5UHBfVWnOvnl3Yr9y9JzYyKyw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Valentine Fatiev <valentinef@mellanox.com>,
-        Feras Daoud <ferasda@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 113/171] IB/ipoib: Add child to parent list only if device initialized
-Date:   Thu, 18 Jul 2019 23:55:44 -0400
-Message-Id: <20190719035643.14300-113-sashal@kernel.org>
+Cc:     Vidya Sagar <vidyas@nvidia.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 115/171] PCI: tegra: Enable Relaxed Ordering only for Tegra20 & Tegra30
+Date:   Thu, 18 Jul 2019 23:55:46 -0400
+Message-Id: <20190719035643.14300-115-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -45,95 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentine Fatiev <valentinef@mellanox.com>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit 91b01061fef9c57d2f5b712a6322ef51061f4efd ]
+[ Upstream commit 7be142caabc4780b13a522c485abc806de5c4114 ]
 
-Despite failure in ipoib_dev_init() we continue with initialization flow
-and creation of child device. It causes to the situation where this child
-device is added too early to parent device list.
+The PCI Tegra controller conversion to a device tree configurable
+driver in commit d1523b52bff3 ("PCI: tegra: Move PCIe driver
+to drivers/pci/host") implied that code for the driver can be
+compiled in for a kernel supporting multiple platforms.
 
-Change the logic, so in case of failure we properly return error from
-ipoib_dev_init() and add child only in success path.
+Unfortunately, a blind move of the code did not check that some of the
+quirks that were applied in arch/arm (eg enabling Relaxed Ordering on
+all PCI devices - since the quirk hook erroneously matches PCI_ANY_ID
+for both Vendor-ID and Device-ID) are now applied in all kernels that
+compile the PCI Tegra controlled driver, DT and ACPI alike.
 
-Fixes: eaeb39842508 ("IB/ipoib: Move init code to ndo_init")
-Signed-off-by: Valentine Fatiev <valentinef@mellanox.com>
-Reviewed-by: Feras Daoud <ferasda@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+This is completely wrong, in that enablement of Relaxed Ordering is only
+required by default in Tegra20 platforms as described in the Tegra20
+Technical Reference Manual (available at
+https://developer.nvidia.com/embedded/downloads#?search=tegra%202 in
+Section 34.1, where it is mentioned that Relaxed Ordering bit needs to
+be enabled in its root ports to avoid deadlock in hardware) and in the
+Tegra30 platforms for the same reasons (unfortunately not documented
+in the TRM).
+
+There is no other strict requirement on PCI devices Relaxed Ordering
+enablement on any other Tegra platforms or PCI host bridge driver.
+
+Fix this quite upsetting situation by limiting the vendor and device IDs
+to which the Relaxed Ordering quirk applies to the root ports in
+question, reported above.
+
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+[lorenzo.pieralisi@arm.com: completely rewrote the commit log/fixes tag]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/ipoib/ipoib_main.c | 34 +++++++++++++----------
- 1 file changed, 20 insertions(+), 14 deletions(-)
+ drivers/pci/controller/pci-tegra.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_main.c b/drivers/infiniband/ulp/ipoib/ipoib_main.c
-index 9b5e11d3fb85..bb904ec511be 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_main.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_main.c
-@@ -1893,12 +1893,6 @@ static void ipoib_child_init(struct net_device *ndev)
- 	struct ipoib_dev_priv *priv = ipoib_priv(ndev);
- 	struct ipoib_dev_priv *ppriv = ipoib_priv(priv->parent);
+diff --git a/drivers/pci/controller/pci-tegra.c b/drivers/pci/controller/pci-tegra.c
+index 464ba2538d52..bc7be369c1b3 100644
+--- a/drivers/pci/controller/pci-tegra.c
++++ b/drivers/pci/controller/pci-tegra.c
+@@ -545,12 +545,15 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_fixup_class);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_fixup_class);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_fixup_class);
  
--	dev_hold(priv->parent);
--
--	down_write(&ppriv->vlan_rwsem);
--	list_add_tail(&priv->list, &ppriv->child_intfs);
--	up_write(&ppriv->vlan_rwsem);
--
- 	priv->max_ib_mtu = ppriv->max_ib_mtu;
- 	set_bit(IPOIB_FLAG_SUBINTERFACE, &priv->flags);
- 	memcpy(priv->dev->dev_addr, ppriv->dev->dev_addr, INFINIBAND_ALEN);
-@@ -1941,6 +1935,17 @@ static int ipoib_ndo_init(struct net_device *ndev)
- 	if (rc) {
- 		pr_warn("%s: failed to initialize device: %s port %d (ret = %d)\n",
- 			priv->ca->name, priv->dev->name, priv->port, rc);
-+		return rc;
-+	}
-+
-+	if (priv->parent) {
-+		struct ipoib_dev_priv *ppriv = ipoib_priv(priv->parent);
-+
-+		dev_hold(priv->parent);
-+
-+		down_write(&ppriv->vlan_rwsem);
-+		list_add_tail(&priv->list, &ppriv->child_intfs);
-+		up_write(&ppriv->vlan_rwsem);
- 	}
- 
- 	return 0;
-@@ -1958,6 +1963,14 @@ static void ipoib_ndo_uninit(struct net_device *dev)
- 	 */
- 	WARN_ON(!list_empty(&priv->child_intfs));
- 
-+	if (priv->parent) {
-+		struct ipoib_dev_priv *ppriv = ipoib_priv(priv->parent);
-+
-+		down_write(&ppriv->vlan_rwsem);
-+		list_del(&priv->list);
-+		up_write(&ppriv->vlan_rwsem);
-+	}
-+
- 	ipoib_neigh_hash_uninit(dev);
- 
- 	ipoib_ib_dev_cleanup(dev);
-@@ -1969,15 +1982,8 @@ static void ipoib_ndo_uninit(struct net_device *dev)
- 		priv->wq = NULL;
- 	}
- 
--	if (priv->parent) {
--		struct ipoib_dev_priv *ppriv = ipoib_priv(priv->parent);
--
--		down_write(&ppriv->vlan_rwsem);
--		list_del(&priv->list);
--		up_write(&ppriv->vlan_rwsem);
--
-+	if (priv->parent)
- 		dev_put(priv->parent);
--	}
+-/* Tegra PCIE requires relaxed ordering */
++/* Tegra20 and Tegra30 PCIE requires relaxed ordering */
+ static void tegra_pcie_relax_enable(struct pci_dev *dev)
+ {
+ 	pcie_capability_set_word(dev, PCI_EXP_DEVCTL, PCI_EXP_DEVCTL_RELAX_EN);
  }
+-DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf0, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_relax_enable);
  
- static int ipoib_set_vf_link_state(struct net_device *dev, int vf, int link_state)
+ static int tegra_pcie_request_resources(struct tegra_pcie *pcie)
+ {
 -- 
 2.20.1
 
