@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 290BD6E01C
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B407E6E01A
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:40:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727905AbfGSD6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727909AbfGSD6T (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 18 Jul 2019 23:58:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57592 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727823AbfGSD6S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:58:18 -0400
+        id S1727891AbfGSD6T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:58:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4C9421851;
-        Fri, 19 Jul 2019 03:58:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E5FC2186A;
+        Fri, 19 Jul 2019 03:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508697;
-        bh=A18q6bvzumReKnIF7R7v4bUP7cQ6XlnNJDmpFzffm7s=;
+        s=default; t=1563508698;
+        bh=rfp2mhSWp3ECQi2RiDeADP41GduMWU6Ii4yw3ZaWYKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=glryT/8UB0ETnx3d/nUZeKOqaHrcvf8fZ9QZcZLl1wKHs78dlY25ucYFHCWXdzjon
-         3S03CORL8uEBCDi2FCKQ5sR/Y2/+c16f4cgyTbeMNqCf9AMSPMEkKNqolGlReYhW43
-         fDaY0xqw+Nxh50y1OteZdhOi477N81Ww4db23L4A=
+        b=g1ByPGDcIhqTW/FW7oPHcBZx+jxkENw3/9A2qpJZSm4BGHM5cKy92IWmix+koJmEN
+         Xe+icS4gvHyNFa6Eo9nue0Q/c1hQbyDEEVct0hdjuTHeI0Ia7x9wCz0jiDLp+otmTs
+         g7OvH4ik5d7Aof1jpAzC2VQanq6306nQaOcHNrMw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eryk Brol <eryk.brol@amd.com>, Jun Lei <Jun.Lei@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 037/171] drm/amd/display: Increase Backlight Gain Step Size
-Date:   Thu, 18 Jul 2019 23:54:28 -0400
-Message-Id: <20190719035643.14300-37-sashal@kernel.org>
+Cc:     Daniel Rosenberg <drosen@google.com>, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.2 038/171] f2fs: Fix accounting for unusable blocks
+Date:   Thu, 18 Jul 2019 23:54:29 -0400
+Message-Id: <20190719035643.14300-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -45,55 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eryk Brol <eryk.brol@amd.com>
+From: Daniel Rosenberg <drosen@google.com>
 
-[ Upstream commit e25228b02e4833e5b0fdd262801a2ae6cc72b39d ]
+[ Upstream commit a4c3ecaaadac5693f555cfef1c9eecf4c39df818 ]
 
-[Why]
-Some backlight tests fail due to backlight settling
-taking too long. This happens because the step
-size used to change backlight levels is too small.
+Fixes possible underflows when dealing with unusable blocks.
 
-[How]
-1. Change the size of the backlight gain step size
-2. Change how DMCU firmware gets the step size value
-   so that it is passed in by driver during DMCU initn
-
-Signed-off-by: Eryk Brol <eryk.brol@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Daniel Rosenberg <drosen@google.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce/dce_dmcu.c | 3 +++
- drivers/gpu/drm/amd/display/dc/dce/dce_dmcu.h | 2 ++
- 2 files changed, 5 insertions(+)
+ fs/f2fs/f2fs.h | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_dmcu.c b/drivers/gpu/drm/amd/display/dc/dce/dce_dmcu.c
-index 818536eea00a..c6a607cd0e4b 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_dmcu.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_dmcu.c
-@@ -388,6 +388,9 @@ static bool dcn10_dmcu_init(struct dmcu *dmcu)
- 		/* Set initialized ramping boundary value */
- 		REG_WRITE(MASTER_COMM_DATA_REG1, 0xFFFF);
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index d1b64cb77326..9e6721e15b24 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -1767,8 +1767,12 @@ static inline int inc_valid_block_count(struct f2fs_sb_info *sbi,
  
-+		/* Set backlight ramping stepsize */
-+		REG_WRITE(MASTER_COMM_DATA_REG2, abm_gain_stepsize);
-+
- 		/* Set command to initialize microcontroller */
- 		REG_UPDATE(MASTER_COMM_CMD_REG, MASTER_COMM_CMD_REG_BYTE0,
- 			MCP_INIT_DMCU);
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_dmcu.h b/drivers/gpu/drm/amd/display/dc/dce/dce_dmcu.h
-index 60ce56f60ae3..5bd0df55aa5d 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_dmcu.h
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_dmcu.h
-@@ -263,4 +263,6 @@ struct dmcu *dcn10_dmcu_create(
+ 	if (!__allow_reserved_blocks(sbi, inode, true))
+ 		avail_user_block_count -= F2FS_OPTION(sbi).root_reserved_blocks;
+-	if (unlikely(is_sbi_flag_set(sbi, SBI_CP_DISABLED)))
+-		avail_user_block_count -= sbi->unusable_block_count;
++	if (unlikely(is_sbi_flag_set(sbi, SBI_CP_DISABLED))) {
++		if (avail_user_block_count > sbi->unusable_block_count)
++			avail_user_block_count -= sbi->unusable_block_count;
++		else
++			avail_user_block_count = 0;
++	}
+ 	if (unlikely(sbi->total_valid_block_count > avail_user_block_count)) {
+ 		diff = sbi->total_valid_block_count - avail_user_block_count;
+ 		if (diff > *count)
+@@ -1968,7 +1972,7 @@ static inline int inc_valid_node_count(struct f2fs_sb_info *sbi,
+ 					struct inode *inode, bool is_inode)
+ {
+ 	block_t	valid_block_count;
+-	unsigned int valid_node_count;
++	unsigned int valid_node_count, user_block_count;
+ 	int err;
  
- void dce_dmcu_destroy(struct dmcu **dmcu);
+ 	if (is_inode) {
+@@ -1995,10 +1999,11 @@ static inline int inc_valid_node_count(struct f2fs_sb_info *sbi,
  
-+static const uint32_t abm_gain_stepsize = 0x0060;
-+
- #endif /* _DCE_ABM_H_ */
+ 	if (!__allow_reserved_blocks(sbi, inode, false))
+ 		valid_block_count += F2FS_OPTION(sbi).root_reserved_blocks;
++	user_block_count = sbi->user_block_count;
+ 	if (unlikely(is_sbi_flag_set(sbi, SBI_CP_DISABLED)))
+-		valid_block_count += sbi->unusable_block_count;
++		user_block_count -= sbi->unusable_block_count;
+ 
+-	if (unlikely(valid_block_count > sbi->user_block_count)) {
++	if (unlikely(valid_block_count > user_block_count)) {
+ 		spin_unlock(&sbi->stat_lock);
+ 		goto enospc;
+ 	}
 -- 
 2.20.1
 
