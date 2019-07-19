@@ -2,78 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 592866DE90
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:29:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3A226DFF0
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:40:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731959AbfGSE30 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:29:26 -0400
-Received: from mail-lf1-f50.google.com ([209.85.167.50]:39024 "EHLO
-        mail-lf1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730095AbfGSE3Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 00:29:25 -0400
-Received: by mail-lf1-f50.google.com with SMTP id v85so20744489lfa.6
-        for <stable@vger.kernel.org>; Thu, 18 Jul 2019 21:29:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=JT1SvSMRF2bqzpME5XkLZ5TsUTHih+kHfI4N/rNdrGY=;
-        b=SNemLonKKZMPYpBIyfikcOSJctcy5St0RQUhVOdz8IIoi3joIGqdzLUfTJ7+nFQ0eq
-         ix+AS+E1EPXEzJ0zHL38krbUZXLlOs244vMlWIOzuBOE8KFAP5u6PBTQfV+gJVPNsxpi
-         oEC2tU+jBYXIcsNULk/Ca3hAnV1lmTJUuymis=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=JT1SvSMRF2bqzpME5XkLZ5TsUTHih+kHfI4N/rNdrGY=;
-        b=iA4OytHPw5qGVdLjcpGJucIuxP4Ccq/iogy3xL5W6xDPP2MelgdXW+Nl2JTjR/beB9
-         FAZIw9F1MxQXUnT1Fz57StH372T6JeIwyrj1KXyDaU7T+pZbZc2v0wqTvZ+dqgPHXMss
-         zayULk/Hj8QRtwkvG9wI5bJSKN/iPgreLEJr5wvZv2ZrhhEwjSwTR1oHMN9MotZJJWLZ
-         4/bFvgIXQKPpdy0bm4ZTbl6/xikYnIKTPW1PJFcN4kpVRdjnNanfiHlh0bTk4nO73fNX
-         SXEnJBdyuQ2G6eJV9YDdKggqrXaAnJZMH4D3tNE8oW9tJ/GjoQxlIG602Q31fxVnywqM
-         c/YQ==
-X-Gm-Message-State: APjAAAXXvulcZtwTDmo/DOAu/U97+mBaGDQbIo2wg+6mM/VIhsMo3elW
-        GLrzETYUUQ3OG+EWrtrP2/3sI7rbpuY=
-X-Google-Smtp-Source: APXvYqxCtLr1fVuX3PQUMT5XZ1LC1LoPO5u3g7dnBrW2RmAtvWhPFoj8ZGfX6UUYgBFsPVv8+wbCgw==
-X-Received: by 2002:ac2:48bc:: with SMTP id u28mr10059956lfg.126.1563510563379;
-        Thu, 18 Jul 2019 21:29:23 -0700 (PDT)
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com. [209.85.167.51])
-        by smtp.gmail.com with ESMTPSA id w6sm4265182lff.80.2019.07.18.21.29.22
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Thu, 18 Jul 2019 21:29:22 -0700 (PDT)
-Received: by mail-lf1-f51.google.com with SMTP id b17so20778144lff.7
-        for <stable@vger.kernel.org>; Thu, 18 Jul 2019 21:29:22 -0700 (PDT)
-X-Received: by 2002:ac2:5c42:: with SMTP id s2mr11932515lfp.61.1563510562381;
- Thu, 18 Jul 2019 21:29:22 -0700 (PDT)
+        id S1728056AbfGSD60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 23:58:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57768 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728032AbfGSD60 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:58:26 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54A1E2189D;
+        Fri, 19 Jul 2019 03:58:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563508705;
+        bh=sjTpvekg/2jA/Awx9NsiMfabj+abuEMmkKiAxKHsi9o=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=bwZTS6WDBmSQ7cizhIbPh+6YnFCMMN+wOE6jPo6F0geUjp54XMXIkd4kCMJBUpu87
+         M3avqzucB+dtzURI0/TAphm9AMOr1X9+ZnYXahjUplMmc2nz238qkLkRZNI0s6Z8lE
+         Ef26n4OpEzU4MqdRgmUEYi9581bN8WUz3nmd7xy8=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Shayenne Moura <shayenneluzmoura@gmail.com>,
+        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 043/171] drm/vkms: Forward timer right after drm_crtc_handle_vblank
+Date:   Thu, 18 Jul 2019 23:54:34 -0400
+Message-Id: <20190719035643.14300-43-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
+References: <20190719035643.14300-1-sashal@kernel.org>
 MIME-Version: 1.0
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu, 18 Jul 2019 21:29:06 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wg+aNdzECivhrKrBr8CzEuMuhPg40DcH=jgmNSD+Ns_Fw@mail.gmail.com>
-Message-ID: <CAHk-=wg+aNdzECivhrKrBr8CzEuMuhPg40DcH=jgmNSD+Ns_Fw@mail.gmail.com>
-Subject: Floppy ioctl range clamping fixes
-To:     stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hmm. I just realized when I saw Sasha's autoselect patches flying by
-that the floppy ioctl fixes didn't get marked for stable, but they
-probably should be.
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-There's four commits:
+[ Upstream commit 7355965da22b8d9ebac8bce4b776399fb0bb9d32 ]
 
-  da99466ac243 floppy: fix out-of-bounds read in copy_buffer
-  9b04609b7840 floppy: fix invalid pointer dereference in drive_name
-  5635f897ed83 floppy: fix out-of-bounds read in next_valid_format
-  f3554aeb9912 floppy: fix div-by-zero in setup_format_params
+In
 
-that look like stable material - even if I sincerely hope that the
-floppy driver isn't critical for anybody.
+commit def35e7c592616bc09be328de8795e5e624a3cf8
+Author: Shayenne Moura <shayenneluzmoura@gmail.com>
+Date:   Wed Jan 30 14:06:36 2019 -0200
 
-I leave it to the stable people to decide if they care. I don't think
-the hardware matters any more, but I could imagine that people still
-use it for some virtual images and have a floppy device inside a VM
-for that reason.
+    drm/vkms: Bugfix extra vblank frame
 
-                Linus
+we fixed the vblank counter to give accurate results outside of
+drm_crtc_handle_vblank, which fixed bugs around vblank timestamps
+being off-by-one and causing the vblank counter to jump when it
+shouldn't.
+
+The trouble is that this completely broke crc generation. Shayenne and
+Rodrigo tracked this down to the vblank timestamp going backwards in
+time somehow. Which then resulted in an underflow in drm_vblank.c
+code, which resulted in all kinds of things breaking really badly.
+
+The reason for this is that once we've called drm_crtc_handle_vblank
+and the hrtimer isn't forwarded yet, we're returning a vblank
+timestamp in the past. This race is really hard to hit since it's
+small, except when you enable crc generation: In that case there's a
+call to drm_crtc_accurate_vblank right in-betwen, so we're guaranteed
+to hit the bug.
+
+The fix is to roll the hrtimer forward _before_ we do the vblank
+processing (which has a side-effect of incrementing the vblank
+counter), and we always subtract one frame from the hrtimer - since
+now it's always one frame in the future.
+
+To make sure we don't hit this again also add a WARN_ON checking for
+whether our timestamp is somehow moving into the past, which is never
+should.
+
+This also aligns more with how real hw works:
+1. first all registers are updated with the new timestamp/vblank
+counter values.
+2. then an interrupt is generated
+3. kernel interrupt handler eventually fires.
+
+So doing this aligns vkms closer with what drm_vblank.c expects.
+Document this also in a comment.
+
+Cc: Shayenne Moura <shayenneluzmoura@gmail.com>
+Cc: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Tested-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Reviewed-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Signed-off-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190606084404.12014-1-daniel.vetter@ffwll.ch
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/vkms/vkms_crtc.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/gpu/drm/vkms/vkms_crtc.c b/drivers/gpu/drm/vkms/vkms_crtc.c
+index bb66dbcd5e3f..e447b7588d06 100644
+--- a/drivers/gpu/drm/vkms/vkms_crtc.c
++++ b/drivers/gpu/drm/vkms/vkms_crtc.c
+@@ -15,6 +15,10 @@ static enum hrtimer_restart vkms_vblank_simulate(struct hrtimer *timer)
+ 
+ 	spin_lock(&output->lock);
+ 
++	ret_overrun = hrtimer_forward_now(&output->vblank_hrtimer,
++					  output->period_ns);
++	WARN_ON(ret_overrun != 1);
++
+ 	ret = drm_crtc_handle_vblank(crtc);
+ 	if (!ret)
+ 		DRM_ERROR("vkms failure on handling vblank");
+@@ -35,10 +39,6 @@ static enum hrtimer_restart vkms_vblank_simulate(struct hrtimer *timer)
+ 			DRM_WARN("failed to queue vkms_crc_work_handle");
+ 	}
+ 
+-	ret_overrun = hrtimer_forward_now(&output->vblank_hrtimer,
+-					  output->period_ns);
+-	WARN_ON(ret_overrun != 1);
+-
+ 	spin_unlock(&output->lock);
+ 
+ 	return HRTIMER_RESTART;
+@@ -74,11 +74,21 @@ bool vkms_get_vblank_timestamp(struct drm_device *dev, unsigned int pipe,
+ {
+ 	struct vkms_device *vkmsdev = drm_device_to_vkms_device(dev);
+ 	struct vkms_output *output = &vkmsdev->output;
++	struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
+ 
+ 	*vblank_time = output->vblank_hrtimer.node.expires;
+ 
+-	if (!in_vblank_irq)
+-		*vblank_time -= output->period_ns;
++	if (WARN_ON(*vblank_time == vblank->time))
++		return true;
++
++	/*
++	 * To prevent races we roll the hrtimer forward before we do any
++	 * interrupt processing - this is how real hw works (the interrupt is
++	 * only generated after all the vblank registers are updated) and what
++	 * the vblank core expects. Therefore we need to always correct the
++	 * timestampe by one frame.
++	 */
++	*vblank_time -= output->period_ns;
+ 
+ 	return true;
+ }
+-- 
+2.20.1
+
