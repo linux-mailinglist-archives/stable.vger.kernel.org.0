@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4094D6D9E2
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:58:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F1D06D9E5
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:58:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727779AbfGSD6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 23:58:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57330 "EHLO mail.kernel.org"
+        id S1726243AbfGSD6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 23:58:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726243AbfGSD6G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:58:06 -0400
+        id S1727811AbfGSD6M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:58:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E69A2184E;
-        Fri, 19 Jul 2019 03:58:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 188A12184E;
+        Fri, 19 Jul 2019 03:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508685;
-        bh=Ne7t7tCO1fPo06Q6Oa5jA1SUrTDIgzPaSuO3g+9Qtlk=;
+        s=default; t=1563508691;
+        bh=qM2zHBibiBBO03fWCDDQyTr6ziwHDkUz0cX/k5QHERA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qbl/3kOykawDVhQZFaWax3PLoO4Tfl1MUPFEBM/Ub/EWlCrSZfwy63CNYd16RmRyo
-         e75zLi9J7Z8FyIRM0/BuonflBfIwUpKiSSWzOiZwFR2dp8HMA3gwOAE2BulirUcRD6
-         PKa+ILwPh0YGuGMug4avahOn3f6re1gGsqDgb+gc=
+        b=FPhgJ1SYmS/Hn5MmOhfD5/eSUN9IJr6ZZhQp1LrYUbKN72DbK6hHl16325pX8VLSe
+         MJx3NiqECbyw1Wj5okGhYLC8xVPEDUcYPPiyuZ7TXzgGkx4iGXGNU+24a6Ef3nQLVC
+         IGw+pR7MzatuD+HrS7Avms4Cxm2ziQxBM/Ncq1r8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mao Wenan <maowenan@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.2 032/171] staging: kpc2000: report error status to spi core
-Date:   Thu, 18 Jul 2019 23:54:23 -0400
-Message-Id: <20190719035643.14300-32-sashal@kernel.org>
+Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Harry Wentland <Harry.Wentland@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 035/171] drm/amd/display: Reset planes for color management changes
+Date:   Thu, 18 Jul 2019 23:54:26 -0400
+Message-Id: <20190719035643.14300-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -43,55 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Wenan <maowenan@huawei.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit 9164f336311863d3e9f80840f4a1cce2aee293bd ]
+[ Upstream commit 7316c4ad299663a16ca9ce13e5e817b4ca760809 ]
 
-There is an error condition that's not reported to
-the spi core in kp_spi_transfer_one_message().
-It should restore status value to m->status, and
-return it in error path.
+[Why]
+For commits with allow_modeset=false and CRTC degamma changes the planes
+aren't reset. This results in incorrect rendering.
 
-Signed-off-by: Mao Wenan <maowenan@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[How]
+Reset the planes when color management has changed on the CRTC.
+Technically this will include regamma changes as well, but it doesn't
+really after legacy userspace since those commit with
+allow_modeset=true.
+
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
+Acked-by: Leo Li <sunpeng.li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/kpc2000/kpc_spi/spi_driver.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/staging/kpc2000/kpc_spi/spi_driver.c b/drivers/staging/kpc2000/kpc_spi/spi_driver.c
-index 86df16547a92..2f535022dc03 100644
---- a/drivers/staging/kpc2000/kpc_spi/spi_driver.c
-+++ b/drivers/staging/kpc2000/kpc_spi/spi_driver.c
-@@ -333,7 +333,7 @@ kp_spi_transfer_one_message(struct spi_master *master, struct spi_message *m)
-     list_for_each_entry(transfer, &m->transfers, transfer_list) {
-         if (transfer->tx_buf == NULL && transfer->rx_buf == NULL && transfer->len) {
-             status = -EINVAL;
--            break;
-+            goto error;
-         }
-         
-         /* transfer */
-@@ -371,7 +371,7 @@ kp_spi_transfer_one_message(struct spi_master *master, struct spi_message *m)
-             
-             if (count != transfer->len) {
-                 status = -EIO;
--                break;
-+                goto error;
-             }
-         }
-         
-@@ -389,6 +389,10 @@ kp_spi_transfer_one_message(struct spi_master *master, struct spi_message *m)
-     /* done work */
-     spi_finalize_current_message(master);
-     return 0;
-+
-+ error:
-+    m->status = status;
-+    return status;
- }
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 31530bfd002a..0e482349a5cb 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -6331,6 +6331,10 @@ static bool should_reset_plane(struct drm_atomic_state *state,
+ 	if (!new_crtc_state)
+ 		return true;
  
- static void
++	/* CRTC Degamma changes currently require us to recreate planes. */
++	if (new_crtc_state->color_mgmt_changed)
++		return true;
++
+ 	if (drm_atomic_crtc_needs_modeset(new_crtc_state))
+ 		return true;
+ 
 -- 
 2.20.1
 
