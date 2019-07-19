@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACA736DD39
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CD1F6DD2D
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:21:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732862AbfGSEVR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:21:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47262 "EHLO mail.kernel.org"
+        id S2388647AbfGSEMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:12:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388653AbfGSEMF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:12:05 -0400
+        id S2388671AbfGSEMH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:12:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD19E21873;
-        Fri, 19 Jul 2019 04:12:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 086192189D;
+        Fri, 19 Jul 2019 04:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509524;
-        bh=iZ67JdgCIuYaVGiGuIHDqG7PjRoM2Dbn3bbUpNl2z/Q=;
+        s=default; t=1563509526;
+        bh=dadbWTTfA+a9TyCYUTZpbI5C6fc9slr9cQtbHGDF6VA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FqqvpKgB5fkuNSFugf/VFASx2vTNBrFsKqC1rLceKNxss8OIGFs74MtJut7k5ER/h
-         Ye3KWTZe1mAHnzjRG+tR+MeBwFmI7NFS+BtLAH/aOUF8UhGf0ZYW2/jaqWr9fwnIVQ
-         ZGeb8uADpPt4RUgnCA/OKvwPx3dWQxU9EUl+DadY=
+        b=X7q5MgMSAUcPTlTxqkkh9dzMlU3WULDrIb/gxK8tGqyiLlfMy4nn4GPNZcdfkpf4U
+         nVwFzTt8HqGbovxKCH/Pj+dJxR7weV5w4bnk2Zm8pKks4yG97AzTgZFXiDG/RAC8AA
+         lXKu3Sg6AufRqBp0gr82KnVf33C6X68J5riF90ZM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bastien Nocera <hadess@hadess.net>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 30/60] iio: iio-utils: Fix possible incorrect mask calculation
-Date:   Fri, 19 Jul 2019 00:10:39 -0400
-Message-Id: <20190719041109.18262-30-sashal@kernel.org>
+Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 31/60] powerpc/xmon: Fix disabling tracing while in xmon
+Date:   Fri, 19 Jul 2019 00:10:40 -0400
+Message-Id: <20190719041109.18262-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041109.18262-1-sashal@kernel.org>
 References: <20190719041109.18262-1-sashal@kernel.org>
@@ -43,53 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bastien Nocera <hadess@hadess.net>
+From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit 208a68c8393d6041a90862992222f3d7943d44d6 ]
+[ Upstream commit aaf06665f7ea3ee9f9754e16c1a507a89f1de5b1 ]
 
-On some machines, iio-sensor-proxy was returning all 0's for IIO sensor
-values. It turns out that the bits_used for this sensor is 32, which makes
-the mask calculation:
+Commit ed49f7fd6438d ("powerpc/xmon: Disable tracing when entering
+xmon") added code to disable recording trace entries while in xmon. The
+commit introduced a variable 'tracing_enabled' to record if tracing was
+enabled on xmon entry, and used this to conditionally enable tracing
+during exit from xmon.
 
-*mask = (1 << 32) - 1;
+However, we are not checking the value of 'fromipi' variable in
+xmon_core() when setting 'tracing_enabled'. Due to this, when secondary
+cpus enter xmon, they will see tracing as being disabled already and
+tracing won't be re-enabled on exit. Fix the same.
 
-If the compiler interprets the 1 literals as 32-bit ints, it generates
-undefined behavior depending on compiler version and optimization level.
-On my system, it optimizes out the shift, so the mask value becomes
-
-*mask = (1) - 1;
-
-With a mask value of 0, iio-sensor-proxy will always return 0 for every axis.
-
-Avoid incorrect 0 values caused by compiler optimization.
-
-See original fix by Brett Dutro <brett.dutro@gmail.com> in
-iio-sensor-proxy:
-https://github.com/hadess/iio-sensor-proxy/commit/9615ceac7c134d838660e209726cd86aa2064fd3
-
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: ed49f7fd6438d ("powerpc/xmon: Disable tracing when entering xmon")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/iio/iio_utils.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/xmon/xmon.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/iio/iio_utils.c b/tools/iio/iio_utils.c
-index 7a6d61c6c012..55272fef3b50 100644
---- a/tools/iio/iio_utils.c
-+++ b/tools/iio/iio_utils.c
-@@ -159,9 +159,9 @@ int iioutils_get_type(unsigned *is_signed, unsigned *bytes, unsigned *bits_used,
- 			*be = (endianchar == 'b');
- 			*bytes = padint / 8;
- 			if (*bits_used == 64)
--				*mask = ~0;
-+				*mask = ~(0ULL);
- 			else
--				*mask = (1ULL << *bits_used) - 1;
-+				*mask = (1ULL << *bits_used) - 1ULL;
+diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
+index f752f771f29d..6b9038a3e79f 100644
+--- a/arch/powerpc/xmon/xmon.c
++++ b/arch/powerpc/xmon/xmon.c
+@@ -465,8 +465,10 @@ static int xmon_core(struct pt_regs *regs, int fromipi)
+ 	local_irq_save(flags);
+ 	hard_irq_disable();
  
- 			*is_signed = (signchar == 's');
- 			if (fclose(sysfsfp)) {
+-	tracing_enabled = tracing_is_on();
+-	tracing_off();
++	if (!fromipi) {
++		tracing_enabled = tracing_is_on();
++		tracing_off();
++	}
+ 
+ 	bp = in_breakpoint_table(regs->nip, &offset);
+ 	if (bp != NULL) {
 -- 
 2.20.1
 
