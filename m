@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE42F6DFAD
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA886DFD8
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728690AbfGSD7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 23:59:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58944 "EHLO mail.kernel.org"
+        id S1728334AbfGSEiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:38:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728686AbfGSD7Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:59:24 -0400
+        id S1728705AbfGSD70 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:59:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2212F2189E;
-        Fri, 19 Jul 2019 03:59:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BFFF21855;
+        Fri, 19 Jul 2019 03:59:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508763;
-        bh=dhxt8vrEK/YOQ/s69fnoSZf6HqR0cV3OukQKYT12Uq0=;
+        s=default; t=1563508765;
+        bh=k9Z0PZaDpi4CULLhNh5P7Ql5oV//CD2Fz8mJtLtweNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YeS6kzXV6Qw09mpw5SCui6FwlyXHpBna91RX0X7aI1mk+PzIDH2W4IoF4pRKkpKu6
-         WmPdWZ9D82UuRxE7ah/RSYGiJAFB+ZpxLfCtuivYWp/w4LqeXhl8/g1qLQgOddF+4N
-         UOOxinn+JomDKXSwvgNbhn90HzxwmS6FDaOVfVVo=
+        b=mxFbYoJlkACLRZ11kDdb+ONdYm+uMWqv8K7QwwND3k/kt3t4aIf4nmFGcSZkd9Q2E
+         vZvtwvWjPxoWFzTdC+ZmV1k1Zq7Apx6lj2SW1ykZFgOC+BLKwFEm9Gmhggi1quh+xI
+         fEJwzR7gM40c0ceKfYYjM1uBFP+cIa2Uxk57XCsA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jordan Crouse <jcrouse@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 076/171] drm/msm/adreno: Ensure that the zap shader region is big enough
-Date:   Thu, 18 Jul 2019 23:55:07 -0400
-Message-Id: <20190719035643.14300-76-sashal@kernel.org>
+Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Sam Bobroff <sbobroff@linux.ibm.com>,
+        Oliver O'Halloran <oohall@gmail.com>,
+        Shawn Anastasio <shawn@anastas.io>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.2 077/171] powerpc/pci/of: Fix OF flags parsing for 64bit BARs
+Date:   Thu, 18 Jul 2019 23:55:08 -0400
+Message-Id: <20190719035643.14300-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -46,48 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordan Crouse <jcrouse@codeaurora.org>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-[ Upstream commit 6672e11cad662ce6631e04c38f92a140a99c042c ]
+[ Upstream commit df5be5be8735ef2ae80d5ae1f2453cd81a035c4b ]
 
-Before loading the zap shader we should ensure that the reserved memory
-region is big enough to hold the loaded file.
+When the firmware does PCI BAR resource allocation, it passes the assigned
+addresses and flags (prefetch/64bit/...) via the "reg" property of
+a PCI device device tree node so the kernel does not need to do
+resource allocation.
 
-Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+The flags are stored in resource::flags - the lower byte stores
+PCI_BASE_ADDRESS_SPACE/etc bits and the other bytes are IORESOURCE_IO/etc.
+Some flags from PCI_BASE_ADDRESS_xxx and IORESOURCE_xxx are duplicated,
+such as PCI_BASE_ADDRESS_MEM_PREFETCH/PCI_BASE_ADDRESS_MEM_TYPE_64/etc.
+When parsing the "reg" property, we copy the prefetch flag but we skip
+on PCI_BASE_ADDRESS_MEM_TYPE_64 which leaves the flags out of sync.
+
+The missing IORESOURCE_MEM_64 flag comes into play under 2 conditions:
+1. we remove PCI_PROBE_ONLY for pseries (by hacking pSeries_setup_arch()
+or by passing "/chosen/linux,pci-probe-only");
+2. we request resource alignment (by passing pci=resource_alignment=
+via the kernel cmd line to request PAGE_SIZE alignment or defining
+ppc_md.pcibios_default_alignment which returns anything but 0). Note that
+the alignment requests are ignored if PCI_PROBE_ONLY is enabled.
+
+With 1) and 2), the generic PCI code in the kernel unconditionally
+decides to:
+- reassign the BARs in pci_specified_resource_alignment() (works fine)
+- write new BARs to the device - this fails for 64bit BARs as the generic
+code looks at IORESOURCE_MEM_64 (not set) and writes only lower 32bits
+of the BAR and leaves the upper 32bit unmodified which breaks BAR mapping
+in the hypervisor.
+
+This fixes the issue by copying the flag. This is useful if we want to
+enforce certain BAR alignment per platform as handling subpage sized BARs
+is proven to cause problems with hotplug (SLOF already aligns BARs to 64k).
+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Reviewed-by: Sam Bobroff <sbobroff@linux.ibm.com>
+Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
+Reviewed-by: Shawn Anastasio <shawn@anastas.io>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_gpu.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/pci_of_scan.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-index a9c0ac937b00..9acbbc0f3232 100644
---- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-@@ -56,7 +56,6 @@ static int zap_shader_load_mdt(struct msm_gpu *gpu, const char *fwname,
- 		return ret;
- 
- 	mem_phys = r.start;
--	mem_size = resource_size(&r);
- 
- 	/* Request the MDT file for the firmware */
- 	fw = adreno_request_fw(to_adreno_gpu(gpu), fwname);
-@@ -72,6 +71,13 @@ static int zap_shader_load_mdt(struct msm_gpu *gpu, const char *fwname,
- 		goto out;
- 	}
- 
-+	if (mem_size > resource_size(&r)) {
-+		DRM_DEV_ERROR(dev,
-+			"memory region is too small to load the MDT\n");
-+		ret = -E2BIG;
-+		goto out;
-+	}
-+
- 	/* Allocate memory for the firmware image */
- 	mem_region = memremap(mem_phys, mem_size,  MEMREMAP_WC);
- 	if (!mem_region) {
+diff --git a/arch/powerpc/kernel/pci_of_scan.c b/arch/powerpc/kernel/pci_of_scan.c
+index 24522aa37665..c63c53b37e8e 100644
+--- a/arch/powerpc/kernel/pci_of_scan.c
++++ b/arch/powerpc/kernel/pci_of_scan.c
+@@ -42,6 +42,8 @@ unsigned int pci_parse_of_flags(u32 addr0, int bridge)
+ 	if (addr0 & 0x02000000) {
+ 		flags = IORESOURCE_MEM | PCI_BASE_ADDRESS_SPACE_MEMORY;
+ 		flags |= (addr0 >> 22) & PCI_BASE_ADDRESS_MEM_TYPE_64;
++		if (flags & PCI_BASE_ADDRESS_MEM_TYPE_64)
++			flags |= IORESOURCE_MEM_64;
+ 		flags |= (addr0 >> 28) & PCI_BASE_ADDRESS_MEM_TYPE_1M;
+ 		if (addr0 & 0x40000000)
+ 			flags |= IORESOURCE_PREFETCH
 -- 
 2.20.1
 
