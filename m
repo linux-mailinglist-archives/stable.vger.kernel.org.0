@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D41056DC71
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C86C76DC73
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:17:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387459AbfGSEOb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:14:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50726 "EHLO mail.kernel.org"
+        id S2388705AbfGSEOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:14:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389725AbfGSEOb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:14:31 -0400
+        id S2389725AbfGSEOe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:14:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE65B2189D;
-        Fri, 19 Jul 2019 04:14:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AE7A21873;
+        Fri, 19 Jul 2019 04:14:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509670;
-        bh=yR9hjSI+cVCIl0XMZxpMhWedcBUToI5qDQYTPyxAR8Q=;
+        s=default; t=1563509673;
+        bh=jE+treAGzMSGgbgCi6ABb4d2WadhpnEm6Z+POfskfws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dCZgit4iw4RgbkfNI63CtOO0Ky18fZrDP7j835W2vC0UOda0487UR1qAfMds48fNj
-         8gGdplaXQ+8kf0Zz78EjNHsYrI4ARQtEd6tuSVWHx3qxDerS0+KPCBR7pYCAwDW5eO
-         DL9BFW5PPbIqaKYLcT0FFJLu67mFJuwduKLx5WQE=
+        b=q/+2FjuvqXPFV9FjhJlJl+VqH/FWe09SpZ9QZfxdxeusrVNpIg7W0AMewCvHyFxws
+         eVQwVYA6ke8zkMri/fpaqlt6b6bBcwVldHrCJszv8rNdDaGj0YRSiQrR2I2jb5QupT
+         mTCaqpL/FBFozAQi6TpJH8I89fYvzi2yo8h293Rc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Yang <wen.yang99@zte.com.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>, linux-gpio@vger.kernel.org,
-        linux-rockchip@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 04/35] pinctrl: rockchip: fix leaked of_node references
-Date:   Fri, 19 Jul 2019 00:13:52 -0400
-Message-Id: <20190719041423.19322-4-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 05/35] tty: serial: cpm_uart - fix init when SMC is relocated
+Date:   Fri, 19 Jul 2019 00:13:53 -0400
+Message-Id: <20190719041423.19322-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041423.19322-1-sashal@kernel.org>
 References: <20190719041423.19322-1-sashal@kernel.org>
@@ -44,42 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wen.yang99@zte.com.cn>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit 3c89c70634bb0b6f48512de873e7a45c7e1fbaa5 ]
+[ Upstream commit 06aaa3d066db87e8478522d910285141d44b1e58 ]
 
-The call to of_parse_phandle returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+SMC relocation can also be activated earlier by the bootloader,
+so the driver's behaviour cannot rely on selected kernel config.
 
-Detected by coccinelle with the following warnings:
-./drivers/pinctrl/pinctrl-rockchip.c:3221:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 3196, but without a corresponding object release within this function.
-./drivers/pinctrl/pinctrl-rockchip.c:3223:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 3196, but without a corresponding object release within this function.
+When the SMC is relocated, CPM_CR_INIT_TRX cannot be used.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Heiko Stuebner <heiko@sntech.de>
-Cc: linux-gpio@vger.kernel.org
-Cc: linux-rockchip@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+But the only thing CPM_CR_INIT_TRX does is to clear the
+rstate and tstate registers, so this can be done manually,
+even when SMC is not relocated.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 9ab921201444 ("cpm_uart: fix non-console port startup bug")
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/cpm_uart/cpm_uart_core.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index a0651128e23a..616055b5e996 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -1837,6 +1837,7 @@ static int rockchip_get_bank_data(struct rockchip_pin_bank *bank,
- 						    base,
- 						    &rockchip_regmap_config);
+diff --git a/drivers/tty/serial/cpm_uart/cpm_uart_core.c b/drivers/tty/serial/cpm_uart/cpm_uart_core.c
+index 0040c29f651a..b9e137c03fe3 100644
+--- a/drivers/tty/serial/cpm_uart/cpm_uart_core.c
++++ b/drivers/tty/serial/cpm_uart/cpm_uart_core.c
+@@ -421,7 +421,16 @@ static int cpm_uart_startup(struct uart_port *port)
+ 			clrbits16(&pinfo->sccp->scc_sccm, UART_SCCM_RX);
  		}
-+		of_node_put(node);
+ 		cpm_uart_initbd(pinfo);
+-		cpm_line_cr_cmd(pinfo, CPM_CR_INIT_TRX);
++		if (IS_SMC(pinfo)) {
++			out_be32(&pinfo->smcup->smc_rstate, 0);
++			out_be32(&pinfo->smcup->smc_tstate, 0);
++			out_be16(&pinfo->smcup->smc_rbptr,
++				 in_be16(&pinfo->smcup->smc_rbase));
++			out_be16(&pinfo->smcup->smc_tbptr,
++				 in_be16(&pinfo->smcup->smc_tbase));
++		} else {
++			cpm_line_cr_cmd(pinfo, CPM_CR_INIT_TRX);
++		}
  	}
+ 	/* Install interrupt handler. */
+ 	retval = request_irq(port->irq, cpm_uart_int, 0, "cpm_uart", port);
+@@ -875,16 +884,14 @@ static void cpm_uart_init_smc(struct uart_cpm_port *pinfo)
+ 	         (u8 __iomem *)pinfo->tx_bd_base - DPRAM_BASE);
  
- 	bank->irq = irq_of_parse_and_map(bank->of_node, 0);
+ /*
+- *  In case SMC1 is being relocated...
++ *  In case SMC is being relocated...
+  */
+-#if defined (CONFIG_I2C_SPI_SMC1_UCODE_PATCH)
+ 	out_be16(&up->smc_rbptr, in_be16(&pinfo->smcup->smc_rbase));
+ 	out_be16(&up->smc_tbptr, in_be16(&pinfo->smcup->smc_tbase));
+ 	out_be32(&up->smc_rstate, 0);
+ 	out_be32(&up->smc_tstate, 0);
+ 	out_be16(&up->smc_brkcr, 1);              /* number of break chars */
+ 	out_be16(&up->smc_brkec, 0);
+-#endif
+ 
+ 	/* Set up the uart parameters in the
+ 	 * parameter ram.
+@@ -898,8 +905,6 @@ static void cpm_uart_init_smc(struct uart_cpm_port *pinfo)
+ 	out_be16(&up->smc_brkec, 0);
+ 	out_be16(&up->smc_brkcr, 1);
+ 
+-	cpm_line_cr_cmd(pinfo, CPM_CR_INIT_TRX);
+-
+ 	/* Set UART mode, 8 bit, no parity, one stop.
+ 	 * Enable receive and transmit.
+ 	 */
 -- 
 2.20.1
 
