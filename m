@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E7396DB5A
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:09:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 180596DB60
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:09:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731081AbfGSEHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:07:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41456 "EHLO mail.kernel.org"
+        id S1732847AbfGSEHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:07:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727739AbfGSEHk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:07:40 -0400
+        id S1732843AbfGSEHy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:07:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF6B3218C3;
-        Fri, 19 Jul 2019 04:07:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BB64218BB;
+        Fri, 19 Jul 2019 04:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509259;
-        bh=Q2SEaEAU3FeOtqv5GUeAciOTGA6J81HutJNlYGYF0XQ=;
+        s=default; t=1563509274;
+        bh=iBYGP2XBc6Wct1cGsCLA+hgQgp6l9VQMtNASFOIsf4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s93kMGyLLD2k3k1Gj4gRZm/ikUNwk2u+bwfE0Pt/vu5BH+iqKGp+d38xqYdY4ILmj
-         dQrprdakBzL9JmnDSLyNp+oY9QhWCxKbRoQcfkWfH0shYLQqQC1m3CCwEBe5YHRPMs
-         PtXPvI4UkTKsNyAi7295mksI8iGbzIULf79Gu82M=
+        b=tTy2el7NfKhxKnolJmRo+/Te/gnqIcGD18/j0xmQpPpFg9XF91vU4j6KpRO5BCWjP
+         7lVfzUSaTBkPYRQFo/kfYxkTOgULJ65rpoWbAkV4qALhLHh0IECcUy0PvidjzMtx9y
+         dak4t5ThIsfGsbLwWeraWDYMTpa7/wlFABrAThPA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabien Dessenne <fabien.dessenne@st.com>,
-        Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 003/101] iio: adc: stm32-dfsdm: missing error case during probe
-Date:   Fri, 19 Jul 2019 00:05:54 -0400
-Message-Id: <20190719040732.17285-3-sashal@kernel.org>
+Cc:     Gen Zhang <blackgod016574@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 009/101] consolemap: Fix a memory leaking bug in drivers/tty/vt/consolemap.c
+Date:   Fri, 19 Jul 2019 00:06:00 -0400
+Message-Id: <20190719040732.17285-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -44,47 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Dessenne <fabien.dessenne@st.com>
+From: Gen Zhang <blackgod016574@gmail.com>
 
-[ Upstream commit d2fc0156963cae8f1eec8e2dd645fbbf1e1c1c8e ]
+[ Upstream commit 84ecc2f6eb1cb12e6d44818f94fa49b50f06e6ac ]
 
-During probe, check the devm_ioremap_resource() error value.
-Also return the devm_clk_get() error value instead of -EINVAL.
+In function con_insert_unipair(), when allocation for p2 and p1[n]
+fails, ENOMEM is returned, but previously allocated p1 is not freed,
+remains as leaking memory. Thus we should free p1 as well when this
+allocation fails.
 
-Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
-Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/stm32-dfsdm-core.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/tty/vt/consolemap.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/stm32-dfsdm-core.c b/drivers/iio/adc/stm32-dfsdm-core.c
-index bf089f5d6225..941630615e88 100644
---- a/drivers/iio/adc/stm32-dfsdm-core.c
-+++ b/drivers/iio/adc/stm32-dfsdm-core.c
-@@ -213,6 +213,8 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
- 	}
- 	priv->dfsdm.phys_base = res->start;
- 	priv->dfsdm.base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(priv->dfsdm.base))
-+		return PTR_ERR(priv->dfsdm.base);
- 
- 	/*
- 	 * "dfsdm" clock is mandatory for DFSDM peripheral clocking.
-@@ -222,8 +224,10 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
- 	 */
- 	priv->clk = devm_clk_get(&pdev->dev, "dfsdm");
- 	if (IS_ERR(priv->clk)) {
--		dev_err(&pdev->dev, "No stm32_dfsdm_clk clock found\n");
--		return -EINVAL;
-+		ret = PTR_ERR(priv->clk);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Failed to get clock (%d)\n", ret);
-+		return ret;
+diff --git a/drivers/tty/vt/consolemap.c b/drivers/tty/vt/consolemap.c
+index 7c7ada0b3ea0..814d1b7967ae 100644
+--- a/drivers/tty/vt/consolemap.c
++++ b/drivers/tty/vt/consolemap.c
+@@ -489,7 +489,11 @@ con_insert_unipair(struct uni_pagedir *p, u_short unicode, u_short fontpos)
+ 	p2 = p1[n = (unicode >> 6) & 0x1f];
+ 	if (!p2) {
+ 		p2 = p1[n] = kmalloc_array(64, sizeof(u16), GFP_KERNEL);
+-		if (!p2) return -ENOMEM;
++		if (!p2) {
++			kfree(p1);
++			p->uni_pgdir[n] = NULL;
++			return -ENOMEM;
++		}
+ 		memset(p2, 0xff, 64*sizeof(u16)); /* No glyphs for the characters (yet) */
  	}
  
- 	priv->aclk = devm_clk_get(&pdev->dev, "audio");
 -- 
 2.20.1
 
