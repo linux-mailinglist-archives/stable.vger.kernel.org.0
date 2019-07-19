@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43DCC6DE22
+	by mail.lfdr.de (Postfix) with ESMTP id B62DA6DE23
 	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:26:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732930AbfGSEIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:08:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42350 "EHLO mail.kernel.org"
+        id S1732965AbfGSEIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:08:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731392AbfGSEIN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:08:13 -0400
+        id S1732958AbfGSEIO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:08:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77A4321871;
-        Fri, 19 Jul 2019 04:08:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A69292187F;
+        Fri, 19 Jul 2019 04:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509292;
-        bh=UTvo9Sip3pIPTNRmp/G7kAkj9Nzu1ZZvWv4UA4uEA4g=;
+        s=default; t=1563509293;
+        bh=lFA/SdWyKKC7pB2ExBe+FYfpD82/Opn5RKbuCTjsP9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p+tsgOYDXCC3SuqNHSJo1OlkFqGz/fZC/3CMJxNr05xXsCuM7d0ck3gpOXQ5ULu5V
-         WtqIuRpwxax17kFaPLiO2olquGpPhNM8mCr8MjK2dz6dlRYUAn3yhikcvnOoQunKRL
-         WXe+PZyDPKkHofaWpkdyPTdxGKiqPReiCLWbfycY=
+        b=OFgEi8Tfgk7JAeoETU5q3fud2EyJgMaA0alD7AEnMC7bY6IfUyCMQKJXMsVlORyUj
+         znunWwd4TFETq1TTYXL8hwR7g/Py3hDlwtkkkcdN1fGYvmuGQ2O00wd3sC+nLeMr/O
+         hv0u+GDtAa75WpXxKk5Kjy7EJyH2DJ5SA+1P28i4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jyri Sarha <jsarha@ti.com>, Andrzej Hajda <a.hajda@samsung.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+Cc:     Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 018/101] drm/bridge: sii902x: pixel clock unit is 10kHz instead of 1kHz
-Date:   Fri, 19 Jul 2019 00:06:09 -0400
-Message-Id: <20190719040732.17285-18-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 019/101] gpu: host1x: Increase maximum DMA segment size
+Date:   Fri, 19 Jul 2019 00:06:10 -0400
+Message-Id: <20190719040732.17285-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -44,42 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jyri Sarha <jsarha@ti.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 8dbfc5b65023b67397aca28e8adb25c819f6398c ]
+[ Upstream commit 1e390478cfb527e34c9ab89ba57212cb05c33c51 ]
 
-The pixel clock unit in the first two registers (0x00 and 0x01) of
-sii9022 is 10kHz, not 1kHz as in struct drm_display_mode. Division by
-10 fixes the issue.
+Recent versions of the DMA API debug code have started to warn about
+violations of the maximum DMA segment size. This is because the segment
+size defaults to 64 KiB, which can easily be exceeded in large buffer
+allocations such as used in DRM/KMS for framebuffers.
 
-Signed-off-by: Jyri Sarha <jsarha@ti.com>
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1a2a8eae0b9d6333e7a5841026bf7fd65c9ccd09.1558964241.git.jsarha@ti.com
+Technically the Tegra SMMU and ARM SMMU don't have a maximum segment
+size (they map individual pages irrespective of whether they are
+contiguous or not), so the choice of 4 MiB is a bit arbitrary here. The
+maximum segment size is a 32-bit unsigned integer, though, so we can't
+set it to the correct maximum size, which would be the size of the
+aperture.
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/sii902x.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/host1x/bus.c | 3 +++
+ include/linux/host1x.h   | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/sii902x.c b/drivers/gpu/drm/bridge/sii902x.c
-index e59a13542333..0cc6dbbcddcf 100644
---- a/drivers/gpu/drm/bridge/sii902x.c
-+++ b/drivers/gpu/drm/bridge/sii902x.c
-@@ -261,10 +261,11 @@ static void sii902x_bridge_mode_set(struct drm_bridge *bridge,
- 	struct regmap *regmap = sii902x->regmap;
- 	u8 buf[HDMI_INFOFRAME_SIZE(AVI)];
- 	struct hdmi_avi_infoframe frame;
-+	u16 pixel_clock_10kHz = adj->clock / 10;
- 	int ret;
+diff --git a/drivers/gpu/host1x/bus.c b/drivers/gpu/host1x/bus.c
+index 815bdb42e3f0..0121fe7a4548 100644
+--- a/drivers/gpu/host1x/bus.c
++++ b/drivers/gpu/host1x/bus.c
+@@ -423,6 +423,9 @@ static int host1x_device_add(struct host1x *host1x,
  
--	buf[0] = adj->clock;
--	buf[1] = adj->clock >> 8;
-+	buf[0] = pixel_clock_10kHz & 0xff;
-+	buf[1] = pixel_clock_10kHz >> 8;
- 	buf[2] = adj->vrefresh;
- 	buf[3] = 0x00;
- 	buf[4] = adj->hdisplay;
+ 	of_dma_configure(&device->dev, host1x->dev->of_node, true);
+ 
++	device->dev.dma_parms = &device->dma_parms;
++	dma_set_max_seg_size(&device->dev, SZ_4M);
++
+ 	err = host1x_device_parse_dt(device, driver);
+ 	if (err < 0) {
+ 		kfree(device);
+diff --git a/include/linux/host1x.h b/include/linux/host1x.h
+index 89110d896d72..aef6e2f73802 100644
+--- a/include/linux/host1x.h
++++ b/include/linux/host1x.h
+@@ -310,6 +310,8 @@ struct host1x_device {
+ 	struct list_head clients;
+ 
+ 	bool registered;
++
++	struct device_dma_parameters dma_parms;
+ };
+ 
+ static inline struct host1x_device *to_host1x_device(struct device *dev)
 -- 
 2.20.1
 
