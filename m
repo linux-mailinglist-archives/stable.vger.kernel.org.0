@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07C0B6E013
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:40:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA046E010
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:40:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726781AbfGSEjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:39:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57854 "EHLO mail.kernel.org"
+        id S1728932AbfGSEji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:39:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728096AbfGSD63 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:58:29 -0400
+        id S1728124AbfGSD6b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:58:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE8BD21883;
-        Fri, 19 Jul 2019 03:58:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87051218B8;
+        Fri, 19 Jul 2019 03:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508708;
-        bh=8VpvaTC8NGBlITD/Wn03BWKljQg/sjAOb1QSXenJhhk=;
+        s=default; t=1563508711;
+        bh=igEeNZ+76z4NIULmxopOFwPu8PrRx0t2WKt4pJurkWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IfK1L2aRPJe+SmVnxRY49Xs2fzSDSxdvqCpQkZFwgRXW+K/RZWjVId929XL0kBDFH
-         kbAiib1D+ZsPOJkucTqsZzXaSiaLGNPDfm/YHdtGOoepdsv6jPHh/I0ZzZ7wUdTOKG
-         1rEfanwEktf19MQ0NZp+2/ggmPIKyAE5lphUcXmk=
+        b=oXwsVmm+4Yyq4MYhjtRKwVVxYI7vl+Ee79f8Y0yYIIkPFzamuOgNjgTP/1uZLqAOE
+         9XhizH6yRxIHOjf7B4qhL1soaQw/Z4Niefejwl6n5lQFOz1Ax2J4plvKd/We3VZrT7
+         YpgNBF8Uc0RD334ggCbTT2/XZyxh4WU+ydnYLFAs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Pavel Machek <pavel@ucw.cz>, Tony Lindgren <tony@atomide.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 046/171] drm/omap: don't check dispc timings for DSI
-Date:   Thu, 18 Jul 2019 23:54:37 -0400
-Message-Id: <20190719035643.14300-46-sashal@kernel.org>
+Cc:     Wang Hai <wanghai26@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 047/171] memstick: Fix error cleanup path of memstick_init
+Date:   Thu, 18 Jul 2019 23:54:38 -0400
+Message-Id: <20190719035643.14300-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -45,56 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Wang Hai <wanghai26@huawei.com>
 
-[ Upstream commit ad9df7d91b4a6e8f4b20c2bf539ac09b3b2ad6eb ]
+[ Upstream commit 65f1a0d39c289bb6fc85635528cd36c4b07f560e ]
 
-While most display types only forward their VM to the DISPC, this
-is not true for DSI. DSI calculates the VM for DISPC based on its
-own, but it's not identical. Actually the DSI VM is not even a valid
-DISPC VM making this check fail. Let's restore the old behaviour
-and avoid checking the DISPC VM for DSI here.
+If bus_register fails. On its error handling path, it has cleaned up
+what it has done. There is no need to call bus_unregister again.
+Otherwise, if bus_unregister is called, issues such as null-ptr-deref
+will arise.
 
-Fixes: 7c27fa57ef31 ("drm/omap: Call dispc timings check operation directly")
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Syzkaller report this:
+
+kobject_add_internal failed for memstick (error: -12 parent: bus)
+BUG: KASAN: null-ptr-deref in sysfs_remove_file_ns+0x1b/0x40 fs/sysfs/file.c:467
+Read of size 8 at addr 0000000000000078 by task syz-executor.0/4460
+
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xa9/0x10e lib/dump_stack.c:113
+ __kasan_report+0x171/0x18d mm/kasan/report.c:321
+ kasan_report+0xe/0x20 mm/kasan/common.c:614
+ sysfs_remove_file_ns+0x1b/0x40 fs/sysfs/file.c:467
+ sysfs_remove_file include/linux/sysfs.h:519 [inline]
+ bus_remove_file+0x6c/0x90 drivers/base/bus.c:145
+ remove_probe_files drivers/base/bus.c:599 [inline]
+ bus_unregister+0x6e/0x100 drivers/base/bus.c:916 ? 0xffffffffc1590000
+ memstick_init+0x7a/0x1000 [memstick]
+ do_one_initcall+0xb9/0x3b5 init/main.c:914
+ do_init_module+0xe0/0x330 kernel/module.c:3468
+ load_module+0x38eb/0x4270 kernel/module.c:3819
+ __do_sys_finit_module+0x162/0x190 kernel/module.c:3909
+ do_syscall_64+0x72/0x2a0 arch/x86/entry/common.c:298
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: baf8532a147d ("memstick: initial commit for Sony MemoryStick support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai26@huawei.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/omapdrm/omap_crtc.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/memstick/core/memstick.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.c b/drivers/gpu/drm/omapdrm/omap_crtc.c
-index 8712af79a49c..4c43dd282acc 100644
---- a/drivers/gpu/drm/omapdrm/omap_crtc.c
-+++ b/drivers/gpu/drm/omapdrm/omap_crtc.c
-@@ -384,10 +384,20 @@ static enum drm_mode_status omap_crtc_mode_valid(struct drm_crtc *crtc,
- 	int r;
+diff --git a/drivers/memstick/core/memstick.c b/drivers/memstick/core/memstick.c
+index 6cfb293396f2..693ee73eb291 100644
+--- a/drivers/memstick/core/memstick.c
++++ b/drivers/memstick/core/memstick.c
+@@ -625,13 +625,18 @@ static int __init memstick_init(void)
+ 		return -ENOMEM;
  
- 	drm_display_mode_to_videomode(mode, &vm);
--	r = priv->dispc_ops->mgr_check_timings(priv->dispc, omap_crtc->channel,
--					       &vm);
--	if (r)
--		return r;
+ 	rc = bus_register(&memstick_bus_type);
+-	if (!rc)
+-		rc = class_register(&memstick_host_class);
++	if (rc)
++		goto error_destroy_workqueue;
+ 
+-	if (!rc)
+-		return 0;
++	rc = class_register(&memstick_host_class);
++	if (rc)
++		goto error_bus_unregister;
 +
-+	/*
-+	 * DSI might not call this, since the supplied mode is not a
-+	 * valid DISPC mode. DSI will calculate and configure the
-+	 * proper DISPC mode later.
-+	 */
-+	if (omap_crtc->pipe->output->next == NULL ||
-+	    omap_crtc->pipe->output->next->type != OMAP_DISPLAY_TYPE_DSI) {
-+		r = priv->dispc_ops->mgr_check_timings(priv->dispc,
-+						       omap_crtc->channel,
-+						       &vm);
-+		if (r)
-+			return r;
-+	}
++	return 0;
  
- 	/* Check for bandwidth limit */
- 	if (priv->max_bandwidth) {
++error_bus_unregister:
+ 	bus_unregister(&memstick_bus_type);
++error_destroy_workqueue:
+ 	destroy_workqueue(workqueue);
+ 
+ 	return rc;
 -- 
 2.20.1
 
