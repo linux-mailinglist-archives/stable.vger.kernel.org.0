@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 174D16DD23
+	by mail.lfdr.de (Postfix) with ESMTP id 80F056DD24
 	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729483AbfGSELx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:11:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46858 "EHLO mail.kernel.org"
+        id S2388580AbfGSELy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:11:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388508AbfGSELv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:11:51 -0400
+        id S2387435AbfGSELy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:11:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6629121873;
-        Fri, 19 Jul 2019 04:11:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBE342189D;
+        Fri, 19 Jul 2019 04:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509510;
-        bh=sacn3cJ+R1kePnKDNwAsaeKzn1gYRQe/keIiGUCKDbg=;
+        s=default; t=1563509512;
+        bh=O0acjIEzOTkzJ4n+DQiyTLyIy0PMHVWOYJvMSOJAtzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tENu29knR0I0/Z2ckylTzUic5JYHiQkMCui/B9BEuFD05Pqsl2rDIbg9ZiyDO6we6
-         LuBNSXxCu5iWB7GAzmADSdpqxjIw7VKGAy9zTXKaedEAr0m/yTy8QONvc5or7I4ZSy
-         q0G6QBOWdWnk77SHpj74wdCcCgJt6R7tLgpOSaaQ=
+        b=b+SaHDogIjX5FHbZiByPWD/FjQMEWOjYatpcJw8mUj0JuOdlnX3rXHWkZtG1ikrPX
+         NJMZ+TSSAB1ZsEe8UqcLYPkIuW7U0m6WANAWI9FYWQTTvo6URhkC/+Ons6gRCwdJos
+         uz/UOmUYc1t06qIg4LQW7AH/478yESiZKeY+HLbM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     EJ Hsu <ejh@nvidia.com>, Alan Stern <stern@rowland.harvard.edu>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 22/60] usb: gadget: storage: Remove warning message
-Date:   Fri, 19 Jul 2019 00:10:31 -0400
-Message-Id: <20190719041109.18262-22-sashal@kernel.org>
+Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Sam Bobroff <sbobroff@linux.ibm.com>,
+        Oliver O'Halloran <oohall@gmail.com>,
+        Shawn Anastasio <shawn@anastas.io>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 23/60] powerpc/pci/of: Fix OF flags parsing for 64bit BARs
+Date:   Fri, 19 Jul 2019 00:10:32 -0400
+Message-Id: <20190719041109.18262-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041109.18262-1-sashal@kernel.org>
 References: <20190719041109.18262-1-sashal@kernel.org>
@@ -43,111 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: EJ Hsu <ejh@nvidia.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-[ Upstream commit e70b3f5da00119e057b7faa557753fee7f786f17 ]
+[ Upstream commit df5be5be8735ef2ae80d5ae1f2453cd81a035c4b ]
 
-This change is to fix below warning message in following scenario:
-usb_composite_setup_continue: Unexpected call
+When the firmware does PCI BAR resource allocation, it passes the assigned
+addresses and flags (prefetch/64bit/...) via the "reg" property of
+a PCI device device tree node so the kernel does not need to do
+resource allocation.
 
-When system tried to enter suspend, the fsg_disable() will be called to
-disable fsg driver and send a signal to fsg_main_thread. However, at
-this point, the fsg_main_thread has already been frozen and can not
-respond to this signal. So, this signal will be pended until
-fsg_main_thread wakes up.
+The flags are stored in resource::flags - the lower byte stores
+PCI_BASE_ADDRESS_SPACE/etc bits and the other bytes are IORESOURCE_IO/etc.
+Some flags from PCI_BASE_ADDRESS_xxx and IORESOURCE_xxx are duplicated,
+such as PCI_BASE_ADDRESS_MEM_PREFETCH/PCI_BASE_ADDRESS_MEM_TYPE_64/etc.
+When parsing the "reg" property, we copy the prefetch flag but we skip
+on PCI_BASE_ADDRESS_MEM_TYPE_64 which leaves the flags out of sync.
 
-Once system resumes from suspend, fsg_main_thread will detect a signal
-pended and do some corresponding action (in handle_exception()). Then,
-host will send some setup requests (get descriptor, set configuration...)
-to UDC driver trying to enumerate this device. During the handling of "set
-configuration" request, it will try to sync up with fsg_main_thread by
-sending a signal (which is the same as the signal sent by fsg_disable)
-to it. In a similar manner, once the fsg_main_thread receives this
-signal, it will call handle_exception() to handle the request.
+The missing IORESOURCE_MEM_64 flag comes into play under 2 conditions:
+1. we remove PCI_PROBE_ONLY for pseries (by hacking pSeries_setup_arch()
+or by passing "/chosen/linux,pci-probe-only");
+2. we request resource alignment (by passing pci=resource_alignment=
+via the kernel cmd line to request PAGE_SIZE alignment or defining
+ppc_md.pcibios_default_alignment which returns anything but 0). Note that
+the alignment requests are ignored if PCI_PROBE_ONLY is enabled.
 
-However, if the fsg_main_thread wakes up from suspend a little late and
-"set configuration" request from Host arrives a little earlier,
-fsg_main_thread might come across the request from "set configuration"
-when it handles the signal from fsg_disable(). In this case, it will
-handle this request as well. So, when fsg_main_thread tries to handle
-the signal sent from "set configuration" later, there will nothing left
-to do and warning message "Unexpected call" is printed.
+With 1) and 2), the generic PCI code in the kernel unconditionally
+decides to:
+- reassign the BARs in pci_specified_resource_alignment() (works fine)
+- write new BARs to the device - this fails for 64bit BARs as the generic
+code looks at IORESOURCE_MEM_64 (not set) and writes only lower 32bits
+of the BAR and leaves the upper 32bit unmodified which breaks BAR mapping
+in the hypervisor.
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: EJ Hsu <ejh@nvidia.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+This fixes the issue by copying the flag. This is useful if we want to
+enforce certain BAR alignment per platform as handling subpage sized BARs
+is proven to cause problems with hotplug (SLOF already aligns BARs to 64k).
+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Reviewed-by: Sam Bobroff <sbobroff@linux.ibm.com>
+Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
+Reviewed-by: Shawn Anastasio <shawn@anastas.io>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_mass_storage.c | 21 ++++++++++++++------
- drivers/usb/gadget/function/storage_common.h |  1 +
- 2 files changed, 16 insertions(+), 6 deletions(-)
+ arch/powerpc/kernel/pci_of_scan.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/f_mass_storage.c b/drivers/usb/gadget/function/f_mass_storage.c
-index 25ba30329533..a74639289760 100644
---- a/drivers/usb/gadget/function/f_mass_storage.c
-+++ b/drivers/usb/gadget/function/f_mass_storage.c
-@@ -2295,8 +2295,7 @@ static int fsg_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
- static void fsg_disable(struct usb_function *f)
- {
- 	struct fsg_dev *fsg = fsg_from_func(f);
--	fsg->common->new_fsg = NULL;
--	raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE);
-+	raise_exception(fsg->common, FSG_STATE_DISCONNECT);
- }
- 
- 
-@@ -2309,6 +2308,7 @@ static void handle_exception(struct fsg_common *common)
- 	enum fsg_state		old_state;
- 	struct fsg_lun		*curlun;
- 	unsigned int		exception_req_tag;
-+	struct fsg_dev		*fsg;
- 
- 	/*
- 	 * Clear the existing signals.  Anything but SIGUSR1 is converted
-@@ -2415,9 +2415,19 @@ static void handle_exception(struct fsg_common *common)
- 		break;
- 
- 	case FSG_STATE_CONFIG_CHANGE:
--		do_set_interface(common, common->new_fsg);
--		if (common->new_fsg)
-+		fsg = common->new_fsg;
-+		/*
-+		 * Add a check here to double confirm if a disconnect event
-+		 * occurs and common->new_fsg has been cleared.
-+		 */
-+		if (fsg) {
-+			do_set_interface(common, fsg);
- 			usb_composite_setup_continue(common->cdev);
-+		}
-+		break;
-+
-+	case FSG_STATE_DISCONNECT:
-+		do_set_interface(common, NULL);
- 		break;
- 
- 	case FSG_STATE_EXIT:
-@@ -3007,8 +3017,7 @@ static void fsg_unbind(struct usb_configuration *c, struct usb_function *f)
- 
- 	DBG(fsg, "unbind\n");
- 	if (fsg->common->fsg == fsg) {
--		fsg->common->new_fsg = NULL;
--		raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE);
-+		raise_exception(fsg->common, FSG_STATE_DISCONNECT);
- 		/* FIXME: make interruptible or killable somehow? */
- 		wait_event(common->fsg_wait, common->fsg != fsg);
- 	}
-diff --git a/drivers/usb/gadget/function/storage_common.h b/drivers/usb/gadget/function/storage_common.h
-index e5e3a2553aaa..12687f7e3de9 100644
---- a/drivers/usb/gadget/function/storage_common.h
-+++ b/drivers/usb/gadget/function/storage_common.h
-@@ -161,6 +161,7 @@ enum fsg_state {
- 	FSG_STATE_ABORT_BULK_OUT,
- 	FSG_STATE_PROTOCOL_RESET,
- 	FSG_STATE_CONFIG_CHANGE,
-+	FSG_STATE_DISCONNECT,
- 	FSG_STATE_EXIT,
- 	FSG_STATE_TERMINATED
- };
+diff --git a/arch/powerpc/kernel/pci_of_scan.c b/arch/powerpc/kernel/pci_of_scan.c
+index 0d790f8432d2..6ca1b3a1e196 100644
+--- a/arch/powerpc/kernel/pci_of_scan.c
++++ b/arch/powerpc/kernel/pci_of_scan.c
+@@ -45,6 +45,8 @@ static unsigned int pci_parse_of_flags(u32 addr0, int bridge)
+ 	if (addr0 & 0x02000000) {
+ 		flags = IORESOURCE_MEM | PCI_BASE_ADDRESS_SPACE_MEMORY;
+ 		flags |= (addr0 >> 22) & PCI_BASE_ADDRESS_MEM_TYPE_64;
++		if (flags & PCI_BASE_ADDRESS_MEM_TYPE_64)
++			flags |= IORESOURCE_MEM_64;
+ 		flags |= (addr0 >> 28) & PCI_BASE_ADDRESS_MEM_TYPE_1M;
+ 		if (addr0 & 0x40000000)
+ 			flags |= IORESOURCE_PREFETCH
 -- 
 2.20.1
 
