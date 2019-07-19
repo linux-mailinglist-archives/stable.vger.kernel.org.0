@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A226DFF0
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:40:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55CC26DFF1
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728056AbfGSD60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 23:58:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57768 "EHLO mail.kernel.org"
+        id S1728103AbfGSD63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 23:58:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728032AbfGSD60 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:58:26 -0400
+        id S1728084AbfGSD62 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:58:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54A1E2189D;
-        Fri, 19 Jul 2019 03:58:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94ADB21874;
+        Fri, 19 Jul 2019 03:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508705;
-        bh=sjTpvekg/2jA/Awx9NsiMfabj+abuEMmkKiAxKHsi9o=;
+        s=default; t=1563508707;
+        bh=3wayALKAbyaZVeZbjCrY015C06CrT6gtffI83ybrmsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bwZTS6WDBmSQ7cizhIbPh+6YnFCMMN+wOE6jPo6F0geUjp54XMXIkd4kCMJBUpu87
-         M3avqzucB+dtzURI0/TAphm9AMOr1X9+ZnYXahjUplMmc2nz238qkLkRZNI0s6Z8lE
-         Ef26n4OpEzU4MqdRgmUEYi9581bN8WUz3nmd7xy8=
+        b=CVecVRKOfUR7f0tq5XuS7ktArKsKrNh32YMPWgHFnXwgqWMwF5R5gdlYUn6mI9JJN
+         3ICAZXsVxp1iCSvJ8I1vkoz0ai5bbJsxODOp97pe8foxzCww9rgy28kY8JK96WwKCq
+         VtYrfI4pcJzUACTuCoVOigInBJhQOU6kcMQwtoAs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Shayenne Moura <shayenneluzmoura@gmail.com>,
-        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 043/171] drm/vkms: Forward timer right after drm_crtc_handle_vblank
-Date:   Thu, 18 Jul 2019 23:54:34 -0400
-Message-Id: <20190719035643.14300-43-sashal@kernel.org>
+Cc:     Jason Gunthorpe <jgg@mellanox.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Philip Yang <Philip.Yang@amd.com>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.2 045/171] mm/hmm: fix use after free with struct hmm in the mmu notifiers
+Date:   Thu, 18 Jul 2019 23:54:36 -0400
+Message-Id: <20190719035643.14300-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -46,115 +47,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit 7355965da22b8d9ebac8bce4b776399fb0bb9d32 ]
+[ Upstream commit 6d7c3cde93c1d9ac0b37f78ec3f2ff052159a242 ]
 
-In
+mmu_notifier_unregister_no_release() is not a fence and the mmu_notifier
+system will continue to reference hmm->mn until the srcu grace period
+expires.
 
-commit def35e7c592616bc09be328de8795e5e624a3cf8
-Author: Shayenne Moura <shayenneluzmoura@gmail.com>
-Date:   Wed Jan 30 14:06:36 2019 -0200
+Resulting in use after free races like this:
 
-    drm/vkms: Bugfix extra vblank frame
+         CPU0                                     CPU1
+                                               __mmu_notifier_invalidate_range_start()
+                                                 srcu_read_lock
+                                                 hlist_for_each ()
+                                                   // mn == hmm->mn
+hmm_mirror_unregister()
+  hmm_put()
+    hmm_free()
+      mmu_notifier_unregister_no_release()
+         hlist_del_init_rcu(hmm-mn->list)
+			                           mn->ops->invalidate_range_start(mn, range);
+					             mm_get_hmm()
+      mm->hmm = NULL;
+      kfree(hmm)
+                                                     mutex_lock(&hmm->lock);
 
-we fixed the vblank counter to give accurate results outside of
-drm_crtc_handle_vblank, which fixed bugs around vblank timestamps
-being off-by-one and causing the vblank counter to jump when it
-shouldn't.
+Use SRCU to kfree the hmm memory so that the notifiers can rely on hmm
+existing. Get the now-safe hmm struct through container_of and directly
+check kref_get_unless_zero to lock it against free.
 
-The trouble is that this completely broke crc generation. Shayenne and
-Rodrigo tracked this down to the vblank timestamp going backwards in
-time somehow. Which then resulted in an underflow in drm_vblank.c
-code, which resulted in all kinds of things breaking really badly.
-
-The reason for this is that once we've called drm_crtc_handle_vblank
-and the hrtimer isn't forwarded yet, we're returning a vblank
-timestamp in the past. This race is really hard to hit since it's
-small, except when you enable crc generation: In that case there's a
-call to drm_crtc_accurate_vblank right in-betwen, so we're guaranteed
-to hit the bug.
-
-The fix is to roll the hrtimer forward _before_ we do the vblank
-processing (which has a side-effect of incrementing the vblank
-counter), and we always subtract one frame from the hrtimer - since
-now it's always one frame in the future.
-
-To make sure we don't hit this again also add a WARN_ON checking for
-whether our timestamp is somehow moving into the past, which is never
-should.
-
-This also aligns more with how real hw works:
-1. first all registers are updated with the new timestamp/vblank
-counter values.
-2. then an interrupt is generated
-3. kernel interrupt handler eventually fires.
-
-So doing this aligns vkms closer with what drm_vblank.c expects.
-Document this also in a comment.
-
-Cc: Shayenne Moura <shayenneluzmoura@gmail.com>
-Cc: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Tested-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
-Reviewed-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
-Signed-off-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190606084404.12014-1-daniel.vetter@ffwll.ch
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Reviewed-by: Ralph Campbell <rcampbell@nvidia.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Tested-by: Philip Yang <Philip.Yang@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vkms/vkms_crtc.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ include/linux/hmm.h |  1 +
+ mm/hmm.c            | 23 +++++++++++++++++------
+ 2 files changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/vkms/vkms_crtc.c b/drivers/gpu/drm/vkms/vkms_crtc.c
-index bb66dbcd5e3f..e447b7588d06 100644
---- a/drivers/gpu/drm/vkms/vkms_crtc.c
-+++ b/drivers/gpu/drm/vkms/vkms_crtc.c
-@@ -15,6 +15,10 @@ static enum hrtimer_restart vkms_vblank_simulate(struct hrtimer *timer)
- 
- 	spin_lock(&output->lock);
- 
-+	ret_overrun = hrtimer_forward_now(&output->vblank_hrtimer,
-+					  output->period_ns);
-+	WARN_ON(ret_overrun != 1);
-+
- 	ret = drm_crtc_handle_vblank(crtc);
- 	if (!ret)
- 		DRM_ERROR("vkms failure on handling vblank");
-@@ -35,10 +39,6 @@ static enum hrtimer_restart vkms_vblank_simulate(struct hrtimer *timer)
- 			DRM_WARN("failed to queue vkms_crc_work_handle");
- 	}
- 
--	ret_overrun = hrtimer_forward_now(&output->vblank_hrtimer,
--					  output->period_ns);
--	WARN_ON(ret_overrun != 1);
--
- 	spin_unlock(&output->lock);
- 
- 	return HRTIMER_RESTART;
-@@ -74,11 +74,21 @@ bool vkms_get_vblank_timestamp(struct drm_device *dev, unsigned int pipe,
- {
- 	struct vkms_device *vkmsdev = drm_device_to_vkms_device(dev);
- 	struct vkms_output *output = &vkmsdev->output;
-+	struct drm_vblank_crtc *vblank = &dev->vblank[pipe];
- 
- 	*vblank_time = output->vblank_hrtimer.node.expires;
- 
--	if (!in_vblank_irq)
--		*vblank_time -= output->period_ns;
-+	if (WARN_ON(*vblank_time == vblank->time))
-+		return true;
-+
-+	/*
-+	 * To prevent races we roll the hrtimer forward before we do any
-+	 * interrupt processing - this is how real hw works (the interrupt is
-+	 * only generated after all the vblank registers are updated) and what
-+	 * the vblank core expects. Therefore we need to always correct the
-+	 * timestampe by one frame.
-+	 */
-+	*vblank_time -= output->period_ns;
- 
- 	return true;
+diff --git a/include/linux/hmm.h b/include/linux/hmm.h
+index 044a36d7c3f8..89508dc0795f 100644
+--- a/include/linux/hmm.h
++++ b/include/linux/hmm.h
+@@ -93,6 +93,7 @@ struct hmm {
+ 	struct mmu_notifier	mmu_notifier;
+ 	struct rw_semaphore	mirrors_sem;
+ 	wait_queue_head_t	wq;
++	struct rcu_head		rcu;
+ 	long			notifiers;
+ 	bool			dead;
+ };
+diff --git a/mm/hmm.c b/mm/hmm.c
+index f702a3895d05..4c405dfbd2b3 100644
+--- a/mm/hmm.c
++++ b/mm/hmm.c
+@@ -104,6 +104,11 @@ static struct hmm *hmm_get_or_create(struct mm_struct *mm)
+ 	return NULL;
  }
+ 
++static void hmm_free_rcu(struct rcu_head *rcu)
++{
++	kfree(container_of(rcu, struct hmm, rcu));
++}
++
+ static void hmm_free(struct kref *kref)
+ {
+ 	struct hmm *hmm = container_of(kref, struct hmm, kref);
+@@ -116,7 +121,7 @@ static void hmm_free(struct kref *kref)
+ 		mm->hmm = NULL;
+ 	spin_unlock(&mm->page_table_lock);
+ 
+-	kfree(hmm);
++	mmu_notifier_call_srcu(&hmm->rcu, hmm_free_rcu);
+ }
+ 
+ static inline void hmm_put(struct hmm *hmm)
+@@ -144,10 +149,14 @@ void hmm_mm_destroy(struct mm_struct *mm)
+ 
+ static void hmm_release(struct mmu_notifier *mn, struct mm_struct *mm)
+ {
+-	struct hmm *hmm = mm_get_hmm(mm);
++	struct hmm *hmm = container_of(mn, struct hmm, mmu_notifier);
+ 	struct hmm_mirror *mirror;
+ 	struct hmm_range *range;
+ 
++	/* Bail out if hmm is in the process of being freed */
++	if (!kref_get_unless_zero(&hmm->kref))
++		return;
++
+ 	/* Report this HMM as dying. */
+ 	hmm->dead = true;
+ 
+@@ -185,13 +194,14 @@ static void hmm_release(struct mmu_notifier *mn, struct mm_struct *mm)
+ static int hmm_invalidate_range_start(struct mmu_notifier *mn,
+ 			const struct mmu_notifier_range *nrange)
+ {
+-	struct hmm *hmm = mm_get_hmm(nrange->mm);
++	struct hmm *hmm = container_of(mn, struct hmm, mmu_notifier);
+ 	struct hmm_mirror *mirror;
+ 	struct hmm_update update;
+ 	struct hmm_range *range;
+ 	int ret = 0;
+ 
+-	VM_BUG_ON(!hmm);
++	if (!kref_get_unless_zero(&hmm->kref))
++		return 0;
+ 
+ 	update.start = nrange->start;
+ 	update.end = nrange->end;
+@@ -239,9 +249,10 @@ static int hmm_invalidate_range_start(struct mmu_notifier *mn,
+ static void hmm_invalidate_range_end(struct mmu_notifier *mn,
+ 			const struct mmu_notifier_range *nrange)
+ {
+-	struct hmm *hmm = mm_get_hmm(nrange->mm);
++	struct hmm *hmm = container_of(mn, struct hmm, mmu_notifier);
+ 
+-	VM_BUG_ON(!hmm);
++	if (!kref_get_unless_zero(&hmm->kref))
++		return;
+ 
+ 	mutex_lock(&hmm->lock);
+ 	hmm->notifiers--;
 -- 
 2.20.1
 
