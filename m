@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E54C6D981
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A47C36D987
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:56:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726092AbfGSD4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 23:56:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56068 "EHLO mail.kernel.org"
+        id S1726860AbfGSD4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 23:56:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726067AbfGSD4q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:56:46 -0400
+        id S1726075AbfGSD4w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:56:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F11E2082E;
-        Fri, 19 Jul 2019 03:56:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E38A21851;
+        Fri, 19 Jul 2019 03:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508605;
-        bh=/bYiLhQ2bS9pcCsRPAJ+8A98ijnEbnaNzmUqu1Yf4og=;
-        h=From:To:Cc:Subject:Date:From;
-        b=VFme/5UjzcJLqJ50dGR1eQjs/VgmYIWJaMwCXIWWnrXP0l2u5Nv0Gf+E05Ra16G3e
-         U+w02CX97sEPGDx9mc4K03siLpij+Ml2xkUrspEm4npxxgFlPvF9uqkSyxCIgYbPVN
-         BtGdZO8qBMEtVUZPDXjCaT/lZpRkEZbF835KvLb0=
+        s=default; t=1563508611;
+        bh=/3jVZssMR/YyoaqWeVSE/kuJ6bjnTmEqFpM1Pt0JQak=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=hcQOZxVXi7nZ5ZyY20kFOT5OmHz/e1V5SYskd+tBRqYO8Qdbvj7qTY3mfwSZHHNhK
+         EMXJIN/1n5z/FjBjDjl7ZHnXvpR+Dz77dBqDvyhQjeTBRl+ZE/gdZRR9KZnroNMiJG
+         akp8s7tslywLshUoXHykgKtA1mLqBd7bsMfPaDlQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Griffin <peter.griffin@linaro.org>,
-        Rob Herring <robh@kernel.org>, Daniel Vetter <daniel@ffwll.ch>,
-        Qiang Yu <yuq825@gmail.com>, Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.2 001/171] drm/lima: handle shared irq case for lima_pp_bcast_irq_handler
-Date:   Thu, 18 Jul 2019 23:53:52 -0400
-Message-Id: <20190719035643.14300-1-sashal@kernel.org>
+Cc:     Fabien Dessenne <fabien.dessenne@st.com>,
+        Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 004/171] iio: adc: stm32-dfsdm: missing error case during probe
+Date:   Thu, 18 Jul 2019 23:53:55 -0400
+Message-Id: <20190719035643.14300-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
+References: <20190719035643.14300-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,44 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Griffin <peter.griffin@linaro.org>
+From: Fabien Dessenne <fabien.dessenne@st.com>
 
-[ Upstream commit 409c53f07a81f8db122c461f3255c6f43558c881 ]
+[ Upstream commit d2fc0156963cae8f1eec8e2dd645fbbf1e1c1c8e ]
 
-On Hikey board all lima ip blocks are shared with one irq.
-This patch avoids a NULL ptr deref crash on this platform
-on startup. Tested with Weston and kmscube.
+During probe, check the devm_ioremap_resource() error value.
+Also return the devm_clk_get() error value instead of -EINVAL.
 
-Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Qiang Yu <yuq825@gmail.com>
-Signed-off-by: Qiang Yu <yuq825@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1555662781-22570-7-git-send-email-peter.griffin@linaro.org
+Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
+Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/lima/lima_pp.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/iio/adc/stm32-dfsdm-core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/lima/lima_pp.c b/drivers/gpu/drm/lima/lima_pp.c
-index d29721e177bf..8fef224b93c8 100644
---- a/drivers/gpu/drm/lima/lima_pp.c
-+++ b/drivers/gpu/drm/lima/lima_pp.c
-@@ -64,7 +64,13 @@ static irqreturn_t lima_pp_bcast_irq_handler(int irq, void *data)
- 	struct lima_ip *pp_bcast = data;
- 	struct lima_device *dev = pp_bcast->dev;
- 	struct lima_sched_pipe *pipe = dev->pipe + lima_pipe_pp;
--	struct drm_lima_m450_pp_frame *frame = pipe->current_task->frame;
-+	struct drm_lima_m450_pp_frame *frame;
-+
-+	/* for shared irq case */
-+	if (!pipe->current_task)
-+		return IRQ_NONE;
-+
-+	frame = pipe->current_task->frame;
+diff --git a/drivers/iio/adc/stm32-dfsdm-core.c b/drivers/iio/adc/stm32-dfsdm-core.c
+index 0a4d3746d21c..26e2011c5868 100644
+--- a/drivers/iio/adc/stm32-dfsdm-core.c
++++ b/drivers/iio/adc/stm32-dfsdm-core.c
+@@ -233,6 +233,8 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
+ 	}
+ 	priv->dfsdm.phys_base = res->start;
+ 	priv->dfsdm.base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(priv->dfsdm.base))
++		return PTR_ERR(priv->dfsdm.base);
  
- 	for (i = 0; i < frame->num_pp; i++) {
- 		struct lima_ip *ip = pipe->processor[i];
+ 	/*
+ 	 * "dfsdm" clock is mandatory for DFSDM peripheral clocking.
+@@ -242,8 +244,10 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
+ 	 */
+ 	priv->clk = devm_clk_get(&pdev->dev, "dfsdm");
+ 	if (IS_ERR(priv->clk)) {
+-		dev_err(&pdev->dev, "No stm32_dfsdm_clk clock found\n");
+-		return -EINVAL;
++		ret = PTR_ERR(priv->clk);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "Failed to get clock (%d)\n", ret);
++		return ret;
+ 	}
+ 
+ 	priv->aclk = devm_clk_get(&pdev->dev, "audio");
 -- 
 2.20.1
 
