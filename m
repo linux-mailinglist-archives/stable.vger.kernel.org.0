@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98AD66DBE6
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2DAF6DBED
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387930AbfGSEMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:12:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47482 "EHLO mail.kernel.org"
+        id S1732617AbfGSEM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:12:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729594AbfGSEMN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:12:13 -0400
+        id S2388071AbfGSEM0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:12:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2B4921873;
-        Fri, 19 Jul 2019 04:12:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EED112189D;
+        Fri, 19 Jul 2019 04:12:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509532;
-        bh=aLsdwTpMpfOml35aRANSXramiq7HO3wnjV9fDK1SdcQ=;
+        s=default; t=1563509545;
+        bh=RAkKFMvOgiSTK8PGtDUmmQ73xU9d5ILU1RVAs1yiiOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1h+e7l8kYP0Q9L+3OixhfauDz5RiiJd26ydFVrrR5MNELQwSWdI31UQpFfRBcT7M2
-         p7QilAYw9Q8d23yZ+Op+2XaE5gXQ81cvGQ34OaA3mOlFmf2Ngmp0tAS+fxSvKP2ecf
-         Sza99/OXtD10HvTSR5/7AD3QXeK0YmaWoMeH7Ip8=
+        b=1Uqli5SLY4R7p5HEVV6Hb2+eYDEUNWP4/1q6QSoxNo/aUBCwCX9xECKQwIcP7/poW
+         yISakyaMZMLMyrfa+mo8nZQZy/zDuyniJI8AkQxF0H0kiMj5fvqTh0Iej5vhHCikJu
+         9ND7G9lWhe0YS+0ljVaGv3CEqsIcOEbhmsd+NR2c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Axel Lin <axel.lin@ingics.com>,
-        Chen Feng <puck.chen@hisilicon.com>,
-        Lee Jones <lee.jones@linaro.org>,
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 35/60] mfd: hi655x-pmic: Fix missing return value check for devm_regmap_init_mmio_clk
-Date:   Fri, 19 Jul 2019 00:10:44 -0400
-Message-Id: <20190719041109.18262-35-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 42/60] kallsyms: exclude kasan local symbols on s390
+Date:   Fri, 19 Jul 2019 00:10:51 -0400
+Message-Id: <20190719041109.18262-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041109.18262-1-sashal@kernel.org>
 References: <20190719041109.18262-1-sashal@kernel.org>
@@ -44,33 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 7efd105c27fd2323789b41b64763a0e33ed79c08 ]
+[ Upstream commit 33177f01ca3fe550146bb9001bec2fd806b2f40c ]
 
-Since devm_regmap_init_mmio_clk can fail, add return value checking.
+gcc asan instrumentation emits the following sequence to store frame pc
+when the kernel is built with CONFIG_RELOCATABLE:
+debug/vsprintf.s:
+        .section        .data.rel.ro.local,"aw"
+        .align  8
+.LC3:
+        .quad   .LASANPC4826@GOTOFF
+.text
+        .align  8
+        .type   number, @function
+number:
+.LASANPC4826:
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Acked-by: Chen Feng <puck.chen@hisilicon.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+and in case reloc is issued for LASANPC label it also gets into .symtab
+with the same address as actual function symbol:
+$ nm -n vmlinux | grep 0000000001397150
+0000000001397150 t .LASANPC4826
+0000000001397150 t number
+
+In the end kernel backtraces are almost unreadable:
+[  143.748476] Call Trace:
+[  143.748484] ([<000000002da3e62c>] .LASANPC2671+0x114/0x190)
+[  143.748492]  [<000000002eca1a58>] .LASANPC2612+0x110/0x160
+[  143.748502]  [<000000002de9d830>] print_address_description+0x80/0x3b0
+[  143.748511]  [<000000002de9dd64>] __kasan_report+0x15c/0x1c8
+[  143.748521]  [<000000002ecb56d4>] strrchr+0x34/0x60
+[  143.748534]  [<000003ff800a9a40>] kasan_strings+0xb0/0x148 [test_kasan]
+[  143.748547]  [<000003ff800a9bba>] kmalloc_tests_init+0xe2/0x528 [test_kasan]
+[  143.748555]  [<000000002da2117c>] .LASANPC4069+0x354/0x748
+[  143.748563]  [<000000002dbfbb16>] do_init_module+0x136/0x3b0
+[  143.748571]  [<000000002dbff3f4>] .LASANPC3191+0x2164/0x25d0
+[  143.748580]  [<000000002dbffc4c>] .LASANPC3196+0x184/0x1b8
+[  143.748587]  [<000000002ecdf2ec>] system_call+0xd8/0x2d8
+
+Since LASANPC labels are not even unique and get into .symtab only due
+to relocs filter them out in kallsyms.
+
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/hi655x-pmic.c | 2 ++
- 1 file changed, 2 insertions(+)
+ scripts/kallsyms.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/mfd/hi655x-pmic.c b/drivers/mfd/hi655x-pmic.c
-index 96c07fa1802a..6693f74aa6ab 100644
---- a/drivers/mfd/hi655x-pmic.c
-+++ b/drivers/mfd/hi655x-pmic.c
-@@ -112,6 +112,8 @@ static int hi655x_pmic_probe(struct platform_device *pdev)
+diff --git a/scripts/kallsyms.c b/scripts/kallsyms.c
+index 1dd24c5b9b47..b471022c8162 100644
+--- a/scripts/kallsyms.c
++++ b/scripts/kallsyms.c
+@@ -160,6 +160,9 @@ static int read_symbol(FILE *in, struct sym_entry *s)
+ 	/* exclude debugging symbols */
+ 	else if (stype == 'N' || stype == 'n')
+ 		return -1;
++	/* exclude s390 kasan local symbols */
++	else if (!strncmp(sym, ".LASANPC", 8))
++		return -1;
  
- 	pmic->regmap = devm_regmap_init_mmio_clk(dev, NULL, base,
- 						 &hi655x_regmap_config);
-+	if (IS_ERR(pmic->regmap))
-+		return PTR_ERR(pmic->regmap);
- 
- 	regmap_read(pmic->regmap, HI655X_BUS_ADDR(HI655X_VER_REG), &pmic->ver);
- 	if ((pmic->ver < PMU_VER_START) || (pmic->ver > PMU_VER_END)) {
+ 	/* include the type field in the symbol name, so that it gets
+ 	 * compressed together */
 -- 
 2.20.1
 
