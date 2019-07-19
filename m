@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D02736DF76
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:36:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C2E86DF4F
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731541AbfGSEfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:35:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33164 "EHLO mail.kernel.org"
+        id S1729450AbfGSEB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:01:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729420AbfGSEBZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:01:25 -0400
+        id S1729435AbfGSEB1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:01:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76D4621897;
-        Fri, 19 Jul 2019 04:01:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91B0B21852;
+        Fri, 19 Jul 2019 04:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508885;
-        bh=GN/OsSNmdwC+UYwQNWTMkfKny8MRTFWFNFlzyHs3pjE=;
+        s=default; t=1563508886;
+        bh=CH3O2LPFoEMwAWzghnExfL2XH60fUknYpeXbotU+tPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMEAuy8V//91E5PQd2XeRLl4PVexfPXla+SWGqb5z7oK6TIVz3H1vpZkilABDcSNm
-         J61XkELg2knGNKgO9ST3JymR0md63u64QZ3x8+GsAqs1NWF3YPr4u7aGxGD+UmjAmr
-         RE/EQSxX8QtX9LLBWL2IgsRLqKp3F+xORmQA+djA=
+        b=vF3iHJ8XAu869BlR4jRn/iu6KYViP56hR6tmSyI+ZYGYZmbC656AyOVCtW4Al/xW/
+         sV8hM0j22Xej1i0/1VPdw80U6DClRPYBhmAdR5G1+mwvIdhrdLQ2P75ualQAYQXOSe
+         VOWxCi6+1QcWG8+xfOED3kRbMd6Q+yok35E2KsN8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Atish Patra <Atish.Patra@wdc.com>,
+Cc:     Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
         Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.2 136/171] nvme-pci: limit max_hw_sectors based on the DMA max mapping size
-Date:   Thu, 18 Jul 2019 23:56:07 -0400
-Message-Id: <20190719035643.14300-136-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 137/171] nvme-tcp: don't use sendpage for SLAB pages
+Date:   Thu, 18 Jul 2019 23:56:08 -0400
+Message-Id: <20190719035643.14300-137-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -43,39 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
 
-[ Upstream commit 7637de311bd2124b298a072852448b940d8a34b9 ]
+[ Upstream commit 37c15219599f7a4baa73f6e3432afc69ba7cc530 ]
 
-When running a NVMe device that is attached to a addressing
-challenged PCIe root port that requires bounce buffering, our
-request sizes can easily overflow the swiotlb bounce buffer
-size.  Limit the maximum I/O size to the limit exposed by
-the DMA mapping subsystem.
+According to commit a10674bf2406 ("tcp: detecting the misuse of
+.sendpage for Slab objects") and previous discussion, tcp_sendpage
+should not be used for pages that is managed by SLAB, as SLAB is not
+taking page reference counters into consideration.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reported-by: Atish Patra <Atish.Patra@wdc.com>
-Tested-by: Atish Patra <Atish.Patra@wdc.com>
+Signed-off-by: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
 Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nvme/host/tcp.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 5dfa067f6506..5c45f4cab060 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2515,7 +2515,8 @@ static void nvme_reset_work(struct work_struct *work)
- 	 * Limit the max command size to prevent iod->sg allocations going
- 	 * over a single page.
- 	 */
--	dev->ctrl.max_hw_sectors = NVME_MAX_KB_SZ << 1;
-+	dev->ctrl.max_hw_sectors = min_t(u32,
-+		NVME_MAX_KB_SZ << 1, dma_max_mapping_size(dev->dev) >> 9);
- 	dev->ctrl.max_segments = NVME_MAX_SEGS;
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 08a2501b9357..606b13d35d16 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -860,7 +860,14 @@ static int nvme_tcp_try_send_data(struct nvme_tcp_request *req)
+ 		else
+ 			flags |= MSG_MORE;
  
- 	/*
+-		ret = kernel_sendpage(queue->sock, page, offset, len, flags);
++		/* can't zcopy slab pages */
++		if (unlikely(PageSlab(page))) {
++			ret = sock_no_sendpage(queue->sock, page, offset, len,
++					flags);
++		} else {
++			ret = kernel_sendpage(queue->sock, page, offset, len,
++					flags);
++		}
+ 		if (ret <= 0)
+ 			return ret;
+ 
 -- 
 2.20.1
 
