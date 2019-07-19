@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B3D6DB62
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:09:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 590996DB65
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:09:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730227AbfGSEIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:08:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41950 "EHLO mail.kernel.org"
+        id S1732895AbfGSEII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:08:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729191AbfGSEH7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:07:59 -0400
+        id S1731309AbfGSEIH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:08:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A918C2189F;
-        Fri, 19 Jul 2019 04:07:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A42E72184E;
+        Fri, 19 Jul 2019 04:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509278;
-        bh=arA7fjr2br3k9tMmkoDAfWo2X0afvxP4vhylpYw2oPU=;
+        s=default; t=1563509286;
+        bh=IfB97Bn5uzpoLRSH6ClsAiqyxggvd+YTlvZlopvmv7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tN6Y3qwagO6HWORwJOMABY8zIZuQW/1dUeVyWhRrkj6no32TlrEZWxMh39XKDOIiM
-         IY8MoPgaZL84u4lWwYK+gxaKhUEM4qlHVmyH1zconKtu0h7PsHcKcw3MTPFWvsXdRy
-         kMPDuj7cy3PfncUKhrBHtdKY4WXAXHapcBkzUYm0=
+        b=Z8/uqkai8qnKP7bh8Xuch6IZuqQON642mY1UiLwrS7a00U2N527L796wu7JT26lIb
+         ebNsXi/3i/4ot51z/H7xWZdQm7SpXOsf4vebjIGrOv8fG2FUq4cj3/LybVOwbxEPV/
+         8cXIadA2/RxEdBPcjtismYs7RZGCAXsdoo8bZO2M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Roman Li <Roman.Li@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+Cc:     Oak Zeng <ozeng@amd.com>, Felix Kuehling <Felix.Kuehling@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 010/101] drm/amd/display: Fill prescale_params->scale for RGB565
-Date:   Fri, 19 Jul 2019 00:06:01 -0400
-Message-Id: <20190719040732.17285-10-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 013/101] drm/amdkfd: Fix a potential memory leak
+Date:   Fri, 19 Jul 2019 00:06:04 -0400
+Message-Id: <20190719040732.17285-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -46,43 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Oak Zeng <ozeng@amd.com>
 
-[ Upstream commit 1352c779cb74d427f4150cbe779a2f7886f70cae ]
+[ Upstream commit e73390d181103a19e1111ec2f25559a0570e9fe0 ]
 
-[Why]
-An assertion is thrown when using SURFACE_PIXEL_FORMAT_GRPH_RGB565
-formats on DCE since the prescale_params->scale wasn't being filled.
+Free mqd_mem_obj it GTT buffer allocation for MQD+control stack fails.
 
-Found by a dmesg-fail when running the
-igt@kms_plane@pixel-format-pipe-a-planes test on Baffin.
-
-[How]
-Fill in the scale parameter.
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Roman Li <Roman.Li@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Oak Zeng <ozeng@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
-index 53ccacf99eca..c3ad2bbec1a5 100644
---- a/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce110/dce110_hw_sequencer.c
-@@ -242,6 +242,9 @@ static void build_prescale_params(struct ipp_prescale_params *prescale_params,
- 	prescale_params->mode = IPP_PRESCALE_MODE_FIXED_UNSIGNED;
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c
+index 0cedb37cf513..985bebde5a34 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager_v9.c
+@@ -75,6 +75,7 @@ static int init_mqd(struct mqd_manager *mm, void **mqd,
+ 	struct v9_mqd *m;
+ 	struct kfd_dev *kfd = mm->dev;
  
- 	switch (plane_state->format) {
-+	case SURFACE_PIXEL_FORMAT_GRPH_RGB565:
-+		prescale_params->scale = 0x2082;
-+		break;
- 	case SURFACE_PIXEL_FORMAT_GRPH_ARGB8888:
- 	case SURFACE_PIXEL_FORMAT_GRPH_ABGR8888:
- 		prescale_params->scale = 0x2020;
++	*mqd_mem_obj = NULL;
+ 	/* From V9,  for CWSR, the control stack is located on the next page
+ 	 * boundary after the mqd, we will use the gtt allocation function
+ 	 * instead of sub-allocation function.
+@@ -92,8 +93,10 @@ static int init_mqd(struct mqd_manager *mm, void **mqd,
+ 	} else
+ 		retval = kfd_gtt_sa_allocate(mm->dev, sizeof(struct v9_mqd),
+ 				mqd_mem_obj);
+-	if (retval != 0)
++	if (retval) {
++		kfree(*mqd_mem_obj);
+ 		return -ENOMEM;
++	}
+ 
+ 	m = (struct v9_mqd *) (*mqd_mem_obj)->cpu_ptr;
+ 	addr = (*mqd_mem_obj)->gpu_addr;
 -- 
 2.20.1
 
