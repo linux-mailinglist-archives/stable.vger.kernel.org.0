@@ -2,59 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0E06E0A3
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 07:37:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E948D6E0BB
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 07:49:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726442AbfGSFhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 01:37:09 -0400
-Received: from len.romanrm.net ([91.121.75.85]:57928 "EHLO len.romanrm.net"
+        id S1727366AbfGSFsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 01:48:32 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:40390 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726328AbfGSFhJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 01:37:09 -0400
-Received: from natsu (unknown [IPv6:fd39::e99e:8f1b:cfc9:ccb8])
-        by len.romanrm.net (Postfix) with SMTP id 857B420282;
-        Fri, 19 Jul 2019 05:37:06 +0000 (UTC)
-Date:   Fri, 19 Jul 2019 10:37:06 +0500
-From:   Roman Mamedov <rm@romanrm.net>
-To:     "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     linux-ide@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        id S1726720AbfGSFsb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 01:48:31 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id AB66BC04BD48;
+        Fri, 19 Jul 2019 05:48:31 +0000 (UTC)
+Received: from localhost (ovpn-204-136.brq.redhat.com [10.40.204.136])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0FF145C25C;
+        Fri, 19 Jul 2019 05:48:30 +0000 (UTC)
+Date:   Fri, 19 Jul 2019 07:48:29 +0200
+From:   Stanislaw Gruszka <sgruszka@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-wireless@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
         stable@vger.kernel.org
-Subject: Re: [PATCH] libata: Disable queued TRIM for Samsung 860 series SSDs
-Message-ID: <20190719103706.6f452ca3@natsu>
-In-Reply-To: <yq1lfwuwwxc.fsf@oracle.com>
-References: <20190714224242.4689a874@natsu>
- <yq1y30z2ojx.fsf@oracle.com>
- <20190715224215.2186bc8e@natsu>
- <yq1lfwuwwxc.fsf@oracle.com>
+Subject: Re: [PATCH 5.3] mt76: mt76x0u: do not reset radio on resume
+Message-ID: <20190719054828.GA6527@redhat.com>
+References: <1563446290-2813-1-git-send-email-sgruszka@redhat.com>
+ <20190719004524.4AC232184E@mail.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190719004524.4AC232184E@mail.kernel.org>
+User-Agent: Mutt/1.11.3 (2019-02-01)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Fri, 19 Jul 2019 05:48:31 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 18 Jul 2019 23:00:31 -0400
-"Martin K. Petersen" <martin.petersen@oracle.com> wrote:
+On Fri, Jul 19, 2019 at 12:45:23AM +0000, Sasha Levin wrote:
+> v5.1.18: Failed to apply! Possible dependencies:
+>     Unable to calculate
+> 
+> v4.19.59: Failed to apply! Possible dependencies:
+<snip>
 
-> I have tested two mSATA 860s on two different systems, both with Intel
-> AHCI controllers, and queued trim works fine for me.
+> How should we proceed with this patch?
 
-What is the firmware version?
+I'll provide backported version of the patch for 4.19 and 5.1 
+after it will be merged to Linus' tree.
 
-Also, do you have an ASMedia ASM1062 controller to try (often seen on
-motherboards for additional SATA ports)? That's the one I tested with.
-
-Before tried with AMD chipset ones, but on those the 860s are known[1] to
-have serious NCQ issues in general, not just TRIM, so they are not useful for
-this test.
-
-With ASMedia only queued TRIM fails and everything else works fine. So I
-wonder if 850's queued TRIM issue in 860's case remains only on some SATA
-controllers.
-
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=201693
-
--- 
-With respect,
-Roman
+Stanislaw
