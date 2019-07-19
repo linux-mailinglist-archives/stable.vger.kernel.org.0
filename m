@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E74056DFC4
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 619906DFC5
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726509AbfGSEhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729446AbfGSEhW (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jul 2019 00:37:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59878 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725853AbfGSEAC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726076AbfGSEAC (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 19 Jul 2019 00:00:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C56FC21897;
-        Fri, 19 Jul 2019 04:00:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E248021852;
+        Fri, 19 Jul 2019 04:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508801;
-        bh=gnBBXrX9bBxm+eT8K59k+doVxI0Wx88vRthtAskKhqE=;
+        s=default; t=1563508802;
+        bh=pt8XGc4ezTpV+Nyv9h7GEUXBaeOU/GLNHqOHSE746uI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NgToXv5vzsYqTqJjstEpICKS++ZWoSkPuws33bb89PIAeVHO3xkVtNjbUkijwXY2U
-         tdSrlRzNmdmfy6+WYnSQxfIzucvCcQrLnc2yeGR9nFBfA1uzOYCQCrWlQWjc+JhF3B
-         bdq8pXrvS35tamWcSh6HmlSyPc5FoKjXtYNlTTuI=
+        b=nB8wot62T1gqgkVyhwrQwJ5h4OcUkEQ7aI8NmApp6ndCvRVMYF3m9nW7RxNoL+AvY
+         fS79PmvF8FT0b97Z/BCACBlansm9vxnuE0zvN8LsnZJgWHUpySJDvF2P8uTnXtfN7D
+         +KMcHanaZPRuybkFb0AB+gX9u3Vc4PKcKC3aqFwg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+Cc:     Gwendal Grignou <gwendal@chromium.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 096/171] recordmcount: Fix spurious mcount entries on powerpc
-Date:   Thu, 18 Jul 2019 23:55:27 -0400
-Message-Id: <20190719035643.14300-96-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 097/171] mfd: cros_ec: Register cros_ec_lid_angle driver when presented
+Date:   Thu, 18 Jul 2019 23:55:28 -0400
+Message-Id: <20190719035643.14300-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -45,94 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+From: Gwendal Grignou <gwendal@chromium.org>
 
-[ Upstream commit 80e5302e4bc85a6b685b7668c36c6487b5f90e9a ]
+[ Upstream commit 1bb407f17c5316888c3c446e26cb2bb78943f236 ]
 
-An impending change to enable HAVE_C_RECORDMCOUNT on powerpc leads to
-warnings such as the following:
+Register driver when EC indicates has precise lid angle calculation code
+running.
+Fix incorrect extra resource allocation in cros_ec_sensors_register().
 
-  # modprobe kprobe_example
-  ftrace-powerpc: Not expected bl: opcode is 3c4c0001
-  WARNING: CPU: 0 PID: 227 at kernel/trace/ftrace.c:2001 ftrace_bug+0x90/0x318
-  Modules linked in:
-  CPU: 0 PID: 227 Comm: modprobe Not tainted 5.2.0-rc6-00678-g1c329100b942 #2
-  NIP:  c000000000264318 LR: c00000000025d694 CTR: c000000000f5cd30
-  REGS: c000000001f2b7b0 TRAP: 0700   Not tainted  (5.2.0-rc6-00678-g1c329100b942)
-  MSR:  900000010282b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE,TM[E]>  CR: 28228222  XER: 00000000
-  CFAR: c0000000002642fc IRQMASK: 0
-  <snip>
-  NIP [c000000000264318] ftrace_bug+0x90/0x318
-  LR [c00000000025d694] ftrace_process_locs+0x4f4/0x5e0
-  Call Trace:
-  [c000000001f2ba40] [0000000000000004] 0x4 (unreliable)
-  [c000000001f2bad0] [c00000000025d694] ftrace_process_locs+0x4f4/0x5e0
-  [c000000001f2bb90] [c00000000020ff10] load_module+0x25b0/0x30c0
-  [c000000001f2bd00] [c000000000210cb0] sys_finit_module+0xc0/0x130
-  [c000000001f2be20] [c00000000000bda4] system_call+0x5c/0x70
-  Instruction dump:
-  419e0018 2f83ffff 419e00bc 2f83ffea 409e00cc 4800001c 0fe00000 3c62ff96
-  39000001 39400000 386386d0 480000c4 <0fe00000> 3ce20003 39000001 3c62ff96
-  ---[ end trace 4c438d5cebf78381 ]---
-  ftrace failed to modify
-  [<c0080000012a0008>] 0xc0080000012a0008
-   actual:   01:00:4c:3c
-  Initializing ftrace call sites
-  ftrace record flags: 2000000
-   (0)
-   expected tramp: c00000000006af4c
-
-Looking at the relocation records in __mcount_loc shows a few spurious
-entries:
-
-  RELOCATION RECORDS FOR [__mcount_loc]:
-  OFFSET           TYPE              VALUE
-  0000000000000000 R_PPC64_ADDR64    .text.unlikely+0x0000000000000008
-  0000000000000008 R_PPC64_ADDR64    .text.unlikely+0x0000000000000014
-  0000000000000010 R_PPC64_ADDR64    .text.unlikely+0x0000000000000060
-  0000000000000018 R_PPC64_ADDR64    .text.unlikely+0x00000000000000b4
-  0000000000000020 R_PPC64_ADDR64    .init.text+0x0000000000000008
-  0000000000000028 R_PPC64_ADDR64    .init.text+0x0000000000000014
-
-The first entry in each section is incorrect. Looking at the
-relocation records, the spurious entries correspond to the
-R_PPC64_ENTRY records:
-
-  RELOCATION RECORDS FOR [.text.unlikely]:
-  OFFSET           TYPE              VALUE
-  0000000000000000 R_PPC64_REL64     .TOC.-0x0000000000000008
-  0000000000000008 R_PPC64_ENTRY     *ABS*
-  0000000000000014 R_PPC64_REL24     _mcount
-  <snip>
-
-The problem is that we are not validating the return value from
-get_mcountsym() in sift_rel_mcount(). With this entry, mcountsym is 0,
-but Elf_r_sym(relp) also ends up being 0. Fix this by ensuring
-mcountsym is valid before processing the entry.
-
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Tested-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/recordmcount.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mfd/cros_ec_dev.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/scripts/recordmcount.h b/scripts/recordmcount.h
-index 13c5e6c8829c..47fca2c69a73 100644
---- a/scripts/recordmcount.h
-+++ b/scripts/recordmcount.h
-@@ -325,7 +325,8 @@ static uint_t *sift_rel_mcount(uint_t *mlocp,
- 		if (!mcountsym)
- 			mcountsym = get_mcountsym(sym0, relp, str0);
+diff --git a/drivers/mfd/cros_ec_dev.c b/drivers/mfd/cros_ec_dev.c
+index a5391f96eafd..607383b67cf1 100644
+--- a/drivers/mfd/cros_ec_dev.c
++++ b/drivers/mfd/cros_ec_dev.c
+@@ -285,13 +285,15 @@ static void cros_ec_sensors_register(struct cros_ec_dev *ec)
  
--		if (mcountsym == Elf_r_sym(relp) && !is_fake_mcount(relp)) {
-+		if (mcountsym && mcountsym == Elf_r_sym(relp) &&
-+				!is_fake_mcount(relp)) {
- 			uint_t const addend =
- 				_w(_w(relp->r_offset) - recval + mcount_adjust);
- 			mrelp->r_offset = _w(offbase
+ 	resp = (struct ec_response_motion_sense *)msg->data;
+ 	sensor_num = resp->dump.sensor_count;
+-	/* Allocate 1 extra sensors in FIFO are needed */
+-	sensor_cells = kcalloc(sensor_num + 1, sizeof(struct mfd_cell),
++	/*
++	 * Allocate 2 extra sensors if lid angle sensor and/or FIFO are needed.
++	 */
++	sensor_cells = kcalloc(sensor_num + 2, sizeof(struct mfd_cell),
+ 			       GFP_KERNEL);
+ 	if (sensor_cells == NULL)
+ 		goto error;
+ 
+-	sensor_platforms = kcalloc(sensor_num + 1,
++	sensor_platforms = kcalloc(sensor_num,
+ 				   sizeof(struct cros_ec_sensor_platform),
+ 				   GFP_KERNEL);
+ 	if (sensor_platforms == NULL)
+@@ -351,6 +353,11 @@ static void cros_ec_sensors_register(struct cros_ec_dev *ec)
+ 		sensor_cells[id].name = "cros-ec-ring";
+ 		id++;
+ 	}
++	if (cros_ec_check_features(ec,
++				EC_FEATURE_REFINED_TABLET_MODE_HYSTERESIS)) {
++		sensor_cells[id].name = "cros-ec-lid-angle";
++		id++;
++	}
+ 
+ 	ret = mfd_add_devices(ec->dev, 0, sensor_cells, id,
+ 			      NULL, 0, NULL);
 -- 
 2.20.1
 
