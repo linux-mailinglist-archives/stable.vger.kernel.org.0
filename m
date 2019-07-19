@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D4806DE40
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:27:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE1D6DE3E
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:27:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727174AbfGSE1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:27:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40434 "EHLO mail.kernel.org"
+        id S1732468AbfGSEHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:07:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732445AbfGSEG6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:06:58 -0400
+        id S1732460AbfGSEHC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:07:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB88721873;
-        Fri, 19 Jul 2019 04:06:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68FF421852;
+        Fri, 19 Jul 2019 04:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509217;
-        bh=tyRPrOwKObReDHMdAgwbRdxfiTZLlY8WCnzQi9XBHBM=;
+        s=default; t=1563509220;
+        bh=4845ciycBl66P3mpNIpBAcwqxVKag7mtH/YYAjhwpTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UWyKZESYBXt4RUSvIhxCwUmx1BCFI1c3ZGbDVd/+CWN0SdqPZSIp3SrNNN00bJQfa
-         MpFb9laELaoX+hX2mEoyYuP0IxQd71oDoHoNTTCFi83J/64CuE5LgGNRyLrikZfOSZ
-         96KqqjzHovzT6NheY2J/KVfQaYWW6sM6oNZfmzzU=
+        b=08UWadr5z69xGEB4VJO9Qkh1cjNjEdMEHtOezCHhHEafMZDDBkwo4ocBMtjPhsfIC
+         +rk7rzRnRtfhFO4fjdIWscWcvqb59TYMfiQET7DkToLoBWKzLA/VUrYtamHelwSjtz
+         oa+uT0gRqChffJla544Llr21sUOC6/XFWTANUMtY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+Cc:     Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Roman Gushchin <guro@fb.com>,
+        Cyrill Gorcunov <gorcunov@gmail.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
         Michal Hocko <mhocko@suse.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Matthew Wilcox <willy@infradead.org>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Oleg Nesterov <oleg@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.1 132/141] mm/mmu_notifier: use hlist_add_head_rcu()
-Date:   Fri, 19 Jul 2019 00:02:37 -0400
-Message-Id: <20190719040246.15945-132-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 133/141] proc: use down_read_killable mmap_sem for /proc/pid/smaps_rollup
+Date:   Fri, 19 Jul 2019 00:02:38 -0400
+Message-Id: <20190719040246.15945-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -47,66 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-[ Upstream commit 543bdb2d825fe2400d6e951f1786d92139a16931 ]
+[ Upstream commit a26a97815548574213fd37f29b4b78ccc6d9ed20 ]
 
-Make mmu_notifier_register() safer by issuing a memory barrier before
-registering a new notifier.  This fixes a theoretical bug on weakly
-ordered CPUs.  For example, take this simplified use of notifiers by a
-driver:
+Do not remain stuck forever if something goes wrong.  Using a killable
+lock permits cleanup of stuck tasks and simplifies investigation.
 
-	my_struct->mn.ops = &my_ops; /* (1) */
-	mmu_notifier_register(&my_struct->mn, mm)
-		...
-		hlist_add_head(&mn->hlist, &mm->mmu_notifiers); /* (2) */
-		...
-
-Once mmu_notifier_register() releases the mm locks, another thread can
-invalidate a range:
-
-	mmu_notifier_invalidate_range()
-		...
-		hlist_for_each_entry_rcu(mn, &mm->mmu_notifiers, hlist) {
-			if (mn->ops->invalidate_range)
-
-The read side relies on the data dependency between mn and ops to ensure
-that the pointer is properly initialized.  But the write side doesn't have
-any dependency between (1) and (2), so they could be reordered and the
-readers could dereference an invalid mn->ops.  mmu_notifier_register()
-does take all the mm locks before adding to the hlist, but those have
-acquire semantics which isn't sufficient.
-
-By calling hlist_add_head_rcu() instead of hlist_add_head() we update the
-hlist using a store-release, ensuring that readers see prior
-initialization of my_struct.  This situation is better illustated by
-litmus test MP+onceassign+derefonce.
-
-Link: http://lkml.kernel.org/r/20190502133532.24981-1-jean-philippe.brucker@arm.com
-Fixes: cddb8a5c14aa ("mmu-notifiers: core")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
+Link: http://lkml.kernel.org/r/156007493429.3335.14666825072272692455.stgit@buzz
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Reviewed-by: Cyrill Gorcunov <gorcunov@gmail.com>
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Michal Koutný <mkoutny@suse.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mmu_notifier.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/proc/task_mmu.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/mm/mmu_notifier.c b/mm/mmu_notifier.c
-index 9c884abc7850..9f246c960e65 100644
---- a/mm/mmu_notifier.c
-+++ b/mm/mmu_notifier.c
-@@ -276,7 +276,7 @@ static int do_mmu_notifier_register(struct mmu_notifier *mn,
- 	 * thanks to mm_take_all_locks().
- 	 */
- 	spin_lock(&mm->mmu_notifier_mm->lock);
--	hlist_add_head(&mn->hlist, &mm->mmu_notifier_mm->list);
-+	hlist_add_head_rcu(&mn->hlist, &mm->mmu_notifier_mm->list);
- 	spin_unlock(&mm->mmu_notifier_mm->lock);
+diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+index 95ca1fe7283c..c5b1b6db9a70 100644
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -828,7 +828,10 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
  
- 	mm_drop_all_locks(mm);
+ 	memset(&mss, 0, sizeof(mss));
+ 
+-	down_read(&mm->mmap_sem);
++	ret = down_read_killable(&mm->mmap_sem);
++	if (ret)
++		goto out_put_mm;
++
+ 	hold_task_mempolicy(priv);
+ 
+ 	for (vma = priv->mm->mmap; vma; vma = vma->vm_next) {
+@@ -845,8 +848,9 @@ static int show_smaps_rollup(struct seq_file *m, void *v)
+ 
+ 	release_task_mempolicy(priv);
+ 	up_read(&mm->mmap_sem);
+-	mmput(mm);
+ 
++out_put_mm:
++	mmput(mm);
+ out_put_task:
+ 	put_task_struct(priv->task);
+ 	priv->task = NULL;
 -- 
 2.20.1
 
