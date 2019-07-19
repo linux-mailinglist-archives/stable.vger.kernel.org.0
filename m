@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB32A6DC7E
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:17:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A1A86DC4D
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:16:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388570AbfGSEOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:14:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51214 "EHLO mail.kernel.org"
+        id S2388544AbfGSEO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:14:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730088AbfGSEOz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:14:55 -0400
+        id S2389936AbfGSEO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:14:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41E1D21851;
-        Fri, 19 Jul 2019 04:14:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41E1A2082F;
+        Fri, 19 Jul 2019 04:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509694;
-        bh=doW1pNbRNm25n+plM/F0fagJPoO0pVGD2Zv+6e+xzh8=;
+        s=default; t=1563509697;
+        bh=WB0YDzieqaIoEi48HKnNmW7KfdKVqPrD7AxajqycSxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2YlA7JjuvFct4t4JOaivzoQ6k6JOM2ZJ8il4ae9zZr3G8e8Fa8hBxOFs4p9ft5+w5
-         YOtGXiAisRGllg6hudbOoUiC6o/0Nyjqcin/UOgjSFa5235CpcyDSM7QZjI40NMN4S
-         WD8geNl5GKWRnx3OV9u6iKFYUztpSi5oRUu6pQEU=
+        b=Teo310IJDHNPNsipI7M9G1sNKAAh5LSCjz9J+OneL4GekotGlEgzy76oe138ueO/r
+         N4IOInXPVHSMnpASLS2bcC/dhqhd2tHAWJQQBaCSHPBo95NjW50SfxVH5u0ruapQ9h
+         ZxNXeXkmnLyfffw/0KKntIWZPauHnZQmsMGPhyAk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marek.vasut+renesas@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Phil Edworthy <phil.edworthy@renesas.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Tejun Heo <tj@kernel.org>, Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 16/35] PCI: sysfs: Ignore lockdep for remove attribute
-Date:   Fri, 19 Jul 2019 00:14:04 -0400
-Message-Id: <20190719041423.19322-16-sashal@kernel.org>
+Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Denis Ciocca <denis.ciocca@st.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 17/35] iio: st_accel: fix iio_triggered_buffer_{pre,post}enable positions
+Date:   Fri, 19 Jul 2019 00:14:05 -0400
+Message-Id: <20190719041423.19322-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041423.19322-1-sashal@kernel.org>
 References: <20190719041423.19322-1-sashal@kernel.org>
@@ -47,61 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marek.vasut+renesas@gmail.com>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-[ Upstream commit dc6b698a86fe40a50525433eb8e92a267847f6f9 ]
+[ Upstream commit 05b8bcc96278c9ef927a6f25a98e233e55de42e1 ]
 
-With CONFIG_PROVE_LOCKING=y, using sysfs to remove a bridge with a device
-below it causes a lockdep warning, e.g.,
+The iio_triggered_buffer_{predisable,postenable} functions attach/detach
+the poll functions.
 
-  # echo 1 > /sys/class/pci_bus/0000:00/device/0000:00:00.0/remove
-  ============================================
-  WARNING: possible recursive locking detected
-  ...
-  pci_bus 0000:01: busn_res: [bus 01] is released
+For the predisable hook, the disable code should occur before detaching
+the poll func, and for the postenable hook, the poll func should be
+attached before the enable code.
 
-The remove recursively removes the subtree below the bridge.  Each call
-uses a different lock so there's no deadlock, but the locks were all
-created with the same lockdep key so the lockdep checker can't tell them
-apart.
-
-Mark the "remove" sysfs attribute with __ATTR_IGNORE_LOCKDEP() as it is
-safe to ignore the lockdep check between different "remove" kernfs
-instances.
-
-There's discussion about a similar issue in USB at [1], which resulted in
-356c05d58af0 ("sysfs: get rid of some lockdep false positives") and
-e9b526fe7048 ("i2c: suppress lockdep warning on delete_device"), which do
-basically the same thing for USB "remove" and i2c "delete_device" files.
-
-[1] https://lore.kernel.org/r/Pine.LNX.4.44L0.1204251436140.1206-100000@iolanthe.rowland.org
-Link: https://lore.kernel.org/r/20190526225151.3865-1-marek.vasut@gmail.com
-Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
-[bhelgaas: trim commit log, details at above links]
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Phil Edworthy <phil.edworthy@renesas.com>
-Cc: Simon Horman <horms+renesas@verge.net.au>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Acked-by: Denis Ciocca <denis.ciocca@st.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/accel/st_accel_buffer.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-index 5fb4ed6ea322..6ac6618c1c10 100644
---- a/drivers/pci/pci-sysfs.c
-+++ b/drivers/pci/pci-sysfs.c
-@@ -371,7 +371,7 @@ static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
- 		pci_stop_and_remove_bus_device_locked(to_pci_dev(dev));
- 	return count;
- }
--static struct device_attribute dev_remove_attr = __ATTR(remove,
-+static struct device_attribute dev_remove_attr = __ATTR_IGNORE_LOCKDEP(remove,
- 							(S_IWUSR|S_IWGRP),
- 							NULL, remove_store);
+diff --git a/drivers/iio/accel/st_accel_buffer.c b/drivers/iio/accel/st_accel_buffer.c
+index a1e642ee13d6..4f838277184a 100644
+--- a/drivers/iio/accel/st_accel_buffer.c
++++ b/drivers/iio/accel/st_accel_buffer.c
+@@ -46,17 +46,19 @@ static int st_accel_buffer_postenable(struct iio_dev *indio_dev)
+ 		goto allocate_memory_error;
+ 	}
  
+-	err = st_sensors_set_axis_enable(indio_dev,
+-					(u8)indio_dev->active_scan_mask[0]);
++	err = iio_triggered_buffer_postenable(indio_dev);
+ 	if (err < 0)
+ 		goto st_accel_buffer_postenable_error;
+ 
+-	err = iio_triggered_buffer_postenable(indio_dev);
++	err = st_sensors_set_axis_enable(indio_dev,
++					(u8)indio_dev->active_scan_mask[0]);
+ 	if (err < 0)
+-		goto st_accel_buffer_postenable_error;
++		goto st_sensors_set_axis_enable_error;
+ 
+ 	return err;
+ 
++st_sensors_set_axis_enable_error:
++	iio_triggered_buffer_predisable(indio_dev);
+ st_accel_buffer_postenable_error:
+ 	kfree(adata->buffer_data);
+ allocate_memory_error:
+@@ -65,20 +67,22 @@ static int st_accel_buffer_postenable(struct iio_dev *indio_dev)
+ 
+ static int st_accel_buffer_predisable(struct iio_dev *indio_dev)
+ {
+-	int err;
++	int err, err2;
+ 	struct st_sensor_data *adata = iio_priv(indio_dev);
+ 
+-	err = iio_triggered_buffer_predisable(indio_dev);
+-	if (err < 0)
+-		goto st_accel_buffer_predisable_error;
+-
+ 	err = st_sensors_set_axis_enable(indio_dev, ST_SENSORS_ENABLE_ALL_AXIS);
+ 	if (err < 0)
+ 		goto st_accel_buffer_predisable_error;
+ 
+ 	err = st_sensors_set_enable(indio_dev, false);
++	if (err < 0)
++		goto st_accel_buffer_predisable_error;
+ 
+ st_accel_buffer_predisable_error:
++	err2 = iio_triggered_buffer_predisable(indio_dev);
++	if (!err)
++		err = err2;
++
+ 	kfree(adata->buffer_data);
+ 	return err;
+ }
 -- 
 2.20.1
 
