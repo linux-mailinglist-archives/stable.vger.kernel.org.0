@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD7BF6DF31
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3946DF30
 	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726396AbfGSEC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:02:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34934 "EHLO mail.kernel.org"
+        id S1728575AbfGSEdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:33:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730185AbfGSEC5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:02:57 -0400
+        id S1729276AbfGSEDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:03:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77F1A21882;
-        Fri, 19 Jul 2019 04:02:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E71021873;
+        Fri, 19 Jul 2019 04:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508976;
-        bh=loio7EbnPyE2U2r+HyGRrKSUH0ysEvubFWprXBu+1MA=;
+        s=default; t=1563508979;
+        bh=Ieid9JHW9cHMr72tyAO8o2PtFtDA8gd5V7g1Ll5dUiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5ODP+2WccjNEqIim8rKr2M3Ucknu6bqDoWDBqwwd78R0wtVFwSdHUlrkZvw7ouKM
-         rOO45oHHq2EigF1g8bFnzWn60nFwHWWXwUFDf2O76ACkWEPHH+1ThDhtcrsCRKLb2o
-         aKSQjbAFBYh0LpqFv4iX376OQjkshnsC4yKrJZjw=
+        b=s5bh6m6QcjrG5vQWsN4S8rVrnF6Ec1on8w5uBKEP6KyCSn6i0ePNhVsCBNTaBFk05
+         TxxkXvdEtoP0OiaM5k2C3YJpdTKBaZY2w1eoYDTBrJIySVx7ttWArbRMe/3/YpcUkF
+         tARG5e898EUGyQagetpbbBIEeCXb3bO9eP6vGQeA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 005/141] ipmi_si: fix unexpected driver unregister warning
-Date:   Fri, 19 Jul 2019 00:00:30 -0400
-Message-Id: <20190719040246.15945-5-sashal@kernel.org>
+Cc:     Sam Bobroff <sbobroff@linux.ibm.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.1 007/141] drm/bochs: Fix connector leak during driver unload
+Date:   Fri, 19 Jul 2019 00:00:32 -0400
+Message-Id: <20190719040246.15945-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -44,58 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Sam Bobroff <sbobroff@linux.ibm.com>
 
-[ Upstream commit 2f66353963043e1d8dfacfbdf509acc5d3be7698 ]
+[ Upstream commit 3c6b8625dde82600fd03ad1fcba223f1303ee535 ]
 
-If ipmi_si_platform_init()->platform_driver_register() fails,
-platform_driver_unregister() called unconditionally will trigger
-following warning,
+When unloading the bochs-drm driver, a warning message is printed by
+drm_mode_config_cleanup() because a reference is still held to one of
+the drm_connector structs.
 
-ipmi_platform: Unable to register driver: -12
-------------[ cut here ]------------
-Unexpected driver unregister!
-WARNING: CPU: 1 PID: 7210 at drivers/base/driver.c:193 driver_unregister+0x60/0x70 drivers/base/driver.c:193
+Correct this by calling drm_atomic_helper_shutdown() in
+bochs_pci_remove().
 
-Fix it by adding platform_registered variable, only unregister platform
-driver when it is already successfully registered.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Message-Id: <20190517101245.4341-1-wangkefeng.wang@huawei.com>
-
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: 6579c39594ae ("drm/bochs: atomic: switch planes to atomic, wire up helpers.")
+Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/93b363ad62f4938d9ddf3e05b2a61e3f66b2dcd3.1558416473.git.sbobroff@linux.ibm.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_si_platform.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bochs/bochs_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/char/ipmi/ipmi_si_platform.c b/drivers/char/ipmi/ipmi_si_platform.c
-index 54c7ded2a1ff..859c78de1d4a 100644
---- a/drivers/char/ipmi/ipmi_si_platform.c
-+++ b/drivers/char/ipmi/ipmi_si_platform.c
-@@ -19,6 +19,7 @@
- #include "ipmi_si.h"
- #include "ipmi_dmi.h"
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index 6b6e037258c3..7031f0168795 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -10,6 +10,7 @@
+ #include <linux/slab.h>
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_probe_helper.h>
++#include <drm/drm_atomic_helper.h>
  
-+static bool platform_registered;
- static bool si_tryplatform = true;
- #ifdef CONFIG_ACPI
- static bool          si_tryacpi = true;
-@@ -471,9 +472,12 @@ void ipmi_si_platform_init(void)
- 	int rv = platform_driver_register(&ipmi_platform_driver);
- 	if (rv)
- 		pr_err("Unable to register driver: %d\n", rv);
-+	else
-+		platform_registered = true;
- }
+ #include "bochs.h"
  
- void ipmi_si_platform_shutdown(void)
+@@ -174,6 +175,7 @@ static void bochs_pci_remove(struct pci_dev *pdev)
  {
--	platform_driver_unregister(&ipmi_platform_driver);
-+	if (platform_registered)
-+		platform_driver_unregister(&ipmi_platform_driver);
- }
+ 	struct drm_device *dev = pci_get_drvdata(pdev);
+ 
++	drm_atomic_helper_shutdown(dev);
+ 	drm_dev_unregister(dev);
+ 	bochs_unload(dev);
+ 	drm_dev_put(dev);
 -- 
 2.20.1
 
