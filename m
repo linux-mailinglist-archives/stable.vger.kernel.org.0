@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF2E66DA6E
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:02:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF1DE6DA70
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:02:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729659AbfGSECC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:02:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33832 "EHLO mail.kernel.org"
+        id S1729811AbfGSECF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:02:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729786AbfGSECC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:02:02 -0400
+        id S1729803AbfGSECF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:02:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAFF321873;
-        Fri, 19 Jul 2019 04:02:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83F8421851;
+        Fri, 19 Jul 2019 04:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508921;
-        bh=WIX+4yTSGgjulMaBlod+LF0gOGyUWTgf6fht0yor7qc=;
+        s=default; t=1563508924;
+        bh=3tGUSyKZat/dmcqO896qO06Msf2f2s+baD14991fs+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPtYU8HxzHVezx+iHN7CBfdflr/ZwCO2zUtpUjWE4DcNwA7stwb7PMaSkNp4W07Dn
-         W2Cocakhvrw3d3LLrVNDJSNS7WQGlYVQdNxZhNRMosGmexSkKUoyg1Fu3YMBIBnhzd
-         dpcFeU+2e7aseK5gCTavbp3TDeVh8AXlAShLDh7o=
+        b=1EtMe0iDCnhov9z/InapjWhmveObQ7da/HREOfT9aH/YhHWUwEOkUr8Y+QRoMXlI9
+         UP27kvLZxcMCpZNnDbqPn0Crz4AivOImyhxbzy+jnh7qohPaMx+A35fdP86GLO5jJ3
+         8rTReANSCS7HlgGZE3l5WeseJpTLF7qZC8c8zVzk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Robin Murphy <robin.murphy@arm.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        Jann Horn <jannh@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.2 159/171] mm/gup.c: mark undo_dev_pagemap as __maybe_unused
-Date:   Thu, 18 Jul 2019 23:56:30 -0400
-Message-Id: <20190719035643.14300-159-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 160/171] mm/gup.c: remove some BUG_ONs from get_gate_page()
+Date:   Thu, 18 Jul 2019 23:56:31 -0400
+Message-Id: <20190719035643.14300-160-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -47,44 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Andy Lutomirski <luto@kernel.org>
 
-[ Upstream commit 790c73690c2bbecb3f6f8becbdb11ddc9bcff8cc ]
+[ Upstream commit b5d1c39f34d1c9bca0c4b9ae2e339fbbe264a9c7 ]
 
-Several mips builds generate the following build warning.
+If we end up without a PGD or PUD entry backing the gate area, don't BUG
+-- just fail gracefully.
 
-  mm/gup.c:1788:13: warning: 'undo_dev_pagemap' defined but not used
+It's not entirely implausible that this could happen some day on x86.  It
+doesn't right now even with an execute-only emulated vsyscall page because
+the fixmap shares the PUD, but the core mm code shouldn't rely on that
+particular detail to avoid OOPSing.
 
-The function is declared unconditionally but only called from behind
-various ifdefs. Mark it __maybe_unused.
-
-Link: http://lkml.kernel.org/r/1562072523-22311-1-git-send-email-linux@roeck-us.net
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Link: http://lkml.kernel.org/r/a1d9f4efb75b9d464e59fd6af00104b21c58f6f7.1561610798.git.luto@kernel.org
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: Jann Horn <jannh@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/gup.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/gup.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/mm/gup.c b/mm/gup.c
-index ddde097cf9e4..22855ff0b448 100644
+index 22855ff0b448..d2c14fc4b5d4 100644
 --- a/mm/gup.c
 +++ b/mm/gup.c
-@@ -1696,7 +1696,8 @@ static inline pte_t gup_get_pte(pte_t *ptep)
- }
- #endif
- 
--static void undo_dev_pagemap(int *nr, int nr_start, struct page **pages)
-+static void __maybe_unused undo_dev_pagemap(int *nr, int nr_start,
-+					    struct page **pages)
- {
- 	while ((*nr) - nr_start) {
- 		struct page *page = pages[--(*nr)];
+@@ -585,11 +585,14 @@ static int get_gate_page(struct mm_struct *mm, unsigned long address,
+ 		pgd = pgd_offset_k(address);
+ 	else
+ 		pgd = pgd_offset_gate(mm, address);
+-	BUG_ON(pgd_none(*pgd));
++	if (pgd_none(*pgd))
++		return -EFAULT;
+ 	p4d = p4d_offset(pgd, address);
+-	BUG_ON(p4d_none(*p4d));
++	if (p4d_none(*p4d))
++		return -EFAULT;
+ 	pud = pud_offset(p4d, address);
+-	BUG_ON(pud_none(*pud));
++	if (pud_none(*pud))
++		return -EFAULT;
+ 	pmd = pmd_offset(pud, address);
+ 	if (!pmd_present(*pmd))
+ 		return -EFAULT;
 -- 
 2.20.1
 
