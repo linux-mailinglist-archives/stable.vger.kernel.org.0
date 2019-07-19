@@ -2,142 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A87A6EBD9
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 23:04:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 398196EC08
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 23:23:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388445AbfGSVED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 17:04:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55266 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727972AbfGSVED (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 17:04:03 -0400
-Received: from akpm3.svl.corp.google.com (unknown [104.133.8.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77F5921880;
-        Fri, 19 Jul 2019 21:04:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563570242;
-        bh=N03CxXJVcKZ6aP+qdFNfGUbiqvLwN13PukXoWqiVTb4=;
-        h=Date:From:To:Subject:From;
-        b=shK81tobfzJEkW/sweIxSv8r06SuPlzHfMYKItqLgxYDzTTaxIBYNMcMtBArTEk2S
-         oyMumtJK2HoV7Jeuu3YwocbdmD/ZZgNG7kUf3yU49adC/DyHVUAYi18BaLHMSSYcQ7
-         el9/+tlHE+0KYm3jEqQzJM9m7PuwNlbigt1aXNu8=
-Date:   Fri, 19 Jul 2019 14:04:01 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, willy@infradead.org, vbabka@suse.cz,
-        stable@vger.kernel.org, schwidefsky@de.ibm.com,
-        rdunlap@infradead.org, penberg@kernel.org, mike.kravetz@oracle.com,
-        mhocko@suse.com, mgorman@techsingularity.net, logang@deltatee.com,
-        kirill.shutemov@linux.intel.com, jiangshanlai@gmail.com,
-        jhubbard@nvidia.com, jglisse@redhat.com, jgg@mellanox.com,
-        jack@suse.cz, ira.weiny@intel.com, hch@lst.de,
-        dave.hansen@linux.intel.com, dan.j.williams@intel.com,
-        cl@linux.com, aryabinin@virtuozzo.com, aarcange@redhat.com,
-        rcampbell@nvidia.com
-Subject:  + mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch
- added to -mm tree
-Message-ID: <20190719210401.LiiPx%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1730097AbfGSVXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 17:23:03 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:32904 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727603AbfGSVXD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 17:23:03 -0400
+Received: by mail-pf1-f194.google.com with SMTP id g2so14706642pfq.0;
+        Fri, 19 Jul 2019 14:23:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=MjnV+fDBeK0NuiqNKqFZfMMCcNTnblIXO+Ee219jx0s=;
+        b=R7XCn1LOAB9vaX8LvCuqdCmmnxXsieMLYxCbIfNWJeCzsEYb/MH7ecbuIRoREj5R7O
+         jt1FHZYO3wxo0LQ6vAV5iCpx9CHz60bj00hL/Lrj/pzViiJEgZiB0ZWru2GpXglZsDiu
+         Tv1/0xXtTrWO2HkmYXohbSpJBUuavEU4XACO+g43YQLRDMVkUiXytGg6Wy7yp/VFm0VI
+         1TfXodMqjuv4jFFWbvC6xRa9EtM43m8oxBXL5k6Xi1SjJpZqeoqRP+N9z0Xxqhe1zCOv
+         NCyivHWauUddoRcUT7M30HMrqXnFI8J1YOw1pN2hivjGsa/7fhp9CL+gPmREZ7dYG8GW
+         Ueog==
+X-Gm-Message-State: APjAAAV0t5+fW+ew/EI90LiRzWB9TZ+yUUYDQFWDycrTYqm8CZiqmcwC
+        14DIyZTnW3Hf+1EHHMbFtgE=
+X-Google-Smtp-Source: APXvYqw34Y6eCQJXf+6gFAthU395tWEvHKzq8IlLG4ga3VbPSHw6Ut+zarL2mlZy0r1eU3no9cizug==
+X-Received: by 2002:a17:90a:d58c:: with SMTP id v12mr58969334pju.7.1563571382016;
+        Fri, 19 Jul 2019 14:23:02 -0700 (PDT)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id 196sm34764213pfy.167.2019.07.19.14.23.00
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Fri, 19 Jul 2019 14:23:00 -0700 (PDT)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 29B67402A1; Fri, 19 Jul 2019 21:23:00 +0000 (UTC)
+Date:   Fri, 19 Jul 2019 21:23:00 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     linux-xfs@vger.kernel.org, gregkh@linuxfoundation.org,
+        Alexander.Levin@microsoft.com
+Cc:     stable@vger.kernel.org, amir73il@gmail.com, hch@infradead.org,
+        zlang@redhat.com, Brian Foster <bfoster@redhat.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>
+Subject: Re: [PATCH] xfs: don't trip over uninitialized buffer on extent read
+ of corrupted inode
+Message-ID: <20190719212300.GQ30113@42.do-not-panic.com>
+References: <20190718230617.7439-1-mcgrof>
+ <20190719193032.11096-1-mcgrof@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190719193032.11096-1-mcgrof@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jul 19, 2019 at 07:30:32PM +0000, Luis Chamberlain wrote:
+> From: Brian Foster <bfoster@redhat.com>
+> [mcgrof: fixes kz#204223 ]
 
-The patch titled
-     Subject: mm/hmm: fix bad subpage pointer in try_to_unmap_one
-has been added to the -mm tree.  Its filename is
-     mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch
+Sorry, spoke too soon, although it helps... it actually still does not
+fix that exact issue. Fixing this will require a bit more work. You can
+ignore this patch for stable for now.
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-hmm-fix-bad-subpage-pointer=
--in-try_to_unmap_one.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-hmm-fix-bad-subpage-pointer=
--in-try_to_unmap_one.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing=
- your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Ralph Campbell <rcampbell@nvidia.com>
-Subject: mm/hmm: fix bad subpage pointer in try_to_unmap_one
-
-When migrating an anonymous private page to a ZONE_DEVICE private page,
-the source page->mapping and page->index fields are copied to the
-destination ZONE_DEVICE struct page and the page_mapcount() is increased.=
-=20
-This is so rmap_walk() can be used to unmap and migrate the page back to
-system memory.  However, try_to_unmap_one() computes the subpage pointer
-from a swap pte which computes an invalid page pointer and a kernel panic
-results such as:
-
-BUG: unable to handle page fault for address: ffffea1fffffffc8
-
-Currently, only single pages can be migrated to device private memory so
-no subpage computation is needed and it can be set to "page".
-
-Link: http://lkml.kernel.org/r/20190719192955.30462-4-rcampbell@nvidia.com
-Fixes: a5430dda8a3a1c ("mm/migrate: support un-addressable ZONE_DEVICE page=
- in migration")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Cc: "J=C3=A9r=C3=B4me Glisse" <jglisse@redhat.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/rmap.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/mm/rmap.c~mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one
-+++ a/mm/rmap.c
-@@ -1476,6 +1476,7 @@ static bool try_to_unmap_one(struct page
- 			 * No need to invalidate here it will synchronize on
- 			 * against the special swap migration pte.
- 			 */
-+			subpage =3D page;
- 			goto discard;
- 		}
-=20
-_
-
-Patches currently in -mm which might be from rcampbell@nvidia.com are
-
-mm-document-zone-device-struct-page-field-usage.patch
-mm-hmm-fix-zone_device-anon-page-mapping-reuse.patch
-mm-hmm-fix-bad-subpage-pointer-in-try_to_unmap_one.patch
-
+  Luis
