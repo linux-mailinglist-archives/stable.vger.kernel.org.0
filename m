@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E07DC6DAF2
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C017D6DAF4
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:05:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731497AbfGSEFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:05:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37424 "EHLO mail.kernel.org"
+        id S1727299AbfGSEFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:05:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731479AbfGSEFL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:05:11 -0400
+        id S1730232AbfGSEFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:05:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C278D2189F;
-        Fri, 19 Jul 2019 04:05:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3178921852;
+        Fri, 19 Jul 2019 04:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509110;
-        bh=hO0BYjKuzESqnP+z7jG/uEiXsaMKPUk3qsNkPddSo9U=;
+        s=default; t=1563509113;
+        bh=aLsdwTpMpfOml35aRANSXramiq7HO3wnjV9fDK1SdcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00d/8R+H/FjZ+Nt24eUUUg40AY+e8j0oYuzcuO8a94VbnlK4SI3uMxIzk9YrEBzNq
-         M8b8ElSY1QA3t5+u8xIbZTDg4oab9eopVmePpuu3DqNlKPUG1NKsmlHfhgWexbn9cq
-         +cZTIYu+uMcMQHG+BHvrboSFspC6Npp5vwe5FoDw=
+        b=bMyQC3XWrFLn80dZ/4xrCiuDoDGhPjAdIjz2q0IkTd1a2vTIe2Dfha8TTsOaSjfD2
+         /VZcWLFebDIbBE4EEopskvBf8bGb82eHX5H2WOou1a2FaxGs7F4CTXBcLSux7dIBnO
+         zsSTpw9dkpJuVF6vXo7OGLsUDlZe1kyGxAfLtEnA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Gomez <dagmcr@gmail.com>,
-        Javier Martinez Canillas <javier@dowhile0.org>,
+Cc:     Axel Lin <axel.lin@ingics.com>,
+        Chen Feng <puck.chen@hisilicon.com>,
         Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com
-Subject: [PATCH AUTOSEL 5.1 074/141] mfd: madera: Add missing of table registration
-Date:   Fri, 19 Jul 2019 00:01:39 -0400
-Message-Id: <20190719040246.15945-74-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 077/141] mfd: hi655x-pmic: Fix missing return value check for devm_regmap_init_mmio_clk
+Date:   Fri, 19 Jul 2019 00:01:42 -0400
+Message-Id: <20190719040246.15945-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -44,49 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Gomez <dagmcr@gmail.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 5aa3709c0a5c026735b0ddd4ec80810a23d65f5b ]
+[ Upstream commit 7efd105c27fd2323789b41b64763a0e33ed79c08 ]
 
-MODULE_DEVICE_TABLE(of, <of_match_table>) should be called to complete DT
-OF mathing mechanism and register it.
+Since devm_regmap_init_mmio_clk can fail, add return value checking.
 
-Before this patch:
-modinfo ./drivers/mfd/madera.ko | grep alias
-
-After this patch:
-modinfo ./drivers/mfd/madera.ko | grep alias
-alias:          of:N*T*Ccirrus,wm1840C*
-alias:          of:N*T*Ccirrus,wm1840
-alias:          of:N*T*Ccirrus,cs47l91C*
-alias:          of:N*T*Ccirrus,cs47l91
-alias:          of:N*T*Ccirrus,cs47l90C*
-alias:          of:N*T*Ccirrus,cs47l90
-alias:          of:N*T*Ccirrus,cs47l85C*
-alias:          of:N*T*Ccirrus,cs47l85
-alias:          of:N*T*Ccirrus,cs47l35C*
-alias:          of:N*T*Ccirrus,cs47l35
-
-Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
-Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Acked-by: Chen Feng <puck.chen@hisilicon.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/madera-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mfd/hi655x-pmic.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/mfd/madera-core.c b/drivers/mfd/madera-core.c
-index 2a77988d0462..826b971ccb86 100644
---- a/drivers/mfd/madera-core.c
-+++ b/drivers/mfd/madera-core.c
-@@ -286,6 +286,7 @@ const struct of_device_id madera_of_match[] = {
- 	{ .compatible = "cirrus,wm1840", .data = (void *)WM1840 },
- 	{}
- };
-+MODULE_DEVICE_TABLE(of, madera_of_match);
- EXPORT_SYMBOL_GPL(madera_of_match);
+diff --git a/drivers/mfd/hi655x-pmic.c b/drivers/mfd/hi655x-pmic.c
+index 96c07fa1802a..6693f74aa6ab 100644
+--- a/drivers/mfd/hi655x-pmic.c
++++ b/drivers/mfd/hi655x-pmic.c
+@@ -112,6 +112,8 @@ static int hi655x_pmic_probe(struct platform_device *pdev)
  
- static int madera_get_reset_gpio(struct madera *madera)
+ 	pmic->regmap = devm_regmap_init_mmio_clk(dev, NULL, base,
+ 						 &hi655x_regmap_config);
++	if (IS_ERR(pmic->regmap))
++		return PTR_ERR(pmic->regmap);
+ 
+ 	regmap_read(pmic->regmap, HI655X_BUS_ADDR(HI655X_VER_REG), &pmic->ver);
+ 	if ((pmic->ver < PMU_VER_START) || (pmic->ver > PMU_VER_END)) {
 -- 
 2.20.1
 
