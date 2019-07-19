@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E0136DFC9
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E74056DFC4
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726076AbfGSEhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:37:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59802 "EHLO mail.kernel.org"
+        id S1726509AbfGSEhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:37:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728967AbfGSEAA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:00:00 -0400
+        id S1725853AbfGSEAC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:00:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 976E8218A3;
-        Fri, 19 Jul 2019 03:59:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C56FC21897;
+        Fri, 19 Jul 2019 04:00:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508799;
-        bh=gRwU8Ad+q7ah0c5cfg+KjB1NnhI4v/yX8xGvX/agMaM=;
+        s=default; t=1563508801;
+        bh=gnBBXrX9bBxm+eT8K59k+doVxI0Wx88vRthtAskKhqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rY+xyvFejigLGALtHU0XegMII7EHTTsFJyT1dlKiHh/MZt/bkJHsbIgtoNXhcuFZE
-         e4t1tBUfYvBBVDw5G/WAkMGMSGR7wf8tZVM74vOD4JEcCMMvayjSehriN/4FYqni1W
-         Iqwx/R+2/KbAJf9F7P1KMeuX08WNx1bR6WgXEaUI=
+        b=NgToXv5vzsYqTqJjstEpICKS++ZWoSkPuws33bb89PIAeVHO3xkVtNjbUkijwXY2U
+         tdSrlRzNmdmfy6+WYnSQxfIzucvCcQrLnc2yeGR9nFBfA1uzOYCQCrWlQWjc+JhF3B
+         bdq8pXrvS35tamWcSh6HmlSyPc5FoKjXtYNlTTuI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 095/171] fixdep: check return value of printf() and putchar()
-Date:   Thu, 18 Jul 2019 23:55:26 -0400
-Message-Id: <20190719035643.14300-95-sashal@kernel.org>
+Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 096/171] recordmcount: Fix spurious mcount entries on powerpc
+Date:   Thu, 18 Jul 2019 23:55:27 -0400
+Message-Id: <20190719035643.14300-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -42,185 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit 6f9ac9f4427ec0470ccffbf852cfaf326677cc21 ]
+[ Upstream commit 80e5302e4bc85a6b685b7668c36c6487b5f90e9a ]
 
-When there is not enough space on your storage device, the build will
-fail with 'No space left on device' error message.
+An impending change to enable HAVE_C_RECORDMCOUNT on powerpc leads to
+warnings such as the following:
 
-The reason is obvious from the message, so you will free up some disk
-space, then you will resume the build.
+  # modprobe kprobe_example
+  ftrace-powerpc: Not expected bl: opcode is 3c4c0001
+  WARNING: CPU: 0 PID: 227 at kernel/trace/ftrace.c:2001 ftrace_bug+0x90/0x318
+  Modules linked in:
+  CPU: 0 PID: 227 Comm: modprobe Not tainted 5.2.0-rc6-00678-g1c329100b942 #2
+  NIP:  c000000000264318 LR: c00000000025d694 CTR: c000000000f5cd30
+  REGS: c000000001f2b7b0 TRAP: 0700   Not tainted  (5.2.0-rc6-00678-g1c329100b942)
+  MSR:  900000010282b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE,TM[E]>  CR: 28228222  XER: 00000000
+  CFAR: c0000000002642fc IRQMASK: 0
+  <snip>
+  NIP [c000000000264318] ftrace_bug+0x90/0x318
+  LR [c00000000025d694] ftrace_process_locs+0x4f4/0x5e0
+  Call Trace:
+  [c000000001f2ba40] [0000000000000004] 0x4 (unreliable)
+  [c000000001f2bad0] [c00000000025d694] ftrace_process_locs+0x4f4/0x5e0
+  [c000000001f2bb90] [c00000000020ff10] load_module+0x25b0/0x30c0
+  [c000000001f2bd00] [c000000000210cb0] sys_finit_module+0xc0/0x130
+  [c000000001f2be20] [c00000000000bda4] system_call+0x5c/0x70
+  Instruction dump:
+  419e0018 2f83ffff 419e00bc 2f83ffea 409e00cc 4800001c 0fe00000 3c62ff96
+  39000001 39400000 386386d0 480000c4 <0fe00000> 3ce20003 39000001 3c62ff96
+  ---[ end trace 4c438d5cebf78381 ]---
+  ftrace failed to modify
+  [<c0080000012a0008>] 0xc0080000012a0008
+   actual:   01:00:4c:3c
+  Initializing ftrace call sites
+  ftrace record flags: 2000000
+   (0)
+   expected tramp: c00000000006af4c
 
-However, sometimes you may still see a mysterious error message:
+Looking at the relocation records in __mcount_loc shows a few spurious
+entries:
 
-  unterminated call to function 'wildcard': missing ')'.
+  RELOCATION RECORDS FOR [__mcount_loc]:
+  OFFSET           TYPE              VALUE
+  0000000000000000 R_PPC64_ADDR64    .text.unlikely+0x0000000000000008
+  0000000000000008 R_PPC64_ADDR64    .text.unlikely+0x0000000000000014
+  0000000000000010 R_PPC64_ADDR64    .text.unlikely+0x0000000000000060
+  0000000000000018 R_PPC64_ADDR64    .text.unlikely+0x00000000000000b4
+  0000000000000020 R_PPC64_ADDR64    .init.text+0x0000000000000008
+  0000000000000028 R_PPC64_ADDR64    .init.text+0x0000000000000014
 
-If you run out of the disk space, fixdep may end up with generating
-incomplete .*.cmd files.
+The first entry in each section is incorrect. Looking at the
+relocation records, the spurious entries correspond to the
+R_PPC64_ENTRY records:
 
-For example, if the disk-full error occurs while fixdep is running
-print_dep(), the .*.cmd might be truncated like this:
+  RELOCATION RECORDS FOR [.text.unlikely]:
+  OFFSET           TYPE              VALUE
+  0000000000000000 R_PPC64_REL64     .TOC.-0x0000000000000008
+  0000000000000008 R_PPC64_ENTRY     *ABS*
+  0000000000000014 R_PPC64_REL24     _mcount
+  <snip>
 
-   $(wildcard include/config/
+The problem is that we are not validating the return value from
+get_mcountsym() in sift_rel_mcount(). With this entry, mcountsym is 0,
+but Elf_r_sym(relp) also ends up being 0. Fix this by ensuring
+mcountsym is valid before processing the entry.
 
-When you run 'make' next time, this broken .*.cmd will be included,
-then Make will terminate parsing since it is a wrong syntax.
-
-Once this happens, you need to run 'make clean' or delete the broken
-.*.cmd file manually.
-
-Even if you do not see any error message, the .*.cmd files after any
-error could be potentially incomplete, and unreliable. You may miss
-the re-compilation due to missing header dependency.
-
-If printf() cannot output the string for disk shortage or whatever
-reason, it returns a negative value, but currently fixdep does not
-check it at all. Consequently, fixdep *successfully* generates a
-broken .*.cmd file. Make never notices that since fixdep exits with 0,
-which means success.
-
-Given the intended usage of fixdep, it must respect the return value
-of not only malloc(), but also printf() and putchar().
-
-This seems a long-standing issue since the introduction of fixdep.
-
-In old days, Kbuild tried to provide an extra safety by letting fixdep
-output to a temporary file and renaming it after everything is done:
-
-  scripts/basic/fixdep $(depfile) $@ '$(make-cmd)' > $(dot-target).tmp;\
-  rm -f $(depfile);                                                    \
-  mv -f $(dot-target).tmp $(dot-target).cmd)
-
-It was no help to avoid the current issue; fixdep successfully created
-a truncated tmp file, which would be renamed to a .*.cmd file.
-
-This problem should be fixed by propagating the error status to the
-build system because:
-
-[1] Since commit 9c2af1c7377a ("kbuild: add .DELETE_ON_ERROR special
-    target"), Make will delete the target automatically on any failure
-    in the recipe.
-
-[2] Since commit 392885ee82d3 ("kbuild: let fixdep directly write to
-    .*.cmd files"), .*.cmd file is included only when the corresponding
-    target already exists.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Tested-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/basic/fixdep.c | 51 +++++++++++++++++++++++++++++++++---------
- 1 file changed, 41 insertions(+), 10 deletions(-)
+ scripts/recordmcount.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/basic/fixdep.c b/scripts/basic/fixdep.c
-index facbd603adf6..9ba47b0a47b9 100644
---- a/scripts/basic/fixdep.c
-+++ b/scripts/basic/fixdep.c
-@@ -99,6 +99,7 @@
- #include <unistd.h>
- #include <fcntl.h>
- #include <string.h>
-+#include <stdarg.h>
- #include <stdlib.h>
- #include <stdio.h>
- #include <ctype.h>
-@@ -109,6 +110,36 @@ static void usage(void)
- 	exit(1);
- }
+diff --git a/scripts/recordmcount.h b/scripts/recordmcount.h
+index 13c5e6c8829c..47fca2c69a73 100644
+--- a/scripts/recordmcount.h
++++ b/scripts/recordmcount.h
+@@ -325,7 +325,8 @@ static uint_t *sift_rel_mcount(uint_t *mlocp,
+ 		if (!mcountsym)
+ 			mcountsym = get_mcountsym(sym0, relp, str0);
  
-+/*
-+ * In the intended usage of this program, the stdout is redirected to .*.cmd
-+ * files. The return value of printf() and putchar() must be checked to catch
-+ * any error, e.g. "No space left on device".
-+ */
-+static void xprintf(const char *format, ...)
-+{
-+	va_list ap;
-+	int ret;
-+
-+	va_start(ap, format);
-+	ret = vprintf(format, ap);
-+	if (ret < 0) {
-+		perror("fixdep");
-+		exit(1);
-+	}
-+	va_end(ap);
-+}
-+
-+static void xputchar(int c)
-+{
-+	int ret;
-+
-+	ret = putchar(c);
-+	if (ret == EOF) {
-+		perror("fixdep");
-+		exit(1);
-+	}
-+}
-+
- /*
-  * Print out a dependency path from a symbol name
-  */
-@@ -116,7 +147,7 @@ static void print_dep(const char *m, int slen, const char *dir)
- {
- 	int c, prev_c = '/', i;
- 
--	printf("    $(wildcard %s/", dir);
-+	xprintf("    $(wildcard %s/", dir);
- 	for (i = 0; i < slen; i++) {
- 		c = m[i];
- 		if (c == '_')
-@@ -124,10 +155,10 @@ static void print_dep(const char *m, int slen, const char *dir)
- 		else
- 			c = tolower(c);
- 		if (c != '/' || prev_c != '/')
--			putchar(c);
-+			xputchar(c);
- 		prev_c = c;
- 	}
--	printf(".h) \\\n");
-+	xprintf(".h) \\\n");
- }
- 
- struct item {
-@@ -324,13 +355,13 @@ static void parse_dep_file(char *m, const char *target)
- 				 */
- 				if (!saw_any_target) {
- 					saw_any_target = 1;
--					printf("source_%s := %s\n\n",
--					       target, m);
--					printf("deps_%s := \\\n", target);
-+					xprintf("source_%s := %s\n\n",
-+						target, m);
-+					xprintf("deps_%s := \\\n", target);
- 				}
- 				is_first_dep = 0;
- 			} else {
--				printf("  %s \\\n", m);
-+				xprintf("  %s \\\n", m);
- 			}
- 
- 			buf = read_file(m);
-@@ -353,8 +384,8 @@ static void parse_dep_file(char *m, const char *target)
- 		exit(1);
- 	}
- 
--	printf("\n%s: $(deps_%s)\n\n", target, target);
--	printf("$(deps_%s):\n", target);
-+	xprintf("\n%s: $(deps_%s)\n\n", target, target);
-+	xprintf("$(deps_%s):\n", target);
- }
- 
- int main(int argc, char *argv[])
-@@ -369,7 +400,7 @@ int main(int argc, char *argv[])
- 	target = argv[2];
- 	cmdline = argv[3];
- 
--	printf("cmd_%s := %s\n\n", target, cmdline);
-+	xprintf("cmd_%s := %s\n\n", target, cmdline);
- 
- 	buf = read_file(depfile);
- 	parse_dep_file(buf, target);
+-		if (mcountsym == Elf_r_sym(relp) && !is_fake_mcount(relp)) {
++		if (mcountsym && mcountsym == Elf_r_sym(relp) &&
++				!is_fake_mcount(relp)) {
+ 			uint_t const addend =
+ 				_w(_w(relp->r_offset) - recval + mcount_adjust);
+ 			mrelp->r_offset = _w(offbase
 -- 
 2.20.1
 
