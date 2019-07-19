@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFABA6DBB4
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE7F86DBB7
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:11:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388204AbfGSEK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:10:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45732 "EHLO mail.kernel.org"
+        id S2387421AbfGSELG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:11:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388207AbfGSEK5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:10:57 -0400
+        id S2387395AbfGSELE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:11:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DF6B218BB;
-        Fri, 19 Jul 2019 04:10:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 335DC218BB;
+        Fri, 19 Jul 2019 04:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509456;
-        bh=ZM0eoelH2d1U7AX18dPkOxc2HO7hEc5HDjZjJX0il2k=;
+        s=default; t=1563509463;
+        bh=mQm+CNfILf4HgLBV5paf+2He7aQloxrTWT/t92e57Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKsc48odmSOuy5LNKfrLrSld6wU5EbXZJZ+pqgzpjmBQ2iYqdGeWpOF182n0ESBYX
-         IJ8qFSpUX33/JNyrO78ire6GiWS5H8LerE+NAw89P2ZBE4HiXacGBkicVWRJ5j4Sk2
-         LCk+sHmRZJM+r7R/yyF+RztTYHNNEpJWTNfL9llk=
+        b=yTS+2yN3slFWTH+jD/WOCIFB11buTmcyX8u7COSx8rbhDyQvL6IC6wxnQ2Z+H5wRn
+         CyAYEUzykkQV9nPeIK2hq4W+vZUPAb5davXMeva5fNOnb7RAtR6A4Jg0nUWxclIxKf
+         uV6toTrySUKy6mnJK6dF9kyPFXF3DQSqCIsx5Ip0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 098/101] cxgb4: reduce kernel stack usage in cudbg_collect_mem_region()
-Date:   Fri, 19 Jul 2019 00:07:29 -0400
-Message-Id: <20190719040732.17285-98-sashal@kernel.org>
+Cc:     Yuyang Du <duyuyang@gmail.com>, Qian Cai <cai@lca.pw>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will.deacon@arm.com>, arnd@arndb.de,
+        frederic@kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 100/101] locking/lockdep: Fix lock used or unused stats error
+Date:   Fri, 19 Jul 2019 00:07:31 -0400
+Message-Id: <20190719040732.17285-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -44,72 +49,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Yuyang Du <duyuyang@gmail.com>
 
-[ Upstream commit 752c2ea2d8e7c23b0f64e2e7d4337f3604d44c9f ]
+[ Upstream commit 68d41d8c94a31dfb8233ab90b9baf41a2ed2da68 ]
 
-The cudbg_collect_mem_region() and cudbg_read_fw_mem() both use several
-hundred kilobytes of kernel stack space. One gets inlined into the other,
-which causes the stack usage to be combined beyond the warning limit
-when building with clang:
+The stats variable nr_unused_locks is incremented every time a new lock
+class is register and decremented when the lock is first used in
+__lock_acquire(). And after all, it is shown and checked in lockdep_stats.
 
-drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c:1057:12: error: stack frame size of 1244 bytes in function 'cudbg_collect_mem_region' [-Werror,-Wframe-larger-than=]
+However, under configurations that either CONFIG_TRACE_IRQFLAGS or
+CONFIG_PROVE_LOCKING is not defined:
 
-Restructuring cudbg_collect_mem_region() lets clang do the same
-optimization that gcc does and reuse the stack slots as it can
-see that the large variables are never used together.
+The commit:
 
-A better fix might be to avoid using cudbg_meminfo on the stack
-altogether, but that requires a larger rewrite.
+  091806515124b20 ("locking/lockdep: Consolidate lock usage bit initialization")
 
-Fixes: a1c69520f785 ("cxgb4: collect MC memory dump")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+missed marking the LOCK_USED flag at IRQ usage initialization because
+as mark_usage() is not called. And the commit:
+
+  886532aee3cd42d ("locking/lockdep: Move mark_lock() inside CONFIG_TRACE_IRQFLAGS && CONFIG_PROVE_LOCKING")
+
+further made mark_lock() not defined such that the LOCK_USED cannot be
+marked at all when the lock is first acquired.
+
+As a result, we fix this by not showing and checking the stats under such
+configurations for lockdep_stats.
+
+Reported-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Yuyang Du <duyuyang@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: arnd@arndb.de
+Cc: frederic@kernel.org
+Link: https://lkml.kernel.org/r/20190709101522.9117-1-duyuyang@gmail.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/chelsio/cxgb4/cudbg_lib.c    | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ kernel/locking/lockdep_proc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-index d97e0d7e541a..b766362031c3 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-@@ -1065,14 +1065,12 @@ static void cudbg_t4_fwcache(struct cudbg_init *pdbg_init,
+diff --git a/kernel/locking/lockdep_proc.c b/kernel/locking/lockdep_proc.c
+index 3dd980dfba2d..6cf288eef670 100644
+--- a/kernel/locking/lockdep_proc.c
++++ b/kernel/locking/lockdep_proc.c
+@@ -210,6 +210,7 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 		      nr_hardirq_read_safe = 0, nr_hardirq_read_unsafe = 0,
+ 		      sum_forward_deps = 0;
+ 
++#ifdef CONFIG_PROVE_LOCKING
+ 	list_for_each_entry(class, &all_lock_classes, lock_entry) {
+ 
+ 		if (class->usage_mask == 0)
+@@ -241,12 +242,12 @@ static int lockdep_stats_show(struct seq_file *m, void *v)
+ 		if (class->usage_mask & LOCKF_ENABLED_HARDIRQ_READ)
+ 			nr_hardirq_read_unsafe++;
+ 
+-#ifdef CONFIG_PROVE_LOCKING
+ 		sum_forward_deps += lockdep_count_forward_deps(class);
+-#endif
  	}
- }
- 
--static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
--				    struct cudbg_buffer *dbg_buff,
--				    struct cudbg_error *cudbg_err,
--				    u8 mem_type)
-+static unsigned long cudbg_mem_region_size(struct cudbg_init *pdbg_init,
-+					   struct cudbg_error *cudbg_err,
-+					   u8 mem_type)
- {
- 	struct adapter *padap = pdbg_init->adap;
- 	struct cudbg_meminfo mem_info;
--	unsigned long size;
- 	u8 mc_idx;
- 	int rc;
- 
-@@ -1086,7 +1084,16 @@ static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
- 	if (rc)
- 		return rc;
- 
--	size = mem_info.avail[mc_idx].limit - mem_info.avail[mc_idx].base;
-+	return mem_info.avail[mc_idx].limit - mem_info.avail[mc_idx].base;
-+}
+ #ifdef CONFIG_DEBUG_LOCKDEP
+ 	DEBUG_LOCKS_WARN_ON(debug_atomic_read(nr_unused_locks) != nr_unused);
++#endif
 +
-+static int cudbg_collect_mem_region(struct cudbg_init *pdbg_init,
-+				    struct cudbg_buffer *dbg_buff,
-+				    struct cudbg_error *cudbg_err,
-+				    u8 mem_type)
-+{
-+	unsigned long size = cudbg_mem_region_size(pdbg_init, cudbg_err, mem_type);
-+
- 	return cudbg_read_fw_mem(pdbg_init, dbg_buff, mem_type, size,
- 				 cudbg_err);
- }
+ #endif
+ 	seq_printf(m, " lock-classes:                  %11lu [max: %lu]\n",
+ 			nr_lock_classes, MAX_LOCKDEP_KEYS);
 -- 
 2.20.1
 
