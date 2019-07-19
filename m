@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 092C46DFC2
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52AC66DFA9
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:37:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728135AbfGSEhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:37:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59996 "EHLO mail.kernel.org"
+        id S1727736AbfGSEAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:00:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726509AbfGSEAH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:00:07 -0400
+        id S1727577AbfGSEAN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:00:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45323218B8;
-        Fri, 19 Jul 2019 04:00:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF48321852;
+        Fri, 19 Jul 2019 04:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508806;
-        bh=HPwqXK7LYeOfAs1dVNST7+TF5veS5ciMOJwxqjjjRRQ=;
+        s=default; t=1563508812;
+        bh=LQdY3nh7+3V5/CjhVYbG4HiDks5DVAZNmWucKy8b1j8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXaCSzZRJlCiAGmtSaBGOsuZvI69QzPjlwZMhMSoPrp2wX60hb0YaZIOQnefjGcWK
-         QT0pjNtwQg6Mc11Nj5X4NfESDcPBvlbUhfoJRVt6mDea8vT+vg0PdXRtp8imQraCpv
-         8TQ8YW05MbxjIo/r3MtKI6JyuSuEUisoURhwpKME=
+        b=B/aHluIowNUs7Ap4i2FNEsqdAHCAbg30lq0Nfw9O/G1zqLiZEILZnQ++EoAcauL57
+         bg2nqdHjiHzqB0pdJNQXVDAwrT2azkWOPAuV+RDohFQp0QxjXk3wa9DD7Q90V0HRgh
+         C8ZMf+Muleic1ikDAjOVUlRcENQ3bOlqEJfw5cbU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Axel Lin <axel.lin@ingics.com>,
-        Chen Feng <puck.chen@hisilicon.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 101/171] mfd: hi655x-pmic: Fix missing return value check for devm_regmap_init_mmio_clk
-Date:   Thu, 18 Jul 2019 23:55:32 -0400
-Message-Id: <20190719035643.14300-101-sashal@kernel.org>
+Cc:     Sahitya Tummala <stummala@codeaurora.org>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.2 104/171] f2fs: fix is_idle() check for discard type
+Date:   Thu, 18 Jul 2019 23:55:35 -0400
+Message-Id: <20190719035643.14300-104-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -44,33 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Sahitya Tummala <stummala@codeaurora.org>
 
-[ Upstream commit 7efd105c27fd2323789b41b64763a0e33ed79c08 ]
+[ Upstream commit 56659ce838456c6f2315ce8a4bd686ac4b23e9d1 ]
 
-Since devm_regmap_init_mmio_clk can fail, add return value checking.
+The discard thread should issue upto dpolicy->max_requests at once
+and wait for all those discard requests at once it reaches
+dpolicy->max_requests. It should then sleep for dpolicy->min_interval
+timeout before issuing the next batch of discard requests. But in the
+current code of is_idle(), it checks for dcc_info->queued_discard and
+aborts issuing the discard batch of max_requests. This
+dcc_info->queued_discard will be true always once one discard command
+is issued.
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Acked-by: Chen Feng <puck.chen@hisilicon.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+It is thus resulting into this type of discard request pattern -
+
+- Issue discard request#1
+- is_idle() returns false, discard thread waits for request#1 and then
+  sleeps for min_interval 50ms.
+- Issue discard request#2
+- is_idle() returns false, discard thread waits for request#2 and then
+  sleeps for min_interval 50ms.
+- and so on for all other discard requests, assuming f2fs is idle w.r.t
+  other conditions.
+
+With this fix, the pattern will look like this -
+
+- Issue discard request#1
+- Issue discard request#2
+  and so on upto max_requests of 8
+- Issue discard request#8
+- wait for min_interval 50ms.
+
+Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/hi655x-pmic.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/f2fs/f2fs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/hi655x-pmic.c b/drivers/mfd/hi655x-pmic.c
-index f1c51ce309fa..7e3959aaa285 100644
---- a/drivers/mfd/hi655x-pmic.c
-+++ b/drivers/mfd/hi655x-pmic.c
-@@ -109,6 +109,8 @@ static int hi655x_pmic_probe(struct platform_device *pdev)
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 9e6721e15b24..cbdc2f88a98c 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -2204,7 +2204,7 @@ static inline bool is_idle(struct f2fs_sb_info *sbi, int type)
+ 		get_pages(sbi, F2FS_DIO_WRITE))
+ 		return false;
  
- 	pmic->regmap = devm_regmap_init_mmio_clk(dev, NULL, base,
- 						 &hi655x_regmap_config);
-+	if (IS_ERR(pmic->regmap))
-+		return PTR_ERR(pmic->regmap);
+-	if (SM_I(sbi) && SM_I(sbi)->dcc_info &&
++	if (type != DISCARD_TIME && SM_I(sbi) && SM_I(sbi)->dcc_info &&
+ 			atomic_read(&SM_I(sbi)->dcc_info->queued_discard))
+ 		return false;
  
- 	regmap_read(pmic->regmap, HI655X_BUS_ADDR(HI655X_VER_REG), &pmic->ver);
- 	if ((pmic->ver < PMU_VER_START) || (pmic->ver > PMU_VER_END)) {
 -- 
 2.20.1
 
