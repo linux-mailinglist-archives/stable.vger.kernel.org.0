@@ -2,95 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 075676E25E
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 10:17:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CE486E293
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 10:34:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726029AbfGSIRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 04:17:43 -0400
-Received: from merlin.infradead.org ([205.233.59.134]:50546 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725853AbfGSIRn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 04:17:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=/N0fwQUf+LFvYWyDwHukfaEU87+mI1t965IcqrX5RhE=; b=v2decXNuCTpVdF6+CgRLhcO3L
-        jHU+Qf9NVcoLiWtFL/ZtApdPGMJaG6QP8YBPEIVkRBL3qQxANVMrXF7vJ54m3hEXjatalIBx95WjK
-        55KCOmUjp4QyLDFlm21HP1wLl8TTUI7xrYS9BLbRteSH7GBMV7uvjxFDeXSrRK1nehlP4HtepoZQB
-        u+phEYp/CcpqadxUr7EiUVLmw8rIQVfKnYDe2shYNV89Yex3x+09WSI7QWHv3hbPO7fT74CJDx6kq
-        coPMV/5T8E1VsRPJjrmDRCaCYUMXoDU8xd1LvSKjgQV2v7P93izlo4kHGjE9cTo0Vab+Ws2Swoq/M
-        oJbjwiszQ==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1hoO57-0004wo-JA; Fri, 19 Jul 2019 08:17:34 +0000
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 558B820BA5401; Fri, 19 Jul 2019 10:17:32 +0200 (CEST)
-Date:   Fri, 19 Jul 2019 10:17:32 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Vaibhav Rustagi <vaibhavrustagi@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Subject: Re: [PATCH 1/2] x86/purgatory: add -mno-sse, -mno-mmx, -mno-sse2 to
- Makefile
-Message-ID: <20190719081732.GF3419@hirez.programming.kicks-ass.net>
-References: <20190718000206.121392-1-vaibhavrustagi@google.com>
- <20190718000206.121392-2-vaibhavrustagi@google.com>
- <CAKwvOdkHHNR7utufOcDwAOgBEA9MnOLh713Gaq01R=n26EyjZw@mail.gmail.com>
+        id S1726396AbfGSIdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 04:33:18 -0400
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:12640 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726036AbfGSIdR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 04:33:17 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d31804a0000>; Fri, 19 Jul 2019 01:33:14 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Fri, 19 Jul 2019 01:33:16 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Fri, 19 Jul 2019 01:33:16 -0700
+Received: from [10.26.11.13] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 19 Jul
+ 2019 08:33:13 +0000
+Subject: Re: [PATCH AUTOSEL 4.14 41/60] PCI: tegra: Enable Relaxed Ordering
+ only for Tegra20 & Tegra30
+To:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+CC:     Vidya Sagar <vidyas@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        <linux-pci@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+References: <20190719041109.18262-1-sashal@kernel.org>
+ <20190719041109.18262-41-sashal@kernel.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <838a6940-2a37-b91b-d522-8b154f3c71d7@nvidia.com>
+Date:   Fri, 19 Jul 2019 09:33:11 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKwvOdkHHNR7utufOcDwAOgBEA9MnOLh713Gaq01R=n26EyjZw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190719041109.18262-41-sashal@kernel.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL104.nvidia.com (172.18.146.11) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1563525194; bh=CwkJNwo9JGuYCI5aA8JqxIET9EXeyG9j+gpHZm57R/Y=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=Moc19lNh5h03nmEuBY4iFSpNAAb9lFPjmBNJWY6kFQH23j7JMSDjGnzkRDnsp96bO
+         VLc3xNAPIL+qrfep3McCdqnH6vwfkGN6pPn6eJ74VKbBzx32dsGw8WV8uB6shz9IfB
+         Z/5XcHfDK7bfYdJOibXEjM8GZE0OsBO+pzLr2Vw+DGcO6nRy/ff2PgEzQa7rWJjRGL
+         fTckfVfajLlxAFwM5vS0T2kPB13gXA5kpH7TsfcVWxqCss1z8VDKznPOdyfVKFQKCj
+         W+Ttx5syfoHl5jth/0hyiilWOCRSzlgkpTloeeoM9KPdYYSWQ/Cpy9EPVBJl7BOlFR
+         2t2r07zlFsLNQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 18, 2019 at 02:34:44PM -0700, Nick Desaulniers wrote:
-> On Wed, Jul 17, 2019 at 5:02 PM Vaibhav Rustagi
-> <vaibhavrustagi@google.com> wrote:
-> >
-> > Compiling the purgatory code with clang results in using of mmx
-> > registers.
-> >
-> > $ objdump -d arch/x86/purgatory/purgatory.ro | grep xmm
-> >
-> >      112:       0f 28 00                movaps (%rax),%xmm0
-> >      115:       0f 11 07                movups %xmm0,(%rdi)
-> >      122:       0f 28 00                movaps (%rax),%xmm0
-> >      125:       0f 11 47 10             movups %xmm0,0x10(%rdi)
-> >
-> > Add -mno-sse, -mno-mmx, -mno-sse2 to avoid generating SSE instructions.
-> >
-> > Signed-off-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
-> > ---
-> >  arch/x86/purgatory/Makefile | 1 +
-> >  1 file changed, 1 insertion(+)
-> >
-> > diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
-> > index 3cf302b26332..3589ec4a28c7 100644
-> > --- a/arch/x86/purgatory/Makefile
-> > +++ b/arch/x86/purgatory/Makefile
-> > @@ -20,6 +20,7 @@ KCOV_INSTRUMENT := n
-> >  # sure how to relocate those. Like kexec-tools, use custom flags.
-> >
-> >  KBUILD_CFLAGS := -fno-strict-aliasing -Wall -Wstrict-prototypes -fno-zero-initialized-in-bss -fno-builtin -ffreestanding -c -Os -mcmodel=large
-> > +KBUILD_CFLAGS += -mno-mmx -mno-sse -mno-sse2
-> 
-> Yep, this is a commonly recurring bug in the kernel, observed again
-> and again for Clang builds.  The top level Makefile carefully sets
-> KBUILD_CFLAGS, then lower subdirs in the kernel wipe them away with
-> `:=` assignment. Invariably important flags don't always get re-added.
-> In this case, these flags are used in arch/x86/Makefile, but not here
-> and should be IMO.  Thanks for the patch.
+Hi Lorenzo,
 
-Should we then not fix/remove these := assignments?
+We have not requested that this is added to stable yet, however, has
+been picked up. Do we wish to let it soak in mainline for a release
+first? If so maybe we can ask Sasha to drop this for now.
+
+Cheers
+Jon
+
+On 19/07/2019 05:10, Sasha Levin wrote:
+> From: Vidya Sagar <vidyas@nvidia.com>
+> 
+> [ Upstream commit 7be142caabc4780b13a522c485abc806de5c4114 ]
+> 
+> The PCI Tegra controller conversion to a device tree configurable
+> driver in commit d1523b52bff3 ("PCI: tegra: Move PCIe driver
+> to drivers/pci/host") implied that code for the driver can be
+> compiled in for a kernel supporting multiple platforms.
+> 
+> Unfortunately, a blind move of the code did not check that some of the
+> quirks that were applied in arch/arm (eg enabling Relaxed Ordering on
+> all PCI devices - since the quirk hook erroneously matches PCI_ANY_ID
+> for both Vendor-ID and Device-ID) are now applied in all kernels that
+> compile the PCI Tegra controlled driver, DT and ACPI alike.
+> 
+> This is completely wrong, in that enablement of Relaxed Ordering is only
+> required by default in Tegra20 platforms as described in the Tegra20
+> Technical Reference Manual (available at
+> https://developer.nvidia.com/embedded/downloads#?search=tegra%202 in
+> Section 34.1, where it is mentioned that Relaxed Ordering bit needs to
+> be enabled in its root ports to avoid deadlock in hardware) and in the
+> Tegra30 platforms for the same reasons (unfortunately not documented
+> in the TRM).
+> 
+> There is no other strict requirement on PCI devices Relaxed Ordering
+> enablement on any other Tegra platforms or PCI host bridge driver.
+> 
+> Fix this quite upsetting situation by limiting the vendor and device IDs
+> to which the Relaxed Ordering quirk applies to the root ports in
+> question, reported above.
+> 
+> Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+> [lorenzo.pieralisi@arm.com: completely rewrote the commit log/fixes tag]
+> Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+> Acked-by: Thierry Reding <treding@nvidia.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/pci/host/pci-tegra.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/pci/host/pci-tegra.c b/drivers/pci/host/pci-tegra.c
+> index 1987fec1f126..d2ad76ef3e83 100644
+> --- a/drivers/pci/host/pci-tegra.c
+> +++ b/drivers/pci/host/pci-tegra.c
+> @@ -607,12 +607,15 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_fixup_class);
+>  DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_fixup_class);
+>  DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_fixup_class);
+>  
+> -/* Tegra PCIE requires relaxed ordering */
+> +/* Tegra20 and Tegra30 PCIE requires relaxed ordering */
+>  static void tegra_pcie_relax_enable(struct pci_dev *dev)
+>  {
+>  	pcie_capability_set_word(dev, PCI_EXP_DEVCTL, PCI_EXP_DEVCTL_RELAX_EN);
+>  }
+> -DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, tegra_pcie_relax_enable);
+> +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf0, tegra_pcie_relax_enable);
+> +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_relax_enable);
+> +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_relax_enable);
+> +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_relax_enable);
+>  
+>  static int tegra_pcie_request_resources(struct tegra_pcie *pcie)
+>  {
+> 
+
+-- 
+nvpublic
