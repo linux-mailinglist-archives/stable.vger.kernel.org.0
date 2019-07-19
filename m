@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 981496DC0C
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:13:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 683CF6DCD7
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389185AbfGSENY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:13:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49298 "EHLO mail.kernel.org"
+        id S2389198AbfGSENZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:13:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389162AbfGSENW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:13:22 -0400
+        id S2389181AbfGSENZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:13:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07AAB21873;
-        Fri, 19 Jul 2019 04:13:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD55521850;
+        Fri, 19 Jul 2019 04:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509601;
-        bh=Le25GrtF3G6bxZechcB+0t8lQQjNgYfnXpsHeSwnMoE=;
+        s=default; t=1563509604;
+        bh=V7t//CdQTxgs7mOSserxTrv7xWMVDDEvG7FnxmcW7dU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J74bg0uG8hnrr3uml8DadU9kJOdbm7CPbXHYa5IGQCLmLTn4OvMFxQmZv9SDKMtvH
-         JfO/Y0u/8Q09Bd8fISmNGzIhUKh/jHs3kkwdW7P76aqGcZVHARfRqKVyyp3nIvRz5+
-         +XROi4OkoEVw/6sn99y8CWNeyv5CAZqFpXLgUeh8=
+        b=1rRq4meUbZTUfKHc5Iha+KAbgedJmnQro06rh/DTQBsYzcEF1qXSdENz0j1rdF94g
+         R5Dfgy698lzvcIufOKOIk5VSEfvTi6C6fP9Trhg3P448lsJ6mlojtZakju7Z0YVLe8
+         iznPRg5J0mCNllEiBdK0s9udrPNIa8uydz4GP14M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
+Cc:     Rautkoski Kimmo EXT <ext-kimmo.rautkoski@vaisala.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 11/45] tty: serial: msm_serial: avoid system lockup condition
-Date:   Fri, 19 Jul 2019 00:12:30 -0400
-Message-Id: <20190719041304.18849-11-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 12/45] serial: 8250: Fix TX interrupt handling condition
+Date:   Fri, 19 Jul 2019 00:12:31 -0400
+Message-Id: <20190719041304.18849-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041304.18849-1-sashal@kernel.org>
 References: <20190719041304.18849-1-sashal@kernel.org>
@@ -44,43 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+From: Rautkoski Kimmo EXT <ext-kimmo.rautkoski@vaisala.com>
 
-[ Upstream commit ba3684f99f1b25d2a30b6956d02d339d7acb9799 ]
+[ Upstream commit db1b5bc047b3cadaedab3826bba82c3d9e023c4b ]
 
-The function msm_wait_for_xmitr can be taken with interrupts
-disabled. In order to avoid a potential system lockup - demonstrated
-under stress testing conditions on SoC QCS404/5 - make sure we wait
-for a bounded amount of time.
+Interrupt handler checked THRE bit (transmitter holding register
+empty) in LSR to detect if TX fifo is empty.
+In case when there is only receive interrupts the TX handling
+got called because THRE bit in LSR is set when there is no
+transmission (FIFO empty). TX handling caused TX stop, which in
+RS-485 half-duplex mode actually resets receiver FIFO. This is not
+desired during reception because of possible data loss.
 
-Tested on SoC QCS404.
+The fix is to check if THRI is set in IER in addition of the TX
+fifo status. THRI in IER is set when TX is started and cleared
+when TX is stopped.
+This ensures that TX handling is only called when there is really
+transmission on going and an interrupt for THRE and not when there
+are only RX interrupts.
 
-Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+Signed-off-by: Kimmo Rautkoski <ext-kimmo.rautkoski@vaisala.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/msm_serial.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tty/serial/8250/8250_port.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
-index 7dc8272c6b15..9027455c6be1 100644
---- a/drivers/tty/serial/msm_serial.c
-+++ b/drivers/tty/serial/msm_serial.c
-@@ -391,10 +391,14 @@ static void msm_request_rx_dma(struct msm_port *msm_port, resource_size_t base)
- 
- static inline void msm_wait_for_xmitr(struct uart_port *port)
- {
-+	unsigned int timeout = 500000;
-+
- 	while (!(msm_read(port, UART_SR) & UART_SR_TX_EMPTY)) {
- 		if (msm_read(port, UART_ISR) & UART_ISR_TX_READY)
- 			break;
- 		udelay(1);
-+		if (!timeout--)
-+			break;
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 5b54439a8a9b..b4d6fef83f65 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1820,7 +1820,8 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
+ 			status = serial8250_rx_chars(up, status);
  	}
- 	msm_write(port, UART_CR_CMD_RESET_TX_READY, UART_CR);
- }
+ 	serial8250_modem_status(up);
+-	if ((!up->dma || up->dma->tx_err) && (status & UART_LSR_THRE))
++	if ((!up->dma || up->dma->tx_err) && (status & UART_LSR_THRE) &&
++		(up->ier & UART_IER_THRI))
+ 		serial8250_tx_chars(up);
+ 
+ 	spin_unlock_irqrestore(&port->lock, flags);
 -- 
 2.20.1
 
