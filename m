@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41BFA6DF70
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:36:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF8966DF50
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729995AbfGSEfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:35:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33216 "EHLO mail.kernel.org"
+        id S1729511AbfGSEBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:01:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728552AbfGSEB3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:01:29 -0400
+        id S1728707AbfGSEBd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:01:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E88E92189F;
-        Fri, 19 Jul 2019 04:01:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E79B218A5;
+        Fri, 19 Jul 2019 04:01:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508888;
-        bh=WnRs12+q0ocPyqCZ7djJyleRZcDXafyOhPyDCWFslTo=;
+        s=default; t=1563508893;
+        bh=5objRnYHCmulPFW07H0iD2s+QME+63EI23t7tqFFspE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJpuQHAJQPkPG5e4+hOGDIDvhYht1re4p1nSNn/alAGC3+PuB0X2lvxhTJzagqYJA
-         WfpIkrVWnqYay1/ovHSS1vKmOhO6rv7o43fTeDylJx63YqCihlsvH1H7rlQj9wwoVd
-         zZHH2tJ9PJmjnbre7bGm9Du2Y9XDzHGxOAoCMr+o=
+        b=Btk434umaW44ES/jNthjsdREPrpR86bQOCpxhYATE8qrqizfOmlBuabBnk+UoK0Ns
+         FpRfWz1NL6Mb+hPrKK/cyJI4+QUPp8iHkMLfAVT/bmgR9Hhz6DLyOlZG9ySMQ01xUn
+         BzQive5rNhXw7AVV8cNaV6D9zRco3UODihi5t2xs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
-        Mike Playle <mplayle@solarflare.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.2 139/171] nvme-tcp: set the STABLE_WRITES flag when data digests are enabled
-Date:   Thu, 18 Jul 2019 23:56:10 -0400
-Message-Id: <20190719035643.14300-139-sashal@kernel.org>
+Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.2 141/171] powerpc/boot: add {get, put}_unaligned_be32 to xz_config.h
+Date:   Thu, 18 Jul 2019 23:56:12 -0400
+Message-Id: <20190719035643.14300-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -45,55 +43,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 958f2a0f8121ae36a5cbff383ab94fadf1fba5eb ]
+[ Upstream commit 9e005b761e7ad153dcf40a6cba1d681fe0830ac6 ]
 
-There was a few false alarms sighted on target side about wrong data
-digest while performing high throughput load to XFS filesystem shared
-through NVMoF TCP.
+The next commit will make the way of passing CONFIG options more robust.
+Unfortunately, it would uncover another hidden issue; without this
+commit, skiroot_defconfig would be broken like this:
 
-This flag tells the rest of the kernel to ensure that the data buffer
-does not change while the write is in flight.  It incurs a performance
-penalty, so only enable it when it is actually needed, i.e. when we are
-calculating data digests.
+|   WRAP    arch/powerpc/boot/zImage.pseries
+| arch/powerpc/boot/wrapper.a(decompress.o): In function `bcj_powerpc.isra.10':
+| decompress.c:(.text+0x720): undefined reference to `get_unaligned_be32'
+| decompress.c:(.text+0x7a8): undefined reference to `put_unaligned_be32'
+| make[1]: *** [arch/powerpc/boot/Makefile;383: arch/powerpc/boot/zImage.pseries] Error 1
+| make: *** [arch/powerpc/Makefile;295: zImage] Error 2
 
-Although even with this change in place, ext2 users can steel experience
-false positives, as ext2 is not respecting this flag. This may be apply
-to vfat as well.
+skiroot_defconfig is the only defconfig that enables CONFIG_KERNEL_XZ
+for ppc, which has never been correctly built before.
 
-Signed-off-by: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
-Signed-off-by: Mike Playle <mplayle@solarflare.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+I figured out the root cause in lib/decompress_unxz.c:
+
+| #ifdef CONFIG_PPC
+| #      define XZ_DEC_POWERPC
+| #endif
+
+CONFIG_PPC is undefined here in the ppc bootwrapper because autoconf.h
+is not included except by arch/powerpc/boot/serial.c
+
+XZ_DEC_POWERPC is not defined, therefore, bcj_powerpc() is not compiled
+for the bootwrapper.
+
+With the next commit passing CONFIG_PPC correctly, we would realize that
+{get,put}_unaligned_be32 was missing.
+
+Unlike the other decompressors, the ppc bootwrapper duplicates all the
+necessary helpers in arch/powerpc/boot/.
+
+The other architectures define __KERNEL__ and pull in helpers for
+building the decompressors.
+
+If ppc bootwrapper had defined __KERNEL__, lib/xz/xz_private.h would
+have included <asm/unaligned.h>:
+
+| #ifdef __KERNEL__
+| #       include <linux/xz.h>
+| #       include <linux/kernel.h>
+| #       include <asm/unaligned.h>
+
+However, doing so would cause tons of definition conflicts since the
+bootwrapper has duplicated everything.
+
+I just added copies of {get,put}_unaligned_be32, following the
+bootwrapper coding convention.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190705100144.28785-1-yamada.masahiro@socionext.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/powerpc/boot/xz_config.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 120fb593d1da..b4048748551e 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -11,6 +11,7 @@
- #include <linux/hdreg.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/backing-dev.h>
- #include <linux/list_sort.h>
- #include <linux/slab.h>
- #include <linux/types.h>
-@@ -3256,6 +3257,10 @@ static int nvme_alloc_ns(struct nvme_ctrl *ctrl, unsigned nsid)
- 		goto out_free_ns;
- 	}
+diff --git a/arch/powerpc/boot/xz_config.h b/arch/powerpc/boot/xz_config.h
+index e22e5b3770dd..ebfadd39e192 100644
+--- a/arch/powerpc/boot/xz_config.h
++++ b/arch/powerpc/boot/xz_config.h
+@@ -20,10 +20,30 @@ static inline uint32_t swab32p(void *p)
  
-+	if (ctrl->opts->data_digest)
-+		ns->queue->backing_dev_info->capabilities
-+			|= BDI_CAP_STABLE_WRITES;
+ #ifdef __LITTLE_ENDIAN__
+ #define get_le32(p) (*((uint32_t *) (p)))
++#define cpu_to_be32(x) swab32(x)
++static inline u32 be32_to_cpup(const u32 *p)
++{
++	return swab32p((u32 *)p);
++}
+ #else
+ #define get_le32(p) swab32p(p)
++#define cpu_to_be32(x) (x)
++static inline u32 be32_to_cpup(const u32 *p)
++{
++	return *p;
++}
+ #endif
+ 
++static inline uint32_t get_unaligned_be32(const void *p)
++{
++	return be32_to_cpup(p);
++}
 +
- 	blk_queue_flag_set(QUEUE_FLAG_NONROT, ns->queue);
- 	if (ctrl->ops->flags & NVME_F_PCI_P2PDMA)
- 		blk_queue_flag_set(QUEUE_FLAG_PCI_P2PDMA, ns->queue);
++static inline void put_unaligned_be32(u32 val, void *p)
++{
++	*((u32 *)p) = cpu_to_be32(val);
++}
++
+ #define memeq(a, b, size) (memcmp(a, b, size) == 0)
+ #define memzero(buf, size) memset(buf, 0, size)
+ 
 -- 
 2.20.1
 
