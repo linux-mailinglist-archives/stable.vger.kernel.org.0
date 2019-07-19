@@ -2,67 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF396ECA7
-	for <lists+stable@lfdr.de>; Sat, 20 Jul 2019 01:07:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F586ECC0
+	for <lists+stable@lfdr.de>; Sat, 20 Jul 2019 01:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732457AbfGSXHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 19:07:32 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:46787 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728747AbfGSXHc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 19:07:32 -0400
-Received: by mail-pg1-f194.google.com with SMTP id i8so15056161pgm.13;
-        Fri, 19 Jul 2019 16:07:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=MWjZYC8fdMQNtbmG2vB97lJlxQXw6XI9YYU1MWaUobc=;
-        b=jJdnOsgidE+l56Nps11TW0ttv3MyU96PPekJXtqkJdzISg3d8G2oiRL4PS25EuBnH0
-         /iVQCzOuGPSom0c09M1ud2ze8P8In/2B7+0OwQdVESihc1KC5egyIqUH61msBNv3YBjU
-         fdB8RvXHblNcoOoiEuGEMUwQ8ro4Dq/1idF1vvLUZU/IbwSx1SgkOsjfGg+b1vMoNgF8
-         C0ntdextaEGcxpqjAYFo8z6CvH92BjGdcMh+b+VLFs4p0hVOeB1VCbKgbYjDGvYXITsd
-         uLj9errxgM8dD+Y2YqGbJw3hiD3BMYoJdIgRCYP6akZz4Cuw2510NYPYTJwt7FMPvA6J
-         MsRg==
-X-Gm-Message-State: APjAAAXJXaSq64WIYJN9PdUSq+Y/QFkhMz0YoGF4sjSd1056wepn4zjI
-        AMbAeIC67GEeq3jcAtpCwGTXyGxL
-X-Google-Smtp-Source: APXvYqwKSWExaTmOAl7W0Q3HC86Qwbod8gNZZTZVJxAwLT4XvoHzVzA65+t4HdKHftj8cVXYp92kVg==
-X-Received: by 2002:a65:6850:: with SMTP id q16mr19292928pgt.423.1563577651298;
-        Fri, 19 Jul 2019 16:07:31 -0700 (PDT)
-Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
-        by smtp.gmail.com with ESMTPSA id q198sm32702019pfq.155.2019.07.19.16.07.29
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Fri, 19 Jul 2019 16:07:30 -0700 (PDT)
-Received: by 42.do-not-panic.com (Postfix, from userid 1000)
-        id 73C20402A1; Fri, 19 Jul 2019 23:07:29 +0000 (UTC)
-Date:   Fri, 19 Jul 2019 23:07:29 +0000
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     linux-xfs@vger.kernel.org, gregkh@linuxfoundation.org,
-        Alexander.Levin@microsoft.com
-Cc:     stable@vger.kernel.org, amir73il@gmail.com, hch@infradead.org,
-        zlang@redhat.com, Brian Foster <bfoster@redhat.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>
-Subject: Re: [PATCH] xfs: don't trip over uninitialized buffer on extent read
- of corrupted inode
-Message-ID: <20190719230729.GS19023@42.do-not-panic.com>
-References: <20190718230617.7439-1-mcgrof>
- <20190719193032.11096-1-mcgrof@kernel.org>
+        id S1728909AbfGSXcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 19:32:36 -0400
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:15731 "EHLO
+        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728247AbfGSXcg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 19:32:36 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d3253190000>; Fri, 19 Jul 2019 16:32:41 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Fri, 19 Jul 2019 16:32:35 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Fri, 19 Jul 2019 16:32:35 -0700
+Received: from HQMAIL109.nvidia.com (172.20.187.15) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 19 Jul
+ 2019 23:32:34 +0000
+Received: from HQMAIL104.nvidia.com (172.18.146.11) by HQMAIL109.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 19 Jul
+ 2019 23:32:34 +0000
+Received: from hqnvemgw02.nvidia.com (172.16.227.111) by HQMAIL104.nvidia.com
+ (172.18.146.11) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Fri, 19 Jul 2019 23:32:34 +0000
+Received: from rcampbell-dev.nvidia.com (Not Verified[10.110.48.66]) by hqnvemgw02.nvidia.com with Trustwave SEG (v7,5,8,10121)
+        id <B5d3253120000>; Fri, 19 Jul 2019 16:32:34 -0700
+From:   Ralph Campbell <rcampbell@nvidia.com>
+To:     <linux-mm@kvack.org>
+CC:     <linux-kernel@vger.kernel.org>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        <stable@vger.kernel.org>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH] mm/migrate: initialize pud_entry in migrate_vma()
+Date:   Fri, 19 Jul 2019 16:32:25 -0700
+Message-ID: <20190719233225.12243-1-rcampbell@nvidia.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190719193032.11096-1-mcgrof@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1563579161; bh=cBV6E3QUPkSFHVwkOFQ0NgttBSDLgksbh5PnUNNrN0w=;
+        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+         MIME-Version:X-NVConfidentiality:Content-Type:
+         Content-Transfer-Encoding;
+        b=kSM15fI5BAWSOEp5MwrwxhHFCEKX/TAHdTgJ7Umkm6B4XXIZWumZsK8I6vNXvxlBf
+         mFrioVqQhDUY9lYgLXSEnboJcf1bL/ZoAKjGMjxauf+fSi4rSqbEMXL47cK9CyGGTF
+         g6UlqhfdPh1zpX6I83oWpf4TQZ5ThZp39QFmpxmGe0zDXrvtiRevb+VXkN4GGzgnTj
+         j2UwuGP1+O33GpEIbinCf9pcrWajXQUHszoY1LGP8X93xswc/goUG/PiV0lKQP61j0
+         yyhegnK0/aA1cHamqHHjTT59Bc4wWgAHlHX8HarC1Pa3Ate7T5z0I+3qd3KlqLYSpG
+         ucjUxT5cNsAQw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 19, 2019 at 07:30:32PM +0000, Luis Chamberlain wrote:
-> [mcgrof: fixes kz#204223 ]
+When CONFIG_MIGRATE_VMA_HELPER is enabled, migrate_vma() calls
+migrate_vma_collect() which initializes a struct mm_walk but
+didn't initialize mm_walk.pud_entry. (Found by code inspection)
+Use a C structure initialization to make sure it is set to NULL.
 
-This patch can be ingored for now for stable. It does not actually
-fix the issue, just delays it a bit. Once I stress test over 1000
-runs with some other fixes I have I'll send a new set of stable
-fixes.
+Fixes: 8763cb45ab967 ("mm/migrate: new memory migration helper for use with
+device memory")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
+Cc: "J=C3=A9r=C3=B4me Glisse" <jglisse@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+---
+ mm/migrate.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-  Luis
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 515718392b24..a42858d8e00b 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -2340,16 +2340,13 @@ static int migrate_vma_collect_pmd(pmd_t *pmdp,
+ static void migrate_vma_collect(struct migrate_vma *migrate)
+ {
+ 	struct mmu_notifier_range range;
+-	struct mm_walk mm_walk;
+-
+-	mm_walk.pmd_entry =3D migrate_vma_collect_pmd;
+-	mm_walk.pte_entry =3D NULL;
+-	mm_walk.pte_hole =3D migrate_vma_collect_hole;
+-	mm_walk.hugetlb_entry =3D NULL;
+-	mm_walk.test_walk =3D NULL;
+-	mm_walk.vma =3D migrate->vma;
+-	mm_walk.mm =3D migrate->vma->vm_mm;
+-	mm_walk.private =3D migrate;
++	struct mm_walk mm_walk =3D {
++		.pmd_entry =3D migrate_vma_collect_pmd,
++		.pte_hole =3D migrate_vma_collect_hole,
++		.vma =3D migrate->vma,
++		.mm =3D migrate->vma->vm_mm,
++		.private =3D migrate,
++	};
+=20
+ 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, NULL, mm_walk.mm,
+ 				migrate->start,
+--=20
+2.20.1
+
