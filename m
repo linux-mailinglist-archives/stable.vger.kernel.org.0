@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29EDB6DD97
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:24:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 999B96DD92
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729186AbfGSEYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:24:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44454 "EHLO mail.kernel.org"
+        id S2387825AbfGSEJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:09:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387779AbfGSEJu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:09:50 -0400
+        id S2387809AbfGSEJv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:09:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B078121872;
-        Fri, 19 Jul 2019 04:09:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 050AA21873;
+        Fri, 19 Jul 2019 04:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509389;
-        bh=Q23VozQgqC4XWzuLefYwKMGSYo5yIeAkrhoFlfpLTiM=;
+        s=default; t=1563509390;
+        bh=EUQKOd+QxsRwsQ3DH8zKyeAKy6CFTYrYpm1D3J6wkiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gV6sMsUT3GhUNknwQAucvctc8gdm0KbjObAhHwxAaTfM43T7zikqcb+0Sy8eJTjMN
-         dJtmx1kYU6NfLvUvWwipfBIMxtJQoSmzphQbFD5a/1SnlDtY3p3jWsEoQccC+FDN2Y
-         4D5lfrBUOs30vCZfrwjsJSOqRse6S+5zz43RdYXc=
+        b=E38NOUZ3NGhERXh8VrH3O50QJKFeUI87xVDBlcfOsfBtZ7GeRMfVZrWAULiZJKZIh
+         GkhDKmAFgs1R+mDQDonVRRDwEkBL1j8XbOyY62FiC0zSYIRlLEw24Y44On/dyTPOBt
+         W1tUlDinSuFTPdnzgmu0fJgWakAXzeTixkUYVUtw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
@@ -30,9 +30,9 @@ Cc:     Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
         Minghuan Lian <Minghuan.Lian@nxp.com>,
         Subrahmanya Lingappa <l.subrahmanya@mobiveil.co.in>,
         Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 069/101] PCI: mobiveil: Initialize Primary/Secondary/Subordinate bus numbers
-Date:   Fri, 19 Jul 2019 00:07:00 -0400
-Message-Id: <20190719040732.17285-69-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 070/101] PCI: mobiveil: Use the 1st inbound window for MEM inbound transactions
+Date:   Fri, 19 Jul 2019 00:07:01 -0400
+Message-Id: <20190719040732.17285-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
@@ -47,40 +47,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 
-[ Upstream commit 6f3ab451aa5c2cbff33197d82fe8489cbd55ad91 ]
+[ Upstream commit f7fee1b42fe4f8171a4b1cad05c61907c33c53f6 ]
 
-The reset value of Primary, Secondary and Subordinate bus numbers is
-zero which is a broken setup.
+The inbound and outbound windows have completely separate control
+registers sets in the host controller MMIO space. Windows control
+register are accessed through an MMIO base address and an offset
+that depends on the window index.
 
-Program a sensible default value for Primary/Secondary/Subordinate
-bus numbers.
+Since inbound and outbound windows control registers are completely
+separate there is no real need to use different window indexes in the
+inbound/outbound windows initialization routines to prevent clashing.
+
+To fix this inconsistency, change the MEM inbound window index to 0,
+mirroring the outbound window set-up.
 
 Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
+[lorenzo.pieralisi@arm.com: update commit log]
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Reviewed-by: Minghuan Lian <Minghuan.Lian@nxp.com>
 Reviewed-by: Subrahmanya Lingappa <l.subrahmanya@mobiveil.co.in>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-mobiveil.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/pci/controller/pcie-mobiveil.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/pci/controller/pcie-mobiveil.c b/drivers/pci/controller/pcie-mobiveil.c
-index 3e81e68b5ce0..2fe7ebdad2d2 100644
+index 2fe7ebdad2d2..a2d1e89d4867 100644
 --- a/drivers/pci/controller/pcie-mobiveil.c
 +++ b/drivers/pci/controller/pcie-mobiveil.c
-@@ -508,6 +508,12 @@ static int mobiveil_host_init(struct mobiveil_pcie *pcie)
- 		return err;
- 	}
+@@ -553,7 +553,7 @@ static int mobiveil_host_init(struct mobiveil_pcie *pcie)
+ 			resource_size(pcie->ob_io_res));
  
-+	/* setup bus numbers */
-+	value = csr_readl(pcie, PCI_PRIMARY_BUS);
-+	value &= 0xff000000;
-+	value |= 0x00ff0100;
-+	csr_writel(pcie, value, PCI_PRIMARY_BUS);
-+
- 	/*
- 	 * program Bus Master Enable Bit in Command Register in PAB Config
- 	 * Space
+ 	/* memory inbound translation window */
+-	program_ib_windows(pcie, WIN_NUM_1, 0, MEM_WINDOW_TYPE, IB_WIN_SIZE);
++	program_ib_windows(pcie, WIN_NUM_0, 0, MEM_WINDOW_TYPE, IB_WIN_SIZE);
+ 
+ 	/* Get the I/O and memory ranges from DT */
+ 	resource_list_for_each_entry_safe(win, tmp, &pcie->resources) {
 -- 
 2.20.1
 
