@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A71BE6DF63
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:35:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCACE6DF4A
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:34:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730701AbfGSEea (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:34:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33684 "EHLO mail.kernel.org"
+        id S1729736AbfGSEB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:01:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729693AbfGSEBx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:01:53 -0400
+        id S1729702AbfGSEBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:01:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D5A321851;
-        Fri, 19 Jul 2019 04:01:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F1A521873;
+        Fri, 19 Jul 2019 04:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508912;
-        bh=+hCM6REWCGyOM6ATFUsntBdajWBPV6AdXDvS2mwE8Qg=;
+        s=default; t=1563508914;
+        bh=9GAUxEDGrz6p+X4090gdjhdKhYDC2727M0VEUVEW7Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fzWYcQuMN9EAw0u2vd5/2Q+4CK1ltGJPIP/ygvB+bUP4cS38CHYs0xHZa3UzNPY5O
-         GSqqkvR9NRCzYGPKYvqmFrMz4OzZD1/zF0YCUOlENOw8xzOBLY51cDvPPQpYk6/tYH
-         A/nO+OMQjzuiiUYOXPD9q+zxuJzw6NmeliD7AY0k=
+        b=P1bvtev9IcCHwx/bTh9HILe944CP2yEbgTErDWs2hT5DpSX8ktcrcOtcxlBnU9qBv
+         9ays0IlEp5o6wxMIUlgxL69Efwd76urRw+nt0Vqu8/PGLNBads84SX2vHyOdmjd5kf
+         Nqgz3A4YggRPXpLlmgxo5HGKzdFx8D8+zeU3UQ+k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maor Gottlieb <maorg@mellanox.com>, Roi Dayan <roid@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 155/171] net/mlx5: E-Switch, Fix default encap mode
-Date:   Thu, 18 Jul 2019 23:56:26 -0400
-Message-Id: <20190719035643.14300-155-sashal@kernel.org>
+Cc:     Dmitry Vyukov <dvyukov@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.2 156/171] mm/kmemleak.c: fix check for softirq context
+Date:   Thu, 18 Jul 2019 23:56:27 -0400
+Message-Id: <20190719035643.14300-156-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -44,66 +45,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@mellanox.com>
+From: Dmitry Vyukov <dvyukov@google.com>
 
-[ Upstream commit 9a64144d683a4395f57562d90247c61a0bf5105f ]
+[ Upstream commit 6ef9056952532c3b746de46aa10d45b4d7797bd8 ]
 
-Encap mode is related to switchdev mode only. Move the init of
-the encap mode to eswitch_offloads. Before this change, we reported
-that eswitch supports encap, even tough the device was in non
-SRIOV mode.
+in_softirq() is a wrong predicate to check if we are in a softirq
+context.  It also returns true if we have BH disabled, so objects are
+falsely stamped with "softirq" comm.  The correct predicate is
+in_serving_softirq().
 
-Fixes: 7768d1971de67 ('net/mlx5: E-Switch, Add control for encapsulation')
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+If user does cat from /sys/kernel/debug/kmemleak previously they would
+see this, which is clearly wrong, this is system call context (see the
+comm):
+
+unreferenced object 0xffff88805bd661c0 (size 64):
+  comm "softirq", pid 0, jiffies 4294942959 (age 12.400s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 ff ff ff ff 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000007dcb30c>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
+    [<0000000007dcb30c>] slab_post_alloc_hook mm/slab.h:439 [inline]
+    [<0000000007dcb30c>] slab_alloc mm/slab.c:3326 [inline]
+    [<0000000007dcb30c>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+    [<00000000969722b7>] kmalloc include/linux/slab.h:547 [inline]
+    [<00000000969722b7>] kzalloc include/linux/slab.h:742 [inline]
+    [<00000000969722b7>] ip_mc_add1_src net/ipv4/igmp.c:1961 [inline]
+    [<00000000969722b7>] ip_mc_add_src+0x36b/0x400 net/ipv4/igmp.c:2085
+    [<00000000a4134b5f>] ip_mc_msfilter+0x22d/0x310 net/ipv4/igmp.c:2475
+    [<00000000d20248ad>] do_ip_setsockopt.isra.0+0x19fe/0x1c00 net/ipv4/ip_sockglue.c:957
+    [<000000003d367be7>] ip_setsockopt+0x3b/0xb0 net/ipv4/ip_sockglue.c:1246
+    [<000000003c7c76af>] udp_setsockopt+0x4e/0x90 net/ipv4/udp.c:2616
+    [<000000000c1aeb23>] sock_common_setsockopt+0x3e/0x50 net/core/sock.c:3130
+    [<000000000157b92b>] __sys_setsockopt+0x9e/0x120 net/socket.c:2078
+    [<00000000a9f3d058>] __do_sys_setsockopt net/socket.c:2089 [inline]
+    [<00000000a9f3d058>] __se_sys_setsockopt net/socket.c:2086 [inline]
+    [<00000000a9f3d058>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2086
+    [<000000001b8da885>] do_syscall_64+0x7c/0x1a0 arch/x86/entry/common.c:301
+    [<00000000ba770c62>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+now they will see this:
+
+unreferenced object 0xffff88805413c800 (size 64):
+  comm "syz-executor.4", pid 8960, jiffies 4294994003 (age 14.350s)
+  hex dump (first 32 bytes):
+    00 7a 8a 57 80 88 ff ff e0 00 00 01 00 00 00 00  .z.W............
+    00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000c5d3be64>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
+    [<00000000c5d3be64>] slab_post_alloc_hook mm/slab.h:439 [inline]
+    [<00000000c5d3be64>] slab_alloc mm/slab.c:3326 [inline]
+    [<00000000c5d3be64>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+    [<0000000023865be2>] kmalloc include/linux/slab.h:547 [inline]
+    [<0000000023865be2>] kzalloc include/linux/slab.h:742 [inline]
+    [<0000000023865be2>] ip_mc_add1_src net/ipv4/igmp.c:1961 [inline]
+    [<0000000023865be2>] ip_mc_add_src+0x36b/0x400 net/ipv4/igmp.c:2085
+    [<000000003029a9d4>] ip_mc_msfilter+0x22d/0x310 net/ipv4/igmp.c:2475
+    [<00000000ccd0a87c>] do_ip_setsockopt.isra.0+0x19fe/0x1c00 net/ipv4/ip_sockglue.c:957
+    [<00000000a85a3785>] ip_setsockopt+0x3b/0xb0 net/ipv4/ip_sockglue.c:1246
+    [<00000000ec13c18d>] udp_setsockopt+0x4e/0x90 net/ipv4/udp.c:2616
+    [<0000000052d748e3>] sock_common_setsockopt+0x3e/0x50 net/core/sock.c:3130
+    [<00000000512f1014>] __sys_setsockopt+0x9e/0x120 net/socket.c:2078
+    [<00000000181758bc>] __do_sys_setsockopt net/socket.c:2089 [inline]
+    [<00000000181758bc>] __se_sys_setsockopt net/socket.c:2086 [inline]
+    [<00000000181758bc>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2086
+    [<00000000d4b73623>] do_syscall_64+0x7c/0x1a0 arch/x86/entry/common.c:301
+    [<00000000c1098bec>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Link: http://lkml.kernel.org/r/20190517171507.96046-1-dvyukov@gmail.com
+Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch.c          | 5 -----
- drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 7 +++++++
- 2 files changed, 7 insertions(+), 5 deletions(-)
+ mm/kmemleak.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-index 6a921e24cd5e..e9339e7d6a18 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -1882,11 +1882,6 @@ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
- 	esw->enabled_vports = 0;
- 	esw->mode = SRIOV_NONE;
- 	esw->offloads.inline_mode = MLX5_INLINE_MODE_NONE;
--	if (MLX5_CAP_ESW_FLOWTABLE_FDB(dev, reformat) &&
--	    MLX5_CAP_ESW_FLOWTABLE_FDB(dev, decap))
--		esw->offloads.encap = DEVLINK_ESWITCH_ENCAP_MODE_BASIC;
--	else
--		esw->offloads.encap = DEVLINK_ESWITCH_ENCAP_MODE_NONE;
- 
- 	dev->priv.eswitch = esw;
- 	return 0;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-index 47b446d30f71..c2beadc41c40 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-@@ -1840,6 +1840,12 @@ int esw_offloads_init(struct mlx5_eswitch *esw, int vf_nvports,
- {
- 	int err;
- 
-+	if (MLX5_CAP_ESW_FLOWTABLE_FDB(esw->dev, reformat) &&
-+	    MLX5_CAP_ESW_FLOWTABLE_FDB(esw->dev, decap))
-+		esw->offloads.encap = DEVLINK_ESWITCH_ENCAP_MODE_BASIC;
-+	else
-+		esw->offloads.encap = DEVLINK_ESWITCH_ENCAP_MODE_NONE;
-+
- 	err = esw_offloads_steering_init(esw, vf_nvports, total_nvports);
- 	if (err)
- 		return err;
-@@ -1901,6 +1907,7 @@ void esw_offloads_cleanup(struct mlx5_eswitch *esw)
- 	esw_offloads_devcom_cleanup(esw);
- 	esw_offloads_unload_all_reps(esw, num_vfs);
- 	esw_offloads_steering_cleanup(esw);
-+	esw->offloads.encap = DEVLINK_ESWITCH_ENCAP_MODE_NONE;
- }
- 
- static int esw_mode_from_devlink(u16 mode, u16 *mlx5_mode)
+diff --git a/mm/kmemleak.c b/mm/kmemleak.c
+index 9dd581d11565..3e147ea83182 100644
+--- a/mm/kmemleak.c
++++ b/mm/kmemleak.c
+@@ -575,7 +575,7 @@ static struct kmemleak_object *create_object(unsigned long ptr, size_t size,
+ 	if (in_irq()) {
+ 		object->pid = 0;
+ 		strncpy(object->comm, "hardirq", sizeof(object->comm));
+-	} else if (in_softirq()) {
++	} else if (in_serving_softirq()) {
+ 		object->pid = 0;
+ 		strncpy(object->comm, "softirq", sizeof(object->comm));
+ 	} else {
 -- 
 2.20.1
 
