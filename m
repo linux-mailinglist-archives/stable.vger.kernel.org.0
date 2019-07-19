@@ -2,107 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2BE56D969
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:43:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 867E96D975
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:46:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726067AbfGSDnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 23:43:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53956 "EHLO mail.kernel.org"
+        id S1726072AbfGSDqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 23:46:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726055AbfGSDnW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:43:22 -0400
+        id S1726055AbfGSDqV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:46:21 -0400
 Received: from localhost (p91006-ipngnfx01marunouchi.tokyo.ocn.ne.jp [153.156.43.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C959F2184E;
-        Fri, 19 Jul 2019 03:43:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E61832173B;
+        Fri, 19 Jul 2019 03:46:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563507801;
-        bh=HrhZEcSQN51KrMKglwqRrsI7E3xr0hfIM76XucbZx14=;
+        s=default; t=1563507980;
+        bh=SwMD6+/cj1yolV8kd0YVf3nZtjqo9EnuU1iriUtY5ok=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ONSgg6eG0qjUubfHx/upW/n7ZzF0rISIrx3M1JZezpE4qOCH/Lf0l4vUANH5zTV3j
-         H6KAhSFBU/qvFzAJbfVnIEgME7//1ByAI1I8+SiwNAKmx+FmrLmO8pPulV3xNHJvUy
-         Cezf9XIDjEsLNGSrrF/1dS85E8+n7shWLJfyruHU=
-Date:   Fri, 19 Jul 2019 12:43:18 +0900
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     Liu Bo <bo.liu@linux.alibaba.com>, stable <stable@vger.kernel.org>,
-        Linux MM <linux-mm@kvack.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Jan Kara <jack@suse.cz>, Matthew Wilcox <willy@infradead.org>,
-        Peng Tao <tao.peng@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH] mm: fix livelock caused by iterating multi order entry
-Message-ID: <20190719034318.GA7886@kroah.com>
-References: <1563495160-25647-1-git-send-email-bo.liu@linux.alibaba.com>
- <CAPcyv4jR3vscppooTFBEU=Kp4CNVfthNNz1pV6jxwyg2bmdBjg@mail.gmail.com>
+        b=i26LvF+0yy/DNWBELjJsweXoZTmccpsFzjlZMUIjdy+g7PM2gvNjnB7yQauv/qhXc
+         gEx4XzrQZ37ACMwMoOpWNlmiVCSnIiZm1H+MjtqnFjyl6bTnU1arpBf7ZYaZKx8wSb
+         fJpArHgdj9AwJyi6XwZG/S/yYDGs3wHRewlLtg8Q=
+Date:   Fri, 19 Jul 2019 12:46:18 +0900
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 5.2 00/21] 5.2.2-stable review
+Message-ID: <20190719034618.GA8184@kroah.com>
+References: <20190718030030.456918453@linuxfoundation.org>
+ <CA+G9fYvXydEVdXBhLdagzj5gvxmdZgUkDQ8UFToRtb0UwH672g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CAPcyv4jR3vscppooTFBEU=Kp4CNVfthNNz1pV6jxwyg2bmdBjg@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYvXydEVdXBhLdagzj5gvxmdZgUkDQ8UFToRtb0UwH672g@mail.gmail.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 18, 2019 at 07:53:42PM -0700, Dan Williams wrote:
-> [ add Sasha for -stable advice ]
+On Thu, Jul 18, 2019 at 06:12:34PM +0530, Naresh Kamboju wrote:
+> On Thu, 18 Jul 2019 at 08:33, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.2.2 release.
+> > There are 21 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sat 20 Jul 2019 02:59:27 AM UTC.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.2-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> On Thu, Jul 18, 2019 at 5:13 PM Liu Bo <bo.liu@linux.alibaba.com> wrote:
-> >
-> > The livelock can be triggerred in the following pattern,
-> >
-> >         while (index < end && pagevec_lookup_entries(&pvec, mapping, index,
-> >                                 min(end - index, (pgoff_t)PAGEVEC_SIZE),
-> >                                 indices)) {
-> >                 ...
-> >                 for (i = 0; i < pagevec_count(&pvec); i++) {
-> >                         index = indices[i];
-> >                         ...
-> >                 }
-> >                 index++; /* BUG */
-> >         }
-> >
-> > multi order exceptional entry is not specially considered in
-> > invalidate_inode_pages2_range() and it ended up with a livelock because
-> > both index 0 and index 1 finds the same pmd, but this pmd is binded to
-> > index 0, so index is set to 0 again.
-> >
-> > This introduces a helper to take the pmd entry's length into account when
-> > deciding the next index.
-> >
-> > Note that there're other users of the above pattern which doesn't need to
-> > fix,
-> >
-> > - dax_layout_busy_page
-> > It's been fixed in commit d7782145e1ad
-> > ("filesystem-dax: Fix dax_layout_busy_page() livelock")
-> >
-> > - truncate_inode_pages_range
-> > This won't loop forever since the exceptional entries are immediately
-> > removed from radix tree after the search.
-> >
-> > Fixes: 642261a ("dax: add struct iomap based DAX PMD support")
-> > Cc: <stable@vger.kernel.org> since 4.9 to 4.19
-> > Signed-off-by: Liu Bo <bo.liu@linux.alibaba.com>
-> > ---
-> >
-> > The problem is gone after commit f280bf092d48 ("page cache: Convert
-> > find_get_entries to XArray"), but since xarray seems too new to backport
-> > to 4.19, I made this fix based on radix tree implementation.
-> 
-> I think in this situation, since mainline does not need this change
-> and the bug has been buried under a major refactoring, is to send a
-> backport directly against the v4.19 kernel. Include notes about how it
-> replaces the fix that was inadvertently contained in f280bf092d48
-> ("page cache: Convert find_get_entries to XArray"). Do you have a test
-> case that you can include in the changelog?
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 
-Yes, I need a _TON_ of documentation, and signed off by from all of the
-developers involved in this part of the kernel, before I can take this
-not-in-mainline patch.
-
-thanks,
+Thanks for testing all of these and letting me know.
 
 greg k-h
