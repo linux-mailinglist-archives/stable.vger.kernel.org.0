@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 683CF6DCD7
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:19:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 511766DCD9
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:19:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389198AbfGSENZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:13:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49350 "EHLO mail.kernel.org"
+        id S2389221AbfGSEN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:13:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389181AbfGSENZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:13:25 -0400
+        id S2389204AbfGSEN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:13:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD55521850;
-        Fri, 19 Jul 2019 04:13:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF1CE21872;
+        Fri, 19 Jul 2019 04:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509604;
-        bh=V7t//CdQTxgs7mOSserxTrv7xWMVDDEvG7FnxmcW7dU=;
+        s=default; t=1563509605;
+        bh=vqQwjsyXatyGelWezBxGJt5LrvjbIVovafrzOFTMhrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1rRq4meUbZTUfKHc5Iha+KAbgedJmnQro06rh/DTQBsYzcEF1qXSdENz0j1rdF94g
-         R5Dfgy698lzvcIufOKOIk5VSEfvTi6C6fP9Trhg3P448lsJ6mlojtZakju7Z0YVLe8
-         iznPRg5J0mCNllEiBdK0s9udrPNIa8uydz4GP14M=
+        b=cIkPunHYtf0B+pt/w9AvYMyKNXsiFYd8RLrvnCjXRhVaESXzYH/240p2uwyN3RD4M
+         1Ndf0pwdlBkwQk9RBDs81lXErxhkCjkjiPZgzmaZ49AffZYZPC2SfGDkpQEEi9ZY/5
+         jHYfRuJd0IbsGxLx5BV+tbbmR2uhaFKwJC7jGOFk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rautkoski Kimmo EXT <ext-kimmo.rautkoski@vaisala.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 12/45] serial: 8250: Fix TX interrupt handling condition
-Date:   Fri, 19 Jul 2019 00:12:31 -0400
-Message-Id: <20190719041304.18849-12-sashal@kernel.org>
+Cc:     David Riley <davidriley@chromium.org>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.9 13/45] drm/virtio: Add memory barriers for capset cache.
+Date:   Fri, 19 Jul 2019 00:12:32 -0400
+Message-Id: <20190719041304.18849-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041304.18849-1-sashal@kernel.org>
 References: <20190719041304.18849-1-sashal@kernel.org>
@@ -43,46 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rautkoski Kimmo EXT <ext-kimmo.rautkoski@vaisala.com>
+From: David Riley <davidriley@chromium.org>
 
-[ Upstream commit db1b5bc047b3cadaedab3826bba82c3d9e023c4b ]
+[ Upstream commit 9ff3a5c88e1f1ab17a31402b96d45abe14aab9d7 ]
 
-Interrupt handler checked THRE bit (transmitter holding register
-empty) in LSR to detect if TX fifo is empty.
-In case when there is only receive interrupts the TX handling
-got called because THRE bit in LSR is set when there is no
-transmission (FIFO empty). TX handling caused TX stop, which in
-RS-485 half-duplex mode actually resets receiver FIFO. This is not
-desired during reception because of possible data loss.
+After data is copied to the cache entry, atomic_set is used indicate
+that the data is the entry is valid without appropriate memory barriers.
+Similarly the read side was missing the corresponding memory barriers.
 
-The fix is to check if THRI is set in IER in addition of the TX
-fifo status. THRI in IER is set when TX is started and cleared
-when TX is stopped.
-This ensures that TX handling is only called when there is really
-transmission on going and an interrupt for THRE and not when there
-are only RX interrupts.
-
-Signed-off-by: Kimmo Rautkoski <ext-kimmo.rautkoski@vaisala.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David Riley <davidriley@chromium.org>
+Link: http://patchwork.freedesktop.org/patch/msgid/20190610211810.253227-5-davidriley@chromium.org
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 3 +++
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 5b54439a8a9b..b4d6fef83f65 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1820,7 +1820,8 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
- 			status = serial8250_rx_chars(up, status);
- 	}
- 	serial8250_modem_status(up);
--	if ((!up->dma || up->dma->tx_err) && (status & UART_LSR_THRE))
-+	if ((!up->dma || up->dma->tx_err) && (status & UART_LSR_THRE) &&
-+		(up->ier & UART_IER_THRI))
- 		serial8250_tx_chars(up);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 54639395aba0..a3559b1a3a0f 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -521,6 +521,9 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+ 	ret = wait_event_timeout(vgdev->resp_wq,
+ 				 atomic_read(&cache_ent->is_valid), 5 * HZ);
  
- 	spin_unlock_irqrestore(&port->lock, flags);
++	/* is_valid check must proceed before copy of the cache entry. */
++	smp_rmb();
++
+ 	ptr = cache_ent->caps_cache;
+ 
+ copy_exit:
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 52436b3c01bb..a1b3ea1ccb65 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -618,6 +618,8 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
+ 		    cache_ent->id == le32_to_cpu(cmd->capset_id)) {
+ 			memcpy(cache_ent->caps_cache, resp->capset_data,
+ 			       cache_ent->size);
++			/* Copy must occur before is_valid is signalled. */
++			smp_wmb();
+ 			atomic_set(&cache_ent->is_valid, 1);
+ 			break;
+ 		}
 -- 
 2.20.1
 
