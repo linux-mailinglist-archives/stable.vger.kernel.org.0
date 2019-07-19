@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8CF26DFD1
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 765C56DFB8
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726092AbfGSEhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:37:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59294 "EHLO mail.kernel.org"
+        id S1727987AbfGSD7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 23:59:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728795AbfGSD7i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:59:38 -0400
+        id S1727619AbfGSD7o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:59:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CA162189F;
-        Fri, 19 Jul 2019 03:59:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9782121873;
+        Fri, 19 Jul 2019 03:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508777;
-        bh=9f1wajjvi5fzOiQPCP16sLyUiNuP4qgvjsgcriCP8us=;
+        s=default; t=1563508783;
+        bh=pocZzY6HKbyA/R5cRbnDBsEmJmNaf6ik5va4ZL9jQCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2a/LfTbcb12rrIGe+d3zYnH+a+BKUGKzQwX8Z+4IGIi4PPCEDQwjYK3JtzToMiva/
-         xzbRwunUyOkQx7bXUPSrkg6rkp9dnjAKAd9/+HcYd9XTYtg6l1754rF1CDPgAqxdGu
-         r/fwfIoxmIGspwggS7Nnmm8LILssyv8fpN+0nzTg=
+        b=qd7CcAZH+vHqP+P1r3/3Izc4fpMxcjnbFw/k7bEvkVMLkF2uqAmcdpV0QCS+IBY8Q
+         fmND8vSMwd6gFXFchf3KYrdtfjvyGiztpj9wezBRSVE62u9hlN+kZv0g4uYldxkMKF
+         StV16+UfI+vrs/JU31FqYXhwbf52/yH1NPSLedAg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Denis Ciocca <denis.ciocca@st.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 084/171] iio: st_accel: fix iio_triggered_buffer_{pre,post}enable positions
-Date:   Thu, 18 Jul 2019 23:55:15 -0400
-Message-Id: <20190719035643.14300-84-sashal@kernel.org>
+Cc:     Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 087/171] genksyms: Teach parser about 128-bit built-in types
+Date:   Thu, 18 Jul 2019 23:55:18 -0400
+Message-Id: <20190719035643.14300-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -44,81 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Will Deacon <will.deacon@arm.com>
 
-[ Upstream commit 05b8bcc96278c9ef927a6f25a98e233e55de42e1 ]
+[ Upstream commit a222061b85234d8a44486a46bd4df7e2cda52385 ]
 
-The iio_triggered_buffer_{predisable,postenable} functions attach/detach
-the poll functions.
+__uint128_t crops up in a few files that export symbols to modules, so
+teach genksyms about it and the other GCC built-in 128-bit integer types
+so that we don't end up skipping the CRC generation for some symbols due
+to the parser failing to spot them:
 
-For the predisable hook, the disable code should occur before detaching
-the poll func, and for the postenable hook, the poll func should be
-attached before the enable code.
+  | WARNING: EXPORT symbol "kernel_neon_begin" [vmlinux] version
+  |          generation failed, symbol will not be versioned.
+  | ld: arch/arm64/kernel/fpsimd.o: relocation R_AARCH64_ABS32 against
+  |     `__crc_kernel_neon_begin' can not be used when making a shared
+  |     object
+  | ld: arch/arm64/kernel/fpsimd.o:(.data+0x0): dangerous relocation:
+  |     unsupported relocation
 
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Acked-by: Denis Ciocca <denis.ciocca@st.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/st_accel_buffer.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ scripts/genksyms/keywords.c | 4 ++++
+ scripts/genksyms/parse.y    | 2 ++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/iio/accel/st_accel_buffer.c b/drivers/iio/accel/st_accel_buffer.c
-index 54f2ae91f614..0205c0167cdd 100644
---- a/drivers/iio/accel/st_accel_buffer.c
-+++ b/drivers/iio/accel/st_accel_buffer.c
-@@ -45,17 +45,19 @@ static int st_accel_buffer_postenable(struct iio_dev *indio_dev)
- 		goto allocate_memory_error;
- 	}
+diff --git a/scripts/genksyms/keywords.c b/scripts/genksyms/keywords.c
+index e93336baaaed..c586d32dd2c3 100644
+--- a/scripts/genksyms/keywords.c
++++ b/scripts/genksyms/keywords.c
+@@ -25,6 +25,10 @@ static struct resword {
+ 	{ "__volatile__", VOLATILE_KEYW },
+ 	{ "__builtin_va_list", VA_LIST_KEYW },
  
--	err = st_sensors_set_axis_enable(indio_dev,
--					(u8)indio_dev->active_scan_mask[0]);
-+	err = iio_triggered_buffer_postenable(indio_dev);
- 	if (err < 0)
- 		goto st_accel_buffer_postenable_error;
- 
--	err = iio_triggered_buffer_postenable(indio_dev);
-+	err = st_sensors_set_axis_enable(indio_dev,
-+					(u8)indio_dev->active_scan_mask[0]);
- 	if (err < 0)
--		goto st_accel_buffer_postenable_error;
-+		goto st_sensors_set_axis_enable_error;
- 
- 	return err;
- 
-+st_sensors_set_axis_enable_error:
-+	iio_triggered_buffer_predisable(indio_dev);
- st_accel_buffer_postenable_error:
- 	kfree(adata->buffer_data);
- allocate_memory_error:
-@@ -64,20 +66,22 @@ static int st_accel_buffer_postenable(struct iio_dev *indio_dev)
- 
- static int st_accel_buffer_predisable(struct iio_dev *indio_dev)
- {
--	int err;
-+	int err, err2;
- 	struct st_sensor_data *adata = iio_priv(indio_dev);
- 
--	err = iio_triggered_buffer_predisable(indio_dev);
--	if (err < 0)
--		goto st_accel_buffer_predisable_error;
--
- 	err = st_sensors_set_axis_enable(indio_dev, ST_SENSORS_ENABLE_ALL_AXIS);
- 	if (err < 0)
- 		goto st_accel_buffer_predisable_error;
- 
- 	err = st_sensors_set_enable(indio_dev, false);
-+	if (err < 0)
-+		goto st_accel_buffer_predisable_error;
- 
- st_accel_buffer_predisable_error:
-+	err2 = iio_triggered_buffer_predisable(indio_dev);
-+	if (!err)
-+		err = err2;
++	{ "__int128", BUILTIN_INT_KEYW },
++	{ "__int128_t", BUILTIN_INT_KEYW },
++	{ "__uint128_t", BUILTIN_INT_KEYW },
 +
- 	kfree(adata->buffer_data);
- 	return err;
- }
+ 	// According to rth, c99 defines "_Bool", __restrict", __restrict__", "restrict".  KAO
+ 	{ "_Bool", BOOL_KEYW },
+ 	{ "_restrict", RESTRICT_KEYW },
+diff --git a/scripts/genksyms/parse.y b/scripts/genksyms/parse.y
+index 00a6d7e54971..1ebcf52cd0f9 100644
+--- a/scripts/genksyms/parse.y
++++ b/scripts/genksyms/parse.y
+@@ -76,6 +76,7 @@ static void record_compound(struct string_list **keyw,
+ %token ATTRIBUTE_KEYW
+ %token AUTO_KEYW
+ %token BOOL_KEYW
++%token BUILTIN_INT_KEYW
+ %token CHAR_KEYW
+ %token CONST_KEYW
+ %token DOUBLE_KEYW
+@@ -263,6 +264,7 @@ simple_type_specifier:
+ 	| VOID_KEYW
+ 	| BOOL_KEYW
+ 	| VA_LIST_KEYW
++	| BUILTIN_INT_KEYW
+ 	| TYPE			{ (*$1)->tag = SYM_TYPEDEF; $$ = $1; }
+ 	;
+ 
 -- 
 2.20.1
 
