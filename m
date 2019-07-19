@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97DFF6DB6A
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7260F6DB70
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:09:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732999AbfGSEIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:08:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42492 "EHLO mail.kernel.org"
+        id S1730251AbfGSEIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:08:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732983AbfGSEIQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:08:16 -0400
+        id S1727046AbfGSEIa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:08:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 475AE21872;
-        Fri, 19 Jul 2019 04:08:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B6AB218A4;
+        Fri, 19 Jul 2019 04:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509296;
-        bh=OwPkD1ZxcC/tQtUPnQiKK8evUVR/5Xj1GmEdTgy3UsU=;
+        s=default; t=1563509309;
+        bh=FCsMAB1Le3dbb95jMq3Ii7C9GcLfcQ3xoI0XX/azHDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJF/XsxxVVgn2Chfj0EFri2eBfKy7fkWi7cIYI+e6axfhVkqIgLoV6VYcXLPAsXhn
-         q9Y7/3y4/vjSAMxj88Jmpvu4UxrAjfWZoAIwAZkwIlIYXm4LRg8N2P8vBiZO6NxQsy
-         /3KD9ABI3humJq6mBgiyIeZhjni0pvzq+n5Nh3Kk=
+        b=RLqkxekKC0vfF+OEkKHdwwvrkbCOGEMK6nJWp6DEifl1TY+prHnJ928PRVTQyiLwG
+         eLTill5aWOSDx+TMHCoj3wVo5YZUdVuVDzuGVfAjlxzS3dLLBi/56KXkfwFnzINBSy
+         Ty30lEpYcpiXNAmkKgvaF3fcIbpB7o8Mq+2Zudm8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
-        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        Emil Velikov <emil.velikov@collabora.com>,
-        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
+Cc:     David Riley <davidriley@chromium.org>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 021/101] drm/crc-debugfs: Also sprinkle irqrestore over early exits
-Date:   Fri, 19 Jul 2019 00:06:12 -0400
-Message-Id: <20190719040732.17285-21-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 027/101] drm/virtio: Add memory barriers for capset cache.
+Date:   Fri, 19 Jul 2019 00:06:18 -0400
+Message-Id: <20190719040732.17285-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
 References: <20190719040732.17285-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,51 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: David Riley <davidriley@chromium.org>
 
-[ Upstream commit d99004d7201aa653658ff2390d6e516567c96ebc ]
+[ Upstream commit 9ff3a5c88e1f1ab17a31402b96d45abe14aab9d7 ]
 
-I. was. blind.
+After data is copied to the cache entry, atomic_set is used indicate
+that the data is the entry is valid without appropriate memory barriers.
+Similarly the read side was missing the corresponding memory barriers.
 
-Caught with vkms, which has some really slow crc computation function.
-
-Fixes: 1882018a70e0 ("drm/crc-debugfs: User irqsafe spinlock in drm_crtc_add_crc_entry")
-Cc: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Cc: Emil Velikov <emil.velikov@collabora.com>
-Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
-Reviewed-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190606211544.5389-1-daniel.vetter@ffwll.ch
+Signed-off-by: David Riley <davidriley@chromium.org>
+Link: http://patchwork.freedesktop.org/patch/msgid/20190610211810.253227-5-davidriley@chromium.org
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_debugfs_crc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 3 +++
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_debugfs_crc.c b/drivers/gpu/drm/drm_debugfs_crc.c
-index a334a82fcb36..c88e5ff41add 100644
---- a/drivers/gpu/drm/drm_debugfs_crc.c
-+++ b/drivers/gpu/drm/drm_debugfs_crc.c
-@@ -385,7 +385,7 @@ int drm_crtc_add_crc_entry(struct drm_crtc *crtc, bool has_frame,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 7bdf6f0e58a5..8d2f5ded86d6 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -528,6 +528,9 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+ 	if (!ret)
+ 		return -EBUSY;
  
- 	/* Caller may not have noticed yet that userspace has stopped reading */
- 	if (!crc->entries) {
--		spin_unlock(&crc->lock);
-+		spin_unlock_irqrestore(&crc->lock, flags);
- 		return -EINVAL;
- 	}
++	/* is_valid check must proceed before copy of the cache entry. */
++	smp_rmb();
++
+ 	ptr = cache_ent->caps_cache;
  
-@@ -396,7 +396,7 @@ int drm_crtc_add_crc_entry(struct drm_crtc *crtc, bool has_frame,
- 		bool was_overflow = crc->overflow;
- 
- 		crc->overflow = true;
--		spin_unlock(&crc->lock);
-+		spin_unlock_irqrestore(&crc->lock, flags);
- 
- 		if (!was_overflow)
- 			DRM_ERROR("Overflow of CRC buffer, userspace reads too slow.\n");
+ copy_exit:
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 020070d483d3..c8a581b1f4c4 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -588,6 +588,8 @@ static void virtio_gpu_cmd_capset_cb(struct virtio_gpu_device *vgdev,
+ 		    cache_ent->id == le32_to_cpu(cmd->capset_id)) {
+ 			memcpy(cache_ent->caps_cache, resp->capset_data,
+ 			       cache_ent->size);
++			/* Copy must occur before is_valid is signalled. */
++			smp_wmb();
+ 			atomic_set(&cache_ent->is_valid, 1);
+ 			break;
+ 		}
 -- 
 2.20.1
 
