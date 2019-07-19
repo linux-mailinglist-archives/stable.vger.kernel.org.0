@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D0306DE6B
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:28:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D36756DE66
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:28:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732997AbfGSE2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:28:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39544 "EHLO mail.kernel.org"
+        id S1731097AbfGSEG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:06:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732114AbfGSEG0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:06:26 -0400
+        id S1732051AbfGSEG1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:06:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A81BC218B8;
-        Fri, 19 Jul 2019 04:06:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0F842189F;
+        Fri, 19 Jul 2019 04:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509185;
-        bh=GR4SIol2VzsKNVqc9HUATBFbm3+d6wZOlhp3mC9c6/c=;
+        s=default; t=1563509186;
+        bh=ts1M3lz2EXopxqOzc++QgTO3csnWak9R06rPforK5Rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDdC5cVdtZejU1kAM7QhthFlELGj9MhjedA++Yx8pjq1Km2pN1VojdDOpRhjy4qMP
-         ZQi79QfgKdpxwW0oVqxQxzmpT+zKDYHJ7qnXTusLC/0+Y/zKWbhQjtZO+IBalTgiJr
-         4vsFbR0SZIzLGdTaZbHqow/+MjD59sfu1fHeYJhM=
+        b=c8bo4GuIh/5qpUSihcY4U5Z3I4jvfSLdm/a6MLVe7f+TWc8aIHW2Lxo20Agw5TTqm
+         bwSlTWSmZf6OiYJLnrGFGETZzgxFYB+rzBbmJWosB7Mq/QkiU8Br+L8I0y8H1aYa1z
+         pnWijqlBCXEfVNA8kGbwduY60DHbWsBBpnzB0HEw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 113/141] block: init flush rq ref count to 1
-Date:   Fri, 19 Jul 2019 00:02:18 -0400
-Message-Id: <20190719040246.15945-113-sashal@kernel.org>
+Cc:     Gerd Rausch <gerd.rausch@oracle.com>,
+        Zhu Yanjun <yanjun.zhu@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 114/141] rds: Accept peer connection reject messages due to incompatible version
+Date:   Fri, 19 Jul 2019 00:02:19 -0400
+Message-Id: <20190719040246.15945-114-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -42,46 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Gerd Rausch <gerd.rausch@oracle.com>
 
-[ Upstream commit b554db147feea39617b533ab6bca247c91c6198a ]
+[ Upstream commit 8c6166cfc9cd48e93d9176561e50b63cef4330d5 ]
 
-We discovered a problem in newer kernels where a disconnect of a NBD
-device while the flush request was pending would result in a hang.  This
-is because the blk mq timeout handler does
+Prior to
+commit d021fabf525ff ("rds: rdma: add consumer reject")
 
-        if (!refcount_inc_not_zero(&rq->ref))
-                return true;
+function "rds_rdma_cm_event_handler_cmn" would always honor a rejected
+connection attempt by issuing a "rds_conn_drop".
 
-to determine if it's ok to run the timeout handler for the request.
-Flush_rq's don't have a ref count set, so we'd skip running the timeout
-handler for this request and it would just sit there in limbo forever.
+The commit mentioned above added a "break", eliminating
+the "fallthrough" case and made the "rds_conn_drop" rather conditional:
 
-Fix this by always setting the refcount of any request going through
-blk_init_rq() to 1.  I tested this with a nbd-server that dropped flush
-requests to verify that it hung, and then tested with this patch to
-verify I got the timeout as expected and the error handling kicked in.
-Thanks,
+Now it only happens if a "consumer defined" reject (i.e. "rdma_reject")
+carries an integer-value of "1" inside "private_data":
 
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  if (!conn)
+    break;
+    err = (int *)rdma_consumer_reject_data(cm_id, event, &len);
+    if (!err || (err && ((*err) == RDS_RDMA_REJ_INCOMPAT))) {
+      pr_warn("RDS/RDMA: conn <%pI6c, %pI6c> rejected, dropping connection\n",
+              &conn->c_laddr, &conn->c_faddr);
+              conn->c_proposed_version = RDS_PROTOCOL_COMPAT_VERSION;
+              rds_conn_drop(conn);
+    }
+    rdsdebug("Connection rejected: %s\n",
+             rdma_reject_msg(cm_id, event->status));
+    break;
+    /* FALLTHROUGH */
+A number of issues are worth mentioning here:
+   #1) Previous versions of the RDS code simply rejected a connection
+       by calling "rdma_reject(cm_id, NULL, 0);"
+       So the value of the payload in "private_data" will not be "1",
+       but "0".
+
+   #2) Now the code has become dependent on host byte order and sizing.
+       If one peer is big-endian, the other is little-endian,
+       or there's a difference in sizeof(int) (e.g. ILP64 vs LP64),
+       the *err check does not work as intended.
+
+   #3) There is no check for "len" to see if the data behind *err is even valid.
+       Luckily, it appears that the "rdma_reject(cm_id, NULL, 0)" will always
+       carry 148 bytes of zeroized payload.
+       But that should probably not be relied upon here.
+
+   #4) With the added "break;",
+       we might as well drop the misleading "/* FALLTHROUGH */" comment.
+
+This commit does _not_ address issue #2, as the sender would have to
+agree on a byte order as well.
+
+Here is the sequence of messages in this observed error-scenario:
+   Host-A is pre-QoS changes (excluding the commit mentioned above)
+   Host-B is post-QoS changes (including the commit mentioned above)
+
+   #1 Host-B
+      issues a connection request via function "rds_conn_path_transition"
+      connection state transitions to "RDS_CONN_CONNECTING"
+
+   #2 Host-A
+      rejects the incompatible connection request (from #1)
+      It does so by calling "rdma_reject(cm_id, NULL, 0);"
+
+   #3 Host-B
+      receives an "RDMA_CM_EVENT_REJECTED" event (from #2)
+      But since the code is changed in the way described above,
+      it won't drop the connection here, simply because "*err == 0".
+
+   #4 Host-A
+      issues a connection request
+
+   #5 Host-B
+      receives an "RDMA_CM_EVENT_CONNECT_REQUEST" event
+      and ends up calling "rds_ib_cm_handle_connect".
+      But since the state is already in "RDS_CONN_CONNECTING"
+      (as of #1) it will end up issuing a "rdma_reject" without
+      dropping the connection:
+         if (rds_conn_state(conn) == RDS_CONN_CONNECTING) {
+             /* Wait and see - our connect may still be succeeding */
+             rds_ib_stats_inc(s_ib_connect_raced);
+         }
+         goto out;
+
+   #6 Host-A
+      receives an "RDMA_CM_EVENT_REJECTED" event (from #5),
+      drops the connection and tries again (goto #4) until it gives up.
+
+Tested-by: Zhu Yanjun <yanjun.zhu@oracle.com>
+Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
+Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/rds/rdma_transport.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 2dd94b3e9ece..aac658392d60 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -116,6 +116,7 @@ void blk_rq_init(struct request_queue *q, struct request *rq)
- 	rq->internal_tag = -1;
- 	rq->start_time_ns = ktime_get_ns();
- 	rq->part = NULL;
-+	refcount_set(&rq->ref, 1);
- }
- EXPORT_SYMBOL(blk_rq_init);
- 
+diff --git a/net/rds/rdma_transport.c b/net/rds/rdma_transport.c
+index 46bce8389066..9db455d02255 100644
+--- a/net/rds/rdma_transport.c
++++ b/net/rds/rdma_transport.c
+@@ -112,7 +112,9 @@ static int rds_rdma_cm_event_handler_cmn(struct rdma_cm_id *cm_id,
+ 		if (!conn)
+ 			break;
+ 		err = (int *)rdma_consumer_reject_data(cm_id, event, &len);
+-		if (!err || (err && ((*err) == RDS_RDMA_REJ_INCOMPAT))) {
++		if (!err ||
++		    (err && len >= sizeof(*err) &&
++		     ((*err) <= RDS_RDMA_REJ_INCOMPAT))) {
+ 			pr_warn("RDS/RDMA: conn <%pI6c, %pI6c> rejected, dropping connection\n",
+ 				&conn->c_laddr, &conn->c_faddr);
+ 			conn->c_proposed_version = RDS_PROTOCOL_COMPAT_VERSION;
+@@ -122,7 +124,6 @@ static int rds_rdma_cm_event_handler_cmn(struct rdma_cm_id *cm_id,
+ 		rdsdebug("Connection rejected: %s\n",
+ 			 rdma_reject_msg(cm_id, event->status));
+ 		break;
+-		/* FALLTHROUGH */
+ 	case RDMA_CM_EVENT_ADDR_ERROR:
+ 	case RDMA_CM_EVENT_ROUTE_ERROR:
+ 	case RDMA_CM_EVENT_CONNECT_ERROR:
 -- 
 2.20.1
 
