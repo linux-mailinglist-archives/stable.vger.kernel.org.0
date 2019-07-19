@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78C6B6E1B3
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 09:30:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97A376E1BA
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 09:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726856AbfGSH2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 03:28:04 -0400
-Received: from mga05.intel.com ([192.55.52.43]:58150 "EHLO mga05.intel.com"
+        id S1726410AbfGSHcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 03:32:15 -0400
+Received: from mga05.intel.com ([192.55.52.43]:58441 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726036AbfGSH2E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 03:28:04 -0400
+        id S1726036AbfGSHcO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 03:32:14 -0400
 X-Amp-Result: UNKNOWN
 X-Amp-Original-Verdict: FILE UNKNOWN
 X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Jul 2019 00:28:03 -0700
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Jul 2019 00:32:14 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.64,281,1559545200"; 
-   d="asc'?scan'208";a="187944515"
+   d="asc'?scan'208";a="343619970"
 Received: from pipin.fi.intel.com (HELO pipin) ([10.237.72.175])
-  by fmsmga001.fm.intel.com with ESMTP; 19 Jul 2019 00:28:01 -0700
+  by orsmga005.jf.intel.com with ESMTP; 19 Jul 2019 00:32:11 -0700
 From:   Felipe Balbi <felipe.balbi@linux.intel.com>
-To:     "Yang\, Fei" <fei.yang@intel.com>,
-        "john.stultz\@linaro.org" <john.stultz@linaro.org>,
-        "andrzej.p\@collabora.com" <andrzej.p@collabora.com>,
-        "linux-usb\@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "gregkh\@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "stable\@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH V2] usb: dwc3: gadget: trb_dequeue is not updated properly
-In-Reply-To: <02E7334B1630744CBDC55DA8586225837F8DD883@ORSMSX102.amr.corp.intel.com>
-References: <1563396788-126034-1-git-send-email-fei.yang@intel.com> <87o91riux9.fsf@linux.intel.com> <02E7334B1630744CBDC55DA8586225837F8DD883@ORSMSX102.amr.corp.intel.com>
-Date:   Fri, 19 Jul 2019 10:27:57 +0300
-Message-ID: <87muhascua.fsf@linux.intel.com>
+To:     fei.yang@intel.com, john.stultz@linaro.org,
+        andrzej.p@collabora.com, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3] usb: dwc3: gadget: trb_dequeue is not updated properly
+In-Reply-To: <1563497183-7114-1-git-send-email-fei.yang@intel.com>
+References: <1563497183-7114-1-git-send-email-fei.yang@intel.com>
+Date:   Fri, 19 Jul 2019 10:32:07 +0300
+Message-ID: <87k1cescnc.fsf@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; boundary="=-=-=";
         micalg=pgp-sha256; protocol="application/pgp-signature"
@@ -46,56 +43,122 @@ X-Mailing-List: stable@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-"Yang, Fei" <fei.yang@intel.com> writes:
 
 Hi,
 
->> Can only be true for last TRB
->>
-> | 	if (event->status & DEPEVT_STATUS_IOC)
-> | 		return 1;
+fei.yang@intel.com writes:
+> From: Fei Yang <fei.yang@intel.com>
 >
-> This is the problem. The whole USB request gets only one interrupt
-> when the last TRB completes, so dwc3_gadget_ep_reclaim_trb_sg() gets
-> called with event->status =3D 0x6 which has DEPEVT_STATUS_IOC bit
-> set. Thus dwc3_gadget_ep_reclaim_completed_trb() returns 1 for the
-> first TRB and the for-loop ends without having a chance to iterate
-> through the sg list.
-
-IOC is only set for the last TRB, so this will iterate over and over
-again until it reaches the last TRB. Please collect tracepoints of the
-failure case.
-
->> If we have a short packet, then we may fall here. Is that the case?
+> If scatter-gather operation is allowed, a large USB request is split into
+> multiple TRBs. These TRBs are chained up by setting DWC3_TRB_CTRL_CHN bit
+> except the last one which has DWC3_TRB_CTRL_IOC bit set instead.
+> Since only the last TRB has IOC set for the whole USB request, the
+> dwc3_gadget_ep_reclaim_trb_sg() gets called only once after the last TRB
+> completes and all the TRBs allocated for this request are supposed to be
+> reclaimed. However that is not what the current code does.
 >
-> No need for a short packet to make it fail. In my case below, a 16384
-> byte request got slipt into 4 TRBs of 4096 bytes. All TRBs were
-> completed normally, but the for-loop in
-> dwc3_gadget_ep_reclaim_trb_sg() was terminated right after handling
-> the first TRB. After that the trb_dequeue is messed up.
-
-I need tracepoints to se what's going on, please collect tracepoints.
-
-> buffer_addr,size,type,ioc,isp_imi,csp,chn,lst,hwo
-> 0000000077849000, 4096,normal,0,0,1,1,0,0
-> 000000007784a000, 4096,normal,0,0,1,1,0,0
-> 000000007784b000, 4096,normal,0,0,1,1,0,0
-> 000000007784c000, 4096,normal,1,0,1,0,0,0
-> 000000007784d000, 512,normal,1,0,1,0,0,0
+> dwc3_gadget_ep_reclaim_trb_sg() is trying to reclaim all the TRBs in the
+> following for-loop,
+> 	for_each_sg(sg, s, pending, i) {
+> 		trb =3D &dep->trb_pool[dep->trb_dequeue];
 >
-> My first version of the patch was trying to address the issue in
-> dwc3_gadget_ep_reclaim_completed_trb(), but then I thought it's a bad
-> idea to touch this function because that is also called from non
-> scatter_gather list case, and I was not sure if returning 1 for the
-> linear case is correct or not.
+>                 if (trb->ctrl & DWC3_TRB_CTRL_HWO)
+>                         break;
+>
+>                 req->sg =3D sg_next(s);
+>                 req->num_pending_sgs--;
+>
+>                 ret =3D dwc3_gadget_ep_reclaim_completed_trb(dep, req,
+>                                 trb, event, status, chain);
+>                 if (ret)
+>                         break;
+>         }
+> but since the interrupt comes only after the last TRB completes, the
+> event->status has DEPEVT_STATUS_IOC bit set, so that the for-loop ends for
+> the first TRB due to dwc3_gadget_ep_reclaim_completed_trb() returns 1.
+> 	if (event->status & DEPEVT_STATUS_IOC)
+> 		return 1;
+>
+> This patch addresses the issue by checking each TRB in function
+> dwc3_gadget_ep_reclaim_trb_sg() and maing sure the chained ones are prope=
+rly
+> reclaimed. dwc3_gadget_ep_reclaim_completed_trb() will return 1 Only for =
+the
+> last TRB.
+>
+> Signed-off-by: Fei Yang <fei.yang@intel.com>
+> Cc: stable <stable@vger.kernel.org>
+> ---
+> v2: Better solution is to reclaim chained TRBs in dwc3_gadget_ep_reclaim_=
+trb_sg()
+>     and leave the last TRB to the dwc3_gadget_ep_reclaim_completed_trb().
+> v3: Checking DWC3_TRB_CTRL_CHN bit for each TRB instead, and making sure =
+that
+>     dwc3_gadget_ep_reclaim_completed_trb() returns 1 only for the last TR=
+B.
+> ---
+>  drivers/usb/dwc3/gadget.c | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+> index 173f532..88eed49 100644
+> --- a/drivers/usb/dwc3/gadget.c
+> +++ b/drivers/usb/dwc3/gadget.c
+> @@ -2394,7 +2394,7 @@ static int dwc3_gadget_ep_reclaim_completed_trb(str=
+uct dwc3_ep *dep,
+>  	if (event->status & DEPEVT_STATUS_SHORT && !chain)
+>  		return 1;
+>=20=20
+> -	if (event->status & DEPEVT_STATUS_IOC)
+> +	if (event->status & DEPEVT_STATUS_IOC && !chain)
+>  		return 1;
 
-That function *must* be called for all cases. We want to reduce the
-amount of special cases so code is more straight forward and easier to
-maintain. Again, please collect tracepoints of the failure case with the
-latest tag from Linus, otherwise you won't be able to convince me we
-need your patch.
+This will break the situation when we have more SGs than available
+TRBs. In that case we set IOC before the last so we have time to update
+transfer to append more TRBs.
 
-I also think your version is the wrong way to sort it out.
+Please, send me tracepoints
+
+> @@ -2404,11 +2404,12 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct d=
+wc3_ep *dep,
+>  		struct dwc3_request *req, const struct dwc3_event_depevt *event,
+>  		int status)
+>  {
+> -	struct dwc3_trb *trb =3D &dep->trb_pool[dep->trb_dequeue];
+> +	struct dwc3_trb *trb;
+
+should be part of another patch. This is a cleanup that has nothing to
+do with this fix.
+
+>  	struct scatterlist *sg =3D req->sg;
+>  	struct scatterlist *s;
+>  	unsigned int pending =3D req->num_pending_sgs;
+>  	unsigned int i;
+> +	int chain =3D false;
+
+this could be defined inside for_each_sg() loop like this:
+
+	int chain =3D trb->ctrl & DWC3_TRB_CTRL_CHN;
+
+> @@ -2419,9 +2420,13 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dw=
+c3_ep *dep,
+>=20=20
+>  		req->sg =3D sg_next(s);
+>  		req->num_pending_sgs--;
+> +		if (trb->ctrl & DWC3_TRB_CTRL_CHN)
+> +			chain =3D true;
+> +		else
+> +			chain =3D false;
+>=20=20
+>  		ret =3D dwc3_gadget_ep_reclaim_completed_trb(dep, req,
+> -				trb, event, status, true);
+> +				trb, event, status, chain);
+
+this is definitely a valid fix :-) I'm not convinced about that IOC &&
+!chain above, however. Also, if "chain" is always trb->ctrl &
+DWC3_TRB_CTRL_CHN, we can get rid of that argument altogether and have
+the callee handle it internally, but that's something else, subject to
+another patch.
 
 =2D-=20
 balbi
@@ -105,18 +168,18 @@ Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAl0xcP0ACgkQzL64meEa
-mQa+BRAApybjl0kw74kvUCbgq5JoZMjTCG8mNVR2WL2+gE9qRwGiJ00aSJakl06A
-EH2CUWRGDNzuGyQCajC/GHLl8ZC+yLK5Qu5OSXelZU6k4Ghd9kAfqN57zLbuH6fa
-I2nVdhAehADII/57+s1E86s5d3BctlNd4qZi72dK9GvH55IukzeZWotWiIxUH1F7
-zO5NxKvFV1EIOa/PezcE2bdnbsrzCs6uCySYGlWYDTP2fEfm9XK7/L5/kQGJYpVJ
-0yORd/HLvNPq3bjBPCNOkCkQ3TTv2uc9ybKwlTlPufRET7uTtQD0F8ZRqoGxWZ0j
-8OiSwYcEnzOWhA+o4RpX1XfIkMug75hlsV2BKrTsR9z7e/+isNro6tFqAu/xp/k0
-pRHIHnmDFmkHX9OmwbUQZbBAZGsxm2WB6yh3sqVW0eWQnzlS4TelUu568Nk9La6y
-Jdv6BocpfZ0C3VvvTAxQMncqA4zRiFQZ4ZcFxcJBZzloMn3dBW2bKycpJZkoX1bG
-jyaIKvANmbKjdtdYFWmOsgMNaFCYQvTWHHCBwybskX6lI/0lgmgYx5z72GJ0VTQ9
-THlw7VRPF6u4HXwWd0cSfQFnL5kPRLOzj6i82mhOXZLRQFEHWIMhz8ayKzcQPqh3
-pafP951OscsQdOvOc2tT6lRaItN9j4fIoSuPy7iKlJSOYKWrqyc=
-=YdDN
+iQIzBAEBCAAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAl0xcfcACgkQzL64meEa
+mQa6hBAAop4hAPq3S8lrAAbH7E6SxCiOg6QGUr0B4mWmj1gXXGZJhw5Ag2WAMD2C
+LuZBvbGvnKWT+lwgz5G6xmNw1ZPSrHivovQ2fG6Cc77EpEwCJULwSRlzfJgdL0bb
+AXDKGKOq57TZGkftniv8uAgNfHSwCCHC2iWzCfqjd79RPwo06gnf1JmoqpU1oroa
+gvY0KP0DXieOm4HHesKeo3Wu6kK6BdulpAd3v7v5fCZaIY7rpaFwawHJQ/KeCgfF
+s+SMO9wJiZmrOIZFfTM6JQYEAKTAERwSuK3eCSt0FRzPbiMmNVD0nWHmHaNS+dR5
+xnyx59zLT1+Lstx94tUz5aGMN8rTK6JmtkdZTple5NRkKIx97wQqG/7mjVTMc8Wd
+Qz2AMYFT/0Wg6Suz4NBNvoC3Ny8dIR9GhqSu3+YDRr/9fWqCkikaopG1vqLdvCPi
+thXi6gLGsPKVZ8yfQMe7lM3Xrrdp72R6QgY8DFLPiLa+rLZmwomCjduV2l4cc0wN
+bniH7CX93giYjIYxHos+LoL/zEAdt1Zr/WRw3Y6KJSdefJNJwuklYhe3gcKAjEyj
+bCU8Q2thd5YHlRCd05MtPQ9PrlS+3ZM/wexVn4wB/diPSgb14Cs+Ng3l+dtQc/AH
+JTPvOVJ8BReIB9DmoZ9RwcLDEt4KE9QShCnEtyDuGBfLXqv70m0=
+=kb6q
 -----END PGP SIGNATURE-----
 --=-=-=--
