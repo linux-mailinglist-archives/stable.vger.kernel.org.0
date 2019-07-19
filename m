@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 340D36DD2A
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE6A96DD29
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:21:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387859AbfGSEMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388623AbfGSEMC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jul 2019 00:12:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47150 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388618AbfGSEMA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:12:00 -0400
+        id S1731159AbfGSEMB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:12:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC31C21872;
-        Fri, 19 Jul 2019 04:11:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBB7D2189E;
+        Fri, 19 Jul 2019 04:11:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509519;
-        bh=vL3AmHwHotQnShlqS79F0dQKm8AQqsbtutrbeGWT9OU=;
+        s=default; t=1563509520;
+        bh=xfCU53WlHTAlJW2/uhkH1BKmeggsOheUfndwnFGFaQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBF6t+pckzIAvHHnLkw8j31Ohsglur8jztGNiAO+6/gLDQSBZGOgcoFWS0Tq+JNUc
-         X9/hYZ7aah6C9dyeHGAMrk0G6EDkBhegt2qI09Ds5dxb/tGyQuHSz5LcMyOPTM/OKu
-         Ffb9/XXcTJhm9YrXlkUraQLwbS7ixvVUVP4NBPZk=
+        b=mPCY0YUcNo98A8ss2RK1IRm1HX8tu42yOITCjLF+aIs3NvBKeBEV8xwihrnBP2fGr
+         VnV6k9PHC3/KhiCa+meS2+IIpsElS1Li2wiqjgf76dIR6x2D4H+17ZxI+AuXxN7vxD
+         OAjsPDYnGvrqAi/+RMen37DVxt418bVeemtWdgSQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Denis Ciocca <denis.ciocca@st.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 27/60] iio: st_accel: fix iio_triggered_buffer_{pre,post}enable positions
-Date:   Fri, 19 Jul 2019 00:10:36 -0400
-Message-Id: <20190719041109.18262-27-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Peter Smith <peter.smith@linaro.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 28/60] kbuild: Add -Werror=unknown-warning-option to CLANG_FLAGS
+Date:   Fri, 19 Jul 2019 00:10:37 -0400
+Message-Id: <20190719041109.18262-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041109.18262-1-sashal@kernel.org>
 References: <20190719041109.18262-1-sashal@kernel.org>
@@ -44,81 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 05b8bcc96278c9ef927a6f25a98e233e55de42e1 ]
+[ Upstream commit 589834b3a0097a4908f4112eac0ca2feb486fa32 ]
 
-The iio_triggered_buffer_{predisable,postenable} functions attach/detach
-the poll functions.
+In commit ebcc5928c5d9 ("arm64: Silence gcc warnings about arch ABI
+drift"), the arm64 Makefile added -Wno-psabi to KBUILD_CFLAGS, which is
+a GCC only option so clang rightfully complains:
 
-For the predisable hook, the disable code should occur before detaching
-the poll func, and for the postenable hook, the poll func should be
-attached before the enable code.
+warning: unknown warning option '-Wno-psabi' [-Wunknown-warning-option]
 
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Acked-by: Denis Ciocca <denis.ciocca@st.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+https://clang.llvm.org/docs/DiagnosticsReference.html#wunknown-warning-option
+
+However, by default, this is merely a warning so the build happily goes
+on with a slew of these warnings in the process.
+
+Commit c3f0d0bc5b01 ("kbuild, LLVMLinux: Add -Werror to cc-option to
+support clang") worked around this behavior in cc-option by adding
+-Werror so that unknown flags cause an error. However, this all happens
+silently and when an unknown flag is added to the build unconditionally
+like -Wno-psabi, cc-option will always fail because there is always an
+unknown flag in the list of flags. This manifested as link time failures
+in the arm64 libstub because -fno-stack-protector didn't get added to
+KBUILD_CFLAGS.
+
+To avoid these weird cryptic failures in the future, make clang behave
+like gcc and immediately error when it encounters an unknown flag by
+adding -Werror=unknown-warning-option to CLANG_FLAGS. This can be added
+unconditionally for clang because it is supported by at least 3.0.0,
+according to godbolt [1] and 4.0.0, according to its documentation [2],
+which is far earlier than we typically support.
+
+[1]: https://godbolt.org/z/7F7rm3
+[2]: https://releases.llvm.org/4.0.0/tools/clang/docs/DiagnosticsReference.html#wunknown-warning-option
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/511
+Link: https://github.com/ClangBuiltLinux/linux/issues/517
+Suggested-by: Peter Smith <peter.smith@linaro.org>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/st_accel_buffer.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/accel/st_accel_buffer.c b/drivers/iio/accel/st_accel_buffer.c
-index 7fddc137e91e..802ab7d2d93f 100644
---- a/drivers/iio/accel/st_accel_buffer.c
-+++ b/drivers/iio/accel/st_accel_buffer.c
-@@ -46,17 +46,19 @@ static int st_accel_buffer_postenable(struct iio_dev *indio_dev)
- 		goto allocate_memory_error;
- 	}
- 
--	err = st_sensors_set_axis_enable(indio_dev,
--					(u8)indio_dev->active_scan_mask[0]);
-+	err = iio_triggered_buffer_postenable(indio_dev);
- 	if (err < 0)
- 		goto st_accel_buffer_postenable_error;
- 
--	err = iio_triggered_buffer_postenable(indio_dev);
-+	err = st_sensors_set_axis_enable(indio_dev,
-+					(u8)indio_dev->active_scan_mask[0]);
- 	if (err < 0)
--		goto st_accel_buffer_postenable_error;
-+		goto st_sensors_set_axis_enable_error;
- 
- 	return err;
- 
-+st_sensors_set_axis_enable_error:
-+	iio_triggered_buffer_predisable(indio_dev);
- st_accel_buffer_postenable_error:
- 	kfree(adata->buffer_data);
- allocate_memory_error:
-@@ -65,20 +67,22 @@ static int st_accel_buffer_postenable(struct iio_dev *indio_dev)
- 
- static int st_accel_buffer_predisable(struct iio_dev *indio_dev)
- {
--	int err;
-+	int err, err2;
- 	struct st_sensor_data *adata = iio_priv(indio_dev);
- 
--	err = iio_triggered_buffer_predisable(indio_dev);
--	if (err < 0)
--		goto st_accel_buffer_predisable_error;
--
- 	err = st_sensors_set_axis_enable(indio_dev, ST_SENSORS_ENABLE_ALL_AXIS);
- 	if (err < 0)
- 		goto st_accel_buffer_predisable_error;
- 
- 	err = st_sensors_set_enable(indio_dev, false);
-+	if (err < 0)
-+		goto st_accel_buffer_predisable_error;
- 
- st_accel_buffer_predisable_error:
-+	err2 = iio_triggered_buffer_predisable(indio_dev);
-+	if (!err)
-+		err = err2;
-+
- 	kfree(adata->buffer_data);
- 	return err;
- }
+diff --git a/Makefile b/Makefile
+index c36e64bd9ae7..3d43f922953f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -488,6 +488,7 @@ ifneq ($(GCC_TOOLCHAIN),)
+ CLANG_FLAGS	+= --gcc-toolchain=$(GCC_TOOLCHAIN)
+ endif
+ CLANG_FLAGS	+= -no-integrated-as
++CLANG_FLAGS	+= -Werror=unknown-warning-option
+ KBUILD_CFLAGS	+= $(CLANG_FLAGS)
+ KBUILD_AFLAGS	+= $(CLANG_FLAGS)
+ export CLANG_FLAGS
 -- 
 2.20.1
 
