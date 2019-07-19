@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CC6A6DF34
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD7BF6DF31
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:33:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730013AbfGSEdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:33:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34904 "EHLO mail.kernel.org"
+        id S1726396AbfGSEC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:02:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728763AbfGSECy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:02:54 -0400
+        id S1730185AbfGSEC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:02:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E0C321873;
-        Fri, 19 Jul 2019 04:02:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77F1A21882;
+        Fri, 19 Jul 2019 04:02:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508973;
-        bh=Q2SEaEAU3FeOtqv5GUeAciOTGA6J81HutJNlYGYF0XQ=;
+        s=default; t=1563508976;
+        bh=loio7EbnPyE2U2r+HyGRrKSUH0ysEvubFWprXBu+1MA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bme/rG9xwWXhZ9TkNM3JRvXlwu3r7RhpmDD76aKXMHyCt8wCgbJVmquYfAd7zx2UE
-         BKwzxxcSKxPHDsxC2nqnWPgE1kGxfpo3uZ+NFlzNZDXYLlK0iLgMJcxHG9UVJ3qVXV
-         NzzN3EM7rP24lN094OtFWaIAr/Y0jcDjyjgYy7Wc=
+        b=A5ODP+2WccjNEqIim8rKr2M3Ucknu6bqDoWDBqwwd78R0wtVFwSdHUlrkZvw7ouKM
+         rOO45oHHq2EigF1g8bFnzWn60nFwHWWXwUFDf2O76ACkWEPHH+1ThDhtcrsCRKLb2o
+         aKSQjbAFBYh0LpqFv4iX376OQjkshnsC4yKrJZjw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabien Dessenne <fabien.dessenne@st.com>,
-        Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 003/141] iio: adc: stm32-dfsdm: missing error case during probe
-Date:   Fri, 19 Jul 2019 00:00:28 -0400
-Message-Id: <20190719040246.15945-3-sashal@kernel.org>
+Cc:     Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Corey Minyard <cminyard@mvista.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 005/141] ipmi_si: fix unexpected driver unregister warning
+Date:   Fri, 19 Jul 2019 00:00:30 -0400
+Message-Id: <20190719040246.15945-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -44,47 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabien Dessenne <fabien.dessenne@st.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-[ Upstream commit d2fc0156963cae8f1eec8e2dd645fbbf1e1c1c8e ]
+[ Upstream commit 2f66353963043e1d8dfacfbdf509acc5d3be7698 ]
 
-During probe, check the devm_ioremap_resource() error value.
-Also return the devm_clk_get() error value instead of -EINVAL.
+If ipmi_si_platform_init()->platform_driver_register() fails,
+platform_driver_unregister() called unconditionally will trigger
+following warning,
 
-Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
-Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+ipmi_platform: Unable to register driver: -12
+------------[ cut here ]------------
+Unexpected driver unregister!
+WARNING: CPU: 1 PID: 7210 at drivers/base/driver.c:193 driver_unregister+0x60/0x70 drivers/base/driver.c:193
+
+Fix it by adding platform_registered variable, only unregister platform
+driver when it is already successfully registered.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Message-Id: <20190517101245.4341-1-wangkefeng.wang@huawei.com>
+
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/stm32-dfsdm-core.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/char/ipmi/ipmi_si_platform.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/stm32-dfsdm-core.c b/drivers/iio/adc/stm32-dfsdm-core.c
-index bf089f5d6225..941630615e88 100644
---- a/drivers/iio/adc/stm32-dfsdm-core.c
-+++ b/drivers/iio/adc/stm32-dfsdm-core.c
-@@ -213,6 +213,8 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
- 	}
- 	priv->dfsdm.phys_base = res->start;
- 	priv->dfsdm.base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(priv->dfsdm.base))
-+		return PTR_ERR(priv->dfsdm.base);
+diff --git a/drivers/char/ipmi/ipmi_si_platform.c b/drivers/char/ipmi/ipmi_si_platform.c
+index 54c7ded2a1ff..859c78de1d4a 100644
+--- a/drivers/char/ipmi/ipmi_si_platform.c
++++ b/drivers/char/ipmi/ipmi_si_platform.c
+@@ -19,6 +19,7 @@
+ #include "ipmi_si.h"
+ #include "ipmi_dmi.h"
  
- 	/*
- 	 * "dfsdm" clock is mandatory for DFSDM peripheral clocking.
-@@ -222,8 +224,10 @@ static int stm32_dfsdm_parse_of(struct platform_device *pdev,
- 	 */
- 	priv->clk = devm_clk_get(&pdev->dev, "dfsdm");
- 	if (IS_ERR(priv->clk)) {
--		dev_err(&pdev->dev, "No stm32_dfsdm_clk clock found\n");
--		return -EINVAL;
-+		ret = PTR_ERR(priv->clk);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Failed to get clock (%d)\n", ret);
-+		return ret;
- 	}
++static bool platform_registered;
+ static bool si_tryplatform = true;
+ #ifdef CONFIG_ACPI
+ static bool          si_tryacpi = true;
+@@ -471,9 +472,12 @@ void ipmi_si_platform_init(void)
+ 	int rv = platform_driver_register(&ipmi_platform_driver);
+ 	if (rv)
+ 		pr_err("Unable to register driver: %d\n", rv);
++	else
++		platform_registered = true;
+ }
  
- 	priv->aclk = devm_clk_get(&pdev->dev, "audio");
+ void ipmi_si_platform_shutdown(void)
+ {
+-	platform_driver_unregister(&ipmi_platform_driver);
++	if (platform_registered)
++		platform_driver_unregister(&ipmi_platform_driver);
+ }
 -- 
 2.20.1
 
