@@ -2,114 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 215B46EC24
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 23:39:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D2C56EC2C
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 23:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728960AbfGSVjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 17:39:55 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:36534 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727528AbfGSVjz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 17:39:55 -0400
-Received: by mail-wm1-f66.google.com with SMTP id g67so26127378wme.1;
-        Fri, 19 Jul 2019 14:39:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=dJZwB/Clkci6ZFRbtdSU37FYwxEFZIATbsU+Tyu15yU=;
-        b=J5/uLkUQiySkxXmK4m2T0AjaKrFTGYUOyNeGEK/FehRSVzgscPlWhQi3qkQ1LU7R1H
-         t/fN2q9m/LRjIgu59k+dJllD0xfhaHaoHFBXemQbpAfD6UphBhYJeJ03Uv8+E7ckRFc4
-         YPCJGeORBPmXuqlD2Ir10H8NA/XeZTzr3uKGVO2nGUSUAs3LfeK9aU8qZH5fkZu6Oqd3
-         LBk0KI38nPeuqE6fM/aASkK8CDDk0ze/P/OjZmPt4nIvoyt+YmyBnaFTuoWC+PCMMMM3
-         Lur/5TnAZCngt3K7UlBO5OQZEakO+WOpSopYTjpRGZgAZGFQVRDbLCGCJSAwIQjGmi7z
-         MOiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=dJZwB/Clkci6ZFRbtdSU37FYwxEFZIATbsU+Tyu15yU=;
-        b=i91lo4GOHzSZl7lsAyfsuZ1dbJJXj1o++1IoC3JkgV7RPCAkrjm/WSmzypiMudS/u8
-         i7xKxRGf9kzFZU/ht5q+/GfOnCV/ExVv0NRCREqLbxY1hJ3MUEZSSBZY6PXw2rAnTBvm
-         8gYfTKqeio/MuN0ZFgo4eDokXwDQRblIv5yDx36P/CtO8y/N4RSbt14k7/Amk36vweH4
-         nCRdDgiE5dqeMBW4956K0nB6t7uI6z6d8Wyod59MMTSKOt+sd7vH0GgNt4fAK8n236Jl
-         K3ULj6niZBK3dxWLhxhwuM0bwd36mRXF1kxCIHlxY0oM3otbolBSLOpuas/ZqTBedFHc
-         IEYw==
-X-Gm-Message-State: APjAAAWaXHqbM32MrbFQ5tPOeHSKox29AnH8m4QKic2V/HYnGm5GfbPS
-        t6dKa3VZeznlXYF2HsC8aXNuvBoQ9aA=
-X-Google-Smtp-Source: APXvYqy22DLKRAzSsbKsRzshsG+BNywMNiZsLK/xOpZhQVmuyq2WCMJhopvjLFhb8SHCCAhir6F9eA==
-X-Received: by 2002:a05:600c:da:: with SMTP id u26mr48223115wmm.108.1563572392538;
-        Fri, 19 Jul 2019 14:39:52 -0700 (PDT)
-Received: from 640k.localdomain ([93.56.166.5])
-        by smtp.gmail.com with ESMTPSA id i18sm39303874wrp.91.2019.07.19.14.39.51
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 19 Jul 2019 14:39:51 -0700 (PDT)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     Liran Alon <liran.alon@oracle.com>, stable@vger.kernel.org
-Subject: [PATCH v2] KVM: nVMX: do not use dangling shadow VMCS after guest reset
-Date:   Fri, 19 Jul 2019 23:39:50 +0200
-Message-Id: <1563572390-28823-1-git-send-email-pbonzini@redhat.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1728658AbfGSVnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 17:43:20 -0400
+Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:37241 "EHLO
+        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728564AbfGSVnU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 17:43:20 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=bo.liu@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0TXJI3wZ_1563572595;
+Received: from US-160370MP2.local(mailfrom:bo.liu@linux.alibaba.com fp:SMTPD_---0TXJI3wZ_1563572595)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Sat, 20 Jul 2019 05:43:18 +0800
+Date:   Fri, 19 Jul 2019 14:43:15 -0700
+From:   Liu Bo <bo.liu@linux.alibaba.com>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     stable <stable@vger.kernel.org>, Linux MM <linux-mm@kvack.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Jan Kara <jack@suse.cz>, Matthew Wilcox <willy@infradead.org>,
+        Peng Tao <tao.peng@linux.alibaba.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH] mm: fix livelock caused by iterating multi order entry
+Message-ID: <20190719214314.26ftdpdyf4tixxca@US-160370MP2.local>
+Reply-To: bo.liu@linux.alibaba.com
+References: <1563495160-25647-1-git-send-email-bo.liu@linux.alibaba.com>
+ <CAPcyv4jR3vscppooTFBEU=Kp4CNVfthNNz1pV6jxwyg2bmdBjg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAPcyv4jR3vscppooTFBEU=Kp4CNVfthNNz1pV6jxwyg2bmdBjg@mail.gmail.com>
+User-Agent: NeoMutt/20180323
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If a KVM guest is reset while running a nested guest, free_nested will
-disable the shadow VMCS execution control in the vmcs01.  However,
-on the next KVM_RUN vmx_vcpu_run would nevertheless try to sync
-the VMCS12 to the shadow VMCS which has since been freed.
+On Thu, Jul 18, 2019 at 07:53:42PM -0700, Dan Williams wrote:
+> [ add Sasha for -stable advice ]
+> 
+> On Thu, Jul 18, 2019 at 5:13 PM Liu Bo <bo.liu@linux.alibaba.com> wrote:
+> >
+> > The livelock can be triggerred in the following pattern,
+> >
+> >         while (index < end && pagevec_lookup_entries(&pvec, mapping, index,
+> >                                 min(end - index, (pgoff_t)PAGEVEC_SIZE),
+> >                                 indices)) {
+> >                 ...
+> >                 for (i = 0; i < pagevec_count(&pvec); i++) {
+> >                         index = indices[i];
+> >                         ...
+> >                 }
+> >                 index++; /* BUG */
+> >         }
+> >
+> > multi order exceptional entry is not specially considered in
+> > invalidate_inode_pages2_range() and it ended up with a livelock because
+> > both index 0 and index 1 finds the same pmd, but this pmd is binded to
+> > index 0, so index is set to 0 again.
+> >
+> > This introduces a helper to take the pmd entry's length into account when
+> > deciding the next index.
+> >
+> > Note that there're other users of the above pattern which doesn't need to
+> > fix,
+> >
+> > - dax_layout_busy_page
+> > It's been fixed in commit d7782145e1ad
+> > ("filesystem-dax: Fix dax_layout_busy_page() livelock")
+> >
+> > - truncate_inode_pages_range
+> > This won't loop forever since the exceptional entries are immediately
+> > removed from radix tree after the search.
+> >
+> > Fixes: 642261a ("dax: add struct iomap based DAX PMD support")
+> > Cc: <stable@vger.kernel.org> since 4.9 to 4.19
+> > Signed-off-by: Liu Bo <bo.liu@linux.alibaba.com>
+> > ---
+> >
+> > The problem is gone after commit f280bf092d48 ("page cache: Convert
+> > find_get_entries to XArray"), but since xarray seems too new to backport
+> > to 4.19, I made this fix based on radix tree implementation.
+> 
+> I think in this situation, since mainline does not need this change
+> and the bug has been buried under a major refactoring, is to send a
+> backport directly against the v4.19 kernel. Include notes about how it
+> replaces the fix that was inadvertently contained in f280bf092d48
+> ("page cache: Convert find_get_entries to XArray"). Do you have a test
+> case that you can include in the changelog?
 
-This causes a vmptrld of a NULL pointer on my machime, but Jan reports
-the host to hang altogether.  Let's see how much this trivial patch fixes.
+The root cause behind the bug is exactly same as what commit
+d7782145e1ad ("filesystem-dax: Fix dax_layout_busy_page() livelock")
+does.
 
-Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Liran Alon <liran.alon@oracle.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- arch/x86/kvm/vmx/nested.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+For test case, I have a not 100% reproducible one based on ltp's
+rwtest[1] and virtiofs.
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 4f23e34f628b..0f1378789bd0 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -194,6 +194,7 @@ static void vmx_disable_shadow_vmcs(struct vcpu_vmx *vmx)
- {
- 	secondary_exec_controls_clearbit(vmx, SECONDARY_EXEC_SHADOW_VMCS);
- 	vmcs_write64(VMCS_LINK_POINTER, -1ull);
-+	vmx->nested.need_vmcs12_to_shadow_sync = false;
- }
- 
- static inline void nested_release_evmcs(struct kvm_vcpu *vcpu)
-@@ -1341,6 +1342,9 @@ static void copy_shadow_to_vmcs12(struct vcpu_vmx *vmx)
- 	unsigned long val;
- 	int i;
- 
-+	if (WARN_ON(!shadow_vmcs))
-+		return;
-+
- 	preempt_disable();
- 
- 	vmcs_load(shadow_vmcs);
-@@ -1373,6 +1377,9 @@ static void copy_vmcs12_to_shadow(struct vcpu_vmx *vmx)
- 	unsigned long val;
- 	int i, q;
- 
-+	if (WARN_ON(!shadow_vmcs))
-+		return;
-+
- 	vmcs_load(shadow_vmcs);
- 
- 	for (q = 0; q < ARRAY_SIZE(fields); q++) {
-@@ -4436,7 +4443,6 @@ static inline void nested_release_vmcs12(struct kvm_vcpu *vcpu)
- 		/* copy to memory all shadowed fields in case
- 		   they were modified */
- 		copy_shadow_to_vmcs12(vmx);
--		vmx->nested.need_vmcs12_to_shadow_sync = false;
- 		vmx_disable_shadow_vmcs(vmx);
- 	}
- 	vmx->nested.posted_intr_nv = -1;
--- 
-1.8.3.1
+[1]:
+$mount -t virtio_fs -o tag=alwaysdax -o rootmode=040000,user_id=0,group_id=0,dax,default_permissions,allow_other alwaysdax /mnt/virtio-fs/
+$cat test.txt
+rwtest01 export LTPROOT; rwtest -N rwtest01 -c -q -i 60s -f sync 10%25000:$TMPDIR/rw-sync-$$
+$runltp -d /mnt/virtio-fs -f test.txt
 
+thanks,
+-liubo
