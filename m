@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46D086DFF5
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:40:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD8826DFF8
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728151AbfGSD6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 23:58:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57958 "EHLO mail.kernel.org"
+        id S1728227AbfGSD6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 23:58:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728084AbfGSD6e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:58:34 -0400
+        id S1728206AbfGSD6j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:58:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB82521851;
-        Fri, 19 Jul 2019 03:58:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E03D21851;
+        Fri, 19 Jul 2019 03:58:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508713;
-        bh=dCMCrBXXrlPWsuWbPGNG1JXo6HFZCM3Qn+fUwg5WFGU=;
+        s=default; t=1563508718;
+        bh=R3UxDjgTbacNgKcJvMdnsgwwpj7qgbnHxLcI0sBnYsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TFeVrIG9wvZAteg+X1U5murjuhOnT0N2qLn5gRNs9gcQJYb9S7FA05t9KlwAHBhCG
-         m/5kUkROXNZ9aXa2U73GrGEV/tch9zjBb8H7c7m3WxniidUTxlwPWW7ZiH7jAF1jhm
-         LCIIsqRFL7Clo4ARvijJMYGvVy2doMDkDWprcmek=
+        b=CrOBPF4hHcblIC7sFQ8nOU6D6vcoSc/uKhMk6R8CO5/fG/zSkPpoNgJaOFXb8IUP3
+         hg4ysYyoyMXyDm15GpiKvTkfzrJ75x7Ew/Z7P4KjkJPJ7PVFeAM2BuMdhqBCE1+a89
+         mfKvcBMTvkErVR7qL+CUV2F8uNrTBslrMscO/Xvk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 049/171] tty: serial: msm_serial: avoid system lockup condition
-Date:   Thu, 18 Jul 2019 23:54:40 -0400
-Message-Id: <20190719035643.14300-49-sashal@kernel.org>
+Cc:     Alan Mikhak <alan.mikhak@sifive.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.2 051/171] PCI: endpoint: Allocate enough space for fixed size BAR
+Date:   Thu, 18 Jul 2019 23:54:42 -0400
+Message-Id: <20190719035643.14300-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -44,43 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+From: Alan Mikhak <alan.mikhak@sifive.com>
 
-[ Upstream commit ba3684f99f1b25d2a30b6956d02d339d7acb9799 ]
+[ Upstream commit f16fb16ed16c7f561e9c41c9ae4107c7f6aa553c ]
 
-The function msm_wait_for_xmitr can be taken with interrupts
-disabled. In order to avoid a potential system lockup - demonstrated
-under stress testing conditions on SoC QCS404/5 - make sure we wait
-for a bounded amount of time.
+PCI endpoint test function code should honor the .bar_fixed_size parameter
+from underlying endpoint controller drivers or results may be unexpected.
 
-Tested on SoC QCS404.
+In pci_epf_test_alloc_space(), check if BAR being used for test
+register space is a fixed size BAR. If so, allocate the required fixed
+size.
 
-Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Alan Mikhak <alan.mikhak@sifive.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/msm_serial.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/pci/endpoint/functions/pci-epf-test.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
-index 23833ad952ba..3657a24913fc 100644
---- a/drivers/tty/serial/msm_serial.c
-+++ b/drivers/tty/serial/msm_serial.c
-@@ -383,10 +383,14 @@ static void msm_request_rx_dma(struct msm_port *msm_port, resource_size_t base)
+diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
+index 27806987e93b..7d41e6684b87 100644
+--- a/drivers/pci/endpoint/functions/pci-epf-test.c
++++ b/drivers/pci/endpoint/functions/pci-epf-test.c
+@@ -434,10 +434,16 @@ static int pci_epf_test_alloc_space(struct pci_epf *epf)
+ 	int bar;
+ 	enum pci_barno test_reg_bar = epf_test->test_reg_bar;
+ 	const struct pci_epc_features *epc_features;
++	size_t test_reg_size;
  
- static inline void msm_wait_for_xmitr(struct uart_port *port)
- {
-+	unsigned int timeout = 500000;
+ 	epc_features = epf_test->epc_features;
+ 
+-	base = pci_epf_alloc_space(epf, sizeof(struct pci_epf_test_reg),
++	if (epc_features->bar_fixed_size[test_reg_bar])
++		test_reg_size = bar_size[test_reg_bar];
++	else
++		test_reg_size = sizeof(struct pci_epf_test_reg);
 +
- 	while (!(msm_read(port, UART_SR) & UART_SR_TX_EMPTY)) {
- 		if (msm_read(port, UART_ISR) & UART_ISR_TX_READY)
- 			break;
- 		udelay(1);
-+		if (!timeout--)
-+			break;
- 	}
- 	msm_write(port, UART_CR_CMD_RESET_TX_READY, UART_CR);
- }
++	base = pci_epf_alloc_space(epf, test_reg_size,
+ 				   test_reg_bar, epc_features->align);
+ 	if (!base) {
+ 		dev_err(dev, "Failed to allocated register space\n");
 -- 
 2.20.1
 
