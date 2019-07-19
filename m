@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D38EA6DFE8
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF5806DFDF
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730354AbfGSEik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:38:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58702 "EHLO mail.kernel.org"
+        id S1728621AbfGSD7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 23:59:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728556AbfGSD7N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:59:13 -0400
+        id S1728588AbfGSD7S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:59:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFACD21855;
-        Fri, 19 Jul 2019 03:59:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F42E21855;
+        Fri, 19 Jul 2019 03:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508752;
-        bh=fAxcJtvc6D/lb9qHE8rxAU2u7+yhuYmnb5gHLxvVhm4=;
+        s=default; t=1563508756;
+        bh=qceo+/TEZVRgGCiRPA/chu92E1luGtQgGGimokaAYQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sgias6CZr43YjcFSjkzAkV8UBpAovwYzzcapTKYdrwK62wRvR6SuMIPffs5XyjIiV
-         MNtvP+woe0+1aXuYqY4OlvZgqX1//eZzb49tK44i6bX65qWDzIYiKE7agTkV9HXVIh
-         oAZTH32G1hHElKVRBc2AaPV42aS6eJOtNfFovZfA=
+        b=dOfMliKnPdTueSGPmYd4Eln2Muv5JFdYOCOH9AOAc6kelJ0W2oGsAuBgt7iaveusL
+         3mtmqDQDlNSwdKGW544lx2Bit2BTKrU7VM0OrdqzmQ7CKVc0pKjKxEIEfZ1Dyt8T3/
+         qfIVWfTLxRtExIZkbt0k5/1KIPt3qaJYO2YMpNq8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eugene Korenevsky <ekorenevsky@gmail.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 071/171] kvm: vmx: fix limit checking in get_vmx_mem_address()
-Date:   Thu, 18 Jul 2019 23:55:02 -0400
-Message-Id: <20190719035643.14300-71-sashal@kernel.org>
+Cc:     EJ Hsu <ejh@nvidia.com>, Alan Stern <stern@rowland.harvard.edu>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 072/171] usb: gadget: storage: Remove warning message
+Date:   Thu, 18 Jul 2019 23:55:03 -0400
+Message-Id: <20190719035643.14300-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,55 +43,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Korenevsky <ekorenevsky@gmail.com>
+From: EJ Hsu <ejh@nvidia.com>
 
-[ Upstream commit c1a9acbc5295e278d788e9f7510f543bc9864fa2 ]
+[ Upstream commit e70b3f5da00119e057b7faa557753fee7f786f17 ]
 
-Intel SDM vol. 3, 5.3:
-The processor causes a
-general-protection exception (or, if the segment is SS, a stack-fault
-exception) any time an attempt is made to access the following addresses
-in a segment:
-- A byte at an offset greater than the effective limit
-- A word at an offset greater than the (effective-limit â€“ 1)
-- A doubleword at an offset greater than the (effective-limit â€“ 3)
-- A quadword at an offset greater than the (effective-limit â€“ 7)
+This change is to fix below warning message in following scenario:
+usb_composite_setup_continue: Unexpected call
 
-Therefore, the generic limit checking error condition must be
+When system tried to enter suspend, the fsg_disable() will be called to
+disable fsg driver and send a signal to fsg_main_thread. However, at
+this point, the fsg_main_thread has already been frozen and can not
+respond to this signal. So, this signal will be pended until
+fsg_main_thread wakes up.
 
-exn = (off > limit + 1 - access_len) = (off + access_len - 1 > limit)
+Once system resumes from suspend, fsg_main_thread will detect a signal
+pended and do some corresponding action (in handle_exception()). Then,
+host will send some setup requests (get descriptor, set configuration...)
+to UDC driver trying to enumerate this device. During the handling of "set
+configuration" request, it will try to sync up with fsg_main_thread by
+sending a signal (which is the same as the signal sent by fsg_disable)
+to it. In a similar manner, once the fsg_main_thread receives this
+signal, it will call handle_exception() to handle the request.
 
-but not
+However, if the fsg_main_thread wakes up from suspend a little late and
+"set configuration" request from Host arrives a little earlier,
+fsg_main_thread might come across the request from "set configuration"
+when it handles the signal from fsg_disable(). In this case, it will
+handle this request as well. So, when fsg_main_thread tries to handle
+the signal sent from "set configuration" later, there will nothing left
+to do and warning message "Unexpected call" is printed.
 
-exn = (off + access_len > limit)
-
-as for now.
-
-Also avoid integer overflow of `off` at 32-bit KVM by casting it to u64.
-
-Note: access length is currently sizeof(u64) which is incorrect. This
-will be fixed in the subsequent patch.
-
-Signed-off-by: Eugene Korenevsky <ekorenevsky@gmail.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: EJ Hsu <ejh@nvidia.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_mass_storage.c | 21 ++++++++++++++------
+ drivers/usb/gadget/function/storage_common.h |  1 +
+ 2 files changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 46af3a5e9209..7958189ee702 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4115,7 +4115,7 @@ int get_vmx_mem_address(struct kvm_vcpu *vcpu, unsigned long exit_qualification,
- 		 */
- 		if (!(s.base == 0 && s.limit == 0xffffffff &&
- 		     ((s.type & 8) || !(s.type & 4))))
--			exn = exn || (off + sizeof(u64) > s.limit);
-+			exn = exn || ((u64)off + sizeof(u64) - 1 > s.limit);
+diff --git a/drivers/usb/gadget/function/f_mass_storage.c b/drivers/usb/gadget/function/f_mass_storage.c
+index 043f97ad8f22..982c3e89eb0d 100644
+--- a/drivers/usb/gadget/function/f_mass_storage.c
++++ b/drivers/usb/gadget/function/f_mass_storage.c
+@@ -2293,8 +2293,7 @@ static int fsg_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
+ static void fsg_disable(struct usb_function *f)
+ {
+ 	struct fsg_dev *fsg = fsg_from_func(f);
+-	fsg->common->new_fsg = NULL;
+-	raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE);
++	raise_exception(fsg->common, FSG_STATE_DISCONNECT);
+ }
+ 
+ 
+@@ -2307,6 +2306,7 @@ static void handle_exception(struct fsg_common *common)
+ 	enum fsg_state		old_state;
+ 	struct fsg_lun		*curlun;
+ 	unsigned int		exception_req_tag;
++	struct fsg_dev		*fsg;
+ 
+ 	/*
+ 	 * Clear the existing signals.  Anything but SIGUSR1 is converted
+@@ -2413,9 +2413,19 @@ static void handle_exception(struct fsg_common *common)
+ 		break;
+ 
+ 	case FSG_STATE_CONFIG_CHANGE:
+-		do_set_interface(common, common->new_fsg);
+-		if (common->new_fsg)
++		fsg = common->new_fsg;
++		/*
++		 * Add a check here to double confirm if a disconnect event
++		 * occurs and common->new_fsg has been cleared.
++		 */
++		if (fsg) {
++			do_set_interface(common, fsg);
+ 			usb_composite_setup_continue(common->cdev);
++		}
++		break;
++
++	case FSG_STATE_DISCONNECT:
++		do_set_interface(common, NULL);
+ 		break;
+ 
+ 	case FSG_STATE_EXIT:
+@@ -2989,8 +2999,7 @@ static void fsg_unbind(struct usb_configuration *c, struct usb_function *f)
+ 
+ 	DBG(fsg, "unbind\n");
+ 	if (fsg->common->fsg == fsg) {
+-		fsg->common->new_fsg = NULL;
+-		raise_exception(fsg->common, FSG_STATE_CONFIG_CHANGE);
++		raise_exception(fsg->common, FSG_STATE_DISCONNECT);
+ 		/* FIXME: make interruptible or killable somehow? */
+ 		wait_event(common->fsg_wait, common->fsg != fsg);
  	}
- 	if (exn) {
- 		kvm_queue_exception_e(vcpu,
+diff --git a/drivers/usb/gadget/function/storage_common.h b/drivers/usb/gadget/function/storage_common.h
+index e5e3a2553aaa..12687f7e3de9 100644
+--- a/drivers/usb/gadget/function/storage_common.h
++++ b/drivers/usb/gadget/function/storage_common.h
+@@ -161,6 +161,7 @@ enum fsg_state {
+ 	FSG_STATE_ABORT_BULK_OUT,
+ 	FSG_STATE_PROTOCOL_RESET,
+ 	FSG_STATE_CONFIG_CHANGE,
++	FSG_STATE_DISCONNECT,
+ 	FSG_STATE_EXIT,
+ 	FSG_STATE_TERMINATED
+ };
 -- 
 2.20.1
 
