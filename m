@@ -2,71 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4061B6D979
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E54C6D981
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 05:56:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726075AbfGSDrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jul 2019 23:47:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54472 "EHLO mail.kernel.org"
+        id S1726092AbfGSD4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jul 2019 23:56:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726055AbfGSDrL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jul 2019 23:47:11 -0400
-Received: from localhost (p91006-ipngnfx01marunouchi.tokyo.ocn.ne.jp [153.156.43.6])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726067AbfGSD4q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jul 2019 23:56:46 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D70A82173B;
-        Fri, 19 Jul 2019 03:47:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F11E2082E;
+        Fri, 19 Jul 2019 03:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508031;
-        bh=+N7bbfXmnlKMhN5RHiS3PpWZx4Anz1FOdyXFz3ihzuk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BicAfbVzzWqn9/gwFJGmCMyfw2emad4Ep4Yh/45H9Y51/j1yNCRR6ycndgW/dkOY1
-         ksFfSjkP4MWlviptn3Tmj6E6T9Xz26whLtlFTFXLBrWegKG7YCsq29+7aFPSFa73x8
-         O9dt3LwMWXmGtJda+Eo+QyEKUmQTovQWgLkgynvc=
-Date:   Fri, 19 Jul 2019 12:47:08 +0900
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Kelsey Skunberg <skunberg.kelsey@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.2 00/21] 5.2.2-stable review
-Message-ID: <20190719034708.GD8184@kroah.com>
-References: <20190718030030.456918453@linuxfoundation.org>
- <20190718205818.GF6020@JATN>
+        s=default; t=1563508605;
+        bh=/bYiLhQ2bS9pcCsRPAJ+8A98ijnEbnaNzmUqu1Yf4og=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VFme/5UjzcJLqJ50dGR1eQjs/VgmYIWJaMwCXIWWnrXP0l2u5Nv0Gf+E05Ra16G3e
+         U+w02CX97sEPGDx9mc4K03siLpij+Ml2xkUrspEm4npxxgFlPvF9uqkSyxCIgYbPVN
+         BtGdZO8qBMEtVUZPDXjCaT/lZpRkEZbF835KvLb0=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Peter Griffin <peter.griffin@linaro.org>,
+        Rob Herring <robh@kernel.org>, Daniel Vetter <daniel@ffwll.ch>,
+        Qiang Yu <yuq825@gmail.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.2 001/171] drm/lima: handle shared irq case for lima_pp_bcast_irq_handler
+Date:   Thu, 18 Jul 2019 23:53:52 -0400
+Message-Id: <20190719035643.14300-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190718205818.GF6020@JATN>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 18, 2019 at 02:58:18PM -0600, Kelsey Skunberg wrote:
-> On Thu, Jul 18, 2019 at 12:01:18PM +0900, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.2.2 release.
-> > There are 21 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sat 20 Jul 2019 02:59:27 AM UTC.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.2-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> 
-> Compiled and booted with no regressions on my system.
+From: Peter Griffin <peter.griffin@linaro.org>
 
-Thanks for testing all of these and letting me know.
+[ Upstream commit 409c53f07a81f8db122c461f3255c6f43558c881 ]
 
-greg k-h
+On Hikey board all lima ip blocks are shared with one irq.
+This patch avoids a NULL ptr deref crash on this platform
+on startup. Tested with Weston and kmscube.
+
+Signed-off-by: Peter Griffin <peter.griffin@linaro.org>
+Cc: Rob Herring <robh@kernel.org>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Qiang Yu <yuq825@gmail.com>
+Signed-off-by: Qiang Yu <yuq825@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1555662781-22570-7-git-send-email-peter.griffin@linaro.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/lima/lima_pp.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/lima/lima_pp.c b/drivers/gpu/drm/lima/lima_pp.c
+index d29721e177bf..8fef224b93c8 100644
+--- a/drivers/gpu/drm/lima/lima_pp.c
++++ b/drivers/gpu/drm/lima/lima_pp.c
+@@ -64,7 +64,13 @@ static irqreturn_t lima_pp_bcast_irq_handler(int irq, void *data)
+ 	struct lima_ip *pp_bcast = data;
+ 	struct lima_device *dev = pp_bcast->dev;
+ 	struct lima_sched_pipe *pipe = dev->pipe + lima_pipe_pp;
+-	struct drm_lima_m450_pp_frame *frame = pipe->current_task->frame;
++	struct drm_lima_m450_pp_frame *frame;
++
++	/* for shared irq case */
++	if (!pipe->current_task)
++		return IRQ_NONE;
++
++	frame = pipe->current_task->frame;
+ 
+ 	for (i = 0; i < frame->num_pp; i++) {
+ 		struct lima_ip *ip = pipe->processor[i];
+-- 
+2.20.1
+
