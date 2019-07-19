@@ -2,101 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB0C6EC87
-	for <lists+stable@lfdr.de>; Sat, 20 Jul 2019 00:33:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF396ECA7
+	for <lists+stable@lfdr.de>; Sat, 20 Jul 2019 01:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728512AbfGSWdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 18:33:23 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:49863 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727344AbfGSWdX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 18:33:23 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id CCCF08032D; Sat, 20 Jul 2019 00:33:08 +0200 (CEST)
-Date:   Sat, 20 Jul 2019 00:33:19 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 13/47] afs: Fix uninitialised spinlock
- afs_volume::cb_break_lock
-Message-ID: <20190719223319.GA32199@amd>
-References: <20190718030045.780672747@linuxfoundation.org>
- <20190718030049.759890872@linuxfoundation.org>
+        id S1732457AbfGSXHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 19:07:32 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:46787 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728747AbfGSXHc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 19:07:32 -0400
+Received: by mail-pg1-f194.google.com with SMTP id i8so15056161pgm.13;
+        Fri, 19 Jul 2019 16:07:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=MWjZYC8fdMQNtbmG2vB97lJlxQXw6XI9YYU1MWaUobc=;
+        b=jJdnOsgidE+l56Nps11TW0ttv3MyU96PPekJXtqkJdzISg3d8G2oiRL4PS25EuBnH0
+         /iVQCzOuGPSom0c09M1ud2ze8P8In/2B7+0OwQdVESihc1KC5egyIqUH61msBNv3YBjU
+         fdB8RvXHblNcoOoiEuGEMUwQ8ro4Dq/1idF1vvLUZU/IbwSx1SgkOsjfGg+b1vMoNgF8
+         C0ntdextaEGcxpqjAYFo8z6CvH92BjGdcMh+b+VLFs4p0hVOeB1VCbKgbYjDGvYXITsd
+         uLj9errxgM8dD+Y2YqGbJw3hiD3BMYoJdIgRCYP6akZz4Cuw2510NYPYTJwt7FMPvA6J
+         MsRg==
+X-Gm-Message-State: APjAAAXJXaSq64WIYJN9PdUSq+Y/QFkhMz0YoGF4sjSd1056wepn4zjI
+        AMbAeIC67GEeq3jcAtpCwGTXyGxL
+X-Google-Smtp-Source: APXvYqwKSWExaTmOAl7W0Q3HC86Qwbod8gNZZTZVJxAwLT4XvoHzVzA65+t4HdKHftj8cVXYp92kVg==
+X-Received: by 2002:a65:6850:: with SMTP id q16mr19292928pgt.423.1563577651298;
+        Fri, 19 Jul 2019 16:07:31 -0700 (PDT)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id q198sm32702019pfq.155.2019.07.19.16.07.29
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Fri, 19 Jul 2019 16:07:30 -0700 (PDT)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 73C20402A1; Fri, 19 Jul 2019 23:07:29 +0000 (UTC)
+Date:   Fri, 19 Jul 2019 23:07:29 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     linux-xfs@vger.kernel.org, gregkh@linuxfoundation.org,
+        Alexander.Levin@microsoft.com
+Cc:     stable@vger.kernel.org, amir73il@gmail.com, hch@infradead.org,
+        zlang@redhat.com, Brian Foster <bfoster@redhat.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>
+Subject: Re: [PATCH] xfs: don't trip over uninitialized buffer on extent read
+ of corrupted inode
+Message-ID: <20190719230729.GS19023@42.do-not-panic.com>
+References: <20190718230617.7439-1-mcgrof>
+ <20190719193032.11096-1-mcgrof@kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190718030049.759890872@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20190719193032.11096-1-mcgrof@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jul 19, 2019 at 07:30:32PM +0000, Luis Chamberlain wrote:
+> [mcgrof: fixes kz#204223 ]
 
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch can be ingored for now for stable. It does not actually
+fix the issue, just delays it a bit. Once I stress test over 1000
+runs with some other fixes I have I'll send a new set of stable
+fixes.
 
-Hi!
-
-> Without this, the following trace may be observed when a volume-break
-> callback is received:
->=20
->   INFO: trying to register non-static key.
->   the code is fine but needs lockdep annotation.
-
-I'm sure this fixes the warning...
-
-> diff --git a/fs/afs/callback.c b/fs/afs/callback.c
-> index 5f261fbf2182..4ad701250299 100644
-> --- a/fs/afs/callback.c
-> +++ b/fs/afs/callback.c
-> @@ -276,9 +276,9 @@ static void afs_break_one_callback(struct afs_server =
-*server,
->  			struct afs_super_info *as =3D AFS_FS_S(cbi->sb);
->  			struct afs_volume *volume =3D as->volume;
-> =20
-> -			write_lock(&volume->cb_break_lock);
-> +			write_lock(&volume->cb_v_break_lock);
->  			volume->cb_v_break++;
-> -			write_unlock(&volume->cb_break_lock);
-> +			write_unlock(&volume->cb_v_break_lock);
->  		} else {
->  			data.volume =3D NULL;
->  			data.fid =3D *fid;
-
-But this is the only use of the lock.
-
-Which is strange: we have read/write lock, but we only use the write
-side. Readers don't take the lock, so it does not offer any protection
-for them.
-
-Is that correct? Does this need to be rwlock, or would plain spinlock
-be enough? atomic_t?
-
-(Problem exists in the mainline, nothing stable specific here).
-
-Best regards,
-								Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---Kj7319i9nmIyA2yE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl0yRS8ACgkQMOfwapXb+vI1ZwCeLs/jEeAzqUrYgS0zSusJliCY
-MrkAn2aVDKgfaTmyBERlnzdpcQOHnOGL
-=bvsH
------END PGP SIGNATURE-----
-
---Kj7319i9nmIyA2yE--
+  Luis
