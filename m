@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A576D6DFBF
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9126DFC1
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:38:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726646AbfGSEAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:00:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59940 "EHLO mail.kernel.org"
+        id S1726842AbfGSEAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:00:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726600AbfGSEAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:00:05 -0400
+        id S1726720AbfGSEAG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:00:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 078AC21882;
-        Fri, 19 Jul 2019 04:00:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFCA32189E;
+        Fri, 19 Jul 2019 04:00:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508804;
-        bh=/TZCDMO7PmrUqAcLJZ0HPzkEVQDWNzyulwyt0GEmmqM=;
+        s=default; t=1563508805;
+        bh=n/H9DtgbR6PnQvash2wSB/L+kMnJ+lz8di/8qoW6B0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k0Uxg2zULNrvAeuQfNtRdr0/Biivoii9eUXyTxbxVlGyPh7hicFdLgCEIRqH3TcSl
-         5SZkBgA1H1IBXE7NVxzik0G251fdNGsCbMJHkc4sU/YCqMcY1LOr/FY/ZcXw0QqeNR
-         D32WfSRsuFSPylnKdlSmT3Hpgyv5tzrGl55ZY32Q=
+        b=s6Gp/uNlGTBOz0vNCAGctlPyrSRH8TkpIrBhP8ugSTAmRBcThVRvefsueJvTiWk4t
+         CP1Y1yK6cBxxn7T/3DaLp7Tex+s5t6Cw+dhddntvC4h88ZtfdkkMLPHrU5ZyBEGbZd
+         BlYmRhb+1QI7nTZ6GnVgeYrUkD3BxRqX03UUUnPA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robert Hancock <hancock@sedsystems.ca>,
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
         Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 099/171] mfd: core: Set fwnode for created devices
-Date:   Thu, 18 Jul 2019 23:55:30 -0400
-Message-Id: <20190719035643.14300-99-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.2 100/171] mfd: arizona: Fix undefined behavior
+Date:   Thu, 18 Jul 2019 23:55:31 -0400
+Message-Id: <20190719035643.14300-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -43,34 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <hancock@sedsystems.ca>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit c176c6d7e932662668bcaec2d763657096589d85 ]
+[ Upstream commit 5da6cbcd2f395981aa9bfc571ace99f1c786c985 ]
 
-The logic for setting the of_node on devices created by mfd did not set
-the fwnode pointer to match, which caused fwnode-based APIs to
-malfunction on these devices since the fwnode pointer was null. Fix
-this.
+When the driver is used with a subdevice that is disabled in the
+kernel configuration, clang gets a little confused about the
+control flow and fails to notice that n_subdevs is only
+uninitialized when subdevs is NULL, and we check for that,
+leading to a false-positive warning:
 
-Signed-off-by: Robert Hancock <hancock@sedsystems.ca>
+drivers/mfd/arizona-core.c:1423:19: error: variable 'n_subdevs' is uninitialized when used here
+      [-Werror,-Wuninitialized]
+                              subdevs, n_subdevs, NULL, 0, NULL);
+                                       ^~~~~~~~~
+drivers/mfd/arizona-core.c:999:15: note: initialize the variable 'n_subdevs' to silence this warning
+        int n_subdevs, ret, i;
+                     ^
+                      = 0
+
+Ideally, we would rearrange the code to avoid all those early
+initializations and have an explicit exit in each disabled case,
+but it's much easier to chicken out and add one more initialization
+here to shut up the warning.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/mfd-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mfd/arizona-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
-index dbf684c4ebfb..23276a80e3b4 100644
---- a/drivers/mfd/mfd-core.c
-+++ b/drivers/mfd/mfd-core.c
-@@ -175,6 +175,7 @@ static int mfd_add_device(struct device *parent, int id,
- 		for_each_child_of_node(parent->of_node, np) {
- 			if (of_device_is_compatible(np, cell->of_compatible)) {
- 				pdev->dev.of_node = np;
-+				pdev->dev.fwnode = &np->fwnode;
- 				break;
- 			}
- 		}
+diff --git a/drivers/mfd/arizona-core.c b/drivers/mfd/arizona-core.c
+index 2bdc7b02157a..4a31907a4525 100644
+--- a/drivers/mfd/arizona-core.c
++++ b/drivers/mfd/arizona-core.c
+@@ -993,7 +993,7 @@ int arizona_dev_init(struct arizona *arizona)
+ 	unsigned int reg, val;
+ 	int (*apply_patch)(struct arizona *) = NULL;
+ 	const struct mfd_cell *subdevs = NULL;
+-	int n_subdevs, ret, i;
++	int n_subdevs = 0, ret, i;
+ 
+ 	dev_set_drvdata(arizona->dev, arizona);
+ 	mutex_init(&arizona->clk_lock);
 -- 
 2.20.1
 
