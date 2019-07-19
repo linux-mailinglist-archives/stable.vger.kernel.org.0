@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D4D76DF92
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B9076DF9A
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:36:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729714AbfGSEgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:36:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60416 "EHLO mail.kernel.org"
+        id S1730227AbfGSEgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:36:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729088AbfGSEAe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:00:34 -0400
+        id S1728181AbfGSEAh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:00:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7D4621851;
-        Fri, 19 Jul 2019 04:00:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D88C21852;
+        Fri, 19 Jul 2019 04:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508833;
-        bh=ODh4CTkykYpoX++oqzYOTKUG6FeESfkWrW9mds2LKCE=;
+        s=default; t=1563508835;
+        bh=4vBio2ez4jreOIr8RycB74j3c6tE8MBJNz7QOVqvTLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WLpA6ZRZu9/te9EYjFxS+SlMxKermDiE3P8qP9NQL8Jq7jz0KavGRfADSR7nGHzG1
-         opAaelbxcQdFKfZ291mhJJynodb+QghquRxA7/SvU2xiU5ROUz0qy24HPgH79X6B3c
-         /mBCuOasJLeQ4UY5UHBfVWnOvnl3Yr9y9JzYyKyw=
+        b=CFhEvTBB9DD4xsxOPt7l+zvnddF/HkdMZPfMIq6RI3UOqZrczyfhcJM8NxKurKI0D
+         I4/KBhuzruQWlPewk+AGHca0f1m8en0YOeJpqZAYey9ZyTY3Nt5t2yiX3Ve0P2vS99
+         ueHMK8/UjcuDw66AQQG/lAJnGOcuoi1oE0odYX5Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vidya Sagar <vidyas@nvidia.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 115/171] PCI: tegra: Enable Relaxed Ordering only for Tegra20 & Tegra30
-Date:   Thu, 18 Jul 2019 23:55:46 -0400
-Message-Id: <20190719035643.14300-115-sashal@kernel.org>
+Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 116/171] KVM: nVMX: Stash L1's CR3 in vmcs01.GUEST_CR3 on nested entry w/o EPT
+Date:   Thu, 18 Jul 2019 23:55:47 -0400
+Message-Id: <20190719035643.14300-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
@@ -45,68 +43,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vidya Sagar <vidyas@nvidia.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-[ Upstream commit 7be142caabc4780b13a522c485abc806de5c4114 ]
+[ Upstream commit f087a02941feacf7d6f097522bc67c602fda18e6 ]
 
-The PCI Tegra controller conversion to a device tree configurable
-driver in commit d1523b52bff3 ("PCI: tegra: Move PCIe driver
-to drivers/pci/host") implied that code for the driver can be
-compiled in for a kernel supporting multiple platforms.
+KVM does not have 100% coverage of VMX consistency checks, i.e. some
+checks that cause VM-Fail may only be detected by hardware during a
+nested VM-Entry.  In such a case, KVM must restore L1's state to the
+pre-VM-Enter state as L2's state has already been loaded into KVM's
+software model.
 
-Unfortunately, a blind move of the code did not check that some of the
-quirks that were applied in arch/arm (eg enabling Relaxed Ordering on
-all PCI devices - since the quirk hook erroneously matches PCI_ANY_ID
-for both Vendor-ID and Device-ID) are now applied in all kernels that
-compile the PCI Tegra controlled driver, DT and ACPI alike.
+L1's CR3 and PDPTRs in particular are loaded from vmcs01.GUEST_*.  But
+when EPT is disabled, the associated fields hold KVM's shadow values,
+not L1's "real" values.  Fortunately, when EPT is disabled the PDPTRs
+come from memory, i.e. are not cached in the VMCS.  Which leaves CR3
+as the sole anomaly.
 
-This is completely wrong, in that enablement of Relaxed Ordering is only
-required by default in Tegra20 platforms as described in the Tegra20
-Technical Reference Manual (available at
-https://developer.nvidia.com/embedded/downloads#?search=tegra%202 in
-Section 34.1, where it is mentioned that Relaxed Ordering bit needs to
-be enabled in its root ports to avoid deadlock in hardware) and in the
-Tegra30 platforms for the same reasons (unfortunately not documented
-in the TRM).
+A previously applied workaround to handle CR3 was to force nested early
+checks if EPT is disabled:
 
-There is no other strict requirement on PCI devices Relaxed Ordering
-enablement on any other Tegra platforms or PCI host bridge driver.
+  commit 2b27924bb1d48 ("KVM: nVMX: always use early vmcs check when EPT
+                         is disabled")
 
-Fix this quite upsetting situation by limiting the vendor and device IDs
-to which the Relaxed Ordering quirk applies to the root ports in
-question, reported above.
+Forcing nested early checks is undesirable as doing so adds hundreds of
+cycles to every nested VM-Entry.  Rather than take this performance hit,
+handle CR3 by overwriting vmcs01.GUEST_CR3 with L1's CR3 during nested
+VM-Entry when EPT is disabled *and* nested early checks are disabled.
+By stuffing vmcs01.GUEST_CR3, nested_vmx_restore_host_state() will
+naturally restore the correct vcpu->arch.cr3 from vmcs01.GUEST_CR3.
 
-Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
-[lorenzo.pieralisi@arm.com: completely rewrote the commit log/fixes tag]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
+These shenanigans work because nested_vmx_restore_host_state() does a
+full kvm_mmu_reset_context(), i.e. unloads the current MMU, which
+guarantees vmcs01.GUEST_CR3 will be rewritten with a new shadow CR3
+prior to re-entering L1.
+
+vcpu->arch.root_mmu.root_hpa is set to INVALID_PAGE via:
+
+    nested_vmx_restore_host_state() ->
+        kvm_mmu_reset_context() ->
+            kvm_mmu_unload() ->
+                kvm_mmu_free_roots()
+
+kvm_mmu_unload() has WARN_ON(root_hpa != INVALID_PAGE), i.e. we can bank
+on 'root_hpa == INVALID_PAGE' unless the implementation of
+kvm_mmu_reset_context() is changed.
+
+On the way into L1, VMCS.GUEST_CR3 is guaranteed to be written (on a
+successful entry) via:
+
+    vcpu_enter_guest() ->
+        kvm_mmu_reload() ->
+            kvm_mmu_load() ->
+                kvm_mmu_load_cr3() ->
+                    vmx_set_cr3()
+
+Stuff vmcs01.GUEST_CR3 if and only if nested early checks are disabled
+as a "late" VM-Fail should never happen win that case (KVM WARNs), and
+the conditional write avoids the need to restore the correct GUEST_CR3
+when nested_vmx_check_vmentry_hw() fails.
+
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20190607185534.24368-1-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-tegra.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/include/uapi/asm/vmx.h |  1 -
+ arch/x86/kvm/vmx/nested.c       | 44 +++++++++++++++++----------------
+ 2 files changed, 23 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-tegra.c b/drivers/pci/controller/pci-tegra.c
-index 464ba2538d52..bc7be369c1b3 100644
---- a/drivers/pci/controller/pci-tegra.c
-+++ b/drivers/pci/controller/pci-tegra.c
-@@ -545,12 +545,15 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_fixup_class);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_fixup_class);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_fixup_class);
+diff --git a/arch/x86/include/uapi/asm/vmx.h b/arch/x86/include/uapi/asm/vmx.h
+index d213ec5c3766..f0b0c90dd398 100644
+--- a/arch/x86/include/uapi/asm/vmx.h
++++ b/arch/x86/include/uapi/asm/vmx.h
+@@ -146,7 +146,6 @@
  
--/* Tegra PCIE requires relaxed ordering */
-+/* Tegra20 and Tegra30 PCIE requires relaxed ordering */
- static void tegra_pcie_relax_enable(struct pci_dev *dev)
- {
- 	pcie_capability_set_word(dev, PCI_EXP_DEVCTL, PCI_EXP_DEVCTL_RELAX_EN);
- }
--DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, tegra_pcie_relax_enable);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf0, tegra_pcie_relax_enable);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_relax_enable);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_relax_enable);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_relax_enable);
+ #define VMX_ABORT_SAVE_GUEST_MSR_FAIL        1
+ #define VMX_ABORT_LOAD_HOST_PDPTE_FAIL       2
+-#define VMX_ABORT_VMCS_CORRUPTED             3
+ #define VMX_ABORT_LOAD_HOST_MSR_FAIL         4
  
- static int tegra_pcie_request_resources(struct tegra_pcie *pcie)
+ #endif /* _UAPIVMX_H */
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 749125a3539e..0d7377b1487a 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2968,6 +2968,25 @@ int nested_vmx_enter_non_root_mode(struct kvm_vcpu *vcpu, bool from_vmentry)
+ 		!(vmcs12->vm_entry_controls & VM_ENTRY_LOAD_BNDCFGS))
+ 		vmx->nested.vmcs01_guest_bndcfgs = vmcs_read64(GUEST_BNDCFGS);
+ 
++	/*
++	 * Overwrite vmcs01.GUEST_CR3 with L1's CR3 if EPT is disabled *and*
++	 * nested early checks are disabled.  In the event of a "late" VM-Fail,
++	 * i.e. a VM-Fail detected by hardware but not KVM, KVM must unwind its
++	 * software model to the pre-VMEntry host state.  When EPT is disabled,
++	 * GUEST_CR3 holds KVM's shadow CR3, not L1's "real" CR3, which causes
++	 * nested_vmx_restore_host_state() to corrupt vcpu->arch.cr3.  Stuffing
++	 * vmcs01.GUEST_CR3 results in the unwind naturally setting arch.cr3 to
++	 * the correct value.  Smashing vmcs01.GUEST_CR3 is safe because nested
++	 * VM-Exits, and the unwind, reset KVM's MMU, i.e. vmcs01.GUEST_CR3 is
++	 * guaranteed to be overwritten with a shadow CR3 prior to re-entering
++	 * L1.  Don't stuff vmcs01.GUEST_CR3 when using nested early checks as
++	 * KVM modifies vcpu->arch.cr3 if and only if the early hardware checks
++	 * pass, and early VM-Fails do not reset KVM's MMU, i.e. the VM-Fail
++	 * path would need to manually save/restore vmcs01.GUEST_CR3.
++	 */
++	if (!enable_ept && !nested_early_check)
++		vmcs_writel(GUEST_CR3, vcpu->arch.cr3);
++
+ 	vmx_switch_vmcs(vcpu, &vmx->nested.vmcs02);
+ 
+ 	prepare_vmcs02_early(vmx, vmcs12);
+@@ -3779,18 +3798,8 @@ static void nested_vmx_restore_host_state(struct kvm_vcpu *vcpu)
+ 	vmx_set_cr4(vcpu, vmcs_readl(CR4_READ_SHADOW));
+ 
+ 	nested_ept_uninit_mmu_context(vcpu);
+-
+-	/*
+-	 * This is only valid if EPT is in use, otherwise the vmcs01 GUEST_CR3
+-	 * points to shadow pages!  Fortunately we only get here after a WARN_ON
+-	 * if EPT is disabled, so a VMabort is perfectly fine.
+-	 */
+-	if (enable_ept) {
+-		vcpu->arch.cr3 = vmcs_readl(GUEST_CR3);
+-		__set_bit(VCPU_EXREG_CR3, (ulong *)&vcpu->arch.regs_avail);
+-	} else {
+-		nested_vmx_abort(vcpu, VMX_ABORT_VMCS_CORRUPTED);
+-	}
++	vcpu->arch.cr3 = vmcs_readl(GUEST_CR3);
++	__set_bit(VCPU_EXREG_CR3, (ulong *)&vcpu->arch.regs_avail);
+ 
+ 	/*
+ 	 * Use ept_save_pdptrs(vcpu) to load the MMU's cached PDPTRs
+@@ -3798,7 +3807,8 @@ static void nested_vmx_restore_host_state(struct kvm_vcpu *vcpu)
+ 	 * VMFail, like everything else we just need to ensure our
+ 	 * software model is up-to-date.
+ 	 */
+-	ept_save_pdptrs(vcpu);
++	if (enable_ept)
++		ept_save_pdptrs(vcpu);
+ 
+ 	kvm_mmu_reset_context(vcpu);
+ 
+@@ -5768,14 +5778,6 @@ __init int nested_vmx_hardware_setup(int (*exit_handlers[])(struct kvm_vcpu *))
  {
+ 	int i;
+ 
+-	/*
+-	 * Without EPT it is not possible to restore L1's CR3 and PDPTR on
+-	 * VMfail, because they are not available in vmcs01.  Just always
+-	 * use hardware checks.
+-	 */
+-	if (!enable_ept)
+-		nested_early_check = 1;
+-
+ 	if (!cpu_has_vmx_shadow_vmcs())
+ 		enable_shadow_vmcs = 0;
+ 	if (enable_shadow_vmcs) {
 -- 
 2.20.1
 
