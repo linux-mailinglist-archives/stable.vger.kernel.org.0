@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A18826DE5F
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:28:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7B1D6DE5D
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:28:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731041AbfGSEGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:06:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39648 "EHLO mail.kernel.org"
+        id S1732210AbfGSEGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:06:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732176AbfGSEGb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:06:31 -0400
+        id S1732192AbfGSEGe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:06:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30518218BB;
-        Fri, 19 Jul 2019 04:06:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62D57218BA;
+        Fri, 19 Jul 2019 04:06:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509190;
-        bh=sInZRDAzcu3qDg3rdtC9NUEMxSLGzL2xT7nPf06MNjA=;
+        s=default; t=1563509193;
+        bh=MhKAvb/O4ISy5XQueKOiaa7SpJ04lUxPLCvm9AXPcSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e1bXcGCZrV/w5KugqEROdb28LVnov0L9zXoOCbTvpKef8mMFuuhn8Wdgo0NrVcrN4
-         LmOUUo1UYOuKrrmaYXyF4IU2LEiiEy50io+YEbxoNFbrEZmfzIV11GKr8Rj7k8uuP0
-         1aMZDphTM1R1k9pxcDEex4FZFKsjnp2bfYnhsFIw=
+        b=uFKlsWWvv5mmJw4gbZyTOG6wNdP78uVLspvCjyNrqamFyyuLpF2VYiazu/kmxKfRe
+         S0roc5eYZ7NnQScCwNBB+2oDrgcONtuhn2wJk9010xPaF4NulhYpQBVpmCOpsMVMDF
+         11h4a5c1aqODs9V+TkbSuCGApsHtkp8MEY/YeebE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Windsor <dwindsor@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.1 118/141] dlm: check if workqueues are NULL before flushing/destroying
-Date:   Fri, 19 Jul 2019 00:02:23 -0400
-Message-Id: <20190719040246.15945-118-sashal@kernel.org>
+Cc:     =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 120/141] s390/dasd: Make layout analysis ESE compatible
+Date:   Fri, 19 Jul 2019 00:02:25 -0400
+Message-Id: <20190719040246.15945-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,64 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Windsor <dwindsor@redhat.com>
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-[ Upstream commit b355516f450703c9015316e429b66a93dfff0e6f ]
+[ Upstream commit ce6915f5343f5f2a2a937b683d8ffbf12dab3ad4 ]
 
-If the DLM lowcomms stack is shut down before any DLM
-traffic can be generated, flush_workqueue() and
-destroy_workqueue() can be called on empty send and/or recv
-workqueues.
+The disk layout and volume information of a DASD reside in the first two
+tracks of cylinder 0. When a DASD is set online, currently the first
+three tracks are read and analysed to confirm an expected layout.
 
-Insert guard conditionals to only call flush_workqueue()
-and destroy_workqueue() on workqueues that are not NULL.
+For CDL (Compatible Disk Layout) only count area data of the first track
+is evaluated and checked against expected key and data lengths. For LDL
+(Linux Disk Layout) the first and third track is evaluated. However,
+an LDL formatted volume is expected to be in the same format across all
+tracks. Checking the third track therefore doesn't have any more value
+than checking any other track at random.
 
-Signed-off-by: David Windsor <dwindsor@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Now, an Extent Space Efficient (ESE) DASD is initialised by only
+formatting the first two tracks, as those tracks always contain all
+information necessarry.
+
+Checking the third track on an ESE volume will therefore most likely
+fail with a record not found error, as the third track will be empty.
+This in turn leads to the device being recognised with a volume size of
+0. Attempts to write volume information on the first two tracks then
+fail with "no space left on device" errors.
+
+Initialising the first three tracks for an ESE volume is not a viable
+solution, because the third track is already a regular track and could
+contain user data. With that there is potential for data corruption.
+
+Instead, always only analyse the first two tracks, as it is sufficiant
+for both CDL and LDL, and allow ESE volumes to be recognised as well.
+
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lowcomms.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index c98ad9777ad9..88d7ec76f669 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -1630,8 +1630,10 @@ static void clean_writequeues(void)
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index f89f9d02e788..fccdf9812c1f 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -157,7 +157,7 @@ static const int sizes_trk0[] = { 28, 148, 84 };
+ #define LABEL_SIZE 140
  
- static void work_stop(void)
- {
--	destroy_workqueue(recv_workqueue);
--	destroy_workqueue(send_workqueue);
-+	if (recv_workqueue)
-+		destroy_workqueue(recv_workqueue);
-+	if (send_workqueue)
-+		destroy_workqueue(send_workqueue);
- }
+ /* head and record addresses of count_area read in analysis ccw */
+-static const int count_area_head[] = { 0, 0, 0, 0, 2 };
++static const int count_area_head[] = { 0, 0, 0, 0, 1 };
+ static const int count_area_rec[] = { 1, 2, 3, 4, 1 };
  
- static int work_start(void)
-@@ -1691,13 +1693,17 @@ static void work_flush(void)
- 	struct hlist_node *n;
- 	struct connection *con;
+ static inline unsigned int
+@@ -1823,8 +1823,8 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
+ 	if (IS_ERR(cqr))
+ 		return cqr;
+ 	ccw = cqr->cpaddr;
+-	/* Define extent for the first 3 tracks. */
+-	define_extent(ccw++, cqr->data, 0, 2,
++	/* Define extent for the first 2 tracks. */
++	define_extent(ccw++, cqr->data, 0, 1,
+ 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
+ 	LO_data = cqr->data + sizeof(struct DE_eckd_data);
+ 	/* Locate record for the first 4 records on track 0. */
+@@ -1843,9 +1843,9 @@ dasd_eckd_analysis_ccw(struct dasd_device *device)
+ 		count_data++;
+ 	}
  
--	flush_workqueue(recv_workqueue);
--	flush_workqueue(send_workqueue);
-+	if (recv_workqueue)
-+		flush_workqueue(recv_workqueue);
-+	if (send_workqueue)
-+		flush_workqueue(send_workqueue);
- 	do {
- 		ok = 1;
- 		foreach_conn(stop_conn);
--		flush_workqueue(recv_workqueue);
--		flush_workqueue(send_workqueue);
-+		if (recv_workqueue)
-+			flush_workqueue(recv_workqueue);
-+		if (send_workqueue)
-+			flush_workqueue(send_workqueue);
- 		for (i = 0; i < CONN_HASH_SIZE && ok; i++) {
- 			hlist_for_each_entry_safe(con, n,
- 						  &connection_hash[i], list) {
+-	/* Locate record for the first record on track 2. */
++	/* Locate record for the first record on track 1. */
+ 	ccw[-1].flags |= CCW_FLAG_CC;
+-	locate_record(ccw++, LO_data++, 2, 0, 1,
++	locate_record(ccw++, LO_data++, 1, 0, 1,
+ 		      DASD_ECKD_CCW_READ_COUNT, device, 0);
+ 	/* Read count ccw. */
+ 	ccw[-1].flags |= CCW_FLAG_CC;
+@@ -1967,7 +1967,7 @@ static int dasd_eckd_end_analysis(struct dasd_block *block)
+ 		}
+ 	}
+ 	if (i == 3)
+-		count_area = &private->count_area[4];
++		count_area = &private->count_area[3];
+ 
+ 	if (private->uses_cdl == 0) {
+ 		for (i = 0; i < 5; i++) {
 -- 
 2.20.1
 
