@@ -2,108 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ADD56EAEE
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 21:07:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 715C36EAFD
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 21:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729943AbfGSTHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 15:07:12 -0400
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:11182 "EHLO
-        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732480AbfGSTHK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 15:07:10 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d3214dd0000>; Fri, 19 Jul 2019 12:07:09 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Fri, 19 Jul 2019 12:07:09 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Fri, 19 Jul 2019 12:07:09 -0700
-Received: from HQMAIL104.nvidia.com (172.18.146.11) by HQMAIL106.nvidia.com
- (172.18.146.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 19 Jul
- 2019 19:07:04 +0000
-Received: from hqnvemgw01.nvidia.com (172.20.150.20) by HQMAIL104.nvidia.com
- (172.18.146.11) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Fri, 19 Jul 2019 19:07:05 +0000
-Received: from rcampbell-dev.nvidia.com (Not Verified[10.110.48.66]) by hqnvemgw01.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5d3214d80005>; Fri, 19 Jul 2019 12:07:04 -0700
-From:   Ralph Campbell <rcampbell@nvidia.com>
-To:     <linux-mm@kvack.org>
-CC:     <linux-kernel@vger.kernel.org>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        John Hubbard <jhubbard@nvidia.com>, <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 3/3] mm/hmm: Fix bad subpage pointer in try_to_unmap_one
-Date:   Fri, 19 Jul 2019 12:06:49 -0700
-Message-ID: <20190719190649.30096-4-rcampbell@nvidia.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190719190649.30096-1-rcampbell@nvidia.com>
-References: <20190719190649.30096-1-rcampbell@nvidia.com>
+        id S1728802AbfGSTXO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 15:23:14 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:40352 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728247AbfGSTXO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jul 2019 15:23:14 -0400
+Received: by mail-pf1-f193.google.com with SMTP id p184so14581489pfp.7;
+        Fri, 19 Jul 2019 12:23:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=o5xCvSlnXlBxg+m0uaArpKDa+hwImALNS5XibVt3aNU=;
+        b=n/EcOcff15JbZzkCe7RV6+xrIaDmirK1MtBZ1xNzyViOTRd7WizzTaaHmy2w0vYWza
+         J1cjauc1mrtjVrAjcr7BizKox1WdiKxWALH4rmZDm8pVTjcJhQBvPdKb1AT4LpBJuWNb
+         Yueg05TX44C6uo/TL5ddF1jEfRzMS3+jNpt3JdgjrzveKyvytHwynFavAMV4HPBDqPW1
+         R+AZ3EkvbydwkWrAbwYDgatPzfTFC8Yv9fO4MR6mBpIqyKprCOPz2v610SwwhTH1pIUl
+         lweFh9vFpIK5kzSgfATPM+A166RpkbpP5NcX8A92lNLJS8Snpu+DAZ1jSZMZHdjJbpyV
+         gf+Q==
+X-Gm-Message-State: APjAAAWpm7K7vGxcQ6PBu+s15cbCPxbE+Lle+oK+LOxyk9A+ix16aHhA
+        w02ZqIldL7OQfGZOvRunk+s=
+X-Google-Smtp-Source: APXvYqwwS9v+M0BjUuFZ6AlES3mTtcXNhJb/6FWy3jTuB4wl+PXXyhMBzXCOSSRB/lgAZ85icuHJfQ==
+X-Received: by 2002:a63:f953:: with SMTP id q19mr55519303pgk.367.1563564193260;
+        Fri, 19 Jul 2019 12:23:13 -0700 (PDT)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id 22sm36574639pfu.179.2019.07.19.12.23.11
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Fri, 19 Jul 2019 12:23:12 -0700 (PDT)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 4B725402A1; Fri, 19 Jul 2019 19:23:11 +0000 (UTC)
+Date:   Fri, 19 Jul 2019 19:23:11 +0000
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     linux-xfs@vger.kernel.org, gregkh@linuxfoundation.org,
+        Alexander.Levin@microsoft.com
+Cc:     stable@vger.kernel.org, amir73il@gmail.com, hch@infradead.org,
+        zlang@redhat.com
+Subject: Re: [PATCH 0/9] xfs: stable fixes for v4.19.y - circa ~ v4.19.58
+Message-ID: <20190719192311.GP30113@42.do-not-panic.com>
+References: <20190718230617.7439-1-mcgrof@kernel.org>
 MIME-Version: 1.0
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1563563229; bh=U0IXy/zKKcejMP4DQKHZ57GJs0lTlzQ4MYtXzCim3fk=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding;
-        b=o+RBABok9q175TIaACbH78zORn0X6HKDRIaL7qVbx6i1lTfFIvWnzJW+4vNL6sV6b
-         ZKgT8U/FylXyFeAAKUtwBA/FkfEIAamghIZKdkVrDQ5M71n4NK6qlF4EKNxv4IL4eG
-         +muFf+zUoAUwJ+7LK/tHizAsQdE0USzc+yeNNAo+BhVqKHOsE2Pc3X9dhUdgl61mgH
-         F95OPZNtDZ+Hw34YccLNzh4c/8BUxt3ybbT6oi2KcaW8mcQG/dCe872irjZnjQI/eM
-         pN1XUWI2MkJJS0eZpCAGD73t9t7AvrexWZ6dujBLVTspyk/N1JQL1I0qnp79R8szhm
-         24nbXQtuN0hkw==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190718230617.7439-1-mcgrof@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When migrating an anonymous private page to a ZONE_DEVICE private page,
-the source page->mapping and page->index fields are copied to the
-destination ZONE_DEVICE struct page and the page_mapcount() is increased.
-This is so rmap_walk() can be used to unmap and migrate the page back to
-system memory. However, try_to_unmap_one() computes the subpage pointer
-from a swap pte which computes an invalid page pointer and a kernel panic
-results such as:
+On Thu, Jul 18, 2019 at 11:06:08PM +0000, Luis Chamberlain wrote:
+> There is a stable bug tracking this, kz#204223 [1], and a respective bug
+> also present on upstream via kz#204049 [2] which Zorro reported. But,
+> again, nothing changes from the baseline.
 
-BUG: unable to handle page fault for address: ffffea1fffffffc8
+The crash is fixed by Brian's commit 6958d11f77d ("xfs: don't trip over
+uninitialized buffer on extent read of corrupted inode") merged on v5.1.
 
-Currently, only single pages can be migrated to device private memory so
-no subpage computation is needed and it can be set to "page".
+As such I'll extend this series to include one more patch.
 
-Fixes: a5430dda8a3a1c ("mm/migrate: support un-addressable ZONE_DEVICE page=
- in migration")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Cc: "J=C3=A9r=C3=B4me Glisse" <jglisse@redhat.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
- mm/rmap.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/mm/rmap.c b/mm/rmap.c
-index e5dfe2ae6b0d..ec1af8b60423 100644
---- a/mm/rmap.c
-+++ b/mm/rmap.c
-@@ -1476,6 +1476,7 @@ static bool try_to_unmap_one(struct page *page, struc=
-t vm_area_struct *vma,
- 			 * No need to invalidate here it will synchronize on
- 			 * against the special swap migration pte.
- 			 */
-+			subpage =3D page;
- 			goto discard;
- 		}
-=20
---=20
-2.20.1
-
+  Luis
