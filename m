@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4596DA31
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:00:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C9736DA33
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727265AbfGSEAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:00:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60022 "EHLO mail.kernel.org"
+        id S1727847AbfGSEAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:00:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727243AbfGSEAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:00:09 -0400
+        id S1727404AbfGSEAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:00:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65DD821852;
-        Fri, 19 Jul 2019 04:00:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6BD72189E;
+        Fri, 19 Jul 2019 04:00:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508809;
-        bh=NGAEa7nxCla6yeOxFjos63IrCBcidctWmzU3WpluPhM=;
+        s=default; t=1563508811;
+        bh=iZXdCxrNKNxAbyJ1PBwAC67lJ7ZrOeEjgLlg4ZJzvX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wXKrDihp/S1cVan7L4zfjmAgAIzXlz6fMWnxvGRTLBM8R1Dk3lWkTAvYLkcXDUbvS
-         llI5C0scOH1cTUGYr8VC+JvcJHNLtbVmDeq/2JOUHnx/UwhuPELJgHtDPXdKpzRPpa
-         9cFOvOfWe+SrDKyVuEwpMHFmr7ukTzxcgb2ssKjs=
+        b=qN4vnRqrzFy/xg2ywhWSIV8XKKz1qfOZm0UnJsbLdoUCPn+qfhMsy0Y2r0wS2hvWD
+         F/IPlBnHu7Xag5S818KcABLCOau7j8HtGulEqhPoMFomDVVSjWKUlNxG/UVbSE+9Bj
+         Q+fNrltUAWKjoHJdbOux3qaeFv+6gI2vKWtPx6YE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ira Weiny <ira.weiny@intel.com>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.2 102/171] mm/swap: fix release_pages() when releasing devmap pages
-Date:   Thu, 18 Jul 2019 23:55:33 -0400
-Message-Id: <20190719035643.14300-102-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.2 103/171] um: Silence lockdep complaint about mmap_sem
+Date:   Thu, 18 Jul 2019 23:55:34 -0400
+Message-Id: <20190719035643.14300-103-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -48,74 +43,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ira Weiny <ira.weiny@intel.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit c5d6c45e90c49150670346967971e14576afd7f1 ]
+[ Upstream commit 80bf6ceaf9310b3f61934c69b382d4912deee049 ]
 
-release_pages() is an optimized version of a loop around put_page().
-Unfortunately for devmap pages the logic is not entirely correct in
-release_pages().  This is because device pages can be more than type
-MEMORY_DEVICE_PUBLIC.  There are in fact 4 types, private, public, FS DAX,
-and PCI P2PDMA.  Some of these have specific needs to "put" the page while
-others do not.
+When we get into activate_mm(), lockdep complains that we're doing
+something strange:
 
-This logic to handle any special needs is contained in
-put_devmap_managed_page().  Therefore all devmap pages should be processed
-by this function where we can contain the correct logic for a page put.
+    WARNING: possible circular locking dependency detected
+    5.1.0-10252-gb00152307319-dirty #121 Not tainted
+    ------------------------------------------------------
+    inside.sh/366 is trying to acquire lock:
+    (____ptrval____) (&(&p->alloc_lock)->rlock){+.+.}, at: flush_old_exec+0x703/0x8d7
 
-Handle all device type pages within release_pages() by calling
-put_devmap_managed_page() on all devmap pages.  If
-put_devmap_managed_page() returns true the page has been put and we
-continue with the next page.  A false return of put_devmap_managed_page()
-means the page did not require special processing and should fall to
-"normal" processing.
+    but task is already holding lock:
+    (____ptrval____) (&mm->mmap_sem){++++}, at: flush_old_exec+0x6c5/0x8d7
 
-This was found via code inspection while determining if release_pages()
-and the new put_user_pages() could be interchangeable.[1]
+    which lock already depends on the new lock.
 
-[1] https://lkml.kernel.org/r/20190523172852.GA27175@iweiny-DESK2.sc.intel.com
+    the existing dependency chain (in reverse order) is:
 
-Link: https://lkml.kernel.org/r/20190605214922.17684-1-ira.weiny@intel.com
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Signed-off-by: Ira Weiny <ira.weiny@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+    -> #1 (&mm->mmap_sem){++++}:
+           [...]
+           __lock_acquire+0x12ab/0x139f
+           lock_acquire+0x155/0x18e
+           down_write+0x3f/0x98
+           flush_old_exec+0x748/0x8d7
+           load_elf_binary+0x2ca/0xddb
+           [...]
+
+    -> #0 (&(&p->alloc_lock)->rlock){+.+.}:
+           [...]
+           __lock_acquire+0x12ab/0x139f
+           lock_acquire+0x155/0x18e
+           _raw_spin_lock+0x30/0x83
+           flush_old_exec+0x703/0x8d7
+           load_elf_binary+0x2ca/0xddb
+           [...]
+
+    other info that might help us debug this:
+
+     Possible unsafe locking scenario:
+
+           CPU0                    CPU1
+           ----                    ----
+      lock(&mm->mmap_sem);
+                                   lock(&(&p->alloc_lock)->rlock);
+                                   lock(&mm->mmap_sem);
+      lock(&(&p->alloc_lock)->rlock);
+
+     *** DEADLOCK ***
+
+    2 locks held by inside.sh/366:
+     #0: (____ptrval____) (&sig->cred_guard_mutex){+.+.}, at: __do_execve_file+0x12d/0x869
+     #1: (____ptrval____) (&mm->mmap_sem){++++}, at: flush_old_exec+0x6c5/0x8d7
+
+    stack backtrace:
+    CPU: 0 PID: 366 Comm: inside.sh Not tainted 5.1.0-10252-gb00152307319-dirty #121
+    Stack:
+     [...]
+    Call Trace:
+     [<600420de>] show_stack+0x13b/0x155
+     [<6048906b>] dump_stack+0x2a/0x2c
+     [<6009ae64>] print_circular_bug+0x332/0x343
+     [<6009c5c6>] check_prev_add+0x669/0xdad
+     [<600a06b4>] __lock_acquire+0x12ab/0x139f
+     [<6009f3d0>] lock_acquire+0x155/0x18e
+     [<604a07e0>] _raw_spin_lock+0x30/0x83
+     [<60151e6a>] flush_old_exec+0x703/0x8d7
+     [<601a8eb8>] load_elf_binary+0x2ca/0xddb
+     [...]
+
+I think it's because in exec_mmap() we have
+
+	down_read(&old_mm->mmap_sem);
+...
+        task_lock(tsk);
+...
+	activate_mm(active_mm, mm);
+	(which does down_write(&mm->mmap_sem))
+
+I'm not really sure why lockdep throws in the whole knowledge
+about the task lock, but it seems that old_mm and mm shouldn't
+ever be the same (and it doesn't deadlock) so tell lockdep that
+they're different.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/swap.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ arch/um/include/asm/mmu_context.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/swap.c b/mm/swap.c
-index 7ede3eddc12a..607c48229a1d 100644
---- a/mm/swap.c
-+++ b/mm/swap.c
-@@ -740,15 +740,20 @@ void release_pages(struct page **pages, int nr)
- 		if (is_huge_zero_page(page))
- 			continue;
- 
--		/* Device public page can not be huge page */
--		if (is_device_public_page(page)) {
-+		if (is_zone_device_page(page)) {
- 			if (locked_pgdat) {
- 				spin_unlock_irqrestore(&locked_pgdat->lru_lock,
- 						       flags);
- 				locked_pgdat = NULL;
- 			}
--			put_devmap_managed_page(page);
--			continue;
-+			/*
-+			 * ZONE_DEVICE pages that return 'false' from
-+			 * put_devmap_managed_page() do not require special
-+			 * processing, and instead, expect a call to
-+			 * put_page_testzero().
-+			 */
-+			if (put_devmap_managed_page(page))
-+				continue;
- 		}
- 
- 		page = compound_head(page);
+diff --git a/arch/um/include/asm/mmu_context.h b/arch/um/include/asm/mmu_context.h
+index 9f4b4bb78120..00cefd33afdd 100644
+--- a/arch/um/include/asm/mmu_context.h
++++ b/arch/um/include/asm/mmu_context.h
+@@ -52,7 +52,7 @@ static inline void activate_mm(struct mm_struct *old, struct mm_struct *new)
+ 	 * when the new ->mm is used for the first time.
+ 	 */
+ 	__switch_mm(&new->context.id);
+-	down_write(&new->mmap_sem);
++	down_write_nested(&new->mmap_sem, 1);
+ 	uml_setup_stubs(new);
+ 	up_write(&new->mmap_sem);
+ }
 -- 
 2.20.1
 
