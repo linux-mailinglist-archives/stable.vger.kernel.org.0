@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A3B6DA54
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:01:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 032196DA58
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:01:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729410AbfGSEBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:01:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33092 "EHLO mail.kernel.org"
+        id S1729483AbfGSEBc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:01:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729404AbfGSEBY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:01:24 -0400
+        id S1729473AbfGSEBb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:01:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33FDB21851;
-        Fri, 19 Jul 2019 04:01:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 436D021873;
+        Fri, 19 Jul 2019 04:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508883;
-        bh=T9m1EC5vw6Ony5vr7aqVEUoO4PYsNMhEV4akTk7qcXU=;
+        s=default; t=1563508890;
+        bh=3gyWvW9TWKvGDCP/N8AuBPzV+BDaoFgHHsIs/6XfNHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Up6PljohJ9Evk4434M3BpHN+mI+ufgfOEycmVO1hlEKZPRBMca87OEPYAA3lA8Cqc
-         4Lmb+tp35ekcwSjI33EjIB+gzLVTsCuS1zOTsVXTKhEZBT5A3SOpDjqAUxQW/iWiJD
-         9lSJFy008oo+sarcSc7qOqLekyvGA4CIW0CeK934=
+        b=UNFa4S2FEI33fcqOBuNsniCnQW5VTRLPSEIFkQn6vTbi+fqK2rk7JOthsjhQFO0xT
+         igw1c4lvc/P46ViG/ZWdxLy8NxEaa8IAwlpUpAj0DyMF3kbWDv7+BVV9T36km8srK/
+         SMkMyiBnGotiveD36CObaDFylP03CnyqBYown0Kw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dag Moxnes <dag.moxnes@oracle.com>,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 134/171] RDMA/core: Fix race when resolving IP address
-Date:   Thu, 18 Jul 2019 23:56:05 -0400
-Message-Id: <20190719035643.14300-134-sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.2 140/171] powerpc/irq: Don't WARN continuously in arch_local_irq_restore()
+Date:   Thu, 18 Jul 2019 23:56:11 -0400
+Message-Id: <20190719035643.14300-140-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,61 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dag Moxnes <dag.moxnes@oracle.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit d8d9ec7dc5abbb3f11d866e983c4984f5c2de9d6 ]
+[ Upstream commit 0fc12c022ad25532b66bf6f6c818ee1c1d63e702 ]
 
-Use the neighbour lock when copying the MAC address from the neighbour
-data struct in dst_fetch_ha.
+When CONFIG_PPC_IRQ_SOFT_MASK_DEBUG is enabled (uncommon), we have a
+series of WARN_ON's in arch_local_irq_restore().
 
-When not using the lock, it is possible for the function to race with
-neigh_update(), causing it to copy an torn MAC address:
+These are "should never happen" conditions, but if they do happen they
+can flood the console and render the system unusable. So switch them
+to WARN_ON_ONCE().
 
-rdma_resolve_addr()
-  rdma_resolve_ip()
-    addr_resolve()
-      addr_resolve_neigh()
-        fetch_ha()
-          dst_fetch_ha()
-	     memcpy(dev_addr->dst_dev_addr, n->ha, MAX_ADDR_LEN)
-
-and
-
-net_ioctl()
-  arp_ioctl()
-    arp_rec_delete()
-      arp_invalidate()
-        neigh_update()
-          __neigh_update()
-	    memcpy(&neigh->ha, lladdr, dev->addr_len)
-
-It is possible to provoke this error by calling rdma_resolve_addr() in a
-tight loop, while deleting the corresponding ARP entry in another tight
-loop.
-
-Fixes: 51d45974515c ("infiniband: addr: Consolidate code to fetch neighbour hardware address from dst.")
-Signed-off-by: Dag Moxnes <dag.moxnes@oracle.com>
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: e2b36d591720 ("powerpc/64: Don't trace code that runs with the soft irq mask unreconciled")
+Fixes: 9b81c0211c24 ("powerpc/64s: make PACA_IRQ_HARD_DIS track MSR[EE] closely")
+Fixes: 7c0482e3d055 ("powerpc/irq: Fix another case of lazy IRQ state getting out of sync")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190708061046.7075-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/addr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/irq.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/core/addr.c b/drivers/infiniband/core/addr.c
-index 2f7d14159841..9b76a8fcdd24 100644
---- a/drivers/infiniband/core/addr.c
-+++ b/drivers/infiniband/core/addr.c
-@@ -337,7 +337,7 @@ static int dst_fetch_ha(const struct dst_entry *dst,
- 		neigh_event_send(n, NULL);
- 		ret = -ENODATA;
- 	} else {
--		memcpy(dev_addr->dst_dev_addr, n->ha, MAX_ADDR_LEN);
-+		neigh_ha_snapshot(dev_addr->dst_dev_addr, n, dst->dev);
+diff --git a/arch/powerpc/kernel/irq.c b/arch/powerpc/kernel/irq.c
+index bc68c53af67c..5645bc9cbc09 100644
+--- a/arch/powerpc/kernel/irq.c
++++ b/arch/powerpc/kernel/irq.c
+@@ -255,7 +255,7 @@ notrace void arch_local_irq_restore(unsigned long mask)
+ 	irq_happened = get_irq_happened();
+ 	if (!irq_happened) {
+ #ifdef CONFIG_PPC_IRQ_SOFT_MASK_DEBUG
+-		WARN_ON(!(mfmsr() & MSR_EE));
++		WARN_ON_ONCE(!(mfmsr() & MSR_EE));
+ #endif
+ 		return;
  	}
- 
- 	neigh_release(n);
+@@ -268,7 +268,7 @@ notrace void arch_local_irq_restore(unsigned long mask)
+ 	 */
+ 	if (!(irq_happened & PACA_IRQ_HARD_DIS)) {
+ #ifdef CONFIG_PPC_IRQ_SOFT_MASK_DEBUG
+-		WARN_ON(!(mfmsr() & MSR_EE));
++		WARN_ON_ONCE(!(mfmsr() & MSR_EE));
+ #endif
+ 		__hard_irq_disable();
+ #ifdef CONFIG_PPC_IRQ_SOFT_MASK_DEBUG
+@@ -279,7 +279,7 @@ notrace void arch_local_irq_restore(unsigned long mask)
+ 		 * warn if we are wrong. Only do that when IRQ tracing
+ 		 * is enabled as mfmsr() can be costly.
+ 		 */
+-		if (WARN_ON(mfmsr() & MSR_EE))
++		if (WARN_ON_ONCE(mfmsr() & MSR_EE))
+ 			__hard_irq_disable();
+ #endif
+ 	}
 -- 
 2.20.1
 
