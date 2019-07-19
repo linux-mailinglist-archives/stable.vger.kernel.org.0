@@ -2,59 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 914176DA50
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:01:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12A3B6DA54
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:01:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729358AbfGSEBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:01:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32876 "EHLO mail.kernel.org"
+        id S1729410AbfGSEBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:01:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729343AbfGSEBM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:01:12 -0400
+        id S1729404AbfGSEBY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:01:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 934A821873;
-        Fri, 19 Jul 2019 04:01:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33FDB21851;
+        Fri, 19 Jul 2019 04:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563508871;
-        bh=5v9AwvmqW8ol/k2q/4YRiUqpBV497MFwNfAtTgp0llU=;
+        s=default; t=1563508883;
+        bh=T9m1EC5vw6Ony5vr7aqVEUoO4PYsNMhEV4akTk7qcXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HiMAY+5ytDiIAoM6BOUkwuiwIPAV+XroEg8TvByumNWov1db6ZHSLFa2JAaNQjMt7
-         oHg+oEnq2sUcbreO46CLO/KEoDaflu96q4QF+sEqYKF2y1V2vB83ZTOfiedDdXMdCK
-         dsHtDMqXwjwOdD4MKOawj1hWpPnd0TKbZD0onxbI=
+        b=Up6PljohJ9Evk4434M3BpHN+mI+ufgfOEycmVO1hlEKZPRBMca87OEPYAA3lA8Cqc
+         4Lmb+tp35ekcwSjI33EjIB+gzLVTsCuS1zOTsVXTKhEZBT5A3SOpDjqAUxQW/iWiJD
+         9lSJFy008oo+sarcSc7qOqLekyvGA4CIW0CeK934=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leo Yan <leo.yan@linaro.org>, Jiri Olsa <jolsa@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Changbin Du <changbin.du@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Song Liu <songliubraving@fb.com>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 129/171] perf annotate: Fix dereferencing freed memory found by the smatch tool
-Date:   Thu, 18 Jul 2019 23:56:00 -0400
-Message-Id: <20190719035643.14300-129-sashal@kernel.org>
+Cc:     Dag Moxnes <dag.moxnes@oracle.com>,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 134/171] RDMA/core: Fix race when resolving IP address
+Date:   Thu, 18 Jul 2019 23:56:05 -0400
+Message-Id: <20190719035643.14300-134-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
 References: <20190719035643.14300-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -63,102 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Dag Moxnes <dag.moxnes@oracle.com>
 
-[ Upstream commit 600c787dbf6521d8d07ee717ab7606d5070103ea ]
+[ Upstream commit d8d9ec7dc5abbb3f11d866e983c4984f5c2de9d6 ]
 
-Based on the following report from Smatch, fix the potential
-dereferencing freed memory check.
+Use the neighbour lock when copying the MAC address from the neighbour
+data struct in dst_fetch_ha.
 
-  tools/perf/util/annotate.c:1125
-  disasm_line__parse() error: dereferencing freed memory 'namep'
+When not using the lock, it is possible for the function to race with
+neigh_update(), causing it to copy an torn MAC address:
 
-  tools/perf/util/annotate.c
-  1100 static int disasm_line__parse(char *line, const char **namep, char **rawp)
-  1101 {
-  1102         char tmp, *name = ltrim(line);
+rdma_resolve_addr()
+  rdma_resolve_ip()
+    addr_resolve()
+      addr_resolve_neigh()
+        fetch_ha()
+          dst_fetch_ha()
+	     memcpy(dev_addr->dst_dev_addr, n->ha, MAX_ADDR_LEN)
 
-  [...]
+and
 
-  1114         *namep = strdup(name);
-  1115
-  1116         if (*namep == NULL)
-  1117                 goto out_free_name;
+net_ioctl()
+  arp_ioctl()
+    arp_rec_delete()
+      arp_invalidate()
+        neigh_update()
+          __neigh_update()
+	    memcpy(&neigh->ha, lladdr, dev->addr_len)
 
-  [...]
+It is possible to provoke this error by calling rdma_resolve_addr() in a
+tight loop, while deleting the corresponding ARP entry in another tight
+loop.
 
-  1124 out_free_name:
-  1125         free((void *)namep);
-                            ^^^^^
-  1126         *namep = NULL;
-               ^^^^^^
-  1127         return -1;
-  1128 }
-
-If strdup() fails to allocate memory space for *namep, we don't need to
-free memory with pointer 'namep', which is resident in data structure
-disasm_line::ins::name; and *namep is NULL pointer for this failure, so
-it's pointless to assign NULL to *namep again.
-
-Committer note:
-
-Freeing namep, which is the address of the first entry of the 'struct
-ins' that is the first member of struct disasm_line would in fact free
-that disasm_line instance, if it was allocated via malloc/calloc, which,
-later, would a dereference of freed memory.
-
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Alexios Zavras <alexios.zavras@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Changbin Du <changbin.du@intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lkml.kernel.org/r/20190702103420.27540-5-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 51d45974515c ("infiniband: addr: Consolidate code to fetch neighbour hardware address from dst.")
+Signed-off-by: Dag Moxnes <dag.moxnes@oracle.com>
+Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/annotate.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/infiniband/core/addr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index 79db038b56f2..02d0df0de3bb 100644
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -1114,16 +1114,14 @@ static int disasm_line__parse(char *line, const char **namep, char **rawp)
- 	*namep = strdup(name);
+diff --git a/drivers/infiniband/core/addr.c b/drivers/infiniband/core/addr.c
+index 2f7d14159841..9b76a8fcdd24 100644
+--- a/drivers/infiniband/core/addr.c
++++ b/drivers/infiniband/core/addr.c
+@@ -337,7 +337,7 @@ static int dst_fetch_ha(const struct dst_entry *dst,
+ 		neigh_event_send(n, NULL);
+ 		ret = -ENODATA;
+ 	} else {
+-		memcpy(dev_addr->dst_dev_addr, n->ha, MAX_ADDR_LEN);
++		neigh_ha_snapshot(dev_addr->dst_dev_addr, n, dst->dev);
+ 	}
  
- 	if (*namep == NULL)
--		goto out_free_name;
-+		goto out;
- 
- 	(*rawp)[0] = tmp;
- 	*rawp = ltrim(*rawp);
- 
- 	return 0;
- 
--out_free_name:
--	free((void *)namep);
--	*namep = NULL;
-+out:
- 	return -1;
- }
- 
+ 	neigh_release(n);
 -- 
 2.20.1
 
