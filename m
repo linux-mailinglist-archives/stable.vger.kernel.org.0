@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B0C6DEAF
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 458516DEB6
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:30:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731289AbfGSEE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:04:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37158 "EHLO mail.kernel.org"
+        id S1732126AbfGSEac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:30:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728812AbfGSEE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:04:58 -0400
+        id S1729995AbfGSEE7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:04:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDA1A2189F;
-        Fri, 19 Jul 2019 04:04:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00322218A3;
+        Fri, 19 Jul 2019 04:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509097;
-        bh=I0kSTxBH87xGoi/XjVBYDRILRFN52JKLEBxpQaVCfrA=;
+        s=default; t=1563509098;
+        bh=GIVjHN4Ipw1JFaURwKMXoUGR6EIG9Z9SPWtxHcXoxBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kcElFvV30G0iwZ40KRjnEWxBOb79mH8BipSSOxrE44g46dZARwhMTeUqKka604Nvz
-         uighyS7Sq3nLu++H8JB3vaIp8Jh0NZLaEQbGclk5iPTz/JcqsiB5obPlnZS+8fYOsu
-         3vniDmoiCxWYNjDiQHfbx1tO0hFAyqoybhmXteqs=
+        b=nJN1hLACcT7Y/BBMj8cTvWiT7H+qcYP1T0vCOkTzEM2+STg9MAtHp2sFrWeRQh/OZ
+         s/zbIjd3hIEPEO+KM9EurCAChP0tg3rOBT+etYX7ffnqdGC94pigbj+nGoR/VmUjgR
+         /gqBHKWBSD7Uc2xKP2RUE4mT1Lxo3WJ05bpyAKtI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Will Deacon <will.deacon@arm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 066/141] genksyms: Teach parser about 128-bit built-in types
-Date:   Fri, 19 Jul 2019 00:01:31 -0400
-Message-Id: <20190719040246.15945-66-sashal@kernel.org>
+Cc:     Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 067/141] PCI: xilinx-nwl: Fix Multi MSI data programming
+Date:   Fri, 19 Jul 2019 00:01:32 -0400
+Message-Id: <20190719040246.15945-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
@@ -43,66 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
 
-[ Upstream commit a222061b85234d8a44486a46bd4df7e2cda52385 ]
+[ Upstream commit 181fa434d0514e40ebf6e9721f2b72700287b6e2 ]
 
-__uint128_t crops up in a few files that export symbols to modules, so
-teach genksyms about it and the other GCC built-in 128-bit integer types
-so that we don't end up skipping the CRC generation for some symbols due
-to the parser failing to spot them:
+According to the PCI Local Bus specification Revision 3.0,
+section 6.8.1.3 (Message Control for MSI), endpoints that
+are Multiple Message Capable as defined by bits [3:1] in
+the Message Control for MSI can request a number of vectors
+that is power of two aligned.
 
-  | WARNING: EXPORT symbol "kernel_neon_begin" [vmlinux] version
-  |          generation failed, symbol will not be versioned.
-  | ld: arch/arm64/kernel/fpsimd.o: relocation R_AARCH64_ABS32 against
-  |     `__crc_kernel_neon_begin' can not be used when making a shared
-  |     object
-  | ld: arch/arm64/kernel/fpsimd.o:(.data+0x0): dangerous relocation:
-  |     unsupported relocation
+As specified in section 6.8.1.6 "Message data for MSI", the Multiple
+Message Enable field (bits [6:4] of the Message Control register)
+defines the number of low order message data bits the function is
+permitted to modify to generate its system software allocated
+vectors.
 
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+The MSI controller in the Xilinx NWL PCIe controller supports a number
+of MSI vectors specified through a bitmap and the hwirq number for an
+MSI, that is the value written in the MSI data TLP is determined by
+the bitmap allocation.
+
+For instance, in a situation where two endpoints sitting on
+the PCI bus request the following MSI configuration, with
+the current PCI Xilinx bitmap allocation code (that does not
+align MSI vector allocation on a power of two boundary):
+
+Endpoint #1: Requesting 1 MSI vector - allocated bitmap bits 0
+Endpoint #2: Requesting 2 MSI vectors - allocated bitmap bits [1,2]
+
+The bitmap value(s) corresponds to the hwirq number that is programmed
+into the Message Data for MSI field in the endpoint MSI capability
+and is detected by the root complex to fire the corresponding
+MSI irqs. The value written in Message Data for MSI field corresponds
+to the first bit allocated in the bitmap for Multi MSI vectors.
+
+The current Xilinx NWL MSI allocation code allows a bitmap allocation
+that is not a power of two boundaries, so endpoint #2, is allowed to
+toggle Message Data bit[0] to differentiate between its two vectors
+(meaning that the MSI data will be respectively 0x0 and 0x1 for the two
+vectors allocated to endpoint #2).
+
+This clearly aliases with the Endpoint #1 vector allocation, resulting
+in a broken Multi MSI implementation.
+
+Update the code to allocate MSI bitmap ranges with a power of two
+alignment, fixing the bug.
+
+Fixes: ab597d35ef11 ("PCI: xilinx-nwl: Add support for Xilinx NWL PCIe Host Controller")
+Suggested-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
+[lorenzo.pieralisi@arm.com: updated commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/genksyms/keywords.c | 4 ++++
- scripts/genksyms/parse.y    | 2 ++
- 2 files changed, 6 insertions(+)
+ drivers/pci/controller/pcie-xilinx-nwl.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/scripts/genksyms/keywords.c b/scripts/genksyms/keywords.c
-index 9f40bcd17d07..f6956aa41366 100644
---- a/scripts/genksyms/keywords.c
-+++ b/scripts/genksyms/keywords.c
-@@ -24,6 +24,10 @@ static struct resword {
- 	{ "__volatile__", VOLATILE_KEYW },
- 	{ "__builtin_va_list", VA_LIST_KEYW },
+diff --git a/drivers/pci/controller/pcie-xilinx-nwl.c b/drivers/pci/controller/pcie-xilinx-nwl.c
+index 81538d77f790..a9e07b8a45b1 100644
+--- a/drivers/pci/controller/pcie-xilinx-nwl.c
++++ b/drivers/pci/controller/pcie-xilinx-nwl.c
+@@ -483,15 +483,13 @@ static int nwl_irq_domain_alloc(struct irq_domain *domain, unsigned int virq,
+ 	int i;
  
-+	{ "__int128", BUILTIN_INT_KEYW },
-+	{ "__int128_t", BUILTIN_INT_KEYW },
-+	{ "__uint128_t", BUILTIN_INT_KEYW },
-+
- 	// According to rth, c99 defines "_Bool", __restrict", __restrict__", "restrict".  KAO
- 	{ "_Bool", BOOL_KEYW },
- 	{ "_restrict", RESTRICT_KEYW },
-diff --git a/scripts/genksyms/parse.y b/scripts/genksyms/parse.y
-index 00a6d7e54971..1ebcf52cd0f9 100644
---- a/scripts/genksyms/parse.y
-+++ b/scripts/genksyms/parse.y
-@@ -76,6 +76,7 @@ static void record_compound(struct string_list **keyw,
- %token ATTRIBUTE_KEYW
- %token AUTO_KEYW
- %token BOOL_KEYW
-+%token BUILTIN_INT_KEYW
- %token CHAR_KEYW
- %token CONST_KEYW
- %token DOUBLE_KEYW
-@@ -263,6 +264,7 @@ simple_type_specifier:
- 	| VOID_KEYW
- 	| BOOL_KEYW
- 	| VA_LIST_KEYW
-+	| BUILTIN_INT_KEYW
- 	| TYPE			{ (*$1)->tag = SYM_TYPEDEF; $$ = $1; }
- 	;
+ 	mutex_lock(&msi->lock);
+-	bit = bitmap_find_next_zero_area(msi->bitmap, INT_PCI_MSI_NR, 0,
+-					 nr_irqs, 0);
+-	if (bit >= INT_PCI_MSI_NR) {
++	bit = bitmap_find_free_region(msi->bitmap, INT_PCI_MSI_NR,
++				      get_count_order(nr_irqs));
++	if (bit < 0) {
+ 		mutex_unlock(&msi->lock);
+ 		return -ENOSPC;
+ 	}
+ 
+-	bitmap_set(msi->bitmap, bit, nr_irqs);
+-
+ 	for (i = 0; i < nr_irqs; i++) {
+ 		irq_domain_set_info(domain, virq + i, bit + i, &nwl_irq_chip,
+ 				domain->host_data, handle_simple_irq,
+@@ -509,7 +507,8 @@ static void nwl_irq_domain_free(struct irq_domain *domain, unsigned int virq,
+ 	struct nwl_msi *msi = &pcie->msi;
+ 
+ 	mutex_lock(&msi->lock);
+-	bitmap_clear(msi->bitmap, data->hwirq, nr_irqs);
++	bitmap_release_region(msi->bitmap, data->hwirq,
++			      get_count_order(nr_irqs));
+ 	mutex_unlock(&msi->lock);
+ }
  
 -- 
 2.20.1
