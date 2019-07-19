@@ -2,56 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D2DD6DE4A
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:27:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD2B6DE47
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731906AbfGSEGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:06:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40130 "EHLO mail.kernel.org"
+        id S1733198AbfGSE1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:27:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731933AbfGSEGu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:06:50 -0400
+        id S1732377AbfGSEGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:06:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82F4A2189F;
-        Fri, 19 Jul 2019 04:06:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BD72218B8;
+        Fri, 19 Jul 2019 04:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509208;
-        bh=hd3faQ3NjDa7987x5ieUJyMgS5PrMg+h5OFV8vUuDas=;
+        s=default; t=1563509211;
+        bh=2fRjPlFI+IC2gcVvwucsAE2Olid+tMqkjJzEkKVk00U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZAQptQdF5QYsyKkEdqiasH2VX1m8RpNu77ZIGr92ZWmxyzvae0T6y8bOoBJtL7TT
-         Zm5oa/65Vh5sUwDbhpRTs5dnxrJFpMcMBcRmp6xXW452X/niVv3l8R6uQseVGqX7va
-         2KY0X2BRAwe855TTfg+1/gCx925+u88clMF3rwOg=
+        b=IMkRRgg/f7BTXgHk4ESTEEVb+qog01H0XI1qXA6/9SiUJg6zJpqgvA97xAUQxoVKK
+         uqQWoxjuOxO2QX09kTzMvlU6Yr33F2yLf3/iWofE3zntFj4q9IrqKprsLc6cEDEQ4k
+         A9Jnwv/mkI0fZWR7RV+pGqP2EyZrJwfZbZU3yGFI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huang Ying <ying.huang@intel.com>,
+Cc:     Guenter Roeck <linux@roeck-us.net>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Hugh Dickins <hughd@google.com>,
-        "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        David Rientjes <rientjes@google.com>,
-        Rik van Riel <riel@redhat.com>, Jan Kara <jack@suse.cz>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Andrea Parri <andrea.parri@amarulasolutions.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Robin Murphy <robin.murphy@arm.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.1 128/141] mm/mincore.c: fix race between swapoff and mincore
-Date:   Fri, 19 Jul 2019 00:02:33 -0400
-Message-Id: <20190719040246.15945-128-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 129/141] mm/gup.c: mark undo_dev_pagemap as __maybe_unused
+Date:   Fri, 19 Jul 2019 00:02:34 -0400
+Message-Id: <20190719040246.15945-129-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
 References: <20190719040246.15945-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,87 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Ying <ying.huang@intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit aeb309b81c6bada783c3695528a3e10748e97285 ]
+[ Upstream commit 790c73690c2bbecb3f6f8becbdb11ddc9bcff8cc ]
 
-Via commit 4b3ef9daa4fc ("mm/swap: split swap cache into 64MB trunks"),
-after swapoff, the address_space associated with the swap device will be
-freed.  So swap_address_space() users which touch the address_space need
-some kind of mechanism to prevent the address_space from being freed
-during accessing.
+Several mips builds generate the following build warning.
 
-When mincore processes an unmapped range for swapped shmem pages, it
-doesn't hold the lock to prevent swap device from being swapped off.  So
-the following race is possible:
+  mm/gup.c:1788:13: warning: 'undo_dev_pagemap' defined but not used
 
-CPU1					CPU2
-do_mincore()				swapoff()
-  walk_page_range()
-    mincore_unmapped_range()
-      __mincore_unmapped_range
-        mincore_page
-	  as = swap_address_space()
-          ...				  exit_swap_address_space()
-          ...				    kvfree(spaces)
-	  find_get_page(as)
+The function is declared unconditionally but only called from behind
+various ifdefs. Mark it __maybe_unused.
 
-The address space may be accessed after being freed.
-
-To fix the race, get_swap_device()/put_swap_device() is used to enclose
-find_get_page() to check whether the swap entry is valid and prevent the
-swap device from being swapoff during accessing.
-
-Link: http://lkml.kernel.org/r/20190611020510.28251-1-ying.huang@intel.com
-Fixes: 4b3ef9daa4fc ("mm/swap: split swap cache into 64MB trunks")
-Signed-off-by: "Huang, Ying" <ying.huang@intel.com>
+Link: http://lkml.kernel.org/r/1562072523-22311-1-git-send-email-linux@roeck-us.net
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Yang Shi <yang.shi@linux.alibaba.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Rik van Riel <riel@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Andrea Parri <andrea.parri@amarulasolutions.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mincore.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ mm/gup.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/mm/mincore.c b/mm/mincore.c
-index c3f058bd0faf..4fe91d497436 100644
---- a/mm/mincore.c
-+++ b/mm/mincore.c
-@@ -68,8 +68,16 @@ static unsigned char mincore_page(struct address_space *mapping, pgoff_t pgoff)
- 		 */
- 		if (xa_is_value(page)) {
- 			swp_entry_t swp = radix_to_swp_entry(page);
--			page = find_get_page(swap_address_space(swp),
--					     swp_offset(swp));
-+			struct swap_info_struct *si;
-+
-+			/* Prevent swap device to being swapoff under us */
-+			si = get_swap_device(swp);
-+			if (si) {
-+				page = find_get_page(swap_address_space(swp),
-+						     swp_offset(swp));
-+				put_swap_device(si);
-+			} else
-+				page = NULL;
- 		}
- 	} else
- 		page = find_get_page(mapping, pgoff);
+diff --git a/mm/gup.c b/mm/gup.c
+index 91819b8ad9cc..60d759f4e4b5 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -1545,7 +1545,8 @@ static inline pte_t gup_get_pte(pte_t *ptep)
+ }
+ #endif
+ 
+-static void undo_dev_pagemap(int *nr, int nr_start, struct page **pages)
++static void __maybe_unused undo_dev_pagemap(int *nr, int nr_start,
++					    struct page **pages)
+ {
+ 	while ((*nr) - nr_start) {
+ 		struct page *page = pages[--(*nr)];
 -- 
 2.20.1
 
