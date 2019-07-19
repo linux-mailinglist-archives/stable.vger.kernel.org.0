@@ -2,114 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D30C6E6E2
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 15:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B670F6E6E5
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 15:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728538AbfGSNxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 09:53:21 -0400
-Received: from foss.arm.com ([217.140.110.172]:43684 "EHLO foss.arm.com"
+        id S1728643AbfGSNxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 09:53:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726239AbfGSNxU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 09:53:20 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C78B4337;
-        Fri, 19 Jul 2019 06:53:19 -0700 (PDT)
-Received: from e121166-lin.cambridge.arm.com (unknown [10.1.196.255])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C394F3F71A;
-        Fri, 19 Jul 2019 06:53:18 -0700 (PDT)
-Date:   Fri, 19 Jul 2019 14:53:09 +0100
-From:   Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vidya Sagar <vidyas@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>, linux-pci@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.14 41/60] PCI: tegra: Enable Relaxed Ordering
- only for Tegra20 & Tegra30
-Message-ID: <20190719135301.GA685@e121166-lin.cambridge.arm.com>
-References: <20190719041109.18262-1-sashal@kernel.org>
- <20190719041109.18262-41-sashal@kernel.org>
+        id S1726239AbfGSNxy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 09:53:54 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2373220873;
+        Fri, 19 Jul 2019 13:53:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563544433;
+        bh=PWY0uoVGOh2PIWiAEFdra9jU7XP0LdTkL6CqbiecmhI=;
+        h=Date:From:To:Cc:Subject:From;
+        b=JgHCo4v2VcpkMOr8kI0jFODeODS1YOtg9AsqQnJyqBNCHNCTlFh5NFtHqcs1vxwpx
+         qQyCpne+/nfzZ34ku+t1vzhuDvt6A54gDCZrOViO30B6wcPFaTuEiRE7CUfMulmqBA
+         F08wF7Cj2BPP37/60P6QY8I77v78jM+kWN3bJ7gs=
+Date:   Fri, 19 Jul 2019 09:53:52 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     tglx@linutronix.de, bigeasy@linutronix.de, peterz@infradead.org,
+        mingo@kernel.org, tj@kernel.org, jiangshanlai@gmail.com
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: NULL ptr deref in wq_worker_sleeping on 4.19
+Message-ID: <20190719135352.GF4240@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20190719041109.18262-41-sashal@kernel.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 19, 2019 at 12:10:50AM -0400, Sasha Levin wrote:
-> From: Vidya Sagar <vidyas@nvidia.com>
-> 
-> [ Upstream commit 7be142caabc4780b13a522c485abc806de5c4114 ]
-> 
-> The PCI Tegra controller conversion to a device tree configurable
-> driver in commit d1523b52bff3 ("PCI: tegra: Move PCIe driver
-> to drivers/pci/host") implied that code for the driver can be
-> compiled in for a kernel supporting multiple platforms.
-> 
-> Unfortunately, a blind move of the code did not check that some of the
-> quirks that were applied in arch/arm (eg enabling Relaxed Ordering on
-> all PCI devices - since the quirk hook erroneously matches PCI_ANY_ID
-> for both Vendor-ID and Device-ID) are now applied in all kernels that
-> compile the PCI Tegra controlled driver, DT and ACPI alike.
-> 
-> This is completely wrong, in that enablement of Relaxed Ordering is only
-> required by default in Tegra20 platforms as described in the Tegra20
-> Technical Reference Manual (available at
-> https://developer.nvidia.com/embedded/downloads#?search=tegra%202 in
-> Section 34.1, where it is mentioned that Relaxed Ordering bit needs to
-> be enabled in its root ports to avoid deadlock in hardware) and in the
-> Tegra30 platforms for the same reasons (unfortunately not documented
-> in the TRM).
-> 
-> There is no other strict requirement on PCI devices Relaxed Ordering
-> enablement on any other Tegra platforms or PCI host bridge driver.
-> 
-> Fix this quite upsetting situation by limiting the vendor and device IDs
-> to which the Relaxed Ordering quirk applies to the root ports in
-> question, reported above.
-> 
-> Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
-> [lorenzo.pieralisi@arm.com: completely rewrote the commit log/fixes tag]
-> Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-> Acked-by: Thierry Reding <treding@nvidia.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+Hi folks,
 
-Hi Sasha,
+We're seeing a rare panic on boot in wq_worker_sleeping() on boot in
+4.19 kernels. I wasn't able to reproduce this with 5.2, but I'm not sure
+whether it's because the issue is fixed, or I was just unlucky.
 
-as Jon requested, please drop this patch from the autosel patch
-queue, thank you very much.
+The panic looks like this:
 
-Lorenzo
+[    0.852791] BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
+[    0.853260] PGD 0 P4D 0 
+[    0.853260] Oops: 0000 [#1] SMP PTI
+[    0.853260] CPU: 7 PID: 49 Comm:  Not tainted 4.19.52-9858d02fd940 #1
+[    0.853260] Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS 090007  06/02/2017
+[    0.853260] RIP: 0010:kthread_data+0x12/0x30
+[    0.853260] Code: 83 7f 58 00 74 02 0f 0b e9 bb 2d 19 00 0f 0b eb e2 0f 1f 80 00 00 00 00 0f 1f 44 00 00 f6 47 26 20 74 0c 48 8b 87 98 05 00 00 <48> 8b 40 10 c3 0f 0b 48 8b 87 98 05 00 00 48 8b 40 10 c3 90 66 2e
+[    0.853260] RSP: 0000:ffffc900036abe38 EFLAGS: 00010002
+[    0.853260] RAX: 0000000000000000 RBX: ffff8887bfbe17c0 RCX: 0000000000000000
+[    0.853260] RDX: 0000000000000001 RSI: 000000000000000a RDI: ffff8887bbb4bb00
+[    0.853260] RBP: ffffc900036abea0 R08: 0000000000000000 R09: 0000000000000000
+[    0.853260] R10: ffffc9000368bd90 R11: 0000000000000000 R12: ffff8887bbb4bb00
+[    0.853260] R13: 0000000000000000 R14: ffffc900036abe60 R15: 0000000000000000
+[    0.853260] FS:  0000000000000000(0000) GS:ffff8887bfbc0000(0000) knlGS:0000000000000000
+[    0.853260] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    0.853260] CR2: 0000000000000068 CR3: 00000007df40a000 CR4: 00000000001406e0
+[    0.853260] Call Trace:
+[    0.853260]  wq_worker_sleeping+0xa/0x60
+[    0.853260]  __schedule+0x571/0x8c0
+[    0.853260]  schedule+0x32/0x80
+[    0.853260]  worker_thread+0xc7/0x440
+[    0.853260]  kthread+0xf8/0x130
+[    0.853260]  ret_from_fork+0x35/0x40
+[    0.853260] Modules linked in:
+[    0.853260] CR2: 0000000000000010
+[    0.853260] ---[ end trace 160fda44361ab977 ]---
 
-> ---
->  drivers/pci/host/pci-tegra.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/pci/host/pci-tegra.c b/drivers/pci/host/pci-tegra.c
-> index 1987fec1f126..d2ad76ef3e83 100644
-> --- a/drivers/pci/host/pci-tegra.c
-> +++ b/drivers/pci/host/pci-tegra.c
-> @@ -607,12 +607,15 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_fixup_class);
->  DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_fixup_class);
->  DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_fixup_class);
->  
-> -/* Tegra PCIE requires relaxed ordering */
-> +/* Tegra20 and Tegra30 PCIE requires relaxed ordering */
->  static void tegra_pcie_relax_enable(struct pci_dev *dev)
->  {
->  	pcie_capability_set_word(dev, PCI_EXP_DEVCTL, PCI_EXP_DEVCTL_RELAX_EN);
->  }
-> -DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, tegra_pcie_relax_enable);
-> +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf0, tegra_pcie_relax_enable);
-> +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_relax_enable);
-> +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_relax_enable);
-> +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_relax_enable);
->  
->  static int tegra_pcie_request_resources(struct tegra_pcie *pcie)
->  {
-> -- 
-> 2.20.1
-> 
+I see that this area was recently touched by 6d25be5782e4 ("sched/core,
+workqueues: Distangle worker accounting from rq lock") but I'm not sure
+if it's related.
+
+--
+Thanks,
+Sasha
