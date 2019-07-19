@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 545996DC72
-	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:17:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 893CB6DC45
+	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:15:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389768AbfGSEOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:14:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50804 "EHLO mail.kernel.org"
+        id S2389808AbfGSEOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:14:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733197AbfGSEOf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:14:35 -0400
+        id S2389786AbfGSEOh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:14:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 847EC2189E;
-        Fri, 19 Jul 2019 04:14:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2DAB2082F;
+        Fri, 19 Jul 2019 04:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509674;
-        bh=naRzSXOMxwow96QrKs/l+61O5zHaltgJdKK2olHoEuc=;
+        s=default; t=1563509676;
+        bh=OG3BhARyERKdgIkunOz9Kvv8QPSf6id5watSfgNc7QU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0CoshZFwlIlvZ2KRb04R37jroXLYJJuedQNrga5InNu8b5eBkP+b+s9xQStSiTMiQ
-         L5q//X4uhL8DzqQpSujuXUf84l6WXGUzHMU/OWDtQ3jpO0St4NREKPOXmXMgK1wvwe
-         ThFEGCS1GatZ5WGdrULDKsr+IYT+RoYgXgGbTdsU=
+        b=ydqxrfnqOFTkmah6lLSVeHvTRM+GZLQwpWa4N84CJmuTDhBurMnGjKPw1U+JyM52U
+         MOQt+aJpxLHAFke6OOdbK9l6/OvkxFGWfqngfq15IJsBLqEiVqA7XBiTn7FzA8fEsb
+         QfrzxU5u4y4ts1o6tDuUa5fhPKAJI6iwzpcJrDNs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gen Zhang <blackgod016574@gmail.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.4 06/35] drm/edid: Fix a missing-check bug in drm_load_edid_firmware()
-Date:   Fri, 19 Jul 2019 00:13:54 -0400
-Message-Id: <20190719041423.19322-6-sashal@kernel.org>
+Cc:     Wang Hai <wanghai26@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 07/35] memstick: Fix error cleanup path of memstick_init
+Date:   Fri, 19 Jul 2019 00:13:55 -0400
+Message-Id: <20190719041423.19322-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041423.19322-1-sashal@kernel.org>
 References: <20190719041423.19322-1-sashal@kernel.org>
@@ -44,40 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gen Zhang <blackgod016574@gmail.com>
+From: Wang Hai <wanghai26@huawei.com>
 
-[ Upstream commit 9f1f1a2dab38d4ce87a13565cf4dc1b73bef3a5f ]
+[ Upstream commit 65f1a0d39c289bb6fc85635528cd36c4b07f560e ]
 
-In drm_load_edid_firmware(), fwstr is allocated by kstrdup(). And fwstr
-is dereferenced in the following codes. However, memory allocation
-functions such as kstrdup() may fail and returns NULL. Dereferencing
-this null pointer may cause the kernel go wrong. Thus we should check
-this kstrdup() operation.
-Further, if kstrdup() returns NULL, we should return ERR_PTR(-ENOMEM) to
-the caller site.
+If bus_register fails. On its error handling path, it has cleaned up
+what it has done. There is no need to call bus_unregister again.
+Otherwise, if bus_unregister is called, issues such as null-ptr-deref
+will arise.
 
-Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190524023222.GA5302@zhanggen-UX430UQ
+Syzkaller report this:
+
+kobject_add_internal failed for memstick (error: -12 parent: bus)
+BUG: KASAN: null-ptr-deref in sysfs_remove_file_ns+0x1b/0x40 fs/sysfs/file.c:467
+Read of size 8 at addr 0000000000000078 by task syz-executor.0/4460
+
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xa9/0x10e lib/dump_stack.c:113
+ __kasan_report+0x171/0x18d mm/kasan/report.c:321
+ kasan_report+0xe/0x20 mm/kasan/common.c:614
+ sysfs_remove_file_ns+0x1b/0x40 fs/sysfs/file.c:467
+ sysfs_remove_file include/linux/sysfs.h:519 [inline]
+ bus_remove_file+0x6c/0x90 drivers/base/bus.c:145
+ remove_probe_files drivers/base/bus.c:599 [inline]
+ bus_unregister+0x6e/0x100 drivers/base/bus.c:916 ? 0xffffffffc1590000
+ memstick_init+0x7a/0x1000 [memstick]
+ do_one_initcall+0xb9/0x3b5 init/main.c:914
+ do_init_module+0xe0/0x330 kernel/module.c:3468
+ load_module+0x38eb/0x4270 kernel/module.c:3819
+ __do_sys_finit_module+0x162/0x190 kernel/module.c:3909
+ do_syscall_64+0x72/0x2a0 arch/x86/entry/common.c:298
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: baf8532a147d ("memstick: initial commit for Sony MemoryStick support")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai26@huawei.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid_load.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/memstick/core/memstick.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_edid_load.c b/drivers/gpu/drm/drm_edid_load.c
-index 698b8c3b09d9..b5f582466609 100644
---- a/drivers/gpu/drm/drm_edid_load.c
-+++ b/drivers/gpu/drm/drm_edid_load.c
-@@ -280,6 +280,8 @@ int drm_load_edid_firmware(struct drm_connector *connector)
- 	 * the last one found one as a fallback.
- 	 */
- 	fwstr = kstrdup(edid_firmware, GFP_KERNEL);
-+	if (!fwstr)
-+		return ERR_PTR(-ENOMEM);
- 	edidstr = fwstr;
+diff --git a/drivers/memstick/core/memstick.c b/drivers/memstick/core/memstick.c
+index 4d673a626db4..1041eb7a6167 100644
+--- a/drivers/memstick/core/memstick.c
++++ b/drivers/memstick/core/memstick.c
+@@ -629,13 +629,18 @@ static int __init memstick_init(void)
+ 		return -ENOMEM;
  
- 	while ((edidname = strsep(&edidstr, ","))) {
+ 	rc = bus_register(&memstick_bus_type);
+-	if (!rc)
+-		rc = class_register(&memstick_host_class);
++	if (rc)
++		goto error_destroy_workqueue;
+ 
+-	if (!rc)
+-		return 0;
++	rc = class_register(&memstick_host_class);
++	if (rc)
++		goto error_bus_unregister;
++
++	return 0;
+ 
++error_bus_unregister:
+ 	bus_unregister(&memstick_bus_type);
++error_destroy_workqueue:
+ 	destroy_workqueue(workqueue);
+ 
+ 	return rc;
 -- 
 2.20.1
 
