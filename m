@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BADB86DCA3
+	by mail.lfdr.de (Postfix) with ESMTP id 50C216DCA2
 	for <lists+stable@lfdr.de>; Fri, 19 Jul 2019 06:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389598AbfGSEON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jul 2019 00:14:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50324 "EHLO mail.kernel.org"
+        id S2389613AbfGSEOO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jul 2019 00:14:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388816AbfGSEON (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jul 2019 00:14:13 -0400
+        id S2389593AbfGSEOO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jul 2019 00:14:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 695802082F;
-        Fri, 19 Jul 2019 04:14:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64B1C2189E;
+        Fri, 19 Jul 2019 04:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563509652;
-        bh=D3EEDM91J3jfhjcd7g60JQOzCfs2T/DHvLLPjJ4oGrY=;
+        s=default; t=1563509653;
+        bh=p0zBARAMRGsB7iLA/OPS80em/wFhjQRa+VklgXTSAXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Rg2834M3AaUmqmeHGxBRiESd8TZjvq6K+/8q0qcQXka3gC3RL8xUdwPGqBIv4RTT
-         4MaOzZsILBzS5OOYITVccl1K+c670k0reMfYLOtru1V0Q4NLrRWnln/DgWEgmzyqIn
-         K61z4wYhuvtcY2ilBUep5yiN3ONo/upyf2Bx2/yo=
+        b=c66W+CH2alX0wSY1LPbpU+brfsdM0BRJ9bw1hebwIbELAGInjWjY8dncjEzeqKozr
+         Y5RXLNpUiOH9BAeOdbxJaBP/SHKAaMC71kFdznpBMVXSiR5yKHr6g9OiZhFq0VXXSX
+         CZNM56TDRXFQJuiySdISY+eZS7I2vdszYJp39Q1o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     morten petersen <morten_bp@live.dk>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 39/45] mailbox: handle failed named mailbox channel request
-Date:   Fri, 19 Jul 2019 00:12:58 -0400
-Message-Id: <20190719041304.18849-39-sashal@kernel.org>
+Cc:     Oliver O'Halloran <oohall@gmail.com>,
+        Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.9 40/45] powerpc/eeh: Handle hugepages in ioremap space
+Date:   Fri, 19 Jul 2019 00:12:59 -0400
+Message-Id: <20190719041304.18849-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190719041304.18849-1-sashal@kernel.org>
 References: <20190719041304.18849-1-sashal@kernel.org>
@@ -43,44 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: morten petersen <morten_bp@live.dk>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-[ Upstream commit 25777e5784a7b417967460d4fcf9660d05a0c320 ]
+[ Upstream commit 33439620680be5225c1b8806579a291e0d761ca0 ]
 
-Previously, if mbox_request_channel_byname was used with a name
-which did not exist in the "mbox-names" property of a mailbox
-client, the mailbox corresponding to the last entry in the
-"mbox-names" list would be incorrectly selected.
-With this patch, -EINVAL is returned if the named mailbox is
-not found.
+In commit 4a7b06c157a2 ("powerpc/eeh: Handle hugepages in ioremap
+space") support for using hugepages in the vmalloc and ioremap areas was
+enabled for radix. Unfortunately this broke EEH MMIO error checking.
 
-Signed-off-by: Morten Borup Petersen <morten_bp@live.dk>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Detection works by inserting a hook which checks the results of the
+ioreadXX() set of functions.  When a read returns a 0xFFs response we
+need to check for an error which we do by mapping the (virtual) MMIO
+address back to a physical address, then mapping physical address to a
+PCI device via an interval tree.
+
+When translating virt -> phys we currently assume the ioremap space is
+only populated by PAGE_SIZE mappings. If a hugepage mapping is found we
+emit a WARN_ON(), but otherwise handles the check as though a normal
+page was found. In pathalogical cases such as copying a buffer
+containing a lot of 0xFFs from BAR memory this can result in the system
+not booting because it's too busy printing WARN_ON()s.
+
+There's no real reason to assume huge pages can't be present and we're
+prefectly capable of handling them, so do that.
+
+Fixes: 4a7b06c157a2 ("powerpc/eeh: Handle hugepages in ioremap space")
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190710150517.27114-1-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/mailbox.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/eeh.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mailbox/mailbox.c b/drivers/mailbox/mailbox.c
-index 87ef465c6947..c1c43800c4aa 100644
---- a/drivers/mailbox/mailbox.c
-+++ b/drivers/mailbox/mailbox.c
-@@ -389,11 +389,13 @@ struct mbox_chan *mbox_request_channel_byname(struct mbox_client *cl,
+diff --git a/arch/powerpc/kernel/eeh.c b/arch/powerpc/kernel/eeh.c
+index 8336b9016ca9..a7f229e59892 100644
+--- a/arch/powerpc/kernel/eeh.c
++++ b/arch/powerpc/kernel/eeh.c
+@@ -362,10 +362,19 @@ static inline unsigned long eeh_token_to_phys(unsigned long token)
+ 					   NULL, &hugepage_shift);
+ 	if (!ptep)
+ 		return token;
+-	WARN_ON(hugepage_shift);
+-	pa = pte_pfn(*ptep) << PAGE_SHIFT;
  
- 	of_property_for_each_string(np, "mbox-names", prop, mbox_name) {
- 		if (!strncmp(name, mbox_name, strlen(name)))
--			break;
-+			return mbox_request_channel(cl, index);
- 		index++;
- 	}
- 
--	return mbox_request_channel(cl, index);
-+	dev_err(cl->dev, "%s() could not locate channel named \"%s\"\n",
-+		__func__, name);
-+	return ERR_PTR(-EINVAL);
+-	return pa | (token & (PAGE_SIZE-1));
++	pa = pte_pfn(*ptep);
++
++	/* On radix we can do hugepage mappings for io, so handle that */
++	if (hugepage_shift) {
++		pa <<= hugepage_shift;
++		pa |= token & ((1ul << hugepage_shift) - 1);
++	} else {
++		pa <<= PAGE_SHIFT;
++		pa |= token & (PAGE_SIZE - 1);
++	}
++
++	return pa;
  }
- EXPORT_SYMBOL_GPL(mbox_request_channel_byname);
  
+ /*
 -- 
 2.20.1
 
