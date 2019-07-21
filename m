@@ -2,96 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABDE86F351
-	for <lists+stable@lfdr.de>; Sun, 21 Jul 2019 15:02:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 389BC6F360
+	for <lists+stable@lfdr.de>; Sun, 21 Jul 2019 15:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726188AbfGUNCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Jul 2019 09:02:19 -0400
-Received: from mail-wm1-f44.google.com ([209.85.128.44]:37461 "EHLO
-        mail-wm1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726187AbfGUNCT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Jul 2019 09:02:19 -0400
-Received: by mail-wm1-f44.google.com with SMTP id f17so32818394wme.2
-        for <stable@vger.kernel.org>; Sun, 21 Jul 2019 06:02:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=phEY/60Ws31Whx0gOvXbcZcmEdzeRVr7vfFJIHM7VsU=;
-        b=FwtiDcHoaNgIoPNY/yFXHNnNpJmYMolF6HH+URJ30dQfH1a328a354dOa+2F3Yr4JO
-         evA4QX1XiplmseBDcGlqdEGi5r1HPP95srfQpLrrel8hC4zxXuy4EISZ7px/Ez2T1kQv
-         2jscl9XdshSxXcPyabzjMHj+zWW70YnblFoFScp4c5u+xYQ8hlDWXwID3I0DxkJ1jiIB
-         BTfhAdzVWTou1oHV6s1WRJCVaRVp6WvLXR5+rGBXB7rBOzoHOBpAc0gVMr6ToKdD5ec1
-         ds0JTFoDxyuQxBloL8hslY1LDstuEq5FLpqLCibZFURdgOnp/u7O2ho8oOp49paQgWUt
-         HYHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=phEY/60Ws31Whx0gOvXbcZcmEdzeRVr7vfFJIHM7VsU=;
-        b=X1DWolTmGikOyh4PmHg5EgNxUvu5DSrntCcT3hHzOFkaDdEvu1SaI2WaGMrguPgzJg
-         9A4Xn8lYv6kaD+jwnK2xSeKOamvO7dJneI4N7KcCuJLi/LahPsTFBevQI3Unde+pfSAU
-         ISaWdaJP0REVIBjgubyMbk7i6tIz0a8aPIBnEk5L/kBttmnWk6ctG5hoXwLsAlbr7+R/
-         jevzb7pCJIaeMuzmO2wUBCZ0Xi3jOE26+7xshYQw0Y4feAxVRSS7W8e5L8KfiRFeMhKW
-         BIOoNk7vYk0ZL8TjHsbHaMaN5OqZoogD6XUVf2bU2uLStauibHJhvTmQMCfDf8RSpkmg
-         OvJA==
-X-Gm-Message-State: APjAAAU0Tl+p2NcjBJ2Uo2l6RWnPjVzK7srBRkVWdN7bTTS1mBkUJGTi
-        9/8yezOVQfx1Q7glAeSgyvqDjD1j
-X-Google-Smtp-Source: APXvYqxJaU+r2IzopBjmXnZyssi9jhvDpB5y5FF89LHmgpKObk4JArM5pOapJuMGs3+pkPV2f4za5w==
-X-Received: by 2002:a7b:c632:: with SMTP id p18mr60498634wmk.114.1563714137066;
-        Sun, 21 Jul 2019 06:02:17 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id j10sm34345199wrw.96.2019.07.21.06.02.15
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 21 Jul 2019 06:02:15 -0700 (PDT)
-Message-ID: <5d346257.1c69fb81.89c00.e44f@mx.google.com>
-Date:   Sun, 21 Jul 2019 06:02:15 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726366AbfGUNTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Jul 2019 09:19:22 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:38100 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726275AbfGUNTW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 21 Jul 2019 09:19:22 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 9DA4D308FE9A;
+        Sun, 21 Jul 2019 13:19:21 +0000 (UTC)
+Received: from shalem.localdomain.com (ovpn-116-49.ams2.redhat.com [10.36.116.49])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2A4D660BFB;
+        Sun, 21 Jul 2019 13:19:20 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Peter Jones <pjones@redhat.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] efifb: BGRT: Improve efifb_bgrt_sanity_check
+Date:   Sun, 21 Jul 2019 15:19:18 +0200
+Message-Id: <20190721131918.10115-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.186
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable/linux-4.9.y boot: 39 boots: 1 failed, 38 passed (v4.9.186)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Sun, 21 Jul 2019 13:19:22 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y boot: 39 boots: 1 failed, 38 passed (v4.9.186)
+For various reasons, at least with x86 EFI firmwares, the xoffset and
+yoffset in the BGRT info are not always reliable.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-9.y/kernel/v4.9.186/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
-rnel/v4.9.186/
+Extensive testing has shown that when the info is correct, the
+BGRT image is always exactly centered horizontally (the yoffset variable
+is more variable and not always predictable).
 
-Tree: stable
-Branch: linux-4.9.y
-Git Describe: v4.9.186
-Git Commit: 35c308d7828de5c5784bb75efcf848996b3a82d1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 18 unique boards, 9 SoC families, 7 builds out of 197
+This commit simplifies / improves the bgrt_sanity_check to simply
+check that the BGRT image is exactly centered horizontally and skips
+(re)drawing it when it is not.
 
-Boot Regressions Detected:
+This fixes the BGRT image sometimes being drawn in the wrong place.
 
-arm:
-
-    omap2plus_defconfig:
-        gcc-8:
-          omap4-panda:
-              lab-collabora: new failure (last pass: v4.9.185)
-
-Boot Failure Detected:
-
-arm:
-    omap2plus_defconfig:
-        gcc-8:
-            omap4-panda: 1 failed lab
-
+Cc: stable@vger.kernel.org
+Fixes: 88fe4ceb2447 ("efifb: BGRT: Do not copy the boot graphics for non native resolutions")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-For more info write to <info@kernelci.org>
+ drivers/video/fbdev/efifb.c | 27 ++++++---------------------
+ 1 file changed, 6 insertions(+), 21 deletions(-)
+
+diff --git a/drivers/video/fbdev/efifb.c b/drivers/video/fbdev/efifb.c
+index dfa8dd47d19d..5b3cef9bf794 100644
+--- a/drivers/video/fbdev/efifb.c
++++ b/drivers/video/fbdev/efifb.c
+@@ -122,28 +122,13 @@ static void efifb_copy_bmp(u8 *src, u32 *dst, int width, struct screen_info *si)
+  */
+ static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
+ {
+-	static const int default_resolutions[][2] = {
+-		{  800,  600 },
+-		{ 1024,  768 },
+-		{ 1280, 1024 },
+-	};
+-	u32 i, right_margin;
+-
+-	for (i = 0; i < ARRAY_SIZE(default_resolutions); i++) {
+-		if (default_resolutions[i][0] == si->lfb_width &&
+-		    default_resolutions[i][1] == si->lfb_height)
+-			break;
+-	}
+-	/* If not a default resolution used for textmode, this should be fine */
+-	if (i >= ARRAY_SIZE(default_resolutions))
+-		return true;
+-
+-	/* If the right margin is 5 times smaller then the left one, reject */
+-	right_margin = si->lfb_width - (bgrt_tab.image_offset_x + bmp_width);
+-	if (right_margin < (bgrt_tab.image_offset_x / 5))
+-		return false;
++	/*
++	 * All x86 firmwares horizontally center the image (the yoffset
++	 * calculations differ between boards, but xoffset is predictable).
++	 */
++	u32 expected_xoffset = (si->lfb_width - bmp_width) / 2;
+ 
+-	return true;
++	return bgrt_tab.image_offset_x == expected_xoffset;
+ }
+ #else
+ static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
+-- 
+2.21.0
+
