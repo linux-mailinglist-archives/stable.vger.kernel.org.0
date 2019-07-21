@@ -2,123 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7856F3ED
-	for <lists+stable@lfdr.de>; Sun, 21 Jul 2019 17:24:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C8656F3F1
+	for <lists+stable@lfdr.de>; Sun, 21 Jul 2019 17:27:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726636AbfGUPYY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Jul 2019 11:24:24 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:40098 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726555AbfGUPYY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 21 Jul 2019 11:24:24 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id C6FC230842B5;
-        Sun, 21 Jul 2019 15:24:22 +0000 (UTC)
-Received: from shalem.localdomain.com (ovpn-116-49.ams2.redhat.com [10.36.116.49])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0079360C64;
-        Sun, 21 Jul 2019 15:24:19 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, x86@kernel.org,
-        linux-efi@vger.kernel.org, Peter Jones <pjones@redhat.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] x86/sysfb_efi: Add quirks for some devices with swapped width and height
-Date:   Sun, 21 Jul 2019 17:24:18 +0200
-Message-Id: <20190721152418.11644-1-hdegoede@redhat.com>
+        id S1726405AbfGUP1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Jul 2019 11:27:23 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:46004 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726366AbfGUP1X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Jul 2019 11:27:23 -0400
+Received: by mail-wr1-f65.google.com with SMTP id f9so36782973wre.12
+        for <stable@vger.kernel.org>; Sun, 21 Jul 2019 08:27:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=WbflbyEUHjpoLjBoqjEr/Pnb9q4QhMd+ykXTPLIEUOc=;
+        b=yRKXJUQLenH5+bktW3P7NjsLpPlUvSeNbLEmljjzKau6lWeuA5x+ANQ5g3TFZSMIjU
+         R/FHu/U8Z+yVlTZTWj7SsSIIAyLl1Mm2tN6vceEEo+pnipcUqfvYjgclNRi4dEH+k4AU
+         45/AWHXJAsm3cCapqxPLBjYDXsqZ+b/Fldh+ZZEiKgPdCcNXplALwhfKK4GQssneMh8k
+         JEaK3q8HpzcxmqpGZpyXpKVH1VfTUBJQ0DuhZ3oapgqU2gwOpeCbtg9LiEKrR3BK48BJ
+         UoXbL+tyyoBRJDrKzQlHDgujfCr1R3x8PXUOYlTXHLP3n6ZV32G06fTuuqqjftAzliiC
+         a4wA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=WbflbyEUHjpoLjBoqjEr/Pnb9q4QhMd+ykXTPLIEUOc=;
+        b=PYard/8U4+Ki4V+wgQzcpT04xLYo/BEO/mtt/ZupdZCZN3k17Mb399RBhUyl+iHupp
+         nqTQs8mLioe+wHILTbnpl+fXYPsDxLe+2AIy5dSnf6jbfSPlPzCll6Wsm37gKLVQdcK+
+         yROLkewO/vzBbb93P8/CmQBmyr8fb1EAv3qIGlTa8a37r+3iIftXRGb32ClNwySAw7fE
+         8oncEVyCgYUXH2Uw26mZO/AX3vpBovXyWzhMij5zMYVYnctLuYi4HjJrz/juW97n14s6
+         CtwnqSGb+AHVJa2E26qUvZpJwQPbXuLhGqOU2FibOqjBryluG70SuUhFUM+pVskjgggL
+         AVHQ==
+X-Gm-Message-State: APjAAAXLZT5zmCUBX4l8vasWlgHnovTQ+Q1JlZzFHu6HYdWbjj5jTsk4
+        CLksHZvbgz2G38iORkrUutYyvs2B
+X-Google-Smtp-Source: APXvYqzm6Ph5BPgWJjk+SVnuNyIoyp204OCT89roV8nZVcF13A1Bmn/br6ErsETsvTt6GPYmjAEXTQ==
+X-Received: by 2002:adf:8364:: with SMTP id 91mr69245659wrd.13.1563722841334;
+        Sun, 21 Jul 2019 08:27:21 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id l25sm28614092wme.13.2019.07.21.08.27.20
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 21 Jul 2019 08:27:20 -0700 (PDT)
+Message-ID: <5d348458.1c69fb81.4b11d.c6f5@mx.google.com>
+Date:   Sun, 21 Jul 2019 08:27:20 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Sun, 21 Jul 2019 15:24:23 +0000 (UTC)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.186
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 86 boots: 2 failed, 84 passed (v4.4.186)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Some Lenovo 2-in-1s with a detachable keyboard have a portrait screen
-but advertise a landscape resolution and pitch, resulting in a messed
-up display if we try to show anything on the efifb (because of the wrong
-pitch).
+stable-rc/linux-4.4.y boot: 86 boots: 2 failed, 84 passed (v4.4.186)
 
-This commit fixes this by adding a new DMI match table for devices which
-need to have their width and height swapped.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.186/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.186/
 
-At first I tried to use the existing table for overriding some of the
-efifb parameters, but some of the affected devices have variants with
-different LCD resolutions which will not work with hardcoded override
-values.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.186
+Git Commit: a3e421fbb8579236dfb5fa82c395553828dec233
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 44 unique boards, 19 SoC families, 14 builds out of 190
 
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1730783
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Boot Failures Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            stih410-b2120: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
+
 ---
- arch/x86/kernel/sysfb_efi.c | 45 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 45 insertions(+)
-
-diff --git a/arch/x86/kernel/sysfb_efi.c b/arch/x86/kernel/sysfb_efi.c
-index 8eb67a670b10..80d5b6720a87 100644
---- a/arch/x86/kernel/sysfb_efi.c
-+++ b/arch/x86/kernel/sysfb_efi.c
-@@ -230,9 +230,54 @@ static const struct dmi_system_id efifb_dmi_system_table[] __initconst = {
- 	{},
- };
- 
-+/*
-+ * Some devices have a portrait LCD but advertise a landscape resolution (and
-+ * pitch). We simply swap width and height for these devices so that we can
-+ * correctly deal with some of them coming with multiple resolutions.
-+ */
-+static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
-+	{
-+		/*
-+		 * Lenovo MIIX310-10ICR, only some batches have the troublesome
-+		 * 800x1280 portrait screen. Luckily the portrait version has
-+		 * its own BIOS version, so we match on that.
-+		 */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "MIIX 310-10ICR"),
-+			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1HCN44WW"),
-+		},
-+	},
-+	{
-+		/* Lenovo MIIX 320-10ICR with 800x1280 portrait screen */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
-+					"Lenovo MIIX 320-10ICR"),
-+		},
-+	},
-+	{
-+		/* Lenovo D330 with 800x1280 or 1200x1920 portrait screen */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
-+					"Lenovo ideapad D330-10IGM"),
-+		},
-+	},
-+	{},
-+};
-+
- __init void sysfb_apply_efi_quirks(void)
- {
- 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI ||
- 	    !(screen_info.capabilities & VIDEO_CAPABILITY_SKIP_QUIRKS))
- 		dmi_check_system(efifb_dmi_system_table);
-+
-+	if (screen_info.orig_video_isVGA == VIDEO_TYPE_EFI &&
-+	    dmi_check_system(efifb_dmi_swap_width_height)) {
-+		u16 temp = screen_info.lfb_width;
-+		screen_info.lfb_width = screen_info.lfb_height;
-+		screen_info.lfb_height = temp;
-+		screen_info.lfb_linelength = 4 * screen_info.lfb_width;
-+	}
- }
--- 
-2.21.0
-
+For more info write to <info@kernelci.org>
