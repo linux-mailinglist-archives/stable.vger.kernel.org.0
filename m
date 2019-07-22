@@ -2,95 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EAF06FF22
-	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 14:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 895AA6FF8C
+	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 14:25:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728743AbfGVMAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jul 2019 08:00:21 -0400
-Received: from mx2.suse.de ([195.135.220.15]:45998 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728269AbfGVMAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Jul 2019 08:00:21 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 905F2B048;
-        Mon, 22 Jul 2019 12:00:19 +0000 (UTC)
-Date:   Mon, 22 Jul 2019 14:00:18 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Yang Shi <yang.shi@linux.alibaba.com>
-Cc:     shakeelb@google.com, vdavydov.dev@gmail.com, hannes@cmpxchg.org,
-        ktkhai@virtuozzo.com, guro@fb.com, hughd@google.com, cai@lca.pw,
-        kirill.shutemov@linux.intel.com, akpm@linux-foundation.org,
-        stable@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: vmscan: check if mem cgroup is disabled or not
- before calling memcg slab shrinker
-Message-ID: <20190722120018.GZ30461@dhcp22.suse.cz>
-References: <1563385526-20805-1-git-send-email-yang.shi@linux.alibaba.com>
+        id S1727957AbfGVMZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jul 2019 08:25:19 -0400
+Received: from relay.sw.ru ([185.231.240.75]:41606 "EHLO relay.sw.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727040AbfGVMZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Jul 2019 08:25:19 -0400
+Received: from [172.16.25.12]
+        by relay.sw.ru with esmtp (Exim 4.92)
+        (envelope-from <aryabinin@virtuozzo.com>)
+        id 1hpXNO-0001ko-UQ; Mon, 22 Jul 2019 15:25:11 +0300
+Subject: Re: [PATCH] ubsan: build ubsan.c more conservatively
+To:     Arnd Bergmann <arnd@arndb.de>, akpm@linux-foundation.org
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org,
+        Sodagudi Prasad <psodagud@codeaurora.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
+References: <20190722091050.2188664-1-arnd@arndb.de>
+From:   Andrey Ryabinin <aryabinin@virtuozzo.com>
+Message-ID: <c7da8503-93bc-c130-2e50-918996abe6c7@virtuozzo.com>
+Date:   Mon, 22 Jul 2019 15:25:12 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1563385526-20805-1-git-send-email-yang.shi@linux.alibaba.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20190722091050.2188664-1-arnd@arndb.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 18-07-19 01:45:26, Yang Shi wrote:
-> Shakeel Butt reported premature oom on kernel with
-> "cgroup_disable=memory" since mem_cgroup_is_root() returns false even
-> though memcg is actually NULL.  The drop_caches is also broken.
-> 
-> It is because commit aeed1d325d42 ("mm/vmscan.c: generalize shrink_slab()
-> calls in shrink_node()") removed the !memcg check before
-> !mem_cgroup_is_root().  And, surprisingly root memcg is allocated even
-> though memory cgroup is disabled by kernel boot parameter.
-> 
-> Add mem_cgroup_disabled() check to make reclaimer work as expected.
-> 
-> Fixes: aeed1d325d42 ("mm/vmscan.c: generalize shrink_slab() calls in shrink_node()")
-> Reported-by: Shakeel Butt <shakeelb@google.com>
-> Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-> Cc: Johannes Weiner <hannes@cmpxchg.org>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
-> Cc: Roman Gushchin <guro@fb.com>
-> Cc: Hugh Dickins <hughd@google.com>
-> Cc: Qian Cai <cai@lca.pw>
-> Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-> Cc: stable@vger.kernel.org  4.19+
-> Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
 
-Acked-by: Michal Hocko <mhocko@suse.com>
 
+On 7/22/19 12:10 PM, Arnd Bergmann wrote:
+> objtool points out several conditions that it does not like, depending
+> on the combination with other configuration options and compiler
+> variants:
+> 
+> stack protector:
+> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0xbf: call to __stack_chk_fail() with UACCESS enabled
+> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0xbe: call to __stack_chk_fail() with UACCESS enabled
+> 
+> stackleak plugin:
+> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+> 
+> kasan:
+> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x25: call to memcpy() with UACCESS enabled
+> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x25: call to memcpy() with UACCESS enabled
+> 
+> The stackleak and kasan options just need to be disabled for this file
+> as we do for other files already. For the stack protector, we already
+> attempt to disable it, but this fails on clang because the check is
+> mixed with the gcc specific -fno-conserve-stack option, so we need to
+> test them separately.
+> 
+> Fixes: 42440c1f9911 ("lib/ubsan: add type mismatch handler for new GCC/Clang")
+
+There was no uaccess validataion at that time, so the right fixes line is probably this:
+
+Fixes: d08965a27e84 ("x86/uaccess, ubsan: Fix UBSAN vs. SMAP")
+
+> Link: https://lore.kernel.org/lkml/20190617123109.667090-1-arnd@arndb.de/t/
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
->  mm/vmscan.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
+>  lib/Makefile | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> diff --git a/mm/vmscan.c b/mm/vmscan.c
-> index f8e3dcd..c10dc02 100644
-> --- a/mm/vmscan.c
-> +++ b/mm/vmscan.c
-> @@ -684,7 +684,14 @@ static unsigned long shrink_slab(gfp_t gfp_mask, int nid,
->  	unsigned long ret, freed = 0;
->  	struct shrinker *shrinker;
+> diff --git a/lib/Makefile b/lib/Makefile
+> index 095601ce371d..320e3b632dd3 100644
+> --- a/lib/Makefile
+> +++ b/lib/Makefile
+> @@ -279,7 +279,8 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string.o
+>  obj-$(CONFIG_UBSAN) += ubsan.o
 >  
-> -	if (!mem_cgroup_is_root(memcg))
-> +	/*
-> +	 * The root memcg might be allocated even though memcg is disabled
-> +	 * via "cgroup_disable=memory" boot parameter.  This could make
-> +	 * mem_cgroup_is_root() return false, then just run memcg slab
-> +	 * shrink, but skip global shrink.  This may result in premature
-> +	 * oom.
-> +	 */
-> +	if (!mem_cgroup_disabled() && !mem_cgroup_is_root(memcg))
->  		return shrink_slab_memcg(gfp_mask, nid, memcg, priority);
->  
->  	if (!down_read_trylock(&shrinker_rwsem))
-> -- 
-> 1.8.3.1
+>  UBSAN_SANITIZE_ubsan.o := n
+> -CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
+> +KASAN_SANITIZE_ubsan.o := n
+> +CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack) $(call cc-option, -fno-stack-protector) $(DISABLE_STACKLEAK_PLUGIN)
 
--- 
-Michal Hocko
-SUSE Labs
+$(call cc-option, -fno-conserve-stack) can be removed entirely. It's just copy paste from kasan Makefile.
+It was added in kasan purely for performance reasons.
+
+Not sure that it's needed even in kasan Makefile, the code which was
+the reason for adding fno-conserve-stack might not get into the final version of KASAN patches.
