@@ -2,79 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6BED70048
-	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 14:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 142E270076
+	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 15:03:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729357AbfGVM4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jul 2019 08:56:48 -0400
-Received: from relay.sw.ru ([185.231.240.75]:43164 "EHLO relay.sw.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727164AbfGVM4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Jul 2019 08:56:47 -0400
-Received: from [172.16.25.12]
-        by relay.sw.ru with esmtp (Exim 4.92)
-        (envelope-from <aryabinin@virtuozzo.com>)
-        id 1hpXru-00023q-6u; Mon, 22 Jul 2019 15:56:42 +0300
-Subject: Re: [PATCH] [v2] ubsan: build ubsan.c more conservatively
-To:     Arnd Bergmann <arnd@arndb.de>, akpm@linux-foundation.org
-Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org,
-        Borislav Petkov <bp@alien8.de>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
-References: <20190722125139.1335385-1-arnd@arndb.de>
-From:   Andrey Ryabinin <aryabinin@virtuozzo.com>
-Message-ID: <96d5c129-3b27-5b0f-f34c-e6d89e7467b2@virtuozzo.com>
-Date:   Mon, 22 Jul 2019 15:56:48 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
-MIME-Version: 1.0
-In-Reply-To: <20190722125139.1335385-1-arnd@arndb.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1728907AbfGVNDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jul 2019 09:03:17 -0400
+Received: from mail-ed1-f52.google.com ([209.85.208.52]:34911 "EHLO
+        mail-ed1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727594AbfGVNDR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 09:03:17 -0400
+Received: by mail-ed1-f52.google.com with SMTP id w20so40522999edd.2
+        for <stable@vger.kernel.org>; Mon, 22 Jul 2019 06:03:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id;
+        bh=pudIo6LJtA9sgYxgbqdAbw7uBDKMYl6GczR7fkAkkWA=;
+        b=UGWVhHRQ8A060Y0BKJU4pYUrvB0KXpUE7Vv3CK2K8MwpAVsEFQg1ubIUgdjQN1v1lK
+         rTXXDUZIO5InSCdlyU2Jk+Wv2qtDfV1UVGyTGLoestRz4bL9V860f+9cBqSx9LSGOcWn
+         5+N6cwHO8u+aYyxA9Rjy28HzoylBbsI0V9cbzQafH7BPDR3QqpNmkmcwZCgUyMJjy7/w
+         b8DzpFaOdYkm79pYjkkfattC411AZi0+lKVmGfERjhuaZpj91Zb0BIe31PLx2Dhc7C4A
+         ZpU4HIWpHewmO7LWyDBfDA76bLx2Cy8OtvAQn8b9DTFeKS6bdKC3J9C78K/GqxWeThoK
+         AkJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id;
+        bh=pudIo6LJtA9sgYxgbqdAbw7uBDKMYl6GczR7fkAkkWA=;
+        b=ix+4hj0SSGRMpx3X4IBA9zYGNOkYuv3zlErsX1uWlYX5k+GvLJciIcKR2dk7apLHJf
+         ObddQFtCoMp58aC/1ChV/5AFaFOD/A0rwNqEUCYzYM1FJcRlHgEF+baN9KLkqFB4ArC1
+         n03M0dLQiAxwu51OcL0/Oh3xy4o1dPJnkQY6/iLWXCj4QKNZ25X6PMLNTIb+6CEvZKQq
+         kgB5bpblcWPGOxOiO32Q8Nf4YwgpzN+U3VwdBDhaWI+6+AldaKNS/t5nc/o08jS7PfjF
+         tYC2UZ5LhaVlejvbWogl3r9ladV4zfsicc8q3LJ9G2yQa4CVlAdNrurpiaSktaq9n96B
+         XfGQ==
+X-Gm-Message-State: APjAAAWurMuJJCq/v2myT5mnqa6/sDBX6qIfgUgKwpZzwRUyNRwxBHvM
+        zStKwOxs09T/Ku7Gsl02ERY=
+X-Google-Smtp-Source: APXvYqwaI/uVt+NwH63YWBY1rplDatajvRRVMFUHRZL+F9OWmEtG/ql7UOZjUmjx+Qmz/JRn4HlnmA==
+X-Received: by 2002:a50:8eea:: with SMTP id x39mr60207150edx.49.1563800595099;
+        Mon, 22 Jul 2019 06:03:15 -0700 (PDT)
+Received: from jwang-Latitude-5491.pb.local ([62.217.45.26])
+        by smtp.gmail.com with ESMTPSA id v12sm7996085ejj.52.2019.07.22.06.03.14
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Mon, 22 Jul 2019 06:03:14 -0700 (PDT)
+From:   Jack Wang <jinpuwang@gmail.com>
+To:     gregkh@linuxfoundation.org, sashal@kernel.org,
+        stable@vger.kernel.org
+Subject: [stable-4.19 0/4] CVE-2019-3900 fixes
+Date:   Mon, 22 Jul 2019 15:03:09 +0200
+Message-Id: <20190722130313.18562-1-jinpuwang@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi, Greg, hi Sasha,
 
+I noticed the fixes for CVE-2019-3900 are only backported to 4.14.133+,
+but not to 4.19, also 5.1, fixes have been included in 5.2.
 
-On 7/22/19 3:50 PM, Arnd Bergmann wrote:
-> objtool points out several conditions that it does not like, depending
-> on the combination with other configuration options and compiler
-> variants:
-> 
-> stack protector:
-> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0xbf: call to __stack_chk_fail() with UACCESS enabled
-> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0xbe: call to __stack_chk_fail() with UACCESS enabled
-> 
-> stackleak plugin:
-> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x4a: call to stackleak_track_stack() with UACCESS enabled
-> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x4a: call to stackleak_track_stack() with UACCESS enabled
-> 
-> kasan:
-> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x25: call to memcpy() with UACCESS enabled
-> lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x25: call to memcpy() with UACCESS enabled
-> 
-> The stackleak and kasan options just need to be disabled for this file
-> as we do for other files already. For the stack protector, we already
-> attempt to disable it, but this fails on clang because the check is
-> mixed with the gcc specific -fno-conserve-stack option. According
-> to Andrey Ryabinin, that option is not even needed, dropping it here
-> fixes the stackprotector issue.
-> 
-> Fixes: d08965a27e84 ("x86/uaccess, ubsan: Fix UBSAN vs. SMAP")
-> Link: https://lore.kernel.org/lkml/20190617123109.667090-1-arnd@arndb.de/t/
-> Link: https://lore.kernel.org/lkml/20190722091050.2188664-1-arnd@arndb.de/t/
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+So I backported to 4.19, only compiles fine, no functional tests.
 
+Please review, and consider to include in next release.
 
-Reviewed-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Regards,
+Jack Wang 1 & 1 IONOS Cloud GmbH
+
+Jason Wang (4):
+  vhost: introduce vhost_exceeds_weight()
+  vhost_net: fix possible infinite loop
+  vhost: vsock: add weight support
+  vhost: scsi: add weight support
+
+ drivers/vhost/net.c   | 41 ++++++++++++++---------------------------
+ drivers/vhost/scsi.c  | 15 +++++++++++----
+ drivers/vhost/vhost.c | 20 +++++++++++++++++++-
+ drivers/vhost/vhost.h |  5 ++++-
+ drivers/vhost/vsock.c | 28 +++++++++++++++++++++-------
+ 5 files changed, 69 insertions(+), 40 deletions(-)
+
+-- 
+2.17.1
+
