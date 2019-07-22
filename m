@@ -2,113 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 783926F9B3
-	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 08:52:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEAD06FBE2
+	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 11:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726944AbfGVGwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jul 2019 02:52:01 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:35419 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726236AbfGVGwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 02:52:01 -0400
-Received: by mail-pl1-f193.google.com with SMTP id w24so18750704plp.2
-        for <stable@vger.kernel.org>; Sun, 21 Jul 2019 23:52:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=KviHflI7215zrUthnS1gXggMXKtV9Y/Ymw3VDs2vemM=;
-        b=xiI+A7LzjIZ4RN3YaVr53KXlrp2CjtY3C1XCvK2GvNMkkQaKB9HpK5kD9nEbHP0uIs
-         mQBzYgXLgvecOewN+yajjz+T0mSbKjLF7Rls8iljtb2HrWSoqn6TCQwPK6r3jMQNmLVO
-         J1W43UoCtyWi+Bbakiasf8/S53w3OqG9gSxOPByXpcCrjvFGCMgk9m6mXJrUoAOpxBgv
-         bLf5M540QjWlTbL/YcQycqGBDcaNLH6/65xZWVyTvRGbcGxHA8+kUBJoFtZPfiqMzdIO
-         795kSv2AeYwn0M6bKRtKPAA6HYNKae6WvxSxVTqnM6RrH9gzqld2gAgo7y9XqzL+HUw7
-         e0NQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=KviHflI7215zrUthnS1gXggMXKtV9Y/Ymw3VDs2vemM=;
-        b=NWLjuNeoO9z45DePLPny5KTzR/c6Eq1OAohAFzQxvapJavaFb+vHqRaXmp3Ul/C3Jo
-         cZDjxje0fnDmfN89mHqq5nHhhKq7ADt9XjorFV9IMZiXL3nLGrkBrRw9JzDYOSDdruzl
-         xmFdoiDXm/mQMqpwDPlrRWya+MTYpHHX4zPh2VgdtZKhSZtljkCCzQJ1ZJnRACWNd7zE
-         MDJyVrGwN18zwaA+cPwLXtjMxD4m3yFiZwCSMz11JcMjgohJjORH1NSrPhDDBfKemsDg
-         jtK8/UstHzLyXTHIcH7sc+Y4gt9MNf3UZauQXX5JG5tY+2caxXQgaCI6JQ1Ls2CBOsne
-         2WvA==
-X-Gm-Message-State: APjAAAVc7gtsMaeq2Gb7wRjRIiqMBHnsPzOEssaKDkFYivH50PJ7E8SE
-        rVV/G4HGqdwJDxL3ztC0y7tQ4g==
-X-Google-Smtp-Source: APXvYqyskF2od7lC4dY3iR56zhJTnZuJbzasgdAgdKCNvqPPXPkz7toOARqZnaz7ud673gnA5zEXow==
-X-Received: by 2002:a17:902:7448:: with SMTP id e8mr73804121plt.85.1563778320961;
-        Sun, 21 Jul 2019 23:52:00 -0700 (PDT)
-Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id b6sm34300949pgq.26.2019.07.21.23.52.00
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 21 Jul 2019 23:52:00 -0700 (PDT)
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Rafael Wysocki <rjw@rjwysocki.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Cc:     linux-pm@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        joel@joelfernandes.org, dsmythies@telus.net,
-        "v4 . 18+" <stable@vger.kernel.org>,
-        Doug Smythies <doug.smythies@gmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] cpufreq: schedutil: Don't skip freq update when limits change
-Date:   Mon, 22 Jul 2019 12:21:57 +0530
-Message-Id: <8091ef83f264feb2feaa827fbeefe08348bcd05d.1563778071.git.viresh.kumar@linaro.org>
-X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
-In-Reply-To: <1563431200-3042-1-git-send-email-dsmythies@telus.net>
-References: <1563431200-3042-1-git-send-email-dsmythies@telus.net>
+        id S1728170AbfGVJL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jul 2019 05:11:26 -0400
+Received: from mout.kundenserver.de ([212.227.126.187]:35353 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727628AbfGVJL0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 05:11:26 -0400
+Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
+ (mreue009 [212.227.15.129]) with ESMTPA (Nemesis) id
+ 1N3bb1-1iXnOP1GRX-010ghb; Mon, 22 Jul 2019 11:11:02 +0200
+From:   Arnd Bergmann <arnd@arndb.de>
+To:     Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        akpm@linux-foundation.org
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
+        Sodagudi Prasad <psodagud@codeaurora.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: [PATCH] ubsan: build ubsan.c more conservatively
+Date:   Mon, 22 Jul 2019 11:10:18 +0200
+Message-Id: <20190722091050.2188664-1-arnd@arndb.de>
+X-Mailer: git-send-email 2.20.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:JRfD2+R8cl2MpZ0Zaxxg8tUpm69nNkWykZmnDl1qh32EVPdlKtE
+ feSJZgESNtHDb2ndZGxg9yLvPE3xOaO/zQ6RIFEl59plmT0MYDgVWRxeD2ia6fgtqKP96pZ
+ c3a9q9oTdIKkeVckRiZ85phK58GVGTCqUxQ19o6DYjM6emumoqVfTCEpJNZU8I9HbMLNK0j
+ SG7WTRjuVhHqmFl1VMLLg==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:iYdJrXJ7yi8=:+VQeBL+nIZ99R9qas4XCAf
+ JVehlIWqUOXYHMbMds8Lk6aF1ARdIDjQRiz3IgnzlLpuyx6Lh8BwzXxwpVLRJkDISxElGyZqZ
+ tCo4+uvUoJqrT7IezXOLCMDX+pYKj62Qu04HNg2bhhf+zcxE8ZbRBgWq6Qqu4k3e3vqxF5Tpg
+ dJ0jcz4AUzqn3e4PpHGxqRnFfGyfmkXqMjbLF6pjGIWYjdd2L/hY04IM4gtlNdY881Q9ztYV0
+ hvublVP6vIuStwuNKsid45s1GhqknIakTpgAl7ralnEoX7nIJFRCW3A8nmHpR4kpGb4vKORd7
+ FddKLU5zEzib5E80VV5NvXSuZozdLxoATZ9lZajNj8RjrahzoKiX0/0n7N4fiEXNyECqTUkdn
+ qLkHOsI6THRAhD3Ga8ksZQRfFkezZHHzpp31COWftnXj8AZLodKh7K5ZvQCWMlBVofclfhHiR
+ ndHO12eg6A9ChqN/1xqhj2DiquLQOLPB9sVdAGYHSNYXVrUiINY2XRg7pLk52KMdtQn+MFa/o
+ XU9vI7AfHQWK1MzqlFT1d41nVRvp7+5vAQ4KZcgqL952lCzbyiF/sdNcOJteN9NnCFVQ5DD/e
+ 83Mp+jdKnCj116HLHJak0Ed1tFSNlvJow5hw2Qu0Biyv3kLNIFQo7THz8c2OfzOzke92odu8Q
+ eH2b37g4p1ih79+wLl3nNSVZtguQ371lSgzu8LMjnwra8iPTrs3mHzecal76nXpt0q8YkKqK8
+ RHQHOpj8iiipJxOTicd3LWlcOsbIY90Wj4/GwQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-To avoid reducing the frequency of a CPU prematurely, we skip reducing
-the frequency if the CPU had been busy recently.
+objtool points out several conditions that it does not like, depending
+on the combination with other configuration options and compiler
+variants:
 
-This should not be done when the limits of the policy are changed, for
-example due to thermal throttling. We should always get the frequency
-within limits as soon as possible.
+stack protector:
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0xbf: call to __stack_chk_fail() with UACCESS enabled
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0xbe: call to __stack_chk_fail() with UACCESS enabled
 
-Fixes: ecd288429126 ("cpufreq: schedutil: Don't set next_freq to UINT_MAX")
-Cc: v4.18+ <stable@vger.kernel.org> # v4.18+
-Reported-by: Doug Smythies <doug.smythies@gmail.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+stackleak plugin:
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+
+kasan:
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x25: call to memcpy() with UACCESS enabled
+lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x25: call to memcpy() with UACCESS enabled
+
+The stackleak and kasan options just need to be disabled for this file
+as we do for other files already. For the stack protector, we already
+attempt to disable it, but this fails on clang because the check is
+mixed with the gcc specific -fno-conserve-stack option, so we need to
+test them separately.
+
+Fixes: 42440c1f9911 ("lib/ubsan: add type mismatch handler for new GCC/Clang")
+Link: https://lore.kernel.org/lkml/20190617123109.667090-1-arnd@arndb.de/t/
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
-@Doug: Please try this patch, it must fix the issue you reported.
+ lib/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
- kernel/sched/cpufreq_schedutil.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-index 636ca6f88c8e..b53c4f02b0f1 100644
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -447,7 +447,7 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
- 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
- 	unsigned long util, max;
- 	unsigned int next_f;
--	bool busy;
-+	bool busy = false;
+diff --git a/lib/Makefile b/lib/Makefile
+index 095601ce371d..320e3b632dd3 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -279,7 +279,8 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string.o
+ obj-$(CONFIG_UBSAN) += ubsan.o
  
- 	sugov_iowait_boost(sg_cpu, time, flags);
- 	sg_cpu->last_update = time;
-@@ -457,7 +457,9 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
- 	if (!sugov_should_update_freq(sg_policy, time))
- 		return;
+ UBSAN_SANITIZE_ubsan.o := n
+-CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
++KASAN_SANITIZE_ubsan.o := n
++CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack) $(call cc-option, -fno-stack-protector) $(DISABLE_STACKLEAK_PLUGIN)
  
--	busy = sugov_cpu_is_busy(sg_cpu);
-+	/* Limits may have changed, don't skip frequency update */
-+	if (!sg_policy->need_freq_update)
-+		busy = sugov_cpu_is_busy(sg_cpu);
+ obj-$(CONFIG_SBITMAP) += sbitmap.o
  
- 	util = sugov_get_util(sg_cpu);
- 	max = sg_cpu->max;
 -- 
-2.21.0.rc0.269.g1a574e7a288b
+2.20.0
 
