@@ -2,57 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C1EF7007A
+	by mail.lfdr.de (Postfix) with ESMTP id 869467007B
 	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 15:03:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727594AbfGVNDT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jul 2019 09:03:19 -0400
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:41900 "EHLO
+        id S1727624AbfGVNDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jul 2019 09:03:20 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:46945 "EHLO
         mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727624AbfGVNDT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 09:03:19 -0400
-Received: by mail-ed1-f67.google.com with SMTP id p15so40516401eds.8
-        for <stable@vger.kernel.org>; Mon, 22 Jul 2019 06:03:18 -0700 (PDT)
+        with ESMTP id S1728924AbfGVNDU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 09:03:20 -0400
+Received: by mail-ed1-f67.google.com with SMTP id d4so40572974edr.13
+        for <stable@vger.kernel.org>; Mon, 22 Jul 2019 06:03:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=9416KP4bRPA2SRRygbtsvE+dD6DraObbEzL0FuWURb8=;
-        b=KnPkyCuJ1bXnvk+UQD8w0JQKgcaqDOdW7UUjsPIYbo6RQ+0q6rcwZurFANz/TBbqYU
-         nYArN34rwTak0dOE27rDcRJTCYAWci05GBlWP8L2iYcX7iqDHT5yEBycpsDcFgVY6SW1
-         UlWm63HwNTPkuTuV1Dk3Z0jJj5JSu82FNz2uZsW94DOBDdHk2ZCxpqoR9d4iHyPd3kcu
-         7MGfRIY2p+8ORho/6YcWosGpVhJz0l/di3/8OMR05tnIMzbzw7DZaYtaXtrbblaQ5BZb
-         GJcNaWEV8QGgVsKN/OaZCi1QkknG2/8brjUNXbbn3+6D7i+KdCVoDlsXZHiduOTDzLIZ
-         7FNw==
+        bh=RGtootUUACzE3D9a2msPbnq8uijsx/Cktbd+3vpMz5c=;
+        b=gTvMGy2YukWB30QnM/rBXFJ8wUyUqoax28y+aF6hGbnS99pL+mbOYPSU2palJArR5X
+         l0UJpMeVY+TzeuhOmmExc120fAapXgA4tbX5sqoR0uC0kuX84t7QCyxHnQq7AQP5LPj8
+         S5Blo3dVHKRO3g7llcRxpPCSMC+Ds15P/dKn1or2cQBzy4XoB8RtlWOkkktIlMaB/9xG
+         1AWl6dt51bOY3uYLpnCQapooL9zJ4PIXWFnJYl2C37iibka6Fyn7/jCAoGJCeofExkOQ
+         ygLw/jcqv2nI8xoP54Q1i9rCIlDpvxzvo4DoiGWo1pAy4m4XOlYj2ltI3X25sI/9mmbU
+         wnPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=9416KP4bRPA2SRRygbtsvE+dD6DraObbEzL0FuWURb8=;
-        b=lrtr3zmAFSnMeADSfcUeGjAwDiETDX7uPcXI7NdzNQChQwxsd6Kltd43niBLHZu9u4
-         ugai6iAftbftBzJi/V+lZ6xN2GAlWm1Xo99ZCKCuJVSF+iKK9x8cYrB3XeQqcr56JuAk
-         ih5wQDDNSjicu15iJAu4wIDMFrJ5l7cfcD3QEb+4Zv3XvTWwvXWF5ZCv0Qfwk5zlkQtw
-         wKv8xsCYCqtHchGq7n++91jIpV14bBpVDpIQd4pjjxPrsPe9+vUhtdX55TXmIWE4IyPU
-         raVfnesLNz5a2mOdNNQJ/AHtOOZTURu2RYARfzDCYtfSLLKdpa1r38waPHbn1j8acsYu
-         qBaA==
-X-Gm-Message-State: APjAAAXx3bZnJ4OUH7Cw1vWo47z+9Xz3JeShY6RVEUUjzh8XqJoRmfkE
-        OUZRcWc6ZwFvVqozZrOgy88=
-X-Google-Smtp-Source: APXvYqyV/u0liAILkQSs2E3DwxopRuh5MYIUway21fLBvieFonDBLXZRzgRIE9ZDBvO6S3f2JXGSpQ==
-X-Received: by 2002:a50:8bfa:: with SMTP id n55mr61670731edn.9.1563800597576;
-        Mon, 22 Jul 2019 06:03:17 -0700 (PDT)
+        bh=RGtootUUACzE3D9a2msPbnq8uijsx/Cktbd+3vpMz5c=;
+        b=VV1Vp0DaFK0laHnnqna0FJX5Qnmw+hS7tDoP+dgKnQyLtA/BT5MtPnVUBl74TF7LX9
+         /phWiVdo1soQ6J5Hw1qzP+XoeSQNy5eVxF5kVg8F4RCDEXfsAFlc0np+d4pCbQO8tWiG
+         o2WF0peZLZBnz7d+lVI1GbZHsdB0Ruq4RU0r/0AZ0k0BsVfnPTE3dQUn/d+XSRiANTGq
+         PqXCC5VnPKuKYvn7MGgjn/3WXqgz1e8WVt/i2Glj9XP7Uw+RxEwkc8D27UsM6zTuYCy5
+         zu94fj5umAGgpA367ZKTX/ue3AUiVfkezPeAQ506dt5PH5Rcp+iIof03jCNFr3mx8b5W
+         bi4A==
+X-Gm-Message-State: APjAAAUoFOsqHmBv4CZIJL8wB+tOTDrqpr0LOtPXmHMZ51j81SZCY8cS
+        41gWVGV+HqCUXKFNS955vnQ=
+X-Google-Smtp-Source: APXvYqzQRgKd2YbcCfmD73UO8ZsoL5tvS/MmC9VbDt9PZDIvWGp/ibb01Nz9vEXtGFLeQWp/r+1aBw==
+X-Received: by 2002:a05:6402:145a:: with SMTP id d26mr60098126edx.10.1563800598460;
+        Mon, 22 Jul 2019 06:03:18 -0700 (PDT)
 Received: from jwang-Latitude-5491.pb.local ([62.217.45.26])
-        by smtp.gmail.com with ESMTPSA id v12sm7996085ejj.52.2019.07.22.06.03.16
+        by smtp.gmail.com with ESMTPSA id v12sm7996085ejj.52.2019.07.22.06.03.17
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 22 Jul 2019 06:03:17 -0700 (PDT)
+        Mon, 22 Jul 2019 06:03:18 -0700 (PDT)
 From:   Jack Wang <jinpuwang@gmail.com>
 To:     gregkh@linuxfoundation.org, sashal@kernel.org,
         stable@vger.kernel.org
 Cc:     Jason Wang <jasowang@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Stefan Hajnoczi <stefanha@redhat.com>,
         "Michael S . Tsirkin" <mst@redhat.com>,
         Jack Wang <jinpu.wang@cloud.ionos.com>
-Subject: [stable-4.19 3/4] vhost: vsock: add weight support
-Date:   Mon, 22 Jul 2019 15:03:12 +0200
-Message-Id: <20190722130313.18562-4-jinpuwang@gmail.com>
+Subject: [stable-4.19 4/4] vhost: scsi: add weight support
+Date:   Mon, 22 Jul 2019 15:03:13 +0200
+Message-Id: <20190722130313.18562-5-jinpuwang@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190722130313.18562-1-jinpuwang@gmail.com>
 References: <20190722130313.18562-1-jinpuwang@gmail.com>
@@ -63,92 +64,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason Wang <jasowang@redhat.com>
 
-commit e79b431fb901ba1106670bcc80b9b617b25def7d upstream.
+commit c1ea02f15ab5efb3e93fc3144d895410bf79fcf2 upstream
 
 This patch will check the weight and exit the loop if we exceeds the
-weight. This is useful for preventing vsock kthread from hogging cpu
-which is guest triggerable. The weight can help to avoid starving the
-request from on direction while another direction is being processed.
-
-The value of weight is picked from vhost-net.
+weight. This is useful for preventing scsi kthread from hogging cpu
+which is guest triggerable.
 
 This addresses CVE-2019-3900.
 
+Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+Fixes: 057cbf49a1f0 ("tcm_vhost: Initial merge for vhost level target fabric driver")
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 [jwang: backport to 4.19]
 Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
 ---
- drivers/vhost/vsock.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/vhost/scsi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 58c5c82bc0be..bab495d73195 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -86,6 +86,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
- 			    struct vhost_virtqueue *vq)
- {
- 	struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
-+	int pkts = 0, total_len = 0;
- 	bool added = false;
- 	bool restart_tx = false;
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 087ce17b0c39..5e298d9287f1 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -817,7 +817,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 	u64 tag;
+ 	u32 exp_data_len, data_direction;
+ 	unsigned int out = 0, in = 0;
+-	int head, ret, prot_bytes;
++	int head, ret, prot_bytes, c = 0;
+ 	size_t req_size, rsp_size = sizeof(struct virtio_scsi_cmd_resp);
+ 	size_t out_size, in_size;
+ 	u16 lun;
+@@ -836,7 +836,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
  
-@@ -97,7 +98,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
- 	/* Avoid further vmexits, we're already processing the virtqueue */
- 	vhost_disable_notify(&vsock->dev, vq);
+ 	vhost_disable_notify(&vs->dev, vq);
  
 -	for (;;) {
 +	do {
- 		struct virtio_vsock_pkt *pkt;
- 		struct iov_iter iov_iter;
- 		unsigned out, in;
-@@ -182,8 +183,9 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 		head = vhost_get_vq_desc(vq, vq->iov,
+ 					 ARRAY_SIZE(vq->iov), &out, &in,
+ 					 NULL, NULL);
+@@ -1051,7 +1051,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
  		 */
- 		virtio_transport_deliver_tap_pkt(pkt);
- 
-+		total_len += pkt->len;
- 		virtio_transport_free_pkt(pkt);
+ 		INIT_WORK(&cmd->work, vhost_scsi_submission_work);
+ 		queue_work(vhost_scsi_workqueue, &cmd->work);
 -	}
-+	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
- 	if (added)
- 		vhost_signal(&vsock->dev, vq);
- 
-@@ -358,7 +360,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
- 	struct vhost_vsock *vsock = container_of(vq->dev, struct vhost_vsock,
- 						 dev);
- 	struct virtio_vsock_pkt *pkt;
--	int head;
-+	int head, pkts = 0, total_len = 0;
- 	unsigned int out, in;
- 	bool added = false;
- 
-@@ -368,7 +370,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
- 		goto out;
- 
- 	vhost_disable_notify(&vsock->dev, vq);
--	for (;;) {
-+	do {
- 		u32 len;
- 
- 		if (!vhost_vsock_more_replies(vsock)) {
-@@ -409,9 +411,11 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
- 		else
- 			virtio_transport_free_pkt(pkt);
- 
--		vhost_add_used(vq, head, sizeof(pkt->hdr) + len);
-+		len += sizeof(pkt->hdr);
-+		vhost_add_used(vq, head, len);
-+		total_len += len;
- 		added = true;
--	}
-+	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
- 
- no_more_replies:
- 	if (added)
++	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
+ out:
+ 	mutex_unlock(&vq->mutex);
+ }
 -- 
 2.17.1
 
