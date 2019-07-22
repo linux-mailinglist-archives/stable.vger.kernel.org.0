@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 163D570079
-	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 15:03:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1EF7007A
+	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 15:03:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729867AbfGVNDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727594AbfGVNDT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 22 Jul 2019 09:03:19 -0400
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:45248 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727594AbfGVNDS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 09:03:18 -0400
-Received: by mail-ed1-f66.google.com with SMTP id x19so34628876eda.12
-        for <stable@vger.kernel.org>; Mon, 22 Jul 2019 06:03:17 -0700 (PDT)
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:41900 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727624AbfGVNDT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 09:03:19 -0400
+Received: by mail-ed1-f67.google.com with SMTP id p15so40516401eds.8
+        for <stable@vger.kernel.org>; Mon, 22 Jul 2019 06:03:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=BRPCD1o2rc36HWQKD5G+VhhqWnQ6h+sxleJXDzNLSiU=;
-        b=GAFW/S2YTCiSZfLDFY5eFcg1i4ZSbrKyMNM8V9ElYqk7hDJtohxsa9w4raLg6+F8W7
-         3jqmFacauLz/PLz9ls6osfkvPzACBal2Ee1Pif0r+IzuMhwa//6wz7nURcY6+PrMXpM9
-         C5GYXzt5s/6TOgcO2cHcUM072OS1pvOmn2PUiQurZdXjPZuLACiEONMazVbNf443j24V
-         gYEpTSZXPMmGvFqzzUzUzAROrrZrRHmUpr5IzdoBdRDG6cCT0EvPeBWf6/Bh8h1zBRs8
-         JnAbx2ObGvnLksubafl15Q7MM2dCPTnjhn2E1qW4cq70cQ1PbQevxcXvIv4KwZLG7guV
-         VLSQ==
+        bh=9416KP4bRPA2SRRygbtsvE+dD6DraObbEzL0FuWURb8=;
+        b=KnPkyCuJ1bXnvk+UQD8w0JQKgcaqDOdW7UUjsPIYbo6RQ+0q6rcwZurFANz/TBbqYU
+         nYArN34rwTak0dOE27rDcRJTCYAWci05GBlWP8L2iYcX7iqDHT5yEBycpsDcFgVY6SW1
+         UlWm63HwNTPkuTuV1Dk3Z0jJj5JSu82FNz2uZsW94DOBDdHk2ZCxpqoR9d4iHyPd3kcu
+         7MGfRIY2p+8ORho/6YcWosGpVhJz0l/di3/8OMR05tnIMzbzw7DZaYtaXtrbblaQ5BZb
+         GJcNaWEV8QGgVsKN/OaZCi1QkknG2/8brjUNXbbn3+6D7i+KdCVoDlsXZHiduOTDzLIZ
+         7FNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=BRPCD1o2rc36HWQKD5G+VhhqWnQ6h+sxleJXDzNLSiU=;
-        b=djHQOHZPXJJr8MZskmIIKmMqj0W0HIDyNrtTsZIAceO1ZNzKHsYWiuUvCWsFM7MzgY
-         QIbvfrdZwFQY9QqSNly5wyrARbJB50ufRzuNN3Rs5vfcvVAgN0unQD4u1no/WIKSSRZ0
-         jGmi7lUvHaFdeTDFbWR1tULg3x3UNicNKpX1mh6OD1Lp91TFj9xryrGvV5LxAnLBijZo
-         LY+Swx4f9mo1Ev8J1J+KosxyXuU0bwdm5IsbcPDSi1Qcf5qBg9I1jwPfpQtd8wrYKO1i
-         z/PHW5np5UVlcbdn46bH7meBj2gbrVEO8YI580/t/YH+DSgKeeVmRBY4oFknhnH0RBl5
-         BmRg==
-X-Gm-Message-State: APjAAAWNCtqH1AceuU9Ur0Mb5NQUFDClLy/XS0gVY7SJAut9U1MRWtxo
-        95O76xLu62b3hBocDA1+6ds=
-X-Google-Smtp-Source: APXvYqyeZREyruNXsyZWQsLP6s9jaDUrKqSU0FR+HgWqTM7+eAKfDzSwbkfc70xV04/LE8CJrH6hmw==
-X-Received: by 2002:a50:eb8b:: with SMTP id y11mr60042289edr.154.1563800596807;
-        Mon, 22 Jul 2019 06:03:16 -0700 (PDT)
+        bh=9416KP4bRPA2SRRygbtsvE+dD6DraObbEzL0FuWURb8=;
+        b=lrtr3zmAFSnMeADSfcUeGjAwDiETDX7uPcXI7NdzNQChQwxsd6Kltd43niBLHZu9u4
+         ugai6iAftbftBzJi/V+lZ6xN2GAlWm1Xo99ZCKCuJVSF+iKK9x8cYrB3XeQqcr56JuAk
+         ih5wQDDNSjicu15iJAu4wIDMFrJ5l7cfcD3QEb+4Zv3XvTWwvXWF5ZCv0Qfwk5zlkQtw
+         wKv8xsCYCqtHchGq7n++91jIpV14bBpVDpIQd4pjjxPrsPe9+vUhtdX55TXmIWE4IyPU
+         raVfnesLNz5a2mOdNNQJ/AHtOOZTURu2RYARfzDCYtfSLLKdpa1r38waPHbn1j8acsYu
+         qBaA==
+X-Gm-Message-State: APjAAAXx3bZnJ4OUH7Cw1vWo47z+9Xz3JeShY6RVEUUjzh8XqJoRmfkE
+        OUZRcWc6ZwFvVqozZrOgy88=
+X-Google-Smtp-Source: APXvYqyV/u0liAILkQSs2E3DwxopRuh5MYIUway21fLBvieFonDBLXZRzgRIE9ZDBvO6S3f2JXGSpQ==
+X-Received: by 2002:a50:8bfa:: with SMTP id n55mr61670731edn.9.1563800597576;
+        Mon, 22 Jul 2019 06:03:17 -0700 (PDT)
 Received: from jwang-Latitude-5491.pb.local ([62.217.45.26])
-        by smtp.gmail.com with ESMTPSA id v12sm7996085ejj.52.2019.07.22.06.03.15
+        by smtp.gmail.com with ESMTPSA id v12sm7996085ejj.52.2019.07.22.06.03.16
         (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 22 Jul 2019 06:03:16 -0700 (PDT)
+        Mon, 22 Jul 2019 06:03:17 -0700 (PDT)
 From:   Jack Wang <jinpuwang@gmail.com>
 To:     gregkh@linuxfoundation.org, sashal@kernel.org,
         stable@vger.kernel.org
 Cc:     Jason Wang <jasowang@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
         "Michael S . Tsirkin" <mst@redhat.com>,
         Jack Wang <jinpu.wang@cloud.ionos.com>
-Subject: [stable-4.19 2/4] vhost_net: fix possible infinite loop
-Date:   Mon, 22 Jul 2019 15:03:11 +0200
-Message-Id: <20190722130313.18562-3-jinpuwang@gmail.com>
+Subject: [stable-4.19 3/4] vhost: vsock: add weight support
+Date:   Mon, 22 Jul 2019 15:03:12 +0200
+Message-Id: <20190722130313.18562-4-jinpuwang@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20190722130313.18562-1-jinpuwang@gmail.com>
 References: <20190722130313.18562-1-jinpuwang@gmail.com>
@@ -62,137 +63,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason Wang <jasowang@redhat.com>
 
-commit e2412c07f8f3040593dfb88207865a3cd58680c0 upstream.
+commit e79b431fb901ba1106670bcc80b9b617b25def7d upstream.
 
-When the rx buffer is too small for a packet, we will discard the vq
-descriptor and retry it for the next packet:
+This patch will check the weight and exit the loop if we exceeds the
+weight. This is useful for preventing vsock kthread from hogging cpu
+which is guest triggerable. The weight can help to avoid starving the
+request from on direction while another direction is being processed.
 
-while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
-					      &busyloop_intr))) {
-...
-	/* On overrun, truncate and discard */
-	if (unlikely(headcount > UIO_MAXIOV)) {
-		iov_iter_init(&msg.msg_iter, READ, vq->iov, 1, 1);
-		err = sock->ops->recvmsg(sock, &msg,
-					 1, MSG_DONTWAIT | MSG_TRUNC);
-		pr_debug("Discarded rx packet: len %zd\n", sock_len);
-		continue;
-	}
-...
-}
-
-This makes it possible to trigger a infinite while..continue loop
-through the co-opreation of two VMs like:
-
-1) Malicious VM1 allocate 1 byte rx buffer and try to slow down the
-   vhost process as much as possible e.g using indirect descriptors or
-   other.
-2) Malicious VM2 generate packets to VM1 as fast as possible
-
-Fixing this by checking against weight at the end of RX and TX
-loop. This also eliminate other similar cases when:
-
-- userspace is consuming the packets in the meanwhile
-- theoretical TOCTOU attack if guest moving avail index back and forth
-  to hit the continue after vhost find guest just add new buffers
+The value of weight is picked from vhost-net.
 
 This addresses CVE-2019-3900.
 
-Fixes: d8316f3991d20 ("vhost: fix total length when packets are too short")
-Fixes: 3a4d5c94e9593 ("vhost_net: a kernel-level virtio server")
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 [jwang: backport to 4.19]
 Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
 ---
- drivers/vhost/net.c | 29 +++++++++++++----------------
- 1 file changed, 13 insertions(+), 16 deletions(-)
+ drivers/vhost/vsock.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index f6cf6825c15f..9a20ec796c12 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -551,7 +551,7 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
- 	int err;
- 	int sent_pkts = 0;
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 58c5c82bc0be..bab495d73195 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -86,6 +86,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 			    struct vhost_virtqueue *vq)
+ {
+ 	struct vhost_virtqueue *tx_vq = &vsock->vqs[VSOCK_VQ_TX];
++	int pkts = 0, total_len = 0;
+ 	bool added = false;
+ 	bool restart_tx = false;
+ 
+@@ -97,7 +98,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 	/* Avoid further vmexits, we're already processing the virtqueue */
+ 	vhost_disable_notify(&vsock->dev, vq);
  
 -	for (;;) {
 +	do {
- 		bool busyloop_intr = false;
+ 		struct virtio_vsock_pkt *pkt;
+ 		struct iov_iter iov_iter;
+ 		unsigned out, in;
+@@ -182,8 +183,9 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 		 */
+ 		virtio_transport_deliver_tap_pkt(pkt);
  
- 		head = get_tx_bufs(net, nvq, &msg, &out, &in, &len,
-@@ -592,9 +592,7 @@ static void handle_tx_copy(struct vhost_net *net, struct socket *sock)
- 				 err, len);
- 		if (++nvq->done_idx >= VHOST_NET_BATCH)
- 			vhost_net_signal_used(nvq);
--		if (vhost_exceeds_weight(vq, ++sent_pkts, total_len))
--			break;
++		total_len += pkt->len;
+ 		virtio_transport_free_pkt(pkt);
 -	}
-+	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
++	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+ 	if (added)
+ 		vhost_signal(&vsock->dev, vq);
  
- 	vhost_net_signal_used(nvq);
- }
-@@ -618,7 +616,7 @@ static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
- 	bool zcopy_used;
- 	int sent_pkts = 0;
+@@ -358,7 +360,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+ 	struct vhost_vsock *vsock = container_of(vq->dev, struct vhost_vsock,
+ 						 dev);
+ 	struct virtio_vsock_pkt *pkt;
+-	int head;
++	int head, pkts = 0, total_len = 0;
+ 	unsigned int out, in;
+ 	bool added = false;
  
+@@ -368,7 +370,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+ 		goto out;
+ 
+ 	vhost_disable_notify(&vsock->dev, vq);
 -	for (;;) {
 +	do {
- 		bool busyloop_intr;
+ 		u32 len;
  
- 		/* Release DMAs done buffers first */
-@@ -693,10 +691,7 @@ static void handle_tx_zerocopy(struct vhost_net *net, struct socket *sock)
+ 		if (!vhost_vsock_more_replies(vsock)) {
+@@ -409,9 +411,11 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
  		else
- 			vhost_zerocopy_signal_used(net, vq);
- 		vhost_net_tx_packet(net);
--		if (unlikely(vhost_exceeds_weight(vq, ++sent_pkts,
--						  total_len)))
--			break;
+ 			virtio_transport_free_pkt(pkt);
+ 
+-		vhost_add_used(vq, head, sizeof(pkt->hdr) + len);
++		len += sizeof(pkt->hdr);
++		vhost_add_used(vq, head, len);
++		total_len += len;
+ 		added = true;
 -	}
-+	} while (likely(!vhost_exceeds_weight(vq, ++sent_pkts, total_len)));
- }
++	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
  
- /* Expects to be always run from workqueue - which acts as
-@@ -932,8 +927,11 @@ static void handle_rx(struct vhost_net *net)
- 		vq->log : NULL;
- 	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
- 
--	while ((sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
--						      &busyloop_intr))) {
-+	do {
-+		sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
-+						      &busyloop_intr);
-+		if (!sock_len)
-+			break;
- 		sock_len += sock_hlen;
- 		vhost_len = sock_len + vhost_hlen;
- 		headcount = get_rx_bufs(vq, vq->heads + nvq->done_idx,
-@@ -1018,12 +1016,11 @@ static void handle_rx(struct vhost_net *net)
- 			vhost_log_write(vq, vq_log, log, vhost_len,
- 					vq->iov, in);
- 		total_len += vhost_len;
--		if (unlikely(vhost_exceeds_weight(vq, ++recv_pkts, total_len)))
--			goto out;
--	}
-+	} while (likely(!vhost_exceeds_weight(vq, ++recv_pkts, total_len)));
-+
- 	if (unlikely(busyloop_intr))
- 		vhost_poll_queue(&vq->poll);
--	else
-+	else if (!sock_len)
- 		vhost_net_enable_vq(net, vq);
- out:
- 	vhost_net_signal_used(nvq);
-@@ -1105,7 +1102,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
- 	}
- 	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX,
- 		       UIO_MAXIOV + VHOST_NET_BATCH,
--		       VHOST_NET_WEIGHT, VHOST_NET_PKT_WEIGHT);
-+		       VHOST_NET_PKT_WEIGHT, VHOST_NET_WEIGHT);
- 
- 	vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, EPOLLOUT, dev);
- 	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, EPOLLIN, dev);
+ no_more_replies:
+ 	if (added)
 -- 
 2.17.1
 
