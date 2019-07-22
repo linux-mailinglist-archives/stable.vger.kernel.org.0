@@ -2,76 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0E286F6BF
-	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 02:39:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 582406F6C1
+	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 02:39:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726360AbfGVAjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Jul 2019 20:39:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48662 "EHLO mail.kernel.org"
+        id S1726640AbfGVAjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Jul 2019 20:39:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725904AbfGVAjR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 21 Jul 2019 20:39:17 -0400
+        id S1725904AbfGVAjw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 21 Jul 2019 20:39:52 -0400
 Received: from localhost (unknown [216.243.17.14])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DDFF206BF;
-        Mon, 22 Jul 2019 00:39:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 390EC206BF;
+        Mon, 22 Jul 2019 00:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563755956;
-        bh=60TYNH0hwVxrMOKDBgoWalRZn/KY6XzLLZo86nHK+LM=;
+        s=default; t=1563755991;
+        bh=4/CB9Ayev5JKrE0XJ4YE64N8BfVO1NLnfPU/tzmyKWQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Lfo6EjXKW20c9vdPwQ/x+i/OsajsnIlxT+hvZhHcp1MKfFvwz35oJ0dNXe1d21t0S
-         wcAWQs09moHV8rCicrYM7YclAYr144eTJFpweoYi9MOYnIbe1GgI7hfApJ7aTm9LUu
-         OAcEG4TRq3uVgRwmfM6BoxXsOrXWRJw1ZdsIyNNQ=
-Date:   Sun, 21 Jul 2019 20:39:15 -0400
+        b=WScm1ORm+ix420nLZYK26vO4F4umJ40LKSDGPOakSl0fyTreIKkR7EPyUfNsCLg0u
+         y0y8WaNpLrv3OLH8z1IvXwlD62ECXecZ7cyMmYFwKEW5ibuiZs+EzcdeAFM5Mbcmfs
+         YVTrt0lwB62hI+ONtjKcxfodws8st6L+P9zp/7vg=
+Date:   Sun, 21 Jul 2019 20:39:50 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Daniel Drake <drake@endlessm.com>
-Cc:     Linux Kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Len Brown <len.brown@intel.com>,
-        Linux Upstreaming Team <linux@endlessm.com>,
-        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH AUTOSEL 5.1 013/219] x86/tsc: Use CPUID.0x16 to calculate
- missing crystal frequency
-Message-ID: <20190722003915.GB1607@sasha-vm>
-References: <20190715133811.2441-1-sashal@kernel.org>
- <20190715133811.2441-13-sashal@kernel.org>
- <CAD8Lp47XuF26FP0XEPz6KFMg=UGDvZx5bejjF6NZ2qSRdZSR_w@mail.gmail.com>
+To:     Dennis Zhou <dennis@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.2 129/249] blk-iolatency: only account
+ submitted bios
+Message-ID: <20190722003950.GC1607@sasha-vm>
+References: <20190715134655.4076-1-sashal@kernel.org>
+ <20190715134655.4076-129-sashal@kernel.org>
+ <20190715195806.GA77907@dennisz-mbp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CAD8Lp47XuF26FP0XEPz6KFMg=UGDvZx5bejjF6NZ2qSRdZSR_w@mail.gmail.com>
+In-Reply-To: <20190715195806.GA77907@dennisz-mbp>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 16, 2019 at 10:56:59AM +0800, Daniel Drake wrote:
->Hi,
->
->On Mon, Jul 15, 2019 at 9:38 PM Sasha Levin <sashal@kernel.org> wrote:
->> From: Daniel Drake <drake@endlessm.com>
+On Mon, Jul 15, 2019 at 03:58:06PM -0400, Dennis Zhou wrote:
+>On Mon, Jul 15, 2019 at 09:44:54AM -0400, Sasha Levin wrote:
+>> From: Dennis Zhou <dennis@kernel.org>
 >>
->> [ Upstream commit 604dc9170f2435d27da5039a3efd757dceadc684 ]
+>> [ Upstream commit a3fb01ba5af066521f3f3421839e501bb2c71805 ]
+>>
+>> As is, iolatency recognizes done_bio and cleanup as ending paths. If a
+>> request is marked REQ_NOWAIT and fails to get a request, the bio is
+>> cleaned up via rq_qos_cleanup() and ended in bio_wouldblock_error().
+>> This results in underflowing the inflight counter. Fix this by only
+>> accounting bios that were actually submitted.
+>>
+>> Signed-off-by: Dennis Zhou <dennis@kernel.org>
+>> Cc: Josef Bacik <josef@toxicpanda.com>
+>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>  block/blk-iolatency.c | 4 ++++
+>>  1 file changed, 4 insertions(+)
+>>
+>> diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
+>> index d22e61bced86..c91b84bb9d0a 100644
+>> --- a/block/blk-iolatency.c
+>> +++ b/block/blk-iolatency.c
+>> @@ -600,6 +600,10 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
+>>  	if (!blkg || !bio_flagged(bio, BIO_TRACKED))
+>>  		return;
+>>
+>> +	/* We didn't actually submit this bio, don't account it. */
+>> +	if (bio->bi_status == BLK_STS_AGAIN)
+>> +		return;
+>> +
+>>  	iolat = blkg_to_lat(bio->bi_blkg);
+>>  	if (!iolat)
+>>  		return;
+>> --
+>> 2.20.1
+>>
 >
->In my opinion this is not stable kernel material.
+>Hi Sasha,
 >
->It alone does not solve a particular bug. It's part of a larger effort
->to decrease usage of the 8254 PIT on modern platforms, which solves a
->real problem (see "x86: skip PIT initialization on modern chipsets"),
->but I'd conservatively recommend just leaving these patches out of the
->stable tree. The problem has existed for a while without a
->particularly wide impact, and there is a somewhat documented
->workaround of changing BIOS settings.
+>If you're going to pick this up, c9b3007feca0 ("blk-iolatency: fix
+>STS_AGAIN handling") fixes this patch, so please pick that up too.
 
-I've dropped it, thanks!
+I've picked it up, thanks!
 
 --
 Thanks,
