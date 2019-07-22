@@ -2,86 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CA9B705B8
-	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 18:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1AC706F8
+	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 19:27:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729749AbfGVQvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jul 2019 12:51:32 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:35452 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728752AbfGVQvb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 12:51:31 -0400
-Received: by mail-pg1-f195.google.com with SMTP id s1so11626050pgr.2;
-        Mon, 22 Jul 2019 09:51:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=sx4jGeZD1NAFZD3tRCTmaYml1fVFOhGJ/2sRj2Sic6g=;
-        b=laMC66jr1i34BApU20ATF+b80NLJrA5zDeYpvIrHvBFtGcdgpPd0Qe5aJjJQHtK1BX
-         IH48OJKSvKpRS4X1pABnMSdZMHQOaxCaIGeKrKgIjBnEmQLKZYB7YgtF/aNdnQpZn9+T
-         irxA7qVgJw7SShS8FXcIWUJ7PJj+Ejr4q8aYLKn1NHxgsAQXaVSnwTZbLetMO0zPad55
-         bcJL/s2nRjqabKNd2WWOp4ddpAZTXy6ASGCYzvSgOKA1BeByCIEE0Y84jaRRO5t4pPef
-         wAvsA6bMtOTNjO/n89tLganov9F4m5E3q2tpD6LIIOcY45TTFDNYw1QirUk7TAFEjbxR
-         dNRw==
-X-Gm-Message-State: APjAAAV8O6j1bHUJeTXvAxIoSWt4JM3onAAyGIjqbREmq2SutfkgoWZQ
-        lKLsagGnrVgmoc188q2v+eX2T83i
-X-Google-Smtp-Source: APXvYqzgKB+ahambBQH5r+rB5Xfqr8ZuYUyKs+7UZ6PacGfkrBMgMtfp+VqBqVxhZA1PNYh9nmwRsw==
-X-Received: by 2002:a17:90a:3247:: with SMTP id k65mr34724555pjb.49.1563814290331;
-        Mon, 22 Jul 2019 09:51:30 -0700 (PDT)
-Received: from desktop-bart.svl.corp.google.com ([2620:15c:2cd:202:4308:52a3:24b6:2c60])
-        by smtp.gmail.com with ESMTPSA id m4sm75534750pff.108.2019.07.22.09.51.28
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 22 Jul 2019 09:51:29 -0700 (PDT)
-Subject: Re: [PATCH V2 1/2] blk-mq: add callback of .cleanup_rq
-To:     Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Cc:     linux-block@vger.kernel.org,
-        "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, "Ewan D . Milne" <emilne@redhat.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com,
-        stable@vger.kernel.org
-References: <20190720030637.14447-1-ming.lei@redhat.com>
- <20190720030637.14447-2-ming.lei@redhat.com>
-From:   Bart Van Assche <bvanassche@acm.org>
-Message-ID: <4ffe9dd8-9e86-fd93-828e-78c1e5931c5f@acm.org>
-Date:   Mon, 22 Jul 2019 09:51:27 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1730604AbfGVR1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jul 2019 13:27:47 -0400
+Received: from sonic312-24.consmr.mail.ne1.yahoo.com ([66.163.191.205]:43320
+        "EHLO sonic312-24.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729578AbfGVR1q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 13:27:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1563816464; bh=4Vxk5h8RZejECW6gKj5x0qR4nMVVnsd2PEn+qyX3nlQ=; h=Date:From:Reply-To:Subject:From:Subject; b=bd3NGJe6FQ3O1xJixsBpSeYS6GN/3FaohDhX+cjyeA3g3ksyBh8QtiLdj0vRUlVt8nq6vFPZJN7h9095UiXciYTwj7TGZ4sW8u6npW3JxPasH1JrMfFWn2DMiZJSQL4s9qdV9S8aUIToneqkT2d4NTtJqAjZJ3dm0l7g335QxqDNHKdwzQCdgLOw2pZX/ozjwT+RJN1zmu0VHAc3zJ7xicOsKxXcq6bdYIevnZbLZlvDNNo2Pgq+NXI7jTOVZAXFHSl5c0ZHAO4S3NFPeGZpJdWas6eP3wjViRX0W506wonaWZ6N4ZIKc1U9qeWv14LRLGEOuKaHxG2jJfLn0Sr+6Q==
+X-YMail-OSG: uUJcCosVM1mN_zyRbuvG9JCJ7sGYT7250IuirDtOtX90Is8RPtp0D3ALa_hyZUC
+ dtiQ2oLEHvfcmA1tKufba1wtAehpqwrmxWo2Q1MMW5feGnw6RUXy3I6A.b.ipXcJcJ7GEat_hqyM
+ v.5VlcQ77p.u2wPqoewyK2dwHJ5rHdIPP8T8tBeGTtvAeLg_XxWj0y257GavpOhrLpHYERmVZRWp
+ r2UkpDDoVaKRu4NOmFSmnkUQG0NoTuiXVb4G.ezzxIphJOcGIk3N2gRga0Z7FFcN93CgNClteD.O
+ q4wcaPbA9IDwcw.ja1B.rhcvmEZ2.sUAOGgvHGPGSdT2RYrGWO2LSSaBw4njf90z1yT.ZKXslmDm
+ l_o0n0gnMP7.q.2IaB7FX839x.q4BZzPTIW2NOtD6.la.KFzRvoiclu7J_FTRCQMbhbYIJrPxxqx
+ sI1A3_4j_7xarsiazpjlzHHi33C8TmJDxXnn3X6wST.vK5uMQa0mfGgdfjAdm9f5g6NF1MmcxorW
+ 5zF6dxIj4X5nqcwDfFyrjbSIUzF9OCu9WbQUdPKFTvpCi4R3lDOji_H2w0wO3CLswH6Td5aLH7qt
+ se0NsEGZ1Wv7UW3w_CDcglJJKCyBBtLTeguurCMpiZf4EBgOgDvUVeCTbf2RnVtRZOH3cQEP_qqM
+ hGE5iisT.uqLzUYWHTniUOc1oAHGuMMq7IJHDU33tEjPKygtcvfUOJFycGD_cjC0AJaIPHUes5Nx
+ d9TH72GF6LN.528_QRXx.LPeVjQyhnhCQOWaXjg9JovuLoDSB7cLTa8AakgdbjTrWkyo42el13xQ
+ C8f9BJEvI7Dt3oudKx8_QPf4vrNZzcID8_dNIYBBpX9DBEx7Wj9Z17iLo0uHlhIK.jr4HQ9QYhVV
+ 3o3Abz6cI4PlXUuSQL0lyyWEt1s6hxN3BX7x4O88S0JHcl5Ykj_yCnVcy90St6UQvb3ULa9waneT
+ AS1HkGlRYwMkfaR6bxyQO9pqIsEKzADk0UNC0f5t6kF.xvRnQiCgQ7Hec3HIXRoGfZvMlm7TwNnd
+ sRg0el8c6IStjJ1IQTE9ue.s5Cg8NnYlORJ8JqaCNZirgadSvoBZvUHC3jpXL4.dI1c2Oj0eviVW
+ YBYaNkiahnB8bUXkmqwlyHd40OYjG7oNQ5VHnbDfhStD4l3G2JJ7ff5XBKpW5vni8QmAmAx5ifwr
+ 9v4z1nsxicyuHuE.CgFg5bXSMqKWAdvH3fUjUSvUKHsHr0a6lPriT4tYYJ2PnX3_iVz0IyRZrwpp
+ gXyD2G2i0Q9RiM4qC03Pmt.exjXjUwuVVsS4-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Mon, 22 Jul 2019 17:27:44 +0000
+Date:   Mon, 22 Jul 2019 17:27:43 +0000 (UTC)
+From:   Rita Williams <wir4478@gmail.com>
+Reply-To: ritawi668@yahoo.co.jp
+Message-ID: <106129782.5437665.1563816463976@mail.yahoo.com>
+Subject: Da Sra. Rita Williams
 MIME-Version: 1.0
-In-Reply-To: <20190720030637.14447-2-ming.lei@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/19/19 8:06 PM, Ming Lei wrote:
-> diff --git a/block/blk-mq.c b/block/blk-mq.c
-> index b038ec680e84..fc38d95c557f 100644
-> --- a/block/blk-mq.c
-> +++ b/block/blk-mq.c
-> @@ -502,6 +502,9 @@ void blk_mq_free_request(struct request *rq)
->   	struct blk_mq_ctx *ctx = rq->mq_ctx;
->   	struct blk_mq_hw_ctx *hctx = rq->mq_hctx;
->   
-> +	if (q->mq_ops->cleanup_rq)
-> +		q->mq_ops->cleanup_rq(rq);
-> +
->   	if (rq->rq_flags & RQF_ELVPRIV) {
->   		if (e && e->type->ops.finish_request)
->   			e->type->ops.finish_request(rq);
+Meu querido em Cristo
 
-I'm concerned about the performance impact of this change. How about not 
-introducing .cleanup_rq() and adding a call to
-scsi_mq_uninit_cmd() in scsi_queue_rq() just before that function 
-returns BLK_STS_RESOURCE or BLK_STS_DEV_RESOURCE?
 
-Thanks,
+Eu sou a Sra. Rita Williams, me casei com o Sr. David Williams, por 19 anos=
+ sem um filho e meu marido morreu em 2007. Estou entrando em contato para q=
+ue voc=C3=AA saiba do meu desejo de doar a quantia de US $ 6.500.000 que eu=
+ herdei da minha conta. marido atrasado para caridade, atualmente o fundo a=
+inda est=C3=A1 no banco. Recentemente, meu m=C3=A9dico me disse que eu tenh=
+o uma doen=C3=A7a grave que =C3=A9 um problema de c=C3=A2ncer e n=C3=A3o vo=
+u durar pelos pr=C3=B3ximos 2 meses.
+Eu quero uma pessoa que use este fundo para orfanatos, escolas, igrejas, vi=
+=C3=BAvas, propagando a palavra de Deus em seu pa=C3=ADs.
+Responder-me para mais informa=C3=A7=C3=B5es, e tamb=C3=A9m Envie-me as seg=
+uintes informa=C3=A7=C3=B5es, conforme abaixo.
+Seu nome completo ..........
+Endere=C3=A7o ...........
+Foto ...............
+Permanecer aben=C3=A7oado
+Sua irm=C3=A3 em cristo
 
-Bart.
+Sra. Rita William
