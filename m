@@ -2,102 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEAD06FBE2
-	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 11:11:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42F4D6FC58
+	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 11:38:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728170AbfGVJL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jul 2019 05:11:26 -0400
-Received: from mout.kundenserver.de ([212.227.126.187]:35353 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727628AbfGVJL0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 05:11:26 -0400
-Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
- (mreue009 [212.227.15.129]) with ESMTPA (Nemesis) id
- 1N3bb1-1iXnOP1GRX-010ghb; Mon, 22 Jul 2019 11:11:02 +0200
-From:   Arnd Bergmann <arnd@arndb.de>
-To:     Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        akpm@linux-foundation.org
-Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
-        Sodagudi Prasad <psodagud@codeaurora.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: [PATCH] ubsan: build ubsan.c more conservatively
-Date:   Mon, 22 Jul 2019 11:10:18 +0200
-Message-Id: <20190722091050.2188664-1-arnd@arndb.de>
-X-Mailer: git-send-email 2.20.0
+        id S1728537AbfGVJiY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jul 2019 05:38:24 -0400
+Received: from verein.lst.de ([213.95.11.211]:58841 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728311AbfGVJiY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Jul 2019 05:38:24 -0400
+Received: by verein.lst.de (Postfix, from userid 2407)
+        id 1925268C4E; Mon, 22 Jul 2019 11:38:23 +0200 (CEST)
+Date:   Mon, 22 Jul 2019 11:38:22 +0200
+From:   Christoph Hellwig <hch@lst.de>
+To:     Ralph Campbell <rcampbell@nvidia.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Jan Kara <jack@suse.cz>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>
+Subject: Re: [PATCH v2 2/3] mm/hmm: fix ZONE_DEVICE anon page mapping reuse
+Message-ID: <20190722093822.GF29538@lst.de>
+References: <20190719192955.30462-1-rcampbell@nvidia.com> <20190719192955.30462-3-rcampbell@nvidia.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:JRfD2+R8cl2MpZ0Zaxxg8tUpm69nNkWykZmnDl1qh32EVPdlKtE
- feSJZgESNtHDb2ndZGxg9yLvPE3xOaO/zQ6RIFEl59plmT0MYDgVWRxeD2ia6fgtqKP96pZ
- c3a9q9oTdIKkeVckRiZ85phK58GVGTCqUxQ19o6DYjM6emumoqVfTCEpJNZU8I9HbMLNK0j
- SG7WTRjuVhHqmFl1VMLLg==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:iYdJrXJ7yi8=:+VQeBL+nIZ99R9qas4XCAf
- JVehlIWqUOXYHMbMds8Lk6aF1ARdIDjQRiz3IgnzlLpuyx6Lh8BwzXxwpVLRJkDISxElGyZqZ
- tCo4+uvUoJqrT7IezXOLCMDX+pYKj62Qu04HNg2bhhf+zcxE8ZbRBgWq6Qqu4k3e3vqxF5Tpg
- dJ0jcz4AUzqn3e4PpHGxqRnFfGyfmkXqMjbLF6pjGIWYjdd2L/hY04IM4gtlNdY881Q9ztYV0
- hvublVP6vIuStwuNKsid45s1GhqknIakTpgAl7ralnEoX7nIJFRCW3A8nmHpR4kpGb4vKORd7
- FddKLU5zEzib5E80VV5NvXSuZozdLxoATZ9lZajNj8RjrahzoKiX0/0n7N4fiEXNyECqTUkdn
- qLkHOsI6THRAhD3Ga8ksZQRfFkezZHHzpp31COWftnXj8AZLodKh7K5ZvQCWMlBVofclfhHiR
- ndHO12eg6A9ChqN/1xqhj2DiquLQOLPB9sVdAGYHSNYXVrUiINY2XRg7pLk52KMdtQn+MFa/o
- XU9vI7AfHQWK1MzqlFT1d41nVRvp7+5vAQ4KZcgqL952lCzbyiF/sdNcOJteN9NnCFVQ5DD/e
- 83Mp+jdKnCj116HLHJak0Ed1tFSNlvJow5hw2Qu0Biyv3kLNIFQo7THz8c2OfzOzke92odu8Q
- eH2b37g4p1ih79+wLl3nNSVZtguQ371lSgzu8LMjnwra8iPTrs3mHzecal76nXpt0q8YkKqK8
- RHQHOpj8iiipJxOTicd3LWlcOsbIY90Wj4/GwQ==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190719192955.30462-3-rcampbell@nvidia.com>
+User-Agent: Mutt/1.5.17 (2007-11-01)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-objtool points out several conditions that it does not like, depending
-on the combination with other configuration options and compiler
-variants:
+> +		/*
+> +		 * When a device_private page is freed, the page->mapping field
+> +		 * may still contain a (stale) mapping value. For example, the
+> +		 * lower bits of page->mapping may still identify the page as
+> +		 * an anonymous page. Ultimately, this entire field is just
+> +		 * stale and wrong, and it will cause errors if not cleared.
+> +		 * One example is:
+> +		 *
+> +		 *  migrate_vma_pages()
+> +		 *    migrate_vma_insert_page()
+> +		 *      page_add_new_anon_rmap()
+> +		 *        __page_set_anon_rmap()
+> +		 *          ...checks page->mapping, via PageAnon(page) call,
+> +		 *            and incorrectly concludes that the page is an
+> +		 *            anonymous page. Therefore, it incorrectly,
+> +		 *            silently fails to set up the new anon rmap.
+> +		 *
+> +		 * For other types of ZONE_DEVICE pages, migration is either
+> +		 * handled differently or not done at all, so there is no need
+> +		 * to clear page->mapping.
+> +		 */
+> +		if (is_device_private_page(page))
+> +			page->mapping = NULL;
+> +
 
-stack protector:
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0xbf: call to __stack_chk_fail() with UACCESS enabled
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0xbe: call to __stack_chk_fail() with UACCESS enabled
+Thanks, especially for the long comment.
 
-stackleak plugin:
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x4a: call to stackleak_track_stack() with UACCESS enabled
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x4a: call to stackleak_track_stack() with UACCESS enabled
-
-kasan:
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x25: call to memcpy() with UACCESS enabled
-lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x25: call to memcpy() with UACCESS enabled
-
-The stackleak and kasan options just need to be disabled for this file
-as we do for other files already. For the stack protector, we already
-attempt to disable it, but this fails on clang because the check is
-mixed with the gcc specific -fno-conserve-stack option, so we need to
-test them separately.
-
-Fixes: 42440c1f9911 ("lib/ubsan: add type mismatch handler for new GCC/Clang")
-Link: https://lore.kernel.org/lkml/20190617123109.667090-1-arnd@arndb.de/t/
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- lib/Makefile | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/lib/Makefile b/lib/Makefile
-index 095601ce371d..320e3b632dd3 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -279,7 +279,8 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string.o
- obj-$(CONFIG_UBSAN) += ubsan.o
- 
- UBSAN_SANITIZE_ubsan.o := n
--CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
-+KASAN_SANITIZE_ubsan.o := n
-+CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack) $(call cc-option, -fno-stack-protector) $(DISABLE_STACKLEAK_PLUGIN)
- 
- obj-$(CONFIG_SBITMAP) += sbitmap.o
- 
--- 
-2.20.0
-
+Reviewed-by: Christoph Hellwig <hch@lst.de>
