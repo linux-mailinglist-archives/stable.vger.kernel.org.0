@@ -2,120 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 869467007B
-	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 15:03:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C036F701C4
+	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 15:53:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727624AbfGVNDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jul 2019 09:03:20 -0400
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:46945 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728924AbfGVNDU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 09:03:20 -0400
-Received: by mail-ed1-f67.google.com with SMTP id d4so40572974edr.13
-        for <stable@vger.kernel.org>; Mon, 22 Jul 2019 06:03:19 -0700 (PDT)
+        id S1729188AbfGVNxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jul 2019 09:53:49 -0400
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:33832 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730317AbfGVNxq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 09:53:46 -0400
+Received: by mail-oi1-f194.google.com with SMTP id l12so29636597oil.1
+        for <stable@vger.kernel.org>; Mon, 22 Jul 2019 06:53:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=RGtootUUACzE3D9a2msPbnq8uijsx/Cktbd+3vpMz5c=;
-        b=gTvMGy2YukWB30QnM/rBXFJ8wUyUqoax28y+aF6hGbnS99pL+mbOYPSU2palJArR5X
-         l0UJpMeVY+TzeuhOmmExc120fAapXgA4tbX5sqoR0uC0kuX84t7QCyxHnQq7AQP5LPj8
-         S5Blo3dVHKRO3g7llcRxpPCSMC+Ds15P/dKn1or2cQBzy4XoB8RtlWOkkktIlMaB/9xG
-         1AWl6dt51bOY3uYLpnCQapooL9zJ4PIXWFnJYl2C37iibka6Fyn7/jCAoGJCeofExkOQ
-         ygLw/jcqv2nI8xoP54Q1i9rCIlDpvxzvo4DoiGWo1pAy4m4XOlYj2ltI3X25sI/9mmbU
-         wnPw==
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=g1UMNJz38FJKA8VfoTulETIw691BfDACZOimxcCXK/o=;
+        b=fGNAYXMEMQLi61dS/BX669E7XdeJVBqAP/po6W0f/plWm3Ag7TmVrwhbmZteGpcd42
+         D08dufbOML0rLUeOodYQgaMv6jyBh3tRkFtbIrhsgt0Pje6GSJvRC6YIRDUmhOrSwonZ
+         hlBbBHEI9nH4H80aLinD09Y8JniQTngsNyPoRegNf1LVnXJlUHGlTn0o03A7pO40X4vo
+         TCR7+RH68UxHyyUDH0unVSP8nfWKTOneUMziMoYbIx9Yc2p89+n/4H7ehB1TOCq3BkS6
+         oM04WZJRb4UlHU+AIKfU0Fb76AB7ykQjASxlCvXNRYN5lJH790D8mZV1SO+IgWOEsk7P
+         eV4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=RGtootUUACzE3D9a2msPbnq8uijsx/Cktbd+3vpMz5c=;
-        b=VV1Vp0DaFK0laHnnqna0FJX5Qnmw+hS7tDoP+dgKnQyLtA/BT5MtPnVUBl74TF7LX9
-         /phWiVdo1soQ6J5Hw1qzP+XoeSQNy5eVxF5kVg8F4RCDEXfsAFlc0np+d4pCbQO8tWiG
-         o2WF0peZLZBnz7d+lVI1GbZHsdB0Ruq4RU0r/0AZ0k0BsVfnPTE3dQUn/d+XSRiANTGq
-         PqXCC5VnPKuKYvn7MGgjn/3WXqgz1e8WVt/i2Glj9XP7Uw+RxEwkc8D27UsM6zTuYCy5
-         zu94fj5umAGgpA367ZKTX/ue3AUiVfkezPeAQ506dt5PH5Rcp+iIof03jCNFr3mx8b5W
-         bi4A==
-X-Gm-Message-State: APjAAAUoFOsqHmBv4CZIJL8wB+tOTDrqpr0LOtPXmHMZ51j81SZCY8cS
-        41gWVGV+HqCUXKFNS955vnQ=
-X-Google-Smtp-Source: APXvYqzQRgKd2YbcCfmD73UO8ZsoL5tvS/MmC9VbDt9PZDIvWGp/ibb01Nz9vEXtGFLeQWp/r+1aBw==
-X-Received: by 2002:a05:6402:145a:: with SMTP id d26mr60098126edx.10.1563800598460;
-        Mon, 22 Jul 2019 06:03:18 -0700 (PDT)
-Received: from jwang-Latitude-5491.pb.local ([62.217.45.26])
-        by smtp.gmail.com with ESMTPSA id v12sm7996085ejj.52.2019.07.22.06.03.17
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 22 Jul 2019 06:03:18 -0700 (PDT)
-From:   Jack Wang <jinpuwang@gmail.com>
-To:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        stable@vger.kernel.org
-Cc:     Jason Wang <jasowang@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>
-Subject: [stable-4.19 4/4] vhost: scsi: add weight support
-Date:   Mon, 22 Jul 2019 15:03:13 +0200
-Message-Id: <20190722130313.18562-5-jinpuwang@gmail.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190722130313.18562-1-jinpuwang@gmail.com>
-References: <20190722130313.18562-1-jinpuwang@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=g1UMNJz38FJKA8VfoTulETIw691BfDACZOimxcCXK/o=;
+        b=QQ2TBym9dPFzsloJ2m5IJ5ZoTg7tqaXR63wO7frqV7BsNNPlkp6rf9xgEreMrdfV24
+         TVP1Pfvh7GjjV7ULhk8Dov2Embu4zJFsHakLCSse2LtY1a57kRNayR3FNVXUqY+Re09d
+         E7+3oNUsnvCXqv6vJQqufuFhKQgIXercoOXuNUa/VcjEL6uD+gtO2/VUimDPtkQzIPMy
+         tmti/JkikAsybhCS4MPZUQ4p/h4aW5wbPHi955+1/Yjws95UsAguEec/DRKdQUThQBff
+         ygPWiHK4kH2WfpyKltonxMi0LCC5TlaSE/I/9DT88ii2wNK59sI6+tRmXMWewiflrci+
+         gw+Q==
+X-Gm-Message-State: APjAAAWJCBLjVsfDwP5xp/sT9LVkwMG9zV0h1jRShu6O8WclsjjUrwdf
+        7VAXJvFar+gDh0sOr94wOASTKpCi9og7zIRICURbaA==
+X-Google-Smtp-Source: APXvYqwhbUEk+tIJupY1mSA2+5y37L/UfPZ1TUPnGPBXdX0IN0j3vyiGWacxFaSuSqrMBogc4X9YCsSdXEY2kVKjlrA=
+X-Received: by 2002:aca:450:: with SMTP id 77mr35802547oie.114.1563803625135;
+ Mon, 22 Jul 2019 06:53:45 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190708052308.27802-1-michael.wu@vatics.com>
+In-Reply-To: <20190708052308.27802-1-michael.wu@vatics.com>
+From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Mon, 22 Jul 2019 15:53:34 +0200
+Message-ID: <CAMpxmJVks=teMX1T3pUOO4zomhyhEPWedoiChW00whi40v-VQw@mail.gmail.com>
+Subject: Re: [PATCH v2] gpiolib: fix incorrect IRQ requesting of an active-low lineevent
+To:     Michael Wu <michael.wu@vatics.com>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        linux-gpio <linux-gpio@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, morgan.chang@vatics.com,
+        "Stable # 4 . 20+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+pon., 8 lip 2019 o 07:23 Michael Wu <michael.wu@vatics.com> napisa=C5=82(a)=
+:
+>
+> When a pin is active-low, logical trigger edge should be inverted to matc=
+h
+> the same interrupt opportunity.
+>
+> For example, a button pushed triggers falling edge in ACTIVE_HIGH case; i=
+n
+> ACTIVE_LOW case, the button pushed triggers rising edge. For user space t=
+he
+> IRQ requesting doesn't need to do any modification except to configuring
+> GPIOHANDLE_REQUEST_ACTIVE_LOW.
+>
+> For example, we want to catch the event when the button is pushed. The
+> button on the original board drives level to be low when it is pushed, an=
+d
+> drives level to be high when it is released.
+>
+> In user space we can do:
+>
+>         req.handleflags =3D GPIOHANDLE_REQUEST_INPUT;
+>         req.eventflags =3D GPIOEVENT_REQUEST_FALLING_EDGE;
+>
+>         while (1) {
+>                 read(fd, &dat, sizeof(dat));
+>                 if (dat.id =3D=3D GPIOEVENT_EVENT_FALLING_EDGE)
+>                         printf("button pushed\n");
+>         }
+>
+> Run the same logic on another board which the polarity of the button is
+> inverted; it drives level to be high when pushed, and level to be low whe=
+n
+> released. For this inversion we add flag GPIOHANDLE_REQUEST_ACTIVE_LOW:
+>
+>         req.handleflags =3D GPIOHANDLE_REQUEST_INPUT |
+>                 GPIOHANDLE_REQUEST_ACTIVE_LOW;
+>         req.eventflags =3D GPIOEVENT_REQUEST_FALLING_EDGE;
+>
+> At the result, there are no any events caught when the button is pushed.
+> By the way, button releasing will emit a "falling" event. The timing of
+> "falling" catching is not expected.
+>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Michael Wu <michael.wu@vatics.com>
+> ---
+> Changes from v1:
+> - Correct undeclared 'IRQ_TRIGGER_RISING'
+> - Add an example to descibe the issue
+> ---
+>  drivers/gpio/gpiolib.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+> index e013d417a936..9c9597f929d7 100644
+> --- a/drivers/gpio/gpiolib.c
+> +++ b/drivers/gpio/gpiolib.c
+> @@ -956,9 +956,11 @@ static int lineevent_create(struct gpio_device *gdev=
+, void __user *ip)
+>         }
+>
+>         if (eflags & GPIOEVENT_REQUEST_RISING_EDGE)
+> -               irqflags |=3D IRQF_TRIGGER_RISING;
+> +               irqflags |=3D test_bit(FLAG_ACTIVE_LOW, &desc->flags) ?
+> +                       IRQF_TRIGGER_FALLING : IRQF_TRIGGER_RISING;
+>         if (eflags & GPIOEVENT_REQUEST_FALLING_EDGE)
+> -               irqflags |=3D IRQF_TRIGGER_FALLING;
+> +               irqflags |=3D test_bit(FLAG_ACTIVE_LOW, &desc->flags) ?
+> +                       IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
+>         irqflags |=3D IRQF_ONESHOT;
+>
+>         INIT_KFIFO(le->events);
+> --
+> 2.17.1
+>
 
-commit c1ea02f15ab5efb3e93fc3144d895410bf79fcf2 upstream
+Applied to fixes.
 
-This patch will check the weight and exit the loop if we exceeds the
-weight. This is useful for preventing scsi kthread from hogging cpu
-which is guest triggerable.
-
-This addresses CVE-2019-3900.
-
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Fixes: 057cbf49a1f0 ("tcm_vhost: Initial merge for vhost level target fabric driver")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-[jwang: backport to 4.19]
-Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
----
- drivers/vhost/scsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 087ce17b0c39..5e298d9287f1 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -817,7 +817,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 	u64 tag;
- 	u32 exp_data_len, data_direction;
- 	unsigned int out = 0, in = 0;
--	int head, ret, prot_bytes;
-+	int head, ret, prot_bytes, c = 0;
- 	size_t req_size, rsp_size = sizeof(struct virtio_scsi_cmd_resp);
- 	size_t out_size, in_size;
- 	u16 lun;
-@@ -836,7 +836,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 
- 	vhost_disable_notify(&vs->dev, vq);
- 
--	for (;;) {
-+	do {
- 		head = vhost_get_vq_desc(vq, vq->iov,
- 					 ARRAY_SIZE(vq->iov), &out, &in,
- 					 NULL, NULL);
-@@ -1051,7 +1051,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 		 */
- 		INIT_WORK(&cmd->work, vhost_scsi_submission_work);
- 		queue_work(vhost_scsi_workqueue, &cmd->work);
--	}
-+	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
- out:
- 	mutex_unlock(&vq->mutex);
- }
--- 
-2.17.1
-
+Bart
