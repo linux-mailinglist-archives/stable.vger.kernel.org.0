@@ -2,120 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6401D6F747
-	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 04:48:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD8806F871
+	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 06:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726818AbfGVCsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Jul 2019 22:48:18 -0400
-Received: from bilbo.ozlabs.org ([203.11.71.1]:57865 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728360AbfGVCsS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 21 Jul 2019 22:48:18 -0400
-Received: by ozlabs.org (Postfix, from userid 1034)
-        id 45sQyk612Wz9sBF; Mon, 22 Jul 2019 12:48:14 +1000 (AEST)
-X-powerpc-patch-notification: thanks
-X-powerpc-patch-commit: 4d202c8c8ed3822327285747db1765967110b274
-In-Reply-To: <1563359724-13931-1-git-send-email-ego@linux.vnet.ibm.com>
-To:     "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Breno Leitao <leitao@debian.org>,
-        Vaidyanathan Srinivasan <svaidy@linux.vnet.ibm.com>
-From:   Michael Ellerman <patch-notifications@ellerman.id.au>
-Cc:     "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] powerpc/xive: Fix loop exit-condition in xive_find_target_in_mask()
-Message-Id: <45sQyk612Wz9sBF@ozlabs.org>
-Date:   Mon, 22 Jul 2019 12:48:14 +1000 (AEST)
+        id S1725888AbfGVE01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jul 2019 00:26:27 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:39602 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725766AbfGVE01 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 00:26:27 -0400
+Received: by mail-pf1-f194.google.com with SMTP id f17so12744246pfn.6;
+        Sun, 21 Jul 2019 21:26:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/GECkMX2BvgmJ+stDaMKbwKqcE9+Rsp9237P1eJja/Q=;
+        b=VEONqYJkW8skLU3QWUv/3Q2eWK9Ld5CPEKr4dV3WS4mTTVaZqg8cdn4IraDoSirj/g
+         HjENpWKixV96QUX/ifWxWiRajyg0xIiOzNNmLvUDWYNK6pqonkqSu9MMCVIZtUetDbnu
+         Ot1SzJyKlBOino4/UVtlwfrsnKxWe9khy0R0tPCBiyA1/oiOnMQwzmk6QaFEOOFLQ0y9
+         P+bnQ3kACtLZmfjLeGL5WsblFrnPCNwICOIgsPEo7L35VhK9E1pY/51NPyk2lv72+xJH
+         m0S+SuxBLEnH7yVWWHOXz0SSmXsiY4RtB97GFeGwq0/D0JiD7ak2BmrtktHpk8tVP/zx
+         NnBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/GECkMX2BvgmJ+stDaMKbwKqcE9+Rsp9237P1eJja/Q=;
+        b=PeINbTcpIjjtIiTsVK7hq0v5NYrW6sjz4HSiQOT4UIDIr/dPchgWki5sVEeSsKz7EH
+         s+PgEYRwpJl2ov6osFr7iaAq/X/OYwOCymH5XsF2F2fsFe88C1Z8+zbBT3ztMvOb3wZW
+         dmOEb70Jf+gQNJ5b1FVF6Aj/BReTf6kK2bt+T/sDRuaUscisGxV90z4im/XPsSQ/fKGw
+         3PizTGwFk+eUvANYsnD9wNyWcMizJZKBdWO1XfPCQSazkXSqj7m0vDfV12l6QWWaLA1L
+         VAH7N27UrBaWew39+0ARSKWkZAeEB4lYaDPXgDhMGbZ59sbzL0exOR8MlP9fimHoTEzT
+         +/Zg==
+X-Gm-Message-State: APjAAAUYPzf+ysMihtmJnX/usFvHFACNgvaWwwATLTcXkrfjrcukyDk3
+        ZYieg+1Z6PPQHV7g4IOBmM6omC9Thy0=
+X-Google-Smtp-Source: APXvYqz4tCkRU/CC2Y7DGSppuc7kMSC8+iomq6jRFSbYdXF9P+JPt8Ilyh/dRC0sUwlxX8fzTuFZcg==
+X-Received: by 2002:a63:460c:: with SMTP id t12mr69057416pga.69.1563769586567;
+        Sun, 21 Jul 2019 21:26:26 -0700 (PDT)
+Received: from localhost.localdomain ([203.205.141.123])
+        by smtp.googlemail.com with ESMTPSA id r9sm17108217pjq.3.2019.07.21.21.26.24
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Sun, 21 Jul 2019 21:26:26 -0700 (PDT)
+From:   Wanpeng Li <kernellwp@gmail.com>
+X-Google-Original-From: Wanpeng Li <wanpengli@tencent.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        Thomas Lambertz <mail@thomaslambertz.de>,
+        anthony <antdev66@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2] KVM: X86: Fix fpu state crash in kvm guest
+Date:   Mon, 22 Jul 2019 12:26:20 +0800
+Message-Id: <1563769581-20293-1-git-send-email-wanpengli@tencent.com>
+X-Mailer: git-send-email 2.7.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2019-07-17 at 10:35:24 UTC, "Gautham R. Shenoy" wrote:
-> From: "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>
-> 
-> xive_find_target_in_mask() has the following for(;;) loop which has a
-> bug when @first == cpumask_first(@mask) and condition 1 fails to hold
-> for every CPU in @mask. In this case we loop forever in the for-loop.
-> 
->   first = cpu;
->   for (;;) {
->   	  if (cpu_online(cpu) && xive_try_pick_target(cpu)) // condition 1
-> 		  return cpu;
-> 	  cpu = cpumask_next(cpu, mask);
-> 	  if (cpu == first) // condition 2
-> 		  break;
-> 
-> 	  if (cpu >= nr_cpu_ids) // condition 3
-> 		  cpu = cpumask_first(mask);
->   }
-> 
-> This is because, when @first == cpumask_first(@mask), we never hit the
-> condition 2 (cpu == first) since prior to this check, we would have
-> executed "cpu = cpumask_next(cpu, mask)" which will set the value of
-> @cpu to a value greater than @first or to nr_cpus_ids. When this is
-> coupled with the fact that condition 1 is not met, we will never exit
-> this loop.
-> 
-> This was discovered by the hard-lockup detector while running LTP test
-> concurrently with SMT switch tests.
-> 
->  watchdog: CPU 12 detected hard LOCKUP on other CPUs 68
->  watchdog: CPU 12 TB:85587019220796, last SMP heartbeat TB:85578827223399 (15999ms ago)
->  watchdog: CPU 68 Hard LOCKUP
->  watchdog: CPU 68 TB:85587019361273, last heartbeat TB:85576815065016 (19930ms ago)
->  CPU: 68 PID: 45050 Comm: hxediag Kdump: loaded Not tainted 4.18.0-100.el8.ppc64le #1
->  NIP:  c0000000006f5578 LR: c000000000cba9ec CTR: 0000000000000000
->  REGS: c000201fff3c7d80 TRAP: 0100   Not tainted  (4.18.0-100.el8.ppc64le)
->  MSR:  9000000002883033 <SF,HV,VEC,VSX,FP,ME,IR,DR,RI,LE>  CR: 24028424  XER: 00000000
->  CFAR: c0000000006f558c IRQMASK: 1
->  GPR00: c0000000000afc58 c000201c01c43400 c0000000015ce500 c000201cae26ec18
->  GPR04: 0000000000000800 0000000000000540 0000000000000800 00000000000000f8
->  GPR08: 0000000000000020 00000000000000a8 0000000080000000 c00800001a1beed8
->  GPR12: c0000000000b1410 c000201fff7f4c00 0000000000000000 0000000000000000
->  GPR16: 0000000000000000 0000000000000000 0000000000000540 0000000000000001
->  GPR20: 0000000000000048 0000000010110000 c00800001a1e3780 c000201cae26ed18
->  GPR24: 0000000000000000 c000201cae26ed8c 0000000000000001 c000000001116bc0
->  GPR28: c000000001601ee8 c000000001602494 c000201cae26ec18 000000000000001f
->  NIP [c0000000006f5578] find_next_bit+0x38/0x90
->  LR [c000000000cba9ec] cpumask_next+0x2c/0x50
->  Call Trace:
->  [c000201c01c43400] [c000201cae26ec18] 0xc000201cae26ec18 (unreliable)
->  [c000201c01c43420] [c0000000000afc58] xive_find_target_in_mask+0x1b8/0x240
->  [c000201c01c43470] [c0000000000b0228] xive_pick_irq_target.isra.3+0x168/0x1f0
->  [c000201c01c435c0] [c0000000000b1470] xive_irq_startup+0x60/0x260
->  [c000201c01c43640] [c0000000001d8328] __irq_startup+0x58/0xf0
->  [c000201c01c43670] [c0000000001d844c] irq_startup+0x8c/0x1a0
->  [c000201c01c436b0] [c0000000001d57b0] __setup_irq+0x9f0/0xa90
->  [c000201c01c43760] [c0000000001d5aa0] request_threaded_irq+0x140/0x220
->  [c000201c01c437d0] [c00800001a17b3d4] bnx2x_nic_load+0x188c/0x3040 [bnx2x]
->  [c000201c01c43950] [c00800001a187c44] bnx2x_self_test+0x1fc/0x1f70 [bnx2x]
->  [c000201c01c43a90] [c000000000adc748] dev_ethtool+0x11d8/0x2cb0
->  [c000201c01c43b60] [c000000000b0b61c] dev_ioctl+0x5ac/0xa50
->  [c000201c01c43bf0] [c000000000a8d4ec] sock_do_ioctl+0xbc/0x1b0
->  [c000201c01c43c60] [c000000000a8dfb8] sock_ioctl+0x258/0x4f0
->  [c000201c01c43d20] [c0000000004c9704] do_vfs_ioctl+0xd4/0xa70
->  [c000201c01c43de0] [c0000000004ca274] sys_ioctl+0xc4/0x160
->  [c000201c01c43e30] [c00000000000b388] system_call+0x5c/0x70
->  Instruction dump:
->  78aad182 54a806be 3920ffff 78a50664 794a1f24 7d294036 7d43502a 7d295039
->  4182001c 48000034 78a9d182 79291f24 <7d23482a> 2fa90000 409e0020 38a50040
-> 
-> To fix this, move the check for condition 2 after the check for
-> condition 3, so that we are able to break out of the loop soon after
-> iterating through all the CPUs in the @mask in the problem case. Use
-> do..while() to achieve this.
-> 
-> Fixes: 243e25112d06 ("powerpc/xive: Native exploitation of the XIVE
-> interrupt controller")
-> Cc: <stable@vger.kernel.org> # 4.12+
-> Reported-by: Indira P. Joga <indira.priya@in.ibm.com>
-> Signed-off-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-Applied to powerpc fixes, thanks.
+The idea before commit 240c35a37 was that we have the following FPU states:
 
-https://git.kernel.org/powerpc/c/4d202c8c8ed3822327285747db1765967110b274
+               userspace (QEMU)             guest
+---------------------------------------------------------------------------
+               processor                    vcpu->arch.guest_fpu
+>>> KVM_RUN: kvm_load_guest_fpu
+               vcpu->arch.user_fpu          processor
+>>> preempt out
+               vcpu->arch.user_fpu          current->thread.fpu
+>>> preempt in
+               vcpu->arch.user_fpu          processor
+>>> back to userspace
+>>> kvm_put_guest_fpu
+               processor                    vcpu->arch.guest_fpu
+---------------------------------------------------------------------------
 
-cheers
+With the new lazy model we want to get the state back to the processor 
+when schedule in from current->thread.fpu.
+
+Reported-by: Thomas Lambertz <mail@thomaslambertz.de>
+Reported-by: anthony <antdev66@gmail.com>
+Tested-by: anthony <antdev66@gmail.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Radim Krčmář <rkrcmar@redhat.com>
+Cc: Thomas Lambertz <mail@thomaslambertz.de>
+Cc: anthony <antdev66@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: 5f409e20b (x86/fpu: Defer FPU state load until return to userspace)
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+---
+ arch/x86/kvm/x86.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index cf2afdf..bdcd250 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3306,6 +3306,10 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ 
+ 	kvm_x86_ops->vcpu_load(vcpu, cpu);
+ 
++	fpregs_assert_state_consistent();
++	if (test_thread_flag(TIF_NEED_FPU_LOAD))
++		switch_fpu_return();
++
+ 	/* Apply any externally detected TSC adjustments (due to suspend) */
+ 	if (unlikely(vcpu->arch.tsc_offset_adjustment)) {
+ 		adjust_tsc_offset_host(vcpu, vcpu->arch.tsc_offset_adjustment);
+@@ -7990,9 +7994,7 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+ 	trace_kvm_entry(vcpu->vcpu_id);
+ 	guest_enter_irqoff();
+ 
+-	fpregs_assert_state_consistent();
+-	if (test_thread_flag(TIF_NEED_FPU_LOAD))
+-		switch_fpu_return();
++	WARN_ON_ONCE(test_thread_flag(TIF_NEED_FPU_LOAD));
+ 
+ 	if (unlikely(vcpu->arch.switch_db_regs)) {
+ 		set_debugreg(0, 7);
+-- 
+2.7.4
+
