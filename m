@@ -2,67 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF1AC706F8
-	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 19:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D29D47081D
+	for <lists+stable@lfdr.de>; Mon, 22 Jul 2019 20:07:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730604AbfGVR1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jul 2019 13:27:47 -0400
-Received: from sonic312-24.consmr.mail.ne1.yahoo.com ([66.163.191.205]:43320
-        "EHLO sonic312-24.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729578AbfGVR1q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 13:27:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1563816464; bh=4Vxk5h8RZejECW6gKj5x0qR4nMVVnsd2PEn+qyX3nlQ=; h=Date:From:Reply-To:Subject:From:Subject; b=bd3NGJe6FQ3O1xJixsBpSeYS6GN/3FaohDhX+cjyeA3g3ksyBh8QtiLdj0vRUlVt8nq6vFPZJN7h9095UiXciYTwj7TGZ4sW8u6npW3JxPasH1JrMfFWn2DMiZJSQL4s9qdV9S8aUIToneqkT2d4NTtJqAjZJ3dm0l7g335QxqDNHKdwzQCdgLOw2pZX/ozjwT+RJN1zmu0VHAc3zJ7xicOsKxXcq6bdYIevnZbLZlvDNNo2Pgq+NXI7jTOVZAXFHSl5c0ZHAO4S3NFPeGZpJdWas6eP3wjViRX0W506wonaWZ6N4ZIKc1U9qeWv14LRLGEOuKaHxG2jJfLn0Sr+6Q==
-X-YMail-OSG: uUJcCosVM1mN_zyRbuvG9JCJ7sGYT7250IuirDtOtX90Is8RPtp0D3ALa_hyZUC
- dtiQ2oLEHvfcmA1tKufba1wtAehpqwrmxWo2Q1MMW5feGnw6RUXy3I6A.b.ipXcJcJ7GEat_hqyM
- v.5VlcQ77p.u2wPqoewyK2dwHJ5rHdIPP8T8tBeGTtvAeLg_XxWj0y257GavpOhrLpHYERmVZRWp
- r2UkpDDoVaKRu4NOmFSmnkUQG0NoTuiXVb4G.ezzxIphJOcGIk3N2gRga0Z7FFcN93CgNClteD.O
- q4wcaPbA9IDwcw.ja1B.rhcvmEZ2.sUAOGgvHGPGSdT2RYrGWO2LSSaBw4njf90z1yT.ZKXslmDm
- l_o0n0gnMP7.q.2IaB7FX839x.q4BZzPTIW2NOtD6.la.KFzRvoiclu7J_FTRCQMbhbYIJrPxxqx
- sI1A3_4j_7xarsiazpjlzHHi33C8TmJDxXnn3X6wST.vK5uMQa0mfGgdfjAdm9f5g6NF1MmcxorW
- 5zF6dxIj4X5nqcwDfFyrjbSIUzF9OCu9WbQUdPKFTvpCi4R3lDOji_H2w0wO3CLswH6Td5aLH7qt
- se0NsEGZ1Wv7UW3w_CDcglJJKCyBBtLTeguurCMpiZf4EBgOgDvUVeCTbf2RnVtRZOH3cQEP_qqM
- hGE5iisT.uqLzUYWHTniUOc1oAHGuMMq7IJHDU33tEjPKygtcvfUOJFycGD_cjC0AJaIPHUes5Nx
- d9TH72GF6LN.528_QRXx.LPeVjQyhnhCQOWaXjg9JovuLoDSB7cLTa8AakgdbjTrWkyo42el13xQ
- C8f9BJEvI7Dt3oudKx8_QPf4vrNZzcID8_dNIYBBpX9DBEx7Wj9Z17iLo0uHlhIK.jr4HQ9QYhVV
- 3o3Abz6cI4PlXUuSQL0lyyWEt1s6hxN3BX7x4O88S0JHcl5Ykj_yCnVcy90St6UQvb3ULa9waneT
- AS1HkGlRYwMkfaR6bxyQO9pqIsEKzADk0UNC0f5t6kF.xvRnQiCgQ7Hec3HIXRoGfZvMlm7TwNnd
- sRg0el8c6IStjJ1IQTE9ue.s5Cg8NnYlORJ8JqaCNZirgadSvoBZvUHC3jpXL4.dI1c2Oj0eviVW
- YBYaNkiahnB8bUXkmqwlyHd40OYjG7oNQ5VHnbDfhStD4l3G2JJ7ff5XBKpW5vni8QmAmAx5ifwr
- 9v4z1nsxicyuHuE.CgFg5bXSMqKWAdvH3fUjUSvUKHsHr0a6lPriT4tYYJ2PnX3_iVz0IyRZrwpp
- gXyD2G2i0Q9RiM4qC03Pmt.exjXjUwuVVsS4-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Mon, 22 Jul 2019 17:27:44 +0000
-Date:   Mon, 22 Jul 2019 17:27:43 +0000 (UTC)
-From:   Rita Williams <wir4478@gmail.com>
-Reply-To: ritawi668@yahoo.co.jp
-Message-ID: <106129782.5437665.1563816463976@mail.yahoo.com>
-Subject: Da Sra. Rita Williams
+        id S1727500AbfGVSHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jul 2019 14:07:50 -0400
+Received: from mail-vs1-f68.google.com ([209.85.217.68]:46361 "EHLO
+        mail-vs1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727310AbfGVSHt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 14:07:49 -0400
+Received: by mail-vs1-f68.google.com with SMTP id r3so26818555vsr.13
+        for <stable@vger.kernel.org>; Mon, 22 Jul 2019 11:07:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=cmW+iIJBcAPXYuBJ0X70RuJw3nKWx6Ck24ISTbz4CEs=;
+        b=ecr7HpkJ/GPjpuVFLx7tTl5nq1d1iUDbKwdlnIYeT6V8ma1d+wg9/MJjuQwtyKqzih
+         QeHMj6zOIBFJhbLoTvcDZGPbJSferveTR0mu/KI/setje9er6O5qXDyom3wHCufV7/Pi
+         3UQymcesV8YMc+MJ0dOZcKfviFC5gRKW1JnakN5ef7VDFeCkicby89KgbFRCg0yaM4C/
+         o1j3+ySz3Lkbzfti+4RHITgEG9bqsPDppPOfcTvMhnuz7JyPwElNZSI371i7FV0IYolf
+         mofl8nmvAiy33e4bbe8MvQ3PZsA+U642zpBMIy3r5E++TuInZ8ltgdP0Mgt+Rbzndl5u
+         Ff1w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=cmW+iIJBcAPXYuBJ0X70RuJw3nKWx6Ck24ISTbz4CEs=;
+        b=gzoUiy62qrT5PTMey4DMD5+pwCra3rRVoMaD5oylJSJY/w56OikoeuA6+q24d3rmsP
+         3l8yPFwkErK+/eZYfDNN8IX20hVEvPHtDiKuAxeeWyD1ULLcEQMfsKChGvQj5owJZG6E
+         Wo/WGyOA1d+ShIslO+S2GxBa251X55iWNx2ufBNm9SnPeuYFVSG3mwh1GJS/QIDRKEue
+         +yohZjZyguoFcWGapQ7fx9C/k52CrGOnMDvLQRM8OFA0LJNIEDMdyrHvtokfFlaO2rGJ
+         E5xIE6UE6iKyNLwzjISFhsRDQ9zQj3RarNP10oRH3WeDgqVxTMLAnt9v7GnzumoeSP+3
+         XvKg==
+X-Gm-Message-State: APjAAAXrFptWXnzUbfuN7t0bb6gt4AR4x7+a/Q1aVJQ/s3D0PnnFu4AY
+        JwHz0o2O39ZlRlRxo5cqSgu8uA==
+X-Google-Smtp-Source: APXvYqx5Od80W34I1fDAgrOP6mzw1I8zF4ZN9uUihErCnhuyEo+zpkg3qx27zyPVZSVitQtTLpxDGg==
+X-Received: by 2002:a67:eb93:: with SMTP id e19mr44004699vso.208.1563818868687;
+        Mon, 22 Jul 2019 11:07:48 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-156-34-55-100.dhcp-dynamic.fibreop.ns.bellaliant.net. [156.34.55.100])
+        by smtp.gmail.com with ESMTPSA id u8sm15170119vke.34.2019.07.22.11.07.47
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 22 Jul 2019 11:07:48 -0700 (PDT)
+Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1hpciw-0002TP-Hf; Mon, 22 Jul 2019 15:07:46 -0300
+Date:   Mon, 22 Jul 2019 15:07:46 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Selvin Xavier <selvin.xavier@broadcom.com>
+Cc:     linux-rdma@vger.kernel.org, dledford@redhat.com,
+        linux-nvme@lists.infradead.org, stable@vger.kernel.org,
+        Parav Pandit <parav@mellanox.com>
+Subject: Re: [PATCH for-rc] RDMA/bnxt_re: Honor vlan_id in GID entry
+ comparison
+Message-ID: <20190722180746.GA9441@ziepe.ca>
+References: <20190715091913.15726-1-selvin.xavier@broadcom.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190715091913.15726-1-selvin.xavier@broadcom.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Meu querido em Cristo
+On Mon, Jul 15, 2019 at 05:19:13AM -0400, Selvin Xavier wrote:
+> GID entry consist of GID, vlan, netdev and smac.
+> Extend GID duplicate check companions to consider vlan_id as well
+> to support IPv6 VLAN based link local addresses. Introduce
+> a new structure (bnxt_qplib_gid_info) to hold gid and vlan_id information.
+> 
+> The issue is discussed in the following thread
+> https://www.spinics.net/lists/linux-rdma/msg81594.html
+> 
+> Fixes: 823b23da7113 ("IB/core: Allow vlan link local address based RoCE GIDs")
+> Cc: <stable@vger.kernel.org> # v5.2+
+> Reported-by: Yi Zhang <yi.zhang@redhat.com>
+> Co-developed-by: Parav Pandit <parav@mellanox.com>
+> Signed-off-by: Parav Pandit <parav@mellanox.com>
+> Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
+> Tested-by: Yi Zhang <yi.zhang@redhat.com>
+> Reviewed-By: Leon R...
+> Tested-by: Leon R...
+> ---
+>  drivers/infiniband/hw/bnxt_re/ib_verbs.c  |  7 +++++--
+>  drivers/infiniband/hw/bnxt_re/qplib_res.c | 13 +++++++++----
+>  drivers/infiniband/hw/bnxt_re/qplib_res.h |  2 +-
+>  drivers/infiniband/hw/bnxt_re/qplib_sp.c  | 14 +++++++++-----
+>  drivers/infiniband/hw/bnxt_re/qplib_sp.h  |  7 ++++++-
+>  5 files changed, 30 insertions(+), 13 deletions(-)
 
+Applied to for-rc, thanks
 
-Eu sou a Sra. Rita Williams, me casei com o Sr. David Williams, por 19 anos=
- sem um filho e meu marido morreu em 2007. Estou entrando em contato para q=
-ue voc=C3=AA saiba do meu desejo de doar a quantia de US $ 6.500.000 que eu=
- herdei da minha conta. marido atrasado para caridade, atualmente o fundo a=
-inda est=C3=A1 no banco. Recentemente, meu m=C3=A9dico me disse que eu tenh=
-o uma doen=C3=A7a grave que =C3=A9 um problema de c=C3=A2ncer e n=C3=A3o vo=
-u durar pelos pr=C3=B3ximos 2 meses.
-Eu quero uma pessoa que use este fundo para orfanatos, escolas, igrejas, vi=
-=C3=BAvas, propagando a palavra de Deus em seu pa=C3=ADs.
-Responder-me para mais informa=C3=A7=C3=B5es, e tamb=C3=A9m Envie-me as seg=
-uintes informa=C3=A7=C3=B5es, conforme abaixo.
-Seu nome completo ..........
-Endere=C3=A7o ...........
-Foto ...............
-Permanecer aben=C3=A7oado
-Sua irm=C3=A3 em cristo
+Please also fix that sketchy use of the gid_index
 
-Sra. Rita William
+Jason
