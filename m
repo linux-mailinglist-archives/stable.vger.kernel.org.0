@@ -2,111 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A65F572166
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 23:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11D417216D
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 23:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728594AbfGWVTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 17:19:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46742 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726950AbfGWVTk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jul 2019 17:19:40 -0400
-Received: from akpm3.svl.corp.google.com (unknown [104.133.8.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5F4E2253D;
-        Tue, 23 Jul 2019 21:19:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563916779;
-        bh=7i55eQm5ppbZ8F/bqH5nwGAs8UFVW2Fzfhb5gsAfGm4=;
-        h=Date:From:To:Subject:From;
-        b=krbiT8iPKjRsAGoSBOZOJpgRaTk2EH4pGOeXwPzy+lhlFNQaddJYCq5YGxuS/M94f
-         ZrKmu/TVWU4H8l1q8YyrToG7mlX40a+HsPihqKajeDkvcSOHsERK8ySShcRxdVjsW6
-         CIwzEFYJNdmbclOakOMOpDzPZTIki+8IS+qCVe4o=
-Date:   Tue, 23 Jul 2019 14:19:39 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, tj@kernel.org, stable@vger.kernel.org,
-        hannes@cmpxchg.org, guro@fb.com, chris@chrisdown.name
-Subject:  + cgroup-kselftest-relax-fs_spec-checks.patch added to -mm
- tree
-Message-ID: <20190723211939.U3PHi%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S2392014AbfGWVY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 17:24:29 -0400
+Received: from mail-pg1-f202.google.com ([209.85.215.202]:38196 "EHLO
+        mail-pg1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731951AbfGWVY3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 17:24:29 -0400
+Received: by mail-pg1-f202.google.com with SMTP id w5so26787693pgs.5
+        for <stable@vger.kernel.org>; Tue, 23 Jul 2019 14:24:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=Hpr0yuvpw6CUvnD+l1IHEq2uOMPPyrhe5BbCI8J3Zt4=;
+        b=VT0Ofx24XZsOi/DWgdLf2x1p5ZVFNWYNnm62NavnjPOiJD05DZXcapm7QaSZE1TDlA
+         trA+JJpYbnyIZO0I4IHApXrgNEmDUOiHtIROcvVBasPHwY9XhEoVZddSoCAQrJANDWAI
+         /Zh1uh5Xkf6oL/rKjoj8nX9ZY/M8JYQnwsLN6fnzrhyxsXO1O0KpK2qJKsF4MTey0Mlf
+         7/vQXADbjEYoT78sc9OMqSHlbcbSbqRlzVtVlAKpjKoBFd7uObCMP2o9GP6zKrFXC+Mb
+         vY1TDxrcTgp8liTP5ylCHq5DlNxNCSBHrSRtQmTf2i3awU26ece+iICLO5iG42bTqwc2
+         3Bkg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=Hpr0yuvpw6CUvnD+l1IHEq2uOMPPyrhe5BbCI8J3Zt4=;
+        b=LBdqPNPhcH1UshE1tN6wmvwDJCjWcSS0IJlQx+DTGgWNk1wN2uRafKNVJtEDehShmp
+         YQGZ9hMqAeRCw2wejQ9rZiAOVgr+fjgyh0EVWFMpBjume4mreUOuU33Slr/6gcsZh4SP
+         qUNrUu/JoL7+21N/obLb8Xr0WPTu5gl/ywwH4LuTdexT0ViVe8xi1KiG5uRldg948fPT
+         71jlcZUs55v6xyIkhnI82oQVXnjGp8/zqwfNkd7Nvw9H5Zs70SoTqZ7ye7j9qlRI0DZj
+         85u6Y1tLlzU7RgpkrV2QuEUczT1TLSu66D6xLl3VScN54g7Bf8meOEDWUTTBV0UaEkOr
+         o6tA==
+X-Gm-Message-State: APjAAAV2ZIv1hZ5e0We3tfNgJDTjPn1hC9BehjivXyRlBMFCFssTpjbE
+        uapjfhZJ9RTqlYbwM8SwsLXDgKFHzrI5oKyPQOc=
+X-Google-Smtp-Source: APXvYqyieEw9mowf+3MX9BvaqVP7ku8d1VUCoxL8b8DXNybC34xxPpP+mjS8/n9tY/oRuOQEJ+9nf4mpgSdvOXL3C9E=
+X-Received: by 2002:a63:2026:: with SMTP id g38mr72977845pgg.172.1563917068137;
+ Tue, 23 Jul 2019 14:24:28 -0700 (PDT)
+Date:   Tue, 23 Jul 2019 14:24:10 -0700
+Message-Id: <20190723212418.36379-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.22.0.709.g102302147b-goog
+Subject: [PATCH v3 1/2] x86/purgatory: do not use __builtin_memcpy and __builtin_memset
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     tglx@linutronix.de, mingo@redhat.com, bp@alien8.de
+Cc:     peterz@infradead.org, clang-built-linux@googlegroups.com,
+        linux-kernel@vger.kernel.org, yamada.masahiro@socionext.com,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org,
+        Vaibhav Rustagi <vaibhavrustagi@google.com>,
+        Manoj Gupta <manojgupta@google.com>,
+        Alistair Delva <adelva@google.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        Enrico Weigelt <info@metux.net>,
+        Allison Randal <allison@lohutok.net>,
+        Uros Bizjak <ubizjak@gmail.com>,
+        Chao Fan <fanc.fnst@cn.fujitsu.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alexios Zavras <alexios.zavras@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Implementing memcpy and memset in terms of __builtin_memcpy and
+__builtin_memset is problematic.
 
-The patch titled
-     Subject: cgroup: kselftest: relax fs_spec checks
-has been added to the -mm tree.  Its filename is
-     cgroup-kselftest-relax-fs_spec-checks.patch
+GCC at -O2 will replace calls to the builtins with calls to memcpy and
+memset (but will generate an inline implementation at -Os).  Clang will
+replace the builtins with these calls regardless of optimization level.
+$ llvm-objdump -dr arch/x86/purgatory/string.o | tail
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/cgroup-kselftest-relax-fs_spec-checks.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/cgroup-kselftest-relax-fs_spec-checks.patch
+0000000000000339 memcpy:
+     339: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
+                000000000000033b:  R_X86_64_64  memcpy
+     343: ff e0                         jmpq    *%rax
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+0000000000000345 memset:
+     345: 48 b8 00 00 00 00 00 00 00 00 movabsq $0, %rax
+                0000000000000347:  R_X86_64_64  memset
+     34f: ff e0
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+Such code results in infinite recursion at runtime. This is observed
+when doing kexec.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Instead, reuse an implementation from arch/x86/boot/compressed/string.c
+if we define warn as a symbol. Also, Clang may lower memcmp's that
+compare against 0 to bcmp's, so add a small definition, too. See also:
+commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
 
-------------------------------------------------------
-From: Chris Down <chris@chrisdown.name>
-Subject: cgroup: kselftest: relax fs_spec checks
-
-On my laptop most memcg kselftests were being skipped because it claimed
-cgroup v2 hierarchy wasn't mounted, but this isn't correct.  Instead, it
-seems current systemd HEAD mounts it with the name "cgroup2" instead of
-"cgroup":
-
-    % grep cgroup /proc/mounts
-    cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate 0 0
-
-I can't think of a reason to need to check fs_spec explicitly
-since it's arbitrary, so we can just rely on fs_vfstype.
-
-After these changes, `make TARGETS=cgroup kselftest` actually runs the
-cgroup v2 tests in more cases.
-
-Link: http://lkml.kernel.org/r/20190723210737.GA487@chrisdown.name
-Signed-off-by: Chris Down <chris@chrisdown.name>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 8fc5b4d4121c ("purgatory: core purgatory functionality")
+Link: https://bugs.chromium.org/p/chromium/issues/detail?id=984056
+Reported-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Debugged-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Debugged-by: Manoj Gupta <manojgupta@google.com>
+Suggested-by: Alistair Delva <adelva@google.com>
+Signed-off-by: Vaibhav Rustagi <vaibhavrustagi@google.com>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 ---
+Changes v2 -> v3:
+* Add bcmp implementation.
+* Drop tested-by tag (Vaibhav will help retest).
+* Cc stable
+Changes v1 -> v2:
+* Add Fixes tag.
+* Move this patch to first in the series.
 
- tools/testing/selftests/cgroup/cgroup_util.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/boot/string.c         |  7 +++++++
+ arch/x86/purgatory/Makefile    |  3 +++
+ arch/x86/purgatory/purgatory.c |  6 ++++++
+ arch/x86/purgatory/string.c    | 23 -----------------------
+ 4 files changed, 16 insertions(+), 23 deletions(-)
+ delete mode 100644 arch/x86/purgatory/string.c
 
---- a/tools/testing/selftests/cgroup/cgroup_util.c~cgroup-kselftest-relax-fs_spec-checks
-+++ a/tools/testing/selftests/cgroup/cgroup_util.c
-@@ -191,8 +191,7 @@ int cg_find_unified_root(char *root, siz
- 		strtok(NULL, delim);
- 		strtok(NULL, delim);
+diff --git a/arch/x86/boot/string.c b/arch/x86/boot/string.c
+index 401e30ca0a75..4c364cf63432 100644
+--- a/arch/x86/boot/string.c
++++ b/arch/x86/boot/string.c
+@@ -37,6 +37,13 @@ int memcmp(const void *s1, const void *s2, size_t len)
+ 	return diff;
+ }
  
--		if (strcmp(fs, "cgroup") == 0 &&
--		    strcmp(type, "cgroup2") == 0) {
-+		if (strcmp(type, "cgroup2") == 0) {
- 			strncpy(root, mount, len);
- 			return 0;
- 		}
-_
-
-Patches currently in -mm which might be from chris@chrisdown.name are
-
-cgroup-kselftest-relax-fs_spec-checks.patch
-mm-throttle-allocators-when-failing-reclaim-over-memoryhigh.patch
-mm-proportional-memorylowmin-reclaim.patch
-mm-make-memoryemin-the-baseline-for-utilisation-determination.patch
-mm-make-memoryemin-the-baseline-for-utilisation-determination-fix.patch
++/*
++ * Clang may lower `memcmp == 0` to `bcmp == 0`.
++ */
++int bcmp(const void *s1, const void *s2, size_t len) {
++	return memcmp(s1, s2, len);
++}
++
+ int strcmp(const char *str1, const char *str2)
+ {
+ 	const unsigned char *s1 = (const unsigned char *)str1;
+diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+index 3cf302b26332..91ef244026d2 100644
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -6,6 +6,9 @@ purgatory-y := purgatory.o stack.o setup-x86_$(BITS).o sha256.o entry64.o string
+ targets += $(purgatory-y)
+ PURGATORY_OBJS = $(addprefix $(obj)/,$(purgatory-y))
+ 
++$(obj)/string.o: $(srctree)/arch/x86/boot/compressed/string.c FORCE
++	$(call if_changed_rule,cc_o_c)
++
+ $(obj)/sha256.o: $(srctree)/lib/sha256.c FORCE
+ 	$(call if_changed_rule,cc_o_c)
+ 
+diff --git a/arch/x86/purgatory/purgatory.c b/arch/x86/purgatory/purgatory.c
+index 6d8d5a34c377..b607bda786f6 100644
+--- a/arch/x86/purgatory/purgatory.c
++++ b/arch/x86/purgatory/purgatory.c
+@@ -68,3 +68,9 @@ void purgatory(void)
+ 	}
+ 	copy_backup_region();
+ }
++
++/*
++ * Defined in order to reuse memcpy() and memset() from
++ * arch/x86/boot/compressed/string.c
++ */
++void warn(const char *msg) {}
+diff --git a/arch/x86/purgatory/string.c b/arch/x86/purgatory/string.c
+deleted file mode 100644
+index 01ad43873ad9..000000000000
+--- a/arch/x86/purgatory/string.c
++++ /dev/null
+@@ -1,23 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- * Simple string functions.
+- *
+- * Copyright (C) 2014 Red Hat Inc.
+- *
+- * Author:
+- *       Vivek Goyal <vgoyal@redhat.com>
+- */
+-
+-#include <linux/types.h>
+-
+-#include "../boot/string.c"
+-
+-void *memcpy(void *dst, const void *src, size_t len)
+-{
+-	return __builtin_memcpy(dst, src, len);
+-}
+-
+-void *memset(void *dst, int c, size_t len)
+-{
+-	return __builtin_memset(dst, c, len);
+-}
+-- 
+2.22.0.709.g102302147b-goog
 
