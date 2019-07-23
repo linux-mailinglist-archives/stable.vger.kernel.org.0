@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1D3F71630
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 12:36:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1296371631
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 12:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388980AbfGWKgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 06:36:10 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:52281 "EHLO
+        id S2389015AbfGWKgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 06:36:12 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:41265 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732540AbfGWKgJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 06:36:09 -0400
+        by vger.kernel.org with ESMTP id S1732540AbfGWKgL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 06:36:11 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 057295CD;
-        Tue, 23 Jul 2019 06:36:08 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 06:36:09 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 89DEB46F;
+        Tue, 23 Jul 2019 06:36:10 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 06:36:10 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=OMTkhU
-        JeDN3Kxy++wv9yurd2+lEsLn9gIVX83M+6FFs=; b=LNfffqYFCxgs1QwfOXyqGL
-        TwNVgLNo1UhOVmTt1JF9kUxLmVDlVwObbLU0sSqJgNP8c82b5HhFyR1DgQKN0mjm
-        5DrObOioHjFbBVHAKPz2R68CmPliUHHvbR12PGaijkywgDU7UfJi4ADbriLdSpru
-        11yZnryQUhPiaK5PcGHzjU8qXXQsAhLTSBWLZ902Bz7TdV7djtJMLLR1JWhygxC1
-        5rOhlEbH42CIF6LZP00Zinatsf79sOkbvX2S5C8rXvjq8qE461moc8GLsGBs72Ak
-        /rpzmXn9RMNcirqyknG+6BfYG0hoWSlTnsO5a+It+TYI34+eZvkEDvKPH5YRBJjw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=tad+9y
+        91h3CA2rIxECBowYRkmenW71EcFBT7Zgx5DKc=; b=CXEU3/7alHEwyGNMBJgZC6
+        +R6/mKGzAOr8TVOH/rejvVvWjU37qIFdzGP2ukRCfeSueFgNVaSdhTxWwAST+c9Q
+        kvnYzGXHmVWZPCeuOUBK/+qFn3ptZ2Zc+1fK37d4Q6JYkV9s5xP8p+ej/ILjDzow
+        2IpzWHUf8wHtM+pf+roYNgk1ZF8s8GazrpslExMBAj6l3jO3e7OaLw1r8NhEGDGk
+        KeG6nSamaGKRUwuC+Atz78g3rLirsXzYwpAhjK/x5p+OJHTgIbCmO4QfhMfbfm6R
+        fborjRWjDboCKWfPwHxC77dpbvVDI4/3HRmhBdx6s92UpRe0f9tno+cz4BkGJF2A
         ==
-X-ME-Sender: <xms:GOM2XU5GQKWBmEc3ruly5_Ogi5rQwRqJvm8mpaC6GBkkzhv66j1m4w>
+X-ME-Sender: <xms:GeM2Xbz356WZL5Y-NWNMuWxrJUTAjiYDLpVU_HxlvY25XZreRvg0vA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdefudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeef
-X-ME-Proxy: <xmx:GOM2XZvXJNehWQ3LWLI1p1Fmxe8SmVDMVb_n9Vm3pD0ikeLJdbmh0g>
-    <xmx:GOM2XchuljN2sFyXq_WRewBpIhXDKdZAQITs_7lRl5z_cKRPr8vdjg>
-    <xmx:GOM2Xco2zyIFzaCFCV50D26811b6fo6IbWJpW8UWo2YEM_JkhT4Q-A>
-    <xmx:GOM2XZ8Hpa4oekryTXxSQTU_HTjakJeEHzoOgepYNwZFhXWkKTqz6w>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeei
+X-ME-Proxy: <xmx:GuM2XUe2yrLTUyz50q92J7cZbWZf5mEZNsKDtc32Li7xIguLqvawmw>
+    <xmx:GuM2XVxQQsCEO3p8mtqOkc_YsqFl4uHzSC-EvPIMzqimv-d4b20DRw>
+    <xmx:GuM2Xe5iiskvuTkrFOlDght1NsoiSQusjBGplTlnxkGmq-4NYTUVVQ>
+    <xmx:GuM2XX3iuIlsn-7IquQ0ue1-xfTrnDDNOwC6A-OUENQpUyF6SV9ZoQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 19A9780069;
-        Tue, 23 Jul 2019 06:36:07 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: VMX: check CPUID before allowing read/write of IA32_XSS" failed to apply to 4.4-stable tree
-To:     wanpengli@tencent.com, pbonzini@redhat.com, rkrcmar@redhat.com,
-        tao3.xu@intel.com, xiaoyao.li@linux.intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 90D12380074;
+        Tue, 23 Jul 2019 06:36:09 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: nVMX: do not use dangling shadow VMCS after guest reset" failed to apply to 5.2-stable tree
+To:     pbonzini@redhat.com, jan.kiszka@siemens.com, liran.alon@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 12:33:50 +0200
-Message-ID: <156387803021233@kroah.com>
+Date:   Tue, 23 Jul 2019 12:35:31 +0200
+Message-ID: <1563878131859@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,52 +67,62 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4d763b168e9c5c366b05812c7bba7662e5ea3669 Mon Sep 17 00:00:00 2001
-From: Wanpeng Li <wanpengli@tencent.com>
-Date: Thu, 20 Jun 2019 17:00:02 +0800
-Subject: [PATCH] KVM: VMX: check CPUID before allowing read/write of IA32_XSS
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 88dddc11a8d6b09201b4db9d255b3394d9bc9e57 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 19 Jul 2019 18:41:10 +0200
+Subject: [PATCH] KVM: nVMX: do not use dangling shadow VMCS after guest reset
 
-Raise #GP when guest read/write IA32_XSS, but the CPUID bits
-say that it shouldn't exist.
+If a KVM guest is reset while running a nested guest, free_nested will
+disable the shadow VMCS execution control in the vmcs01.  However,
+on the next KVM_RUN vmx_vcpu_run would nevertheless try to sync
+the VMCS12 to the shadow VMCS which has since been freed.
 
-Fixes: 203000993de5 (kvm: vmx: add MSR logic for XSAVES)
-Reported-by: Xiaoyao Li <xiaoyao.li@linux.intel.com>
-Reported-by: Tao Xu <tao3.xu@intel.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
+This causes a vmptrld of a NULL pointer on my machime, but Jan reports
+the host to hang altogether.  Let's see how much this trivial patch fixes.
+
+Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: Liran Alon <liran.alon@oracle.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index b939a688ae83..a35459ce7e29 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -1732,7 +1732,10 @@ static int vmx_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		return vmx_get_vmx_msr(&vmx->nested.msrs, msr_info->index,
- 				       &msr_info->data);
- 	case MSR_IA32_XSS:
--		if (!vmx_xsaves_supported())
-+		if (!vmx_xsaves_supported() ||
-+		    (!msr_info->host_initiated &&
-+		     !(guest_cpuid_has(vcpu, X86_FEATURE_XSAVE) &&
-+		       guest_cpuid_has(vcpu, X86_FEATURE_XSAVES))))
- 			return 1;
- 		msr_info->data = vcpu->arch.ia32_xss;
- 		break;
-@@ -1962,7 +1965,10 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 			return 1;
- 		return vmx_set_vmx_msr(vcpu, msr_index, data);
- 	case MSR_IA32_XSS:
--		if (!vmx_xsaves_supported())
-+		if (!vmx_xsaves_supported() ||
-+		    (!msr_info->host_initiated &&
-+		     !(guest_cpuid_has(vcpu, X86_FEATURE_XSAVE) &&
-+		       guest_cpuid_has(vcpu, X86_FEATURE_XSAVES))))
- 			return 1;
- 		/*
- 		 * The only supported bit as of Skylake is bit 8, but
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 4f23e34f628b..0f1378789bd0 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -194,6 +194,7 @@ static void vmx_disable_shadow_vmcs(struct vcpu_vmx *vmx)
+ {
+ 	secondary_exec_controls_clearbit(vmx, SECONDARY_EXEC_SHADOW_VMCS);
+ 	vmcs_write64(VMCS_LINK_POINTER, -1ull);
++	vmx->nested.need_vmcs12_to_shadow_sync = false;
+ }
+ 
+ static inline void nested_release_evmcs(struct kvm_vcpu *vcpu)
+@@ -1341,6 +1342,9 @@ static void copy_shadow_to_vmcs12(struct vcpu_vmx *vmx)
+ 	unsigned long val;
+ 	int i;
+ 
++	if (WARN_ON(!shadow_vmcs))
++		return;
++
+ 	preempt_disable();
+ 
+ 	vmcs_load(shadow_vmcs);
+@@ -1373,6 +1377,9 @@ static void copy_vmcs12_to_shadow(struct vcpu_vmx *vmx)
+ 	unsigned long val;
+ 	int i, q;
+ 
++	if (WARN_ON(!shadow_vmcs))
++		return;
++
+ 	vmcs_load(shadow_vmcs);
+ 
+ 	for (q = 0; q < ARRAY_SIZE(fields); q++) {
+@@ -4436,7 +4443,6 @@ static inline void nested_release_vmcs12(struct kvm_vcpu *vcpu)
+ 		/* copy to memory all shadowed fields in case
+ 		   they were modified */
+ 		copy_shadow_to_vmcs12(vmx);
+-		vmx->nested.need_vmcs12_to_shadow_sync = false;
+ 		vmx_disable_shadow_vmcs(vmx);
+ 	}
+ 	vmx->nested.posted_intr_nv = -1;
 
