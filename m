@@ -2,100 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D267715D2
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 12:15:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8E571605
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 12:27:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387866AbfGWKPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 06:15:18 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:34215 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730145AbfGWKPS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 06:15:18 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 12EF0408;
-        Tue, 23 Jul 2019 06:15:17 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 06:15:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=xtPEs+
-        1k6UFqyPAoVlw7TNP13tc8pRck1P8c69dYsAI=; b=FCWOfyt/jRQvrXljL038y1
-        6AGRg9sTcd39Koe7cTTcfXTeQvGVPZFs6j91F/Sgm1QL6y1T62hml5StfZdBkNhM
-        IpJC+AvIT1mb1J72RDRwlwIqaZ8Yx2qJ6sRg96O7mpiIgHv8sIfD10AuXLE1Y8KP
-        GLNRtah4tVsL6hNEkGmpJsGUab5qJhwOGBlWuQ+m438FSi3jhdV0HOy0uZNqkMaA
-        ovSWOw5JxFTriwC6h+4zcDZb8D92hYOLzLTECK9Wv+YmCIIzvuvo2qP5rtfQO5eG
-        kWPboC26f9HgNTHhqoteEw7/0j1XY5IwvPh3MogTucFWwwwmmae9RsOM6MgR6PxA
-        ==
-X-ME-Sender: <xms:NN42XYfr1Rs8aS8wGp6qfiZtyv6YCN6pFJcrh49m-AXO33Cls42mNA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgddvhecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:NN42XWlxOA-_Ls7SsBy9YEryJgwmScT77YwCq589a1A2LSEw5wQ1fw>
-    <xmx:NN42XcWMogtIzaWUBkYb3Es6tJoQ6wYFU1OmGJyjSMZNBwWuH_YiJg>
-    <xmx:NN42XdDjQANKY7BTo6aw4rw5IlivnsSPqWujkarwTcNjpBE188kusQ>
-    <xmx:NN42XbewOvJYvDO-cmmV3swr1IpL-vQ5UGGPlmw_S8SlEg_uES-Eyg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 32E75380074;
-        Tue, 23 Jul 2019 06:15:16 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Fixed Headphone Mic can't record on Dell" failed to apply to 4.4-stable tree
-To:     kailang@realtek.com, stable@vger.kernel.org, tiwai@suse.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 12:15:13 +0200
-Message-ID: <156387691313429@kroah.com>
+        id S2387489AbfGWK1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 06:27:45 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:39327 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731327AbfGWK1p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 06:27:45 -0400
+Received: by mail-ot1-f68.google.com with SMTP id r21so37454709otq.6;
+        Tue, 23 Jul 2019 03:27:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ajM+r2IdQ5rZtdFxjvMvXdnx3KB/ur/wGMtOzOPKc3A=;
+        b=oTwcSa/Sq+jmf1Q1GUK+n17NQeQo+4tD1dCkHHljZuxVErqVR/a0hP6RySZAFhzOP2
+         3RO6JT+qEGgAudlfpf9s08LEDrj7vvanJ4ej7GYktw9zmhYNIN/oykCIxuDLwdbPZyCk
+         fyIcZ5p3nHe8yuhl5gdZ43cG6HqClExly5py2lo6jSBJ8fLxsMjFGObjOlIG20pq9ATx
+         YChIRPMAH5lhF+jBxPekQWOreXmkH7XLrJY0q9KNInirUUGgfCC+HVAPibXFPdy9x8vJ
+         e1TmasSv3uYYywPeVzpgXFbxMbkyPR1UUKcuxKBtfOdF7tGbej+9GYM30tzLzUldKnLw
+         yqKw==
+X-Gm-Message-State: APjAAAVnVg/5DjcIqNFa0mu3qzpJbCJRWLYMPWW0NG8H9TLR9PK6hjsA
+        Uk1bdqQZ7Obhgq0VpmtUbG3HYvpr7/thSf7Hq+U=
+X-Google-Smtp-Source: APXvYqyRVvENaHdkxd3zgc6Gq0sdtakc+B0KKzT2csgrP84kMpJoBRiwQsWbqWCRDKE+CZYjkVIkPmOMjti7CiZ83SE=
+X-Received: by 2002:a9d:6b96:: with SMTP id b22mr56703354otq.262.1563877663855;
+ Tue, 23 Jul 2019 03:27:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <1563431200-3042-1-git-send-email-dsmythies@telus.net>
+ <8091ef83f264feb2feaa827fbeefe08348bcd05d.1563778071.git.viresh.kumar@linaro.org>
+ <001201d54125$a6a82350$f3f869f0$@net> <20190723091551.nchopfpqlmdmzvge@vireshk-i7>
+In-Reply-To: <20190723091551.nchopfpqlmdmzvge@vireshk-i7>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 23 Jul 2019 12:27:32 +0200
+Message-ID: <CAJZ5v0ji+ksapJ4kc2m5UM_O+AShAvJWmYhTQHiXiHnpTq+xRg@mail.gmail.com>
+Subject: Re: [PATCH] cpufreq: schedutil: Don't skip freq update when limits change
+To:     Viresh Kumar <viresh.kumar@linaro.org>
+Cc:     Doug Smythies <dsmythies@telus.net>,
+        Rafael Wysocki <rjw@rjwysocki.net>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "v4 . 18+" <stable@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Jul 23, 2019 at 11:15 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
+>
+> On 23-07-19, 00:10, Doug Smythies wrote:
+> > On 2019.07.21 23:52 Viresh Kumar wrote:
+> >
+> > > To avoid reducing the frequency of a CPU prematurely, we skip reducing
+> > > the frequency if the CPU had been busy recently.
+> > >
+> > > This should not be done when the limits of the policy are changed, for
+> > > example due to thermal throttling. We should always get the frequency
+> > > within limits as soon as possible.
+> > >
+> > > Fixes: ecd288429126 ("cpufreq: schedutil: Don't set next_freq to UINT_MAX")
+> > > Cc: v4.18+ <stable@vger.kernel.org> # v4.18+
+> > > Reported-by: Doug Smythies <doug.smythies@gmail.com>
+> > > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> > > ---
+> > > @Doug: Please try this patch, it must fix the issue you reported.
+> >
+> > It fixes the driver = acpi-cpufreq ; governor = schedutil test case
+> > It does not fix the driver = intel_cpufreq ; governor = schedutil test case
+> >
+> > I have checked my results twice, but will check again in the day or two.
+>
+> The patch you tried to revert wasn't doing any driver specific stuff
+> but only schedutil. If that revert fixes your issue with both the
+> drivers, then this patch should do it as well.
+>
+> I am clueless now on what can go wrong with intel_cpufreq driver with
+> schedutil now.
+>
+> Though there is one difference between intel_cpufreq and acpi_cpufreq,
+> intel_cpufreq has fast_switch_possible=true and so it uses slightly
+> different path in schedutil. I tried to look from that perspective as
+> well but couldn't find anything wrong.
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+acpi-cpufreq should use fast switching on the Doug's system too.
 
-thanks,
+> If you still find intel_cpufreq to be broken, even with this patch,
+> please set fast_switch_possible=false instead of true in
+> __intel_pstate_cpu_init() and try tests again. That shall make it very
+> much similar to acpi-cpufreq driver.
 
-greg k-h
+I wonder if this helps.  Even so, we want fast switching to be used by
+intel_cpufreq.
 
------------------- original commit in Linus's tree ------------------
+Anyway, it looks like the change reverted by the Doug's patch
+introduced a race condition that had not been present before.  Namely,
+need_freq_update is cleared in get_next_freq() when it is set _or_
+when the new freq is different from the cached one, so in the latter
+case if it happens to be set by sugov_limits() after evaluating
+sugov_should_update_freq() (which returned 'true' for timing reasons),
+that update will be lost now. [Previously the update would not be
+lost, because the clearing of need_freq_update depended only on its
+current value.] Where it matters is that in the "need_freq_update set"
+case, the "premature frequency reduction avoidance" should not be
+applied (as you noticed and hence the $subject patch).
 
-From fbc571290d9f7bfe089c50f4ac4028dd98ebfe98 Mon Sep 17 00:00:00 2001
-From: Kailang Yang <kailang@realtek.com>
-Date: Mon, 15 Jul 2019 10:41:50 +0800
-Subject: [PATCH] ALSA: hda/realtek - Fixed Headphone Mic can't record on Dell
- platform
+However, even with the $subject patch, need_freq_update may still be
+set by sugov_limits() after the check added by it and then cleared by
+get_next_freq(), so it doesn't really eliminate the problem.
 
-It assigned to wrong model. So, The headphone Mic can't work.
-
-Fixes: 3f640970a414 ("ALSA: hda - Fix headset mic detection problem for several Dell laptops")
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index f24a757f8239..1c84c12b39b3 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7657,9 +7657,12 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
- 		{0x12, 0x90a60130},
- 		{0x17, 0x90170110},
- 		{0x21, 0x03211020}),
--	SND_HDA_PIN_QUIRK(0x10ec0295, 0x1028, "Dell", ALC269_FIXUP_DELL1_MIC_NO_PRESENCE,
-+	SND_HDA_PIN_QUIRK(0x10ec0295, 0x1028, "Dell", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
- 		{0x14, 0x90170110},
- 		{0x21, 0x04211020}),
-+	SND_HDA_PIN_QUIRK(0x10ec0295, 0x1028, "Dell", ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
-+		{0x14, 0x90170110},
-+		{0x21, 0x04211030}),
- 	SND_HDA_PIN_QUIRK(0x10ec0295, 0x1028, "Dell", ALC269_FIXUP_DELL1_MIC_NO_PRESENCE,
- 		ALC295_STANDARD_PINS,
- 		{0x17, 0x21014020},
-
+IMO eliminating would require invalidating next_freq this way or
+another when need_freq_update is set in sugov_should_update_freq(),
+which was done before commit ecd2884291261e3fddbc7651ee11a20d596bb514.
