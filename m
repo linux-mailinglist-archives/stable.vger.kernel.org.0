@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D832571795
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 13:58:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EB027179D
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 13:59:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731159AbfGWL6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 07:58:13 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:44731 "EHLO
+        id S1732020AbfGWL72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 07:59:28 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:45467 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728418AbfGWL6N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 07:58:13 -0400
+        by vger.kernel.org with ESMTP id S1728418AbfGWL72 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 07:59:28 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id AF26D212BF;
-        Tue, 23 Jul 2019 07:58:12 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 07:58:12 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id A933621EB2;
+        Tue, 23 Jul 2019 07:59:27 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 07:59:27 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=PVVtx3
-        3QUzOF2xOrcLFbC+rFQ1nR3tC0W+kZ8b7oi1E=; b=aDb4bbSxJ42nyWlvnH+bT3
-        6fwp5LMCsqnPXjLUvjU4HbaOu83zB9udAtnk6bFbovGFxJJEEbkDwK7z5LHTWJ2G
-        FdJFocb6ki89KowDt6QFje7mzQB/M42MCo5KLI7Z0UVZNcdZfnOsR+qYpGov48KN
-        7azzZilS51yJgZ9PNcyUgMErtec77Eb6rdFP+k0Y0J9aV8lBjaMuyqzGPGA31Rov
-        eNpkdBlr1YFI3Gs/gyQZIvbb4sEQ7kXS/ofUr2x0oCrh1uOmoRjU1W5YgQaj/NHb
-        QPcPsigU4w0D1E920SCVr/sk3r5bIKhcuyScEyWduTQtQdV4AqvtOipT7SXN7OJg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=f6MIAe
+        mCF9uhyjlQPeHAmdeN9WYQK3JXzuSawEGttYk=; b=UVWc6L2DvPabaEHtxcwumh
+        BphpDuMqfUoHdbr4o4PVFE2swafEq19FXQn+ymngmJyv7j3dpl/vZBJ2iihBolr1
+        lYVy5kQKt6M88pMgm0b3L1IrS3X8AKwHzMIKqlbXRw/rDpJ9+Mnah00m6jH+jwfn
+        254DbOzm3A0ZUfJQHEU2AqTMsos/aodroUpHHzzL/oNSy4+87sxXhRvqADRoDdPt
+        e3qU1vF6b7WC3kwVo3qdOucKNi7IP7HVZbFAAymADPiYBnb4FuO5FE3fP52ACjEh
+        QOc+3u8vR4+04phN19elLGNufKR9SjI4YZoICxeNRSI1ukrq9jELLuRdjKwigiOA
         ==
-X-ME-Sender: <xms:VPY2XYg5Nj_iRy4gO8MoVpRqxic0zBI4FyYmknasc9XqaqwK4XpBUQ>
+X-ME-Sender: <xms:n_Y2XfGvEgDwwx9tO8V4Y2hzEmJUP29rydAuChF00vhjwSmYyQbO3Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdegjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeef
-X-ME-Proxy: <xmx:VPY2XY9lHZ-zDNkfAB-33vLmDFTQ9x63A8jCiiL6W3NIL-BiVQfB4g>
-    <xmx:VPY2XXTBPOCD_zh86icj9wTGt_MM7PkmhXM_KlxLYDAea0nqa9CzXg>
-    <xmx:VPY2XfvzfxMgvfdynwjeeeniifhzsmT2lTQGgAEC72M4u50DhgnWqA>
-    <xmx:VPY2XXdNt1aCoNWELqqCI8KAGVPn71aW_-YjPi4jVCe9xkGxt6bilg>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeg
+X-ME-Proxy: <xmx:n_Y2XSqz8dbp2_a_5LSsku2GjFtArPO46j2dqEde1Dx9z6InR-kPcg>
+    <xmx:n_Y2Xd1b0VjyZBnZOOuWnkCJZkjhSKUNb28S5mMoITsU3BUhy4U9VA>
+    <xmx:n_Y2XbsjIDfmC9EPIB2d8qbKCsIBfj2Y7f617edwjibc2hxQO-HLUg>
+    <xmx:n_Y2XZNW0CoLbFUcUj25YjaIoM85S2bdb-7MRx0bVTu56fgy3un-jg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 238DA8005B;
-        Tue, 23 Jul 2019 07:58:12 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] RDMA/odp: Fix missed unlock in non-blocking invalidate_start" failed to apply to 5.1-stable tree
-To:     jgg@mellanox.com, dledford@redhat.com, leonro@mellanox.com,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 09297380084;
+        Tue, 23 Jul 2019 07:59:26 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] PCI: hv: Fix a use-after-free bug in hv_eject_device_work()" failed to apply to 4.9-stable tree
+To:     decui@microsoft.com, lorenzo.pieralisi@arm.com,
+        mikelley@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 13:58:02 +0200
-Message-ID: <1563883082195169@kroah.com>
+Date:   Tue, 23 Jul 2019 13:59:25 +0200
+Message-ID: <1563883165157254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.1-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,50 +68,79 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7608bf40cf2480057ec0da31456cc428791c32ef Mon Sep 17 00:00:00 2001
-From: Jason Gunthorpe <jgg@mellanox.com>
-Date: Tue, 11 Jun 2019 13:09:51 -0300
-Subject: [PATCH] RDMA/odp: Fix missed unlock in non-blocking invalidate_start
+From 4df591b20b80cb77920953812d894db259d85bd7 Mon Sep 17 00:00:00 2001
+From: Dexuan Cui <decui@microsoft.com>
+Date: Fri, 21 Jun 2019 23:45:23 +0000
+Subject: [PATCH] PCI: hv: Fix a use-after-free bug in hv_eject_device_work()
 
-If invalidate_start returns with EAGAIN then the umem_rwsem needs to be
-unlocked as no invalidate_end will be called.
+Fix a use-after-free in hv_eject_device_work().
 
-Cc: <stable@vger.kernel.org>
-Fixes: ca748c39ea3f ("RDMA/umem: Get rid of per_mm->notifier_count")
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+Fixes: 05f151a73ec2 ("PCI: hv: Fix a memory leak in hv_eject_device_work()")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Cc: stable@vger.kernel.org
 
-diff --git a/drivers/infiniband/core/umem_odp.c b/drivers/infiniband/core/umem_odp.c
-index 9001cc10770a..eb9939d52818 100644
---- a/drivers/infiniband/core/umem_odp.c
-+++ b/drivers/infiniband/core/umem_odp.c
-@@ -149,6 +149,7 @@ static int ib_umem_notifier_invalidate_range_start(struct mmu_notifier *mn,
+diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
+index 82acd6155adf..40b625458afa 100644
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -1875,6 +1875,7 @@ static void hv_pci_devices_present(struct hv_pcibus_device *hbus,
+ static void hv_eject_device_work(struct work_struct *work)
  {
- 	struct ib_ucontext_per_mm *per_mm =
- 		container_of(mn, struct ib_ucontext_per_mm, mn);
-+	int rc;
+ 	struct pci_eject_response *ejct_pkt;
++	struct hv_pcibus_device *hbus;
+ 	struct hv_pci_dev *hpdev;
+ 	struct pci_dev *pdev;
+ 	unsigned long flags;
+@@ -1885,6 +1886,7 @@ static void hv_eject_device_work(struct work_struct *work)
+ 	} ctxt;
  
- 	if (mmu_notifier_range_blockable(range))
- 		down_read(&per_mm->umem_rwsem);
-@@ -165,11 +166,14 @@ static int ib_umem_notifier_invalidate_range_start(struct mmu_notifier *mn,
- 		return 0;
+ 	hpdev = container_of(work, struct hv_pci_dev, wrk);
++	hbus = hpdev->hbus;
+ 
+ 	WARN_ON(hpdev->state != hv_pcichild_ejecting);
+ 
+@@ -1895,8 +1897,7 @@ static void hv_eject_device_work(struct work_struct *work)
+ 	 * because hbus->pci_bus may not exist yet.
+ 	 */
+ 	wslot = wslot_to_devfn(hpdev->desc.win_slot.slot);
+-	pdev = pci_get_domain_bus_and_slot(hpdev->hbus->sysdata.domain, 0,
+-					   wslot);
++	pdev = pci_get_domain_bus_and_slot(hbus->sysdata.domain, 0, wslot);
+ 	if (pdev) {
+ 		pci_lock_rescan_remove();
+ 		pci_stop_and_remove_bus_device(pdev);
+@@ -1904,9 +1905,9 @@ static void hv_eject_device_work(struct work_struct *work)
+ 		pci_unlock_rescan_remove();
  	}
  
--	return rbt_ib_umem_for_each_in_range(&per_mm->umem_tree, range->start,
--					     range->end,
--					     invalidate_range_start_trampoline,
--					     mmu_notifier_range_blockable(range),
--					     NULL);
-+	rc = rbt_ib_umem_for_each_in_range(&per_mm->umem_tree, range->start,
-+					   range->end,
-+					   invalidate_range_start_trampoline,
-+					   mmu_notifier_range_blockable(range),
-+					   NULL);
-+	if (rc)
-+		up_read(&per_mm->umem_rwsem);
-+	return rc;
+-	spin_lock_irqsave(&hpdev->hbus->device_list_lock, flags);
++	spin_lock_irqsave(&hbus->device_list_lock, flags);
+ 	list_del(&hpdev->list_entry);
+-	spin_unlock_irqrestore(&hpdev->hbus->device_list_lock, flags);
++	spin_unlock_irqrestore(&hbus->device_list_lock, flags);
+ 
+ 	if (hpdev->pci_slot)
+ 		pci_destroy_slot(hpdev->pci_slot);
+@@ -1915,7 +1916,7 @@ static void hv_eject_device_work(struct work_struct *work)
+ 	ejct_pkt = (struct pci_eject_response *)&ctxt.pkt.message;
+ 	ejct_pkt->message_type.type = PCI_EJECTION_COMPLETE;
+ 	ejct_pkt->wslot.slot = hpdev->desc.win_slot.slot;
+-	vmbus_sendpacket(hpdev->hbus->hdev->channel, ejct_pkt,
++	vmbus_sendpacket(hbus->hdev->channel, ejct_pkt,
+ 			 sizeof(*ejct_pkt), (unsigned long)&ctxt.pkt,
+ 			 VM_PKT_DATA_INBAND, 0);
+ 
+@@ -1924,7 +1925,9 @@ static void hv_eject_device_work(struct work_struct *work)
+ 	/* For the two refs got in new_pcichild_device() */
+ 	put_pcichild(hpdev);
+ 	put_pcichild(hpdev);
+-	put_hvpcibus(hpdev->hbus);
++	/* hpdev has been freed. Do not use it any more. */
++
++	put_hvpcibus(hbus);
  }
  
- static int invalidate_range_end_trampoline(struct ib_umem_odp *item, u64 start,
+ /**
 
