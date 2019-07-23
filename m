@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC99C717CE
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A600717D1
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:10:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731982AbfGWMKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 08:10:00 -0400
-Received: from new2-smtp.messagingengine.com ([66.111.4.224]:51199 "EHLO
-        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730000AbfGWMKA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 08:10:00 -0400
+        id S2387845AbfGWMKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 08:10:55 -0400
+Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:43707 "EHLO
+        wnew3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730000AbfGWMKz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 08:10:55 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id A8A857C;
-        Tue, 23 Jul 2019 08:09:58 -0400 (EDT)
+        by mailnew.west.internal (Postfix) with ESMTP id 1717655E;
+        Tue, 23 Jul 2019 08:05:46 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 08:09:58 -0400
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 08:05:46 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=X8mfQa
-        JxP+hVhRMH7ILkYCPdOXVTvoSIj4HDz+ZkIJg=; b=np54jGbTxbIuclqPlCQaOr
-        MYTaqtDUx/aVgG6SoGx0kAE16SBIPIKUdEA6jvzuEOa07rMNqXdDcGL3N8d74qLM
-        5qLyL/ms1XZ272GtZnBqxbcvq85RsnQZ8oRUGGXcBTMO+dJXspMPtoKq1X9DE0y8
-        J6pNqWqEQyDakF9uS4aWeGtGaICdXTfd+GQnWr1Sq5on47ovZ/diHPZ80yfUY3Bi
-        QE3uHFeHcLaAfzGl8lHh5elNv8A+zrEUN9i6Mjd4QCjEhI4ZG//HmKvoLw6gECuv
-        OucGRnc74THVvg0BqRJ7bb8Q5VsRYotrOstdrFi5YlZzDIhSDnN9GkU0ZkDym8fw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ULSblk
+        ye2cDObnymUPSKHiVms2rL3DW/Uz1sUCWxjpU=; b=GE0Q7RoFGQK/GCkFOUu/cD
+        XYOHgDSE+yo2uSx5lrbNeq2K3IFHmPeaKIh14Q1A5EQXf0sb7LzvS4f004PlBHp4
+        GI4MzrH4oEggO28qFKqMnx5QAQiACQ22FPMc0TFgKI3iwLMu2932cBk2HIjg+NyN
+        LoC3ToPhOSG+MqhHRVKmtBZpH0ECa8iWKsvQCYlBTLO+veGI9pOUiUSnxdCZVcfe
+        gPuxLxB6pA9V81HI8l3KALnWZzLdtQeru4RHjg//O6XT3GNNUVa5jgFW58/1ydZg
+        39DSo2fSgUNLKzp0dW8/yeKaVd8ghAWYT9JF2XBL+4xDTs1RlILvyhnihAsgnzkg
         ==
-X-ME-Sender: <xms:Fvk2XcDrxMF6kCOMgqnBzK1w9je1vu4zXRDGnZDu3AejUte-ezPVdQ>
+X-ME-Sender: <xms:GPg2XXlJyoT0Nb6rLxgCpytu7dxVaJwuF4tGH02pB5EevwUwIZ1VrA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdegkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:Fvk2XScKEOe7_cQmDHJrAQzLb4Jz1buDcogEnKeezaKLU0EWz1IHEg>
-    <xmx:Fvk2XYpbGjgKW5rY_-FlzLG_AKPsA34_rQt_TsO2NE83KB3iE1vF_w>
-    <xmx:Fvk2XbR9VVln6r-yV2XvHZhMUHlsEccJEVeFIBhQhx-VycNuGRIIXQ>
-    <xmx:Fvk2XUkf_B3cN3FieVPJ6mUNmUePYhv8j0fcyKyp0JXm4F7FwsRCAQ>
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhgihhthhhusgdrtghomhenucfkph
+    epkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvghes
+    khhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:GPg2XVHguF05rUlAezCkVhDRxtY6jjmDWlgNC000FJhtot4DGgAB9Q>
+    <xmx:GPg2XfpzgSzRQxxrHQ8yEAWfCJ0tQy8rhz78Fp0Fva5G-QgFiviqFw>
+    <xmx:GPg2XSRF3giqOtdl_LtUYZD0whRGFo1NDpKxDmaH7tZ91NtvfBflUQ>
+    <xmx:Gfg2Xe8TadybOWm0q2TA8B1AHc6IIPoSYYDM2GDLaU3THuC3OQ4JP3mFKKo>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 17325380083;
-        Tue, 23 Jul 2019 08:09:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] resource: fix locking in find_next_iomem_res()" failed to apply to 4.14-stable tree
-To:     namit@vmware.com, akpm@linux-foundation.org, bhelgaas@google.com,
-        bp@suse.de, dan.j.williams@intel.com, dave.hansen@linux.intel.com,
-        mingo@kernel.org, peterz@infradead.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, toshi.kani@hpe.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id BC7DD380074;
+        Tue, 23 Jul 2019 08:05:43 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm: vmscan: scan anonymous pages on file refaults" failed to apply to 5.1-stable tree
+To:     vovoy@chromium.org, akpm@linux-foundation.org, hannes@cmpxchg.org,
+        mgorman@techsingularity.net, mhocko@suse.com, minchan@kernel.org,
+        riel@redhat.com, sonnyrao@chromium.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vdavydov.dev@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 14:09:46 +0200
-Message-ID: <156388378659181@kroah.com>
+Date:   Tue, 23 Jul 2019 14:05:42 +0200
+Message-ID: <156388354224827@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,72 +71,236 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 49f17c26c123b60fd1c74629eef077740d16ffc2 Mon Sep 17 00:00:00 2001
-From: Nadav Amit <namit@vmware.com>
-Date: Thu, 18 Jul 2019 15:57:31 -0700
-Subject: [PATCH] resource: fix locking in find_next_iomem_res()
+From 2c012a4ad1a2cd3fb5a0f9307b9d219f84eda1fa Mon Sep 17 00:00:00 2001
+From: Kuo-Hsin Yang <vovoy@chromium.org>
+Date: Thu, 11 Jul 2019 20:52:04 -0700
+Subject: [PATCH] mm: vmscan: scan anonymous pages on file refaults
 
-Since resources can be removed, locking should ensure that the resource
-is not removed while accessing it.  However, find_next_iomem_res() does
-not hold the lock while copying the data of the resource.
+When file refaults are detected and there are many inactive file pages,
+the system never reclaim anonymous pages, the file pages are dropped
+aggressively when there are still a lot of cold anonymous pages and
+system thrashes.  This issue impacts the performance of applications
+with large executable, e.g.  chrome.
 
-Keep holding the lock while the data is copied.  While at it, change the
-return value to a more informative value.  It is disregarded by the
-callers.
+With this patch, when file refault is detected, inactive_list_is_low()
+always returns true for file pages in get_scan_count() to enable
+scanning anonymous pages.
 
-[akpm@linux-foundation.org: fix find_next_iomem_res() documentation]
-Link: http://lkml.kernel.org/r/20190613045903.4922-2-namit@vmware.com
-Fixes: ff3cc952d3f00 ("resource: Add remove_resource interface")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: <stable@vger.kernel.org>
+The problem can be reproduced by the following test program.
+
+---8<---
+void fallocate_file(const char *filename, off_t size)
+{
+	struct stat st;
+	int fd;
+
+	if (!stat(filename, &st) && st.st_size >= size)
+		return;
+
+	fd = open(filename, O_WRONLY | O_CREAT, 0600);
+	if (fd < 0) {
+		perror("create file");
+		exit(1);
+	}
+	if (posix_fallocate(fd, 0, size)) {
+		perror("fallocate");
+		exit(1);
+	}
+	close(fd);
+}
+
+long *alloc_anon(long size)
+{
+	long *start = malloc(size);
+	memset(start, 1, size);
+	return start;
+}
+
+long access_file(const char *filename, long size, long rounds)
+{
+	int fd, i;
+	volatile char *start1, *end1, *start2;
+	const int page_size = getpagesize();
+	long sum = 0;
+
+	fd = open(filename, O_RDONLY);
+	if (fd == -1) {
+		perror("open");
+		exit(1);
+	}
+
+	/*
+	 * Some applications, e.g. chrome, use a lot of executable file
+	 * pages, map some of the pages with PROT_EXEC flag to simulate
+	 * the behavior.
+	 */
+	start1 = mmap(NULL, size / 2, PROT_READ | PROT_EXEC, MAP_SHARED,
+		      fd, 0);
+	if (start1 == MAP_FAILED) {
+		perror("mmap");
+		exit(1);
+	}
+	end1 = start1 + size / 2;
+
+	start2 = mmap(NULL, size / 2, PROT_READ, MAP_SHARED, fd, size / 2);
+	if (start2 == MAP_FAILED) {
+		perror("mmap");
+		exit(1);
+	}
+
+	for (i = 0; i < rounds; ++i) {
+		struct timeval before, after;
+		volatile char *ptr1 = start1, *ptr2 = start2;
+		gettimeofday(&before, NULL);
+		for (; ptr1 < end1; ptr1 += page_size, ptr2 += page_size)
+			sum += *ptr1 + *ptr2;
+		gettimeofday(&after, NULL);
+		printf("File access time, round %d: %f (sec)
+", i,
+		       (after.tv_sec - before.tv_sec) +
+		       (after.tv_usec - before.tv_usec) / 1000000.0);
+	}
+	return sum;
+}
+
+int main(int argc, char *argv[])
+{
+	const long MB = 1024 * 1024;
+	long anon_mb, file_mb, file_rounds;
+	const char filename[] = "large";
+	long *ret1;
+	long ret2;
+
+	if (argc != 4) {
+		printf("usage: thrash ANON_MB FILE_MB FILE_ROUNDS
+");
+		exit(0);
+	}
+	anon_mb = atoi(argv[1]);
+	file_mb = atoi(argv[2]);
+	file_rounds = atoi(argv[3]);
+
+	fallocate_file(filename, file_mb * MB);
+	printf("Allocate %ld MB anonymous pages
+", anon_mb);
+	ret1 = alloc_anon(anon_mb * MB);
+	printf("Access %ld MB file pages
+", file_mb);
+	ret2 = access_file(filename, file_mb * MB, file_rounds);
+	printf("Print result to prevent optimization: %ld
+",
+	       *ret1 + ret2);
+	return 0;
+}
+---8<---
+
+Running the test program on 2GB RAM VM with kernel 5.2.0-rc5, the program
+fills ram with 2048 MB memory, access a 200 MB file for 10 times.  Without
+this patch, the file cache is dropped aggresively and every access to the
+file is from disk.
+
+  $ ./thrash 2048 200 10
+  Allocate 2048 MB anonymous pages
+  Access 200 MB file pages
+  File access time, round 0: 2.489316 (sec)
+  File access time, round 1: 2.581277 (sec)
+  File access time, round 2: 2.487624 (sec)
+  File access time, round 3: 2.449100 (sec)
+  File access time, round 4: 2.420423 (sec)
+  File access time, round 5: 2.343411 (sec)
+  File access time, round 6: 2.454833 (sec)
+  File access time, round 7: 2.483398 (sec)
+  File access time, round 8: 2.572701 (sec)
+  File access time, round 9: 2.493014 (sec)
+
+With this patch, these file pages can be cached.
+
+  $ ./thrash 2048 200 10
+  Allocate 2048 MB anonymous pages
+  Access 200 MB file pages
+  File access time, round 0: 2.475189 (sec)
+  File access time, round 1: 2.440777 (sec)
+  File access time, round 2: 2.411671 (sec)
+  File access time, round 3: 1.955267 (sec)
+  File access time, round 4: 0.029924 (sec)
+  File access time, round 5: 0.000808 (sec)
+  File access time, round 6: 0.000771 (sec)
+  File access time, round 7: 0.000746 (sec)
+  File access time, round 8: 0.000738 (sec)
+  File access time, round 9: 0.000747 (sec)
+
+Checked the swap out stats during the test [1], 19006 pages swapped out
+with this patch, 3418 pages swapped out without this patch. There are
+more swap out, but I think it's within reasonable range when file backed
+data set doesn't fit into the memory.
+
+$ ./thrash 2000 100 2100 5 1 # ANON_MB FILE_EXEC FILE_NOEXEC ROUNDS
+PROCESSES Allocate 2000 MB anonymous pages active_anon: 1613644,
+inactive_anon: 348656, active_file: 892, inactive_file: 1384 (kB)
+pswpout: 7972443, pgpgin: 478615246 Access 100 MB executable file pages
+Access 2100 MB regular file pages File access time, round 0: 12.165,
+(sec) active_anon: 1433788, inactive_anon: 478116, active_file: 17896,
+inactive_file: 24328 (kB) File access time, round 1: 11.493, (sec)
+active_anon: 1430576, inactive_anon: 477144, active_file: 25440,
+inactive_file: 26172 (kB) File access time, round 2: 11.455, (sec)
+active_anon: 1427436, inactive_anon: 476060, active_file: 21112,
+inactive_file: 28808 (kB) File access time, round 3: 11.454, (sec)
+active_anon: 1420444, inactive_anon: 473632, active_file: 23216,
+inactive_file: 35036 (kB) File access time, round 4: 11.479, (sec)
+active_anon: 1413964, inactive_anon: 471460, active_file: 31728,
+inactive_file: 32224 (kB) pswpout: 7991449 (+ 19006), pgpgin: 489924366
+(+ 11309120)
+
+With 4 processes accessing non-overlapping parts of a large file, 30316
+pages swapped out with this patch, 5152 pages swapped out without this
+patch.  The swapout number is small comparing to pgpgin.
+
+[1]: https://github.com/vovo/testing/blob/master/mem_thrash.c
+
+Link: http://lkml.kernel.org/r/20190701081038.GA83398@google.com
+Fixes: e9868505987a ("mm,vmscan: only evict file pages when we have plenty")
+Fixes: 7c5bd705d8f9 ("mm: memcg: only evict file pages when we have plenty")
+Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Sonny Rao <sonnyrao@chromium.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.12+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/kernel/resource.c b/kernel/resource.c
-index d22423e85cf8..3ced0cd45bdd 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -326,7 +326,7 @@ EXPORT_SYMBOL(release_resource);
-  *
-  * If a resource is found, returns 0 and @*res is overwritten with the part
-  * of the resource that's within [@start..@end]; if none is found, returns
-- * -1 or -EINVAL for other invalid parameters.
-+ * -ENODEV.  Returns -EINVAL for invalid parameters.
-  *
-  * This function walks the whole tree and not just first level children
-  * unless @first_lvl is true.
-@@ -365,16 +365,16 @@ static int find_next_iomem_res(resource_size_t start, resource_size_t end,
- 			break;
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 910e02c793ff..96aafbf8ce4e 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -2125,7 +2125,7 @@ static void shrink_active_list(unsigned long nr_to_scan,
+  *   10TB     320        32GB
+  */
+ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+-				 struct scan_control *sc, bool actual_reclaim)
++				 struct scan_control *sc, bool trace)
+ {
+ 	enum lru_list active_lru = file * LRU_FILE + LRU_ACTIVE;
+ 	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
+@@ -2151,7 +2151,7 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+ 	 * rid of the stale workingset quickly.
+ 	 */
+ 	refaults = lruvec_page_state_local(lruvec, WORKINGSET_ACTIVATE);
+-	if (file && actual_reclaim && lruvec->refaults != refaults) {
++	if (file && lruvec->refaults != refaults) {
+ 		inactive_ratio = 0;
+ 	} else {
+ 		gb = (inactive + active) >> (30 - PAGE_SHIFT);
+@@ -2161,7 +2161,7 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
+ 			inactive_ratio = 1;
  	}
  
-+	if (p) {
-+		/* copy data */
-+		res->start = max(start, p->start);
-+		res->end = min(end, p->end);
-+		res->flags = p->flags;
-+		res->desc = p->desc;
-+	}
-+
- 	read_unlock(&resource_lock);
--	if (!p)
--		return -1;
--
--	/* copy data */
--	res->start = max(start, p->start);
--	res->end = min(end, p->end);
--	res->flags = p->flags;
--	res->desc = p->desc;
--	return 0;
-+	return p ? 0 : -ENODEV;
- }
- 
- static int __walk_iomem_res_desc(resource_size_t start, resource_size_t end,
+-	if (actual_reclaim)
++	if (trace)
+ 		trace_mm_vmscan_inactive_list_is_low(pgdat->node_id, sc->reclaim_idx,
+ 			lruvec_lru_size(lruvec, inactive_lru, MAX_NR_ZONES), inactive,
+ 			lruvec_lru_size(lruvec, active_lru, MAX_NR_ZONES), active,
 
