@@ -2,52 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 579B3717AF
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:03:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 659DB717CC
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:09:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387738AbfGWMDm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 08:03:42 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:48663 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728240AbfGWMDm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 08:03:42 -0400
+        id S2387846AbfGWMJu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 08:09:50 -0400
+Received: from new2-smtp.messagingengine.com ([66.111.4.224]:35923 "EHLO
+        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730000AbfGWMJu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 08:09:50 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 88D89212BF;
-        Tue, 23 Jul 2019 08:03:41 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 08:03:41 -0400
+        by mailnew.nyi.internal (Postfix) with ESMTP id 966A9E1F;
+        Tue, 23 Jul 2019 08:09:48 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 08:09:48 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=liURrO
-        5dG1jqTtqR7amhvryt0jD7Vc7nEmKUvNzHeRI=; b=xXOZrAkBkgnTLzoDEG8DMh
-        +BKvmpCuKYfoAHZopU5rvZ54sYrF/uRi2jF16V0oUKHn+5TiBWFUuVScnXOnbKb3
-        i3e8bOURzhqe+mMTVQpxKYjkEwmmi6ASumg3rw18QnWOfHGyjR6Lif6c1nihMUAf
-        a0B0wA4GYOVvJljF5X3VLZNkxQPOp1tTh4OFE1dMesPa6da1FmE47eR9Dlv8BMwx
-        ZQDCFdxACM4dZ7vQfze7viHq5NGTvJMOo5JJOSmKPG1dAh8OB0Ao5uE4TpAnkrST
-        RZzoqZZCYDDNwkDnk52Wtsie23mZo/xT2D1oTAA1WcZAW8YCq/HMQCyN+oF7YZFw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=qYaye2
+        LVV6hrb7FS4b0CeYtgHKcexr5fSIrvtSi+nAo=; b=LlMwSrbdzyK13jF6fJjDlQ
+        REx82TYMnMj0MlIXqbHPqr8wi5CFGVwCuXiiyu1nzjn9EVS4MocM7lTIqhRJ2Gah
+        x9D8nbaJ0hxfl6rkOKOcMxdqVjX+eC00RmSCgEfV209O36x9BqHHYBblDh/ZKNWx
+        wxW1nv2M1P6IGQabp9JRNEUEidKo6lnnKcAFvSeoqSZqStJfU6CcNcn4qEwYRnIn
+        QleFIre3CQbE0jNklb31BFrVSt6qC0nPUbRN1b+hSHIz1fYs9qZGK9q8ammOKaRU
+        KfQWdXtdYA43PAyn8Ev54NahPubbJqewb4y7upcxg2eb2MtaBYQMHEemZcEQU7HQ
         ==
-X-ME-Sender: <xms:nfc2XQ1oE8P6Dyt8sTzIVSwrp3DfPGyyrPXhJXSxftsumHW6bOE2hQ>
+X-ME-Sender: <xms:C_k2Xdf7UNDmEvKAWwJgAHitQ4zUseeSnpUtrUBBqxrNJzR49GihHQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdegkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeef
-X-ME-Proxy: <xmx:nfc2XfXw31E9G6jn5aO0txoDGWVEt94WRcZ4kG69mznER1Q6mcTYUA>
-    <xmx:nfc2XT6jXGh1Ldzgf4eKDuLqpgbQsHkj7_BtdZhkbTk85bfqYiLJmQ>
-    <xmx:nfc2XeI-Qvp187EDKKuDiaHG6trAESr5ETBPiXuME6KQFOKFlrlptg>
-    <xmx:nfc2XbEuKkGZbp0dnym6Sv7wz-hXFiV0uM_-lPAyWQr9jDpziQlNiQ>
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:C_k2XeeLnT1LRhYKIpfVyIbpIgZ6PcmeU0Zxj8rbZh-uxzz4KAsFAA>
+    <xmx:C_k2XamHSRxgxWVF3gRgUegroDHqTvFx2nOF7c49qxjp-1n9I0dpjQ>
+    <xmx:C_k2XQ_Uh4H1fqjMHxCS9peWgbcoH4xj9rNDSuwYrg-2R3qkVTrLJg>
+    <xmx:DPk2XXpqEgzqzwYpCsoGn7Qeo7Rlfvyu0D36V-8GQAJqCScf3rRT7g>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A374280059;
-        Tue, 23 Jul 2019 08:03:40 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] IB/mlx5: Report correctly tag matching rendezvous capability" failed to apply to 4.14-stable tree
-To:     danitg@mellanox.com, artemyko@mellanox.com, jgg@mellanox.com,
-        leonro@mellanox.com, stable@vger.kernel.org, yishaih@mellanox.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5EA85380075;
+        Tue, 23 Jul 2019 08:09:47 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] resource: fix locking in find_next_iomem_res()" failed to apply to 4.19-stable tree
+To:     namit@vmware.com, akpm@linux-foundation.org, bhelgaas@google.com,
+        bp@suse.de, dan.j.williams@intel.com, dave.hansen@linux.intel.com,
+        mingo@kernel.org, peterz@infradead.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, toshi.kani@hpe.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 14:03:39 +0200
-Message-ID: <1563883419210193@kroah.com>
+Date:   Tue, 23 Jul 2019 14:09:45 +0200
+Message-ID: <1563883785235106@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,66 +71,72 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 89705e92700170888236555fe91b45e4c1bb0985 Mon Sep 17 00:00:00 2001
-From: Danit Goldberg <danitg@mellanox.com>
-Date: Fri, 5 Jul 2019 19:21:57 +0300
-Subject: [PATCH] IB/mlx5: Report correctly tag matching rendezvous capability
+From 49f17c26c123b60fd1c74629eef077740d16ffc2 Mon Sep 17 00:00:00 2001
+From: Nadav Amit <namit@vmware.com>
+Date: Thu, 18 Jul 2019 15:57:31 -0700
+Subject: [PATCH] resource: fix locking in find_next_iomem_res()
 
-Userspace expects the IB_TM_CAP_RC bit to indicate that the device
-supports RC transport tag matching with rendezvous offload. However the
-firmware splits this into two capabilities for eager and rendezvous tag
-matching.
+Since resources can be removed, locking should ensure that the resource
+is not removed while accessing it.  However, find_next_iomem_res() does
+not hold the lock while copying the data of the resource.
 
-Only if the FW supports both modes should userspace be told the tag
-matching capability is available.
+Keep holding the lock while the data is copied.  While at it, change the
+return value to a more informative value.  It is disregarded by the
+callers.
 
-Cc: <stable@vger.kernel.org> # 4.13
-Fixes: eb761894351d ("IB/mlx5: Fill XRQ capabilities")
-Signed-off-by: Danit Goldberg <danitg@mellanox.com>
-Reviewed-by: Yishai Hadas <yishaih@mellanox.com>
-Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+[akpm@linux-foundation.org: fix find_next_iomem_res() documentation]
+Link: http://lkml.kernel.org/r/20190613045903.4922-2-namit@vmware.com
+Fixes: ff3cc952d3f00 ("resource: Add remove_resource interface")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Toshi Kani <toshi.kani@hpe.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index 7581571bd9cd..56d4b1e9dd23 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -1046,15 +1046,19 @@ static int mlx5_ib_query_device(struct ib_device *ibdev,
+diff --git a/kernel/resource.c b/kernel/resource.c
+index d22423e85cf8..3ced0cd45bdd 100644
+--- a/kernel/resource.c
++++ b/kernel/resource.c
+@@ -326,7 +326,7 @@ EXPORT_SYMBOL(release_resource);
+  *
+  * If a resource is found, returns 0 and @*res is overwritten with the part
+  * of the resource that's within [@start..@end]; if none is found, returns
+- * -1 or -EINVAL for other invalid parameters.
++ * -ENODEV.  Returns -EINVAL for invalid parameters.
+  *
+  * This function walks the whole tree and not just first level children
+  * unless @first_lvl is true.
+@@ -365,16 +365,16 @@ static int find_next_iomem_res(resource_size_t start, resource_size_t end,
+ 			break;
  	}
  
- 	if (MLX5_CAP_GEN(mdev, tag_matching)) {
--		props->tm_caps.max_rndv_hdr_size = MLX5_TM_MAX_RNDV_MSG_SIZE;
- 		props->tm_caps.max_num_tags =
- 			(1 << MLX5_CAP_GEN(mdev, log_tag_matching_list_sz)) - 1;
--		props->tm_caps.flags = IB_TM_CAP_RC;
- 		props->tm_caps.max_ops =
- 			1 << MLX5_CAP_GEN(mdev, log_max_qp_sz);
- 		props->tm_caps.max_sge = MLX5_TM_MAX_SGE;
- 	}
- 
-+	if (MLX5_CAP_GEN(mdev, tag_matching) &&
-+	    MLX5_CAP_GEN(mdev, rndv_offload_rc)) {
-+		props->tm_caps.flags = IB_TM_CAP_RNDV_RC;
-+		props->tm_caps.max_rndv_hdr_size = MLX5_TM_MAX_RNDV_MSG_SIZE;
++	if (p) {
++		/* copy data */
++		res->start = max(start, p->start);
++		res->end = min(end, p->end);
++		res->flags = p->flags;
++		res->desc = p->desc;
 +	}
 +
- 	if (MLX5_CAP_GEN(dev->mdev, cq_moderation)) {
- 		props->cq_caps.max_cq_moderation_count =
- 						MLX5_MAX_CQ_COUNT;
-diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
-index 50806bef9f20..4053be51b7fa 100644
---- a/include/rdma/ib_verbs.h
-+++ b/include/rdma/ib_verbs.h
-@@ -307,8 +307,8 @@ struct ib_rss_caps {
- };
+ 	read_unlock(&resource_lock);
+-	if (!p)
+-		return -1;
+-
+-	/* copy data */
+-	res->start = max(start, p->start);
+-	res->end = min(end, p->end);
+-	res->flags = p->flags;
+-	res->desc = p->desc;
+-	return 0;
++	return p ? 0 : -ENODEV;
+ }
  
- enum ib_tm_cap_flags {
--	/*  Support tag matching on RC transport */
--	IB_TM_CAP_RC		    = 1 << 0,
-+	/*  Support tag matching with rendezvous offload for RC transport */
-+	IB_TM_CAP_RNDV_RC = 1 << 0,
- };
- 
- struct ib_tm_caps {
+ static int __walk_iomem_res_desc(resource_size_t start, resource_size_t end,
 
