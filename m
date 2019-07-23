@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62AA8717A4
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:01:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3E64717A5
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731226AbfGWMBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 08:01:46 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:54921 "EHLO
+        id S2387437AbfGWMCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 08:02:14 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:37051 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728418AbfGWMBq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 08:01:46 -0400
+        by vger.kernel.org with ESMTP id S1728418AbfGWMCO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 08:02:14 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 60772465;
-        Tue, 23 Jul 2019 08:01:45 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 16B7444D;
+        Tue, 23 Jul 2019 08:02:13 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 08:01:45 -0400
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 08:02:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=bUWvRc
-        2fjJ40enY0Akf4KjvpE0YIryZd0AXpBH1Dh6U=; b=BHaSpRaDYm0YBO4HGD0Jr4
-        kmnWO7iajOukaiWajpx8epVQtygn3wcPoDW+EAzFFwoyR9GbYjwOv29HJeqIxi1O
-        rTvYdELXBLK89sC0XvKs8+IYVBvYJFWj3B/fj/jF7qQwOGY/52r5lwY2Lgm3gDZk
-        5CwVZaupcpBtzVi2FaUYqhuGFXTrgzGdoaV1Yb9jom8xMUre2sImzpI4SvWKDyAE
-        WrBjdU0IiLXYPEam1csxqVJGOUlDgkie4KLt00RuyZjUewfhR1b2uNY0jcF7+i7I
-        yQuUMQHrsk3qDAXJCWsP8kCk11bSvavyp5B6wXnod2U7XmCAwTAzTn4hGYD03UeA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=UknJW/
+        q8zW5UJXcCCu6oAjWR65UhdaWOGZkHhCxV01E=; b=rMktKj8kauE7eHE2d69X2Z
+        URKoLAslhU9M9NGBE1HF7Ob2ak/SeYIxKGx6L9lqvhGB0mxuuZNrSCGw9954wLJk
+        zG7GW4nHDDOvyDCn+8dIAEyzCFAtinZeuetW0VeJPz56H+VroeqrO0npeUEyIWlK
+        tmoO0pju4wrhQukG9/HAKV/a6+K0PgO1BL/kahOokvVqtZy+74nfaBwFhAc9cVKp
+        13ETSTfK2lSIQCWd81INqNFh+5Rr4tmdotbvl60qkC9g3slmufK6+KGTlbVfEZbl
+        0W00dQRA5KlMy+h+XBC7eRnx6CaNb1K/ineaM7C7n3TvaJKOeb6Y5vpF2L4+I+qA
         ==
-X-ME-Sender: <xms:KPc2XaymCk5l4ftmS-u2XQeGs8aZbErjMo7kw6ucrhjSoRtfWjHiag>
+X-ME-Sender: <xms:RPc2XaSAixK5nawkQ1IWxsTlddMUo3X6bxzFdANpuhN2BlXFfEmYMA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdegkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:KPc2XTx3SWcgQzhSb4Tt4cGb103ryip0ioAI9X-goMqDWMsvHA3cwQ>
-    <xmx:KPc2XSptpDx8DTzBMUAsar-kAC9i4JaCAI1it6Qm2G8jXpr32GbiDw>
-    <xmx:KPc2XXpevsFrRiBmL-6viilmT_cjnSwHlZszYQOfBvpX1DKvM-DEww>
-    <xmx:KPc2XZJf4qHwI20HZDzBswi1pYpCzW4aLdf_j8iJlEkcas-9qam5Dg>
+    qeenucffohhmrghinheplhhoghdrmhhvpdgtohhmmhhithdrtggunecukfhppeekfedrke
+    eirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:RPc2XRfNdu_iiBToXSTQ1E-D8gjVB8WQTukSWsQc55JZ6Qpl3BAMyw>
+    <xmx:RPc2XXSiliTByN9JCVJRxWZw4dp1NnZSrbEcVLBxeXVOHAMJll4uvQ>
+    <xmx:RPc2XfoYZoosJsiwko0vcOsuOoNup1wWDSeML39YLTrBL872PU9V2A>
+    <xmx:RPc2XWh-XUzg8wJy026uyoJmr7dOqqnMvIo1Daz8mZS-1wIRkOGHpg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CCFD4380086;
-        Tue, 23 Jul 2019 08:01:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: correctly validate compression type" failed to apply to 5.1-stable tree
-To:     jthumshirn@suse.de, dsterba@suse.com, nborisov@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 38C3B380079;
+        Tue, 23 Jul 2019 08:02:12 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: fix data loss after inode eviction, renaming it, and" failed to apply to 4.9-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 14:01:41 +0200
-Message-ID: <156388330112473@kroah.com>
+Date:   Tue, 23 Jul 2019 14:02:11 +0200
+Message-ID: <15638833317473@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.1-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,162 +68,108 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From aa53e3bfac7205fb3a8815ac1c937fd6ed01b41e Mon Sep 17 00:00:00 2001
-From: Johannes Thumshirn <jthumshirn@suse.de>
-Date: Thu, 6 Jun 2019 12:07:15 +0200
-Subject: [PATCH] btrfs: correctly validate compression type
+From d1d832a0b51dd9570429bb4b81b2a6c1759e681a Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Fri, 7 Jun 2019 11:25:24 +0100
+Subject: [PATCH] Btrfs: fix data loss after inode eviction, renaming it, and
+ fsync it
 
-Nikolay reported the following KASAN splat when running btrfs/048:
+When we log an inode, regardless of logging it completely or only that it
+exists, we always update it as logged (logged_trans and last_log_commit
+fields of the inode are updated). This is generally fine and avoids future
+attempts to log it from having to do repeated work that brings no value.
 
-[ 1843.470920] ==================================================================
-[ 1843.471971] BUG: KASAN: slab-out-of-bounds in strncmp+0x66/0xb0
-[ 1843.472775] Read of size 1 at addr ffff888111e369e2 by task btrfs/3979
+However, if we write data to a file, then evict its inode after all the
+dealloc was flushed (and ordered extents completed), rename the file and
+fsync it, we end up not logging the new extents, since the rename may
+result in logging that the inode exists in case the parent directory was
+logged before. The following reproducer shows and explains how this can
+happen:
 
-[ 1843.473904] CPU: 3 PID: 3979 Comm: btrfs Not tainted 5.2.0-rc3-default #536
-[ 1843.475009] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-[ 1843.476322] Call Trace:
-[ 1843.476674]  dump_stack+0x7c/0xbb
-[ 1843.477132]  ? strncmp+0x66/0xb0
-[ 1843.477587]  print_address_description+0x114/0x320
-[ 1843.478256]  ? strncmp+0x66/0xb0
-[ 1843.478740]  ? strncmp+0x66/0xb0
-[ 1843.479185]  __kasan_report+0x14e/0x192
-[ 1843.479759]  ? strncmp+0x66/0xb0
-[ 1843.480209]  kasan_report+0xe/0x20
-[ 1843.480679]  strncmp+0x66/0xb0
-[ 1843.481105]  prop_compression_validate+0x24/0x70
-[ 1843.481798]  btrfs_xattr_handler_set_prop+0x65/0x160
-[ 1843.482509]  __vfs_setxattr+0x71/0x90
-[ 1843.483012]  __vfs_setxattr_noperm+0x84/0x130
-[ 1843.483606]  vfs_setxattr+0xac/0xb0
-[ 1843.484085]  setxattr+0x18c/0x230
-[ 1843.484546]  ? vfs_setxattr+0xb0/0xb0
-[ 1843.485048]  ? __mod_node_page_state+0x1f/0xa0
-[ 1843.485672]  ? _raw_spin_unlock+0x24/0x40
-[ 1843.486233]  ? __handle_mm_fault+0x988/0x1290
-[ 1843.486823]  ? lock_acquire+0xb4/0x1e0
-[ 1843.487330]  ? lock_acquire+0xb4/0x1e0
-[ 1843.487842]  ? mnt_want_write_file+0x3c/0x80
-[ 1843.488442]  ? debug_lockdep_rcu_enabled+0x22/0x40
-[ 1843.489089]  ? rcu_sync_lockdep_assert+0xe/0x70
-[ 1843.489707]  ? __sb_start_write+0x158/0x200
-[ 1843.490278]  ? mnt_want_write_file+0x3c/0x80
-[ 1843.490855]  ? __mnt_want_write+0x98/0xe0
-[ 1843.491397]  __x64_sys_fsetxattr+0xba/0xe0
-[ 1843.492201]  ? trace_hardirqs_off_thunk+0x1a/0x1c
-[ 1843.493201]  do_syscall_64+0x6c/0x230
-[ 1843.493988]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-[ 1843.495041] RIP: 0033:0x7fa7a8a7707a
-[ 1843.495819] Code: 48 8b 0d 21 de 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 be 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d ee dd 2b 00 f7 d8 64 89 01 48
-[ 1843.499203] RSP: 002b:00007ffcb73bca38 EFLAGS: 00000202 ORIG_RAX: 00000000000000be
-[ 1843.500210] RAX: ffffffffffffffda RBX: 00007ffcb73bda9d RCX: 00007fa7a8a7707a
-[ 1843.501170] RDX: 00007ffcb73bda9d RSI: 00000000006dc050 RDI: 0000000000000003
-[ 1843.502152] RBP: 00000000006dc050 R08: 0000000000000000 R09: 0000000000000000
-[ 1843.503109] R10: 0000000000000002 R11: 0000000000000202 R12: 00007ffcb73bda91
-[ 1843.504055] R13: 0000000000000003 R14: 00007ffcb73bda82 R15: ffffffffffffffff
+  $ mkfs.btrfs -f /dev/sdb
+  $ mount /dev/sdb /mnt
 
-[ 1843.505268] Allocated by task 3979:
-[ 1843.505771]  save_stack+0x19/0x80
-[ 1843.506211]  __kasan_kmalloc.constprop.5+0xa0/0xd0
-[ 1843.506836]  setxattr+0xeb/0x230
-[ 1843.507264]  __x64_sys_fsetxattr+0xba/0xe0
-[ 1843.507886]  do_syscall_64+0x6c/0x230
-[ 1843.508429]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  $ mkdir /mnt/dir
+  $ touch /mnt/dir/foo
+  $ touch /mnt/dir/bar
 
-[ 1843.509558] Freed by task 0:
-[ 1843.510188] (stack is not available)
+  # Do a direct IO write instead of a buffered write because with a
+  # buffered write we would need to make sure dealloc gets flushed and
+  # complete before we do the inode eviction later, and we can not do that
+  # from user space with call to things such as sync(2) since that results
+  # in a transaction commit as well.
+  $ xfs_io -d -c "pwrite -S 0xd3 0 4K" /mnt/dir/bar
 
-[ 1843.511309] The buggy address belongs to the object at ffff888111e369e0
-                which belongs to the cache kmalloc-8 of size 8
-[ 1843.514095] The buggy address is located 2 bytes inside of
-                8-byte region [ffff888111e369e0, ffff888111e369e8)
-[ 1843.516524] The buggy address belongs to the page:
-[ 1843.517561] page:ffff88813f478d80 refcount:1 mapcount:0 mapping:ffff88811940c300 index:0xffff888111e373b8 compound_mapcount: 0
-[ 1843.519993] flags: 0x4404000010200(slab|head)
-[ 1843.520951] raw: 0004404000010200 ffff88813f48b008 ffff888119403d50 ffff88811940c300
-[ 1843.522616] raw: ffff888111e373b8 000000000016000f 00000001ffffffff 0000000000000000
-[ 1843.524281] page dumped because: kasan: bad access detected
+  # Keep the directory dir in use while we evict inodes. We want our file
+  # bar's inode to be evicted but we don't want our directory's inode to
+  # be evicted (if it were evicted too, we would not be able to reproduce
+  # the issue since the first fsync below, of file foo, would result in a
+  # transaction commit.
+  $ ( cd /mnt/dir; while true; do :; done ) &
+  $ pid=$!
 
-[ 1843.525936] Memory state around the buggy address:
-[ 1843.526975]  ffff888111e36880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[ 1843.528479]  ffff888111e36900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[ 1843.530138] >ffff888111e36980: fc fc fc fc fc fc fc fc fc fc fc fc 02 fc fc fc
-[ 1843.531877]                                                        ^
-[ 1843.533287]  ffff888111e36a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[ 1843.534874]  ffff888111e36a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[ 1843.536468] ==================================================================
+  # Wait a bit to give time for the background process to chdir.
+  $ sleep 0.1
 
-This is caused by supplying a too short compression value ('lz') in the
-test-case and comparing it to 'lzo' with strncmp() and a length of 3.
-strncmp() read past the 'lz' when looking for the 'o' and thus caused an
-out-of-bounds read.
+  # Evict all inodes, except the inode for the directory dir because it is
+  # currently in use by our background process.
+  $ echo 2 > /proc/sys/vm/drop_caches
 
-Introduce a new check 'btrfs_compress_is_valid_type()' which not only
-checks the user-supplied value against known compression types, but also
-employs checks for too short values.
+  # fsync file foo, which ends up persisting information about the parent
+  # directory because it is a new inode.
+  $ xfs_io -c fsync /mnt/dir/foo
 
-Reported-by: Nikolay Borisov <nborisov@suse.com>
-Fixes: 272e5326c783 ("btrfs: prop: fix vanished compression property after failed set")
-CC: stable@vger.kernel.org # 5.1+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
-Reviewed-by: David Sterba <dsterba@suse.com>
+  # Rename bar, this results in logging that this inode exists (inode item,
+  # names, xattrs) because the parent directory is in the log.
+  $ mv /mnt/dir/bar /mnt/dir/baz
+
+  # Now fsync baz, which ends up doing absolutely nothing because of the
+  # rename operation which logged that the inode exists only.
+  $ xfs_io -c fsync /mnt/dir/baz
+
+  <power failure>
+
+  $ mount /dev/sdb /mnt
+  $ od -t x1 -A d /mnt/dir/baz
+  0000000
+
+    --> Empty file, data we wrote is missing.
+
+Fix this by not updating last_sub_trans of an inode when we are logging
+only that it exists and the inode was not yet logged since it was loaded
+from disk (full_sync bit set), this is enough to make btrfs_inode_in_log()
+return false for this scenario and make us log the inode. The logged_trans
+of the inode is still always setsince that alone is used to track if names
+need to be deleted as part of unlink operations.
+
+Fixes: 257c62e1bce03e ("Btrfs: avoid tree log commit when there are no changes")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
-index 66e21a4e9ea2..db41315f11eb 100644
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -43,6 +43,22 @@ const char* btrfs_compress_type2str(enum btrfs_compression_type type)
- 	return NULL;
- }
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 3fc8d854d7fb..4a04659fded7 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -5420,9 +5420,19 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
+ 		}
+ 	}
  
-+bool btrfs_compress_is_valid_type(const char *str, size_t len)
-+{
-+	int i;
-+
-+	for (i = 1; i < ARRAY_SIZE(btrfs_compress_types); i++) {
-+		size_t comp_len = strlen(btrfs_compress_types[i]);
-+
-+		if (len < comp_len)
-+			continue;
-+
-+		if (!strncmp(btrfs_compress_types[i], str, comp_len))
-+			return true;
-+	}
-+	return false;
-+}
-+
- static int btrfs_decompress_bio(struct compressed_bio *cb);
- 
- static inline int compressed_bio_size(struct btrfs_fs_info *fs_info,
-diff --git a/fs/btrfs/compression.h b/fs/btrfs/compression.h
-index 191e5f4e3523..2035b8eb1290 100644
---- a/fs/btrfs/compression.h
-+++ b/fs/btrfs/compression.h
-@@ -173,6 +173,7 @@ extern const struct btrfs_compress_op btrfs_lzo_compress;
- extern const struct btrfs_compress_op btrfs_zstd_compress;
- 
- const char* btrfs_compress_type2str(enum btrfs_compression_type type);
-+bool btrfs_compress_is_valid_type(const char *str, size_t len);
- 
- int btrfs_compress_heuristic(struct inode *inode, u64 start, u64 end);
- 
-diff --git a/fs/btrfs/props.c b/fs/btrfs/props.c
-index a9e2e66152ee..af109c0ba720 100644
---- a/fs/btrfs/props.c
-+++ b/fs/btrfs/props.c
-@@ -257,11 +257,7 @@ static int prop_compression_validate(const char *value, size_t len)
- 	if (!value)
- 		return 0;
- 
--	if (!strncmp("lzo", value, 3))
--		return 0;
--	else if (!strncmp("zlib", value, 4))
--		return 0;
--	else if (!strncmp("zstd", value, 4))
-+	if (btrfs_compress_is_valid_type(value, len))
- 		return 0;
- 
- 	return -EINVAL;
++	/*
++	 * Don't update last_log_commit if we logged that an inode exists after
++	 * it was loaded to memory (full_sync bit set).
++	 * This is to prevent data loss when we do a write to the inode, then
++	 * the inode gets evicted after all delalloc was flushed, then we log
++	 * it exists (due to a rename for example) and then fsync it. This last
++	 * fsync would do nothing (not logging the extents previously written).
++	 */
+ 	spin_lock(&inode->lock);
+ 	inode->logged_trans = trans->transid;
+-	inode->last_log_commit = inode->last_sub_trans;
++	if (inode_only != LOG_INODE_EXISTS ||
++	    !test_bit(BTRFS_INODE_NEEDS_FULL_SYNC, &inode->runtime_flags))
++		inode->last_log_commit = inode->last_sub_trans;
+ 	spin_unlock(&inode->lock);
+ out_unlock:
+ 	mutex_unlock(&inode->log_mutex);
 
