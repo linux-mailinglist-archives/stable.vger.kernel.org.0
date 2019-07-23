@@ -2,71 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D89CA70F3C
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 04:46:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFB3A70F9E
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 05:09:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731806AbfGWCqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jul 2019 22:46:09 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:55728 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726962AbfGWCqH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 22:46:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1563849964; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:references; bh=fL5yem8QsUYkhZu+Pm1PTITp0l+jVscmMyZeS34IKsQ=;
-        b=Vb/+i3osY1n11LJAcDyhzXABp5jCqHMJnOUEKjZWHUDZvGxGJ2U0beZdgw+/ZVudnMkOqj
-        SNYVPb1fNyl6K0KobhTaETLyhYaPad9d45FiPrzttvGZ5gcJXjbR04sYj4ZNk6ULQTtdcP
-        Rx9jzBniH4E0gGStjD/mTqxvcwloR5Q=
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     Sebastian Reichel <sre@kernel.org>
-Cc:     od@zcrc.me, Artur Rojek <contact@artur-rojek.eu>,
-        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org
-Subject: [PATCH] power/supply: ingenic-battery: Don't change scale if there's only one
-Date:   Mon, 22 Jul 2019 22:45:54 -0400
-Message-Id: <20190723024554.9248-1-paul@crapouillou.net>
+        id S1727266AbfGWDJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jul 2019 23:09:14 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:36472 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387880AbfGWDIn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 23:08:43 -0400
+Received: by mail-wr1-f68.google.com with SMTP id n4so41501913wrs.3
+        for <stable@vger.kernel.org>; Mon, 22 Jul 2019 20:08:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=plexistor-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=2PtG4zp50XPwrR+6BzWVC0eSAfvVyl2TtA+I12FZ4Qs=;
+        b=t088Puwr+O8xjDR0LPzH0uhmskUhFRDzq/e5yWqd9g4mTsJFSj1S8dO3Udg3AD+2dq
+         577gq+lrNqf7sOUaIKlAIg68s6dMsyjSs0AyIDSOkpt5PhVWmunLgfW4eLp513Mlb1dz
+         hAthKC5YrLG3+UsBNzzMEn66Vp8I84yf4OmLzUtLOIDsydvY/m2V9Y1SBBuZm56n/NjR
+         3VI7f9unQ+ojYhFSe+nzZrMq0XIIGh1qqLtK6pZX2UPkTPmhyqD7TeoDZgVK21zQ6zVp
+         kGifCWbuMNbOthtwiH4tiML3heQt5GgCfkR2Jfx9fgtIhwEbgVELVaS9zHJdqsUoWHgv
+         +95g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=2PtG4zp50XPwrR+6BzWVC0eSAfvVyl2TtA+I12FZ4Qs=;
+        b=F2h7czqf/7307iLlgEE3bkxRzY45GwRIJ8raDpAnwDMTFbCcAnCYST8pIkJxXKSfuW
+         yQDQ1I4qtzeo50fZPZNzGrNXR9XIjIbdftNjMNNyMA5ip+S81yQKX3Ec098ZjJFuCU/z
+         6skI70wfhHLl+4BynT2R80Zxs458EgI40Z6MJoX0Tj1x21WYRMPHcZDKDX2QCkqXT81q
+         RJzF18gAjSe5XAJHoXD37lbil4Yw3sDH4O4R9ONB3V9fFgxPCebr0fu5rcpUldRtolzn
+         7Azw2FQr58OsdS4PupQ5I+5XhgM0UYctZKlahlKEbWUUeUd4Y2YPYP5DrDnh1nl2zPma
+         4AUw==
+X-Gm-Message-State: APjAAAWgdhXKkZOPtmmrmBVQJqyZhQhR22loE0zXm8DIxlbhiRrHLGxx
+        cp6NBzMrJF1N0fJDvvkw9Khxw6sn
+X-Google-Smtp-Source: APXvYqwNjbQQHEnQf9EO2BooRCjynSwNWlhbjrMQSdKfWJ6RSFiQMVrNJoUDRH/BuXrQurKluvxoFg==
+X-Received: by 2002:adf:e941:: with SMTP id m1mr68919804wrn.279.1563851321164;
+        Mon, 22 Jul 2019 20:08:41 -0700 (PDT)
+Received: from [10.68.217.182] ([217.70.211.18])
+        by smtp.googlemail.com with ESMTPSA id e6sm41743574wrw.23.2019.07.22.20.08.39
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Mon, 22 Jul 2019 20:08:40 -0700 (PDT)
+Subject: Re: [PATCH 1/3] mm: Handle MADV_WILLNEED through vfs_fadvise()
+To:     Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org
+Cc:     linux-mm@kvack.org, linux-xfs@vger.kernel.org,
+        Amir Goldstein <amir73il@gmail.com>,
+        Boaz Harrosh <boaz@plexistor.com>, stable@vger.kernel.org
+References: <20190711140012.1671-1-jack@suse.cz>
+ <20190711140012.1671-2-jack@suse.cz>
+From:   Boaz Harrosh <boaz@plexistor.com>
+Message-ID: <9da4596e-7de2-9ba1-0fc0-62bf83c39488@plexistor.com>
+Date:   Tue, 23 Jul 2019 06:08:37 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190711140012.1671-2-jack@suse.cz>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-MW
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The ADC in the JZ4740 can work either in high-precision mode with a 2.5V
-range, or in low-precision mode with a 7.5V range. The code in place in
-this driver will select the proper scale according to the maximum
-voltage of the battery.
+On 11/07/2019 17:00, Jan Kara wrote:
+> Currently handling of MADV_WILLNEED hint calls directly into readahead
+> code. Handle it by calling vfs_fadvise() instead so that filesystem can
+> use its ->fadvise() callback to acquire necessary locks or otherwise
+> prepare for the request.
+> 
+> Suggested-by: Amir Goldstein <amir73il@gmail.com>
+> CC: stable@vger.kernel.org # Needed by "xfs: Fix stale data exposure
+> 					when readahead races with hole punch"
+> Signed-off-by: Jan Kara <jack@suse.cz>
 
-The JZ4770 however only has one mode, with a 6.6V range. If only one
-scale is available, there's no need to change it (and nothing to change
-it to), and trying to do so will fail with -EINVAL.
+I had a similar patch for my needs. But did not drop the mmap_sem when calling into
+the FS. This one is much better.
 
-Fixes commit fb24ccfbe1e0 ("power: supply: add Ingenic JZ47xx battery
-driver.")
+Reviewed-by: Boaz Harrosh <boazh@netapp.com>
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Cc: stable@vger.kernel.org
----
- drivers/power/supply/ingenic-battery.c | 4 ++++
- 1 file changed, 4 insertions(+)
+I tested this patch, Works perfect for my needs.
 
-diff --git a/drivers/power/supply/ingenic-battery.c b/drivers/power/supply/ingenic-battery.c
-index 35816d4b3012..5a53057b4f64 100644
---- a/drivers/power/supply/ingenic-battery.c
-+++ b/drivers/power/supply/ingenic-battery.c
-@@ -80,6 +80,10 @@ static int ingenic_battery_set_scale(struct ingenic_battery *bat)
- 	if (ret != IIO_AVAIL_LIST || scale_type != IIO_VAL_FRACTIONAL_LOG2)
- 		return -EINVAL;
- 
-+	/* Only one (fractional) entry - nothing to change */
-+	if (scale_len == 2)
-+		return 0;
-+
- 	max_mV = bat->info.voltage_max_design_uv / 1000;
- 
- 	for (i = 0; i < scale_len; i += 2) {
--- 
-2.21.0.593.g511ec345e18
+Thank you for this patch
+Boaz
+
+> ---
+>  mm/madvise.c | 22 ++++++++++++++++------
+>  1 file changed, 16 insertions(+), 6 deletions(-)
+> 
+> diff --git a/mm/madvise.c b/mm/madvise.c
+> index 628022e674a7..ae56d0ef337d 100644
+> --- a/mm/madvise.c
+> +++ b/mm/madvise.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/userfaultfd_k.h>
+>  #include <linux/hugetlb.h>
+>  #include <linux/falloc.h>
+> +#include <linux/fadvise.h>
+>  #include <linux/sched.h>
+>  #include <linux/ksm.h>
+>  #include <linux/fs.h>
+> @@ -275,6 +276,7 @@ static long madvise_willneed(struct vm_area_struct *vma,
+>  			     unsigned long start, unsigned long end)
+>  {
+>  	struct file *file = vma->vm_file;
+> +	loff_t offset;
+>  
+>  	*prev = vma;
+>  #ifdef CONFIG_SWAP
+> @@ -298,12 +300,20 @@ static long madvise_willneed(struct vm_area_struct *vma,
+>  		return 0;
+>  	}
+>  
+> -	start = ((start - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+> -	if (end > vma->vm_end)
+> -		end = vma->vm_end;
+> -	end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+> -
+> -	force_page_cache_readahead(file->f_mapping, file, start, end - start);
+> +	/*
+> +	 * Filesystem's fadvise may need to take various locks.  We need to
+> +	 * explicitly grab a reference because the vma (and hence the
+> +	 * vma's reference to the file) can go away as soon as we drop
+> +	 * mmap_sem.
+> +	 */
+> +	*prev = NULL;	/* tell sys_madvise we drop mmap_sem */
+> +	get_file(file);
+> +	up_read(&current->mm->mmap_sem);
+> +	offset = (loff_t)(start - vma->vm_start)
+> +			+ ((loff_t)vma->vm_pgoff << PAGE_SHIFT);
+> +	vfs_fadvise(file, offset, end - start, POSIX_FADV_WILLNEED);
+> +	fput(file);
+> +	down_read(&current->mm->mmap_sem);
+>  	return 0;
+>  }
+>  
+> 
 
