@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3E23715C4
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 12:11:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BA0E715C6
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 12:11:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732888AbfGWKLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 06:11:45 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:52385 "EHLO
+        id S1732933AbfGWKLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 06:11:50 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:35093 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731433AbfGWKLo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 06:11:44 -0400
+        by vger.kernel.org with ESMTP id S1731433AbfGWKLu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 06:11:50 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id A5661555;
-        Tue, 23 Jul 2019 06:11:43 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 06:11:43 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 135355D2;
+        Tue, 23 Jul 2019 06:11:49 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 06:11:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ovqKmH
-        s4YZSBFNN7NhQs+UlNtrgZt2XEDpB47iCr77c=; b=M5vNDAt7r5RPHBtsYAWU+o
-        rAcJ8oes3sm3IwezysvyqQMr/xjOIPchO+vJOEy6NVCgUIw1EpthMIxWmGPcBGUk
-        kBVf6eZ9ptBl8h4rYmXE/Kj+MctcpPS5R5D/VoePVrR2MrGU99CZcGpxaMsFf8lo
-        ZIKBA0OzHY3yK6831whX6EQuQEVvqPrid7Eg47VqosQuRwYJ/oXPdFK2a1kvEdcK
-        sLmc1I1/oM/qwgdgWodZAj4FAehcq7uF26+8z/kG44D5N8uI9bmn6yacIrbmkwU4
-        JKa7QBhu93TMyxhnCz0VWr+oSXJ4NkibMaBUajWdg0080Ee1rE4+ZH8a/0GOYp8A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=NOFEA4
+        YYU3rRkRs0AC3CZ/dgIxvVZbHqpqcKS6jUP94=; b=MC0RGptQdcVo1W3es/WQsm
+        +VZ+CavDEJMCs9OYVJXMVBRtLR18EMQamM9JnQIHAhe0WhwYVHhyGrdp98nhcake
+        0Otc00CCuOPT13o6qdpY+Q9leZDUwmjKJhpfzSX8CCNnsypXQTBRoQuKH2hHwimp
+        SLBJsjZeUb7vnPqdZX3NN4tQXDfnj67YPBiFCsLb85XsQcjoCks6hEiw/bNTf9YJ
+        eVvAGkgVkuljArjeJl8xau3NojlIBlXshsNliHpIFMQTyPibztka8B+nYcmuj6zb
+        taeeDk4LtP4R+RiSg362uJf/fNtfnvNHJEVauCSXc0VEiyCtivpSMeKKx7fbC1Eg
         ==
-X-ME-Sender: <xms:Xt02XVJEaQu7OZ4O3rJHJaNI4jn5yXQ5BC8mbrf_lxAjX7Pcpz-TBA>
+X-ME-Sender: <xms:ZN02XdCoDhAYSW8S_txfkfIhpIfAayI1mo_KIzPk_HTgYGasn-sDUQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgddvhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:Xt02Xd_SeekRr9NKiboVp5WVCUBhs6JPmJQi3pa2lncQctyigIqyUw>
-    <xmx:Xt02XR6okGxKsA3j3cW6AQbAaNp9pyh0ZmKQnY9LTfi_hhdjwzHJTQ>
-    <xmx:Xt02XUjy6VxVi4ntOiW4BLaqNsCZfK-8gVfG4_4mheQwzKfcQd2Zog>
-    <xmx:X902XT6M0fJTxDXDDsODYGaT7pE3GWxcrVJ-IsCPoi7DKGuXv8g5pg>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:ZN02XT13a8HOp_iQ7eLfizcl0XOQSlXG_Aaz29-x6v7-gKRx3K9kdQ>
+    <xmx:ZN02XSkahT0OhlnvSOUJlXKOfObwDMUC9lWETd-bZaKlxAJ3Y7BcKg>
+    <xmx:ZN02XVnjYIyMgLsYucUWHyXbBdkDelKNLhd5nzYoMWnk9zS8QVcsoQ>
+    <xmx:ZN02XRUScXkQR5VeLldE3fqHoYUjIOcChQEWy-CtGz07nnMy06AJdQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 457C38005A;
-        Tue, 23 Jul 2019 06:11:42 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] kconfig: fix missing choice values in auto.conf" failed to apply to 5.1-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 297F1380074;
+        Tue, 23 Jul 2019 06:11:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] kconfig: fix missing choice values in auto.conf" failed to apply to 4.19-stable tree
 To:     yamada.masahiro@socionext.com, joonas.kylmala@iki.fi,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 12:11:39 +0200
-Message-ID: <156387669920052@kroah.com>
+Date:   Tue, 23 Jul 2019 12:11:45 +0200
+Message-ID: <156387670510932@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.1-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
