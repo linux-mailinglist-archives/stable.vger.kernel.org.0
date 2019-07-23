@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0CE7169C
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 12:55:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E20C7169D
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 12:55:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387447AbfGWKz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 06:55:29 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:50471 "EHLO
+        id S2387466AbfGWKzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 06:55:31 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:34833 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731642AbfGWKz3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 06:55:29 -0400
+        by vger.kernel.org with ESMTP id S1731642AbfGWKzb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 06:55:31 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 3E2425AE;
-        Tue, 23 Jul 2019 06:55:28 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id D56383AA;
+        Tue, 23 Jul 2019 06:55:29 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 06:55:28 -0400
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 06:55:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=KXcgOF
-        mxSmbZTZVpLjH9GsA8+F5VHt4M/5p+vuXeVbk=; b=tBDzrGg6D80zvFZkCfWKul
-        Ry7V0gl3XACLSM7bTAI065xaVkXYikm+Wi1fa0/lh3aj0DwpRx9RYoSDtFeciZKy
-        DEkaEuPTS1M04k1Rr6i55gIyl1DIkQa9Ie2+3n1w27I4cPNCutNzN7ix/Rdkk0mZ
-        gtqN9GfyWcpfGQoXI3jhnj5z/VKB8utGX4BUOSjuSOaZ6Iwr6M02YnXovrZHPtC2
-        O9/sjZ4Oj946/MMB9WWotZI5VBpqiTFs0dUSoRds0d1sd6yg1+sDJc9Vrn2G/kp1
-        BRhjHdUn4aH/UZ4pfzPySck4MLWQcfOX5LfocoH+iniwojBcLJOphHMALSFxMp5Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=2CDBgC
+        XjWkfqj2HcYVhUBSLBM0q4g1IIjYbiRH0UkV4=; b=QwZwloD4M8zJUkB8fYZNEC
+        xYvSQnjMCLc3THAhIEgV0A/fqSGcJB+musRTe5DvMI40aUnfJDTtoBwNvVsc1JG8
+        kh7pi2xP3B/jvAdrXRYghOKBaZTc35gXp9mDr5U7lkMTmnQmcOdJKCGUZOqDYqij
+        Lw8wdkRNcvkxSdx6HjPUzWGfCZJfQ32qxF3+2a7BiYy7H1FjGJ4BINQHIOPiFN55
+        vrXYwriGFazRN4RQduxQ0VNbzlMa/TLItiRDJQB8fcv9tUta9YHnQKm1jkHGDI/o
+        00jvl0Ar8A9p9+Topu9cO5ooHuW66GWg4dGvCyC3r04hlbpjYb0oft6U6AlevORQ
         ==
-X-ME-Sender: <xms:n-c2XRUBYTWiF3KC4FR6xN4X4NHVJeQ2OLA1mgw0GG-7aTDYB82SgQ>
+X-ME-Sender: <xms:oec2XTE0LhCgUre0yHHWK221pG5SbKLvXoYRpF9XuvNRG3hgpgAFvQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdefgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
     hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:n-c2XWgJLyS1UFhk02gXPlqH0_yHjc9x6jkYKIs-JmvEPDy4DToFCw>
-    <xmx:n-c2XRqh2geUXz7LTfnJUoP75IdFeKlQqJ0RKVcPz6VUdOv-3_oIiA>
-    <xmx:n-c2XUGqbebHE5F8p6sADgXF1P3Tq-GaB1AmcDBfjUWod_FlklWPiw>
-    <xmx:n-c2XT57IcBh1JkRblJ5hJtsqeaUAwC61nwprFHVs2P9vYZ_uWwpGA>
+X-ME-Proxy: <xmx:oec2XZHWHYVC0ct1cz61Wt21vFt0cpxOWXACq-cc_aJvblHnqPjNOw>
+    <xmx:oec2XXXXm_kkvoWBexFqhMWx8R5IyNN0MuPgL_QbV5NFOvst1GkHAQ>
+    <xmx:oec2XX6RjCB22etNuZsv_XLIy39enLgaoonOUlyXNy6N_7DV0sB2og>
+    <xmx:oec2XXbTaHY2eGjSfVYLc5acjQPP7xIjMsNJ0isKIoM96mhfSOvkVQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3B57B8005C;
-        Tue, 23 Jul 2019 06:55:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] signal/usb: Replace kill_pid_info_as_cred with" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id DD1088005C;
+        Tue, 23 Jul 2019 06:55:28 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] signal/usb: Replace kill_pid_info_as_cred with" failed to apply to 4.9-stable tree
 To:     ebiederm@xmission.com, gregkh@linuxfoundation.org,
         oneukum@suse.com, stern@rowland.harvard.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 12:53:16 +0200
-Message-ID: <156387919633132@kroah.com>
+Date:   Tue, 23 Jul 2019 12:53:24 +0200
+Message-ID: <1563879204211175@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
