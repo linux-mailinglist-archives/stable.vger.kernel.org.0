@@ -2,305 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A265717E4
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDCB7717F2
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389648AbfGWMPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 08:15:55 -0400
-Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:57525 "EHLO
-        wnew3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2389532AbfGWMPz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 08:15:55 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.west.internal (Postfix) with ESMTP id 0678F555;
-        Tue, 23 Jul 2019 08:05:53 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 08:05:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=uvC6b/
-        imVYN4SepzGgZKsKdR7uA4msQgZWQD42qwktY=; b=YBXG9JrI3mpFrihIWacG/p
-        0Ft/+BM7SesoRWHrPynwFf4QRJ5SpRQV90zPGVr0WWltOPFatp4fnpcxT7+wE/Wy
-        i1TAmHkavC8azAj+Lj+iB9YME8uHOROkvPi/A3KavvUTkeckmd6gBJ3fXY1T59eN
-        kVkKltDJPdVMHZTC871muAFfS+viECFrI7B2yjbYE9kIYuF/uKjWC+cE/oSffL+n
-        3rnMPQlm2q2VO98jXLAdaOthoQEYK6TUS+JGDmRZZSZMo72QPNYDzycabr+J563I
-        XL/A+LOFzVSB3K/M5db81vXFwJjN9+bjINOuT7jIcM2JXWcfJRHb+wIdLRSCkINA
-        ==
-X-ME-Sender: <xms:Ifg2XVvtcnF1WbdksOQhEgCgY2bYmpV2zZgyrdNf7DiYgjnFTggEwg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdegkecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhgihhthhhusgdrtghomhenucfkph
-    epkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvghes
-    khhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:Ifg2XRjdV1A46triYDU4lM8DMLETX-tFi62s-TXXuTVhgqp9iZ-CqA>
-    <xmx:Ifg2XW3XSLvN-yXxNG6DHJn_QelEfl9FU3FE8RDY28_qW_afJSofCQ>
-    <xmx:Ifg2XfrnU_RRV2-4TzLN9XAbKc3hTjLiVUz5_tMTMAMpeuPoL89kGQ>
-    <xmx:Ifg2Xair_JJbmemRq8xYCyYoSRTvRcX-1bxpTRYaAtvrX6_JOKY_lwN3moI>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 08C54380075;
-        Tue, 23 Jul 2019 08:05:52 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm: vmscan: scan anonymous pages on file refaults" failed to apply to 4.14-stable tree
-To:     vovoy@chromium.org, akpm@linux-foundation.org, hannes@cmpxchg.org,
-        mgorman@techsingularity.net, mhocko@suse.com, minchan@kernel.org,
-        riel@redhat.com, sonnyrao@chromium.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vdavydov.dev@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 14:05:51 +0200
-Message-ID: <156388355121364@kroah.com>
+        id S2387839AbfGWMUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 08:20:00 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42660 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2389373AbfGWMT7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jul 2019 08:19:59 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 6A8D6AF6B;
+        Tue, 23 Jul 2019 12:19:56 +0000 (UTC)
+Date:   Tue, 23 Jul 2019 14:19:55 +0200
+From:   Johannes Thumshirn <jthumshirn@suse.de>
+To:     gregkh@linuxfoundation.org
+Cc:     dsterba@suse.com, nborisov@suse.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] btrfs: correctly validate compression
+ type" failed to apply to 5.1-stable tree
+Message-ID: <20190723121955.GE3997@x250.microfocus.com>
+References: <156388330112473@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <156388330112473@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+please try the following:
 
-thanks,
+From 9afa2d46ecb511259130eb51b4ab1feb1055d961 Mon Sep 17 00:00:00 2001
+From: Johannes Thumshirn <jthumshirn@suse.de>
+Date: Thu, 6 Jun 2019 12:07:15 +0200
+Subject: [PATCH] btrfs: correctly validate compression type
 
-greg k-h
+(commit aa53e3bfac7205fb3a8815ac1c937fd6ed01b41e upstream)
 
------------------- original commit in Linus's tree ------------------
+Nikolay reported the following KASAN splat when running btrfs/048:
 
-From 2c012a4ad1a2cd3fb5a0f9307b9d219f84eda1fa Mon Sep 17 00:00:00 2001
-From: Kuo-Hsin Yang <vovoy@chromium.org>
-Date: Thu, 11 Jul 2019 20:52:04 -0700
-Subject: [PATCH] mm: vmscan: scan anonymous pages on file refaults
+[ 1843.470920] ==================================================================
+[ 1843.471971] BUG: KASAN: slab-out-of-bounds in strncmp+0x66/0xb0
+[ 1843.472775] Read of size 1 at addr ffff888111e369e2 by task btrfs/3979
 
-When file refaults are detected and there are many inactive file pages,
-the system never reclaim anonymous pages, the file pages are dropped
-aggressively when there are still a lot of cold anonymous pages and
-system thrashes.  This issue impacts the performance of applications
-with large executable, e.g.  chrome.
+[ 1843.473904] CPU: 3 PID: 3979 Comm: btrfs Not tainted 5.2.0-rc3-default #536
+[ 1843.475009] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+[ 1843.476322] Call Trace:
+[ 1843.476674]  dump_stack+0x7c/0xbb
+[ 1843.477132]  ? strncmp+0x66/0xb0
+[ 1843.477587]  print_address_description+0x114/0x320
+[ 1843.478256]  ? strncmp+0x66/0xb0
+[ 1843.478740]  ? strncmp+0x66/0xb0
+[ 1843.479185]  __kasan_report+0x14e/0x192
+[ 1843.479759]  ? strncmp+0x66/0xb0
+[ 1843.480209]  kasan_report+0xe/0x20
+[ 1843.480679]  strncmp+0x66/0xb0
+[ 1843.481105]  prop_compression_validate+0x24/0x70
+[ 1843.481798]  btrfs_xattr_handler_set_prop+0x65/0x160
+[ 1843.482509]  __vfs_setxattr+0x71/0x90
+[ 1843.483012]  __vfs_setxattr_noperm+0x84/0x130
+[ 1843.483606]  vfs_setxattr+0xac/0xb0
+[ 1843.484085]  setxattr+0x18c/0x230
+[ 1843.484546]  ? vfs_setxattr+0xb0/0xb0
+[ 1843.485048]  ? __mod_node_page_state+0x1f/0xa0
+[ 1843.485672]  ? _raw_spin_unlock+0x24/0x40
+[ 1843.486233]  ? __handle_mm_fault+0x988/0x1290
+[ 1843.486823]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487330]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487842]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.488442]  ? debug_lockdep_rcu_enabled+0x22/0x40
+[ 1843.489089]  ? rcu_sync_lockdep_assert+0xe/0x70
+[ 1843.489707]  ? __sb_start_write+0x158/0x200
+[ 1843.490278]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.490855]  ? __mnt_want_write+0x98/0xe0
+[ 1843.491397]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.492201]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+[ 1843.493201]  do_syscall_64+0x6c/0x230
+[ 1843.493988]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 1843.495041] RIP: 0033:0x7fa7a8a7707a
+[ 1843.495819] Code: 48 8b 0d 21 de 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 be 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d ee dd 2b 00 f7 d8 64 89 01 48
+[ 1843.499203] RSP: 002b:00007ffcb73bca38 EFLAGS: 00000202 ORIG_RAX: 00000000000000be
+[ 1843.500210] RAX: ffffffffffffffda RBX: 00007ffcb73bda9d RCX: 00007fa7a8a7707a
+[ 1843.501170] RDX: 00007ffcb73bda9d RSI: 00000000006dc050 RDI: 0000000000000003
+[ 1843.502152] RBP: 00000000006dc050 R08: 0000000000000000 R09: 0000000000000000
+[ 1843.503109] R10: 0000000000000002 R11: 0000000000000202 R12: 00007ffcb73bda91
+[ 1843.504055] R13: 0000000000000003 R14: 00007ffcb73bda82 R15: ffffffffffffffff
 
-With this patch, when file refault is detected, inactive_list_is_low()
-always returns true for file pages in get_scan_count() to enable
-scanning anonymous pages.
+[ 1843.505268] Allocated by task 3979:
+[ 1843.505771]  save_stack+0x19/0x80
+[ 1843.506211]  __kasan_kmalloc.constprop.5+0xa0/0xd0
+[ 1843.506836]  setxattr+0xeb/0x230
+[ 1843.507264]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.507886]  do_syscall_64+0x6c/0x230
+[ 1843.508429]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-The problem can be reproduced by the following test program.
+[ 1843.509558] Freed by task 0:
+[ 1843.510188] (stack is not available)
 
----8<---
-void fallocate_file(const char *filename, off_t size)
-{
-	struct stat st;
-	int fd;
+[ 1843.511309] The buggy address belongs to the object at ffff888111e369e0
+                which belongs to the cache kmalloc-8 of size 8
+[ 1843.514095] The buggy address is located 2 bytes inside of
+                8-byte region [ffff888111e369e0, ffff888111e369e8)
+[ 1843.516524] The buggy address belongs to the page:
+[ 1843.517561] page:ffff88813f478d80 refcount:1 mapcount:0 mapping:ffff88811940c300 index:0xffff888111e373b8 compound_mapcount: 0
+[ 1843.519993] flags: 0x4404000010200(slab|head)
+[ 1843.520951] raw: 0004404000010200 ffff88813f48b008 ffff888119403d50 ffff88811940c300
+[ 1843.522616] raw: ffff888111e373b8 000000000016000f 00000001ffffffff 0000000000000000
+[ 1843.524281] page dumped because: kasan: bad access detected
 
-	if (!stat(filename, &st) && st.st_size >= size)
-		return;
+[ 1843.525936] Memory state around the buggy address:
+[ 1843.526975]  ffff888111e36880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.528479]  ffff888111e36900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.530138] >ffff888111e36980: fc fc fc fc fc fc fc fc fc fc fc fc 02 fc fc fc
+[ 1843.531877]                                                        ^
+[ 1843.533287]  ffff888111e36a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.534874]  ffff888111e36a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.536468] ==================================================================
 
-	fd = open(filename, O_WRONLY | O_CREAT, 0600);
-	if (fd < 0) {
-		perror("create file");
-		exit(1);
-	}
-	if (posix_fallocate(fd, 0, size)) {
-		perror("fallocate");
-		exit(1);
-	}
-	close(fd);
-}
+This is caused by supplying a too short compression value ('lz') in the
+test-case and comparing it to 'lzo' with strncmp() and a length of 3.
+strncmp() read past the 'lz' when looking for the 'o' and thus caused an
+out-of-bounds read.
 
-long *alloc_anon(long size)
-{
-	long *start = malloc(size);
-	memset(start, 1, size);
-	return start;
-}
+Introduce a new check 'btrfs_compress_is_valid_type()' which not only
+checks the user-supplied value against known compression types, but also
+employs checks for too short values.
 
-long access_file(const char *filename, long size, long rounds)
-{
-	int fd, i;
-	volatile char *start1, *end1, *start2;
-	const int page_size = getpagesize();
-	long sum = 0;
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+Fixes: 272e5326c783 ("btrfs: prop: fix vanished compression property after failed set")
+CC: stable@vger.kernel.org # 5.1+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+---
+ fs/btrfs/compression.c | 16 ++++++++++++++++
+ fs/btrfs/compression.h |  1 +
+ fs/btrfs/props.c       |  6 +-----
+ 3 files changed, 18 insertions(+), 5 deletions(-)
 
-	fd = open(filename, O_RDONLY);
-	if (fd == -1) {
-		perror("open");
-		exit(1);
-	}
-
-	/*
-	 * Some applications, e.g. chrome, use a lot of executable file
-	 * pages, map some of the pages with PROT_EXEC flag to simulate
-	 * the behavior.
-	 */
-	start1 = mmap(NULL, size / 2, PROT_READ | PROT_EXEC, MAP_SHARED,
-		      fd, 0);
-	if (start1 == MAP_FAILED) {
-		perror("mmap");
-		exit(1);
-	}
-	end1 = start1 + size / 2;
-
-	start2 = mmap(NULL, size / 2, PROT_READ, MAP_SHARED, fd, size / 2);
-	if (start2 == MAP_FAILED) {
-		perror("mmap");
-		exit(1);
-	}
-
-	for (i = 0; i < rounds; ++i) {
-		struct timeval before, after;
-		volatile char *ptr1 = start1, *ptr2 = start2;
-		gettimeofday(&before, NULL);
-		for (; ptr1 < end1; ptr1 += page_size, ptr2 += page_size)
-			sum += *ptr1 + *ptr2;
-		gettimeofday(&after, NULL);
-		printf("File access time, round %d: %f (sec)
-", i,
-		       (after.tv_sec - before.tv_sec) +
-		       (after.tv_usec - before.tv_usec) / 1000000.0);
-	}
-	return sum;
-}
-
-int main(int argc, char *argv[])
-{
-	const long MB = 1024 * 1024;
-	long anon_mb, file_mb, file_rounds;
-	const char filename[] = "large";
-	long *ret1;
-	long ret2;
-
-	if (argc != 4) {
-		printf("usage: thrash ANON_MB FILE_MB FILE_ROUNDS
-");
-		exit(0);
-	}
-	anon_mb = atoi(argv[1]);
-	file_mb = atoi(argv[2]);
-	file_rounds = atoi(argv[3]);
-
-	fallocate_file(filename, file_mb * MB);
-	printf("Allocate %ld MB anonymous pages
-", anon_mb);
-	ret1 = alloc_anon(anon_mb * MB);
-	printf("Access %ld MB file pages
-", file_mb);
-	ret2 = access_file(filename, file_mb * MB, file_rounds);
-	printf("Print result to prevent optimization: %ld
-",
-	       *ret1 + ret2);
-	return 0;
-}
----8<---
-
-Running the test program on 2GB RAM VM with kernel 5.2.0-rc5, the program
-fills ram with 2048 MB memory, access a 200 MB file for 10 times.  Without
-this patch, the file cache is dropped aggresively and every access to the
-file is from disk.
-
-  $ ./thrash 2048 200 10
-  Allocate 2048 MB anonymous pages
-  Access 200 MB file pages
-  File access time, round 0: 2.489316 (sec)
-  File access time, round 1: 2.581277 (sec)
-  File access time, round 2: 2.487624 (sec)
-  File access time, round 3: 2.449100 (sec)
-  File access time, round 4: 2.420423 (sec)
-  File access time, round 5: 2.343411 (sec)
-  File access time, round 6: 2.454833 (sec)
-  File access time, round 7: 2.483398 (sec)
-  File access time, round 8: 2.572701 (sec)
-  File access time, round 9: 2.493014 (sec)
-
-With this patch, these file pages can be cached.
-
-  $ ./thrash 2048 200 10
-  Allocate 2048 MB anonymous pages
-  Access 200 MB file pages
-  File access time, round 0: 2.475189 (sec)
-  File access time, round 1: 2.440777 (sec)
-  File access time, round 2: 2.411671 (sec)
-  File access time, round 3: 1.955267 (sec)
-  File access time, round 4: 0.029924 (sec)
-  File access time, round 5: 0.000808 (sec)
-  File access time, round 6: 0.000771 (sec)
-  File access time, round 7: 0.000746 (sec)
-  File access time, round 8: 0.000738 (sec)
-  File access time, round 9: 0.000747 (sec)
-
-Checked the swap out stats during the test [1], 19006 pages swapped out
-with this patch, 3418 pages swapped out without this patch. There are
-more swap out, but I think it's within reasonable range when file backed
-data set doesn't fit into the memory.
-
-$ ./thrash 2000 100 2100 5 1 # ANON_MB FILE_EXEC FILE_NOEXEC ROUNDS
-PROCESSES Allocate 2000 MB anonymous pages active_anon: 1613644,
-inactive_anon: 348656, active_file: 892, inactive_file: 1384 (kB)
-pswpout: 7972443, pgpgin: 478615246 Access 100 MB executable file pages
-Access 2100 MB regular file pages File access time, round 0: 12.165,
-(sec) active_anon: 1433788, inactive_anon: 478116, active_file: 17896,
-inactive_file: 24328 (kB) File access time, round 1: 11.493, (sec)
-active_anon: 1430576, inactive_anon: 477144, active_file: 25440,
-inactive_file: 26172 (kB) File access time, round 2: 11.455, (sec)
-active_anon: 1427436, inactive_anon: 476060, active_file: 21112,
-inactive_file: 28808 (kB) File access time, round 3: 11.454, (sec)
-active_anon: 1420444, inactive_anon: 473632, active_file: 23216,
-inactive_file: 35036 (kB) File access time, round 4: 11.479, (sec)
-active_anon: 1413964, inactive_anon: 471460, active_file: 31728,
-inactive_file: 32224 (kB) pswpout: 7991449 (+ 19006), pgpgin: 489924366
-(+ 11309120)
-
-With 4 processes accessing non-overlapping parts of a large file, 30316
-pages swapped out with this patch, 5152 pages swapped out without this
-patch.  The swapout number is small comparing to pgpgin.
-
-[1]: https://github.com/vovo/testing/blob/master/mem_thrash.c
-
-Link: http://lkml.kernel.org/r/20190701081038.GA83398@google.com
-Fixes: e9868505987a ("mm,vmscan: only evict file pages when we have plenty")
-Fixes: 7c5bd705d8f9 ("mm: memcg: only evict file pages when we have plenty")
-Signed-off-by: Kuo-Hsin Yang <vovoy@chromium.org>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Sonny Rao <sonnyrao@chromium.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Rik van Riel <riel@redhat.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: <stable@vger.kernel.org>	[4.12+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 910e02c793ff..96aafbf8ce4e 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -2125,7 +2125,7 @@ static void shrink_active_list(unsigned long nr_to_scan,
-  *   10TB     320        32GB
-  */
- static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
--				 struct scan_control *sc, bool actual_reclaim)
-+				 struct scan_control *sc, bool trace)
- {
- 	enum lru_list active_lru = file * LRU_FILE + LRU_ACTIVE;
- 	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
-@@ -2151,7 +2151,7 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
- 	 * rid of the stale workingset quickly.
- 	 */
- 	refaults = lruvec_page_state_local(lruvec, WORKINGSET_ACTIVATE);
--	if (file && actual_reclaim && lruvec->refaults != refaults) {
-+	if (file && lruvec->refaults != refaults) {
- 		inactive_ratio = 0;
- 	} else {
- 		gb = (inactive + active) >> (30 - PAGE_SHIFT);
-@@ -2161,7 +2161,7 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
- 			inactive_ratio = 1;
- 	}
+diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
+index 716656d502a9..9d3c102588aa 100644
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -42,6 +42,22 @@ const char* btrfs_compress_type2str(enum btrfs_compression_type type)
+ 	return NULL;
+ }
  
--	if (actual_reclaim)
-+	if (trace)
- 		trace_mm_vmscan_inactive_list_is_low(pgdat->node_id, sc->reclaim_idx,
- 			lruvec_lru_size(lruvec, inactive_lru, MAX_NR_ZONES), inactive,
- 			lruvec_lru_size(lruvec, active_lru, MAX_NR_ZONES), active,
++bool btrfs_compress_is_valid_type(const char *str, size_t len)
++{
++	int i;
++
++	for (i = 1; i < ARRAY_SIZE(btrfs_compress_types); i++) {
++		size_t comp_len = strlen(btrfs_compress_types[i]);
++
++		if (len < comp_len)
++			continue;
++
++		if (!strncmp(btrfs_compress_types[i], str, comp_len))
++			return true;
++	}
++	return false;
++}
++
+ static int btrfs_decompress_bio(struct compressed_bio *cb);
+ 
+ static inline int compressed_bio_size(struct btrfs_fs_info *fs_info,
+diff --git a/fs/btrfs/compression.h b/fs/btrfs/compression.h
+index 9976fe0f7526..b61879485e60 100644
+--- a/fs/btrfs/compression.h
++++ b/fs/btrfs/compression.h
+@@ -173,6 +173,7 @@ extern const struct btrfs_compress_op btrfs_lzo_compress;
+ extern const struct btrfs_compress_op btrfs_zstd_compress;
+ 
+ const char* btrfs_compress_type2str(enum btrfs_compression_type type);
++bool btrfs_compress_is_valid_type(const char *str, size_t len);
+ 
+ int btrfs_compress_heuristic(struct inode *inode, u64 start, u64 end);
+ 
+diff --git a/fs/btrfs/props.c b/fs/btrfs/props.c
+index 61d22a56c0ba..1aeeb4a62cd2 100644
+--- a/fs/btrfs/props.c
++++ b/fs/btrfs/props.c
+@@ -366,11 +366,7 @@ int btrfs_subvol_inherit_props(struct btrfs_trans_handle *trans,
+ 
+ static int prop_compression_validate(const char *value, size_t len)
+ {
+-	if (!strncmp("lzo", value, 3))
+-		return 0;
+-	else if (!strncmp("zlib", value, 4))
+-		return 0;
+-	else if (!strncmp("zstd", value, 4))
++	if (btrfs_compression_is_valid_type(value, len))
+ 		return 0;
+ 
+ 	return -EINVAL;
+-- 
+2.16.4
 
+-- 
+Johannes Thumshirn                            SUSE Labs Filesystems
+jthumshirn@suse.de                                +49 911 74053 689
+SUSE LINUX GmbH, Maxfeldstr. 5, 90409 Nürnberg
+GF: Felix Imendörffer, Mary Higgins, Sri Rasiah
+HRB 21284 (AG Nürnberg)
+Key fingerprint = EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
