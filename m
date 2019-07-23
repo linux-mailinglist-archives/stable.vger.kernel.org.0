@@ -2,93 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C726770E6E
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 03:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D89CA70F3C
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 04:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387665AbfGWBEK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jul 2019 21:04:10 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:46998 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731828AbfGWBEK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Jul 2019 21:04:10 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id B5164B2DC7;
-        Tue, 23 Jul 2019 01:04:09 +0000 (UTC)
-Received: from ming.t460p (ovpn-8-21.pek2.redhat.com [10.72.8.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4E3FA5C54A;
-        Tue, 23 Jul 2019 01:03:52 +0000 (UTC)
-Date:   Tue, 23 Jul 2019 09:03:47 +0800
-From:   Ming Lei <ming.lei@redhat.com>
-To:     Bart Van Assche <bvanassche@acm.org>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, "Ewan D . Milne" <emilne@redhat.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH V2 2/2] scsi: implement .cleanup_rq callback
-Message-ID: <20190723010345.GB30776@ming.t460p>
-References: <20190720030637.14447-1-ming.lei@redhat.com>
- <20190720030637.14447-3-ming.lei@redhat.com>
- <eed624d5-0585-699c-9084-9f5f0ea09e52@acm.org>
+        id S1731806AbfGWCqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jul 2019 22:46:09 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:55728 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726962AbfGWCqH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jul 2019 22:46:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1563849964; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:references; bh=fL5yem8QsUYkhZu+Pm1PTITp0l+jVscmMyZeS34IKsQ=;
+        b=Vb/+i3osY1n11LJAcDyhzXABp5jCqHMJnOUEKjZWHUDZvGxGJ2U0beZdgw+/ZVudnMkOqj
+        SNYVPb1fNyl6K0KobhTaETLyhYaPad9d45FiPrzttvGZ5gcJXjbR04sYj4ZNk6ULQTtdcP
+        Rx9jzBniH4E0gGStjD/mTqxvcwloR5Q=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Sebastian Reichel <sre@kernel.org>
+Cc:     od@zcrc.me, Artur Rojek <contact@artur-rojek.eu>,
+        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org
+Subject: [PATCH] power/supply: ingenic-battery: Don't change scale if there's only one
+Date:   Mon, 22 Jul 2019 22:45:54 -0400
+Message-Id: <20190723024554.9248-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <eed624d5-0585-699c-9084-9f5f0ea09e52@acm.org>
-User-Agent: Mutt/1.11.3 (2019-02-01)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Tue, 23 Jul 2019 01:04:09 +0000 (UTC)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 22, 2019 at 08:40:23AM -0700, Bart Van Assche wrote:
-> On 7/19/19 8:06 PM, Ming Lei wrote:
-> > diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-> > index e1da8c70a266..52537c145762 100644
-> > --- a/drivers/scsi/scsi_lib.c
-> > +++ b/drivers/scsi/scsi_lib.c
-> > @@ -154,12 +154,9 @@ scsi_set_blocked(struct scsi_cmnd *cmd, int reason)
-> >   static void scsi_mq_requeue_cmd(struct scsi_cmnd *cmd)
-> >   {
-> > -	if (cmd->request->rq_flags & RQF_DONTPREP) {
-> > -		cmd->request->rq_flags &= ~RQF_DONTPREP;
-> > -		scsi_mq_uninit_cmd(cmd);
-> > -	} else {
-> > -		WARN_ON_ONCE(true);
-> > -	}
-> > +	WARN_ON_ONCE(!(cmd->request->rq_flags & RQF_DONTPREP));
-> > +
-> > +	scsi_mq_uninit_cmd(cmd);
-> >   	blk_mq_requeue_request(cmd->request, true);
-> >   }
-> 
-> The above changes are independent of this patch series. Have you considered
-> to move these into a separate patch?
+The ADC in the JZ4740 can work either in high-precision mode with a 2.5V
+range, or in low-precision mode with a 7.5V range. The code in place in
+this driver will select the proper scale according to the maximum
+voltage of the battery.
 
-OK.
+The JZ4770 however only has one mode, with a 6.6V range. If only one
+scale is available, there's no need to change it (and nothing to change
+it to), and trying to do so will fail with -EINVAL.
 
-> 
-> > +/*
-> > + * Only called when the request isn't completed by SCSI, and not freed by
-> > + * SCSI
-> > + */
-> > +static void scsi_cleanup_rq(struct request *rq)
-> > +{
-> > +	struct scsi_cmnd *cmd = blk_mq_rq_to_pdu(rq);
-> > +
-> > +	scsi_mq_uninit_cmd(cmd);
-> > +}
-> 
-> Is the comment above this function correct? The previous patch adds an
-> unconditional call to mq_ops->cleanup_rq() in blk_mq_free_request().
+Fixes commit fb24ccfbe1e0 ("power: supply: add Ingenic JZ47xx battery
+driver.")
 
-You are right, will fix it in V3.
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Cc: stable@vger.kernel.org
+---
+ drivers/power/supply/ingenic-battery.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-Thanks,
-Ming
+diff --git a/drivers/power/supply/ingenic-battery.c b/drivers/power/supply/ingenic-battery.c
+index 35816d4b3012..5a53057b4f64 100644
+--- a/drivers/power/supply/ingenic-battery.c
++++ b/drivers/power/supply/ingenic-battery.c
+@@ -80,6 +80,10 @@ static int ingenic_battery_set_scale(struct ingenic_battery *bat)
+ 	if (ret != IIO_AVAIL_LIST || scale_type != IIO_VAL_FRACTIONAL_LOG2)
+ 		return -EINVAL;
+ 
++	/* Only one (fractional) entry - nothing to change */
++	if (scale_len == 2)
++		return 0;
++
+ 	max_mV = bat->info.voltage_max_design_uv / 1000;
+ 
+ 	for (i = 0; i < scale_len; i += 2) {
+-- 
+2.21.0.593.g511ec345e18
+
