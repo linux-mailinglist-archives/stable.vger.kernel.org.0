@@ -2,78 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14EBA71592
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 11:59:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCF1871593
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 11:59:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726384AbfGWJ73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 05:59:29 -0400
-Received: from mail-lf1-f49.google.com ([209.85.167.49]:46728 "EHLO
-        mail-lf1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726116AbfGWJ73 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 05:59:29 -0400
-Received: by mail-lf1-f49.google.com with SMTP id z15so24622117lfh.13
-        for <stable@vger.kernel.org>; Tue, 23 Jul 2019 02:59:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=ETFW6Fmjh+yKsfkXMz8hHoIGGXFJIjay9nWq20ZxFRc=;
-        b=Lkk08MqCFX83Hok1COdpBqsdxNZQMTBd0iPajmr61+oRmINV3kEn7yir63sHCZfJ0p
-         Fz741Z7/uQYhTX5xh+HaaWr9QH3P44+LhnYbsYoMPGXTgWcnPem2/Ip6LtUs50nvtXaB
-         tmHyPO6GbbBNiIYjGTs/AJ9TUreBe7PeHukV2BlVz933SUj/WJL5MYnQwhMZKsxw5WRJ
-         TUky45j082KIiRZ6K2ybSr5H3LDwKRnvqwyVLF+YZMzVMOkZhJHk5xJznGOPDJrLB73e
-         gQv5nTe+YKrNrcBKlLNPGDl/bSep1a/DSlO7r6++1mA0QZIF5DToW4FRfmn3TeC1H+sH
-         858g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ETFW6Fmjh+yKsfkXMz8hHoIGGXFJIjay9nWq20ZxFRc=;
-        b=AXHiX2voYDkevjm07WHgDPr29Km6Ybp29ZvaMvosALGkrQ0YObJW1IViHc2BDk72R0
-         hgxg2S8szfhuF0pDqxShIVkJtR355mOUGGJzbmJWz8A0Ho7SeXEtnKc0TEMwaDFOhMoi
-         LdwnAeZYUpt6XpwiToxrj1CW3Aa7PHpbAjY+qzt5VY1mrl3TtfBu7A63dm7qJ6U4eoZY
-         DJ0WppXd8jq6jx9RxUfQ1XchHyrO0ecK8liOsdW31MjnhrWkrLGa8y1w07yAayIaoBV3
-         /Vcr0I/OAsdVimMmW5XFTYyuHSDfCGwMAUSUrVrPJbrwQQylLRKuQ9QUKb2MIFRz9Zla
-         PsMA==
-X-Gm-Message-State: APjAAAU8NnW2V8MFX8qzofh1wL4CC+lMv+F8/de2ObVQh9y7FMmb5WaA
-        syMN2O7Z7I/4MsV4tG9R3fZFXIXTwODRJ6hO7YE=
-X-Google-Smtp-Source: APXvYqzD1Vmn0POlFbvLTJhXPkaawAolYho/B4Mz/1CQA9OKg1ypldBoFR8zdktEEPnjqu9pG7/1sZhiQjfuGz280io=
-X-Received: by 2002:ac2:4644:: with SMTP id s4mr34233863lfo.158.1563875967221;
- Tue, 23 Jul 2019 02:59:27 -0700 (PDT)
+        id S1726817AbfGWJ7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 05:59:38 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:56323 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726546AbfGWJ7h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 05:59:37 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id B5A3F5B7;
+        Tue, 23 Jul 2019 05:59:36 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 05:59:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=A32vPr
+        bFXQEvfHBUBxJ4uWni+nooXHF3jucCl+GDR0A=; b=ADWwRsiz4VJBB4Vmt7C8rX
+        6g6P1cefNPg740piGho1DKwHLF9REQOe7OW5JAcLvSSALF/UksYtrSCpIl3Lx/L7
+        Yoa+Hukuol/G8UGclJ/5w6KqA+wWLuGRiyaWgqRQ+W9RUuIPIVfvjKg4+KXoalpM
+        Z0OSYVb+THY/WweF8BdnjSDNBsGTyKo7h5gNs4IrujgJMpqYI47e/wHF4F+d+xJK
+        aaFd76102HRheHqi211fSv3C4zwO0JhmtaHRJQzlcU4mzhMKCVkw9OFzNAQtIig9
+        quU3TS/CRrXB/a7l4InnNLzqAdL6yNe8wy4EW9cS95oL9LOxA0itdc7o4JR47itQ
+        ==
+X-ME-Sender: <xms:iNo2XQl_R83bSTK7RFqOrJnbFH3zaHDX8r28goTbBF9_FXX4bwKW6Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgddvvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:iNo2XaKpuX1uS011X_eM7-_Eb8ow5FpapkfrCIzhainx0wm-_XzUcg>
+    <xmx:iNo2XY6wLPEg3GIma6Hlke6-JuxBj3H9u4q9MCR4KbH3by7ws8jw5A>
+    <xmx:iNo2XS21QKNJB-IzKkGEEa9d_PT1uAG_WucS5gI8HE3HlpF5rWmn1g>
+    <xmx:iNo2XVLv1jHNuZN6xIYTVj20rf9U2MsOuXF8gAtu3INYLKnPdxbjfg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id BCD31380083;
+        Tue, 23 Jul 2019 05:59:35 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ASoC: core: Adapt for debugfs API change" failed to apply to 4.19-stable tree
+To:     broonie@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 23 Jul 2019 11:59:34 +0200
+Message-ID: <1563875974119164@kroah.com>
 MIME-Version: 1.0
-References: <20190722130313.18562-1-jinpuwang@gmail.com> <20190722154239.GH1607@sasha-vm>
-In-Reply-To: <20190722154239.GH1607@sasha-vm>
-From:   Jinpu Wang <jinpuwang@gmail.com>
-Date:   Tue, 23 Jul 2019 11:59:16 +0200
-Message-ID: <CAD9gYJ+xhujXEHVNAEB5EUO7vwkXuZeU-xf0+g049uk8ucP_tA@mail.gmail.com>
-Subject: Re: [stable-4.19 0/4] CVE-2019-3900 fixes
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "v3.14+, only the raid10 part" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sasha Levin <sashal@kernel.org> =E4=BA=8E2019=E5=B9=B47=E6=9C=8822=E6=97=A5=
-=E5=91=A8=E4=B8=80 =E4=B8=8B=E5=8D=885:42=E5=86=99=E9=81=93=EF=BC=9A
->
-> On Mon, Jul 22, 2019 at 03:03:09PM +0200, Jack Wang wrote:
-> >Hi, Greg, hi Sasha,
-> >
-> >I noticed the fixes for CVE-2019-3900 are only backported to 4.14.133+,
-> >but not to 4.19, also 5.1, fixes have been included in 5.2.
-> >
-> >So I backported to 4.19, only compiles fine, no functional tests.
-> >
-> >Please review, and consider to include in next release.
->
-> Thanks Jack. It'll be great if someone can test it and confirm it fixes
-> the issue (and nothing else breaks).
->
-Agree, thanks
-> --
-> Thanks,
-> Sasha
+
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From c2c928c93173f220955030e8440517b87ec7df92 Mon Sep 17 00:00:00 2001
+From: Mark Brown <broonie@kernel.org>
+Date: Fri, 21 Jun 2019 12:33:56 +0100
+Subject: [PATCH] ASoC: core: Adapt for debugfs API change
+
+Back in ff9fb72bc07705c (debugfs: return error values, not NULL) the
+debugfs APIs were changed to return error pointers rather than NULL
+pointers on error, breaking the error checking in ASoC. Update the
+code to use IS_ERR() and log the codes that are returned as part of
+the error messages.
+
+Fixes: ff9fb72bc07705c (debugfs: return error values, not NULL)
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 9138fcb15cd3..6aeba0d66ec5 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -158,9 +158,10 @@ static void soc_init_component_debugfs(struct snd_soc_component *component)
+ 				component->card->debugfs_card_root);
+ 	}
+ 
+-	if (!component->debugfs_root) {
++	if (IS_ERR(component->debugfs_root)) {
+ 		dev_warn(component->dev,
+-			"ASoC: Failed to create component debugfs directory\n");
++			"ASoC: Failed to create component debugfs directory: %ld\n",
++			PTR_ERR(component->debugfs_root));
+ 		return;
+ 	}
+ 
+@@ -212,18 +213,21 @@ static void soc_init_card_debugfs(struct snd_soc_card *card)
+ 
+ 	card->debugfs_card_root = debugfs_create_dir(card->name,
+ 						     snd_soc_debugfs_root);
+-	if (!card->debugfs_card_root) {
++	if (IS_ERR(card->debugfs_card_root)) {
+ 		dev_warn(card->dev,
+-			 "ASoC: Failed to create card debugfs directory\n");
++			 "ASoC: Failed to create card debugfs directory: %ld\n",
++			 PTR_ERR(card->debugfs_card_root));
++		card->debugfs_card_root = NULL;
+ 		return;
+ 	}
+ 
+ 	card->debugfs_pop_time = debugfs_create_u32("dapm_pop_time", 0644,
+ 						    card->debugfs_card_root,
+ 						    &card->pop_time);
+-	if (!card->debugfs_pop_time)
++	if (IS_ERR(card->debugfs_pop_time))
+ 		dev_warn(card->dev,
+-			 "ASoC: Failed to create pop time debugfs file\n");
++			 "ASoC: Failed to create pop time debugfs file: %ld\n",
++			 PTR_ERR(card->debugfs_pop_time));
+ }
+ 
+ static void soc_cleanup_card_debugfs(struct snd_soc_card *card)
+
