@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE7C8717D2
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A265717E4
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730000AbfGWMKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 08:10:55 -0400
-Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:60355 "EHLO
+        id S2389648AbfGWMPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 08:15:55 -0400
+Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:57525 "EHLO
         wnew3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729441AbfGWMKz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 08:10:55 -0400
-X-Greylist: delayed 307 seconds by postgrey-1.27 at vger.kernel.org; Tue, 23 Jul 2019 08:10:54 EDT
+        by vger.kernel.org with ESMTP id S2389532AbfGWMPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 08:15:55 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.west.internal (Postfix) with ESMTP id 76FD0529;
-        Tue, 23 Jul 2019 08:05:49 -0400 (EDT)
+        by mailnew.west.internal (Postfix) with ESMTP id 0678F555;
+        Tue, 23 Jul 2019 08:05:53 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 08:05:50 -0400
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 08:05:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6EslOt
-        OrMc9nGx9xnywjPAnI8yNEn5nu0KAME2Whklg=; b=AbEQySpXilPJ0+WTDtNVpW
-        6NyjJfVI3Jj8NKYjmxHAHjhWw9Opj9qN12ViemjXA0lTXUK7A8ZNu6GHAeps4YcO
-        dOxgScslO8obwlbewyg/9m8kfsAY9SDV/Dj7M0TPeFi6p/3BAY6FLQLiE16EyAha
-        6dS2V62uXfYhjHb6nKAQ4ui9XYPkGQVorQK72raIUPblphUgqHJskNqkpmu1kRke
-        aaGuW/SKxtXeKjisOeueOmBNAnHDZmjOfjGyG3VVKTF1bBYuwN8uBkB8xpN7hucv
-        5FBVY4X4s7PR5LOpRCYC03Wr/f3A1Sg+AGLeFF7voqmq60QZx1hcMx2rZ61o+mfg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=uvC6b/
+        imVYN4SepzGgZKsKdR7uA4msQgZWQD42qwktY=; b=YBXG9JrI3mpFrihIWacG/p
+        0Ft/+BM7SesoRWHrPynwFf4QRJ5SpRQV90zPGVr0WWltOPFatp4fnpcxT7+wE/Wy
+        i1TAmHkavC8azAj+Lj+iB9YME8uHOROkvPi/A3KavvUTkeckmd6gBJ3fXY1T59eN
+        kVkKltDJPdVMHZTC871muAFfS+viECFrI7B2yjbYE9kIYuF/uKjWC+cE/oSffL+n
+        3rnMPQlm2q2VO98jXLAdaOthoQEYK6TUS+JGDmRZZSZMo72QPNYDzycabr+J563I
+        XL/A+LOFzVSB3K/M5db81vXFwJjN9+bjINOuT7jIcM2JXWcfJRHb+wIdLRSCkINA
         ==
-X-ME-Sender: <xms:HPg2Xe6Jo-DTAdFgxGYkv8GfFjuY5bAHXIKn-68ktwzUg3qnHnRDvA>
+X-ME-Sender: <xms:Ifg2XVvtcnF1WbdksOQhEgCgY2bYmpV2zZgyrdNf7DiYgjnFTggEwg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdegkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -36,22 +35,22 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdegkecutefuodetggdote
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhgihhthhhusgdrtghomhenucfkph
     epkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvghes
     khhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:HPg2XY0MLlsC3pjyRAFZCHFQFecaDKDqaxo58krUKZMNc41pRzO6eg>
-    <xmx:HPg2XdwLi-g1fx6QLLG8fKPmvYKCq3PUFpSn2VgLZPS5rQWn2Aw0gw>
-    <xmx:HPg2XZl-LVT6e2DSC9MnFd_yV8BLkesEg_lWXSjXp9RUvx_m2AjZoQ>
-    <xmx:Hfg2XTjRH3gfItYL3xl2kEzcohXFEIIpvmwMqF6Sec-2N7BrLKJSjfag-S0>
+X-ME-Proxy: <xmx:Ifg2XRjdV1A46triYDU4lM8DMLETX-tFi62s-TXXuTVhgqp9iZ-CqA>
+    <xmx:Ifg2XW3XSLvN-yXxNG6DHJn_QelEfl9FU3FE8RDY28_qW_afJSofCQ>
+    <xmx:Ifg2XfrnU_RRV2-4TzLN9XAbKc3hTjLiVUz5_tMTMAMpeuPoL89kGQ>
+    <xmx:Ifg2Xair_JJbmemRq8xYCyYoSRTvRcX-1bxpTRYaAtvrX6_JOKY_lwN3moI>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 820F5380087;
-        Tue, 23 Jul 2019 08:05:48 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm: vmscan: scan anonymous pages on file refaults" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 08C54380075;
+        Tue, 23 Jul 2019 08:05:52 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm: vmscan: scan anonymous pages on file refaults" failed to apply to 4.14-stable tree
 To:     vovoy@chromium.org, akpm@linux-foundation.org, hannes@cmpxchg.org,
         mgorman@techsingularity.net, mhocko@suse.com, minchan@kernel.org,
         riel@redhat.com, sonnyrao@chromium.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, vdavydov.dev@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 14:05:47 +0200
-Message-ID: <156388354793123@kroah.com>
+Date:   Tue, 23 Jul 2019 14:05:51 +0200
+Message-ID: <156388355121364@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
