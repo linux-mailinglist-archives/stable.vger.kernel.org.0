@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3DBD7145B
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 10:49:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 330A17145C
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 10:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728829AbfGWItV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 04:49:21 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:45249 "EHLO
+        id S1733212AbfGWItX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 04:49:23 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:59705 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727994AbfGWItV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 04:49:21 -0400
+        by vger.kernel.org with ESMTP id S1727994AbfGWItW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 04:49:22 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6C30E21F6D;
-        Tue, 23 Jul 2019 04:49:20 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id CD33621FE9;
+        Tue, 23 Jul 2019 04:49:21 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 04:49:20 -0400
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 04:49:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=MgQfOj
-        q1IZIOc0PsQQJZUvxzAYAj3NGvpRZuKDJ0VLw=; b=ot3+wu50MDfaZ32Wv5yqPr
-        tU6A2nozJ6lXAm1GjXzCJbEiWuF112UWrMFeTOTvGIhMq32+rj1spaPXn2jgq0XI
-        y+w5TfL7gc0k9Kht1Pq4sMhWzCP2FtQDq0BQlNkqWl0DeCnwkkP4d2W3M8DX/7OB
-        lQRHCz8RfNVwrGTScjE/Yu50V4TVztm8JVVuKwdl8NVsclQL4QQfMLd6bpG1tg8e
-        qD4rIDmu4EsktLyWpodP9XEjXDQ/D2i0O1v8WKK3Wk6mltdYJAMRB/EQeh4vtoSR
-        8jxdMKdTulRrnpgzMthidCOsmLcf3xNU3Ff+KfIYiYZ6pw99ythGd3xBTQ87vI6A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=SQDrqd
+        wu7U91G59Z/Hg3/uO26+5e1KcUOOmwDwiOlNA=; b=Q/On1vKRbWTki1uhOh3d2H
+        eeU6WWUe2XX3xyLDlLbO8ikUkbKLe4kxsYB8+xguRvar0OhrUsixpKLxHUvpi3ER
+        k6znXDe8Tu49lTraWAaKJ8Z9z1886/MRwkSZzLAB4dirf3icxJJXCtYNwrciLmc2
+        zRfWPGjW2DdHNY3ZvZOq0m5zuAoq/LBx+XhbfmLFwlpl/dXrzlqWznpwodIpSEOt
+        bnzpf3+dDeH5B/vClbtH7pMOZlew0MKz9f0zHEB6FKJgCwpgiInq95LH5vo2BwRp
+        HvQDnWnulis/ioZS6oHu54h21O+UJHDgQ2Xzce0WgL8s/l9gFGe4fY8ARyW4kMvg
         ==
-X-ME-Sender: <xms:EMo2XaAv3IhbccmFfDN4UUr2KK9GxiGdAJ5Q2WnQoGU909M0Ue-tiA>
+X-ME-Sender: <xms:Eco2XbdjNj25eSRO5kXZQ4W-lmleEulsOJeEF-X_qcNw8ZZQ0Vux4w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgddtkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
     hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeh
-X-ME-Proxy: <xmx:EMo2XYz8LmHdJtlE008gdLtRVdgesMITXcyzxd2tyJM2PoXal6HNVQ>
-    <xmx:EMo2XYk8opK25oCdUUNg1DY2h7FL8z8K56fJ8XyaGuQIB7AJHmPWDg>
-    <xmx:EMo2XdHlwdw_FLOJve6yDD6Ulyx7WanAnlmasbtgNUNZ8bsm28oQcg>
-    <xmx:EMo2XdTR5w4dd9wI01bS_mTDEXgIHS6x67U-iSczdISW2IzM9ozdEQ>
+X-ME-Proxy: <xmx:Eco2XQTa2xpMIabipZq5KjK163S4kjJ1B-t87qOZkgecKEWbh_hgag>
+    <xmx:Eco2XaspuPwaGpI6Hfcnqq7FqtT_s2P4wyhCKWQ5SwYvb2H89oQJuw>
+    <xmx:Eco2XZd9ZjhyZKi8zy8EW-WRekZhLPcidH5jleW3crEhxVFkeB1sZw>
+    <xmx:Eco2XS7i5xEUpvYOMeoK8x6PWH4mpzzsZHlB0kFmZ2MLezlkVeyISA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C858A8005B;
-        Tue, 23 Jul 2019 04:49:19 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: caam - limit output IV to CBC to work around CTR mode" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5250D8005C;
+        Tue, 23 Jul 2019 04:49:21 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: caam - limit output IV to CBC to work around CTR mode" failed to apply to 4.9-stable tree
 To:     ard.biesheuvel@linaro.org, herbert@gondor.apana.org.au,
         horia.geanta@nxp.com, iuliana.prodan@nxp.com,
         s.hauer@pengutronix.de, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 10:49:10 +0200
-Message-ID: <156387175012612@kroah.com>
+Date:   Tue, 23 Jul 2019 10:49:11 +0200
+Message-ID: <156387175113040@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
