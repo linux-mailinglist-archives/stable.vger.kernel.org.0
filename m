@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C49EE717A3
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:01:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62AA8717A4
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 14:01:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387586AbfGWMBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 08:01:16 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:48375 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728418AbfGWMBQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 08:01:16 -0400
+        id S1731226AbfGWMBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 08:01:46 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:54921 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728418AbfGWMBq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 08:01:46 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 32D55220A7;
-        Tue, 23 Jul 2019 08:01:15 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 08:01:15 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 60772465;
+        Tue, 23 Jul 2019 08:01:45 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 08:01:45 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=H9H8ra
-        635Vb6doX7H6E5Ri76n/gYQQVV56150huAi28=; b=GzFaYK7lZ4WtZXPHirFZw4
-        9a6fYz9Jb0iGtR6MtFuagAyA5BYmhAvS1gs9N3doEW+/VJa5NpUaCpQX+CjV7Uqu
-        sd3EKw8seFUEBShqGHAnE3tszo6A7mFTwpvt/pL6E1dOXv98TafpF/v/nHLzyAGO
-        u917/PpApM/bxwa+f877Se5VVLayw4LmMw2roWaeBpYSI3ytNtQo9hl8ZyQCxOSD
-        Wp3NNY9kWtBxa1uvYCFO3eaZ9G6i5U9j53YnABsTdNvUxZRSaj7uSiXjpAvGiJGP
-        mkv7rUL1B9RgNb7mXOdsJ6qqQ2fACfPyLfZ0GzJUS8Kp3HeMjnHvhdgGX8hhVKGg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=bUWvRc
+        2fjJ40enY0Akf4KjvpE0YIryZd0AXpBH1Dh6U=; b=BHaSpRaDYm0YBO4HGD0Jr4
+        kmnWO7iajOukaiWajpx8epVQtygn3wcPoDW+EAzFFwoyR9GbYjwOv29HJeqIxi1O
+        rTvYdELXBLK89sC0XvKs8+IYVBvYJFWj3B/fj/jF7qQwOGY/52r5lwY2Lgm3gDZk
+        5CwVZaupcpBtzVi2FaUYqhuGFXTrgzGdoaV1Yb9jom8xMUre2sImzpI4SvWKDyAE
+        WrBjdU0IiLXYPEam1csxqVJGOUlDgkie4KLt00RuyZjUewfhR1b2uNY0jcF7+i7I
+        yQuUMQHrsk3qDAXJCWsP8kCk11bSvavyp5B6wXnod2U7XmCAwTAzTn4hGYD03UeA
         ==
-X-ME-Sender: <xms:C_c2XW5_8WNEiocNwZ2u5KDGF1ZtH3dcoBb8gJbEc9R4jV6Nl74DgA>
+X-ME-Sender: <xms:KPc2XaymCk5l4ftmS-u2XQeGs8aZbErjMo7kw6ucrhjSoRtfWjHiag>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdegkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:C_c2XXTWpLH0Oq93Jxf3szkpvK-ifeKoP_wWrkkuZswq0b3SmycZoQ>
-    <xmx:C_c2Xfyuuy0pbxvUU0iNK1RAz9s-BEXSRwrLCfz-7TxrHWBvHZcsTw>
-    <xmx:C_c2XZIm3A1MAmzneSApfr_uLL6yOUYA8uLxXGAxLJChbuJK9O1Gow>
-    <xmx:C_c2XaPw-4wAb0mpRXKTkPyVH-F6N1nUr1eo1YM9tbca1y3HEbM5JA>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
+X-ME-Proxy: <xmx:KPc2XTx3SWcgQzhSb4Tt4cGb103ryip0ioAI9X-goMqDWMsvHA3cwQ>
+    <xmx:KPc2XSptpDx8DTzBMUAsar-kAC9i4JaCAI1it6Qm2G8jXpr32GbiDw>
+    <xmx:KPc2XXpevsFrRiBmL-6viilmT_cjnSwHlZszYQOfBvpX1DKvM-DEww>
+    <xmx:KPc2XZJf4qHwI20HZDzBswi1pYpCzW4aLdf_j8iJlEkcas-9qam5Dg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9C44E80061;
-        Tue, 23 Jul 2019 08:01:14 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI: qcom: Ensure that PERST is asserted for at least 100 ms" failed to apply to 4.9-stable tree
-To:     niklas.cassel@linaro.org, lorenzo.pieralisi@arm.com,
-        svarbanov@mm-sol.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id CCFD4380086;
+        Tue, 23 Jul 2019 08:01:43 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: correctly validate compression type" failed to apply to 5.1-stable tree
+To:     jthumshirn@suse.de, dsterba@suse.com, nborisov@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 14:01:05 +0200
-Message-ID: <156388326512864@kroah.com>
+Date:   Tue, 23 Jul 2019 14:01:41 +0200
+Message-ID: <156388330112473@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,46 +67,162 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 64adde31c8e996a6db6f7a1a4131180e363aa9f2 Mon Sep 17 00:00:00 2001
-From: Niklas Cassel <niklas.cassel@linaro.org>
-Date: Wed, 29 May 2019 11:43:52 +0200
-Subject: [PATCH] PCI: qcom: Ensure that PERST is asserted for at least 100 ms
+From aa53e3bfac7205fb3a8815ac1c937fd6ed01b41e Mon Sep 17 00:00:00 2001
+From: Johannes Thumshirn <jthumshirn@suse.de>
+Date: Thu, 6 Jun 2019 12:07:15 +0200
+Subject: [PATCH] btrfs: correctly validate compression type
 
-Currently, there is only a 1 ms sleep after asserting PERST.
+Nikolay reported the following KASAN splat when running btrfs/048:
 
-Reading the datasheets for different endpoints, some require PERST to be
-asserted for 10 ms in order for the endpoint to perform a reset, others
-require it to be asserted for 50 ms.
+[ 1843.470920] ==================================================================
+[ 1843.471971] BUG: KASAN: slab-out-of-bounds in strncmp+0x66/0xb0
+[ 1843.472775] Read of size 1 at addr ffff888111e369e2 by task btrfs/3979
 
-Several SoCs using this driver uses PCIe Mini Card, where we don't know
-what endpoint will be plugged in.
+[ 1843.473904] CPU: 3 PID: 3979 Comm: btrfs Not tainted 5.2.0-rc3-default #536
+[ 1843.475009] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+[ 1843.476322] Call Trace:
+[ 1843.476674]  dump_stack+0x7c/0xbb
+[ 1843.477132]  ? strncmp+0x66/0xb0
+[ 1843.477587]  print_address_description+0x114/0x320
+[ 1843.478256]  ? strncmp+0x66/0xb0
+[ 1843.478740]  ? strncmp+0x66/0xb0
+[ 1843.479185]  __kasan_report+0x14e/0x192
+[ 1843.479759]  ? strncmp+0x66/0xb0
+[ 1843.480209]  kasan_report+0xe/0x20
+[ 1843.480679]  strncmp+0x66/0xb0
+[ 1843.481105]  prop_compression_validate+0x24/0x70
+[ 1843.481798]  btrfs_xattr_handler_set_prop+0x65/0x160
+[ 1843.482509]  __vfs_setxattr+0x71/0x90
+[ 1843.483012]  __vfs_setxattr_noperm+0x84/0x130
+[ 1843.483606]  vfs_setxattr+0xac/0xb0
+[ 1843.484085]  setxattr+0x18c/0x230
+[ 1843.484546]  ? vfs_setxattr+0xb0/0xb0
+[ 1843.485048]  ? __mod_node_page_state+0x1f/0xa0
+[ 1843.485672]  ? _raw_spin_unlock+0x24/0x40
+[ 1843.486233]  ? __handle_mm_fault+0x988/0x1290
+[ 1843.486823]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487330]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487842]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.488442]  ? debug_lockdep_rcu_enabled+0x22/0x40
+[ 1843.489089]  ? rcu_sync_lockdep_assert+0xe/0x70
+[ 1843.489707]  ? __sb_start_write+0x158/0x200
+[ 1843.490278]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.490855]  ? __mnt_want_write+0x98/0xe0
+[ 1843.491397]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.492201]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+[ 1843.493201]  do_syscall_64+0x6c/0x230
+[ 1843.493988]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 1843.495041] RIP: 0033:0x7fa7a8a7707a
+[ 1843.495819] Code: 48 8b 0d 21 de 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 be 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d ee dd 2b 00 f7 d8 64 89 01 48
+[ 1843.499203] RSP: 002b:00007ffcb73bca38 EFLAGS: 00000202 ORIG_RAX: 00000000000000be
+[ 1843.500210] RAX: ffffffffffffffda RBX: 00007ffcb73bda9d RCX: 00007fa7a8a7707a
+[ 1843.501170] RDX: 00007ffcb73bda9d RSI: 00000000006dc050 RDI: 0000000000000003
+[ 1843.502152] RBP: 00000000006dc050 R08: 0000000000000000 R09: 0000000000000000
+[ 1843.503109] R10: 0000000000000002 R11: 0000000000000202 R12: 00007ffcb73bda91
+[ 1843.504055] R13: 0000000000000003 R14: 00007ffcb73bda82 R15: ffffffffffffffff
 
-The PCI Express Card Electromechanical Specification r2.0, section
-2.2, "PERST# Signal" specifies:
+[ 1843.505268] Allocated by task 3979:
+[ 1843.505771]  save_stack+0x19/0x80
+[ 1843.506211]  __kasan_kmalloc.constprop.5+0xa0/0xd0
+[ 1843.506836]  setxattr+0xeb/0x230
+[ 1843.507264]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.507886]  do_syscall_64+0x6c/0x230
+[ 1843.508429]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-"On power up, the deassertion of PERST# is delayed 100 ms (TPVPERL) from
-the power rails achieving specified operating limits."
+[ 1843.509558] Freed by task 0:
+[ 1843.510188] (stack is not available)
 
-Add a sleep of 100 ms before deasserting PERST, in order to ensure that
-we are compliant with the spec.
+[ 1843.511309] The buggy address belongs to the object at ffff888111e369e0
+                which belongs to the cache kmalloc-8 of size 8
+[ 1843.514095] The buggy address is located 2 bytes inside of
+                8-byte region [ffff888111e369e0, ffff888111e369e8)
+[ 1843.516524] The buggy address belongs to the page:
+[ 1843.517561] page:ffff88813f478d80 refcount:1 mapcount:0 mapping:ffff88811940c300 index:0xffff888111e373b8 compound_mapcount: 0
+[ 1843.519993] flags: 0x4404000010200(slab|head)
+[ 1843.520951] raw: 0004404000010200 ffff88813f48b008 ffff888119403d50 ffff88811940c300
+[ 1843.522616] raw: ffff888111e373b8 000000000016000f 00000001ffffffff 0000000000000000
+[ 1843.524281] page dumped because: kasan: bad access detected
 
-Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
-Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
-Cc: stable@vger.kernel.org # 4.5+
+[ 1843.525936] Memory state around the buggy address:
+[ 1843.526975]  ffff888111e36880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.528479]  ffff888111e36900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.530138] >ffff888111e36980: fc fc fc fc fc fc fc fc fc fc fc fc 02 fc fc fc
+[ 1843.531877]                                                        ^
+[ 1843.533287]  ffff888111e36a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.534874]  ffff888111e36a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.536468] ==================================================================
 
-diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
-index da5dd3639a49..7e581748ee9f 100644
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -178,6 +178,8 @@ static void qcom_ep_reset_assert(struct qcom_pcie *pcie)
- 
- static void qcom_ep_reset_deassert(struct qcom_pcie *pcie)
- {
-+	/* Ensure that PERST has been asserted for at least 100 ms */
-+	msleep(100);
- 	gpiod_set_value_cansleep(pcie->reset, 0);
- 	usleep_range(PERST_DELAY_US, PERST_DELAY_US + 500);
+This is caused by supplying a too short compression value ('lz') in the
+test-case and comparing it to 'lzo' with strncmp() and a length of 3.
+strncmp() read past the 'lz' when looking for the 'o' and thus caused an
+out-of-bounds read.
+
+Introduce a new check 'btrfs_compress_is_valid_type()' which not only
+checks the user-supplied value against known compression types, but also
+employs checks for too short values.
+
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+Fixes: 272e5326c783 ("btrfs: prop: fix vanished compression property after failed set")
+CC: stable@vger.kernel.org # 5.1+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
+index 66e21a4e9ea2..db41315f11eb 100644
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -43,6 +43,22 @@ const char* btrfs_compress_type2str(enum btrfs_compression_type type)
+ 	return NULL;
  }
+ 
++bool btrfs_compress_is_valid_type(const char *str, size_t len)
++{
++	int i;
++
++	for (i = 1; i < ARRAY_SIZE(btrfs_compress_types); i++) {
++		size_t comp_len = strlen(btrfs_compress_types[i]);
++
++		if (len < comp_len)
++			continue;
++
++		if (!strncmp(btrfs_compress_types[i], str, comp_len))
++			return true;
++	}
++	return false;
++}
++
+ static int btrfs_decompress_bio(struct compressed_bio *cb);
+ 
+ static inline int compressed_bio_size(struct btrfs_fs_info *fs_info,
+diff --git a/fs/btrfs/compression.h b/fs/btrfs/compression.h
+index 191e5f4e3523..2035b8eb1290 100644
+--- a/fs/btrfs/compression.h
++++ b/fs/btrfs/compression.h
+@@ -173,6 +173,7 @@ extern const struct btrfs_compress_op btrfs_lzo_compress;
+ extern const struct btrfs_compress_op btrfs_zstd_compress;
+ 
+ const char* btrfs_compress_type2str(enum btrfs_compression_type type);
++bool btrfs_compress_is_valid_type(const char *str, size_t len);
+ 
+ int btrfs_compress_heuristic(struct inode *inode, u64 start, u64 end);
+ 
+diff --git a/fs/btrfs/props.c b/fs/btrfs/props.c
+index a9e2e66152ee..af109c0ba720 100644
+--- a/fs/btrfs/props.c
++++ b/fs/btrfs/props.c
+@@ -257,11 +257,7 @@ static int prop_compression_validate(const char *value, size_t len)
+ 	if (!value)
+ 		return 0;
+ 
+-	if (!strncmp("lzo", value, 3))
+-		return 0;
+-	else if (!strncmp("zlib", value, 4))
+-		return 0;
+-	else if (!strncmp("zstd", value, 4))
++	if (btrfs_compress_is_valid_type(value, len))
+ 		return 0;
+ 
+ 	return -EINVAL;
 
