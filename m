@@ -2,117 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44684712A7
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 09:18:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD9B7712C3
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 09:24:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388274AbfGWHSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 03:18:16 -0400
-Received: from cmta19.telus.net ([209.171.16.92]:52036 "EHLO cmta19.telus.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388273AbfGWHSQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jul 2019 03:18:16 -0400
-X-Greylist: delayed 487 seconds by postgrey-1.27 at vger.kernel.org; Tue, 23 Jul 2019 03:18:14 EDT
-Received: from dougxps ([173.180.45.4])
-        by cmsmtp with SMTP
-        id povzhPPxQeRl4pow0hmKDw; Tue, 23 Jul 2019 01:10:06 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=telus.net; s=neo;
-        t=1563865806; bh=XH+cz0n2jFZrvdwK8js+vpCkuU9iaoulaMkw/K2zsms=;
-        h=From:To:Cc:References:In-Reply-To:Subject:Date;
-        b=G++Hwup0R1EK/XPjtggH/7xZv8yDgRDpKUb95GLBiwrkBrDvAEZeD1njy7Mmd5wG7
-         EpKPCzpaaQfcvyLKLX188WLHDfgAFRke/aU0Y6NKC7DvCyaozReFoNnodA8/7Qks9q
-         UxPwk2m+pVWDoO+RQjs1b5NvpZiy809PURrvIYwbba2iBziAt1hwZOeKXNlolVT4bV
-         kwxx30AteLw5o/C7L5lUGkWlezabsV4UZoA2NwLMQHvnEw4iFzaPRUbE3p5PxEgrMN
-         HK1l+Z2yLvLRUISRNmHra0y5pX6A4nn0VgFqDCjC73QYs1cV/l2tciqo4yIU/5qmfg
-         BmxRR8sZBoaJw==
-X-Telus-Authed: none
-X-Authority-Analysis: v=2.3 cv=KqozJleN c=1 sm=1 tr=0
- a=zJWegnE7BH9C0Gl4FFgQyA==:117 a=zJWegnE7BH9C0Gl4FFgQyA==:17
- a=Pyq9K9CWowscuQLKlpiwfMBGOR0=:19 a=jpOVt7BSZ2e4Z31A5e1TngXxSK0=:19
- a=kj9zAlcOel0A:10 a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8 a=KKAkSRfTAAAA:8
- a=X7X60EFgtTFmTPkmaoQA:9 a=CjuIK1q_8ugA:10 a=AjGcO6oz07-iQ99wixmX:22
- a=cvBusfyB2V15izCimMoJ:22
-From:   "Doug Smythies" <dsmythies@telus.net>
-To:     "'Viresh Kumar'" <viresh.kumar@linaro.org>,
-        "'Rafael Wysocki'" <rjw@rjwysocki.net>,
-        "'Ingo Molnar'" <mingo@redhat.com>,
-        "'Peter Zijlstra'" <peterz@infradead.org>
-Cc:     <linux-pm@vger.kernel.org>,
-        "'Vincent Guittot'" <vincent.guittot@linaro.org>,
-        <joel@joelfernandes.org>, "'v4 . 18+'" <stable@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-References: <1563431200-3042-1-git-send-email-dsmythies@telus.net> <8091ef83f264feb2feaa827fbeefe08348bcd05d.1563778071.git.viresh.kumar@linaro.org>
-In-Reply-To: <8091ef83f264feb2feaa827fbeefe08348bcd05d.1563778071.git.viresh.kumar@linaro.org>
-Subject: RE: [PATCH] cpufreq: schedutil: Don't skip freq update when limits change
-Date:   Tue, 23 Jul 2019 00:10:01 -0700
-Message-ID: <001201d54125$a6a82350$f3f869f0$@net>
+        id S1732624AbfGWHYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 03:24:06 -0400
+Received: from mail-eopbgr130091.outbound.protection.outlook.com ([40.107.13.91]:46990
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729058AbfGWHYF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jul 2019 03:24:05 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WLkj4p7OTIDzlboAHrLKEuNW8MhWvAvTD1NbtasgpLgzl2uUtIlwFZWkbriB3RIAl2zknVbu15XnnZM2VJwisN8PqJPCrFBRtmX4k03CEkyFSERVaBtFD2+o9Kgiiy5rEOuwKCrMr+3dZuw40EkX4JcJu4siGNJG8pl/+NE6s2NYX6Ekx6+iXs7yXfv0FVPexTljkgwgmj5PxZzmJLolHT22UOR3vGg6M9o2mgAKg//mKTCTBsnAsiZUiy1lUAeiH6Ey193Hdfl9NovW+Z/J1PZRC1qfbeecfAmpTfmhmLBSy+TPip00wXDRzIMGSPYZaaX4QJHwBYaMY7PU7PJ51g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5hU+DKNSchRp8v2Ux3+d6LiYh83B/dMOvqNHjq5mRmE=;
+ b=RUNaQ4kdExrF1jDzGAAl+fWoH1FtDaradwVOWW8kKUSHzPnp6HpFzxpaB05MTy5Q31QZmutMEJOjgx2xywF911TdB0S7T85SL3XFKMJon7OoM/T41Y8XAnulxDbyffHR9jQ/mQWueWlHHyz42T4K2frU2TSETaWdn2WJGwPhbrDteKA/d0IEq8JKmyR0fSQ8IuiyDS1WjZfc/IJLFWtVq+PGO1hayxtDJ11w5mqwiph4re+kZPJ3tjn2LUWePtlyp+EskW+oJ0m1nFuQUmLJj48kJgVKcz3UjEn9okQ+fbUtwQP1mh/FdPcWzCyjw6vfRnxNjutbLGsyXmTxQiSIgQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1;spf=pass
+ smtp.mailfrom=nokia.com;dmarc=pass action=none
+ header.from=nokia.com;dkim=pass header.d=nokia.com;arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
+ s=selector1-nokia-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5hU+DKNSchRp8v2Ux3+d6LiYh83B/dMOvqNHjq5mRmE=;
+ b=p17qHFO9qt8/vblpiq41PzGoa8v85Vkdx9HoVfksg3sgp6KW0K7QiuTpH5Ew1IkjWoni/67ThD2eA6pY49UmWxXCZ5qiz4gMOLzEYpBFS2gY5A7/e6ApoIzmIyc4JTwXifVxtw6tWTMfrAW2WsK7pl/2KOa4/eDMLU/SXwTCowk=
+Received: from AM6PR07MB5464.eurprd07.prod.outlook.com (20.178.88.217) by
+ AM6PR07MB5240.eurprd07.prod.outlook.com (20.177.198.94) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2115.10; Tue, 23 Jul 2019 07:24:01 +0000
+Received: from AM6PR07MB5464.eurprd07.prod.outlook.com
+ ([fe80::fcbb:3799:a7da:29ce]) by AM6PR07MB5464.eurprd07.prod.outlook.com
+ ([fe80::fcbb:3799:a7da:29ce%3]) with mapi id 15.20.2115.005; Tue, 23 Jul 2019
+ 07:24:01 +0000
+From:   "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
+To:     "qat-linux@intel.com" <qat-linux@intel.com>,
+        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>
+CC:     "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: [PATCH] crypto: qat - Silence smp_processor_id() warning
+Thread-Topic: [PATCH] crypto: qat - Silence smp_processor_id() warning
+Thread-Index: AQHVQSeZEH10CvozN0KsW1z2XZZxpg==
+Date:   Tue, 23 Jul 2019 07:24:01 +0000
+Message-ID: <20190723072347.16247-1-alexander.sverdlin@nokia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [131.228.32.180]
+x-mailer: git-send-email 2.22.0
+x-clientproxiedby: HE1PR0202CA0042.eurprd02.prod.outlook.com
+ (2603:10a6:3:e4::28) To AM6PR07MB5464.eurprd07.prod.outlook.com
+ (2603:10a6:20b:84::25)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=alexander.sverdlin@nokia.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: b767cd00-3fe7-40f1-b673-08d70f3ebbe3
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600148)(711020)(4605104)(1401327)(4618075)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7193020);SRVR:AM6PR07MB5240;
+x-ms-traffictypediagnostic: AM6PR07MB5240:
+x-microsoft-antispam-prvs: <AM6PR07MB52402C9DF0E7E0B36F5DEB1988C70@AM6PR07MB5240.eurprd07.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:741;
+x-forefront-prvs: 0107098B6C
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(979002)(4636009)(366004)(376002)(396003)(136003)(39860400002)(346002)(199004)(189003)(102836004)(6506007)(386003)(66946007)(6512007)(52116002)(14454004)(305945005)(7736002)(316002)(3846002)(6116002)(36756003)(2501003)(86362001)(81156014)(81166006)(50226002)(66446008)(99286004)(53936002)(25786009)(5660300002)(66476007)(64756008)(8676002)(6436002)(8936002)(6486002)(66556008)(486006)(1076003)(68736007)(2906002)(4326008)(476003)(110136005)(66066001)(54906003)(478600001)(186003)(14444005)(71200400001)(71190400001)(256004)(2616005)(26005)(969003)(989001)(999001)(1009001)(1019001);DIR:OUT;SFP:1102;SCL:1;SRVR:AM6PR07MB5240;H:AM6PR07MB5464.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: nokia.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: vV/deJe8g0ywpA+kle1MUIC3ZAiwUDxrzeM+rTqgGsKO9yrRdpHUxAvr5DuUAlGap84FeRMgVurs8VoTB1yeawsY59J05+biJ08E+mPZa85zX0VZSY5Rn5rAuyUbfucLGa/luFpwKpJgyc0kZrxIr1i0fhUWejKVrxZh7cWipTqhfTYRnZiS5zMHpo9CMT30d+eGN1sMxV9w4SRoIN+dqDA6sEAPkBJ/+inpyYLPAHXFmV8wEpnX0bzkuMj/a+e6RtYmacHzJgcOJBOsKTW/cgM8HRiZK2I8tWI9nBZ9RnES74a/MpWedUxLHT+NO7MZyHx0+M1KG9BlFXk18O0m32U8PmUnth8LsZxobGIn0qPgHlHY4sFbKe4U5nowokz8qejwK5VaKxl3W39wzsMQ2UdHcJu3YlPpTDobuKvFIDo=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 12.0
-Content-Language: en-ca
-Thread-Index: AdVAWfe+bwrPM5WESwOhTvNG8+jZwgAylY+w
-X-CMAE-Envelope: MS4wfIlZvk504tenK5OfDjLaKFLSYbpLAFtMePH9EnvmmFwRbTgJQDEN1WZ6akOpYspZyktenwTEGsQg2/SR9897cVSYAddD9ki03lKRcPwC7C1NLVSjsovm
- mK3e/gC5KpzcmPsBNzjG6X34+TI051No1xRzPSUAskKB6v97KObyvM1XiXxX+u3RENtiItk2M6RCVjLAJlyUIS1o9wwKPMCKzNjxG4sFaDkw+e0WIgjaU90X
- MR4p8AKCXJRAMlnryoJVSO1bnPEl13Zlk2wun46bb6zRtdInsj/d8FiCYGiWj2X9Gb4RIbe3Ci75bIaI6s0dljUHS/EAFNNsHpqfap5QBjauHxBPjP0XVQrU
- hrkjhl+f5ecMEVe17c2Q9jn9fuVJTyU/NF7bc5AlEOvzIuT+LszyyCOW/3m8VWqULVflx1tdOtu5Rd1fdbaGzG3QczCybw==
+X-OriginatorOrg: nokia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b767cd00-3fe7-40f1-b673-08d70f3ebbe3
+X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Jul 2019 07:24:01.2765
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: alexander.sverdlin@nokia.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR07MB5240
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019.07.21 23:52 Viresh Kumar wrote:
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-> To avoid reducing the frequency of a CPU prematurely, we skip reducing
-> the frequency if the CPU had been busy recently.
-> 
-> This should not be done when the limits of the policy are changed, for
-> example due to thermal throttling. We should always get the frequency
-> within limits as soon as possible.
->
-> Fixes: ecd288429126 ("cpufreq: schedutil: Don't set next_freq to UINT_MAX")
-> Cc: v4.18+ <stable@vger.kernel.org> # v4.18+
-> Reported-by: Doug Smythies <doug.smythies@gmail.com>
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> ---
-> @Doug: Please try this patch, it must fix the issue you reported.
+It seems that smp_processor_id() is only used for a best-effort
+load-balancing, refer to qat_crypto_get_instance_node(). It's not feasible
+to disable preemption for the duration of the crypto requests. Therefore,
+just silence the warning. This commit is similar to e7a9b05ca4
+("crypto: cavium - Fix smp_processor_id() warnings").
 
-It fixes the driver = acpi-cpufreq ; governor = schedutil test case
-It does not fix the driver = intel_cpufreq ; governor = schedutil test case
+Silences the following splat:
+BUG: using smp_processor_id() in preemptible [00000000] code: cryptomgr_tes=
+t/2904
+caller is qat_alg_ablkcipher_setkey+0x300/0x4a0 [intel_qat]
+CPU: 1 PID: 2904 Comm: cryptomgr_test Tainted: P           O    4.14.69 #1
+...
+Call Trace:
+ dump_stack+0x5f/0x86
+ check_preemption_disabled+0xd3/0xe0
+ qat_alg_ablkcipher_setkey+0x300/0x4a0 [intel_qat]
+ skcipher_setkey_ablkcipher+0x2b/0x40
+ __test_skcipher+0x1f3/0xb20
+ ? cpumask_next_and+0x26/0x40
+ ? find_busiest_group+0x10e/0x9d0
+ ? preempt_count_add+0x49/0xa0
+ ? try_module_get+0x61/0xf0
+ ? crypto_mod_get+0x15/0x30
+ ? __kmalloc+0x1df/0x1f0
+ ? __crypto_alloc_tfm+0x116/0x180
+ ? crypto_skcipher_init_tfm+0xa6/0x180
+ ? crypto_create_tfm+0x4b/0xf0
+ test_skcipher+0x21/0xa0
+ alg_test_skcipher+0x3f/0xa0
+ alg_test.part.6+0x126/0x2a0
+ ? finish_task_switch+0x21b/0x260
+ ? __schedule+0x1e9/0x800
+ ? __wake_up_common+0x8d/0x140
+ cryptomgr_test+0x40/0x50
+ kthread+0xff/0x130
+ ? cryptomgr_notify+0x540/0x540
+ ? kthread_create_on_node+0x70/0x70
+ ret_from_fork+0x24/0x50
 
-I have checked my results twice, but will check again in the day or two.
+Fixes: ed8ccaef52 ("crypto: qat - Add support for SRIOV")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+---
+ drivers/crypto/qat/qat_common/adf_common_drv.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-... Doug
-
->
-> kernel/sched/cpufreq_schedutil.c | 6 ++++--
-> 1 file changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-> index 636ca6f88c8e..b53c4f02b0f1 100644
-> --- a/kernel/sched/cpufreq_schedutil.c
-> +++ b/kernel/sched/cpufreq_schedutil.c
-> @@ -447,7 +447,7 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
->  	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
-> 	unsigned long util, max;
->  	unsigned int next_f;
-> -	bool busy;
-> +	bool busy = false;
-> 
-> 	sugov_iowait_boost(sg_cpu, time, flags);
-> 	sg_cpu->last_update = time;
-> @@ -457,7 +457,9 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
-> 	if (!sugov_should_update_freq(sg_policy, time))
->		return;
-> 
-> -	busy = sugov_cpu_is_busy(sg_cpu);
-> +	/* Limits may have changed, don't skip frequency update */
-> +	if (!sg_policy->need_freq_update)
-> +		busy = sugov_cpu_is_busy(sg_cpu);
-> 
-> 	util = sugov_get_util(sg_cpu);
->  	max = sg_cpu->max;
-> -- 
-> 2.21.0.rc0.269.g1a574e7a288b
-
+diff --git a/drivers/crypto/qat/qat_common/adf_common_drv.h b/drivers/crypt=
+o/qat/qat_common/adf_common_drv.h
+index 5c4c0a2..d78f8d5 100644
+--- a/drivers/crypto/qat/qat_common/adf_common_drv.h
++++ b/drivers/crypto/qat/qat_common/adf_common_drv.h
+@@ -95,7 +95,7 @@ struct service_hndl {
+=20
+ static inline int get_current_node(void)
+ {
+-	return topology_physical_package_id(smp_processor_id());
++	return topology_physical_package_id(raw_smp_processor_id());
+ }
+=20
+ int adf_service_register(struct service_hndl *service);
+--=20
+2.4.6
 
