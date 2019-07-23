@@ -2,112 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09C17714C2
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 11:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B52C97152A
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 11:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730465AbfGWJPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 05:15:55 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:37071 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729111AbfGWJPy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 05:15:54 -0400
-Received: by mail-pf1-f196.google.com with SMTP id 19so18825658pfa.4
-        for <stable@vger.kernel.org>; Tue, 23 Jul 2019 02:15:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=fkSxgqWnfvZd2cjTyVDsfDKJ19ZkRmGA1pV7ZfRj0rw=;
-        b=LR3qimyh3XF2uYyuQtngaGPLFqSqqg9O4NhCfdSjR37DxYIMgAAdwtAG2Riqs+o9Hz
-         pfESUB7ttcZ4wZKT6D+9gw/aDDFbZ0XiRsgR59njw1yIGJifQIaU6lcenoVqDtGR4sW9
-         ankV0TAOpdNKQpEFTjaHYaiHAm0t6bWSXW1cjtNjWsNqYtVeCEn1qlSPGe7I6p2M7Pac
-         DegOaHz4KWMQPowIp8fj/GULDemiIUwXZ0xGql1XUhAMsQKuLJ77pMv+wwxTdreey74y
-         DU5rcREeQ3OPHbP6AWcm3dzh87xDh4Iw3KQvcfC+4Bj3owNwRf8p0JKaBMg2tky/olLC
-         zJHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=fkSxgqWnfvZd2cjTyVDsfDKJ19ZkRmGA1pV7ZfRj0rw=;
-        b=UT1JA9BBMfQxGhJdqMwqBTW+ZTP4dkNshdKYL7ZDynBT+mcg5a7lroZHvTudW6JpiO
-         /wRlP5dW8Wq94VLMyqqB0ABVGwgpD4zpJZNZNCVQVP6L+AKSpKM59ZLJ6rd3lD+47sR+
-         M/TnkxwqHE/hBC5MZ0i2lmlkQ7U/Jzb8WBxG9BhkptHPSc3hCyRdcRsIKHoFj7io/ZKX
-         sL4MJIlliagJFwRbR7Lx4ZjFSk4v+pRp++v9ON0kCy6rpuUrgGSlzyVjgb/OHqElsko0
-         dHR7IvgaWvsSZ4uPUkQY8+kdDJHojZPtLDKRaKJ7C7S+XAxwle3YH4fHFkQZfMZzM2pl
-         liDQ==
-X-Gm-Message-State: APjAAAXOyPlvSEnAiHz6l+ylNsaus0PcbrBRf2Zy3kFzIs+IMwFKNBx8
-        aX9N77+K4wlsGmidVKN+vi3bBw==
-X-Google-Smtp-Source: APXvYqyhC1JGujJhd/15VMC3f2eJlP5NjZ3v6gT+3Czho+EDkdgkK8r3pHDreHENwZeCQkitpnCM1w==
-X-Received: by 2002:a62:5c47:: with SMTP id q68mr4857251pfb.205.1563873354211;
-        Tue, 23 Jul 2019 02:15:54 -0700 (PDT)
-Received: from localhost ([122.172.28.117])
-        by smtp.gmail.com with ESMTPSA id v18sm35637116pgl.87.2019.07.23.02.15.53
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 23 Jul 2019 02:15:53 -0700 (PDT)
-Date:   Tue, 23 Jul 2019 14:45:51 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Doug Smythies <dsmythies@telus.net>
-Cc:     'Rafael Wysocki' <rjw@rjwysocki.net>,
-        'Ingo Molnar' <mingo@redhat.com>,
-        'Peter Zijlstra' <peterz@infradead.org>,
-        linux-pm@vger.kernel.org,
-        'Vincent Guittot' <vincent.guittot@linaro.org>,
-        joel@joelfernandes.org, "'v4 . 18+'" <stable@vger.kernel.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cpufreq: schedutil: Don't skip freq update when limits
- change
-Message-ID: <20190723091551.nchopfpqlmdmzvge@vireshk-i7>
-References: <1563431200-3042-1-git-send-email-dsmythies@telus.net>
- <8091ef83f264feb2feaa827fbeefe08348bcd05d.1563778071.git.viresh.kumar@linaro.org>
- <001201d54125$a6a82350$f3f869f0$@net>
+        id S1728441AbfGWJ2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 05:28:54 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:33865 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728140AbfGWJ2y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 05:28:54 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id C680D503;
+        Tue, 23 Jul 2019 05:28:53 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 05:28:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=D8bpkT
+        Wd5veEIT8GQn6QMIcaW1fc//9aqazP+PUdRDI=; b=WIEHAvfK8yRBv6OmhEeYSa
+        QmCDVQERn40hIjPRgTwYrqLMCn8PQ86Xd07roe8rL/sGkqq7VpLE+494Cp9v4/Q0
+        7SU1np0f4Zkbra1VzHLiC9UJqVuLeJ5qyFhBXl0MUPtxjSD0pGG3eY1sdPHwcRDw
+        HnqzQ+mUSsCDvze8X+XVqiy1XLbflmjT4Fp3wmO7SqGpzIUNKyPi/FyOUipICPP2
+        hj+e7W7uFBuk7Rxj2IoU8N4MMZsSWszFmXNKhWwWL79jy9fS1LR9Edn+to/iCjvq
+        dobWMYD2xZ4i4r+f8jAAvQeqYnVSiGY4f68SYwe11BD8Xpk6wt138lZi/5aPnvFQ
+        ==
+X-ME-Sender: <xms:VNM2XcAOhL0TfnavMxfDym_tu7c8CXGWDY20Nc4QFEPiU8fWQBDbBg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdduiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:VNM2XQzMSG53d9LF14JB31chCMpn4Jip45oiBThc4JkybdZo2OaQGg>
+    <xmx:VNM2XR2FpcrqsAhcTiCxl0Q6_0ppWVsCVHJjtlmjlsF2YXt-FDJOwg>
+    <xmx:VNM2XYwpfWk-hggyepuhmr_wEDLAo8l_R3l0joldJhVNyTiXppC4lQ>
+    <xmx:VdM2XVS_8IrID81SbkvA05f3Jcc4OtpDrkDFfwad6VqfhOScYFV-ZQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3048C8005C;
+        Tue, 23 Jul 2019 05:28:52 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] bcache: destroy dc->writeback_write_wq if failed to create" failed to apply to 4.14-stable tree
+To:     colyli@suse.de, axboe@kernel.dk
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 23 Jul 2019 11:28:50 +0200
+Message-ID: <15638741309729@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <001201d54125$a6a82350$f3f869f0$@net>
-User-Agent: NeoMutt/20180716-391-311a52
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 23-07-19, 00:10, Doug Smythies wrote:
-> On 2019.07.21 23:52 Viresh Kumar wrote:
-> 
-> > To avoid reducing the frequency of a CPU prematurely, we skip reducing
-> > the frequency if the CPU had been busy recently.
-> > 
-> > This should not be done when the limits of the policy are changed, for
-> > example due to thermal throttling. We should always get the frequency
-> > within limits as soon as possible.
-> >
-> > Fixes: ecd288429126 ("cpufreq: schedutil: Don't set next_freq to UINT_MAX")
-> > Cc: v4.18+ <stable@vger.kernel.org> # v4.18+
-> > Reported-by: Doug Smythies <doug.smythies@gmail.com>
-> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > ---
-> > @Doug: Please try this patch, it must fix the issue you reported.
-> 
-> It fixes the driver = acpi-cpufreq ; governor = schedutil test case
-> It does not fix the driver = intel_cpufreq ; governor = schedutil test case
-> 
-> I have checked my results twice, but will check again in the day or two.
 
-The patch you tried to revert wasn't doing any driver specific stuff
-but only schedutil. If that revert fixes your issue with both the
-drivers, then this patch should do it as well.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I am clueless now on what can go wrong with intel_cpufreq driver with
-schedutil now.
+thanks,
 
-Though there is one difference between intel_cpufreq and acpi_cpufreq,
-intel_cpufreq has fast_switch_possible=true and so it uses slightly
-different path in schedutil. I tried to look from that perspective as
-well but couldn't find anything wrong.
+greg k-h
 
-If you still find intel_cpufreq to be broken, even with this patch,
-please set fast_switch_possible=false instead of true in
-__intel_pstate_cpu_init() and try tests again. That shall make it very
-much similar to acpi-cpufreq driver.
+------------------ original commit in Linus's tree ------------------
 
--- 
-viresh
+From f54d801dda14942dbefa00541d10603015b7859c Mon Sep 17 00:00:00 2001
+From: Coly Li <colyli@suse.de>
+Date: Fri, 28 Jun 2019 19:59:44 +0800
+Subject: [PATCH] bcache: destroy dc->writeback_write_wq if failed to create
+ dc->writeback_thread
+
+Commit 9baf30972b55 ("bcache: fix for gc and write-back race") added a
+new work queue dc->writeback_write_wq, but forgot to destroy it in the
+error condition when creating dc->writeback_thread failed.
+
+This patch destroys dc->writeback_write_wq if kthread_create() returns
+error pointer to dc->writeback_thread, then a memory leak is avoided.
+
+Fixes: 9baf30972b55 ("bcache: fix for gc and write-back race")
+Signed-off-by: Coly Li <colyli@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
+index 262f7ef20992..21081febcb59 100644
+--- a/drivers/md/bcache/writeback.c
++++ b/drivers/md/bcache/writeback.c
+@@ -833,6 +833,7 @@ int bch_cached_dev_writeback_start(struct cached_dev *dc)
+ 					      "bcache_writeback");
+ 	if (IS_ERR(dc->writeback_thread)) {
+ 		cached_dev_put(dc);
++		destroy_workqueue(dc->writeback_write_wq);
+ 		return PTR_ERR(dc->writeback_thread);
+ 	}
+ 	dc->writeback_running = true;
+
