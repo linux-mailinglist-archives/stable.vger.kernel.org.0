@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B7BF716A2
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 12:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A09D716A3
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 12:55:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387474AbfGWKzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 06:55:38 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:33487 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731549AbfGWKzi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 06:55:38 -0400
+        id S2387480AbfGWKzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 06:55:41 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:42787 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731549AbfGWKzl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 06:55:41 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 8666B5E8;
-        Tue, 23 Jul 2019 06:55:37 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id A670221CDD;
+        Tue, 23 Jul 2019 06:55:38 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 06:55:37 -0400
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 06:55:38 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=fYkkA/
-        S4xLaefh8YPM1oL7wlL2veXE/pAF8EcswTdj4=; b=gY6cT0luoNytEf1TlIBD+b
-        fs+gg78EEDeFTi2MMviMK2+dCidZ5I6lrFaf/zqn8Vfsyz4ATwP/EvRU13pSNge1
-        XBwxbztDWqnpvowQt9W2xgBIOzZ6OA8uJFD7TTYXbSwCe5ApUGd8jnaIlKgwOCcp
-        RYqCt86NLpxqQBvgSGDXWF6ShT5CJ5n4uIpwPfkAteq1honJbn0OWvDUHkV38PlJ
-        Hs4XG6EPgiAHfwk22jqoOiYyIb/eDg8ty/kyUdGW+5k+1jaNAqG1YBMb10oyBPl7
-        2O7mwn7fh1jlXxT7chNcwgvevbWYtn9nulWiRRtKnYA5G30xh1g064oP6bs1p/MA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=zgD3Su
+        qMTQeS5i9/LSRXJhi9cgS0+wwR59I9SYwcrc0=; b=1LCkzytzUbCdimNRjzFEn1
+        bRdbwvHnaJZAvBRXVVHFBTDPsMxYps4u+QvnxOfGI+LByDubHiNwaAqMH5GxcQt1
+        FO/w70oLyS0L6vgtFd0CcJrkDO6VmAo5yoe7ajE69CA/FZVNZBHvPmpCgzSQmxC1
+        qfm6QxybVwGtFZGQdW22zDYIlJb12ukbCs5s6dclwv70kMN0mRM8isDGOgELH6nS
+        BMpuOvWB6MCe0KsbeZGWmYd8yZGdWNIOU/B5WZgirOeQ1a0ru0mockNCEHZnI6uJ
+        iImTUls9SsoK4/Cns+do3P6itoSWWB6/8s49Qt8HYxu8mIaaH5G/Z7itaheMaQ0g
         ==
-X-ME-Sender: <xms:qec2XSecmaxsg7oK8uFiv0xGnz1Rg3E1oNR-MBpOhJE3y2Q43f3tbQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdefgecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:quc2XcoOSeNh21xIPjF-OwmCZUybuxiq6Cz_lwu6P3A5afW9D3E7ug>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdefhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeg
-X-ME-Proxy: <xmx:qec2XexXFOXUv8iZpAgBzS9Z1mn1T58ZOFfWSTSj_xaKxO_LLQCdbA>
-    <xmx:qec2XUd2HXYkIA0BGZ3zjbYhnserUy8Ahyb0gyjskFWuDIGirS8SiQ>
-    <xmx:qec2XU9EJef_L8qo1T5CAMi1jyac9dmyZZ3DhLeXaMRYfeRhhvCroQ>
-    <xmx:qec2XUt0SOuqI2_fjWDe5eysuziTCVDfaNZCybQYG-i_3uvI3faALg>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:quc2XeIRbGx9WC0jiYcTMvHJIl4PpiWxB7jhO2zqV3kgsSqJDcTHZg>
+    <xmx:quc2XYPsQArGUHLVIuk7wn5F0ixA0wKhEHCl4MhiEj83exR55SO7zA>
+    <xmx:quc2Xc1ru816DqSm68AffgK6cOzTT-aST1CfR6GP0kF06wXMrPc4_w>
+    <xmx:quc2XTYAepNhzPUX3KmrTLjKNQdkGNViEnPh_CjLbespYgwaGy4lfw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 99E9280060;
-        Tue, 23 Jul 2019 06:55:36 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] signal: Correct namespace fixups of si_pid and si_uid" failed to apply to 4.4-stable tree
-To:     ebiederm@xmission.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 187BE8005B;
+        Tue, 23 Jul 2019 06:55:37 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] signal/arm64: Use force_sig not force_sig_fault for SIGKILL" failed to apply to 5.2-stable tree
+To:     ebiederm@xmission.com, Dave.Martin@arm.com, james.morse@arm.com,
+        will.deacon@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 12:53:50 +0200
-Message-ID: <1563879230330@kroah.com>
+Date:   Tue, 23 Jul 2019 12:54:08 +0200
+Message-ID: <1563879248245217@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,139 +68,52 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7a0cf094944e2540758b7f957eb6846d5126f535 Mon Sep 17 00:00:00 2001
+From 82e10af2248d2d09c99834613f1b47d5002dc379 Mon Sep 17 00:00:00 2001
 From: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Wed, 15 May 2019 22:54:56 -0500
-Subject: [PATCH] signal: Correct namespace fixups of si_pid and si_uid
+Date: Thu, 16 May 2019 10:55:21 -0500
+Subject: [PATCH] signal/arm64: Use force_sig not force_sig_fault for SIGKILL
 
-The function send_signal was split from __send_signal so that it would
-be possible to bypass the namespace logic based upon current[1].  As it
-turns out the si_pid and the si_uid fixup are both inappropriate in
-the case of kill_pid_usb_asyncio so move that logic into send_signal.
+I don't think this is userspace visible but SIGKILL does not have
+any si_codes that use the fault member of the siginfo union.  Correct
+this the simple way and call force_sig instead of force_sig_fault when
+the signal is SIGKILL.
 
-It is difficult to arrange but possible for a signal with an si_code
-of SI_TIMER or SI_SIGIO to be sent across namespace boundaries.  In
-which case tests for when it is ok to change si_pid and si_uid based
-on SI_FROMUSER are incorrect.  Replace the use of SI_FROMUSER with a
-new test has_si_pid_and_used based on siginfo_layout.
+The two know places where synchronous SIGKILL are generated are
+do_bad_area and fpsimd_save.  The call paths to force_sig_fault are:
+do_bad_area
+  arm64_force_sig_fault
+    force_sig_fault
+force_signal_inject
+  arm64_notify_die
+    arm64_force_sig_fault
+       force_sig_fault
 
-Now that the uid fixup is no longer present after expanding
-SEND_SIG_NOINFO properly calculate the si_uid that the target
-task needs to read.
+Which means correcting this in arm64_force_sig_fault is enough
+to ensure the arm64 code is not misusing the generic code, which
+could lead to maintenance problems later.
 
-[1] 7978b567d315 ("signals: add from_ancestor_ns parameter to send_signal()")
 Cc: stable@vger.kernel.org
-Fixes: 6588c1e3ff01 ("signals: SI_USER: Masquerade si_pid when crossing pid ns boundary")
-Fixes: 6b550f949594 ("user namespace: make signal.c respect user namespaces")
+Cc: Dave Martin <Dave.Martin@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Fixes: af40ff687bc9 ("arm64: signal: Ensure si_code is valid for all fault signals")
 Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 18040d6bd63a..39a3eca5ce22 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1056,27 +1056,6 @@ static inline bool legacy_queue(struct sigpending *signals, int sig)
- 	return (sig < SIGRTMIN) && sigismember(&signals->signal, sig);
- }
- 
--#ifdef CONFIG_USER_NS
--static inline void userns_fixup_signal_uid(struct kernel_siginfo *info, struct task_struct *t)
--{
--	if (current_user_ns() == task_cred_xxx(t, user_ns))
--		return;
--
--	if (SI_FROMKERNEL(info))
--		return;
--
--	rcu_read_lock();
--	info->si_uid = from_kuid_munged(task_cred_xxx(t, user_ns),
--					make_kuid(current_user_ns(), info->si_uid));
--	rcu_read_unlock();
--}
--#else
--static inline void userns_fixup_signal_uid(struct kernel_siginfo *info, struct task_struct *t)
--{
--	return;
--}
--#endif
--
- static int __send_signal(int sig, struct kernel_siginfo *info, struct task_struct *t,
- 			enum pid_type type, int from_ancestor_ns)
+diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
+index ade32046f3fe..e45d5b440fb1 100644
+--- a/arch/arm64/kernel/traps.c
++++ b/arch/arm64/kernel/traps.c
+@@ -256,7 +256,10 @@ void arm64_force_sig_fault(int signo, int code, void __user *addr,
+ 			   const char *str)
  {
-@@ -1134,7 +1113,11 @@ static int __send_signal(int sig, struct kernel_siginfo *info, struct task_struc
- 			q->info.si_code = SI_USER;
- 			q->info.si_pid = task_tgid_nr_ns(current,
- 							task_active_pid_ns(t));
--			q->info.si_uid = from_kuid_munged(current_user_ns(), current_uid());
-+			rcu_read_lock();
-+			q->info.si_uid =
-+				from_kuid_munged(task_cred_xxx(t, user_ns),
-+						 current_uid());
-+			rcu_read_unlock();
- 			break;
- 		case (unsigned long) SEND_SIG_PRIV:
- 			clear_siginfo(&q->info);
-@@ -1146,13 +1129,8 @@ static int __send_signal(int sig, struct kernel_siginfo *info, struct task_struc
- 			break;
- 		default:
- 			copy_siginfo(&q->info, info);
--			if (from_ancestor_ns)
--				q->info.si_pid = 0;
- 			break;
- 		}
--
--		userns_fixup_signal_uid(&q->info, t);
--
- 	} else if (!is_si_special(info)) {
- 		if (sig >= SIGRTMIN && info->si_code != SI_USER) {
- 			/*
-@@ -1196,6 +1174,28 @@ static int __send_signal(int sig, struct kernel_siginfo *info, struct task_struc
- 	return ret;
+ 	arm64_show_signal(signo, str);
+-	force_sig_fault(signo, code, addr, current);
++	if (signo == SIGKILL)
++		force_sig(SIGKILL, current);
++	else
++		force_sig_fault(signo, code, addr, current);
  }
  
-+static inline bool has_si_pid_and_uid(struct kernel_siginfo *info)
-+{
-+	bool ret = false;
-+	switch (siginfo_layout(info->si_signo, info->si_code)) {
-+	case SIL_KILL:
-+	case SIL_CHLD:
-+	case SIL_RT:
-+		ret = true;
-+		break;
-+	case SIL_TIMER:
-+	case SIL_POLL:
-+	case SIL_FAULT:
-+	case SIL_FAULT_MCEERR:
-+	case SIL_FAULT_BNDERR:
-+	case SIL_FAULT_PKUERR:
-+	case SIL_SYS:
-+		ret = false;
-+		break;
-+	}
-+	return ret;
-+}
-+
- static int send_signal(int sig, struct kernel_siginfo *info, struct task_struct *t,
- 			enum pid_type type)
- {
-@@ -1205,7 +1205,20 @@ static int send_signal(int sig, struct kernel_siginfo *info, struct task_struct
- 	from_ancestor_ns = si_fromuser(info) &&
- 			   !task_pid_nr_ns(current, task_active_pid_ns(t));
- #endif
-+	if (!is_si_special(info) && has_si_pid_and_uid(info)) {
-+		struct user_namespace *t_user_ns;
- 
-+		rcu_read_lock();
-+		t_user_ns = task_cred_xxx(t, user_ns);
-+		if (current_user_ns() != t_user_ns) {
-+			kuid_t uid = make_kuid(current_user_ns(), info->si_uid);
-+			info->si_uid = from_kuid_munged(t_user_ns, uid);
-+		}
-+		rcu_read_unlock();
-+
-+		if (!task_pid_nr_ns(current, task_active_pid_ns(t)))
-+			info->si_pid = 0;
-+	}
- 	return __send_signal(sig, info, t, type, from_ancestor_ns);
- }
- 
+ void arm64_force_sig_mceerr(int code, void __user *addr, short lsb,
 
