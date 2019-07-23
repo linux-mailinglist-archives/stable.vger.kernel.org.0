@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28549716A4
+	by mail.lfdr.de (Postfix) with ESMTP id 91CDA716A5
 	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 12:55:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387481AbfGWKzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387478AbfGWKzm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Jul 2019 06:55:42 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:36167 "EHLO
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:42621 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387478AbfGWKzm (ORCPT
+        by vger.kernel.org with ESMTP id S1731549AbfGWKzm (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 06:55:42 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 11AEA21BA9;
-        Tue, 23 Jul 2019 06:55:40 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 0CED12099D;
+        Tue, 23 Jul 2019 06:55:42 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 23 Jul 2019 06:55:40 -0400
+  by compute6.internal (MEProxy); Tue, 23 Jul 2019 06:55:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=AeX/e/
-        zATkZ41MFiQb0cd4siRDtjCBY7TvEqn+/dLGk=; b=PZuud7yPyUSPe//K2AT6Nm
-        GbAprNDhaXDHStgKrhnEr/ZMf3ZHYSIZ9ZiHZGzBUzkYQwGgDjG69CmorhcISABt
-        AAREzkX8SLPmfStV/3N0crlRTpWwgsUjpdek57A1Gz9i9ue2uPC/rZur4ef8rDCu
-        ekDxyMRCGC/6E9M0iOz9GUKpqtcTrCftf9H+IPgoGyQLPhAE7wa3vJIFF4XvNDZi
-        2bMuNfqf8gpxBwAyclA7hEy+dMfKjr06aysd+QHFUs51uhwT+hRZEK/+vGfGT2c4
-        ZVMLjCaRj4ThmVTPZHVdqlNj0hlubuzfz7UToizaF3wBI/NiI+I2A7pccg60kISw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=UdZhjT
+        gY/2ZN35m+C9ftHKEYTVKyjQ+gA6cqG4f2/Q4=; b=Y2muXXNvMgEmlwnIgCNl/1
+        8QpfCZHpFHFLfDhsq15sFtMh0lM6uF/9p3gwQoXB7fByvOUoUAqNIsYIQIsRHgln
+        kF45y+P3O9i9wsD4ybfV23Ye9cQJXOBmR81FtbH3DKTS3NKYI6k299sh4OoQAf0g
+        xxHMHk7b/DKFVME6H5okwAyYXZH4N3XzAeoB0wt7drv2DGbIBSESqK3WAYqgaYFN
+        i18yD4uEICsdnln5R+33ARV6maduMggmG+Ec0GQkwZvk0XiHkhwo/l5EfxRnKsFV
+        EyM2br1GLpq6fsrutXWer+0c4rX9g3qQtRSB3DNxvfcEfoWIgtKowO7ngowkLrgQ
         ==
-X-ME-Sender: <xms:q-c2Xbb6SRcQsfX4eqwtp10wWpxK0F60w7BWFijL2n_mLc3qUnkxfQ>
+X-ME-Sender: <xms:rec2XXN6LUq_Snx9r3u4dz7TwAM0ZkyZCsVpbXAAWmPxdvone9hOPQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeekgdefhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
     hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:q-c2Xa_3N2jg8mux-QgeGWYczZeUXM6MV7mxaEP4ecSo9N1NHyhGWQ>
-    <xmx:q-c2XZXCwSoWPjm9UB1fYQz4nHIfRfHRbw1obgT2_8hKXvVh-APX2w>
-    <xmx:q-c2XUTERyEl1xZmZAdNgC1RlK_VMdkL0ro48AeqgIKdyIAVN8mEfQ>
-    <xmx:rOc2XZ9MYDKvSDLOa3T991fXES0r2EyH93B6mg5nH-7M71TGGAdHHQ>
+X-ME-Proxy: <xmx:rec2XYAEH1KmxKiwFZ56qtPApMuoc1zpB23RsxcInhIgTLDlt8ltRQ>
+    <xmx:rec2XZhLyXupbibGq-TfjCH_z1VTimbHPEa3Mj-mFG6g4APg6IAWHw>
+    <xmx:rec2XT1XZj4yk7Qer3clGND6Tc3yZCbi9jz1qY2uVYiStw1kGMLQrA>
+    <xmx:ruc2XXtL-ZFWYI6RMJbNAoydNcm_k2vBwaOwmzj2B1MoO5O7HBA5sQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8E9188005A;
-        Tue, 23 Jul 2019 06:55:39 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] signal/arm64: Use force_sig not force_sig_fault for SIGKILL" failed to apply to 5.1-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7CC308005A;
+        Tue, 23 Jul 2019 06:55:41 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] signal/arm64: Use force_sig not force_sig_fault for SIGKILL" failed to apply to 4.19-stable tree
 To:     ebiederm@xmission.com, Dave.Martin@arm.com, james.morse@arm.com,
         will.deacon@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jul 2019 12:54:10 +0200
-Message-ID: <15638792502011@kroah.com>
+Date:   Tue, 23 Jul 2019 12:54:12 +0200
+Message-ID: <1563879252194229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.1-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
