@@ -2,166 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 855FE72096
-	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 22:17:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE8E2720C1
+	for <lists+stable@lfdr.de>; Tue, 23 Jul 2019 22:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730895AbfGWURL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jul 2019 16:17:11 -0400
-Received: from hurricane.elijah.cs.cmu.edu ([128.2.209.191]:47538 "EHLO
-        hurricane.elijah.cs.cmu.edu" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728985AbfGWURL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 16:17:11 -0400
-Received: from jaharkes by hurricane.elijah.cs.cmu.edu with local (Exim 4.92)
-        (envelope-from <jaharkes@hurricane.elijah.cs.cmu.edu>)
-        id 1hq1Di-00057x-Jq; Tue, 23 Jul 2019 16:17:10 -0400
-From:   Jan Harkes <jaharkes@cs.cmu.edu>
-To:     stable@vger.kernel.org
-Cc:     Jan Harkes <jaharkes@cs.cmu.edu>
-Subject: [PATCH] coda: pass the host file in vma->vm_file on mmap
-Date:   Tue, 23 Jul 2019 16:17:01 -0400
-Message-Id: <20190723201701.19236-1-jaharkes@cs.cmu.edu>
-X-Mailer: git-send-email 2.20.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1729188AbfGWU1o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jul 2019 16:27:44 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:35516 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726400AbfGWU1o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jul 2019 16:27:44 -0400
+Received: by mail-pf1-f196.google.com with SMTP id u14so19718923pfn.2
+        for <stable@vger.kernel.org>; Tue, 23 Jul 2019 13:27:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=WOfhFeRwrk1NDQAubrKcIwqzw+J4sPXSqFL3j8L4jQk=;
+        b=JezetA0Nxiw1OmCAW2DXcbq3AmvNuAKkd8EZaqtaZE02yn5PvkQjeWHGm89Hdz/5x0
+         ZL73gKx15WWh+UArNMwog4UBdRwhmA8Aays93Bv5o44Kj6UuElrGHFE0oqlQ6L7Lu2kJ
+         0jDtfZU+Wr3MXAV4msLIdr/sT1MbA82oTkWRSPhySp0tLXs+dR9/YHF/3UQOUU/Y3OJp
+         FrOqsBBL9FByy1fTW5o4xilcETT+or2inIAtjcbVo+EjXq7WpE9JQMUUBkFJ9aiw4fyv
+         DgxZdF2eLiLg8U5C9f4yWFJ8D1QS4s4Nb9UfauWvP+esjMgTbNPzSAx6zFw3Fr8GkPco
+         fmBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=WOfhFeRwrk1NDQAubrKcIwqzw+J4sPXSqFL3j8L4jQk=;
+        b=TxDXbAU3zB9IwsMfywKgOGS6/lwmrfO3oN14DagrWElFY94jUxd1WFQA/wBP8zXCRz
+         72G7G7BK28ImtYhNDTlRqy2ujpRlqTmDHgJXW/GWVEf3cH3WtdwQSYr+v1wV31IBFHCi
+         fwa4lX3mah2/1RdWTTk2gCta3RQfY8dLVQ3zUcLSsQcWblDoCOzskENvWRtY7qaMOmhZ
+         fgIKfU+0PqGVURE+NtWWILP1zytJgvYIg66XHI61+OOc/jk0qt7OGOHMZLIrw1YaePRy
+         S9gaVwXaAtEVtcSd5YkQNQ1A1VrfbFGC8jnLK/Ew/P1sooHkBdMiwuP+aL3w3fnSPAnK
+         MNqg==
+X-Gm-Message-State: APjAAAVNf+L9ZKlXFhedgpH/0phGzmhICXobe8DNrpKRCLWqcx18T+7v
+        bKZRxcoTssxeDOaw6g0p0tuHng==
+X-Google-Smtp-Source: APXvYqwRAuZr7uU9qydDUT8b6JlLLZPXYg4os9EGyOFJ139Z/P8r3tDqZio8CygZ1zwDz3EFcrGD9Q==
+X-Received: by 2002:a17:90a:109:: with SMTP id b9mr79845273pjb.112.1563913663333;
+        Tue, 23 Jul 2019 13:27:43 -0700 (PDT)
+Received: from localhost.localdomain ([2601:1c2:680:1319:692:26ff:feda:3a81])
+        by smtp.gmail.com with ESMTPSA id r2sm59205538pfl.67.2019.07.23.13.27.41
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 23 Jul 2019 13:27:42 -0700 (PDT)
+From:   John Stultz <john.stultz@linaro.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Fei Yang <fei.yang@intel.com>,
+        Thinh Nguyen <thinhn@synopsys.com>,
+        Tejas Joglekar <tejas.joglekar@synopsys.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Linux USB List <linux-usb@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        John Stultz <john.stultz@linaro.org>
+Subject: [PATCH] usb: dwc3: Check for IOC/LST bit in both event->status and TRB->ctrl fields
+Date:   Tue, 23 Jul 2019 20:27:35 +0000
+Message-Id: <20190723202735.113381-1-john.stultz@linaro.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <CY4PR1201MB003708ADAD79BF4FD24D3445AACB0@CY4PR1201MB0037.namprd12.prod.outlook.com>
+References: <CY4PR1201MB003708ADAD79BF4FD24D3445AACB0@CY4PR1201MB0037.namprd12.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 7fa0a1da3dadfd9216df7745a1331fdaa0940d1c upstream.
+From: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
 
-Various file systems expect that vma->vm_file points at their own file
-handle, several use file_inode(vma->vm_file) to get at their inode or
-use vma->vm_file->private_data. However the way Coda wrapped mmap on a
-host file broke this assumption, vm_file was still pointing at the Coda
-file and the host file systems would scribble over Coda's inode and
-private file data.
+The present code in dwc3_gadget_ep_reclaim_completed_trb() will check
+for IOC/LST bit in the event->status and returns if IOC/LST bit is
+set. This logic doesn't work if multiple TRBs are queued per
+request and the IOC/LST bit is set on the last TRB of that request.
+Consider an example where a queued request has multiple queued TRBs
+and IOC/LST bit is set only for the last TRB. In this case, the Core
+generates XferComplete/XferInProgress events only for the last TRB
+(since IOC/LST are set only for the last TRB). As per the logic in
+dwc3_gadget_ep_reclaim_completed_trb() event->status is checked for
+IOC/LST bit and returns on the first TRB. This makes the remaining
+TRBs left unhandled.
+To aviod this, changed the code to check for IOC/LST bits in both
+event->status & TRB->ctrl. This patch does the same.
 
-This patch fixes the incorrect expectation and wraps vm_ops->open and
-vm_ops->close to allow Coda to track when the vm_area_struct is
-destroyed so we still release the reference on the Coda file handle at
-the right time.
+At a practical level, this patch resolves USB transfer stalls seen
+with adb on dwc3 based Android devices after functionfs gadget
+added scatter-gather support around v4.20.
 
-This patch differs from the original upstream patch because older stable
-kernels do not have the call_mmap vfs helper so we call f_ops->mmap
-directly.
-
-Cc: stable@vger.kernel.org # 4.9.x
-Cc: stable@vger.kernel.org # 4.4.x
-Cc: stable@vger.kernel.org # 3.16.x
-Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Felipe Balbi <felipe.balbi@linux.intel.com>
+Cc: Fei Yang <fei.yang@intel.com>
+Cc: Thinh Nguyen <thinhn@synopsys.com>
+Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
+Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Linux USB List <linux-usb@vger.kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Tested-By: Tejas Joglekar <tejas.joglekar@synopsys.com>
+Reviewed-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
+[jstultz: forward ported to mainline, added note to commit log]
+Signed-off-by: John Stultz <john.stultz@linaro.org>
 ---
- fs/coda/file.c | 69 +++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 68 insertions(+), 1 deletion(-)
+Just wanted to send this out so we're all looking at the same thing.
+Not sure if its correct, but it seems to solve the adb stalls I've
+been seeing for awhile.
 
-diff --git a/fs/coda/file.c b/fs/coda/file.c
-index 9e83b7790212..933dcddcb024 100644
---- a/fs/coda/file.c
-+++ b/fs/coda/file.c
-@@ -93,6 +93,41 @@ coda_file_write(struct file *coda_file, const char __user *buf, size_t count, lo
- 	return ret;
- }
+ thanks
+ -john
+
+ drivers/usb/dwc3/gadget.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index c9cecb3a9670..1d9701dde69b 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2394,7 +2394,12 @@ static int dwc3_gadget_ep_reclaim_completed_trb(struct dwc3_ep *dep,
+ 	if (event->status & DEPEVT_STATUS_SHORT && !chain)
+ 		return 1;
  
-+struct coda_vm_ops {
-+	atomic_t refcnt;
-+	struct file *coda_file;
-+	const struct vm_operations_struct *host_vm_ops;
-+	struct vm_operations_struct vm_ops;
-+};
+-	if (event->status & DEPEVT_STATUS_IOC)
++	if ((event->status & DEPEVT_STATUS_IOC) &&
++	    (trb->ctrl & DWC3_TRB_CTRL_IOC))
++		return 1;
 +
-+static void
-+coda_vm_open(struct vm_area_struct *vma)
-+{
-+	struct coda_vm_ops *cvm_ops =
-+		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
-+
-+	atomic_inc(&cvm_ops->refcnt);
-+
-+	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->open)
-+		cvm_ops->host_vm_ops->open(vma);
-+}
-+
-+static void
-+coda_vm_close(struct vm_area_struct *vma)
-+{
-+	struct coda_vm_ops *cvm_ops =
-+		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
-+
-+	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->close)
-+		cvm_ops->host_vm_ops->close(vma);
-+
-+	if (atomic_dec_and_test(&cvm_ops->refcnt)) {
-+		vma->vm_ops = cvm_ops->host_vm_ops;
-+		fput(cvm_ops->coda_file);
-+		kfree(cvm_ops);
-+	}
-+}
-+
- static int
- coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
- {
-@@ -100,6 +135,8 @@ coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
- 	struct coda_inode_info *cii;
- 	struct file *host_file;
- 	struct inode *coda_inode, *host_inode;
-+	struct coda_vm_ops *cvm_ops;
-+	int ret;
++	if ((event->status & DEPEVT_STATUS_LST) &&
++	    (trb->ctrl & DWC3_TRB_CTRL_LST))
+ 		return 1;
  
- 	cfi = CODA_FTOC(coda_file);
- 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
-@@ -108,6 +145,13 @@ coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
- 	if (!host_file->f_op->mmap)
- 		return -ENODEV;
- 
-+	if (WARN_ON(coda_file != vma->vm_file))
-+		return -EIO;
-+
-+	cvm_ops = kmalloc(sizeof(struct coda_vm_ops), GFP_KERNEL);
-+	if (!cvm_ops)
-+		return -ENOMEM;
-+
- 	coda_inode = file_inode(coda_file);
- 	host_inode = file_inode(host_file);
- 
-@@ -121,6 +165,7 @@ coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
- 	 * the container file on us! */
- 	else if (coda_inode->i_mapping != host_inode->i_mapping) {
- 		spin_unlock(&cii->c_lock);
-+		kfree(cvm_ops);
- 		return -EBUSY;
- 	}
- 
-@@ -129,7 +174,29 @@ coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
- 	cfi->cfi_mapcount++;
- 	spin_unlock(&cii->c_lock);
- 
--	return host_file->f_op->mmap(host_file, vma);
-+	vma->vm_file = get_file(host_file);
-+	ret = host_file->f_op->mmap(host_file, vma);
-+
-+	if (ret) {
-+		/* if call_mmap fails, our caller will put coda_file so we
-+		 * should drop the reference to the host_file that we got.
-+		 */
-+		fput(host_file);
-+		kfree(cvm_ops);
-+	} else {
-+		/* here we add redirects for the open/close vm_operations */
-+		cvm_ops->host_vm_ops = vma->vm_ops;
-+		if (vma->vm_ops)
-+			cvm_ops->vm_ops = *vma->vm_ops;
-+
-+		cvm_ops->vm_ops.open = coda_vm_open;
-+		cvm_ops->vm_ops.close = coda_vm_close;
-+		cvm_ops->coda_file = coda_file;
-+		atomic_set(&cvm_ops->refcnt, 1);
-+
-+		vma->vm_ops = &cvm_ops->vm_ops;
-+	}
-+	return ret;
- }
- 
- int coda_open(struct inode *coda_inode, struct file *coda_file)
+ 	return 0;
 -- 
-2.20.1
+2.17.1
 
