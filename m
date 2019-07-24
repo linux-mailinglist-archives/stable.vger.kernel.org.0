@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A8273D05
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:14:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48DCD73D3A
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:15:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404522AbfGXTze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39304 "EHLO mail.kernel.org"
+        id S2389303AbfGXTxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:53:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404508AbfGXTzc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:55:32 -0400
+        id S2391808AbfGXTxh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:53:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20572205C9;
-        Wed, 24 Jul 2019 19:55:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61488205C9;
+        Wed, 24 Jul 2019 19:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998131;
-        bh=bJYU+BBdlRGXP2j5ps58YvTfzAMLYvWUtZycSO9cWgc=;
+        s=default; t=1563998015;
+        bh=ygFLybXWsTiWiLHn2WTDchSQO7+pJBrDXToVmNXhiuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYAX6HXKl8xaFxrR1hRBTiaUrjJ7yQwJGBkSHKr8lrtDv2cr4ipd9qI2gzI6IlQzS
-         +Kpa2tdbqX3soSB3UVNndooSrVNn8kuehdn7/1VF0zqdMIG5VIXkAsawytPp4XF15A
-         Tzfpn3BQz5td56YdSpIJi6O5nBzaL4hXYJX9tzAA=
+        b=l0BaT2RtgvAjfqLI+pNEq50kLk9BEHhQWC28YlEx9CGXeU1b1lOZ1MPTzvhMer6Nt
+         pUcUcJ/TwzYdt/LRK220D64lrOn2GvmXoevnpUu0z5+bTEwFumKAtSCR1luvKRdi5d
+         h0qpbGRr2urTXYwVovnTfMzdynodiyrZJERgrd90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ilya Maximets <i.maximets@samsung.com>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        William Tu <u9012063@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 215/371] gtp: fix Illegal context switch in RCU read-side critical section.
-Date:   Wed, 24 Jul 2019 21:19:27 +0200
-Message-Id: <20190724191740.731183797@linuxfoundation.org>
+Subject: [PATCH 5.1 218/371] xdp: fix race on generic receive path
+Date:   Wed, 24 Jul 2019 21:19:30 +0200
+Message-Id: <20190724191740.968089894@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,69 +46,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3f167e1921865b379a9becf03828e7202c7b4917 ]
+[ Upstream commit bf0bdd1343efbbf65b4d53aef1fce14acbd79d50 ]
 
-ipv4_pdp_add() is called in RCU read-side critical section.
-So GFP_KERNEL should not be used in the function.
-This patch make ipv4_pdp_add() to use GFP_ATOMIC instead of GFP_KERNEL.
+Unlike driver mode, generic xdp receive could be triggered
+by different threads on different CPU cores at the same time
+leading to the fill and rx queue breakage. For example, this
+could happen while sending packets from two processes to the
+first interface of veth pair while the second part of it is
+open with AF_XDP socket.
 
-Test commands:
-gtp-link add gtp1 &
-gtp-tunnel add gtp1 v1 100 200 1.1.1.1 2.2.2.2
+Need to take a lock for each generic receive to avoid race.
 
-Splat looks like:
-[  130.618881] =============================
-[  130.626382] WARNING: suspicious RCU usage
-[  130.626994] 5.2.0-rc6+ #50 Not tainted
-[  130.627622] -----------------------------
-[  130.628223] ./include/linux/rcupdate.h:266 Illegal context switch in RCU read-side critical section!
-[  130.629684]
-[  130.629684] other info that might help us debug this:
-[  130.629684]
-[  130.631022]
-[  130.631022] rcu_scheduler_active = 2, debug_locks = 1
-[  130.632136] 4 locks held by gtp-tunnel/1025:
-[  130.632925]  #0: 000000002b93c8b7 (cb_lock){++++}, at: genl_rcv+0x15/0x40
-[  130.634159]  #1: 00000000f17bc999 (genl_mutex){+.+.}, at: genl_rcv_msg+0xfb/0x130
-[  130.635487]  #2: 00000000c644ed8e (rtnl_mutex){+.+.}, at: gtp_genl_new_pdp+0x18c/0x1150 [gtp]
-[  130.636936]  #3: 0000000007a1cde7 (rcu_read_lock){....}, at: gtp_genl_new_pdp+0x187/0x1150 [gtp]
-[  130.638348]
-[  130.638348] stack backtrace:
-[  130.639062] CPU: 1 PID: 1025 Comm: gtp-tunnel Not tainted 5.2.0-rc6+ #50
-[  130.641318] Call Trace:
-[  130.641707]  dump_stack+0x7c/0xbb
-[  130.642252]  ___might_sleep+0x2c0/0x3b0
-[  130.642862]  kmem_cache_alloc_trace+0x1cd/0x2b0
-[  130.643591]  gtp_genl_new_pdp+0x6c5/0x1150 [gtp]
-[  130.644371]  genl_family_rcv_msg+0x63a/0x1030
-[  130.645074]  ? mutex_lock_io_nested+0x1090/0x1090
-[  130.645845]  ? genl_unregister_family+0x630/0x630
-[  130.646592]  ? debug_show_all_locks+0x2d0/0x2d0
-[  130.647293]  ? check_flags.part.40+0x440/0x440
-[  130.648099]  genl_rcv_msg+0xa3/0x130
-[ ... ]
-
-Fixes: 459aa660eb1d ("gtp: add initial driver for datapath of GPRS Tunneling Protocol (GTP-U)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c497176cb2e4 ("xsk: add Rx receive functions and poll support")
+Signed-off-by: Ilya Maximets <i.maximets@samsung.com>
+Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Tested-by: William Tu <u9012063@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/gtp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/xdp_sock.h |  2 ++
+ net/xdp/xsk.c          | 31 ++++++++++++++++++++++---------
+ 2 files changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-index f45a806b6c06..6f1ad7ccaea6 100644
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -958,7 +958,7 @@ static int ipv4_pdp_add(struct gtp_dev *gtp, struct sock *sk,
+diff --git a/include/net/xdp_sock.h b/include/net/xdp_sock.h
+index d074b6d60f8a..ac3c047d058c 100644
+--- a/include/net/xdp_sock.h
++++ b/include/net/xdp_sock.h
+@@ -67,6 +67,8 @@ struct xdp_sock {
+ 	 * in the SKB destructor callback.
+ 	 */
+ 	spinlock_t tx_completion_lock;
++	/* Protects generic receive. */
++	spinlock_t rx_lock;
+ 	u64 rx_dropped;
+ };
  
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index a14e8864e4fa..5e0637db92ea 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -123,13 +123,17 @@ int xsk_generic_rcv(struct xdp_sock *xs, struct xdp_buff *xdp)
+ 	u64 addr;
+ 	int err;
+ 
+-	if (xs->dev != xdp->rxq->dev || xs->queue_id != xdp->rxq->queue_index)
+-		return -EINVAL;
++	spin_lock_bh(&xs->rx_lock);
++
++	if (xs->dev != xdp->rxq->dev || xs->queue_id != xdp->rxq->queue_index) {
++		err = -EINVAL;
++		goto out_unlock;
++	}
+ 
+ 	if (!xskq_peek_addr(xs->umem->fq, &addr) ||
+ 	    len > xs->umem->chunk_size_nohr - XDP_PACKET_HEADROOM) {
+-		xs->rx_dropped++;
+-		return -ENOSPC;
++		err = -ENOSPC;
++		goto out_drop;
  	}
  
--	pctx = kmalloc(sizeof(struct pdp_ctx), GFP_KERNEL);
-+	pctx = kmalloc(sizeof(*pctx), GFP_ATOMIC);
- 	if (pctx == NULL)
- 		return -ENOMEM;
+ 	addr += xs->umem->headroom;
+@@ -138,13 +142,21 @@ int xsk_generic_rcv(struct xdp_sock *xs, struct xdp_buff *xdp)
+ 	memcpy(buffer, xdp->data_meta, len + metalen);
+ 	addr += metalen;
+ 	err = xskq_produce_batch_desc(xs->rx, addr, len);
+-	if (!err) {
+-		xskq_discard_addr(xs->umem->fq);
+-		xsk_flush(xs);
+-		return 0;
+-	}
++	if (err)
++		goto out_drop;
++
++	xskq_discard_addr(xs->umem->fq);
++	xskq_produce_flush_desc(xs->rx);
  
++	spin_unlock_bh(&xs->rx_lock);
++
++	xs->sk.sk_data_ready(&xs->sk);
++	return 0;
++
++out_drop:
+ 	xs->rx_dropped++;
++out_unlock:
++	spin_unlock_bh(&xs->rx_lock);
+ 	return err;
+ }
+ 
+@@ -765,6 +777,7 @@ static int xsk_create(struct net *net, struct socket *sock, int protocol,
+ 
+ 	xs = xdp_sk(sk);
+ 	mutex_init(&xs->mutex);
++	spin_lock_init(&xs->rx_lock);
+ 	spin_lock_init(&xs->tx_completion_lock);
+ 
+ 	mutex_lock(&net->xdp.lock);
 -- 
 2.20.1
 
