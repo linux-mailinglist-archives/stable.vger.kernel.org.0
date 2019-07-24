@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CC4B73A82
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:50:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B9EB73A84
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:51:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403994AbfGXTuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:50:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59814 "EHLO mail.kernel.org"
+        id S2391283AbfGXTu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:50:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403988AbfGXTuv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:50:51 -0400
+        id S2391040AbfGXTuz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:50:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72A96205C9;
-        Wed, 24 Jul 2019 19:50:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C74B020659;
+        Wed, 24 Jul 2019 19:50:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997851;
-        bh=GoxHsisoqa+AVmh9AiTDG6tRPFAbhEt9vwx0+qT3/UQ=;
+        s=default; t=1563997854;
+        bh=7LT2p5J+ER2ScV3tjhvoBvlfTBGOc3y7F5/h3YVHSpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DbvPSXDlaZG3EKowq+KO2xiaJ2Hqf7olYYj5TdIBNR4966afY7F/vn1Fl67JylcAs
-         eoIhM6hShRP6c+UxFh+mO088hOZ3Foyyy08U0hFHbzGWBbvTVKM/S049TZm0VHN9Ef
-         yhKEf7EdSimK3wAxlIcYFMFlq6+9Ghpd2bdVLggs=
+        b=1Zwq7ZftBvIzTYb2w9D7uZQVwxw1P9clOQJb4BaXGvie/4/nNWwwcbs5WwVN/cFnI
+         q2yjvz9h7vh1phdt318rX4huq964+h3WQCB22PybaTHC6oy/SsZ5ONkSDuSpCJV1oC
+         VmVuY28pkp6Z2LV8ZcLIpLO+pO2r/DVSPhluBwfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Litz <hlitz@ucsc.edu>,
-        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@javigon.com>,
-        =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 123/371] lightnvm: pblk: fix freeing of merged pages
-Date:   Wed, 24 Jul 2019 21:17:55 +0200
-Message-Id: <20190724191734.129809693@linuxfoundation.org>
+        stable@vger.kernel.org, Minwoo Im <minwoo.im.dev@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 124/371] nvme-pci: adjust irq max_vector using num_possible_cpus()
+Date:   Wed, 24 Jul 2019 21:17:56 +0200
+Message-Id: <20190724191734.203414935@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,48 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 510fd8ea98fcb586c01aef93d87c060a159ac30a ]
+[ Upstream commit dad77d63903e91a2e97a0c984cabe5d36e91ba60 ]
 
-bio_add_pc_page() may merge pages when a bio is padded due to a flush.
-Fix iteration over the bio to free the correct pages in case of a merge.
+If the "irq_queues" are greater than num_possible_cpus(),
+nvme_calc_irq_sets() can have irq set_size for HCTX_TYPE_DEFAULT greater
+than it can be afforded.
+2039         affd->set_size[HCTX_TYPE_DEFAULT] = nrirqs - nr_read_queues;
 
-Signed-off-by: Heiner Litz <hlitz@ucsc.edu>
-Reviewed-by: Javier González <javier@javigon.com>
-Signed-off-by: Matias Bjørling <mb@lightnvm.io>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+It might cause a WARN() from the irq_build_affinity_masks() like [1]:
+220         if (nr_present < numvecs)
+221                 WARN_ON(nr_present + nr_others < numvecs);
+
+This patch prevents it from the WARN() by adjusting the max_vector value
+from the nvme_setup_irqs().
+
+[1] WARN messages when modprobe nvme write_queues=32 poll_queues=0:
+root@target:~/nvme# nproc
+8
+root@target:~/nvme# modprobe nvme write_queues=32 poll_queues=0
+[   17.925326] nvme nvme0: pci function 0000:00:04.0
+[   17.940601] WARNING: CPU: 3 PID: 1030 at kernel/irq/affinity.c:221 irq_create_affinity_masks+0x222/0x330
+[   17.940602] Modules linked in: nvme nvme_core [last unloaded: nvme]
+[   17.940605] CPU: 3 PID: 1030 Comm: kworker/u17:4 Tainted: G        W         5.1.0+ #156
+[   17.940605] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+[   17.940608] Workqueue: nvme-reset-wq nvme_reset_work [nvme]
+[   17.940609] RIP: 0010:irq_create_affinity_masks+0x222/0x330
+[   17.940611] Code: 4c 8d 4c 24 28 4c 8d 44 24 30 e8 c9 fa ff ff 89 44 24 18 e8 c0 38 fa ff 8b 44 24 18 44 8b 54 24 1c 5a 44 01 d0 41 39 c4 76 02 <0f> 0b 48 89 df 44 01 e5 e8 f1 ce 10 00 48 8b 34 24 44 89 f0 44 01
+[   17.940611] RSP: 0018:ffffc90002277c50 EFLAGS: 00010216
+[   17.940612] RAX: 0000000000000008 RBX: ffff88807ca48860 RCX: 0000000000000000
+[   17.940612] RDX: ffff88807bc03800 RSI: 0000000000000020 RDI: 0000000000000000
+[   17.940613] RBP: 0000000000000001 R08: ffffc90002277c78 R09: ffffc90002277c70
+[   17.940613] R10: 0000000000000008 R11: 0000000000000001 R12: 0000000000000020
+[   17.940614] R13: 0000000000025d08 R14: 0000000000000001 R15: ffff88807bc03800
+[   17.940614] FS:  0000000000000000(0000) GS:ffff88807db80000(0000) knlGS:0000000000000000
+[   17.940616] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   17.940617] CR2: 00005635e583f790 CR3: 000000000240a000 CR4: 00000000000006e0
+[   17.940617] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   17.940618] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   17.940618] Call Trace:
+[   17.940622]  __pci_enable_msix_range+0x215/0x540
+[   17.940623]  ? kernfs_put+0x117/0x160
+[   17.940625]  pci_alloc_irq_vectors_affinity+0x74/0x110
+[   17.940626]  nvme_reset_work+0xc30/0x1397 [nvme]
+[   17.940628]  ? __switch_to_asm+0x34/0x70
+[   17.940628]  ? __switch_to_asm+0x40/0x70
+[   17.940629]  ? __switch_to_asm+0x34/0x70
+[   17.940630]  ? __switch_to_asm+0x40/0x70
+[   17.940630]  ? __switch_to_asm+0x34/0x70
+[   17.940631]  ? __switch_to_asm+0x40/0x70
+[   17.940632]  ? nvme_irq_check+0x30/0x30 [nvme]
+[   17.940633]  process_one_work+0x20b/0x3e0
+[   17.940634]  worker_thread+0x1f9/0x3d0
+[   17.940635]  ? cancel_delayed_work+0xa0/0xa0
+[   17.940636]  kthread+0x117/0x120
+[   17.940637]  ? kthread_stop+0xf0/0xf0
+[   17.940638]  ret_from_fork+0x3a/0x50
+[   17.940639] ---[ end trace aca8a131361cd42a ]---
+[   17.942124] nvme nvme0: 7/1/0 default/read/poll queues
+
+Signed-off-by: Minwoo Im <minwoo.im.dev@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/lightnvm/pblk-core.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/nvme/host/pci.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/lightnvm/pblk-core.c b/drivers/lightnvm/pblk-core.c
-index 6ca868868fee..7393d64757a1 100644
---- a/drivers/lightnvm/pblk-core.c
-+++ b/drivers/lightnvm/pblk-core.c
-@@ -323,14 +323,16 @@ void pblk_free_rqd(struct pblk *pblk, struct nvm_rq *rqd, int type)
- void pblk_bio_free_pages(struct pblk *pblk, struct bio *bio, int off,
- 			 int nr_pages)
- {
--	struct bio_vec bv;
--	int i;
--
--	WARN_ON(off + nr_pages != bio->bi_vcnt);
--
--	for (i = off; i < nr_pages + off; i++) {
--		bv = bio->bi_io_vec[i];
--		mempool_free(bv.bv_page, &pblk->page_bio_pool);
-+	struct bio_vec *bv;
-+	struct page *page;
-+	int i, e, nbv = 0;
-+
-+	for (i = 0; i < bio->bi_vcnt; i++) {
-+		bv = &bio->bi_io_vec[i];
-+		page = bv->bv_page;
-+		for (e = 0; e < bv->bv_len; e += PBLK_EXPOSED_PAGE_SIZE, nbv++)
-+			if (nbv >= off)
-+				mempool_free(page++, &pblk->page_bio_pool);
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 9c956ff5344d..914eea2ea557 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -2085,6 +2085,7 @@ static int nvme_setup_irqs(struct nvme_dev *dev, unsigned int nr_io_queues)
+ 		.priv		= dev,
+ 	};
+ 	unsigned int irq_queues, this_p_queues;
++	unsigned int nr_cpus = num_possible_cpus();
+ 
+ 	/*
+ 	 * Poll queues don't need interrupts, but we need at least one IO
+@@ -2095,7 +2096,10 @@ static int nvme_setup_irqs(struct nvme_dev *dev, unsigned int nr_io_queues)
+ 		this_p_queues = nr_io_queues - 1;
+ 		irq_queues = 1;
+ 	} else {
+-		irq_queues = nr_io_queues - this_p_queues + 1;
++		if (nr_cpus < nr_io_queues - this_p_queues)
++			irq_queues = nr_cpus + 1;
++		else
++			irq_queues = nr_io_queues - this_p_queues + 1;
  	}
- }
+ 	dev->io_queues[HCTX_TYPE_POLL] = this_p_queues;
  
 -- 
 2.20.1
