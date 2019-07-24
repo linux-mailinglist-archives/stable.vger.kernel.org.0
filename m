@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD1F273BA5
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:02:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB2A773C66
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404667AbfGXUCE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:02:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51406 "EHLO mail.kernel.org"
+        id S2404959AbfGXUCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:02:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404996AbfGXUCD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:02:03 -0400
+        id S2405025AbfGXUCG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:02:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5153120665;
-        Wed, 24 Jul 2019 20:02:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC3C22147A;
+        Wed, 24 Jul 2019 20:02:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998522;
-        bh=VmdVzvNLDWTZS6jg+c0EZupz56i7q1ENXH+Qqd8hAjs=;
+        s=default; t=1563998525;
+        bh=DQtB6ZPjk3Dv4VIyCVItFwygJ3J3xRlKQFFSM/g2vtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mSuopzIt3DZJuz7YnuN5n/dZgnQFA0DOMRdoabUr4lFFHkliHTRgrVXdhbX48yWqD
-         SCpYfuFgQQb9j3/Y5XJ2jOXHYWwRJI/DFRgV5ZWDnLMyJInHtBKZ0ZQTan1JLidTJN
-         57W0SgeZ5kVhEVvsM+aJzjygsPJhm4AmFhZPAetM=
+        b=s3B0ZtG2ifHn0KHzleSJmbpl2haQ4WBzpk2IRrLQ1GNS4I2DCLMwRHdO2YgdwlszB
+         b2Sl3aUTGgoiRjkzGQheVvnPo/sFc8t671x/BLUJE6omwrizB4LfjX1zNO2wAqJX87
+         QUYN6ETMlX2+5yBLrTWqOxn/dD54M8Qk/O2DguRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Abreu <joabreu@synopsys.com>,
-        Joao Pinto <jpinto@synopsys.com>,
+        stable@vger.kernel.org, Ariel Elior <ariel.elior@marvell.com>,
+        Denis Bolotin <denis.bolotin@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 023/271] net: stmmac: dwmac4/5: Clear unused address entries
-Date:   Wed, 24 Jul 2019 21:18:12 +0200
-Message-Id: <20190724191657.203178536@linuxfoundation.org>
+Subject: [PATCH 4.19 024/271] qed: Set the doorbell address correctly
+Date:   Wed, 24 Jul 2019 21:18:13 +0200
+Message-Id: <20190724191657.280828166@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -47,51 +46,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0620ec6c62a5a07625b65f699adc5d1b90394ee6 ]
+[ Upstream commit 8366d520019f366fabd6c7a13032bdcd837e18d4 ]
 
-In case we don't use a given address entry we need to clear it because
-it could contain previous values that are no longer valid.
+In 100g mode the doorbell bar is united for both engines. Set
+the correct offset in the hwfn so that the doorbell returned
+for RoCE is in the affined hwfn.
 
-Found out while running stmmac selftests.
-
-Signed-off-by: Jose Abreu <joabreu@synopsys.com>
-Cc: Joao Pinto <jpinto@synopsys.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Giuseppe Cavallaro <peppe.cavallaro@st.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Signed-off-by: Ariel Elior <ariel.elior@marvell.com>
+Signed-off-by: Denis Bolotin <denis.bolotin@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_dev.c  | 29 ++++++++++++++--------
+ drivers/net/ethernet/qlogic/qed/qed_rdma.c |  2 +-
+ 2 files changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-index 7e5d5db0d516..a2f3db39221e 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_core.c
-@@ -444,14 +444,20 @@ static void dwmac4_set_filter(struct mac_device_info *hw,
- 		 * are required
- 		 */
- 		value |= GMAC_PACKET_FILTER_PR;
--	} else if (!netdev_uc_empty(dev)) {
--		int reg = 1;
-+	} else {
- 		struct netdev_hw_addr *ha;
-+		int reg = 1;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+index 4dd82a1612aa..a6a9688db307 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+@@ -3096,6 +3096,7 @@ static void qed_nvm_info_free(struct qed_hwfn *p_hwfn)
+ static int qed_hw_prepare_single(struct qed_hwfn *p_hwfn,
+ 				 void __iomem *p_regview,
+ 				 void __iomem *p_doorbells,
++				 u64 db_phys_addr,
+ 				 enum qed_pci_personality personality)
+ {
+ 	int rc = 0;
+@@ -3103,6 +3104,7 @@ static int qed_hw_prepare_single(struct qed_hwfn *p_hwfn,
+ 	/* Split PCI bars evenly between hwfns */
+ 	p_hwfn->regview = p_regview;
+ 	p_hwfn->doorbells = p_doorbells;
++	p_hwfn->db_phys_addr = db_phys_addr;
  
- 		netdev_for_each_uc_addr(ha, dev) {
- 			dwmac4_set_umac_addr(hw, ha->addr, reg);
- 			reg++;
- 		}
+ 	if (IS_VF(p_hwfn->cdev))
+ 		return qed_vf_hw_prepare(p_hwfn);
+@@ -3198,7 +3200,9 @@ int qed_hw_prepare(struct qed_dev *cdev,
+ 	/* Initialize the first hwfn - will learn number of hwfns */
+ 	rc = qed_hw_prepare_single(p_hwfn,
+ 				   cdev->regview,
+-				   cdev->doorbells, personality);
++				   cdev->doorbells,
++				   cdev->db_phys_addr,
++				   personality);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -3207,22 +3211,25 @@ int qed_hw_prepare(struct qed_dev *cdev,
+ 	/* Initialize the rest of the hwfns */
+ 	if (cdev->num_hwfns > 1) {
+ 		void __iomem *p_regview, *p_doorbell;
+-		u8 __iomem *addr;
++		u64 db_phys_addr;
++		u32 offset;
+ 
+ 		/* adjust bar offset for second engine */
+-		addr = cdev->regview +
+-		       qed_hw_bar_size(p_hwfn, p_hwfn->p_main_ptt,
+-				       BAR_ID_0) / 2;
+-		p_regview = addr;
++		offset = qed_hw_bar_size(p_hwfn, p_hwfn->p_main_ptt,
++					 BAR_ID_0) / 2;
++		p_regview = cdev->regview + offset;
+ 
+-		addr = cdev->doorbells +
+-		       qed_hw_bar_size(p_hwfn, p_hwfn->p_main_ptt,
+-				       BAR_ID_1) / 2;
+-		p_doorbell = addr;
++		offset = qed_hw_bar_size(p_hwfn, p_hwfn->p_main_ptt,
++					 BAR_ID_1) / 2;
 +
-+		while (reg <= GMAC_MAX_PERFECT_ADDRESSES) {
-+			writel(0, ioaddr + GMAC_ADDR_HIGH(reg));
-+			writel(0, ioaddr + GMAC_ADDR_LOW(reg));
-+			reg++;
-+		}
- 	}
++		p_doorbell = cdev->doorbells + offset;
++
++		db_phys_addr = cdev->db_phys_addr + offset;
  
- 	writel(value, ioaddr + GMAC_PACKET_FILTER);
+ 		/* prepare second hw function */
+ 		rc = qed_hw_prepare_single(&cdev->hwfns[1], p_regview,
+-					   p_doorbell, personality);
++					   p_doorbell, db_phys_addr,
++					   personality);
+ 
+ 		/* in case of error, need to free the previously
+ 		 * initiliazed hwfn 0.
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_rdma.c b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
+index 7873d6dfd91f..13802b825d65 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_rdma.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
+@@ -803,7 +803,7 @@ static int qed_rdma_add_user(void *rdma_cxt,
+ 				     dpi_start_offset +
+ 				     ((out_params->dpi) * p_hwfn->dpi_size));
+ 
+-	out_params->dpi_phys_addr = p_hwfn->cdev->db_phys_addr +
++	out_params->dpi_phys_addr = p_hwfn->db_phys_addr +
+ 				    dpi_start_offset +
+ 				    ((out_params->dpi) * p_hwfn->dpi_size);
+ 
 -- 
 2.20.1
 
