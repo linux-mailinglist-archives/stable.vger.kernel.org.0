@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE5C273E75
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA4D73E9A
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389644AbfGXTjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:39:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40686 "EHLO mail.kernel.org"
+        id S2389556AbfGXTiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:38:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389961AbfGXTjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:39:36 -0400
+        id S2389553AbfGXTiC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:38:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83176229F4;
-        Wed, 24 Jul 2019 19:39:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F28520665;
+        Wed, 24 Jul 2019 19:38:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997175;
-        bh=3Cw7wmrxI0vPXcZeOl+alUhNYLWkew2XmGOFUWbkJdM=;
+        s=default; t=1563997081;
+        bh=oMhK2svDNQZluWMPovVKARVEW6yfUn3Wpof1lc/Qgvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hiw1JFjdhdJTIiIw9k/BB0CFswECh8obgENmK/A4uZtCqOs0gotdN5gXppC8aHwOH
-         42PEvZpn9cCh7w4uiZTH0Rn0mTbXsBzWXqUxDjRqEbMsNnm3jHCNcwuf8reHEgkulz
-         ZdDO+59C9R/uOzEONgpHRsvcpN6U/H0bvMIGySX8=
+        b=E+g8qlJIlbscB0DVCa+OM2e5Y/EJZ6GBuJrYtDWuyvoqJvSqgZ4SpxR/eXSwDuFug
+         0XQZF0yraaOSOTCF6dbhefqDHjnPqk+HAExHS0lhqLatj1TTfpK19bnOGCpDZMifoX
+         f57IDf58hhWAf00CaGa4kGUrUjdkNxqi6Dl6Dkkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
         Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 5.2 295/413] iwlwifi: pcie: dont service an interrupt that was masked
-Date:   Wed, 24 Jul 2019 21:19:46 +0200
-Message-Id: <20190724191757.215495817@linuxfoundation.org>
+Subject: [PATCH 5.2 297/413] iwlwifi: dont WARN when calling iwl_get_shared_mem_conf with RF-Kill
+Date:   Wed, 24 Jul 2019 21:19:48 +0200
+Message-Id: <20190724191757.306760643@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -46,15 +46,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-commit 3b57a10ca14c619707398dc58fe5ece18c95b20b upstream.
+commit 0d53cfd0cca3c729a089c39eef0e7d8ae7662974 upstream.
 
-Sometimes the register status can include interrupts that
-were masked. We can, for example, get the RF-Kill bit set
-in the interrupt status register although this interrupt
-was masked. Then if we get the ALIVE interrupt (for example)
-that was not masked, we need to *not* service the RF-Kill
-interrupt.
-Fix this in the MSI-X interrupt handler.
+iwl_mvm_send_cmd returns 0 when the command won't be sent
+because RF-Kill is asserted. Do the same when we call
+iwl_get_shared_mem_conf since it is not sent through
+iwl_mvm_send_cmd but directly calls the transport layer.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
@@ -62,54 +59,51 @@ Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/rx.c |   27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/fw/smem.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
-@@ -2108,10 +2108,18 @@ irqreturn_t iwl_pcie_irq_msix_handler(in
- 		return IRQ_NONE;
- 	}
+--- a/drivers/net/wireless/intel/iwlwifi/fw/smem.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/smem.c
+@@ -8,7 +8,7 @@
+  * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
+  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
+  * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
+- * Copyright(c) 2018 Intel Corporation
++ * Copyright(c) 2018 - 2019 Intel Corporation
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of version 2 of the GNU General Public License as
+@@ -31,7 +31,7 @@
+  * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
+  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
+  * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
+- * Copyright(c) 2018 Intel Corporation
++ * Copyright(c) 2018 - 2019 Intel Corporation
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -134,6 +134,7 @@ void iwl_get_shared_mem_conf(struct iwl_
+ 		.len = { 0, },
+ 	};
+ 	struct iwl_rx_packet *pkt;
++	int ret;
  
--	if (iwl_have_debug_level(IWL_DL_ISR))
--		IWL_DEBUG_ISR(trans, "ISR inta_fh 0x%08x, enabled 0x%08x\n",
--			      inta_fh,
-+	if (iwl_have_debug_level(IWL_DL_ISR)) {
-+		IWL_DEBUG_ISR(trans,
-+			      "ISR inta_fh 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
-+			      inta_fh, trans_pcie->fh_mask,
- 			      iwl_read32(trans, CSR_MSIX_FH_INT_MASK_AD));
-+		if (inta_fh & ~trans_pcie->fh_mask)
-+			IWL_DEBUG_ISR(trans,
-+				      "We got a masked interrupt (0x%08x)\n",
-+				      inta_fh & ~trans_pcie->fh_mask);
-+	}
+ 	if (fw_has_capa(&fwrt->fw->ucode_capa,
+ 			IWL_UCODE_TLV_CAPA_EXTEND_SHARED_MEM_CFG))
+@@ -141,8 +142,13 @@ void iwl_get_shared_mem_conf(struct iwl_
+ 	else
+ 		cmd.id = SHARED_MEM_CFG;
+ 
+-	if (WARN_ON(iwl_trans_send_cmd(fwrt->trans, &cmd)))
++	ret = iwl_trans_send_cmd(fwrt->trans, &cmd);
 +
-+	inta_fh &= trans_pcie->fh_mask;
- 
- 	if ((trans_pcie->shared_vec_mask & IWL_SHARED_IRQ_NON_RX) &&
- 	    inta_fh & MSIX_FH_INT_CAUSES_Q0) {
-@@ -2151,11 +2159,18 @@ irqreturn_t iwl_pcie_irq_msix_handler(in
- 	}
- 
- 	/* After checking FH register check HW register */
--	if (iwl_have_debug_level(IWL_DL_ISR))
-+	if (iwl_have_debug_level(IWL_DL_ISR)) {
- 		IWL_DEBUG_ISR(trans,
--			      "ISR inta_hw 0x%08x, enabled 0x%08x\n",
--			      inta_hw,
-+			      "ISR inta_hw 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
-+			      inta_hw, trans_pcie->hw_mask,
- 			      iwl_read32(trans, CSR_MSIX_HW_INT_MASK_AD));
-+		if (inta_hw & ~trans_pcie->hw_mask)
-+			IWL_DEBUG_ISR(trans,
-+				      "We got a masked interrupt 0x%08x\n",
-+				      inta_hw & ~trans_pcie->hw_mask);
++	if (ret) {
++		WARN(ret != -ERFKILL,
++		     "Could not send the SMEM command: %d\n", ret);
+ 		return;
 +	}
-+
-+	inta_hw &= trans_pcie->hw_mask;
  
- 	/* Alive notification via Rx interrupt will do the real work */
- 	if (inta_hw & MSIX_HW_INT_CAUSES_REG_ALIVE) {
+ 	pkt = cmd.resp_pkt;
+ 	if (fwrt->trans->cfg->device_family >= IWL_DEVICE_FAMILY_22000)
 
 
