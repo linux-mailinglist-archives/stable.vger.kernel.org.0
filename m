@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9D8173C4E
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:08:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FFB973C4F
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:08:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405603AbfGXUCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2403782AbfGXUCx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 24 Jul 2019 16:02:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52880 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404679AbfGXUCv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:02:51 -0400
+        id S2405258AbfGXUCx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:02:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CB52205C9;
-        Wed, 24 Jul 2019 20:02:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD57F20665;
+        Wed, 24 Jul 2019 20:02:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998569;
-        bh=JIsYvSnObyUjfnEizYBKTt/8+80svdSteAWxJHBQpLo=;
+        s=default; t=1563998572;
+        bh=RV0yo7X8cCLIszepIxIT7eB/zLRQsO2F0tprWbjM7BU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=reJJSSYRIzdee9pP4ECQegDgn764aoEjDRlwFHZzHhH8yn0e+NqkrSjQ6/ACqNwNf
-         0aNE+ytsikNMO8iJjVcbj4P59suKLC4/A8gQnsxFGFS5rvQ13oXo3Qc9BaSEe8/AW8
-         Ml/rNrJbavzAHHhmzemMQWbjzyaow+ai53aiacE4=
+        b=bL05ZW3/O1Drz5zeiRR/DtAuY52jBbVOoFSIjMrzgaTQIrEaEBQQklJZHozVx5GZx
+         mpzy5VbsXupr8ee8+dojIuX1JqIhRn4nRf5xyOY0bCTp4c6zl7qvY0zUgqpo96h4QJ
+         5B+oNBEzCfx1ZNy96b+SyRHdKIoMzMkuzG+56gjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
-        Robin Gong <yibin.gong@nxp.com>, Vinod Koul <vkoul@kernel.org>,
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 005/271] dmaengine: imx-sdma: fix use-after-free on probe error path
-Date:   Wed, 24 Jul 2019 21:17:54 +0200
-Message-Id: <20190724191655.719420950@linuxfoundation.org>
+Subject: [PATCH 4.19 006/271] wil6210: fix potential out-of-bounds read
+Date:   Wed, 24 Jul 2019 21:17:55 +0200
+Message-Id: <20190724191655.813049445@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -44,105 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2b8066c3deb9140fdf258417a51479b2aeaa7622 ]
+[ Upstream commit bfabdd6997323adbedccb13a3fed1967fb8cf8f5 ]
 
-If probe() fails anywhere beyond the point where
-sdma_get_firmware() is called, then a kernel oops may occur.
+Notice that *rc* can evaluate to up to 5, include/linux/netdevice.h:
 
-Problematic sequence of events:
-1. probe() calls sdma_get_firmware(), which schedules the
-   firmware callback to run when firmware becomes available,
-   using the sdma instance structure as the context
-2. probe() encounters an error, which deallocates the
-   sdma instance structure
-3. firmware becomes available, firmware callback is
-   called with deallocated sdma instance structure
-4. use after free - kernel oops !
+enum gro_result {
+        GRO_MERGED,
+        GRO_MERGED_FREE,
+        GRO_HELD,
+        GRO_NORMAL,
+        GRO_DROP,
+        GRO_CONSUMED,
+};
+typedef enum gro_result gro_result_t;
 
-Solution: only attempt to load firmware when we're certain
-that probe() will succeed. This guarantees that the firmware
-callback's context will remain valid.
+In case *rc* evaluates to 5, we end up having an out-of-bounds read
+at drivers/net/wireless/ath/wil6210/txrx.c:821:
 
-Note that the remove() path is unaffected by this issue: the
-firmware loader will increment the driver module's use count,
-ensuring that the module cannot be unloaded while the
-firmware callback is pending or running.
+	wil_dbg_txrx(wil, "Rx complete %d bytes => %s\n",
+		     len, gro_res_str[rc]);
 
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Reviewed-by: Robin Gong <yibin.gong@nxp.com>
-[vkoul: fixed braces for if condition]
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fix this by adding element "GRO_CONSUMED" to array gro_res_str.
+
+Addresses-Coverity-ID: 1444666 ("Out-of-bounds read")
+Fixes: 194b482b5055 ("wil6210: Debug print GRO Rx result")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/imx-sdma.c | 48 ++++++++++++++++++++++++------------------
- 1 file changed, 27 insertions(+), 21 deletions(-)
+ drivers/net/wireless/ath/wil6210/txrx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-index 1c658ec3cbf4..3f5a01cb4ab4 100644
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -2039,27 +2039,6 @@ static int sdma_probe(struct platform_device *pdev)
- 	if (pdata && pdata->script_addrs)
- 		sdma_add_scripts(sdma, pdata->script_addrs);
+diff --git a/drivers/net/wireless/ath/wil6210/txrx.c b/drivers/net/wireless/ath/wil6210/txrx.c
+index 75c8aa297107..1b1b58e0129a 100644
+--- a/drivers/net/wireless/ath/wil6210/txrx.c
++++ b/drivers/net/wireless/ath/wil6210/txrx.c
+@@ -736,6 +736,7 @@ void wil_netif_rx_any(struct sk_buff *skb, struct net_device *ndev)
+ 		[GRO_HELD]		= "GRO_HELD",
+ 		[GRO_NORMAL]		= "GRO_NORMAL",
+ 		[GRO_DROP]		= "GRO_DROP",
++		[GRO_CONSUMED]		= "GRO_CONSUMED",
+ 	};
  
--	if (pdata) {
--		ret = sdma_get_firmware(sdma, pdata->fw_name);
--		if (ret)
--			dev_warn(&pdev->dev, "failed to get firmware from platform data\n");
--	} else {
--		/*
--		 * Because that device tree does not encode ROM script address,
--		 * the RAM script in firmware is mandatory for device tree
--		 * probe, otherwise it fails.
--		 */
--		ret = of_property_read_string(np, "fsl,sdma-ram-script-name",
--					      &fw_name);
--		if (ret)
--			dev_warn(&pdev->dev, "failed to get firmware name\n");
--		else {
--			ret = sdma_get_firmware(sdma, fw_name);
--			if (ret)
--				dev_warn(&pdev->dev, "failed to get firmware from device tree\n");
--		}
--	}
--
- 	sdma->dma_device.dev = &pdev->dev;
- 
- 	sdma->dma_device.device_alloc_chan_resources = sdma_alloc_chan_resources;
-@@ -2103,6 +2082,33 @@ static int sdma_probe(struct platform_device *pdev)
- 		of_node_put(spba_bus);
- 	}
- 
-+	/*
-+	 * Kick off firmware loading as the very last step:
-+	 * attempt to load firmware only if we're not on the error path, because
-+	 * the firmware callback requires a fully functional and allocated sdma
-+	 * instance.
-+	 */
-+	if (pdata) {
-+		ret = sdma_get_firmware(sdma, pdata->fw_name);
-+		if (ret)
-+			dev_warn(&pdev->dev, "failed to get firmware from platform data\n");
-+	} else {
-+		/*
-+		 * Because that device tree does not encode ROM script address,
-+		 * the RAM script in firmware is mandatory for device tree
-+		 * probe, otherwise it fails.
-+		 */
-+		ret = of_property_read_string(np, "fsl,sdma-ram-script-name",
-+					      &fw_name);
-+		if (ret) {
-+			dev_warn(&pdev->dev, "failed to get firmware name\n");
-+		} else {
-+			ret = sdma_get_firmware(sdma, fw_name);
-+			if (ret)
-+				dev_warn(&pdev->dev, "failed to get firmware from device tree\n");
-+		}
-+	}
-+
- 	return 0;
- 
- err_register:
+ 	wil->txrx_ops.get_netif_rx_params(skb, &cid, &security);
 -- 
 2.20.1
 
