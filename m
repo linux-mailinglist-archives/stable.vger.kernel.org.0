@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 728E373D36
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBFFC73D32
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404237AbfGXTxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:53:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36412 "EHLO mail.kernel.org"
+        id S2403985AbfGXTyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:54:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404235AbfGXTxs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:53:48 -0400
+        id S2404060AbfGXTyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:54:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F34FC21873;
-        Wed, 24 Jul 2019 19:53:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56131217D4;
+        Wed, 24 Jul 2019 19:54:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998027;
-        bh=PIUMvb4ax90PFEGEcAmN40RkIwRRJlVUfB6jjsfZoHk=;
+        s=default; t=1563998042;
+        bh=MMDvgQIDUqkQpJk85ly4IO0t91zrFPbX6gTSnAmSimM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZxZFLFaEmlTEKmPNCSceLDH7MrwGfvpyY6K71xIVIcYv8Iff2AR/8boeCc3JYgvQZ
-         +xpC9gYc7q6EJNtKSXogLKv88BAVh1xkQQufza9AQRsPDUcIvKjxacaxDUTTSO2hZA
-         nwbG+dxbmLUZ3hJuT+H9ZIvdCmRuDG74wJbhrGLI=
+        b=USet/GRZmfwBmyMIW0+JW8OCT6vsAIyt9QrKIc5j1CfbAGOkU7F/q1NnXs5vZd84C
+         4JnSOHVuBFsR3bFQ0NeMjTZEDvBqG17IPTHzS5RZMRZRC6qAX3+M8HCV2fFBWQvMDj
+         QDAG1m1+M7yh+ow3o6AzvhhDTb6egPVVRoM4wULQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dennis Zhou <dennis@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        Tejun Heo <tj@kernel.org>, Josef Bacik <josef@toxicpanda.com>
-Subject: [PATCH 5.1 222/371] blk-iolatency: fix STS_AGAIN handling
-Date:   Wed, 24 Jul 2019 21:19:34 +0200
-Message-Id: <20190724191741.242726215@linuxfoundation.org>
+        stable@vger.kernel.org, Denis Efremov <efremov@ispras.ru>,
+        Willy Tarreau <w@1wt.eu>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 226/371] floppy: fix invalid pointer dereference in drive_name
+Date:   Wed, 24 Jul 2019 21:19:38 +0200
+Message-Id: <20190724191741.490197675@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,121 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c9b3007feca018d3f7061f5d5a14cb00766ffe9b ]
+[ Upstream commit 9b04609b784027968348796a18f601aed9db3789 ]
 
-The iolatency controller is based on rq_qos. It increments on
-rq_qos_throttle() and decrements on either rq_qos_cleanup() or
-rq_qos_done_bio(). a3fb01ba5af0 fixes the double accounting issue where
-blk_mq_make_request() may call both rq_qos_cleanup() and
-rq_qos_done_bio() on REQ_NO_WAIT. So checking STS_AGAIN prevents the
-double decrement.
+This fixes the invalid pointer dereference in the drive_name function of
+the floppy driver.
 
-The above works upstream as the only way we can get STS_AGAIN is from
-blk_mq_get_request() failing. The STS_AGAIN handling isn't a real
-problem as bio_endio() skipping only happens on reserved tag allocation
-failures which can only be caused by driver bugs and already triggers
-WARN.
+The native_format field of the struct floppy_drive_params is used as
+floppy_type array index in the drive_name function.  Thus, the field
+should be checked the same way as the autodetect field.
 
-However, the fix creates a not so great dependency on how STS_AGAIN can
-be propagated. Internally, we (Facebook) carry a patch that kills read
-ahead if a cgroup is io congested or a fatal signal is pending. This
-combined with chained bios progagate their bi_status to the parent is
-not already set can can cause the parent bio to not clean up properly
-even though it was successful. This consequently leaks the inflight
-counter and can hang all IOs under that blkg.
+To trigger the bug, one could use a value out of range and set the drive
+parameters with the FDSETDRVPRM ioctl.  Next, FDGETDRVTYP ioctl should
+be used to call the drive_name.  A floppy disk is not required to be
+inserted.
 
-To nip the adverse interaction early, this removes the rq_qos_cleanup()
-callback in iolatency in favor of cleaning up always on the
-rq_qos_done_bio() path.
+CAP_SYS_ADMIN is required to call FDSETDRVPRM.
 
-Fixes: a3fb01ba5af0 ("blk-iolatency: only account submitted bios")
-Debugged-by: Tejun Heo <tj@kernel.org>
-Debugged-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Dennis Zhou <dennis@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The patch adds the check for a value of the native_format field to be in
+the '0 <= x < ARRAY_SIZE(floppy_type)' range of the floppy_type array
+indices.
+
+The bug was found by syzkaller.
+
+Signed-off-by: Denis Efremov <efremov@ispras.ru>
+Tested-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-iolatency.c | 51 ++++++++++++-------------------------------
- 1 file changed, 14 insertions(+), 37 deletions(-)
+ drivers/block/floppy.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/block/blk-iolatency.c b/block/blk-iolatency.c
-index 58bac44ba78a..072e1edcf83d 100644
---- a/block/blk-iolatency.c
-+++ b/block/blk-iolatency.c
-@@ -599,10 +599,6 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
- 	if (!blkg || !bio_flagged(bio, BIO_TRACKED))
- 		return;
- 
--	/* We didn't actually submit this bio, don't account it. */
--	if (bio->bi_status == BLK_STS_AGAIN)
--		return;
--
- 	iolat = blkg_to_lat(bio->bi_blkg);
- 	if (!iolat)
- 		return;
-@@ -621,40 +617,22 @@ static void blkcg_iolatency_done_bio(struct rq_qos *rqos, struct bio *bio)
- 
- 		inflight = atomic_dec_return(&rqw->inflight);
- 		WARN_ON_ONCE(inflight < 0);
--		if (iolat->min_lat_nsec == 0)
--			goto next;
--		iolatency_record_time(iolat, &bio->bi_issue, now,
--				      issue_as_root);
--		window_start = atomic64_read(&iolat->window_start);
--		if (now > window_start &&
--		    (now - window_start) >= iolat->cur_win_nsec) {
--			if (atomic64_cmpxchg(&iolat->window_start,
--					window_start, now) == window_start)
--				iolatency_check_latencies(iolat, now);
-+		/*
-+		 * If bi_status is BLK_STS_AGAIN, the bio wasn't actually
-+		 * submitted, so do not account for it.
-+		 */
-+		if (iolat->min_lat_nsec && bio->bi_status != BLK_STS_AGAIN) {
-+			iolatency_record_time(iolat, &bio->bi_issue, now,
-+					      issue_as_root);
-+			window_start = atomic64_read(&iolat->window_start);
-+			if (now > window_start &&
-+			    (now - window_start) >= iolat->cur_win_nsec) {
-+				if (atomic64_cmpxchg(&iolat->window_start,
-+					     window_start, now) == window_start)
-+					iolatency_check_latencies(iolat, now);
-+			}
- 		}
--next:
--		wake_up(&rqw->wait);
--		blkg = blkg->parent;
--	}
--}
--
--static void blkcg_iolatency_cleanup(struct rq_qos *rqos, struct bio *bio)
--{
--	struct blkcg_gq *blkg;
--
--	blkg = bio->bi_blkg;
--	while (blkg && blkg->parent) {
--		struct rq_wait *rqw;
--		struct iolatency_grp *iolat;
--
--		iolat = blkg_to_lat(blkg);
--		if (!iolat)
--			goto next;
--
--		rqw = &iolat->rq_wait;
--		atomic_dec(&rqw->inflight);
- 		wake_up(&rqw->wait);
--next:
- 		blkg = blkg->parent;
- 	}
+diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
+index 77c527db5134..8b443ee1d005 100644
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -3379,7 +3379,8 @@ static int fd_getgeo(struct block_device *bdev, struct hd_geometry *geo)
+ 	return 0;
  }
-@@ -670,7 +648,6 @@ static void blkcg_iolatency_exit(struct rq_qos *rqos)
  
- static struct rq_qos_ops blkcg_iolatency_ops = {
- 	.throttle = blkcg_iolatency_throttle,
--	.cleanup = blkcg_iolatency_cleanup,
- 	.done_bio = blkcg_iolatency_done_bio,
- 	.exit = blkcg_iolatency_exit,
- };
+-static bool valid_floppy_drive_params(const short autodetect[8])
++static bool valid_floppy_drive_params(const short autodetect[8],
++		int native_format)
+ {
+ 	size_t floppy_type_size = ARRAY_SIZE(floppy_type);
+ 	size_t i = 0;
+@@ -3390,6 +3391,9 @@ static bool valid_floppy_drive_params(const short autodetect[8])
+ 			return false;
+ 	}
+ 
++	if (native_format < 0 || native_format >= floppy_type_size)
++		return false;
++
+ 	return true;
+ }
+ 
+@@ -3519,7 +3523,8 @@ static int fd_locked_ioctl(struct block_device *bdev, fmode_t mode, unsigned int
+ 		SUPBOUND(size, strlen((const char *)outparam) + 1);
+ 		break;
+ 	case FDSETDRVPRM:
+-		if (!valid_floppy_drive_params(inparam.dp.autodetect))
++		if (!valid_floppy_drive_params(inparam.dp.autodetect,
++				inparam.dp.native_format))
+ 			return -EINVAL;
+ 		*UDP = inparam.dp;
+ 		break;
+@@ -3718,7 +3723,7 @@ static int compat_setdrvprm(int drive,
+ 		return -EPERM;
+ 	if (copy_from_user(&v, arg, sizeof(struct compat_floppy_drive_params)))
+ 		return -EFAULT;
+-	if (!valid_floppy_drive_params(v.autodetect))
++	if (!valid_floppy_drive_params(v.autodetect, v.native_format))
+ 		return -EINVAL;
+ 	mutex_lock(&floppy_mutex);
+ 	UDP->cmos = v.cmos;
 -- 
 2.20.1
 
