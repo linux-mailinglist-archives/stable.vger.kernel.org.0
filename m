@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7499732F0
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 17:40:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06117732F1
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 17:40:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387399AbfGXPkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 11:40:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45014 "EHLO mail.kernel.org"
+        id S1726822AbfGXPkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 11:40:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387394AbfGXPkL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 11:40:11 -0400
+        id S1725870AbfGXPkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 11:40:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E5EE206B8;
-        Wed, 24 Jul 2019 15:40:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1A8A206B8;
+        Wed, 24 Jul 2019 15:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563982810;
-        bh=1ugpj2cDMT4LouxJwPEh3vVev4JOTmGdyzokTnqYusk=;
+        s=default; t=1563982842;
+        bh=w2LnAVJmVjzwvphWXyBoHWLWJnJJ96AhTPsV+lxjzck=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=j/R6w3WO1nkn9185iFQVPIu47pK5tQEVId66GPEaejTV2sX7SRONSUNwobzBEB+BE
-         VvGLsSnS7L9r1mF6+Zd32tdtoSE0Lq0rLzRK2/WuouhE+7D/WwwZ/lWFJ1LgWWn9MB
-         Yrn/2Tkiu1DR3mn6tzWF8XXC5VjJGhgUhgoDPqHU=
-Date:   Wed, 24 Jul 2019 17:40:08 +0200
+        b=d1A6aNAggPaAaqfp+gVo03YYWQj/5iZiw5JbqpsGOUVWEN6KCDQ2HGofwrJ3mEoQj
+         4MrTh5mMxgP7brJYNkizAeu7lIQCGSdwrRKPdP9ZY1izvIrcwvDzQN/wvfPXwTFexq
+         UExhuGn5RndPKGZOmkUYMFbrVuJRogLb8x4T4vCU=
+Date:   Wed, 24 Jul 2019 17:40:39 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Guenter Roeck <linux@roeck-us.net>
 Cc:     stable <stable@vger.kernel.org>
 Subject: Re: btrfs related build failures in stable queues
-Message-ID: <20190724154008.GA3050@kroah.com>
+Message-ID: <20190724154039.GB3050@kroah.com>
 References: <d32a9740-c5cf-8c91-fd39-ba8f0499541d@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -49,16 +49,4 @@ On Wed, Jul 24, 2019 at 08:07:50AM -0700, Guenter Roeck wrote:
 >                            ^~~~~~~~~~~~
 > fs/btrfs/file.c:2790:18: error: incompatible types when assigning to type 'struct timespec' from type 'struct timespec64'
 
-This was reported, only seems to show up on arm64, right?
-
-> v4.19.y, v5.1.y:
-> 
-> fs/btrfs/props.c: In function 'prop_compression_validate':
-> fs/btrfs/props.c:369:6: error: implicit declaration of function 'btrfs_compression_is_valid_type'
-> 
-> My apologies for the noise if this has already been reported/fixed.
-
-Odd, I thought I fixed that, maybe I need to push out an updated git
-tree, sorry about that.
-
-greg k-h
+Oops, no, this looks like a 32bit issue, let me dig into that...
