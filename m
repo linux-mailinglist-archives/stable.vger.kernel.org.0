@@ -2,109 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C76CE736C2
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 20:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BD2F736DD
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 20:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727160AbfGXSkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 14:40:55 -0400
-Received: from mout.gmx.net ([212.227.17.20]:55711 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726001AbfGXSky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 14:40:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1563993647;
-        bh=NCeUojoxFFYM+G1ohpSdCBkGGMqb0rVc9tlVw55xvYA=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=Qkdi+wqiZT4MSOSFRy0R1umIV7CN2SBHRP4GHI/3lcW2kVrdG4I9vXKcPbQun/B07
-         cSryTShaxMFa+sql25ZY8izinkvHy0yX7CLP1/MBbmIgwNzoeOuTWLV+nCEsNSPS5x
-         NDjQBC9o6Vw/NlWVVtFthUd352+3Jg7jMxnQKDW8=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from localhost.localdomain ([95.91.214.136]) by mail.gmx.com
- (mrgmx102 [212.227.17.168]) with ESMTPSA (Nemesis) id
- 0LaaVn-1iGJP62OQJ-00mI7v; Wed, 24 Jul 2019 20:40:47 +0200
-From:   Sebastian Parschauer <s.parschauer@gmx.de>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     linux-input@vger.kernel.org,
-        Sebastian Parschauer <s.parschauer@gmx.de>,
-        stable@vger.kernel.org
-Subject: [PATCH] HID: Add quirk for HP X1200 PIXART OEM mouse
-Date:   Wed, 24 Jul 2019 20:40:03 +0200
-Message-Id: <20190724184003.12402-1-s.parschauer@gmx.de>
-X-Mailer: git-send-email 2.16.4
-X-Provags-ID: V03:K1:xYKG7v5hCxteWa0jER/cY+3tgK2y34RnYQl9cmkczWHJFm2466r
- JPigP3gjrizdEaZqBNOj2+TKufV2h+LyBVz3HPjvyYWhiZ5guJvWkxfm27U33m++BJkY5m6
- FVlf1FCTtfL0hJVdHr+ykotN+Uz44IaE2sfozNJbkldw2PzhziC83TGUMWLTVOC3jAhyun8
- pYpwlWFQ38nvhi0zPzluw==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:fCBKbaUNs/w=:HCIF7NCPhMZa+bhAaOy4K5
- kw49RZuAAyWW9yLqK/rcl8bnBoSJ1f9RJAiCUqgMO21q3IBmbtjHewS9pc0w+f3f7PvLgIMqt
- o90Y6vBdRS8suxdZ5fTf2wvlIvGZV9OxLS67TwSfz10XbI2KawhF4GpRmGLpO/3AnxFl8fRb2
- 1HCPfxWk2X2HmyStI3M30P8x3LzYPrT96CYsqH3MqxNMgS3bJzXikJ4KeKMa991aGwCF3dE2g
- nKignNOGxZFc7ObXsmbzSrDBOKuv8vXI1QZlT0uEX8Q+3y1FTjYccr9CLnLgOsbAc2XrC9+ez
- FG+pYcB5kRMhvBmyZgraa/by8XC+FLNTAmcbgL7+puYaCoavkNW8H2ioc11ucdgtsFSgTyMH/
- DnzsjL0fYTRmp5u57bbDf/5VG8+849T0vD56kIf+QLUNQVokRJZ+s15dDhwtxblAcAZbyw1lg
- Fv6e26zKquBfM/HpFF7YjB38mTJ90YTr1+h73EJaN0b/tT0HYvd5gWkz/gPR8GIM9EyJSYGrr
- P8k1vkGalgoEvZ7UhyB3nHRsOP9Ok3gerFMZh28gWaYWRXkC2q5FXqV/zKeH/1ro99/wJ4pEL
- pVfm8wunhakjXylmSucRO5lRtGjxQt5KvVJi5LnwFafB17Ffr2mBCcLtA+SE97lRSXcZo3m5N
- 4zUC2MaPrHqfTD+brQ4iSISyjV0N7EtuSKlb8tlMQViZ/0HqThqTppfqeYapbNzPAutL1IxKB
- x0ckUb1epg56Vwl1C5Cpy6HGBuJhUFuh49aHCyxvsc1YIZ+BKQC8An5q2Kk6egcmfRAFSbCn4
- Riy/CWNRyi/aROYA4Bz1jfK3/V7qf/tPDzpK9n394yGsMirn8i6V68M8b3P+F6nYF9G86xDgr
- MBqV39kygz1E1mwwrWU74qlA/LypRMcSstSMw8ya+W5raH2Yhh/7jcqLA1/StXGJ4V1IGoqMP
- BxbeW2+QVTdmSYoZz6U7Lf/nWKZbnq1TMCGDtwqGQeRtmZGKfqch3m4cpoev7o8on5L8+yjz3
- Wz65XujpO6KBy7qvkwPNO/NcmZ0yGysV5EWsT2GbP5F578TQ4wjPSvESygxyX4zYX4G1EKlGn
- JLK643pFP8PlQg=
-Content-Transfer-Encoding: quoted-printable
+        id S1726371AbfGXSqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 14:46:09 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:39468 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726514AbfGXSqJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 14:46:09 -0400
+Received: by mail-pg1-f195.google.com with SMTP id u17so21653849pgi.6
+        for <stable@vger.kernel.org>; Wed, 24 Jul 2019 11:46:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=fahCVmIl/uIgSMC2UckUBQExsfkDADYaB6lHqYCnzWM=;
+        b=jGBrquEgZYhKlBH/0JSQfNd72Sm1hxOzyCZk5hc3PA9kXhYZ6ftB1w9BZxlyUTSmkY
+         vzGRS+HwvDNNjPy7jkEQlDWp6jUAl/f1imyDW/kkYq1Gu17N8d7MZ239gCGUivptRvgB
+         hHL4VTxappX6r213rQjWhHz+XczI8aKYW3uCMPJA8vhOmVcoDQOoqni1h25pW2fuw+4q
+         y4P4m8qHPBmPl5b7CKJUxVlBEb4o6Idb09iaGwByUeBALTNhHL+BI+uEXRE0C9CKPZeQ
+         eC2jEXI+SZI08TETORnNzo1YCS88p1GGb8QzS6e8ivXmt6gZeqaxN1EavTYj+2felLu7
+         VApg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=fahCVmIl/uIgSMC2UckUBQExsfkDADYaB6lHqYCnzWM=;
+        b=BQ1qcjH7Um2b4bCOoNMcjxt7x336Mis2MHbPOc+JAQJMHAtWX4HZyrjsMWaDjSR340
+         WmwghpO1pvqHUDjy7Zbq7vvDfnohlWUtk7Cr6ipsvBL27GWfpJNkuL+4IWV+wKcXEIrr
+         wwRxztmEtkxpmhao3wykZdggX8EdOOwcoGK6deglgfT/FzBDb7f51dso7+27TmmdJEqC
+         WW9I18+7ffmEwjJfFJlL/hgv+JXG7K8NM3QvZA2VknHNIMY1RpTKMnLGyuwShNbNK4m3
+         +dSQ8+1kiOxLdjEjhwYJmZ2EYgnlTnHyiK4HI8MpnkRluL05bXS1KtMVs5mdtUIKO7vT
+         POXg==
+X-Gm-Message-State: APjAAAUbGEsbFYaAMjfyV/e87CLwZE5/Y1oMRV9Jy702d3MVT2vNvrVf
+        2F0uQQohHvBuQS6Kyasj7DV8HR+3
+X-Google-Smtp-Source: APXvYqyHgYF2mVOJLLFpkZ6IZfGogWg4NkOQhgc/wWZhjZJNhF7xwBSPYyGTzu5Ns6A2R8LfIt22Fw==
+X-Received: by 2002:a17:90a:1ae2:: with SMTP id p89mr84239134pjp.26.1563993967785;
+        Wed, 24 Jul 2019 11:46:07 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id g2sm78750366pfq.88.2019.07.24.11.46.05
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 24 Jul 2019 11:46:06 -0700 (PDT)
+Subject: Re: btrfs related build failures in stable queues
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
+        stable <stable@vger.kernel.org>
+References: <d32a9740-c5cf-8c91-fd39-ba8f0499541d@roeck-us.net>
+ <20190724154039.GB3050@kroah.com> <20190724161534.GA10454@kroah.com>
+ <8d039d25-7e88-2de7-00d9-de2c30e11c82@roeck-us.net>
+ <20190724183148.GA23045@kroah.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <0e3f152e-de4c-fd61-eb88-944205939875@roeck-us.net>
+Date:   Wed, 24 Jul 2019 11:46:05 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
+MIME-Version: 1.0
+In-Reply-To: <20190724183148.GA23045@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The PixArt OEM mice are known for disconnecting every minute in
-runlevel 1 or 3 if they are not always polled. So add quirk
-ALWAYS_POLL for this one as well.
+On 7/24/19 11:31 AM, Greg Kroah-Hartman wrote:
+> On Wed, Jul 24, 2019 at 09:50:54AM -0700, Guenter Roeck wrote:
+>> On 7/24/19 9:15 AM, Greg Kroah-Hartman wrote:
+>>> On Wed, Jul 24, 2019 at 05:40:39PM +0200, Greg Kroah-Hartman wrote:
+>>>> On Wed, Jul 24, 2019 at 08:07:50AM -0700, Guenter Roeck wrote:
+>>>>> v4.9.y to v5.1.y:
+>>>>>
+>>>>> fs/btrfs/file.c: In function 'btrfs_punch_hole':
+>>>>> fs/btrfs/file.c:2787:27: error: invalid initializer
+>>>>>      struct timespec64 now = current_time(inode);
+>>>>>                              ^~~~~~~~~~~~
+>>>>> fs/btrfs/file.c:2790:18: error: incompatible types when assigning to type 'struct timespec' from type 'struct timespec64'
+>>>>
+>>>> Oops, no, this looks like a 32bit issue, let me dig into that...
+>>>
+>>> Ok, this makes no sense.
+>>>
+>>> A few lines above this we do:
+>>> 	inode->i_mtime = inode->i_ctime = current_time(inode);
+>>>
+>>> And here we are now doing:
+>>> 	struct timespec64 now = current_time(inode);
+>>>
+>>> 	inode_inc_iversion(inode);
+>>> 	inode->i_mtime = now;
+>>> 	inode->i_ctime = now;
+>>>
+>>>
+>>> And current_time() is defined as:
+>>> 	extern struct timespec64 current_time(struct inode *inode);
+>>>
+>>
+>> v4.9.186-108-g5b3c7cd16340 and v4.9.186-126-g97ad1fbc1478, line 1489 of fs.h:
+>>
+>> extern struct timespec current_fs_time(struct super_block *sb);
+>>
+>> Your code base seems to be different :-(.
+> 
+> I was looking at 5.1 as you said it failed there :(
+> 
+> I'll go fix up 4.9 and I think 4.14, but the other kernel versions
+> should be fine.
+> 
 
-Jonathan Teh (@jonathan-teh) reported and tested the quirk.
-Reference: https://github.com/sriemer/fix-linux-mouse/issues/15
-
-Signed-off-by: Sebastian Parschauer <s.parschauer@gmx.de>
-CC: stable@vger.kernel.org
-=2D--
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 0d695f8e1b2c..2b5bdc654501 100644
-=2D-- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -568,6 +568,7 @@
- #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A	0x094a
-+#define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_0641	0x0641
-
- #define USB_VENDOR_ID_HUION		0x256c
- #define USB_DEVICE_ID_HUION_TABLET	0x006e
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 185a577c46f6..7239b9724b4b 100644
-=2D-- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -92,6 +92,7 @@ static const struct hid_device_id hid_quirks[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OP=
-TICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTI=
-CAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTI=
-CAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTI=
-CAL_MOUSE_0641), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), =
-HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_AT=
-ARI), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X), HI=
-D_QUIRK_MULTI_INPUT },
-=2D-
-2.16.4
-
+Oops. Yes, you are correct, only 4.9 and 4.14 are affected by this problem. Sorry.
+Guenter
