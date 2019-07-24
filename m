@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A082D737DE
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6957737E0
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387863AbfGXTXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39616 "EHLO mail.kernel.org"
+        id S2387876AbfGXTXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:23:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387835AbfGXTXq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:23:46 -0400
+        id S2387867AbfGXTXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:23:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9BC7229F4;
-        Wed, 24 Jul 2019 19:23:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E923218F0;
+        Wed, 24 Jul 2019 19:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996225;
-        bh=59oAdaqXgoANAtP6mRYrfJhHDP9x6DwuHpXTdgPNU6A=;
+        s=default; t=1563996231;
+        bh=tBq3h0tfsdWRgR0JCy+E8Pd4rN5UuDIxC55yeuaXGsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zZ8aLUvlKtOYH6kuIGUsgC1ezUDiCOBkQ7+7K2GZ1XNXmJ+hNwzNy/Nuijtl5lQnX
-         zUbeGHYXZsFnexgEJGFZVCLYLBL++SWnve3nrEPCIEJdjrksQBvF0vA8b/wlLQcywe
-         CYbOvh1KKkS6PbucaxWb5IXiZUWHfGkIBb5rJuZY=
+        b=kBfcThjIgCTHy9NCGMXmuLaIX3L5WsKFEIGoy61lrtZ5Ex/YKJu/j7HvSXtG4bLz3
+         ARA5kAQu5RJme/bLFAee8Ao//EBSaTA74tmGBJs1oCkzyDLV/0Bo+pSwedubTjO1D1
+         Q/5rQBp8Lf8CbuhkP9z7v1GL17+pOniCWMdKTJ+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Jungo Lin <jungo.lin@mediatek.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 023/413] selftests/bpf: adjust verifier scale test
-Date:   Wed, 24 Jul 2019 21:15:14 +0200
-Message-Id: <20190724191737.107564997@linuxfoundation.org>
+Subject: [PATCH 5.2 025/413] media: media_device_enum_links32: clean a reserved field
+Date:   Wed, 24 Jul 2019 21:15:16 +0200
+Message-Id: <20190724191737.260092155@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,101 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7c0c6095d48dcd0e67c917aa73cdbb2715aafc36 ]
+[ Upstream commit f49308878d7202e07d8761238e01bd0e5fce2750 ]
 
-Adjust scale tests to check for new jmp sequence limit.
+In v4l2-compliance utility, test MEDIA_IOC_ENUM_ENTITIES
+will check whether reserved field of media_links_enum filled
+with zero.
 
-BPF_JGT had to be changed to BPF_JEQ because the verifier was
-too smart. It tracked the known safe range of R0 values
-and pruned the search earlier before hitting exact 8192 limit.
-bpf_semi_rand_get() was too (un)?lucky.
+However, for 32 bit program, the reserved field is missing
+copy from kernel space to user space in media_device_enum_links32
+function.
 
-k = 0; was missing in bpf_fill_scale2.
-It was testing a bit shorter sequence of jumps than intended.
+This patch adds the cleaning a reserved field logic in
+media_device_enum_links32 function.
 
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Jungo Lin <jungo.lin@mediatek.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_verifier.c | 31 +++++++++++----------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+ drivers/media/media-device.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/test_verifier.c b/tools/testing/selftests/bpf/test_verifier.c
-index 288cb740e005..6438d4dc8ae1 100644
---- a/tools/testing/selftests/bpf/test_verifier.c
-+++ b/tools/testing/selftests/bpf/test_verifier.c
-@@ -207,33 +207,35 @@ static void bpf_fill_rand_ld_dw(struct bpf_test *self)
- 	self->retval = (uint32_t)res;
- }
+diff --git a/drivers/media/media-device.c b/drivers/media/media-device.c
+index 9ae481ddd975..b9bb4904bba1 100644
+--- a/drivers/media/media-device.c
++++ b/drivers/media/media-device.c
+@@ -494,6 +494,7 @@ static long media_device_enum_links32(struct media_device *mdev,
+ {
+ 	struct media_links_enum links;
+ 	compat_uptr_t pads_ptr, links_ptr;
++	int ret;
  
--/* test the sequence of 1k jumps */
-+#define MAX_JMP_SEQ 8192
+ 	memset(&links, 0, sizeof(links));
+ 
+@@ -505,7 +506,13 @@ static long media_device_enum_links32(struct media_device *mdev,
+ 	links.pads = compat_ptr(pads_ptr);
+ 	links.links = compat_ptr(links_ptr);
+ 
+-	return media_device_enum_links(mdev, &links);
++	ret = media_device_enum_links(mdev, &links);
++	if (ret)
++		return ret;
 +
-+/* test the sequence of 8k jumps */
- static void bpf_fill_scale1(struct bpf_test *self)
- {
- 	struct bpf_insn *insn = self->fill_insns;
- 	int i = 0, k = 0;
- 
- 	insn[i++] = BPF_MOV64_REG(BPF_REG_6, BPF_REG_1);
--	/* test to check that the sequence of 1024 jumps is acceptable */
--	while (k++ < 1024) {
-+	/* test to check that the long sequence of jumps is acceptable */
-+	while (k++ < MAX_JMP_SEQ) {
- 		insn[i++] = BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
- 					 BPF_FUNC_get_prandom_u32);
--		insn[i++] = BPF_JMP_IMM(BPF_JGT, BPF_REG_0, bpf_semi_rand_get(), 2);
-+		insn[i++] = BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, bpf_semi_rand_get(), 2);
- 		insn[i++] = BPF_MOV64_REG(BPF_REG_1, BPF_REG_10);
- 		insn[i++] = BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_6,
- 					-8 * (k % 64 + 1));
- 	}
--	/* every jump adds 1024 steps to insn_processed, so to stay exactly
--	 * within 1m limit add MAX_TEST_INSNS - 1025 MOVs and 1 EXIT
-+	/* every jump adds 1 step to insn_processed, so to stay exactly
-+	 * within 1m limit add MAX_TEST_INSNS - MAX_JMP_SEQ - 1 MOVs and 1 EXIT
- 	 */
--	while (i < MAX_TEST_INSNS - 1025)
-+	while (i < MAX_TEST_INSNS - MAX_JMP_SEQ - 1)
- 		insn[i++] = BPF_ALU32_IMM(BPF_MOV, BPF_REG_0, 42);
- 	insn[i] = BPF_EXIT_INSN();
- 	self->prog_len = i + 1;
- 	self->retval = 42;
++	memset(ulinks->reserved, 0, sizeof(ulinks->reserved));
++
++	return 0;
  }
  
--/* test the sequence of 1k jumps in inner most function (function depth 8)*/
-+/* test the sequence of 8k jumps in inner most function (function depth 8)*/
- static void bpf_fill_scale2(struct bpf_test *self)
- {
- 	struct bpf_insn *insn = self->fill_insns;
-@@ -245,19 +247,20 @@ static void bpf_fill_scale2(struct bpf_test *self)
- 		insn[i++] = BPF_EXIT_INSN();
- 	}
- 	insn[i++] = BPF_MOV64_REG(BPF_REG_6, BPF_REG_1);
--	/* test to check that the sequence of 1024 jumps is acceptable */
--	while (k++ < 1024) {
-+	/* test to check that the long sequence of jumps is acceptable */
-+	k = 0;
-+	while (k++ < MAX_JMP_SEQ) {
- 		insn[i++] = BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
- 					 BPF_FUNC_get_prandom_u32);
--		insn[i++] = BPF_JMP_IMM(BPF_JGT, BPF_REG_0, bpf_semi_rand_get(), 2);
-+		insn[i++] = BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, bpf_semi_rand_get(), 2);
- 		insn[i++] = BPF_MOV64_REG(BPF_REG_1, BPF_REG_10);
- 		insn[i++] = BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_6,
- 					-8 * (k % (64 - 4 * FUNC_NEST) + 1));
- 	}
--	/* every jump adds 1024 steps to insn_processed, so to stay exactly
--	 * within 1m limit add MAX_TEST_INSNS - 1025 MOVs and 1 EXIT
-+	/* every jump adds 1 step to insn_processed, so to stay exactly
-+	 * within 1m limit add MAX_TEST_INSNS - MAX_JMP_SEQ - 1 MOVs and 1 EXIT
- 	 */
--	while (i < MAX_TEST_INSNS - 1025)
-+	while (i < MAX_TEST_INSNS - MAX_JMP_SEQ - 1)
- 		insn[i++] = BPF_ALU32_IMM(BPF_MOV, BPF_REG_0, 42);
- 	insn[i] = BPF_EXIT_INSN();
- 	self->prog_len = i + 1;
+ #define MEDIA_IOC_ENUM_LINKS32		_IOWR('|', 0x02, struct media_links_enum32)
 -- 
 2.20.1
 
