@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DABF74673
-	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:51:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFAD27466C
+	for <lists+stable@lfdr.de>; Thu, 25 Jul 2019 07:51:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404401AbfGYFkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jul 2019 01:40:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55204 "EHLO mail.kernel.org"
+        id S2404488AbfGYFkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jul 2019 01:40:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404427AbfGYFkg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jul 2019 01:40:36 -0400
+        id S2404449AbfGYFks (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jul 2019 01:40:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 030AA22BEB;
-        Thu, 25 Jul 2019 05:40:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13E1522C7D;
+        Thu, 25 Jul 2019 05:40:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1564033235;
-        bh=3m0kIVAo0a4Cwf2ZyU0jA3cau05f5QZwp+Wg8fOZyDs=;
+        s=default; t=1564033247;
+        bh=yFHjtmpuvIfwQiIcPYNCFfLUTLpBwHqEJn/vwJby05U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rVGJDd+/9ujyaeURGzi6AVX/hdvhlHFfSNQ2VNSO1Wq+/0CwOnEWclQ3bw7v2gszy
-         GjYnkLUXfzKCvdlLSGmcxZLsAtTfDK++4bK5Dpq2tJs0dZI5nW7juqu6El6PTqrk2t
-         d/e9eHomDe/igUJ9JLikQD8AQIqqHgeRf8KEhJ24=
+        b=nuN7adTKyQryPzlxgUTtkdIlEvAClJqLOzEFFXf1I+IE7ApwPv+cVKNN9STjD9Xn3
+         i7HQbB4m/DU/VArBdorE23YVXcr/IqlNAbFMoKmnwIci0IRaNXrfJbCZDXNT4yuFyr
+         98KyCjyga+bHIXLjf/aId3P5pPuF11uUA9Yjv1QQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
+        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 140/271] rxrpc: Fix oops in tracepoint
-Date:   Wed, 24 Jul 2019 21:20:09 +0200
-Message-Id: <20190724191707.195644223@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+e5be16aa39ad6e755391@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 143/271] bonding: validate ip header before check IPPROTO_IGMP
+Date:   Wed, 24 Jul 2019 21:20:12 +0200
+Message-Id: <20190724191707.434605207@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -45,104 +48,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 99f0eae653b2db64917d0b58099eb51e300b311d ]
+[ Upstream commit 9d1bc24b52fb8c5d859f9a47084bf1179470e04c ]
 
-If the rxrpc_eproto tracepoint is enabled, an oops will be cause by the
-trace line that rxrpc_extract_header() tries to emit when a protocol error
-occurs (typically because the packet is short) because the call argument is
-NULL.
+bond_xmit_roundrobin() checks for IGMP packets but it parses
+the IP header even before checking skb->protocol.
 
-Fix this by using ?: to assume 0 as the debug_id if call is NULL.
+We should validate the IP header with pskb_may_pull() before
+using iph->protocol.
 
-This can then be induced by:
-
-	echo -e '\0\0\0\0\0\0\0\0' | ncat -4u --send-only <addr> 20001
-
-where addr has the following program running on it:
-
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <string.h>
-	#include <unistd.h>
-	#include <sys/socket.h>
-	#include <arpa/inet.h>
-	#include <linux/rxrpc.h>
-	int main(void)
-	{
-		struct sockaddr_rxrpc srx;
-		int fd;
-		memset(&srx, 0, sizeof(srx));
-		srx.srx_family			= AF_RXRPC;
-		srx.srx_service			= 0;
-		srx.transport_type		= AF_INET;
-		srx.transport_len		= sizeof(srx.transport.sin);
-		srx.transport.sin.sin_family	= AF_INET;
-		srx.transport.sin.sin_port	= htons(0x4e21);
-		fd = socket(AF_RXRPC, SOCK_DGRAM, AF_INET6);
-		bind(fd, (struct sockaddr *)&srx, sizeof(srx));
-		sleep(20);
-		return 0;
-	}
-
-It results in the following oops.
-
-	BUG: kernel NULL pointer dereference, address: 0000000000000340
-	#PF: supervisor read access in kernel mode
-	#PF: error_code(0x0000) - not-present page
-	...
-	RIP: 0010:trace_event_raw_event_rxrpc_rx_eproto+0x47/0xac
-	...
-	Call Trace:
-	 <IRQ>
-	 rxrpc_extract_header+0x86/0x171
-	 ? rcu_read_lock_sched_held+0x5d/0x63
-	 ? rxrpc_new_skb+0xd4/0x109
-	 rxrpc_input_packet+0xef/0x14fc
-	 ? rxrpc_input_data+0x986/0x986
-	 udp_queue_rcv_one_skb+0xbf/0x3d0
-	 udp_unicast_rcv_skb.isra.8+0x64/0x71
-	 ip_protocol_deliver_rcu+0xe4/0x1b4
-	 ip_local_deliver+0xf0/0x154
-	 __netif_receive_skb_one_core+0x50/0x6c
-	 netif_receive_skb_internal+0x26b/0x2e9
-	 napi_gro_receive+0xf8/0x1da
-	 rtl8169_poll+0x303/0x4c4
-	 net_rx_action+0x10e/0x333
-	 __do_softirq+0x1a5/0x38f
-	 irq_exit+0x54/0xc4
-	 do_IRQ+0xda/0xf8
-	 common_interrupt+0xf/0xf
-	 </IRQ>
-	 ...
-	 ? cpuidle_enter_state+0x23c/0x34d
-	 cpuidle_enter+0x2a/0x36
-	 do_idle+0x163/0x1ea
-	 cpu_startup_entry+0x1d/0x1f
-	 start_secondary+0x157/0x172
-	 secondary_startup_64+0xa4/0xb0
-
-Fixes: a25e21f0bcd2 ("rxrpc, afs: Use debug_ids rather than pointers in traces")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+Reported-and-tested-by: syzbot+e5be16aa39ad6e755391@syzkaller.appspotmail.com
+Fixes: a2fd940f4cff ("bonding: fix broken multicast with round-robin mode")
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/rxrpc.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/bonding/bond_main.c | 37 ++++++++++++++++++++-------------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
 
-diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
-index 6d182746afab..147546e0c11b 100644
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -1381,7 +1381,7 @@ TRACE_EVENT(rxrpc_rx_eproto,
- 			     ),
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 7e162fff01ab..be0b785becd0 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3852,8 +3852,8 @@ static netdev_tx_t bond_xmit_roundrobin(struct sk_buff *skb,
+ 					struct net_device *bond_dev)
+ {
+ 	struct bonding *bond = netdev_priv(bond_dev);
+-	struct iphdr *iph = ip_hdr(skb);
+ 	struct slave *slave;
++	int slave_cnt;
+ 	u32 slave_id;
  
- 	    TP_fast_assign(
--		    __entry->call = call->debug_id;
-+		    __entry->call = call ? call->debug_id : 0;
- 		    __entry->serial = serial;
- 		    __entry->why = why;
- 			   ),
+ 	/* Start with the curr_active_slave that joined the bond as the
+@@ -3862,23 +3862,32 @@ static netdev_tx_t bond_xmit_roundrobin(struct sk_buff *skb,
+ 	 * send the join/membership reports.  The curr_active_slave found
+ 	 * will send all of this type of traffic.
+ 	 */
+-	if (iph->protocol == IPPROTO_IGMP && skb->protocol == htons(ETH_P_IP)) {
+-		slave = rcu_dereference(bond->curr_active_slave);
+-		if (slave)
+-			bond_dev_queue_xmit(bond, skb, slave->dev);
+-		else
+-			bond_xmit_slave_id(bond, skb, 0);
+-	} else {
+-		int slave_cnt = READ_ONCE(bond->slave_cnt);
++	if (skb->protocol == htons(ETH_P_IP)) {
++		int noff = skb_network_offset(skb);
++		struct iphdr *iph;
+ 
+-		if (likely(slave_cnt)) {
+-			slave_id = bond_rr_gen_slave_id(bond);
+-			bond_xmit_slave_id(bond, skb, slave_id % slave_cnt);
+-		} else {
+-			bond_tx_drop(bond_dev, skb);
++		if (unlikely(!pskb_may_pull(skb, noff + sizeof(*iph))))
++			goto non_igmp;
++
++		iph = ip_hdr(skb);
++		if (iph->protocol == IPPROTO_IGMP) {
++			slave = rcu_dereference(bond->curr_active_slave);
++			if (slave)
++				bond_dev_queue_xmit(bond, skb, slave->dev);
++			else
++				bond_xmit_slave_id(bond, skb, 0);
++			return NETDEV_TX_OK;
+ 		}
+ 	}
+ 
++non_igmp:
++	slave_cnt = READ_ONCE(bond->slave_cnt);
++	if (likely(slave_cnt)) {
++		slave_id = bond_rr_gen_slave_id(bond);
++		bond_xmit_slave_id(bond, skb, slave_id % slave_cnt);
++	} else {
++		bond_tx_drop(bond_dev, skb);
++	}
+ 	return NETDEV_TX_OK;
+ }
+ 
 -- 
 2.20.1
 
