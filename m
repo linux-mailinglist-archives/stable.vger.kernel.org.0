@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86C6F73C19
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:07:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70CA273C1B
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:07:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392506AbfGXUEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:04:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55464 "EHLO mail.kernel.org"
+        id S2392525AbfGXUE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:04:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392481AbfGXUEY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:04:24 -0400
+        id S2392516AbfGXUE0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:04:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D428205C9;
-        Wed, 24 Jul 2019 20:04:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CF7C20665;
+        Wed, 24 Jul 2019 20:04:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998663;
-        bh=H9u1xa7YsbUe3hWwnVKvACBm9t0wPTbDfkTZCV9QaKw=;
+        s=default; t=1563998666;
+        bh=C6Z05VeIevo+UoT9XGog8dSepoX70IBD5J082138lWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=asQD8dH1y+D/4VkCYe59OFf9Ha/qUpuQ3APtGYgILTkXGWomTo2tBRp1JqHNCnihL
-         u8QcU2kZBdN8yoW2pyFiRODqBm0MF+m6MROCvAD2Qax43b4a8m4K6zJb2aRnGfFZD9
-         1MZWZhzXmmmBkpQ3E6t5Muvmgg7QEb1t5s6IFmGs=
+        b=joWOPavuByoVUgyGZm5uZBHOnSl4HYezlg4tko2aPXK0REuIC9pb2b2onTGWM0SRM
+         9NRhS/77Tfkdgceu9cwxuokKjtf0Rk0LAxvjSz61959hprBNwiejbNFQsn6szO1ujY
+         PC3IiZiySAuaL8nu+VLwZX1TKU8t+brD9jt0vklk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Lewis <aaronlewis@google.com>,
-        Borislav Petkov <bp@suse.de>,
-        Jim Mattson <jmattson@google.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        marcorr@google.com, Peter Feiner <pfeiner@google.com>,
-        pshier@google.com, Robert Hoo <robert.hu@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Thomas Lendacky <Thomas.Lendacky@amd.com>,
-        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 070/271] x86/cpufeatures: Add FDP_EXCPTN_ONLY and ZERO_FCS_FDS
-Date:   Wed, 24 Jul 2019 21:18:59 +0200
-Message-Id: <20190724191701.195708124@linuxfoundation.org>
+        stable@vger.kernel.org, Ariel Elior <ariel.elior@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 071/271] qed: iWARP - Fix tc for MPA ll2 connection
+Date:   Wed, 24 Jul 2019 21:19:00 +0200
+Message-Id: <20190724191701.285465780@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -53,58 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cbb99c0f588737ec98c333558922ce47e9a95827 ]
+[ Upstream commit cb94d52b93c74fe1f2595734fabeda9f8ae891ee ]
 
-Add the CPUID enumeration for Intel's de-feature bits to accommodate
-passing these de-features through to kvm guests.
+The driver needs to assign a lossless traffic class for the MPA ll2
+connection to ensure no packets are dropped when returning from the
+driver as they will never be re-transmitted by the peer.
 
-These de-features are (from SDM vol 1, section 8.1.8):
- - X86_FEATURE_FDP_EXCPTN_ONLY: If CPUID.(EAX=07H,ECX=0H):EBX[bit 6] = 1, the
-   data pointer (FDP) is updated only for the x87 non-control instructions that
-   incur unmasked x87 exceptions.
- - X86_FEATURE_ZERO_FCS_FDS: If CPUID.(EAX=07H,ECX=0H):EBX[bit 13] = 1, the
-   processor deprecates FCS and FDS; it saves each as 0000H.
-
-Signed-off-by: Aaron Lewis <aaronlewis@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Frederic Weisbecker <frederic@kernel.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: marcorr@google.com
-Cc: Peter Feiner <pfeiner@google.com>
-Cc: pshier@google.com
-Cc: Robert Hoo <robert.hu@linux.intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Lendacky <Thomas.Lendacky@amd.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190605220252.103406-1-aaronlewis@google.com
+Fixes: ae3488ff37dc ("qed: Add ll2 connection for processing unaligned MPA packets")
+Signed-off-by: Ariel Elior <ariel.elior@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/cpufeatures.h | 2 ++
+ drivers/net/ethernet/qlogic/qed/qed_iwarp.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index 69037da75ea0..0cf704933f23 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -239,12 +239,14 @@
- #define X86_FEATURE_BMI1		( 9*32+ 3) /* 1st group bit manipulation extensions */
- #define X86_FEATURE_HLE			( 9*32+ 4) /* Hardware Lock Elision */
- #define X86_FEATURE_AVX2		( 9*32+ 5) /* AVX2 instructions */
-+#define X86_FEATURE_FDP_EXCPTN_ONLY	( 9*32+ 6) /* "" FPU data pointer updated only on x87 exceptions */
- #define X86_FEATURE_SMEP		( 9*32+ 7) /* Supervisor Mode Execution Protection */
- #define X86_FEATURE_BMI2		( 9*32+ 8) /* 2nd group bit manipulation extensions */
- #define X86_FEATURE_ERMS		( 9*32+ 9) /* Enhanced REP MOVSB/STOSB instructions */
- #define X86_FEATURE_INVPCID		( 9*32+10) /* Invalidate Processor Context ID */
- #define X86_FEATURE_RTM			( 9*32+11) /* Restricted Transactional Memory */
- #define X86_FEATURE_CQM			( 9*32+12) /* Cache QoS Monitoring */
-+#define X86_FEATURE_ZERO_FCS_FDS	( 9*32+13) /* "" Zero out FPU CS and FPU DS */
- #define X86_FEATURE_MPX			( 9*32+14) /* Memory Protection Extension */
- #define X86_FEATURE_RDT_A		( 9*32+15) /* Resource Director Technology Allocation */
- #define X86_FEATURE_AVX512F		( 9*32+16) /* AVX-512 Foundation */
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
+index b7471e48db7b..7002a660b6b4 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
+@@ -2709,6 +2709,8 @@ qed_iwarp_ll2_start(struct qed_hwfn *p_hwfn,
+ 	data.input.rx_num_desc = n_ooo_bufs * 2;
+ 	data.input.tx_num_desc = data.input.rx_num_desc;
+ 	data.input.tx_max_bds_per_packet = QED_IWARP_MAX_BDS_PER_FPDU;
++	data.input.tx_tc = PKT_LB_TC;
++	data.input.tx_dest = QED_LL2_TX_DEST_LB;
+ 	data.p_connection_handle = &iwarp_info->ll2_mpa_handle;
+ 	data.input.secondary_queue = true;
+ 	data.cbs = &cbs;
 -- 
 2.20.1
 
