@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A76B7391D
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:37:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67ED07392A
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389386AbfGXThC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:37:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36894 "EHLO mail.kernel.org"
+        id S2389226AbfGXTh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:37:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389377AbfGXThB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:37:01 -0400
+        id S2389050AbfGXTh0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:37:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8D2620665;
-        Wed, 24 Jul 2019 19:36:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FF6E214AF;
+        Wed, 24 Jul 2019 19:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997020;
-        bh=wLenPchzmHu2bxlRqWuzksxeHYWnPHMNI1svPZQDuIw=;
+        s=default; t=1563997045;
+        bh=VxdikZ9i7vR1FMjtOTnb3t5AZ9fGaTGau7hEAMZ9wwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w0rJPAae0UwSXEL86pS80KUwcjaOCSiyv/zG8Deq+yAt7fzK7f74c/BWWKhO1w6lZ
-         oLZJnX+pz/iZilqRjUZ5zqc3mw5BTyuW5RluGZEU5issbc+4HSJlrUx7DBDR/kyDwD
-         GI4AIiuQ5cEg2LlohrCfBkQRiq33VII6Ej3clJr8=
+        b=EANvVDM/QzGoI3L8xobex4JdtwZmeqRP3UlNuTf5tkzyC515HqqW2+03701HIK9aX
+         UZ2G9hFBdeqNGox5/v/KKqsau7t1tfZ/tSR1ZdjZHFDSRxeAdp0SvZhwGprG3GlblU
+         m9d0By/lcboGvoBzNmRZuVRpLFCyiuaNY9QkHT48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.2 293/413] arm64: tegra: Fix Jetson Nano GPU regulator
-Date:   Wed, 24 Jul 2019 21:19:44 +0200
-Message-Id: <20190724191757.121960621@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>
+Subject: [PATCH 5.2 296/413] iwlwifi: pcie: fix ALIVE interrupt handling for gen2 devices w/o MSI-X
+Date:   Wed, 24 Jul 2019 21:19:47 +0200
+Message-Id: <20190724191757.264601238@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -43,58 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-commit 434e8aedeaec595933811c2af191db9f11d3ce3b upstream.
+commit ec46ae30245ecb41d73f8254613db07c653fb498 upstream.
 
-There are a few issues with the GPU regulator defined for Jetson Nano
-which are:
+We added code to restock the buffer upon ALIVE interrupt
+when MSI-X is disabled. This was added as part of the context
+info code. This code was added only if the ISR debug level
+is set which is very unlikely to be related.
+Move this code to run even when the ISR debug level is not
+set.
 
-1. The GPU regulator is a PWM based regulator and not a fixed voltage
-   regulator.
-2. The output voltages for the GPU regulator are not correct.
-3. The regulator enable ramp delay is too short for the regulator and
-   needs to be increased. 2ms should be sufficient.
-4. This is the same regulator used on Jetson TX1 and so make the ramp
-   delay and settling time the same as Jetson TX1.
+Note that gen2 devices work with MSI-X in most cases so that
+this path is seldom used.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Fixes: 6772cd0eacc8 ("arm64: tegra: Add NVIDIA Jetson Nano Developer Kit support")
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/nvidia/tegra210-p3450-0000.dts |   17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/rx.c |   34 ++++++++++++---------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
---- a/arch/arm64/boot/dts/nvidia/tegra210-p3450-0000.dts
-+++ b/arch/arm64/boot/dts/nvidia/tegra210-p3450-0000.dts
-@@ -633,17 +633,16 @@
- 		};
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+@@ -1827,25 +1827,23 @@ irqreturn_t iwl_pcie_irq_handler(int irq
+ 		goto out;
+ 	}
  
- 		vdd_gpu: regulator@6 {
--			compatible = "regulator-fixed";
-+			compatible = "pwm-regulator";
- 			reg = <6>;
--
-+			pwms = <&pwm 1 4880>;
- 			regulator-name = "VDD_GPU";
--			regulator-min-microvolt = <5000000>;
--			regulator-max-microvolt = <5000000>;
--			regulator-enable-ramp-delay = <250>;
--
--			gpio = <&pmic 6 GPIO_ACTIVE_HIGH>;
--			enable-active-high;
--
-+			regulator-min-microvolt = <710000>;
-+			regulator-max-microvolt = <1320000>;
-+			regulator-ramp-delay = <80>;
-+			regulator-enable-ramp-delay = <2000>;
-+			regulator-settling-time-us = <160>;
-+			enable-gpios = <&pmic 6 GPIO_ACTIVE_HIGH>;
- 			vin-supply = <&vdd_5v0_sys>;
- 		};
- 	};
+-	if (iwl_have_debug_level(IWL_DL_ISR)) {
+-		/* NIC fires this, but we don't use it, redundant with WAKEUP */
+-		if (inta & CSR_INT_BIT_SCD) {
+-			IWL_DEBUG_ISR(trans,
+-				      "Scheduler finished to transmit the frame/frames.\n");
+-			isr_stats->sch++;
+-		}
++	/* NIC fires this, but we don't use it, redundant with WAKEUP */
++	if (inta & CSR_INT_BIT_SCD) {
++		IWL_DEBUG_ISR(trans,
++			      "Scheduler finished to transmit the frame/frames.\n");
++		isr_stats->sch++;
++	}
+ 
+-		/* Alive notification via Rx interrupt will do the real work */
+-		if (inta & CSR_INT_BIT_ALIVE) {
+-			IWL_DEBUG_ISR(trans, "Alive interrupt\n");
+-			isr_stats->alive++;
+-			if (trans->cfg->gen2) {
+-				/*
+-				 * We can restock, since firmware configured
+-				 * the RFH
+-				 */
+-				iwl_pcie_rxmq_restock(trans, trans_pcie->rxq);
+-			}
++	/* Alive notification via Rx interrupt will do the real work */
++	if (inta & CSR_INT_BIT_ALIVE) {
++		IWL_DEBUG_ISR(trans, "Alive interrupt\n");
++		isr_stats->alive++;
++		if (trans->cfg->gen2) {
++			/*
++			 * We can restock, since firmware configured
++			 * the RFH
++			 */
++			iwl_pcie_rxmq_restock(trans, trans_pcie->rxq);
+ 		}
+ 	}
+ 
 
 
