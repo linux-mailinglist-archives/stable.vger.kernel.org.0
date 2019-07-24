@@ -2,66 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 864877329D
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 17:20:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7499732F0
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 17:40:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387503AbfGXPUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 11:20:06 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:33574 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725870AbfGXPUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 11:20:06 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: gtucker)
-        with ESMTPSA id AF18728B4E7
-From:   Guillaume Tucker <guillaume.tucker@collabora.com>
-To:     Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel@collabora.com,
-        Guillaume Tucker <guillaume.tucker@collabora.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] media: vivid: fix device init when no_error_inj=1 and fb disabled
-Date:   Wed, 24 Jul 2019 16:19:22 +0100
-Message-Id: <20190724151922.11124-1-guillaume.tucker@collabora.com>
-X-Mailer: git-send-email 2.20.1
+        id S2387399AbfGXPkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 11:40:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45014 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387394AbfGXPkL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 11:40:11 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E5EE206B8;
+        Wed, 24 Jul 2019 15:40:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1563982810;
+        bh=1ugpj2cDMT4LouxJwPEh3vVev4JOTmGdyzokTnqYusk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=j/R6w3WO1nkn9185iFQVPIu47pK5tQEVId66GPEaejTV2sX7SRONSUNwobzBEB+BE
+         VvGLsSnS7L9r1mF6+Zd32tdtoSE0Lq0rLzRK2/WuouhE+7D/WwwZ/lWFJ1LgWWn9MB
+         Yrn/2Tkiu1DR3mn6tzWF8XXC5VjJGhgUhgoDPqHU=
+Date:   Wed, 24 Jul 2019 17:40:08 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable <stable@vger.kernel.org>
+Subject: Re: btrfs related build failures in stable queues
+Message-ID: <20190724154008.GA3050@kroah.com>
+References: <d32a9740-c5cf-8c91-fd39-ba8f0499541d@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d32a9740-c5cf-8c91-fd39-ba8f0499541d@roeck-us.net>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add an extra condition to add the video output control class when the
-device has some hdmi outputs defined.  This is required to then always
-be able to add the display present control, which is enabled when
-there are some hdmi outputs.
+On Wed, Jul 24, 2019 at 08:07:50AM -0700, Guenter Roeck wrote:
+> v4.9.y to v5.1.y:
+> 
+> fs/btrfs/file.c: In function 'btrfs_punch_hole':
+> fs/btrfs/file.c:2787:27: error: invalid initializer
+>    struct timespec64 now = current_time(inode);
+>                            ^~~~~~~~~~~~
+> fs/btrfs/file.c:2790:18: error: incompatible types when assigning to type 'struct timespec' from type 'struct timespec64'
 
-This fixes the corner case where no_error_inj is enabled and the
-device has no frame buffer but some hdmi outputs, as otherwise the
-video output control class would be added anyway.  Without this fix,
-the sanity checks fail in v4l2_ctrl_new() as name is NULL.
+This was reported, only seems to show up on arm64, right?
 
-Fixes: c533435ffb91 ("media: vivid: add display present control")
-Cc: stable@vger.kernel.org
-Signed-off-by: Guillaume Tucker <guillaume.tucker@collabora.com>
----
- drivers/media/platform/vivid/vivid-ctrls.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> v4.19.y, v5.1.y:
+> 
+> fs/btrfs/props.c: In function 'prop_compression_validate':
+> fs/btrfs/props.c:369:6: error: implicit declaration of function 'btrfs_compression_is_valid_type'
+> 
+> My apologies for the noise if this has already been reported/fixed.
 
-diff --git a/drivers/media/platform/vivid/vivid-ctrls.c b/drivers/media/platform/vivid/vivid-ctrls.c
-index 3e916c8befb7..7a52f585cab7 100644
---- a/drivers/media/platform/vivid/vivid-ctrls.c
-+++ b/drivers/media/platform/vivid/vivid-ctrls.c
-@@ -1473,7 +1473,7 @@ int vivid_create_controls(struct vivid_dev *dev, bool show_ccs_cap,
- 	v4l2_ctrl_handler_init(hdl_vid_cap, 55);
- 	v4l2_ctrl_new_custom(hdl_vid_cap, &vivid_ctrl_class, NULL);
- 	v4l2_ctrl_handler_init(hdl_vid_out, 26);
--	if (!no_error_inj || dev->has_fb)
-+	if (!no_error_inj || dev->has_fb || dev->num_hdmi_outputs)
- 		v4l2_ctrl_new_custom(hdl_vid_out, &vivid_ctrl_class, NULL);
- 	v4l2_ctrl_handler_init(hdl_vbi_cap, 21);
- 	v4l2_ctrl_new_custom(hdl_vbi_cap, &vivid_ctrl_class, NULL);
--- 
-2.20.1
+Odd, I thought I fixed that, maybe I need to push out an updated git
+tree, sorry about that.
 
+greg k-h
