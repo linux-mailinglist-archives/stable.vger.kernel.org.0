@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A31A073C50
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:08:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17BD273BF1
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405568AbfGXUCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:02:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52726 "EHLO mail.kernel.org"
+        id S2405591AbfGXUFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:05:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404679AbfGXUCp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:02:45 -0400
+        id S2392619AbfGXUFF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:05:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00FF2205C9;
-        Wed, 24 Jul 2019 20:02:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18393206BA;
+        Wed, 24 Jul 2019 20:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998564;
-        bh=UWE2DN4Cd8hLRQMDE57ZxB+Xn521+jVhFIUc94A+9zc=;
+        s=default; t=1563998704;
+        bh=4OLWmdFAVRQR5y2g4ysSUjnYuEXvUOWxTPPdprn3CD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCEjR4u4TsC8cy5Xb9ypSXV/5TDHkfQuvxkAYUm23EUnD50vLoUyYgOonG/ZM3dWx
-         QX3THGHAlwJjoNvvdYYf6PTMuPaIahmwQcVhpEciyf7MB8Za9rGQh4qUfqazeeGJgD
-         QxGFu9fYDByp99Hq8w1Olz84ICuqKfXyiB2jDNV0=
+        b=jhpEpns9xaHiVsv/2cdxv4iEH9mLqi8qftNIeQu6xZMgQwZhJzePFCe31MSAXf6bV
+         JJwiNPT8Evivj4ebWNaJGfL5gZ5cDpBLSrp4wDYzvgE/trmJO9n0kEm3YK22cDky7t
+         74XhZtSSUzr4vwS2FjsGM/mJJ0zFnLhlKimGVXfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 036/271] crypto: talitos - Align SEC1 accesses to 32 bits boundaries.
-Date:   Wed, 24 Jul 2019 21:18:25 +0200
-Message-Id: <20190724191658.293730178@linuxfoundation.org>
+Subject: [PATCH 4.19 037/271] tua6100: Avoid build warnings.
+Date:   Wed, 24 Jul 2019 21:18:26 +0200
+Message-Id: <20190724191658.382626179@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -44,40 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c9cca7034b34a2d82e9a03b757de2485c294851c ]
+[ Upstream commit 621ccc6cc5f8d6730b740d31d4818227866c93c9 ]
 
-The MPC885 reference manual states:
+Rename _P to _P_VAL and _R to _R_VAL to avoid global
+namespace conflicts:
 
-SEC Lite-initiated 8xx writes can occur only on 32-bit-word boundaries, but
-reads can occur on any byte boundary. Writing back a header read from a
-non-32-bit-word boundary will yield unpredictable results.
+drivers/media/dvb-frontends/tua6100.c: In function ‘tua6100_set_params’:
+drivers/media/dvb-frontends/tua6100.c:79: warning: "_P" redefined
+ #define _P 32
 
-In order to ensure that, cra_alignmask is set to 3 for SEC1.
+In file included from ./include/acpi/platform/aclinux.h:54,
+                 from ./include/acpi/platform/acenv.h:152,
+                 from ./include/acpi/acpi.h:22,
+                 from ./include/linux/acpi.h:34,
+                 from ./include/linux/i2c.h:17,
+                 from drivers/media/dvb-frontends/tua6100.h:30,
+                 from drivers/media/dvb-frontends/tua6100.c:32:
+./include/linux/ctype.h:14: note: this is the location of the previous definition
+ #define _P 0x10 /* punct */
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Fixes: 9c4a79653b35 ("crypto: talitos - Freescale integrated security engine (SEC) driver")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/talitos.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/dvb-frontends/tua6100.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
-index 254f711f1934..41b288bdcdbf 100644
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -3193,7 +3193,10 @@ static struct talitos_crypto_alg *talitos_alg_alloc(struct device *dev,
- 		alg->cra_priority = t_alg->algt.priority;
- 	else
- 		alg->cra_priority = TALITOS_CRA_PRIORITY;
--	alg->cra_alignmask = 0;
-+	if (has_ftr_sec1(priv))
-+		alg->cra_alignmask = 3;
-+	else
-+		alg->cra_alignmask = 0;
- 	alg->cra_ctxsize = sizeof(struct talitos_ctx);
- 	alg->cra_flags |= CRYPTO_ALG_KERN_DRIVER_ONLY;
+diff --git a/drivers/media/dvb-frontends/tua6100.c b/drivers/media/dvb-frontends/tua6100.c
+index b233b7be0b84..e6aaf4973aef 100644
+--- a/drivers/media/dvb-frontends/tua6100.c
++++ b/drivers/media/dvb-frontends/tua6100.c
+@@ -75,8 +75,8 @@ static int tua6100_set_params(struct dvb_frontend *fe)
+ 	struct i2c_msg msg1 = { .addr = priv->i2c_address, .flags = 0, .buf = reg1, .len = 4 };
+ 	struct i2c_msg msg2 = { .addr = priv->i2c_address, .flags = 0, .buf = reg2, .len = 3 };
  
+-#define _R 4
+-#define _P 32
++#define _R_VAL 4
++#define _P_VAL 32
+ #define _ri 4000000
+ 
+ 	// setup register 0
+@@ -91,14 +91,14 @@ static int tua6100_set_params(struct dvb_frontend *fe)
+ 	else
+ 		reg1[1] = 0x0c;
+ 
+-	if (_P == 64)
++	if (_P_VAL == 64)
+ 		reg1[1] |= 0x40;
+ 	if (c->frequency >= 1525000)
+ 		reg1[1] |= 0x80;
+ 
+ 	// register 2
+-	reg2[1] = (_R >> 8) & 0x03;
+-	reg2[2] = _R;
++	reg2[1] = (_R_VAL >> 8) & 0x03;
++	reg2[2] = _R_VAL;
+ 	if (c->frequency < 1455000)
+ 		reg2[1] |= 0x1c;
+ 	else if (c->frequency < 1630000)
+@@ -110,18 +110,18 @@ static int tua6100_set_params(struct dvb_frontend *fe)
+ 	 * The N divisor ratio (note: c->frequency is in kHz, but we
+ 	 * need it in Hz)
+ 	 */
+-	prediv = (c->frequency * _R) / (_ri / 1000);
+-	div = prediv / _P;
++	prediv = (c->frequency * _R_VAL) / (_ri / 1000);
++	div = prediv / _P_VAL;
+ 	reg1[1] |= (div >> 9) & 0x03;
+ 	reg1[2] = div >> 1;
+ 	reg1[3] = (div << 7);
+-	priv->frequency = ((div * _P) * (_ri / 1000)) / _R;
++	priv->frequency = ((div * _P_VAL) * (_ri / 1000)) / _R_VAL;
+ 
+ 	// Finally, calculate and store the value for A
+-	reg1[3] |= (prediv - (div*_P)) & 0x7f;
++	reg1[3] |= (prediv - (div*_P_VAL)) & 0x7f;
+ 
+-#undef _R
+-#undef _P
++#undef _R_VAL
++#undef _P_VAL
+ #undef _ri
+ 
+ 	if (fe->ops.i2c_gate_ctrl)
 -- 
 2.20.1
 
