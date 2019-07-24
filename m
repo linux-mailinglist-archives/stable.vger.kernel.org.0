@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B15207392F
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:37:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C82C73933
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:38:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389103AbfGXThm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:37:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37922 "EHLO mail.kernel.org"
+        id S2389538AbfGXThy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:37:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389508AbfGXThk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:37:40 -0400
+        id S2389527AbfGXThw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:37:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36AC920665;
-        Wed, 24 Jul 2019 19:37:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD6DE20665;
+        Wed, 24 Jul 2019 19:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997059;
-        bh=kkdb9rpIpqLfoQlsjJfFqsf8rrboPnAdP2Hxt735zmk=;
+        s=default; t=1563997071;
+        bh=syFbf0UgcCFnGH1X+UvaiG84VD7cB2/7T3UzsCLEOIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HgfGfvH/rLN2tnre85Cv93LOKbGP0bluzQBS5E76/jU6fDVJmQegCVzuJxuicva+f
-         eQKq26GThp8wfHlY9HZ/k7JJZncLTk4J4VnsNuOoDW2P6O9z6xMDQNM0625daRcGD+
-         DEj1+RxWTrWenLcpU61UyXWjlANM7PhAnxxlHYHs=
+        b=OPpN9RyR/z/MOqZjHAiSyrFL3kitDk5IOZUbUcenNz1kfNZy0FruGa7H4iSBNyPcu
+         rrQJ89OReTALHRAb2n/8fBZgio2XmSwO0yDlZ1+kTXx7gwvRFBdPLALsfuuUeKOh4Q
+         1qJC7fvcAIAzjLIi+u6f3/nT2ck6B/AfKGT1OPx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.2 308/413] SUNRPC: Ensure the bvecs are reset when we re-encode the RPC request
-Date:   Wed, 24 Jul 2019 21:19:59 +0200
-Message-Id: <20190724191757.796535775@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Soltys <soltys@ziu.info>,
+        Xiao Ni <xni@redhat.com>, Song Liu <songliubraving@fb.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.2 312/413] raid5-cache: Need to do start() part job after adding journal device
+Date:   Wed, 24 Jul 2019 21:20:03 +0200
+Message-Id: <20190724191758.103472484@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -43,63 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Xiao Ni <xni@redhat.com>
 
-commit 75369089820473eac45e9ddd970081901a373c08 upstream.
+commit d9771f5ec46c282d518b453c793635dbdc3a2a94 upstream.
 
-The bvec tracks the list of pages, so if the number of pages changes
-due to a re-encode, we need to reset the bvec as well.
+commit d5d885fd514f ("md: introduce new personality funciton start()")
+splits the init job to two parts. The first part run() does the jobs that
+do not require the md threads. The second part start() does the jobs that
+require the md threads.
 
-Fixes: 277e4ab7d530 ("SUNRPC: Simplify TCP receive code by switching...")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: stable@vger.kernel.org # v4.20+
+Now it just does run() in adding new journal device. It needs to do the
+second part start() too.
+
+Fixes: d5d885fd514f ("md: introduce new personality funciton start()")
+Cc: stable@vger.kernel.org #v4.9+
+Reported-by: Michal Soltys <soltys@ziu.info>
+Signed-off-by: Xiao Ni <xni@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sunrpc/clnt.c     |    3 +--
- net/sunrpc/xprt.c     |    2 ++
- net/sunrpc/xprtsock.c |    1 +
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/md/raid5.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1788,6 +1788,7 @@ rpc_xdr_encode(struct rpc_task *task)
- 	req->rq_snd_buf.head[0].iov_len = 0;
- 	xdr_init_encode(&xdr, &req->rq_snd_buf,
- 			req->rq_snd_buf.head[0].iov_base, req);
-+	xdr_free_bvec(&req->rq_snd_buf);
- 	if (rpc_encode_header(task, &xdr))
- 		return;
- 
-@@ -1827,8 +1828,6 @@ call_encode(struct rpc_task *task)
- 			rpc_call_rpcerror(task, task->tk_status);
- 		}
- 		return;
--	} else {
--		xprt_request_prepare(task->tk_rqstp);
- 	}
- 
- 	/* Add task to reply queue before transmission to avoid races */
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1013,6 +1013,8 @@ xprt_request_enqueue_receive(struct rpc_
- 
- 	if (!xprt_request_need_enqueue_receive(task, req))
- 		return;
-+
-+	xprt_request_prepare(task->tk_rqstp);
- 	spin_lock(&xprt->queue_lock);
- 
- 	/* Update the softirq receive buffer */
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -909,6 +909,7 @@ static int xs_nospace(struct rpc_rqst *r
- static void
- xs_stream_prepare_request(struct rpc_rqst *req)
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -7672,7 +7672,7 @@ abort:
+ static int raid5_add_disk(struct mddev *mddev, struct md_rdev *rdev)
  {
-+	xdr_free_bvec(&req->rq_rcv_buf);
- 	req->rq_task->tk_status = xdr_alloc_bvec(&req->rq_rcv_buf, GFP_KERNEL);
- }
- 
+ 	struct r5conf *conf = mddev->private;
+-	int err = -EEXIST;
++	int ret, err = -EEXIST;
+ 	int disk;
+ 	struct disk_info *p;
+ 	int first = 0;
+@@ -7687,7 +7687,14 @@ static int raid5_add_disk(struct mddev *
+ 		 * The array is in readonly mode if journal is missing, so no
+ 		 * write requests running. We should be safe
+ 		 */
+-		log_init(conf, rdev, false);
++		ret = log_init(conf, rdev, false);
++		if (ret)
++			return ret;
++
++		ret = r5l_start(conf->log);
++		if (ret)
++			return ret;
++
+ 		return 0;
+ 	}
+ 	if (mddev->recovery_disabled == conf->recovery_disabled)
 
 
