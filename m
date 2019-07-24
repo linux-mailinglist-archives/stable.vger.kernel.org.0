@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38913737D4
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:23:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A082D737DE
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:23:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387809AbfGXTXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:23:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39164 "EHLO mail.kernel.org"
+        id S2387863AbfGXTXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:23:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387799AbfGXTX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:23:27 -0400
+        id S2387835AbfGXTXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:23:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16226218F0;
-        Wed, 24 Jul 2019 19:23:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9BC7229F4;
+        Wed, 24 Jul 2019 19:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996206;
-        bh=pkCYOfZcmEkl2hcb0RtNdsOtyl3QxEh55rD62pSk3nY=;
+        s=default; t=1563996225;
+        bh=59oAdaqXgoANAtP6mRYrfJhHDP9x6DwuHpXTdgPNU6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dCOktzBgQ/2fLcU2GqhCC7DHEG0c3CC++0xpy4j4KA2l3SxUN4Ba7Wlz+J0zEfSbb
-         qT0RYiNc/kjaOCVEMpBS/giwli4nPe1cRnZafCQkkPc/gCxxdB71uSwQ5zKv++0Zmw
-         vJsuwQrJvko5X4YRoXThbafiFy89dBuh4AAEPnGo=
+        b=zZ8aLUvlKtOYH6kuIGUsgC1ezUDiCOBkQ7+7K2GZ1XNXmJ+hNwzNy/Nuijtl5lQnX
+         zUbeGHYXZsFnexgEJGFZVCLYLBL++SWnve3nrEPCIEJdjrksQBvF0vA8b/wlLQcywe
+         CYbOvh1KKkS6PbucaxWb5IXiZUWHfGkIBb5rJuZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        syzbot+26ec41e9f788b3eba396@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 018/413] media: dvb: usb: fix use after free in dvb_usb_device_exit
-Date:   Wed, 24 Jul 2019 21:15:09 +0200
-Message-Id: <20190724191736.762561759@linuxfoundation.org>
+Subject: [PATCH 5.2 023/413] selftests/bpf: adjust verifier scale test
+Date:   Wed, 24 Jul 2019 21:15:14 +0200
+Message-Id: <20190724191737.107564997@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -46,42 +45,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6cf97230cd5f36b7665099083272595c55d72be7 ]
+[ Upstream commit 7c0c6095d48dcd0e67c917aa73cdbb2715aafc36 ]
 
-dvb_usb_device_exit() frees and uses the device name in that order.
-Fix by storing the name in a buffer before freeing it.
+Adjust scale tests to check for new jmp sequence limit.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: syzbot+26ec41e9f788b3eba396@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+BPF_JGT had to be changed to BPF_JEQ because the verifier was
+too smart. It tracked the known safe range of R0 values
+and pruned the search earlier before hitting exact 8192 limit.
+bpf_semi_rand_get() was too (un)?lucky.
+
+k = 0; was missing in bpf_fill_scale2.
+It was testing a bit shorter sequence of jumps than intended.
+
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dvb-usb-init.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/test_verifier.c | 31 +++++++++++----------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb/dvb-usb-init.c b/drivers/media/usb/dvb-usb/dvb-usb-init.c
-index e97f6edc98de..65f2b1a20ca1 100644
---- a/drivers/media/usb/dvb-usb/dvb-usb-init.c
-+++ b/drivers/media/usb/dvb-usb/dvb-usb-init.c
-@@ -284,12 +284,15 @@ EXPORT_SYMBOL(dvb_usb_device_init);
- void dvb_usb_device_exit(struct usb_interface *intf)
+diff --git a/tools/testing/selftests/bpf/test_verifier.c b/tools/testing/selftests/bpf/test_verifier.c
+index 288cb740e005..6438d4dc8ae1 100644
+--- a/tools/testing/selftests/bpf/test_verifier.c
++++ b/tools/testing/selftests/bpf/test_verifier.c
+@@ -207,33 +207,35 @@ static void bpf_fill_rand_ld_dw(struct bpf_test *self)
+ 	self->retval = (uint32_t)res;
+ }
+ 
+-/* test the sequence of 1k jumps */
++#define MAX_JMP_SEQ 8192
++
++/* test the sequence of 8k jumps */
+ static void bpf_fill_scale1(struct bpf_test *self)
  {
- 	struct dvb_usb_device *d = usb_get_intfdata(intf);
--	const char *name = "generic DVB-USB module";
-+	const char *default_name = "generic DVB-USB module";
-+	char name[40];
+ 	struct bpf_insn *insn = self->fill_insns;
+ 	int i = 0, k = 0;
  
- 	usb_set_intfdata(intf, NULL);
- 	if (d != NULL && d->desc != NULL) {
--		name = d->desc->name;
-+		strscpy(name, d->desc->name, sizeof(name));
- 		dvb_usb_exit(d);
-+	} else {
-+		strscpy(name, default_name, sizeof(name));
+ 	insn[i++] = BPF_MOV64_REG(BPF_REG_6, BPF_REG_1);
+-	/* test to check that the sequence of 1024 jumps is acceptable */
+-	while (k++ < 1024) {
++	/* test to check that the long sequence of jumps is acceptable */
++	while (k++ < MAX_JMP_SEQ) {
+ 		insn[i++] = BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
+ 					 BPF_FUNC_get_prandom_u32);
+-		insn[i++] = BPF_JMP_IMM(BPF_JGT, BPF_REG_0, bpf_semi_rand_get(), 2);
++		insn[i++] = BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, bpf_semi_rand_get(), 2);
+ 		insn[i++] = BPF_MOV64_REG(BPF_REG_1, BPF_REG_10);
+ 		insn[i++] = BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_6,
+ 					-8 * (k % 64 + 1));
  	}
- 	info("%s successfully deinitialized and disconnected.", name);
+-	/* every jump adds 1024 steps to insn_processed, so to stay exactly
+-	 * within 1m limit add MAX_TEST_INSNS - 1025 MOVs and 1 EXIT
++	/* every jump adds 1 step to insn_processed, so to stay exactly
++	 * within 1m limit add MAX_TEST_INSNS - MAX_JMP_SEQ - 1 MOVs and 1 EXIT
+ 	 */
+-	while (i < MAX_TEST_INSNS - 1025)
++	while (i < MAX_TEST_INSNS - MAX_JMP_SEQ - 1)
+ 		insn[i++] = BPF_ALU32_IMM(BPF_MOV, BPF_REG_0, 42);
+ 	insn[i] = BPF_EXIT_INSN();
+ 	self->prog_len = i + 1;
+ 	self->retval = 42;
+ }
  
+-/* test the sequence of 1k jumps in inner most function (function depth 8)*/
++/* test the sequence of 8k jumps in inner most function (function depth 8)*/
+ static void bpf_fill_scale2(struct bpf_test *self)
+ {
+ 	struct bpf_insn *insn = self->fill_insns;
+@@ -245,19 +247,20 @@ static void bpf_fill_scale2(struct bpf_test *self)
+ 		insn[i++] = BPF_EXIT_INSN();
+ 	}
+ 	insn[i++] = BPF_MOV64_REG(BPF_REG_6, BPF_REG_1);
+-	/* test to check that the sequence of 1024 jumps is acceptable */
+-	while (k++ < 1024) {
++	/* test to check that the long sequence of jumps is acceptable */
++	k = 0;
++	while (k++ < MAX_JMP_SEQ) {
+ 		insn[i++] = BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
+ 					 BPF_FUNC_get_prandom_u32);
+-		insn[i++] = BPF_JMP_IMM(BPF_JGT, BPF_REG_0, bpf_semi_rand_get(), 2);
++		insn[i++] = BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, bpf_semi_rand_get(), 2);
+ 		insn[i++] = BPF_MOV64_REG(BPF_REG_1, BPF_REG_10);
+ 		insn[i++] = BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_6,
+ 					-8 * (k % (64 - 4 * FUNC_NEST) + 1));
+ 	}
+-	/* every jump adds 1024 steps to insn_processed, so to stay exactly
+-	 * within 1m limit add MAX_TEST_INSNS - 1025 MOVs and 1 EXIT
++	/* every jump adds 1 step to insn_processed, so to stay exactly
++	 * within 1m limit add MAX_TEST_INSNS - MAX_JMP_SEQ - 1 MOVs and 1 EXIT
+ 	 */
+-	while (i < MAX_TEST_INSNS - 1025)
++	while (i < MAX_TEST_INSNS - MAX_JMP_SEQ - 1)
+ 		insn[i++] = BPF_ALU32_IMM(BPF_MOV, BPF_REG_0, 42);
+ 	insn[i] = BPF_EXIT_INSN();
+ 	self->prog_len = i + 1;
 -- 
 2.20.1
 
