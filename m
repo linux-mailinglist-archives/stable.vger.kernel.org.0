@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDDCA73E72
+	by mail.lfdr.de (Postfix) with ESMTP id 4380773E71
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:25:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390230AbfGXUZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:25:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41322 "EHLO mail.kernel.org"
+        id S2389148AbfGXUYx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:24:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389643AbfGXTkI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:40:08 -0400
+        id S2389621AbfGXTkT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:40:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7071214AF;
-        Wed, 24 Jul 2019 19:40:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90D4E214AF;
+        Wed, 24 Jul 2019 19:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997207;
-        bh=XBgt7Fj0ubdFgRqz02xDbvSPfb5+ZUmGEzZj4Ph1/5g=;
+        s=default; t=1563997218;
+        bh=sSCbBY9onOkZJNP/mDXIjY0gRF+zB9DFt+Wo8eVglXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IyHd+57VREtcuc8H6k7xmno5KByG6ll2EAeQKyooe7LTajlc1/H/Wra4BCMrUCR4s
-         r5vrAiRgW0hEHu0DZbLrGx5LKKrFGe+Rd6bIuPJLqbCEuMe/brMGUbra+ShrzioOFu
-         4KxiCOjuTrMQaIwFSXrjUUYKKtoCSobefv2P+U3o=
+        b=jqCQF3SYNjM7l5hIF1wPdbrFT6uOYSEr3cT5dBY5LokaOYbt81XfveFW3gXmQ63RJ
+         Qyw0cir3jvAW+5rn1JL0qr0nOr3q+iSLCWHar2fc9EQMUIu16gxJtp3895qoPOmruc
+         hckltKNWsZm/337/fzShTMDgLc9v0hNbo4NRnGLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.2 359/413] block: Allow mapping of vmalloc-ed buffers
-Date:   Wed, 24 Jul 2019 21:20:50 +0200
-Message-Id: <20190724191801.296880852@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>
+Subject: [PATCH 5.2 362/413] RDMA/odp: Fix missed unlock in non-blocking invalidate_start
+Date:   Wed, 24 Jul 2019 21:20:53 +0200
+Message-Id: <20190724191801.425499375@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -47,106 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-commit b4c5875d36178e8df409bdce232f270cac89fafe upstream.
+commit 7608bf40cf2480057ec0da31456cc428791c32ef upstream.
 
-To allow the SCSI subsystem scsi_execute_req() function to issue
-requests using large buffers that are better allocated with vmalloc()
-rather than kmalloc(), modify bio_map_kern() to allow passing a buffer
-allocated with vmalloc().
+If invalidate_start returns with EAGAIN then the umem_rwsem needs to be
+unlocked as no invalidate_end will be called.
 
-To do so, detect vmalloc-ed buffers using is_vmalloc_addr(). For
-vmalloc-ed buffers, flush the buffer using flush_kernel_vmap_range(),
-use vmalloc_to_page() instead of virt_to_page() to obtain the pages of
-the buffer, and invalidate the buffer addresses with
-invalidate_kernel_vmap_range() on completion of read BIOs. This last
-point is executed using the function bio_invalidate_vmalloc_pages()
-which is defined only if the architecture defines
-ARCH_HAS_FLUSH_KERNEL_DCACHE_PAGE, that is, if the architecture
-actually needs the invalidation done.
-
-Fixes: 515ce6061312 ("scsi: sd_zbc: Fix sd_zbc_report_zones() buffer allocation")
-Fixes: e76239a3748c ("block: add a report_zones method")
-Cc: stable@vger.kernel.org
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: <stable@vger.kernel.org>
+Fixes: ca748c39ea3f ("RDMA/umem: Get rid of per_mm->notifier_count")
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/bio.c |   28 +++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/umem_odp.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -16,6 +16,7 @@
- #include <linux/workqueue.h>
- #include <linux/cgroup.h>
- #include <linux/blk-cgroup.h>
-+#include <linux/highmem.h>
- 
- #include <trace/events/block.h>
- #include "blk.h"
-@@ -1479,8 +1480,22 @@ void bio_unmap_user(struct bio *bio)
- 	bio_put(bio);
- }
- 
-+static void bio_invalidate_vmalloc_pages(struct bio *bio)
-+{
-+#ifdef ARCH_HAS_FLUSH_KERNEL_DCACHE_PAGE
-+	if (bio->bi_private && !op_is_write(bio_op(bio))) {
-+		unsigned long i, len = 0;
-+
-+		for (i = 0; i < bio->bi_vcnt; i++)
-+			len += bio->bi_io_vec[i].bv_len;
-+		invalidate_kernel_vmap_range(bio->bi_private, len);
-+	}
-+#endif
-+}
-+
- static void bio_map_kern_endio(struct bio *bio)
+--- a/drivers/infiniband/core/umem_odp.c
++++ b/drivers/infiniband/core/umem_odp.c
+@@ -151,6 +151,7 @@ static int ib_umem_notifier_invalidate_r
  {
-+	bio_invalidate_vmalloc_pages(bio);
- 	bio_put(bio);
+ 	struct ib_ucontext_per_mm *per_mm =
+ 		container_of(mn, struct ib_ucontext_per_mm, mn);
++	int rc;
+ 
+ 	if (mmu_notifier_range_blockable(range))
+ 		down_read(&per_mm->umem_rwsem);
+@@ -167,11 +168,14 @@ static int ib_umem_notifier_invalidate_r
+ 		return 0;
+ 	}
+ 
+-	return rbt_ib_umem_for_each_in_range(&per_mm->umem_tree, range->start,
+-					     range->end,
+-					     invalidate_range_start_trampoline,
+-					     mmu_notifier_range_blockable(range),
+-					     NULL);
++	rc = rbt_ib_umem_for_each_in_range(&per_mm->umem_tree, range->start,
++					   range->end,
++					   invalidate_range_start_trampoline,
++					   mmu_notifier_range_blockable(range),
++					   NULL);
++	if (rc)
++		up_read(&per_mm->umem_rwsem);
++	return rc;
  }
  
-@@ -1501,6 +1516,8 @@ struct bio *bio_map_kern(struct request_
- 	unsigned long end = (kaddr + len + PAGE_SIZE - 1) >> PAGE_SHIFT;
- 	unsigned long start = kaddr >> PAGE_SHIFT;
- 	const int nr_pages = end - start;
-+	bool is_vmalloc = is_vmalloc_addr(data);
-+	struct page *page;
- 	int offset, i;
- 	struct bio *bio;
- 
-@@ -1508,6 +1525,11 @@ struct bio *bio_map_kern(struct request_
- 	if (!bio)
- 		return ERR_PTR(-ENOMEM);
- 
-+	if (is_vmalloc) {
-+		flush_kernel_vmap_range(data, len);
-+		bio->bi_private = data;
-+	}
-+
- 	offset = offset_in_page(kaddr);
- 	for (i = 0; i < nr_pages; i++) {
- 		unsigned int bytes = PAGE_SIZE - offset;
-@@ -1518,7 +1540,11 @@ struct bio *bio_map_kern(struct request_
- 		if (bytes > len)
- 			bytes = len;
- 
--		if (bio_add_pc_page(q, bio, virt_to_page(data), bytes,
-+		if (!is_vmalloc)
-+			page = virt_to_page(data);
-+		else
-+			page = vmalloc_to_page(data);
-+		if (bio_add_pc_page(q, bio, page, bytes,
- 				    offset) < bytes) {
- 			/* we don't support partial mappings */
- 			bio_put(bio);
+ static int invalidate_range_end_trampoline(struct ib_umem_odp *item, u64 start,
 
 
