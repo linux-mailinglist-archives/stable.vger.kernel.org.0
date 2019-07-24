@@ -2,136 +2,227 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C7A726E4
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 06:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D6A872778
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 07:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726312AbfGXEqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 00:46:12 -0400
-Received: from out02.mta.xmission.com ([166.70.13.232]:50058 "EHLO
-        out02.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726107AbfGXEqM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 00:46:12 -0400
-Received: from in02.mta.xmission.com ([166.70.13.52])
-        by out02.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1hq692-0004Q6-CE; Tue, 23 Jul 2019 19:32:40 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
-        by in02.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1hq691-0003ye-Le; Tue, 23 Jul 2019 19:32:40 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Steve French <smfrench@gmail.com>
-Cc:     ronnie sahlberg <ronniesahlberg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Namjae Jeon <namjae.jeon@samsung.com>,
-        Jeff Layton <jlayton@primarydata.com>,
-        linux-cifs <linux-cifs@vger.kernel.org>
-References: <20190715134655.4076-1-sashal@kernel.org>
-        <20190715134655.4076-39-sashal@kernel.org>
-        <CAN05THSdj8m5g-xG5abYAZ=_PE2xT-RwLtVhKrtxPevJGCSxag@mail.gmail.com>
-        <CAH2r5mu9ncYa1WTHuuMEk3=4TU5-RBH6nBKME4Bm+dntOtORTQ@mail.gmail.com>
-Date:   Tue, 23 Jul 2019 20:32:33 -0500
-In-Reply-To: <CAH2r5mu9ncYa1WTHuuMEk3=4TU5-RBH6nBKME4Bm+dntOtORTQ@mail.gmail.com>
-        (Steve French's message of "Tue, 23 Jul 2019 19:29:10 -0500")
-Message-ID: <87v9vs43pq.fsf@xmission.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.1 (gnu/linux)
+        id S1725970AbfGXFp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 01:45:27 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:54317 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725917AbfGXFp0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jul 2019 01:45:26 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 9A3C52219C;
+        Wed, 24 Jul 2019 01:45:25 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 24 Jul 2019 01:45:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=bUWvRc
+        2fjJ40enY0Akf4KjvpE0YIryZd0AXpBH1Dh6U=; b=jHc7CxnrBTbG2iKTLiGw/C
+        hnyinCzK0fI4zw7fUX03AGQ1j4E1eEs1OwIlO7uZeQNQBDWOTkPh4TB7/Lo6Ejbd
+        6GDhOp84zFUcy2rS+hAyN3Vu01sbUR+JePUXXn7JiYTaVuQRNPxSChKwSsQlD6kp
+        8TXYWJY2Fh1l3embZITqxNFSZ+QMEDRN1PxBKHVG/+h8UOLk7WPsP8/mMqQs4ibG
+        /1Igv6cht6T4od981ZCL5dG0/gEfWPioYbrI/XYTMGqpb8of6G5gaCxm6OC3ir7k
+        mJZ75b3wrx+t/i9bVfW+g+65BFWgV28b3ORj4hqteD4CGIl/2+AXJVG2FsASO7XA
+        ==
+X-ME-Sender: <xms:dfA3XYpKWCO20oAIdRUlvGZIJXfiXqPaA3Wh954ZLYH4cq_B0pyIYw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduvddrjeelgdelkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:dfA3XckBoupSuWsTM6-OrUHazSxvt4qkYIHju-G0UfRdUexUDo3sjQ>
+    <xmx:dfA3XUzWp1FxOiwHO4wuiIqjKZmq-mQKBDKm6Wva1F6NgjH6xQNwog>
+    <xmx:dfA3XclxpqLMWEZ_Px3qUHptzU1SndKkxK-leRG066XKAijH_QodyQ>
+    <xmx:dfA3XdDflfn4nTrk0ETX7rNNIYtyyEFynHEMk0a9onuk2A4n9gdYfA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id AA3C780065;
+        Wed, 24 Jul 2019 01:45:24 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: correctly validate compression type" failed to apply to 5.1-stable tree
+To:     jthumshirn@suse.de, dsterba@suse.com, nborisov@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 24 Jul 2019 07:45:23 +0200
+Message-ID: <156394712357157@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1hq691-0003ye-Le;;;mid=<87v9vs43pq.fsf@xmission.com>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX19WPNvkH+gWSBLcyA8Qu0HmQ+IFY+GAvQc=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa08.xmission.com
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.8 required=8.0 tests=ALL_TRUSTED,BAYES_00,
-        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG,T_TooManySym_01,
-        T_TooManySym_02,XMGappySubj_01,XMSubLong autolearn=disabled
-        version=3.4.2
-X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-        * -3.0 BAYES_00 BODY: Bayes spam probability is 0 to 1%
-        *      [score: 0.0035]
-        *  0.7 XMSubLong Long Subject
-        *  0.5 XMGappySubj_01 Very gappy subject
-        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
-        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
-        *      [sa08 1397; Body=1 Fuz1=1 Fuz2=1]
-        *  0.0 T_TooManySym_02 5+ unique symbols in subject
-        *  0.0 T_TooManySym_01 4+ unique symbols in subject
-X-Spam-DCC: XMission; sa08 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ;Steve French <smfrench@gmail.com>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 335 ms - load_scoreonly_sql: 0.05 (0.0%),
-        signal_user_changed: 4.9 (1.5%), b_tie_ro: 3.3 (1.0%), parse: 1.19
-        (0.4%), extract_message_metadata: 4.6 (1.4%), get_uri_detail_list:
-        1.83 (0.5%), tests_pri_-1000: 4.2 (1.3%), tests_pri_-950: 1.54 (0.5%),
-        tests_pri_-900: 1.18 (0.4%), tests_pri_-90: 23 (6.9%), check_bayes: 21
-        (6.3%), b_tokenize: 5 (1.6%), b_tok_get_all: 7 (2.1%), b_comp_prob:
-        1.96 (0.6%), b_tok_touch_all: 3.2 (1.0%), b_finish: 0.98 (0.3%),
-        tests_pri_0: 276 (82.5%), check_dkim_signature: 0.48 (0.1%),
-        check_dkim_adsp: 3.0 (0.9%), poll_dns_idle: 1.34 (0.4%), tests_pri_10:
-        2.6 (0.8%), tests_pri_500: 7 (2.0%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [PATCH AUTOSEL 5.2 039/249] signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of force_sig
-X-Spam-Flag: No
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Steve French <smfrench@gmail.com> writes:
 
-> Very easy to see what caused the regression with this global change:
->
-> mount (which launches "cifsd" thread to read the socket)
-> umount (which kills the "cifsd" thread)
-> rmmod   (rmmod now fails since "cifsd" thread is still active)
->
-> mount launches a thread to read from the socket ("cifsd")
-> umount is supposed to kill that thread (but with the patch
-> "signal/cifs: Fix cifs_put_tcp_session to call send_sig instead of
-> force_sig" that no longer works).  So the regression is that after
-> unmount you still see the "cifsd" thread, and the reason that cifsd
-> thread is still around is that that patch no longer force kills the
-> process (see line 2652 of fs/cifs/connect.c) which regresses module
-> removal.
->
-> -               force_sig(SIGKILL, task);
-> +               send_sig(SIGKILL, task, 1);
->
-> The comment in the changeset indicates "The signal SIGKILL can not be
-> ignored" but obviously it can be ignored - at least on 5.3-rc1 it is
-> being ignored.
->
-> If send_sig(SIGKILL ...) doesn't work and if force_sig(SIGKILL, task)
-> is removed and no longer possible - how do we kill a helper process
-> ...
+The patch below does not apply to the 5.1-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I think I see what is happening.  It looks like as well as misuinsg
-force_sig, cifs is also violating the invariant that keeps SIGKILL out
-of the blocked signal set.
+thanks,
 
-For that force_sig will act differently.  I did not consider it because
-that is never supposed to happen.
+greg k-h
 
-Can someone test this code below and confirm the issue goes away?
+------------------ original commit in Linus's tree ------------------
 
-diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
-index 5d6d44bfe10a..2a782ebc7b65 100644
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -347,6 +347,7 @@ __smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
- 	 */
+From aa53e3bfac7205fb3a8815ac1c937fd6ed01b41e Mon Sep 17 00:00:00 2001
+From: Johannes Thumshirn <jthumshirn@suse.de>
+Date: Thu, 6 Jun 2019 12:07:15 +0200
+Subject: [PATCH] btrfs: correctly validate compression type
+
+Nikolay reported the following KASAN splat when running btrfs/048:
+
+[ 1843.470920] ==================================================================
+[ 1843.471971] BUG: KASAN: slab-out-of-bounds in strncmp+0x66/0xb0
+[ 1843.472775] Read of size 1 at addr ffff888111e369e2 by task btrfs/3979
+
+[ 1843.473904] CPU: 3 PID: 3979 Comm: btrfs Not tainted 5.2.0-rc3-default #536
+[ 1843.475009] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+[ 1843.476322] Call Trace:
+[ 1843.476674]  dump_stack+0x7c/0xbb
+[ 1843.477132]  ? strncmp+0x66/0xb0
+[ 1843.477587]  print_address_description+0x114/0x320
+[ 1843.478256]  ? strncmp+0x66/0xb0
+[ 1843.478740]  ? strncmp+0x66/0xb0
+[ 1843.479185]  __kasan_report+0x14e/0x192
+[ 1843.479759]  ? strncmp+0x66/0xb0
+[ 1843.480209]  kasan_report+0xe/0x20
+[ 1843.480679]  strncmp+0x66/0xb0
+[ 1843.481105]  prop_compression_validate+0x24/0x70
+[ 1843.481798]  btrfs_xattr_handler_set_prop+0x65/0x160
+[ 1843.482509]  __vfs_setxattr+0x71/0x90
+[ 1843.483012]  __vfs_setxattr_noperm+0x84/0x130
+[ 1843.483606]  vfs_setxattr+0xac/0xb0
+[ 1843.484085]  setxattr+0x18c/0x230
+[ 1843.484546]  ? vfs_setxattr+0xb0/0xb0
+[ 1843.485048]  ? __mod_node_page_state+0x1f/0xa0
+[ 1843.485672]  ? _raw_spin_unlock+0x24/0x40
+[ 1843.486233]  ? __handle_mm_fault+0x988/0x1290
+[ 1843.486823]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487330]  ? lock_acquire+0xb4/0x1e0
+[ 1843.487842]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.488442]  ? debug_lockdep_rcu_enabled+0x22/0x40
+[ 1843.489089]  ? rcu_sync_lockdep_assert+0xe/0x70
+[ 1843.489707]  ? __sb_start_write+0x158/0x200
+[ 1843.490278]  ? mnt_want_write_file+0x3c/0x80
+[ 1843.490855]  ? __mnt_want_write+0x98/0xe0
+[ 1843.491397]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.492201]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+[ 1843.493201]  do_syscall_64+0x6c/0x230
+[ 1843.493988]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 1843.495041] RIP: 0033:0x7fa7a8a7707a
+[ 1843.495819] Code: 48 8b 0d 21 de 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 49 89 ca b8 be 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d ee dd 2b 00 f7 d8 64 89 01 48
+[ 1843.499203] RSP: 002b:00007ffcb73bca38 EFLAGS: 00000202 ORIG_RAX: 00000000000000be
+[ 1843.500210] RAX: ffffffffffffffda RBX: 00007ffcb73bda9d RCX: 00007fa7a8a7707a
+[ 1843.501170] RDX: 00007ffcb73bda9d RSI: 00000000006dc050 RDI: 0000000000000003
+[ 1843.502152] RBP: 00000000006dc050 R08: 0000000000000000 R09: 0000000000000000
+[ 1843.503109] R10: 0000000000000002 R11: 0000000000000202 R12: 00007ffcb73bda91
+[ 1843.504055] R13: 0000000000000003 R14: 00007ffcb73bda82 R15: ffffffffffffffff
+
+[ 1843.505268] Allocated by task 3979:
+[ 1843.505771]  save_stack+0x19/0x80
+[ 1843.506211]  __kasan_kmalloc.constprop.5+0xa0/0xd0
+[ 1843.506836]  setxattr+0xeb/0x230
+[ 1843.507264]  __x64_sys_fsetxattr+0xba/0xe0
+[ 1843.507886]  do_syscall_64+0x6c/0x230
+[ 1843.508429]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+[ 1843.509558] Freed by task 0:
+[ 1843.510188] (stack is not available)
+
+[ 1843.511309] The buggy address belongs to the object at ffff888111e369e0
+                which belongs to the cache kmalloc-8 of size 8
+[ 1843.514095] The buggy address is located 2 bytes inside of
+                8-byte region [ffff888111e369e0, ffff888111e369e8)
+[ 1843.516524] The buggy address belongs to the page:
+[ 1843.517561] page:ffff88813f478d80 refcount:1 mapcount:0 mapping:ffff88811940c300 index:0xffff888111e373b8 compound_mapcount: 0
+[ 1843.519993] flags: 0x4404000010200(slab|head)
+[ 1843.520951] raw: 0004404000010200 ffff88813f48b008 ffff888119403d50 ffff88811940c300
+[ 1843.522616] raw: ffff888111e373b8 000000000016000f 00000001ffffffff 0000000000000000
+[ 1843.524281] page dumped because: kasan: bad access detected
+
+[ 1843.525936] Memory state around the buggy address:
+[ 1843.526975]  ffff888111e36880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.528479]  ffff888111e36900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.530138] >ffff888111e36980: fc fc fc fc fc fc fc fc fc fc fc fc 02 fc fc fc
+[ 1843.531877]                                                        ^
+[ 1843.533287]  ffff888111e36a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.534874]  ffff888111e36a80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[ 1843.536468] ==================================================================
+
+This is caused by supplying a too short compression value ('lz') in the
+test-case and comparing it to 'lzo' with strncmp() and a length of 3.
+strncmp() read past the 'lz' when looking for the 'o' and thus caused an
+out-of-bounds read.
+
+Introduce a new check 'btrfs_compress_is_valid_type()' which not only
+checks the user-supplied value against known compression types, but also
+employs checks for too short values.
+
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+Fixes: 272e5326c783 ("btrfs: prop: fix vanished compression property after failed set")
+CC: stable@vger.kernel.org # 5.1+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/compression.c b/fs/btrfs/compression.c
+index 66e21a4e9ea2..db41315f11eb 100644
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -43,6 +43,22 @@ const char* btrfs_compress_type2str(enum btrfs_compression_type type)
+ 	return NULL;
+ }
  
- 	sigfillset(&mask);
-+	sigdelset(&mask, SIGKILL);
- 	sigprocmask(SIG_BLOCK, &mask, &oldmask);
++bool btrfs_compress_is_valid_type(const char *str, size_t len)
++{
++	int i;
++
++	for (i = 1; i < ARRAY_SIZE(btrfs_compress_types); i++) {
++		size_t comp_len = strlen(btrfs_compress_types[i]);
++
++		if (len < comp_len)
++			continue;
++
++		if (!strncmp(btrfs_compress_types[i], str, comp_len))
++			return true;
++	}
++	return false;
++}
++
+ static int btrfs_decompress_bio(struct compressed_bio *cb);
  
- 	/* Generate a rfc1002 marker for SMB2+ */
+ static inline int compressed_bio_size(struct btrfs_fs_info *fs_info,
+diff --git a/fs/btrfs/compression.h b/fs/btrfs/compression.h
+index 191e5f4e3523..2035b8eb1290 100644
+--- a/fs/btrfs/compression.h
++++ b/fs/btrfs/compression.h
+@@ -173,6 +173,7 @@ extern const struct btrfs_compress_op btrfs_lzo_compress;
+ extern const struct btrfs_compress_op btrfs_zstd_compress;
+ 
+ const char* btrfs_compress_type2str(enum btrfs_compression_type type);
++bool btrfs_compress_is_valid_type(const char *str, size_t len);
+ 
+ int btrfs_compress_heuristic(struct inode *inode, u64 start, u64 end);
+ 
+diff --git a/fs/btrfs/props.c b/fs/btrfs/props.c
+index a9e2e66152ee..af109c0ba720 100644
+--- a/fs/btrfs/props.c
++++ b/fs/btrfs/props.c
+@@ -257,11 +257,7 @@ static int prop_compression_validate(const char *value, size_t len)
+ 	if (!value)
+ 		return 0;
+ 
+-	if (!strncmp("lzo", value, 3))
+-		return 0;
+-	else if (!strncmp("zlib", value, 4))
+-		return 0;
+-	else if (!strncmp("zstd", value, 4))
++	if (btrfs_compress_is_valid_type(value, len))
+ 		return 0;
+ 
+ 	return -EINVAL;
 
-
-Eric
