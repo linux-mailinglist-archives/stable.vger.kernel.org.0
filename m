@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA35873DA8
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD00073DA5
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:18:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390683AbfGXTsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:48:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55286 "EHLO mail.kernel.org"
+        id S2390949AbfGXTs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:48:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391351AbfGXTsL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:48:11 -0400
+        id S2403918AbfGXTs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:48:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E16221873;
-        Wed, 24 Jul 2019 19:48:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BC6E217D4;
+        Wed, 24 Jul 2019 19:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997689;
-        bh=2qdLEcipoplgz/qqOubFcnd8g0nZIQgeqhNuGils/Dc=;
+        s=default; t=1563997704;
+        bh=eCYjIyDM/jcflqiRqencvb4jCEnsdmoqDhxKfRDM8Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w6UjVRtbgxTvlllHhxpNTIfyneMalUn6b08J5BWMqVS52zRKD4SpkFfgP/wQElnQg
-         qbPYh6usagkAq8BAUOGsNiGl1J4i1Tta/0Y4gtugS1jJuU06b+6UYty4v2ogLHZ8O/
-         XZGV1+Lpl0AbEYQIU2yESxAaLJcljjNdLETWFUhE=
+        b=yJnNrYia1bOwxkF5+9RXKSxRgJiLglWYK1xAQ7qyDnVQZZbHn6t2VIArk2mfe/lkV
+         vO1BTOa+CbEPT5cbgBpn3I6HRphjbPuQnzz9XoAdkO8yzXy2uU2dpc7gS88dFjqptA
+         FXmcCu3x7uV3ZXXcPAbAgq0eB0zl1F6eq5V8sOJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mitch Williams <mitch.a.williams@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 108/371] iavf: allow null RX descriptors
-Date:   Wed, 24 Jul 2019 21:17:40 +0200
-Message-Id: <20190724191732.979219362@linuxfoundation.org>
+Subject: [PATCH 5.1 113/371] net: netsec: initialize tx ring on ndo_open
+Date:   Wed, 24 Jul 2019 21:17:45 +0200
+Message-Id: <20190724191733.332210964@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -46,102 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit efa14c3985828da3163f5372137cb64d992b0f79 ]
+[ Upstream commit 39e3622edeffa63c2871153d8743c5825b139968 ]
 
-In some circumstances, the hardware can hand us a null receive
-descriptor, with no data attached but otherwise valid. Unfortunately,
-the driver was ill-equipped to handle such an event, and would stop
-processing packets at that point.
+Since we changed the Tx ring handling and now depends on bit31 to figure
+out the owner of the descriptor, we should initialize this every time
+the device goes down-up instead of doing it once on driver init. If the
+value is not correctly initialized the device won't have any available
+descriptors
 
-To fix this, use the Descriptor Done bit instead of the size to
-determine whether or not a descriptor is ready to be processed. Add some
-checks to allow for unused buffers.
+Changes since v1:
+- Typo fixes
 
-Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Fixes: 35e07d234739 ("net: socionext: remove mmio reads on Tx")
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_txrx.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/socionext/netsec.c | 32 ++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_txrx.c b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-index 9b4d7cec2e18..9cc2a617c9f3 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_txrx.c
-@@ -1236,6 +1236,9 @@ static void iavf_add_rx_frag(struct iavf_ring *rx_ring,
- 	unsigned int truesize = SKB_DATA_ALIGN(size + iavf_rx_offset(rx_ring));
- #endif
- 
-+	if (!size)
-+		return;
-+
- 	skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, rx_buffer->page,
- 			rx_buffer->page_offset, size, truesize);
- 
-@@ -1260,6 +1263,9 @@ static struct iavf_rx_buffer *iavf_get_rx_buffer(struct iavf_ring *rx_ring,
+diff --git a/drivers/net/ethernet/socionext/netsec.c b/drivers/net/ethernet/socionext/netsec.c
+index cba5881b2746..a10ef700f16d 100644
+--- a/drivers/net/ethernet/socionext/netsec.c
++++ b/drivers/net/ethernet/socionext/netsec.c
+@@ -1029,7 +1029,6 @@ static void netsec_free_dring(struct netsec_priv *priv, int id)
+ static int netsec_alloc_dring(struct netsec_priv *priv, enum ring_id id)
  {
- 	struct iavf_rx_buffer *rx_buffer;
+ 	struct netsec_desc_ring *dring = &priv->desc_ring[id];
+-	int i;
  
-+	if (!size)
-+		return NULL;
+ 	dring->vaddr = dma_alloc_coherent(priv->dev, DESC_SZ * DESC_NUM,
+ 					  &dring->desc_dma, GFP_KERNEL);
+@@ -1040,19 +1039,6 @@ static int netsec_alloc_dring(struct netsec_priv *priv, enum ring_id id)
+ 	if (!dring->desc)
+ 		goto err;
+ 
+-	if (id == NETSEC_RING_TX) {
+-		for (i = 0; i < DESC_NUM; i++) {
+-			struct netsec_de *de;
+-
+-			de = dring->vaddr + (DESC_SZ * i);
+-			/* de->attr is not going to be accessed by the NIC
+-			 * until netsec_set_tx_de() is called.
+-			 * No need for a dma_wmb() here
+-			 */
+-			de->attr = 1U << NETSEC_TX_SHIFT_OWN_FIELD;
+-		}
+-	}
+-
+ 	return 0;
+ err:
+ 	netsec_free_dring(priv, id);
+@@ -1060,6 +1046,23 @@ static int netsec_alloc_dring(struct netsec_priv *priv, enum ring_id id)
+ 	return -ENOMEM;
+ }
+ 
++static void netsec_setup_tx_dring(struct netsec_priv *priv)
++{
++	struct netsec_desc_ring *dring = &priv->desc_ring[NETSEC_RING_TX];
++	int i;
 +
- 	rx_buffer = &rx_ring->rx_bi[rx_ring->next_to_clean];
- 	prefetchw(rx_buffer->page);
- 
-@@ -1299,6 +1305,8 @@ static struct sk_buff *iavf_construct_skb(struct iavf_ring *rx_ring,
- 	unsigned int headlen;
- 	struct sk_buff *skb;
- 
-+	if (!rx_buffer)
-+		return NULL;
- 	/* prefetch first cache line of first page */
- 	prefetch(va);
- #if L1_CACHE_BYTES < 128
-@@ -1363,6 +1371,8 @@ static struct sk_buff *iavf_build_skb(struct iavf_ring *rx_ring,
- #endif
- 	struct sk_buff *skb;
- 
-+	if (!rx_buffer)
-+		return NULL;
- 	/* prefetch first cache line of first page */
- 	prefetch(va);
- #if L1_CACHE_BYTES < 128
-@@ -1398,6 +1408,9 @@ static struct sk_buff *iavf_build_skb(struct iavf_ring *rx_ring,
- static void iavf_put_rx_buffer(struct iavf_ring *rx_ring,
- 			       struct iavf_rx_buffer *rx_buffer)
++	for (i = 0; i < DESC_NUM; i++) {
++		struct netsec_de *de;
++
++		de = dring->vaddr + (DESC_SZ * i);
++		/* de->attr is not going to be accessed by the NIC
++		 * until netsec_set_tx_de() is called.
++		 * No need for a dma_wmb() here
++		 */
++		de->attr = 1U << NETSEC_TX_SHIFT_OWN_FIELD;
++	}
++}
++
+ static int netsec_setup_rx_dring(struct netsec_priv *priv)
  {
-+	if (!rx_buffer)
-+		return;
-+
- 	if (iavf_can_reuse_rx_page(rx_buffer)) {
- 		/* hand second half of page back to the ring */
- 		iavf_reuse_rx_page(rx_ring, rx_buffer);
-@@ -1496,11 +1509,12 @@ static int iavf_clean_rx_irq(struct iavf_ring *rx_ring, int budget)
- 		 * verified the descriptor has been written back.
- 		 */
- 		dma_rmb();
-+#define IAVF_RXD_DD BIT(IAVF_RX_DESC_STATUS_DD_SHIFT)
-+		if (!iavf_test_staterr(rx_desc, IAVF_RXD_DD))
-+			break;
+ 	struct netsec_desc_ring *dring = &priv->desc_ring[NETSEC_RING_RX];
+@@ -1361,6 +1364,7 @@ static int netsec_netdev_open(struct net_device *ndev)
  
- 		size = (qword & IAVF_RXD_QW1_LENGTH_PBUF_MASK) >>
- 		       IAVF_RXD_QW1_LENGTH_PBUF_SHIFT;
--		if (!size)
--			break;
+ 	pm_runtime_get_sync(priv->dev);
  
- 		iavf_trace(clean_rx_irq, rx_ring, rx_desc, skb);
- 		rx_buffer = iavf_get_rx_buffer(rx_ring, size);
-@@ -1516,7 +1530,8 @@ static int iavf_clean_rx_irq(struct iavf_ring *rx_ring, int budget)
- 		/* exit if we failed to retrieve a buffer */
- 		if (!skb) {
- 			rx_ring->rx_stats.alloc_buff_failed++;
--			rx_buffer->pagecnt_bias++;
-+			if (rx_buffer)
-+				rx_buffer->pagecnt_bias++;
- 			break;
- 		}
- 
++	netsec_setup_tx_dring(priv);
+ 	ret = netsec_setup_rx_dring(priv);
+ 	if (ret) {
+ 		netif_err(priv, probe, priv->ndev,
 -- 
 2.20.1
 
