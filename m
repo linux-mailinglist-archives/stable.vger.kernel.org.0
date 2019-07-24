@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 978F873C85
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA7273C86
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405061AbfGXUAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:00:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47914 "EHLO mail.kernel.org"
+        id S2405179AbfGXUAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:00:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404425AbfGXUAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:00:05 -0400
+        id S2405181AbfGXUAJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:00:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 162D8214AF;
-        Wed, 24 Jul 2019 20:00:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B2CD205C9;
+        Wed, 24 Jul 2019 20:00:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998405;
-        bh=TgKenZT6uu0WJD3ZsqrhoJdgAhGX33wkZumBXr0XTZs=;
+        s=default; t=1563998408;
+        bh=KA3Z+uT9YKRz0tLsoqjBeY0+gyv4LdT1Si7fJUJ72t8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d3G4K2eeQdM14kovw6GB96e4UY3SUMR+B27z2NQNDlycM3FrrMRjgXzATolV1KBP4
-         t0i+2kAP++mLcfIkLG29cUTYjC0/Ttb2m26ozIexxjklIgl2uQbK3Jrfnw+C7z9kMc
-         zAHmmq0piCq4dWo4FFFliocif92CEQiS0qEIkAf4=
+        b=0mU5GzonPSoaN7WtRTKqM6YLfzQJuw2uXlnqHV7fmeXaf+qOyTLm0fIv5UrFv1VkX
+         LJqb363K13MYnfIr8sUr3wNh9Dz6Ilt6RvmS3t47kgz3SOl/vZQnCev2KELMYU+5TB
+         IIhbsZaMt34z/K2LKTgqAIikxc/yDju+P3utHbFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.1 355/371] powerpc/pseries: Fix oops in hotplug memory notifier
-Date:   Wed, 24 Jul 2019 21:21:47 +0200
-Message-Id: <20190724191750.642398704@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.1 356/371] mmc: sdhci-msm: fix mutex while in spinlock
+Date:   Wed, 24 Jul 2019 21:21:48 +0200
+Message-Id: <20190724191750.757264008@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -43,39 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
 
-commit 0aa82c482ab2ece530a6f44897b63b274bb43c8e upstream.
+commit 5e6b6651d22de109ebf48ca00d0373bc2c0cc080 upstream.
 
-During post-migration device tree updates, we can oops in
-pseries_update_drconf_memory() if the source device tree has an
-ibm,dynamic-memory-v2 property and the destination has a
-ibm,dynamic_memory (v1) property. The notifier processes an "update"
-for the ibm,dynamic-memory property but it's really an add in this
-scenario. So make sure the old property object is there before
-dereferencing it.
+mutexes can sleep and therefore should not be taken while holding a
+spinlock. move clk_get_rate (can sleep) outside the spinlock protected
+region.
 
-Fixes: 2b31e3aec1db ("powerpc/drmem: Add support for ibm, dynamic-memory-v2 property")
-Cc: stable@vger.kernel.org # v4.16+
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: 83736352e0ca ("mmc: sdhci-msm: Update DLL reset sequence")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/pseries/hotplug-memory.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mmc/host/sdhci-msm.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/hotplug-memory.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
-@@ -980,6 +980,9 @@ static int pseries_update_drconf_memory(
- 	if (!memblock_size)
- 		return -EINVAL;
+--- a/drivers/mmc/host/sdhci-msm.c
++++ b/drivers/mmc/host/sdhci-msm.c
+@@ -584,11 +584,14 @@ static int msm_init_cm_dll(struct sdhci_
+ 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+ 	struct sdhci_msm_host *msm_host = sdhci_pltfm_priv(pltfm_host);
+ 	int wait_cnt = 50;
+-	unsigned long flags;
++	unsigned long flags, xo_clk = 0;
+ 	u32 config;
+ 	const struct sdhci_msm_offset *msm_offset =
+ 					msm_host->offset;
  
-+	if (!pr->old_prop)
-+		return 0;
++	if (msm_host->use_14lpp_dll_reset && !IS_ERR_OR_NULL(msm_host->xo_clk))
++		xo_clk = clk_get_rate(msm_host->xo_clk);
 +
- 	p = (__be32 *) pr->old_prop->value;
- 	if (!p)
- 		return -EINVAL;
+ 	spin_lock_irqsave(&host->lock, flags);
+ 
+ 	/*
+@@ -636,10 +639,10 @@ static int msm_init_cm_dll(struct sdhci_
+ 		config &= CORE_FLL_CYCLE_CNT;
+ 		if (config)
+ 			mclk_freq = DIV_ROUND_CLOSEST_ULL((host->clock * 8),
+-					clk_get_rate(msm_host->xo_clk));
++					xo_clk);
+ 		else
+ 			mclk_freq = DIV_ROUND_CLOSEST_ULL((host->clock * 4),
+-					clk_get_rate(msm_host->xo_clk));
++					xo_clk);
+ 
+ 		config = readl_relaxed(host->ioaddr +
+ 				msm_offset->core_dll_config_2);
 
 
