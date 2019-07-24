@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3CB373D59
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:16:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24F8F73D4F
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:16:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391690AbfGXTvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:51:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33098 "EHLO mail.kernel.org"
+        id S2388123AbfGXUQL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:16:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391685AbfGXTvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:51:48 -0400
+        id S2391711AbfGXTvx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:51:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 958AF20665;
-        Wed, 24 Jul 2019 19:51:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF96222ADC;
+        Wed, 24 Jul 2019 19:51:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997907;
-        bh=xYfy7NagE+0MKM9wCvijktJzJvuOZlOeISoZwsyBxqA=;
+        s=default; t=1563997912;
+        bh=EMo90s9/Lf/53Jng08uBdWrjmrAc+fc74PM8durqgvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RXR8k+guW8bVrA22XEiGmk+RIrJUEbDMf2R/YY4ff49f0p4hn46G7zDSwxKaVqdaq
-         PpZMHOB2DFWgo2mQHHPzTaQqc5lger98Pm+TvFT0R47+1tdrGXctK5JRAzdYoqiGv1
-         4EwDTq5JLxEKpOOr+hULsm+QTlxzz5Qp90iqmgx8=
+        b=T0rMiuBtUQ9HKObRyxjNBldpO1jeQQ4Kg2YZ9YJAf/X5KFZllYvQEuxhAUXzT3wBv
+         Ta0+yfBjYidN1fZS/M3ri1pjqdtVmgWcHMCUY+8RidoVR7vtaHdRM7WaRV3FHiBY+G
+         XDeHWRbHqYsihDwgd138QeuYNzs71nRlyp4oyPJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shahar S Matityahu <shahar.s.matityahu@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 184/371] iwlwifi: dbg: fix debug monitor stop and restart delays
-Date:   Wed, 24 Jul 2019 21:18:56 +0200
-Message-Id: <20190724191738.950578036@linuxfoundation.org>
+Subject: [PATCH 5.1 186/371] bnxt_en: Fix statistics context reservation logic for RDMA driver.
+Date:   Wed, 24 Jul 2019 21:18:58 +0200
+Message-Id: <20190724191739.054987764@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,65 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fc838c775f35e272e5cc7ef43853f0b55babbe37 ]
+[ Upstream commit d77b1ad8e87dc5a6cd0d9158b097a4817946ca3b ]
 
-The driver should delay only in recording stop flow between writing to
-DBGC_IN_SAMPLE register and DBGC_OUT_CTRL register. Any other delay is
-not needed.
+The current logic assumes that the RDMA driver uses one statistics
+context adjacent to the ones used by the network driver.  This
+assumption is not true and the statistics context used by the
+RDMA driver is tied to its MSIX base vector.  This wrong assumption
+can cause RDMA driver failure after changing ethtool rings on the
+network side.  Fix the statistics reservation logic accordingly.
 
-Change the following:
-1. Remove any unnecessary delays in the flow
-2. Increase the delay in the stop recording flow since 100 micro is
-   not enough
-3. Use usleep_range instead of delay since the driver is allowed to
-   sleep in this flow.
-
-Signed-off-by: Shahar S Matityahu <shahar.s.matityahu@intel.com>
-Fixes: 5cfe79c8d92a ("iwlwifi: fw: stop and start debugging using host command")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: 780baad44f0f ("bnxt_en: Reserve 1 stat_ctx for RDMA driver.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/dbg.c | 2 --
- drivers/net/wireless/intel/iwlwifi/fw/dbg.h | 6 ++++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-index d7380016f1c0..c30f626b1602 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-@@ -2146,8 +2146,6 @@ void iwl_fw_dbg_collect_sync(struct iwl_fw_runtime *fwrt)
- 	/* start recording again if the firmware is not crashed */
- 	if (!test_bit(STATUS_FW_ERROR, &fwrt->trans->status) &&
- 	    fwrt->fw->dbg.dest_tlv) {
--		/* wait before we collect the data till the DBGC stop */
--		udelay(500);
- 		iwl_fw_dbg_restart_recording(fwrt, &params);
- 	}
- }
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.h b/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
-index a199056234d3..97fcd57e17d8 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
-@@ -297,7 +297,10 @@ _iwl_fw_dbg_stop_recording(struct iwl_trans *trans,
- 	}
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index bf1fd513fa02..09557bf49bb0 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -5481,7 +5481,16 @@ static int bnxt_cp_rings_in_use(struct bnxt *bp)
  
- 	iwl_write_umac_prph(trans, DBGC_IN_SAMPLE, 0);
--	udelay(100);
-+	/* wait for the DBGC to finish writing the internal buffer to DRAM to
-+	 * avoid halting the HW while writing
-+	 */
-+	usleep_range(700, 1000);
- 	iwl_write_umac_prph(trans, DBGC_OUT_CTRL, 0);
- #ifdef CONFIG_IWLWIFI_DEBUGFS
- 	trans->dbg_rec_on = false;
-@@ -327,7 +330,6 @@ _iwl_fw_dbg_restart_recording(struct iwl_trans *trans,
- 		iwl_set_bits_prph(trans, MON_BUFF_SAMPLE_CTL, 0x1);
- 	} else {
- 		iwl_write_umac_prph(trans, DBGC_IN_SAMPLE, params->in_sample);
--		udelay(100);
- 		iwl_write_umac_prph(trans, DBGC_OUT_CTRL, params->out_ctrl);
- 	}
+ static int bnxt_get_func_stat_ctxs(struct bnxt *bp)
+ {
+-	return bp->cp_nr_rings + bnxt_get_ulp_stat_ctxs(bp);
++	int ulp_stat = bnxt_get_ulp_stat_ctxs(bp);
++	int cp = bp->cp_nr_rings;
++
++	if (!ulp_stat)
++		return cp;
++
++	if (bnxt_nq_rings_in_use(bp) > cp + bnxt_get_ulp_msix_num(bp))
++		return bnxt_get_ulp_msix_base(bp) + ulp_stat;
++
++	return cp + ulp_stat;
  }
+ 
+ static bool bnxt_need_reserve_rings(struct bnxt *bp)
+@@ -7373,11 +7382,7 @@ unsigned int bnxt_get_avail_cp_rings_for_en(struct bnxt *bp)
+ 
+ unsigned int bnxt_get_avail_stat_ctxs_for_en(struct bnxt *bp)
+ {
+-	unsigned int stat;
+-
+-	stat = bnxt_get_max_func_stat_ctxs(bp) - bnxt_get_ulp_stat_ctxs(bp);
+-	stat -= bp->cp_nr_rings;
+-	return stat;
++	return bnxt_get_max_func_stat_ctxs(bp) - bnxt_get_func_stat_ctxs(bp);
+ }
+ 
+ int bnxt_get_avail_msix(struct bnxt *bp, int num)
 -- 
 2.20.1
 
