@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 382CB73D09
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF5073CF4
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:13:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392063AbfGXUNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:13:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40227 "EHLO mail.kernel.org"
+        id S2391822AbfGXT4O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:56:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404589AbfGXT4G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:56:06 -0400
+        id S2404605AbfGXT4L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:56:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9129E217D4;
-        Wed, 24 Jul 2019 19:56:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B81DC22ADC;
+        Wed, 24 Jul 2019 19:56:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998165;
-        bh=PAXPEwO2rUh1sVRSm5DvD0MwnfOcHcoH7M6v3dcmo0c=;
+        s=default; t=1563998171;
+        bh=wPeLi7+nqS2I7NrSj3ujATue3ugECmzerkrt/EmeAoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+vFkkL4/tQITYQk2V2cbaXZGhu1uz3s4kZVeqkQxdbNcf/pxvyFZHMtEo2nZzSbr
-         /O+lnO9/Fw7WTnRD+2DNeqO4D8CHhkDTR0Ppi05zy88fRLSiLpBvIhvRnTzIi3/fh6
-         1TyEuR3FrfqnLBZpn8i+1iIK0AH1yZ9EzkluVwR0=
+        b=K+P6x2VQqB4l+z9agAxvRv+pFZz2HIgiGiyKYgcmj7ESROMS6MCpbbXBGNd0cDxXg
+         64XpO8lgR/csSAi37r+bmqDhEgeG6BVAknd1VR2xZBeig6V9Qx8kH/XSYbLK/f2RLj
+         2Tmynji7gN2v3zq5vHbzZbAU61UY2mOJCAKtvYI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
         Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 5.1 270/371] iwlwifi: pcie: dont service an interrupt that was masked
-Date:   Wed, 24 Jul 2019 21:20:22 +0200
-Message-Id: <20190724191744.625291835@linuxfoundation.org>
+Subject: [PATCH 5.1 271/371] iwlwifi: pcie: fix ALIVE interrupt handling for gen2 devices w/o MSI-X
+Date:   Wed, 24 Jul 2019 21:20:23 +0200
+Message-Id: <20190724191744.703399482@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -46,15 +46,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-commit 3b57a10ca14c619707398dc58fe5ece18c95b20b upstream.
+commit ec46ae30245ecb41d73f8254613db07c653fb498 upstream.
 
-Sometimes the register status can include interrupts that
-were masked. We can, for example, get the RF-Kill bit set
-in the interrupt status register although this interrupt
-was masked. Then if we get the ALIVE interrupt (for example)
-that was not masked, we need to *not* service the RF-Kill
-interrupt.
-Fix this in the MSI-X interrupt handler.
+We added code to restock the buffer upon ALIVE interrupt
+when MSI-X is disabled. This was added as part of the context
+info code. This code was added only if the ISR debug level
+is set which is very unlikely to be related.
+Move this code to run even when the ISR debug level is not
+set.
+
+Note that gen2 devices work with MSI-X in most cases so that
+this path is seldom used.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
@@ -62,54 +64,52 @@ Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/rx.c |   27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/rx.c |   34 ++++++++++++---------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
 --- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
 +++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
-@@ -2113,10 +2113,18 @@ irqreturn_t iwl_pcie_irq_msix_handler(in
- 		return IRQ_NONE;
+@@ -1832,25 +1832,23 @@ irqreturn_t iwl_pcie_irq_handler(int irq
+ 		goto out;
  	}
  
--	if (iwl_have_debug_level(IWL_DL_ISR))
--		IWL_DEBUG_ISR(trans, "ISR inta_fh 0x%08x, enabled 0x%08x\n",
--			      inta_fh,
-+	if (iwl_have_debug_level(IWL_DL_ISR)) {
+-	if (iwl_have_debug_level(IWL_DL_ISR)) {
+-		/* NIC fires this, but we don't use it, redundant with WAKEUP */
+-		if (inta & CSR_INT_BIT_SCD) {
+-			IWL_DEBUG_ISR(trans,
+-				      "Scheduler finished to transmit the frame/frames.\n");
+-			isr_stats->sch++;
+-		}
++	/* NIC fires this, but we don't use it, redundant with WAKEUP */
++	if (inta & CSR_INT_BIT_SCD) {
 +		IWL_DEBUG_ISR(trans,
-+			      "ISR inta_fh 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
-+			      inta_fh, trans_pcie->fh_mask,
- 			      iwl_read32(trans, CSR_MSIX_FH_INT_MASK_AD));
-+		if (inta_fh & ~trans_pcie->fh_mask)
-+			IWL_DEBUG_ISR(trans,
-+				      "We got a masked interrupt (0x%08x)\n",
-+				      inta_fh & ~trans_pcie->fh_mask);
++			      "Scheduler finished to transmit the frame/frames.\n");
++		isr_stats->sch++;
 +	}
-+
-+	inta_fh &= trans_pcie->fh_mask;
  
- 	if ((trans_pcie->shared_vec_mask & IWL_SHARED_IRQ_NON_RX) &&
- 	    inta_fh & MSIX_FH_INT_CAUSES_Q0) {
-@@ -2156,11 +2164,18 @@ irqreturn_t iwl_pcie_irq_msix_handler(in
+-		/* Alive notification via Rx interrupt will do the real work */
+-		if (inta & CSR_INT_BIT_ALIVE) {
+-			IWL_DEBUG_ISR(trans, "Alive interrupt\n");
+-			isr_stats->alive++;
+-			if (trans->cfg->gen2) {
+-				/*
+-				 * We can restock, since firmware configured
+-				 * the RFH
+-				 */
+-				iwl_pcie_rxmq_restock(trans, trans_pcie->rxq);
+-			}
++	/* Alive notification via Rx interrupt will do the real work */
++	if (inta & CSR_INT_BIT_ALIVE) {
++		IWL_DEBUG_ISR(trans, "Alive interrupt\n");
++		isr_stats->alive++;
++		if (trans->cfg->gen2) {
++			/*
++			 * We can restock, since firmware configured
++			 * the RFH
++			 */
++			iwl_pcie_rxmq_restock(trans, trans_pcie->rxq);
+ 		}
  	}
  
- 	/* After checking FH register check HW register */
--	if (iwl_have_debug_level(IWL_DL_ISR))
-+	if (iwl_have_debug_level(IWL_DL_ISR)) {
- 		IWL_DEBUG_ISR(trans,
--			      "ISR inta_hw 0x%08x, enabled 0x%08x\n",
--			      inta_hw,
-+			      "ISR inta_hw 0x%08x, enabled (sw) 0x%08x (hw) 0x%08x\n",
-+			      inta_hw, trans_pcie->hw_mask,
- 			      iwl_read32(trans, CSR_MSIX_HW_INT_MASK_AD));
-+		if (inta_hw & ~trans_pcie->hw_mask)
-+			IWL_DEBUG_ISR(trans,
-+				      "We got a masked interrupt 0x%08x\n",
-+				      inta_hw & ~trans_pcie->hw_mask);
-+	}
-+
-+	inta_hw &= trans_pcie->hw_mask;
- 
- 	/* Alive notification via Rx interrupt will do the real work */
- 	if (inta_hw & MSIX_HW_INT_CAUSES_REG_ALIVE) {
 
 
