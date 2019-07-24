@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 150A473881
+	by mail.lfdr.de (Postfix) with ESMTP id 8469673882
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:30:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388256AbfGXTaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:30:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49896 "EHLO mail.kernel.org"
+        id S2387829AbfGXTaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:30:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388259AbfGXTaE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:30:04 -0400
+        id S2388084AbfGXTaJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:30:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 948C6218EA;
-        Wed, 24 Jul 2019 19:30:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C57420659;
+        Wed, 24 Jul 2019 19:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996604;
-        bh=uBgELbhUqCeoKuc7FME1hWiKsVaU7eEsxO07pSIDEA8=;
+        s=default; t=1563996607;
+        bh=v2te+FB3cPa4ATAQblpzTsQNb9tOHmqLNNYRWqN8L+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=11Nz0t3gsDgQUQY5MaifKvUgeC69ypbUfZzI8QI5kevU6OeR48aUi0XG/khrYhW4x
-         nDrQ2U9wamNTAQReyF8swCXkxwg5rOmW2dqJAguzKBi19wHb1PklgGxvbRzlApuQP2
-         5jG/F7nR3cjv3RDKsuqAkCkj4IiSeAnmTEi+vUgY=
+        b=lKdj/1UM+n9Erc1Rv4yO/RHZKrcN5LQN1UfPKgdXU+Hi+bZSrNQAXEBpCIQ372IzW
+         GZa/x15fC+H1DmPCvAB5Bn1TPy0xg59oxXteJGi51v6RkHwyYR0FgyjMvUskeZ+Uh5
+         n89A1YHvZhmPZXU7MO8Xp8vu4aHRRo0mupURbvrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
-        Ondrej Jirman <megous@megous.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        syzbot+1fcc5ef45175fc774231@syzkaller.appspotmail.com,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 153/413] net: stmmac: sun8i: force select external PHY when no internal one
-Date:   Wed, 24 Jul 2019 21:17:24 +0200
-Message-Id: <20190724191745.962993931@linuxfoundation.org>
+Subject: [PATCH 5.2 154/413] rtlwifi: rtl8192cu: fix error handle when usb probe failed
+Date:   Wed, 24 Jul 2019 21:17:25 +0200
+Message-Id: <20190724191746.049215509@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,43 +47,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0fec7e72ae1391bb2d7527efb54fe6ae88acabce ]
+[ Upstream commit 6c0ed66f1a5b84e2a812c7c2d6571a5621bf3396 ]
 
-The PHY selection bit also exists on SoCs without an internal PHY; if it's
-set to 1 (internal PHY, default value) then the MAC will not make use of
-any PHY on such SoCs.
+rtl_usb_probe() must do error handle rtl_deinit_core() only if
+rtl_init_core() is done, otherwise goto error_out2.
 
-This problem appears when adapting for H6, which has no real internal PHY
-(the "internal PHY" on H6 is not on-die, but on a co-packaged AC200 chip,
-connected via RMII interface at GPIO bank A).
+| usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+| rtl_usb: reg 0xf0, usbctrl_vendorreq TimeOut! status:0xffffffb9 value=0x0
+| rtl8192cu: Chip version 0x10
+| rtl_usb: reg 0xa, usbctrl_vendorreq TimeOut! status:0xffffffb9 value=0x0
+| rtl_usb: Too few input end points found
+| INFO: trying to register non-static key.
+| the code is fine but needs lockdep annotation.
+| turning off the locking correctness validator.
+| CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.1.0-rc4-319354-g9a33b36 #3
+| Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+| Google 01/01/2011
+| Workqueue: usb_hub_wq hub_event
+| Call Trace:
+|   __dump_stack lib/dump_stack.c:77 [inline]
+|   dump_stack+0xe8/0x16e lib/dump_stack.c:113
+|   assign_lock_key kernel/locking/lockdep.c:786 [inline]
+|   register_lock_class+0x11b8/0x1250 kernel/locking/lockdep.c:1095
+|   __lock_acquire+0xfb/0x37c0 kernel/locking/lockdep.c:3582
+|   lock_acquire+0x10d/0x2f0 kernel/locking/lockdep.c:4211
+|   __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+|   _raw_spin_lock_irqsave+0x44/0x60 kernel/locking/spinlock.c:152
+|   rtl_c2hcmd_launcher+0xd1/0x390
+| drivers/net/wireless/realtek/rtlwifi/base.c:2344
+|   rtl_deinit_core+0x25/0x2d0 drivers/net/wireless/realtek/rtlwifi/base.c:574
+|   rtl_usb_probe.cold+0x861/0xa70
+| drivers/net/wireless/realtek/rtlwifi/usb.c:1093
+|   usb_probe_interface+0x31d/0x820 drivers/usb/core/driver.c:361
+|   really_probe+0x2da/0xb10 drivers/base/dd.c:509
+|   driver_probe_device+0x21d/0x350 drivers/base/dd.c:671
+|   __device_attach_driver+0x1d8/0x290 drivers/base/dd.c:778
+|   bus_for_each_drv+0x163/0x1e0 drivers/base/bus.c:454
+|   __device_attach+0x223/0x3a0 drivers/base/dd.c:844
+|   bus_probe_device+0x1f1/0x2a0 drivers/base/bus.c:514
+|   device_add+0xad2/0x16e0 drivers/base/core.c:2106
+|   usb_set_configuration+0xdf7/0x1740 drivers/usb/core/message.c:2021
+|   generic_probe+0xa2/0xda drivers/usb/core/generic.c:210
+|   usb_probe_device+0xc0/0x150 drivers/usb/core/driver.c:266
+|   really_probe+0x2da/0xb10 drivers/base/dd.c:509
+|   driver_probe_device+0x21d/0x350 drivers/base/dd.c:671
+|   __device_attach_driver+0x1d8/0x290 drivers/base/dd.c:778
+|   bus_for_each_drv+0x163/0x1e0 drivers/base/bus.c:454
+|   __device_attach+0x223/0x3a0 drivers/base/dd.c:844
+|   bus_probe_device+0x1f1/0x2a0 drivers/base/bus.c:514
+|   device_add+0xad2/0x16e0 drivers/base/core.c:2106
+|   usb_new_device.cold+0x537/0xccf drivers/usb/core/hub.c:2534
+|   hub_port_connect drivers/usb/core/hub.c:5089 [inline]
+|   hub_port_connect_change drivers/usb/core/hub.c:5204 [inline]
+|   port_event drivers/usb/core/hub.c:5350 [inline]
+|   hub_event+0x138e/0x3b00 drivers/usb/core/hub.c:5432
+|   process_one_work+0x90f/0x1580 kernel/workqueue.c:2269
+|   worker_thread+0x9b/0xe20 kernel/workqueue.c:2415
+|   kthread+0x313/0x420 kernel/kthread.c:253
+|   ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:352
 
-Force the PHY selection bit to 0 when the SOC doesn't have an internal PHY,
-to address the problem of a wrong default value.
-
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: syzbot+1fcc5ef45175fc774231@syzkaller.appspotmail.com
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wireless/realtek/rtlwifi/usb.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-index a69c34f605b1..98a15ba8be9f 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -884,6 +884,11 @@ static int sun8i_dwmac_set_syscon(struct stmmac_priv *priv)
- 		 * address. No need to mask it again.
- 		 */
- 		reg |= 1 << H3_EPHY_ADDR_SHIFT;
-+	} else {
-+		/* For SoCs without internal PHY the PHY selection bit should be
-+		 * set to 0 (external PHY).
-+		 */
-+		reg &= ~H3_EPHY_SELECT;
+diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
+index e24fda5e9087..34d68dbf4b4c 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/usb.c
++++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
+@@ -1064,13 +1064,13 @@ int rtl_usb_probe(struct usb_interface *intf,
+ 	rtlpriv->cfg->ops->read_eeprom_info(hw);
+ 	err = _rtl_usb_init(hw);
+ 	if (err)
+-		goto error_out;
++		goto error_out2;
+ 	rtl_usb_init_sw(hw);
+ 	/* Init mac80211 sw */
+ 	err = rtl_init_core(hw);
+ 	if (err) {
+ 		pr_err("Can't allocate sw for mac80211\n");
+-		goto error_out;
++		goto error_out2;
  	}
+ 	if (rtlpriv->cfg->ops->init_sw_vars(hw)) {
+ 		pr_err("Can't init_sw_vars\n");
+@@ -1091,6 +1091,7 @@ int rtl_usb_probe(struct usb_interface *intf,
  
- 	if (!of_property_read_u32(node, "allwinner,tx-delay-ps", &val)) {
+ error_out:
+ 	rtl_deinit_core(hw);
++error_out2:
+ 	_rtl_usb_io_handler_release(hw);
+ 	usb_put_dev(udev);
+ 	complete(&rtlpriv->firmware_loading_complete);
 -- 
 2.20.1
 
