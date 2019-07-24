@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDC42738A1
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:31:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DA00738A4
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:31:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388496AbfGXTbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:31:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52564 "EHLO mail.kernel.org"
+        id S2388512AbfGXTbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:31:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388491AbfGXTbe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:31:34 -0400
+        id S2388508AbfGXTbk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:31:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DF0221951;
-        Wed, 24 Jul 2019 19:31:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2B20229F4;
+        Wed, 24 Jul 2019 19:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996692;
-        bh=OrSAqn938LL8gbEFuIeFm0SfQLMIXcVVG4eSYLJDYns=;
+        s=default; t=1563996699;
+        bh=CqXxNtD2vspp+3QgYdEnCTTV27NiT+7gb4tIhi/978E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1SJlbOyyYiDIC0Tc0OrRZLrYQ2w7sABc4w6plDJzCUYD8u5qwiY+feqFtxbO/X0NI
-         WEeqR53ewNAlRRop2eKO/oAEPFB8DW6ILPg6wce0dsA4XtgxAvGBwICjFMdtvz6Btn
-         UFt9emDyyr6Y1dbWsMEnPTt/5YaSPZUiKIGKNTfY=
+        b=eHSn6HCJ+QcTyPvb8QRnk+NgnVkcnUcVHChikb4S5A7AQTMjjG2N3egf1PNwuCSjP
+         Dc+dyJClkyFQtQ9aDLe58UyLBkQf55I/bNE1eIj0MpA6cZmcnHCplagL3NB/epuQeh
+         DTp/fUvyySLP9wMwzBogFAHbjyFPUMZHvl+r/Xq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Eiichi Tsukata <devel@etsukata.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 184/413] EDAC: Fix global-out-of-bounds write when setting edac_mc_poll_msec
-Date:   Wed, 24 Jul 2019 21:17:55 +0200
-Message-Id: <20190724191747.926370436@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 186/413] bcache: fix return value error in bch_journal_read()
+Date:   Wed, 24 Jul 2019 21:17:57 +0200
+Message-Id: <20190724191748.036726271@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,157 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d8655e7630dafa88bc37f101640e39c736399771 ]
+[ Upstream commit 0ae49cb7aa005ed18fe8f4d6ccf73019b78ac7b2 ]
 
-Commit 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2") assumes
-edac_mc_poll_msec to be unsigned long, but the type of the variable still
-remained as int. Setting edac_mc_poll_msec can trigger out-of-bounds
-write.
+When everything is OK in bch_journal_read(), finally the return value
+is returned by,
+	return ret;
+which assumes ret will be 0 here. This assumption is wrong when all
+journal buckets as are full and filled with valid journal entries. In
+such cache the last location referencess read_bucket() sets 'ret' to
+1, which means new jset added into jset list. The jset list is list
+'journal' in caller run_cache_set().
 
-Reproducer:
+Return 1 to run_cache_set() means something wrong and the cache set
+won't start, but indeed everything is OK.
 
-  # echo 1001 > /sys/module/edac_core/parameters/edac_mc_poll_msec
+This patch changes the line at end of bch_journal_read() to directly
+return 0 since everything if verything is good. Then a bogus error
+is fixed.
 
-KASAN report:
-
-  BUG: KASAN: global-out-of-bounds in edac_set_poll_msec+0x140/0x150
-  Write of size 8 at addr ffffffffb91b2d00 by task bash/1996
-
-  CPU: 1 PID: 1996 Comm: bash Not tainted 5.2.0-rc6+ #23
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
-  Call Trace:
-   dump_stack+0xca/0x13e
-   print_address_description.cold+0x5/0x246
-   __kasan_report.cold+0x75/0x9a
-   ? edac_set_poll_msec+0x140/0x150
-   kasan_report+0xe/0x20
-   edac_set_poll_msec+0x140/0x150
-   ? dimmdev_location_show+0x30/0x30
-   ? vfs_lock_file+0xe0/0xe0
-   ? _raw_spin_lock+0x87/0xe0
-   param_attr_store+0x1b5/0x310
-   ? param_array_set+0x4f0/0x4f0
-   module_attr_store+0x58/0x80
-   ? module_attr_show+0x80/0x80
-   sysfs_kf_write+0x13d/0x1a0
-   kernfs_fop_write+0x2bc/0x460
-   ? sysfs_kf_bin_read+0x270/0x270
-   ? kernfs_notify+0x1f0/0x1f0
-   __vfs_write+0x81/0x100
-   vfs_write+0x1e1/0x560
-   ksys_write+0x126/0x250
-   ? __ia32_sys_read+0xb0/0xb0
-   ? do_syscall_64+0x1f/0x390
-   do_syscall_64+0xc1/0x390
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  RIP: 0033:0x7fa7caa5e970
-  Code: 73 01 c3 48 8b 0d 28 d5 2b 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 99 2d 2c 00 00 75 10 b8 01 00 00 00 04
-  RSP: 002b:00007fff6acfdfe8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-  RAX: ffffffffffffffda RBX: 0000000000000005 RCX: 00007fa7caa5e970
-  RDX: 0000000000000005 RSI: 0000000000e95c08 RDI: 0000000000000001
-  RBP: 0000000000e95c08 R08: 00007fa7cad1e760 R09: 00007fa7cb36a700
-  R10: 0000000000000073 R11: 0000000000000246 R12: 0000000000000005
-  R13: 0000000000000001 R14: 00007fa7cad1d600 R15: 0000000000000005
-
-  The buggy address belongs to the variable:
-   edac_mc_poll_msec+0x0/0x40
-
-  Memory state around the buggy address:
-   ffffffffb91b2c00: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
-   ffffffffb91b2c80: 00 00 00 00 fa fa fa fa 00 00 00 00 fa fa fa fa
-  >ffffffffb91b2d00: 04 fa fa fa fa fa fa fa 04 fa fa fa fa fa fa fa
-                     ^
-   ffffffffb91b2d80: 04 fa fa fa fa fa fa fa 00 00 00 00 00 00 00 00
-   ffffffffb91b2e00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-Fix it by changing the type of edac_mc_poll_msec to unsigned int.
-The reason why this patch adopts unsigned int rather than unsigned long
-is msecs_to_jiffies() assumes arg to be unsigned int. We can avoid
-integer conversion bugs and unsigned int will be large enough for
-edac_mc_poll_msec.
-
-Reviewed-by: James Morse <james.morse@arm.com>
-Fixes: 9da21b1509d8 ("EDAC: Poll timeout cannot be zero, p2")
-Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_mc_sysfs.c | 16 ++++++++--------
- drivers/edac/edac_module.h   |  2 +-
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/md/bcache/journal.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/edac/edac_mc_sysfs.c b/drivers/edac/edac_mc_sysfs.c
-index 7c01e1cc030c..4386ea4b9b5a 100644
---- a/drivers/edac/edac_mc_sysfs.c
-+++ b/drivers/edac/edac_mc_sysfs.c
-@@ -26,7 +26,7 @@
- static int edac_mc_log_ue = 1;
- static int edac_mc_log_ce = 1;
- static int edac_mc_panic_on_ue;
--static int edac_mc_poll_msec = 1000;
-+static unsigned int edac_mc_poll_msec = 1000;
+diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
+index 12dae9348147..4e5fc05720fc 100644
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -268,7 +268,7 @@ int bch_journal_read(struct cache_set *c, struct list_head *list)
+ 					    struct journal_replay,
+ 					    list)->j.seq;
  
- /* Getter functions for above */
- int edac_mc_get_log_ue(void)
-@@ -45,30 +45,30 @@ int edac_mc_get_panic_on_ue(void)
+-	return ret;
++	return 0;
+ #undef read_bucket
  }
  
- /* this is temporary */
--int edac_mc_get_poll_msec(void)
-+unsigned int edac_mc_get_poll_msec(void)
- {
- 	return edac_mc_poll_msec;
- }
- 
- static int edac_set_poll_msec(const char *val, const struct kernel_param *kp)
- {
--	unsigned long l;
-+	unsigned int i;
- 	int ret;
- 
- 	if (!val)
- 		return -EINVAL;
- 
--	ret = kstrtoul(val, 0, &l);
-+	ret = kstrtouint(val, 0, &i);
- 	if (ret)
- 		return ret;
- 
--	if (l < 1000)
-+	if (i < 1000)
- 		return -EINVAL;
- 
--	*((unsigned long *)kp->arg) = l;
-+	*((unsigned int *)kp->arg) = i;
- 
- 	/* notify edac_mc engine to reset the poll period */
--	edac_mc_reset_delay_period(l);
-+	edac_mc_reset_delay_period(i);
- 
- 	return 0;
- }
-@@ -82,7 +82,7 @@ MODULE_PARM_DESC(edac_mc_log_ue,
- module_param(edac_mc_log_ce, int, 0644);
- MODULE_PARM_DESC(edac_mc_log_ce,
- 		 "Log correctable error to console: 0=off 1=on");
--module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_int,
-+module_param_call(edac_mc_poll_msec, edac_set_poll_msec, param_get_uint,
- 		  &edac_mc_poll_msec, 0644);
- MODULE_PARM_DESC(edac_mc_poll_msec, "Polling period in milliseconds");
- 
-diff --git a/drivers/edac/edac_module.h b/drivers/edac/edac_module.h
-index dd7d0b509aa3..75528f07abd5 100644
---- a/drivers/edac/edac_module.h
-+++ b/drivers/edac/edac_module.h
-@@ -36,7 +36,7 @@ extern int edac_mc_get_log_ue(void);
- extern int edac_mc_get_log_ce(void);
- extern int edac_mc_get_panic_on_ue(void);
- extern int edac_get_poll_msec(void);
--extern int edac_mc_get_poll_msec(void);
-+extern unsigned int edac_mc_get_poll_msec(void);
- 
- unsigned edac_dimm_info_location(struct dimm_info *dimm, char *buf,
- 				 unsigned len);
 -- 
 2.20.1
 
