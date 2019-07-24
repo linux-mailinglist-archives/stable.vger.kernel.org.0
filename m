@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2DC73C53
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:08:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96CBB73C52
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:08:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388418AbfGXUIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:08:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52612 "EHLO mail.kernel.org"
+        id S2405560AbfGXUCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:02:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405546AbfGXUCk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 16:02:40 -0400
+        id S2405556AbfGXUCm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 16:02:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C598C205C9;
-        Wed, 24 Jul 2019 20:02:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5921120665;
+        Wed, 24 Jul 2019 20:02:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998559;
-        bh=6EiICUsb6HjmNZYOgRG27KFcWBhfBMswqXzrv0cMlJs=;
+        s=default; t=1563998561;
+        bh=PVC0wf0JlH0t0MfT4sWdR8zu+au9l5HG6PIaSqV0i/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nVxzjf2kr0D8B62yZIqB8PVLdehFfxYoafCnk/w3hnFqI2jnl1i4jrBN280ppaRXr
-         hoxgdJYC3NKiKqjgo7Bp9ub4heVP0Opyf9Q+wFQYmOKRWU8oYcsWVwmsGG4yZXnZRW
-         zFPiBthikTmqH7coqDhRSisWrG8fY1aagomwcTSE=
+        b=c5vM/IgGUldGyFHB1KbWctg9+5WvVH00pLoA3us+CGgJDoBqxjP4pPEmyN14YB2EH
+         hdqhBFc5s99VPmR2ObZQ7ds7VUpq+pJDmYyDedIVaEo9F3R8JKxk8+f6nJxDl/9YCM
+         pPM4RRPtgpF3VPZ3/qlXD57Yphp1B1SSFxmvFEpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 034/271] net: phy: Check against net_device being NULL
-Date:   Wed, 24 Jul 2019 21:18:23 +0200
-Message-Id: <20190724191658.123046892@linuxfoundation.org>
+Subject: [PATCH 4.19 035/271] crypto: talitos - properly handle split ICV.
+Date:   Wed, 24 Jul 2019 21:18:24 +0200
+Message-Id: <20190724191658.202538101@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191655.268628197@linuxfoundation.org>
 References: <20190724191655.268628197@linuxfoundation.org>
@@ -46,46 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 82c76aca81187b3d28a6fb3062f6916450ce955e ]
+[ Upstream commit eae55a586c3c8b50982bad3c3426e9c9dd7a0075 ]
 
-In general, we don't want MAC drivers calling phy_attach_direct with the
-net_device being NULL. Add checks against this in all the functions
-calling it: phy_attach() and phy_connect_direct().
+The driver assumes that the ICV is as a single piece in the last
+element of the scatterlist. This assumption is wrong.
 
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Suggested-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch ensures that the ICV is properly handled regardless of
+the scatterlist layout.
+
+Fixes: 9c4a79653b35 ("crypto: talitos - Freescale integrated security engine (SEC) driver")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy_device.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/crypto/talitos.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index 8a96d985a52f..6144146aec29 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -757,6 +757,9 @@ int phy_connect_direct(struct net_device *dev, struct phy_device *phydev,
- {
- 	int rc;
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index d46f58c13433..254f711f1934 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1001,7 +1001,6 @@ static void ipsec_esp_encrypt_done(struct device *dev,
+ 	unsigned int authsize = crypto_aead_authsize(authenc);
+ 	unsigned int ivsize = crypto_aead_ivsize(authenc);
+ 	struct talitos_edesc *edesc;
+-	struct scatterlist *sg;
+ 	void *icvdata;
  
-+	if (!dev)
-+		return -EINVAL;
-+
- 	rc = phy_attach_direct(dev, phydev, phydev->dev_flags, interface);
- 	if (rc)
- 		return rc;
-@@ -1098,6 +1101,9 @@ struct phy_device *phy_attach(struct net_device *dev, const char *bus_id,
- 	struct device *d;
- 	int rc;
+ 	edesc = container_of(desc, struct talitos_edesc, desc);
+@@ -1015,9 +1014,8 @@ static void ipsec_esp_encrypt_done(struct device *dev,
+ 		else
+ 			icvdata = &edesc->link_tbl[edesc->src_nents +
+ 						   edesc->dst_nents + 2];
+-		sg = sg_last(areq->dst, edesc->dst_nents);
+-		memcpy((char *)sg_virt(sg) + sg->length - authsize,
+-		       icvdata, authsize);
++		sg_pcopy_from_buffer(areq->dst, edesc->dst_nents ? : 1, icvdata,
++				     authsize, areq->assoclen + areq->cryptlen);
+ 	}
  
-+	if (!dev)
-+		return ERR_PTR(-EINVAL);
+ 	dma_unmap_single(dev, edesc->iv_dma, ivsize, DMA_TO_DEVICE);
+@@ -1035,7 +1033,6 @@ static void ipsec_esp_decrypt_swauth_done(struct device *dev,
+ 	struct crypto_aead *authenc = crypto_aead_reqtfm(req);
+ 	unsigned int authsize = crypto_aead_authsize(authenc);
+ 	struct talitos_edesc *edesc;
+-	struct scatterlist *sg;
+ 	char *oicv, *icv;
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	bool is_sec1 = has_ftr_sec1(priv);
+@@ -1045,9 +1042,18 @@ static void ipsec_esp_decrypt_swauth_done(struct device *dev,
+ 	ipsec_esp_unmap(dev, edesc, req);
+ 
+ 	if (!err) {
++		char icvdata[SHA512_DIGEST_SIZE];
++		int nents = edesc->dst_nents ? : 1;
++		unsigned int len = req->assoclen + req->cryptlen;
 +
- 	/* Search the list of PHY devices on the mdio bus for the
- 	 * PHY with the requested name
- 	 */
+ 		/* auth check */
+-		sg = sg_last(req->dst, edesc->dst_nents ? : 1);
+-		icv = (char *)sg_virt(sg) + sg->length - authsize;
++		if (nents > 1) {
++			sg_pcopy_to_buffer(req->dst, nents, icvdata, authsize,
++					   len - authsize);
++			icv = icvdata;
++		} else {
++			icv = (char *)sg_virt(req->dst) + len - authsize;
++		}
+ 
+ 		if (edesc->dma_len) {
+ 			if (is_sec1)
+@@ -1463,7 +1469,6 @@ static int aead_decrypt(struct aead_request *req)
+ 	struct talitos_ctx *ctx = crypto_aead_ctx(authenc);
+ 	struct talitos_private *priv = dev_get_drvdata(ctx->dev);
+ 	struct talitos_edesc *edesc;
+-	struct scatterlist *sg;
+ 	void *icvdata;
+ 
+ 	req->cryptlen -= authsize;
+@@ -1497,9 +1502,8 @@ static int aead_decrypt(struct aead_request *req)
+ 	else
+ 		icvdata = &edesc->link_tbl[0];
+ 
+-	sg = sg_last(req->src, edesc->src_nents ? : 1);
+-
+-	memcpy(icvdata, (char *)sg_virt(sg) + sg->length - authsize, authsize);
++	sg_pcopy_to_buffer(req->src, edesc->src_nents ? : 1, icvdata, authsize,
++			   req->assoclen + req->cryptlen - authsize);
+ 
+ 	return ipsec_esp(edesc, req, ipsec_esp_decrypt_swauth_done);
+ }
 -- 
 2.20.1
 
