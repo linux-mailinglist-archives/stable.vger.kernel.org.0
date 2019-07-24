@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BDE173B56
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:59:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B10573B58
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405131AbfGXT7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:59:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46096 "EHLO mail.kernel.org"
+        id S2405122AbfGXT7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:59:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405122AbfGXT7D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:59:03 -0400
+        id S2405129AbfGXT7J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:59:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C47C222ADA;
-        Wed, 24 Jul 2019 19:59:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C79F9205C9;
+        Wed, 24 Jul 2019 19:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563998342;
-        bh=8SLX+GL6G+Qz/4zKCYg3kXGjRWfuXtLpAGZFSUCSNZc=;
+        s=default; t=1563998348;
+        bh=wQ8jxDiSta7rWqrnFpevpjvWdJsxCPCSZyeH9irP6as=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MxAL2YyF6sN+GETCCkRtY1IrzhiQS8bQgTk1dHdD97tLYPF/tS13yS6Du8RO+ykGP
-         9te4TLnOfGaT+4FlsVf48k930/Im5YFF8Iea7RrHYlYGoYLaCHzKIQ2BRI6z0k56at
-         UxVFWNHUuXRaIbcdTNGRap4qxkVfjHkDxbH/J5dY=
+        b=lr95HPLxcvfbgXMkMnkXh4GD4ocpBFzPN+voILeiWfgP0RrGNl+yRySyUG07MaR3G
+         qla9F56Te3iQOnV+C2RYvfoRk0hIbHrW5W9YrKdtf0T6GvfzyYK8nbwrROwPwgtoeg
+         xgBes8j6zIUlMbJ9MOPGnLNC0Kfx5kxsYJi3wYUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.1 331/371] PCI: Do not poll for PME if the device is in D3cold
-Date:   Wed, 24 Jul 2019 21:21:23 +0200
-Message-Id: <20190724191748.698373867@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.1 333/371] Btrfs: fix data loss after inode eviction, renaming it, and fsync it
+Date:   Wed, 24 Jul 2019 21:21:25 +0200
+Message-Id: <20190724191748.829612872@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -45,56 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 000dd5316e1c756a1c028f22e01d06a38249dd4d upstream.
+commit d1d832a0b51dd9570429bb4b81b2a6c1759e681a upstream.
 
-PME polling does not take into account that a device that is directly
-connected to the host bridge may go into D3cold as well. This leads to a
-situation where the PME poll thread reads from a config space of a
-device that is in D3cold and gets incorrect information because the
-config space is not accessible.
+When we log an inode, regardless of logging it completely or only that it
+exists, we always update it as logged (logged_trans and last_log_commit
+fields of the inode are updated). This is generally fine and avoids future
+attempts to log it from having to do repeated work that brings no value.
 
-Here is an example from Intel Ice Lake system where two PCIe root ports
-are in D3cold (I've instrumented the kernel to log the PMCSR register
-contents):
+However, if we write data to a file, then evict its inode after all the
+dealloc was flushed (and ordered extents completed), rename the file and
+fsync it, we end up not logging the new extents, since the rename may
+result in logging that the inode exists in case the parent directory was
+logged before. The following reproducer shows and explains how this can
+happen:
 
-  [   62.971442] pcieport 0000:00:07.1: Check PME status, PMCSR=0xffff
-  [   62.971504] pcieport 0000:00:07.0: Check PME status, PMCSR=0xffff
+  $ mkfs.btrfs -f /dev/sdb
+  $ mount /dev/sdb /mnt
 
-Since 0xffff is interpreted so that PME is pending, the root ports will
-be runtime resumed. This repeats over and over again essentially
-blocking all runtime power management.
+  $ mkdir /mnt/dir
+  $ touch /mnt/dir/foo
+  $ touch /mnt/dir/bar
 
-Prevent this from happening by checking whether the device is in D3cold
-before its PME status is read.
+  # Do a direct IO write instead of a buffered write because with a
+  # buffered write we would need to make sure dealloc gets flushed and
+  # complete before we do the inode eviction later, and we can not do that
+  # from user space with call to things such as sync(2) since that results
+  # in a transaction commit as well.
+  $ xfs_io -d -c "pwrite -S 0xd3 0 4K" /mnt/dir/bar
 
-Fixes: 71a83bd727cc ("PCI/PM: add runtime PM support to PCIe port")
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
-Cc: 3.6+ <stable@vger.kernel.org> # v3.6+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+  # Keep the directory dir in use while we evict inodes. We want our file
+  # bar's inode to be evicted but we don't want our directory's inode to
+  # be evicted (if it were evicted too, we would not be able to reproduce
+  # the issue since the first fsync below, of file foo, would result in a
+  # transaction commit.
+  $ ( cd /mnt/dir; while true; do :; done ) &
+  $ pid=$!
+
+  # Wait a bit to give time for the background process to chdir.
+  $ sleep 0.1
+
+  # Evict all inodes, except the inode for the directory dir because it is
+  # currently in use by our background process.
+  $ echo 2 > /proc/sys/vm/drop_caches
+
+  # fsync file foo, which ends up persisting information about the parent
+  # directory because it is a new inode.
+  $ xfs_io -c fsync /mnt/dir/foo
+
+  # Rename bar, this results in logging that this inode exists (inode item,
+  # names, xattrs) because the parent directory is in the log.
+  $ mv /mnt/dir/bar /mnt/dir/baz
+
+  # Now fsync baz, which ends up doing absolutely nothing because of the
+  # rename operation which logged that the inode exists only.
+  $ xfs_io -c fsync /mnt/dir/baz
+
+  <power failure>
+
+  $ mount /dev/sdb /mnt
+  $ od -t x1 -A d /mnt/dir/baz
+  0000000
+
+    --> Empty file, data we wrote is missing.
+
+Fix this by not updating last_sub_trans of an inode when we are logging
+only that it exists and the inode was not yet logged since it was loaded
+from disk (full_sync bit set), this is enough to make btrfs_inode_in_log()
+return false for this scenario and make us log the inode. The logged_trans
+of the inode is still always setsince that alone is used to track if names
+need to be deleted as part of unlink operations.
+
+Fixes: 257c62e1bce03e ("Btrfs: avoid tree log commit when there are no changes")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pci.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/btrfs/tree-log.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -2052,6 +2052,13 @@ static void pci_pme_list_scan(struct wor
- 			 */
- 			if (bridge && bridge->current_state != PCI_D0)
- 				continue;
-+			/*
-+			 * If the device is in D3cold it should not be
-+			 * polled either.
-+			 */
-+			if (pme_dev->dev->current_state == PCI_D3cold)
-+				continue;
-+
- 			pci_pme_wakeup(pme_dev->dev, NULL);
- 		} else {
- 			list_del(&pme_dev->list);
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -5407,9 +5407,19 @@ log_extents:
+ 		}
+ 	}
+ 
++	/*
++	 * Don't update last_log_commit if we logged that an inode exists after
++	 * it was loaded to memory (full_sync bit set).
++	 * This is to prevent data loss when we do a write to the inode, then
++	 * the inode gets evicted after all delalloc was flushed, then we log
++	 * it exists (due to a rename for example) and then fsync it. This last
++	 * fsync would do nothing (not logging the extents previously written).
++	 */
+ 	spin_lock(&inode->lock);
+ 	inode->logged_trans = trans->transid;
+-	inode->last_log_commit = inode->last_sub_trans;
++	if (inode_only != LOG_INODE_EXISTS ||
++	    !test_bit(BTRFS_INODE_NEEDS_FULL_SYNC, &inode->runtime_flags))
++		inode->last_log_commit = inode->last_sub_trans;
+ 	spin_unlock(&inode->lock);
+ out_unlock:
+ 	mutex_unlock(&inode->log_mutex);
 
 
