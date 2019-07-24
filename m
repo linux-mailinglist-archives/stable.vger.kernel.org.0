@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BC1173A04
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:46:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB81B73A08
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390678AbfGXTqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:46:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51134 "EHLO mail.kernel.org"
+        id S2390339AbfGXTqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:46:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390672AbfGXTqK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:46:10 -0400
+        id S2390672AbfGXTqQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:46:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41368214AF;
-        Wed, 24 Jul 2019 19:46:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D1092083B;
+        Wed, 24 Jul 2019 19:46:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997569;
-        bh=qAWOwzw/cwiUcLWrhEYzt4usW8EDeskhEElCW8ichWI=;
+        s=default; t=1563997575;
+        bh=B/a/saQfp7Q4y10UrOnIt6CO08RsA+Ah0RPdbEOPbDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kXMWmw0+s0gs7O6zFaCM/b4Wu59H3/pO41qfpwCXQr6SsCF5MjUBLiMiGOcliY1FF
-         fuEy8aOOchy85iPlsKPNRsQyLXh7pG5YVDUB1n7ojhvqf5JssyQKveCVSCSFeqQOY4
-         lSXGG6UA2GZBf25L42NLSh2sxKzQ+73e+qe2L2Wo=
+        b=hgZmnaxHv3mdm9Dgc8HUt7O55hklgZ2tAYpiRyD68wIXt2U1IWBBIrEddpeV3JOGX
+         Zq/86O1PFSoj8AIuCd+DHFDivn9WKXDhG7O39/RF+6Kkbs8t+01xp2r9Yj0eC7MoFq
+         NYjj8YWV/5Ko62uFFcSUJUJT5wKUbbWMYfh4lUrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 067/371] net: fec: Do not use netdev messages too early
-Date:   Wed, 24 Jul 2019 21:16:59 +0200
-Message-Id: <20190724191729.947450292@linuxfoundation.org>
+Subject: [PATCH 5.1 069/371] s390/qdio: handle PENDING state for QEBSM devices
+Date:   Wed, 24 Jul 2019 21:17:01 +0200
+Message-Id: <20190724191730.096269906@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -44,48 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a19a0582363b9a5f8ba812f34f1b8df394898780 ]
+[ Upstream commit 04310324c6f482921c071444833e70fe861b73d9 ]
 
-When a valid MAC address is not found the current messages
-are shown:
+When a CQ-enabled device uses QEBSM for SBAL state inspection,
+get_buf_states() can return the PENDING state for an Output Queue.
+get_outbound_buffer_frontier() isn't prepared for this, and any PENDING
+buffer will permanently stall all further completion processing on this
+Queue.
 
-fec 2188000.ethernet (unnamed net_device) (uninitialized): Invalid MAC address: 00:00:00:00:00:00
-fec 2188000.ethernet (unnamed net_device) (uninitialized): Using random MAC address: aa:9f:25:eb:7e:aa
+This isn't a concern for non-QEBSM devices, as get_buf_states() for such
+devices will manually turn PENDING buffers into EMPTY ones.
 
-Since the network device has not been registered at this point, it is better
-to use dev_err()/dev_info() instead, which will provide cleaner log
-messages like these:
-
-fec 2188000.ethernet: Invalid MAC address: 00:00:00:00:00:00
-fec 2188000.ethernet: Using random MAC address: aa:9f:25:eb:7e:aa
-
-Tested on a imx6dl-pico-pi board.
-
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 104ea556ee7f ("qdio: support asynchronous delivery of storage blocks")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/s390/cio/qdio_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 878ccce1dfcd..87a9c5716958 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -1689,10 +1689,10 @@ static void fec_get_mac(struct net_device *ndev)
- 	 */
- 	if (!is_valid_ether_addr(iap)) {
- 		/* Report it and use a random ethernet address instead */
--		netdev_err(ndev, "Invalid MAC address: %pM\n", iap);
-+		dev_err(&fep->pdev->dev, "Invalid MAC address: %pM\n", iap);
- 		eth_hw_addr_random(ndev);
--		netdev_info(ndev, "Using random MAC address: %pM\n",
--			    ndev->dev_addr);
-+		dev_info(&fep->pdev->dev, "Using random MAC address: %pM\n",
-+			 ndev->dev_addr);
- 		return;
- 	}
+diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
+index 9537e656e927..06b94b2ee199 100644
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -738,6 +738,7 @@ static int get_outbound_buffer_frontier(struct qdio_q *q)
  
+ 	switch (state) {
+ 	case SLSB_P_OUTPUT_EMPTY:
++	case SLSB_P_OUTPUT_PENDING:
+ 		/* the adapter got it */
+ 		DBF_DEV_EVENT(DBF_INFO, q->irq_ptr,
+ 			"out empty:%1d %02x", q->nr, count);
 -- 
 2.20.1
 
