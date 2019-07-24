@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2AEA73FDB
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:36:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E305B73FC9
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:35:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387562AbfGXUfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 16:35:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42466 "EHLO mail.kernel.org"
+        id S2388361AbfGXUfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 16:35:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388047AbfGXTZh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:25:37 -0400
+        id S2388078AbfGXT0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:26:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 414B9218F0;
-        Wed, 24 Jul 2019 19:25:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53238229F3;
+        Wed, 24 Jul 2019 19:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563996336;
-        bh=bxec5w9zV1i7q5BKF/WWYgqOx3tA4v5sBaOkTcJ4HAU=;
+        s=default; t=1563996367;
+        bh=35gqSgFFgFhclDpTnJY/MV9ueyv3aP4Lk8CgSO14UvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2H0g9pAA5fQVSFwV1j550jk3e4B86I3axfrP1JKucPsS2jIVn1uJm3kT9cxJZNmay
-         MEGZ4caIwMXHbZl9a+0EXZ+Y419xZhujIfRRG6LegBB8kpd9cUWzJXH/kYbdO4uJ4K
-         fFdvLI101gEn+Xmqs5P0uf48fBcFbWXbQfUuC5ZA=
+        b=hid31+SYBCS8doNcjfrdI+eaXDSmc4NjpCfNXN/l2UN97unZLeWD+XczcPqsP4yBj
+         QF3LWvWvMh3RSezrkOP85gmZiORH9F5/nDd7lFz32mdmrXjnMyMvHOIVCbVJls7zoD
+         DuM9+ZeEhcCweNtbXTKWg0eAUNPKJFS4xX24gQss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Huazhong Tan <tanhuazhong@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 034/413] net: hns3: initialize CPU reverse mapping
-Date:   Wed, 24 Jul 2019 21:15:25 +0200
-Message-Id: <20190724191738.039776401@linuxfoundation.org>
+Subject: [PATCH 5.2 035/413] net: hns3: fix for FEC configuration
+Date:   Wed, 24 Jul 2019 21:15:26 +0200
+Message-Id: <20190724191738.128109214@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191735.096702571@linuxfoundation.org>
 References: <20190724191735.096702571@linuxfoundation.org>
@@ -45,173 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ffab9691bcb2fe2594f4c38bfceb4d9685b93b87 ]
+[ Upstream commit f438bfe9d4fe2e491505abfbf04d7c506e00d146 ]
 
-Allocate CPU rmap and add entry for each irq. CPU rmap is
-used in aRFS to get the queue number of the rx completion
-interrupts.
+The FEC capbility may be changed with port speed changes. Driver
+needs to read the active FEC mode, and update FEC capability
+when port speed changes.
 
-In additional, remove the calling of
-irq_set_affinity_notifier() in hns3_nic_init_irq(), because
-we have registered notifier in irq_cpu_rmap_add() for each
-vector, otherwise it may cause use-after-free issue.
-
+Fixes: 7e6ec9148a1d ("net: hns3: add support for FEC encoding control")
 Signed-off-by: Jian Shen <shenjian15@huawei.com>
 Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 77 ++++++++++++-------
- 1 file changed, 48 insertions(+), 29 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index f326805543a4..cd59c0cc636a 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -4,6 +4,9 @@
- #include <linux/dma-mapping.h>
- #include <linux/etherdevice.h>
- #include <linux/interrupt.h>
-+#ifdef CONFIG_RFS_ACCEL
-+#include <linux/cpu_rmap.h>
-+#endif
- #include <linux/if_vlan.h>
- #include <linux/ip.h>
- #include <linux/ipv6.h>
-@@ -79,23 +82,6 @@ static irqreturn_t hns3_irq_handle(int irq, void *vector)
- 	return IRQ_HANDLED;
- }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index d3b1f8cb1155..4d9bcad26f06 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -2508,6 +2508,9 @@ static void hclge_update_link_status(struct hclge_dev *hdev)
  
--/* This callback function is used to set affinity changes to the irq affinity
-- * masks when the irq_set_affinity_notifier function is used.
-- */
--static void hns3_nic_irq_affinity_notify(struct irq_affinity_notify *notify,
--					 const cpumask_t *mask)
--{
--	struct hns3_enet_tqp_vector *tqp_vectors =
--		container_of(notify, struct hns3_enet_tqp_vector,
--			     affinity_notify);
--
--	tqp_vectors->affinity_mask = *mask;
--}
--
--static void hns3_nic_irq_affinity_release(struct kref *ref)
--{
--}
--
- static void hns3_nic_uninit_irq(struct hns3_nic_priv *priv)
+ static void hclge_update_port_capability(struct hclge_mac *mac)
  {
- 	struct hns3_enet_tqp_vector *tqp_vectors;
-@@ -107,8 +93,7 @@ static void hns3_nic_uninit_irq(struct hns3_nic_priv *priv)
- 		if (tqp_vectors->irq_init_flag != HNS3_VECTOR_INITED)
- 			continue;
- 
--		/* clear the affinity notifier and affinity mask */
--		irq_set_affinity_notifier(tqp_vectors->vector_irq, NULL);
-+		/* clear the affinity mask */
- 		irq_set_affinity_hint(tqp_vectors->vector_irq, NULL);
- 
- 		/* release the irq resource */
-@@ -161,12 +146,6 @@ static int hns3_nic_init_irq(struct hns3_nic_priv *priv)
- 			return ret;
- 		}
- 
--		tqp_vectors->affinity_notify.notify =
--					hns3_nic_irq_affinity_notify;
--		tqp_vectors->affinity_notify.release =
--					hns3_nic_irq_affinity_release;
--		irq_set_affinity_notifier(tqp_vectors->vector_irq,
--					  &tqp_vectors->affinity_notify);
- 		irq_set_affinity_hint(tqp_vectors->vector_irq,
- 				      &tqp_vectors->affinity_mask);
- 
-@@ -340,6 +319,40 @@ static void hns3_tqp_disable(struct hnae3_queue *tqp)
- 	hns3_write_dev(tqp, HNS3_RING_EN_REG, rcb_reg);
- }
- 
-+static void hns3_free_rx_cpu_rmap(struct net_device *netdev)
-+{
-+#ifdef CONFIG_RFS_ACCEL
-+	free_irq_cpu_rmap(netdev->rx_cpu_rmap);
-+	netdev->rx_cpu_rmap = NULL;
-+#endif
-+}
++	/* update fec ability by speed */
++	hclge_convert_setting_fec(mac);
 +
-+static int hns3_set_rx_cpu_rmap(struct net_device *netdev)
-+{
-+#ifdef CONFIG_RFS_ACCEL
-+	struct hns3_nic_priv *priv = netdev_priv(netdev);
-+	struct hns3_enet_tqp_vector *tqp_vector;
-+	int i, ret;
-+
-+	if (!netdev->rx_cpu_rmap) {
-+		netdev->rx_cpu_rmap = alloc_irq_cpu_rmap(priv->vector_num);
-+		if (!netdev->rx_cpu_rmap)
-+			return -ENOMEM;
-+	}
-+
-+	for (i = 0; i < priv->vector_num; i++) {
-+		tqp_vector = &priv->tqp_vector[i];
-+		ret = irq_cpu_rmap_add(netdev->rx_cpu_rmap,
-+				       tqp_vector->vector_irq);
-+		if (ret) {
-+			hns3_free_rx_cpu_rmap(netdev);
-+			return ret;
-+		}
-+	}
-+#endif
-+	return 0;
-+}
-+
- static int hns3_nic_net_up(struct net_device *netdev)
- {
- 	struct hns3_nic_priv *priv = netdev_priv(netdev);
-@@ -351,11 +364,16 @@ static int hns3_nic_net_up(struct net_device *netdev)
- 	if (ret)
- 		return ret;
- 
-+	/* the device can work without cpu rmap, only aRFS needs it */
-+	ret = hns3_set_rx_cpu_rmap(netdev);
-+	if (ret)
-+		netdev_warn(netdev, "set rx cpu rmap fail, ret=%d!\n", ret);
-+
- 	/* get irq resource for all vectors */
- 	ret = hns3_nic_init_irq(priv);
- 	if (ret) {
- 		netdev_err(netdev, "hns init irq failed! ret=%d\n", ret);
--		return ret;
-+		goto free_rmap;
+ 	/* firmware can not identify back plane type, the media type
+ 	 * read from configuration can help deal it
+ 	 */
+@@ -2580,6 +2583,10 @@ static int hclge_get_sfp_info(struct hclge_dev *hdev, struct hclge_mac *mac)
+ 		mac->speed_ability = le32_to_cpu(resp->speed_ability);
+ 		mac->autoneg = resp->autoneg;
+ 		mac->support_autoneg = resp->autoneg_ability;
++		if (!resp->active_fec)
++			mac->fec_mode = 0;
++		else
++			mac->fec_mode = BIT(resp->active_fec);
+ 	} else {
+ 		mac->speed_type = QUERY_SFP_SPEED;
  	}
- 
- 	clear_bit(HNS3_NIC_STATE_DOWN, &priv->state);
-@@ -384,7 +402,8 @@ static int hns3_nic_net_up(struct net_device *netdev)
- 		hns3_vector_disable(&priv->tqp_vector[j]);
- 
- 	hns3_nic_uninit_irq(priv);
--
-+free_rmap:
-+	hns3_free_rx_cpu_rmap(netdev);
- 	return ret;
- }
- 
-@@ -467,6 +486,8 @@ static void hns3_nic_net_down(struct net_device *netdev)
- 	if (ops->stop)
- 		ops->stop(priv->ae_handle);
- 
-+	hns3_free_rx_cpu_rmap(netdev);
-+
- 	/* free irq resources */
- 	hns3_nic_uninit_irq(priv);
- 
-@@ -3331,8 +3352,6 @@ static void hns3_nic_uninit_vector_data(struct hns3_nic_priv *priv)
- 		hns3_free_vector_ring_chain(tqp_vector, &vector_ring_chain);
- 
- 		if (tqp_vector->irq_init_flag == HNS3_VECTOR_INITED) {
--			irq_set_affinity_notifier(tqp_vector->vector_irq,
--						  NULL);
- 			irq_set_affinity_hint(tqp_vector->vector_irq, NULL);
- 			free_irq(tqp_vector->vector_irq, tqp_vector);
- 			tqp_vector->irq_init_flag = HNS3_VECTOR_NOT_INITED;
 -- 
 2.20.1
 
