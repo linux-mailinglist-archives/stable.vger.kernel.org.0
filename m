@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 686AD739E0
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5CF739E2
 	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 21:44:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388353AbfGXTof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:44:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47380 "EHLO mail.kernel.org"
+        id S2390834AbfGXTok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:44:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390823AbfGXToc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:44:32 -0400
+        id S2390021AbfGXTof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:44:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0AC2214AF;
-        Wed, 24 Jul 2019 19:44:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 835D8217D4;
+        Wed, 24 Jul 2019 19:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997471;
-        bh=9T1K/j99ownobVpfDjcO5E4ydlDMnfWqVQ6G1Al7pOw=;
+        s=default; t=1563997474;
+        bh=z2tDvDZ1wSCfjB31V79vAvatC0HzUue8IWw2Z5RYXzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NVVrdVZIUU1ahGRmQ/inBTpYyKhOVXo73d19Wr5sPX1C4rM0v3pSsFHpLDkILt3Ws
-         4Ja1GsIV+HnGISbuaYOXDSsC825XFuotMXwocU5mqyaSWwRC/woNzLtlFZL9GJ7iGq
-         MuvSjoQibbNphcC1VSsN84a58YYvlG5TBkb3Zkgs=
+        b=a5LFnCFbkLqZNRIQKRtJ9DHuFPQzzK+yBflTUgoKxFHeii6siXlpsvlVjhfjAY4UZ
+         GOC6YvXEx5yLsUD9IyvHC4lnexq9su5vCMr9zujW10YvFL/4FSI73iiyokliAwCPvj
+         zyzL+fLLgyX0VQJD5qbXl52cMDbiArBC1LX6fHt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhi Chen <zhichen@codeaurora.org>,
-        Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>,
-        Sven Eckelmann <sven@narfation.org>,
+        stable@vger.kernel.org,
+        Miguel Catalan Cid <miguel.catalan@i2cat.net>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 008/371] ath10k: fix incorrect multicast/broadcast rate setting
-Date:   Wed, 24 Jul 2019 21:16:00 +0200
-Message-Id: <20190724191725.125642341@linuxfoundation.org>
+Subject: [PATCH 5.1 009/371] ath9k: Dont trust TX status TID number when reporting airtime
+Date:   Wed, 24 Jul 2019 21:16:01 +0200
+Message-Id: <20190724191725.194192164@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -46,56 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 93ee3d108fc77e19efeac3ec5aa7d5886711bfef ]
+[ Upstream commit 389b72e58259336c2d56d58b660b79cf4b9e0dcb ]
 
-Invalid rate code is sent to firmware when multicast rate value of 0 is
-sent to driver indicating disabled case, causing broken mesh path.
-so fix that.
+As already noted a comment in ath_tx_complete_aggr(), the hardware will
+occasionally send a TX status with the wrong tid number. If we trust the
+value, airtime usage will be reported to the wrong AC, which can cause the
+deficit on that AC to become very low, blocking subsequent attempts to
+transmit.
 
-Tested on QCA9984 with firmware 10.4-3.6.1-00827
+To fix this, account airtime usage to the TID number from the original skb,
+instead of the one in the hardware TX status report.
 
-Sven tested on IPQ4019 with 10.4-3.5.3-00057 and QCA9888 with 10.4-3.5.3-00053
-(ath10k-firmware) and 10.4-3.6-00140 (linux-firmware 2018-12-16-211de167).
-
-Fixes: cd93b83ad92 ("ath10k: support for multicast rate control")
-Co-developed-by: Zhi Chen <zhichen@codeaurora.org>
-Signed-off-by: Zhi Chen <zhichen@codeaurora.org>
-Signed-off-by: Pradeep Kumar Chitrapu <pradeepc@codeaurora.org>
-Tested-by: Sven Eckelmann <sven@narfation.org>
+Reported-by: Miguel Catalan Cid <miguel.catalan@i2cat.net>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath9k/xmit.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 9c703d287333..e8997e22ceec 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -5588,8 +5588,8 @@ static void ath10k_bss_info_changed(struct ieee80211_hw *hw,
- 	struct cfg80211_chan_def def;
- 	u32 vdev_param, pdev_param, slottime, preamble;
- 	u16 bitrate, hw_value;
--	u8 rate, basic_rate_idx;
--	int rateidx, ret = 0, hw_rate_code;
-+	u8 rate, basic_rate_idx, rateidx;
-+	int ret = 0, hw_rate_code, mcast_rate;
- 	enum nl80211_band band;
- 	const struct ieee80211_supported_band *sband;
+diff --git a/drivers/net/wireless/ath/ath9k/xmit.c b/drivers/net/wireless/ath/ath9k/xmit.c
+index b17e1ca40995..3be0aeedb9b5 100644
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -668,7 +668,8 @@ static bool bf_is_ampdu_not_probing(struct ath_buf *bf)
+ static void ath_tx_count_airtime(struct ath_softc *sc,
+ 				 struct ieee80211_sta *sta,
+ 				 struct ath_buf *bf,
+-				 struct ath_tx_status *ts)
++				 struct ath_tx_status *ts,
++				 u8 tid)
+ {
+ 	u32 airtime = 0;
+ 	int i;
+@@ -679,7 +680,7 @@ static void ath_tx_count_airtime(struct ath_softc *sc,
+ 		airtime += rate_dur * bf->rates[i].count;
+ 	}
  
-@@ -5776,7 +5776,11 @@ static void ath10k_bss_info_changed(struct ieee80211_hw *hw,
- 	if (changed & BSS_CHANGED_MCAST_RATE &&
- 	    !ath10k_mac_vif_chan(arvif->vif, &def)) {
- 		band = def.chan->band;
--		rateidx = vif->bss_conf.mcast_rate[band] - 1;
-+		mcast_rate = vif->bss_conf.mcast_rate[band];
-+		if (mcast_rate > 0)
-+			rateidx = mcast_rate - 1;
-+		else
-+			rateidx = ffs(vif->bss_conf.basic_rates) - 1;
+-	ieee80211_sta_register_airtime(sta, ts->tid, airtime, 0);
++	ieee80211_sta_register_airtime(sta, tid, airtime, 0);
+ }
  
- 		if (ar->phy_capability & WHAL_WLAN_11A_CAPABILITY)
- 			rateidx += ATH10K_MAC_FIRST_OFDM_RATE_IDX;
+ static void ath_tx_process_buffer(struct ath_softc *sc, struct ath_txq *txq,
+@@ -709,7 +710,7 @@ static void ath_tx_process_buffer(struct ath_softc *sc, struct ath_txq *txq,
+ 	if (sta) {
+ 		struct ath_node *an = (struct ath_node *)sta->drv_priv;
+ 		tid = ath_get_skb_tid(sc, an, bf->bf_mpdu);
+-		ath_tx_count_airtime(sc, sta, bf, ts);
++		ath_tx_count_airtime(sc, sta, bf, ts, tid->tidno);
+ 		if (ts->ts_status & (ATH9K_TXERR_FILT | ATH9K_TXERR_XRETRY))
+ 			tid->clear_ps_filter = true;
+ 	}
 -- 
 2.20.1
 
