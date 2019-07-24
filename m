@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D133C73D8D
-	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:18:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5051173D8E
+	for <lists+stable@lfdr.de>; Wed, 24 Jul 2019 22:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391456AbfGXTtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jul 2019 15:49:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56902 "EHLO mail.kernel.org"
+        id S2391206AbfGXTtS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jul 2019 15:49:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391477AbfGXTtD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jul 2019 15:49:03 -0400
+        id S2391135AbfGXTtR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jul 2019 15:49:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D830205C9;
-        Wed, 24 Jul 2019 19:49:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB83222ADA;
+        Wed, 24 Jul 2019 19:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563997742;
-        bh=S4svMKdHuAGeN67O6kmLtk+ZNOQ7EGTIYKVayCpUo8g=;
+        s=default; t=1563997756;
+        bh=+zJK8Bk8taGoYfyoO82oj+hRVSPk19uqY00/kO0Y3DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iKAB2kFD4xZOZrKdM8Y9UXA2LGavLlE0p6Bof0rCMpXbl8ivHqc3ldT6sBZCYbbW4
-         R25RTnMnnyK1G6trQVDelcemKet0Xgh34xqsIbXjdNYFrHuSjtIUdS+qloYRYjUeql
-         7p8e5H3q6cmmlw4+7dvkXYdYuyU86LbRF9ur6E8M=
+        b=kn30C8V+pTdJqDYVrCe1pcUr4nlAAvR+IP4JzpcWGPn2pkjliSA5P/VShyc/q4GOb
+         MgvpVanQw2WIQOYLddQEfFxRG6knz+9icKIH1WmIIXe/ztKZrQfilpHG0LTkmluziS
+         gqpi3Tq7prpub13SOVZ1LtlWvTme4WehM9SXfFig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 128/371] media: s5p-mfc: Make additional clocks optional
-Date:   Wed, 24 Jul 2019 21:18:00 +0200
-Message-Id: <20190724191734.514026555@linuxfoundation.org>
+Subject: [PATCH 5.1 133/371] ASoC: soc-core: call snd_soc_unbind_card() under mutex_lock;
+Date:   Wed, 24 Jul 2019 21:18:05 +0200
+Message-Id: <20190724191734.913535219@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190724191724.382593077@linuxfoundation.org>
 References: <20190724191724.382593077@linuxfoundation.org>
@@ -46,42 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e08efef8fe7db87206314c19b341612c719f891a ]
+[ Upstream commit b545542a0b866f7975254e41c595836e9bc0ff2f ]
 
-Since the beginning the second clock ('special', 'sclk') was optional and
-it is not available on some variants of Exynos SoCs (i.e. Exynos5420 with
-v7 of MFC hardware).
+commit 34ac3c3eb8f0c07 ("ASoC: core: lock client_mutex while removing
+link components") added mutex_lock() at soc_remove_link_components().
 
-However commit 1bce6fb3edf1 ("[media] s5p-mfc: Rework clock handling")
-made handling of all specified clocks mandatory. This patch restores
-original behavior of the driver and fixes its operation on
-Exynos5420 SoCs.
+Is is called from snd_soc_unbind_card()
 
-Fixes: 1bce6fb3edf1 ("[media] s5p-mfc: Rework clock handling")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+	snd_soc_unbind_card()
+=>		soc_remove_link_components()
+		soc_cleanup_card_resources()
+			soc_remove_dai_links()
+=>				soc_remove_link_components()
+
+And, there are 2 way to call it.
+
+(1)
+	snd_soc_unregister_component()
+**		mutex_lock()
+			snd_soc_component_del_unlocked()
+=>				snd_soc_unbind_card()
+**		mutex_unlock()
+
+(2)
+	snd_soc_unregister_card()
+=>		snd_soc_unbind_card()
+
+(1) case is already using mutex_lock() when it calles
+snd_soc_unbind_card(), thus, we will get lockdep warning.
+
+commit 495f926c68ddb90 ("ASoC: core: Fix deadlock in
+snd_soc_instantiate_card()") tried to fixup it, but still not
+enough. We still have lockdep warning when we try unbind/bind.
+
+We need mutex_lock() under snd_soc_unregister_card()
+instead of snd_remove_link_components()/snd_soc_unbind_card().
+
+Fixes: 34ac3c3eb8f0c07 ("ASoC: core: lock client_mutex while removing link components")
+Fixes: 495f926c68ddb90 ("ASoC: core: Fix deadlock in snd_soc_instantiate_card()")
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc_pm.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/soc-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c b/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-index eb85cedc5ef3..5e080f32b0e8 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc_pm.c
-@@ -38,6 +38,11 @@ int s5p_mfc_init_pm(struct s5p_mfc_dev *dev)
- 	for (i = 0; i < pm->num_clocks; i++) {
- 		pm->clocks[i] = devm_clk_get(pm->device, pm->clk_names[i]);
- 		if (IS_ERR(pm->clocks[i])) {
-+			/* additional clocks are optional */
-+			if (i && PTR_ERR(pm->clocks[i]) == -ENOENT) {
-+				pm->clocks[i] = NULL;
-+				continue;
-+			}
- 			mfc_err("Failed to get clock: %s\n",
- 				pm->clk_names[i]);
- 			return PTR_ERR(pm->clocks[i]);
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index c010cc864cf3..f05a5c0a8aff 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -2834,14 +2834,12 @@ static void snd_soc_unbind_card(struct snd_soc_card *card, bool unregister)
+ 		snd_soc_dapm_shutdown(card);
+ 		snd_soc_flush_all_delayed_work(card);
+ 
+-		mutex_lock(&client_mutex);
+ 		/* remove all components used by DAI links on this card */
+ 		for_each_comp_order(order) {
+ 			for_each_card_rtds(card, rtd) {
+ 				soc_remove_link_components(card, rtd, order);
+ 			}
+ 		}
+-		mutex_unlock(&client_mutex);
+ 
+ 		soc_cleanup_card_resources(card);
+ 		if (!unregister)
+@@ -2860,7 +2858,9 @@ static void snd_soc_unbind_card(struct snd_soc_card *card, bool unregister)
+  */
+ int snd_soc_unregister_card(struct snd_soc_card *card)
+ {
++	mutex_lock(&client_mutex);
+ 	snd_soc_unbind_card(card, true);
++	mutex_unlock(&client_mutex);
+ 	dev_dbg(card->dev, "ASoC: Unregistered card '%s'\n", card->name);
+ 
+ 	return 0;
 -- 
 2.20.1
 
